@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useState } from 'react';
 import {
 	FiAlertCircle,
+	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
 	FiClock,
@@ -20,16 +21,21 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import FlowInfoCard from '../../components/FlowInfoCard';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
-import { credentialManager } from '../../utils/credentialManager';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import FlowCredentials from '../../components/FlowCredentials';
+import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -53,6 +59,8 @@ const FlowHeader = styled.div`
 	justify-content: space-between;
 	border-radius: 1rem 1rem 0 0;
 	box-shadow: 0 10px 25px rgba(22, 163, 74, 0.2);
+	max-width: 64rem;
+	margin: 0 auto;
 `;
 
 const FlowTitle = styled.h2`
@@ -122,7 +130,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
 
 	svg {
 		width: 16px;
@@ -131,7 +140,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 
 	&:hover {
 		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
+			$collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)'};
 	}
 `;
 
@@ -738,22 +747,22 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		completionDetails: false,
 	});
 	const [_copiedField, setCopiedField] = useState<string | null>(null);
-	const [userInfo, setUserInfo] = useState<any>(null);
-	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
+	const [userInfo, setUserInfo] = useState<unknown>(null);
+	const [introspectionResult, setIntrospectionResult] = useState<unknown>(null);
 	const [showPollingModal, setShowPollingModal] = useState(false);
 	const { settings } = useUISettings();
 
 	// Load saved credentials on mount
 	React.useEffect(() => {
-		const savedCreds = credentialManager.getAllCredentials();
-		if (savedCreds.environmentId && savedCreds.clientId) {
+		const config = pingOneConfigService.getConfig();
+		if (config?.environmentId && config?.clientId) {
 			deviceFlow.setCredentials({
-				environmentId: savedCreds.environmentId,
-				clientId: savedCreds.clientId,
-				clientSecret: savedCreds.clientSecret || '',
-				scopes: savedCreds.scopes?.join(' ') || 'openid',
+				environmentId: config.environmentId,
+				clientId: config.clientId,
+				clientSecret: config.clientSecret || '',
+				scopes: 'openid profile email',
 			});
-			console.log('[📺 OAUTH-DEVICE] [INFO] Loaded saved credentials from credential manager');
+			console.log('[📺 OAUTH-DEVICE] [INFO] Loaded saved credentials from V5 config service');
 		}
 	}, [deviceFlow.setCredentials]); // Only run on mount
 
@@ -818,17 +827,23 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			return;
 		}
 
-		// Save to credential manager for dashboard status
-		const scopesArray = (deviceFlow.credentials.scopes || 'openid').split(' ').filter(Boolean);
-		credentialManager.saveAllCredentials({
+		// Save to V5 config service for dashboard status
+		pingOneConfigService.saveConfig({
 			environmentId: deviceFlow.credentials.environmentId,
 			clientId: deviceFlow.credentials.clientId,
 			clientSecret: deviceFlow.credentials.clientSecret || '',
-			scopes: scopesArray,
+			redirectUri: '',
+			baseUrl: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}`,
+			authUrl: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as`,
+			authorizationEndpoint: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/authorize`,
+			tokenEndpoint: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/token`,
+			userInfoEndpoint: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/userinfo`,
+			logoutEndpoint: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/signoff`,
+			parEndpoint: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/par`,
 		});
 
 		v4ToastManager.showSuccess('Credentials saved successfully!');
-		console.log('[📺 OAUTH-DEVICE] [INFO] Credentials saved to credential manager');
+		console.log('[📺 OAUTH-DEVICE] [INFO] Credentials saved to V5 config service');
 	}, [deviceFlow.credentials]);
 
 	const navigateToTokenManagement = useCallback(() => {
@@ -941,7 +956,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	React.useEffect(() => {
 		if (deviceFlow.tokens && currentStep === 2) {
 			v4ToastManager.showSuccess(
-				'🎉 Authorization successful! Check out your StreamFlix TV screen above!'
+				'🎉 Authorization successful! Check out your StreamingTV screen above!'
 			);
 		}
 	}, [deviceFlow.tokens, currentStep]);
@@ -1172,119 +1187,50 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				)}
 			</CollapsibleSection>
 
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('credentials')}
-					aria-expanded={!collapsedSections.credentials}
-				>
-					<CollapsibleTitle>
-						<FiKey /> Configure Credentials
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.credentials && (
-					<CollapsibleContent>
-						<ExplanationSection>
-							<ExplanationHeading>
-								<FiKey /> PingOne Configuration
-							</ExplanationHeading>
-							<InfoText>
-								Enter your PingOne credentials to enable the Device Authorization Flow.
-							</InfoText>
-							<div style={{ marginTop: '1.5rem' }}>
-								<div style={{ marginBottom: '1rem' }}>
-									<label
-										style={{
-											display: 'block',
-											marginBottom: '0.5rem',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										Environment ID
-									</label>
-									<input
-										type="text"
-										value={deviceFlow.credentials?.environmentId || ''}
-										onChange={(e) => handleCredentialsChange('environmentId', e.target.value)}
-										placeholder="Enter PingOne Environment ID"
-										style={{
-											width: '100%',
-											padding: '0.75rem',
-											border: '1px solid #d1d5db',
-											borderRadius: '0.5rem',
-											fontSize: '0.875rem',
-										}}
-									/>
-								</div>
-								<div style={{ marginBottom: '1rem' }}>
-									<label
-										style={{
-											display: 'block',
-											marginBottom: '0.5rem',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										Client ID
-									</label>
-									<input
-										type="text"
-										value={deviceFlow.credentials?.clientId || ''}
-										onChange={(e) => handleCredentialsChange('clientId', e.target.value)}
-										placeholder="Enter Client ID"
-										style={{
-											width: '100%',
-											padding: '0.75rem',
-											border: '1px solid #d1d5db',
-											borderRadius: '0.5rem',
-											fontSize: '0.875rem',
-										}}
-									/>
-								</div>
-								<div style={{ marginBottom: '1rem' }}>
-									<label
-										style={{
-											display: 'block',
-											marginBottom: '0.5rem',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										Scopes
-									</label>
-									<input
-										type="text"
-										value={deviceFlow.credentials?.scopes || 'openid'}
-										onChange={(e) => handleCredentialsChange('scopes', e.target.value)}
-										placeholder="openid"
-										style={{
-											width: '100%',
-											padding: '0.75rem',
-											border: '1px solid #d1d5db',
-											borderRadius: '0.5rem',
-											fontSize: '0.875rem',
-										}}
-									/>
-								</div>
-							</div>
-							<ActionRow>
-								<Button
-									onClick={handleSaveCredentials}
-									$variant="primary"
-									disabled={
-										!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId
-									}
-								>
-									<FiKey /> Save Credentials
-								</Button>
-							</ActionRow>
-						</ExplanationSection>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
+			{/* Configuration Requirements */}
+			<FlowConfigurationRequirements flowType="device-authorization" variant="oauth" />
+
+			{/* Flow Walkthrough */}
+			<EnhancedFlowWalkthrough flowId="oauth-device-authorization" />
+			<FlowSequenceDisplay flowType="device-authorization" />
+
+			{/* Reusable Credentials Component */}
+			<FlowCredentials
+				flowType="device-authorization-v5"
+				useGlobalDefaults={false}
+				onToggleGlobalDefaults={() => {}}
+				hideRedirectUri={true}
+				hideGlobalToggle={true}
+				hideClientSecret={true}
+				showTokenAuthMethod={true}
+				tokenAuthMethod="none"
+				onCredentialsChange={(creds) => {
+					deviceFlow.setCredentials({
+						environmentId: creds.environmentId,
+						clientId: creds.clientId,
+						clientSecret: creds.clientSecret,
+						scopes: creds.additionalScopes || 'openid',
+					});
+				}}
+			/>
+			
+			{/* Info about redirect URI not being needed */}
+			<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+				<FiInfo style={{ flexShrink: 0, color: '#3b82f6' }} />
+				<div>
+					<InfoTitle>Note: Redirect URI Not Required</InfoTitle>
+					<InfoText>
+						The Device Authorization Flow does <strong>not require a redirect URI</strong>. This flow is designed for devices that cannot handle browser redirects (like smart TVs, IoT devices, or CLI tools). You can leave the Redirect URI field empty.
+					</InfoText>
+				</div>
+			</InfoBox>
+
+			{/* Configuration Summary */}
+			<ConfigurationSummaryCard
+				configuration={deviceFlow.credentials}
+				hasConfiguration={Boolean(deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId)}
+			/>
+
 		</>
 	);
 
@@ -1323,17 +1269,149 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									</InfoText>
 								</div>
 							</InfoBox>
-							<ActionRow style={{ marginTop: '1.5rem' }}>
-								<Button
-									onClick={handleRequestDeviceCode}
-									disabled={!deviceFlow.credentials?.environmentId || !!deviceFlow.deviceCodeData}
-								>
-									<FiKey /> Request Device Code
-								</Button>
-								{deviceFlow.deviceCodeData && (
-									<Button onClick={handleReset} $variant="outline">
-										<FiRefreshCw /> Start Over
+
+							<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
+								<div style={{ 
+									background: '#3b82f6', 
+									color: 'white', 
+									borderRadius: '50%', 
+									width: '24px', 
+									height: '24px', 
+									display: 'flex', 
+									alignItems: 'center', 
+									justifyContent: 'center', 
+									fontSize: '0.875rem', 
+									fontWeight: 'bold',
+									flexShrink: 0
+								}}>
+									1
+								</div>
+								<div style={{ width: '100%' }}>
+									<InfoTitle>Device Authorization Endpoint URL</InfoTitle>
+									<InfoText style={{ marginBottom: '1rem' }}>
+										This is the PingOne endpoint that will be called to request the device code:
+									</InfoText>
+									<div style={{
+										background: '#1e293b',
+										color: '#e2e8f0',
+										padding: '1rem',
+										borderRadius: '0.5rem',
+										fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+										fontSize: '0.875rem',
+										wordBreak: 'break-all',
+										border: '1px solid #334155',
+										marginBottom: '1rem'
+									}}>
+										POST https://auth.pingone.com/{deviceFlow.credentials?.environmentId || 'environmentId'}/as/device_authorization
+									</div>
+									
+									<InfoText style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
+										<strong>Request Body (JSON):</strong>
+									</InfoText>
+									<div style={{
+										background: '#1e293b',
+										color: '#e2e8f0',
+										padding: '1rem',
+										borderRadius: '0.5rem',
+										fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+										fontSize: '0.875rem',
+										border: '1px solid #334155',
+										marginBottom: '1rem'
+									}}>
+										<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{JSON.stringify({
+											client_id: deviceFlow.credentials?.clientId || 'clientId',
+											scope: deviceFlow.credentials?.scopes || 'openid profile email'
+										}, null, 2)}</pre>
+									</div>
+
+									<InfoText style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
+										<strong>cURL Example:</strong>
+									</InfoText>
+									<div style={{
+										background: '#1e293b',
+										color: '#e2e8f0',
+										padding: '1rem',
+										borderRadius: '0.5rem',
+										fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+										fontSize: '0.75rem',
+										border: '1px solid #334155',
+										overflowX: 'auto'
+									}}>
+										<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{`curl -X POST https://auth.pingone.com/${deviceFlow.credentials?.environmentId || 'environmentId'}/as/device_authorization \\
+  -H "Content-Type: application/x-www-form-urlencoded" \\
+  -d "client_id=${deviceFlow.credentials?.clientId || 'clientId'}" \\
+  -d "scope=${deviceFlow.credentials?.scopes || 'openid profile email'}"`}</pre>
+									</div>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
+								<div style={{ 
+									background: '#22c55e', 
+									color: 'white', 
+									borderRadius: '50%', 
+									width: '24px', 
+									height: '24px', 
+									display: 'flex', 
+									alignItems: 'center', 
+									justifyContent: 'center', 
+									fontSize: '0.875rem', 
+									fontWeight: 'bold',
+									flexShrink: 0
+								}}>
+									2
+								</div>
+								<div>
+									<InfoTitle>Make the Device Code Request</InfoTitle>
+									<InfoText>
+										Click the button below to send the POST request to PingOne and receive your device code, user code, and verification URI.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<ActionRow style={{ marginTop: '1.5rem', flexDirection: 'column', alignItems: 'flex-start', gap: '0.75rem' }}>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+									<Button
+										onClick={handleRequestDeviceCode}
+										disabled={
+											!deviceFlow.credentials?.environmentId || 
+											!deviceFlow.credentials?.clientId || 
+											!!deviceFlow.deviceCodeData
+										}
+										$variant="primary"
+									>
+										<FiKey /> Request Device Code
 									</Button>
+									{deviceFlow.deviceCodeData && (
+										<Button onClick={handleReset} $variant="danger">
+											<FiRefreshCw /> Start Over
+										</Button>
+									)}
+								</div>
+								
+								{(!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) && !deviceFlow.deviceCodeData && (
+									<div style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem 1rem',
+										background: '#fef3c7',
+										border: '1px solid #fbbf24',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										color: '#92400e'
+									}}>
+										<FiAlertTriangle style={{ flexShrink: 0, color: '#f59e0b' }} />
+										<span>
+											<strong>Button disabled:</strong> Please configure your{' '}
+											{!deviceFlow.credentials?.environmentId && !deviceFlow.credentials?.clientId
+												? 'Environment ID and Client ID'
+												: !deviceFlow.credentials?.environmentId
+													? 'Environment ID'
+													: 'Client ID'}{' '}
+											in the credentials section above to enable this button.
+										</span>
+									</div>
 								)}
 							</ActionRow>
 						</ExplanationSection>
@@ -1439,7 +1517,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										📱 Step 1: Scan with Your Phone
 									</h3>
 									<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
-										Scan this QR code to activate your StreamFlix account on this TV
+										Scan this QR code to activate your StreamingTV account on this TV
 									</p>
 
 									{deviceFlow.deviceCodeData.verification_uri_complete ? (
@@ -1563,7 +1641,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 														letterSpacing: '0.1rem',
 													}}
 												>
-													STREAMFLIX
+													STREAMINGTV
 												</div>
 												<div
 													style={{
@@ -1577,7 +1655,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 												<WelcomeMessage
 													style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: '#22c55e' }}
 												>
-													You are now logged in to StreamFlix!
+													You are now logged in to StreamingTV!
 												</WelcomeMessage>
 												<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
 													Welcome Back, Demo User 👋
@@ -1651,7 +1729,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 																letterSpacing: '0.1rem',
 															}}
 														>
-															STREAMFLIX
+															STREAMINGTV
 														</div>
 														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
 														<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>
@@ -1691,7 +1769,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 																letterSpacing: '0.1rem',
 															}}
 														>
-															STREAMFLIX
+															STREAMINGTV
 														</div>
 														<div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📱</div>
 														<div
@@ -1845,7 +1923,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										{/* Token Management Buttons */}
 										<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
 											<Button onClick={navigateToTokenManagement} $variant="primary">
-												<FiExternalLink /> View in Token Management
+												<FiExternalLink /> Open Token Management
 											</Button>
 											<Button
 												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
@@ -1935,14 +2013,43 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	// OAuth 2.0 Device Authorization Code Flow does not include UserInfo endpoint
 	// UserInfo is only available in OIDC flows
 
+	const handleIntrospectToken = async (token: string) => {
+		if (!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) {
+			throw new Error('Missing credentials for introspection');
+		}
+
+		const introspectEndpoint = `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`;
+		
+		const params = new URLSearchParams({
+			token: token,
+			client_id: deviceFlow.credentials.clientId,
+		});
+
+		const response = await fetch(introspectEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			},
+			body: params.toString(),
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
+		}
+
+		return await response.json();
+	};
+
 	const renderIntrospection = () => (
 		<TokenIntrospect
 			flowName="OAuth Device Authorization Code Flow"
 			flowVersion="V5"
-			tokens={deviceFlow.tokens as any}
-			credentials={deviceFlow.credentials as any}
+			tokens={deviceFlow.tokens as unknown as Record<string, unknown>}
+			credentials={deviceFlow.credentials as unknown as Record<string, unknown>}
 			onResetFlow={handleReset}
 			onNavigateToTokenManagement={navigateToTokenManagement}
+			onIntrospectToken={handleIntrospectToken}
 			collapsedSections={{
 				introspectionDetails: collapsedSections.introspectionDetails || false,
 				rawJson: false,
@@ -2005,8 +2112,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									<li>✅ User code displayed to user</li>
 									<li>✅ User authorized on secondary device</li>
 									<li>✅ Tokens received via polling</li>
-									{userInfo && <li>✅ User information retrieved</li>}
-									{introspectionResult && <li>✅ Token introspected and validated</li>}
+									{Boolean(userInfo) && <li>✅ User information retrieved</li>}
+									{Boolean(introspectionResult) && <li>✅ Token introspected and validated</li>}
 								</ul>
 							</div>
 						</ExplanationSection>
@@ -2026,7 +2133,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 						</ExplanationSection>
 
 						<ActionRow style={{ marginTop: '1.5rem' }}>
-							<Button onClick={handleReset}>
+							<Button onClick={handleReset} $variant="danger">
 								<FiRefreshCw /> Start New Flow
 							</Button>
 						</ActionRow>
@@ -2038,9 +2145,17 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 
 	return (
 		<FlowContainer>
-			<FlowInfoCard flowInfo={getFlowInfo('device-code')!} />
+			<FlowContent>
+				<StandardFlowHeader flowId="device-authorization-v5" />
+				<EnhancedFlowInfoCard 
+					flowType="device-code"
+					showAdditionalInfo={true}
+					showDocumentation={true}
+					showCommonIssues={false}
+					showImplementationNotes={false}
+				/>
 
-			<FlowHeader>
+				<FlowHeader>
 				<div>
 					<StepBadge>DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
 					<FlowTitle>{STEP_METADATA[currentStep].title}</FlowTitle>
@@ -2055,21 +2170,20 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				</div>
 			</FlowHeader>
 
-			<FlowContent>
-				{renderStepContent()}
+			{renderStepContent()}
 
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
-					onReset={handleReset}
-					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
-					canNavigateNext={isStepValid(currentStep + 1)}
-					isFirstStep={currentStep === 0}
-					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
-					disabledMessage="Complete the action above to continue"
-				/>
-			</FlowContent>
+			<StepNavigationButtons
+				currentStep={currentStep}
+				totalSteps={STEP_METADATA.length}
+				onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
+				onReset={handleReset}
+				onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
+				canNavigateNext={isStepValid(currentStep + 1)}
+				isFirstStep={currentStep === 0}
+				nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
+				disabledMessage="Complete the action above to continue"
+			/>
+		</FlowContent>
 
 			{/* Polling Prompt Modal */}
 			<ModalOverlay $isOpen={showPollingModal}>

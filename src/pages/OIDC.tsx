@@ -11,6 +11,7 @@ import {
 } from 'react-icons/fi';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;
@@ -89,16 +90,7 @@ const OIDC: React.FC = () => {
 	if (isIndexRoute) {
 		return (
 			<OIDCContainer>
-				<PageHeader>
-					<FiUser />
-					<div>
-						<h1>OpenID Connect</h1>
-						<p>
-							Explore OpenID Connect features and learn how to implement authentication and identity
-							management with PingOne.
-						</p>
-					</div>
-				</PageHeader>
+				<FlowHeader flowType="oidc" />
 
 				<Grid>
 					<FeatureCard to="/oidc/authorization-code">
