@@ -22,13 +22,8 @@ import {
 import styled from 'styled-components';
 import { themeService } from '../../services/themeService';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import {
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
-} from '../../components/InfoBlocks';
 import {
 	HelperText,
 	ResultsHeading,
@@ -37,6 +32,7 @@ import {
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -57,7 +53,6 @@ const STEP_METADATA = [
 type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
-	| 'flowDiagram'
 	| 'credentials'
 	| 'useCases' // Step 0
 	| 'pkceOverview'
@@ -81,18 +76,6 @@ const ContentWrapper = styled.div`
 	max-width: 64rem;
 	margin: 0 auto;
 	padding: 0 1rem;
-`;
-
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
 `;
 
 const Subtitle = styled.p`
@@ -212,7 +195,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -223,7 +207,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 	}
 
 	&:hover {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)')};
 	}
 `;
 
@@ -487,7 +471,6 @@ const RedirectlessFlowV5: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
-		flowDiagram: true,
 		credentials: false,
 		useCases: true,
 		// Step 1
@@ -723,16 +706,17 @@ const RedirectlessFlowV5: React.FC = () => {
 	}, [controller]);
 
 	const renderStepContent = useMemo(() => {
-		switch (currentStep) {
-			case 0:
-				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
+	switch (currentStep) {
+		case 0:
+			return (
+				<>
+					<FlowConfigurationRequirements flowType="redirectless" variant="pingone" />
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('overview')}
+							aria-expanded={!collapsedSections.overview}
+						>
+							<CollapsibleTitle>
 									<FiInfo /> What is Redirectless Flow (pi.flow)?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -776,55 +760,6 @@ const RedirectlessFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowDiagram')}
-								aria-expanded={!collapsedSections.flowDiagram}
-							>
-								<CollapsibleTitle>
-									<FiArrowRight /> Flow Diagram
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowDiagram && (
-								<CollapsibleContent>
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Authorization Request with pi.flow</strong>
-												Application sends authorization request with{' '}
-												<code>response_mode=pi.flow</code>
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Flow Object Response</strong>
-												PingOne returns a flow object with authentication UI components (no
-												redirect)
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Embedded Authentication</strong>
-												User authenticates within your app using PingOne's embedded UI
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>JSON Token Response</strong>
-												Receive auth code, access token, or ID token in JSON format
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1506,7 +1441,7 @@ const RedirectlessFlowV5: React.FC = () => {
 							</InfoBox>
 
 							<ActionRow>
-								<HighlightedActionButton onClick={handleResetFlow} $priority="primary">
+								<HighlightedActionButton onClick={handleResetFlow} $priority="danger">
 									<FiRefreshCw /> Reset Flow
 								</HighlightedActionButton>
 							</ActionRow>
@@ -1536,13 +1471,7 @@ const RedirectlessFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>PingOne Redirectless Flow V5</MainTitle>
-					<Subtitle>
-						Interactive demonstration of <code>response_mode=pi.flow</code> for embedded
-						authentication without browser redirects
-					</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowType="redirectless" />
 
 				<MainCard>
 					<StepHeader>

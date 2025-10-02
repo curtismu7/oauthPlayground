@@ -14,6 +14,7 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../services/themeService';
 import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
 import { useWorkerTokenFlowController } from '../hooks/useWorkerTokenFlowController';
 import { pingOneConfigService } from '../services/pingoneConfigService';
 import { trackOAuthFlow } from '../utils/activityTracker';
@@ -21,7 +22,9 @@ import { getFlowInfo } from '../utils/flowInfoConfig';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
+import FlowConfigurationRequirements from './FlowConfigurationRequirements';
 import FlowInfoCard from './FlowInfoCard';
+import FlowSequenceDisplay from './FlowSequenceDisplay';
 import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from './InfoBlocks';
 import PingOneApplicationConfig, { type PingOneApplicationState } from './PingOneApplicationConfig';
 import { HelperText, ResultsHeading, ResultsSection, SectionDivider } from './ResultsPanel';
@@ -587,11 +590,33 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		}
 	}, [controller.tokens, currentStep]);
 
+	const navigateToTokenManagement = useCallback(() => {
+		// Store flow context for Token Management page
+		if (controller.tokens) {
+			const flowContext = {
+				flow: 'worker-token-v5',
+				tokens: controller.tokens,
+				credentials: controller.credentials,
+				timestamp: Date.now(),
+			};
+			sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+			// Pass access token to Token Management
+			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'worker-token-v5');
+		}
+
+		window.open('/token-management', '_blank');
+	}, [controller.tokens, controller.credentials]);
+
 	const renderStepContent = useMemo(() => {
 		switch (currentStep) {
 			case 0:
 				return (
 					<>
+						<FlowConfigurationRequirements flowType="worker-token" variant="pingone" />
+						
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
@@ -1137,40 +1162,14 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		console.log('✅ [WorkerTokenFlowV5] Flow reset completed - returned to step 0');
 	}, [controller]);
 
-	const navigateToTokenManagement = useCallback(() => {
-		// Store flow context for Token Management page
-		if (controller.tokens) {
-			const flowContext = {
-				flow: 'worker-token-v5',
-				tokens: controller.tokens,
-				credentials: controller.credentials,
-				timestamp: Date.now(),
-			};
-			sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+		return (
+			<Container>
+				<ContentWrapper>
+					<FlowHeader flowId="worker-token-v5" />
+					<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
+					<FlowSequenceDisplay flowType="worker-token" />
 
-			// Pass access token to Token Management
-			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
-			localStorage.setItem('token_type', 'access');
-			localStorage.setItem('flow_source', 'worker-token-v5');
-		}
-
-		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
-
-	return (
-		<Container>
-			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>{flowName}</MainTitle>
-					<Subtitle>
-						Experience the complete Worker Token Flow with step-by-step guidance and real-time
-						feedback.
-					</Subtitle>
-				</HeaderSection>
-
-				<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
-
-				<MainCard>
+					<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>{flowVersion}</VersionBadge>
@@ -1181,7 +1180,6 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 
 					<StepContent>{renderStepContent}</StepContent>
 				</MainCard>
-
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}

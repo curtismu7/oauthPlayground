@@ -123,7 +123,7 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					redirectUri: credentials.redirectUri || `${window.location.origin}/authz-callback`,
-					scopes: credentials.scopes || ['openid', 'profile', 'email'],
+					scopes: credentials.scopes || ['openid'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
 					userInfoEndpoint: credentials.userInfoEndpoint,
@@ -137,7 +137,7 @@ class CredentialManager {
 					environmentId: '',
 					clientId: '',
 					redirectUri: `${window.location.origin}/authz-callback`,
-					scopes: ['openid', 'profile', 'email'],
+					scopes: ['openid'],
 				};
 			}
 		} catch (error) {
@@ -147,7 +147,7 @@ class CredentialManager {
 				environmentId: '',
 				clientId: '',
 				redirectUri: `${window.location.origin}/authz-callback`,
-				scopes: ['openid', 'profile', 'email'],
+				scopes: ['openid'],
 			};
 		}
 	}

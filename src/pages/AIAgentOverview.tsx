@@ -14,35 +14,12 @@ import {
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
 import CollapsibleIcon from '../components/CollapsibleIcon';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-
-  h1 {
-    font-size: 3rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
-    margin-bottom: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  p {
-    font-size: 1.25rem;
-    color: ${({ theme }) => theme.colors.gray600};
-    max-width: 900px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
 `;
 
 const FeatureGrid = styled.div`
@@ -474,17 +451,14 @@ const AIAgentOverview = () => {
 
 	return (
 		<Container>
-			<Header>
-				<h1>
-					<FiCpu />
-					AI Agent Overview for PingOne
-				</h1>
-				<p>
-					Comprehensive guide to OAuth 2.0 and OpenID Connect features required for secure AI agent
-					authentication, authorization, and API access. Learn what PingOne supports today and
-					what's on the roadmap.
-				</p>
-			</Header>
+			<FlowHeader
+				flowType="documentation"
+				customConfig={{
+					flowType: 'documentation',
+					title: 'AI Agent Authentication with PingOne',
+					subtitle: 'Explore OAuth 2.0 and OpenID Connect features for AI agents. See which advanced authentication and authorization capabilities PingOne supports today for secure machine-to-machine communication, token security, and agent delegation.',
+				}}
+			/>
 
 			{/* Overview Section */}
 			<CollapsibleSection>

@@ -2,6 +2,7 @@ import { FiBookOpen, FiCode, FiCpu, FiExternalLink, FiShield, FiUsers } from 're
 import styled from 'styled-components';
 import PageTitle from '../../components/PageTitle';
 import { SpecCard } from '../../components/SpecCard';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const DocsContainer = styled.div`
   max-width: 1200px;
@@ -70,15 +71,7 @@ const ExternalLink = styled.a`
 const OIDCForAI = () => {
 	return (
 		<DocsContainer>
-			<PageTitle
-				title={
-					<>
-						<FiCpu />
-						OpenID Connect for AI Applications
-					</>
-				}
-				subtitle="Resources and guidance for implementing OpenID Connect in AI and machine learning applications"
-			/>
+			<FlowHeader flowType="oidc-for-ai" />
 
 			<Section>
 				<h2>

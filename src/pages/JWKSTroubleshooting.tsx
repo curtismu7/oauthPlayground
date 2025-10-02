@@ -10,6 +10,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -448,16 +449,7 @@ const JWKSTroubleshooting: React.FC = () => {
 
 	return (
 		<Container>
-			<Header>
-				<Title>
-					<FiAlertCircle />
-					JWKS Troubleshooting Guide
-				</Title>
-				<Subtitle>
-					Diagnose and fix common JWKS format issues with PingOne SSO. Execute curl commands
-					directly to test your JWKS endpoints and validate the format.
-				</Subtitle>
-			</Header>
+			<FlowHeader flowType="jwks-troubleshooting" />
 
 			<Section>
 				<SectionTitle>

@@ -18,6 +18,7 @@ import Callback from './pages/Callback';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import Documentation from './pages/Documentation';
+import FlowHeaderDemo from './components/FlowHeaderDemo';
 import Flows from './pages/Flows';
 import Login from './pages/Login';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
@@ -49,45 +50,40 @@ import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractice
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
-import AuthorizationCodeFlow from './pages/flows/AuthorizationCodeFlow';
-import AuthzV4NewWindsurfFlow from './pages/flows/AuthzV4NewWindsurfFlow';
-import ClientCredentialsFlow from './pages/flows/ClientCredentialsFlow';
+// Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
-import DeviceCodeFlow from './pages/flows/DeviceCodeFlow';
-import DeviceCodeFlowOIDC from './pages/flows/DeviceCodeFlowOIDC';
-import EnhancedAuthorizationCodeFlow from './pages/flows/EnhancedAuthorizationCodeFlow';
-import EnhancedAuthorizationCodeFlowV2 from './pages/flows/EnhancedAuthorizationCodeFlowV2';
-import HybridFlow from './pages/flows/HybridFlow';
+// Backed up legacy flows
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // Import all the new OAuth and OIDC flow components
-import ImplicitGrantFlow from './pages/flows/ImplicitGrantFlow';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
-import OAuth2ClientCredentialsFlowV3 from './pages/flows/OAuth2ClientCredentialsFlowV3';
-// Import new V3 implicit flow components
-import OAuth2ImplicitFlowV3 from './pages/flows/OAuth2ImplicitFlowV3';
+// V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
+import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
+import MFAFlow from './pages/flows/MFAFlow';
 import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
+import OAuthImplicitFlowV5_1 from './pages/flows/OAuthImplicitFlowV5_1';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
-import OIDCClientCredentialsFlowV3 from './pages/flows/OIDCClientCredentialsFlowV3';
+// V3 OIDC flows backed up
 import OIDCClientCredentialsFlowV5 from './pages/flows/OIDCClientCredentialsFlowV5';
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
-import OIDCHybridFlowV3 from './pages/flows/OIDCHybridFlowV3';
+// OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
-import OIDCImplicitFlowV3 from './pages/flows/OIDCImplicitFlowV3';
+// OIDCImplicitFlowV3 backed up
 import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
 import OIDCResourceOwnerPasswordFlow from './pages/flows/OIDCResourceOwnerPasswordFlow';
+import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
-import PingOnePARFlow from './pages/flows/PingOnePARFlow';
+// PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
-import ResourceOwnerPasswordFlow from './pages/flows/ResourceOwnerPasswordFlow';
+// ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
-import WorkerTokenFlow from './pages/flows/WorkerTokenFlow';
-import WorkerTokenFlowV3 from './pages/flows/WorkerTokenFlowV3';
+// WorkerToken legacy flows backed up
 import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
+import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
@@ -119,11 +115,20 @@ const MainContent = styled.main`
   }
 `;
 
+const ScrollToTop = () => {
+	const location = useLocation();
+
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, [location.pathname]);
+
+	return null;
+};
+
 const AppRoutes = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
-	const _location = useLocation();
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 
 	// Removed global scroll to bottom - individual pages now handle their own scroll behavior
@@ -250,6 +255,7 @@ const AppRoutes = () => {
 
 	return (
 		<>
+			<ScrollToTop />
 			<GlobalErrorDisplay />
 			<AppContainer>
 				<Navbar toggleSidebar={toggleSidebar} />
@@ -273,18 +279,12 @@ const AppRoutes = () => {
 
 						<Route path="/dashboard" element={<Dashboard />} />
 
-						<Route path="/flows" element={<OAuthFlowsNew />} />
-						<Route path="/flows/compare" element={<FlowComparisonTool />} />
-						<Route path="/flows/diagrams" element={<InteractiveFlowDiagram />} />
-						<Route path="/flows/authorization-code" element={<AuthorizationCodeFlow />} />
-						<Route
-							path="/flows/enhanced-authorization-code"
-							element={<EnhancedAuthorizationCodeFlow />}
-						/>
-						<Route
-							path="/flows/enhanced-authorization-code-v2"
-							element={<EnhancedAuthorizationCodeFlowV2 />}
-						/>
+						<Route path="/flows" element={<OAuthFlowsNew />}>
+							<Route path="compare" element={<FlowComparisonTool />} />
+							<Route path="diagrams" element={<InteractiveFlowDiagram />} />
+							<Route path="mfa" element={<MFAFlow />} />
+						</Route>
+						{/* Backed up V2/V3/V4 routes removed */}
 						<Route
 							path="/flows/oauth-authorization-code-v5"
 							element={<OAuthAuthorizationCodeFlowV5 />}
@@ -294,6 +294,7 @@ const AppRoutes = () => {
 							element={<OIDCAuthorizationCodeFlowV5 />}
 						/>
 						<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+						<Route path="/flows/oauth-implicit-v5-1" element={<OAuthImplicitFlowV5_1 />} />
 						<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 						<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
 						<Route
@@ -307,71 +308,41 @@ const AppRoutes = () => {
 							element={<OIDCClientCredentialsFlowV5 />}
 						/>
 						<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
+						<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
 						<Route path="/hybrid-callback" element={<HybridCallback />} />
 						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
-						<Route path="/flows/authz-v4-new-windsurf" element={<AuthzV4NewWindsurfFlow />} />
-						<Route path="/flows/oauth2-implicit-v3" element={<OAuth2ImplicitFlowV3 />} />
-						<Route path="/flows/oidc-implicit-v3" element={<OIDCImplicitFlowV3 />} />
-						<Route path="/flows/oidc-hybrid-v3" element={<OIDCHybridFlowV3 />} />
-						<Route
-							path="/flows/oauth2-client-credentials-v3"
-							element={<OAuth2ClientCredentialsFlowV3 />}
-						/>
-						<Route
-							path="/flows/oidc-client-credentials-v3"
-							element={<OIDCClientCredentialsFlowV3 />}
-						/>
-						<Route path="/flows/device-code-oidc" element={<DeviceCodeFlowOIDC />} />
-						<Route path="/flows/resource-owner-password" element={<ResourceOwnerPasswordFlow />} />
+						{/* V3/V4 routes backed up - use V5 versions instead */}
 						<Route path="/flows/par" element={<PARFlow />} />
+						<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
 
-						<Route path="/flows-old" element={<Flows />}>
-							<Route path="authorization-code" element={<AuthorizationCodeFlow />} />
-							<Route path="implicit" element={<ImplicitGrantFlow />} />
-							<Route path="client-credentials" element={<ClientCredentialsFlow />} />
-							<Route path="worker-token" element={<WorkerTokenFlow />} />
-							<Route path="jwt-bearer" element={<JWTBearerFlow />} />
-							<Route path="userinfo" element={<UserInfoFlow />} />
-							<Route path="id-tokens" element={<IDTokensFlow />} />
-							<Route path="par" element={<PARFlow />} />
-
-							<Route path="device-code" element={<DeviceCodeFlow />} />
-							<Route path="device-code-oidc" element={<DeviceCodeFlowOIDC />} />
-						</Route>
-
-						{/* Unsupported by PingOne flows - TokenExchangeMockFlow removed as file doesn't exist */}
-
-						{/* PingOne PAR Flow */}
-						<Route path="/flows/pingone-par" element={<PingOnePARFlow />} />
+						{/* Unsupported by PingOne flows */}
+					<Route path="/oauth/resource-owner-password" element={<OAuthResourceOwnerPasswordFlowV5 />} />
+					<Route path="/oidc/resource-owner-password" element={<OIDCResourceOwnerPasswordFlowV5 />} />
+					{/* PingOne PAR Flow - V5 only */}
 						<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
 
-						<Route path="/oauth/client-credentials" element={<ClientCredentialsFlow />} />
-						<Route
-							path="/oauth/resource-owner-password"
-							element={<OAuth2ResourceOwnerPasswordFlow />}
-						/>
-						<Route path="/flows/worker-token-v3" element={<WorkerTokenFlowV3 />} />
+						{/* Legacy route removed - use V5 */}
+					<Route
+						path="/flows/oauth2-resource-owner-password"
+						element={<OAuth2ResourceOwnerPasswordFlow />}
+					/>
+					{/* Test MFA Flow */}
+					<Route path="/mfa-test" element={<MFAFlow />} />
+					{/* WorkerTokenFlowV3 backed up - use V5 */}
+					{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
+					<Route path="/oidc" element={<OIDC />}>
+						<Route path="userinfo" element={<UserInfoFlow />} />
+						<Route path="id-tokens" element={<IDTokensFlow />} />
+						<Route path="resource-owner-password" element={<OIDCResourceOwnerPasswordFlowV5 />} />
+						<Route path="jwt-bearer" element={<JWTBearerFlow />} />
+					</Route>
+					{/* Backward-compatible redirect for older links */}
+					<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 
-						<Route path="/oidc" element={<OIDC />}>
-							<Route path="userinfo" element={<UserInfoFlow />} />
-							<Route path="id-tokens" element={<IDTokensFlow />} />
-							<Route path="authorization-code" element={<AuthorizationCodeFlow />} />
-							<Route path="hybrid" element={<HybridFlow />} />
-							<Route path="implicit" element={<ImplicitGrantFlow />} />
-							<Route path="client-credentials" element={<ClientCredentialsFlow />} />
-							<Route path="resource-owner-password" element={<OIDCResourceOwnerPasswordFlow />} />
-							<Route path="worker-token" element={<WorkerTokenFlow />} />
-							<Route path="jwt-bearer" element={<JWTBearerFlow />} />
-
-							<Route path="device-code" element={<DeviceCodeFlow />} />
-						</Route>
-						{/* Backward-compatible redirect for older links */}
-						<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
-
-						<Route path="/configuration" element={<Configuration />} />
-
+					<Route path="/configuration" element={<Configuration />} />
 						<Route path="/documentation" element={<Documentation />} />
+						<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
 
 						<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
 						<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />

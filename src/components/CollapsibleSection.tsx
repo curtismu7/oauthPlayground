@@ -1,8 +1,6 @@
-import type React from 'react';
-import { useState } from 'react';
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
-import { showGlobalInfo } from '../hooks/useNotifications';
 
 interface CollapsibleSectionProps {
 	title: string;
@@ -17,120 +15,109 @@ interface CollapsibleSectionProps {
 const SectionContainer = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
-  margin-bottom: 2rem;
-  background: white;
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  overflow: hidden;
-  transition: all 0.3s ease;
+	margin-bottom: 2rem;
+	background: #ffffff;
+	border-radius: 0.75rem;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	border: 1px solid #e5e7eb;
+	overflow: hidden;
+	transition: all 0.3s ease;
 `;
 
 const SectionHeader = styled.div`
-  padding: 1.5rem;
-  background: #f8f9fa;
-  border-bottom: 1px solid #e5e7eb;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  transition: background-color 0.2s ease;
+	padding: 1.5rem;
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	border-bottom: none;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	transition: background-color 0.2s ease;
 
-  &:hover {
-    background: #f1f3f4;
-  }
+	&:hover {
+		background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+	}
 `;
 
 const HeaderContent = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	flex: 1;
 `;
 
 const HeaderActions = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  z-index: 10;
-  
-  /* Prevent click events from bubbling to the header */
-  * {
-    pointer-events: auto;
-  }
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	z-index: 1;
+
+	* {
+		pointer-events: auto;
+	}
+`;
+
+const RightContent = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	gap: 0.75rem;
 `;
 
 const SectionTitle = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-  margin-left: 0.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	flex: 1;
 `;
 
 const TitleText = styled.h2`
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--color-text-primary, #111827);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	margin: 0;
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #ffffff;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
 const Subtitle = styled.p`
-  margin: 0.25rem 0 0 0;
-  font-size: 0.875rem;
-  color: #6b7280;
-  font-weight: 400;
+	margin: 0.25rem 0 0 0;
+	color: rgba(255, 255, 255, 0.9);
 `;
 
 const ChevronIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  border-radius: 8px;
-  background: #eff6ff;
-  border: 2px solid #3b82f6;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
-  transition: all 0.2s ease;
-  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(90deg)')};
-  cursor: pointer;
+	color: #ffffff;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 
-  svg {
-    font-size: 1.25rem;
-    color: #3b82f6;
-  }
+	svg {
+		color: #ffffff;
+	}
 
-  &:hover {
-    background: #dbeafe;
-    border-color: #1d4ed8;
-    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(90deg) scale(1.1)')};
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-    
-    svg {
-      color: #1d4ed8;
-    }
-  }
-  
-  &:active {
-    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.05)' : 'rotate(90deg) scale(1.05)')};
-  }
+	&:hover {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')} scale(1.1);
+	}
+
+	&:active {
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')} scale(1.05);
+	}
 `;
 
 const SectionContent = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
-  padding: ${({ $collapsed }) => ($collapsed ? '0' : '1.5rem')};
-  max-height: ${({ $collapsed }) => ($collapsed ? '0' : 'none')};
-  overflow: hidden;
-  opacity: ${({ $collapsed }) => ($collapsed ? '0' : '1')};
-  visibility: ${({ $collapsed }) => ($collapsed ? 'hidden' : 'visible')};
-  transition: all 0.3s ease;
+	padding: ${({ $collapsed }) => ($collapsed ? '0' : '1.5rem')};
+	max-height: ${({ $collapsed }) => ($collapsed ? '0' : '1200px')};
+	overflow: hidden;
+	opacity: ${({ $collapsed }) => ($collapsed ? '0' : '1')};
+	visibility: ${({ $collapsed }) => ($collapsed ? 'hidden' : 'visible')};
+	transition: all 0.3s ease;
 `;
 
 const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
@@ -145,24 +132,13 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 	const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
 	const handleToggle = () => {
-		const newCollapsed = !collapsed;
-		setCollapsed(newCollapsed);
-
-		// Provide user feedback
-		if (newCollapsed) {
-			showGlobalInfo(' Section Collapsed', `"${title}" section has been collapsed`);
-		} else {
-			showGlobalInfo(' Section Expanded', `"${title}" section has been expanded`);
-		}
+		setCollapsed((prev) => !prev);
 	};
 
 	return (
 		<SectionContainer $collapsed={collapsed} className={className}>
 			<SectionHeader onClick={handleToggle}>
 				<HeaderContent>
-					<ChevronIcon $collapsed={collapsed}>
-						{collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
-					</ChevronIcon>
 					<SectionTitle>
 						<TitleText>
 							{icon && <span>{icon}</span>}
@@ -171,9 +147,14 @@ const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 						{subtitle && <Subtitle>{subtitle}</Subtitle>}
 					</SectionTitle>
 				</HeaderContent>
-				{headerActions && (
-					<HeaderActions onClick={(e) => e.stopPropagation()}>{headerActions}</HeaderActions>
-				)}
+				<RightContent>
+					{headerActions && (
+						<HeaderActions onClick={(e) => e.stopPropagation()}>{headerActions}</HeaderActions>
+					)}
+					<ChevronIcon $collapsed={collapsed} aria-hidden="true">
+						<FiChevronDown size={18} />
+					</ChevronIcon>
+				</RightContent>
 			</SectionHeader>
 			<SectionContent $collapsed={collapsed}>{children}</SectionContent>
 		</SectionContainer>

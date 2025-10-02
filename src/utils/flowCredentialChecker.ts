@@ -196,13 +196,11 @@ export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 		{ flowType: 'oauth-authorization-code-v3', flowName: 'OAuth 2.0 Authorization Code (V3)' },
 		{ flowType: 'oauth2-implicit-v3', flowName: 'OAuth 2.0 Implicit V3' },
 		{ flowType: 'oauth2-client-credentials-v3', flowName: 'OAuth2 Client Credentials V3' },
-		{ flowType: 'oauth-resource-owner-password', flowName: 'OAuth 2.0 Resource Owner Password' },
 		{ flowType: 'enhanced-authorization-code-v3', flowName: 'OIDC Authorization Code (V3)' },
 		{ flowType: 'oidc-implicit-v3', flowName: 'OIDC Implicit V3' },
 		{ flowType: 'oidc-hybrid-v3', flowName: 'OIDC Hybrid V3' },
 		{ flowType: 'oidc-client-credentials-v3', flowName: 'OIDC Client Credentials V3' },
 		{ flowType: 'device-code-oidc', flowName: 'OIDC Device Code V3' },
-		{ flowType: 'oidc-resource-owner-password', flowName: 'OIDC Resource Owner Password' },
 		{ flowType: 'worker-token-v3', flowName: 'PingOne Worker Token V3' },
 	];
 

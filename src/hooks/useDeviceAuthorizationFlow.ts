@@ -90,6 +90,26 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+	// Stop polling - defined early to avoid hoisting issues
+	const stopPolling = useCallback(() => {
+		console.log(`${LOG_PREFIX} [INFO] Stopping polling`);
+
+		if (pollingIntervalRef.current) {
+			clearInterval(pollingIntervalRef.current);
+			pollingIntervalRef.current = null;
+		}
+
+		if (pollingTimeoutRef.current) {
+			clearTimeout(pollingTimeoutRef.current);
+			pollingTimeoutRef.current = null;
+		}
+
+		setPollingStatus((prev) => ({
+			...prev,
+			isPolling: false,
+		}));
+	}, []);
+
 	// Load credentials from localStorage on mount
 	useEffect(() => {
 		try {
@@ -128,7 +148,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}, 1000);
 
 		return () => clearInterval(interval);
-	}, [expiresAt, stopPolling]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [expiresAt]); // stopPolling is stable, no need in deps
 
 	// Format time remaining as MM:SS
 	const formatTimeRemaining = useCallback((ms: number): string => {
@@ -249,10 +270,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				client_id: credentials.clientId,
 			});
 
-			// Add client secret if provided
-			if (credentials.clientSecret) {
-				params.append('client_secret', credentials.clientSecret);
-			}
+			// Device Authorization Flow uses public clients - NO client authentication
+			// Do NOT send client_secret even if provided
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
@@ -401,25 +420,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		stopPolling,
 	]);
 
-	// Stop polling
-	const stopPolling = useCallback(() => {
-		console.log(`${LOG_PREFIX} [INFO] Stopping polling`);
-
-		if (pollingIntervalRef.current) {
-			clearInterval(pollingIntervalRef.current);
-			pollingIntervalRef.current = null;
-		}
-
-		if (pollingTimeoutRef.current) {
-			clearTimeout(pollingTimeoutRef.current);
-			pollingTimeoutRef.current = null;
-		}
-
-		setPollingStatus((prev) => ({
-			...prev,
-			isPolling: false,
-		}));
-	}, []);
+	// stopPolling moved earlier to avoid hoisting issues
 
 	// Reset flow
 	const reset = useCallback(() => {

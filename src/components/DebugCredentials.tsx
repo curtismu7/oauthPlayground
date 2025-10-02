@@ -11,6 +11,16 @@ const DebugContainer = styled.div`
   margin: 1rem 0;
   font-family: monospace;
   font-size: 0.875rem;
+  color: #000000;
+  
+  h3 {
+    color: #000000;
+    margin: 0 0 1rem 0;
+  }
+  
+  p {
+    color: #000000;
+  }
 `;
 
 const DebugSection = styled.div`
@@ -18,7 +28,7 @@ const DebugSection = styled.div`
   
   h4 {
     margin: 0 0 0.5rem 0;
-    color: #495057;
+    color: #000000;
   }
   
   pre {
@@ -28,6 +38,7 @@ const DebugSection = styled.div`
     padding: 0.5rem;
     margin: 0;
     overflow-x: auto;
+    color: #000000;
   }
 `;
 

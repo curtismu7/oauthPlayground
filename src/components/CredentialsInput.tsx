@@ -126,9 +126,14 @@ export const CredentialsInput = ({
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 
-	// Handle scopes change - just pass through the value
+	// Handle scopes change - allow spaces while typing, clean up on blur
 	const handleScopesChange = (value: string) => {
-		// Clean up multiple spaces and trim
+		// Just pass through the value as-is to allow typing spaces
+		onScopesChange?.(value);
+	};
+
+	const handleScopesBlur = (value: string) => {
+		// Clean up multiple spaces and trim only on blur
 		const cleanedValue = value.replace(/\s+/g, ' ').trim();
 		onScopesChange?.(cleanedValue);
 	};
@@ -302,9 +307,16 @@ export const CredentialsInput = ({
 				<div style={{ position: 'relative' }}>
 					<FormInput
 						type="text"
-						placeholder="openid"
+						placeholder="openid profile email"
 						value={scopes}
 						onChange={(e) => handleScopesChange(e.target.value)}
+						onBlur={(e) => handleScopesBlur(e.target.value)}
+						onKeyDown={(e) => {
+							// Ensure space key works
+							if (e.key === ' ') {
+								e.stopPropagation();
+							}
+						}}
 						$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
 						style={{ paddingRight: '2.5rem' }}
 					/>

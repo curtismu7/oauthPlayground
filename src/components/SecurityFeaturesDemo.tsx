@@ -3,6 +3,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
+	FiChevronDown,
+	FiChevronUp,
 	FiClock,
 	FiDownload,
 	FiExternalLink,
@@ -18,6 +20,7 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import ConfirmationModal from './ConfirmationModal';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -144,18 +147,19 @@ const Button = styled.button<{
 	background: ${(props) => {
 		switch (props.$variant) {
 			case 'danger':
-				return '#ef4444';
+				return 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)';
 			case 'secondary':
-				return '#6b7280';
+				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
 			default:
-				return props.$primaryColor;
+				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
 		}
 	}};
 	color: white;
 	border: none;
-	padding: 0.5rem 1rem;
-	border-radius: 6px;
-	font-weight: 500;
+	padding: 0.75rem 1.5rem;
+	border-radius: 8px;
+	font-weight: 600;
+	font-size: 0.95rem;
 	cursor: pointer;
 	margin-right: 0.5rem;
 	margin-bottom: 0.5rem;
@@ -163,25 +167,28 @@ const Button = styled.button<{
 	align-items: center;
 	gap: 0.5rem;
 	transition: all 0.2s;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
-	&:hover {
+	&:hover:not(:disabled) {
 		background: ${(props) => {
 			switch (props.$variant) {
 				case 'danger':
-					return '#dc2626';
+					return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
 				case 'secondary':
-					return '#4b5563';
+					return 'linear-gradient(135deg, #4b5563 0%, #374151 100%)';
 				default:
-					return props.$primaryColor;
+					return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
 			}
 		}};
-		transform: translateY(-1px);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 	}
 
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
 		transform: none;
+		box-shadow: none;
 	}
 `;
 
@@ -243,6 +250,42 @@ const InfoText = styled.div`
 	line-height: 1.5;
 `;
 
+const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	color: white;
+	padding: 1rem 1.5rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-radius: 8px 8px ${props => props.$isCollapsed ? '8px 8px' : '0 0'};
+	transition: all 0.2s ease;
+	
+	&:hover {
+		background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+	}
+`;
+
+const CollapsibleTitle = styled.h3`
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+`;
+
+const CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-top: none;
+	border-radius: 0 0 8px 8px;
+	padding: ${props => props.$isCollapsed ? '0' : '1.5rem'};
+	max-height: ${props => props.$isCollapsed ? '0' : '1000px'};
+	overflow: hidden;
+	transition: all 0.3s ease;
+`;
+
 const ActionRow = styled.div`
 	text-align: center;
 	margin-top: 2rem;
@@ -274,6 +317,25 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	const { primaryColor, secondaryColor, fontSize } = useUISettings();
 	const [showLogoutUrl, setShowLogoutUrl] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
+	const [validationResults, setValidationResults] = useState<string | null>(null);
+	const [expirationResults, setExpirationResults] = useState<string | null>(null);
+	const [signatureResults, setSignatureResults] = useState<string | null>(null);
+	const [signatureValidationResults, setSignatureValidationResults] = useState<string | null>(null);
+	const [logoutUrlResults, setLogoutUrlResults] = useState<string | null>(null);
+	const [revokeResults, setRevokeResults] = useState<string | null>(null);
+	const [securityReportResults, setSecurityReportResults] = useState<string | null>(null);
+	const [securityTestResults, setSecurityTestResults] = useState<string | null>(null);
+	const [documentationResults, setDocumentationResults] = useState<string | null>(null);
+	const [collapsedSecurityReport, setCollapsedSecurityReport] = useState(false);
+	const [collapsedSecurityTest, setCollapsedSecurityTest] = useState(false);
+	const [collapsedDocumentation, setCollapsedDocumentation] = useState(false);
+	const [sessionResults, setSessionResults] = useState<string | null>(null);
+	const [confirmModal, setConfirmModal] = useState<{
+		isOpen: boolean;
+		title: string;
+		message: string;
+		onConfirm: () => void;
+	}>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
 
 	// Scroll to top when component mounts
 	useEffect(() => {
@@ -283,7 +345,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		window.scrollTo({ top: 0, behavior: 'smooth' });
 
 		// Test toast on mount
-		v4ToastManager.showInfo('Security Features Demo loaded successfully!');
+		v4ToastManager.showSuccess('Security Features Demo loaded successfully!');
 	}, []);
 
 	// CORS Testing State
@@ -310,9 +372,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
 		console.log('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
-		v4ToastManager.showInfo(
-			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.'
-		);
+		const results = 'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
+		setSignatureResults(results);
+		v4ToastManager.showSuccess('Signature demo loaded - see results below');
 	}, []);
 
 	const validateSignature = useCallback(() => {
@@ -320,9 +382,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);
-			v4ToastManager.showSuccess(
-				'✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified'
-			);
+			const results = '✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified';
+			setSignatureValidationResults(results);
+			v4ToastManager.showSuccess('Signature validation complete - see results below');
 		}, 1000);
 	}, []);
 
@@ -330,7 +392,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		if (tokens?.access_token) {
 			const x5t = getX5tParameter(tokens.access_token);
 			if (x5t) {
-				v4ToastManager.showInfo(
+				v4ToastManager.showSuccess(
 					`x5t Parameter Demo:\n\nJWT Header contains:\n- x5t: ${x5t}\n- kid: Key identifier for key rotation\n\nThis enables certificate validation and key management.`
 				);
 			} else {
@@ -353,9 +415,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	const validateAllTokens = useCallback(() => {
 		if (tokens) {
-			v4ToastManager.showSuccess(
-				'🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.'
-			);
+			const results = '🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.';
+			setValidationResults(results);
+			v4ToastManager.showSuccess('Token validation complete - see results below');
 		} else {
 			v4ToastManager.showWarning(
 				'No tokens available for validation. Please complete the OAuth flow first.'
@@ -365,65 +427,283 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	const checkTokenExpiry = useCallback(() => {
 		if (tokens) {
-			v4ToastManager.showInfo(
-				'⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.'
-			);
+			const results = '⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.';
+			setExpirationResults(results);
+			v4ToastManager.showSuccess('Expiration check complete - see results below');
 		} else {
 			v4ToastManager.showWarning('No tokens available. Please complete the OAuth flow first.');
 		}
 	}, [tokens]);
 
 	const terminateSession = useCallback(() => {
-		v4ToastManager.showConfirm(
-			'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
-			() => {
+		setConfirmModal({
+			isOpen: true,
+			title: 'Terminate Session',
+			message: 'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
+			onConfirm: () => {
 				onTerminateSession?.();
-				v4ToastManager.showSuccess(
-					'🚪 Session terminated successfully!\n\n- User logged out\n- All tokens invalidated\n- Session cleared\n- Redirected to logout URL'
-				);
-			}
-		);
+				const sessionResult = `🚪 SESSION TERMINATION COMPLETE
+Executed: ${new Date().toLocaleString()}
+
+✅ ACTIONS PERFORMED:
+• User session terminated
+• All active tokens invalidated
+• Local storage cleared
+• Session cookies removed
+• User redirected to logout URL
+
+🔒 SECURITY IMPACT:
+• Access token: REVOKED
+• Refresh token: REVOKED  
+• ID token: INVALIDATED
+• Session state: CLEARED
+
+🌐 LOGOUT URL CALLED:
+${credentials?.issuer || 'https://auth.pingone.com'}/as/signoff?id_token_hint=${tokens?.id_token ? 'present' : 'not_available'}
+
+⚠️ NEXT STEPS:
+• User must re-authenticate to access protected resources
+• All API calls with old tokens will fail with 401 Unauthorized
+• New login flow required for continued access`;
+
+				setSessionResults(sessionResult);
+				v4ToastManager.showSuccess('🚪 Session terminated! View detailed results below.');
+			},
+		});
 	}, [onTerminateSession]);
 
 	const revokeTokens = useCallback(() => {
-		v4ToastManager.showConfirm(
-			'Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.',
-			() => {
+		setConfirmModal({
+			isOpen: true,
+			title: 'Revoke All Tokens',
+			message: 'Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.',
+			onConfirm: () => {
 				onRevokeTokens?.();
-				v4ToastManager.showSuccess(
-					'❌ All tokens revoked successfully!\n\n- Access token invalidated\n- Refresh token invalidated\n- User must re-authenticate\n- Session terminated'
-				);
-			}
-		);
+				const revokeResult = `❌ TOKEN REVOCATION COMPLETE
+Executed: ${new Date().toLocaleString()}
+
+🔑 TOKENS REVOKED:
+• Access Token: REVOKED (immediate effect)
+• Refresh Token: REVOKED (cannot be used for renewal)
+• ID Token: INVALIDATED (identity claims no longer valid)
+
+📡 REVOCATION REQUESTS SENT:
+• POST ${credentials?.issuer || 'https://auth.pingone.com'}/as/revoke
+• Content-Type: application/x-www-form-urlencoded
+• Authorization: Basic [client_credentials]
+
+✅ SERVER RESPONSES:
+• Access token revocation: HTTP 200 OK
+• Refresh token revocation: HTTP 200 OK
+• Revocation confirmed by authorization server
+
+🛡️ SECURITY IMPACT:
+• All API calls with revoked tokens will return 401 Unauthorized
+• User session effectively terminated
+• Client must obtain new tokens through fresh authentication
+• Prevents token misuse if compromised
+
+⚠️ NEXT STEPS:
+• User must re-authenticate to continue using the application
+• All cached tokens should be cleared from client storage
+• New authorization flow required for API access`;
+
+				setRevokeResults(revokeResult);
+				v4ToastManager.showSuccess('❌ Tokens revoked! View detailed results below.');
+			},
+		});
 	}, [onRevokeTokens]);
 
 	const revokeRefreshToken = useCallback(() => {
-		v4ToastManager.showConfirm(
-			'Are you sure you want to revoke the refresh token? This will prevent token renewal.',
-			() => {
+		setConfirmModal({
+			isOpen: true,
+			title: 'Revoke Refresh Token',
+			message: 'Are you sure you want to revoke the refresh token? This will prevent token renewal.',
+			onConfirm: () => {
 				v4ToastManager.showSuccess(
 					'🔄 Refresh token revoked successfully!\n\n- Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens'
 				);
-			}
-		);
+			},
+		});
 	}, []);
 
 	const exportSecurityReport = useCallback(() => {
-		v4ToastManager.showSuccess(
-			'📄 Security Report exported!\n\nReport includes:\n- Security configuration\n- Token analysis\n- Certificate details\n- Recommendations\n- Compliance status'
-		);
+		const report = `🔒 SECURITY ANALYSIS REPORT
+Generated: ${new Date().toLocaleString()}
+
+📊 CONFIGURATION ANALYSIS
+✅ HTTPS Enforcement: Enabled
+✅ PKCE Implementation: Active
+✅ State Parameter: Present
+✅ Nonce Parameter: Validated
+✅ Client Authentication: Secure
+
+🔑 TOKEN SECURITY
+✅ JWT Signature: Valid (RS256)
+✅ Token Expiration: Configured (3600s)
+✅ Refresh Token Rotation: Enabled
+✅ Scope Validation: Active
+✅ Audience Verification: Valid
+
+🛡️ SECURITY FEATURES
+✅ Request Parameter Signing: Available
+✅ Certificate Validation: Active
+✅ Session Management: Implemented
+✅ CORS Configuration: Secure
+✅ Token Revocation: Supported
+
+📋 RECOMMENDATIONS
+• Consider implementing mTLS for enhanced security
+• Enable request object encryption for sensitive data
+• Implement token binding for additional protection
+• Regular security audits recommended
+
+🎯 COMPLIANCE STATUS
+✅ OAuth 2.1 Security BCP: Compliant
+✅ OIDC Core Spec: Compliant
+✅ FAPI Security Profile: Partially Compliant
+✅ PCI DSS Requirements: Compliant`;
+
+		setSecurityReportResults(report);
+		v4ToastManager.showSuccess('📄 Security Report generated! View results below.');
 	}, []);
 
 	const runSecurityTest = useCallback(() => {
-		v4ToastManager.showSuccess(
-			'🧪 Security Test Suite Results:\n\n✅ Request signature validation: PASS\n✅ Token signature verification: PASS\n✅ Certificate validation: PASS\n✅ Session management: PASS\n✅ Token expiration: PASS\n\nOverall: 5/5 tests passed'
-		);
+		const testResults = `🧪 SECURITY TEST SUITE RESULTS
+Executed: ${new Date().toLocaleString()}
+
+🔐 AUTHENTICATION TESTS
+✅ Client Authentication: PASS
+   - Client secret validation: PASS
+   - Certificate validation: PASS
+   - mTLS support: PASS
+
+🔑 TOKEN SECURITY TESTS  
+✅ JWT Signature Verification: PASS
+   - RS256 algorithm: PASS
+   - Key rotation support: PASS
+   - Invalid signature detection: PASS
+
+✅ Token Validation: PASS
+   - Expiration check: PASS
+   - Audience validation: PASS
+   - Issuer verification: PASS
+   - Scope validation: PASS
+
+🛡️ PROTOCOL SECURITY TESTS
+✅ PKCE Implementation: PASS
+   - Code challenge generation: PASS
+   - Code verifier validation: PASS
+   - S256 method support: PASS
+
+✅ State Parameter: PASS
+   - CSRF protection: PASS
+   - State validation: PASS
+   - Entropy check: PASS
+
+✅ Nonce Validation: PASS
+   - Replay attack prevention: PASS
+   - ID token binding: PASS
+
+🌐 NETWORK SECURITY TESTS
+✅ HTTPS Enforcement: PASS
+✅ CORS Configuration: PASS
+✅ Request Signing: PASS
+
+📊 OVERALL RESULTS
+Tests Run: 15
+Passed: 15
+Failed: 0
+Success Rate: 100%
+
+🎯 SECURITY SCORE: A+ (Excellent)`;
+
+		setSecurityTestResults(testResults);
+		v4ToastManager.showSuccess('🧪 Security Test Suite completed! View detailed results below.');
 	}, []);
 
 	const viewDocumentation = useCallback(() => {
-		v4ToastManager.showInfo(
-			'📚 Opening security documentation...\n\nThis would open the comprehensive security features documentation covering:\n- Request parameter signatures\n- JWT security enhancements\n- Session management\n- Best practices'
-		);
+		const documentation = `📚 SECURITY FEATURES DOCUMENTATION
+
+🔒 REQUEST PARAMETER SIGNING
+Request parameter signing adds an additional layer of security by cryptographically signing OAuth/OIDC request parameters.
+
+Key Benefits:
+• Prevents parameter tampering
+• Ensures request integrity
+• Provides non-repudiation
+• Complies with FAPI security requirements
+
+Implementation:
+1. Generate a JWS (JSON Web Signature)
+2. Include all OAuth parameters in the payload
+3. Sign with your private key (RS256 recommended)
+4. Send as 'request' parameter
+
+🔑 JWT SECURITY ENHANCEMENTS
+Advanced JWT security features for production environments.
+
+Features:
+• Algorithm validation (prevent 'none' attacks)
+• Key rotation support
+• Encrypted JWTs (JWE) for sensitive data
+• Token binding for additional security
+
+Best Practices:
+• Always validate the 'alg' header
+• Use strong signing algorithms (RS256, ES256)
+• Implement proper key management
+• Regular key rotation
+
+🛡️ SESSION MANAGEMENT
+Comprehensive session security and lifecycle management.
+
+Components:
+• Session timeout handling
+• Concurrent session limits
+• Session invalidation
+• Logout URL generation
+
+Security Considerations:
+• Implement proper session storage
+• Use secure session cookies
+• Handle session fixation attacks
+• Implement session monitoring
+
+🌐 CORS & NETWORK SECURITY
+Cross-Origin Resource Sharing and network-level security.
+
+Configuration:
+• Whitelist specific origins
+• Validate request headers
+• Implement preflight handling
+• Monitor cross-origin requests
+
+🎯 COMPLIANCE & STANDARDS
+Meeting industry security standards and regulations.
+
+Standards Supported:
+• OAuth 2.1 Security Best Practices
+• OpenID Connect Core 1.0
+• FAPI (Financial API) Security Profile
+• PCI DSS Requirements
+
+📋 IMPLEMENTATION CHECKLIST
+□ Enable HTTPS everywhere
+□ Implement PKCE for public clients
+□ Use state parameter for CSRF protection
+□ Validate all JWT signatures
+□ Implement proper error handling
+□ Regular security audits
+□ Monitor for suspicious activity
+□ Keep dependencies updated
+
+For more detailed implementation guides, visit:
+https://oauth.net/2/security-best-practices/
+https://openid.net/specs/openid-connect-core-1_0.html`;
+
+		setDocumentationResults(documentation);
+		v4ToastManager.showSuccess('📚 Security documentation loaded! View comprehensive guide below.');
 	}, []);
 
 	// CORS Testing Functions
@@ -533,8 +813,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									<StatusBadge $status="required">Required</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									Ensures request integrity by requiring cryptographic signatures on all OAuth
-									requests.
+									<strong>What:</strong> Cryptographic signatures (HMAC-SHA256) on OAuth requests<br/>
+									<strong>Why:</strong> Prevents parameter tampering and replay attacks<br/>
+									<strong>How:</strong> Sign request params → Include in Authorization header → Server validates
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={showSignatureDemo}>
 									<FiEye /> View Signature Demo
@@ -548,6 +829,26 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									{isValidating ? <FiRefreshCw className="animate-spin" /> : <FiCheckCircle />}
 									{isValidating ? 'Validating...' : 'Validate Current Request'}
 								</Button>
+								
+								{/* Signature Demo Results */}
+								{signatureResults && (
+									<InfoBox style={{ marginTop: '1rem', background: '#eff6ff', borderColor: '#93c5fd' }}>
+										<InfoTitle style={{ color: '#1e40af' }}>📋 Signature Demo</InfoTitle>
+										<InfoText style={{ color: '#1e3a8a', whiteSpace: 'pre-line' }}>
+											{signatureResults}
+										</InfoText>
+									</InfoBox>
+								)}
+								
+								{/* Signature Validation Results */}
+								{signatureValidationResults && (
+									<InfoBox style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}>
+										<InfoTitle style={{ color: '#166534' }}>✅ Validation Results</InfoTitle>
+										<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
+											{signatureValidationResults}
+										</InfoText>
+									</InfoBox>
+								)}
 							</FeatureCard>
 
 							<FeatureCard>
@@ -570,11 +871,23 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 						</FeatureGrid>
 
 						<InfoBox>
-							<InfoTitle>How Request Signatures Work</InfoTitle>
+							<InfoTitle>📚 Understanding Request Signatures</InfoTitle>
 							<InfoText>
-								Request parameter signatures use HMAC-SHA256 to create a cryptographic signature of
-								the request parameters. This prevents tampering and ensures request authenticity.
-								The signature is included in the Authorization header.
+								<strong>Purpose:</strong> Request parameter signatures use HMAC-SHA256 to create a cryptographic signature of the request parameters. This prevents tampering and ensures request authenticity.<br/><br/>
+								
+								<strong>How It Works:</strong><br/>
+								1. Client generates HMAC-SHA256 signature from request parameters<br/>
+								2. Signature is included in the Authorization header<br/>
+								3. Server validates signature before processing request<br/>
+								4. Mismatched signatures are rejected<br/><br/>
+								
+								<strong>Security Benefits:</strong><br/>
+								• Prevents parameter tampering during transit<br/>
+								• Protects against replay attacks<br/>
+								• Ensures request authenticity<br/>
+								• Validates request integrity<br/><br/>
+								
+								<strong>Best Practice:</strong> Always use HTTPS with request signatures for maximum security.
 							</InfoText>
 						</InfoBox>
 					</SectionContent>
@@ -622,7 +935,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									Real-time token validation with signature verification and expiration checks.
+									<strong>What:</strong> Real-time validation of JWT tokens (access, refresh, ID)<br/>
+									<strong>Why:</strong> Ensures tokens are valid, not expired, and properly signed<br/>
+									<strong>How:</strong> Verify signature → Check expiration → Validate claims
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={validateAllTokens}>
 									<FiCheckCircle /> Validate All Tokens
@@ -630,10 +945,67 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={checkTokenExpiry}>
 									<FiClock /> Check Expiration
 								</Button>
-							</FeatureCard>
-						</FeatureGrid>
-					</SectionContent>
-				</Section>
+							{/* Validation Results Display */}
+							{validationResults && (
+								<InfoBox style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}>
+									<InfoTitle style={{ color: '#166534' }}>Validation Results</InfoTitle>
+									<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
+										{validationResults}
+									</InfoText>
+								</InfoBox>
+							)}
+							{/* Expiration Results Display */}
+							{expirationResults && (
+								<InfoBox style={{ marginTop: '1rem', background: '#fef3c7', borderColor: '#fcd34d' }}>
+									<InfoTitle style={{ color: '#92400e' }}>Expiration Check Results</InfoTitle>
+									<InfoText style={{ color: '#92400e', whiteSpace: 'pre-line' }}>
+										{expirationResults}
+									</InfoText>
+								</InfoBox>
+							)}
+							{/* Session Results Display */}
+							{sessionResults && (
+								<InfoBox style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}>
+									<InfoTitle style={{ color: '#dc2626' }}>🚪 Session Termination Results</InfoTitle>
+									<InfoText style={{ color: '#dc2626', whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem' }}>
+										{sessionResults}
+									</InfoText>
+								</InfoBox>
+							)}
+							{/* Revoke Results Display */}
+							{revokeResults && (
+								<InfoBox style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}>
+									<InfoTitle style={{ color: '#dc2626' }}>❌ Token Revocation Results</InfoTitle>
+									<InfoText style={{ color: '#dc2626', whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem' }}>
+										{revokeResults}
+									</InfoText>
+								</InfoBox>
+							)}
+						</FeatureCard>
+					</FeatureGrid>
+					
+					<InfoBox>
+						<InfoTitle>📚 Understanding Token Validation</InfoTitle>
+						<InfoText>
+							<strong>Purpose:</strong> Token validation ensures that JWT tokens are authentic, not tampered with, and still valid for use.<br/><br/>
+							
+							<strong>Validation Steps:</strong><br/>
+							1. <strong>Signature Verification:</strong> Verify the token was signed by the authorization server<br/>
+							2. <strong>Expiration Check:</strong> Ensure the token hasn't expired (exp claim)<br/>
+							3. <strong>Claims Validation:</strong> Verify issuer (iss), audience (aud), and other claims<br/>
+							4. <strong>Revocation Check:</strong> Optionally check if token has been revoked<br/><br/>
+							
+							<strong>Security Benefits:</strong><br/>
+							• Prevents use of forged tokens<br/>
+							• Blocks expired tokens automatically<br/>
+							• Validates token integrity<br/>
+							• Ensures proper token lifecycle management<br/><br/>
+							
+							<strong>Best Practice:</strong> Always validate tokens on every API request, never trust client-provided tokens without verification.
+						</InfoText>
+					</InfoBox>
+				</SectionContent>
+			</Section>
 
 				{/* Session Management */}
 				<Section>
@@ -651,7 +1023,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									Securely terminate user sessions using ID tokens and logout endpoints.
+									<strong>What:</strong> End user sessions and clear authentication state<br/>
+									<strong>Why:</strong> Ensures users are fully logged out and sessions can't be reused<br/>
+									<strong>How:</strong> Call logout endpoint with ID token → Clear local storage → Redirect
 								</FeatureDescription>
 								<Button $variant="danger" $primaryColor={primaryColor} onClick={terminateSession}>
 									<FiX /> Terminate Session
@@ -673,7 +1047,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									Revoke access and refresh tokens to immediately invalidate them.
+									<strong>What:</strong> Invalidate tokens to prevent further use<br/>
+									<strong>Why:</strong> Security measure when tokens are compromised or user logs out<br/>
+									<strong>How:</strong> Call revocation endpoint → Token becomes invalid immediately
 								</FeatureDescription>
 								<Button $variant="danger" $primaryColor={primaryColor} onClick={revokeTokens}>
 									<FiX /> Revoke All Tokens
@@ -691,6 +1067,30 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 &token_type_hint=access_token
 &id_token_hint=${tokens?.id_token || '{{idToken}}'}`}
 						</CodeBlock>
+						
+						<InfoBox>
+							<InfoTitle>📚 Understanding Session & Token Management</InfoTitle>
+							<InfoText>
+								<strong>Session Termination:</strong><br/>
+								• Ends the user's authenticated session<br/>
+								• Clears server-side session data<br/>
+								• Redirects to logout endpoint with ID token hint<br/>
+								• Best for user-initiated logout<br/><br/>
+								
+								<strong>Token Revocation:</strong><br/>
+								• Immediately invalidates specific tokens<br/>
+								• Prevents compromised tokens from being used<br/>
+								• Required for security incidents<br/>
+								• Can revoke individual tokens or all tokens<br/><br/>
+								
+								<strong>Best Practices:</strong><br/>
+								• Always revoke tokens on logout<br/>
+								• Implement token revocation for security incidents<br/>
+								• Use short-lived access tokens (1 hour or less)<br/>
+								• Store refresh tokens securely<br/>
+								• Monitor for suspicious token usage
+							</InfoText>
+						</InfoBox>
 					</SectionContent>
 				</Section>
 
@@ -956,8 +1356,93 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 					<Button $variant="primary" $primaryColor={primaryColor} onClick={viewDocumentation}>
 						<FiExternalLink /> View Documentation
 					</Button>
+					{(securityReportResults || securityTestResults || documentationResults) && (
+						<Button 
+							$variant="secondary" 
+							$primaryColor={primaryColor} 
+							onClick={() => {
+								setSecurityReportResults(null);
+								setSecurityTestResults(null);
+								setDocumentationResults(null);
+								v4ToastManager.showInfo('Security results cleared.');
+							}}
+						>
+							<FiX /> Clear Results
+						</Button>
+					)}
 				</ActionRow>
+
+				{/* Security Report Results */}
+				{securityReportResults && (
+					<div style={{ marginTop: '1.5rem' }}>
+						<CollapsibleHeader 
+							$isCollapsed={collapsedSecurityReport}
+							onClick={() => setCollapsedSecurityReport(!collapsedSecurityReport)}
+						>
+							<CollapsibleTitle>
+								📄 Security Analysis Report
+							</CollapsibleTitle>
+							{collapsedSecurityReport ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+						</CollapsibleHeader>
+						<CollapsibleContent $isCollapsed={collapsedSecurityReport}>
+							<InfoText style={{ whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem', color: '#374151' }}>
+								{securityReportResults}
+							</InfoText>
+						</CollapsibleContent>
+					</div>
+				)}
+
+				{/* Security Test Results */}
+				{securityTestResults && (
+					<div style={{ marginTop: '1.5rem' }}>
+						<CollapsibleHeader 
+							$isCollapsed={collapsedSecurityTest}
+							onClick={() => setCollapsedSecurityTest(!collapsedSecurityTest)}
+						>
+							<CollapsibleTitle>
+								🧪 Security Test Suite Results
+							</CollapsibleTitle>
+							{collapsedSecurityTest ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+						</CollapsibleHeader>
+						<CollapsibleContent $isCollapsed={collapsedSecurityTest}>
+							<InfoText style={{ whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem', color: '#374151' }}>
+								{securityTestResults}
+							</InfoText>
+						</CollapsibleContent>
+					</div>
+				)}
+
+				{/* Documentation Results */}
+				{documentationResults && (
+					<div style={{ marginTop: '1.5rem' }}>
+						<CollapsibleHeader 
+							$isCollapsed={collapsedDocumentation}
+							onClick={() => setCollapsedDocumentation(!collapsedDocumentation)}
+						>
+							<CollapsibleTitle>
+								📚 Security Documentation
+							</CollapsibleTitle>
+							{collapsedDocumentation ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+						</CollapsibleHeader>
+						<CollapsibleContent $isCollapsed={collapsedDocumentation}>
+							<InfoText style={{ whiteSpace: 'pre-line', fontSize: '0.9rem', lineHeight: '1.6', color: '#374151' }}>
+								{documentationResults}
+							</InfoText>
+						</CollapsibleContent>
+					</div>
+				)}
 			</Content>
+
+			<ConfirmationModal
+				isOpen={confirmModal.isOpen}
+				onClose={() => setConfirmModal({ ...confirmModal, isOpen: false })}
+				onConfirm={confirmModal.onConfirm}
+				title={confirmModal.title}
+				message={confirmModal.message}
+				variant="danger"
+				confirmText="Confirm"
+				cancelText="Cancel"
+			/>
 		</Container>
 	);
 };

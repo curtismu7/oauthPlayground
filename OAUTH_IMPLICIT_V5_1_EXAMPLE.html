@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Implicit Flow V5.1 - Service Architecture Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background-color: #f9fafb;
+            color: #1f2937;
+            padding-bottom: 120px; /* Space for fixed navigation */
+        }
+
+        .container {
+            min-height: 100vh;
+            background-color: #f9fafb;
+            padding: 2rem 0 6rem;
+        }
+
+        .content-wrapper {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Flow Header Service */
+        .flow-header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flow-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .flow-header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .flow-header-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .flow-header-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-header-text p {
+            font-size: 1.125rem;
+            opacity: 0.9;
+        }
+
+        .flow-header-badge {
+            margin-left: auto;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Enhanced Flow Info Card */
+        .flow-info-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .flow-info-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .flow-info-icon {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 0.75rem;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .flow-info-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .flow-info-description {
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        /* Flow Sequence Display */
+        .flow-sequence {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .flow-sequence-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .flow-steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .flow-step {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .flow-step-number {
+            background: #ea580c;
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 0.5rem;
+        }
+
+        .flow-step-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1f2937;
+        }
+
+        /* Main Card */
+        .main-card {
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        /* Step Header - Orange Theme */
+        .step-header {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            color: #ffffff;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .step-header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .version-badge {
+            align-self: flex-start;
+            background: rgba(234, 88, 12, 0.2);
+            border: 1px solid #fb923c;
+            color: #fed7aa;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+        }
+
+        .step-header-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .step-header-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0;
+        }
+
+        .step-header-right {
+            text-align: right;
+        }
+
+        .step-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .step-total {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.05em;
+        }
+
+        /* Step Content */
+        .step-content-wrapper {
+            padding: 2rem;
+            background: #ffffff;
+        }
+
+        /* Collapsible Sections - Orange Theme */
+        .collapsible-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+            background-color: #ffffff;
+            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+        }
+
+        .collapsible-header-button {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            padding: 1.25rem 1.5rem;
+            background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+            border: none;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #7c2d12;
+            transition: background 0.2s ease;
+        }
+
+        .collapsible-header-button:hover {
+            background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
+        }
+
+        .collapsible-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .collapsible-toggle-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #ea580c;
+            color: white;
+            transition: transform 0.2s ease;
+        }
+
+        .collapsible-toggle-icon:hover {
+            transform: scale(1.1);
+        }
+
+        .collapsible-content {
+            padding: 1.5rem;
+            padding-top: 0;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Info Boxes */
+        .info-box {
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            border: 1px solid #3b82f6;
+            background-color: #dbeafe;
+        }
+
+        .info-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .info-text {
+            font-size: 0.95rem;
+            color: #3f3f46;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* Form Components */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.9rem;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+            color: #1f2937;
+            background-color: #ffffff;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Action Buttons */
+        .action-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .button-primary {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+        }
+
+        .button-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .button-danger {
+            background-color: transparent;
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        .button-danger:hover {
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        /* Step Navigation Buttons */
+        .step-navigation {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 1.25rem 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            max-width: 90vw;
+        }
+
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-right: 2rem;
+            border-right: 2px solid #e5e7eb;
+        }
+
+        .step-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #d1d5db;
+            transition: all 0.2s ease;
+        }
+
+        .step-dot.active {
+            background: #ea580c;
+            border: 2px solid #ea580c;
+        }
+
+        .step-dot.completed {
+            background: #22c55e;
+            border: 2px solid #22c55e;
+        }
+
+        .step-text {
+            font-size: 0.875rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .nav-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .nav-button-secondary {
+            background-color: transparent;
+            color: #6b7280;
+            border-color: #d1d5db;
+        }
+
+        .nav-button-secondary:hover:not(:disabled) {
+            background-color: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .nav-button-primary {
+            background-color: #ea580c;
+            color: #ffffff;
+            border: none;
+        }
+
+        .nav-button-primary:hover:not(:disabled) {
+            background-color: #c2410c;
+        }
+
+        .nav-button-danger {
+            background-color: transparent;
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        .nav-button-danger:hover:not(:disabled) {
+            background-color: #fef2f2;
+            border-color: #fca5a5;
+        }
+
+        /* Service Architecture Info */
+        .service-info {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .service-info h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .service-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+
+        .service-card h4 {
+            color: #ea580c;
+            margin-bottom: 0.5rem;
+        }
+
+        .service-card p {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+
+        .code-block {
+            background-color: #f4f4f5;
+            color: #334155;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.875rem;
+            line-height: 1.4;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content-wrapper">
+            <!-- Flow Header Service -->
+            <div class="flow-header">
+                <div class="flow-header-content">
+                    <div class="flow-header-icon">🔐</div>
+                    <div class="flow-header-text">
+                        <h1>OAuth 2.0 Implicit Flow</h1>
+                        <p>Service-based architecture demonstration</p>
+                    </div>
+                    <div class="flow-header-badge">V5.1</div>
+                </div>
+            </div>
+
+            <!-- Enhanced Flow Info Card -->
+            <div class="flow-info-card">
+                <div class="flow-info-header">
+                    <div class="flow-info-icon">ℹ️</div>
+                    <div class="flow-info-title">Flow Information</div>
+                </div>
+                <div class="flow-info-description">
+                    This flow demonstrates the new V5.1 service-based architecture. Built using 6 core services
+                    that provide 96% less code while maintaining perfect visual consistency with existing OAuth flows.
+                </div>
+            </div>
+
+            <!-- Flow Sequence Display -->
+            <div class="flow-sequence">
+                <div class="flow-sequence-title">
+                    📋 Flow Sequence
+                </div>
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-step-number">1</div>
+                        <div class="flow-step-title">Overview & Config</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">2</div>
+                        <div class="flow-step-title">Auth Request</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">3</div>
+                        <div class="flow-step-title">Auth Response</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">4</div>
+                        <div class="flow-step-title">Token Validation</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">5</div>
+                        <div class="flow-step-title">User Info</div>
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-number">6</div>
+                        <div class="flow-step-title">Completion</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Card -->
+            <div class="main-card">
+                <!-- Step Header - Orange Theme -->
+                <div class="step-header">
+                    <div class="step-header-left">
+                        <span class="version-badge">OAuth Implicit Flow · V5.1</span>
+                        <h2 class="step-header-title">Step 1: Overview & Configuration</h2>
+                        <p class="step-header-subtitle">Understanding the OAuth Implicit Flow and setting up your application</p>
+                    </div>
+                    <div class="step-header-right">
+                        <div class="step-number">01</div>
+                        <div class="step-total">of 06</div>
+                    </div>
+                </div>
+
+                <!-- Step Content -->
+                <div class="step-content-wrapper">
+                    <!-- Collapsible Section 1 -->
+                    <div class="collapsible-section">
+                        <button class="collapsible-header-button">
+                            <span class="collapsible-title">
+                                ℹ️ OAuth Implicit Flow Overview
+                            </span>
+                            <span class="collapsible-toggle-icon">
+                                ▼
+                            </span>
+                        </button>
+                        <div class="collapsible-content">
+                            <div class="info-box">
+                                <div>
+                                    <h3 class="info-title">When to Use Implicit Flow</h3>
+                                    <p class="info-text">
+                                        OAuth Implicit Flow is designed for public clients (like SPAs) that cannot securely store a client secret. 
+                                        It's perfect for single-page applications and mobile apps.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Collapsible Section 2 -->
+                    <div class="collapsible-section">
+                        <button class="collapsible-header-button">
+                            <span class="collapsible-title">
+                                ⚙️ Application Configuration
+                            </span>
+                            <span class="collapsible-toggle-icon">
+                                ▼
+                            </span>
+                        </button>
+                        <div class="collapsible-content">
+                            <div class="form-group">
+                                <label class="label">Environment ID</label>
+                                <input class="input" placeholder="Enter your PingOne Environment ID" />
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Client ID</label>
+                                <input class="input" placeholder="Enter your PingOne Client ID" />
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Redirect URI</label>
+                                <input class="input" placeholder="https://localhost:3000/implicit-callback" />
+                            </div>
+                            <div class="form-group">
+                                <label class="label">Scope</label>
+                                <input class="input" placeholder="openid profile email" />
+                            </div>
+                            <div class="action-row">
+                                <button class="button button-primary">
+                                    ⚙️ Save Configuration
+                                </button>
+                                <button class="button button-danger">
+                                    🔄 Clear Configuration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Service Architecture Info -->
+                    <div class="service-info">
+                        <h3>🚀 Service Architecture Benefits</h3>
+                        <div class="service-grid">
+                            <div class="service-card">
+                                <h4>FlowControllerService</h4>
+                                <p>Standardized flow controller patterns with validation and navigation</p>
+                            </div>
+                            <div class="service-card">
+                                <h4>FlowLayoutService</h4>
+                                <p>Exact OAuth styling patterns with theme support (Orange for Implicit)</p>
+                            </div>
+                            <div class="service-card">
+                                <h4>FlowComponentService</h4>
+                                <p>Reusable UI components with perfect consistency</p>
+                            </div>
+                            <div class="service-card">
+                                <h4>FlowConfigService</h4>
+                                <p>18 flow types pre-configured with themes and step configs</p>
+                            </div>
+                            <div class="service-card">
+                                <h4>FlowAnalyticsService</h4>
+                                <p>Comprehensive tracking and user behavior analysis</p>
+                            </div>
+                            <div class="service-card">
+                                <h4>FlowStateService</h4>
+                                <p>Centralized state management and section handling</p>
+                            </div>
+                        </div>
+                        <p style="margin-top: 1rem; color: #6b7280;">
+                            <span class="highlight">96% less code</span> • 
+                            <span class="highlight">Perfect consistency</span> • 
+                            <span class="highlight">Enhanced functionality</span>
+                        </p>
+                    </div>
+
+                    <!-- Code Example -->
+                    <div class="service-info">
+                        <h3>💻 Service Usage Example</h3>
+                        <div class="code-block">
+// Service-generated styled components
+const Container = FlowLayoutService.getContainerStyles();
+const StepHeader = FlowLayoutService.getStepHeaderStyles('orange');
+const CollapsibleSection = FlowComponentService.createCollapsibleSection();
+
+// Service-generated flow controller
+const flowController = FlowControllerService.createFlowController({
+  flowType: 'implicit',
+  flowKey: 'oauth-implicit-v5-1',
+  defaultFlowVariant: 'oauth',
+  enableDebugger: true,
+}, null, 6, introSectionKeys);
+
+// Service-generated analytics
+useEffect(() => {
+  FlowAnalyticsService.trackFlowStart('implicit', 'oauth-implicit-v5-1');
+  return () => FlowAnalyticsService.trackFlowComplete(true);
+}, []);
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step Navigation Buttons -->
+        <div class="step-navigation">
+            <button class="nav-button nav-button-secondary" disabled>
+                ← Previous
+            </button>
+            
+            <div class="step-indicator">
+                <div class="step-dots">
+                    <div class="step-dot active"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                    <div class="step-dot"></div>
+                </div>
+                <span class="step-text">1 of 6</span>
+            </div>
+            
+            <button class="nav-button nav-button-primary">
+                Next →
+            </button>
+            
+            <button class="nav-button nav-button-danger">
+                <span>🔄</span> Reset
+            </button>
+        </div>
+    </div>
+</body>
+</html>

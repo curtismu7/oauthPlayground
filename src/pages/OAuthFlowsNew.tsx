@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Outlet } from 'react-router-dom';
 import { FiHelpCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import FlowCategories from '../components/FlowCategories';
@@ -77,6 +78,9 @@ const OAuthFlowsNew: React.FC = () => {
 			</PageHeader>
 
 			<FlowCategories />
+			
+			{/* Nested routes render here */}
+			<Outlet />
 		</FlowsContainer>
 	);
 };
