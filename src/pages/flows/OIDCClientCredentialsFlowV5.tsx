@@ -19,6 +19,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import FlowInfoCard from '../../components/FlowInfoCard';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { ClientAuthMethod, useClientCredentialsFlow } from '../../hooks/useClientCredentialsFlow';
@@ -116,8 +117,8 @@ const CollapsibleTitle = styled.h3`
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 	color: var(--color-text-secondary, #64748b);
-	transition: transform 0.2s;
-	transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transition: transform 0.2s ease;
+	transform: ${(props) => (props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
 	display: flex;
 	align-items: center;
 `;
@@ -1138,6 +1139,7 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 				</FlowHeader>
 
 				<FlowInfoCard flowInfo={getFlowInfo('client-credentials')!} />
+				<FlowSequenceDisplay flowType="client-credentials" />
 
 				{renderOIDCDifferences()}
 				{renderConfiguration()}

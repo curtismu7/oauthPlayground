@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
-import PageTitle from '../../components/PageTitle';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
@@ -875,9 +875,13 @@ console.log('Welcome, ' + user.name + '!');`,
 
 	return (
 		<Container>
-			<PageTitle
-				title="OpenID Connect UserInfo"
-				subtitle="Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests."
+			<FlowHeader
+				flowType="oidc"
+				customConfig={{
+					flowType: 'oidc',
+					title: 'User Info',
+					subtitle: 'Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests.',
+				}}
 			/>
 
 			<FlowCredentials

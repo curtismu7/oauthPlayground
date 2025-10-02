@@ -48,6 +48,13 @@ const SectionTitle = styled.div`
 	font-size: 1rem;
 `;
 
+const ChevronIcon = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: transform 0.2s;
+`;
+
 const SectionContent = styled.div<{ $isExpanded: boolean }>`
 	padding: ${props => props.$isExpanded ? '1.5rem' : '0'};
 	max-height: ${props => props.$isExpanded ? '1000px' : '0'};
@@ -307,7 +314,9 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 						<FiCheckCircle size={18} />
 						Saved Configuration Summary
 					</SectionTitle>
-					{isSummaryExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+					<ChevronIcon>
+						{isSummaryExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+					</ChevronIcon>
 				</SectionHeader>
 				<SectionContent $isExpanded={isSummaryExpanded}>
 					{(hasConfiguration && configurationDetails) || configuration ? (

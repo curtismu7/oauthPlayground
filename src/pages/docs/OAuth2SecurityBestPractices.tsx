@@ -16,6 +16,7 @@ import {
 	FiUsers,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -320,17 +321,7 @@ const InfoText = styled.p`
 const OAuth2SecurityBestPractices: React.FC = () => {
 	return (
 		<PageContainer>
-			<PageHeader>
-				<PageTitle>
-					<FiShield />
-					OAuth 2.0 Security Best Practices
-				</PageTitle>
-				<PageSubtitle>Comprehensive Security Guidelines for OAuth 2.0 Implementations</PageSubtitle>
-				<PageDescription>
-					Based on RFC 9700 - Best Current Practice for OAuth 2.0 Security. Essential security
-					recommendations for building secure OAuth 2.0 applications.
-				</PageDescription>
-			</PageHeader>
+			<FlowHeader flowType="oauth2-security-best-practices" />
 
 			<ReferenceCard>
 				<ReferenceIcon>

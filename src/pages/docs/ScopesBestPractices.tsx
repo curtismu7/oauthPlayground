@@ -12,6 +12,7 @@ import {
 	FiXCircle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -295,15 +296,7 @@ const BestPracticeContent = styled.div`
 const ScopesBestPractices: React.FC = () => {
 	return (
 		<Container>
-			<Header>
-				<Title>
-					<FiShield />
-					Best Practices on Scopes
-				</Title>
-				<Subtitle>
-					Comprehensive guide to designing, implementing, and managing OAuth 2.0 scopes at scale
-				</Subtitle>
-			</Header>
+			<FlowHeader flowType="scopes-best-practices" />
 
 			<Content>
 				<Section>

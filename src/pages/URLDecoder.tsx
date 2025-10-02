@@ -14,6 +14,7 @@ import {
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
 import { copyToClipboard } from '../utils/clipboard';
+import { FlowHeader } from '../services/flowHeaderService';
 
 // Styled components
 const Container = styled.div`
@@ -324,16 +325,7 @@ const URLDecoder: React.FC = () => {
 
 	return (
 		<Container>
-			<Header>
-				<Title>
-					<FiGlobe />
-					URL Decoder
-				</Title>
-				<Subtitle>
-					Decode and analyze URLs, especially useful for OAuth authorization URLs and callback
-					parameters. Break down complex URLs into readable components and parameters.
-				</Subtitle>
-			</Header>
+			<FlowHeader flowType="url-decoder" />
 
 			<ContentCard>
 				<CardHeader>
