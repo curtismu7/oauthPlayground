@@ -20,15 +20,13 @@ import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import FlowInfoCard from '../../components/FlowInfoCard';
-import { FlowWalkthrough } from '../../components/FlowWalkthrough';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	ExplanationHeading,
 	ExplanationSection,
-	FlowDiagram,
-	FlowStep,
-	FlowStepContent,
-	FlowStepNumber,
 } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
@@ -45,8 +43,8 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { applyClientAuthentication } from '../../utils/clientAuthentication';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -105,6 +103,7 @@ const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	requestParameterSignatureRequirement: 'DEFAULT',
 
 	// JWKS Settings
+	enableJWKS: false,
 	jwksMethod: 'JWKS_URL',
 	jwksUrl: '',
 	jwks: '',
@@ -137,24 +136,6 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
-`;
-
-const Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: var(--color-text-secondary, #4b5563);
-	margin: 0 auto;
-	max-width: 42rem;
-`;
 
 const MainCard = styled.div`
 	background-color: #ffffff;
@@ -304,7 +285,8 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transition: transform 0.2s ease;
 
 	svg {
 		width: 16px;
@@ -313,7 +295,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 
 	&:hover {
 		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
+			$collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)'};
 	}
 `;
 
@@ -982,8 +964,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 				// Client Authentication
 				clientAuthMethod: config.clientAuthMethod,
 				// JWT Authentication Settings
-				privateKey: config.privateKey,
-				keyId: config.keyId,
+				privateKey: config.privateKey || '',
+				keyId: config.keyId || '',
 				// Response Types
 				responseTypeCode: config.responseTypeCode,
 				responseTypeToken: config.responseTypeToken,
@@ -1203,7 +1185,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
 			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
 
-			const requestBody: any = {
+			const requestBody: Record<string, unknown> = {
 				token: token,
 				client_id: credentials.clientId,
 				introspection_endpoint: introspectionEndpoint,
@@ -1216,19 +1198,15 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 					const baseParams = new URLSearchParams();
 
-					const authResult = await applyClientAuthentication(
-						{
-							method: tokenAuthMethod as any,
-							clientId: credentials.clientId,
-							clientSecret:
-								tokenAuthMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
-							privateKey:
-								tokenAuthMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
-							keyId: credentials.keyId,
-							tokenEndpoint,
-						},
-						baseParams
-					);
+					const authConfig = {
+						method: tokenAuthMethod as 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt',
+						clientId: credentials.clientId,
+						tokenEndpoint,
+						...(tokenAuthMethod === 'client_secret_jwt' && credentials.clientSecret && { clientSecret: credentials.clientSecret }),
+						...(tokenAuthMethod === 'private_key_jwt' && credentials.privateKey && { privateKey: credentials.privateKey }),
+					};
+
+					const authResult = await applyClientAuthentication(authConfig, baseParams);
 
 					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
 					requestBody.client_assertion = authResult.body.get('client_assertion');
@@ -1384,15 +1362,16 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-			case 0:
-				return (
-					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
+		case 0:
+			return (
+				<>
+					<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('overview')}
+							aria-expanded={!collapsedSections.overview}
+						>
+							<CollapsibleTitle>
 									<FiInfo /> Authorization Code Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -1463,17 +1442,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<FlowWalkthrough
-							title="Authorization Flow Walkthrough"
-							icon={<FiGlobe size={24} />}
-							steps={[
-								{ title: 'User clicks login to start the flow' },
-								{ title: 'App redirects to PingOne with an authorization request' },
-								{ title: 'User authenticates and approves scopes' },
-								{ title: 'PingOne returns an authorization code to the redirect URI' },
-								{ title: 'Backend exchanges the code for tokens securely' },
-							]}
-						/>
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1532,52 +1500,23 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
+						<EnhancedFlowWalkthrough flowId="oauth-authorization-code" />
+
+						<FlowSequenceDisplay flowType="authorization-code" />
+
 						{/* Configuration Summary Card */}
 						<ConfigurationSummaryCard
 							configuration={credentials}
 							onSaveConfiguration={handleSaveConfiguration}
 							onLoadConfiguration={(config) => {
 								if (config) {
-									setCredentials(config);
+									controller.setCredentials(config);
 								}
 								v4ToastManager.showSuccess('Configuration loaded from saved settings');
 							}}
 							primaryColor="#3b82f6"
 						/>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowDiagram')}
-								aria-expanded={!collapsedSections.flowDiagram}
-							>
-								<CollapsibleTitle>
-									<FiGlobe /> Authorization Flow Walkthrough
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowDiagram && (
-								<CollapsibleContent>
-									<FlowDiagram>
-										{[
-											'User clicks login to start the flow',
-											'App redirects to PingOne with an authorization request',
-											'User authenticates and approves scopes',
-											'PingOne returns an authorization code to the redirect URI',
-											'Backend exchanges the code for tokens securely',
-										].map((description, index) => (
-											<FlowStep key={description}>
-												<FlowStepNumber>{index + 1}</FlowStepNumber>
-												<FlowStepContent>
-													<strong>{description}</strong>
-												</FlowStepContent>
-											</FlowStep>
-										))}
-									</FlowDiagram>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1752,36 +1691,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 										</div>
 									</InfoBox>
 
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Generate Code Verifier:</strong> A cryptographically random string
-												(43-128 characters)
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Create Code Challenge:</strong> SHA256 hash of the verifier, then
-												base64url encode it
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Send Challenge:</strong> Include code_challenge in authorization
-												request
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Verify Identity:</strong> Send code_verifier with token exchange to
-												prove authenticity
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -1958,36 +1867,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 										</div>
 									</InfoBox>
 
-									<FlowDiagram>
-										<FlowStep>
-											<FlowStepNumber>1</FlowStepNumber>
-											<FlowStepContent>
-												<strong>User Clicks Login:</strong> User initiates the OAuth flow in your
-												application
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>2</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Build Authorization URL:</strong> Create URL with all required
-												parameters
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>3</FlowStepNumber>
-											<FlowStepContent>
-												<strong>Redirect to PingOne:</strong> Send user to PingOne's authorization
-												endpoint
-											</FlowStepContent>
-										</FlowStep>
-										<FlowStep>
-											<FlowStepNumber>4</FlowStepNumber>
-											<FlowStepContent>
-												<strong>User Authenticates:</strong> User logs in and consents to
-												permissions
-											</FlowStepContent>
-										</FlowStep>
-									</FlowDiagram>
 
 									<InfoBox $variant="warning">
 										<FiAlertCircle size={20} />
@@ -2598,8 +2477,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					<TokenIntrospect
 						flowName="OAuth 2.0 Authorization Code Flow"
 						flowVersion="V5"
-						tokens={controller.tokens as any}
-						credentials={controller.credentials as any}
+						tokens={controller.tokens as unknown as Record<string, unknown>}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						userInfo={userInfo}
 						onFetchUserInfo={handleFetchUserInfo}
 						isFetchingUserInfo={isFetchingUserInfo}
@@ -2631,8 +2510,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					<TokenIntrospect
 						flowName="OAuth 2.0 Authorization Code Flow"
 						flowVersion="V5"
-						tokens={controller.tokens as any}
-						credentials={controller.credentials as any}
+						tokens={controller.tokens as unknown as Record<string, unknown>}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						onResetFlow={handleResetFlow}
 						onNavigateToTokenManagement={navigateToTokenManagement}
 						onIntrospectToken={handleIntrospectToken}
@@ -2717,15 +2596,15 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>OAuth 2.0 Authorization Code Flow (V5) - Unified</MainTitle>
-					<Subtitle>
-						Experience the full PingOne Authorization Code Flow with PKCE, powered by the reusable
-						V5 controller architecture.
-					</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowId="oauth-authorization-code-v5" />
 
-				<FlowInfoCard flowInfo={getFlowInfo('oauth-authorization-code')!} />
+				<EnhancedFlowInfoCard 
+					flowType="oauth-authorization-code"
+					showAdditionalInfo={true}
+					showDocumentation={true}
+					showCommonIssues={false}
+					showImplementationNotes={false}
+				/>
 
 				<MainCard>
 					<StepHeader>

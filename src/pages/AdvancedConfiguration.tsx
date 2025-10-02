@@ -510,7 +510,7 @@ const AdvancedConfiguration = () => {
 								alignItems: 'center',
 								gap: '0.5rem',
 								padding: '0.75rem 1.5rem',
-								backgroundColor: '#6b7280',
+								backgroundColor: '#ef4444',
 								color: 'white',
 								border: 'none',
 								borderRadius: '0.5rem',
@@ -519,6 +519,8 @@ const AdvancedConfiguration = () => {
 								fontWeight: '500',
 								transition: 'background-color 0.2s',
 							}}
+							onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
+							onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
 						>
 							<FiRotateCcw />
 							Reset to Defaults
