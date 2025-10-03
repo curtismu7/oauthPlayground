@@ -1116,7 +1116,9 @@ console.log('Welcome, ' + user.name + '!');`,
 													'Token expired check:',
 													tokens?.access_token ? isTokenExpired(tokens.access_token) : 'No token'
 												);
-												v4ToastManager.showSuccess('Debug information logged to browser console - check developer tools');
+												v4ToastManager.showSuccess(
+													'Debug information logged to browser console - check developer tools'
+												);
 											}}
 											style={{
 												padding: '8px 16px',

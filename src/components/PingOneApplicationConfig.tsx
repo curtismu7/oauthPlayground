@@ -117,11 +117,40 @@ const Input = styled.input`
 	border: 1px solid #d1d5db;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
+	background: #ffffff;
+	color: #111827;
+	cursor: text;
+	pointer-events: auto;
+	position: relative;
+	z-index: 5;
 	
 	&:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+	
+	&:disabled {
+		background: #f9fafb;
+		color: #6b7280;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	&[readonly] {
+		background: #f9fafb;
+		color: #6b7280;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	/* Ensure inputs are always interactive when not disabled/readonly */
+	&:not(:disabled):not([readonly]) {
+		background: #ffffff !important;
+		color: #111827 !important;
+		cursor: text !important;
+		pointer-events: auto !important;
+		user-select: text !important;
 	}
 `;
 
@@ -221,7 +250,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="client-auth-method"
 							value={value.clientAuthMethod}
-							onChange={(e) => update({ clientAuthMethod: e.target.value as any })}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ clientAuthMethod: e.target.value as PingOneApplicationState['clientAuthMethod'] })}
 						>
 							<option value="client_secret_post">Client Secret Post</option>
 							<option value="client_secret_basic">Client Secret Basic</option>
@@ -237,7 +266,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="pkce-enforcement"
 							value={value.pkceEnforcement}
-							onChange={(e) => update({ pkceEnforcement: e.target.value as any })}
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ pkceEnforcement: e.target.value as PingOneApplicationState['pkceEnforcement'] })}
 						>
 							<option value="OPTIONAL">Optional</option>
 							<option value="REQUIRED">Required</option>
@@ -251,10 +280,10 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 					<Grid>
 						<Field style={{ gridColumn: '1 / -1' }}>
 							<Label htmlFor="private-key">Private Key (PKCS8 Format)</Label>
-							<TextArea
+							<Textarea
 								id="private-key"
 								value={value.privateKey || ''}
-								onChange={(e) => update({ privateKey: e.target.value })}
+								onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => update({ privateKey: e.target.value })}
 								placeholder="-----BEGIN PRIVATE KEY-----&#10;MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC...&#10;-----END PRIVATE KEY-----"
 								rows={8}
 								style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}
@@ -268,8 +297,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 								id="key-id"
 								type="text"
 								value={value.keyId || ''}
-								onChange={(e) => update({ keyId: e.target.value })}
+								onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+									console.log('🔧 PingOne Key ID input changed:', e.target.value);
+									update({ keyId: e.target.value });
+								}}
 								placeholder="my-key-id"
+								disabled={false}
+								readOnly={false}
 							/>
 							<Helper>Key identifier to match with JWKS (if using JWKS)</Helper>
 						</Field>
@@ -332,8 +366,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 										id="jwks-url"
 										type="url"
 										value={value.jwksUrl}
-										onChange={(e) => update({ jwksUrl: e.target.value })}
+										onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+											console.log('🔧 PingOne JWKS URL input changed:', e.target.value);
+											update({ jwksUrl: e.target.value });
+										}}
 										placeholder="https://example.com/.well-known/jwks.json"
+										disabled={false}
+										readOnly={false}
 									/>
 									<Helper>URL where the JSON Web Key Set is hosted</Helper>
 								</Field>
@@ -402,8 +441,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
-							onChange={(e) =>
-								update({ requestParameterSignatureRequirement: e.target.value as any })
+							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+								update({ requestParameterSignatureRequirement: e.target.value as PingOneApplicationState['requestParameterSignatureRequirement'] })
 							}
 						>
 							<option value="DEFAULT">Default</option>

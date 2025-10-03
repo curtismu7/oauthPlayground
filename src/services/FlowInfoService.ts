@@ -132,7 +132,8 @@ export class FlowInfoService {
 			purpose: 'Authentication + Authorization',
 			specLayer: 'Defined in OIDC (OpenID Connect)',
 			nonceRequirement: 'Recommended for additional security',
-			validation: 'Validate ID Token (signature, issuer, audience, nonce if provided, at_hash), exchange code for tokens',
+			validation:
+				'Validate ID Token (signature, issuer, audience, nonce if provided, at_hash), exchange code for tokens',
 			securityNotes: [
 				'✅ Most secure OIDC flow',
 				'Use PKCE for public clients',
@@ -150,10 +151,7 @@ export class FlowInfoService {
 				'Applications requiring user identity',
 				'Enterprise applications',
 			],
-			notRecommendedFor: [
-				'Simple API-only applications',
-				'Machine-to-machine scenarios',
-			],
+			notRecommendedFor: ['Simple API-only applications', 'Machine-to-machine scenarios'],
 			implementationNotes: [
 				'Validate ID Token signature and claims',
 				'Implement proper nonce validation',
@@ -210,15 +208,8 @@ export class FlowInfoService {
 				'Scheduled jobs and automation',
 				'System-to-system integration',
 			],
-			recommendedFor: [
-				'Microservices',
-				'Automated systems',
-				'Backend integrations',
-			],
-			notRecommendedFor: [
-				'User-facing applications',
-				'Client-side applications',
-			],
+			recommendedFor: ['Microservices', 'Automated systems', 'Backend integrations'],
+			notRecommendedFor: ['User-facing applications', 'Client-side applications'],
 			implementationNotes: [
 				'Securely store client credentials',
 				'Implement proper scope management',
@@ -271,15 +262,8 @@ export class FlowInfoService {
 				'Gaming consoles',
 				'Command-line tools and CLI applications',
 			],
-			recommendedFor: [
-				'Input-constrained devices',
-				'TV and streaming applications',
-				'IoT devices',
-			],
-			notRecommendedFor: [
-				'Web applications',
-				'Mobile applications with full UI',
-			],
+			recommendedFor: ['Input-constrained devices', 'TV and streaming applications', 'IoT devices'],
+			notRecommendedFor: ['Web applications', 'Mobile applications with full UI'],
 			implementationNotes: [
 				'Implement proper polling intervals',
 				'Handle device code expiration',
@@ -319,7 +303,8 @@ export class FlowInfoService {
 			purpose: 'Combined authentication with immediate token access',
 			specLayer: 'Defined in OIDC (OpenID Connect)',
 			nonceRequirement: 'Required when ID Token returned',
-			validation: 'Validate ID Token immediately, exchange code for additional tokens, validate at_hash and c_hash',
+			validation:
+				'Validate ID Token immediately, exchange code for additional tokens, validate at_hash and c_hash',
 			securityNotes: [
 				'⚠️ Complex flow - use only when specifically needed',
 				'Combines benefits of implicit and authorization code flows',
@@ -336,10 +321,7 @@ export class FlowInfoService {
 				'Applications needing immediate ID Token access',
 				'Complex authentication requirements',
 			],
-			notRecommendedFor: [
-				'Simple applications',
-				'Standard authentication scenarios',
-			],
+			notRecommendedFor: ['Simple applications', 'Standard authentication scenarios'],
 			implementationNotes: [
 				'Implement proper ID Token validation',
 				'Handle both immediate and deferred token access',
@@ -403,10 +385,7 @@ export class FlowInfoService {
 				'Automated systems',
 				'Backend integrations requiring OIDC context',
 			],
-			notRecommendedFor: [
-				'User-facing applications',
-				'Client-side applications',
-			],
+			notRecommendedFor: ['User-facing applications', 'Client-side applications'],
 			implementationNotes: [
 				'Securely store client credentials',
 				'Implement proper scope management',
@@ -463,11 +442,7 @@ export class FlowInfoService {
 				'Simple authentication scenarios (deprecated)',
 			],
 			recommendedFor: [],
-			notRecommendedFor: [
-				'New applications',
-				'Production systems',
-				'Secure applications',
-			],
+			notRecommendedFor: ['New applications', 'Production systems', 'Secure applications'],
 			implementationNotes: [
 				'Migrate to Authorization Code Flow with PKCE',
 				'Implement proper nonce validation',
@@ -523,11 +498,7 @@ export class FlowInfoService {
 				'Simple client-side applications (deprecated)',
 			],
 			recommendedFor: [],
-			notRecommendedFor: [
-				'New applications',
-				'Production systems',
-				'Secure applications',
-			],
+			notRecommendedFor: ['New applications', 'Production systems', 'Secure applications'],
 			implementationNotes: [
 				'Migrate to Authorization Code Flow with PKCE',
 				'Implement proper token validation',
@@ -587,10 +558,7 @@ export class FlowInfoService {
 				'System integration scenarios',
 				'Automated management tasks',
 			],
-			notRecommendedFor: [
-				'End-user applications',
-				'Public-facing services',
-			],
+			notRecommendedFor: ['End-user applications', 'Public-facing services'],
 			implementationNotes: [
 				'Use PingOne admin credentials',
 				'Implement proper scope management',
@@ -711,11 +679,7 @@ export class FlowInfoService {
 				'Token metadata retrieval',
 				'Security monitoring and auditing',
 			],
-			recommendedFor: [
-				'All OAuth applications',
-				'API gateways and proxies',
-				'Resource servers',
-			],
+			recommendedFor: ['All OAuth applications', 'API gateways and proxies', 'Resource servers'],
 			notRecommendedFor: [],
 			implementationNotes: [
 				'Implement proper caching for performance',
@@ -777,10 +741,7 @@ export class FlowInfoService {
 				'Microservice architectures',
 				'Advanced integration scenarios',
 			],
-			notRecommendedFor: [
-				'Simple applications',
-				'Client-side applications',
-			],
+			notRecommendedFor: ['Simple applications', 'Client-side applications'],
 			implementationNotes: [
 				'Implement proper JWT signing and validation',
 				'Securely store private keys',
@@ -1010,7 +971,8 @@ export class FlowInfoService {
 			purpose: 'Decoupled Authentication + Authorization',
 			specLayer: 'Defined in OIDC CIBA (RFC 8628 extension)',
 			nonceRequirement: 'Not applicable (backchannel flow)',
-			validation: 'Validate ID Token signature, issuer, audience, and expiry. Poll with auth_req_id.',
+			validation:
+				'Validate ID Token signature, issuer, audience, and expiry. Poll with auth_req_id.',
 			securityNotes: [
 				'✅ Secure decoupled authentication flow',
 				'Requires CIBA-enabled PingOne environment',
@@ -1030,10 +992,7 @@ export class FlowInfoService {
 				'IoT and embedded devices',
 				'High-security applications',
 			],
-			notRecommendedFor: [
-				'Simple web applications',
-				'Direct user interaction scenarios',
-			],
+			notRecommendedFor: ['Simple web applications', 'Direct user interaction scenarios'],
 			implementationNotes: [
 				'Implement proper polling with backoff',
 				'Handle authentication request expiration',
@@ -1062,7 +1021,7 @@ export class FlowInfoService {
 				},
 			],
 		},
-		'par': {
+		par: {
 			flowType: 'oauth',
 			flowName: 'Pushed Authorization Request (PAR)',
 			flowVersion: 'V5',
@@ -1090,15 +1049,8 @@ export class FlowInfoService {
 				'High-security enterprise applications',
 				'Applications handling sensitive data',
 			],
-			recommendedFor: [
-				'High-security applications',
-				'Financial services',
-				'Healthcare systems',
-			],
-			notRecommendedFor: [
-				'Simple applications',
-				'Applications without security requirements',
-			],
+			recommendedFor: ['High-security applications', 'Financial services', 'Healthcare systems'],
+			notRecommendedFor: ['Simple applications', 'Applications without security requirements'],
 			implementationNotes: [
 				'Implement PAR endpoint on authorization server',
 				'Handle request URI generation and validation',
@@ -1123,7 +1075,7 @@ export class FlowInfoService {
 				},
 			],
 		},
-		'redirectless': {
+		redirectless: {
 			flowType: 'oauth',
 			flowName: 'Redirectless Flow',
 			flowVersion: 'V5',
@@ -1150,14 +1102,8 @@ export class FlowInfoService {
 				'Mobile app in-app browsers',
 				'Custom authentication flows',
 			],
-			recommendedFor: [
-				'Experimental implementations',
-				'Custom authentication scenarios',
-			],
-			notRecommendedFor: [
-				'Production applications',
-				'Standard OAuth implementations',
-			],
+			recommendedFor: ['Experimental implementations', 'Custom authentication scenarios'],
+			notRecommendedFor: ['Production applications', 'Standard OAuth implementations'],
 			implementationNotes: [
 				'Implement custom flow handling',
 				'Ensure proper security measures',
@@ -1365,7 +1311,9 @@ export class FlowInfoService {
 		}
 	}
 
-	private static getUserInteractionLabel(userInteraction: DetailedFlowInfo['userInteraction']): string {
+	private static getUserInteractionLabel(
+		userInteraction: DetailedFlowInfo['userInteraction']
+	): string {
 		switch (userInteraction) {
 			case 'required':
 				return 'User Interaction Required';

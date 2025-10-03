@@ -39,9 +39,9 @@ const StepContainer = styled.div`
 
 const StepCard = styled(Card)<{ $isActive?: boolean; $isCompleted?: boolean; $isError?: boolean }>`
   border-left: 4px solid ${({ $isActive, $isCompleted, $isError }) =>
-    $isError ? '#dc2626' : $isCompleted ? '#059669' : $isActive ? '#0070cc' : '#e5e7eb'};
+		$isError ? '#dc2626' : $isCompleted ? '#059669' : $isActive ? '#0070cc' : '#e5e7eb'};
   background-color: ${({ $isActive, $isCompleted, $isError }) =>
-    $isError ? '#fef2f2' : $isCompleted ? '#f0fdf4' : $isActive ? '#eff6ff' : '#ffffff'};
+		$isError ? '#fef2f2' : $isCompleted ? '#f0fdf4' : $isActive ? '#eff6ff' : '#ffffff'};
   transition: all 0.2s ease;
 `;
 
@@ -62,9 +62,9 @@ const StepNumber = styled.div<{ $isActive?: boolean; $isCompleted?: boolean; $is
   font-weight: 600;
   font-size: 0.875rem;
   background-color: ${({ $isActive, $isCompleted, $isError }) =>
-    $isError ? '#dc2626' : $isCompleted ? '#059669' : $isActive ? '#0070cc' : '#e5e7eb'};
+		$isError ? '#dc2626' : $isCompleted ? '#059669' : $isActive ? '#0070cc' : '#e5e7eb'};
   color: ${({ $isActive, $isCompleted, $isError }) =>
-    $isError || $isCompleted || $isActive ? '#ffffff' : '#6b7280'};
+		$isError || $isCompleted || $isActive ? '#ffffff' : '#6b7280'};
 `;
 
 const StepTitle = styled.h3`
@@ -126,7 +126,7 @@ const CodeBlock = styled.pre`
 
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   background-color: ${({ $variant }) =>
-    $variant === 'danger' ? '#dc2626' : $variant === 'secondary' ? '#6b7280' : '#0070cc'};
+		$variant === 'danger' ? '#dc2626' : $variant === 'secondary' ? '#6b7280' : '#0070cc'};
   color: white;
   border: none;
   border-radius: 0.375rem;
@@ -141,7 +141,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 
   &:hover {
     background-color: ${({ $variant }) =>
-      $variant === 'danger' ? '#b91c1c' : $variant === 'secondary' ? '#4b5563' : '#0056b3'};
+			$variant === 'danger' ? '#b91c1c' : $variant === 'secondary' ? '#4b5563' : '#0056b3'};
   }
 
   &:disabled {
@@ -276,16 +276,18 @@ const PingOnePARFlow: React.FC = () => {
 			try {
 				const loadedConfig = pingOneConfigService.loadConfig();
 				setConfig(loadedConfig);
-				
+
 				// Update form with config values
-				setPARRequest(prev => ({
+				setPARRequest((prev) => ({
 					...prev,
 					client_id: loadedConfig.clientId,
 					redirect_uri: loadedConfig.redirectUri,
 				}));
 
 				if (!pingOneConfigService.isConfigValid()) {
-					setError('PingOne configuration is incomplete. Please check environment variables or configuration settings.');
+					setError(
+						'PingOne configuration is incomplete. Please check environment variables or configuration settings.'
+					);
 				}
 				// Keep currentStep at 0 to show the configuration step first
 			} catch (err) {
@@ -312,8 +314,8 @@ const PingOnePARFlow: React.FC = () => {
 			.replace(/\+/g, '-')
 			.replace(/\//g, '_')
 			.replace(/=/g, '');
-		
-		setPARRequest(prev => ({
+
+		setPARRequest((prev) => ({
 			...prev,
 			code_challenge: codeChallenge,
 			state: generateRandomString(32),
@@ -364,7 +366,6 @@ const PingOnePARFlow: React.FC = () => {
 				requestUri: parData.request_uri,
 				expiresIn: parData.expires_in,
 			});
-
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 			setError(errorMessage);
@@ -416,8 +417,9 @@ const PingOnePARFlow: React.FC = () => {
 				<div>
 					<strong>PingOne PAR Integration</strong>
 					<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-						This flow demonstrates Pushed Authorization Request (PAR) using your PingOne configuration.
-						PAR enhances security by pushing authorization parameters to the server before redirecting the user.
+						This flow demonstrates Pushed Authorization Request (PAR) using your PingOne
+						configuration. PAR enhances security by pushing authorization parameters to the server
+						before redirecting the user.
 					</p>
 				</div>
 			</InfoBox>
@@ -459,22 +461,33 @@ const PingOnePARFlow: React.FC = () => {
 											{config ? (
 												<div>
 													<InfoBox>
-														<FiCheckCircle style={{ color: '#059669', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+														<FiCheckCircle
+															style={{
+																color: '#059669',
+																fontSize: '1.25rem',
+																marginTop: '0.125rem',
+															}}
+														/>
 														<div>
 															<strong>Configuration Loaded Successfully</strong>
 															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-																PingOne configuration loaded from {config.environmentId ? 'environment variables' : 'localStorage'}.
+																PingOne configuration loaded from{' '}
+																{config.environmentId ? 'environment variables' : 'localStorage'}.
 															</p>
 														</div>
 													</InfoBox>
 
 													<ConfigDisplay>
-														{JSON.stringify({
-															environmentId: config.environmentId,
-															clientId: config.clientId,
-															parEndpoint: config.parEndpoint,
-															authorizationEndpoint: config.authorizationEndpoint,
-														}, null, 2)}
+														{JSON.stringify(
+															{
+																environmentId: config.environmentId,
+																clientId: config.clientId,
+																parEndpoint: config.parEndpoint,
+																authorizationEndpoint: config.authorizationEndpoint,
+															},
+															null,
+															2
+														)}
 													</ConfigDisplay>
 
 													<Button onClick={() => setCurrentStep(1)}>
@@ -484,10 +497,18 @@ const PingOnePARFlow: React.FC = () => {
 											) : error ? (
 												<div>
 													<ErrorBox>
-														<FiXCircle style={{ color: '#dc2626', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+														<FiXCircle
+															style={{
+																color: '#dc2626',
+																fontSize: '1.25rem',
+																marginTop: '0.125rem',
+															}}
+														/>
 														<div>
 															<strong>Configuration Error</strong>
-															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{error}</p>
+															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+																{error}
+															</p>
 														</div>
 													</ErrorBox>
 													<Button onClick={() => window.location.reload()} $variant="secondary">
@@ -497,11 +518,18 @@ const PingOnePARFlow: React.FC = () => {
 											) : (
 												<div>
 													<WarningBox>
-														<FiClock style={{ color: '#f59e0b', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+														<FiClock
+															style={{
+																color: '#f59e0b',
+																fontSize: '1.25rem',
+																marginTop: '0.125rem',
+															}}
+														/>
 														<div>
 															<strong>Loading Configuration...</strong>
 															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-																Loading PingOne configuration from environment variables or localStorage.
+																Loading PingOne configuration from environment variables or
+																localStorage.
 															</p>
 														</div>
 													</WarningBox>
@@ -516,7 +544,9 @@ const PingOnePARFlow: React.FC = () => {
 												<Label>Response Type</Label>
 												<Select
 													value={parRequest.response_type}
-													onChange={(e) => setPARRequest(prev => ({ ...prev, response_type: e.target.value }))}
+													onChange={(e) =>
+														setPARRequest((prev) => ({ ...prev, response_type: e.target.value }))
+													}
 												>
 													<option value="code">code</option>
 													<option value="code id_token">code id_token</option>
@@ -529,7 +559,9 @@ const PingOnePARFlow: React.FC = () => {
 												<Label>Scope</Label>
 												<Input
 													value={parRequest.scope}
-													onChange={(e) => setPARRequest(prev => ({ ...prev, scope: e.target.value }))}
+													onChange={(e) =>
+														setPARRequest((prev) => ({ ...prev, scope: e.target.value }))
+													}
 													placeholder="openid profile email"
 												/>
 											</InputGroup>
@@ -538,7 +570,9 @@ const PingOnePARFlow: React.FC = () => {
 												<Label>ACR Values (Optional)</Label>
 												<Input
 													value={parRequest.acr_values || ''}
-													onChange={(e) => setPARRequest(prev => ({ ...prev, acr_values: e.target.value }))}
+													onChange={(e) =>
+														setPARRequest((prev) => ({ ...prev, acr_values: e.target.value }))
+													}
 													placeholder="1"
 												/>
 											</InputGroup>
@@ -547,7 +581,9 @@ const PingOnePARFlow: React.FC = () => {
 												<Label>Prompt (Optional)</Label>
 												<Select
 													value={parRequest.prompt || ''}
-													onChange={(e) => setPARRequest(prev => ({ ...prev, prompt: e.target.value }))}
+													onChange={(e) =>
+														setPARRequest((prev) => ({ ...prev, prompt: e.target.value }))
+													}
 												>
 													<option value="">None</option>
 													<option value="login">login</option>
@@ -573,7 +609,10 @@ const PingOnePARFlow: React.FC = () => {
 												</ConfigDisplay>
 											)}
 
-											<Button onClick={() => setCurrentStep(2)} disabled={!parRequest.code_challenge}>
+											<Button
+												onClick={() => setCurrentStep(2)}
+												disabled={!parRequest.code_challenge}
+											>
 												Next: Push Authorization Request
 											</Button>
 										</div>
@@ -582,7 +621,9 @@ const PingOnePARFlow: React.FC = () => {
 									{step.id === 'push' && currentStep === 2 && (
 										<div>
 											<InfoBox>
-												<FiInfo style={{ color: '#3b82f6', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+												<FiInfo
+													style={{ color: '#3b82f6', fontSize: '1.25rem', marginTop: '0.125rem' }}
+												/>
 												<div>
 													<strong>PAR Request Details</strong>
 													<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -592,7 +633,7 @@ const PingOnePARFlow: React.FC = () => {
 											</InfoBox>
 
 											<CodeBlock>
-{`POST ${config?.parEndpoint || '/api/par'}
+												{`POST ${config?.parEndpoint || '/api/par'}
 Content-Type: application/json
 Authorization: Basic ${config ? btoa(`${config.clientId}:${config.clientSecret}`) : '...'}
 
@@ -633,10 +674,18 @@ ${parRequest.prompt ? `,  "prompt": "${parRequest.prompt}"` : ''}
 											{error ? (
 												<div>
 													<ErrorBox>
-														<FiXCircle style={{ color: '#dc2626', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+														<FiXCircle
+															style={{
+																color: '#dc2626',
+																fontSize: '1.25rem',
+																marginTop: '0.125rem',
+															}}
+														/>
 														<div>
 															<strong>PAR Request Error</strong>
-															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{error}</p>
+															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+																{error}
+															</p>
 														</div>
 													</ErrorBox>
 													<Button onClick={() => setCurrentStep(2)} $variant="secondary">
@@ -646,7 +695,13 @@ ${parRequest.prompt ? `,  "prompt": "${parRequest.prompt}"` : ''}
 											) : parResponse ? (
 												<div>
 													<InfoBox>
-														<FiCheckCircle style={{ color: '#059669', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+														<FiCheckCircle
+															style={{
+																color: '#059669',
+																fontSize: '1.25rem',
+																marginTop: '0.125rem',
+															}}
+														/>
 														<div>
 															<strong>PAR Request Successful</strong>
 															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
@@ -675,18 +730,23 @@ ${parRequest.prompt ? `,  "prompt": "${parRequest.prompt}"` : ''}
 											{authorizationUrl ? (
 												<div>
 													<InfoBox>
-														<FiCheckCircle style={{ color: '#059669', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+														<FiCheckCircle
+															style={{
+																color: '#059669',
+																fontSize: '1.25rem',
+																marginTop: '0.125rem',
+															}}
+														/>
 														<div>
 															<strong>Authorization URL Generated</strong>
 															<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-																The authorization URL is ready. Click to test the complete PAR flow with PingOne.
+																The authorization URL is ready. Click to test the complete PAR flow
+																with PingOne.
 															</p>
 														</div>
 													</InfoBox>
 
-													<CodeBlock>
-														{authorizationUrl}
-													</CodeBlock>
+													<CodeBlock>{authorizationUrl}</CodeBlock>
 
 													<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
 														<Button onClick={() => copyToClipboard(authorizationUrl)}>

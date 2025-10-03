@@ -14,7 +14,6 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -40,12 +39,12 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-
+import { FlowHeader } from '../../services/flowHeaderService';
 // New service imports for enhanced functionality
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowStateService } from '../../services/flowStateService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Flow configuration
 const FLOW_TYPE = 'implicit';
@@ -117,19 +116,19 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-const HeaderSection = styled.div`
+const _HeaderSection = styled.div`
 	text-align: center;
 	margin-bottom: 2rem;
 `;
 
-const MainTitle = styled.h1`
+const _MainTitle = styled.h1`
 	font-size: 1.875rem;
 	font-weight: 700;
 	color: var(--color-text-primary, #111827);
 	margin-bottom: 1rem;
 `;
 
-const Subtitle = styled.p`
+const _Subtitle = styled.p`
 	font-size: 1.125rem;
 	color: var(--color-text-secondary, #4b5563);
 	margin: 0 auto;
@@ -689,49 +688,74 @@ const OAuthImplicitFlowV5: React.FC = () => {
 
 			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
 
-			const response = await fetch('/api/introspect-token', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					token: token,
-					client_id: credentials.clientId,
-					introspection_endpoint: introspectionEndpoint,
-					token_auth_method: 'none',
-					client_secret: '', // Not needed for public clients
-				}),
+			// For implicit flow (public client), use client_id only (no client_secret)
+			const params = new URLSearchParams({
+				token: token,
+				client_id: credentials.clientId,
 			});
 
-			const data = await response.json();
+			console.log('🔍 [OAuthImplicitFlowV5] Introspecting token:', {
+				introspectionEndpoint,
+				clientId: credentials.clientId,
+				tokenLength: token.length,
+			});
+
+			const response = await fetch(introspectionEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: params.toString(),
+			});
 
 			if (!response.ok) {
-				throw new Error(data.error_description || data.error || 'Introspection failed');
+				const errorText = await response.text();
+				console.error('❌ [OAuthImplicitFlowV5] Introspection failed:', {
+					status: response.status,
+					statusText: response.statusText,
+					errorText,
+				});
+				throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
 			}
 
+			const data = await response.json();
+			console.log('✅ [OAuthImplicitFlowV5] Introspection successful:', data);
 			return data;
 		},
 		[controller.credentials]
 	);
 
 	// Validation and navigation functions using services
-	const isStepValid = useCallback((stepIndex: number) => {
-		switch (stepIndex) {
-			case 0: return true;
-			case 1: return Boolean(controller.authUrl);
-			case 2: return Boolean(controller.tokens);
-			case 3: return Boolean(controller.tokens);
-			case 4: return true;
-			default: return false;
-		}
-	}, [controller.authUrl, controller.tokens]);
+	const isStepValid = useCallback(
+		(stepIndex: number) => {
+			switch (stepIndex) {
+				case 0:
+					return true;
+				case 1:
+					return Boolean(controller.authUrl);
+				case 2:
+					return Boolean(controller.tokens);
+				case 3:
+					return Boolean(controller.tokens);
+				case 4:
+					return true;
+				default:
+					return false;
+			}
+		},
+		[controller.authUrl, controller.tokens]
+	);
 
 	const getStepRequirements = useCallback((stepIndex: number) => {
 		switch (stepIndex) {
-			case 1: return ['Configure credentials and generate authorization URL'];
-			case 2: return ['Complete authorization and receive tokens'];
-			case 3: return ['Validate and inspect received tokens'];
-			default: return [];
+			case 1:
+				return ['Configure credentials and generate authorization URL'];
+			case 2:
+				return ['Complete authorization and receive tokens'];
+			case 3:
+				return ['Validate and inspect received tokens'];
+			default:
+				return [];
 		}
 	}, []);
 
@@ -859,8 +883,6 @@ const OAuthImplicitFlowV5: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
-									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
-
 									<CredentialsInput
 										environmentId={credentials.environmentId || ''}
 										clientId={credentials.clientId || ''}
@@ -879,6 +901,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										copiedField={copiedField}
 										showClientSecret={false}
 									/>
+
+									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
 
 									<ActionRow>
 										<Button onClick={handleSaveConfiguration} $variant="primary">

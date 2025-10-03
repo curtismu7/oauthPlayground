@@ -15,7 +15,7 @@ import CollapsibleIcon from '../components/CollapsibleIcon';
 import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0;
   background: white;

@@ -290,7 +290,7 @@ const NavButton = styled.button`
 const InteractiveTutorials = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Interactive Tutorials', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

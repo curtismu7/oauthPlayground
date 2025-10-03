@@ -38,7 +38,10 @@ export interface AuthContextType extends AuthState {
 		scopes: string[];
 		environmentId: string;
 	} | null;
-	login: (redirectAfterLogin?: string, callbackType?: 'dashboard' | 'oauth') => Promise<LoginResult>;
+	login: (
+		redirectAfterLogin?: string,
+		callbackType?: 'dashboard' | 'oauth'
+	) => Promise<LoginResult>;
 	logout: () => void;
 	handleCallback: (url: string) => Promise<LoginResult>;
 	setAuthState: (updates: Partial<AuthState>) => void;

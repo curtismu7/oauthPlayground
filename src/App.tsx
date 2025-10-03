@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
-import { UISettingsProvider } from './contexts/UISettingsContext';
-import { GlobalStyle, theme } from './styles/global';
+import { type UISettings, UISettingsProvider, useUISettings } from './contexts/UISettingsContext';
+import { PageFooter } from './services/footerService';
+import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import FlowComparisonTool from './components/FlowComparisonTool';
+import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
@@ -18,8 +20,6 @@ import Callback from './pages/Callback';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import Documentation from './pages/Documentation';
-import FlowHeaderDemo from './components/FlowHeaderDemo';
-import Flows from './pages/Flows';
 import Login from './pages/Login';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import { credentialManager } from './utils/credentialManager';
@@ -50,6 +50,7 @@ import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractice
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
+import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
@@ -57,22 +58,21 @@ import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // Import all the new OAuth and OIDC flow components
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
+import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
+import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
-import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
-import MFAFlow from './pages/flows/MFAFlow';
 import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthImplicitFlowV5_1 from './pages/flows/OAuthImplicitFlowV5_1';
+import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
 // V3 OIDC flows backed up
-import OIDCClientCredentialsFlowV5 from './pages/flows/OIDCClientCredentialsFlowV5';
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 // OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 // OIDCImplicitFlowV3 backed up
 import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
-import OIDCResourceOwnerPasswordFlow from './pages/flows/OIDCResourceOwnerPasswordFlow';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
 // PingOnePARFlow (non-V5) backed up
@@ -83,14 +83,10 @@ import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
 import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
-import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
-import OAuth21 from './pages/OAuth21';
 import OIDC from './pages/OIDC';
-import OIDCSessionManagement from './pages/OIDCSessionManagement';
-import SDKSampleApp from './pages/SDKSampleApp';
 import TokenManagement from './pages/TokenManagement';
 import URLDecoder from './pages/URLDecoder';
 
@@ -100,27 +96,80 @@ const AppContainer = styled.div`
   background-color: ${({ theme }) => theme.colors.gray100};
 `;
 
+const ContentColumn = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+`;
+
 const MainContent = styled.main`
   flex: 1;
   padding: 1.5rem;
   margin-left: 320px;
-  margin-top: 80px;
-  overflow-y: auto;
+  margin-top: 100px;
+  padding-bottom: 2rem;
+  overflow: visible;
   transition: margin 0.3s ease;
-  
+
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    margin-left: 0;
     padding: 1rem;
-    margin-top: 80px;
+    margin-left: 0;
+    margin-top: 100px;
   }
 `;
 
-const ScrollToTop = () => {
-	const location = useLocation();
+const COLOR_SCHEMES: Record<UISettings['colorScheme'], Partial<DefaultTheme['colors']>> = {
+	blue: {
+		primary: '#2563eb',
+		primaryLight: '#3b82f6',
+		primaryDark: '#1d4ed8',
+		secondary: '#10b981',
+	},
+	green: {
+		primary: '#059669',
+		primaryLight: '#34d399',
+		primaryDark: '#047857',
+		secondary: '#2563eb',
+	},
+	purple: {
+		primary: '#7c3aed',
+		primaryLight: '#a78bfa',
+		primaryDark: '#5b21b6',
+		secondary: '#f59e0b',
+	},
+	orange: {
+		primary: '#ea580c',
+		primaryLight: '#fb923c',
+		primaryDark: '#c2410c',
+		secondary: '#2563eb',
+	},
+	red: {
+		primary: '#dc2626',
+		primaryLight: '#f87171',
+		primaryDark: '#b91c1c',
+		secondary: '#2563eb',
+	},
+};
 
+const DARK_MODE_OVERRIDES: Partial<DefaultTheme['colors']> = {
+	light: '#0f172a',
+	dark: '#f8fafc',
+	gray100: '#111827',
+	gray200: '#1f2937',
+	gray300: '#374151',
+	gray400: '#4b5563',
+	gray500: '#6b7280',
+	gray600: '#9ca3af',
+	gray700: '#d1d5db',
+	gray800: '#e5e7eb',
+	gray900: '#f9fafb',
+};
+
+const ScrollToTop = () => {
 	useEffect(() => {
 		window.scrollTo(0, 0);
-	}, [location.pathname]);
+	}, []);
 
 	return null;
 };
@@ -131,122 +180,57 @@ const AppRoutes = () => {
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 
-	// Removed global scroll to bottom - individual pages now handle their own scroll behavior
-
-	// Close sidebar when route changes
+	// Close sidebar on mount
 	useEffect(() => {
 		setSidebarOpen(false);
 	}, []);
 
-	// Show page change spinner when route changes
+	// Startup spinner
 	useEffect(() => {
 		setShowPageSpinner(true);
-
-		// Hide spinner after minimum display time
-		const timer = setTimeout(() => {
-			setShowPageSpinner(false);
-		}, 800);
-
+		const timer = setTimeout(() => setShowPageSpinner(false), 800);
 		return () => clearTimeout(timer);
 	}, []);
 
-	// Check for existing PingOne configuration on app load
+	// Initial credential check
 	useEffect(() => {
-		console.log(' [App] useEffect triggered - checking configuration...');
 		const checkConfiguration = () => {
-			console.log(' [App] Checking for existing configuration...');
 			try {
-				// Check if credentials modal should be shown based on flow config
 				const flowConfig = JSON.parse(
 					localStorage.getItem('enhanced-flow-authorization-code') || '{}'
 				);
-				const shouldShowCredentialsModal = flowConfig.showCredentialsModal === true; // Only show if explicitly enabled
+				const shouldShowCredentialsModal = flowConfig.showCredentialsModal === true;
+				const skipStartupModal = localStorage.getItem('skip_startup_credentials_modal') === 'true';
 
-				console.log(' [App] Flow config showCredentialsModal:', shouldShowCredentialsModal);
-				console.log(' [App] Flow config raw value:', flowConfig.showCredentialsModal);
-				console.log(' [App] Full flow config:', flowConfig);
-
-				// Debug: Check all localStorage keys
-				console.log(' [App] All localStorage keys:', Object.keys(localStorage));
-				console.log(
-					' [App] pingone_permanent_credentials:',
-					localStorage.getItem('pingone_permanent_credentials')
-				);
-				console.log(
-					' [App] pingone_session_credentials:',
-					localStorage.getItem('pingone_session_credentials')
-				);
-				console.log(' [App] pingone_config:', localStorage.getItem('pingone_config'));
-
-				// Check if we have any credentials using the credential manager
-				// Try to load from config credentials first, then fall back to authz flow credentials
 				let allCredentials = credentialManager.loadConfigCredentials();
 				if (!allCredentials.environmentId && !allCredentials.clientId) {
 					allCredentials = credentialManager.loadAuthzFlowCredentials();
 				}
-				console.log(' [App] All credentials from manager:', allCredentials);
 
 				const hasPermanentCredentials = !!(allCredentials.environmentId && allCredentials.clientId);
 				const hasSessionCredentials = !!allCredentials.clientSecret;
 
-				console.log(' [App] Configuration check:', {
-					hasPermanentCredentials,
-					hasSessionCredentials,
-					overallStatus: credentialManager.getCredentialsStatus(),
-					allCredentials,
-					shouldShowCredentialsModal,
-				});
-
-				// Check if user has chosen to skip startup credentials modal
-				const skipStartupModal = localStorage.getItem('skip_startup_credentials_modal') === 'true';
-
-				// Only show modal if no credentials are found AND credentials modal is enabled AND user hasn't chosen to skip
 				if (
 					!hasPermanentCredentials &&
 					!hasSessionCredentials &&
 					shouldShowCredentialsModal &&
 					!skipStartupModal
 				) {
-					console.log(
-						' [App] No credentials found and credentials modal enabled, showing setup modal'
-					);
-					console.log(' [App] Modal will show because:', {
-						hasPermanentCredentials,
-						hasSessionCredentials,
-						shouldShowCredentialsModal,
-						flowConfigValue: flowConfig.showCredentialsModal,
-					});
 					setShowCredentialModal(true);
 				} else {
-					if (skipStartupModal) {
-						console.log(' [App] Startup credentials modal skipped (user preference)');
-					} else {
-						console.log(
-							' [App] Credentials found or credentials modal disabled, skipping setup modal'
-						);
-					}
-					console.log(' [App] Modal will NOT show because:', {
-						hasPermanentCredentials,
-						hasSessionCredentials,
-						shouldShowCredentialsModal,
-						flowConfigValue: flowConfig.showCredentialsModal,
-					});
 					setShowCredentialModal(false);
 				}
 			} catch (error) {
 				console.warn(' [App] Error checking configuration:', error);
-				// Show modal on error to be safe
 				setShowCredentialModal(true);
 			}
 		};
 
-		// Add a small delay to ensure localStorage is ready
-		setTimeout(checkConfiguration, 100);
+		const timer = setTimeout(checkConfiguration, 100);
+		return () => clearTimeout(timer);
 	}, []);
 
-	const toggleSidebar = () => {
-		setSidebarOpen(!sidebarOpen);
-	};
+	const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
 	const handleCredentialSetupComplete = () => {
 		setShowCredentialModal(false);
@@ -260,121 +244,149 @@ const AppRoutes = () => {
 			<AppContainer>
 				<Navbar toggleSidebar={toggleSidebar} />
 				<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-				<MainContent>
-					<Routes>
-						<Route path="/login" element={<Login />} />
-						<Route path="/callback" element={<Callback />} />
+				<ContentColumn>
+					<MainContent>
+						<Routes>
+							<Route path="/login" element={<Login />} />
+							<Route path="/callback" element={<Callback />} />
 
-						{/* Per-flow callback routes */}
-						<Route path="/authz-callback" element={<AuthzCallback />} />
-						<Route path="/oauth-v3-callback" element={<OAuthV3Callback />} />
-						<Route path="/hybrid-callback" element={<HybridCallback />} />
-						<Route path="/implicit-callback" element={<ImplicitCallback />} />
-						<Route path="/implicit-callback-v3" element={<ImplicitCallbackV3 />} />
-						<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
-						<Route path="/device-code-status" element={<DeviceCodeStatus />} />
-						<Route path="/dashboard-callback" element={<DashboardCallback />} />
+							{/* Per-flow callback routes */}
+							<Route path="/authz-callback" element={<AuthzCallback />} />
+							<Route path="/oauth-v3-callback" element={<OAuthV3Callback />} />
+							<Route path="/hybrid-callback" element={<HybridCallback />} />
+							<Route path="/implicit-callback" element={<ImplicitCallback />} />
+							<Route path="/implicit-callback-v3" element={<ImplicitCallbackV3 />} />
+							<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
+							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
+							<Route path="/dashboard-callback" element={<DashboardCallback />} />
 
-						<Route path="/" element={<Navigate to="/dashboard" replace />} />
+							<Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-						<Route path="/dashboard" element={<Dashboard />} />
+							<Route path="/dashboard" element={<Dashboard />} />
 
-						<Route path="/flows" element={<OAuthFlowsNew />}>
-							<Route path="compare" element={<FlowComparisonTool />} />
-							<Route path="diagrams" element={<InteractiveFlowDiagram />} />
-							<Route path="mfa" element={<MFAFlow />} />
-						</Route>
-						{/* Backed up V2/V3/V4 routes removed */}
-						<Route
-							path="/flows/oauth-authorization-code-v5"
-							element={<OAuthAuthorizationCodeFlowV5 />}
-						/>
-						<Route
-							path="/flows/oidc-authorization-code-v5"
-							element={<OIDCAuthorizationCodeFlowV5 />}
-						/>
-						<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-						<Route path="/flows/oauth-implicit-v5-1" element={<OAuthImplicitFlowV5_1 />} />
-						<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
-						<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
-						<Route
-							path="/flows/oidc-device-authorization-v5"
-							element={<OIDCDeviceAuthorizationFlowV5 />}
-						/>
-						<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
-						<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
-						<Route
-							path="/flows/oidc-client-credentials-v5"
-							element={<OIDCClientCredentialsFlowV5 />}
-						/>
-						<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
-						<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
-						<Route path="/hybrid-callback" element={<HybridCallback />} />
-						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
-						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
-						{/* V3/V4 routes backed up - use V5 versions instead */}
-						<Route path="/flows/par" element={<PARFlow />} />
-						<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
+							<Route path="/flows" element={<OAuthFlowsNew />}>
+								<Route path="compare" element={<FlowComparisonTool />} />
+								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
+								<Route path="mfa" element={<MFAFlow />} />
+							</Route>
+							{/* Backed up V2/V3/V4 routes removed */}
+							<Route
+								path="/flows/oauth-authorization-code-v5"
+								element={<OAuthAuthorizationCodeFlowV5 />}
+							/>
+							<Route
+								path="/flows/oidc-authorization-code-v5"
+								element={<OIDCAuthorizationCodeFlowV5 />}
+							/>
+							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+							<Route path="/flows/oauth-implicit-v5-1" element={<OAuthImplicitFlowV5_1 />} />
+							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+							<Route
+								path="/flows/device-authorization-v5"
+								element={<DeviceAuthorizationFlowV5 />}
+							/>
+							<Route
+								path="/flows/oidc-device-authorization-v5"
+								element={<OIDCDeviceAuthorizationFlowV5 />}
+							/>
+							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+							<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
+							<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
+							<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
+							<Route path="/hybrid-callback" element={<HybridCallback />} />
+							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
+							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
+							{/* V3/V4 routes backed up - use V5 versions instead */}
+							<Route path="/flows/par" element={<PARFlow />} />
+							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
 
-						{/* Unsupported by PingOne flows */}
-					<Route path="/oauth/resource-owner-password" element={<OAuthResourceOwnerPasswordFlowV5 />} />
-					<Route path="/oidc/resource-owner-password" element={<OIDCResourceOwnerPasswordFlowV5 />} />
-					{/* PingOne PAR Flow - V5 only */}
-						<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
+							{/* Unsupported by PingOne flows */}
+							<Route
+								path="/oauth/resource-owner-password"
+								element={<OAuthResourceOwnerPasswordFlowV5 />}
+							/>
+							<Route
+								path="/oidc/resource-owner-password"
+								element={<OIDCResourceOwnerPasswordFlowV5 />}
+							/>
+							{/* PingOne PAR Flow - V5 only */}
+							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
 
-						{/* Legacy route removed - use V5 */}
-					<Route
-						path="/flows/oauth2-resource-owner-password"
-						element={<OAuth2ResourceOwnerPasswordFlow />}
-					/>
-					{/* Test MFA Flow */}
-					<Route path="/mfa-test" element={<MFAFlow />} />
-					{/* WorkerTokenFlowV3 backed up - use V5 */}
-					{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
-					<Route path="/oidc" element={<OIDC />}>
-						<Route path="userinfo" element={<UserInfoFlow />} />
-						<Route path="id-tokens" element={<IDTokensFlow />} />
-						<Route path="resource-owner-password" element={<OIDCResourceOwnerPasswordFlowV5 />} />
-						<Route path="jwt-bearer" element={<JWTBearerFlow />} />
-					</Route>
-					{/* Backward-compatible redirect for older links */}
-					<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
+							{/* Legacy route removed - use V5 */}
+							<Route
+								path="/flows/oauth2-resource-owner-password"
+								element={<OAuth2ResourceOwnerPasswordFlow />}
+							/>
+							{/* Test MFA Flow */}
+							<Route path="/mfa-test" element={<MFAFlow />} />
+							{/* WorkerTokenFlowV3 backed up - use V5 */}
+							{/* Legacy /oidc routes - Keep utility pages and unsupported flows */}
+							<Route path="/oidc" element={<OIDC />}>
+								<Route path="userinfo" element={<UserInfoFlow />} />
+								<Route path="id-tokens" element={<IDTokensFlow />} />
+								<Route
+									path="resource-owner-password"
+									element={<OIDCResourceOwnerPasswordFlowV5 />}
+								/>
+								<Route path="jwt-bearer" element={<JWTBearerFlow />} />
+							</Route>
+							{/* Backward-compatible redirect for older links */}
+							<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 
-					<Route path="/configuration" element={<Configuration />} />
-						<Route path="/documentation" element={<Documentation />} />
-						<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
+							<Route path="/configuration" element={<Configuration />} />
+							<Route path="/documentation" element={<Documentation />} />
+							<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
 
-						<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
-						<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
-						<Route
-							path="/docs/oauth2-security-best-practices"
-							element={<OAuth2SecurityBestPractices />}
-						/>
+							<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
+							<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
+							<Route
+								path="/docs/oauth2-security-best-practices"
+								element={<OAuth2SecurityBestPractices />}
+							/>
 
-						<Route path="/auto-discover" element={<AutoDiscover />} />
-						<Route path="/token-management" element={<TokenManagement />} />
-						<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
-						<Route path="/url-decoder" element={<URLDecoder />} />
+							<Route path="/auto-discover" element={<AutoDiscover />} />
+							<Route path="/token-management" element={<TokenManagement />} />
+							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
+							<Route path="/url-decoder" element={<URLDecoder />} />
 
-						<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
-						<Route path="/ai-glossary" element={<AIGlossary />} />
-						<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
-						<Route
-							path="/comprehensive-oauth-education"
-							element={<ComprehensiveOAuthEducation />}
-						/>
+							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
+							<Route path="/ai-glossary" element={<AIGlossary />} />
+							<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
+							<Route
+								path="/comprehensive-oauth-education"
+								element={<ComprehensiveOAuthEducation />}
+							/>
 
-						<Route path="/advanced-config" element={<AdvancedConfiguration />} />
+							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 
-						<Route path="/tutorials" element={<InteractiveTutorials />} />
+							<Route path="/tutorials" element={<InteractiveTutorials />} />
 
-						<Route path="/oauth-2-1" element={<OAuth21 />} />
-						<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
-						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
+							<Route path="/flows/oauth-implicit-v5-1" element={<OAuthImplicitFlowV5_1 />} />
+							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+							<Route
+								path="/flows/oauth-authorization-code-v5"
+								element={<OAuthAuthorizationCodeFlowV5 />}
+							/>
+							<Route
+								path="/flows/oidc-authorization-code-v5"
+								element={<OIDCAuthorizationCodeFlowV5 />}
+							/>
+							<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
+							<Route
+								path="/flows/oidc-device-authorization-v5"
+								element={<OIDCDeviceAuthorizationFlowV5 />}
+							/>
+							<Route path="/flows/oidc-hybrid-v5" element={<OIDCHybridFlowV5 />} />
+							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 
-						<Route path="*" element={<div>Not Found</div>} />
-					</Routes>
-				</MainContent>
+							<Route path="*" element={<Navigate to="/dashboard" replace />} />
+						</Routes>
+					</MainContent>
+					<PageFooter />
+				</ContentColumn>
 			</AppContainer>
 
 			<CredentialSetupModal
@@ -400,156 +412,86 @@ const AppRoutes = () => {
 	);
 };
 
-// Define the theme type
-type ThemeColors = {
-	primary: string;
-	primaryLight: string;
-	primaryDark: string;
-	secondary: string;
-	success: string;
-	danger: string;
-	warning: string;
-	info: string;
-	light: string;
-	dark: string;
-	gray100: string;
-	gray200: string;
-	gray300: string;
-	gray400: string;
-	gray500: string;
-	gray600: string;
-	gray700: string;
-	gray800: string;
-	gray900: string;
-	[key: string]: string; // Allow additional color properties
-};
-
-type ThemeFonts = {
-	body: string;
-	heading: string;
-	monospace: string;
-};
-
-type ThemeShadows = {
-	sm: string;
-	md: string;
-	lg: string;
-	xl: string;
-};
-
-type ThemeBreakpoints = {
-	xs: string;
-	sm: string;
-	md: string;
-	lg: string;
-	xl: string;
-};
-
-type ThemeSpacing = {
-	xs: string;
-	sm: string;
-	md: string;
-	lg: string;
-	xl: string;
-	xxl: string;
-};
-
-type ThemeBorderRadius = {
-	sm: string;
-	md: string;
-	lg: string;
-	full: string;
-};
-
-// Extend the default theme type
 declare module 'styled-components' {
 	export interface DefaultTheme {
-		colors: ThemeColors;
-		fonts: ThemeFonts;
-		shadows: ThemeShadows;
-		breakpoints: ThemeBreakpoints;
-		spacing: ThemeSpacing;
-		borderRadius: ThemeBorderRadius;
+		colors: {
+			primary: string;
+			primaryLight: string;
+			primaryDark: string;
+			secondary: string;
+			success: string;
+			danger: string;
+			warning: string;
+			info: string;
+			light: string;
+			dark: string;
+			gray100: string;
+			gray200: string;
+			gray300: string;
+			gray400: string;
+			gray500: string;
+			gray600: string;
+			gray700: string;
+			gray800: string;
+			gray900: string;
+		};
+		fonts: {
+			body: string;
+			heading: string;
+			monospace: string;
+		};
+		shadows: {
+			sm: string;
+			md: string;
+			lg: string;
+			xl: string;
+		};
+		breakpoints: {
+			xs: string;
+			sm: string;
+			md: string;
+			lg: string;
+			xl: string;
+		};
+		spacing: {
+			xs: string;
+			sm: string;
+			md: string;
+			lg: string;
+			xl: string;
+			xxl: string;
+		};
+		borderRadius: {
+			sm: string;
+			md: string;
+			lg: string;
+			full: string;
+		};
 	}
 }
 
-// Helper function to safely access theme properties
-const getThemeValue = <T,>(value: T | undefined, defaultValue: T): T => {
-	return value !== undefined ? value : defaultValue;
-};
+const buildTheme = (settings: UISettings): DefaultTheme => {
+	const scheme = COLOR_SCHEMES[settings.colorScheme] ?? COLOR_SCHEMES.blue;
+	const darkModeOverrides = settings.darkMode ? DARK_MODE_OVERRIDES : {};
 
-function App() {
-	// Safely access theme properties with fallbacks
-	const themeColors = theme?.colors || {};
-	const themeFonts = theme?.fonts || { body: '', heading: '', monospace: '' };
-	const themeShadows = theme?.shadows || { sm: '', md: '', lg: '', xl: '' };
-	const themeBreakpoints = theme?.breakpoints || {
-		xs: '',
-		sm: '',
-		md: '',
-		lg: '',
-		xl: '',
-	};
-
-	const themeWithDefaults: DefaultTheme = {
-		// Colors with fallbacks
+	return {
 		colors: {
-			...themeColors,
-			primary: getThemeValue(themeColors.primary, '#4f46e5'),
-			primaryLight: getThemeValue(themeColors.primaryLight, '#6366f1'),
-			primaryDark: getThemeValue(themeColors.primaryDark, '#4338ca'),
-			secondary: getThemeValue(themeColors.secondary, '#10b981'),
-			success: getThemeValue(themeColors.success, '#10b981'),
-			danger: getThemeValue(themeColors.danger, '#ef4444'),
-			warning: getThemeValue(themeColors.warning, '#f59e0b'),
-			info: getThemeValue(themeColors.info, '#3b82f6'),
-			light: getThemeValue(themeColors.light, '#f9fafb'),
-			dark: getThemeValue(themeColors.dark, '#111827'),
-			gray100: getThemeValue(themeColors.gray100, '#f3f4f6'),
-			gray200: getThemeValue(themeColors.gray200, '#e5e7eb'),
-			gray300: getThemeValue(themeColors.gray300, '#d1d5db'),
-			gray400: getThemeValue(themeColors.gray400, '#9ca3af'),
-			gray500: getThemeValue(themeColors.gray500, '#6b7280'),
-			gray600: getThemeValue(themeColors.gray600, '#4b5563'),
-			gray700: getThemeValue(themeColors.gray700, '#374151'),
-			gray800: getThemeValue(themeColors.gray800, '#1f2937'),
-			gray900: getThemeValue(themeColors.gray900, '#111827'),
+			...baseTheme.colors,
+			...scheme,
+			...darkModeOverrides,
 		},
-
-		// Fonts with fallbacks
-		fonts: {
-			body: getThemeValue(themeFonts.body, 'system-ui, sans-serif'),
-			heading: getThemeValue(themeFonts.heading, 'system-ui, sans-serif'),
-			monospace: getThemeValue(
-				themeFonts.monospace,
-				'"SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace'
-			),
-		},
-
-		// Shadows with fallbacks
+		fonts: baseTheme.fonts,
 		shadows: {
-			sm: getThemeValue(themeShadows.sm, '0 1px 2px 0 rgba(0, 0, 0, 0.05)'),
-			md: getThemeValue(
-				themeShadows.md,
-				'0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-			),
-			lg: getThemeValue(
-				themeShadows.lg,
-				'0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
-			),
+			...baseTheme.shadows,
 			xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
 		},
-
-		// Breakpoints with fallbacks
 		breakpoints: {
 			xs: '0px',
-			sm: getThemeValue(themeBreakpoints.sm, '640px'),
-			md: getThemeValue(themeBreakpoints.md, '768px'),
-			lg: getThemeValue(themeBreakpoints.lg, '1024px'),
-			xl: getThemeValue(themeBreakpoints.xl, '1280px'),
+			sm: baseTheme.breakpoints.sm,
+			md: baseTheme.breakpoints.md,
+			lg: baseTheme.breakpoints.lg,
+			xl: baseTheme.breakpoints.xl,
 		},
-
-		// Spacing scale
 		spacing: {
 			xs: '0.25rem',
 			sm: '0.5rem',
@@ -558,8 +500,6 @@ function App() {
 			xl: '2rem',
 			xxl: '4rem',
 		},
-
-		// Border radius
 		borderRadius: {
 			sm: '0.125rem',
 			md: '0.25rem',
@@ -567,21 +507,32 @@ function App() {
 			full: '9999px',
 		},
 	};
+};
+
+function App() {
+	return (
+		<UISettingsProvider>
+			<AppContent />
+		</UISettingsProvider>
+	);
+}
+
+function AppContent() {
+	const { settings } = useUISettings();
+	const theme = useMemo(() => buildTheme(settings), [settings]);
 
 	return (
-		<ThemeProvider theme={themeWithDefaults}>
+		<ThemeProvider theme={theme}>
 			<ErrorBoundary>
-				<ServerStatusProvider>
+				<ServerStatusProvider showHealthCheck={false}>
 					<AuthErrorBoundary>
 						<NotificationProvider>
 							<AuthProvider>
-								<UISettingsProvider>
-									<PageStyleProvider>
-										<GlobalStyle />
-										<NotificationContainer />
-										<AppRoutes />
-									</PageStyleProvider>
-								</UISettingsProvider>
+								<PageStyleProvider>
+									<GlobalStyle />
+									<NotificationContainer />
+									<AppRoutes />
+								</PageStyleProvider>
 							</AuthProvider>
 						</NotificationProvider>
 					</AuthErrorBoundary>

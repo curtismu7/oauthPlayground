@@ -127,18 +127,16 @@ export const CredentialsInput = ({
 	// Handle scopes change - ensure openid is always present
 	const handleScopesChange = (value: string) => {
 		// Split scopes and filter out empty strings
-		const scopesList = value.split(' ').filter(s => s.trim());
-		
+		const scopesList = value.split(' ').filter((s) => s.trim());
+
 		// Remove any duplicate "openid" entries
-		const filteredScopes = scopesList.filter((scope, index) => 
-			scope !== 'openid' || index === 0
-		);
-		
+		const filteredScopes = scopesList.filter((scope, index) => scope !== 'openid' || index === 0);
+
 		// Ensure openid is first if it exists, or add it if it doesn't
 		if (filteredScopes.length === 0 || filteredScopes[0] !== 'openid') {
 			filteredScopes.unshift('openid');
 		}
-		
+
 		// Join back and call parent handler
 		onScopesChange?.(filteredScopes.join(' '));
 	};
@@ -168,7 +166,10 @@ export const CredentialsInput = ({
 						style={{
 							right: '0.5rem',
 							top: '50%',
-							transform: copiedField === 'Environment ID' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+							transform:
+								copiedField === 'Environment ID'
+									? 'translateY(-50%) scale(1.2)'
+									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Environment ID' ? '#10b981' : '#6b7280',
 						}}
 						title="Copy Environment ID"
@@ -201,7 +202,10 @@ export const CredentialsInput = ({
 						style={{
 							right: '0.5rem',
 							top: '50%',
-							transform: copiedField === 'Client ID' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+							transform:
+								copiedField === 'Client ID'
+									? 'translateY(-50%) scale(1.2)'
+									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Client ID' ? '#10b981' : '#6b7280',
 						}}
 						title="Copy Client ID"
@@ -234,7 +238,10 @@ export const CredentialsInput = ({
 						style={{
 							right: '2.25rem',
 							top: '50%',
-							transform: copiedField === 'Client Secret' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+							transform:
+								copiedField === 'Client Secret'
+									? 'translateY(-50%) scale(1.2)'
+									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
 						}}
 						title="Copy Client Secret"
@@ -280,7 +287,10 @@ export const CredentialsInput = ({
 							style={{
 								right: '0.5rem',
 								top: '50%',
-								transform: copiedField === 'Redirect URI' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+								transform:
+									copiedField === 'Redirect URI'
+										? 'translateY(-50%) scale(1.2)'
+										: 'translateY(-50%) scale(1)',
 								color: copiedField === 'Redirect URI' ? '#10b981' : '#6b7280',
 							}}
 							title="Copy Redirect URI"
@@ -310,7 +320,10 @@ export const CredentialsInput = ({
 						style={{
 							right: '0.5rem',
 							top: '50%',
-							transform: copiedField === 'Scopes' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+							transform:
+								copiedField === 'Scopes'
+									? 'translateY(-50%) scale(1.2)'
+									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Scopes' ? '#10b981' : '#6b7280',
 						}}
 						title="Copy Scopes"
@@ -319,7 +332,8 @@ export const CredentialsInput = ({
 					</IconButton>
 				</div>
 				<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-					Space-separated list of scopes. <strong>openid</strong> is always required and will be automatically added.
+					Space-separated list of scopes. <strong>openid</strong> is always required and will be
+					automatically added.
 				</div>
 			</FormField>
 
@@ -342,7 +356,10 @@ export const CredentialsInput = ({
 							style={{
 								right: '0.5rem',
 								top: '50%',
-								transform: copiedField === 'Login Hint' ? 'translateY(-50%) scale(1.2)' : 'translateY(-50%) scale(1)',
+								transform:
+									copiedField === 'Login Hint'
+										? 'translateY(-50%) scale(1.2)'
+										: 'translateY(-50%) scale(1)',
 								color: copiedField === 'Login Hint' ? '#10b981' : '#6b7280',
 							}}
 							title="Copy Login Hint"
@@ -351,7 +368,8 @@ export const CredentialsInput = ({
 						</IconButton>
 					</div>
 					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-						Hint about the user identifier (email, username). Helps pre-fill the login form or skip account selection.
+						Hint about the user identifier (email, username). Helps pre-fill the login form or skip
+						account selection.
 					</div>
 				</FormField>
 			)}

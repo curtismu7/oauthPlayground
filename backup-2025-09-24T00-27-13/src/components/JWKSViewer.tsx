@@ -36,33 +36,33 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const FormGroup = styled.div`
@@ -180,29 +180,29 @@ const KeyType = styled.span<{ $type: string }>`
   text-transform: uppercase;
   
   ${({ $type }) => {
-    switch ($type) {
-      case 'RSA':
-        return `
+		switch ($type) {
+			case 'RSA':
+				return `
           background-color: #dbeafe;
           color: #1e40af;
         `;
-      case 'EC':
-        return `
+			case 'EC':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'oct':
-        return `
+			case 'oct':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: #f3f4f6;
           color: #6b7280;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const KeyDetails = styled.div`
@@ -235,33 +235,33 @@ const Alert = styled.div<{ $type: 'info' | 'success' | 'warning' | 'error' }>`
   font-size: 0.875rem;
   
   ${({ $type }) => {
-    switch ($type) {
-      case 'info':
-        return `
+		switch ($type) {
+			case 'info':
+				return `
           background-color: #dbeafe;
           color: #1e40af;
           border: 1px solid #93c5fd;
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #dcfce7;
           color: #166534;
           border: 1px solid #86efac;
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background-color: #fef3c7;
           color: #92400e;
           border: 1px solid #fde68a;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background-color: #fecaca;
           color: #991b1b;
           border: 1px solid #fca5a5;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const LoadingSpinner = styled.div`
@@ -285,8 +285,8 @@ const Tab = styled.button<{ $active: boolean }>`
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 2px solid ${({ $active }) => $active ? '#3b82f6' : 'transparent'};
-  color: ${({ $active }) => $active ? '#3b82f6' : '#6b7280'};
+  border-bottom: 2px solid ${({ $active }) => ($active ? '#3b82f6' : 'transparent')};
+  color: ${({ $active }) => ($active ? '#3b82f6' : '#6b7280')};
   
   &:hover {
     color: #3b82f6;
@@ -294,311 +294,319 @@ const Tab = styled.button<{ $active: boolean }>`
 `;
 
 const JWKSViewer: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'fetch' | 'view' | 'import'>('fetch');
-  const [environmentId, setEnvironmentId] = useState('');
-  const [jwksResponse, setJwksResponse] = useState<JWKSResponse | null>(null);
-  const [importJson, setImportJson] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{ type: 'info' | 'success' | 'warning' | 'error'; text: string } | null>(null);
+	const [activeTab, setActiveTab] = useState<'fetch' | 'view' | 'import'>('fetch');
+	const [environmentId, setEnvironmentId] = useState('');
+	const [jwksResponse, setJwksResponse] = useState<JWKSResponse | null>(null);
+	const [importJson, setImportJson] = useState('');
+	const [loading, setLoading] = useState(false);
+	const [message, setMessage] = useState<{
+		type: 'info' | 'success' | 'warning' | 'error';
+		text: string;
+	} | null>(null);
 
-  const handleFetchJWKS = async () => {
-    if (!environmentId.trim()) {
-      setMessage({ type: 'warning', text: 'Please enter an environment ID' });
-      return;
-    }
+	const handleFetchJWKS = async () => {
+		if (!environmentId.trim()) {
+			setMessage({ type: 'warning', text: 'Please enter an environment ID' });
+			return;
+		}
 
-    try {
-      setLoading(true);
-      setMessage(null);
-      
-      const response = await jwksService.fetchJWKS(environmentId);
-      setJwksResponse(response);
-      setMessage({ type: 'success', text: `JWKS fetched successfully with ${response.jwks.keys.length} keys` });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch JWKS';
-      setMessage({ type: 'error', text: errorMessage });
-    } finally {
-      setLoading(false);
-    }
-  };
+		try {
+			setLoading(true);
+			setMessage(null);
 
-  const handleGenerateMockJWKS = () => {
-    try {
-      const mockJWKS = jwksService.generateMockJWKS();
-      const mockResponse: JWKSResponse = {
-        jwks: mockJWKS,
-        jwks_uri: 'https://auth.pingone.com/mock-env-id/as/jwks',
-        issuer: 'https://auth.pingone.com/mock-env-id/as',
-        lastUpdated: new Date()
-      };
-      
-      setJwksResponse(mockResponse);
-      setMessage({ type: 'success', text: 'Mock JWKS generated successfully' });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to generate mock JWKS';
-      setMessage({ type: 'error', text: errorMessage });
-    }
-  };
+			const response = await jwksService.fetchJWKS(environmentId);
+			setJwksResponse(response);
+			setMessage({
+				type: 'success',
+				text: `JWKS fetched successfully with ${response.jwks.keys.length} keys`,
+			});
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to fetch JWKS';
+			setMessage({ type: 'error', text: errorMessage });
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const handleImportJWKS = () => {
-    try {
-      if (!importJson.trim()) {
-        setMessage({ type: 'warning', text: 'Please enter JWKS JSON' });
-        return;
-      }
+	const handleGenerateMockJWKS = () => {
+		try {
+			const mockJWKS = jwksService.generateMockJWKS();
+			const mockResponse: JWKSResponse = {
+				jwks: mockJWKS,
+				jwks_uri: 'https://auth.pingone.com/mock-env-id/as/jwks',
+				issuer: 'https://auth.pingone.com/mock-env-id/as',
+				lastUpdated: new Date(),
+			};
 
-      const jwks = jwksService.importJWKS(importJson);
-      const response: JWKSResponse = {
-        jwks,
-        jwks_uri: 'imported',
-        issuer: 'imported',
-        lastUpdated: new Date()
-      };
-      
-      setJwksResponse(response);
-      setMessage({ type: 'success', text: 'JWKS imported successfully' });
-      setImportJson('');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to import JWKS';
-      setMessage({ type: 'error', text: errorMessage });
-    }
-  };
+			setJwksResponse(mockResponse);
+			setMessage({ type: 'success', text: 'Mock JWKS generated successfully' });
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to generate mock JWKS';
+			setMessage({ type: 'error', text: errorMessage });
+		}
+	};
 
-  const handleExportJWKS = () => {
-    if (!jwksResponse) return;
+	const handleImportJWKS = () => {
+		try {
+			if (!importJson.trim()) {
+				setMessage({ type: 'warning', text: 'Please enter JWKS JSON' });
+				return;
+			}
 
-    const jsonString = jwksService.exportJWKS(jwksResponse.jwks);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `jwks-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    
-    setMessage({ type: 'success', text: 'JWKS exported successfully' });
-  };
+			const jwks = jwksService.importJWKS(importJson);
+			const response: JWKSResponse = {
+				jwks,
+				jwks_uri: 'imported',
+				issuer: 'imported',
+				lastUpdated: new Date(),
+			};
 
-  const handleCopyToClipboard = async () => {
-    if (!jwksResponse) return;
+			setJwksResponse(response);
+			setMessage({ type: 'success', text: 'JWKS imported successfully' });
+			setImportJson('');
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to import JWKS';
+			setMessage({ type: 'error', text: errorMessage });
+		}
+	};
 
-    try {
-      const jsonString = jwksService.exportJWKS(jwksResponse.jwks);
-      await navigator.clipboard.writeText(jsonString);
-      setMessage({ type: 'success', text: 'JWKS copied to clipboard' });
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
-    }
-  };
+	const handleExportJWKS = () => {
+		if (!jwksResponse) return;
 
-  const handleClearCache = () => {
-    jwksService.clearCache(environmentId);
-    setMessage({ type: 'success', text: 'JWKS cache cleared' });
-  };
+		const jsonString = jwksService.exportJWKS(jwksResponse.jwks);
+		const blob = new Blob([jsonString], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `jwks-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
 
-  const renderFetchTab = () => (
-    <div>
-      <FormGroup>
-        <Label>PingOne Environment ID</Label>
-        <Input
-          type="text"
-          value={environmentId}
-          onChange={(e) => setEnvironmentId(e.target.value)}
-          placeholder="your-environment-id"
-        />
-      </FormGroup>
+		setMessage({ type: 'success', text: 'JWKS exported successfully' });
+	};
 
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
-        <Button $variant="primary" onClick={handleFetchJWKS} disabled={loading}>
-          {loading ? 'Fetching...' : 'Fetch JWKS'}
-        </Button>
-        <Button $variant="secondary" onClick={handleGenerateMockJWKS}>
-          Generate Mock JWKS
-        </Button>
-        <Button $variant="danger" onClick={handleClearCache}>
-          Clear Cache
-        </Button>
-      </div>
-    </div>
-  );
+	const handleCopyToClipboard = async () => {
+		if (!jwksResponse) return;
 
-  const renderViewTab = () => {
-    if (!jwksResponse) {
-      return (
-        <div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-          No JWKS loaded. Fetch or import JWKS to view details.
-        </div>
-      );
-    }
+		try {
+			const jsonString = jwksService.exportJWKS(jwksResponse.jwks);
+			await navigator.clipboard.writeText(jsonString);
+			setMessage({ type: 'success', text: 'JWKS copied to clipboard' });
+		} catch (error) {
+			setMessage({ type: 'error', text: 'Failed to copy to clipboard' });
+		}
+	};
 
-    const stats = jwksService.getKeyStatistics(jwksResponse.jwks);
+	const handleClearCache = () => {
+		jwksService.clearCache(environmentId);
+		setMessage({ type: 'success', text: 'JWKS cache cleared' });
+	};
 
-    return (
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h4>JWKS Details</h4>
-          <div>
-            <Button $variant="success" onClick={handleCopyToClipboard}>
-              Copy JSON
-            </Button>
-            <Button $variant="secondary" onClick={handleExportJWKS}>
-              Export
-            </Button>
-          </div>
-        </div>
+	const renderFetchTab = () => (
+		<div>
+			<FormGroup>
+				<Label>PingOne Environment ID</Label>
+				<Input
+					type="text"
+					value={environmentId}
+					onChange={(e) => setEnvironmentId(e.target.value)}
+					placeholder="your-environment-id"
+				/>
+			</FormGroup>
 
-        <StatsGrid>
-          <StatCard>
-            <StatValue>{stats.totalKeys}</StatValue>
-            <StatLabel>Total Keys</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{Object.keys(stats.keyTypes).length}</StatValue>
-            <StatLabel>Key Types</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{Object.keys(stats.algorithms).length}</StatValue>
-            <StatLabel>Algorithms</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatValue>{Object.keys(stats.uses).length}</StatValue>
-            <StatLabel>Uses</StatLabel>
-          </StatCard>
-        </StatsGrid>
+			<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+				<Button $variant="primary" onClick={handleFetchJWKS} disabled={loading}>
+					{loading ? 'Fetching...' : 'Fetch JWKS'}
+				</Button>
+				<Button $variant="secondary" onClick={handleGenerateMockJWKS}>
+					Generate Mock JWKS
+				</Button>
+				<Button $variant="danger" onClick={handleClearCache}>
+					Clear Cache
+				</Button>
+			</div>
+		</div>
+	);
 
-        <div style={{ marginBottom: '1rem' }}>
-          <h5>Key Types</h5>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {Object.entries(stats.keyTypes).map(([type, count]) => (
-              <KeyType key={type} $type={type}>
-                {type}: {count}
-              </KeyType>
-            ))}
-          </div>
-        </div>
+	const renderViewTab = () => {
+		if (!jwksResponse) {
+			return (
+				<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+					No JWKS loaded. Fetch or import JWKS to view details.
+				</div>
+			);
+		}
 
-        <div style={{ marginBottom: '1rem' }}>
-          <h5>Algorithms</h5>
-          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            {Object.entries(stats.algorithms).map(([alg, count]) => (
-              <span key={alg} style={{ 
-                padding: '0.25rem 0.5rem', 
-                backgroundColor: '#f3f4f6', 
-                borderRadius: '0.25rem',
-                fontSize: '0.75rem'
-              }}>
-                {alg}: {count}
-              </span>
-            ))}
-          </div>
-        </div>
+		const stats = jwksService.getKeyStatistics(jwksResponse.jwks);
 
-        <KeyList>
-          <h5>Keys</h5>
-          {jwksResponse.jwks.keys.map((key, index) => (
-            <KeyItem key={key.kid || index}>
-              <KeyHeader>
-                <KeyID>{key.kid || `Key ${index + 1}`}</KeyID>
-                <KeyType $type={key.kty}>{key.kty}</KeyType>
-              </KeyHeader>
-              <KeyDetails>
-                <DetailItem>
-                  <DetailLabel>Algorithm</DetailLabel>
-                  <DetailValue>{key.alg}</DetailValue>
-                </DetailItem>
-                <DetailItem>
-                  <DetailLabel>Use</DetailLabel>
-                  <DetailValue>{key.use}</DetailValue>
-                </DetailItem>
-                {key.n && (
-                  <DetailItem>
-                    <DetailLabel>Modulus (n)</DetailLabel>
-                    <DetailValue>{key.n.substring(0, 50)}...</DetailValue>
-                  </DetailItem>
-                )}
-                {key.e && (
-                  <DetailItem>
-                    <DetailLabel>Exponent (e)</DetailLabel>
-                    <DetailValue>{key.e}</DetailValue>
-                  </DetailItem>
-                )}
-                {key.crv && (
-                  <DetailItem>
-                    <DetailLabel>Curve</DetailLabel>
-                    <DetailValue>{key.crv}</DetailValue>
-                  </DetailItem>
-                )}
-              </KeyDetails>
-            </KeyItem>
-          ))}
-        </KeyList>
+		return (
+			<div>
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+						marginBottom: '1rem',
+					}}
+				>
+					<h4>JWKS Details</h4>
+					<div>
+						<Button $variant="success" onClick={handleCopyToClipboard}>
+							Copy JSON
+						</Button>
+						<Button $variant="secondary" onClick={handleExportJWKS}>
+							Export
+						</Button>
+					</div>
+				</div>
 
-        <div style={{ marginTop: '1rem' }}>
-          <h5>Full JWKS JSON</h5>
-          <CodeBlock>{jwksService.exportJWKS(jwksResponse.jwks)}</CodeBlock>
-        </div>
-      </div>
-    );
-  };
+				<StatsGrid>
+					<StatCard>
+						<StatValue>{stats.totalKeys}</StatValue>
+						<StatLabel>Total Keys</StatLabel>
+					</StatCard>
+					<StatCard>
+						<StatValue>{Object.keys(stats.keyTypes).length}</StatValue>
+						<StatLabel>Key Types</StatLabel>
+					</StatCard>
+					<StatCard>
+						<StatValue>{Object.keys(stats.algorithms).length}</StatValue>
+						<StatLabel>Algorithms</StatLabel>
+					</StatCard>
+					<StatCard>
+						<StatValue>{Object.keys(stats.uses).length}</StatValue>
+						<StatLabel>Uses</StatLabel>
+					</StatCard>
+				</StatsGrid>
 
-  const renderImportTab = () => (
-    <div>
-      <FormGroup>
-        <Label>JWKS JSON</Label>
-        <TextArea
-          value={importJson}
-          onChange={(e) => setImportJson(e.target.value)}
-          placeholder="Paste JWKS JSON here..."
-        />
-      </FormGroup>
+				<div style={{ marginBottom: '1rem' }}>
+					<h5>Key Types</h5>
+					<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+						{Object.entries(stats.keyTypes).map(([type, count]) => (
+							<KeyType key={type} $type={type}>
+								{type}: {count}
+							</KeyType>
+						))}
+					</div>
+				</div>
 
-      <Button $variant="primary" onClick={handleImportJWKS}>
-        Import JWKS
-      </Button>
-    </div>
-  );
+				<div style={{ marginBottom: '1rem' }}>
+					<h5>Algorithms</h5>
+					<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+						{Object.entries(stats.algorithms).map(([alg, count]) => (
+							<span
+								key={alg}
+								style={{
+									padding: '0.25rem 0.5rem',
+									backgroundColor: '#f3f4f6',
+									borderRadius: '0.25rem',
+									fontSize: '0.75rem',
+								}}
+							>
+								{alg}: {count}
+							</span>
+						))}
+					</div>
+				</div>
 
-  return (
-    <ViewerContainer>
-      <ViewerHeader>
-        <ViewerTitle>JWKS Viewer</ViewerTitle>
-      </ViewerHeader>
+				<KeyList>
+					<h5>Keys</h5>
+					{jwksResponse.jwks.keys.map((key, index) => (
+						<KeyItem key={key.kid || index}>
+							<KeyHeader>
+								<KeyID>{key.kid || `Key ${index + 1}`}</KeyID>
+								<KeyType $type={key.kty}>{key.kty}</KeyType>
+							</KeyHeader>
+							<KeyDetails>
+								<DetailItem>
+									<DetailLabel>Algorithm</DetailLabel>
+									<DetailValue>{key.alg}</DetailValue>
+								</DetailItem>
+								<DetailItem>
+									<DetailLabel>Use</DetailLabel>
+									<DetailValue>{key.use}</DetailValue>
+								</DetailItem>
+								{key.n && (
+									<DetailItem>
+										<DetailLabel>Modulus (n)</DetailLabel>
+										<DetailValue>{key.n.substring(0, 50)}...</DetailValue>
+									</DetailItem>
+								)}
+								{key.e && (
+									<DetailItem>
+										<DetailLabel>Exponent (e)</DetailLabel>
+										<DetailValue>{key.e}</DetailValue>
+									</DetailItem>
+								)}
+								{key.crv && (
+									<DetailItem>
+										<DetailLabel>Curve</DetailLabel>
+										<DetailValue>{key.crv}</DetailValue>
+									</DetailItem>
+								)}
+							</KeyDetails>
+						</KeyItem>
+					))}
+				</KeyList>
 
-      {message && (
-        <Alert $type={message.type}>
-          {message.text}
-        </Alert>
-      )}
+				<div style={{ marginTop: '1rem' }}>
+					<h5>Full JWKS JSON</h5>
+					<CodeBlock>{jwksService.exportJWKS(jwksResponse.jwks)}</CodeBlock>
+				</div>
+			</div>
+		);
+	};
 
-      <TabContainer>
-        <Tab $active={activeTab === 'fetch'} onClick={() => setActiveTab('fetch')}>
-          Fetch JWKS
-        </Tab>
-        <Tab $active={activeTab === 'view'} onClick={() => setActiveTab('view')}>
-          View JWKS
-        </Tab>
-        <Tab $active={activeTab === 'import'} onClick={() => setActiveTab('import')}>
-          Import JWKS
-        </Tab>
-      </TabContainer>
+	const renderImportTab = () => (
+		<div>
+			<FormGroup>
+				<Label>JWKS JSON</Label>
+				<TextArea
+					value={importJson}
+					onChange={(e) => setImportJson(e.target.value)}
+					placeholder="Paste JWKS JSON here..."
+				/>
+			</FormGroup>
 
-      {loading && (
-        <LoadingSpinner>
-          Fetching JWKS...
-        </LoadingSpinner>
-      )}
+			<Button $variant="primary" onClick={handleImportJWKS}>
+				Import JWKS
+			</Button>
+		</div>
+	);
 
-      {!loading && (
-        <>
-          {activeTab === 'fetch' && renderFetchTab()}
-          {activeTab === 'view' && renderViewTab()}
-          {activeTab === 'import' && renderImportTab()}
-        </>
-      )}
-    </ViewerContainer>
-  );
+	return (
+		<ViewerContainer>
+			<ViewerHeader>
+				<ViewerTitle>JWKS Viewer</ViewerTitle>
+			</ViewerHeader>
+
+			{message && <Alert $type={message.type}>{message.text}</Alert>}
+
+			<TabContainer>
+				<Tab $active={activeTab === 'fetch'} onClick={() => setActiveTab('fetch')}>
+					Fetch JWKS
+				</Tab>
+				<Tab $active={activeTab === 'view'} onClick={() => setActiveTab('view')}>
+					View JWKS
+				</Tab>
+				<Tab $active={activeTab === 'import'} onClick={() => setActiveTab('import')}>
+					Import JWKS
+				</Tab>
+			</TabContainer>
+
+			{loading && <LoadingSpinner>Fetching JWKS...</LoadingSpinner>}
+
+			{!loading && (
+				<>
+					{activeTab === 'fetch' && renderFetchTab()}
+					{activeTab === 'view' && renderViewTab()}
+					{activeTab === 'import' && renderImportTab()}
+				</>
+			)}
+		</ViewerContainer>
+	);
 };
 
 export default JWKSViewer;

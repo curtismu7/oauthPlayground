@@ -156,7 +156,9 @@ const ImplicitCallback: React.FC = () => {
 
 						setTimeout(() => {
 							// Reconstruct the hash with tokens and redirect back to flow
-							const targetFlow = v5OIDCContext ? '/flows/oidc-implicit-v5' : '/flows/oauth-implicit-v5';
+							const targetFlow = v5OIDCContext
+								? '/flows/oidc-implicit-v5'
+								: '/flows/oauth-implicit-v5';
 							const fragment = window.location.hash.substring(1); // Get full hash without #
 							navigate(`${targetFlow}#${fragment}`);
 						}, 1500);

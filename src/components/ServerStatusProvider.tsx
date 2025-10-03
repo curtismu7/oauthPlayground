@@ -1,4 +1,4 @@
-import React, { createContext, ReactNode, useContext } from 'react';
+import React, { createContext, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useServerHealth } from '../hooks/useServerHealth';
 import ServerHealthCheck from './ServerHealthCheck';
 
@@ -30,12 +30,31 @@ export const ServerStatusProvider: React.FC<ServerStatusProviderProps> = ({
 	children,
 	showHealthCheck = true,
 }) => {
-	const serverHealth = useServerHealth(30000); // Check every 30 seconds
+	const serverHealth = useServerHealth(showHealthCheck ? 30000 : 0); // Check every 30 seconds when enabled
+	const [hasCompletedInitialCheck, setHasCompletedInitialCheck] = useState(false);
+
+	useEffect(() => {
+		if (!hasCompletedInitialCheck && !serverHealth.isChecking) {
+			setHasCompletedInitialCheck(true);
+		}
+	}, [hasCompletedInitialCheck, serverHealth.isChecking]);
+
+	const shouldDisplay = useMemo(() => {
+		if (!showHealthCheck) {
+			return false;
+		}
+
+		if (!hasCompletedInitialCheck) {
+			return true; // Only show during startup until a result is received
+		}
+
+		return !serverHealth.isOnline || !!serverHealth.error;
+	}, [showHealthCheck, hasCompletedInitialCheck, serverHealth.isOnline, serverHealth.error]);
 
 	return (
 		<ServerStatusContext.Provider value={serverHealth}>
 			{children}
-			{showHealthCheck && !serverHealth.isOnline && <ServerHealthCheck />}
+			{shouldDisplay && <ServerHealthCheck />}
 		</ServerStatusContext.Provider>
 	);
 };
