@@ -162,6 +162,27 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Configuration management tools',
 		],
 	},
+	'pingone-mfa': {
+		flowType: 'oauth',
+		flowName: 'PingOne MFA API (V5)',
+		tokensReturned: 'Access Token + MFA Context',
+		purpose: 'Multi-factor authentication with PingOne MFA services',
+		specLayer: 'PingOne-specific MFA API',
+		nonceRequirement: 'Not required',
+		validation: 'Validate MFA verification status with PingOne APIs',
+		securityNotes: [
+			'✅ Enhanced security with multi-factor authentication',
+			'Supports SMS, email, TOTP, and push notifications',
+			'Device registration required for MFA methods',
+			'Integrates with PingOne MFA policies',
+		],
+		useCases: [
+			'High-security applications requiring MFA',
+			'Financial services and banking',
+			'Healthcare and compliance applications',
+			'Enterprise authentication systems',
+		],
+	},
 	par: {
 		flowType: 'oauth',
 		flowName: 'Pushed Authorization Request (PAR)',

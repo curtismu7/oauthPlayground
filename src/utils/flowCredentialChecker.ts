@@ -28,35 +28,56 @@ export const checkFlowCredentials = (
 	missingFields: string[];
 } => {
 	try {
-		let credentials: any = {};
+		let credentials: Record<string, any> = {};
 
 		// Load credentials based on flow type
 		switch (flowType) {
 			case 'oauth-authorization-code-v3':
+			case 'oauth-authorization-code-v5':
 			case 'enhanced-authorization-code-v3':
+			case 'oidc-authorization-code-v5':
 				credentials = credentialManager.loadAuthzFlowCredentials();
 				break;
 			case 'oauth2-implicit-v3':
+			case 'oauth-implicit-v5':
 			case 'oidc-implicit-v3':
+			case 'oidc-implicit-v5':
 				credentials = credentialManager.loadImplicitFlowCredentials();
 				break;
 			case 'oauth2-client-credentials-v3':
+			case 'client-credentials-v5':
 			case 'oidc-client-credentials-v3':
 				// Client credentials flows need environment ID, client ID, and client secret
 				credentials = credentialManager.loadConfigCredentials();
 				break;
 			case 'worker-token-v3':
+			case 'worker-token-v5':
 				// Worker token flow has its own credential storage
 				credentials = credentialManager.loadWorkerFlowCredentials();
 				break;
 			case 'oidc-hybrid-v3':
+			case 'hybrid-v5':
 				credentials = credentialManager.loadAuthzFlowCredentials();
 				break;
 			case 'device-code-oidc':
+			case 'device-authorization-v5':
+			case 'oidc-device-authorization-v5':
 				credentials = credentialManager.loadConfigCredentials();
 				break;
 			case 'oauth-resource-owner-password':
+			case 'oauth-resource-owner-password-v5':
 			case 'oidc-resource-owner-password':
+				credentials = credentialManager.loadConfigCredentials();
+				break;
+			case 'ciba-v5':
+				credentials = credentialManager.loadConfigCredentials();
+				break;
+			case 'jwt-bearer-token-v5':
+			case 'jwt-bearer-v5':
+				// JWT Bearer Token flow uses config credentials but requires private key
+				credentials = credentialManager.loadConfigCredentials();
+				break;
+			case 'rar-v5':
 				credentials = credentialManager.loadConfigCredentials();
 				break;
 			default:
@@ -66,6 +87,27 @@ export const checkFlowCredentials = (
 		const missingFields: string[] = [];
 
 		// Check required fields based on flow type
+		// Some flows like dashboard, documentation pages don't need credentials
+		const flowsWithoutCredentials = [
+			'dashboard',
+			'url-decoder',
+			'oauth2-security',
+			'scopes-best-practices',
+			'oidc-overview',
+			'auto-discover',
+			'oidc-for-ai',
+			'oidc-specs',
+		];
+
+		if (flowsWithoutCredentials.includes(flowType)) {
+			// These flows don't need credentials
+			return {
+				hasCredentials: true,
+				status: 'configured' as const,
+				missingFields: [],
+			};
+		}
+
 		if (!credentials?.environmentId || credentials.environmentId.trim() === '') {
 			missingFields.push('Environment ID');
 		}
@@ -78,10 +120,15 @@ export const checkFlowCredentials = (
 		if (
 			[
 				'oauth2-client-credentials-v3',
+				'client-credentials-v5',
 				'oidc-client-credentials-v3',
 				'worker-token-v3',
+				'worker-token-v5',
 				'oauth-resource-owner-password',
+				'oauth-resource-owner-password-v5',
 				'oidc-resource-owner-password',
+				'ciba-v5',
+				'rar-v5',
 			].includes(flowType)
 		) {
 			if (!credentials?.clientSecret || credentials.clientSecret.trim() === '') {
@@ -89,14 +136,39 @@ export const checkFlowCredentials = (
 			}
 		}
 
+		// Check private key for JWT Bearer Token flows
+		if (
+			[
+				'jwt-bearer-token-v5',
+				'jwt-bearer-v5',
+			].includes(flowType)
+		) {
+			// For JWT Bearer Token flow, check if required fields exist in flow-specific storage
+			const flowCredentials = credentialManager.loadFlowCredentials(flowType);
+			if (!flowCredentials?.clientId || flowCredentials.clientId.trim() === '') {
+				missingFields.push('Client ID');
+			}
+			if (!flowCredentials?.environmentId || flowCredentials.environmentId.trim() === '') {
+				missingFields.push('Environment ID');
+			}
+			if (!flowCredentials?.privateKey || flowCredentials.privateKey.trim() === '') {
+				missingFields.push('Private Key');
+			}
+		}
+
 		// Check redirect URI for flows that require it
 		if (
 			[
 				'oauth-authorization-code-v3',
+				'oauth-authorization-code-v5',
 				'enhanced-authorization-code-v3',
+				'oidc-authorization-code-v5',
 				'oauth2-implicit-v3',
+				'oauth-implicit-v5',
 				'oidc-implicit-v3',
+				'oidc-implicit-v5',
 				'oidc-hybrid-v3',
+				'hybrid-v5',
 			].includes(flowType)
 		) {
 			if (!credentials?.redirectUri || credentials.redirectUri.trim() === '') {
@@ -119,7 +191,7 @@ export const checkFlowCredentials = (
 			missingFields,
 		};
 	} catch (error) {
-		logger.error('flowCredentialChecker', `Error checking credentials for ${flowType}`, error);
+		logger.error('flowCredentialChecker', `Error checking credentials for ${flowType}`, { error });
 		return {
 			hasCredentials: false,
 			status: 'missing',
@@ -160,7 +232,7 @@ export const getLastExecutionTime = (flowType: string): string => {
 			return new Date(timestamp).toLocaleDateString();
 		}
 	} catch (error) {
-		logger.error('flowCredentialChecker', `Error getting execution time for ${flowType}`, error);
+		logger.error('flowCredentialChecker', `Error getting execution time for ${flowType}`, { error });
 		return 'Unknown';
 	}
 };
@@ -174,7 +246,7 @@ export const setLastExecutionTime = (flowType: string): void => {
 		localStorage.setItem(executionKey, Date.now().toString());
 		logger.info('flowCredentialChecker', `Flow execution time recorded for ${flowType}`);
 	} catch (error) {
-		logger.error('flowCredentialChecker', `Error setting execution time for ${flowType}`, error);
+		logger.error('flowCredentialChecker', `Error setting execution time for ${flowType}`, { error });
 	}
 };
 
@@ -193,15 +265,32 @@ export const trackFlowCompletion = (flowType: string, success: boolean = true): 
  */
 export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 	const flows = [
-		{ flowType: 'oauth-authorization-code-v3', flowName: 'OAuth 2.0 Authorization Code (V3)' },
-		{ flowType: 'oauth2-implicit-v3', flowName: 'OAuth 2.0 Implicit V3' },
-		{ flowType: 'oauth2-client-credentials-v3', flowName: 'OAuth2 Client Credentials V3' },
-		{ flowType: 'enhanced-authorization-code-v3', flowName: 'OIDC Authorization Code (V3)' },
-		{ flowType: 'oidc-implicit-v3', flowName: 'OIDC Implicit V3' },
-		{ flowType: 'oidc-hybrid-v3', flowName: 'OIDC Hybrid V3' },
-		{ flowType: 'oidc-client-credentials-v3', flowName: 'OIDC Client Credentials V3' },
-		{ flowType: 'device-code-oidc', flowName: 'OIDC Device Code V3' },
-		{ flowType: 'worker-token-v3', flowName: 'PingOne Worker Token V3' },
+		// OAuth 2.0 V5 Flows
+		{ flowType: 'oauth-authorization-code-v5', flowName: 'Authorization Code Flow - Secure User Authentication' },
+		{ flowType: 'oauth-implicit-v5', flowName: 'Implicit Flow - Legacy Browser-Based Authentication' },
+		{ flowType: 'client-credentials-v5', flowName: 'Client Credentials Flow - Server-to-Server Authentication' },
+		{ flowType: 'device-authorization-v5', flowName: 'Device Authorization Flow - Input-Constrained Devices' },
+		{ flowType: 'oauth-resource-owner-password-v5', flowName: 'OAuth 2.0 Resource Owner Password Flow (V5)' },
+		{ flowType: 'worker-token-v5', flowName: 'Worker Token Flow' },
+		{ flowType: 'rar-v5', flowName: 'Rich Authorization Requests (RAR) Flow' },
+
+		// OIDC V5 Flows
+		{ flowType: 'oidc-authorization-code-v5', flowName: 'Authorization Code Flow - User Identity & Authentication' },
+		{ flowType: 'oidc-implicit-v5', flowName: 'Implicit Flow - Legacy Browser Authentication' },
+		{ flowType: 'hybrid-v5', flowName: 'Hybrid Flow - Combined Authorization Approach' },
+		{ flowType: 'oidc-device-authorization-v5', flowName: 'Device Authorization Flow - OIDC for Constrained Devices' },
+		{ flowType: 'ciba-v5', flowName: 'OIDC CIBA Flow (V5)' },
+
+		// Additional flows
+		{ flowType: 'jwt-bearer-token-v5', flowName: 'JWT Bearer Token Flow - JWT Assertion Authentication' },
+		{ flowType: 'dashboard', flowName: 'Dashboard' },
+		{ flowType: 'url-decoder', flowName: 'URL Decoder' },
+		{ flowType: 'oauth2-security', flowName: 'OAuth 2.0 Security' },
+		{ flowType: 'scopes-best-practices', flowName: 'Scopes Best Practices' },
+		{ flowType: 'oidc-overview', flowName: 'OIDC Overview' },
+		{ flowType: 'auto-discover', flowName: 'Auto Discover' },
+		{ flowType: 'oidc-for-ai', flowName: 'OIDC for AI' },
+		{ flowType: 'oidc-specs', flowName: 'OIDC Specs' },
 	];
 
 	return flows.map((flow) => {

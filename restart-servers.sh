@@ -19,9 +19,11 @@ NC='\033[0m' # No Color
 # These ports are hardcoded to ensure consistency with OAuth redirect URIs
 # and API endpoint configurations. Do not change these values.
 FRONTEND_PORT=3000  # Vite dev server (HTTPS)
-BACKEND_PORT=3001   # Express API server (HTTPS)
+BACKEND_HTTP_PORT=3001   # Express API server (HTTP)
+BACKEND_HTTPS_PORT=3002  # Express API server (HTTPS)
 FRONTEND_URL="https://localhost:${FRONTEND_PORT}"
-BACKEND_URL="https://localhost:${BACKEND_PORT}"
+BACKEND_HTTP_URL="http://localhost:${BACKEND_HTTP_PORT}"
+BACKEND_HTTPS_URL="https://localhost:${BACKEND_HTTPS_PORT}"
 
 # PID files for process management
 FRONTEND_PID_FILE=".frontend.pid"
@@ -29,7 +31,8 @@ BACKEND_PID_FILE=".backend.pid"
 
 # Status tracking
 FRONTEND_STATUS="unknown"
-BACKEND_STATUS="unknown"
+BACKEND_HTTP_STATUS="unknown"
+BACKEND_HTTPS_STATUS="unknown"
 OVERALL_STATUS="unknown"
 
 # Function to find and change to the OAuth Playground directory
@@ -161,13 +164,14 @@ show_banner() {
     echo "║                    🔄 OAuth Playground Server Restart 🔄                    ║"
     echo "║                                                                              ║"
     echo "║  Frontend: https://localhost:3000 (Vite Dev Server)                        ║"
-    echo "║  Backend:  https://localhost:3001 (Express API Server)                     ║"
+    echo "║  Backend:  http://localhost:3001 (Express API Server - HTTP)               ║"
+    echo "║  Backend:  https://localhost:3002 (Express API Server - HTTPS)             ║"
     echo "║                                                                              ║"
     echo "║  This script will:                                                          ║"
     echo "║  1. Find and change to OAuth Playground directory                          ║"
     echo "║  2. Kill all existing servers                                               ║"
-    echo "║  3. Clean up processes and ports 3000 & 3001                               ║"
-    echo "║  4. Restart both frontend and backend                                       ║"
+    echo "║  3. Clean up processes and ports 3000, 3001 & 3002                         ║"
+    echo "║  4. Restart all three servers                                               ║"
     echo "║  5. Check for errors and report status                                      ║"
     echo "║                                                                              ║"
     echo "╚══════════════════════════════════════════════════════════════════════════════╝"
@@ -223,16 +227,22 @@ kill_all_servers() {
     
     # Kill processes by port
     local frontend_pid=$(get_port_process $FRONTEND_PORT)
-    local backend_pid=$(get_port_process $BACKEND_PORT)
+    local backend_http_pid=$(get_port_process $BACKEND_HTTP_PORT)
+    local backend_https_pid=$(get_port_process $BACKEND_HTTPS_PORT)
     
     if [ -n "$frontend_pid" ]; then
         print_info "Killing process on port $FRONTEND_PORT (PID: $frontend_pid)"
         kill -9 "$frontend_pid" 2>/dev/null || true
     fi
     
-    if [ -n "$backend_pid" ]; then
-        print_info "Killing process on port $BACKEND_PORT (PID: $backend_pid)"
-        kill -9 "$backend_pid" 2>/dev/null || true
+    if [ -n "$backend_http_pid" ]; then
+        print_info "Killing process on port $BACKEND_HTTP_PORT (PID: $backend_http_pid)"
+        kill -9 "$backend_http_pid" 2>/dev/null || true
+    fi
+    
+    if [ -n "$backend_https_pid" ]; then
+        print_info "Killing process on port $BACKEND_HTTPS_PORT (PID: $backend_https_pid)"
+        kill -9 "$backend_https_pid" 2>/dev/null || true
     fi
     
     # Kill any node processes that might be related to our project
@@ -251,9 +261,15 @@ kill_all_servers() {
         sleep 2
     fi
     
-    if check_port $BACKEND_PORT; then
-        print_warning "Port $BACKEND_PORT still in use, force killing..."
-        lsof -ti:$BACKEND_PORT | xargs kill -9 2>/dev/null || true
+    if check_port $BACKEND_HTTP_PORT; then
+        print_warning "Port $BACKEND_HTTP_PORT still in use, force killing..."
+        lsof -ti:$BACKEND_HTTP_PORT | xargs kill -9 2>/dev/null || true
+        sleep 2
+    fi
+    
+    if check_port $BACKEND_HTTPS_PORT; then
+        print_warning "Port $BACKEND_HTTPS_PORT still in use, force killing..."
+        lsof -ti:$BACKEND_HTTPS_PORT | xargs kill -9 2>/dev/null || true
         sleep 2
     fi
     
@@ -322,16 +338,24 @@ check_requirements() {
 start_backend() {
     print_status "🚀 Starting backend server..."
     
-    # Verify port is free
-    if check_port $BACKEND_PORT; then
-        print_error "Port $BACKEND_PORT is still in use after cleanup"
-        BACKEND_STATUS="failed"
+    # Verify ports are free
+    if check_port $BACKEND_HTTP_PORT; then
+        print_error "Port $BACKEND_HTTP_PORT is still in use after cleanup"
+        BACKEND_HTTP_STATUS="failed"
+        BACKEND_HTTPS_STATUS="failed"
         return 1
     fi
     
-    # Start backend server
-    print_info "Starting backend on port $BACKEND_PORT..."
-    node server.js > backend.log 2>&1 &
+    if check_port $BACKEND_HTTPS_PORT; then
+        print_error "Port $BACKEND_HTTPS_PORT is still in use after cleanup"
+        BACKEND_HTTP_STATUS="failed"
+        BACKEND_HTTPS_STATUS="failed"
+        return 1
+    fi
+    
+    # Start backend server (starts both HTTP and HTTPS)
+    print_info "Starting backend servers on ports $BACKEND_HTTP_PORT (HTTP) and $BACKEND_HTTPS_PORT (HTTPS)..."
+    BACKEND_PORT=3001 node server.js > backend.log 2>&1 &
     local backend_pid=$!
     echo $backend_pid > "$BACKEND_PID_FILE"
     
@@ -340,19 +364,27 @@ start_backend() {
     # Wait for backend to start
     local max_attempts=30
     local attempt=0
+    local http_ready=false
+    local https_ready=false
     
-    print_info "Waiting for backend to be ready..."
+    print_info "Waiting for backend servers to be ready..."
     while [ $attempt -lt $max_attempts ]; do
-        # Try HTTPS first, then fallback to HTTP
-        if curl -s -k "$BACKEND_URL/api/health" >/dev/null 2>&1; then
-            print_success "Backend server started successfully on $BACKEND_URL"
-            BACKEND_STATUS="running"
-            return 0
-        elif curl -s "http://localhost:${BACKEND_PORT}/api/health" >/dev/null 2>&1; then
-            # Backend fell back to HTTP, update URL
-            BACKEND_URL="http://localhost:${BACKEND_PORT}"
-            print_success "Backend server started successfully on $BACKEND_URL (HTTP fallback)"
-            BACKEND_STATUS="running"
+        # Check HTTP backend
+        if [ "$http_ready" = false ] && curl -s "$BACKEND_HTTP_URL/api/health" >/dev/null 2>&1; then
+            print_success "Backend HTTP server started successfully on $BACKEND_HTTP_URL"
+            http_ready=true
+            BACKEND_HTTP_STATUS="running"
+        fi
+        
+        # Check HTTPS backend
+        if [ "$https_ready" = false ] && curl -s -k "$BACKEND_HTTPS_URL/api/health" >/dev/null 2>&1; then
+            print_success "Backend HTTPS server started successfully on $BACKEND_HTTPS_URL"
+            https_ready=true
+            BACKEND_HTTPS_STATUS="running"
+        fi
+        
+        # If both are ready, we're done
+        if [ "$http_ready" = true ] && [ "$https_ready" = true ]; then
             return 0
         fi
         
@@ -361,7 +393,8 @@ start_backend() {
             print_error "Backend process died during startup"
             print_error "Check backend.log for details:"
             tail -10 backend.log 2>/dev/null || echo "No log file found"
-            BACKEND_STATUS="failed"
+            BACKEND_HTTP_STATUS="failed"
+            BACKEND_HTTPS_STATUS="failed"
             return 1
         fi
         
@@ -371,12 +404,28 @@ start_backend() {
     done
     
     echo ""
-    print_error "Backend server failed to start within 30 seconds"
+    
+    # Check final status
+    if [ "$http_ready" = false ]; then
+        print_error "Backend HTTP server failed to start within 30 seconds"
+        BACKEND_HTTP_STATUS="failed"
+    fi
+    
+    if [ "$https_ready" = false ]; then
+        print_error "Backend HTTPS server failed to start within 30 seconds"
+        BACKEND_HTTPS_STATUS="failed"
+    fi
+    
     print_error "Backend process status: $(kill -0 "$backend_pid" 2>/dev/null && echo "running" || echo "dead")"
     print_error "Check backend.log for details:"
     tail -10 backend.log 2>/dev/null || echo "No log file found"
-    BACKEND_STATUS="failed"
-    return 1
+    
+    # Return success if at least one backend is running
+    if [ "$http_ready" = true ] || [ "$https_ready" = true ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 # Function to start frontend server
@@ -449,12 +498,22 @@ run_health_checks() {
     
     local health_ok=true
     
-    # Backend health check
-    if [ "$BACKEND_STATUS" = "running" ]; then
-        if curl -s -k "$BACKEND_URL/api/health" | grep -q '"status":"ok"'; then
-            print_success "Backend health check passed"
+    # Backend HTTP health check
+    if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
+        if curl -s "$BACKEND_HTTP_URL/api/health" | grep -q '"status":"ok"'; then
+            print_success "Backend HTTP health check passed"
         else
-            print_error "Backend health check failed"
+            print_error "Backend HTTP health check failed"
+            health_ok=false
+        fi
+    fi
+    
+    # Backend HTTPS health check
+    if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
+        if curl -s -k "$BACKEND_HTTPS_URL/api/health" | grep -q '"status":"ok"'; then
+            print_success "Backend HTTPS health check passed"
+        else
+            print_error "Backend HTTPS health check failed"
             health_ok=false
         fi
     fi
@@ -470,10 +529,17 @@ run_health_checks() {
     fi
     
     # Port checks
-    if check_port $BACKEND_PORT; then
-        print_success "Backend port $BACKEND_PORT is active"
+    if check_port $BACKEND_HTTP_PORT; then
+        print_success "Backend HTTP port $BACKEND_HTTP_PORT is active"
     else
-        print_error "Backend port $BACKEND_PORT is not active"
+        print_error "Backend HTTP port $BACKEND_HTTP_PORT is not active"
+        health_ok=false
+    fi
+    
+    if check_port $BACKEND_HTTPS_PORT; then
+        print_success "Backend HTTPS port $BACKEND_HTTPS_PORT is active"
+    else
+        print_error "Backend HTTPS port $BACKEND_HTTPS_PORT is not active"
         health_ok=false
     fi
     
@@ -500,15 +566,31 @@ show_final_status() {
     echo -e "${CYAN}║                              📊 FINAL STATUS REPORT                          ║${NC}"
     echo -e "${CYAN}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     
-    # Backend status
-    echo -e "${CYAN}║${NC} Backend Server:"
-    if [ "$BACKEND_STATUS" = "running" ]; then
+    # Backend HTTP status
+    echo -e "${CYAN}║${NC} Backend HTTP Server:"
+    if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
         echo -e "${CYAN}║${NC}   Status: ${GREEN}✅ RUNNING${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_URL${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_HTTP_URL${NC}"
         echo -e "${CYAN}║${NC}   Health: ${GREEN}✅ HEALTHY${NC}"
-    elif [ "$BACKEND_STATUS" = "failed" ]; then
+    elif [ "$BACKEND_HTTP_STATUS" = "failed" ]; then
         echo -e "${CYAN}║${NC}   Status: ${RED}❌ FAILED${NC}"
-        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_URL (not accessible)${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_HTTP_URL (not accessible)${NC}"
+        echo -e "${CYAN}║${NC}   Health: ${RED}❌ UNHEALTHY${NC}"
+    else
+        echo -e "${CYAN}║${NC}   Status: ${YELLOW}⚠️  UNKNOWN${NC}"
+    fi
+    
+    echo -e "${CYAN}║${NC}"
+    
+    # Backend HTTPS status
+    echo -e "${CYAN}║${NC} Backend HTTPS Server:"
+    if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
+        echo -e "${CYAN}║${NC}   Status: ${GREEN}✅ RUNNING${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${BLUE}$BACKEND_HTTPS_URL${NC}"
+        echo -e "${CYAN}║${NC}   Health: ${GREEN}✅ HEALTHY${NC}"
+    elif [ "$BACKEND_HTTPS_STATUS" = "failed" ]; then
+        echo -e "${CYAN}║${NC}   Status: ${RED}❌ FAILED${NC}"
+        echo -e "${CYAN}║${NC}   URL:    ${RED}$BACKEND_HTTPS_URL (not accessible)${NC}"
         echo -e "${CYAN}║${NC}   Health: ${RED}❌ UNHEALTHY${NC}"
     else
         echo -e "${CYAN}║${NC}   Status: ${YELLOW}⚠️  UNKNOWN${NC}"
@@ -533,20 +615,25 @@ show_final_status() {
     echo -e "${CYAN}║${NC}"
     
     # Overall status
-    if [ "$BACKEND_STATUS" = "running" ] && [ "$FRONTEND_STATUS" = "running" ]; then
+    if [ "$BACKEND_HTTP_STATUS" = "running" ] && [ "$BACKEND_HTTPS_STATUS" = "running" ] && [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="success"
         echo -e "${CYAN}║${NC} Overall Status: ${GREEN}🎉 ALL SERVERS RUNNING SUCCESSFULLY${NC}"
         echo -e "${CYAN}║${NC}"
         echo -e "${CYAN}║${NC} ${GREEN}✅ OAuth Playground is ready to use!${NC}"
         echo -e "${CYAN}║${NC} ${GREEN}✅ Open your browser and navigate to: $FRONTEND_URL${NC}"
-    elif [ "$BACKEND_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
+    elif [ "$BACKEND_HTTP_STATUS" = "running" ] || [ "$BACKEND_HTTPS_STATUS" = "running" ] || [ "$FRONTEND_STATUS" = "running" ]; then
         OVERALL_STATUS="partial"
         echo -e "${CYAN}║${NC} Overall Status: ${YELLOW}⚠️  PARTIAL SUCCESS${NC}"
         echo -e "${CYAN}║${NC}"
-        if [ "$BACKEND_STATUS" = "running" ]; then
-            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend is running${NC}"
+        if [ "$BACKEND_HTTP_STATUS" = "running" ]; then
+            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend HTTP is running${NC}"
         else
-            echo -e "${CYAN}║${NC} ${RED}❌ Backend failed to start${NC}"
+            echo -e "${CYAN}║${NC} ${RED}❌ Backend HTTP failed to start${NC}"
+        fi
+        if [ "$BACKEND_HTTPS_STATUS" = "running" ]; then
+            echo -e "${CYAN}║${NC} ${GREEN}✅ Backend HTTPS is running${NC}"
+        else
+            echo -e "${CYAN}║${NC} ${RED}❌ Backend HTTPS failed to start${NC}"
         fi
         if [ "$FRONTEND_STATUS" = "running" ]; then
             echo -e "${CYAN}║${NC} ${GREEN}✅ Frontend is running${NC}"
@@ -555,7 +642,7 @@ show_final_status() {
         fi
     else
         OVERALL_STATUS="failure"
-        echo -e "${CYAN}║${NC} Overall Status: ${RED}❌ BOTH SERVERS FAILED${NC}"
+        echo -e "${CYAN}║${NC} Overall Status: ${RED}❌ ALL SERVERS FAILED${NC}"
         echo -e "${CYAN}║${NC}"
         echo -e "${CYAN}║${NC} ${RED}❌ OAuth Playground is not accessible${NC}"
         echo -e "${CYAN}║${NC} ${RED}❌ Check the logs above for error details${NC}"
@@ -591,20 +678,26 @@ show_final_summary() {
     echo ""
     
     # Check current server status for the banner
-    local backend_running=false
+    local backend_http_running=false
+    local backend_https_running=false
     local frontend_running=false
-    local backend_healthy=false
+    local backend_http_healthy=false
+    local backend_https_healthy=false
     local frontend_healthy=false
     
-    # Backend status check
-    if check_port $BACKEND_PORT; then
-        backend_running=true
-        if curl -s -k "$BACKEND_URL/api/health" >/dev/null 2>&1; then
-            backend_healthy=true
-        elif curl -s "http://localhost:${BACKEND_PORT}/api/health" >/dev/null 2>&1; then
-            # Backend is running on HTTP, update URL for display
-            BACKEND_URL="http://localhost:${BACKEND_PORT}"
-            backend_healthy=true
+    # Backend HTTP status check
+    if check_port $BACKEND_HTTP_PORT; then
+        backend_http_running=true
+        if curl -s "$BACKEND_HTTP_URL/api/health" >/dev/null 2>&1; then
+            backend_http_healthy=true
+        fi
+    fi
+    
+    # Backend HTTPS status check
+    if check_port $BACKEND_HTTPS_PORT; then
+        backend_https_running=true
+        if curl -s -k "$BACKEND_HTTPS_URL/api/health" >/dev/null 2>&1; then
+            backend_https_healthy=true
         fi
     fi
     
@@ -621,20 +714,15 @@ show_final_summary() {
     local status_icon=""
     local status_text=""
     
-    if [ "$backend_running" = true ] && [ "$frontend_running" = true ] && [ "$backend_healthy" = true ] && [ "$frontend_healthy" = true ]; then
+    if [ "$backend_http_running" = true ] && [ "$backend_https_running" = true ] && [ "$frontend_running" = true ] && [ "$backend_http_healthy" = true ] && [ "$backend_https_healthy" = true ] && [ "$frontend_healthy" = true ]; then
         banner_color="${GREEN}"
         status_icon="🎉"
         status_text="ALL SYSTEMS OPERATIONAL"
         OVERALL_STATUS="success"
-    elif [ "$backend_running" = true ] && [ "$frontend_running" = true ]; then
+    elif [ "$backend_http_running" = true ] || [ "$backend_https_running" = true ] || [ "$frontend_running" = true ]; then
         banner_color="${YELLOW}"
         status_icon="⚠️"
         status_text="SERVERS RUNNING - HEALTH ISSUES"
-        OVERALL_STATUS="partial"
-    elif [ "$backend_running" = true ] || [ "$frontend_running" = true ]; then
-        banner_color="${YELLOW}"
-        status_icon="⚠️"
-        status_text="PARTIAL SUCCESS - ONE SERVER DOWN"
         OVERALL_STATUS="partial"
     else
         banner_color="${RED}"
@@ -652,14 +740,26 @@ show_final_summary() {
     echo -e "${banner_color}║                                                                              ║${NC}"
     echo -e "${banner_color}╠══════════════════════════════════════════════════════════════════════════════╣${NC}"
     
-    # Backend status in banner
-    echo -e "${banner_color}║${NC} ${BLUE}Backend Server (Port $BACKEND_PORT):${NC}"
-    if [ "$backend_running" = true ] && [ "$backend_healthy" = true ]; then
-        echo -e "${banner_color}║${NC}   ${GREEN}✅ RUNNING and HEALTHY${NC} - $BACKEND_URL"
-    elif [ "$backend_running" = true ]; then
-        echo -e "${banner_color}║${NC}   ${YELLOW}⚠️  RUNNING but UNHEALTHY${NC} - $BACKEND_URL"
+    # Backend HTTP status in banner
+    echo -e "${banner_color}║${NC} ${BLUE}Backend HTTP Server (Port $BACKEND_HTTP_PORT):${NC}"
+    if [ "$backend_http_running" = true ] && [ "$backend_http_healthy" = true ]; then
+        echo -e "${banner_color}║${NC}   ${GREEN}✅ RUNNING and HEALTHY${NC} - $BACKEND_HTTP_URL"
+    elif [ "$backend_http_running" = true ]; then
+        echo -e "${banner_color}║${NC}   ${YELLOW}⚠️  RUNNING but UNHEALTHY${NC} - $BACKEND_HTTP_URL"
     else
-        echo -e "${banner_color}║${NC}   ${RED}❌ NOT RUNNING${NC} - $BACKEND_URL"
+        echo -e "${banner_color}║${NC}   ${RED}❌ NOT RUNNING${NC} - $BACKEND_HTTP_URL"
+    fi
+    
+    echo -e "${banner_color}║${NC}"
+    
+    # Backend HTTPS status in banner
+    echo -e "${banner_color}║${NC} ${BLUE}Backend HTTPS Server (Port $BACKEND_HTTPS_PORT):${NC}"
+    if [ "$backend_https_running" = true ] && [ "$backend_https_healthy" = true ]; then
+        echo -e "${banner_color}║${NC}   ${GREEN}✅ RUNNING and HEALTHY${NC} - $BACKEND_HTTPS_URL"
+    elif [ "$backend_https_running" = true ]; then
+        echo -e "${banner_color}║${NC}   ${YELLOW}⚠️  RUNNING but UNHEALTHY${NC} - $BACKEND_HTTPS_URL"
+    else
+        echo -e "${banner_color}║${NC}   ${RED}❌ NOT RUNNING${NC} - $BACKEND_HTTPS_URL"
     fi
     
     echo -e "${banner_color}║${NC}"
@@ -682,14 +782,15 @@ show_final_summary() {
         "success")
             echo -e "${banner_color}║${NC} ${GREEN}🎉 SUCCESS: OAuth Playground is fully operational!${NC}"
             echo -e "${banner_color}║${NC} ${GREEN}🌐 Ready to use at: $FRONTEND_URL${NC}"
-            echo -e "${banner_color}║${NC} ${GREEN}🔧 Backend API available at: $BACKEND_URL${NC}"
+            echo -e "${banner_color}║${NC} ${GREEN}🔧 Backend HTTP API available at: $BACKEND_HTTP_URL${NC}"
+            echo -e "${banner_color}║${NC} ${GREEN}🔐 Backend HTTPS API available at: $BACKEND_HTTPS_URL${NC}"
             ;;
         "partial")
             echo -e "${banner_color}║${NC} ${YELLOW}⚠️  PARTIAL SUCCESS: Check server status above${NC}"
             echo -e "${banner_color}║${NC} ${YELLOW}🔍 Review logs for troubleshooting information${NC}"
             ;;
         "failure")
-            echo -e "${banner_color}║${NC} ${RED}❌ FAILURE: Both servers failed to start${NC}"
+            echo -e "${banner_color}║${NC} ${RED}❌ FAILURE: Servers failed to start${NC}"
             echo -e "${banner_color}║${NC} ${RED}🔍 Check backend.log and frontend.log for details${NC}"
             ;;
         *)
@@ -718,7 +819,7 @@ main() {
     # Step 2: Kill all existing servers
     kill_all_servers
     
-    # Step 3: Start backend
+    # Step 3: Start backend (starts both HTTP and HTTPS servers)
     print_status "🔧 Starting servers..."
     start_backend
     

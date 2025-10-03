@@ -15,12 +15,16 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -251,8 +255,19 @@ const CIBAFlowV5: React.FC = () => {
 		reset,
 	} = useCibaFlow();
 
-	const [currentStep, setCurrentStep] = useState<StepIndex>(0);
+	const [currentStep, setCurrentStep] = useState<StepIndex>(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step');
+			return step as StepIndex;
+		}
+		return 0;
+	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 
 	const effectiveConfig = useMemo(() => config ?? buildInitialConfig(), [config]);
 
@@ -302,6 +317,36 @@ const CIBAFlowV5: React.FC = () => {
 			v4ToastManager.showError(`Unable to copy ${label}. Check browser permissions.`);
 		}
 	}, []);
+
+	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('ciba-v5', currentStep, 'oidc');
+
+		// Set flow source for Token Management page (legacy support)
+		sessionStorage.setItem('flow_source', 'ciba-v5');
+
+		// Store comprehensive flow context for Token Management page
+		const flowContext = {
+			flow: 'ciba-v5',
+			tokens: tokens,
+			credentials: effectiveConfig,
+			timestamp: Date.now(),
+		};
+		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+		// If we have tokens, pass them to Token Management
+		if (tokens?.access_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'ciba-v5');
+			console.log(
+				'🔍 [CIBAFlowV5] Passing access token to Token Management via localStorage'
+			);
+		}
+
+		window.open('/token-management', '_blank');
+	}, [tokens, effectiveConfig, currentStep]);
 
 	const updateConfig = useCallback(
 		(patch: Partial<CibaConfig>) => {
@@ -362,22 +407,6 @@ const CIBAFlowV5: React.FC = () => {
 		}
 		return true;
 	}, [currentStep, missingRequiredFields.size, tokens]);
-
-	// Get step completion requirements for user guidance
-	const getStepRequirements = useCallback((stepIndex: number): string[] => {
-		switch (stepIndex) {
-			case 0: // Step 0: Introduction & Setup
-				return ['Review the flow overview and setup credentials'];
-			case 1: // Step 1: Configuration
-				return ['Enter all required configuration fields'];
-			case 2: // Step 2: Authentication Request
-				return ['Complete CIBA authentication request'];
-			case 3: // Step 3: Results
-				return ['View authentication results'];
-			default:
-				return [];
-		}
-	}, []);
 
 	const disabledMessage = useMemo(() => {
 		if (currentStep === 1 && missingRequiredFields.size > 0) {
@@ -482,7 +511,7 @@ const CIBAFlowV5: React.FC = () => {
 										<FiSmartphone /> Decoupled authentication
 									</ExplanationHeading>
 									<p>
-										Client Initiated Backchannel Authentication (CIBA) lets a client trigger user
+										<strong>Client Initiated Backchannel Authentication (CIBA)</strong> lets a client trigger user
 										authentication on a secondary device. PingOne notifies the end user through a
 										registered authenticator. Once approved, the client polls the token endpoint
 										with the returned <code>auth_req_id</code> to obtain tokens.
@@ -638,51 +667,67 @@ const CIBAFlowV5: React.FC = () => {
 							<ResultsSection>
 								<ResultsHeading>Tokens & downstream actions</ResultsHeading>
 								{tokens ? (
-									<TokenIntrospect
-										flowName="OIDC CIBA V5"
-										flowVersion="V5"
-										tokens={tokens as unknown as Record<string, unknown>}
-										credentials={effectiveConfig as unknown as Record<string, unknown>}
-										onResetFlow={handleReset}
-										onNavigateToTokenManagement={() =>
-											v4ToastManager.showSuccess(
-												'Open Token Management to inspect and decode these tokens.'
-											)
-										}
-										onIntrospectToken={async (token: string) => {
-											if (!effectiveConfig?.environmentId || !effectiveConfig?.clientId) {
-												throw new Error('Missing credentials for introspection');
-											}
+									<>
+										<TokenIntrospect
+											flowName="OIDC CIBA V5"
+											flowVersion="V5"
+											tokens={tokens as unknown as Record<string, unknown>}
+											credentials={effectiveConfig as unknown as Record<string, unknown>}
+											onResetFlow={handleReset}
+											onNavigateToTokenManagement={navigateToTokenManagement}
+											onIntrospectToken={async (token: string) => {
+												if (!effectiveConfig?.environmentId || !effectiveConfig?.clientId) {
+													throw new Error('Missing credentials for introspection');
+												}
 
-											const introspectEndpoint = `https://auth.pingone.com/${effectiveConfig.environmentId}/as/introspect`;
+												const request = {
+													token: token,
+													clientId: effectiveConfig.clientId,
+													...(effectiveConfig.clientSecret && { clientSecret: effectiveConfig.clientSecret }),
+													tokenTypeHint: 'access_token' as const
+												};
 
-											const params = new URLSearchParams({
-												token: token,
-												client_id: effectiveConfig.clientId,
-											});
+												try {
+													// Use the reusable service to create API call data and execute introspection
+													const result = await TokenIntrospectionService.introspectToken(
+														request,
+														'ciba',
+														`https://auth.pingone.com/${effectiveConfig.environmentId}/as/introspect`
+													);
 
-											// Add client_secret if available (confidential client)
-											if (effectiveConfig.clientSecret) {
-												params.append('client_secret', effectiveConfig.clientSecret);
-											}
+													// Set the API call data for display
+													setIntrospectionApiCall(result.apiCall);
 
-											const response = await fetch(introspectEndpoint, {
-												method: 'POST',
-												headers: {
-													'Content-Type': 'application/x-www-form-urlencoded',
-												},
-												body: params.toString(),
-											});
+													return result.response;
+												} catch (error) {
+													// Create error API call using reusable service
+													const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+														request,
+														'ciba',
+														error instanceof Error ? error.message : 'Unknown error',
+														500,
+														`https://auth.pingone.com/${effectiveConfig.environmentId}/as/introspect`
+													);
 
-											if (!response.ok) {
-												const errorText = await response.text();
-												throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
-											}
+													setIntrospectionApiCall(errorApiCall);
+													throw error;
+												}
+											}}
+											completionMessage="Great work! Continue exploring these tokens in Token Management or rerun the flow with new scopes."
+										/>
 
-											return await response.json();
-										}}
-										completionMessage="Great work! Continue exploring these tokens in Token Management or rerun the flow with new scopes."
-									/>
+										{/* API Call Display for Token Introspection */}
+										{introspectionApiCall && (
+											<EnhancedApiCallDisplay
+												apiCall={introspectionApiCall}
+												options={{
+													showEducationalNotes: true,
+													showFlowContext: true,
+													urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('ciba')
+												}}
+											/>
+										)}
+									</>
 								) : (
 									<HelperText>
 										Awaiting tokens. Complete the CIBA approval to view results.
@@ -715,9 +760,6 @@ const CIBAFlowV5: React.FC = () => {
 					isFirstStep={currentStep === 0}
 					nextButtonText={currentStep === 2 ? 'View results' : 'Next'}
 					disabledMessage={disabledMessage || ''}
-					stepRequirements={getStepRequirements(currentStep)}
-					onCompleteAction={handleNext}
-					showCompleteActionButton={!canNavigateNext && currentStep !== 0}
 				/>
 			</Content>
 		</Container>
