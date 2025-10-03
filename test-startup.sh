@@ -154,7 +154,7 @@ run_test "Dashboard page exists" "[ -f 'src/pages/Dashboard.tsx' ]" 0
 run_test "OAuthFlows page exists" "[ -f 'src/pages/OAuthFlows.tsx' ]" 0
 run_test "TokenInspector page exists" "[ -f 'src/pages/TokenInspector.tsx' ]" 0
 run_test "Configuration page exists" "[ -f 'src/pages/Configuration.tsx' ]" 0
-run_test "AuthContext exists" "[ -f 'src/contexts/AuthContext.tsx' ]" 0
+run_test "AuthContext exists" "[ -f 'src/contexts/NewAuthContext.tsx' ]" 0
 
 # Test 6: Utility functions
 echo ""

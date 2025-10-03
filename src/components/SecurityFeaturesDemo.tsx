@@ -306,6 +306,7 @@ interface SecurityFeaturesDemoProps {
 	credentials?: Record<string, unknown> | null;
 	onTerminateSession?: () => void;
 	onRevokeTokens?: () => void;
+	hideHeader?: boolean;
 }
 
 const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
@@ -313,6 +314,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	credentials,
 	onTerminateSession,
 	onRevokeTokens,
+	hideHeader = false,
 }) => {
 	const { settings } = useUISettings();
 	const { fontSize, colorScheme } = settings;
@@ -1101,12 +1103,14 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 
 	return (
 		<Container $primaryColor={colors.primary}>
-			<Header $primaryColor={colors.primary}>
-				<HeaderTitle $fontSize={fontSize}>🔒 Security Features Demonstration</HeaderTitle>
-				<HeaderSubtitle>
-					Advanced OAuth 2.0 and OpenID Connect Security Implementations
-				</HeaderSubtitle>
-			</Header>
+			{!hideHeader && (
+				<Header $primaryColor={colors.primary}>
+					<HeaderTitle $fontSize={fontSize}>🔒 Security Features Demonstration</HeaderTitle>
+					<HeaderSubtitle>
+						Advanced OAuth 2.0 and OpenID Connect Security Implementations
+					</HeaderSubtitle>
+				</Header>
+			)}
 
 			<Content>
 				{/* Request Parameter Signature Section */}
