@@ -19,7 +19,7 @@ import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 import { safeJsonParse } from '../utils/secureJson';
-import { storeOAuthTokens } from '../utils/tokenStorage';
+import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 
@@ -265,7 +265,10 @@ export const useAuthorizationCodeFlowController = (
 	const [showUrlExplainer, setShowUrlExplainer] = useState(false);
 	const [isAuthorizing, setIsAuthorizing] = useState(false);
 	const [authCode, setAuthCode] = useState('');
-	const [tokens, setTokens] = useState<AuthorizationTokens | null>(null);
+	const [tokens, setTokens] = useState<AuthorizationTokens | null>(() => {
+		const stored = rehydrateOAuthTokens();
+		return stored ? (stored as AuthorizationTokens) : null;
+	});
 	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 	const [isFetchingUserInfo, setIsFetchingUserInfo] = useState(false);
 	const [isExchangingTokens, setIsExchangingTokens] = useState(false);
@@ -384,8 +387,15 @@ export const useAuthorizationCodeFlowController = (
 				if (previousTokens) {
 					setTokens(previousTokens);
 					setRefreshToken(previousTokens.refresh_token || '');
+					return;
 				}
 			}
+		}
+
+		const fallback = rehydrateOAuthTokens();
+		if (fallback) {
+			setTokens(fallback as AuthorizationTokens);
+			setRefreshToken(fallback.refresh_token || '');
 		}
 	}, [stepResultKey]);
 
@@ -453,44 +463,139 @@ export const useAuthorizationCodeFlowController = (
 
 		const state =
 			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-		// Build response_type based on configuration
-		const responseTypes = [];
-		if (credentials.responseTypeCode !== false) responseTypes.push('code'); // Default to true if not specified
-		if (credentials.responseTypeToken) responseTypes.push('token');
-		if (credentials.responseTypeIdToken) responseTypes.push('id_token');
-		const responseType = responseTypes.length > 0 ? responseTypes.join(' ') : 'code';
 
-		const params = new URLSearchParams({
-			response_type: responseType,
-			client_id: credentials.clientId,
-			redirect_uri: credentials.redirectUri,
-			scope: credentials.scope || 'openid',
-			state,
-		});
+		// Load PingOne application configuration for PAR and other advanced settings
+		let pingOneConfig = null;
+		try {
+			// Try both possible config keys (for different flow variants)
+			const possibleKeys = [
+				`${persistKey}-app-config`,
+				`${flowKey}-app-config`,
+				'pingone-app-config' // fallback
+			];
 
-		// Add PKCE parameters if using authorization code flow (default behavior)
-		if (responseType.includes('code')) {
-			params.set('code_challenge', pkceCodes.codeChallenge);
-			params.set('code_challenge_method', pkceCodes.codeChallengeMethod || 'S256');
+			for (const configKey of possibleKeys) {
+				const storedConfig = sessionStorage.getItem(configKey);
+				if (storedConfig) {
+					pingOneConfig = JSON.parse(storedConfig);
+					console.log('🔧 [useAuthorizationCodeFlowController] Loaded PingOne config:', {
+						key: configKey,
+						config: pingOneConfig
+					});
+					break;
+				}
+			}
+		} catch (error) {
+			console.warn('🔧 [useAuthorizationCodeFlowController] Failed to load PingOne config:', error);
 		}
 
-		// Add OIDC-specific parameters
-		if (flowVariant === 'oidc') {
-			params.set('scope', credentials.scope || 'openid profile email');
+		let url: string;
+
+		// Check if PAR (Pushed Authorization Request) is required
+		if (pingOneConfig?.requirePushedAuthorizationRequest) {
+			console.log('🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request');
+			try {
+				// Import PAR service dynamically to avoid circular dependencies
+				const { PARService } = await import('../services/parService');
+
+				// Create PAR service with actual environment ID
+				const parService = new PARService(credentials.environmentId || 'default-environment');
+
+				// Create PAR request
+				const parRequest = {
+					clientId: credentials.clientId,
+					environmentId: credentials.environmentId || '',
+					responseType: pingOneConfig.responseTypeCode !== false ? 'code' : 'token',
+					redirectUri: credentials.redirectUri,
+					scope: credentials.scope || 'openid',
+					state,
+					nonce: pingOneConfig.nonce,
+					codeChallenge: pkceCodes.codeChallenge,
+					codeChallengeMethod: pkceCodes.codeChallengeMethod || 'S256',
+					acrValues: pingOneConfig.acrValues,
+					prompt: pingOneConfig.prompt,
+					maxAge: pingOneConfig.maxAge,
+					uiLocales: pingOneConfig.uiLocales,
+					claims: pingOneConfig.claims,
+				};
+
+				// Determine authentication method for PAR
+				let authMethod = 'CLIENT_SECRET_POST';
+				if (pingOneConfig.clientAuthMethod === 'client_secret_basic') {
+					authMethod = 'CLIENT_SECRET_BASIC';
+				} else if (pingOneConfig.clientAuthMethod === 'client_secret_jwt') {
+					authMethod = 'CLIENT_SECRET_JWT';
+				} else if (pingOneConfig.clientAuthMethod === 'private_key_jwt') {
+					authMethod = 'PRIVATE_KEY_JWT';
+				}
+
+				const parAuthMethod = {
+					type: authMethod as any,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+					privateKey: pingOneConfig.privateKey,
+					keyId: pingOneConfig.keyId,
+				};
+
+				// Make PAR request
+				const parResponse = await parService.generatePARRequest(parRequest, parAuthMethod);
+
+				// Generate authorization URL with request_uri
+				url = parService.generateAuthorizationURL(parResponse.requestUri, {
+					client_id: credentials.clientId,
+				});
+
+				console.log('🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:', url);
+			} catch (error) {
+				console.error('❌ [useAuthorizationCodeFlowController] PAR request failed:', error);
+				showGlobalError(
+					'PAR request failed',
+					'Failed to generate pushed authorization request. Please check your PingOne configuration.'
+				);
+				return;
+			}
+		} else {
+			// Regular authorization URL generation (existing logic)
+			// Build response_type based on configuration
+			const responseTypes = [];
+			if (credentials.responseTypeCode !== false) responseTypes.push('code'); // Default to true if not specified
+			if (credentials.responseTypeToken) responseTypes.push('token');
+			if (credentials.responseTypeIdToken) responseTypes.push('id_token');
+			const responseType = responseTypes.length > 0 ? responseTypes.join(' ') : 'code';
+
+			const params = new URLSearchParams({
+				response_type: responseType,
+				client_id: credentials.clientId,
+				redirect_uri: credentials.redirectUri,
+				scope: credentials.scope || 'openid',
+				state,
+			});
+
+			// Add PKCE parameters if using authorization code flow (default behavior)
+			if (responseType.includes('code')) {
+				params.set('code_challenge', pkceCodes.codeChallenge);
+				params.set('code_challenge_method', pkceCodes.codeChallengeMethod || 'S256');
+			}
+
+			// Add OIDC-specific parameters
+			if (flowVariant === 'oidc') {
+				params.set('scope', pingOneConfig?.scope || credentials.scope || 'openid profile email');
+			}
+
+			// Add advanced OIDC parameters if configured
+			if (pingOneConfig?.initiateLoginUri) {
+				params.set('initiate_login_uri', pingOneConfig.initiateLoginUri);
+			}
+			if (pingOneConfig?.targetLinkUri) {
+				params.set('target_link_uri', pingOneConfig.targetLinkUri);
+			}
+			if (pingOneConfig?.loginHint) {
+				params.set('login_hint', pingOneConfig.loginHint);
+			}
+
+			url = `${authEndpoint}?${params.toString()}`;
 		}
 
-		// Add advanced OIDC parameters if configured
-		if (credentials.initiateLoginUri) {
-			params.set('initiate_login_uri', credentials.initiateLoginUri);
-		}
-		if (credentials.targetLinkUri) {
-			params.set('target_link_uri', credentials.targetLinkUri);
-		}
-		if (credentials.loginHint) {
-			params.set('login_hint', credentials.loginHint);
-		}
-
-		const url = `${authEndpoint}?${params.toString()}`;
 		setAuthUrl(url);
 
 		// Store state in sessionStorage for callback validation

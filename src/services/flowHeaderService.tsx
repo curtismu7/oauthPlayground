@@ -158,7 +158,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'oauth-resource-owner-password-v5': {
 		flowType: 'oauth',
-		title: 'OAuth 2.0 Resource Owner Password Flow (V5)',
+		title: 'OAuth 2.0 Resource Owner Password Flow (ROPC)',
 		subtitle:
 			'Direct username/password authentication for highly trusted applications. Deprecated due to security risks - use Authorization Code flow instead.',
 		icon: '🔒',
@@ -211,7 +211,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'pingone-par-v5': {
 		flowType: 'pingone',
-		title: 'PAR Flow - Pushed Authorization Requests',
+		title: 'Pushed Authorization Requests (PAR) Flow',
 		subtitle:
 			'Enhanced security flow that pushes authorization parameters directly to the authorization server before redirecting. Prevents parameter tampering and reduces URL size for complex requests.',
 		icon: '🔒',
