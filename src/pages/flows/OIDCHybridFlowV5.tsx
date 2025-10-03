@@ -644,6 +644,27 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</CollapsibleHeaderButton>
 				{!collapsedSections.credentials && (
 					<CollapsibleContent>
+						<OIDCDiscoveryInput
+							onDiscoveryComplete={async (result) => {
+								if (result.success && result.document) {
+									log.info('OIDC Discovery completed successfully');
+									// Auto-populate environment ID if it's a PingOne issuer
+									const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+									if (envId) {
+										setEnvironmentId(envId);
+									}
+									// Set default redirect URI
+									if (!redirectUri) {
+										setRedirectUri('http://localhost:3000/callback');
+									}
+								}
+							}}
+							showSuggestions={true}
+							autoDiscover={false}
+						/>
+						
+						<SectionDivider />
+						
 						<CredentialsInput
 							environmentId={environmentId}
 							clientId={clientId}
