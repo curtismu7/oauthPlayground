@@ -18,6 +18,7 @@ import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCod
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
 import { FlowHeader } from '../services/flowHeaderService';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
@@ -368,6 +369,8 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 	const [stepCompletion, setStepCompletion] = useState<Record<number, boolean>>({
 		0: true, // Step 0 is always complete (introduction)
 	});
+
+	usePageScroll();
 
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: `${flowType}-authorization-code-v5`,

@@ -246,6 +246,28 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Any scenario requiring decoupled user approval',
 		],
 	},
+	'rar': {
+		flowType: 'oauth',
+		flowName: 'Rich Authorization Requests (RAR)',
+		tokensReturned: 'Access Token with RAR Claims',
+		purpose: 'Granular Authorization with Detailed Permissions',
+		specLayer: 'OAuth 2.0 Extension (RFC 9391)',
+		nonceRequirement: 'Not required (but recommended with PKCE)',
+		validation: 'Validate access token and authorization_details claims',
+		securityNotes: [
+			'✅ Enhanced security through granular permissions',
+			'Authorization details specified in token claims',
+			'Enables fine-grained access control',
+			'Reduces over-privileged access tokens',
+			'Requires authorization server RAR support',
+		],
+		useCases: [
+			'Open Banking and Financial APIs',
+			'Healthcare data access with specific permissions',
+			'IoT device authorization with granular controls',
+			'Multi-tenant applications with role-based access',
+		],
+	},
 };
 
 // Helper function to get flow info by flow type
@@ -267,6 +289,7 @@ export const PRESET_FLOW_CONFIGS = {
 	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
 	redirectless: FLOW_INFO_CONFIG['redirectless'],
 	'oidc-ciba-v5': FLOW_INFO_CONFIG['oidc-ciba-v5'],
+	'rar': FLOW_INFO_CONFIG['rar'],
 };
 
 export default {

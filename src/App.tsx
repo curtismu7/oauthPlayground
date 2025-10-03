@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
@@ -17,6 +17,7 @@ import Sidebar from './components/Sidebar';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import Callback from './pages/Callback';
+import CodeExamplesDemo from './components/CodeExamplesDemo';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import Documentation from './pages/Documentation';
@@ -64,7 +65,7 @@ import MFAFlow from './pages/flows/MFAFlow';
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
-import OAuthImplicitFlowV5_1 from './pages/flows/OAuthImplicitFlowV5_1';
+import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
 // V3 OIDC flows backed up
@@ -79,6 +80,7 @@ import PARFlow from './pages/flows/PARFlow';
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
+import RARFlowV5 from './pages/flows/RARFlowV5';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
@@ -167,9 +169,16 @@ const DARK_MODE_OVERRIDES: Partial<DefaultTheme['colors']> = {
 };
 
 const ScrollToTop = () => {
+	const location = useLocation();
+
 	useEffect(() => {
-		window.scrollTo(0, 0);
-	}, []);
+		// Small delay to ensure the page has rendered before scrolling
+		const timer = setTimeout(() => {
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+		}, 0);
+
+		return () => clearTimeout(timer);
+	}, [location.pathname, location.search]);
 
 	return null;
 };
@@ -279,7 +288,7 @@ const AppRoutes = () => {
 								element={<OIDCAuthorizationCodeFlowV5 />}
 							/>
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-							<Route path="/flows/oauth-implicit-v5-1" element={<OAuthImplicitFlowV5_1 />} />
+							<Route path="/flows/oauth-implicit-completion" element={<OAuthImplicitFlowCompletion />} />
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 							<Route
 								path="/flows/device-authorization-v5"
@@ -312,6 +321,7 @@ const AppRoutes = () => {
 							/>
 							{/* PingOne PAR Flow - V5 only */}
 							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
+							<Route path="/flows/rar-v5" element={<RARFlowV5 />} />
 
 							{/* Legacy route removed - use V5 */}
 							<Route
@@ -349,6 +359,7 @@ const AppRoutes = () => {
 							<Route path="/token-management" element={<TokenManagement />} />
 							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
 							<Route path="/url-decoder" element={<URLDecoder />} />
+							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
 
 							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
 							<Route path="/ai-glossary" element={<AIGlossary />} />
@@ -362,7 +373,6 @@ const AppRoutes = () => {
 
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
 
-							<Route path="/flows/oauth-implicit-v5-1" element={<OAuthImplicitFlowV5_1 />} />
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 							<Route
