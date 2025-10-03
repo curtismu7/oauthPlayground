@@ -178,7 +178,7 @@ const FlowsList = styled.div`
     transition: background-color 0.2s;
     
     &:hover {
-      background-color: ${({ theme }) => theme.colors.gray50};
+      background-color: ${({ theme }) => theme.colors.gray100};
     }
     
     h3 {
@@ -533,7 +533,7 @@ const flowCategories: FlowCategory[] = [
 		flows: [
 			{
 				id: 'mfa',
-				title: 'MFA Flow',
+				title: 'PingOne MFA API',
 				description: 'Multi-Factor Authentication flow with multiple verification methods',
 				icon: <FiShield />,
 				security: 'high',
