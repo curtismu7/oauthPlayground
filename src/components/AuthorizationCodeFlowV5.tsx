@@ -43,7 +43,10 @@ const STEP_METADATA = [
 	},
 	{ title: 'Step 4: Authorization Response', subtitle: 'Process the returned authorization code' },
 	{ title: 'Step 5: Token Exchange', subtitle: 'Exchange authorization code for access tokens' },
-	{ title: 'Step 6: Token Analysis & User Info', subtitle: 'Introspect tokens and fetch user information' },
+	{
+		title: 'Step 6: Token Analysis & User Info',
+		subtitle: 'Introspect tokens and fetch user information',
+	},
 	{ title: 'Step 7: Security Features', subtitle: 'Explore advanced security implementations' },
 ] as const;
 
@@ -128,8 +131,6 @@ const StepContent = styled.div`
 	border: 1px solid #e2e8f0;
 	border-top: none;
 `;
-
-
 
 const CollapsibleSection = styled.section`
 	margin-bottom: 1.5rem;
@@ -1007,7 +1008,8 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 								<div>
 									<InfoTitle>Token Exchange Successful!</InfoTitle>
 									<InfoText>
-										Your authorization code has been successfully exchanged for access tokens. You can now use these tokens to make authenticated API requests.
+										Your authorization code has been successfully exchanged for access tokens. You
+										can now use these tokens to make authenticated API requests.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -1017,17 +1019,23 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 									<GeneratedLabel>Tokens Received</GeneratedLabel>
 									<ParameterGrid>
 										<ParameterLabel>Access Token</ParameterLabel>
-										<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>✓ Received</ParameterValue>
+										<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>
+											✓ Received
+										</ParameterValue>
 										{tokens.refresh_token && (
 											<>
 												<ParameterLabel>Refresh Token</ParameterLabel>
-												<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>✓ Received</ParameterValue>
+												<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>
+													✓ Received
+												</ParameterValue>
 											</>
 										)}
 										{tokens.id_token && (
 											<>
 												<ParameterLabel>ID Token</ParameterLabel>
-												<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>✓ Received</ParameterValue>
+												<ParameterValue style={{ color: '#10b981', fontWeight: 'bold' }}>
+													✓ Received
+												</ParameterValue>
 											</>
 										)}
 										<ParameterLabel>Token Type</ParameterLabel>
@@ -1047,7 +1055,8 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 								<div>
 									<InfoTitle>What's Next?</InfoTitle>
 									<InfoText>
-										Proceed to the next step to introspect your tokens, fetch user information, and explore additional token management features.
+										Proceed to the next step to introspect your tokens, fetch user information, and
+										explore additional token management features.
 									</InfoText>
 								</div>
 							</InfoBox>

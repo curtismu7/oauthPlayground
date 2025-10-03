@@ -1,6 +1,6 @@
 // src/components/StepNavigationButtons.tsx
 
-import { FiArrowLeft, FiArrowRight, FiRefreshCw } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiRefreshCw, FiMove } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {
@@ -15,28 +15,53 @@ export interface StepNavigationButtonsProps {
 	disabledMessage?: string;
 }
 
-const StepNavigation = styled.div`
-	position: fixed;
-	bottom: 2rem;
-	left: 50%;
-	transform: translateX(-50%);
-	background: rgba(255, 255, 255, 0.98);
-	backdrop-filter: blur(10px);
-	padding: 1.25rem 2rem;
-	border-radius: 1rem;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-	border: 1px solid rgba(0, 0, 0, 0.08);
-	z-index: 1000;
-	display: flex;
-	align-items: center;
-	gap: 2rem;
-	max-width: 90vw;
+const StepNavigation = styled.div<{ $position: { x: number; y: number } }><{ $position: { x: number; y: number } }>`
+	position: fixed !important;
+        cursor: move !important;
+        left: ${({ $position }) => $position.x}px !important;
+        top: ${({ $position }) => $position.y}px !important;
+	bottom: 2rem !important;
+	left: 50% !important;
+	transform: translateX(-50%) !important;
+	background: rgba(255, 255, 255, 0.98) !important;
+	backdrop-filter: blur(10px) !important;
+	padding: 1.25rem 2rem !important;
+	border-radius: 1rem !important;
+	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+	border: 1px solid rgba(0, 0, 0, 0.08) !important;
+	z-index: 1000 !important;
+	display: flex !important;
+	align-items: center !important;
+	gap: 2rem !important;
+	max-width: 90vw !important;
+	visibility: visible !important;
+	opacity: 1 !important;
+	pointer-events: auto !important;
+	user-select: auto !important;
 
 	@media (max-width: 768px) {
 		bottom: 1rem;
 		padding: 1rem 1.5rem;
 		gap: 1rem;
 	}
+`;
+
+const DragHandle = styled.div`
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        margin-right: 1rem;
+        cursor: move;
+        color: #6b7280;
+        flex-shrink: 0;
+
+        const StepIndicator = styled.div`:hover {
+                background: #e5e7eb;
+        }
 `;
 
 const StepIndicator = styled.div`

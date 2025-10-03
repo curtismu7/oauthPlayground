@@ -10,10 +10,7 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -171,7 +168,6 @@ const Input = styled.input`
 	}
 `;
 
-
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 6px;
@@ -294,13 +290,8 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const {
-		credentials,
-		tokens,
-		requestToken,
-		clearResults,
-		updateCredentials,
-	} = useResourceOwnerPasswordFlowController();
+	const { credentials, tokens, requestToken, clearResults, updateCredentials } =
+		useResourceOwnerPasswordFlowController();
 
 	const handleNext = useCallback(() => {
 		if (currentStep < 3) {
@@ -336,7 +327,10 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 			v4ToastManager.showSuccess('OAuth Resource Owner Password token requested successfully!');
 			handleNext();
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to request OAuth Resource Owner Password token';
+			const errorMessage =
+				err instanceof Error
+					? err.message
+					: 'Failed to request OAuth Resource Owner Password token';
 			setError(errorMessage);
 			v4ToastManager.showError(errorMessage);
 		} finally {
@@ -352,15 +346,15 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 				return (
 					<>
 						<FlowConfigurationRequirements flowType="resource-owner-password" variant="oauth" />
-						
+
 						<ExplanationSection>
 							<ExplanationHeading>
 								<FiUser /> OAuth Resource Owner Password Flow
 							</ExplanationHeading>
 							<p>
 								The OAuth Resource Owner Password Flow allows clients to authenticate users by
-								exchanging username and password credentials for access tokens. This flow
-								is deprecated and should only be used for legacy migration scenarios.
+								exchanging username and password credentials for access tokens. This flow is
+								deprecated and should only be used for legacy migration scenarios.
 							</p>
 						</ExplanationSection>
 
@@ -370,19 +364,18 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 							Consider using Authorization Code Flow with PKCE for better security.
 						</WarningMessage>
 
-
 						<EnhancedFlowWalkthrough flowId="oauth-resource-owner-password" />
 						<FlowSequenceDisplay flowType="resource-owner-password" />
-				
-				{/* Configuration Summary */}
-				<ConfigurationSummaryCard
-					configuration={credentials}
-					hasConfiguration={Boolean(credentials?.clientId)}
-				/>
-			</>
-		);
 
-		case 1:
+						{/* Configuration Summary */}
+						<ConfigurationSummaryCard
+							configuration={credentials}
+							hasConfiguration={Boolean(credentials?.clientId)}
+						/>
+					</>
+				);
+
+			case 1:
 				return (
 					<>
 						<FormSection>
@@ -442,7 +435,12 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 							<Button
 								variant="danger"
 								onClick={handleRequestToken}
-								disabled={isRequesting || !credentials.username || !credentials.password || !credentials.clientId}
+								disabled={
+									isRequesting ||
+									!credentials.username ||
+									!credentials.password ||
+									!credentials.clientId
+								}
 							>
 								{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
 								{isRequesting ? 'Requesting...' : 'Request OAuth Resource Owner Password Token'}
@@ -462,12 +460,14 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 									<FiCheckCircle />
 									OAuth Resource Owner Password token requested successfully!
 								</SuccessMessage>
-								
+
 								<TokenInfo>
 									<TokenInfoRow>
 										<TokenInfoLabel>Access Token:</TokenInfoLabel>
 										<TokenInfoValue>
-											{tokens?.access_token ? tokens.access_token.substring(0, 50) + '...' : 'Not available'}
+											{tokens?.access_token
+												? tokens.access_token.substring(0, 50) + '...'
+												: 'Not available'}
 										</TokenInfoValue>
 									</TokenInfoRow>
 									{tokens?.token_type && (
@@ -492,7 +492,14 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 
 								<ResultsSection>
 									<ResultsHeading>Full Token Response</ResultsHeading>
-									<pre style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', overflow: 'auto' }}>
+									<pre
+										style={{
+											background: '#f3f4f6',
+											padding: '1rem',
+											borderRadius: '6px',
+											overflow: 'auto',
+										}}
+									>
 										{JSON.stringify(tokenResult, null, 2)}
 									</pre>
 								</ResultsSection>
@@ -507,25 +514,35 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Token Request Complete</ResultsHeading>
 							<p>
-								The OAuth Resource Owner Password token has been successfully requested.
-								You now have an access token that can be used for API authentication.
+								The OAuth Resource Owner Password token has been successfully requested. You now
+								have an access token that can be used for API authentication.
 							</p>
 						</ResultsSection>
 
 						<ResultsSection>
 							<ResultsHeading>Key Information</ResultsHeading>
 							<ul style={{ paddingLeft: '1.5rem' }}>
-								<li><strong>Access Token:</strong> {tokens?.access_token ? 'Received' : 'Not available'}</li>
-								<li><strong>Token Type:</strong> {tokens?.token_type || 'Not specified'}</li>
-								<li><strong>Expires In:</strong> {tokens?.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'}</li>
-								<li><strong>Scope:</strong> {tokens?.scope || 'Not specified'}</li>
+								<li>
+									<strong>Access Token:</strong>{' '}
+									{tokens?.access_token ? 'Received' : 'Not available'}
+								</li>
+								<li>
+									<strong>Token Type:</strong> {tokens?.token_type || 'Not specified'}
+								</li>
+								<li>
+									<strong>Expires In:</strong>{' '}
+									{tokens?.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'}
+								</li>
+								<li>
+									<strong>Scope:</strong> {tokens?.scope || 'Not specified'}
+								</li>
 							</ul>
 						</ResultsSection>
 
 						<WarningMessage>
 							<FiAlertTriangle />
-							<strong>Migration Recommendation:</strong> Consider migrating to Authorization Code Flow with PKCE
-							for better security and user experience.
+							<strong>Migration Recommendation:</strong> Consider migrating to Authorization Code
+							Flow with PKCE for better security and user experience.
 						</WarningMessage>
 
 						<ResultsSection>
@@ -546,8 +563,9 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Flow Complete</ResultsHeading>
 							<p>
-								You have successfully completed the OAuth Resource Owner Password Flow V5. This flow demonstrates
-								how to authenticate users using username and password credentials for legacy migration scenarios.
+								You have successfully completed the OAuth Resource Owner Password Flow V5. This flow
+								demonstrates how to authenticate users using username and password credentials for
+								legacy migration scenarios.
 							</p>
 						</ResultsSection>
 
@@ -563,7 +581,8 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 
 						<WarningMessage>
 							<FiAlertTriangle />
-							<strong>Important:</strong> This flow is deprecated. For new applications, use Authorization Code Flow with PKCE.
+							<strong>Important:</strong> This flow is deprecated. For new applications, use
+							Authorization Code Flow with PKCE.
 						</WarningMessage>
 					</>
 				);
@@ -578,7 +597,7 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-resource-owner-password-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="oauth-resource-owner-password"
 					showAdditionalInfo={true}
 					showDocumentation={true}

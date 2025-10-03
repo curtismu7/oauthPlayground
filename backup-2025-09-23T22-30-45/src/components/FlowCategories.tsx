@@ -1,44 +1,44 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
-import { 
-  FiCode, 
-  FiShield, 
-  FiUser, 
-  FiClock, 
-  FiAlertTriangle, 
-  FiTool,
-  FiChevronDown,
-  FiChevronRight,
-  FiStar,
-  FiCheckCircle,
-  FiXCircle,
-  FiZap
+import {
+	FiCode,
+	FiShield,
+	FiUser,
+	FiClock,
+	FiAlertTriangle,
+	FiTool,
+	FiChevronDown,
+	FiChevronRight,
+	FiStar,
+	FiCheckCircle,
+	FiXCircle,
+	FiZap,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 interface FlowCategory {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  useCases: string[];
-  flows: OAuthFlow[];
-  color: string;
+	id: string;
+	title: string;
+	description: string;
+	icon: React.ReactNode;
+	difficulty: 'beginner' | 'intermediate' | 'advanced';
+	useCases: string[];
+	flows: OAuthFlow[];
+	color: string;
 }
 
 interface OAuthFlow {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  security: 'high' | 'medium' | 'low';
-  recommended: boolean;
-  complexity: 'low' | 'medium' | 'high';
-  implementationTime: string;
-  useCases: string[];
-  route: string;
+	id: string;
+	title: string;
+	description: string;
+	icon: React.ReactNode;
+	security: 'high' | 'medium' | 'low';
+	recommended: boolean;
+	complexity: 'low' | 'medium' | 'high';
+	implementationTime: string;
+	useCases: string[];
+	route: string;
 }
 
 const Container = styled.div`
@@ -114,29 +114,29 @@ const DifficultyBadge = styled.span<{ $level: string }>`
   margin-bottom: 1rem;
   
   ${({ $level }) => {
-    switch ($level) {
-      case 'beginner':
-        return `
+		switch ($level) {
+			case 'beginner':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'intermediate':
-        return `
+			case 'intermediate':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      case 'advanced':
-        return `
+			case 'advanced':
+				return `
           background-color: #fee2e2;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: #f3f4f6;
           color: #374151;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const UseCasesList = styled.div`
@@ -256,29 +256,29 @@ const SecurityBadge = styled.span<{ $level: string }>`
   border-radius: 0.25rem;
   
   ${({ $level }) => {
-    switch ($level) {
-      case 'high':
-        return `
+		switch ($level) {
+			case 'high':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'medium':
-        return `
+			case 'medium':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      case 'low':
-        return `
+			case 'low':
+				return `
           background-color: #fee2e2;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: #f3f4f6;
           color: #374151;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const RecommendedBadge = styled.span`
@@ -334,329 +334,334 @@ const QuickStartSection = styled.div`
 `;
 
 const flowCategories: FlowCategory[] = [
-  {
-    id: 'essential',
-    title: 'Essential Flows',
-    description: 'The most commonly used OAuth flows for modern applications',
-    icon: <FiStar />,
-    difficulty: 'beginner',
-    useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Server-to-Server'],
-    color: '#10b981',
-    flows: [
-      {
-        id: 'authorization-code',
-        title: 'Authorization Code Flow',
-        description: 'The most secure and widely used OAuth flow',
-        icon: <FiCode />,
-        security: 'high',
-        recommended: true,
-        complexity: 'medium',
-        implementationTime: '2-4 hours',
-        useCases: ['Web Apps', 'Mobile Apps', 'SPAs'],
-        route: '/flows/authorization-code'
-      },
-        {
-          id: 'enhanced-authorization-code',
-          title: '🚀 Enhanced Authorization Code Flow',
-          description: 'Redesigned with better UX, persistent credentials, and step-by-step debugging',
-          icon: <FiZap />,
-          security: 'high',
-          recommended: true,
-          complexity: 'medium',
-          implementationTime: '2-3 hours',
-          useCases: ['Learning', 'Debugging', 'Development'],
-          route: '/flows/enhanced-authorization-code'
-        },
-        {
-          id: 'enhanced-authorization-code-v2',
-          title: '🎨 Enhanced Authorization Code Flow V2',
-          description: 'Complete UI design implementation with visual design system, responsive layout, and accessibility features',
-          icon: <FiZap />,
-          security: 'high',
-          recommended: true,
-          complexity: 'medium',
-          implementationTime: '2-3 hours',
-          useCases: ['Learning', 'Debugging', 'Development', 'UI/UX Reference'],
-          route: '/flows/enhanced-authorization-code-v2'
-        },
-      {
-        id: 'pkce',
-        title: 'PKCE Flow',
-        description: 'Authorization Code flow with enhanced security',
-        icon: <FiShield />,
-        security: 'high',
-        recommended: true,
-        complexity: 'medium',
-        implementationTime: '2-4 hours',
-        useCases: ['Mobile Apps', 'SPAs', 'Native Apps'],
-        route: '/flows/pkce'
-      },
-      {
-        id: 'client-credentials',
-        title: 'Client Credentials',
-        description: 'Machine-to-machine authentication',
-        icon: <FiUser />,
-        security: 'high',
-        recommended: true,
-        complexity: 'low',
-        implementationTime: '1-2 hours',
-        useCases: ['Server-to-Server', 'Background Processes', 'API Services'],
-        route: '/flows/client-credentials'
-      },
-      {
-        id: 'device-code',
-        title: 'Device Code Flow',
-        description: 'For devices with limited input capabilities',
-        icon: <FiClock />,
-        security: 'medium',
-        recommended: true,
-        complexity: 'medium',
-        implementationTime: '3-5 hours',
-        useCases: ['Smart TVs', 'IoT Devices', 'Gaming Consoles'],
-        route: '/flows/device-code'
-      }
-    ]
-  },
-  {
-    id: 'advanced',
-    title: 'Advanced Flows',
-    description: 'Specialized flows for specific use cases and requirements',
-    icon: <FiTool />,
-    difficulty: 'intermediate',
-    useCases: ['IoT Devices', 'Smart TVs', 'High Security Apps'],
-    color: '#3b82f6',
-    flows: [
-      {
-        id: 'hybrid',
-        title: 'Hybrid Flow',
-        description: 'Combines authorization code and implicit flows',
-        icon: <FiCode />,
-        security: 'high',
-        recommended: false,
-        complexity: 'high',
-        implementationTime: '4-6 hours',
-        useCases: ['High Security Apps', 'Enterprise Applications'],
-        route: '/flows/hybrid'
-      },
-      {
-        id: 'jwt-bearer',
-        title: 'JWT Bearer Flow',
-        description: 'Uses JWT assertions for authentication',
-        icon: <FiShield />,
-        security: 'high',
-        recommended: false,
-        complexity: 'high',
-        implementationTime: '4-6 hours',
-        useCases: ['Enterprise SSO', 'Federated Identity'],
-        route: '/flows/jwt-bearer'
-      },
-      {
-        id: 'worker-token',
-        title: 'Worker Token Flow',
-        description: 'Admin-level access for machine-to-machine',
-        icon: <FiUser />,
-        security: 'high',
-        recommended: false,
-        complexity: 'medium',
-        implementationTime: '2-3 hours',
-        useCases: ['Admin Operations', 'System Integration'],
-        route: '/flows/worker-token'
-      }
-    ]
-  },
-  {
-    id: 'legacy',
-    title: 'Legacy Flows',
-    description: 'Deprecated flows - use only for migration or legacy support',
-    icon: <FiAlertTriangle />,
-    difficulty: 'advanced',
-    useCases: ['Legacy Systems', 'Migration Scenarios'],
-    color: '#ef4444',
-    flows: [
-      {
-        id: 'implicit',
-        title: 'Implicit Grant Flow',
-        description: 'Simplified flow for client-side applications (deprecated)',
-        icon: <FiCode />,
-        security: 'low',
-        recommended: false,
-        complexity: 'low',
-        implementationTime: '1-2 hours',
-        useCases: ['Legacy SPAs', 'Client-side only apps'],
-        route: '/flows/implicit'
-      }
-    ]
-  },
-  {
-    id: 'utilities',
-    title: 'Token Management',
-    description: 'Tools for managing and validating OAuth tokens',
-    icon: <FiTool />,
-    difficulty: 'intermediate',
-    useCases: ['Token Validation', 'Session Management', 'Security Auditing'],
-    color: '#8b5cf6',
-    flows: [
-      {
-        id: 'token-management',
-        title: 'Token Management',
-        description: 'Comprehensive token lifecycle management',
-        icon: <FiShield />,
-        security: 'high',
-        recommended: true,
-        complexity: 'medium',
-        implementationTime: '2-3 hours',
-        useCases: ['Token Validation', 'Session Management'],
-        route: '/token-management'
-      },
-      {
-        id: 'userinfo',
-        title: 'UserInfo Flow',
-        description: 'Retrieve user information using access tokens',
-        icon: <FiUser />,
-        security: 'high',
-        recommended: true,
-        complexity: 'low',
-        implementationTime: '1-2 hours',
-        useCases: ['User Profile', 'User Data'],
-        route: '/flows/userinfo'
-      }
-    ]
-  }
+	{
+		id: 'essential',
+		title: 'Essential Flows',
+		description: 'The most commonly used OAuth flows for modern applications',
+		icon: <FiStar />,
+		difficulty: 'beginner',
+		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Server-to-Server'],
+		color: '#10b981',
+		flows: [
+			{
+				id: 'authorization-code',
+				title: 'Authorization Code Flow',
+				description: 'The most secure and widely used OAuth flow',
+				icon: <FiCode />,
+				security: 'high',
+				recommended: true,
+				complexity: 'medium',
+				implementationTime: '2-4 hours',
+				useCases: ['Web Apps', 'Mobile Apps', 'SPAs'],
+				route: '/flows/authorization-code',
+			},
+			{
+				id: 'enhanced-authorization-code',
+				title: '🚀 Enhanced Authorization Code Flow',
+				description:
+					'Redesigned with better UX, persistent credentials, and step-by-step debugging',
+				icon: <FiZap />,
+				security: 'high',
+				recommended: true,
+				complexity: 'medium',
+				implementationTime: '2-3 hours',
+				useCases: ['Learning', 'Debugging', 'Development'],
+				route: '/flows/enhanced-authorization-code',
+			},
+			{
+				id: 'enhanced-authorization-code-v2',
+				title: '🎨 Enhanced Authorization Code Flow V2',
+				description:
+					'Complete UI design implementation with visual design system, responsive layout, and accessibility features',
+				icon: <FiZap />,
+				security: 'high',
+				recommended: true,
+				complexity: 'medium',
+				implementationTime: '2-3 hours',
+				useCases: ['Learning', 'Debugging', 'Development', 'UI/UX Reference'],
+				route: '/flows/enhanced-authorization-code-v2',
+			},
+			{
+				id: 'pkce',
+				title: 'PKCE Flow',
+				description: 'Authorization Code flow with enhanced security',
+				icon: <FiShield />,
+				security: 'high',
+				recommended: true,
+				complexity: 'medium',
+				implementationTime: '2-4 hours',
+				useCases: ['Mobile Apps', 'SPAs', 'Native Apps'],
+				route: '/flows/pkce',
+			},
+			{
+				id: 'client-credentials',
+				title: 'Client Credentials',
+				description: 'Machine-to-machine authentication',
+				icon: <FiUser />,
+				security: 'high',
+				recommended: true,
+				complexity: 'low',
+				implementationTime: '1-2 hours',
+				useCases: ['Server-to-Server', 'Background Processes', 'API Services'],
+				route: '/flows/client-credentials',
+			},
+			{
+				id: 'device-code',
+				title: 'Device Code Flow',
+				description: 'For devices with limited input capabilities',
+				icon: <FiClock />,
+				security: 'medium',
+				recommended: true,
+				complexity: 'medium',
+				implementationTime: '3-5 hours',
+				useCases: ['Smart TVs', 'IoT Devices', 'Gaming Consoles'],
+				route: '/flows/device-code',
+			},
+		],
+	},
+	{
+		id: 'advanced',
+		title: 'Advanced Flows',
+		description: 'Specialized flows for specific use cases and requirements',
+		icon: <FiTool />,
+		difficulty: 'intermediate',
+		useCases: ['IoT Devices', 'Smart TVs', 'High Security Apps'],
+		color: '#3b82f6',
+		flows: [
+			{
+				id: 'hybrid',
+				title: 'Hybrid Flow',
+				description: 'Combines authorization code and implicit flows',
+				icon: <FiCode />,
+				security: 'high',
+				recommended: false,
+				complexity: 'high',
+				implementationTime: '4-6 hours',
+				useCases: ['High Security Apps', 'Enterprise Applications'],
+				route: '/flows/hybrid',
+			},
+			{
+				id: 'jwt-bearer',
+				title: 'JWT Bearer Flow',
+				description: 'Uses JWT assertions for authentication',
+				icon: <FiShield />,
+				security: 'high',
+				recommended: false,
+				complexity: 'high',
+				implementationTime: '4-6 hours',
+				useCases: ['Enterprise SSO', 'Federated Identity'],
+				route: '/flows/jwt-bearer',
+			},
+			{
+				id: 'worker-token',
+				title: 'Worker Token Flow',
+				description: 'Admin-level access for machine-to-machine',
+				icon: <FiUser />,
+				security: 'high',
+				recommended: false,
+				complexity: 'medium',
+				implementationTime: '2-3 hours',
+				useCases: ['Admin Operations', 'System Integration'],
+				route: '/flows/worker-token',
+			},
+		],
+	},
+	{
+		id: 'legacy',
+		title: 'Legacy Flows',
+		description: 'Deprecated flows - use only for migration or legacy support',
+		icon: <FiAlertTriangle />,
+		difficulty: 'advanced',
+		useCases: ['Legacy Systems', 'Migration Scenarios'],
+		color: '#ef4444',
+		flows: [
+			{
+				id: 'implicit',
+				title: 'Implicit Grant Flow',
+				description: 'Simplified flow for client-side applications (deprecated)',
+				icon: <FiCode />,
+				security: 'low',
+				recommended: false,
+				complexity: 'low',
+				implementationTime: '1-2 hours',
+				useCases: ['Legacy SPAs', 'Client-side only apps'],
+				route: '/flows/implicit',
+			},
+		],
+	},
+	{
+		id: 'utilities',
+		title: 'Token Management',
+		description: 'Tools for managing and validating OAuth tokens',
+		icon: <FiTool />,
+		difficulty: 'intermediate',
+		useCases: ['Token Validation', 'Session Management', 'Security Auditing'],
+		color: '#8b5cf6',
+		flows: [
+			{
+				id: 'token-management',
+				title: 'Token Management',
+				description: 'Comprehensive token lifecycle management',
+				icon: <FiShield />,
+				security: 'high',
+				recommended: true,
+				complexity: 'medium',
+				implementationTime: '2-3 hours',
+				useCases: ['Token Validation', 'Session Management'],
+				route: '/token-management',
+			},
+			{
+				id: 'userinfo',
+				title: 'UserInfo Flow',
+				description: 'Retrieve user information using access tokens',
+				icon: <FiUser />,
+				security: 'high',
+				recommended: true,
+				complexity: 'low',
+				implementationTime: '1-2 hours',
+				useCases: ['User Profile', 'User Data'],
+				route: '/flows/userinfo',
+			},
+		],
+	},
 ];
 
 const FlowCategories: React.FC = () => {
-  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
-    new Set(['essential']) // Start with essential flows expanded
-  );
+	const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
+		new Set(['essential']) // Start with essential flows expanded
+	);
 
-  const toggleCategory = (categoryId: string) => {
-    const newExpanded = new Set(expandedCategories);
-    if (newExpanded.has(categoryId)) {
-      newExpanded.delete(categoryId);
-    } else {
-      newExpanded.add(categoryId);
-    }
-    setExpandedCategories(newExpanded);
-  };
+	const toggleCategory = (categoryId: string) => {
+		const newExpanded = new Set(expandedCategories);
+		if (newExpanded.has(categoryId)) {
+			newExpanded.delete(categoryId);
+		} else {
+			newExpanded.add(categoryId);
+		}
+		setExpandedCategories(newExpanded);
+	};
 
-  return (
-    <Container>
-      <PageHeader>
-        <h1>OAuth Flows</h1>
-        <p>
-          Choose the right OAuth flow for your application. Start with Essential Flows 
-          if you're new to OAuth, or explore Advanced Flows for specialized use cases.
-        </p>
-      </PageHeader>
+	return (
+		<Container>
+			<PageHeader>
+				<h1>OAuth Flows</h1>
+				<p>
+					Choose the right OAuth flow for your application. Start with Essential Flows if you're new
+					to OAuth, or explore Advanced Flows for specialized use cases.
+				</p>
+			</PageHeader>
 
-      <QuickStartSection>
-        <h2>🚀 Quick Start</h2>
-        <p>
-          New to OAuth? Start with the Authorization Code Flow with PKCE - 
-          it's the most secure and widely supported flow for modern applications.
-        </p>
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-          <Link to="/flows/authorization-code" className="quick-start-button">
-            <FiStar />
-            Start with Authorization Code Flow
-          </Link>
-          <Link to="/flows/compare" className="quick-start-button" style={{ 
-            background: 'rgba(255, 255, 255, 0.2)', 
-            border: '1px solid rgba(255, 255, 255, 0.3)' 
-          }}>
-            <FiCode />
-            Compare Flows
-          </Link>
-          <Link to="/flows/diagrams" className="quick-start-button" style={{ 
-            background: 'rgba(255, 255, 255, 0.2)', 
-            border: '1px solid rgba(255, 255, 255, 0.3)' 
-          }}>
-            <FiArrowRight />
-            Interactive Diagrams
-          </Link>
-        </div>
-      </QuickStartSection>
+			<QuickStartSection>
+				<h2>🚀 Quick Start</h2>
+				<p>
+					New to OAuth? Start with the Authorization Code Flow with PKCE - it's the most secure and
+					widely supported flow for modern applications.
+				</p>
+				<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+					<Link to="/flows/authorization-code" className="quick-start-button">
+						<FiStar />
+						Start with Authorization Code Flow
+					</Link>
+					<Link
+						to="/flows/compare"
+						className="quick-start-button"
+						style={{
+							background: 'rgba(255, 255, 255, 0.2)',
+							border: '1px solid rgba(255, 255, 255, 0.3)',
+						}}
+					>
+						<FiCode />
+						Compare Flows
+					</Link>
+					<Link
+						to="/flows/diagrams"
+						className="quick-start-button"
+						style={{
+							background: 'rgba(255, 255, 255, 0.2)',
+							border: '1px solid rgba(255, 255, 255, 0.3)',
+						}}
+					>
+						<FiArrowRight />
+						Interactive Diagrams
+					</Link>
+				</div>
+			</QuickStartSection>
 
-      <CategoryGrid>
-        {flowCategories.map((category) => (
-          <CategoryCard key={category.id} $color={category.color}>
-            <CardHeader>
-              <CategoryHeader>
-                <div className="category-icon">{category.icon}</div>
-                <h2 className="category-title">{category.title}</h2>
-              </CategoryHeader>
-              
-              <DifficultyBadge $level={category.difficulty}>
-                {category.difficulty === 'beginner' && <FiCheckCircle />}
-                {category.difficulty === 'intermediate' && <FiClock />}
-                {category.difficulty === 'advanced' && <FiAlertTriangle />}
-                {category.difficulty}
-              </DifficultyBadge>
-              
-              <p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-                {category.description}
-              </p>
-              
-              <UseCasesList>
-                <h4>Best for:</h4>
-                <div className="use-cases">
-                  {category.useCases.map((useCase) => (
-                    <span key={useCase} className="use-case">
-                      {useCase}
-                    </span>
-                  ))}
-                </div>
-              </UseCasesList>
-            </CardHeader>
-            
-            <CardBody>
-              <FlowsList>
-                <div 
-                  className="flows-header"
-                  onClick={() => toggleCategory(category.id)}
-                >
-                  <h3>Available Flows</h3>
-                  <div className="flow-count">
-                    {category.flows.length} flow{category.flows.length !== 1 ? 's' : ''}
-                    {expandedCategories.has(category.id) ? <FiChevronDown /> : <FiChevronRight />}
-                  </div>
-                </div>
-                
-                {expandedCategories.has(category.id) && (
-                  <div className="flows-list">
-                    {category.flows.map((flow) => (
-                      <FlowItem key={flow.id} to={flow.route}>
-                        <div className="flow-icon">{flow.icon}</div>
-                        <div className="flow-content">
-                          <h4 className="flow-title">{flow.title}</h4>
-                          <div className="flow-meta">
-                            <span>{flow.implementationTime}</span>
-                            <span>•</span>
-                            <span>{flow.complexity} complexity</span>
-                          </div>
-                        </div>
-                        <div className="flow-badges">
-                          <SecurityBadge $level={flow.security}>
-                            {flow.security} security
-                          </SecurityBadge>
-                          {flow.recommended && (
-                            <RecommendedBadge>
-                              <FiStar />
-                              Recommended
-                            </RecommendedBadge>
-                          )}
-                        </div>
-                      </FlowItem>
-                    ))}
-                  </div>
-                )}
-              </FlowsList>
-            </CardBody>
-          </CategoryCard>
-        ))}
-      </CategoryGrid>
-    </Container>
-  );
+			<CategoryGrid>
+				{flowCategories.map((category) => (
+					<CategoryCard key={category.id} $color={category.color}>
+						<CardHeader>
+							<CategoryHeader>
+								<div className="category-icon">{category.icon}</div>
+								<h2 className="category-title">{category.title}</h2>
+							</CategoryHeader>
+
+							<DifficultyBadge $level={category.difficulty}>
+								{category.difficulty === 'beginner' && <FiCheckCircle />}
+								{category.difficulty === 'intermediate' && <FiClock />}
+								{category.difficulty === 'advanced' && <FiAlertTriangle />}
+								{category.difficulty}
+							</DifficultyBadge>
+
+							<p style={{ color: '#6b7280', marginBottom: '1rem' }}>{category.description}</p>
+
+							<UseCasesList>
+								<h4>Best for:</h4>
+								<div className="use-cases">
+									{category.useCases.map((useCase) => (
+										<span key={useCase} className="use-case">
+											{useCase}
+										</span>
+									))}
+								</div>
+							</UseCasesList>
+						</CardHeader>
+
+						<CardBody>
+							<FlowsList>
+								<div className="flows-header" onClick={() => toggleCategory(category.id)}>
+									<h3>Available Flows</h3>
+									<div className="flow-count">
+										{category.flows.length} flow{category.flows.length !== 1 ? 's' : ''}
+										{expandedCategories.has(category.id) ? <FiChevronDown /> : <FiChevronRight />}
+									</div>
+								</div>
+
+								{expandedCategories.has(category.id) && (
+									<div className="flows-list">
+										{category.flows.map((flow) => (
+											<FlowItem key={flow.id} to={flow.route}>
+												<div className="flow-icon">{flow.icon}</div>
+												<div className="flow-content">
+													<h4 className="flow-title">{flow.title}</h4>
+													<div className="flow-meta">
+														<span>{flow.implementationTime}</span>
+														<span>•</span>
+														<span>{flow.complexity} complexity</span>
+													</div>
+												</div>
+												<div className="flow-badges">
+													<SecurityBadge $level={flow.security}>
+														{flow.security} security
+													</SecurityBadge>
+													{flow.recommended && (
+														<RecommendedBadge>
+															<FiStar />
+															Recommended
+														</RecommendedBadge>
+													)}
+												</div>
+											</FlowItem>
+										))}
+									</div>
+								)}
+							</FlowsList>
+						</CardBody>
+					</CategoryCard>
+				))}
+			</CategoryGrid>
+		</Container>
+	);
 };
 
 export default FlowCategories;

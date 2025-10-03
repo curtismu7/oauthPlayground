@@ -1,7 +1,17 @@
 import React from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiUser, FiKey, FiExternalLink, FiCode, FiShield, FiLock, FiSmartphone, FiZap, FiLayers } from 'react-icons/fi';
+import {
+	FiUser,
+	FiKey,
+	FiExternalLink,
+	FiCode,
+	FiShield,
+	FiLock,
+	FiSmartphone,
+	FiZap,
+	FiLayers,
+} from 'react-icons/fi';
 
 const OIDCContainer = styled.div`
   max-width: 1200px;
@@ -74,109 +84,121 @@ const FeatureCard = styled(Link)`
 `;
 
 const OIDC: React.FC = () => {
-  const location = useLocation();
-  const isIndexRoute = location.pathname === '/oidc';
+	const location = useLocation();
+	const isIndexRoute = location.pathname === '/oidc';
 
-  if (isIndexRoute) {
-    return (
-      <OIDCContainer>
-        <PageHeader>
-          <FiUser />
-          <div>
-            <h1>OpenID Connect</h1>
-            <p>
-              Explore OpenID Connect features and learn how to implement authentication
-              and identity management with PingOne.
-            </p>
-          </div>
-        </PageHeader>
+	if (isIndexRoute) {
+		return (
+			<OIDCContainer>
+				<PageHeader>
+					<FiUser />
+					<div>
+						<h1>OpenID Connect</h1>
+						<p>
+							Explore OpenID Connect features and learn how to implement authentication and identity
+							management with PingOne.
+						</p>
+					</div>
+				</PageHeader>
 
-        <Grid>
-          <FeatureCard to="/oidc/authorization-code">
-            <FiCode />
-            <h3>Authorization Code</h3>
-            <p>
-              The most secure OAuth 2.0 flow for web applications. Learn how to implement
-              the authorization code flow, including PKCE extension for public clients.
-            </p>
-          </FeatureCard>
+				<Grid>
+					<FeatureCard to="/oidc/authorization-code">
+						<FiCode />
+						<h3>Authorization Code</h3>
+						<p>
+							The most secure OAuth 2.0 flow for web applications. Learn how to implement the
+							authorization code flow, including PKCE extension for public clients.
+						</p>
+					</FeatureCard>
 
-          <FeatureCard to="/oidc/hybrid">
-            <FiLayers />
-            <h3>Hybrid Flow</h3>
-            <p>
-              Combines Authorization Code and Implicit flows. Get some tokens directly from
-              the authorization endpoint while also receiving an authorization code for back-channel exchange.
-            </p>
-          </FeatureCard>
+					<FeatureCard to="/oidc/hybrid">
+						<FiLayers />
+						<h3>Hybrid Flow</h3>
+						<p>
+							Combines Authorization Code and Implicit flows. Get some tokens directly from the
+							authorization endpoint while also receiving an authorization code for back-channel
+							exchange.
+						</p>
+					</FeatureCard>
 
-          <FeatureCard to="/oidc/implicit">
-            <FiZap />
-            <h3>Implicit Flow</h3>
-            <p>
-              Legacy OAuth 2.0 flow for single-page applications. Learn when and how to use it,
-              though PKCE is now recommended.
-            </p>
-          </FeatureCard>
+					<FeatureCard to="/oidc/implicit">
+						<FiZap />
+						<h3>Implicit Flow</h3>
+						<p>
+							Legacy OAuth 2.0 flow for single-page applications. Learn when and how to use it,
+							though PKCE is now recommended.
+						</p>
+					</FeatureCard>
 
-          <FeatureCard to="/oidc/client-credentials">
-            <FiLock />
-            <h3>Client Credentials</h3>
-            <p>
-              Server-to-server authentication flow. Perfect for API access and machine-to-machine
-              communication scenarios.
-            </p>
-          </FeatureCard>
+					<FeatureCard to="/oidc/client-credentials">
+						<FiLock />
+						<h3>Client Credentials</h3>
+						<p>
+							Server-to-server authentication flow. Perfect for API access and machine-to-machine
+							communication scenarios.
+						</p>
+					</FeatureCard>
 
-          <FeatureCard to="/oidc/device-code">
-            <FiSmartphone />
-            <h3>Device Code</h3>
-            <p>
-              OAuth 2.0 flow for devices with limited input capabilities. Ideal for smart TVs,
-              IoT devices, and command-line tools.
-            </p>
-          </FeatureCard>
+					<FeatureCard to="/oidc/device-code">
+						<FiSmartphone />
+						<h3>Device Code</h3>
+						<p>
+							OAuth 2.0 flow for devices with limited input capabilities. Ideal for smart TVs, IoT
+							devices, and command-line tools.
+						</p>
+					</FeatureCard>
 
-          <FeatureCard to="/token-management">
-            <FiKey />
-            <h3>Token Management</h3>
-            <p>View and manage your access tokens, refresh tokens, and JWTs with detailed inspection and analysis tools.</p>
-          </FeatureCard>
-        </Grid>
+					<FeatureCard to="/token-management">
+						<FiKey />
+						<h3>Token Management</h3>
+						<p>
+							View and manage your access tokens, refresh tokens, and JWTs with detailed inspection
+							and analysis tools.
+						</p>
+					</FeatureCard>
+				</Grid>
 
-        <div style={{ marginTop: '2rem', padding: '1.5rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-          <h3 style={{ marginBottom: '1rem', color: '#1e293b' }}>What is OpenID Connect?</h3>
-          <p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '1rem' }}>
-            OpenID Connect (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol.
-            It allows clients to verify the identity of end-users based on authentication performed
-            by an authorization server.
-          </p>
-          <a
-            href="https://openid.net/connect/"
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: '#3b82f6',
-              textDecoration: 'none',
-              fontWeight: '500',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            Learn more about OpenID Connect
-            <FiExternalLink size={16} />
-          </a>
-        </div>
-      </OIDCContainer>
-    );
-  }
+				<div
+					style={{
+						marginTop: '2rem',
+						padding: '1.5rem',
+						backgroundColor: '#f8fafc',
+						borderRadius: '0.5rem',
+						border: '1px solid #e2e8f0',
+					}}
+				>
+					<h3 style={{ marginBottom: '1rem', color: '#1e293b' }}>What is OpenID Connect?</h3>
+					<p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '1rem' }}>
+						OpenID Connect (OIDC) is a simple identity layer on top of the OAuth 2.0 protocol. It
+						allows clients to verify the identity of end-users based on authentication performed by
+						an authorization server.
+					</p>
+					<a
+						href="https://openid.net/connect/"
+						target="_blank"
+						rel="noopener noreferrer"
+						style={{
+							color: '#3b82f6',
+							textDecoration: 'none',
+							fontWeight: '500',
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
+						Learn more about OpenID Connect
+						<FiExternalLink size={16} />
+					</a>
+				</div>
+			</OIDCContainer>
+		);
+	}
 
-  return (
-    <div>
-      <Outlet />
-    </div>
-  );
+	return (
+		<div>
+			<Outlet />
+		</div>
+	);
 };
 
 export default OIDC;

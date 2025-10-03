@@ -2,30 +2,24 @@
 // OIDC Device Authorization Code Grant (RFC 8628) - V5 Implementation with ID Token
 import React, { useState, useCallback } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { 
-	FiCheckCircle, 
-	FiClock, 
-	FiCopy, 
-	FiInfo, 
-	FiKey, 
-	FiMonitor, 
-	FiRefreshCw, 
-	FiShield, 
-	FiSmartphone, 
-	FiAlertCircle, 
+import {
+	FiCheckCircle,
+	FiClock,
+	FiCopy,
+	FiInfo,
+	FiKey,
+	FiMonitor,
+	FiRefreshCw,
+	FiShield,
+	FiSmartphone,
+	FiAlertCircle,
 	FiChevronDown,
 	FiExternalLink,
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
-import {
-	ResultsHeading,
-	ResultsSection,
-} from '../../components/ResultsPanel';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
@@ -325,7 +319,10 @@ const Button = styled.button<{
 `;
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Device Authorization Code Flow' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the OIDC Device Authorization Code Flow',
+	},
 	{ title: 'Step 1: Request Device Code', subtitle: 'Initiate device authorization' },
 	{ title: 'Step 2: User Authorization', subtitle: 'Display user code and verification URL' },
 	{ title: 'Step 3: Poll for Tokens', subtitle: 'Wait for user authorization' },
@@ -385,8 +382,8 @@ const PollingIndicator = styled.div<{ $isActive: boolean }>`
 	align-items: center;
 	gap: 1rem;
 	padding: 1.5rem;
-	background-color: ${props => props.$isActive ? '#dbeafe' : '#f1f5f9'};
-	border: 2px solid ${props => props.$isActive ? '#3b82f6' : '#cbd5e1'};
+	background-color: ${(props) => (props.$isActive ? '#dbeafe' : '#f1f5f9')};
+	border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#cbd5e1')};
 	border-radius: 0.5rem;
 	margin: 1rem 0;
 
@@ -400,7 +397,9 @@ const PollingIndicator = styled.div<{ $isActive: boolean }>`
 		to { transform: rotate(360deg); }
 	}
 
-	${props => props.$isActive && `
+	${(props) =>
+		props.$isActive &&
+		`
 		animation: pulse 2s ease-in-out infinite;
 		
 		svg {
@@ -464,11 +463,9 @@ const SmartTV = styled.div<{ $isWaiting: boolean }>`
 		left: 0;
 		right: 0;
 		height: 4px;
-		background: ${({ $isWaiting }) => 
-			$isWaiting 
-				? 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)'
-				: '#22c55e'};
-		animation: ${({ $isWaiting }) => $isWaiting ? 'shimmer 2s infinite' : 'none'};
+		background: ${({ $isWaiting }) =>
+			$isWaiting ? 'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #3b82f6 100%)' : '#22c55e'};
+		animation: ${({ $isWaiting }) => ($isWaiting ? 'shimmer 2s infinite' : 'none')};
 		background-size: 200% 100%;
 	}
 
@@ -513,16 +510,18 @@ const TVDisplay = styled.div`
 `;
 
 const TVStatusIndicator = styled.div<{ $active?: boolean }>`
-	background-color: ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
+	background-color: ${({ $active }) => ($active ? '#22c55e' : '#ef4444')};
 	border-radius: 50%;
 	width: 12px;
 	height: 12px;
 	display: inline-block;
 	margin-right: 0.5rem;
-	box-shadow: 0 0 10px ${({ $active }) => $active ? '#22c55e' : '#ef4444'};
+	box-shadow: 0 0 10px ${({ $active }) => ($active ? '#22c55e' : '#ef4444')};
 	transition: all 0.3s ease;
 
-	${({ $active }) => $active && `
+	${({ $active }) =>
+		$active &&
+		`
 		animation: pulse 2s infinite;
 	`}
 
@@ -577,7 +576,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	const [introspectionResult, setIntrospectionResult] = useState<any>(null);
 
 	const toggleSection = useCallback((section: SectionKey) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[section]: !prev[section],
 		}));
@@ -590,21 +589,29 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		setTimeout(() => setCopiedField(null), 2000);
 	}, []);
 
-	const handleCredentialsChange = useCallback((field: string, value: string) => {
-		// Update credentials as user types
-		if (field === 'environmentId' || field === 'clientId' || field === 'clientSecret' || field === 'scopes') {
-			const currentCreds = deviceFlow.credentials || {
-				environmentId: '',
-				clientId: '',
-				clientSecret: '',
-				scopes: 'openid',
-			};
-			deviceFlow.setCredentials({
-				...currentCreds,
-				[field]: value,
-			});
-		}
-	}, [deviceFlow]);
+	const handleCredentialsChange = useCallback(
+		(field: string, value: string) => {
+			// Update credentials as user types
+			if (
+				field === 'environmentId' ||
+				field === 'clientId' ||
+				field === 'clientSecret' ||
+				field === 'scopes'
+			) {
+				const currentCreds = deviceFlow.credentials || {
+					environmentId: '',
+					clientId: '',
+					clientSecret: '',
+					scopes: 'openid',
+				};
+				deviceFlow.setCredentials({
+					...currentCreds,
+					[field]: value,
+				});
+			}
+		},
+		[deviceFlow]
+	);
 
 	const handleSaveCredentials = useCallback(() => {
 		if (!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) {
@@ -647,19 +654,31 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	}, [deviceFlow]);
 
 	// Step validation
-	const isStepValid = useCallback((stepIndex: number): boolean => {
-		switch (stepIndex) {
-			case 0: return true; // Introduction
-			case 1: return !!deviceFlow.credentials;
-			case 2: return !!deviceFlow.deviceCodeData;
-			case 3: return !!deviceFlow.deviceCodeData;
-			case 4: return !!deviceFlow.tokens;
-			case 5: return !!deviceFlow.tokens;
-			case 6: return !!deviceFlow.tokens;
-			case 7: return true; // Completion
-			default: return false;
-		}
-	}, [deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]);
+	const isStepValid = useCallback(
+		(stepIndex: number): boolean => {
+			switch (stepIndex) {
+				case 0:
+					return true; // Introduction
+				case 1:
+					return !!deviceFlow.credentials;
+				case 2:
+					return !!deviceFlow.deviceCodeData;
+				case 3:
+					return !!deviceFlow.deviceCodeData;
+				case 4:
+					return !!deviceFlow.tokens;
+				case 5:
+					return !!deviceFlow.tokens;
+				case 6:
+					return !!deviceFlow.tokens;
+				case 7:
+					return true; // Completion
+				default:
+					return false;
+			}
+		},
+		[deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]
+	);
 
 	// Auto-advance when tokens received
 	React.useEffect(() => {
@@ -713,8 +732,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							</ExplanationHeading>
 							<InfoText>
 								The Device Authorization Grant (RFC 8628) enables OAuth clients on input-constrained
-								devices to obtain user authorization without a browser. Perfect for smart TVs, IoT devices,
-								CLI tools, and gaming consoles.
+								devices to obtain user authorization without a browser. Perfect for smart TVs, IoT
+								devices, CLI tools, and gaming consoles.
 							</InfoText>
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<FiSmartphone size={20} />
@@ -749,32 +768,34 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 				{!collapsedSections.flowDiagram && (
 					<CollapsibleContent>
 						<ExplanationSection>
-							<div style={{ 
-								backgroundColor: '#f8fafc', 
-								padding: '2rem', 
-								borderRadius: '0.75rem',
-								border: '2px solid #e2e8f0'
-							}}>
+							<div
+								style={{
+									backgroundColor: '#f8fafc',
+									padding: '2rem',
+									borderRadius: '0.75rem',
+									border: '2px solid #e2e8f0',
+								}}
+							>
 								<ol style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
 									<li style={{ marginBottom: '1rem' }}>
-										<strong>Device requests device code</strong> - Device calls the device authorization endpoint
-										with client_id and scopes
+										<strong>Device requests device code</strong> - Device calls the device
+										authorization endpoint with client_id and scopes
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
-										<strong>Display user code</strong> - Device shows user_code and verification_uri to user
-										on screen (e.g., "Visit example.com and enter code: ABCD-1234")
+										<strong>Display user code</strong> - Device shows user_code and verification_uri
+										to user on screen (e.g., "Visit example.com and enter code: ABCD-1234")
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
-										<strong>User authorizes on secondary device</strong> - User visits URL on phone/computer,
-										enters code, and authorizes the application
+										<strong>User authorizes on secondary device</strong> - User visits URL on
+										phone/computer, enters code, and authorizes the application
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
-										<strong>Device polls for tokens</strong> - Device continuously polls token endpoint
-										until user completes authorization
+										<strong>Device polls for tokens</strong> - Device continuously polls token
+										endpoint until user completes authorization
 									</li>
 									<li>
-										<strong>Tokens received</strong> - Device receives access token, ID token, and optionally
-										refresh token
+										<strong>Tokens received</strong> - Device receives access token, ID token, and
+										optionally refresh token
 									</li>
 								</ol>
 							</div>
@@ -818,7 +839,14 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							</InfoText>
 							<div style={{ marginTop: '1.5rem' }}>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											marginBottom: '0.5rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Environment ID
 									</label>
 									<input
@@ -831,12 +859,19 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											padding: '0.75rem',
 											border: '1px solid #d1d5db',
 											borderRadius: '0.5rem',
-											fontSize: '0.875rem'
+											fontSize: '0.875rem',
 										}}
 									/>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											marginBottom: '0.5rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Client ID
 									</label>
 									<input
@@ -849,12 +884,19 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											padding: '0.75rem',
 											border: '1px solid #d1d5db',
 											borderRadius: '0.5rem',
-											fontSize: '0.875rem'
+											fontSize: '0.875rem',
 										}}
 									/>
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
-									<label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+									<label
+										style={{
+											display: 'block',
+											marginBottom: '0.5rem',
+											fontWeight: '600',
+											color: '#374151',
+										}}
+									>
 										Scopes
 									</label>
 									<input
@@ -867,7 +909,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											padding: '0.75rem',
 											border: '1px solid #d1d5db',
 											borderRadius: '0.5rem',
-											fontSize: '0.875rem'
+											fontSize: '0.875rem',
 										}}
 									/>
 								</div>
@@ -876,7 +918,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								<Button
 									onClick={handleSaveCredentials}
 									$variant="primary"
-									disabled={!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId}
+									disabled={
+										!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId
+									}
 								>
 									<FiKey /> Save Credentials
 								</Button>
@@ -917,9 +961,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>What happens:</InfoTitle>
 									<InfoText>
-										The device sends a POST request to the device authorization endpoint with the client_id
-										and requested scopes. PingOne responds with a device_code, user_code, verification_uri,
-										and polling interval.
+										The device sends a POST request to the device authorization endpoint with the
+										client_id and requested scopes. PingOne responds with a device_code, user_code,
+										verification_uri, and polling interval.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -931,10 +975,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									<FiKey /> Request Device Code
 								</Button>
 								{deviceFlow.deviceCodeData && (
-									<Button
-										onClick={handleReset}
-										$variant="outline"
-									>
+									<Button onClick={handleReset} $variant="outline">
 										<FiRefreshCw /> Start Over
 									</Button>
 								)}
@@ -964,7 +1005,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								<div>
 									<InfoTitle>Success!</InfoTitle>
 									<InfoText>
-										Device code received from PingOne. You can now display the user code to the user.
+										Device code received from PingOne. You can now display the user code to the
+										user.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -974,18 +1016,22 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									<ParameterGrid>
 										<div style={{ gridColumn: '1 / -1' }}>
 											<ParameterLabel>Device Code (Internal - Do Not Display)</ParameterLabel>
-											<ParameterValue style={{ 
-												wordBreak: 'break-all', 
-												fontFamily: 'monospace',
-												fontSize: '0.75rem',
-												color: '#64748b'
-											}}>
+											<ParameterValue
+												style={{
+													wordBreak: 'break-all',
+													fontFamily: 'monospace',
+													fontSize: '0.75rem',
+													color: '#64748b',
+												}}
+											>
 												{deviceFlow.deviceCodeData.device_code.substring(0, 20)}...
 											</ParameterValue>
 										</div>
 										<div>
 											<ParameterLabel>Expires In</ParameterLabel>
-											<ParameterValue>{deviceFlow.deviceCodeData.expires_in} seconds</ParameterValue>
+											<ParameterValue>
+												{deviceFlow.deviceCodeData.expires_in} seconds
+											</ParameterValue>
 										</div>
 										<div>
 											<ParameterLabel>Poll Interval</ParameterLabel>
@@ -1024,8 +1070,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									<div>
 										<InfoTitle>Real-World Scenario: Smart TV App</InfoTitle>
 										<InfoText>
-											Imagine you're setting up a streaming app on your Smart TV. The TV displays a QR code and user code. 
-											Scan the QR code with your phone to authorize the app, just like Netflix, YouTube, or Disney+!
+											Imagine you're setting up a streaming app on your Smart TV. The TV displays a
+											QR code and user code. Scan the QR code with your phone to authorize the app,
+											just like Netflix, YouTube, or Disney+!
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1033,7 +1080,14 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								<SmartTVContainer>
 									{/* Smart TV Device */}
 									<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
-										<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '1rem' }}>
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+												marginBottom: '1rem',
+											}}
+										>
 											<TVStatusIndicator $active={deviceFlow.pollingStatus.status === 'success'} />
 											<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
 												📺 Smart TV - Living Room
@@ -1045,7 +1099,13 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 													<>
 														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
 														<div style={{ fontSize: '1.5rem' }}>AUTHORIZED</div>
-														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#94a3b8' }}>
+														<div
+															style={{
+																fontSize: '0.875rem',
+																marginTop: '0.5rem',
+																color: '#94a3b8',
+															}}
+														>
 															Welcome! Loading your content...
 														</div>
 													</>
@@ -1054,21 +1114,48 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
 														<div>WAITING FOR</div>
 														<div>AUTHORIZATION...</div>
-														<div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#94a3b8' }}>
+														<div
+															style={{
+																fontSize: '0.875rem',
+																marginTop: '0.5rem',
+																color: '#94a3b8',
+															}}
+														>
 															Use your phone to authorize
 														</div>
 													</>
 												) : (
 													<>
 														<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📱</div>
-														<div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Activate Your Device</div>
-														<div style={{ fontSize: '0.875rem', color: '#94a3b8', marginBottom: '1rem' }}>
+														<div style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>
+															Activate Your Device
+														</div>
+														<div
+															style={{
+																fontSize: '0.875rem',
+																color: '#94a3b8',
+																marginBottom: '1rem',
+															}}
+														>
 															Scan QR code or visit URL
 														</div>
-														<div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '0.25rem' }}>
+														<div
+															style={{
+																fontSize: '0.75rem',
+																color: '#64748b',
+																marginBottom: '0.25rem',
+															}}
+														>
 															Enter this code:
 														</div>
-														<div style={{ fontSize: '2rem', fontWeight: 'bold', letterSpacing: '0.5rem', color: '#3b82f6' }}>
+														<div
+															style={{
+																fontSize: '2rem',
+																fontWeight: 'bold',
+																letterSpacing: '0.5rem',
+																color: '#3b82f6',
+															}}
+														>
 															{deviceFlow.deviceCodeData.user_code}
 														</div>
 													</>
@@ -1076,7 +1163,14 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											</TVDisplay>
 										</TVScreen>
 										{deviceFlow.timeRemaining > 0 && (
-											<div style={{ textAlign: 'center', marginTop: '1rem', fontSize: '0.875rem', color: '#94a3b8' }}>
+											<div
+												style={{
+													textAlign: 'center',
+													marginTop: '1rem',
+													fontSize: '0.875rem',
+													color: '#94a3b8',
+												}}
+											>
 												Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
 											</div>
 										)}
@@ -1090,9 +1184,16 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
 											Scan this QR code to activate your Smart TV app
 										</p>
-										
+
 										{deviceFlow.deviceCodeData.verification_uri_complete ? (
-											<div style={{ padding: '1rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+											<div
+												style={{
+													padding: '1rem',
+													backgroundColor: '#f8fafc',
+													borderRadius: '0.5rem',
+													marginBottom: '1rem',
+												}}
+											>
 												<QRCodeSVG
 													value={deviceFlow.deviceCodeData.verification_uri_complete}
 													size={200}
@@ -1102,28 +1203,50 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 												/>
 											</div>
 										) : (
-											<div style={{ padding: '2rem', backgroundColor: '#f8fafc', borderRadius: '0.5rem', marginBottom: '1rem' }}>
+											<div
+												style={{
+													padding: '2rem',
+													backgroundColor: '#f8fafc',
+													borderRadius: '0.5rem',
+													marginBottom: '1rem',
+												}}
+											>
 												<p style={{ color: '#64748b', fontSize: '0.875rem' }}>
 													QR code will appear here when available
 												</p>
 											</div>
 										)}
 
-										<div style={{ 
-											padding: '1rem', 
-											backgroundColor: '#eff6ff', 
-											borderRadius: '0.5rem',
-											border: '1px solid #bfdbfe',
-											marginBottom: '1rem'
-										}}>
-											<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', fontWeight: '600' }}>
+										<div
+											style={{
+												padding: '1rem',
+												backgroundColor: '#eff6ff',
+												borderRadius: '0.5rem',
+												border: '1px solid #bfdbfe',
+												marginBottom: '1rem',
+											}}
+										>
+											<p
+												style={{
+													margin: '0 0 0.5rem 0',
+													fontSize: '0.75rem',
+													color: '#64748b',
+													textTransform: 'uppercase',
+													fontWeight: '600',
+												}}
+											>
 												Or visit manually:
 											</p>
-											<code style={{ fontSize: '0.875rem', color: '#1e40af', wordBreak: 'break-all' }}>
+											<code
+												style={{ fontSize: '0.875rem', color: '#1e40af', wordBreak: 'break-all' }}
+											>
 												{deviceFlow.deviceCodeData.verification_uri}
 											</code>
 											<p style={{ margin: '0.75rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-												Enter code: <strong style={{ color: '#1e40af', fontSize: '1rem', letterSpacing: '0.1rem' }}>
+												Enter code:{' '}
+												<strong
+													style={{ color: '#1e40af', fontSize: '1rem', letterSpacing: '0.1rem' }}
+												>
 													{deviceFlow.deviceCodeData.user_code}
 												</strong>
 											</p>
@@ -1131,7 +1254,13 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 
 										<ActionRow style={{ justifyContent: 'center' }}>
 											<Button
-												onClick={() => window.open(deviceFlow.deviceCodeData!.verification_uri_complete || deviceFlow.deviceCodeData!.verification_uri, '_blank')}
+												onClick={() =>
+													window.open(
+														deviceFlow.deviceCodeData!.verification_uri_complete ||
+															deviceFlow.deviceCodeData!.verification_uri,
+														'_blank'
+													)
+												}
 												$variant="primary"
 											>
 												<FiExternalLink /> Open on This Device
@@ -1194,9 +1323,14 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										<div style={{ flex: 1 }}>
 											<strong style={{ fontSize: '1.125rem' }}>Polling for tokens...</strong>
 											<div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
-												Attempt {deviceFlow.pollingStatus.attempts} of {deviceFlow.pollingStatus.maxAttempts}
+												Attempt {deviceFlow.pollingStatus.attempts} of{' '}
+												{deviceFlow.pollingStatus.maxAttempts}
 												{deviceFlow.pollingStatus.lastAttempt && (
-													<> • Last attempt: {new Date(deviceFlow.pollingStatus.lastAttempt).toLocaleTimeString()}</>
+													<>
+														{' '}
+														• Last attempt:{' '}
+														{new Date(deviceFlow.pollingStatus.lastAttempt).toLocaleTimeString()}
+													</>
 												)}
 											</div>
 										</div>
@@ -1206,10 +1340,12 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										<FiClock size={24} />
 										<div style={{ flex: 1 }}>
 											<strong style={{ fontSize: '1.125rem' }}>
-												{deviceFlow.pollingStatus.status === 'success' ? 'Authorization Complete!' : 'Ready to poll'}
+												{deviceFlow.pollingStatus.status === 'success'
+													? 'Authorization Complete!'
+													: 'Ready to poll'}
 											</strong>
 											<div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
-												{deviceFlow.pollingStatus.status === 'success' 
+												{deviceFlow.pollingStatus.status === 'success'
 													? 'Tokens have been received successfully'
 													: 'Click "Start Polling" to begin waiting for user authorization'}
 											</div>
@@ -1238,22 +1374,20 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								{!deviceFlow.pollingStatus.isPolling ? (
 									<Button
 										onClick={deviceFlow.startPolling}
-										disabled={!deviceFlow.deviceCodeData || deviceFlow.timeRemaining === 0 || deviceFlow.pollingStatus.status === 'success'}
+										disabled={
+											!deviceFlow.deviceCodeData ||
+											deviceFlow.timeRemaining === 0 ||
+											deviceFlow.pollingStatus.status === 'success'
+										}
 									>
 										<FiRefreshCw /> Start Polling
 									</Button>
 								) : (
-									<Button
-										onClick={deviceFlow.stopPolling}
-										$variant="outline"
-									>
+									<Button onClick={deviceFlow.stopPolling} $variant="outline">
 										<FiAlertCircle /> Stop Polling
 									</Button>
 								)}
-								<Button
-									onClick={handleReset}
-									$variant="outline"
-								>
+								<Button onClick={handleReset} $variant="outline">
 									<FiRefreshCw /> Start Over
 								</Button>
 							</ActionRow>
@@ -1285,7 +1419,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Authorization Complete!</InfoTitle>
 								<InfoText>
-									The user has successfully authorized the device. Tokens have been received and stored.
+									The user has successfully authorized the device. Tokens have been received and
+									stored.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1300,11 +1435,13 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										<ParameterGrid>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Access Token</ParameterLabel>
-												<ParameterValue style={{ 
-													wordBreak: 'break-all',
-													fontFamily: 'monospace',
-													fontSize: '0.75rem'
-												}}>
+												<ParameterValue
+													style={{
+														wordBreak: 'break-all',
+														fontFamily: 'monospace',
+														fontSize: '0.75rem',
+													}}
+												>
 													{deviceFlow.tokens.access_token}
 												</ParameterValue>
 											</div>
@@ -1347,11 +1484,13 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											<ParameterGrid>
 												<div style={{ gridColumn: '1 / -1' }}>
 													<ParameterLabel>ID Token (JWT)</ParameterLabel>
-													<ParameterValue style={{ 
-														wordBreak: 'break-all',
-														fontFamily: 'monospace',
-														fontSize: '0.75rem'
-													}}>
+													<ParameterValue
+														style={{
+															wordBreak: 'break-all',
+															fontFamily: 'monospace',
+															fontSize: '0.75rem',
+														}}
+													>
 														{deviceFlow.tokens.id_token}
 													</ParameterValue>
 												</div>
@@ -1377,18 +1516,22 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											<ParameterGrid>
 												<div style={{ gridColumn: '1 / -1' }}>
 													<ParameterLabel>Refresh Token</ParameterLabel>
-													<ParameterValue style={{ 
-														wordBreak: 'break-all',
-														fontFamily: 'monospace',
-														fontSize: '0.75rem'
-													}}>
+													<ParameterValue
+														style={{
+															wordBreak: 'break-all',
+															fontFamily: 'monospace',
+															fontSize: '0.75rem',
+														}}
+													>
 														{deviceFlow.tokens.refresh_token}
 													</ParameterValue>
 												</div>
 											</ParameterGrid>
 											<ActionRow>
 												<Button
-													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
+													onClick={() =>
+														handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')
+													}
 													$variant="outline"
 												>
 													<FiCopy /> Copy Refresh Token
@@ -1414,7 +1557,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 				>
 					<CollapsibleTitle>
 						<FiInfo /> User Information (Coming Soon)
-						</CollapsibleTitle>
+					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.userInfoOverview}>
 						<FiChevronDown />
 					</CollapsibleToggleIcon>
@@ -1426,8 +1569,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>User Information Endpoint</InfoTitle>
 								<InfoText>
-									Use the access token to fetch user information from the /userinfo endpoint.
-									This feature will be added in a future update.
+									Use the access token to fetch user information from the /userinfo endpoint. This
+									feature will be added in a future update.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1458,8 +1601,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Token Introspection</InfoTitle>
 								<InfoText>
-									Introspect the access token to validate it and view its claims.
-									This feature will be added in a future update.
+									Introspect the access token to validate it and view its claims. This feature will
+									be added in a future update.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1490,8 +1633,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>Device Authorization Flow Complete!</InfoTitle>
 								<InfoText>
-									You've successfully completed the OAuth Device Authorization Grant flow. The device
-									has been authorized and tokens have been received.
+									You've successfully completed the OAuth Device Authorization Grant flow. The
+									device has been authorized and tokens have been received.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1500,12 +1643,14 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<ExplanationHeading>
 								<FiInfo /> Summary
 							</ExplanationHeading>
-							<div style={{ 
-								backgroundColor: '#f8fafc', 
-								padding: '1.5rem', 
-								borderRadius: '0.5rem',
-								border: '1px solid #e2e8f0'
-							}}>
+							<div
+								style={{
+									backgroundColor: '#f8fafc',
+									padding: '1.5rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #e2e8f0',
+								}}
+							>
 								<ul style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
 									<li>✅ Device code requested and received</li>
 									<li>✅ User code displayed to user</li>
@@ -1521,9 +1666,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<ExplanationHeading>
 								<FiZap /> Next Steps
 							</ExplanationHeading>
-							<InfoText>
-								In a production application, you would:
-							</InfoText>
+							<InfoText>In a production application, you would:</InfoText>
 							<ul style={{ marginTop: '0.75rem', paddingLeft: '1.5rem', lineHeight: '1.8' }}>
 								<li>Store the access token securely</li>
 								<li>Use the access token to call protected APIs</li>
@@ -1554,7 +1697,10 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 				</div>
 				<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
 					{String(currentStep + 1).padStart(2, '0')}
-					<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}> of {STEP_METADATA.length}</span>
+					<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
+						{' '}
+						of {STEP_METADATA.length}
+					</span>
 				</div>
 			</FlowHeader>
 
@@ -1564,9 +1710,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep(prev => Math.max(prev - 1, 0))}
+					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
 					onReset={handleReset}
-					onNext={() => setCurrentStep(prev => Math.min(prev + 1, STEP_METADATA.length - 1))}
+					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
 					canNavigateNext={isStepValid(currentStep + 1)}
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}

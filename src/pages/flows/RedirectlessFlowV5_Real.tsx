@@ -25,10 +25,7 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -1599,16 +1596,16 @@ const RedirectlessFlowV5Real: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-		case 0:
-			return (
-				<>
-					<FlowConfigurationRequirements flowType="redirectless" variant="pingone" />
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => toggleSection('overview')}
-							aria-expanded={!collapsedSections.overview}
-						>
-							<CollapsibleTitle>
+			case 0:
+				return (
+					<>
+						<FlowConfigurationRequirements flowType="redirectless" variant="pingone" />
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('overview')}
+								aria-expanded={!collapsedSections.overview}
+							>
+								<CollapsibleTitle>
 									<FiInfo /> Authorization Code Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -1727,7 +1724,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 							}}
 							primaryColor="#8b5cf6"
 						/>
-
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1901,7 +1897,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -2077,7 +2072,6 @@ const RedirectlessFlowV5Real: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-
 
 									<InfoBox $variant="warning">
 										<FiAlertCircle size={20} />
@@ -2976,7 +2970,9 @@ async function submitCredentials(authUrl, username, password) {
 															{(flowTokens as any)?.expires_in && (
 																<div>
 																	<ParameterLabel>Expires In</ParameterLabel>
-																	<ParameterValue>{(flowTokens as any)?.expires_in} seconds</ParameterValue>
+																	<ParameterValue>
+																		{(flowTokens as any)?.expires_in} seconds
+																	</ParameterValue>
 																</div>
 															)}
 															{(flowTokens as any)?.scope && (
@@ -2988,7 +2984,9 @@ async function submitCredentials(authUrl, username, password) {
 														</ParameterGrid>
 														<ActionRow>
 															<Button
-																onClick={() => handleCopy((flowTokens as any)?.access_token, 'Access Token')}
+																onClick={() =>
+																	handleCopy((flowTokens as any)?.access_token, 'Access Token')
+																}
 																$variant="outline"
 															>
 																<FiCopy /> Copy Access Token
@@ -2998,7 +2996,7 @@ async function submitCredentials(authUrl, username, password) {
 												)}
 											</ResultsSection>
 
-															{(flowTokens as any)?.id_token && (
+											{(flowTokens as any)?.id_token && (
 												<ResultsSection>
 													<ResultsHeading>
 														<FiShield size={18} /> ID Token
@@ -3021,7 +3019,9 @@ async function submitCredentials(authUrl, username, password) {
 														</ParameterGrid>
 														<ActionRow>
 															<Button
-																onClick={() => handleCopy((flowTokens as any)?.id_token, 'ID Token')}
+																onClick={() =>
+																	handleCopy((flowTokens as any)?.id_token, 'ID Token')
+																}
 																$variant="outline"
 															>
 																<FiCopy /> Copy ID Token

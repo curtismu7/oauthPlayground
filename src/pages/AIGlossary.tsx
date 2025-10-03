@@ -11,7 +11,7 @@ const PageContainer = styled.main`
 `;
 
 const PageContent = styled.div`
-	max-width: 1100px;
+	max-width: 1400px;
 	margin: 0 auto;
 	display: grid;
 	gap: clamp(1.5rem, 3.5vw, 2.5rem);
@@ -363,7 +363,8 @@ const glossaryCategories: GlossaryCategory[] = [
 			},
 			{
 				term: 'Algorithm',
-				definition: 'A step-by-step procedure or formula for solving a problem or completing a task.',
+				definition:
+					'A step-by-step procedure or formula for solving a problem or completing a task.',
 			},
 		],
 	},
@@ -390,19 +391,23 @@ const glossaryCategories: GlossaryCategory[] = [
 			},
 			{
 				term: 'Generative AI',
-				definition: 'AI systems that create new content (text, images, audio, video) based on training data.',
+				definition:
+					'AI systems that create new content (text, images, audio, video) based on training data.',
 			},
 			{
 				term: 'Diffusion Model',
-				definition: 'A type of generative model that creates images by gradually removing noise from random data (e.g., DALL-E, Stable Diffusion).',
+				definition:
+					'A type of generative model that creates images by gradually removing noise from random data (e.g., DALL-E, Stable Diffusion).',
 			},
 			{
 				term: 'Multimodal Model',
-				definition: 'AI systems that can process and generate multiple types of data (text, images, audio, video) simultaneously.',
+				definition:
+					'AI systems that can process and generate multiple types of data (text, images, audio, video) simultaneously.',
 			},
 			{
 				term: 'Foundation Model',
-				definition: 'Large-scale pre-trained models that can be adapted for various downstream tasks.',
+				definition:
+					'Large-scale pre-trained models that can be adapted for various downstream tasks.',
 			},
 			{
 				term: 'Embedding',
@@ -418,11 +423,13 @@ const glossaryCategories: GlossaryCategory[] = [
 		terms: [
 			{
 				term: 'Training',
-				definition: 'The process of teaching an AI model by feeding it data and adjusting its parameters to minimize errors.',
+				definition:
+					'The process of teaching an AI model by feeding it data and adjusting its parameters to minimize errors.',
 			},
 			{
 				term: 'Pre-training',
-				definition: 'Initial training phase where a model learns general patterns from large datasets.',
+				definition:
+					'Initial training phase where a model learns general patterns from large datasets.',
 			},
 			{
 				term: 'Fine-tuning',

@@ -391,7 +391,6 @@ const JWKSTroubleshooting: React.FC = () => {
 					status,
 					timestamp: new Date(),
 				};
-;
 				setCommandResults((prev) => [newResult, ...prev]);
 
 				if (status === 'success') {

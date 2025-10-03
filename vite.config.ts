@@ -60,16 +60,17 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: true, // Enable HTTPS in development
+			https: {}, // Enable HTTPS in development
 			// In production, Vercel will handle HTTPS
 			// In development, basic-ssl plugin provides self-signed certificates
 			hmr: {
 				port: 3000,
 				host: 'localhost',
+				protocol: 'wss',
 			},
 			proxy: {
 				'/api': {
-					target: 'https://localhost:3001',
+					target: 'https://localhost:3000',
 					changeOrigin: true,
 					secure: false, // Allow self-signed certificates
 					rewrite: (path) => {
@@ -79,9 +80,9 @@ export default defineConfig(({ mode }) => {
 						}
 						return path;
 					},
-					configure: (proxy, _options) => {
+					configure: (proxy) => {
 						// Add error handling for HTTPS fallback
-						proxy.on('error', (err, _req, _res) => {
+						proxy.on('error', (err) => {
 							console.log('Proxy error, attempting HTTP fallback:', err.message);
 							// Note: In a real scenario, you might want to implement
 							// automatic fallback to HTTP target here

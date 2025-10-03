@@ -706,17 +706,17 @@ const RedirectlessFlowV5: React.FC = () => {
 	}, [controller]);
 
 	const renderStepContent = useMemo(() => {
-	switch (currentStep) {
-		case 0:
-			return (
-				<>
-					<FlowConfigurationRequirements flowType="redirectless" variant="pingone" />
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => toggleSection('overview')}
-							aria-expanded={!collapsedSections.overview}
-						>
-							<CollapsibleTitle>
+		switch (currentStep) {
+			case 0:
+				return (
+					<>
+						<FlowConfigurationRequirements flowType="redirectless" variant="pingone" />
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('overview')}
+								aria-expanded={!collapsedSections.overview}
+							>
+								<CollapsibleTitle>
 									<FiInfo /> What is Redirectless Flow (pi.flow)?
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -759,7 +759,6 @@ const RedirectlessFlowV5: React.FC = () => {
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
-
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton

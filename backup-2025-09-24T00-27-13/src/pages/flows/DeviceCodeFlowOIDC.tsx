@@ -2,11 +2,22 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiSettings, FiRefreshCw, FiServer, FiClock, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import {
+	FiSettings,
+	FiRefreshCw,
+	FiServer,
+	FiClock,
+	FiCheckCircle,
+	FiXCircle,
+} from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
 import { logger } from '../../utils/logger';
-import { requestDeviceAuthorization, validateDeviceAuthorizationResponse, DeviceAuthorizationResponse } from '../../utils/deviceCode';
+import {
+	requestDeviceAuthorization,
+	validateDeviceAuthorizationResponse,
+	DeviceAuthorizationResponse,
+} from '../../utils/deviceCode';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
@@ -108,383 +119,441 @@ const StatusSection = styled.div`
 `;
 
 const DeviceCodeFlowOIDC: React.FC = () => {
-  const authContext = useAuth();
-  const { config } = authContext;
-  
-  // Use the new step management system
-  const stepManager = useFlowStepManager({
-    flowType: 'device-code',
-    persistKey: 'device_code_flow_step_manager',
-    defaultStep: 0,
-    enableAutoAdvance: true
-  });
+	const authContext = useAuth();
+	const { config } = authContext;
 
-  // Flow state
-  const [flowState, setFlowState] = useState<DeviceCodeFlowState>({
-    config: {
-      deviceAuthorizationEndpoint: config?.deviceAuthorizationEndpoint || '',
-      tokenEndpoint: config?.tokenEndpoint || '',
-      clientId: config?.clientId || '',
-      scope: ['openid', 'profile', 'email'],
-      environmentId: config?.environmentId || ''
-    },
-    status: 'idle',
-    pollingAttempts: 0,
-    pollingDuration: 0
-  });
+	// Use the new step management system
+	const stepManager = useFlowStepManager({
+		flowType: 'device-code',
+		persistKey: 'device_code_flow_step_manager',
+		defaultStep: 0,
+		enableAutoAdvance: true,
+	});
 
-  const [isRequestingAuthorization, setIsRequestingAuthorization] = useState(false);
-  const [isPolling, setIsPolling] = useState(false);
+	// Flow state
+	const [flowState, setFlowState] = useState<DeviceCodeFlowState>({
+		config: {
+			deviceAuthorizationEndpoint: config?.deviceAuthorizationEndpoint || '',
+			tokenEndpoint: config?.tokenEndpoint || '',
+			clientId: config?.clientId || '',
+			scope: ['openid', 'profile', 'email'],
+			environmentId: config?.environmentId || '',
+		},
+		status: 'idle',
+		pollingAttempts: 0,
+		pollingDuration: 0,
+	});
 
-  // Auto-populate endpoints when environment ID changes
-  useEffect(() => {
-    if (flowState.config.environmentId && !flowState.config.environmentId.includes('{')) {
-      const deviceEndpoint = `https://auth.pingone.com/${flowState.config.environmentId}/as/device`;
-      const tokenEndpoint = `https://auth.pingone.com/${flowState.config.environmentId}/as/token`;
-      
-      setFlowState(prev => ({
-        ...prev,
-        config: {
-          ...prev.config,
-          deviceAuthorizationEndpoint: deviceEndpoint,
-          tokenEndpoint: tokenEndpoint
-        }
-      }));
-    }
-  }, [flowState.config.environmentId]);
+	const [isRequestingAuthorization, setIsRequestingAuthorization] = useState(false);
+	const [isPolling, setIsPolling] = useState(false);
 
-  // Request device authorization
-  const requestDeviceAuth = useCallback(async () => {
-    logger.info('DeviceCodeFlow', 'Starting device authorization request', {
-      endpoint: flowState.config.deviceAuthorizationEndpoint,
-      clientId: flowState.config.clientId.substring(0, 8) + '...',
-      scopes: flowState.config.scope
-    });
+	// Auto-populate endpoints when environment ID changes
+	useEffect(() => {
+		if (flowState.config.environmentId && !flowState.config.environmentId.includes('{')) {
+			const deviceEndpoint = `https://auth.pingone.com/${flowState.config.environmentId}/as/device`;
+			const tokenEndpoint = `https://auth.pingone.com/${flowState.config.environmentId}/as/token`;
 
-    setIsRequestingAuthorization(true);
-    showFlowSuccess('🎯 Requesting Device Authorization', 'Sending device authorization request to PingOne...');
+			setFlowState((prev) => ({
+				...prev,
+				config: {
+					...prev.config,
+					deviceAuthorizationEndpoint: deviceEndpoint,
+					tokenEndpoint: tokenEndpoint,
+				},
+			}));
+		}
+	}, [flowState.config.environmentId]);
 
-    try {
-      // Validate required fields
-      if (!flowState.config.deviceAuthorizationEndpoint || !flowState.config.clientId) {
-        throw new Error('Device authorization endpoint and Client ID are required');
-      }
+	// Request device authorization
+	const requestDeviceAuth = useCallback(async () => {
+		logger.info('DeviceCodeFlow', 'Starting device authorization request', {
+			endpoint: flowState.config.deviceAuthorizationEndpoint,
+			clientId: flowState.config.clientId.substring(0, 8) + '...',
+			scopes: flowState.config.scope,
+		});
 
-      const response = await requestDeviceAuthorization(
-        flowState.config.deviceAuthorizationEndpoint,
-        flowState.config.clientId,
-        flowState.config.scope
-      );
+		setIsRequestingAuthorization(true);
+		showFlowSuccess(
+			'🎯 Requesting Device Authorization',
+			'Sending device authorization request to PingOne...'
+		);
 
-      if (!validateDeviceAuthorizationResponse(response)) {
-        throw new Error('Invalid device authorization response received');
-      }
+		try {
+			// Validate required fields
+			if (!flowState.config.deviceAuthorizationEndpoint || !flowState.config.clientId) {
+				throw new Error('Device authorization endpoint and Client ID are required');
+			}
 
-      setFlowState(prev => ({
-        ...prev,
-        deviceCode: response.device_code,
-        userCode: response.user_code,
-        verificationUri: response.verification_uri,
-        verificationUriComplete: response.verification_uri_complete,
-        expiresIn: response.expires_in,
-        interval: response.interval || 5,
-        startTime: Date.now(),
-        status: 'verifying',
-        error: undefined
-      }));
+			const response = await requestDeviceAuthorization(
+				flowState.config.deviceAuthorizationEndpoint,
+				flowState.config.clientId,
+				flowState.config.scope
+			);
 
-      showFlowSuccess('📱 Device Authorization Received', 'User code and verification URL generated successfully. Please complete verification on your device.');
-      
-      logger.success('DeviceCodeFlow', 'Device authorization successful', {
-        userCode: response.user_code,
-        expiresIn: response.expires_in,
-        hasCompleteUri: !!response.verification_uri_complete
-      });
+			if (!validateDeviceAuthorizationResponse(response)) {
+				throw new Error('Invalid device authorization response received');
+			}
 
-      return { success: true };
-    } catch (error) {
-      logger.error('DeviceCodeFlow', 'Device authorization failed', error);
-      showFlowError(`Failed to request device authorization: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      throw error;
-    } finally {
-      setIsRequestingAuthorization(false);
-    }
-  }, [flowState.config]);
+			setFlowState((prev) => ({
+				...prev,
+				deviceCode: response.device_code,
+				userCode: response.user_code,
+				verificationUri: response.verification_uri,
+				verificationUriComplete: response.verification_uri_complete,
+				expiresIn: response.expires_in,
+				interval: response.interval || 5,
+				startTime: Date.now(),
+				status: 'verifying',
+				error: undefined,
+			}));
 
-  // Handle successful token polling
-  const handlePollingSuccess = useCallback(async (tokens: DeviceCodeTokens) => {
-    logger.success('DeviceCodeFlow', 'Token polling successful', {
-      hasAccessToken: !!tokens.access_token,
-      hasIdToken: !!tokens.id_token,
-      hasRefreshToken: !!tokens.refresh_token
-    });
+			showFlowSuccess(
+				'📱 Device Authorization Received',
+				'User code and verification URL generated successfully. Please complete verification on your device.'
+			);
 
-    setFlowState(prev => ({
-      ...prev,
-      tokens,
-      status: 'success'
-    }));
+			logger.success('DeviceCodeFlow', 'Device authorization successful', {
+				userCode: response.user_code,
+				expiresIn: response.expires_in,
+				hasCompleteUri: !!response.verification_uri_complete,
+			});
 
-    // Store tokens
-    await storeOAuthTokens(tokens, 'device-code');
-    
-    showFlowSuccess('✅ Device Authorization Complete', 'Access token received successfully! Your device is now authorized.');
-  }, []);
+			return { success: true };
+		} catch (error) {
+			logger.error('DeviceCodeFlow', 'Device authorization failed', error);
+			showFlowError(
+				`Failed to request device authorization: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+			throw error;
+		} finally {
+			setIsRequestingAuthorization(false);
+		}
+	}, [flowState.config]);
 
-  // Handle polling error
-  const handlePollingError = useCallback((error: Error) => {
-    logger.error('DeviceCodeFlow', 'Token polling failed', error);
-    setFlowState(prev => ({
-      ...prev,
-      status: 'error',
-      error: error.message
-    }));
-    showFlowError(`Device authorization failed: ${error.message}`);
-  }, []);
+	// Handle successful token polling
+	const handlePollingSuccess = useCallback(async (tokens: DeviceCodeTokens) => {
+		logger.success('DeviceCodeFlow', 'Token polling successful', {
+			hasAccessToken: !!tokens.access_token,
+			hasIdToken: !!tokens.id_token,
+			hasRefreshToken: !!tokens.refresh_token,
+		});
 
-  // Handle polling progress
-  const handlePollingProgress = useCallback((attempt: number, status: string) => {
-    setFlowState(prev => ({
-      ...prev,
-      pollingAttempts: attempt
-    }));
-    logger.info('DeviceCodeFlow', 'Polling progress', { attempt, status });
-  }, []);
+		setFlowState((prev) => ({
+			...prev,
+			tokens,
+			status: 'success',
+		}));
 
-  // Start polling
-  const startPolling = useCallback(() => {
-    if (!flowState.deviceCode || !flowState.config.clientId || !flowState.config.tokenEndpoint) {
-      showFlowError('Missing required data for polling');
-      return;
-    }
+		// Store tokens
+		await storeOAuthTokens(tokens, 'device-code');
 
-    setIsPolling(true);
-    setFlowState(prev => ({ ...prev, status: 'polling' }));
-    
-    logger.info('DeviceCodeFlow', 'Starting token polling', {
-      deviceCode: flowState.deviceCode.substring(0, 8) + '...',
-      interval: flowState.interval
-    });
-  }, [flowState.deviceCode, flowState.config.clientId, flowState.config.tokenEndpoint, flowState.interval]);
+		showFlowSuccess(
+			'✅ Device Authorization Complete',
+			'Access token received successfully! Your device is now authorized.'
+		);
+	}, []);
 
-  // Copy user code
-  const handleCopyUserCode = useCallback(() => {
-    logger.info('DeviceCodeFlow', 'User code copied');
-  }, []);
+	// Handle polling error
+	const handlePollingError = useCallback((error: Error) => {
+		logger.error('DeviceCodeFlow', 'Token polling failed', error);
+		setFlowState((prev) => ({
+			...prev,
+			status: 'error',
+			error: error.message,
+		}));
+		showFlowError(`Device authorization failed: ${error.message}`);
+	}, []);
 
-  // Copy verification URI
-  const handleCopyVerificationUri = useCallback(() => {
-    logger.info('DeviceCodeFlow', 'Verification URI copied');
-  }, []);
+	// Handle polling progress
+	const handlePollingProgress = useCallback((attempt: number, status: string) => {
+		setFlowState((prev) => ({
+			...prev,
+			pollingAttempts: attempt,
+		}));
+		logger.info('DeviceCodeFlow', 'Polling progress', { attempt, status });
+	}, []);
 
-  // Reset flow
-  const resetFlow = useCallback(() => {
-    setFlowState({
-      config: {
-        deviceAuthorizationEndpoint: config?.deviceAuthorizationEndpoint || '',
-        tokenEndpoint: config?.tokenEndpoint || '',
-        clientId: config?.clientId || '',
-        scope: ['openid', 'profile', 'email'],
-        environmentId: config?.environmentId || ''
-      },
-      status: 'idle',
-      pollingAttempts: 0,
-      pollingDuration: 0
-    });
-    setIsPolling(false);
-    logger.info('DeviceCodeFlow', 'Flow reset');
-  }, [config]);
+	// Start polling
+	const startPolling = useCallback(() => {
+		if (!flowState.deviceCode || !flowState.config.clientId || !flowState.config.tokenEndpoint) {
+			showFlowError('Missing required data for polling');
+			return;
+		}
 
-  // Define flow steps
-  const steps: DeviceCodeStep[] = [
-    {
-      id: 'configure',
-      title: 'Configure Device Code Flow',
-      description: 'Set up your PingOne application credentials for device code flow',
-      status: 'pending',
-      canExecute: Boolean(flowState.config.deviceAuthorizationEndpoint && flowState.config.clientId),
-      completed: Boolean(flowState.config.deviceAuthorizationEndpoint && flowState.config.clientId)
-    },
-    {
-      id: 'request-authorization',
-      title: 'Request Device Authorization',
-      description: 'Get user code and verification URL from PingOne',
-      status: 'pending',
-      canExecute: Boolean(flowState.config.deviceAuthorizationEndpoint && flowState.config.clientId && !isRequestingAuthorization),
-      completed: Boolean(flowState.deviceCode && flowState.userCode)
-    },
-    {
-      id: 'verify-device',
-      title: 'Verify Device',
-      description: 'Complete device verification using QR code or manual entry',
-      status: 'pending',
-      canExecute: Boolean(flowState.deviceCode && flowState.userCode),
-      completed: Boolean(flowState.status === 'success')
-    }
-  ];
+		setIsPolling(true);
+		setFlowState((prev) => ({ ...prev, status: 'polling' }));
 
-  // Auto-start polling when verification step is active
-  useEffect(() => {
-    if (flowState.status === 'verifying' && !isPolling) {
-      startPolling();
-    }
-  }, [flowState.status, isPolling, startPolling]);
+		logger.info('DeviceCodeFlow', 'Starting token polling', {
+			deviceCode: flowState.deviceCode.substring(0, 8) + '...',
+			interval: flowState.interval,
+		});
+	}, [
+		flowState.deviceCode,
+		flowState.config.clientId,
+		flowState.config.tokenEndpoint,
+		flowState.interval,
+	]);
 
-  return (
-    <Container>
-      <Header>
-        <Title>
-          <FiServer />
-          OIDC Device Code Flow
-        </Title>
-        <Subtitle>
-          Authorize input-constrained devices using QR codes and user codes. Perfect for smart TVs, IoT devices, and CLI tools.
-        </Subtitle>
-      </Header>
+	// Copy user code
+	const handleCopyUserCode = useCallback(() => {
+		logger.info('DeviceCodeFlow', 'User code copied');
+	}, []);
 
-      <EnhancedStepFlowV2
-        steps={steps.map(step => ({
-          id: step.id,
-          title: step.title,
-          description: step.description,
-          icon: step.id === 'configure' ? <FiSettings /> : 
-                step.id === 'request-authorization' ? <FiRefreshCw /> : 
-                <FiCheckCircle />,
-          category: step.id === 'configure' ? 'preparation' as const : 
-                   step.id === 'request-authorization' ? 'token-exchange' as const : 
-                   'cleanup' as const,
-          content: (
-            <div>
-              {step.id === 'configure' && (
-                <CredentialsSection>
-                  <InfoBox>
-                    <strong>Device Code Flow:</strong> This flow is designed for devices with limited input capabilities. 
-                    Users will scan a QR code or enter a code manually to authorize the device.
-                  </InfoBox>
+	// Copy verification URI
+	const handleCopyVerificationUri = useCallback(() => {
+		logger.info('DeviceCodeFlow', 'Verification URI copied');
+	}, []);
 
-                  <FormField>
-                    <FormLabel>Environment ID *</FormLabel>
-                    <FormInput
-                      type="text"
-                      value={flowState.config.environmentId}
-                      onChange={(e) => setFlowState(prev => ({
-                        ...prev,
-                        config: { ...prev.config, environmentId: e.target.value }
-                      }))}
-                      placeholder="e.g., 12345678-1234-1234-1234-123456789012"
-                      required
-                    />
-                  </FormField>
+	// Reset flow
+	const resetFlow = useCallback(() => {
+		setFlowState({
+			config: {
+				deviceAuthorizationEndpoint: config?.deviceAuthorizationEndpoint || '',
+				tokenEndpoint: config?.tokenEndpoint || '',
+				clientId: config?.clientId || '',
+				scope: ['openid', 'profile', 'email'],
+				environmentId: config?.environmentId || '',
+			},
+			status: 'idle',
+			pollingAttempts: 0,
+			pollingDuration: 0,
+		});
+		setIsPolling(false);
+		logger.info('DeviceCodeFlow', 'Flow reset');
+	}, [config]);
 
-                  <FormField>
-                    <FormLabel>Device Authorization Endpoint *</FormLabel>
-                    <FormInput
-                      type="url"
-                      value={flowState.config.deviceAuthorizationEndpoint}
-                      onChange={(e) => setFlowState(prev => ({
-                        ...prev,
-                        config: { ...prev.config, deviceAuthorizationEndpoint: e.target.value }
-                      }))}
-                      placeholder="https://auth.pingone.com/{env-id}/as/device"
-                      required
-                    />
-                  </FormField>
+	// Define flow steps
+	const steps: DeviceCodeStep[] = [
+		{
+			id: 'configure',
+			title: 'Configure Device Code Flow',
+			description: 'Set up your PingOne application credentials for device code flow',
+			status: 'pending',
+			canExecute: Boolean(
+				flowState.config.deviceAuthorizationEndpoint && flowState.config.clientId
+			),
+			completed: Boolean(flowState.config.deviceAuthorizationEndpoint && flowState.config.clientId),
+		},
+		{
+			id: 'request-authorization',
+			title: 'Request Device Authorization',
+			description: 'Get user code and verification URL from PingOne',
+			status: 'pending',
+			canExecute: Boolean(
+				flowState.config.deviceAuthorizationEndpoint &&
+					flowState.config.clientId &&
+					!isRequestingAuthorization
+			),
+			completed: Boolean(flowState.deviceCode && flowState.userCode),
+		},
+		{
+			id: 'verify-device',
+			title: 'Verify Device',
+			description: 'Complete device verification using QR code or manual entry',
+			status: 'pending',
+			canExecute: Boolean(flowState.deviceCode && flowState.userCode),
+			completed: Boolean(flowState.status === 'success'),
+		},
+	];
 
-                  <FormField>
-                    <FormLabel>Token Endpoint *</FormLabel>
-                    <FormInput
-                      type="url"
-                      value={flowState.config.tokenEndpoint}
-                      onChange={(e) => setFlowState(prev => ({
-                        ...prev,
-                        config: { ...prev.config, tokenEndpoint: e.target.value }
-                      }))}
-                      placeholder="https://auth.pingone.com/{env-id}/as/token"
-                      required
-                    />
-                  </FormField>
+	// Auto-start polling when verification step is active
+	useEffect(() => {
+		if (flowState.status === 'verifying' && !isPolling) {
+			startPolling();
+		}
+	}, [flowState.status, isPolling, startPolling]);
 
-                  <FormField>
-                    <FormLabel>Client ID *</FormLabel>
-                    <FormInput
-                      type="text"
-                      value={flowState.config.clientId}
-                      onChange={(e) => setFlowState(prev => ({
-                        ...prev,
-                        config: { ...prev.config, clientId: e.target.value }
-                      }))}
-                      placeholder="Enter your application Client ID"
-                      required
-                    />
-                  </FormField>
+	return (
+		<Container>
+			<Header>
+				<Title>
+					<FiServer />
+					OIDC Device Code Flow
+				</Title>
+				<Subtitle>
+					Authorize input-constrained devices using QR codes and user codes. Perfect for smart TVs,
+					IoT devices, and CLI tools.
+				</Subtitle>
+			</Header>
 
-                  <FormField>
-                    <FormLabel>Scopes</FormLabel>
-                    <FormInput
-                      type="text"
-                      value={flowState.config.scope.join(' ')}
-                      onChange={(e) => setFlowState(prev => ({
-                        ...prev,
-                        config: { ...prev.config, scope: e.target.value.split(' ').filter(s => s.trim()) }
-                      }))}
-                      placeholder="openid profile email"
-                    />
-                  </FormField>
-                </CredentialsSection>
-              )}
+			<EnhancedStepFlowV2
+				steps={steps.map((step) => ({
+					id: step.id,
+					title: step.title,
+					description: step.description,
+					icon:
+						step.id === 'configure' ? (
+							<FiSettings />
+						) : step.id === 'request-authorization' ? (
+							<FiRefreshCw />
+						) : (
+							<FiCheckCircle />
+						),
+					category:
+						step.id === 'configure'
+							? ('preparation' as const)
+							: step.id === 'request-authorization'
+								? ('token-exchange' as const)
+								: ('cleanup' as const),
+					content: (
+						<div>
+							{step.id === 'configure' && (
+								<CredentialsSection>
+									<InfoBox>
+										<strong>Device Code Flow:</strong> This flow is designed for devices with
+										limited input capabilities. Users will scan a QR code or enter a code manually
+										to authorize the device.
+									</InfoBox>
 
-              {step.id === 'request-authorization' && (
-                <StatusSection>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                    <FiClock size={24} color="#6b7280" />
-                    <div>
-                      <h3 style={{ margin: 0, color: '#1f2937' }}>Ready to Request Authorization</h3>
-                      <p style={{ margin: 0, color: '#6b7280' }}>
-                        Click the button below to request a user code and verification URL from PingOne.
-                      </p>
-                    </div>
-                  </div>
-                </StatusSection>
-              )}
+									<FormField>
+										<FormLabel>Environment ID *</FormLabel>
+										<FormInput
+											type="text"
+											value={flowState.config.environmentId}
+											onChange={(e) =>
+												setFlowState((prev) => ({
+													...prev,
+													config: { ...prev.config, environmentId: e.target.value },
+												}))
+											}
+											placeholder="e.g., 12345678-1234-1234-1234-123456789012"
+											required
+										/>
+									</FormField>
 
-              {step.id === 'verify-device' && flowState.userCode && (
-                <div>
-                  <DeviceVerification
-                    userCode={flowState.userCode}
-                    verificationUri={flowState.verificationUri!}
-                    verificationUriComplete={flowState.verificationUriComplete}
-                    expiresIn={flowState.expiresIn!}
-                    startTime={flowState.startTime!}
-                    onCopyUserCode={handleCopyUserCode}
-                    onCopyVerificationUri={handleCopyVerificationUri}
-                  />
+									<FormField>
+										<FormLabel>Device Authorization Endpoint *</FormLabel>
+										<FormInput
+											type="url"
+											value={flowState.config.deviceAuthorizationEndpoint}
+											onChange={(e) =>
+												setFlowState((prev) => ({
+													...prev,
+													config: { ...prev.config, deviceAuthorizationEndpoint: e.target.value },
+												}))
+											}
+											placeholder="https://auth.pingone.com/{env-id}/as/device"
+											required
+										/>
+									</FormField>
 
-                  {isPolling && (
-                    <DevicePolling
-                      deviceCode={flowState.deviceCode!}
-                      clientId={flowState.config.clientId}
-                      tokenEndpoint={flowState.config.tokenEndpoint}
-                      interval={(flowState.interval || 5) * 1000}
-                      onSuccess={handlePollingSuccess}
-                      onError={handlePollingError}
-                      onProgress={handlePollingProgress}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-          ),
-          execute: step.id === 'configure' ? () => Promise.resolve({ success: true }) :
-                   step.id === 'request-authorization' ? requestDeviceAuth :
-                   () => Promise.resolve({ success: true }),
-          canExecute: step.canExecute,
-          completed: step.completed
-        }))}
-        stepManager={stepManager}
-        onStepComplete={() => {}}
-      />
-    </Container>
-  );
+									<FormField>
+										<FormLabel>Token Endpoint *</FormLabel>
+										<FormInput
+											type="url"
+											value={flowState.config.tokenEndpoint}
+											onChange={(e) =>
+												setFlowState((prev) => ({
+													...prev,
+													config: { ...prev.config, tokenEndpoint: e.target.value },
+												}))
+											}
+											placeholder="https://auth.pingone.com/{env-id}/as/token"
+											required
+										/>
+									</FormField>
+
+									<FormField>
+										<FormLabel>Client ID *</FormLabel>
+										<FormInput
+											type="text"
+											value={flowState.config.clientId}
+											onChange={(e) =>
+												setFlowState((prev) => ({
+													...prev,
+													config: { ...prev.config, clientId: e.target.value },
+												}))
+											}
+											placeholder="Enter your application Client ID"
+											required
+										/>
+									</FormField>
+
+									<FormField>
+										<FormLabel>Scopes</FormLabel>
+										<FormInput
+											type="text"
+											value={flowState.config.scope.join(' ')}
+											onChange={(e) =>
+												setFlowState((prev) => ({
+													...prev,
+													config: {
+														...prev.config,
+														scope: e.target.value.split(' ').filter((s) => s.trim()),
+													},
+												}))
+											}
+											placeholder="openid profile email"
+										/>
+									</FormField>
+								</CredentialsSection>
+							)}
+
+							{step.id === 'request-authorization' && (
+								<StatusSection>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '1rem',
+											marginBottom: '1rem',
+										}}
+									>
+										<FiClock size={24} color="#6b7280" />
+										<div>
+											<h3 style={{ margin: 0, color: '#1f2937' }}>
+												Ready to Request Authorization
+											</h3>
+											<p style={{ margin: 0, color: '#6b7280' }}>
+												Click the button below to request a user code and verification URL from
+												PingOne.
+											</p>
+										</div>
+									</div>
+								</StatusSection>
+							)}
+
+							{step.id === 'verify-device' && flowState.userCode && (
+								<div>
+									<DeviceVerification
+										userCode={flowState.userCode}
+										verificationUri={flowState.verificationUri!}
+										verificationUriComplete={flowState.verificationUriComplete}
+										expiresIn={flowState.expiresIn!}
+										startTime={flowState.startTime!}
+										onCopyUserCode={handleCopyUserCode}
+										onCopyVerificationUri={handleCopyVerificationUri}
+									/>
+
+									{isPolling && (
+										<DevicePolling
+											deviceCode={flowState.deviceCode!}
+											clientId={flowState.config.clientId}
+											tokenEndpoint={flowState.config.tokenEndpoint}
+											interval={(flowState.interval || 5) * 1000}
+											onSuccess={handlePollingSuccess}
+											onError={handlePollingError}
+											onProgress={handlePollingProgress}
+										/>
+									)}
+								</div>
+							)}
+						</div>
+					),
+					execute:
+						step.id === 'configure'
+							? () => Promise.resolve({ success: true })
+							: step.id === 'request-authorization'
+								? requestDeviceAuth
+								: () => Promise.resolve({ success: true }),
+					canExecute: step.canExecute,
+					completed: step.completed,
+				}))}
+				stepManager={stepManager}
+				onStepComplete={() => {}}
+			/>
+		</Container>
+	);
 };
 
 export default DeviceCodeFlowOIDC;

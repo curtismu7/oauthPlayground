@@ -11,21 +11,21 @@ const CardContainer = styled.div<{ $accent?: Accent | undefined }>`
   transition: all 0.2s ease-in-out;
   
   ${({ $accent }) => {
-    const accent = $accent;
-    if (!accent) return '';
-    
-    const accentColors = {
-      primary: '#003087',
-      success: '#28a745',
-      danger: '#dc3545',
-      warning: '#ffc107',
-      info: '#17a2b8',
-    };
-    
-    return css`
+		const accent = $accent;
+		if (!accent) return '';
+
+		const accentColors = {
+			primary: '#003087',
+			success: '#28a745',
+			danger: '#dc3545',
+			warning: '#ffc107',
+			info: '#17a2b8',
+		};
+
+		return css`
       border-top: 3px solid ${accentColors[(accent as keyof typeof accentColors)] || accentColors.primary};
     `;
-  }}
+	}}
 `;
 
 const CardHeader = styled.div`
@@ -64,20 +64,17 @@ const CardFooter = styled.div`
 `;
 
 interface CardProps {
-  children?: React.ReactNode;
-  className?: string;
-  accent?: Accent | undefined;
+	children?: React.ReactNode;
+	className?: string;
+	accent?: Accent | undefined;
 }
 
 const Card = ({ children, className, accent }: CardProps) => {
-  return (
-    <CardContainer
-      className={className}
-      {...(accent !== undefined ? { $accent: accent } : {})}
-    >
-      {children}
-    </CardContainer>
-  );
+	return (
+		<CardContainer className={className} {...(accent !== undefined ? { $accent: accent } : {})}>
+			{children}
+		</CardContainer>
+	);
 };
 
 export { Card, CardHeader, CardBody, CardFooter };

@@ -20,7 +20,7 @@ const ContentContainer = styled.div`
 const FlowComparison: React.FC = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Flow Comparison', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

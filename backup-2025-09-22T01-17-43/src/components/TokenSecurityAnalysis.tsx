@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { tokenLifecycleManager, TokenSecurityAnalysis, TokenLifecycleInfo } from '../utils/tokenLifecycle';
+import {
+	tokenLifecycleManager,
+	TokenSecurityAnalysis,
+	TokenLifecycleInfo,
+} from '../utils/tokenLifecycle';
 
 const SecurityContainer = styled.div`
   background: white;
@@ -33,26 +37,26 @@ const SecurityScore = styled.div<{ score: number }>`
   font-size: 1.125rem;
   
   ${({ score }) => {
-    if (score >= 80) {
-      return `
+		if (score >= 80) {
+			return `
         background-color: #dcfce7;
         color: #166534;
         border: 2px solid #22c55e;
       `;
-    } else if (score >= 60) {
-      return `
+		} else if (score >= 60) {
+			return `
         background-color: #fef3c7;
         color: #92400e;
         border: 2px solid #f59e0b;
       `;
-    } else {
-      return `
+		} else {
+			return `
         background-color: #fecaca;
         color: #991b1b;
         border: 2px solid #ef4444;
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ScoreCircle = styled.div<{ score: number }>`
@@ -66,23 +70,23 @@ const ScoreCircle = styled.div<{ score: number }>`
   font-size: 0.875rem;
   
   ${({ score }) => {
-    if (score >= 80) {
-      return `
+		if (score >= 80) {
+			return `
         background-color: #22c55e;
         color: white;
       `;
-    } else if (score >= 60) {
-      return `
+		} else if (score >= 60) {
+			return `
         background-color: #f59e0b;
         color: white;
       `;
-    } else {
-      return `
+		} else {
+			return `
         background-color: #ef4444;
         color: white;
       `;
-    }
-  }}
+		}
+	}}
 `;
 
 const Section = styled.div`
@@ -109,43 +113,47 @@ const ListItem = styled.li<{ type: 'strength' | 'warning' | 'vulnerability' | 'r
   font-size: 0.875rem;
   
   ${({ type }) => {
-    switch (type) {
-      case 'strength':
-        return `
+		switch (type) {
+			case 'strength':
+				return `
           background-color: #dcfce7;
           color: #166534;
           border-left: 4px solid #22c55e;
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background-color: #fef3c7;
           color: #92400e;
           border-left: 4px solid #f59e0b;
         `;
-      case 'vulnerability':
-        return `
+			case 'vulnerability':
+				return `
           background-color: #fecaca;
           color: #991b1b;
           border-left: 4px solid #ef4444;
         `;
-      case 'recommendation':
-        return `
+			case 'recommendation':
+				return `
           background-color: #dbeafe;
           color: #1e40af;
           border-left: 4px solid #3b82f6;
         `;
-    }
-  }}
+		}
+	}}
   
   &::before {
     content: '${({ type }) => {
-      switch (type) {
-        case 'strength': return '✅';
-        case 'warning': return '⚠️';
-        case 'vulnerability': return '🚨';
-        case 'recommendation': return '💡';
-      }
-    }}';
+			switch (type) {
+				case 'strength':
+					return '✅';
+				case 'warning':
+					return '⚠️';
+				case 'vulnerability':
+					return '🚨';
+				case 'recommendation':
+					return '💡';
+			}
+		}}';
     margin-right: 0.5rem;
   }
 `;
@@ -199,185 +207,181 @@ const RefreshButton = styled.button`
 `;
 
 interface TokenSecurityAnalysisProps {
-  tokenId: string;
-  onRefresh?: () => void;
+	tokenId: string;
+	onRefresh?: () => void;
 }
 
-const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({ 
-  tokenId, 
-  onRefresh 
+const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
+	tokenId,
+	onRefresh,
 }) => {
-  const [analysis, setAnalysis] = useState<TokenSecurityAnalysis | null>(null);
-  const [tokenInfo, setTokenInfo] = useState<TokenLifecycleInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [analysis, setAnalysis] = useState<TokenSecurityAnalysis | null>(null);
+	const [tokenInfo, setTokenInfo] = useState<TokenLifecycleInfo | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadAnalysis = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+	useEffect(() => {
+		const loadAnalysis = async () => {
+			try {
+				setLoading(true);
+				setError(null);
 
-        const lifecycleInfo = tokenLifecycleManager.getTokenLifecycleInfo(tokenId);
-        if (!lifecycleInfo) {
-          throw new Error('Token not found');
-        }
+				const lifecycleInfo = tokenLifecycleManager.getTokenLifecycleInfo(tokenId);
+				if (!lifecycleInfo) {
+					throw new Error('Token not found');
+				}
 
-        setTokenInfo(lifecycleInfo);
+				setTokenInfo(lifecycleInfo);
 
-        const securityAnalysis = tokenLifecycleManager.analyzeTokenSecurity(tokenId);
-        setAnalysis(securityAnalysis);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to load analysis');
-      } finally {
-        setLoading(false);
-      }
-    };
+				const securityAnalysis = tokenLifecycleManager.analyzeTokenSecurity(tokenId);
+				setAnalysis(securityAnalysis);
+			} catch (err) {
+				setError(err instanceof Error ? err.message : 'Failed to load analysis');
+			} finally {
+				setLoading(false);
+			}
+		};
 
-    loadAnalysis();
-  }, [tokenId]);
+		loadAnalysis();
+	}, [tokenId]);
 
-  const handleRefresh = () => {
-    if (onRefresh) {
-      onRefresh();
-    }
-    // Reload analysis
-    const lifecycleInfo = tokenLifecycleManager.getTokenLifecycleInfo(tokenId);
-    if (lifecycleInfo) {
-      setTokenInfo(lifecycleInfo);
-      const securityAnalysis = tokenLifecycleManager.analyzeTokenSecurity(tokenId);
-      setAnalysis(securityAnalysis);
-    }
-  };
+	const handleRefresh = () => {
+		if (onRefresh) {
+			onRefresh();
+		}
+		// Reload analysis
+		const lifecycleInfo = tokenLifecycleManager.getTokenLifecycleInfo(tokenId);
+		if (lifecycleInfo) {
+			setTokenInfo(lifecycleInfo);
+			const securityAnalysis = tokenLifecycleManager.analyzeTokenSecurity(tokenId);
+			setAnalysis(securityAnalysis);
+		}
+	};
 
-  if (loading) {
-    return (
-      <SecurityContainer>
-        <div>Loading security analysis...</div>
-      </SecurityContainer>
-    );
-  }
+	if (loading) {
+		return (
+			<SecurityContainer>
+				<div>Loading security analysis...</div>
+			</SecurityContainer>
+		);
+	}
 
-  if (error) {
-    return (
-      <SecurityContainer>
-        <div style={{ color: '#ef4444' }}>Error: {error}</div>
-      </SecurityContainer>
-    );
-  }
+	if (error) {
+		return (
+			<SecurityContainer>
+				<div style={{ color: '#ef4444' }}>Error: {error}</div>
+			</SecurityContainer>
+		);
+	}
 
-  if (!analysis || !tokenInfo) {
-    return (
-      <SecurityContainer>
-        <div>No analysis available</div>
-      </SecurityContainer>
-    );
-  }
+	if (!analysis || !tokenInfo) {
+		return (
+			<SecurityContainer>
+				<div>No analysis available</div>
+			</SecurityContainer>
+		);
+	}
 
-  return (
-    <SecurityContainer>
-      <SecurityHeader>
-        <SecurityTitle>Token Security Analysis</SecurityTitle>
-        <SecurityScore score={analysis.securityScore}>
-          <ScoreCircle score={analysis.securityScore}>
-            {analysis.securityScore}
-          </ScoreCircle>
-          Security Score
-        </SecurityScore>
-      </SecurityHeader>
+	return (
+		<SecurityContainer>
+			<SecurityHeader>
+				<SecurityTitle>Token Security Analysis</SecurityTitle>
+				<SecurityScore score={analysis.securityScore}>
+					<ScoreCircle score={analysis.securityScore}>{analysis.securityScore}</ScoreCircle>
+					Security Score
+				</SecurityScore>
+			</SecurityHeader>
 
-      <TokenInfo>
-        <InfoRow>
-          <InfoLabel>Token ID:</InfoLabel>
-          <InfoValue>{tokenInfo.tokenId}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Flow Type:</InfoLabel>
-          <InfoValue>{tokenInfo.flowType}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Flow Name:</InfoLabel>
-          <InfoValue>{tokenInfo.flowName}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Created:</InfoLabel>
-          <InfoValue>{tokenInfo.createdAt.toLocaleString()}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Expires:</InfoLabel>
-          <InfoValue>{tokenInfo.expiresAt.toLocaleString()}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Usage Count:</InfoLabel>
-          <InfoValue>{tokenInfo.usageCount}</InfoValue>
-        </InfoRow>
-        <InfoRow>
-          <InfoLabel>Status:</InfoLabel>
-          <InfoValue style={{ color: tokenInfo.isExpired ? '#ef4444' : '#22c55e' }}>
-            {tokenInfo.isExpired ? 'Expired' : 'Active'}
-          </InfoValue>
-        </InfoRow>
-      </TokenInfo>
+			<TokenInfo>
+				<InfoRow>
+					<InfoLabel>Token ID:</InfoLabel>
+					<InfoValue>{tokenInfo.tokenId}</InfoValue>
+				</InfoRow>
+				<InfoRow>
+					<InfoLabel>Flow Type:</InfoLabel>
+					<InfoValue>{tokenInfo.flowType}</InfoValue>
+				</InfoRow>
+				<InfoRow>
+					<InfoLabel>Flow Name:</InfoLabel>
+					<InfoValue>{tokenInfo.flowName}</InfoValue>
+				</InfoRow>
+				<InfoRow>
+					<InfoLabel>Created:</InfoLabel>
+					<InfoValue>{tokenInfo.createdAt.toLocaleString()}</InfoValue>
+				</InfoRow>
+				<InfoRow>
+					<InfoLabel>Expires:</InfoLabel>
+					<InfoValue>{tokenInfo.expiresAt.toLocaleString()}</InfoValue>
+				</InfoRow>
+				<InfoRow>
+					<InfoLabel>Usage Count:</InfoLabel>
+					<InfoValue>{tokenInfo.usageCount}</InfoValue>
+				</InfoRow>
+				<InfoRow>
+					<InfoLabel>Status:</InfoLabel>
+					<InfoValue style={{ color: tokenInfo.isExpired ? '#ef4444' : '#22c55e' }}>
+						{tokenInfo.isExpired ? 'Expired' : 'Active'}
+					</InfoValue>
+				</InfoRow>
+			</TokenInfo>
 
-      {analysis.strengths.length > 0 && (
-        <Section>
-          <SectionTitle>Strengths</SectionTitle>
-          <List>
-            {analysis.strengths.map((strength, index) => (
-              <ListItem key={index} type="strength">
-                {strength}
-              </ListItem>
-            ))}
-          </List>
-        </Section>
-      )}
+			{analysis.strengths.length > 0 && (
+				<Section>
+					<SectionTitle>Strengths</SectionTitle>
+					<List>
+						{analysis.strengths.map((strength, index) => (
+							<ListItem key={index} type="strength">
+								{strength}
+							</ListItem>
+						))}
+					</List>
+				</Section>
+			)}
 
-      {analysis.warnings.length > 0 && (
-        <Section>
-          <SectionTitle>Warnings</SectionTitle>
-          <List>
-            {analysis.warnings.map((warning, index) => (
-              <ListItem key={index} type="warning">
-                {warning}
-              </ListItem>
-            ))}
-          </List>
-        </Section>
-      )}
+			{analysis.warnings.length > 0 && (
+				<Section>
+					<SectionTitle>Warnings</SectionTitle>
+					<List>
+						{analysis.warnings.map((warning, index) => (
+							<ListItem key={index} type="warning">
+								{warning}
+							</ListItem>
+						))}
+					</List>
+				</Section>
+			)}
 
-      {analysis.vulnerabilities.length > 0 && (
-        <Section>
-          <SectionTitle>Vulnerabilities</SectionTitle>
-          <List>
-            {analysis.vulnerabilities.map((vulnerability, index) => (
-              <ListItem key={index} type="vulnerability">
-                {vulnerability}
-              </ListItem>
-            ))}
-          </List>
-        </Section>
-      )}
+			{analysis.vulnerabilities.length > 0 && (
+				<Section>
+					<SectionTitle>Vulnerabilities</SectionTitle>
+					<List>
+						{analysis.vulnerabilities.map((vulnerability, index) => (
+							<ListItem key={index} type="vulnerability">
+								{vulnerability}
+							</ListItem>
+						))}
+					</List>
+				</Section>
+			)}
 
-      {analysis.recommendations.length > 0 && (
-        <Section>
-          <SectionTitle>Recommendations</SectionTitle>
-          <List>
-            {analysis.recommendations.map((recommendation, index) => (
-              <ListItem key={index} type="recommendation">
-                {recommendation}
-              </ListItem>
-            ))}
-          </List>
-        </Section>
-      )}
+			{analysis.recommendations.length > 0 && (
+				<Section>
+					<SectionTitle>Recommendations</SectionTitle>
+					<List>
+						{analysis.recommendations.map((recommendation, index) => (
+							<ListItem key={index} type="recommendation">
+								{recommendation}
+							</ListItem>
+						))}
+					</List>
+				</Section>
+			)}
 
-      <div style={{ marginTop: '1rem', textAlign: 'right' }}>
-        <RefreshButton onClick={handleRefresh}>
-          Refresh Analysis
-        </RefreshButton>
-      </div>
-    </SecurityContainer>
-  );
+			<div style={{ marginTop: '1rem', textAlign: 'right' }}>
+				<RefreshButton onClick={handleRefresh}>Refresh Analysis</RefreshButton>
+			</div>
+		</SecurityContainer>
+	);
 };
 
 export default TokenSecurityAnalysisComponent;

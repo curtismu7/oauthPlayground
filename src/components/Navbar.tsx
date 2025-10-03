@@ -2,7 +2,6 @@ import React from 'react';
 import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSettings } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import packageJson from '../../package.json';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
 
@@ -26,7 +25,11 @@ const Logo = styled.div`
   font-weight: 600;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
   
   img {
     height: 32px;
@@ -110,13 +113,12 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 				aria-label="Toggle navigation menu"
 				aria-expanded="false"
 				aria-controls="sidebar-menu"
-				title="Toggle navigation menu"
 			>
 				<FiMenu size={24} aria-hidden="true" />
 			</MenuButton>
 
 			<Logo>
-				<span>PingOne OAuth/OIDC Playground v{packageJson.version}</span>
+				<span>PingOne OAuth/OIDC Playground</span>
 				{isAuthenticated && user && (
 					<div className="user-info" aria-live="polite">
 						Welcome, {user.name || user.email}
@@ -125,11 +127,7 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 			</Logo>
 
 			<NavItems role="navigation" aria-label="Main navigation">
-				<Link
-					to="/documentation"
-					title="View documentation and help"
-					aria-label="View documentation and help"
-				>
+				<Link to="/documentation" title="View documentation and help">
 					<FiHelpCircle aria-hidden="true" />
 					<span>Docs</span>
 				</Link>

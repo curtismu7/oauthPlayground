@@ -176,7 +176,7 @@ const PreviewCode = styled.pre`
 const AdvancedConfiguration = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Advanced Configuration', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

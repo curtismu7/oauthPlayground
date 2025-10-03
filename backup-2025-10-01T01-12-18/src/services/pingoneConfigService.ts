@@ -93,9 +93,11 @@ export class PingOneConfigService {
 
 			// Fallback to default configuration
 			this.config = this.getDefaultConfig();
-			logger.warn('PingOneConfigService', 'Using default configuration - no environment variables or saved config found');
+			logger.warn(
+				'PingOneConfigService',
+				'Using default configuration - no environment variables or saved config found'
+			);
 			return this.config;
-
 		} catch (error) {
 			logger.error('PingOneConfigService', 'Failed to load configuration', error);
 			this.config = this.getDefaultConfig();
@@ -132,7 +134,6 @@ export class PingOneConfigService {
 		this.saveConfig(updatedConfig);
 		return updatedConfig;
 	}
-
 
 	/**
 	 * Validate and build configuration from parsed data
@@ -185,7 +186,7 @@ export class PingOneConfigService {
 	}): PingOneConfig {
 		const baseUrl = params.apiUrl || 'https://auth.pingone.com';
 		const authUrl = `${baseUrl}/${params.environmentId}/as`;
-		
+
 		return {
 			environmentId: params.environmentId,
 			clientId: params.clientId,

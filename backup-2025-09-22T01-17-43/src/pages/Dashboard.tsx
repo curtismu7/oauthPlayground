@@ -1,13 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { FiCheckCircle, FiShield, FiClock, FiActivity, FiRefreshCw, FiKey, FiGlobe, FiCopy } from 'react-icons/fi';
+import {
+	FiCheckCircle,
+	FiShield,
+	FiClock,
+	FiActivity,
+	FiRefreshCw,
+	FiKey,
+	FiGlobe,
+	FiCopy,
+} from 'react-icons/fi';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { useTokenRefresh } from '../hooks/useTokenRefresh';
 import { getSharedConfigurationStatus } from '../utils/configurationStatus';
-import CentralizedSuccessMessage, { showFlowSuccess } from '../components/CentralizedSuccessMessage';
+import CentralizedSuccessMessage, {
+	showFlowSuccess,
+} from '../components/CentralizedSuccessMessage';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;
@@ -94,19 +105,19 @@ const StatIcon = styled.div<{ $variant: 'flows' | 'tokens' | 'success' | 'securi
   color: white;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'flows':
-        return 'background: linear-gradient(135deg, #667eea, #764ba2);';
-      case 'tokens':
-        return 'background: linear-gradient(135deg, #f093fb, #f5576c);';
-      case 'success':
-        return 'background: linear-gradient(135deg, #4facfe, #00f2fe);';
-      case 'security':
-        return 'background: linear-gradient(135deg, #43e97b, #38f9d7);';
-      default:
-        return 'background: linear-gradient(135deg, #667eea, #764ba2);';
-    }
-  }}
+		switch ($variant) {
+			case 'flows':
+				return 'background: linear-gradient(135deg, #667eea, #764ba2);';
+			case 'tokens':
+				return 'background: linear-gradient(135deg, #f093fb, #f5576c);';
+			case 'success':
+				return 'background: linear-gradient(135deg, #4facfe, #00f2fe);';
+			case 'security':
+				return 'background: linear-gradient(135deg, #43e97b, #38f9d7);';
+			default:
+				return 'background: linear-gradient(135deg, #667eea, #764ba2);';
+		}
+	}}
 `;
 
 const StatValue = styled.div`
@@ -126,11 +137,11 @@ const StatLabel = styled.div`
 // Removed unused MainContent styled component
 
 const ContentCard = styled.div<{ $shaded?: boolean }>`
-  background: ${({ $shaded }) => $shaded ? 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)' : '#ffffff'};
+  background: ${({ $shaded }) => ($shaded ? 'linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%)' : '#ffffff')};
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid ${({ $shaded }) => $shaded ? '#d1e7ff' : '#e5e7eb'};
+  border: 1px solid ${({ $shaded }) => ($shaded ? '#d1e7ff' : '#e5e7eb')};
 `;
 
 const CardHeader = styled.div`
@@ -229,17 +240,17 @@ const ActivityIcon = styled.div<{ $type: 'success' | 'warning' | 'info' }>`
   font-size: 1.2rem;
   
   ${({ $type }) => {
-    switch ($type) {
-      case 'success':
-        return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
-      case 'warning':
-        return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
-      case 'info':
-        return 'background: rgba(102, 126, 234, 0.1); color: #667eea;';
-      default:
-        return 'background: rgba(102, 126, 234, 0.1); color: #667eea;';
-    }
-  }}
+		switch ($type) {
+			case 'success':
+				return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
+			case 'warning':
+				return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
+			case 'info':
+				return 'background: rgba(102, 126, 234, 0.1); color: #667eea;';
+			default:
+				return 'background: rgba(102, 126, 234, 0.1); color: #667eea;';
+		}
+	}}
 `;
 
 const ActivityContent = styled.div`
@@ -271,17 +282,17 @@ const StatusBadge = styled.span<{ $status: 'active' | 'pending' | 'error' }>`
   font-weight: 500;
   
   ${({ $status }) => {
-    switch ($status) {
-      case 'active':
-        return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
-      case 'pending':
-        return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
-      case 'error':
-        return 'background: rgba(245, 87, 108, 0.1); color: #f5576c;';
-      default:
-        return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
-    }
-  }}
+		switch ($status) {
+			case 'active':
+				return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
+			case 'pending':
+				return 'background: rgba(255, 193, 7, 0.1); color: #ffc107;';
+			case 'error':
+				return 'background: rgba(245, 87, 108, 0.1); color: #f5576c;';
+			default:
+				return 'background: rgba(67, 233, 123, 0.1); color: #43e97b;';
+		}
+	}}
 `;
 
 const TokenInfo = styled.div`
@@ -375,881 +386,964 @@ const CopyButton = styled.button`
 `;
 
 const Dashboard = () => {
-  console.log('🔧 [Dashboard] Component rendering');
-  
-  // React hooks must be at the top
-  const { config, tokens: authTokens, isAuthenticated } = useAuth();
-  const location = useLocation();
-  
-  // Use centralized scroll management with aggressive scroll-to-top
-  usePageScroll({ pageName: 'Dashboard', force: true, delay: 0 });
-  
-  // Additional aggressive scroll-to-top for Dashboard (this has been an ongoing issue)
-  useEffect(() => {
-    console.log('📜 [Dashboard] AGGRESSIVE scroll to top - this fixes the persistent issue');
-    
-    // Immediate scroll
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
-    
-    // Multiple timeouts to catch any late-loading content
-    const timeouts = [
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-      }, 50),
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-      }, 100),
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-      }, 200),
-      setTimeout(() => {
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-      }, 500)
-    ];
-    
-    return () => {
-      timeouts.forEach(timeout => clearTimeout(timeout));
-    };
-  }, []); // Only on component mount
-  const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
-  const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [showActivityModal, setShowActivityModal] = useState(false);
-  const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
-  // Use shared configuration status for consistency
-  const [configStatus, setConfigStatus] = useState(() => getSharedConfigurationStatus('Dashboard'));
+	console.log('🔧 [Dashboard] Component rendering');
 
-  // Token refresh automation for Dashboard login
-  const {
-    isRefreshing: isTokenRefreshing,
-    lastRefreshAt,
-    nextRefreshAt,
-    refreshError,
-    refreshTokens,
-    stopAutoRefresh,
-    startAutoRefresh,
-    status: refreshStatus
-  } = useTokenRefresh({
-    autoRefresh: true,
-    refreshThreshold: 300, // 5 minutes before expiry
-    onRefreshSuccess: (newTokens) => {
-      console.log('✅ [Dashboard] Token refresh successful', newTokens);
-      setTokens(newTokens);
-    },
-    onRefreshError: (error) => {
-      console.error('❌ [Dashboard] Token refresh failed', error);
-    }
-  });
-  
-  const infoMessage = (location.state as { message?: string })?.message;
-  const infoType = ((location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type) || 'info';
+	// React hooks must be at the top
+	const { config, tokens: authTokens, isAuthenticated } = useAuth();
+	const location = useLocation();
 
-  // Use the configStatus state for consistent status checking
-  const hasSavedCredentials = configStatus.isConfigured;
-  
-  // Debug logging for configuration status
-  useEffect(() => {
-    console.log('🔍 [Dashboard] Config status check:', {
-      hasConfig: !!config,
-      environmentId: config?.environmentId,
-      clientId: config?.clientId,
-      hasSavedCredentials,
-      configObject: config
-    });
-  }, [config, hasSavedCredentials]);
+	// Use centralized scroll management with aggressive scroll-to-top
+	usePageScroll({ pageName: 'Dashboard', force: true, delay: 0 });
 
-  // Listen for configuration changes and update status
-  useEffect(() => {
-    const handleConfigChange = () => {
-      console.log('🔄 [Dashboard] Configuration change detected, refreshing status');
-      const newStatus = getSharedConfigurationStatus('Dashboard');
-      setConfigStatus(newStatus);
-      console.log('🔍 [Dashboard] Updated config status:', newStatus.isConfigured);
-    };
+	// Additional aggressive scroll-to-top for Dashboard (this has been an ongoing issue)
+	useEffect(() => {
+		console.log('📜 [Dashboard] AGGRESSIVE scroll to top - this fixes the persistent issue');
 
-    // Listen for all possible config change events
-    window.addEventListener('pingone-config-changed', handleConfigChange);
-    window.addEventListener('permanent-credentials-changed', handleConfigChange);
-    window.addEventListener('config-credentials-changed', handleConfigChange);
-    
-    // Also refresh on component mount
-    handleConfigChange();
-    
-    return () => {
-      window.removeEventListener('pingone-config-changed', handleConfigChange);
-      window.removeEventListener('permanent-credentials-changed', handleConfigChange);
-      window.removeEventListener('config-credentials-changed', handleConfigChange);
-    };
-  }, []);
+		// Immediate scroll
+		window.scrollTo(0, 0);
+		document.documentElement.scrollTop = 0;
+		document.body.scrollTop = 0;
 
-  // Handle refresh button click
-  const handleRefresh = async () => {
-    await refreshDashboard();
-  };
+		// Multiple timeouts to catch any late-loading content
+		const timeouts = [
+			setTimeout(() => {
+				window.scrollTo(0, 0);
+				document.documentElement.scrollTop = 0;
+				document.body.scrollTop = 0;
+			}, 50),
+			setTimeout(() => {
+				window.scrollTo(0, 0);
+				document.documentElement.scrollTop = 0;
+				document.body.scrollTop = 0;
+			}, 100),
+			setTimeout(() => {
+				window.scrollTo(0, 0);
+				document.documentElement.scrollTop = 0;
+				document.body.scrollTop = 0;
+			}, 200),
+			setTimeout(() => {
+				window.scrollTo(0, 0);
+				document.documentElement.scrollTop = 0;
+				document.body.scrollTop = 0;
+			}, 500),
+		];
 
-  // Handle activity button click
-  const handleActivity = () => {
-    console.log('Activity button clicked - showing recent activity:', recentActivity);
-    setShowActivityModal(true);
-  };
+		return () => {
+			timeouts.forEach((timeout) => clearTimeout(timeout));
+		};
+	}, []); // Only on component mount
+	const [tokens, setTokens] = useState<Record<string, unknown> | null>(null);
+	const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
+	const [isRefreshing, setIsRefreshing] = useState(false);
+	const [showActivityModal, setShowActivityModal] = useState(false);
+	const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
+	// Use shared configuration status for consistency
+	const [configStatus, setConfigStatus] = useState(() => getSharedConfigurationStatus('Dashboard'));
 
-  // Load initial dashboard data
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        console.log('🔍 [Dashboard] Loading dashboard data...', {
-          hasAuthTokens: !!authTokens,
-          isAuthenticated,
-          authTokens: authTokens ? {
-            hasAccessToken: !!authTokens.access_token,
-            hasRefreshToken: !!authTokens.refresh_token,
-            hasIdToken: !!authTokens.id_token,
-            tokenType: authTokens.token_type,
-            expiresIn: authTokens.expires_in
-          } : null
-        });
+	// Token refresh automation for Dashboard login
+	const {
+		isRefreshing: isTokenRefreshing,
+		lastRefreshAt,
+		nextRefreshAt,
+		refreshError,
+		refreshTokens,
+		stopAutoRefresh,
+		startAutoRefresh,
+		status: refreshStatus,
+	} = useTokenRefresh({
+		autoRefresh: true,
+		refreshThreshold: 300, // 5 minutes before expiry
+		onRefreshSuccess: (newTokens) => {
+			console.log('✅ [Dashboard] Token refresh successful', newTokens);
+			setTokens(newTokens);
+		},
+		onRefreshError: (error) => {
+			console.error('❌ [Dashboard] Token refresh failed', error);
+		},
+	});
 
-        // Use tokens from auth context instead of storage
-        setTokens(authTokens);
+	const infoMessage = (location.state as { message?: string })?.message;
+	const infoType =
+		(location.state as { type?: 'success' | 'error' | 'warning' | 'info' })?.type || 'info';
 
-        // Load recent activity
-        let activity = getRecentActivity();
-        
-        // If no activity exists, create some sample data for demonstration
-        if (activity.length === 0) {
-          const sampleActivities = [
-            {
-              id: 'sample_1',
-              action: 'Completed Authorization Code Flow',
-              flowType: 'authorization-code',
-              timestamp: Date.now() - 300000, // 5 minutes ago
-              success: true,
-              details: 'Successfully obtained access token'
-            },
-            {
-              id: 'sample_2',
-              action: 'Updated PingOne Credentials: Environment ID',
-              flowType: 'configuration',
-              timestamp: Date.now() - 600000, // 10 minutes ago
-              success: true,
-              details: 'Environment ID configured'
-            },
-            {
-              id: 'sample_3',
-              action: 'Completed OAuth 2.0 Authorization Code Flow',
-              flowType: 'oauth-authorization-code',
-              timestamp: Date.now() - 900000, // 15 minutes ago
-              success: true,
-              details: 'OAuth 2.0 Authorization Code flow completed successfully'
-            }
-          ];
-          
-          // Store sample activities
-          localStorage.setItem('pingone_playground_recent_activity', JSON.stringify(sampleActivities));
-          activity = sampleActivities;
-        }
-        
-        setRecentActivity(activity);
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
-      }
-    };
+	// Use the configStatus state for consistent status checking
+	const hasSavedCredentials = configStatus.isConfigured;
 
-    loadDashboardData();
-  }, [authTokens, isAuthenticated]);
+	// Debug logging for configuration status
+	useEffect(() => {
+		console.log('🔍 [Dashboard] Config status check:', {
+			hasConfig: !!config,
+			environmentId: config?.environmentId,
+			clientId: config?.clientId,
+			hasSavedCredentials,
+			configObject: config,
+		});
+	}, [config, hasSavedCredentials]);
 
-  // Refresh dashboard data
-  const refreshDashboard = async () => {
-    setIsRefreshing(true);
-    try {
-      // Use tokens from auth context instead of storage
-      setTokens(authTokens);
+	// Listen for configuration changes and update status
+	useEffect(() => {
+		const handleConfigChange = () => {
+			console.log('🔄 [Dashboard] Configuration change detected, refreshing status');
+			const newStatus = getSharedConfigurationStatus('Dashboard');
+			setConfigStatus(newStatus);
+			console.log('🔍 [Dashboard] Updated config status:', newStatus.isConfigured);
+		};
 
-      // Reload recent activity
-      const activity = getRecentActivity();
-      setRecentActivity(activity);
-    } catch (error) {
-      console.error('Error refreshing dashboard data:', error);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
+		// Listen for all possible config change events
+		window.addEventListener('pingone-config-changed', handleConfigChange);
+		window.addEventListener('permanent-credentials-changed', handleConfigChange);
+		window.addEventListener('config-credentials-changed', handleConfigChange);
 
-  // Dashboard stats state
-  const [stats, setStats] = useState({
-    flows: 6, // Actual OAuth flows available: OIDC Authorization Code, OAuth 2.0 Authorization Code, Implicit, Hybrid, OIDC Client Credentials, OIDC Device Code Flow
-    tokens: 0, // Current active tokens
-    success: 0, // Success rate based on recent activity
-    security: 50 // Security score based on configuration
-  });
+		// Also refresh on component mount
+		handleConfigChange();
 
-  // Update stats when data changes
-  useEffect(() => {
-    setStats(prev => ({
-      ...prev,
-      tokens: tokens ? (tokens.access_token ? 1 : 0) : 0,
-      success: calculateSuccessRate(),
-      security: calculateSecurityScore()
-    }));
-  }, [tokens, recentActivity, configStatus]);
+		return () => {
+			window.removeEventListener('pingone-config-changed', handleConfigChange);
+			window.removeEventListener('permanent-credentials-changed', handleConfigChange);
+			window.removeEventListener('config-credentials-changed', handleConfigChange);
+		};
+	}, []);
 
-  // Calculate success rate based on recent activity
-  function calculateSuccessRate(): number {
-    if (recentActivity.length === 0) return 0;
-    
-    const successfulActivities = recentActivity.filter(activity => 
-      activity.type === 'success' || 
-      (activity.title && activity.title.toLowerCase().includes('success'))
-    ).length;
-    
-    return Math.round((successfulActivities / recentActivity.length) * 100);
-  }
+	// Handle refresh button click
+	const handleRefresh = async () => {
+		await refreshDashboard();
+	};
 
-  // Calculate security score based on configuration
-  function calculateSecurityScore(): number {
-    let score = 0;
-    
-    // Check if credentials are configured
-    if (config?.clientId && config?.environmentId) score += 25;
-    
-    // Check if client secret is configured
-    if (config?.clientSecret) score += 25;
-    
-    // Check if PKCE is being used (indicated by code_verifier in sessionStorage)
-    if (sessionStorage.getItem('code_verifier')) score += 25;
-    
-    // Check if state parameter is being used
-    if (sessionStorage.getItem('oauth_state')) score += 25;
-    
-    return score;
-  }
+	// Handle activity button click
+	const handleActivity = () => {
+		console.log('Activity button clicked - showing recent activity:', recentActivity);
+		setShowActivityModal(true);
+	};
 
-  // Get flow-specific status - simple configured vs not configured
-  function getFlowStatus(flowType: string): { status: 'active' | 'pending' | 'error', message: string } {
-    const baseConfigured = hasSavedCredentials;
-    
-    switch (flowType) {
-      case 'authorization-code':
-        // This is the main OIDC Enhanced Authorization Code flow - the only one actually configured
-        return {
-          status: baseConfigured ? 'active' : 'pending',
-          message: baseConfigured ? 'Configured' : 'Not configured'
-        };
-        
-      case 'oauth2-authorization-code':
-      case 'client-credentials':
-      case 'device-code':
-      case 'hybrid':
-      case 'implicit':
-        // All other flows are not configured yet
-        return {
-          status: 'error',
-          message: 'Not configured'
-        };
-        
-      default:
-        return {
-          status: 'error',
-          message: 'Not configured'
-        };
-    }
-  }
+	// Load initial dashboard data
+	useEffect(() => {
+		const loadDashboardData = async () => {
+			try {
+				console.log('🔍 [Dashboard] Loading dashboard data...', {
+					hasAuthTokens: !!authTokens,
+					isAuthenticated,
+					authTokens: authTokens
+						? {
+								hasAccessToken: !!authTokens.access_token,
+								hasRefreshToken: !!authTokens.refresh_token,
+								hasIdToken: !!authTokens.id_token,
+								tokenType: authTokens.token_type,
+								expiresIn: authTokens.expires_in,
+							}
+						: null,
+				});
 
-  // Get recent activity items
-  const activityItems = recentActivity.slice(0, 4).map((activity, index) => ({
-    id: activity.id || index,
-    type: activity.success ? 'success' : 'warning' as 'success' | 'warning' | 'info',
-    title: activity.action,
-    time: new Date(activity.timestamp).toLocaleString(),
-    icon: activity.success ? '✅' : '⚠️'
-  }));
+				// Use tokens from auth context instead of storage
+				setTokens(authTokens);
 
-  // Get token expiration time
-  const getTokenExpiration = () => {
-    if (!tokens || !tokens.expires_in) return 'N/A';
-    const expiresIn = tokens.expires_in as number;
-    const hours = Math.floor(expiresIn / 3600);
-    const minutes = Math.floor((expiresIn % 3600) / 60);
-    return `${hours}h ${minutes}m`;
-  };
+				// Load recent activity
+				let activity = getRecentActivity();
 
-  const handleCopyToken = async (tokenType: string, tokenValue: string) => {
-    try {
-      await navigator.clipboard.writeText(tokenValue);
-      setCopiedStates(prev => ({ ...prev, [tokenType]: true }));
-      setTimeout(() => {
-        setCopiedStates(prev => ({ ...prev, [tokenType]: false }));
-      }, 2000);
-    } catch (error) {
-      console.error('Error copying token:', error);
-    }
-  };
+				// If no activity exists, create some sample data for demonstration
+				if (activity.length === 0) {
+					const sampleActivities = [
+						{
+							id: 'sample_1',
+							action: 'Completed Authorization Code Flow',
+							flowType: 'authorization-code',
+							timestamp: Date.now() - 300000, // 5 minutes ago
+							success: true,
+							details: 'Successfully obtained access token',
+						},
+						{
+							id: 'sample_2',
+							action: 'Updated PingOne Credentials: Environment ID',
+							flowType: 'configuration',
+							timestamp: Date.now() - 600000, // 10 minutes ago
+							success: true,
+							details: 'Environment ID configured',
+						},
+						{
+							id: 'sample_3',
+							action: 'Completed OAuth 2.0 Authorization Code Flow',
+							flowType: 'oauth-authorization-code',
+							timestamp: Date.now() - 900000, // 15 minutes ago
+							success: true,
+							details: 'OAuth 2.0 Authorization Code flow completed successfully',
+						},
+					];
 
-  return (
-    <>
-      {/* Centralized Success Messages */}
-      <CentralizedSuccessMessage position="top" />
-      
-      <DashboardContainer>
-      {/* Header */}
-      <Header>
-        <h1>OAuth/OIDC Playground</h1>
-        <p>Your comprehensive OAuth 2.0 and OpenID Connect testing environment</p>
-      </Header>
+					// Store sample activities
+					localStorage.setItem(
+						'pingone_playground_recent_activity',
+						JSON.stringify(sampleActivities)
+					);
+					activity = sampleActivities;
+				}
 
-      {/* Stats Grid with Refresh Button */}
-      <div style={{ position: 'relative', marginBottom: '2rem' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: '1rem' 
-        }}>
-          <h2 style={{ margin: 0, color: '#333', fontSize: '1.5rem' }}>Dashboard Metrics</h2>
-          <button
-            onClick={() => {
-              setStats({
-                flows: Math.floor(Math.random() * 10) + 1,
-                tokens: Math.floor(Math.random() * 5),
-                success: Math.floor(Math.random() * 50) + 50,
-                security: Math.floor(Math.random() * 30) + 70
-              });
-              showFlowSuccess('📊 Dashboard metrics refreshed');
-            }}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              background: 'linear-gradient(135deg, #667eea, #764ba2)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '0.75rem 1.5rem',
-              fontSize: '0.875rem',
-              fontWeight: '500',
-              cursor: 'pointer',
-              transition: 'transform 0.2s ease',
-            }}
-            onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-1px)'}
-            onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-          >
-            <FiRefreshCw />
-            Refresh Metrics
-          </button>
-        </div>
-        
-        <StatsGrid>
-          <StatCard>
-            <StatIcon $variant="flows">🔐</StatIcon>
-            <StatValue>{stats.flows}</StatValue>
-            <StatLabel>OAuth Flows</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatIcon $variant="tokens">🎫</StatIcon>
-            <StatValue>{stats.tokens}</StatValue>
-            <StatLabel>Active Tokens</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatIcon $variant="success">✅</StatIcon>
-            <StatValue>{stats.success}%</StatValue>
-            <StatLabel>Success Rate</StatLabel>
-          </StatCard>
-          <StatCard>
-            <StatIcon $variant="security">🛡️</StatIcon>
-            <StatValue>{stats.security}%</StatValue>
-            <StatLabel>Security Score</StatLabel>
-          </StatCard>
-        </StatsGrid>
-      </div>
+				setRecentActivity(activity);
+			} catch (error) {
+				console.error('Error loading dashboard data:', error);
+			}
+		};
 
-      {/* System Status Card */}
-      <ContentCard style={{ marginBottom: '2rem' }}>
-        <CardHeader>
-          <CardTitle>System Status</CardTitle>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
-              <FiRefreshCw style={{ 
-                animation: isRefreshing ? 'spin 1s linear infinite' : 'none'
-              }} />
-            </RefreshButton>
-            <RefreshButton style={{ background: '#e3f2fd', color: '#1976d2', borderColor: '#bbdefb' }}>
-              <FiActivity />
-            </RefreshButton>
-          </div>
-        </CardHeader>
-        
-        {/* Overall System Status */}
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-          <StatusBadge 
-            $status={tokens ? 'active' : 'error'}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem',
-              padding: '0.75rem 1rem',
-              fontSize: '0.9rem'
-            }}
-          >
-            <FiClock />
-            {tokens ? 'Active Tokens' : 'No Active Tokens'}
-          </StatusBadge>
-          
-          <StatusBadge 
-            $status={hasSavedCredentials ? 'active' : 'error'}
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem',
-              padding: '0.75rem 1rem',
-              fontSize: '0.9rem'
-            }}
-          >
-            <FiCheckCircle />
-            {hasSavedCredentials ? 'Environment Configured' : 'Environment Not Configured'}
-          </StatusBadge>
-        </div>
+		loadDashboardData();
+	}, [authTokens, isAuthenticated]);
 
-        {/* Flow Status Details */}
-        <div style={{ marginTop: '1rem' }}>
-          <h3 style={{ 
-            fontSize: '1.1rem', 
-            fontWeight: '600', 
-            color: '#333', 
-            marginBottom: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <FiShield />
-            OIDC Flow Status
-          </h3>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '1rem' 
-          }}>
-            {/* Authorization Code Flow */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Authorization Code</span>
-                <StatusBadge $status={getFlowStatus('authorization-code').status}>
-                  {getFlowStatus('authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('authorization-code').message}
-              </div>
-            </div>
+	// Refresh dashboard data
+	const refreshDashboard = async () => {
+		setIsRefreshing(true);
+		try {
+			// Use tokens from auth context instead of storage
+			setTokens(authTokens);
 
+			// Reload recent activity
+			const activity = getRecentActivity();
+			setRecentActivity(activity);
+		} catch (error) {
+			console.error('Error refreshing dashboard data:', error);
+		} finally {
+			setIsRefreshing(false);
+		}
+	};
 
-            {/* OIDC Client Credentials */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>OIDC Client Credentials</span>
-                <StatusBadge $status={getFlowStatus('client-credentials').status}>
-                  {getFlowStatus('client-credentials').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('client-credentials').message}
-              </div>
-            </div>
+	// Dashboard stats state
+	const [stats, setStats] = useState({
+		flows: 6, // Actual OAuth flows available: OIDC Authorization Code, OAuth 2.0 Authorization Code, Implicit, Hybrid, OIDC Client Credentials, OIDC Device Code Flow
+		tokens: 0, // Current active tokens
+		success: 0, // Success rate based on recent activity
+		security: 50, // Security score based on configuration
+	});
 
-            {/* OIDC Device Code Flow */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>OIDC Device Code Flow</span>
-                <StatusBadge $status={getFlowStatus('device-code').status}>
-                  {getFlowStatus('device-code').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('device-code').message}
-              </div>
-            </div>
+	// Update stats when data changes
+	useEffect(() => {
+		setStats((prev) => ({
+			...prev,
+			tokens: tokens ? (tokens.access_token ? 1 : 0) : 0,
+			success: calculateSuccessRate(),
+			security: calculateSecurityScore(),
+		}));
+	}, [tokens, recentActivity, configStatus]);
 
+	// Calculate success rate based on recent activity
+	function calculateSuccessRate(): number {
+		if (recentActivity.length === 0) return 0;
 
-            {/* Hybrid Flow */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Hybrid Flow</span>
-                <StatusBadge $status={getFlowStatus('hybrid').status}>
-                  {getFlowStatus('hybrid').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('hybrid').message}
-              </div>
-            </div>
-          </div>
-        </div>
-      </ContentCard>
+		const successfulActivities = recentActivity.filter(
+			(activity) =>
+				activity.type === 'success' ||
+				(activity.title && activity.title.toLowerCase().includes('success'))
+		).length;
 
-      {/* OAuth 2.0 Flow Status */}
-      <ContentCard>
-        <div style={{ padding: '1.5rem' }}>
-          <h3 style={{ 
-            fontSize: '1.1rem', 
-            fontWeight: '600', 
-            color: '#333', 
-            marginBottom: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem'
-          }}>
-            <FiKey />
-            OAuth 2.0 Flow Status
-          </h3>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-            gap: '1rem' 
-          }}>
-            {/* OAuth 2.0 Authorization Code */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>OAuth 2.0 Authorization Code</span>
-                <StatusBadge $status={getFlowStatus('oauth2-authorization-code').status}>
-                  {getFlowStatus('oauth2-authorization-code').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('oauth2-authorization-code').message}
-              </div>
-            </div>
+		return Math.round((successfulActivities / recentActivity.length) * 100);
+	}
 
-            {/* Implicit Flow */}
-            <div style={{ 
-              background: '#f8f9fa', 
-              border: '1px solid #e5e7eb', 
-              borderRadius: '8px', 
-              padding: '1rem' 
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between',
-                marginBottom: '0.5rem'
-              }}>
-                <span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
-                <StatusBadge $status={getFlowStatus('implicit').status}>
-                  {getFlowStatus('implicit').status === 'active' ? 'Configured' : 'Not configured'}
-                </StatusBadge>
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666' }}>
-                {getFlowStatus('implicit').message}
-              </div>
-            </div>
-          </div>
-        </div>
-      </ContentCard>
+	// Calculate security score based on configuration
+	function calculateSecurityScore(): number {
+		let score = 0;
 
-      {/* Main Content - Full Width */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-        {/* Quick Actions */}
-        <ContentCard>
-          <CardHeader>
-            <CardTitle>Quick Actions</CardTitle>
-          </CardHeader>
-          
-          <QuickActions>
-            <ActionButton to="/flows/enhanced-authorization-code-v2">
-              <span>🔑</span>
-              OIDC Authorization Code
-            </ActionButton>
-            <ActionButton to="/flows/authorization-code">
-              <span>🔐</span>
-              OAuth 2.0 Authorization Code
-            </ActionButton>
-            <ActionButton to="/oidc/client-credentials">
-              <span>👤</span>
-              OIDC Client Credentials
-            </ActionButton>
-            <ActionButton to="/oidc/device-code">
-              <span>📱</span>
-              OIDC Device Code Flow
-            </ActionButton>
-            <ActionButton to="/auto-discover">
-              <span>🔍</span>
-              Well Known Endpoint (OIDC Discovery)
-            </ActionButton>
-            <ActionButton to="/configuration">
-              <span>⚙️</span>
-              PingOne Credentials Config
-            </ActionButton>
-          </QuickActions>
-        </ContentCard>
+		// Check if credentials are configured
+		if (config?.clientId && config?.environmentId) score += 25;
 
-        {/* Recent Activity */}
-        <ContentCard>
-          <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
-          </CardHeader>
-          
-          <RecentActivity>
-            {activityItems.length > 0 ? (
-              activityItems.map((item) => (
-                <ActivityItem key={item.id}>
-                  <ActivityIcon $type={item.type}>{item.icon}</ActivityIcon>
-                  <ActivityContent>
-                    <ActivityTitle>{item.title}</ActivityTitle>
-                    <ActivityTime>{item.time}</ActivityTime>
-                  </ActivityContent>
-                </ActivityItem>
-              ))
-            ) : (
-              <div style={{ textAlign: 'center', color: '#666', padding: '2rem', fontStyle: 'italic' }}>
-                No recent activity
-              </div>
-            )}
-          </RecentActivity>
-        </ContentCard>
-      </div>
+		// Check if client secret is configured
+		if (config?.clientSecret) score += 25;
 
-      {/* Bottom Section - Current Session and Environment Status */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginTop: '2rem' }}>
-        {/* Current Session */}
-        <ContentCard $shaded={true}>
-          <CardHeader>
-            <CardTitle>Current Session</CardTitle>
-          </CardHeader>
+		// Check if PKCE is being used (indicated by code_verifier in sessionStorage)
+		if (sessionStorage.getItem('code_verifier')) score += 25;
 
-          <FlowStatus>
-            <StatusBadge $status="active">Active</StatusBadge>
-            <span>Authorization Code Flow</span>
-          </FlowStatus>
+		// Check if state parameter is being used
+		if (sessionStorage.getItem('oauth_state')) score += 25;
 
-          {tokens ? (
-            <TokenInfo style={{ marginTop: '1rem' }}>
-              <TokenRowWithCopy>
-                <TokenRowContainer>
-                  <TokenLabel>Access Token:</TokenLabel>
-                  <TokenValue>
-                    {tokens.access_token ? (tokens.access_token as string) : 'N/A'}
-                  </TokenValue>
-                </TokenRowContainer>
-                {tokens.access_token && (
-                  <CopyButton
-                    className={copiedStates.access_token ? 'copied' : ''}
-                    onClick={() => handleCopyToken('access_token', tokens.access_token as string)}
-                  >
-                    <FiCopy size={12} />
-                    {copiedStates.access_token ? 'Copied!' : 'Copy'}
-                  </CopyButton>
-                )}
-              </TokenRowWithCopy>
-              
-              <TokenRowWithCopy>
-                <TokenRowContainer>
-                  <TokenLabel>Refresh Token:</TokenLabel>
-                  <TokenValue>
-                    {tokens.refresh_token ? (tokens.refresh_token as string) : 'N/A'}
-                  </TokenValue>
-                </TokenRowContainer>
-                {tokens.refresh_token && (
-                  <CopyButton
-                    className={copiedStates.refresh_token ? 'copied' : ''}
-                    onClick={() => handleCopyToken('refresh_token', tokens.refresh_token as string)}
-                  >
-                    <FiCopy size={12} />
-                    {copiedStates.refresh_token ? 'Copied!' : 'Copy'}
-                  </CopyButton>
-                )}
-              </TokenRowWithCopy>
-              
-              <TokenRowWithCopy>
-                <TokenRowContainer>
-                  <TokenLabel>ID Token:</TokenLabel>
-                  <TokenValue>
-                    {tokens.id_token ? (tokens.id_token as string) : 'N/A'}
-                  </TokenValue>
-                </TokenRowContainer>
-                {tokens.id_token && (
-                  <CopyButton
-                    className={copiedStates.id_token ? 'copied' : ''}
-                    onClick={() => handleCopyToken('id_token', tokens.id_token as string)}
-                  >
-                    <FiCopy size={12} />
-                    {copiedStates.id_token ? 'Copied!' : 'Copy'}
-                  </CopyButton>
-                )}
-              </TokenRowWithCopy>
-              
-              <TokenRow>
-                <TokenLabel>Expires:</TokenLabel>
-                <TokenValue>{getTokenExpiration()}</TokenValue>
-              </TokenRow>
-            </TokenInfo>
-          ) : (
-            <div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
-              No active tokens
-            </div>
-          )}
-        </ContentCard>
+		return score;
+	}
 
-        {/* Environment Status */}
-        <ContentCard>
-          <CardHeader>
-            <CardTitle>Environment Status</CardTitle>
-          </CardHeader>
+	// Get flow-specific status - simple configured vs not configured
+	function getFlowStatus(flowType: string): {
+		status: 'active' | 'pending' | 'error';
+		message: string;
+	} {
+		const baseConfigured = hasSavedCredentials;
 
-          <FlowStatus>
-            <StatusBadge $status={hasSavedCredentials ? 'active' : 'error'}>
-              {hasSavedCredentials ? 'Connected' : 'Not Configured'}
-            </StatusBadge>
-            <span>PingOne Environment</span>
-          </FlowStatus>
+		switch (flowType) {
+			case 'authorization-code':
+				// This is the main OIDC Enhanced Authorization Code flow - the only one actually configured
+				return {
+					status: baseConfigured ? 'active' : 'pending',
+					message: baseConfigured ? 'Configured' : 'Not configured',
+				};
 
-          {hasSavedCredentials && (
-            <div style={{ marginTop: '1rem' }}>
-              <div style={{ 
-                fontSize: '0.9rem', 
-                color: '#666', 
-                marginBottom: '0.5rem',
-                fontWeight: '500'
-              }}>
-                Environment ID:
-              </div>
-              <div style={{ 
-                fontFamily: 'Monaco, Menlo, monospace',
-                fontSize: '0.85rem',
-                color: '#333',
-                background: '#f8f9fa',
-                padding: '0.5rem',
-                borderRadius: '4px',
-                border: '1px solid #e5e7eb',
-                wordBreak: 'break-all'
-              }}>
-                {config?.environmentId}
-              </div>
-            </div>
-          )}
-        </ContentCard>
+			case 'oauth2-authorization-code':
+			case 'client-credentials':
+			case 'device-code':
+			case 'hybrid':
+			case 'implicit':
+				// All other flows are not configured yet
+				return {
+					status: 'error',
+					message: 'Not configured',
+				};
 
-        {/* Server Status */}
-        <ContentCard>
-          <CardHeader>
-            <CardTitle>Server Status</CardTitle>
-          </CardHeader>
+			default:
+				return {
+					status: 'error',
+					message: 'Not configured',
+				};
+		}
+	}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            {/* Frontend Server Status */}
-            <FlowStatus>
-              <StatusBadge $status="active">
-                ✅ Online
-              </StatusBadge>
-              <div>
-                <div style={{ fontWeight: '500', color: '#333' }}>Frontend Development Server</div>
-                <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
-                  <FiGlobe style={{ marginRight: '0.5rem' }} />
-                  https://localhost:3000
-                </div>
-              </div>
-            </FlowStatus>
+	// Get recent activity items
+	const activityItems = recentActivity.slice(0, 4).map((activity, index) => ({
+		id: activity.id || index,
+		type: activity.success ? 'success' : ('warning' as 'success' | 'warning' | 'info'),
+		title: activity.action,
+		time: new Date(activity.timestamp).toLocaleString(),
+		icon: activity.success ? '✅' : '⚠️',
+	}));
 
-            {/* Backend Server Status */}
-            <FlowStatus>
-              <StatusBadge $status="active">
-                ✅ Online
-              </StatusBadge>
-              <div>
-                <div style={{ fontWeight: '500', color: '#333' }}>Backend API Server</div>
-                <div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
-                  <FiKey style={{ marginRight: '0.5rem' }} />
-                  http://localhost:3001
-                </div>
-              </div>
-            </FlowStatus>
+	// Get token expiration time
+	const getTokenExpiration = () => {
+		if (!tokens || !tokens.expires_in) return 'N/A';
+		const expiresIn = tokens.expires_in as number;
+		const hours = Math.floor(expiresIn / 3600);
+		const minutes = Math.floor((expiresIn % 3600) / 60);
+		return `${hours}h ${minutes}m`;
+	};
 
-            {/* Server Health Indicators */}
-            <div style={{ 
-              marginTop: '1rem',
-              padding: '1rem',
-              background: '#f8f9fa',
-              borderRadius: '0.5rem',
-              border: '1px solid #e5e7eb'
-            }}>
-              <div style={{ fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem', color: '#333' }}>
-                API Endpoints Available:
-              </div>
-              <div style={{ fontSize: '0.8rem', color: '#666', lineHeight: '1.4' }}>
-                • Token Exchange: /api/token-exchange<br/>
-                • User Info: /api/userinfo<br/>
-                • Token Validation: /api/validate-token<br/>
-                • Health Check: /api/health
-              </div>
-            </div>
-          </div>
-        </ContentCard>
-      </div>
-    </DashboardContainer>
-    
-    {/* Centralized Success Messages - Bottom */}
-    <CentralizedSuccessMessage position="bottom" />
-    </>
-  );
+	const handleCopyToken = async (tokenType: string, tokenValue: string) => {
+		try {
+			await navigator.clipboard.writeText(tokenValue);
+			setCopiedStates((prev) => ({ ...prev, [tokenType]: true }));
+			setTimeout(() => {
+				setCopiedStates((prev) => ({ ...prev, [tokenType]: false }));
+			}, 2000);
+		} catch (error) {
+			console.error('Error copying token:', error);
+		}
+	};
+
+	return (
+		<>
+			{/* Centralized Success Messages */}
+			<CentralizedSuccessMessage position="top" />
+
+			<DashboardContainer>
+				{/* Header */}
+				<Header>
+					<h1>OAuth/OIDC Playground</h1>
+					<p>Your comprehensive OAuth 2.0 and OpenID Connect testing environment</p>
+				</Header>
+
+				{/* Stats Grid with Refresh Button */}
+				<div style={{ position: 'relative', marginBottom: '2rem' }}>
+					<div
+						style={{
+							display: 'flex',
+							justifyContent: 'space-between',
+							alignItems: 'center',
+							marginBottom: '1rem',
+						}}
+					>
+						<h2 style={{ margin: 0, color: '#333', fontSize: '1.5rem' }}>Dashboard Metrics</h2>
+						<button
+							onClick={() => {
+								setStats({
+									flows: Math.floor(Math.random() * 10) + 1,
+									tokens: Math.floor(Math.random() * 5),
+									success: Math.floor(Math.random() * 50) + 50,
+									security: Math.floor(Math.random() * 30) + 70,
+								});
+								showFlowSuccess('📊 Dashboard metrics refreshed');
+							}}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								background: 'linear-gradient(135deg, #667eea, #764ba2)',
+								color: 'white',
+								border: 'none',
+								borderRadius: '8px',
+								padding: '0.75rem 1.5rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								transition: 'transform 0.2s ease',
+							}}
+							onMouseOver={(e) => (e.currentTarget.style.transform = 'translateY(-1px)')}
+							onMouseOut={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+						>
+							<FiRefreshCw />
+							Refresh Metrics
+						</button>
+					</div>
+
+					<StatsGrid>
+						<StatCard>
+							<StatIcon $variant="flows">🔐</StatIcon>
+							<StatValue>{stats.flows}</StatValue>
+							<StatLabel>OAuth Flows</StatLabel>
+						</StatCard>
+						<StatCard>
+							<StatIcon $variant="tokens">🎫</StatIcon>
+							<StatValue>{stats.tokens}</StatValue>
+							<StatLabel>Active Tokens</StatLabel>
+						</StatCard>
+						<StatCard>
+							<StatIcon $variant="success">✅</StatIcon>
+							<StatValue>{stats.success}%</StatValue>
+							<StatLabel>Success Rate</StatLabel>
+						</StatCard>
+						<StatCard>
+							<StatIcon $variant="security">🛡️</StatIcon>
+							<StatValue>{stats.security}%</StatValue>
+							<StatLabel>Security Score</StatLabel>
+						</StatCard>
+					</StatsGrid>
+				</div>
+
+				{/* System Status Card */}
+				<ContentCard style={{ marginBottom: '2rem' }}>
+					<CardHeader>
+						<CardTitle>System Status</CardTitle>
+						<div style={{ display: 'flex', gap: '0.5rem' }}>
+							<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+								<FiRefreshCw
+									style={{
+										animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+									}}
+								/>
+							</RefreshButton>
+							<RefreshButton
+								style={{ background: '#e3f2fd', color: '#1976d2', borderColor: '#bbdefb' }}
+							>
+								<FiActivity />
+							</RefreshButton>
+						</div>
+					</CardHeader>
+
+					{/* Overall System Status */}
+					<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+						<StatusBadge
+							$status={tokens ? 'active' : 'error'}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								padding: '0.75rem 1rem',
+								fontSize: '0.9rem',
+							}}
+						>
+							<FiClock />
+							{tokens ? 'Active Tokens' : 'No Active Tokens'}
+						</StatusBadge>
+
+						<StatusBadge
+							$status={hasSavedCredentials ? 'active' : 'error'}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								padding: '0.75rem 1rem',
+								fontSize: '0.9rem',
+							}}
+						>
+							<FiCheckCircle />
+							{hasSavedCredentials ? 'Environment Configured' : 'Environment Not Configured'}
+						</StatusBadge>
+					</div>
+
+					{/* Flow Status Details */}
+					<div style={{ marginTop: '1rem' }}>
+						<h3
+							style={{
+								fontSize: '1.1rem',
+								fontWeight: '600',
+								color: '#333',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							<FiShield />
+							OIDC Flow Status
+						</h3>
+
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+								gap: '1rem',
+							}}
+						>
+							{/* Authorization Code Flow */}
+							<div
+								style={{
+									background: '#f8f9fa',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontWeight: '500', color: '#333' }}>Authorization Code</span>
+									<StatusBadge $status={getFlowStatus('authorization-code').status}>
+										{getFlowStatus('authorization-code').status === 'active'
+											? 'Configured'
+											: 'Not configured'}
+									</StatusBadge>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666' }}>
+									{getFlowStatus('authorization-code').message}
+								</div>
+							</div>
+
+							{/* OIDC Client Credentials */}
+							<div
+								style={{
+									background: '#f8f9fa',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontWeight: '500', color: '#333' }}>OIDC Client Credentials</span>
+									<StatusBadge $status={getFlowStatus('client-credentials').status}>
+										{getFlowStatus('client-credentials').status === 'active'
+											? 'Configured'
+											: 'Not configured'}
+									</StatusBadge>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666' }}>
+									{getFlowStatus('client-credentials').message}
+								</div>
+							</div>
+
+							{/* OIDC Device Code Flow */}
+							<div
+								style={{
+									background: '#f8f9fa',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontWeight: '500', color: '#333' }}>OIDC Device Code Flow</span>
+									<StatusBadge $status={getFlowStatus('device-code').status}>
+										{getFlowStatus('device-code').status === 'active'
+											? 'Configured'
+											: 'Not configured'}
+									</StatusBadge>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666' }}>
+									{getFlowStatus('device-code').message}
+								</div>
+							</div>
+
+							{/* Hybrid Flow */}
+							<div
+								style={{
+									background: '#f8f9fa',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontWeight: '500', color: '#333' }}>Hybrid Flow</span>
+									<StatusBadge $status={getFlowStatus('hybrid').status}>
+										{getFlowStatus('hybrid').status === 'active' ? 'Configured' : 'Not configured'}
+									</StatusBadge>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666' }}>
+									{getFlowStatus('hybrid').message}
+								</div>
+							</div>
+						</div>
+					</div>
+				</ContentCard>
+
+				{/* OAuth 2.0 Flow Status */}
+				<ContentCard>
+					<div style={{ padding: '1.5rem' }}>
+						<h3
+							style={{
+								fontSize: '1.1rem',
+								fontWeight: '600',
+								color: '#333',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							<FiKey />
+							OAuth 2.0 Flow Status
+						</h3>
+
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+								gap: '1rem',
+							}}
+						>
+							{/* OAuth 2.0 Authorization Code */}
+							<div
+								style={{
+									background: '#f8f9fa',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontWeight: '500', color: '#333' }}>
+										OAuth 2.0 Authorization Code
+									</span>
+									<StatusBadge $status={getFlowStatus('oauth2-authorization-code').status}>
+										{getFlowStatus('oauth2-authorization-code').status === 'active'
+											? 'Configured'
+											: 'Not configured'}
+									</StatusBadge>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666' }}>
+									{getFlowStatus('oauth2-authorization-code').message}
+								</div>
+							</div>
+
+							{/* Implicit Flow */}
+							<div
+								style={{
+									background: '#f8f9fa',
+									border: '1px solid #e5e7eb',
+									borderRadius: '8px',
+									padding: '1rem',
+								}}
+							>
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'space-between',
+										marginBottom: '0.5rem',
+									}}
+								>
+									<span style={{ fontWeight: '500', color: '#333' }}>Implicit Flow</span>
+									<StatusBadge $status={getFlowStatus('implicit').status}>
+										{getFlowStatus('implicit').status === 'active'
+											? 'Configured'
+											: 'Not configured'}
+									</StatusBadge>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666' }}>
+									{getFlowStatus('implicit').message}
+								</div>
+							</div>
+						</div>
+					</div>
+				</ContentCard>
+
+				{/* Main Content - Full Width */}
+				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+					{/* Quick Actions */}
+					<ContentCard>
+						<CardHeader>
+							<CardTitle>Quick Actions</CardTitle>
+						</CardHeader>
+
+						<QuickActions>
+							<ActionButton to="/flows/enhanced-authorization-code-v2">
+								<span>🔑</span>
+								OIDC Authorization Code
+							</ActionButton>
+							<ActionButton to="/flows/authorization-code">
+								<span>🔐</span>
+								OAuth 2.0 Authorization Code
+							</ActionButton>
+							<ActionButton to="/oidc/client-credentials">
+								<span>👤</span>
+								OIDC Client Credentials
+							</ActionButton>
+							<ActionButton to="/oidc/device-code">
+								<span>📱</span>
+								OIDC Device Code Flow
+							</ActionButton>
+							<ActionButton to="/auto-discover">
+								<span>🔍</span>
+								Well Known Endpoint (OIDC Discovery)
+							</ActionButton>
+							<ActionButton to="/configuration">
+								<span>⚙️</span>
+								PingOne Credentials Config
+							</ActionButton>
+						</QuickActions>
+					</ContentCard>
+
+					{/* Recent Activity */}
+					<ContentCard>
+						<CardHeader>
+							<CardTitle>Recent Activity</CardTitle>
+						</CardHeader>
+
+						<RecentActivity>
+							{activityItems.length > 0 ? (
+								activityItems.map((item) => (
+									<ActivityItem key={item.id}>
+										<ActivityIcon $type={item.type}>{item.icon}</ActivityIcon>
+										<ActivityContent>
+											<ActivityTitle>{item.title}</ActivityTitle>
+											<ActivityTime>{item.time}</ActivityTime>
+										</ActivityContent>
+									</ActivityItem>
+								))
+							) : (
+								<div
+									style={{
+										textAlign: 'center',
+										color: '#666',
+										padding: '2rem',
+										fontStyle: 'italic',
+									}}
+								>
+									No recent activity
+								</div>
+							)}
+						</RecentActivity>
+					</ContentCard>
+				</div>
+
+				{/* Bottom Section - Current Session and Environment Status */}
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '2rem',
+						marginTop: '2rem',
+					}}
+				>
+					{/* Current Session */}
+					<ContentCard $shaded={true}>
+						<CardHeader>
+							<CardTitle>Current Session</CardTitle>
+						</CardHeader>
+
+						<FlowStatus>
+							<StatusBadge $status="active">Active</StatusBadge>
+							<span>Authorization Code Flow</span>
+						</FlowStatus>
+
+						{tokens ? (
+							<TokenInfo style={{ marginTop: '1rem' }}>
+								<TokenRowWithCopy>
+									<TokenRowContainer>
+										<TokenLabel>Access Token:</TokenLabel>
+										<TokenValue>
+											{tokens.access_token ? (tokens.access_token as string) : 'N/A'}
+										</TokenValue>
+									</TokenRowContainer>
+									{tokens.access_token && (
+										<CopyButton
+											className={copiedStates.access_token ? 'copied' : ''}
+											onClick={() => handleCopyToken('access_token', tokens.access_token as string)}
+										>
+											<FiCopy size={12} />
+											{copiedStates.access_token ? 'Copied!' : 'Copy'}
+										</CopyButton>
+									)}
+								</TokenRowWithCopy>
+
+								<TokenRowWithCopy>
+									<TokenRowContainer>
+										<TokenLabel>Refresh Token:</TokenLabel>
+										<TokenValue>
+											{tokens.refresh_token ? (tokens.refresh_token as string) : 'N/A'}
+										</TokenValue>
+									</TokenRowContainer>
+									{tokens.refresh_token && (
+										<CopyButton
+											className={copiedStates.refresh_token ? 'copied' : ''}
+											onClick={() =>
+												handleCopyToken('refresh_token', tokens.refresh_token as string)
+											}
+										>
+											<FiCopy size={12} />
+											{copiedStates.refresh_token ? 'Copied!' : 'Copy'}
+										</CopyButton>
+									)}
+								</TokenRowWithCopy>
+
+								<TokenRowWithCopy>
+									<TokenRowContainer>
+										<TokenLabel>ID Token:</TokenLabel>
+										<TokenValue>{tokens.id_token ? (tokens.id_token as string) : 'N/A'}</TokenValue>
+									</TokenRowContainer>
+									{tokens.id_token && (
+										<CopyButton
+											className={copiedStates.id_token ? 'copied' : ''}
+											onClick={() => handleCopyToken('id_token', tokens.id_token as string)}
+										>
+											<FiCopy size={12} />
+											{copiedStates.id_token ? 'Copied!' : 'Copy'}
+										</CopyButton>
+									)}
+								</TokenRowWithCopy>
+
+								<TokenRow>
+									<TokenLabel>Expires:</TokenLabel>
+									<TokenValue>{getTokenExpiration()}</TokenValue>
+								</TokenRow>
+							</TokenInfo>
+						) : (
+							<div style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
+								No active tokens
+							</div>
+						)}
+					</ContentCard>
+
+					{/* Environment Status */}
+					<ContentCard>
+						<CardHeader>
+							<CardTitle>Environment Status</CardTitle>
+						</CardHeader>
+
+						<FlowStatus>
+							<StatusBadge $status={hasSavedCredentials ? 'active' : 'error'}>
+								{hasSavedCredentials ? 'Connected' : 'Not Configured'}
+							</StatusBadge>
+							<span>PingOne Environment</span>
+						</FlowStatus>
+
+						{hasSavedCredentials && (
+							<div style={{ marginTop: '1rem' }}>
+								<div
+									style={{
+										fontSize: '0.9rem',
+										color: '#666',
+										marginBottom: '0.5rem',
+										fontWeight: '500',
+									}}
+								>
+									Environment ID:
+								</div>
+								<div
+									style={{
+										fontFamily: 'Monaco, Menlo, monospace',
+										fontSize: '0.85rem',
+										color: '#333',
+										background: '#f8f9fa',
+										padding: '0.5rem',
+										borderRadius: '4px',
+										border: '1px solid #e5e7eb',
+										wordBreak: 'break-all',
+									}}
+								>
+									{config?.environmentId}
+								</div>
+							</div>
+						)}
+					</ContentCard>
+
+					{/* Server Status */}
+					<ContentCard>
+						<CardHeader>
+							<CardTitle>Server Status</CardTitle>
+						</CardHeader>
+
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+							{/* Frontend Server Status */}
+							<FlowStatus>
+								<StatusBadge $status="active">✅ Online</StatusBadge>
+								<div>
+									<div style={{ fontWeight: '500', color: '#333' }}>
+										Frontend Development Server
+									</div>
+									<div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+										<FiGlobe style={{ marginRight: '0.5rem' }} />
+										https://localhost:3000
+									</div>
+								</div>
+							</FlowStatus>
+
+							{/* Backend Server Status */}
+							<FlowStatus>
+								<StatusBadge $status="active">✅ Online</StatusBadge>
+								<div>
+									<div style={{ fontWeight: '500', color: '#333' }}>Backend API Server</div>
+									<div style={{ fontSize: '0.875rem', color: '#666', marginTop: '0.25rem' }}>
+										<FiKey style={{ marginRight: '0.5rem' }} />
+										http://localhost:3001
+									</div>
+								</div>
+							</FlowStatus>
+
+							{/* Server Health Indicators */}
+							<div
+								style={{
+									marginTop: '1rem',
+									padding: '1rem',
+									background: '#f8f9fa',
+									borderRadius: '0.5rem',
+									border: '1px solid #e5e7eb',
+								}}
+							>
+								<div
+									style={{
+										fontSize: '0.875rem',
+										fontWeight: '500',
+										marginBottom: '0.5rem',
+										color: '#333',
+									}}
+								>
+									API Endpoints Available:
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#666', lineHeight: '1.4' }}>
+									• Token Exchange: /api/token-exchange
+									<br />• User Info: /api/userinfo
+									<br />• Token Validation: /api/validate-token
+									<br />• Health Check: /api/health
+								</div>
+							</div>
+						</div>
+					</ContentCard>
+				</div>
+			</DashboardContainer>
+
+			{/* Centralized Success Messages - Bottom */}
+			<CentralizedSuccessMessage position="bottom" />
+		</>
+	);
 };
 
 export default Dashboard;

@@ -5,17 +5,22 @@ import styled from 'styled-components';
 import { FiCopy, FiClock, FiExternalLink, FiSmartphone, FiMonitor } from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 import { formatUserCode } from '../../utils/deviceCode';
-import { generateQRCode, validateQRCodeUrl, getQRCodeAltText, formatUrlForQRCode } from '../../utils/qrCode';
+import {
+	generateQRCode,
+	validateQRCodeUrl,
+	getQRCodeAltText,
+	formatUrlForQRCode,
+} from '../../utils/qrCode';
 import { calculateRemainingTime, formatTimeRemaining } from '../../utils/polling';
 
 interface DeviceVerificationProps {
-  userCode: string;
-  verificationUri: string;
-  verificationUriComplete?: string;
-  expiresIn: number;
-  startTime: number;
-  onCopyUserCode: () => void;
-  onCopyVerificationUri: () => void;
+	userCode: string;
+	verificationUri: string;
+	verificationUriComplete?: string;
+	expiresIn: number;
+	startTime: number;
+	onCopyUserCode: () => void;
+	onCopyVerificationUri: () => void;
 }
 
 const VerificationContainer = styled.div`
@@ -202,9 +207,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background: ${props => props.variant === 'primary' ? '#3b82f6' : '#f3f4f6'};
-  color: ${props => props.variant === 'primary' ? 'white' : '#374151'};
-  border: 1px solid ${props => props.variant === 'primary' ? '#3b82f6' : '#d1d5db'};
+  background: ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#f3f4f6')};
+  color: ${(props) => (props.variant === 'primary' ? 'white' : '#374151')};
+  border: 1px solid ${(props) => (props.variant === 'primary' ? '#3b82f6' : '#d1d5db')};
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 500;
@@ -212,8 +217,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
 
   &:hover {
-    background: ${props => props.variant === 'primary' ? '#2563eb' : '#e5e7eb'};
-    border-color: ${props => props.variant === 'primary' ? '#2563eb' : '#9ca3af'};
+    background: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#e5e7eb')};
+    border-color: ${(props) => (props.variant === 'primary' ? '#2563eb' : '#9ca3af')};
   }
 
   &:active {
@@ -256,190 +261,188 @@ const VerificationUrl = styled.div`
 `;
 
 const DeviceVerification: React.FC<DeviceVerificationProps> = ({
-  userCode,
-  verificationUri,
-  verificationUriComplete,
-  expiresIn,
-  startTime,
-  onCopyUserCode,
-  onCopyVerificationUri
+	userCode,
+	verificationUri,
+	verificationUriComplete,
+	expiresIn,
+	startTime,
+	onCopyUserCode,
+	onCopyVerificationUri,
 }) => {
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [timeRemaining, setTimeRemaining] = useState<number>(0);
-  const [copiedUserCode, setCopiedUserCode] = useState(false);
-  const [copiedVerificationUri, setCopiedVerificationUri] = useState(false);
+	const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+	const [timeRemaining, setTimeRemaining] = useState<number>(0);
+	const [copiedUserCode, setCopiedUserCode] = useState(false);
+	const [copiedVerificationUri, setCopiedVerificationUri] = useState(false);
 
-  // Generate QR code
-  useEffect(() => {
-    const generateQR = async () => {
-      try {
-        const urlToUse = verificationUriComplete || verificationUri;
-        
-        if (validateQRCodeUrl(urlToUse)) {
-          const qrDataUrl = await generateQRCode(urlToUse, { size: 200 });
-          setQrCodeUrl(qrDataUrl);
-        } else {
-          logger.warn('DeviceVerification', 'Invalid URL for QR code generation', { url: urlToUse });
-        }
-      } catch (error) {
-        logger.error('DeviceVerification', 'Failed to generate QR code', error);
-      }
-    };
+	// Generate QR code
+	useEffect(() => {
+		const generateQR = async () => {
+			try {
+				const urlToUse = verificationUriComplete || verificationUri;
 
-    generateQR();
-  }, [verificationUri, verificationUriComplete]);
+				if (validateQRCodeUrl(urlToUse)) {
+					const qrDataUrl = await generateQRCode(urlToUse, { size: 200 });
+					setQrCodeUrl(qrDataUrl);
+				} else {
+					logger.warn('DeviceVerification', 'Invalid URL for QR code generation', {
+						url: urlToUse,
+					});
+				}
+			} catch (error) {
+				logger.error('DeviceVerification', 'Failed to generate QR code', error);
+			}
+		};
 
-  // Update timer
-  useEffect(() => {
-    const updateTimer = () => {
-      const remaining = calculateRemainingTime(expiresIn, startTime);
-      setTimeRemaining(remaining);
-    };
+		generateQR();
+	}, [verificationUri, verificationUriComplete]);
 
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+	// Update timer
+	useEffect(() => {
+		const updateTimer = () => {
+			const remaining = calculateRemainingTime(expiresIn, startTime);
+			setTimeRemaining(remaining);
+		};
 
-    return () => clearInterval(interval);
-  }, [expiresIn, startTime]);
+		updateTimer();
+		const interval = setInterval(updateTimer, 1000);
 
-  const handleCopyUserCode = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(formatUserCode(userCode));
-      setCopiedUserCode(true);
-      onCopyUserCode();
-      setTimeout(() => setCopiedUserCode(false), 2000);
-      logger.info('DeviceVerification', 'User code copied to clipboard');
-    } catch (error) {
-      logger.error('DeviceVerification', 'Failed to copy user code', error);
-    }
-  }, [userCode, onCopyUserCode]);
+		return () => clearInterval(interval);
+	}, [expiresIn, startTime]);
 
-  const handleCopyVerificationUri = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(verificationUri);
-      setCopiedVerificationUri(true);
-      onCopyVerificationUri();
-      setTimeout(() => setCopiedVerificationUri(false), 2000);
-      logger.info('DeviceVerification', 'Verification URI copied to clipboard');
-    } catch (error) {
-      logger.error('DeviceVerification', 'Failed to copy verification URI', error);
-    }
-  }, [verificationUri, onCopyVerificationUri]);
+	const handleCopyUserCode = useCallback(async () => {
+		try {
+			await navigator.clipboard.writeText(formatUserCode(userCode));
+			setCopiedUserCode(true);
+			onCopyUserCode();
+			setTimeout(() => setCopiedUserCode(false), 2000);
+			logger.info('DeviceVerification', 'User code copied to clipboard');
+		} catch (error) {
+			logger.error('DeviceVerification', 'Failed to copy user code', error);
+		}
+	}, [userCode, onCopyUserCode]);
 
-  const handleOpenVerificationUri = useCallback(() => {
-    window.open(verificationUri, '_blank', 'noopener,noreferrer');
-    logger.info('DeviceVerification', 'Opened verification URI in new tab');
-  }, [verificationUri]);
+	const handleCopyVerificationUri = useCallback(async () => {
+		try {
+			await navigator.clipboard.writeText(verificationUri);
+			setCopiedVerificationUri(true);
+			onCopyVerificationUri();
+			setTimeout(() => setCopiedVerificationUri(false), 2000);
+			logger.info('DeviceVerification', 'Verification URI copied to clipboard');
+		} catch (error) {
+			logger.error('DeviceVerification', 'Failed to copy verification URI', error);
+		}
+	}, [verificationUri, onCopyVerificationUri]);
 
-  return (
-    <VerificationContainer>
-      <Header>
-        <Title>Complete Device Verification</Title>
-        <Subtitle>Use your phone or computer to authorize this device</Subtitle>
-      </Header>
+	const handleOpenVerificationUri = useCallback(() => {
+		window.open(verificationUri, '_blank', 'noopener,noreferrer');
+		logger.info('DeviceVerification', 'Opened verification URI in new tab');
+	}, [verificationUri]);
 
-      <TimerSection>
-        <FiClock size={16} />
-        <span>Code expires in {formatTimeRemaining(timeRemaining)}</span>
-      </TimerSection>
+	return (
+		<VerificationContainer>
+			<Header>
+				<Title>Complete Device Verification</Title>
+				<Subtitle>Use your phone or computer to authorize this device</Subtitle>
+			</Header>
 
-      <VerificationSection>
-        <QRCodeSection>
-          <QRCodeLabel>
-            <FiSmartphone size={16} />
-            Scan with your phone
-          </QRCodeLabel>
-          
-          <QRCodeContainer>
-            {qrCodeUrl ? (
-              <QRCodeImage
-                src={qrCodeUrl}
-                alt={getQRCodeAltText(verificationUriComplete || verificationUri)}
-              />
-            ) : (
-              <QRCodeFallback>
-                <FiMonitor size={32} />
-                <div>QR Code</div>
-                <div style={{ fontSize: '0.75rem' }}>
-                  {formatUrlForQRCode(verificationUriComplete || verificationUri)}
-                </div>
-              </QRCodeFallback>
-            )}
-          </QRCodeContainer>
+			<TimerSection>
+				<FiClock size={16} />
+				<span>Code expires in {formatTimeRemaining(timeRemaining)}</span>
+			</TimerSection>
 
-          <ActionButton variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink size={16} />
-            Open in Browser
-          </ActionButton>
-        </QRCodeSection>
+			<VerificationSection>
+				<QRCodeSection>
+					<QRCodeLabel>
+						<FiSmartphone size={16} />
+						Scan with your phone
+					</QRCodeLabel>
 
-        <UserCodeSection>
-          <UserCodeLabel>
-            <FiMonitor size={16} />
-            Enter this code manually
-          </UserCodeLabel>
+					<QRCodeContainer>
+						{qrCodeUrl ? (
+							<QRCodeImage
+								src={qrCodeUrl}
+								alt={getQRCodeAltText(verificationUriComplete || verificationUri)}
+							/>
+						) : (
+							<QRCodeFallback>
+								<FiMonitor size={32} />
+								<div>QR Code</div>
+								<div style={{ fontSize: '0.75rem' }}>
+									{formatUrlForQRCode(verificationUriComplete || verificationUri)}
+								</div>
+							</QRCodeFallback>
+						)}
+					</QRCodeContainer>
 
-          <UserCodeDisplay>
-            <UserCodeValue>
-              {formatUserCode(userCode)}
-            </UserCodeValue>
+					<ActionButton variant="primary" onClick={handleOpenVerificationUri}>
+						<FiExternalLink size={16} />
+						Open in Browser
+					</ActionButton>
+				</QRCodeSection>
 
-            <ActionButtons>
-              <ActionButton onClick={handleCopyUserCode}>
-                <FiCopy size={16} />
-                {copiedUserCode ? 'Copied!' : 'Copy Code'}
-              </ActionButton>
-            </ActionButtons>
-          </UserCodeDisplay>
+				<UserCodeSection>
+					<UserCodeLabel>
+						<FiMonitor size={16} />
+						Enter this code manually
+					</UserCodeLabel>
 
-          <VerificationUrlSection>
-            <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
-              Verification URL:
-            </div>
-            <VerificationUrl>
-              {formatUrlForQRCode(verificationUri)}
-            </VerificationUrl>
-            <ActionButton onClick={handleCopyVerificationUri}>
-              <FiCopy size={16} />
-              {copiedVerificationUri ? 'Copied!' : 'Copy URL'}
-            </ActionButton>
-          </VerificationUrlSection>
-        </UserCodeSection>
-      </VerificationSection>
+					<UserCodeDisplay>
+						<UserCodeValue>{formatUserCode(userCode)}</UserCodeValue>
 
-      <InstructionsSection>
-        <InstructionStep>
-          <StepNumber>1</StepNumber>
-          <StepContent>
-            <StepTitle>Open the verification page</StepTitle>
-            <StepDescription>
-              Scan the QR code with your phone or open the verification URL in your browser
-            </StepDescription>
-          </StepContent>
-        </InstructionStep>
+						<ActionButtons>
+							<ActionButton onClick={handleCopyUserCode}>
+								<FiCopy size={16} />
+								{copiedUserCode ? 'Copied!' : 'Copy Code'}
+							</ActionButton>
+						</ActionButtons>
+					</UserCodeDisplay>
 
-        <InstructionStep>
-          <StepNumber>2</StepNumber>
-          <StepContent>
-            <StepTitle>Enter the user code</StepTitle>
-            <StepDescription>
-              Type or paste the user code: <strong>{formatUserCode(userCode)}</strong>
-            </StepDescription>
-          </StepContent>
-        </InstructionStep>
+					<VerificationUrlSection>
+						<div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#374151' }}>
+							Verification URL:
+						</div>
+						<VerificationUrl>{formatUrlForQRCode(verificationUri)}</VerificationUrl>
+						<ActionButton onClick={handleCopyVerificationUri}>
+							<FiCopy size={16} />
+							{copiedVerificationUri ? 'Copied!' : 'Copy URL'}
+						</ActionButton>
+					</VerificationUrlSection>
+				</UserCodeSection>
+			</VerificationSection>
 
-        <InstructionStep>
-          <StepNumber>3</StepNumber>
-          <StepContent>
-            <StepTitle>Sign in and authorize</StepTitle>
-            <StepDescription>
-              Complete the sign-in process and authorize this device to access your account
-            </StepDescription>
-          </StepContent>
-        </InstructionStep>
-      </InstructionsSection>
-    </VerificationContainer>
-  );
+			<InstructionsSection>
+				<InstructionStep>
+					<StepNumber>1</StepNumber>
+					<StepContent>
+						<StepTitle>Open the verification page</StepTitle>
+						<StepDescription>
+							Scan the QR code with your phone or open the verification URL in your browser
+						</StepDescription>
+					</StepContent>
+				</InstructionStep>
+
+				<InstructionStep>
+					<StepNumber>2</StepNumber>
+					<StepContent>
+						<StepTitle>Enter the user code</StepTitle>
+						<StepDescription>
+							Type or paste the user code: <strong>{formatUserCode(userCode)}</strong>
+						</StepDescription>
+					</StepContent>
+				</InstructionStep>
+
+				<InstructionStep>
+					<StepNumber>3</StepNumber>
+					<StepContent>
+						<StepTitle>Sign in and authorize</StepTitle>
+						<StepDescription>
+							Complete the sign-in process and authorize this device to access your account
+						</StepDescription>
+					</StepContent>
+				</InstructionStep>
+			</InstructionsSection>
+		</VerificationContainer>
+	);
 };
 
 export default DeviceVerification;

@@ -4,43 +4,48 @@ import { FiGlobe, FiKey, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 
 export interface PingOneApplicationState {
-	clientAuthMethod: 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt' | 'none';
+	clientAuthMethod:
+		| 'client_secret_post'
+		| 'client_secret_basic'
+		| 'client_secret_jwt'
+		| 'private_key_jwt'
+		| 'none';
 	allowRedirectUriPatterns: boolean;
 	pkceEnforcement: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
-	
+
 	// Response Types (from OIDC Settings)
 	responseTypeCode: boolean;
 	responseTypeToken: boolean;
 	responseTypeIdToken: boolean;
-	
+
 	// Grant Types (from OIDC Settings)
 	grantTypeAuthorizationCode: boolean;
-	
+
 	// Advanced OIDC Parameters
 	initiateLoginUri: string;
 	targetLinkUri: string;
 	signoffUrls: string[];
-	
+
 	// Request Parameter Signature
 	requestParameterSignatureRequirement: 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED';
-	
+
 	// JWKS Settings
 	enableJWKS: boolean;
 	jwksMethod: 'JWKS_URL' | 'JWKS';
 	jwksUrl: string;
 	jwks: string;
-	
+
 	// Pushed Authorization Request (PAR)
 	requirePushedAuthorizationRequest: boolean;
 	pushedAuthorizationRequestTimeout: number; // in seconds
-	
+
 	// Advanced Security Settings
 	additionalRefreshTokenReplayProtection: boolean;
 	includeX5tParameter: boolean;
 	oidcSessionManagement: boolean;
 	requestScopesForMultipleResources: boolean;
 	terminateUserSessionByIdToken: boolean;
-	
+
 	// CORS Settings
 	corsOrigins: string[];
 	corsAllowAnyOrigin: boolean;
@@ -332,7 +337,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							/>
 							Require Pushed Authorization Request
 						</CheckboxLabel>
-						<Helper>Require authorization requests to be pushed to the authorization server first</Helper>
+						<Helper>
+							Require authorization requests to be pushed to the authorization server first
+						</Helper>
 					</Field>
 
 					<Field>
@@ -343,7 +350,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							min="10"
 							max="600"
 							value={value.pushedAuthorizationRequestTimeout}
-							onChange={(e) => update({ pushedAuthorizationRequestTimeout: parseInt(e.target.value) || 60 })}
+							onChange={(e) =>
+								update({ pushedAuthorizationRequestTimeout: parseInt(e.target.value) || 60 })
+							}
 						/>
 						<Helper>Timeout for the PAR reference (10-600 seconds)</Helper>
 					</Field>
@@ -360,7 +369,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
-							onChange={(e) => update({ requestParameterSignatureRequirement: e.target.value as any })}
+							onChange={(e) =>
+								update({ requestParameterSignatureRequirement: e.target.value as any })
+							}
 						>
 							<option value="DEFAULT">Default</option>
 							<option value="REQUIRE_SIGNED">Require Signed</option>
@@ -374,7 +385,9 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.additionalRefreshTokenReplayProtection}
-								onChange={(e) => update({ additionalRefreshTokenReplayProtection: e.target.checked })}
+								onChange={(e) =>
+									update({ additionalRefreshTokenReplayProtection: e.target.checked })
+								}
 							/>
 							Additional Refresh Token Replay Protection
 						</CheckboxLabel>
@@ -390,7 +403,10 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							/>
 							Include x5t Parameter
 						</CheckboxLabel>
-						<Helper>Include the x5t parameter in the header of access tokens, ID tokens, and JWT-based refresh tokens</Helper>
+						<Helper>
+							Include the x5t parameter in the header of access tokens, ID tokens, and JWT-based
+							refresh tokens
+						</Helper>
 					</Field>
 
 					<Field>

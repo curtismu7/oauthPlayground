@@ -82,99 +82,97 @@ const Button = styled.button`
 `;
 
 const Callback = () => {
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { handleOAuthCallback } = useAuth();
-  const [status, setStatus] = useState('processing');
-  const [error, setError] = useState('');
+	const [searchParams] = useSearchParams();
+	const navigate = useNavigate();
+	const { handleOAuthCallback } = useAuth();
+	const [status, setStatus] = useState('processing');
+	const [error, setError] = useState('');
 
-  useEffect(() => {
-    const processCallback = async () => {
-      try {
-        // Get the full URL with query parameters
-        const params = {};
-        for (const [key, value] of searchParams.entries()) {
-          params[key] = value;
-        }
-        
-        // Check for error in the URL (e.g., user denied permission)
-        if (params.error) {
-          throw new Error(params.error_description || 'Authorization failed');
-        }
-        
-        // Process the OAuth callback
-        const result = await handleOAuthCallback(window.location.href);
-        
-        if (result.success) {
-          setStatus('success');
-          // Redirect to the dashboard or the original URL after a short delay
-          setTimeout(() => {
-            navigate('/dashboard', { replace: true });
-          }, 2000);
-        } else {
-          throw new Error(result.error || 'Authentication failed');
-        }
-      } catch (err) {
-        console.error('OAuth callback error:', err);
-        setStatus('error');
-        setError(err.message || 'An error occurred during authentication');
-      }
-    };
-    
-    processCallback();
-  }, [searchParams, navigate, handleOAuthCallback]);
+	useEffect(() => {
+		const processCallback = async () => {
+			try {
+				// Get the full URL with query parameters
+				const params = {};
+				for (const [key, value] of searchParams.entries()) {
+					params[key] = value;
+				}
 
-  const handleRetry = () => {
-    // Redirect to the login page to start the flow again
-    navigate('/login');
-  };
+				// Check for error in the URL (e.g., user denied permission)
+				if (params.error) {
+					throw new Error(params.error_description || 'Authorization failed');
+				}
 
-  const handleGoToDashboard = () => {
-    navigate('/dashboard', { replace: true });
-  };
+				// Process the OAuth callback
+				const result = await handleOAuthCallback(window.location.href);
 
-  if (status === 'processing') {
-    return (
-      <CallbackContainer>
-        <Card>
-          <Spinner />
-          <Title>Completing Authentication</Title>
-          <Message>Please wait while we complete your login...</Message>
-        </Card>
-      </CallbackContainer>
-    );
-  }
+				if (result.success) {
+					setStatus('success');
+					// Redirect to the dashboard or the original URL after a short delay
+					setTimeout(() => {
+						navigate('/dashboard', { replace: true });
+					}, 2000);
+				} else {
+					throw new Error(result.error || 'Authentication failed');
+				}
+			} catch (err) {
+				console.error('OAuth callback error:', err);
+				setStatus('error');
+				setError(err.message || 'An error occurred during authentication');
+			}
+		};
 
-  if (status === 'success') {
-    return (
-      <CallbackContainer>
-        <Card>
-          <SuccessIcon />
-          <Title>Authentication Successful</Title>
-          <Message>You have been successfully authenticated. Redirecting to the dashboard...</Message>
-          <Button onClick={handleGoToDashboard}>
-            Go to Dashboard
-          </Button>
-        </Card>
-      </CallbackContainer>
-    );
-  }
+		processCallback();
+	}, [searchParams, navigate, handleOAuthCallback]);
 
-  // Error state
-  return (
-    <CallbackContainer>
-      <Card>
-        <ErrorIcon />
-        <Title>Authentication Failed</Title>
-        <Message>
-          {error || 'An error occurred during the authentication process. Please try again.'}
-        </Message>
-        <Button onClick={handleRetry}>
-          Try Again
-        </Button>
-      </Card>
-    </CallbackContainer>
-  );
+	const handleRetry = () => {
+		// Redirect to the login page to start the flow again
+		navigate('/login');
+	};
+
+	const handleGoToDashboard = () => {
+		navigate('/dashboard', { replace: true });
+	};
+
+	if (status === 'processing') {
+		return (
+			<CallbackContainer>
+				<Card>
+					<Spinner />
+					<Title>Completing Authentication</Title>
+					<Message>Please wait while we complete your login...</Message>
+				</Card>
+			</CallbackContainer>
+		);
+	}
+
+	if (status === 'success') {
+		return (
+			<CallbackContainer>
+				<Card>
+					<SuccessIcon />
+					<Title>Authentication Successful</Title>
+					<Message>
+						You have been successfully authenticated. Redirecting to the dashboard...
+					</Message>
+					<Button onClick={handleGoToDashboard}>Go to Dashboard</Button>
+				</Card>
+			</CallbackContainer>
+		);
+	}
+
+	// Error state
+	return (
+		<CallbackContainer>
+			<Card>
+				<ErrorIcon />
+				<Title>Authentication Failed</Title>
+				<Message>
+					{error || 'An error occurred during the authentication process. Please try again.'}
+				</Message>
+				<Button onClick={handleRetry}>Try Again</Button>
+			</Card>
+		</CallbackContainer>
+	);
 };
 
 export default Callback;

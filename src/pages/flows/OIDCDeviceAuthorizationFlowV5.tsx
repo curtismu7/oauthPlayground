@@ -2,7 +2,7 @@
 // OIDC Device Authorization Code Grant (RFC 8628) - V5 Implementation with ID Token
 
 import { QRCodeSVG } from 'qrcode.react';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useId, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -19,16 +19,16 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -43,7 +43,7 @@ const FlowContent = styled.div`
 	padding: 0 1rem;
 `;
 
-const FlowHeader = styled.div`
+const _FlowHeader = styled.div`
 	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 	color: #ffffff;
 	padding: 2rem;
@@ -54,20 +54,20 @@ const FlowHeader = styled.div`
 	box-shadow: 0 10px 25px rgba(22, 163, 74, 0.2);
 `;
 
-const FlowTitle = styled.h2`
+const _FlowTitle = styled.h2`
 	font-size: 2rem;
 	font-weight: 700;
 	margin: 0;
 	color: #ffffff;
 `;
 
-const FlowSubtitle = styled.p`
+const _FlowSubtitle = styled.p`
 	font-size: 1rem;
 	color: rgba(255, 255, 255, 0.9);
 	margin: 0.5rem 0 0 0;
 `;
 
-const StepBadge = styled.span`
+const _StepBadge = styled.span`
 	background: rgba(22, 163, 74, 0.2);
 	border: 1px solid #4ade80;
 	color: #bbf7d0;
@@ -556,6 +556,9 @@ const _VerificationBox = styled.div`
 
 const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	const deviceFlow = useDeviceAuthorizationFlow();
+	const environmentId = useId();
+	const clientId = useId();
+	const scopesId = useId();
 	const [currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<SectionKey, boolean>>({
 		overview: false,
@@ -744,15 +747,15 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 
 	const renderIntroduction = () => (
 		<>
-		<FlowConfigurationRequirements flowType="device-authorization" variant="oidc" />
-		<FlowSequenceDisplay flowType="device-authorization" />
-		
-		<CollapsibleSection>
-			<CollapsibleHeaderButton
-				onClick={() => toggleSection('overview')}
-				aria-expanded={!collapsedSections.overview}
-			>
-				<CollapsibleTitle>
+			<FlowConfigurationRequirements flowType="device-authorization" variant="oidc" />
+			<FlowSequenceDisplay flowType="device-authorization" />
+
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('overview')}
+					aria-expanded={!collapsedSections.overview}
+				>
+					<CollapsibleTitle>
 						<FiMonitor /> Device Authorization Flow Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -875,6 +878,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 							<div style={{ marginTop: '1.5rem' }}>
 								<div style={{ marginBottom: '1rem' }}>
 									<label
+										htmlFor={environmentId}
 										style={{
 											display: 'block',
 											marginBottom: '0.5rem',
@@ -885,6 +889,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										Environment ID
 									</label>
 									<input
+										id={environmentId}
 										type="text"
 										value={deviceFlow.credentials?.environmentId || ''}
 										onChange={(e) => handleCredentialsChange('environmentId', e.target.value)}
@@ -900,6 +905,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
 									<label
+										htmlFor={clientId}
 										style={{
 											display: 'block',
 											marginBottom: '0.5rem',
@@ -910,6 +916,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										Client ID
 									</label>
 									<input
+										id={clientId}
 										type="text"
 										value={deviceFlow.credentials?.clientId || ''}
 										onChange={(e) => handleCredentialsChange('clientId', e.target.value)}
@@ -925,6 +932,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								</div>
 								<div style={{ marginBottom: '1rem' }}>
 									<label
+										htmlFor={scopesId}
 										style={{
 											display: 'block',
 											marginBottom: '0.5rem',
@@ -935,6 +943,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										Scopes
 									</label>
 									<input
+										id={scopesId}
 										type="text"
 										value={deviceFlow.credentials?.scopes || 'openid'}
 										onChange={(e) => handleCredentialsChange('scopes', e.target.value)}
@@ -949,6 +958,25 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									/>
 								</div>
 							</div>
+
+							{/* Helpful notes for missing fields */}
+							<div
+								style={{
+									fontSize: '0.875rem',
+									color: '#6b7280',
+									backgroundColor: '#f3f4f6',
+									padding: '0.75rem',
+									borderRadius: '0.5rem',
+									border: '1px solid #e5e7eb',
+									marginTop: '0.5rem',
+									marginBottom: '1rem',
+								}}
+							>
+								<strong>Note:</strong> Client Secret and Redirect URI are not required for this flow
+								type. Device Authorization flows use public client authentication and handle
+								authentication without redirects.
+							</div>
+
 							<ActionRow>
 								<Button
 									onClick={handleSaveCredentials}
@@ -968,7 +996,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 			{/* Configuration Summary */}
 			<ConfigurationSummaryCard
 				configuration={deviceFlow.credentials}
-				hasConfiguration={Boolean(deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId)}
+				hasConfiguration={Boolean(
+					deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId
+				)}
 			/>
 		</>
 	);

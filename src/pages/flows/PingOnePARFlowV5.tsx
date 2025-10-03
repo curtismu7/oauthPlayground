@@ -236,7 +236,6 @@ const InfoList = styled.ul`
 	}
 `;
 
-
 const ActionRow = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -357,8 +356,6 @@ const PingOnePARFlowV5: React.FC = () => {
 		},
 		[controller.pkceCodes, controller.authUrl, parRequestUri]
 	);
-
-
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -570,7 +567,6 @@ const PingOnePARFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-
 						<SectionDivider />
 						<ResultsSection>
 							<ResultsHeading>
@@ -586,10 +582,18 @@ const PingOnePARFlowV5: React.FC = () => {
 								clientSecret={controller.credentials.clientSecret || ''}
 								redirectUri={controller.credentials.redirectUri || ''}
 								scopes={controller.credentials.scope || ''}
-								onEnvironmentIdChange={(value) => controller.setCredentials({ ...controller.credentials, environmentId: value })}
-								onClientIdChange={(value) => controller.setCredentials({ ...controller.credentials, clientId: value })}
-								onClientSecretChange={(value) => controller.setCredentials({ ...controller.credentials, clientSecret: value })}
-								onRedirectUriChange={(value) => controller.setCredentials({ ...controller.credentials, redirectUri: value })}
+								onEnvironmentIdChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, environmentId: value })
+								}
+								onClientIdChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, clientId: value })
+								}
+								onClientSecretChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, clientSecret: value })
+								}
+								onRedirectUriChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, redirectUri: value })
+								}
 								onCopy={handleCopy}
 							/>
 						</ResultsSection>
@@ -964,8 +968,8 @@ const PingOnePARFlowV5: React.FC = () => {
 				</HeaderSection>
 
 				<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
-				
-				<EnhancedFlowInfoCard 
+
+				<EnhancedFlowInfoCard
 					flowType="par"
 					showAdditionalInfo={true}
 					showDocumentation={true}

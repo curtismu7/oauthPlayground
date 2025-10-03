@@ -2,10 +2,23 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiCopy, FiRefreshCw, FiEye, FiEyeOff, FiClock, FiShield, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import {
+	FiCopy,
+	FiRefreshCw,
+	FiEye,
+	FiEyeOff,
+	FiClock,
+	FiShield,
+	FiCheck,
+	FiAlertCircle,
+} from 'react-icons/fi';
 import { logger } from '../../utils/logger';
 import { parseJWTPayload, formatScopes } from '../../utils/workerToken';
-import { WorkerTokenResponse, TokenIntrospectionResponse, JWTPayload } from '../../types/workerToken';
+import {
+	WorkerTokenResponse,
+	TokenIntrospectionResponse,
+	JWTPayload,
+} from '../../types/workerToken';
 
 const Container = styled.div`
   background: white;
@@ -57,7 +70,7 @@ const TokenContainer = styled.div`
 `;
 
 const TokenText = styled.span<{ showFull: boolean }>`
-  color: ${props => props.showFull ? '#1f2937' : '#6b7280'};
+  color: ${(props) => (props.showFull ? '#1f2937' : '#6b7280')};
 `;
 
 const CopyButton = styled.button`
@@ -142,14 +155,17 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   
-  ${props => props.variant === 'primary' ? `
+  ${(props) =>
+		props.variant === 'primary'
+			? `
     background-color: #3b82f6;
     color: white;
     
     &:hover:not(:disabled) {
       background-color: #2563eb;
     }
-  ` : `
+  `
+			: `
     background-color: #f3f4f6;
     color: #374151;
     
@@ -171,7 +187,7 @@ const Modal = styled.div<{ isOpen: boolean }>`
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: ${props => props.isOpen ? 'flex' : 'none'};
+  display: ${(props) => (props.isOpen ? 'flex' : 'none')};
   align-items: center;
   justify-content: center;
   z-index: 1000;
@@ -235,258 +251,259 @@ const StatusIndicator = styled.div<{ status: 'active' | 'expired' | 'invalid' }>
   font-size: 0.75rem;
   font-weight: 500;
   
-  ${props => {
-    switch (props.status) {
-      case 'active':
-        return 'background: #d1fae5; color: #065f46;';
-      case 'expired':
-        return 'background: #fee2e2; color: #991b1b;';
-      case 'invalid':
-        return 'background: #fef3c7; color: #92400e;';
-      default:
-        return 'background: #f3f4f6; color: #374151;';
-    }
-  }}
+  ${(props) => {
+		switch (props.status) {
+			case 'active':
+				return 'background: #d1fae5; color: #065f46;';
+			case 'expired':
+				return 'background: #fee2e2; color: #991b1b;';
+			case 'invalid':
+				return 'background: #fef3c7; color: #92400e;';
+			default:
+				return 'background: #f3f4f6; color: #374151;';
+		}
+	}}
 `;
 
 interface WorkerTokenDisplayProps {
-  token: WorkerTokenResponse;
-  introspection?: TokenIntrospectionResponse;
-  showIntrospection?: boolean;
-  showJWTDecode?: boolean;
-  onRefresh?: () => void;
-  onCopy?: (token: string) => void;
+	token: WorkerTokenResponse;
+	introspection?: TokenIntrospectionResponse;
+	showIntrospection?: boolean;
+	showJWTDecode?: boolean;
+	onRefresh?: () => void;
+	onCopy?: (token: string) => void;
 }
 
 export const WorkerTokenDisplay: React.FC<WorkerTokenDisplayProps> = ({
-  token,
-  introspection,
-  showIntrospection = true,
-  showJWTDecode = true,
-  onRefresh,
-  onCopy
+	token,
+	introspection,
+	showIntrospection = true,
+	showJWTDecode = true,
+	onRefresh,
+	onCopy,
 }) => {
-  const [showFullToken, setShowFullToken] = useState(false);
-  const [showJWTModal, setShowJWTModal] = useState(false);
-  const [jwtPayload, setJwtPayload] = useState<JWTPayload | null>(null);
-  const [copySuccess, setCopySuccess] = useState(false);
+	const [showFullToken, setShowFullToken] = useState(false);
+	const [showJWTModal, setShowJWTModal] = useState(false);
+	const [jwtPayload, setJwtPayload] = useState<JWTPayload | null>(null);
+	const [copySuccess, setCopySuccess] = useState(false);
 
-  // Parse JWT payload if token appears to be a JWT
-  useEffect(() => {
-    if (token.access_token && showJWTDecode) {
-      const payload = parseJWTPayload(token.access_token);
-      setJwtPayload(payload);
-    }
-  }, [token.access_token, showJWTDecode]);
+	// Parse JWT payload if token appears to be a JWT
+	useEffect(() => {
+		if (token.access_token && showJWTDecode) {
+			const payload = parseJWTPayload(token.access_token);
+			setJwtPayload(payload);
+		}
+	}, [token.access_token, showJWTDecode]);
 
-  const handleCopyToken = useCallback(async () => {
-    try {
-      await navigator.clipboard.writeText(token.access_token);
-      setCopySuccess(true);
-      onCopy?.(token.access_token);
-      
-      logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
-      
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (error) {
-      logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
-    }
-  }, [token.access_token, onCopy]);
+	const handleCopyToken = useCallback(async () => {
+		try {
+			await navigator.clipboard.writeText(token.access_token);
+			setCopySuccess(true);
+			onCopy?.(token.access_token);
 
-  const handleCopyValue = useCallback(async (value: string, label: string) => {
-    try {
-      await navigator.clipboard.writeText(value);
-      logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
-    } catch (error) {
-      logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
-    }
-  }, []);
+			logger.success('TOKEN-DISPLAY', 'Token copied to clipboard');
 
-  const formatExpiryTime = useCallback((expiresIn: number) => {
-    const hours = Math.floor(expiresIn / 3600);
-    const minutes = Math.floor((expiresIn % 3600) / 60);
-    const seconds = expiresIn % 60;
-    
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${seconds}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds}s`;
-    } else {
-      return `${seconds}s`;
-    }
-  }, []);
+			setTimeout(() => setCopySuccess(false), 2000);
+		} catch (error) {
+			logger.error('TOKEN-DISPLAY', 'Failed to copy token', error);
+		}
+	}, [token.access_token, onCopy]);
 
-  const getTokenStatus = useCallback((): 'active' | 'expired' | 'invalid' => {
-    if (introspection) {
-      if (!introspection.active) return 'invalid';
-      if (introspection.exp && Date.now() >= introspection.exp * 1000) return 'expired';
-      return 'active';
-    }
-    
-    // Fallback to token expiry_in if no introspection
-    if (token.expires_in && token.issued_at) {
-      const expiryTime = token.issued_at + (token.expires_in * 1000);
-      if (Date.now() >= expiryTime) return 'expired';
-      return 'active';
-    }
-    
-    return 'active';
-  }, [token, introspection]);
+	const handleCopyValue = useCallback(async (value: string, label: string) => {
+		try {
+			await navigator.clipboard.writeText(value);
+			logger.success('TOKEN-DISPLAY', `${label} copied to clipboard`);
+		} catch (error) {
+			logger.error('TOKEN-DISPLAY', `Failed to copy ${label}`, error);
+		}
+	}, []);
 
-  const getScopes = useCallback(() => {
-    if (introspection?.scope) {
-      return formatScopes(introspection.scope);
-    }
-    if (token.scope) {
-      return formatScopes(token.scope);
-    }
-    return [];
-  }, [token.scope, introspection?.scope]);
+	const formatExpiryTime = useCallback((expiresIn: number) => {
+		const hours = Math.floor(expiresIn / 3600);
+		const minutes = Math.floor((expiresIn % 3600) / 60);
+		const seconds = expiresIn % 60;
 
-  const tokenStatus = getTokenStatus();
-  const scopes = getScopes();
+		if (hours > 0) {
+			return `${hours}h ${minutes}m ${seconds}s`;
+		} else if (minutes > 0) {
+			return `${minutes}m ${seconds}s`;
+		} else {
+			return `${seconds}s`;
+		}
+	}, []);
 
-  return (
-    <Container>
-      <Header>
-        <h3>
-          <FiShield size={20} color="#3b82f6" />
-          Worker Token
-          <StatusIndicator status={tokenStatus}>
-            {tokenStatus === 'active' && <FiCheck size={12} />}
-            {tokenStatus === 'expired' && <FiClock size={12} />}
-            {tokenStatus === 'invalid' && <FiAlertCircle size={12} />}
-            {tokenStatus.toUpperCase()}
-          </StatusIndicator>
-        </h3>
-        <ButtonGroup>
-          <Button onClick={() => setShowFullToken(!showFullToken)} variant="secondary">
-            {showFullToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-            {showFullToken ? 'Hide' : 'Show'} Token
-          </Button>
-          {onRefresh && (
-            <Button onClick={onRefresh} variant="secondary">
-              <FiRefreshCw size={16} />
-              Refresh
-            </Button>
-          )}
-        </ButtonGroup>
-      </Header>
+	const getTokenStatus = useCallback((): 'active' | 'expired' | 'invalid' => {
+		if (introspection) {
+			if (!introspection.active) return 'invalid';
+			if (introspection.exp && Date.now() >= introspection.exp * 1000) return 'expired';
+			return 'active';
+		}
 
-      <TokenSection>
-        <TokenLabel>Access Token</TokenLabel>
-        <TokenContainer>
-          <TokenText showFull={showFullToken}>
-            {showFullToken 
-              ? token.access_token 
-              : `${token.access_token.substring(0, 50)}...`
-            }
-          </TokenText>
-          <CopyButton onClick={handleCopyToken}>
-            <FiCopy size={12} />
-            {copySuccess ? 'Copied!' : 'Copy'}
-          </CopyButton>
-        </TokenContainer>
-      </TokenSection>
+		// Fallback to token expiry_in if no introspection
+		if (token.expires_in && token.issued_at) {
+			const expiryTime = token.issued_at + token.expires_in * 1000;
+			if (Date.now() >= expiryTime) return 'expired';
+			return 'active';
+		}
 
-      <InfoGrid>
-        <InfoCard>
-          <InfoLabel>Token Type</InfoLabel>
-          <InfoValue>{token.token_type || 'Bearer'}</InfoValue>
-        </InfoCard>
+		return 'active';
+	}, [token, introspection]);
 
-        <InfoCard>
-          <InfoLabel>Expires In</InfoLabel>
-          <InfoValue>{formatExpiryTime(token.expires_in)}</InfoValue>
-        </InfoCard>
+	const getScopes = useCallback(() => {
+		if (introspection?.scope) {
+			return formatScopes(introspection.scope);
+		}
+		if (token.scope) {
+			return formatScopes(token.scope);
+		}
+		return [];
+	}, [token.scope, introspection?.scope]);
 
-        {introspection?.client_id && (
-          <InfoCard>
-            <InfoLabel>Client ID</InfoLabel>
-            <InfoValue>{introspection.client_id}</InfoValue>
-          </InfoCard>
-        )}
+	const tokenStatus = getTokenStatus();
+	const scopes = getScopes();
 
-        {introspection?.iss && (
-          <InfoCard>
-            <InfoLabel>Issuer</InfoLabel>
-            <InfoValue>{introspection.iss}</InfoValue>
-          </InfoCard>
-        )}
+	return (
+		<Container>
+			<Header>
+				<h3>
+					<FiShield size={20} color="#3b82f6" />
+					Worker Token
+					<StatusIndicator status={tokenStatus}>
+						{tokenStatus === 'active' && <FiCheck size={12} />}
+						{tokenStatus === 'expired' && <FiClock size={12} />}
+						{tokenStatus === 'invalid' && <FiAlertCircle size={12} />}
+						{tokenStatus.toUpperCase()}
+					</StatusIndicator>
+				</h3>
+				<ButtonGroup>
+					<Button onClick={() => setShowFullToken(!showFullToken)} variant="secondary">
+						{showFullToken ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						{showFullToken ? 'Hide' : 'Show'} Token
+					</Button>
+					{onRefresh && (
+						<Button onClick={onRefresh} variant="secondary">
+							<FiRefreshCw size={16} />
+							Refresh
+						</Button>
+					)}
+				</ButtonGroup>
+			</Header>
 
-        {introspection?.aud && (
-          <InfoCard>
-            <InfoLabel>Audience</InfoLabel>
-            <InfoValue>{Array.isArray(introspection.aud) ? introspection.aud.join(', ') : introspection.aud}</InfoValue>
-          </InfoCard>
-        )}
+			<TokenSection>
+				<TokenLabel>Access Token</TokenLabel>
+				<TokenContainer>
+					<TokenText showFull={showFullToken}>
+						{showFullToken ? token.access_token : `${token.access_token.substring(0, 50)}...`}
+					</TokenText>
+					<CopyButton onClick={handleCopyToken}>
+						<FiCopy size={12} />
+						{copySuccess ? 'Copied!' : 'Copy'}
+					</CopyButton>
+				</TokenContainer>
+			</TokenSection>
 
-        {introspection?.sub && (
-          <InfoCard>
-            <InfoLabel>Subject</InfoLabel>
-            <InfoValue>{introspection.sub}</InfoValue>
-          </InfoCard>
-        )}
-      </InfoGrid>
+			<InfoGrid>
+				<InfoCard>
+					<InfoLabel>Token Type</InfoLabel>
+					<InfoValue>{token.token_type || 'Bearer'}</InfoValue>
+				</InfoCard>
 
-      {scopes.length > 0 && (
-        <InfoCard>
-          <InfoLabel>Granted Scopes</InfoLabel>
-          <ScopeList>
-            {scopes.map(scope => (
-              <ScopeTag key={scope}>{scope}</ScopeTag>
-            ))}
-          </ScopeList>
-        </InfoCard>
-      )}
+				<InfoCard>
+					<InfoLabel>Expires In</InfoLabel>
+					<InfoValue>{formatExpiryTime(token.expires_in)}</InfoValue>
+				</InfoCard>
 
-      {showJWTDecode && jwtPayload && (
-        <ButtonGroup>
-          <Button onClick={() => setShowJWTModal(true)} variant="secondary">
-            <FiEye size={16} />
-            View JWT Payload
-          </Button>
-        </ButtonGroup>
-      )}
+				{introspection?.client_id && (
+					<InfoCard>
+						<InfoLabel>Client ID</InfoLabel>
+						<InfoValue>{introspection.client_id}</InfoValue>
+					</InfoCard>
+				)}
 
-      {showJWTModal && jwtPayload && (
-        <Modal isOpen={showJWTModal}>
-          <ModalContent>
-            <ModalHeader>
-              <h4>JWT Token Payload</h4>
-              <CloseButton onClick={() => setShowJWTModal(false)}>
-                ×
-              </CloseButton>
-            </ModalHeader>
-            <JsonDisplay>
-              {JSON.stringify(jwtPayload, null, 2)}
-            </JsonDisplay>
-            <ButtonGroup>
-              <Button onClick={() => handleCopyValue(JSON.stringify(jwtPayload, null, 2), 'JWT payload')} variant="secondary">
-                <FiCopy size={16} />
-                Copy Payload
-              </Button>
-            </ButtonGroup>
-          </ModalContent>
-        </Modal>
-      )}
+				{introspection?.iss && (
+					<InfoCard>
+						<InfoLabel>Issuer</InfoLabel>
+						<InfoValue>{introspection.iss}</InfoValue>
+					</InfoCard>
+				)}
 
-      {showIntrospection && introspection && (
-        <InfoCard>
-          <InfoLabel>Introspection Details</InfoLabel>
-          <JsonDisplay>
-            {JSON.stringify(introspection, null, 2)}
-          </JsonDisplay>
-          <ButtonGroup>
-            <Button onClick={() => handleCopyValue(JSON.stringify(introspection, null, 2), 'Introspection data')} variant="secondary">
-              <FiCopy size={16} />
-              Copy Introspection
-            </Button>
-          </ButtonGroup>
-        </InfoCard>
-      )}
-    </Container>
-  );
+				{introspection?.aud && (
+					<InfoCard>
+						<InfoLabel>Audience</InfoLabel>
+						<InfoValue>
+							{Array.isArray(introspection.aud) ? introspection.aud.join(', ') : introspection.aud}
+						</InfoValue>
+					</InfoCard>
+				)}
+
+				{introspection?.sub && (
+					<InfoCard>
+						<InfoLabel>Subject</InfoLabel>
+						<InfoValue>{introspection.sub}</InfoValue>
+					</InfoCard>
+				)}
+			</InfoGrid>
+
+			{scopes.length > 0 && (
+				<InfoCard>
+					<InfoLabel>Granted Scopes</InfoLabel>
+					<ScopeList>
+						{scopes.map((scope) => (
+							<ScopeTag key={scope}>{scope}</ScopeTag>
+						))}
+					</ScopeList>
+				</InfoCard>
+			)}
+
+			{showJWTDecode && jwtPayload && (
+				<ButtonGroup>
+					<Button onClick={() => setShowJWTModal(true)} variant="secondary">
+						<FiEye size={16} />
+						View JWT Payload
+					</Button>
+				</ButtonGroup>
+			)}
+
+			{showJWTModal && jwtPayload && (
+				<Modal isOpen={showJWTModal}>
+					<ModalContent>
+						<ModalHeader>
+							<h4>JWT Token Payload</h4>
+							<CloseButton onClick={() => setShowJWTModal(false)}>×</CloseButton>
+						</ModalHeader>
+						<JsonDisplay>{JSON.stringify(jwtPayload, null, 2)}</JsonDisplay>
+						<ButtonGroup>
+							<Button
+								onClick={() => handleCopyValue(JSON.stringify(jwtPayload, null, 2), 'JWT payload')}
+								variant="secondary"
+							>
+								<FiCopy size={16} />
+								Copy Payload
+							</Button>
+						</ButtonGroup>
+					</ModalContent>
+				</Modal>
+			)}
+
+			{showIntrospection && introspection && (
+				<InfoCard>
+					<InfoLabel>Introspection Details</InfoLabel>
+					<JsonDisplay>{JSON.stringify(introspection, null, 2)}</JsonDisplay>
+					<ButtonGroup>
+						<Button
+							onClick={() =>
+								handleCopyValue(JSON.stringify(introspection, null, 2), 'Introspection data')
+							}
+							variant="secondary"
+						>
+							<FiCopy size={16} />
+							Copy Introspection
+						</Button>
+					</ButtonGroup>
+				</InfoCard>
+			)}
+		</Container>
+	);
 };
 
 export default WorkerTokenDisplay;

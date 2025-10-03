@@ -1,20 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {
-	FiAlertCircle,
-	FiCopy,
-	FiInfo,
-	FiRefreshCw,
-	FiSmartphone,
-	FiZap,
-} from 'react-icons/fi';
+import { FiAlertCircle, FiCopy, FiInfo, FiRefreshCw, FiSmartphone, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import {
 	HelperText,
 	ResultsHeading,
@@ -118,18 +108,18 @@ const PollingStatus = styled.div<{ $variant: 'idle' | 'polling' | 'success' | 'e
 			$variant === 'success'
 				? 'rgba(34, 197, 94, 0.25)'
 				: $variant === 'error'
-				? 'rgba(239, 68, 68, 0.25)'
-				: $variant === 'polling'
-				? 'rgba(59, 130, 246, 0.25)'
-				: 'rgba(148, 163, 184, 0.25)'};
+					? 'rgba(239, 68, 68, 0.25)'
+					: $variant === 'polling'
+						? 'rgba(59, 130, 246, 0.25)'
+						: 'rgba(148, 163, 184, 0.25)'};
 	background: ${({ $variant }) =>
 		$variant === 'success'
 			? 'rgba(34, 197, 94, 0.1)'
 			: $variant === 'error'
-			? 'rgba(239, 68, 68, 0.12)'
-			: $variant === 'polling'
-			? 'rgba(59, 130, 246, 0.1)'
-			: 'rgba(148, 163, 184, 0.1)'};
+				? 'rgba(239, 68, 68, 0.12)'
+				: $variant === 'polling'
+					? 'rgba(59, 130, 246, 0.1)'
+					: 'rgba(148, 163, 184, 0.1)'};
 `;
 
 const PollingActions = styled.div`
@@ -148,15 +138,15 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
 			$variant === 'primary'
 				? 'var(--primary-color, #0d9488)'
 				: $variant === 'danger'
-				? '#dc2626'
-				: 'rgba(148, 163, 184, 0.5)'};
+					? '#dc2626'
+					: 'rgba(148, 163, 184, 0.5)'};
 	background:
 		${({ $variant }) =>
 			$variant === 'primary'
 				? 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)'
 				: $variant === 'danger'
-				? 'rgba(220, 38, 38, 0.1)'
-				: 'rgba(148, 163, 184, 0.12)'};
+					? 'rgba(220, 38, 38, 0.1)'
+					: 'rgba(148, 163, 184, 0.12)'};
 	color: ${({ $variant }) => ($variant === 'primary' ? '#ffffff' : 'var(--color-text-primary, #0f172a)')};
 	cursor: pointer;
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -224,7 +214,6 @@ const STEP_METADATA: Array<{ title: string; subtitle: string }> = [
 	},
 ];
 
-
 const LAST_STEP: StepIndex = 3;
 
 const buildInitialConfig = (): CibaConfig => {
@@ -241,7 +230,12 @@ const buildInitialConfig = (): CibaConfig => {
 	};
 };
 
-const REQUIRED_FIELDS: Array<keyof CibaConfig> = ['environmentId', 'clientId', 'scope', 'loginHint'];
+const REQUIRED_FIELDS: Array<keyof CibaConfig> = [
+	'environmentId',
+	'clientId',
+	'scope',
+	'loginHint',
+];
 
 const CIBAFlowV5: React.FC = () => {
 	const {
@@ -319,7 +313,9 @@ const CIBAFlowV5: React.FC = () => {
 
 	const handleInitiate = useCallback(async () => {
 		if (missingRequiredFields.size > 0) {
-			v4ToastManager.showError('Please complete the required PingOne configuration before initiating CIBA.');
+			v4ToastManager.showError(
+				'Please complete the required PingOne configuration before initiating CIBA.'
+			);
 			return;
 		}
 		await initiateAuthentication();
@@ -392,31 +388,50 @@ const CIBAFlowV5: React.FC = () => {
 		<Container>
 			<Content>
 				<FlowHeader flowId="oidc-ciba-v5" />
-				
+
 				{/* Warning Notice */}
-				<div style={{
-					background: '#fef3c7',
-					border: '1px solid #f59e0b',
-					borderRadius: '0.75rem',
-					padding: '1.5rem',
-					marginBottom: '1.5rem',
-					display: 'flex',
-					alignItems: 'flex-start',
-					gap: '1rem'
-				}}>
-					<FiAlertCircle style={{ color: '#d97706', fontSize: '1.5rem', marginTop: '0.125rem', flexShrink: 0 }} />
+				<div
+					style={{
+						background: '#fef3c7',
+						border: '1px solid #f59e0b',
+						borderRadius: '0.75rem',
+						padding: '1.5rem',
+						marginBottom: '1.5rem',
+						display: 'flex',
+						alignItems: 'flex-start',
+						gap: '1rem',
+					}}
+				>
+					<FiAlertCircle
+						style={{ color: '#d97706', fontSize: '1.5rem', marginTop: '0.125rem', flexShrink: 0 }}
+					/>
 					<div>
-						<h3 style={{ margin: '0 0 0.75rem 0', color: '#92400e', fontSize: '1.1rem', fontWeight: '600' }}>
+						<h3
+							style={{
+								margin: '0 0 0.75rem 0',
+								color: '#92400e',
+								fontSize: '1.1rem',
+								fontWeight: '600',
+							}}
+						>
 							Educational Flow - PingOne Not Supported
 						</h3>
-						<p style={{ margin: '0 0 0.75rem 0', color: '#92400e', fontSize: '0.95rem', lineHeight: '1.5' }}>
-							<strong>Important:</strong> PingOne does not support the CIBA (Client Initiated Backchannel Authentication) flow. 
-							This implementation is for educational purposes only and generates mock responses to demonstrate 
-							how CIBA would work with OAuth 2.0 providers that support it.
+						<p
+							style={{
+								margin: '0 0 0.75rem 0',
+								color: '#92400e',
+								fontSize: '0.95rem',
+								lineHeight: '1.5',
+							}}
+						>
+							<strong>Important:</strong> PingOne does not support the CIBA (Client Initiated
+							Backchannel Authentication) flow. This implementation is for educational purposes only
+							and generates mock responses to demonstrate how CIBA would work with OAuth 2.0
+							providers that support it.
 						</p>
 						<p style={{ margin: 0, color: '#92400e', fontSize: '0.9rem', fontStyle: 'italic' }}>
-							The flow will simulate the CIBA process including backchannel requests, polling, and token issuance 
-							to help you understand this decoupled authentication pattern.
+							The flow will simulate the CIBA process including backchannel requests, polling, and
+							token issuance to help you understand this decoupled authentication pattern.
 						</p>
 					</div>
 				</div>
@@ -427,19 +442,19 @@ const CIBAFlowV5: React.FC = () => {
 						<StepTitle>{STEP_METADATA[currentStep].subtitle}</StepTitle>
 						<StepSubtitle>
 							{stage === 'error'
-								? error ?? 'An error occurred during the CIBA flow.'
-						: STEP_METADATA[currentStep].subtitle}
-				</StepSubtitle>
-			</StepHeader>
-			<StepBody>
-				{currentStep === 0 && (
+								? (error ?? 'An error occurred during the CIBA flow.')
+								: STEP_METADATA[currentStep].subtitle}
+						</StepSubtitle>
+					</StepHeader>
+					<StepBody>
+						{currentStep === 0 && (
 							<>
 								<FlowConfigurationRequirements flowType="ciba" variant="oidc" />
-								
+
 								<EnhancedFlowWalkthrough flowId="oidc-ciba" />
 								<FlowSequenceDisplay flowType="ciba" />
-								
-								<EnhancedFlowInfoCard 
+
+								<EnhancedFlowInfoCard
 									flowType="oidc-ciba-v5"
 									showAdditionalInfo={true}
 									showDocumentation={true}
@@ -451,7 +466,10 @@ const CIBAFlowV5: React.FC = () => {
 										<FiSmartphone /> Decoupled authentication
 									</ExplanationHeading>
 									<p>
-										Client Initiated Backchannel Authentication (CIBA) lets a client trigger user authentication on a secondary device. PingOne notifies the end user through a registered authenticator. Once approved, the client polls the token endpoint with the returned <code>auth_req_id</code> to obtain tokens.
+										Client Initiated Backchannel Authentication (CIBA) lets a client trigger user
+										authentication on a secondary device. PingOne notifies the end user through a
+										registered authenticator. Once approved, the client polls the token endpoint
+										with the returned <code>auth_req_id</code> to obtain tokens.
 									</p>
 								</ExplanationSection>
 							</>
@@ -460,7 +478,9 @@ const CIBAFlowV5: React.FC = () => {
 						{currentStep === 1 && (
 							<>
 								<ConfigurationSummaryCard
-									hasConfiguration={Boolean(effectiveConfig.environmentId && effectiveConfig.clientId)}
+									hasConfiguration={Boolean(
+										effectiveConfig.environmentId && effectiveConfig.clientId
+									)}
 									configurationDetails={{
 										environmentId: effectiveConfig.environmentId,
 										clientId: effectiveConfig.clientId,
@@ -473,7 +493,8 @@ const CIBAFlowV5: React.FC = () => {
 									<div>
 										<strong>PingOne prerequisites</strong>
 										<p style={{ margin: '0.35rem 0 0' }}>
-											Enable CIBA for the environment, register this client, and configure allowed binding messages.
+											Enable CIBA for the environment, register this client, and configure allowed
+											binding messages.
 										</p>
 									</div>
 								</InlineNotice>
@@ -499,7 +520,9 @@ const CIBAFlowV5: React.FC = () => {
 										<select
 											id="ciba-auth-method"
 											value={effectiveConfig.authMethod}
-											onChange={(event) => updateConfig({ authMethod: event.target.value as CibaConfig['authMethod'] })}
+											onChange={(event) =>
+												updateConfig({ authMethod: event.target.value as CibaConfig['authMethod'] })
+											}
 										>
 											<option value="client_secret_post">client_secret_post</option>
 											<option value="client_secret_basic">client_secret_basic</option>
@@ -539,14 +562,16 @@ const CIBAFlowV5: React.FC = () => {
 									<div>
 										<strong>Polling etiquette</strong>
 										<p style={{ margin: '0.35rem 0 0' }}>
-											Respect the interval returned by PingOne. The playground automatically backs off when <code>slow_down</code> responses are received.
+											Respect the interval returned by PingOne. The playground automatically backs
+											off when <code>slow_down</code> responses are received.
 										</p>
 									</div>
 								</InlineNotice>
 								<PollingStatus $variant={pollStatusVariant}>
 									<StepStatus>
 										{stage === 'initiating' && 'Sending CIBA request to PingOne…'}
-										{stage === 'awaiting-approval' && 'Waiting for the end user to approve the request.'}
+										{stage === 'awaiting-approval' &&
+											'Waiting for the end user to approve the request.'}
 										{stage === 'polling' && 'Polling token endpoint for approval…'}
 										{stage === 'success' && 'Tokens received! Continue to analysis below.'}
 										{stage === 'error' && (error || 'An error occurred during the CIBA flow.')}
@@ -558,7 +583,8 @@ const CIBAFlowV5: React.FC = () => {
 												<strong>Auth request ID:</strong> {authRequest.auth_req_id}
 											</p>
 											<p style={{ margin: '0.35rem 0 0' }}>
-												<strong>Polling interval:</strong> {authRequest.interval ?? 5}s • <strong>Expires in:</strong> {authRequest.expires_in}s
+												<strong>Polling interval:</strong> {authRequest.interval ?? 5}s •{' '}
+												<strong>Expires in:</strong> {authRequest.expires_in}s
 											</p>
 										</div>
 									)}
@@ -574,11 +600,18 @@ const CIBAFlowV5: React.FC = () => {
 									<ControlButton
 										$variant="secondary"
 										onClick={cancelPolling}
-										disabled={!authRequest || pollStatusVariant === 'success' || pollStatusVariant === 'idle'}
+										disabled={
+											!authRequest ||
+											pollStatusVariant === 'success' ||
+											pollStatusVariant === 'idle'
+										}
 									>
 										<FiRefreshCw /> Cancel polling
 									</ControlButton>
-									<ControlButton $variant="secondary" onClick={() => handleCopy(curlExample, 'CIBA curl snippet')}>
+									<ControlButton
+										$variant="secondary"
+										onClick={() => handleCopy(curlExample, 'CIBA curl snippet')}
+									>
 										<FiCopy /> Copy curl example
 									</ControlButton>
 								</PollingActions>
@@ -596,7 +629,9 @@ const CIBAFlowV5: React.FC = () => {
 										credentials={effectiveConfig as unknown as Record<string, unknown>}
 										onResetFlow={handleReset}
 										onNavigateToTokenManagement={() =>
-											v4ToastManager.showSuccess('Open Token Management to inspect and decode these tokens.')
+											v4ToastManager.showSuccess(
+												'Open Token Management to inspect and decode these tokens.'
+											)
 										}
 										onIntrospectToken={async (token: string) => {
 											if (!effectiveConfig?.environmentId || !effectiveConfig?.clientId) {
@@ -604,7 +639,7 @@ const CIBAFlowV5: React.FC = () => {
 											}
 
 											const introspectEndpoint = `https://auth.pingone.com/${effectiveConfig.environmentId}/as/introspect`;
-											
+
 											const params = new URLSearchParams({
 												token: token,
 												client_id: effectiveConfig.clientId,
@@ -633,7 +668,9 @@ const CIBAFlowV5: React.FC = () => {
 										completionMessage="Great work! Continue exploring these tokens in Token Management or rerun the flow with new scopes."
 									/>
 								) : (
-									<HelperText>Awaiting tokens. Complete the CIBA approval to view results.</HelperText>
+									<HelperText>
+										Awaiting tokens. Complete the CIBA approval to view results.
+									</HelperText>
 								)}
 								<SectionDivider />
 								<SecurityFeaturesDemo />

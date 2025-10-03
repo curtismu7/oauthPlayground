@@ -44,12 +44,12 @@ const CallbackCard = styled.div`
 const IconContainer = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 	font-size: 4rem;
 	margin-bottom: 1.5rem;
-	color: ${({ $status }) => 
-		$status === 'success' ? '#10b981' : 
-		$status === 'error' ? '#ef4444' : 
-		'#3b82f6'};
+	color: ${({ $status }) =>
+		$status === 'success' ? '#10b981' : $status === 'error' ? '#ef4444' : '#3b82f6'};
 	
-	${({ $status }) => $status === 'loading' && `
+	${({ $status }) =>
+		$status === 'loading' &&
+		`
 		animation: spin 1s linear infinite;
 		@keyframes spin {
 			from { transform: rotate(0deg); }
@@ -100,7 +100,7 @@ const validateIdToken = (idToken: string, expectedNonce: string): boolean => {
 
 		// Decode payload
 		const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-		
+
 		// Validate nonce
 		if (payload.nonce !== expectedNonce) {
 			log.error('Nonce mismatch', { expected: expectedNonce, received: payload.nonce });
@@ -204,7 +204,6 @@ const HybridCallback: React.FC = () => {
 				setTimeout(() => {
 					navigate('/flows/hybrid-v5');
 				}, 1500);
-
 			} catch (err: any) {
 				log.error('Callback processing failed', err);
 				setStatus('error');

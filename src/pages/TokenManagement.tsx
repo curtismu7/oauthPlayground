@@ -937,7 +937,11 @@ const TokenManagement = () => {
 						console.log(' [TokenManagement] Found tokens in secure storage:', storageTokens);
 						currentTokens = storageTokens;
 						// Only set storage/manual if no flow context exists
-						if (!sessionStorage.getItem('tokenManagementFlowContext') && !sessionStorage.getItem('flow_source') && !localStorage.getItem('flow_source')) {
+						if (
+							!sessionStorage.getItem('tokenManagementFlowContext') &&
+							!sessionStorage.getItem('flow_source') &&
+							!localStorage.getItem('flow_source')
+						) {
 							setFlowSourceState('storage/manual');
 						}
 					} else {
@@ -954,7 +958,11 @@ const TokenManagement = () => {
 								) {
 									currentTokens = parsedTokens;
 									// Only set storage/manual if no flow context exists
-									if (!sessionStorage.getItem('tokenManagementFlowContext') && !sessionStorage.getItem('flow_source') && !localStorage.getItem('flow_source')) {
+									if (
+										!sessionStorage.getItem('tokenManagementFlowContext') &&
+										!sessionStorage.getItem('flow_source') &&
+										!localStorage.getItem('flow_source')
+									) {
 										setFlowSourceState('storage/manual');
 									}
 								}

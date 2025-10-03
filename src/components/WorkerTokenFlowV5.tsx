@@ -616,7 +616,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 				return (
 					<>
 						<FlowConfigurationRequirements flowType="worker-token" variant="pingone" />
-						
+
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
@@ -1162,14 +1162,14 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		console.log('✅ [WorkerTokenFlowV5] Flow reset completed - returned to step 0');
 	}, [controller]);
 
-		return (
-			<Container>
-				<ContentWrapper>
-					<FlowHeader flowId="worker-token-v5" />
-					<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
-					<FlowSequenceDisplay flowType="worker-token" />
+	return (
+		<Container>
+			<ContentWrapper>
+				<FlowHeader flowId="worker-token-v5" />
+				<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
+				<FlowSequenceDisplay flowType="worker-token" />
 
-					<MainCard>
+				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>{flowVersion}</VersionBadge>

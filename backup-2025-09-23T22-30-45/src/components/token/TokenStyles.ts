@@ -79,8 +79,7 @@ export const TokenPayload = styled.pre`
 `;
 
 export const CardHeader = styled.div`
-  padding: ${({ theme }: { theme: ThemeType }) => 
-    `${theme.spacing.md} ${theme.spacing.md} 0`};
+  padding: ${({ theme }: { theme: ThemeType }) => `${theme.spacing.md} ${theme.spacing.md} 0`};
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -100,8 +99,7 @@ export const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 
   display: inline-flex;
   align-items: center;
   gap: ${({ theme }: { theme: ThemeType }) => theme.spacing.sm};
-  padding: ${({ theme }: { theme: ThemeType }) => 
-    `${theme.spacing.sm} ${theme.spacing.md}`};
+  padding: ${({ theme }: { theme: ThemeType }) => `${theme.spacing.sm} ${theme.spacing.md}`};
   border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.sm};
   border: 1px solid transparent;
   font-weight: 500;
@@ -109,10 +107,16 @@ export const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 
   transition: all 0.2s;
   font-size: 0.875rem;
   
-  ${({ variant = 'primary', theme }: { variant?: 'primary' | 'secondary' | 'danger', theme: ThemeType }) => {
-    switch (variant) {
-      case 'secondary':
-        return `
+  ${({
+		variant = 'primary',
+		theme,
+	}: {
+		variant?: 'primary' | 'secondary' | 'danger';
+		theme: ThemeType;
+	}) => {
+		switch (variant) {
+			case 'secondary':
+				return `
           background-color: ${theme.colors.gray100};
           color: ${theme.colors.gray700};
           border-color: ${theme.colors.gray300};
@@ -121,8 +125,8 @@ export const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 
             background-color: ${theme.colors.gray200};
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: ${theme.colors.danger};
           color: white;
           
@@ -130,8 +134,8 @@ export const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 
             background-color: #c82333;
           }
         `;
-      default: // primary
-        return `
+			default: // primary
+				return `
           background-color: ${theme.colors.primary};
           color: white;
           
@@ -139,8 +143,8 @@ export const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 
             background-color: #0069d9;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 export const AnalysisGrid = styled.div`
@@ -168,8 +172,8 @@ export const ValidationStatus = styled.div<{ valid?: boolean }>`
   display: flex;
   align-items: center;
   gap: ${({ theme }: { theme: ThemeType }) => theme.spacing.sm};
-  color: ${({ theme, valid }: { theme: ThemeType, valid?: boolean }) => 
-    valid ? theme.colors.success : theme.colors.danger};
+  color: ${({ theme, valid }: { theme: ThemeType; valid?: boolean }) =>
+		valid ? theme.colors.success : theme.colors.danger};
   font-weight: 500;
   margin: ${({ theme }: { theme: ThemeType }) => theme.spacing.sm} 0;
 `;

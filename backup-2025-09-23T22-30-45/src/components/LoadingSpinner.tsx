@@ -25,90 +25,90 @@ const SpinnerIcon = styled.div`
 `;
 
 interface LoadingSpinnerProps {
-  message?: string;
-  size?: 'sm' | 'md' | 'lg';
-  className?: string;
+	message?: string;
+	size?: 'sm' | 'md' | 'lg';
+	className?: string;
 }
 
 // Minimum delay for consistent UX feedback
 const MIN_SPINNER_DELAY = 2000; // 2 seconds
 
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  message = 'Loading...',
-  size = 'md',
-  className
+	message = 'Loading...',
+	size = 'md',
+	className,
 }) => {
-  return (
-    <SpinnerContainer className={className}>
-      <SpinnerIcon />
-      <span>{message}</span>
-    </SpinnerContainer>
-  );
+	return (
+		<SpinnerContainer className={className}>
+			<SpinnerIcon />
+			<span>{message}</span>
+		</SpinnerContainer>
+	);
 };
 
 // Utility function to ensure minimum spinner delay
 export const withMinimumDelay = async <T,>(
-  asyncOperation: () => Promise<T>,
-  minDelayMs: number = MIN_SPINNER_DELAY
+	asyncOperation: () => Promise<T>,
+	minDelayMs: number = MIN_SPINNER_DELAY
 ): Promise<T> => {
-  const startTime = Date.now();
+	const startTime = Date.now();
 
-  try {
-    const result = await asyncOperation();
-    const elapsedTime = Date.now() - startTime;
+	try {
+		const result = await asyncOperation();
+		const elapsedTime = Date.now() - startTime;
 
-    // If the operation completed faster than minimum delay, wait for the remaining time
-    if (elapsedTime < minDelayMs) {
-      await new Promise(resolve => setTimeout(resolve, minDelayMs - elapsedTime));
-    }
+		// If the operation completed faster than minimum delay, wait for the remaining time
+		if (elapsedTime < minDelayMs) {
+			await new Promise((resolve) => setTimeout(resolve, minDelayMs - elapsedTime));
+		}
 
-    return result;
-  } catch (error) {
-    const elapsedTime = Date.now() - startTime;
+		return result;
+	} catch (error) {
+		const elapsedTime = Date.now() - startTime;
 
-    // Still wait for minimum delay even if operation failed
-    if (elapsedTime < minDelayMs) {
-      await new Promise(resolve => setTimeout(resolve, minDelayMs - elapsedTime));
-    }
+		// Still wait for minimum delay even if operation failed
+		if (elapsedTime < minDelayMs) {
+			await new Promise((resolve) => setTimeout(resolve, minDelayMs - elapsedTime));
+		}
 
-    throw error;
-  }
+		throw error;
+	}
 };
 
 // Hook for consistent loading states
 export const useLoadingState = (initialLoading = false) => {
-  const [isLoading, setIsLoading] = useState(initialLoading);
-  const [loadingMessage, setLoadingMessage] = useState('Loading...');
+	const [isLoading, setIsLoading] = useState(initialLoading);
+	const [loadingMessage, setLoadingMessage] = useState('Loading...');
 
-  const startLoading = (message = 'Loading...') => {
-    setLoadingMessage(message);
-    setIsLoading(true);
-  };
+	const startLoading = (message = 'Loading...') => {
+		setLoadingMessage(message);
+		setIsLoading(true);
+	};
 
-  const stopLoading = () => {
-    setIsLoading(false);
-  };
+	const stopLoading = () => {
+		setIsLoading(false);
+	};
 
-  const withLoading = async <T,>(
-    asyncOperation: () => Promise<T>,
-    loadingMessage = 'Loading...'
-  ): Promise<T> => {
-    startLoading(loadingMessage);
-    try {
-      const result = await withMinimumDelay(asyncOperation);
-      return result;
-    } finally {
-      stopLoading();
-    }
-  };
+	const withLoading = async <T,>(
+		asyncOperation: () => Promise<T>,
+		loadingMessage = 'Loading...'
+	): Promise<T> => {
+		startLoading(loadingMessage);
+		try {
+			const result = await withMinimumDelay(asyncOperation);
+			return result;
+		} finally {
+			stopLoading();
+		}
+	};
 
-  return {
-    isLoading,
-    loadingMessage,
-    startLoading,
-    stopLoading,
-    withLoading
-  };
+	return {
+		isLoading,
+		loadingMessage,
+		startLoading,
+		stopLoading,
+		withLoading,
+	};
 };
 
 export default LoadingSpinner;

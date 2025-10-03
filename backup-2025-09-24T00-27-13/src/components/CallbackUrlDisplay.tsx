@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiCopy, FiExternalLink, FiCheck, FiAlertTriangle, FiChevronDown, FiChevronRight } from 'react-icons/fi';
-import { getCallbackUrlForFlow, getCallbackDescription, flowRequiresRedirectUri } from '../utils/callbackUrls';
+import {
+	FiCopy,
+	FiExternalLink,
+	FiCheck,
+	FiAlertTriangle,
+	FiChevronDown,
+	FiChevronRight,
+} from 'react-icons/fi';
+import {
+	getCallbackUrlForFlow,
+	getCallbackDescription,
+	flowRequiresRedirectUri,
+} from '../utils/callbackUrls';
 import { logger } from '../utils/logger';
 
 const CallbackUrlContainer = styled.div`
@@ -67,7 +78,7 @@ const CallbackUrlContent = styled.div<{ $isExpanded: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: ${({ $isExpanded }) => $isExpanded ? '500px' : '0'};
+  max-height: ${({ $isExpanded }) => ($isExpanded ? '500px' : '0')};
   overflow: hidden;
   transition: max-height 0.3s ease;
   position: relative;
@@ -97,17 +108,17 @@ const ActionButton = styled.button<{ $variant?: 'copy' | 'external' }>`
   align-items: center;
   gap: 0.25rem;
   padding: 0.5rem;
-  border: 1px solid ${({ $variant }) => $variant === 'copy' ? '#d1d5db' : '#3b82f6'};
+  border: 1px solid ${({ $variant }) => ($variant === 'copy' ? '#d1d5db' : '#3b82f6')};
   border-radius: 0.375rem;
-  background: ${({ $variant }) => $variant === 'copy' ? '#ffffff' : '#3b82f6'};
-  color: ${({ $variant }) => $variant === 'copy' ? '#374151' : '#ffffff'};
+  background: ${({ $variant }) => ($variant === 'copy' ? '#ffffff' : '#3b82f6')};
+  color: ${({ $variant }) => ($variant === 'copy' ? '#374151' : '#ffffff')};
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${({ $variant }) => $variant === 'copy' ? '#f9fafb' : '#2563eb'};
-    border-color: ${({ $variant }) => $variant === 'copy' ? '#9ca3af' : '#1d4ed8'};
+    background: ${({ $variant }) => ($variant === 'copy' ? '#f9fafb' : '#2563eb')};
+    border-color: ${({ $variant }) => ($variant === 'copy' ? '#9ca3af' : '#1d4ed8')};
   }
 
   &:disabled {
@@ -188,92 +199,98 @@ const SetupListItem = styled.li`
 `;
 
 interface CallbackUrlDisplayProps {
-  flowType: string;
-  baseUrl?: string;
-  defaultExpanded?: boolean; // New prop to control default state
+	flowType: string;
+	baseUrl?: string;
+	defaultExpanded?: boolean; // New prop to control default state
 }
 
-const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({ flowType, baseUrl, defaultExpanded = false }) => {
-  const [copied, setCopied] = useState(false);
-  const [isSetupExpanded, setIsSetupExpanded] = useState(defaultExpanded);
-  
-  const callbackUrl = getCallbackUrlForFlow(flowType, baseUrl);
-  const description = getCallbackDescription(flowType);
-  const requiresRedirect = flowRequiresRedirectUri(flowType);
+const CallbackUrlDisplay: React.FC<CallbackUrlDisplayProps> = ({
+	flowType,
+	baseUrl,
+	defaultExpanded = false,
+}) => {
+	const [copied, setCopied] = useState(false);
+	const [isSetupExpanded, setIsSetupExpanded] = useState(defaultExpanded);
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(callbackUrl);
-      setCopied(true);
-      logger.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', { flowType, callbackUrl });
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      logger.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
-    }
-  };
+	const callbackUrl = getCallbackUrlForFlow(flowType, baseUrl);
+	const description = getCallbackDescription(flowType);
+	const requiresRedirect = flowRequiresRedirectUri(flowType);
 
-  const handleOpenInNewTab = () => {
-    window.open(callbackUrl, '_blank');
-    logger.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
-  };
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(callbackUrl);
+			setCopied(true);
+			logger.auth('CallbackUrlDisplay', 'Callback URL copied to clipboard', {
+				flowType,
+				callbackUrl,
+			});
+			setTimeout(() => setCopied(false), 2000);
+		} catch (error) {
+			logger.error('CallbackUrlDisplay', 'Failed to copy callback URL', error);
+		}
+	};
 
-  if (!requiresRedirect) {
-    return (
-      <CallbackUrlContainer>
-        <CallbackUrlHeader>
-          <CallbackUrlTitle>Redirect URI Configuration</CallbackUrlTitle>
-        </CallbackUrlHeader>
-        <WarningBox>
-          <WarningIcon>
-            <FiAlertTriangle />
-          </WarningIcon>
-          <WarningContent>
-            <WarningTitle>No Redirect URI Required</WarningTitle>
-            <WarningText>
-              The {flowType} flow does not require a redirect URI. This flow uses direct token endpoint communication.
-            </WarningText>
-          </WarningContent>
-        </WarningBox>
-      </CallbackUrlContainer>
-    );
-  }
+	const handleOpenInNewTab = () => {
+		window.open(callbackUrl, '_blank');
+		logger.ui('CallbackUrlDisplay', 'Callback URL opened in new tab', { flowType, callbackUrl });
+	};
 
-  return (
-    <CallbackUrlContainer>
-      <CallbackUrlHeader onClick={() => setIsSetupExpanded(!isSetupExpanded)}>
-        <CallbackUrlTitle>Set the Redirect URI in PingOne</CallbackUrlTitle>
-        <ChevronIcon>
-          {isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}
-        </ChevronIcon>
-      </CallbackUrlHeader>
-      <CallbackUrlContent $isExpanded={isSetupExpanded}>
-        <Description>{description}</Description>
-        
-        <UrlDisplay>
-          <UrlText>{callbackUrl}</UrlText>
-          <ActionButton $variant="copy" onClick={handleCopy} disabled={copied}>
-            {copied ? <FiCheck /> : <FiCopy />}
-            {copied ? 'Copied!' : 'Copy'}
-          </ActionButton>
-          <ActionButton $variant="external" onClick={handleOpenInNewTab}>
-            <FiExternalLink />
-            Open
-          </ActionButton>
-        </UrlDisplay>
+	if (!requiresRedirect) {
+		return (
+			<CallbackUrlContainer>
+				<CallbackUrlHeader>
+					<CallbackUrlTitle>Redirect URI Configuration</CallbackUrlTitle>
+				</CallbackUrlHeader>
+				<WarningBox>
+					<WarningIcon>
+						<FiAlertTriangle />
+					</WarningIcon>
+					<WarningContent>
+						<WarningTitle>No Redirect URI Required</WarningTitle>
+						<WarningText>
+							The {flowType} flow does not require a redirect URI. This flow uses direct token
+							endpoint communication.
+						</WarningText>
+					</WarningContent>
+				</WarningBox>
+			</CallbackUrlContainer>
+		);
+	}
 
-        <SetupInstructions>
-          <SetupTitle>Setup Instructions:</SetupTitle>
-          <SetupList>
-            <SetupListItem>Copy the redirect URI above</SetupListItem>
-            <SetupListItem>Go to your PingOne application settings</SetupListItem>
-            <SetupListItem>Navigate to "Redirect URIs" section</SetupListItem>
-            <SetupListItem>Add the copied URI to your allowed redirect URIs</SetupListItem>
-            <SetupListItem>Save your configuration</SetupListItem>
-          </SetupList>
-        </SetupInstructions>
-      </CallbackUrlContent>
-    </CallbackUrlContainer>
-  );
+	return (
+		<CallbackUrlContainer>
+			<CallbackUrlHeader onClick={() => setIsSetupExpanded(!isSetupExpanded)}>
+				<CallbackUrlTitle>Set the Redirect URI in PingOne</CallbackUrlTitle>
+				<ChevronIcon>{isSetupExpanded ? <FiChevronDown /> : <FiChevronRight />}</ChevronIcon>
+			</CallbackUrlHeader>
+			<CallbackUrlContent $isExpanded={isSetupExpanded}>
+				<Description>{description}</Description>
+
+				<UrlDisplay>
+					<UrlText>{callbackUrl}</UrlText>
+					<ActionButton $variant="copy" onClick={handleCopy} disabled={copied}>
+						{copied ? <FiCheck /> : <FiCopy />}
+						{copied ? 'Copied!' : 'Copy'}
+					</ActionButton>
+					<ActionButton $variant="external" onClick={handleOpenInNewTab}>
+						<FiExternalLink />
+						Open
+					</ActionButton>
+				</UrlDisplay>
+
+				<SetupInstructions>
+					<SetupTitle>Setup Instructions:</SetupTitle>
+					<SetupList>
+						<SetupListItem>Copy the redirect URI above</SetupListItem>
+						<SetupListItem>Go to your PingOne application settings</SetupListItem>
+						<SetupListItem>Navigate to "Redirect URIs" section</SetupListItem>
+						<SetupListItem>Add the copied URI to your allowed redirect URIs</SetupListItem>
+						<SetupListItem>Save your configuration</SetupListItem>
+					</SetupList>
+				</SetupInstructions>
+			</CallbackUrlContent>
+		</CallbackUrlContainer>
+	);
 };
 
 export default CallbackUrlDisplay;

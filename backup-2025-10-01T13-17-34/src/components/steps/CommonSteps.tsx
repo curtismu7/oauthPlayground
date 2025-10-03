@@ -215,32 +215,32 @@ export interface StepCredentials {
 	responseType?: string; // OAuth response type
 	grantType?: string; // OAuth grant type
 	authorizationEndpoint?: string;
-	
+
 	// JWT Authentication Settings
 	privateKey?: string; // For private_key_jwt authentication
 	keyId?: string; // Key ID for JWKS (optional)
-	
+
 	// Response Types (from OIDC Settings)
 	responseTypeCode?: boolean;
 	responseTypeToken?: boolean;
 	responseTypeIdToken?: boolean;
-	
+
 	// Advanced OIDC Parameters
 	initiateLoginUri?: string;
 	targetLinkUri?: string;
 	signoffUrls?: string[];
 	loginHint?: string; // OIDC login_hint parameter
-	
+
 	// Request Parameter Signature
 	requestParameterSignatureRequirement?: 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED';
-	
+
 	// Advanced Security Settings
 	additionalRefreshTokenReplayProtection?: boolean;
 	includeX5tParameter?: boolean;
 	oidcSessionManagement?: boolean;
 	requestScopesForMultipleResources?: boolean;
 	terminateUserSessionByIdToken?: boolean;
-	
+
 	// CORS Settings
 	corsOrigins?: string[];
 	corsAllowAnyOrigin?: boolean;

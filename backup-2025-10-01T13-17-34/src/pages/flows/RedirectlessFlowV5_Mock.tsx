@@ -42,9 +42,15 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand Redirectless Flow and configure credentials' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand Redirectless Flow and configure credentials',
+	},
 	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure PKCE codes for the flow' },
-	{ title: 'Step 2: Authorization Request', subtitle: 'Build authorization URL with response_mode=pi.flow' },
+	{
+		title: 'Step 2: Authorization Request',
+		subtitle: 'Build authorization URL with response_mode=pi.flow',
+	},
 	{ title: 'Step 3: Flow Response', subtitle: 'Receive and process the flow object (no redirect)' },
 	{ title: 'Step 4: Token Response', subtitle: 'Receive tokens in JSON format' },
 	{ title: 'Step 5: Complete', subtitle: 'Review the redirectless flow implementation' },
@@ -226,18 +232,26 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' | 'danger
 	margin: 1rem 0;
 	background-color: ${({ $variant }) => {
 		switch ($variant) {
-			case 'success': return '#f0fdf4';
-			case 'warning': return '#fef3c7';
-			case 'danger': return '#fee2e2';
-			default: return '#eff6ff';
+			case 'success':
+				return '#f0fdf4';
+			case 'warning':
+				return '#fef3c7';
+			case 'danger':
+				return '#fee2e2';
+			default:
+				return '#eff6ff';
 		}
 	}};
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
-			case 'success': return '#22c55e';
-			case 'warning': return '#f59e0b';
-			case 'danger': return '#ef4444';
-			default: return '#8b5cf6';
+			case 'success':
+				return '#22c55e';
+			case 'warning':
+				return '#f59e0b';
+			case 'danger':
+				return '#ef4444';
+			default:
+				return '#8b5cf6';
 		}
 	}};
 `;
@@ -505,7 +519,13 @@ const RedirectlessFlowV5: React.FC = () => {
 					return false;
 			}
 		},
-		[controller.hasCredentialsSaved, controller.pkceCodes, controller.authUrl, mockFlowResponse, mockTokenResponse]
+		[
+			controller.hasCredentialsSaved,
+			controller.pkceCodes,
+			controller.authUrl,
+			mockFlowResponse,
+			mockTokenResponse,
+		]
 	);
 
 	const getStepRequirements = useCallback((stepIndex: number): string[] => {
@@ -536,7 +556,13 @@ const RedirectlessFlowV5: React.FC = () => {
 			4: Boolean(mockTokenResponse),
 			5: true,
 		}),
-		[controller.hasCredentialsSaved, controller.pkceCodes.codeVerifier, controller.authUrl, mockFlowResponse, mockTokenResponse]
+		[
+			controller.hasCredentialsSaved,
+			controller.pkceCodes.codeVerifier,
+			controller.authUrl,
+			mockFlowResponse,
+			mockTokenResponse,
+		]
 	);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
@@ -545,7 +571,9 @@ const RedirectlessFlowV5: React.FC = () => {
 
 	const handleGeneratePkce = useCallback(async () => {
 		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
-			v4ToastManager.showError('Complete above action: Fill in Client ID and Environment ID first.');
+			v4ToastManager.showError(
+				'Complete above action: Fill in Client ID and Environment ID first.'
+			);
 			return;
 		}
 		await controller.generatePkceCodes();
@@ -554,7 +582,9 @@ const RedirectlessFlowV5: React.FC = () => {
 
 	const handleGenerateAuthUrl = useCallback(async () => {
 		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
-			v4ToastManager.showError('Complete above action: Fill in Client ID and Environment ID first.');
+			v4ToastManager.showError(
+				'Complete above action: Fill in Client ID and Environment ID first.'
+			);
 			return;
 		}
 		if (!controller.pkceCodes.codeVerifier || !controller.pkceCodes.codeChallenge) {
@@ -566,7 +596,9 @@ const RedirectlessFlowV5: React.FC = () => {
 			// Use the controller's generateAuthorizationUrl method
 			// Note: This will generate a standard auth URL, but we'll document the pi.flow parameter
 			await controller.generateAuthorizationUrl();
-			v4ToastManager.showSuccess('Authorization URL generated! (Add response_mode=pi.flow for redirectless flow)');
+			v4ToastManager.showSuccess(
+				'Authorization URL generated! (Add response_mode=pi.flow for redirectless flow)'
+			);
 		} catch (error) {
 			console.error('[RedirectlessFlowV5] Failed to generate authorization URL:', error);
 			v4ToastManager.showError(
@@ -588,17 +620,17 @@ const RedirectlessFlowV5: React.FC = () => {
 						type: 'USERNAME_PASSWORD',
 						_links: {
 							submit: {
-								href: `/flows/flow-${Math.random().toString(36).substring(7)}`
-							}
-						}
-					}
+								href: `/flows/flow-${Math.random().toString(36).substring(7)}`,
+							},
+						},
+					},
 				},
 				_links: {
 					self: {
-						href: `/as/authorize?flowId=flow-${Math.random().toString(36).substring(7)}`
-					}
-				}
-			}
+						href: `/as/authorize?flowId=flow-${Math.random().toString(36).substring(7)}`,
+					},
+				},
+			},
 		};
 
 		setMockFlowResponse(mockResponse);
@@ -608,24 +640,28 @@ const RedirectlessFlowV5: React.FC = () => {
 	const handleSimulateTokenResponse = useCallback(() => {
 		// Simulate receiving tokens in JSON format (no redirect)
 		const mockTokens = {
-			access_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify({
-				sub: 'user-' + Math.random().toString(36).substring(7),
-				iss: controller.credentials.authorizationEndpoint.replace('/as/authorize', ''),
-				aud: controller.credentials.clientId,
-				exp: Math.floor(Date.now() / 1000) + 3600,
-				iat: Math.floor(Date.now() / 1000),
-				scope: controller.credentials.scope,
-			}))}.signature`,
-			id_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(JSON.stringify({
-				sub: 'user-' + Math.random().toString(36).substring(7),
-				iss: controller.credentials.authorizationEndpoint.replace('/as/authorize', ''),
-				aud: controller.credentials.clientId,
-				exp: Math.floor(Date.now() / 1000) + 3600,
-				iat: Math.floor(Date.now() / 1000),
-				nonce: 'mock-nonce',
-				email: 'user@example.com',
-				name: 'Mock User',
-			}))}.signature`,
+			access_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(
+				JSON.stringify({
+					sub: 'user-' + Math.random().toString(36).substring(7),
+					iss: controller.credentials.authorizationEndpoint.replace('/as/authorize', ''),
+					aud: controller.credentials.clientId,
+					exp: Math.floor(Date.now() / 1000) + 3600,
+					iat: Math.floor(Date.now() / 1000),
+					scope: controller.credentials.scope,
+				})
+			)}.signature`,
+			id_token: `eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.${btoa(
+				JSON.stringify({
+					sub: 'user-' + Math.random().toString(36).substring(7),
+					iss: controller.credentials.authorizationEndpoint.replace('/as/authorize', ''),
+					aud: controller.credentials.clientId,
+					exp: Math.floor(Date.now() / 1000) + 3600,
+					iat: Math.floor(Date.now() / 1000),
+					nonce: 'mock-nonce',
+					email: 'user@example.com',
+					name: 'Mock User',
+				})
+			)}.signature`,
 			token_type: 'Bearer',
 			expires_in: 3600,
 			scope: controller.credentials.scope,
@@ -698,16 +734,29 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>PingOne Proprietary Response Mode</InfoTitle>
 											<InfoText>
-												<code>response_mode=pi.flow</code> is a PingOne-specific OAuth 2.0 extension that allows 
-												applications to request OAuth/OIDC tokens without redirecting the user's browser. Instead of 
-												traditional redirects, the authentication UI is hosted within your application, and tokens are 
-												returned in a JSON response.
+												<code>response_mode=pi.flow</code> is a PingOne-specific OAuth 2.0 extension
+												that allows applications to request OAuth/OIDC tokens without redirecting
+												the user's browser. Instead of traditional redirects, the authentication UI
+												is hosted within your application, and tokens are returned in a JSON
+												response.
 											</InfoText>
 											<InfoList>
-												<li><strong>No Browser Redirects:</strong> Authentication happens within your app's context</li>
-												<li><strong>JSON Response:</strong> Tokens returned as JSON instead of URL parameters</li>
-												<li><strong>Flow Object:</strong> Receive a flow object to manage authentication state</li>
-												<li><strong>Embedded UI:</strong> Host PingOne authentication UI in your application</li>
+												<li>
+													<strong>No Browser Redirects:</strong> Authentication happens within your
+													app's context
+												</li>
+												<li>
+													<strong>JSON Response:</strong> Tokens returned as JSON instead of URL
+													parameters
+												</li>
+												<li>
+													<strong>Flow Object:</strong> Receive a flow object to manage
+													authentication state
+												</li>
+												<li>
+													<strong>Embedded UI:</strong> Host PingOne authentication UI in your
+													application
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -734,14 +783,16 @@ const RedirectlessFlowV5: React.FC = () => {
 											<FlowStepNumber>1</FlowStepNumber>
 											<FlowStepContent>
 												<strong>Authorization Request with pi.flow</strong>
-												Application sends authorization request with <code>response_mode=pi.flow</code>
+												Application sends authorization request with{' '}
+												<code>response_mode=pi.flow</code>
 											</FlowStepContent>
 										</FlowStep>
 										<FlowStep>
 											<FlowStepNumber>2</FlowStepNumber>
 											<FlowStepContent>
 												<strong>Flow Object Response</strong>
-												PingOne returns a flow object with authentication UI components (no redirect)
+												PingOne returns a flow object with authentication UI components (no
+												redirect)
 											</FlowStepContent>
 										</FlowStep>
 										<FlowStep>
@@ -784,7 +835,8 @@ const RedirectlessFlowV5: React.FC = () => {
 											</UseCaseIcon>
 											<UseCaseTitle>Mobile Applications</UseCaseTitle>
 											<UseCaseDescription>
-												Native mobile apps can implement custom authentication UI without browser redirects.
+												Native mobile apps can implement custom authentication UI without browser
+												redirects.
 											</UseCaseDescription>
 										</UseCaseCard>
 
@@ -794,7 +846,8 @@ const RedirectlessFlowV5: React.FC = () => {
 											</UseCaseIcon>
 											<UseCaseTitle>Single Page Applications</UseCaseTitle>
 											<UseCaseDescription>
-												SPAs can render authentication UI natively without leaving the application context.
+												SPAs can render authentication UI natively without leaving the application
+												context.
 											</UseCaseDescription>
 										</UseCaseCard>
 
@@ -814,7 +867,8 @@ const RedirectlessFlowV5: React.FC = () => {
 											</UseCaseIcon>
 											<UseCaseTitle>Transaction Approval</UseCaseTitle>
 											<UseCaseDescription>
-												Implement strong authentication for high-value transactions without full page redirects.
+												Implement strong authentication for high-value transactions without full
+												page redirects.
 											</UseCaseDescription>
 										</UseCaseCard>
 									</UseCaseGrid>
@@ -837,11 +891,21 @@ const RedirectlessFlowV5: React.FC = () => {
 								clientSecret={controller.credentials.clientSecret}
 								redirectUri={controller.credentials.redirectUri}
 								scopes={controller.credentials.scope}
-								onEnvironmentIdChange={(value) => controller.setCredentials({ ...controller.credentials, environmentId: value })}
-								onClientIdChange={(value) => controller.setCredentials({ ...controller.credentials, clientId: value })}
-								onClientSecretChange={(value) => controller.setCredentials({ ...controller.credentials, clientSecret: value })}
-								onRedirectUriChange={(value) => controller.setCredentials({ ...controller.credentials, redirectUri: value })}
-								onScopesChange={(value) => controller.setCredentials({ ...controller.credentials, scope: value })}
+								onEnvironmentIdChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, environmentId: value })
+								}
+								onClientIdChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, clientId: value })
+								}
+								onClientSecretChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, clientSecret: value })
+								}
+								onRedirectUriChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, redirectUri: value })
+								}
+								onScopesChange={(value) =>
+									controller.setCredentials({ ...controller.credentials, scope: value })
+								}
 								onCopy={handleCopy}
 								emptyRequiredFields={controller.emptyRequiredFields}
 								copiedField={copiedField}
@@ -899,9 +963,9 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>PKCE for Redirectless Flow</InfoTitle>
 											<InfoText>
-												PKCE (Proof Key for Code Exchange) is essential for security in redirectless flows. 
-												The code challenge is included in the authorization request, and the code verifier 
-												is used during token exchange.
+												PKCE (Proof Key for Code Exchange) is essential for security in redirectless
+												flows. The code challenge is included in the authorization request, and the
+												code verifier is used during token exchange.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -914,17 +978,14 @@ const RedirectlessFlowV5: React.FC = () => {
 							<ResultsHeading>
 								<FiKey size={18} /> Generate PKCE Parameters
 							</ResultsHeading>
-							<HelperText>
-								Generate secure PKCE parameters for the redirectless flow.
-							</HelperText>
+							<HelperText>Generate secure PKCE parameters for the redirectless flow.</HelperText>
 
 							<ActionRow>
-								<HighlightedActionButton
-									onClick={handleGeneratePkce}
-									$priority="primary"
-								>
+								<HighlightedActionButton onClick={handleGeneratePkce} $priority="primary">
 									{controller.pkceCodes.codeVerifier ? <FiRefreshCw /> : <FiKey />}
-									{controller.pkceCodes.codeVerifier ? 'Regenerate PKCE Parameters' : 'Generate PKCE Parameters'}
+									{controller.pkceCodes.codeVerifier
+										? 'Regenerate PKCE Parameters'
+										: 'Generate PKCE Parameters'}
 									{!controller.pkceCodes.codeVerifier && <HighlightBadge>1</HighlightBadge>}
 								</HighlightedActionButton>
 							</ActionRow>
@@ -934,47 +995,80 @@ const RedirectlessFlowV5: React.FC = () => {
 									<GeneratedLabel>Generated PKCE Parameters</GeneratedLabel>
 									<div style={{ marginBottom: '1.5rem', lineHeight: '2' }}>
 										<div style={{ marginBottom: '1rem' }}>
-											<strong style={{ display: 'block', color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Code Verifier:</strong>
-											<code style={{ 
-												display: 'block', 
-												backgroundColor: '#f1f5f9', 
-												padding: '0.75rem', 
-												borderRadius: '0.375rem',
-												fontSize: '0.875rem',
-												wordBreak: 'break-all',
-												fontFamily: 'Monaco, Menlo, monospace',
-												border: '1px solid #e2e8f0'
-											}}>
+											<strong
+												style={{
+													display: 'block',
+													color: '#6b7280',
+													fontSize: '0.875rem',
+													marginBottom: '0.25rem',
+												}}
+											>
+												Code Verifier:
+											</strong>
+											<code
+												style={{
+													display: 'block',
+													backgroundColor: '#f1f5f9',
+													padding: '0.75rem',
+													borderRadius: '0.375rem',
+													fontSize: '0.875rem',
+													wordBreak: 'break-all',
+													fontFamily: 'Monaco, Menlo, monospace',
+													border: '1px solid #e2e8f0',
+												}}
+											>
 												{controller.pkceCodes.codeVerifier}
 											</code>
 										</div>
 										<div style={{ marginBottom: '1rem' }}>
-											<strong style={{ display: 'block', color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Code Challenge:</strong>
-											<code style={{ 
-												display: 'block', 
-												backgroundColor: '#f1f5f9', 
-												padding: '0.75rem', 
-												borderRadius: '0.375rem',
-												fontSize: '0.875rem',
-												wordBreak: 'break-all',
-												fontFamily: 'Monaco, Menlo, monospace',
-												border: '1px solid #e2e8f0'
-											}}>
+											<strong
+												style={{
+													display: 'block',
+													color: '#6b7280',
+													fontSize: '0.875rem',
+													marginBottom: '0.25rem',
+												}}
+											>
+												Code Challenge:
+											</strong>
+											<code
+												style={{
+													display: 'block',
+													backgroundColor: '#f1f5f9',
+													padding: '0.75rem',
+													borderRadius: '0.375rem',
+													fontSize: '0.875rem',
+													wordBreak: 'break-all',
+													fontFamily: 'Monaco, Menlo, monospace',
+													border: '1px solid #e2e8f0',
+												}}
+											>
 												{controller.pkceCodes.codeChallenge}
 											</code>
 										</div>
 										<div>
-											<strong style={{ display: 'block', color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.25rem' }}>Method:</strong>
-											<code style={{ 
-												display: 'inline-block', 
-												backgroundColor: '#8b5cf6', 
-												color: 'white',
-												padding: '0.375rem 0.75rem', 
-												borderRadius: '0.375rem',
-												fontSize: '0.875rem',
-												fontFamily: 'Monaco, Menlo, monospace',
-												fontWeight: '600'
-											}}>
+											<strong
+												style={{
+													display: 'block',
+													color: '#6b7280',
+													fontSize: '0.875rem',
+													marginBottom: '0.25rem',
+												}}
+											>
+												Method:
+											</strong>
+											<code
+												style={{
+													display: 'inline-block',
+													backgroundColor: '#8b5cf6',
+													color: 'white',
+													padding: '0.375rem 0.75rem',
+													borderRadius: '0.375rem',
+													fontSize: '0.875rem',
+													fontFamily: 'Monaco, Menlo, monospace',
+													fontWeight: '600',
+												}}
+											>
 												{controller.pkceCodes.codeChallengeMethod}
 											</code>
 										</div>
@@ -987,7 +1081,9 @@ const RedirectlessFlowV5: React.FC = () => {
 											<FiCopy /> Copy Verifier
 										</HighlightedActionButton>
 										<HighlightedActionButton
-											onClick={() => handleCopy(controller.pkceCodes.codeChallenge, 'Code Challenge')}
+											onClick={() =>
+												handleCopy(controller.pkceCodes.codeChallenge, 'Code Challenge')
+											}
 											$priority="primary"
 										>
 											<FiCopy /> Copy Challenge
@@ -1021,8 +1117,9 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Key Parameter: response_mode=pi.flow</InfoTitle>
 											<InfoText>
-												The <code>response_mode=pi.flow</code> parameter tells PingOne to return a flow object 
-												instead of redirecting the browser. This enables embedded authentication within your application.
+												The <code>response_mode=pi.flow</code> parameter tells PingOne to return a
+												flow object instead of redirecting the browser. This enables embedded
+												authentication within your application.
 											</InfoText>
 											<CodeBlock>{`GET /as/authorize?
   response_type=code
@@ -1056,25 +1153,33 @@ const RedirectlessFlowV5: React.FC = () => {
 									disabled={!!controller.authUrl || !controller.pkceCodes.codeVerifier}
 								>
 									{controller.authUrl ? <FiCheckCircle /> : <FiCode />}
-									{controller.authUrl ? 'URL Generated' : !controller.pkceCodes.codeVerifier ? 'Complete above action' : 'Generate Authorization URL'}
-									{!controller.authUrl && controller.pkceCodes.codeVerifier && <HighlightBadge>1</HighlightBadge>}
+									{controller.authUrl
+										? 'URL Generated'
+										: !controller.pkceCodes.codeVerifier
+											? 'Complete above action'
+											: 'Generate Authorization URL'}
+									{!controller.authUrl && controller.pkceCodes.codeVerifier && (
+										<HighlightBadge>1</HighlightBadge>
+									)}
 								</HighlightedActionButton>
 							</ActionRow>
 
 							{controller.authUrl && (
 								<GeneratedUrlDisplay>
 									<GeneratedLabel>Generated Authorization URL</GeneratedLabel>
-									<div style={{ 
-										marginBottom: '1rem', 
-										wordBreak: 'break-all',
-										backgroundColor: '#f1f5f9',
-										padding: '0.75rem',
-										borderRadius: '0.375rem',
-										fontSize: '0.875rem',
-										fontFamily: 'Monaco, Menlo, monospace',
-										border: '1px solid #e2e8f0',
-										overflowWrap: 'break-word'
-									}}>
+									<div
+										style={{
+											marginBottom: '1rem',
+											wordBreak: 'break-all',
+											backgroundColor: '#f1f5f9',
+											padding: '0.75rem',
+											borderRadius: '0.375rem',
+											fontSize: '0.875rem',
+											fontFamily: 'Monaco, Menlo, monospace',
+											border: '1px solid #e2e8f0',
+											overflowWrap: 'break-word',
+										}}
+									>
 										{controller.authUrl}
 									</div>
 									<InfoBox $variant="info">
@@ -1082,23 +1187,28 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div style={{ flex: 1 }}>
 											<InfoTitle>Add response_mode=pi.flow</InfoTitle>
 											<InfoText>
-												To make this a redirectless flow, add <code>&response_mode=pi.flow</code> to the URL. 
-												This tells PingOne to return a flow object instead of redirecting the browser.
+												To make this a redirectless flow, add <code>&response_mode=pi.flow</code> to
+												the URL. This tells PingOne to return a flow object instead of redirecting
+												the browser.
 											</InfoText>
 											<InfoText style={{ marginTop: '0.75rem' }}>
-												<strong style={{ display: 'block', marginBottom: '0.5rem' }}>Example with pi.flow:</strong>
-												<code style={{ 
-													display: 'block',
-													backgroundColor: '#f1f5f9',
-													padding: '0.75rem',
-													borderRadius: '0.375rem',
-													fontSize: '0.75rem',
-													wordBreak: 'break-all',
-													overflowWrap: 'break-word',
-													fontFamily: 'Monaco, Menlo, monospace',
-													border: '1px solid #e2e8f0',
-													lineHeight: '1.5'
-												}}>
+												<strong style={{ display: 'block', marginBottom: '0.5rem' }}>
+													Example with pi.flow:
+												</strong>
+												<code
+													style={{
+														display: 'block',
+														backgroundColor: '#f1f5f9',
+														padding: '0.75rem',
+														borderRadius: '0.375rem',
+														fontSize: '0.75rem',
+														wordBreak: 'break-all',
+														overflowWrap: 'break-word',
+														fontFamily: 'Monaco, Menlo, monospace',
+														border: '1px solid #e2e8f0',
+														lineHeight: '1.5',
+													}}
+												>
 													{controller.authUrl}&response_mode=pi.flow
 												</code>
 											</InfoText>
@@ -1112,7 +1222,12 @@ const RedirectlessFlowV5: React.FC = () => {
 											<FiCopy /> Copy URL
 										</HighlightedActionButton>
 										<HighlightedActionButton
-											onClick={() => handleCopy(`${controller.authUrl}&response_mode=pi.flow`, 'Redirectless URL')}
+											onClick={() =>
+												handleCopy(
+													`${controller.authUrl}&response_mode=pi.flow`,
+													'Redirectless URL'
+												)
+											}
 											$priority="success"
 										>
 											<FiCopy /> Copy with pi.flow
@@ -1146,8 +1261,9 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Flow Object Response</InfoTitle>
 											<InfoText>
-												Instead of redirecting, PingOne returns a JSON flow object containing authentication 
-												state and UI components. Your application renders the authentication UI based on this object.
+												Instead of redirecting, PingOne returns a JSON flow object containing
+												authentication state and UI components. Your application renders the
+												authentication UI based on this object.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1185,8 +1301,9 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>No Redirect Occurred</InfoTitle>
 											<InfoText>
-												Notice that the browser did not redirect. The flow object was returned as JSON, 
-												allowing your application to render the authentication UI within its own context.
+												Notice that the browser did not redirect. The flow object was returned as
+												JSON, allowing your application to render the authentication UI within its
+												own context.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1218,8 +1335,9 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Tokens in JSON Format</InfoTitle>
 											<InfoText>
-												After authentication, tokens are returned in JSON format instead of URL parameters. 
-												This provides better security and allows your application to handle tokens programmatically.
+												After authentication, tokens are returned in JSON format instead of URL
+												parameters. This provides better security and allows your application to
+												handle tokens programmatically.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1232,9 +1350,7 @@ const RedirectlessFlowV5: React.FC = () => {
 							<ResultsHeading>
 								<FiKey size={18} /> Simulate Token Response
 							</ResultsHeading>
-							<HelperText>
-								Simulate receiving tokens in JSON format (no URL parameters).
-							</HelperText>
+							<HelperText>Simulate receiving tokens in JSON format (no URL parameters).</HelperText>
 
 							<ActionRow>
 								<HighlightedActionButton
@@ -1257,8 +1373,9 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Tokens Received Securely</InfoTitle>
 											<InfoText>
-												Tokens were returned in JSON format, not as URL parameters. This is more secure 
-												and allows your application to handle them programmatically without parsing URLs.
+												Tokens were returned in JSON format, not as URL parameters. This is more
+												secure and allows your application to handle them programmatically without
+												parsing URLs.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1290,14 +1407,25 @@ const RedirectlessFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Flow Complete!</InfoTitle>
 											<InfoText>
-												You've successfully completed the redirectless flow demonstration. You've seen how 
-												<code>response_mode=pi.flow</code> enables embedded authentication without browser redirects.
+												You've successfully completed the redirectless flow demonstration. You've
+												seen how
+												<code>response_mode=pi.flow</code> enables embedded authentication without
+												browser redirects.
 											</InfoText>
 											<InfoList>
-												<li><strong>No Redirects:</strong> Authentication happened within the app context</li>
-												<li><strong>JSON Responses:</strong> Flow object and tokens returned as JSON</li>
-												<li><strong>Better UX:</strong> Users stayed within your application</li>
-												<li><strong>More Secure:</strong> Tokens not exposed in URL parameters</li>
+												<li>
+													<strong>No Redirects:</strong> Authentication happened within the app
+													context
+												</li>
+												<li>
+													<strong>JSON Responses:</strong> Flow object and tokens returned as JSON
+												</li>
+												<li>
+													<strong>Better UX:</strong> Users stayed within your application
+												</li>
+												<li>
+													<strong>More Secure:</strong> Tokens not exposed in URL parameters
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1317,9 +1445,9 @@ const RedirectlessFlowV5: React.FC = () => {
 							<InfoList>
 								<li>
 									<strong>PingOne Documentation:</strong>{' '}
-									<a 
-										href="https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html" 
-										target="_blank" 
+									<a
+										href="https://docs.pingidentity.com/pingone/applications/p1_response_mode_values.html"
+										target="_blank"
 										rel="noopener noreferrer"
 										style={{ color: '#8b5cf6' }}
 									>
@@ -1328,9 +1456,9 @@ const RedirectlessFlowV5: React.FC = () => {
 								</li>
 								<li>
 									<strong>PingOne Auth API:</strong>{' '}
-									<a 
-										href="https://apidocs.pingidentity.com/pingone/auth/v1/api/" 
-										target="_blank" 
+									<a
+										href="https://apidocs.pingidentity.com/pingone/auth/v1/api/"
+										target="_blank"
 										rel="noopener noreferrer"
 										style={{ color: '#8b5cf6' }}
 									>
@@ -1339,9 +1467,9 @@ const RedirectlessFlowV5: React.FC = () => {
 								</li>
 								<li>
 									<strong>DaVinci Widget:</strong>{' '}
-									<a 
-										href="https://docs.pingidentity.com/davinci/integrating_flows_into_applications/davinci_launching_a_flow_with_the_widget.html" 
-										target="_blank" 
+									<a
+										href="https://docs.pingidentity.com/davinci/integrating_flows_into_applications/davinci_launching_a_flow_with_the_widget.html"
+										target="_blank"
 										rel="noopener noreferrer"
 										style={{ color: '#8b5cf6' }}
 									>
@@ -1354,9 +1482,7 @@ const RedirectlessFlowV5: React.FC = () => {
 								<FiAlertCircle size={20} />
 								<div>
 									<InfoTitle>Security Considerations</InfoTitle>
-									<InfoText>
-										When implementing redirectless flow in production:
-									</InfoText>
+									<InfoText>When implementing redirectless flow in production:</InfoText>
 									<InfoList>
 										<li>Configure CORS to allow only your application origins</li>
 										<li>Use proper XSS and CSRF protection</li>
@@ -1401,7 +1527,8 @@ const RedirectlessFlowV5: React.FC = () => {
 				<HeaderSection>
 					<MainTitle>PingOne Redirectless Flow V5</MainTitle>
 					<Subtitle>
-						Interactive demonstration of <code>response_mode=pi.flow</code> for embedded authentication without browser redirects
+						Interactive demonstration of <code>response_mode=pi.flow</code> for embedded
+						authentication without browser redirects
 					</Subtitle>
 				</HeaderSection>
 

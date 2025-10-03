@@ -13,11 +13,14 @@ import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 
 // Flow configuration mapping based on OAuth/OIDC standards
-const FLOW_FIELD_CONFIG: Record<string, {
-	clientSecret: 'required' | 'optional' | 'hidden';
-	redirectUri: 'required' | 'optional' | 'hidden';
-	tokenAuthMethod: string;
-}> = {
+const FLOW_FIELD_CONFIG: Record<
+	string,
+	{
+		clientSecret: 'required' | 'optional' | 'hidden';
+		redirectUri: 'required' | 'optional' | 'hidden';
+		tokenAuthMethod: string;
+	}
+> = {
 	'device-authorization-v5': {
 		clientSecret: 'hidden',
 		redirectUri: 'hidden',
@@ -28,7 +31,7 @@ const FLOW_FIELD_CONFIG: Record<string, {
 		redirectUri: 'hidden',
 		tokenAuthMethod: 'none',
 	},
-	'implicit': {
+	implicit: {
 		clientSecret: 'hidden',
 		redirectUri: 'required',
 		tokenAuthMethod: 'none',
@@ -48,12 +51,12 @@ const FLOW_FIELD_CONFIG: Record<string, {
 		redirectUri: 'hidden',
 		tokenAuthMethod: 'client_secret_post',
 	},
-	'hybrid': {
+	hybrid: {
 		clientSecret: 'required',
 		redirectUri: 'required',
 		tokenAuthMethod: 'client_secret_post',
 	},
-	'ciba': {
+	ciba: {
 		clientSecret: 'required',
 		redirectUri: 'hidden',
 		tokenAuthMethod: 'client_secret_post',
@@ -366,13 +369,13 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 }) => {
 	// Get flow configuration
 	const flowConfig = FLOW_FIELD_CONFIG[flowType];
-	
+
 	// Auto-determine field visibility based on flow type
-	const hideClientSecret = hideClientSecretProp ?? (flowConfig?.clientSecret === 'hidden');
-	const hideRedirectUri = hideRedirectUriProp ?? (flowConfig?.redirectUri === 'hidden');
-	const showTokenAuthMethod = showTokenAuthMethodProp ?? (flowConfig?.tokenAuthMethod === 'none');
+	const hideClientSecret = hideClientSecretProp ?? flowConfig?.clientSecret === 'hidden';
+	const hideRedirectUri = hideRedirectUriProp ?? flowConfig?.redirectUri === 'hidden';
+	const showTokenAuthMethod = showTokenAuthMethodProp ?? flowConfig?.tokenAuthMethod === 'none';
 	const tokenAuthMethod = tokenAuthMethodProp ?? flowConfig?.tokenAuthMethod ?? 'none';
-	
+
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [showSecret, setShowSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -636,17 +639,17 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 
 				<CredentialsContent $isCollapsed={isCollapsed}>
 					{!hideGlobalToggle && (
-				<GlobalToggle>
-						<ToggleLabel>
-							<ToggleInput
-								type="checkbox"
-								checked={useGlobalDefaults}
-								onChange={(e) => onToggleGlobalDefaults?.(e.target.checked)}
-							/>
-							Use global PingOne configuration
-						</ToggleLabel>
-					</GlobalToggle>
-				)}
+						<GlobalToggle>
+							<ToggleLabel>
+								<ToggleInput
+									type="checkbox"
+									checked={useGlobalDefaults}
+									onChange={(e) => onToggleGlobalDefaults?.(e.target.checked)}
+								/>
+								Use global PingOne configuration
+							</ToggleLabel>
+						</GlobalToggle>
+					)}
 
 					<FormGrid>
 						<div>
@@ -747,87 +750,87 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 						)}
 
 						{!hideClientSecret && (
-					<div className="client-secret-field">
-							<Label htmlFor="clientSecret">Client Secret</Label>
-							<SecretInputContainer>
-								<Input
-									id="clientSecret"
-									type={showSecret ? 'text' : 'password'}
-									value={getFieldValue('clientSecret')}
-									onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
-									placeholder="Enter your client secret"
-									disabled={useGlobalDefaults}
-									className={errors.clientSecret ? 'is-invalid' : ''}
-									style={{
-										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-										fontSize: '0.875rem',
-									}}
-								/>
-								<div className="button-group">
-									<Button
-										type="button"
-										onClick={() => setShowSecret(!showSecret)}
+							<div className="client-secret-field">
+								<Label htmlFor="clientSecret">Client Secret</Label>
+								<SecretInputContainer>
+									<Input
+										id="clientSecret"
+										type={showSecret ? 'text' : 'password'}
+										value={getFieldValue('clientSecret')}
+										onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
+										placeholder="Enter your client secret"
 										disabled={useGlobalDefaults}
-										aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
-										title={showSecret ? 'Hide client secret' : 'Show client secret'}
-									>
-										{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-									</Button>
-									<Button
-										type="button"
-										onClick={() =>
-											handleCopyToClipboard(getFieldValue('clientSecret'), 'Client Secret')
-										}
-										disabled={useGlobalDefaults || !getFieldValue('clientSecret')}
-										aria-label="Copy Client Secret"
-										title="Copy Client Secret"
-									>
-										{copiedField === 'Client Secret' ? (
-											<FiCheck size={16} />
-										) : (
-											<FiCopy size={16} />
-										)}
-									</Button>
-								</div>
-							</SecretInputContainer>
-						</div>
-					)}
+										className={errors.clientSecret ? 'is-invalid' : ''}
+										style={{
+											fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+											fontSize: '0.875rem',
+										}}
+									/>
+									<div className="button-group">
+										<Button
+											type="button"
+											onClick={() => setShowSecret(!showSecret)}
+											disabled={useGlobalDefaults}
+											aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
+											title={showSecret ? 'Hide client secret' : 'Show client secret'}
+										>
+											{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+										</Button>
+										<Button
+											type="button"
+											onClick={() =>
+												handleCopyToClipboard(getFieldValue('clientSecret'), 'Client Secret')
+											}
+											disabled={useGlobalDefaults || !getFieldValue('clientSecret')}
+											aria-label="Copy Client Secret"
+											title="Copy Client Secret"
+										>
+											{copiedField === 'Client Secret' ? (
+												<FiCheck size={16} />
+											) : (
+												<FiCopy size={16} />
+											)}
+										</Button>
+									</div>
+								</SecretInputContainer>
+							</div>
+						)}
 
-					{!hideRedirectUri && (
-						<div className="redirect-uri-field">
-							<Label htmlFor="redirectUri">Redirect URI</Label>
-							<InputContainer>
-								<Input
-									id="redirectUri"
-									value={getFieldValue('redirectUri')}
-									onChange={(e) => handleFieldChange('redirectUri', e.target.value)}
-									placeholder="e.g., https://localhost:3000/callback"
-									disabled={useGlobalDefaults}
-									className={errors.redirectUri ? 'is-invalid' : ''}
-								/>
-								<div className="button-group">
-									<Button
-										type="button"
-										onClick={() =>
-											handleCopyToClipboard(getFieldValue('redirectUri'), 'Redirect URI')
-										}
-										disabled={useGlobalDefaults || !getFieldValue('redirectUri')}
-										aria-label="Copy Redirect URI"
-										title="Copy Redirect URI"
-									>
-										{copiedField === 'Redirect URI' ? (
-											<FiCheck size={16} />
-										) : (
-											<FiCopy size={16} />
-										)}
-									</Button>
-								</div>
-							</InputContainer>
-						</div>
-					)}
+						{!hideRedirectUri && (
+							<div className="redirect-uri-field">
+								<Label htmlFor="redirectUri">Redirect URI</Label>
+								<InputContainer>
+									<Input
+										id="redirectUri"
+										value={getFieldValue('redirectUri')}
+										onChange={(e) => handleFieldChange('redirectUri', e.target.value)}
+										placeholder="e.g., https://localhost:3000/callback"
+										disabled={useGlobalDefaults}
+										className={errors.redirectUri ? 'is-invalid' : ''}
+									/>
+									<div className="button-group">
+										<Button
+											type="button"
+											onClick={() =>
+												handleCopyToClipboard(getFieldValue('redirectUri'), 'Redirect URI')
+											}
+											disabled={useGlobalDefaults || !getFieldValue('redirectUri')}
+											aria-label="Copy Redirect URI"
+											title="Copy Redirect URI"
+										>
+											{copiedField === 'Redirect URI' ? (
+												<FiCheck size={16} />
+											) : (
+												<FiCopy size={16} />
+											)}
+										</Button>
+									</div>
+								</InputContainer>
+							</div>
+						)}
 
-					<div>
-						<Label htmlFor="additionalScopes">Additional Scopes</Label>
+						<div>
+							<Label htmlFor="additionalScopes">Additional Scopes</Label>
 							<InputContainer>
 								<Input
 									id="additionalScopes"
@@ -880,11 +883,13 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									<option value="client_secret_basic">Client Secret (Basic Auth)</option>
 									<option value="none">None (Public Client)</option>
 								</select>
-								<div style={{ 
-									marginTop: '0.5rem',
-									fontSize: '0.75rem',
-									color: '#6b7280',
-								}}>
+								<div
+									style={{
+										marginTop: '0.5rem',
+										fontSize: '0.75rem',
+										color: '#6b7280',
+									}}
+								>
 									💡 Must match your PingOne application's Token Endpoint Authentication Method
 								</div>
 							</div>

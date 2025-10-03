@@ -258,7 +258,7 @@ const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	border-radius: 8px 8px ${props => props.$isCollapsed ? '8px 8px' : '0 0'};
+	border-radius: 8px 8px ${(props) => (props.$isCollapsed ? '8px 8px' : '0 0')};
 	transition: all 0.2s ease;
 	
 	&:hover {
@@ -280,8 +280,8 @@ const CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
 	border: 1px solid #e2e8f0;
 	border-top: none;
 	border-radius: 0 0 8px 8px;
-	padding: ${props => props.$isCollapsed ? '0' : '1.5rem'};
-	max-height: ${props => props.$isCollapsed ? '0' : '1000px'};
+	padding: ${(props) => (props.$isCollapsed ? '0' : '1.5rem')};
+	max-height: ${(props) => (props.$isCollapsed ? '0' : '1000px')};
 	overflow: hidden;
 	transition: all 0.3s ease;
 `;
@@ -372,7 +372,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	// Demo functions
 	const showSignatureDemo = useCallback(() => {
 		console.log('🔔 [SecurityFeaturesDemo] showSignatureDemo clicked');
-		const results = 'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
+		const results =
+			'Request Parameter Signature Demo:\n\n1. Generate HMAC-SHA256 signature of request parameters\n2. Include signature in Authorization header\n3. Server validates signature before processing request\n\nThis prevents parameter tampering and ensures request authenticity.';
 		setSignatureResults(results);
 		v4ToastManager.showSuccess('Signature demo loaded - see results below');
 	}, []);
@@ -382,7 +383,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		setIsValidating(true);
 		setTimeout(() => {
 			setIsValidating(false);
-			const results = '✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified';
+			const results =
+				'✅ Current request signature is valid!\n\nSignature: a1b2c3d4e5f6...\nAlgorithm: HMAC-SHA256\nStatus: Verified';
 			setSignatureValidationResults(results);
 			v4ToastManager.showSuccess('Signature validation complete - see results below');
 		}, 1000);
@@ -415,7 +417,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	const validateAllTokens = useCallback(() => {
 		if (tokens) {
-			const results = '🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.';
+			const results =
+				'🔍 Token Validation Results:\n\n✅ Access Token: Valid (expires in 1h 23m)\n✅ Refresh Token: Valid (expires in 30d)\n✅ ID Token: Valid (expires in 1h 23m)\n\nAll tokens have valid signatures and are not expired.';
 			setValidationResults(results);
 			v4ToastManager.showSuccess('Token validation complete - see results below');
 		} else {
@@ -427,7 +430,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 
 	const checkTokenExpiry = useCallback(() => {
 		if (tokens) {
-			const results = '⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.';
+			const results =
+				'⏰ Token Expiration Status:\n\nAccess Token: 1h 23m remaining\nRefresh Token: 29d 12h remaining\nID Token: 1h 23m remaining\n\nAll tokens are within acceptable expiration windows.';
 			setExpirationResults(results);
 			v4ToastManager.showSuccess('Expiration check complete - see results below');
 		} else {
@@ -439,7 +443,8 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		setConfirmModal({
 			isOpen: true,
 			title: 'Terminate Session',
-			message: 'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
+			message:
+				'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
 			onConfirm: () => {
 				onTerminateSession?.();
 				const sessionResult = `🚪 SESSION TERMINATION COMPLETE
@@ -476,7 +481,8 @@ ${credentials?.issuer || 'https://auth.pingone.com'}/as/signoff?id_token_hint=${
 		setConfirmModal({
 			isOpen: true,
 			title: 'Revoke All Tokens',
-			message: 'Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.',
+			message:
+				'Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.',
 			onConfirm: () => {
 				onRevokeTokens?.();
 				const revokeResult = `❌ TOKEN REVOCATION COMPLETE
@@ -518,7 +524,8 @@ Executed: ${new Date().toLocaleString()}
 		setConfirmModal({
 			isOpen: true,
 			title: 'Revoke Refresh Token',
-			message: 'Are you sure you want to revoke the refresh token? This will prevent token renewal.',
+			message:
+				'Are you sure you want to revoke the refresh token? This will prevent token renewal.',
 			onConfirm: () => {
 				v4ToastManager.showSuccess(
 					'🔄 Refresh token revoked successfully!\n\n- Refresh token invalidated\n- Access token will expire normally\n- User must re-authenticate for new tokens'
@@ -813,9 +820,12 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									<StatusBadge $status="required">Required</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									<strong>What:</strong> Cryptographic signatures (HMAC-SHA256) on OAuth requests<br/>
-									<strong>Why:</strong> Prevents parameter tampering and replay attacks<br/>
-									<strong>How:</strong> Sign request params → Include in Authorization header → Server validates
+									<strong>What:</strong> Cryptographic signatures (HMAC-SHA256) on OAuth requests
+									<br />
+									<strong>Why:</strong> Prevents parameter tampering and replay attacks
+									<br />
+									<strong>How:</strong> Sign request params → Include in Authorization header →
+									Server validates
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={showSignatureDemo}>
 									<FiEye /> View Signature Demo
@@ -829,20 +839,24 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									{isValidating ? <FiRefreshCw className="animate-spin" /> : <FiCheckCircle />}
 									{isValidating ? 'Validating...' : 'Validate Current Request'}
 								</Button>
-								
+
 								{/* Signature Demo Results */}
 								{signatureResults && (
-									<InfoBox style={{ marginTop: '1rem', background: '#eff6ff', borderColor: '#93c5fd' }}>
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#eff6ff', borderColor: '#93c5fd' }}
+									>
 										<InfoTitle style={{ color: '#1e40af' }}>📋 Signature Demo</InfoTitle>
 										<InfoText style={{ color: '#1e3a8a', whiteSpace: 'pre-line' }}>
 											{signatureResults}
 										</InfoText>
 									</InfoBox>
 								)}
-								
+
 								{/* Signature Validation Results */}
 								{signatureValidationResults && (
-									<InfoBox style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}>
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}
+									>
 										<InfoTitle style={{ color: '#166534' }}>✅ Validation Results</InfoTitle>
 										<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
 											{signatureValidationResults}
@@ -873,21 +887,31 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 						<InfoBox>
 							<InfoTitle>📚 Understanding Request Signatures</InfoTitle>
 							<InfoText>
-								<strong>Purpose:</strong> Request parameter signatures use HMAC-SHA256 to create a cryptographic signature of the request parameters. This prevents tampering and ensures request authenticity.<br/><br/>
-								
-								<strong>How It Works:</strong><br/>
-								1. Client generates HMAC-SHA256 signature from request parameters<br/>
-								2. Signature is included in the Authorization header<br/>
-								3. Server validates signature before processing request<br/>
-								4. Mismatched signatures are rejected<br/><br/>
-								
-								<strong>Security Benefits:</strong><br/>
-								• Prevents parameter tampering during transit<br/>
-								• Protects against replay attacks<br/>
-								• Ensures request authenticity<br/>
-								• Validates request integrity<br/><br/>
-								
-								<strong>Best Practice:</strong> Always use HTTPS with request signatures for maximum security.
+								<strong>Purpose:</strong> Request parameter signatures use HMAC-SHA256 to create a
+								cryptographic signature of the request parameters. This prevents tampering and
+								ensures request authenticity.
+								<br />
+								<br />
+								<strong>How It Works:</strong>
+								<br />
+								1. Client generates HMAC-SHA256 signature from request parameters
+								<br />
+								2. Signature is included in the Authorization header
+								<br />
+								3. Server validates signature before processing request
+								<br />
+								4. Mismatched signatures are rejected
+								<br />
+								<br />
+								<strong>Security Benefits:</strong>
+								<br />• Prevents parameter tampering during transit
+								<br />• Protects against replay attacks
+								<br />• Ensures request authenticity
+								<br />• Validates request integrity
+								<br />
+								<br />
+								<strong>Best Practice:</strong> Always use HTTPS with request signatures for maximum
+								security.
 							</InfoText>
 						</InfoBox>
 					</SectionContent>
@@ -935,8 +959,10 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									<strong>What:</strong> Real-time validation of JWT tokens (access, refresh, ID)<br/>
-									<strong>Why:</strong> Ensures tokens are valid, not expired, and properly signed<br/>
+									<strong>What:</strong> Real-time validation of JWT tokens (access, refresh, ID)
+									<br />
+									<strong>Why:</strong> Ensures tokens are valid, not expired, and properly signed
+									<br />
 									<strong>How:</strong> Verify signature → Check expiration → Validate claims
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={validateAllTokens}>
@@ -945,67 +971,102 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								<Button $variant="primary" $primaryColor={primaryColor} onClick={checkTokenExpiry}>
 									<FiClock /> Check Expiration
 								</Button>
-							{/* Validation Results Display */}
-							{validationResults && (
-								<InfoBox style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}>
-									<InfoTitle style={{ color: '#166534' }}>Validation Results</InfoTitle>
-									<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
-										{validationResults}
-									</InfoText>
-								</InfoBox>
-							)}
-							{/* Expiration Results Display */}
-							{expirationResults && (
-								<InfoBox style={{ marginTop: '1rem', background: '#fef3c7', borderColor: '#fcd34d' }}>
-									<InfoTitle style={{ color: '#92400e' }}>Expiration Check Results</InfoTitle>
-									<InfoText style={{ color: '#92400e', whiteSpace: 'pre-line' }}>
-										{expirationResults}
-									</InfoText>
-								</InfoBox>
-							)}
-							{/* Session Results Display */}
-							{sessionResults && (
-								<InfoBox style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}>
-									<InfoTitle style={{ color: '#dc2626' }}>🚪 Session Termination Results</InfoTitle>
-									<InfoText style={{ color: '#dc2626', whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-										{sessionResults}
-									</InfoText>
-								</InfoBox>
-							)}
-							{/* Revoke Results Display */}
-							{revokeResults && (
-								<InfoBox style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}>
-									<InfoTitle style={{ color: '#dc2626' }}>❌ Token Revocation Results</InfoTitle>
-									<InfoText style={{ color: '#dc2626', whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem' }}>
-										{revokeResults}
-									</InfoText>
-								</InfoBox>
-							)}
-						</FeatureCard>
-					</FeatureGrid>
-					
-					<InfoBox>
-						<InfoTitle>📚 Understanding Token Validation</InfoTitle>
-						<InfoText>
-							<strong>Purpose:</strong> Token validation ensures that JWT tokens are authentic, not tampered with, and still valid for use.<br/><br/>
-							
-							<strong>Validation Steps:</strong><br/>
-							1. <strong>Signature Verification:</strong> Verify the token was signed by the authorization server<br/>
-							2. <strong>Expiration Check:</strong> Ensure the token hasn't expired (exp claim)<br/>
-							3. <strong>Claims Validation:</strong> Verify issuer (iss), audience (aud), and other claims<br/>
-							4. <strong>Revocation Check:</strong> Optionally check if token has been revoked<br/><br/>
-							
-							<strong>Security Benefits:</strong><br/>
-							• Prevents use of forged tokens<br/>
-							• Blocks expired tokens automatically<br/>
-							• Validates token integrity<br/>
-							• Ensures proper token lifecycle management<br/><br/>
-							
-							<strong>Best Practice:</strong> Always validate tokens on every API request, never trust client-provided tokens without verification.
-						</InfoText>
-					</InfoBox>
-				</SectionContent>
-			</Section>
+								{/* Validation Results Display */}
+								{validationResults && (
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#dcfce7', borderColor: '#86efac' }}
+									>
+										<InfoTitle style={{ color: '#166534' }}>Validation Results</InfoTitle>
+										<InfoText style={{ color: '#166534', whiteSpace: 'pre-line' }}>
+											{validationResults}
+										</InfoText>
+									</InfoBox>
+								)}
+								{/* Expiration Results Display */}
+								{expirationResults && (
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#fef3c7', borderColor: '#fcd34d' }}
+									>
+										<InfoTitle style={{ color: '#92400e' }}>Expiration Check Results</InfoTitle>
+										<InfoText style={{ color: '#92400e', whiteSpace: 'pre-line' }}>
+											{expirationResults}
+										</InfoText>
+									</InfoBox>
+								)}
+								{/* Session Results Display */}
+								{sessionResults && (
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+									>
+										<InfoTitle style={{ color: '#dc2626' }}>
+											🚪 Session Termination Results
+										</InfoTitle>
+										<InfoText
+											style={{
+												color: '#dc2626',
+												whiteSpace: 'pre-line',
+												fontFamily: 'monospace',
+												fontSize: '0.875rem',
+											}}
+										>
+											{sessionResults}
+										</InfoText>
+									</InfoBox>
+								)}
+								{/* Revoke Results Display */}
+								{revokeResults && (
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+									>
+										<InfoTitle style={{ color: '#dc2626' }}>❌ Token Revocation Results</InfoTitle>
+										<InfoText
+											style={{
+												color: '#dc2626',
+												whiteSpace: 'pre-line',
+												fontFamily: 'monospace',
+												fontSize: '0.875rem',
+											}}
+										>
+											{revokeResults}
+										</InfoText>
+									</InfoBox>
+								)}
+							</FeatureCard>
+						</FeatureGrid>
+
+						<InfoBox>
+							<InfoTitle>📚 Understanding Token Validation</InfoTitle>
+							<InfoText>
+								<strong>Purpose:</strong> Token validation ensures that JWT tokens are authentic,
+								not tampered with, and still valid for use.
+								<br />
+								<br />
+								<strong>Validation Steps:</strong>
+								<br />
+								1. <strong>Signature Verification:</strong> Verify the token was signed by the
+								authorization server
+								<br />
+								2. <strong>Expiration Check:</strong> Ensure the token hasn't expired (exp claim)
+								<br />
+								3. <strong>Claims Validation:</strong> Verify issuer (iss), audience (aud), and
+								other claims
+								<br />
+								4. <strong>Revocation Check:</strong> Optionally check if token has been revoked
+								<br />
+								<br />
+								<strong>Security Benefits:</strong>
+								<br />• Prevents use of forged tokens
+								<br />• Blocks expired tokens automatically
+								<br />• Validates token integrity
+								<br />• Ensures proper token lifecycle management
+								<br />
+								<br />
+								<strong>Best Practice:</strong> Always validate tokens on every API request, never
+								trust client-provided tokens without verification.
+							</InfoText>
+						</InfoBox>
+					</SectionContent>
+				</Section>
 
 				{/* Session Management */}
 				<Section>
@@ -1023,9 +1084,13 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									<strong>What:</strong> End user sessions and clear authentication state<br/>
-									<strong>Why:</strong> Ensures users are fully logged out and sessions can't be reused<br/>
-									<strong>How:</strong> Call logout endpoint with ID token → Clear local storage → Redirect
+									<strong>What:</strong> End user sessions and clear authentication state
+									<br />
+									<strong>Why:</strong> Ensures users are fully logged out and sessions can't be
+									reused
+									<br />
+									<strong>How:</strong> Call logout endpoint with ID token → Clear local storage →
+									Redirect
 								</FeatureDescription>
 								<Button $variant="danger" $primaryColor={primaryColor} onClick={terminateSession}>
 									<FiX /> Terminate Session
@@ -1047,8 +1112,11 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									<strong>What:</strong> Invalidate tokens to prevent further use<br/>
-									<strong>Why:</strong> Security measure when tokens are compromised or user logs out<br/>
+									<strong>What:</strong> Invalidate tokens to prevent further use
+									<br />
+									<strong>Why:</strong> Security measure when tokens are compromised or user logs
+									out
+									<br />
 									<strong>How:</strong> Call revocation endpoint → Token becomes invalid immediately
 								</FeatureDescription>
 								<Button $variant="danger" $primaryColor={primaryColor} onClick={revokeTokens}>
@@ -1067,28 +1135,30 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 &token_type_hint=access_token
 &id_token_hint=${tokens?.id_token || '{{idToken}}'}`}
 						</CodeBlock>
-						
+
 						<InfoBox>
 							<InfoTitle>📚 Understanding Session & Token Management</InfoTitle>
 							<InfoText>
-								<strong>Session Termination:</strong><br/>
-								• Ends the user's authenticated session<br/>
-								• Clears server-side session data<br/>
-								• Redirects to logout endpoint with ID token hint<br/>
-								• Best for user-initiated logout<br/><br/>
-								
-								<strong>Token Revocation:</strong><br/>
-								• Immediately invalidates specific tokens<br/>
-								• Prevents compromised tokens from being used<br/>
-								• Required for security incidents<br/>
-								• Can revoke individual tokens or all tokens<br/><br/>
-								
-								<strong>Best Practices:</strong><br/>
-								• Always revoke tokens on logout<br/>
-								• Implement token revocation for security incidents<br/>
-								• Use short-lived access tokens (1 hour or less)<br/>
-								• Store refresh tokens securely<br/>
-								• Monitor for suspicious token usage
+								<strong>Session Termination:</strong>
+								<br />• Ends the user's authenticated session
+								<br />• Clears server-side session data
+								<br />• Redirects to logout endpoint with ID token hint
+								<br />• Best for user-initiated logout
+								<br />
+								<br />
+								<strong>Token Revocation:</strong>
+								<br />• Immediately invalidates specific tokens
+								<br />• Prevents compromised tokens from being used
+								<br />• Required for security incidents
+								<br />• Can revoke individual tokens or all tokens
+								<br />
+								<br />
+								<strong>Best Practices:</strong>
+								<br />• Always revoke tokens on logout
+								<br />• Implement token revocation for security incidents
+								<br />• Use short-lived access tokens (1 hour or less)
+								<br />• Store refresh tokens securely
+								<br />• Monitor for suspicious token usage
 							</InfoText>
 						</InfoBox>
 					</SectionContent>
@@ -1357,9 +1427,9 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 						<FiExternalLink /> View Documentation
 					</Button>
 					{(securityReportResults || securityTestResults || documentationResults) && (
-						<Button 
-							$variant="secondary" 
-							$primaryColor={primaryColor} 
+						<Button
+							$variant="secondary"
+							$primaryColor={primaryColor}
 							onClick={() => {
 								setSecurityReportResults(null);
 								setSecurityTestResults(null);
@@ -1375,17 +1445,22 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 				{/* Security Report Results */}
 				{securityReportResults && (
 					<div style={{ marginTop: '1.5rem' }}>
-						<CollapsibleHeader 
+						<CollapsibleHeader
 							$isCollapsed={collapsedSecurityReport}
 							onClick={() => setCollapsedSecurityReport(!collapsedSecurityReport)}
 						>
-							<CollapsibleTitle>
-								📄 Security Analysis Report
-							</CollapsibleTitle>
+							<CollapsibleTitle>📄 Security Analysis Report</CollapsibleTitle>
 							{collapsedSecurityReport ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
 						</CollapsibleHeader>
 						<CollapsibleContent $isCollapsed={collapsedSecurityReport}>
-							<InfoText style={{ whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem', color: '#374151' }}>
+							<InfoText
+								style={{
+									whiteSpace: 'pre-line',
+									fontFamily: 'monospace',
+									fontSize: '0.875rem',
+									color: '#374151',
+								}}
+							>
 								{securityReportResults}
 							</InfoText>
 						</CollapsibleContent>
@@ -1395,17 +1470,22 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 				{/* Security Test Results */}
 				{securityTestResults && (
 					<div style={{ marginTop: '1.5rem' }}>
-						<CollapsibleHeader 
+						<CollapsibleHeader
 							$isCollapsed={collapsedSecurityTest}
 							onClick={() => setCollapsedSecurityTest(!collapsedSecurityTest)}
 						>
-							<CollapsibleTitle>
-								🧪 Security Test Suite Results
-							</CollapsibleTitle>
+							<CollapsibleTitle>🧪 Security Test Suite Results</CollapsibleTitle>
 							{collapsedSecurityTest ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
 						</CollapsibleHeader>
 						<CollapsibleContent $isCollapsed={collapsedSecurityTest}>
-							<InfoText style={{ whiteSpace: 'pre-line', fontFamily: 'monospace', fontSize: '0.875rem', color: '#374151' }}>
+							<InfoText
+								style={{
+									whiteSpace: 'pre-line',
+									fontFamily: 'monospace',
+									fontSize: '0.875rem',
+									color: '#374151',
+								}}
+							>
 								{securityTestResults}
 							</InfoText>
 						</CollapsibleContent>
@@ -1415,17 +1495,22 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 				{/* Documentation Results */}
 				{documentationResults && (
 					<div style={{ marginTop: '1.5rem' }}>
-						<CollapsibleHeader 
+						<CollapsibleHeader
 							$isCollapsed={collapsedDocumentation}
 							onClick={() => setCollapsedDocumentation(!collapsedDocumentation)}
 						>
-							<CollapsibleTitle>
-								📚 Security Documentation
-							</CollapsibleTitle>
+							<CollapsibleTitle>📚 Security Documentation</CollapsibleTitle>
 							{collapsedDocumentation ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
 						</CollapsibleHeader>
 						<CollapsibleContent $isCollapsed={collapsedDocumentation}>
-							<InfoText style={{ whiteSpace: 'pre-line', fontSize: '0.9rem', lineHeight: '1.6', color: '#374151' }}>
+							<InfoText
+								style={{
+									whiteSpace: 'pre-line',
+									fontSize: '0.9rem',
+									lineHeight: '1.6',
+									color: '#374151',
+								}}
+							>
 								{documentationResults}
 							</InfoText>
 						</CollapsibleContent>

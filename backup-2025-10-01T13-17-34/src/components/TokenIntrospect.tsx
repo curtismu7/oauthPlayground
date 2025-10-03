@@ -545,7 +545,9 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												{introspectionResults.client_id && (
 													<div>
 														<ParameterLabel>Client ID</ParameterLabel>
-														<ParameterValue>{String(introspectionResults.client_id)}</ParameterValue>
+														<ParameterValue>
+															{String(introspectionResults.client_id)}
+														</ParameterValue>
 													</div>
 												)}
 												{introspectionResults.sub && (
@@ -557,7 +559,9 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												{introspectionResults.token_type && (
 													<div>
 														<ParameterLabel>Token Type</ParameterLabel>
-														<ParameterValue>{String(introspectionResults.token_type)}</ParameterValue>
+														<ParameterValue>
+															{String(introspectionResults.token_type)}
+														</ParameterValue>
 													</div>
 												)}
 												{introspectionResults.aud && (
@@ -625,25 +629,28 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 															<InfoTitle>Raw JSON Response</InfoTitle>
 															<InfoText>
 																This is the raw JSON response from the token introspection endpoint.
-																Useful for debugging and understanding the complete response structure.
+																Useful for debugging and understanding the complete response
+																structure.
 															</InfoText>
 														</div>
 													</InfoBox>
 													<GeneratedContentBox>
 														<GeneratedLabel>Raw JSON</GeneratedLabel>
 														<RawJsonContainer>
-															<pre style={{ 
-																margin: 0, 
-																padding: '1rem', 
-																background: '#f8fafc',
-																borderRadius: '0.5rem',
-																border: '1px solid #e2e8f0',
-																fontSize: '0.875rem',
-																lineHeight: '1.5',
-																overflow: 'auto',
-																maxHeight: '400px',
-																color: '#1f2937'
-															}}>
+															<pre
+																style={{
+																	margin: 0,
+																	padding: '1rem',
+																	background: '#f8fafc',
+																	borderRadius: '0.5rem',
+																	border: '1px solid #e2e8f0',
+																	fontSize: '0.875rem',
+																	lineHeight: '1.5',
+																	overflow: 'auto',
+																	maxHeight: '400px',
+																	color: '#1f2937',
+																}}
+															>
 																{JSON.stringify(introspectionResults, null, 2)}
 															</pre>
 														</RawJsonContainer>
@@ -716,7 +723,8 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 											boxShadow: '0 4px 12px rgba(59, 130, 246, 0.25)',
 										}}
 									>
-										<FiUser /> {isFetchingUserInfo ? 'Fetching User Info...' : 'Fetch User Information'}
+										<FiUser />{' '}
+										{isFetchingUserInfo ? 'Fetching User Info...' : 'Fetch User Information'}
 									</HighlightedActionButton>
 								</ActionRow>
 
@@ -728,7 +736,9 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 												<React.Fragment key={key}>
 													<ParameterLabel>{key}</ParameterLabel>
 													<ParameterValue>
-														{typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
+														{typeof value === 'object'
+															? JSON.stringify(value, null, 2)
+															: String(value)}
 													</ParameterValue>
 												</React.Fragment>
 											))}
@@ -736,10 +746,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										<ActionRow>
 											<Button
 												onClick={() =>
-													handleCopy(
-														JSON.stringify(userInfo, null, 2),
-														'User Information'
-													)
+													handleCopy(JSON.stringify(userInfo, null, 2), 'User Information')
 												}
 												$variant="outline"
 											>

@@ -235,7 +235,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 						recommendations: ['This token is invalid or malformed'],
 						warnings: ['Token validation failed'],
 						strengths: [],
-						vulnerabilities: ['Invalid token format or signature']
+						vulnerabilities: ['Invalid token format or signature'],
 					});
 					setLoading(false);
 					return;
@@ -254,7 +254,7 @@ const TokenSecurityAnalysisComponent: React.FC<TokenSecurityAnalysisProps> = ({
 						recommendations: ['This token could not be analyzed'],
 						warnings: ['Token analysis failed'],
 						strengths: [],
-						vulnerabilities: ['Token validation failed']
+						vulnerabilities: ['Token validation failed'],
 					});
 				}
 			} catch (err) {

@@ -4,11 +4,11 @@ import { FiExternalLink, FiCopy, FiCheck, FiX } from 'react-icons/fi';
 import ColorCodedURL from './ColorCodedURL';
 
 interface AuthorizationRequestModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onProceed: () => void;
-  authorizationUrl: string;
-  requestParams: Record<string, string>;
+	isOpen: boolean;
+	onClose: () => void;
+	onProceed: () => void;
+	authorizationUrl: string;
+	requestParams: Record<string, string>;
 }
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -172,15 +172,15 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   gap: 0.5rem;
 
   ${({ $variant }) =>
-    $variant === 'primary'
-      ? `
+		$variant === 'primary'
+			? `
         background-color: #3b82f6;
         color: white;
         &:hover {
           background-color: #2563eb;
         }
       `
-      : `
+			: `
         background-color: #f3f4f6;
         color: #374151;
         &:hover {
@@ -237,124 +237,118 @@ const CheckboxContainer = styled.div`
 `;
 
 const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
-  isOpen,
-  onClose,
-  onProceed,
-  authorizationUrl,
-  requestParams,
+	isOpen,
+	onClose,
+	onProceed,
+	authorizationUrl,
+	requestParams,
 }) => {
-  const [copied, setCopied] = React.useState(false);
-  const [dontShowAgain, setDontShowAgain] = React.useState(false);
+	const [copied, setCopied] = React.useState(false);
+	const [dontShowAgain, setDontShowAgain] = React.useState(false);
 
-  // Handle escape key to close modal
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
+	// Handle escape key to close modal
+	useEffect(() => {
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && isOpen) {
+				onClose();
+			}
+		};
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isOpen, onClose]);
+		if (isOpen) {
+			document.addEventListener('keydown', handleEscape);
+			return () => document.removeEventListener('keydown', handleEscape);
+		}
+	}, [isOpen, onClose]);
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(authorizationUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
-    }
-  };
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(authorizationUrl);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (error) {
+			console.error('Failed to copy:', error);
+		}
+	};
 
-  const handleProceed = () => {
-    // Save the "don't show again" preference if checked
-    if (dontShowAgain) {
-      localStorage.setItem('skip_oauth_authz_request_modal', 'true');
-      console.log('🔧 [AuthorizationRequestModal] User chose to skip this modal in future');
-    }
-    
-    onProceed();
-    onClose();
-  };
+	const handleProceed = () => {
+		// Save the "don't show again" preference if checked
+		if (dontShowAgain) {
+			localStorage.setItem('skip_oauth_authz_request_modal', 'true');
+			console.log('🔧 [AuthorizationRequestModal] User chose to skip this modal in future');
+		}
 
-  if (!isOpen) return null;
+		onProceed();
+		onClose();
+	};
 
-  return (
-    <ModalOverlay $isOpen={isOpen}>
-      <ModalContent>
-        <ModalHeader>
-          <h2>
-            🔐 OAuth Authorization Request
-          </h2>
-          <button className="close-button" onClick={onClose}>
-            <FiX />
-          </button>
-        </ModalHeader>
+	if (!isOpen) return null;
 
-        <ModalBody>
-          <InfoBox>
-            <h4>What happens next?</h4>
-            <p>
-              You're about to be redirected to PingOne for authentication. 
-              This modal shows the authorization request that will be sent to PingOne.
-              After successful authentication, you'll be redirected back to this application.
-            </p>
-          </InfoBox>
+	return (
+		<ModalOverlay $isOpen={isOpen}>
+			<ModalContent>
+				<ModalHeader>
+					<h2>🔐 OAuth Authorization Request</h2>
+					<button className="close-button" onClick={onClose}>
+						<FiX />
+					</button>
+				</ModalHeader>
 
-          <Section>
-            <h3>📋 Request Parameters</h3>
-            <ParameterGrid>
-              {Object.entries(requestParams).map(([key, value]) => (
-                <React.Fragment key={key}>
-                  <ParameterLabel>{key}</ParameterLabel>
-                  <ParameterValue>{value}</ParameterValue>
-                </React.Fragment>
-              ))}
-            </ParameterGrid>
-          </Section>
+				<ModalBody>
+					<InfoBox>
+						<h4>What happens next?</h4>
+						<p>
+							You're about to be redirected to PingOne for authentication. This modal shows the
+							authorization request that will be sent to PingOne. After successful authentication,
+							you'll be redirected back to this application.
+						</p>
+					</InfoBox>
 
-          <Section>
-            <h3>🔗 Authorization URL</h3>
-            <AuthorizationUrlBox>
-              <AuthorizationUrl>
-                <ColorCodedURL url={authorizationUrl} />
-              </AuthorizationUrl>
-              <CopyButton $copied={copied} onClick={handleCopy}>
-                {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                {copied ? 'Copied!' : 'Copy URL'}
-              </CopyButton>
-            </AuthorizationUrlBox>
-          </Section>
+					<Section>
+						<h3>📋 Request Parameters</h3>
+						<ParameterGrid>
+							{Object.entries(requestParams).map(([key, value]) => (
+								<React.Fragment key={key}>
+									<ParameterLabel>{key}</ParameterLabel>
+									<ParameterValue>{value}</ParameterValue>
+								</React.Fragment>
+							))}
+						</ParameterGrid>
+					</Section>
 
-          <CheckboxContainer>
-            <input
-              type="checkbox"
-              id="dontShowAgain"
-              checked={dontShowAgain}
-              onChange={(e) => setDontShowAgain(e.target.checked)}
-            />
-            <label htmlFor="dontShowAgain">
-              Do not show this modal again
-            </label>
-          </CheckboxContainer>
+					<Section>
+						<h3>🔗 Authorization URL</h3>
+						<AuthorizationUrlBox>
+							<AuthorizationUrl>
+								<ColorCodedURL url={authorizationUrl} />
+							</AuthorizationUrl>
+							<CopyButton $copied={copied} onClick={handleCopy}>
+								{copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+								{copied ? 'Copied!' : 'Copy URL'}
+							</CopyButton>
+						</AuthorizationUrlBox>
+					</Section>
 
-          <ActionButtons>
-            <Button onClick={onClose}>
-              Cancel
-            </Button>
-            <Button $variant="primary" onClick={handleProceed}>
-              <FiExternalLink size={16} />
-              Proceed to PingOne
-            </Button>
-          </ActionButtons>
-        </ModalBody>
-      </ModalContent>
-    </ModalOverlay>
-  );
+					<CheckboxContainer>
+						<input
+							type="checkbox"
+							id="dontShowAgain"
+							checked={dontShowAgain}
+							onChange={(e) => setDontShowAgain(e.target.checked)}
+						/>
+						<label htmlFor="dontShowAgain">Do not show this modal again</label>
+					</CheckboxContainer>
+
+					<ActionButtons>
+						<Button onClick={onClose}>Cancel</Button>
+						<Button $variant="primary" onClick={handleProceed}>
+							<FiExternalLink size={16} />
+							Proceed to PingOne
+						</Button>
+					</ActionButtons>
+				</ModalBody>
+			</ModalContent>
+		</ModalOverlay>
+	);
 };
 
 export default AuthorizationRequestModal;

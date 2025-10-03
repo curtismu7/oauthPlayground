@@ -2,21 +2,31 @@
 
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiX, FiInfo, FiCopy, FiExternalLink, FiShield, FiKey, FiGlobe, FiUser, FiLock } from 'react-icons/fi';
+import {
+	FiX,
+	FiInfo,
+	FiCopy,
+	FiExternalLink,
+	FiShield,
+	FiKey,
+	FiGlobe,
+	FiUser,
+	FiLock,
+} from 'react-icons/fi';
 
 interface AuthorizationUrlExplainerProps {
-  authUrl: string;
-  isOpen: boolean;
-  onClose: () => void;
+	authUrl: string;
+	isOpen: boolean;
+	onClose: () => void;
 }
 
 interface UrlParameter {
-  name: string;
-  value: string;
-  description: string;
-  purpose: string;
-  icon: React.ReactNode;
-  category: 'authentication' | 'security' | 'flow' | 'authorization';
+	name: string;
+	value: string;
+	description: string;
+	purpose: string;
+	icon: React.ReactNode;
+	category: 'authentication' | 'security' | 'flow' | 'authorization';
 }
 
 const Overlay = styled.div`
@@ -108,14 +118,19 @@ const ParameterGrid = styled.div`
 const ParameterCard = styled.div<{ $category: string }>`
   background: white;
   border: 2px solid ${({ $category }) => {
-    switch ($category) {
-      case 'authentication': return '#3b82f6';
-      case 'security': return '#10b981';
-      case 'flow': return '#f59e0b';
-      case 'authorization': return '#8b5cf6';
-      default: return '#e5e7eb';
-    }
-  }};
+		switch ($category) {
+			case 'authentication':
+				return '#3b82f6';
+			case 'security':
+				return '#10b981';
+			case 'flow':
+				return '#f59e0b';
+			case 'authorization':
+				return '#8b5cf6';
+			default:
+				return '#e5e7eb';
+		}
+	}};
   border-radius: 8px;
   padding: 1rem;
   transition: all 0.2s;
@@ -138,23 +153,33 @@ const ParameterIcon = styled.div<{ $category: string }>`
   height: 32px;
   border-radius: 50%;
   background: ${({ $category }) => {
-    switch ($category) {
-      case 'authentication': return '#dbeafe';
-      case 'security': return '#dcfce7';
-      case 'flow': return '#fef3c7';
-      case 'authorization': return '#ede9fe';
-      default: return '#f3f4f6';
-    }
-  }};
+		switch ($category) {
+			case 'authentication':
+				return '#dbeafe';
+			case 'security':
+				return '#dcfce7';
+			case 'flow':
+				return '#fef3c7';
+			case 'authorization':
+				return '#ede9fe';
+			default:
+				return '#f3f4f6';
+		}
+	}};
   color: ${({ $category }) => {
-    switch ($category) {
-      case 'authentication': return '#3b82f6';
-      case 'security': return '#10b981';
-      case 'flow': return '#f59e0b';
-      case 'authorization': return '#8b5cf6';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($category) {
+			case 'authentication':
+				return '#3b82f6';
+			case 'security':
+				return '#10b981';
+			case 'flow':
+				return '#f59e0b';
+			case 'authorization':
+				return '#8b5cf6';
+			default:
+				return '#6b7280';
+		}
+	}};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -220,223 +245,232 @@ const CopyUrlButton = styled.button`
 `;
 
 const copyToClipboard = async (text: string, label: string) => {
-  try {
-    await navigator.clipboard.writeText(text);
-    // You could add a toast notification here
-    console.log(`${label} copied to clipboard`);
-  } catch (err) {
-    console.error('Failed to copy to clipboard:', err);
-  }
+	try {
+		await navigator.clipboard.writeText(text);
+		// You could add a toast notification here
+		console.log(`${label} copied to clipboard`);
+	} catch (err) {
+		console.error('Failed to copy to clipboard:', err);
+	}
 };
 
 const parseAuthorizationUrl = (url: string): UrlParameter[] => {
-  try {
-    const urlObj = new URL(url);
-    const params = new URLSearchParams(urlObj.search);
-    
-    const parameters: UrlParameter[] = [];
-    
-    // Base URL
-    parameters.push({
-      name: 'Authorization Endpoint',
-      value: urlObj.origin + urlObj.pathname,
-      description: 'The PingOne authorization server endpoint where the authorization request is sent.',
-      purpose: 'This is the OAuth 2.0 authorization endpoint provided by PingOne for your environment.',
-      icon: <FiGlobe />,
-      category: 'authentication'
-    });
-    
-    // Parse each query parameter
-    for (const [key, value] of params.entries()) {
-      switch (key) {
-        case 'client_id':
-          parameters.push({
-            name: 'Client ID',
-            value: value,
-            description: 'Unique identifier for your OAuth application registered in PingOne.',
-            purpose: 'The authorization server uses this to identify which application is requesting access.',
-            icon: <FiKey />,
-            category: 'authentication'
-          });
-          break;
-          
-        case 'response_type':
-          parameters.push({
-            name: 'Response Type',
-            value: value,
-            description: 'Specifies the OAuth 2.0 grant type being used.',
-            purpose: 'Indicates that this is an Authorization Code Flow, which is the most secure flow for web applications.',
-            icon: <FiShield />,
-            category: 'flow'
-          });
-          break;
-          
-        case 'redirect_uri':
-          parameters.push({
-            name: 'Redirect URI',
-            value: decodeURIComponent(value),
-            description: 'The URL where the user will be redirected after authorization.',
-            purpose: 'This must exactly match the redirect URI configured in your PingOne application settings.',
-            icon: <FiExternalLink />,
-            category: 'flow'
-          });
-          break;
-          
-        case 'scope':
-          parameters.push({
-            name: 'Scope',
-            value: decodeURIComponent(value).replace(/\+/g, ' '),
-            description: 'The permissions your application is requesting from the user.',
-            purpose: 'Defines what resources your application can access on behalf of the user.',
-            icon: <FiUser />,
-            category: 'authorization'
-          });
-          break;
-          
-        case 'state':
-          parameters.push({
-            name: 'State Parameter',
-            value: value,
-            description: 'A random string used to prevent CSRF attacks.',
-            purpose: 'The authorization server will return this exact value, allowing you to verify the request authenticity.',
-            icon: <FiLock />,
-            category: 'security'
-          });
-          break;
-          
-        case 'code_challenge':
-          parameters.push({
-            name: 'PKCE Code Challenge',
-            value: value,
-            description: 'A cryptographic challenge derived from a code verifier for PKCE security.',
-            purpose: 'Prevents authorization code interception attacks, especially important for public clients.',
-            icon: <FiShield />,
-            category: 'security'
-          });
-          break;
-          
-        case 'code_challenge_method':
-          parameters.push({
-            name: 'PKCE Challenge Method',
-            value: value,
-            description: 'The method used to generate the code challenge from the code verifier.',
-            purpose: 'S256 uses SHA256 hashing, which is the recommended and most secure method for PKCE.',
-            icon: <FiShield />,
-            category: 'security'
-          });
-          break;
-          
-        case 'nonce':
-          parameters.push({
-            name: 'Nonce',
-            value: value,
-            description: 'A random string used to prevent replay attacks in OpenID Connect.',
-            purpose: 'Ensures that ID tokens are fresh and not reused, providing additional security for authentication.',
-            icon: <FiLock />,
-            category: 'security'
-          });
-          break;
-          
-        default:
-          parameters.push({
-            name: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
-            value: decodeURIComponent(value),
-            description: `Custom parameter: ${key}`,
-            purpose: 'Additional parameter included in the authorization request.',
-            icon: <FiInfo />,
-            category: 'authorization'
-          });
-      }
-    }
-    
-    return parameters;
-  } catch (error) {
-    console.error('Error parsing authorization URL:', error);
-    return [];
-  }
+	try {
+		const urlObj = new URL(url);
+		const params = new URLSearchParams(urlObj.search);
+
+		const parameters: UrlParameter[] = [];
+
+		// Base URL
+		parameters.push({
+			name: 'Authorization Endpoint',
+			value: urlObj.origin + urlObj.pathname,
+			description:
+				'The PingOne authorization server endpoint where the authorization request is sent.',
+			purpose:
+				'This is the OAuth 2.0 authorization endpoint provided by PingOne for your environment.',
+			icon: <FiGlobe />,
+			category: 'authentication',
+		});
+
+		// Parse each query parameter
+		for (const [key, value] of params.entries()) {
+			switch (key) {
+				case 'client_id':
+					parameters.push({
+						name: 'Client ID',
+						value: value,
+						description: 'Unique identifier for your OAuth application registered in PingOne.',
+						purpose:
+							'The authorization server uses this to identify which application is requesting access.',
+						icon: <FiKey />,
+						category: 'authentication',
+					});
+					break;
+
+				case 'response_type':
+					parameters.push({
+						name: 'Response Type',
+						value: value,
+						description: 'Specifies the OAuth 2.0 grant type being used.',
+						purpose:
+							'Indicates that this is an Authorization Code Flow, which is the most secure flow for web applications.',
+						icon: <FiShield />,
+						category: 'flow',
+					});
+					break;
+
+				case 'redirect_uri':
+					parameters.push({
+						name: 'Redirect URI',
+						value: decodeURIComponent(value),
+						description: 'The URL where the user will be redirected after authorization.',
+						purpose:
+							'This must exactly match the redirect URI configured in your PingOne application settings.',
+						icon: <FiExternalLink />,
+						category: 'flow',
+					});
+					break;
+
+				case 'scope':
+					parameters.push({
+						name: 'Scope',
+						value: decodeURIComponent(value).replace(/\+/g, ' '),
+						description: 'The permissions your application is requesting from the user.',
+						purpose: 'Defines what resources your application can access on behalf of the user.',
+						icon: <FiUser />,
+						category: 'authorization',
+					});
+					break;
+
+				case 'state':
+					parameters.push({
+						name: 'State Parameter',
+						value: value,
+						description: 'A random string used to prevent CSRF attacks.',
+						purpose:
+							'The authorization server will return this exact value, allowing you to verify the request authenticity.',
+						icon: <FiLock />,
+						category: 'security',
+					});
+					break;
+
+				case 'code_challenge':
+					parameters.push({
+						name: 'PKCE Code Challenge',
+						value: value,
+						description:
+							'A cryptographic challenge derived from a code verifier for PKCE security.',
+						purpose:
+							'Prevents authorization code interception attacks, especially important for public clients.',
+						icon: <FiShield />,
+						category: 'security',
+					});
+					break;
+
+				case 'code_challenge_method':
+					parameters.push({
+						name: 'PKCE Challenge Method',
+						value: value,
+						description: 'The method used to generate the code challenge from the code verifier.',
+						purpose:
+							'S256 uses SHA256 hashing, which is the recommended and most secure method for PKCE.',
+						icon: <FiShield />,
+						category: 'security',
+					});
+					break;
+
+				case 'nonce':
+					parameters.push({
+						name: 'Nonce',
+						value: value,
+						description: 'A random string used to prevent replay attacks in OpenID Connect.',
+						purpose:
+							'Ensures that ID tokens are fresh and not reused, providing additional security for authentication.',
+						icon: <FiLock />,
+						category: 'security',
+					});
+					break;
+
+				default:
+					parameters.push({
+						name: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),
+						value: decodeURIComponent(value),
+						description: `Custom parameter: ${key}`,
+						purpose: 'Additional parameter included in the authorization request.',
+						icon: <FiInfo />,
+						category: 'authorization',
+					});
+			}
+		}
+
+		return parameters;
+	} catch (error) {
+		console.error('Error parsing authorization URL:', error);
+		return [];
+	}
 };
 
 export const AuthorizationUrlExplainer: React.FC<AuthorizationUrlExplainerProps> = ({
-  authUrl,
-  isOpen,
-  onClose
+	authUrl,
+	isOpen,
+	onClose,
 }) => {
-  if (!isOpen || !authUrl) return null;
-  
-  const parameters = parseAuthorizationUrl(authUrl);
-  
-  return (
-    <Overlay onClick={onClose}>
-      <Modal onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            <FiInfo />
-            Authorization URL Breakdown
-          </ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX />
-          </CloseButton>
-        </ModalHeader>
-        
-        <ModalBody>
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 0.75rem 0', color: '#374151', fontSize: '1.1rem' }}>
-              Complete Authorization URL:
-            </h3>
-            <UrlDisplay>
-              <CopyUrlButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
-                <FiCopy /> Copy URL
-              </CopyUrlButton>
-              {authUrl}
-            </UrlDisplay>
-          </div>
-          
-          <div style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#374151', fontSize: '1.1rem' }}>
-              Parameter Breakdown:
-            </h3>
-            <ParameterGrid>
-              {parameters.map((param, index) => (
-                <ParameterCard key={index} $category={param.category}>
-                  <ParameterHeader>
-                    <ParameterIcon $category={param.category}>
-                      {param.icon}
-                    </ParameterIcon>
-                    <ParameterName>{param.name}</ParameterName>
-                  </ParameterHeader>
-                  
-                  <ParameterValue>{param.value}</ParameterValue>
-                  
-                  <ParameterDescription>{param.description}</ParameterDescription>
-                  
-                  <ParameterPurpose>
-                    <strong>Purpose:</strong> {param.purpose}
-                  </ParameterPurpose>
-                </ParameterCard>
-              ))}
-            </ParameterGrid>
-          </div>
-          
-          <div style={{ 
-            background: '#f0f9ff', 
-            border: '1px solid #0ea5e9', 
-            borderRadius: '8px', 
-            padding: '1rem',
-            fontSize: '0.9rem',
-            color: '#0c4a6e'
-          }}>
-            <h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>
-              💡 Educational Note:
-            </h4>
-            <p style={{ margin: 0, lineHeight: 1.5 }}>
-              This authorization URL contains all the necessary parameters for a secure OAuth 2.0 Authorization Code Flow with PKCE. 
-              Each parameter serves a specific security or functional purpose in the authentication process.
-            </p>
-          </div>
-        </ModalBody>
-      </Modal>
-    </Overlay>
-  );
+	if (!isOpen || !authUrl) return null;
+
+	const parameters = parseAuthorizationUrl(authUrl);
+
+	return (
+		<Overlay onClick={onClose}>
+			<Modal onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>
+						<FiInfo />
+						Authorization URL Breakdown
+					</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX />
+					</CloseButton>
+				</ModalHeader>
+
+				<ModalBody>
+					<div style={{ marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 0.75rem 0', color: '#374151', fontSize: '1.1rem' }}>
+							Complete Authorization URL:
+						</h3>
+						<UrlDisplay>
+							<CopyUrlButton onClick={() => copyToClipboard(authUrl, 'Authorization URL')}>
+								<FiCopy /> Copy URL
+							</CopyUrlButton>
+							{authUrl}
+						</UrlDisplay>
+					</div>
+
+					<div style={{ marginBottom: '1.5rem' }}>
+						<h3 style={{ margin: '0 0 1rem 0', color: '#374151', fontSize: '1.1rem' }}>
+							Parameter Breakdown:
+						</h3>
+						<ParameterGrid>
+							{parameters.map((param, index) => (
+								<ParameterCard key={index} $category={param.category}>
+									<ParameterHeader>
+										<ParameterIcon $category={param.category}>{param.icon}</ParameterIcon>
+										<ParameterName>{param.name}</ParameterName>
+									</ParameterHeader>
+
+									<ParameterValue>{param.value}</ParameterValue>
+
+									<ParameterDescription>{param.description}</ParameterDescription>
+
+									<ParameterPurpose>
+										<strong>Purpose:</strong> {param.purpose}
+									</ParameterPurpose>
+								</ParameterCard>
+							))}
+						</ParameterGrid>
+					</div>
+
+					<div
+						style={{
+							background: '#f0f9ff',
+							border: '1px solid #0ea5e9',
+							borderRadius: '8px',
+							padding: '1rem',
+							fontSize: '0.9rem',
+							color: '#0c4a6e',
+						}}
+					>
+						<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>💡 Educational Note:</h4>
+						<p style={{ margin: 0, lineHeight: 1.5 }}>
+							This authorization URL contains all the necessary parameters for a secure OAuth 2.0
+							Authorization Code Flow with PKCE. Each parameter serves a specific security or
+							functional purpose in the authentication process.
+						</p>
+					</div>
+				</ModalBody>
+			</Modal>
+		</Overlay>
+	);
 };
 
 export default AuthorizationUrlExplainer;

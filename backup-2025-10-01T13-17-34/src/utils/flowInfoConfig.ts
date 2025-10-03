@@ -120,7 +120,7 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Command-line tools and CLI applications',
 		],
 	},
-	'hybrid': {
+	hybrid: {
 		flowType: 'oidc',
 		flowName: 'Hybrid Flow',
 		tokensReturned: 'Access Token + ID Token + Authorization Code',
@@ -162,7 +162,7 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Configuration management tools',
 		],
 	},
-	'par': {
+	par: {
 		flowType: 'oauth',
 		flowName: 'Pushed Authorization Request (PAR)',
 		tokensReturned: 'Same as Authorization Code Flow',
@@ -203,7 +203,7 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Internal enterprise applications (temporary use)',
 		],
 	},
-	'redirectless': {
+	redirectless: {
 		flowType: 'oauth',
 		flowName: 'Redirectless Flow',
 		tokensReturned: 'Access Token + ID Token',
@@ -238,11 +238,11 @@ export const PRESET_FLOW_CONFIGS = {
 	'oauth-authorization-code': FLOW_INFO_CONFIG['oauth-authorization-code'],
 	'client-credentials': FLOW_INFO_CONFIG['client-credentials'],
 	'device-code': FLOW_INFO_CONFIG['device-code'],
-	'hybrid': FLOW_INFO_CONFIG['hybrid'],
+	hybrid: FLOW_INFO_CONFIG['hybrid'],
 	'worker-token': FLOW_INFO_CONFIG['worker-token'],
-	'par': FLOW_INFO_CONFIG['par'],
+	par: FLOW_INFO_CONFIG['par'],
 	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
-	'redirectless': FLOW_INFO_CONFIG['redirectless'],
+	redirectless: FLOW_INFO_CONFIG['redirectless'],
 };
 
 export default {
