@@ -22,6 +22,7 @@ export const FLOW_ROUTE_MAP: Record<string, string> = {
 	'oauth-resource-owner-password-v5': '/flows/oauth-resource-owner-password-v5',
 	'oidc-resource-owner-password-v5': '/flows/oidc-resource-owner-password-v5',
 	'oauth2-resource-owner-password': '/flows/oauth2-resource-owner-password',
+	'worker-token-v5': '/flows/worker-token-v5',
 };
 
 export const FLOW_DISPLAY_NAMES: Record<string, string> = {
@@ -38,6 +39,7 @@ export const FLOW_DISPLAY_NAMES: Record<string, string> = {
 	'oauth-resource-owner-password-v5': 'OAuth Resource Owner Password Flow',
 	'oidc-resource-owner-password-v5': 'OIDC Resource Owner Password Flow',
 	'oauth2-resource-owner-password': 'OAuth2 Resource Owner Password Flow',
+	'worker-token-v5': 'Worker Token Flow',
 };
 
 /**

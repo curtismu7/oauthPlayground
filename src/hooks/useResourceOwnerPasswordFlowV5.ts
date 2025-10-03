@@ -117,8 +117,22 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				console.log('💾 [ResourceOwnerPasswordV5] Saving credentials...');
 			}
 
-			await credentialManager.saveAuthzFlowCredentials(credentials);
+			// Map ResourceOwnerPasswordCredentials to PermanentCredentials format
+			const mappedCredentials = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: '', // Resource Owner Password doesn't use redirect URI
+				scopes: credentials.scope ? credentials.scope.split(' ').filter(s => s.trim()) : [],
+				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
+				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_basic',
+			};
+
+			await credentialManager.saveAuthzFlowCredentials(mappedCredentials);
 			setHasCredentialsSaved(true);
+
+			// Also save the full Resource Owner Password credentials to sessionStorage for this specific flow
+			sessionStorage.setItem('resource-owner-password-v5-credentials', JSON.stringify(credentials));
 
 			// Dispatch events for other components
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
@@ -163,7 +177,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				console.log('🔐 [ResourceOwnerPasswordV5] Starting authentication...');
 			}
 
-			const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 			// Prepare request body for Resource Owner Password flow
 			const requestBody = {
@@ -256,7 +270,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				console.log('👤 [ResourceOwnerPasswordV5] Fetching user info...');
 			}
 
-			const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 			const response = await fetch(`${backendUrl}/api/userinfo`, {
 				method: 'POST',
@@ -318,7 +332,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				console.log('🔄 [ResourceOwnerPasswordV5] Refreshing tokens...');
 			}
 
-			const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
 
 			const requestBody = {
 				grant_type: 'refresh_token',
@@ -407,20 +421,42 @@ export const useResourceOwnerPasswordFlowV5 = ({
 	useEffect(() => {
 		const loadCredentials = async () => {
 			try {
+				// First try to load from sessionStorage (Resource Owner Password specific)
+				const sessionCredentials = sessionStorage.getItem('resource-owner-password-v5-credentials');
+				if (sessionCredentials) {
+					const parsed = JSON.parse(sessionCredentials);
+					if (parsed.environmentId && parsed.clientId) {
+						setCredentials(parsed);
+						setHasCredentialsSaved(true);
+						if (enableDebugger) {
+							console.log('🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage');
+						}
+						return;
+					}
+				}
+
+				// Fallback to loading from credentialManager
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
 				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
+					// Safely handle scopes - check if it's an array before calling join
+					const scopeString = savedCredentials.scopes 
+						? Array.isArray(savedCredentials.scopes) 
+							? savedCredentials.scopes.join(' ')
+							: String(savedCredentials.scopes)
+						: 'read write';
+
 					setCredentials((prev) => ({
 						...prev,
 						environmentId: savedCredentials.environmentId,
 						clientId: savedCredentials.clientId,
 						clientSecret: savedCredentials.clientSecret || '',
-						scope: savedCredentials.scope || 'read write',
+						scope: scopeString,
 						clientAuthMethod: savedCredentials.clientAuthMethod || 'client_secret_post',
 					}));
 					setHasCredentialsSaved(true);
 
 					if (enableDebugger) {
-						console.log('🔄 [ResourceOwnerPasswordV5] Loaded saved credentials');
+						console.log('🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from credentialManager');
 					}
 				}
 			} catch (error) {

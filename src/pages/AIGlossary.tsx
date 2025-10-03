@@ -1,7 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import { FiBookOpen, FiSearch } from 'react-icons/fi';
+import React, { useState } from 'react';
+import { FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import CollapsibleSection from '../components/CollapsibleSection';
 import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.main`
@@ -15,41 +14,6 @@ const PageContent = styled.div`
 	margin: 0 auto;
 	display: grid;
 	gap: clamp(1.5rem, 3.5vw, 2.5rem);
-`;
-
-const Header = styled.header`
-	display: grid;
-	gap: 1rem;
-	text-align: center;
-	justify-items: center;
-`;
-
-const HeaderIcon = styled.div`
-	width: clamp(3rem, 7vw, 3.75rem);
-	height: clamp(3rem, 7vw, 3.75rem);
-	border-radius: 1rem;
-	display: grid;
-	place-items: center;
-	font-size: clamp(1.75rem, 4vw, 2.25rem);
-	background: linear-gradient(135deg, var(--primary-color, #4f46e5), var(--primary-dark, #312e81));
-	color: #fff;
-	box-shadow: 0 16px 35px rgba(79, 70, 229, 0.25);
-`;
-
-const Title = styled.h1`
-	margin: 0;
-	font-size: clamp(2rem, 4vw, 2.75rem);
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	letter-spacing: -0.02em;
-`;
-
-const Description = styled.p`
-	margin: 0;
-	max-width: 700px;
-	color: var(--color-text-secondary, #4b5563);
-	line-height: 1.65;
-	font-size: clamp(1rem, 2.3vw, 1.125rem);
 `;
 
 const SearchBar = styled.div`
@@ -127,21 +91,20 @@ const CategoryHeaderLeft = styled.div`
 	gap: 1rem;
 	flex: 1;
 `;
-
 const CategoryRight = styled.div`
 	display: flex;
 	align-items: center;
 `;
 
-const CollapsibleIcon = styled.div<{ isExpanded: boolean }>`
+const CollapsibleIcon = styled.div<{ $isExpanded: boolean }>`
 	width: 1.5rem;
 	height: 1.5rem;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	transition: transform 0.2s ease;
-	transform: ${({ isExpanded }) => (isExpanded ? 'rotate(180deg)' : 'rotate(0deg)')};
-	
+	transform: ${({ $isExpanded }) => ($isExpanded ? 'rotate(180deg)' : 'rotate(0deg)')};
+
 	&::before {
 		content: '▼';
 		font-size: 0.8rem;
@@ -201,13 +164,6 @@ const CategoryTitle = styled.div`
 	gap: 0.4rem;
 `;
 
-const CategoryName = styled.h2`
-	margin: 0;
-	font-size: clamp(1.2rem, 3vw, 1.45rem);
-	font-weight: 600;
-	color: var(--color-text-primary, #111827);
-`;
-
 const CategoryBadge = styled.span`
 	display: inline-flex;
 	align-items: center;
@@ -219,21 +175,6 @@ const CategoryBadge = styled.span`
 	color: var(--primary-color, #4f46e5);
 	font-size: 0.85rem;
 	font-weight: 500;
-`;
-
-const CategoryBody = styled.div`
-	padding: 0 clamp(1.25rem, 3vw, 1.75rem) clamp(1.3rem, 2.8vw, 1.75rem);
-	display: grid;
-	gap: clamp(1rem, 2.5vw, 1.4rem);
-	background: rgba(248, 250, 252, 0.65);
-	transition: opacity 0.25s ease;
-`;
-
-const TermCard = styled.div`
-	border-left: 4px solid rgba(79, 70, 229, 0.4);
-	padding-left: clamp(1rem, 2.5vw, 1.25rem);
-	display: grid;
-	gap: 0.6rem;
 `;
 
 const TermTitle = styled.h3`
@@ -248,25 +189,6 @@ const TermDefinition = styled.p`
 	color: var(--color-text-secondary, #475569);
 	line-height: 1.7;
 	font-size: clamp(0.95rem, 2.2vw, 1.05rem);
-`;
-
-const TermSupplement = styled.div`
-	margin-top: 0.35rem;
-	background: rgba(248, 250, 252, 0.9);
-	border-radius: 0.6rem;
-	padding: 0.85rem 1rem;
-	display: grid;
-	gap: 0.4rem;
-	font-size: 0.95rem;
-	color: var(--color-text-secondary, #475569);
-
-	strong {
-		font-size: 0.8rem;
-		font-weight: 600;
-		letter-spacing: 0.06em;
-		text-transform: uppercase;
-		color: #334155;
-	}
 `;
 
 const RelatedTerms = styled.div`
@@ -320,144 +242,14 @@ interface GlossaryTerm {
 }
 
 interface GlossaryCategory {
-	id: string;
 	category: string;
 	icon: string;
 	terms: GlossaryTerm[];
 }
 
-const glossaryCategories: GlossaryCategory[] = [
-	{
-		id: 'core-ai',
-		category: 'Core AI Concepts',
-		icon: '🧠',
-		terms: [
-			{
-				term: 'Artificial Intelligence (AI)',
-				definition:
-					'The simulation of human intelligence processes by computer systems, including learning, reasoning, problem-solving, perception, and language understanding. AI systems can analyze data, recognize patterns, make decisions, and adapt to new situations.',
-				example:
-					'Virtual assistants like Siri and Alexa, recommendation systems on Netflix and Spotify, autonomous vehicles, medical diagnosis systems, and chatbots like ChatGPT.',
-				relatedTerms: ['Machine Learning', 'Deep Learning', 'Neural Network'],
-			},
-			{
-				term: 'Machine Learning (ML)',
-				definition:
-					'A subset of AI that enables systems to automatically learn and improve from experience without being explicitly programmed. ML algorithms build mathematical models based on sample data (training data) to make predictions or decisions.',
-				example:
-					'Email spam filters that learn to identify spam, fraud detection systems in banking, product recommendations on e-commerce sites, and image recognition in photos apps.',
-				relatedTerms: ['Supervised Learning', 'Unsupervised Learning', 'Deep Learning'],
-			},
-			{
-				term: 'Deep Learning',
-				definition:
-					'A subset of machine learning that uses artificial neural networks with multiple layers (deep neural networks) to progressively extract higher-level features from raw input. Each layer learns to transform its input data into a slightly more abstract representation.',
-				example:
-					'Image recognition (identifying objects in photos), natural language processing (understanding and generating text), speech recognition (converting speech to text), and autonomous driving systems.',
-				relatedTerms: ['Neural Network', 'Transformer', 'CNN'],
-			},
-			{
-				term: 'Neural Network',
-				definition:
-					'A computing system inspired by biological neural networks, consisting of interconnected nodes (neurons) that process information.',
-			},
-			{
-				term: 'Algorithm',
-				definition:
-					'A step-by-step procedure or formula for solving a problem or completing a task.',
-			},
-		],
-	},
-	{
-		id: 'model-architectures',
-		category: 'Model Types & Architectures',
-		icon: '🏗️',
-		terms: [
-			{
-				term: 'Large Language Model (LLM)',
-				definition:
-					'AI models with billions of parameters trained on massive text datasets to understand context, generate coherent text, answer questions, translate languages, write code, and perform various language tasks. LLMs use transformer architecture and can be fine-tuned for specific applications.',
-				example:
-					'GPT-4 (OpenAI), Claude (Anthropic), Gemini (Google), LLaMA (Meta). Used for chatbots, content generation, code completion, translation, summarization, and question answering.',
-				relatedTerms: ['Transformer', 'Fine-tuning', 'Prompt Engineering'],
-			},
-			{
-				term: 'Transformer',
-				definition:
-					"A revolutionary neural network architecture introduced in 2017 ('Attention is All You Need' paper) that uses self-attention mechanisms to process sequential data in parallel rather than sequentially. Transformers can capture long-range dependencies and are the foundation of modern LLMs, enabling breakthrough performance in NLP.",
-				example:
-					'BERT, GPT series, T5, and virtually all modern LLMs use transformer architecture. Key innovation: attention mechanism allows the model to focus on relevant parts of input regardless of distance, unlike RNNs that process sequentially.',
-				relatedTerms: ['Attention Mechanism', 'LLM', 'BERT'],
-			},
-			{
-				term: 'Generative AI',
-				definition:
-					'AI systems that create new content (text, images, audio, video) based on training data.',
-			},
-			{
-				term: 'Diffusion Model',
-				definition:
-					'A type of generative model that creates images by gradually removing noise from random data (e.g., DALL-E, Stable Diffusion).',
-			},
-			{
-				term: 'Multimodal Model',
-				definition:
-					'AI systems that can process and generate multiple types of data (text, images, audio, video) simultaneously.',
-			},
-			{
-				term: 'Foundation Model',
-				definition:
-					'Large-scale pre-trained models that can be adapted for various downstream tasks.',
-			},
-			{
-				term: 'Embedding',
-				definition:
-					'A numerical representation of data (text, images) in a high-dimensional space where similar items are closer together.',
-			},
-		],
-	},
-	{
-		id: 'training',
-		category: 'Training & Fine-Tuning',
-		icon: '🎯',
-		terms: [
-			{
-				term: 'Training',
-				definition:
-					'The process of teaching an AI model by feeding it data and adjusting its parameters to minimize errors.',
-			},
-			{
-				term: 'Pre-training',
-				definition:
-					'Initial training phase where a model learns general patterns from large datasets.',
-			},
-			{
-				term: 'Fine-tuning',
-				definition:
-					"The process of taking a pre-trained model and continuing its training on a smaller, task-specific dataset to adapt it for particular applications. Fine-tuning adjusts the model's weights to specialize in specific domains, styles, or tasks while retaining general knowledge.",
-				example:
-					'Fine-tuning a language model on customer service conversations to create a specialized chatbot.',
-			},
-		],
-	},
-];
-
 const AIGlossary: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('');
 	const [expandedCategory, setExpandedCategory] = useState<number | null>(0);
-
-	interface GlossaryTerm {
-		term: string;
-		definition: string;
-		example?: string;
-		relatedTerms?: string[];
-	}
-
-	interface GlossaryCategory {
-		category: string;
-		icon: string;
-		terms: GlossaryTerm[];
-	}
 
 	const glossaryData: GlossaryCategory[] = [
 		{
@@ -653,7 +445,7 @@ const AIGlossary: React.FC = () => {
 				{
 					term: 'Chain-of-Thought (CoT)',
 					definition:
-						"A prompting technique that encourages models to break down complex problems into intermediate reasoning steps before arriving at a final answer. By 'thinking out loud', models can solve more complex problems and provide more accurate results, especially for math, logic, and multi-step reasoning tasks.",
+						"A prompting technique that encourages models to break down complex problems into intermediate reasoning steps before arriving at a final answer. By 'thinking out by step', models can solve more complex problems and provide more accurate results, especially for math, logic, and multi-step reasoning tasks.",
 					example:
 						"Adding 'Let's think step by step' or 'Show your work' to prompts. For math: 'First, identify what we know... Then, calculate... Finally, verify...'. Dramatically improves performance on reasoning tasks compared to direct answers.",
 					relatedTerms: ['Prompt Engineering', 'Reasoning', 'Few-shot Learning'],
@@ -704,7 +496,10 @@ const AIGlossary: React.FC = () => {
 				{
 					term: 'Agentic AI',
 					definition:
-						'AI systems that can plan, make decisions, and take actions autonomously over extended periods.',
+						'AI systems that can autonomously plan, reason, make decisions, and execute actions over extended periods without continuous human supervision. Agentic AI goes beyond reactive systems by maintaining goals, adapting to changing conditions, learning from outcomes, and coordinating multiple capabilities to achieve complex objectives. These systems exhibit agency - the ability to act independently while being accountable for their actions.',
+					example:
+						'Autonomous research assistants that plan experiments, gather data, analyze results, and write reports; AI software developers that understand requirements, design architectures, write code, test implementations, and deploy applications; or AI traders that monitor markets, assess risks, execute trades, and manage portfolios across multiple time zones.',
+					relatedTerms: ['AI Agent', 'Autonomous Systems', 'Planning', 'Tool Use', 'Multi-Agent Systems'],
 				},
 			],
 		},
@@ -873,7 +668,10 @@ const AIGlossary: React.FC = () => {
 				},
 				{ term: 'Speech Recognition', definition: 'Converting spoken language into text.' },
 				{ term: 'Text-to-Speech (TTS)', definition: 'Converting written text into spoken audio.' },
-				{ term: 'Sentiment Analysis', definition: 'Determining emotional tone in text.' },
+				{
+					term: 'Sentiment Analysis',
+					definition: 'Determining emotional tone in text.',
+				},
 				{
 					term: 'Named Entity Recognition (NER)',
 					definition:
@@ -887,6 +685,140 @@ const AIGlossary: React.FC = () => {
 					term: 'Autonomous Systems',
 					definition:
 						'Self-governing systems that make decisions without human intervention (e.g., self-driving cars).',
+				},
+			],
+		},
+		{
+			category: 'OAuth & Authentication Protocols',
+			icon: '🔐',
+			terms: [
+				{
+					term: 'OAuth 2.0',
+					definition:
+						'An open standard for access delegation commonly used for token-based authentication and authorization on the internet. OAuth 2.0 enables third-party applications to obtain limited access to an HTTP service, either on behalf of a resource owner or by allowing the third-party application to obtain access on its own behalf.',
+					example:
+						'When you log into a website using your Google account, OAuth 2.0 is the protocol that allows the website to access your Google profile information without you sharing your Google password directly.',
+					relatedTerms: ['Authorization Code Flow', 'Client Credentials Flow', 'OpenID Connect', 'JWT'],
+				},
+				{
+					term: 'OpenID Connect (OIDC)',
+					definition:
+						'A simple identity layer on top of the OAuth 2.0 protocol that allows clients to verify the identity of end-users based on authentication performed by an authorization server. OIDC extends OAuth 2.0 to provide identity information (ID tokens) in addition to access tokens.',
+					example:
+						'Single sign-on (SSO) systems where logging into one application automatically logs you into others, or identity verification for banking apps that need to confirm your identity through a trusted identity provider.',
+					relatedTerms: ['OAuth 2.0', 'ID Token', 'Identity Provider', 'SSO'],
+				},
+				{
+					term: 'JSON Web Token (JWT)',
+					definition:
+						'An open standard (RFC 7519) for securely transmitting information between parties as a JSON object. JWTs are commonly used for authentication and information exchange, containing claims about an entity (user) and additional metadata. JWTs are digitally signed and can be encrypted.',
+					example:
+						'Access tokens in OAuth flows that contain user identity information and permissions, session tokens that maintain user login state across requests, or API keys that include expiration times and access scopes.',
+					relatedTerms: ['Access Token', 'ID Token', 'Claims', 'Digital Signature'],
+				},
+				{
+					term: 'Authorization Code Flow',
+					definition:
+						'The most common and secure OAuth 2.0 flow for web applications. The client redirects the user to the authorization server, which authenticates the user and returns an authorization code. The client then exchanges this code for access and refresh tokens.',
+					example:
+						'Web applications like GitHub or Facebook login integrations where users are redirected to authenticate and then returned to the original application with a secure authorization code.',
+					relatedTerms: ['OAuth 2.0', 'Authorization Code', 'PKCE', 'Refresh Token'],
+				},
+				{
+					term: 'Client Credentials Flow',
+					definition:
+						'An OAuth 2.0 flow used for machine-to-machine authentication where the client application itself is the resource owner. No user interaction is required - the client authenticates directly with the authorization server using its client ID and secret to obtain an access token.',
+					example:
+						'API services that need to communicate with each other, such as a payment processor calling a banking API, or microservices in a server-to-server architecture accessing shared resources.',
+					relatedTerms: ['OAuth 2.0', 'Machine-to-Machine', 'Client Secret', 'Service Account'],
+				},
+				{
+					term: 'Device Code Flow',
+					definition:
+						'An OAuth 2.0 extension (RFC 8628) designed for devices with limited input capabilities, such as smart TVs, gaming consoles, or IoT devices. The device displays a code that users enter on a separate device (phone/computer) to complete authentication.',
+					example:
+						'Smart TV apps that display a code for you to enter on your phone, gaming consoles that require authentication through a web browser, or IoT devices that need user authorization without keyboards.',
+					relatedTerms: ['OAuth 2.0', 'Device Authorization', 'Input-Constrained Devices', 'Polling'],
+				},
+				{
+					term: 'Implicit Flow',
+					definition:
+						'A simplified OAuth 2.0 flow for public clients (SPAs, mobile apps) where access tokens are returned directly in the redirect URI fragment. While simpler, it has security limitations and is being phased out in favor of Authorization Code Flow with PKCE.',
+					example:
+						'Legacy single-page applications that needed quick token access, though modern applications now use Authorization Code Flow with PKCE for better security.',
+					relatedTerms: ['OAuth 2.0', 'SPA', 'PKCE', 'Security'],
+				},
+				{
+					term: 'PKCE (Proof Key for Code Exchange)',
+					definition:
+						'A security extension to OAuth 2.0 Authorization Code Flow that prevents authorization code interception attacks. PKCE uses a cryptographically random code verifier and its hash (code challenge) to ensure only the legitimate client can exchange the authorization code for tokens.',
+					example:
+						'Mobile apps and single-page applications that store client secrets in potentially insecure environments, requiring additional protection against code interception attacks.',
+					relatedTerms: ['Authorization Code Flow', 'Code Challenge', 'Code Verifier', 'Security'],
+				},
+				{
+					term: 'Refresh Token',
+					definition:
+						'A long-lived credential used to obtain new access tokens without requiring user re-authentication. Refresh tokens are issued alongside access tokens and have longer expiration times, enabling seamless user experiences while maintaining security.',
+					example:
+						'Mobile apps that stay logged in for extended periods, web applications that maintain user sessions across browser restarts, or APIs that need continuous access to user resources.',
+					relatedTerms: ['Access Token', 'Token Rotation', 'Session Management', 'Security'],
+				},
+				{
+					term: 'Access Token',
+					definition:
+						'A short-lived credential that grants access to protected resources. Access tokens are presented to resource servers to prove authorization and are typically JWTs containing user identity, permissions (scopes), and expiration information.',
+					example:
+						'Bearer tokens sent in HTTP Authorization headers to access APIs, session cookies that prove user authentication, or temporary credentials for cloud service access.',
+					relatedTerms: ['JWT', 'Bearer Token', 'Scopes', 'Authorization'],
+				},
+				{
+					term: 'ID Token',
+					definition:
+						'A JWT issued by the OpenID Connect provider containing user identity information (claims) such as name, email, and unique identifier. ID tokens are consumed by the client application and not sent to resource servers.',
+					example:
+						'User profile information displayed after login, identity verification for regulatory compliance, or user attributes used for personalization in applications.',
+					relatedTerms: ['OpenID Connect', 'JWT', 'Claims', 'UserInfo'],
+				},
+				{
+					term: 'Scopes',
+					definition:
+						'Permissions or access levels that define what resources an application can access on behalf of a user. Scopes limit the authorization granted to applications, following the principle of least privilege.',
+					example:
+						"'read:profile' scope allowing access to basic user information, 'write:posts' scope for social media posting, or 'admin:users' scope for user management in enterprise applications.",
+					relatedTerms: ['Authorization', 'Least Privilege', 'Permissions', 'OAuth 2.0'],
+				},
+				{
+					term: 'Identity Provider (IdP)',
+					definition:
+						'A service that creates, maintains, and manages identity information while providing authentication services to relying applications. IdPs verify user identities and issue tokens containing identity claims.',
+					example:
+						'Google, Microsoft Azure AD, Auth0, or Okta as identity providers for applications, corporate Active Directory for employee authentication, or social login providers like Facebook and Twitter.',
+					relatedTerms: ['OpenID Connect', 'Authentication', 'SSO', 'Federation'],
+				},
+				{
+					term: 'Resource Server',
+					definition:
+						'An API or service that hosts protected resources and requires valid access tokens for authorization. Resource servers validate tokens and enforce access policies based on token claims and scopes.',
+					example:
+						'REST APIs serving user data, cloud storage services like Google Drive, or microservices in a distributed architecture that require authenticated access.',
+					relatedTerms: ['Access Token', 'Authorization', 'API', 'Token Validation'],
+				},
+				{
+					term: 'Client Application',
+					definition:
+						'The application requesting access to resources on behalf of a user or itself. Clients can be web applications, mobile apps, SPAs, or server-side applications, each with different security considerations and OAuth flows.',
+					example:
+						'Web browsers accessing Gmail, mobile apps connecting to banking services, server applications calling payment processors, or IoT devices requesting cloud service access.',
+					relatedTerms: ['OAuth 2.0', 'Client Types', 'Confidential Client', 'Public Client'],
+				},
+				{
+					term: 'Authorization Server',
+					definition:
+						'The server that issues access tokens and refresh tokens after successfully authenticating the resource owner and obtaining authorization. The authorization server is the central component that orchestrates the OAuth dance.',
+					example:
+						'Google OAuth servers, Azure AD authorization endpoints, or custom OAuth servers in enterprise environments that handle the complex token issuance and validation logic.',
+					relatedTerms: ['OAuth 2.0', 'Token Issuance', 'Authentication', 'Authorization'],
 				},
 			],
 		},
@@ -1105,9 +1037,7 @@ const AIGlossary: React.FC = () => {
 				},
 			],
 		},
-	];
-
-	const filteredData = glossaryData
+	];	const filteredData = glossaryData
 		.map((category) => ({
 			...category,
 			terms: category.terms.filter(
@@ -1156,7 +1086,7 @@ const AIGlossary: React.FC = () => {
 										</CategoryTitle>
 									</CategoryHeaderLeft>
 									<CategoryRight>
-										<CollapsibleIcon isExpanded={expandedCategory === categoryIndex} />
+										<CollapsibleIcon $isExpanded={expandedCategory === categoryIndex} />
 									</CategoryRight>
 								</CategoryHeader>
 								{expandedCategory === categoryIndex && (

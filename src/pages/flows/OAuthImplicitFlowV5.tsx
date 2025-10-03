@@ -19,6 +19,7 @@ import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowInfoCard from '../../components/FlowInfoCard';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	ExplanationHeading,
 	ExplanationSection,
@@ -46,8 +47,14 @@ import { FlowHeader } from '../../services/flowHeaderService';
 // New service imports for enhanced functionality
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowStateService } from '../../services/flowStateService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
+import { ResponseMode } from '../../services/responseModeService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { ApiCallDisplayService } from '../../services/apiCallDisplayService';
 import { useUISettings } from '../../contexts/UISettingsContext';
 
@@ -93,7 +100,7 @@ const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	pkceEnforcement: 'OPTIONAL',
 	responseTypeCode: false,
 	responseTypeToken: true,
-	responseTypeIdToken: true,
+	responseTypeIdToken: false,
 	grantTypeAuthorizationCode: false,
 	initiateLoginUri: '',
 	targetLinkUri: '',
@@ -515,9 +522,23 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		}
 	}, [controller.credentials, controller.setCredentials]);
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		// Check for restore_step from token management navigation
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [OAuthImplicitFlowV5] Restoring to step:', step);
+			return step;
+		}
+		return 0;
+	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [responseMode, setResponseMode] = useState<ResponseMode>('fragment');
+	
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
 		...FlowStateService.createDefaultCollapsedSections(INTRO_SECTION_KEYS),
 		apiCallDisplay: false, // Default to expanded for API call examples
@@ -654,6 +675,10 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	}, []);
 
 	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oauth-implicit-v5', currentStep, 'oauth');
+
+		// Set flow source for Token Management page (legacy support)
 		sessionStorage.setItem('flow_source', 'oauth-implicit-v5');
 
 		const flowContext = {
@@ -671,7 +696,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		}
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
@@ -686,41 +711,38 @@ const OAuthImplicitFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-
-			// For implicit flow (public client), use client_id only (no client_secret)
-			const params = new URLSearchParams({
+			const request = {
 				token: token,
-				client_id: credentials.clientId,
-			});
-
-			console.log('🔍 [OAuthImplicitFlowV5] Introspecting token:', {
-				introspectionEndpoint,
 				clientId: credentials.clientId,
-				tokenLength: token.length,
-			});
+				// No client secret for implicit flow (public client)
+				tokenTypeHint: 'access_token' as const
+			};
 
-			const response = await fetch(introspectionEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: params.toString(),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error('❌ [OAuthImplicitFlowV5] Introspection failed:', {
-					status: response.status,
-					statusText: response.statusText,
-					errorText,
-				});
-				throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
+			try {
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'implicit',
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+				);
+				
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
+				
+				return result.response;
+			} catch (error) {
+				// Create error API call using reusable service
+				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+					request,
+					'implicit',
+					error instanceof Error ? error.message : 'Unknown error',
+					500,
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+				);
+				
+				setIntrospectionApiCall(errorApiCall);
+				throw error;
 			}
-
-			const data = await response.json();
-			console.log('✅ [OAuthImplicitFlowV5] Introspection successful:', data);
-			return data;
 		},
 		[controller.credentials]
 	);
@@ -1174,21 +1196,6 @@ const OAuthImplicitFlowV5: React.FC = () => {
 												</Button>
 											</div>
 										)}
-										{tokens.id_token && (
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>ID Token</ParameterLabel>
-												<ParameterValue style={{ wordBreak: 'break-all' }}>
-													{String(tokens.id_token)}
-												</ParameterValue>
-												<Button
-													onClick={() => handleCopy(String(tokens.id_token), 'ID Token')}
-													$variant="secondary"
-													style={{ marginTop: '0.5rem' }}
-												>
-													<FiCopy /> Copy ID Token
-												</Button>
-											</div>
-										)}
 										{tokens.token_type && (
 											<div>
 												<ParameterLabel>Token Type</ParameterLabel>
@@ -1271,6 +1278,18 @@ const OAuthImplicitFlowV5: React.FC = () => {
 								'Consider migrating to Authorization Code + PKCE for better security.',
 							]}
 						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit')
+								}}
+							/>
+						)}
 
 						{/* API Call Display Section */}
 						{controller.tokens?.access_token && showApiCallExamples && (
@@ -1659,8 +1678,30 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-implicit-v5" />
-
 				<FlowInfoCard flowInfo={getFlowInfo('oauth-implicit')!} />
+				<FlowSequenceDisplay flowType="oauth-implicit" />
+
+				<InfoBox $variant="info">
+					<FiInfo />
+					<div>
+						<InfoTitle>Response Mode Selection</InfoTitle>
+						<InfoText>
+							Choose how PingOne returns the authorization response. Implicit Flow typically uses 
+							fragment mode for client-side applications and SPAs.
+						</InfoText>
+					</div>
+				</InfoBox>
+
+				<ResponseModeSelector
+					selectedMode={responseMode}
+					onModeChange={setResponseMode}
+					responseType="token id_token"
+					clientType="public"
+					platform="web"
+					showRecommendations={true}
+					showUrlExamples={true}
+					baseUrl="https://auth.pingone.com/{envID}/as/authorize"
+				/>
 
 				<MainCard>
 					<StepHeader>

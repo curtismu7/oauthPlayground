@@ -21,6 +21,7 @@ import { trackOAuthFlow } from '../../utils/activityTracker';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -34,26 +35,21 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 
 const STEP_METADATA = [
 	{
-		title: 'Step 0: Introduction & Setup',
-		subtitle: 'Understand Client Credentials Flow and configure credentials',
+		title: 'Step 0: Introduction, Setup & Token Request',
+		subtitle: 'Understand Client Credentials Flow, configure credentials, and request tokens',
 	},
 	{
-		title: 'Step 1: Configuration',
-		subtitle: 'Set up client credentials and authentication method',
-	},
-	{
-		title: 'Step 2: Token Request',
-		subtitle: 'Request access token using client credentials',
-	},
-	{
-		title: 'Step 3: Token Analysis',
+		title: 'Step 1: Token Analysis',
 		subtitle: 'Analyze the received access token',
 	},
 	{
-		title: 'Step 4: Security Features',
+		title: 'Step 2: Security Features',
 		subtitle: 'Explore security best practices and token management',
 	},
 ] as const;
@@ -80,6 +76,20 @@ const Container = styled.div`
 	max-width: 1200px;
 	margin: 0 auto;
 	padding: 2rem;
+`;
+
+const ContentWrapper = styled.div`
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1rem;
+`;
+
+const MainCard = styled.div`
+	background: white;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
 const StepHeader = styled.div`
@@ -337,7 +347,20 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 `;
 
 const ClientCredentialsFlowV5: React.FC = () => {
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		// Check for restore_step from token management navigation
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [ClientCredentialsFlowV5] Restoring to step:', step);
+			return step;
+		}
+		return 0;
+	});
+	
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 
 	usePageScroll();
 
@@ -415,7 +438,52 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Client Credentials Flow reset successfully!');
 	}, [resetControllerFlow, defaultCollapsed]);
 
+	// Wrapper for introspection that creates API call data using reusable service
+	const handleIntrospectToken = useCallback(async (token: string) => {
+		const credentials = controller.credentials;
+
+		if (!credentials.environmentId || !credentials.clientId) {
+			throw new Error('Missing PingOne credentials. Please configure your credentials first.');
+		}
+
+		const request = {
+			token: token,
+			clientId: credentials.clientId,
+			clientSecret: credentials.clientSecret,
+			tokenTypeHint: 'access_token' as const
+		};
+
+		try {
+			// Use the reusable service to create API call data and execute introspection
+			const result = await TokenIntrospectionService.introspectToken(
+				request,
+				'client-credentials',
+				'/api/introspect-token'
+			);
+			
+			// Set the API call data for display
+			setIntrospectionApiCall(result.apiCall);
+			
+			return result.response;
+		} catch (error) {
+			// Create error API call using reusable service
+			const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+				request,
+				'client-credentials',
+				error instanceof Error ? error.message : 'Unknown error',
+				500,
+				'/api/introspect-token'
+			);
+			
+			setIntrospectionApiCall(errorApiCall);
+			throw error;
+		}
+	}, [controller.credentials]);
+
 	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('client-credentials-v5', currentStep, 'oauth');
+
 		// Set flow source for Token Management page (legacy support)
 		sessionStorage.setItem('flow_source', 'client-credentials-v5');
 
@@ -440,15 +508,13 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		}
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	// Step completion logic
 	const stepCompletions: Record<number, boolean> = {
 		0: hasCredentialsSaved || Boolean(credentials.clientId && credentials.clientSecret),
-		1: Boolean(credentials.clientId && credentials.clientSecret),
-		2: Boolean(tokens?.access_token),
-		3: Boolean(tokens?.access_token), // Token analysis available
-		4: Boolean(tokens?.access_token), // Security Features
+		1: Boolean(tokens?.access_token), // Token analysis available
+		2: Boolean(tokens?.access_token), // Security Features
 	};
 
 	const canNavigateNext = useMemo(() => {
@@ -471,6 +537,11 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		}
 	}, [hasUnsavedCredentialChanges, credentials, saveCredentials]);
 
+	// Scroll to top when step changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [currentStep]);
+
 	const handleNext = useCallback(() => {
 		if (canNavigateNext) {
 			const next = currentStep + 1;
@@ -485,9 +556,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 		}
 	}, [canNavigatePrevious, currentStep]);
 
-	// Track flow completion when reaching step 4 (Security Features)
+	// Track flow completion when reaching step 2 (Security Features)
 	useEffect(() => {
-		if (currentStep === 4) {
+		if (currentStep === 2) {
 			trackOAuthFlow('Client Credentials Flow V5', true, 'Flow completed successfully');
 		}
 	}, [currentStep]);
@@ -525,18 +596,13 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											</div>
 										</InfoBox>
 
-										<InfoBox $variant="info">
-											<FiServer size={20} />
+										<InfoBox $variant="success">
+											<FiShield size={20} />
 											<div>
-												<InfoTitle>Perfect For:</InfoTitle>
-												<InfoList>
-													<li>Background services and daemons</li>
-													<li>API-to-API communication</li>
-													<li>Microservice architectures</li>
-													<li>Batch processing jobs</li>
-													<li>IoT device authentication</li>
-													<li>Scheduled tasks and cron jobs</li>
-												</InfoList>
+												<InfoTitle>Client Credentials in OIDC Context</InfoTitle>
+												<InfoText>
+													Client Credentials is very relevant in OIDC - it's just focused on <strong>application identity</strong> rather than <strong>user identity</strong>. Your implementation correctly handles this distinction by focusing on access token acquisition for API access rather than user authentication flows.
+												</InfoText>
 											</div>
 										</InfoBox>
 									</CollapsibleContent>
@@ -619,27 +685,20 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									</CollapsibleContent>
 								)}
 							</CollapsibleSection>
-						</>
-					);
-
-				case 1:
-					return (
-						<>
-							<FlowConfigurationRequirements flowType="client-credentials" />
 
 							<CollapsibleSection>
 								<CollapsibleHeaderButton
-									onClick={() => toggleSection('configuration')}
-									aria-expanded={!collapsedSections.configuration}
+									onClick={() => toggleSection('authMethods')}
+									aria-expanded={!collapsedSections.authMethods}
 								>
 									<CollapsibleTitle>
-										<FiKey /> Authentication Methods
+										<FiShield /> Authentication Methods
 									</CollapsibleTitle>
-									<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.authMethods}>
 										<FiChevronDown />
 									</CollapsibleToggleIcon>
 								</CollapsibleHeaderButton>
-								{!collapsedSections.configuration && (
+								{!collapsedSections.authMethods && (
 									<CollapsibleContent>
 										<InfoBox $variant="info">
 											<FiShield size={20} />
@@ -722,12 +781,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									</CollapsibleContent>
 								)}
 							</CollapsibleSection>
-						</>
-					);
 
-				case 2:
-					return (
-						<>
+							{/* Token Request Section - Merged from Step 1 */}
+							<SectionDivider />
 							<InfoBox $variant="info">
 								<FiZap size={20} />
 								<div>
@@ -813,7 +869,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 						</>
 					);
 
-				case 3:
+				case 1:
 					return (
 						<>
 							{tokens && (
@@ -840,7 +896,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 										isFetchingUserInfo={false}
 										onResetFlow={handleResetFlow}
 										onNavigateToTokenManagement={navigateToTokenManagement}
-										onIntrospectToken={introspectToken}
+										onIntrospectToken={handleIntrospectToken}
 										collapsedSections={{
 											completionOverview: collapsedSections.completionOverview,
 											completionDetails: collapsedSections.completionDetails,
@@ -860,6 +916,18 @@ const ClientCredentialsFlowV5: React.FC = () => {
 											'View granted scopes and client information',
 										]}
 									/>
+
+									{/* API Call Display for Token Introspection */}
+									{introspectionApiCall && (
+										<EnhancedApiCallDisplay
+											apiCall={introspectionApiCall}
+											options={{
+												showEducationalNotes: true,
+												showFlowContext: true,
+												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('client-credentials')
+											}}
+										/>
+									)}
 
 									<CollapsibleSection>
 										<CollapsibleHeaderButton
@@ -951,7 +1019,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 						</>
 					);
 
-				case 4:
+				case 2:
 					return (
 						<SecurityFeaturesDemo
 							tokens={tokens as unknown as Record<string, unknown>}
@@ -986,17 +1054,19 @@ const ClientCredentialsFlowV5: React.FC = () => {
 			setCredentials,
 			saveCredentials,
 			handleResetFlow,
-			introspectToken,
+			handleIntrospectToken,
 		]
 	);
 
 	return (
 		<Container>
-			<FlowHeader flowId="client-credentials-v5" />
-			<FlowInfoCard flowInfo={getFlowInfo('client-credentials')!} />
-			<FlowSequenceDisplay flowType="client-credentials" />
+			<ContentWrapper>
+				<FlowHeader flowId="client-credentials-v5" />
+				<FlowInfoCard flowInfo={getFlowInfo('client-credentials')!} />
+				<FlowSequenceDisplay flowType="client-credentials" />
 
-			<StepHeader>
+				<MainCard>
+					<StepHeader>
 				<StepHeaderLeft>
 					<VersionBadge>V5</VersionBadge>
 					<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
@@ -1004,7 +1074,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 				</StepHeaderLeft>
 			</StepHeader>
 
-			<StepContent>{renderStepContent(currentStep)}</StepContent>
+					<StepContent>{renderStepContent(currentStep)}</StepContent>
+				</MainCard>
+			</ContentWrapper>
 
 			<StepNavigationButtons
 				currentStep={currentStep}
