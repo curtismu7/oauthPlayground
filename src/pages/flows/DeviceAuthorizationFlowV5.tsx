@@ -36,6 +36,7 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import FlowCredentials from '../../components/FlowCredentials';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -750,7 +751,20 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	const [userInfo, setUserInfo] = useState<unknown>(null);
 	const [introspectionResult, setIntrospectionResult] = useState<unknown>(null);
 	const [showPollingModal, setShowPollingModal] = useState(false);
+	const [hasScrolledToTV, setHasScrolledToTV] = useState(false);
 	const { settings } = useUISettings();
+
+	usePageScroll();
+
+	// Explicit scroll to top for step 2 (User Authorization)
+	React.useEffect(() => {
+		if (currentStep === 2) {
+			// Force scroll to top when entering User Authorization step
+			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}
+	}, [currentStep]);
 
 	// Load saved credentials on mount
 	React.useEffect(() => {
@@ -823,7 +837,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 
 	const handleSaveCredentials = useCallback(() => {
 		if (!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) {
-			v4ToastManager.showError('Please enter Environment ID and Client ID');
+			v4ToastManager.showError('Please enter Environment ID and Client ID.');
 			return;
 		}
 
@@ -924,6 +938,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		setShowPollingModal(false);
 		setUserInfo(null);
 		setIntrospectionResult(null);
+		setHasScrolledToTV(false);
 	}, [deviceFlow]);
 
 	// Step validation
@@ -954,12 +969,42 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 
 	// Show toast when tokens received to draw attention to TV update
 	React.useEffect(() => {
-		if (deviceFlow.tokens && currentStep === 2) {
+		if (deviceFlow.tokens && !hasScrolledToTV) {
+			// Scroll to TV display when tokens are received (regardless of current step)
+			const tvElement = document.querySelector('[data-tv-display]');
+			if (tvElement) {
+				tvElement.scrollIntoView({
+					behavior: 'smooth',
+					block: 'center',
+				});
+				setHasScrolledToTV(true);
+			}
+
 			v4ToastManager.showSuccess(
-				'🎉 Authorization successful! Check out your StreamingTV screen above!'
+				'🎉 Authorization successful! Check out your StreamingTV screen below!'
 			);
 		}
-	}, [deviceFlow.tokens, currentStep]);
+	}, [deviceFlow.tokens, hasScrolledToTV]);
+
+	// 20-second fallback scroll timer when polling starts
+	React.useEffect(() => {
+		if (deviceFlow.pollingStatus.isPolling && !hasScrolledToTV && !deviceFlow.tokens) {
+			const fallbackTimer = setTimeout(() => {
+				const tvElement = document.querySelector('[data-tv-display]');
+				if (tvElement && !hasScrolledToTV) {
+					tvElement.scrollIntoView({
+						behavior: 'smooth',
+						block: 'center',
+					});
+					setHasScrolledToTV(true);
+					v4ToastManager.showSuccess('👇 Check out your Smart TV display below!');
+				}
+			}, 20000); // 20 seconds
+
+			return () => clearTimeout(fallbackTimer);
+		}
+		return undefined;
+	}, [deviceFlow.pollingStatus.isPolling, hasScrolledToTV, deviceFlow.tokens]);
 
 	const renderStepContent = () => {
 		switch (currentStep) {
@@ -1646,7 +1691,10 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 								</ScrollIndicator>
 
 								{/* Smart TV Device - Shows result after authorization */}
-								<SmartTV $isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}>
+								<SmartTV
+									$isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}
+									data-tv-display
+								>
 									<div
 										style={{
 											display: 'flex',

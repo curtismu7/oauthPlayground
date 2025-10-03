@@ -46,6 +46,7 @@ import { credentialManager } from '../../utils/credentialManager';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { logger } from '../../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
+import { getBackendUrl } from '../../utils/protocolUtils';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
 import '../../styles/enhanced-flow.css';
 
@@ -1754,10 +1755,24 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			nonce: generatedNonce,
 		});
 
-		// Add PKCE parameters if enabled
+		// Add PKCE parameters if enabled (or force PKCE for security)
 		if (flowConfig.enablePKCE && pkceCodes.codeChallenge) {
 			params.append('code_challenge', pkceCodes.codeChallenge);
 			params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
+		} else if (flowConfig.enablePKCE && !pkceCodes.codeChallenge) {
+			// Force PKCE generation if enabled but codes not generated
+			console.warn(' [EnhancedAuthorizationCodeFlowV2] PKCE enabled but no codes generated. Generating now...');
+			try {
+				const verifier = generateCodeVerifier();
+				const challenge = await generateCodeChallenge(verifier);
+				setPkceCodes({ codeVerifier: verifier, codeChallenge: challenge });
+				sessionStorage.setItem('code_verifier', verifier);
+				params.append('code_challenge', challenge);
+				params.append('code_challenge_method', flowConfig.codeChallengeMethod || 'S256');
+				console.log(' [EnhancedAuthorizationCodeFlowV2] Generated PKCE codes on-the-fly');
+			} catch (error) {
+				console.error(' [EnhancedAuthorizationCodeFlowV2] Failed to generate PKCE codes on-the-fly:', error);
+			}
 		}
 
 		// Add optional Flow Config parameters
@@ -2194,13 +2209,11 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 			const requestBody = {
 				...Object.fromEntries(authenticatedRequest.body),
 				environment_id: currentCredentials.environmentId.trim(),
+				...(currentCredentials.includeX5tParameter && { includeX5tParameter: currentCredentials.includeX5tParameter }),
 			};
 
 			// Use backend proxy for secure token exchange
-			const backendUrl =
-				process.env.NODE_ENV === 'production'
-					? 'https://oauth-playground.vercel.app'
-					: 'https://localhost:3001';
+			const backendUrl = getBackendUrl();
 
 			console.log(' [EnhancedAuthCodeFlowV2] Token exchange via backend proxy:', {
 				backendUrl,

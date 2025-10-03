@@ -1,6 +1,7 @@
 // src/components/StepNavigationButtons.tsx
 
 import { FiArrowLeft, FiArrowRight, FiRefreshCw, FiMove } from 'react-icons/fi';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {
@@ -15,19 +16,19 @@ export interface StepNavigationButtonsProps {
 	disabledMessage?: string;
 }
 
-const StepNavigation = styled.div<{ $position: { x: number; y: number } }><{ $position: { x: number; y: number } }>`
+const StepNavigation = styled.div<{ $position: { x: number; y: number }; $isDragging?: boolean }>`
 	position: fixed !important;
-        cursor: move !important;
-        left: ${({ $position }) => $position.x}px !important;
-        top: ${({ $position }) => $position.y}px !important;
-	bottom: 2rem !important;
-	left: 50% !important;
-	transform: translateX(-50%) !important;
+	left: ${({ $position }) => $position.x}px !important;
+	top: ${({ $position }) => $position.y}px !important;
 	background: rgba(255, 255, 255, 0.98) !important;
 	backdrop-filter: blur(10px) !important;
 	padding: 1.25rem 2rem !important;
 	border-radius: 1rem !important;
-	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+	box-shadow: ${({ $isDragging }) => 
+		$isDragging 
+			? '0 12px 40px rgba(0, 0, 0, 0.25)' 
+			: '0 8px 32px rgba(0, 0, 0, 0.12)'
+	} !important;
 	border: 1px solid rgba(0, 0, 0, 0.08) !important;
 	z-index: 1000 !important;
 	display: flex !important;
@@ -37,31 +38,15 @@ const StepNavigation = styled.div<{ $position: { x: number; y: number } }><{ $po
 	visibility: visible !important;
 	opacity: 1 !important;
 	pointer-events: auto !important;
-	user-select: auto !important;
+	user-select: ${({ $isDragging }) => $isDragging ? 'none' : 'auto'} !important;
+	cursor: ${({ $isDragging }) => $isDragging ? 'grabbing' : 'default'} !important;
+	transition: ${({ $isDragging }) => $isDragging ? 'none' : 'box-shadow 0.2s ease'} !important;
 
 	@media (max-width: 768px) {
 		bottom: 1rem;
 		padding: 1rem 1.5rem;
 		gap: 1rem;
 	}
-`;
-
-const DragHandle = styled.div`
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 24px;
-        height: 24px;
-        background: #f3f4f6;
-        border-radius: 4px;
-        margin-right: 1rem;
-        cursor: move;
-        color: #6b7280;
-        flex-shrink: 0;
-
-        const StepIndicator = styled.div`:hover {
-                background: #e5e7eb;
-        }
 `;
 
 const StepIndicator = styled.div`
@@ -82,6 +67,31 @@ const StepDot = styled.div<{ $active: boolean }>`
 	border-radius: 50%;
 	background: ${({ $active }) => ($active ? '#22c55e' : '#d1d5db')};
 	transition: all 0.2s ease;
+`;
+
+const DragHandle = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	background: #f3f4f6;
+	border-radius: 4px;
+	margin-right: 1rem;
+	cursor: move;
+	color: #6b7280;
+	flex-shrink: 0;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #e5e7eb;
+		color: #374151;
+		transform: scale(1.05);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
 `;
 
 const NavigationButtons = styled.div`
@@ -172,8 +182,71 @@ export const StepNavigationButtons = ({
 	nextButtonText,
 	disabledMessage,
 }: StepNavigationButtonsProps) => {
+	// Drag state management
+	const [position, setPosition] = useState({ x: window.innerWidth / 2 - 200, y: window.innerHeight - 120 });
+	const [isDragging, setIsDragging] = useState(false);
+	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+	const stepperRef = useRef<HTMLDivElement>(null);
+
+	// Handle drag start
+	const handleDragStart = useCallback((e: React.MouseEvent) => {
+		if (!stepperRef.current) return;
+		
+		const rect = stepperRef.current.getBoundingClientRect();
+		setDragOffset({
+			x: e.clientX - rect.left,
+			y: e.clientY - rect.top,
+		});
+		setIsDragging(true);
+		e.preventDefault();
+	}, []);
+
+	// Handle drag move
+	const handleDragMove = useCallback((e: MouseEvent) => {
+		if (!isDragging) return;
+		
+		const newX = e.clientX - dragOffset.x;
+		const newY = e.clientY - dragOffset.y;
+		
+		// Constrain to viewport bounds
+		const maxX = window.innerWidth - (stepperRef.current?.offsetWidth || 400);
+		const maxY = window.innerHeight - (stepperRef.current?.offsetHeight || 80);
+		
+		setPosition({
+			x: Math.max(0, Math.min(newX, maxX)),
+			y: Math.max(0, Math.min(newY, maxY)),
+		});
+	}, [isDragging, dragOffset]);
+
+	// Handle drag end
+	const handleDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
+
+	// Add/remove event listeners for drag
+	useEffect(() => {
+		if (isDragging) {
+			document.addEventListener('mousemove', handleDragMove);
+			document.addEventListener('mouseup', handleDragEnd);
+			document.body.style.userSelect = 'none';
+		} else {
+			document.removeEventListener('mousemove', handleDragMove);
+			document.removeEventListener('mouseup', handleDragEnd);
+			document.body.style.userSelect = '';
+		}
+
+		return () => {
+			document.removeEventListener('mousemove', handleDragMove);
+			document.removeEventListener('mouseup', handleDragEnd);
+			document.body.style.userSelect = '';
+		};
+	}, [isDragging, handleDragMove, handleDragEnd]);
+
 	return (
-		<StepNavigation>
+		<StepNavigation ref={stepperRef} $position={position} $isDragging={isDragging}>
+			<DragHandle onMouseDown={handleDragStart}>
+				<FiMove size={16} />
+			</DragHandle>
 			<StepIndicator>
 				{Array.from({ length: totalSteps }, (_, i) => (
 					<StepDot key={i} $active={i <= currentStep} />

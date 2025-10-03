@@ -11,6 +11,7 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useUserInfoFlowController } from '../../hooks/useUserInfoFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -279,6 +280,8 @@ const UserInfoFlowV5: React.FC = () => {
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [userInfoResult, setUserInfoResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
+
+	usePageScroll();
 
 	const { credentials, userInfo, fetchUserInfo, clearResults, updateCredentials } =
 		useUserInfoFlowController();

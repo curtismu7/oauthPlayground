@@ -338,6 +338,18 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 
 	const canNavigateNext = currentStep === 0 || (currentStep === 1 && !!tokenResult);
 
+	// Get step completion requirements for user guidance
+	const getStepRequirements = useCallback((stepIndex: number): string[] => {
+		switch (stepIndex) {
+			case 0: // Step 0: Introduction & Setup
+				return ['Review the flow overview and setup credentials'];
+			case 1: // Step 1: Token Request
+				return ['Enter username and password, then request access and ID tokens'];
+			default:
+				return [];
+		}
+	}, []);
+
 	const renderStepContent = () => {
 		switch (currentStep) {
 			case 0:
@@ -382,7 +394,8 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 							<FormTitle>
 								<FiUser /> Request OIDC Resource Owner Password Tokens
 							</FormTitle>
-							<FormGrid>
+							<form>
+								<FormGrid>
 								<FormGroup>
 									<Label>Client ID</Label>
 									<Input
@@ -398,10 +411,9 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 										placeholder="Enter client secret..."
 										value={credentials.clientSecret || ''}
 										onChange={(e) => updateCredentials({ clientSecret: e.target.value })}
+										autoComplete="current-password"
 									/>
 								</FormGroup>
-							</FormGrid>
-							<FormGrid>
 								<FormGroup>
 									<Label>Username</Label>
 									<Input
@@ -417,17 +429,18 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 										placeholder="Enter password..."
 										value={credentials.password || ''}
 										onChange={(e) => updateCredentials({ password: e.target.value })}
+										autoComplete="current-password"
+									/>
+								</FormGroup>
+								<FormGroup>
+									<Label>Token Endpoint</Label>
+									<Input
+										placeholder="Enter token endpoint URL..."
+										value={credentials.tokenEndpoint || ''}
+										onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
 									/>
 								</FormGroup>
 							</FormGrid>
-							<FormGroup>
-								<Label>Token Endpoint</Label>
-								<Input
-									placeholder="Enter token endpoint URL..."
-									value={credentials.tokenEndpoint || ''}
-									onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
-								/>
-							</FormGroup>
 							<Button
 								variant="danger"
 								onClick={handleRequestToken}
@@ -441,6 +454,7 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 								{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
 								{isRequesting ? 'Requesting...' : 'Request OIDC Resource Owner Password Tokens'}
 							</Button>
+							</form>
 						</FormSection>
 
 						{error && (
@@ -638,6 +652,9 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 				isFirstStep={currentStep === 0}
 				nextButtonText={canNavigateNext ? 'Next' : 'Complete above action'}
 				disabledMessage="Complete the action above to continue"
+				stepRequirements={getStepRequirements(currentStep)}
+				onCompleteAction={handleNext}
+				showCompleteActionButton={!canNavigateNext && currentStep !== 0}
 			/>
 		</Container>
 	);
