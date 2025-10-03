@@ -62,6 +62,7 @@ import IDTokensFlow from './pages/flows/IDTokensFlow';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
 import MFAFlow from './pages/flows/MFAFlow';
+import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
@@ -322,6 +323,7 @@ const AppRoutes = () => {
 							/>
 							{/* PingOne PAR Flow - V5 only */}
 							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
+							<Route path="/flows/pingone-mfa-v5" element={<PingOneMFAFlowV5 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV5 />} />
 
 							{/* Legacy route removed - use V5 */}
