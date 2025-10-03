@@ -12,51 +12,71 @@ import {
 	FiInfo,
 	FiKey,
 	FiRefreshCw,
-	FiSettings,
 	FiShield,
 	FiZap,
 } from 'react-icons/fi';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import styled from 'styled-components';
+import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { credentialManager } from '../../utils/credentialManager';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { FlowHeader } from '../../services/flowHeaderService';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
+import { ResponseMode } from '../../services/responseModeService';
+import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
 const log = {
-	info: (message: string, ...args: any[]) => {
+	info: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
 	},
-	success: (message: string, ...args: any[]) => {
+	success: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
 	},
-	error: (message: string, ...args: any[]) => {
+	error: (message: string, ...args: unknown[]) => {
 		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
 		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
 	},
 };
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Hybrid Flow' },
-	{ title: 'Step 1: Configuration', subtitle: 'Configure credentials and response type' },
-	{ title: 'Step 2: Authorization Request', subtitle: 'Build and launch authorization URL' },
-	{ title: 'Step 3: Process Response', subtitle: 'Handle callback and validate tokens' },
-	{ title: 'Step 4: Token Exchange', subtitle: 'Exchange code for additional tokens' },
-	{ title: 'Step 5: Tokens Received', subtitle: 'View and analyze all tokens' },
-	{ title: 'Step 6: Flow Complete', subtitle: 'Summary and next steps' },
+	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Hybrid Flow and configure credentials' },
+	{ title: 'Step 1: Authorization Request', subtitle: 'Build and launch authorization URL' },
+	{ title: 'Step 2: Process Response', subtitle: 'Handle callback and validate tokens' },
+	{ title: 'Step 3: Token Exchange', subtitle: 'Exchange code for additional tokens' },
+	{ title: 'Step 4: Tokens Received', subtitle: 'View and analyze all tokens' },
+	{ title: 'Step 5: Flow Complete', subtitle: 'Summary and next steps' },
 ] as const;
+
+type IntroSectionKey =
+	| 'overview'
+	| 'flowDiagram'
+	| 'credentials'
+	| 'configuration'
+	| 'authRequest'
+	| 'response'
+	| 'exchange'
+	| 'tokens'
+	| 'complete';
 
 // Styled Components (V5 parity)
 const Container = styled.div`
-	min-height: 100vh;
-	background-color: #f9fafb;
-	padding: 2rem 0 6rem;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
 `;
 
 const ContentWrapper = styled.div`
@@ -65,212 +85,242 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: #1e293b;
-	margin-bottom: 0.5rem;
-`;
-
-const Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: #64748b;
-	margin-bottom: 1.5rem;
-`;
-
-const Badge = styled.span`
-	display: inline-block;
-	padding: 0.375rem 0.75rem;
-	background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-	color: white;
-	border-radius: 9999px;
-	font-size: 0.875rem;
-	font-weight: 600;
-	margin-bottom: 1rem;
-`;
-
-const StepIndicator = styled.div`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	margin-bottom: 2rem;
-	padding: 1rem;
+const MainCard = styled.div`
 	background: white;
-	border-radius: 0.75rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const StepDot = styled.div<{ $active: boolean; $completed: boolean }>`
-	width: 2.5rem;
-	height: 2.5rem;
-	border-radius: 50%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-weight: 600;
-	font-size: 0.875rem;
-	background: ${({ $active, $completed }) =>
-		$completed ? '#10b981' : $active ? '#3b82f6' : '#e2e8f0'};
-	color: ${({ $active, $completed }) => ($active || $completed ? 'white' : '#64748b')};
-	transition: all 0.3s ease;
-`;
-
-const CollapsibleSection = styled.div`
-	background: white;
-	border-radius: 0.75rem;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-	margin-bottom: 1.5rem;
+	border-radius: 12px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 	overflow: hidden;
+	margin-bottom: 2rem;
 `;
 
-const CollapsibleHeader = styled.button`
-	width: 100%;
-	padding: 1.5rem;
+const StepHeader = styled.div`
+	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+	color: #ffffff;
+	padding: 2rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	background: none;
+	margin-bottom: 0;
+`;
+
+const StepHeaderLeft = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+`;
+
+const VersionBadge = styled.span`
+	align-self: flex-start;
+	background: rgba(59, 130, 246, 0.2);
+	border: 1px solid #60a5fa;
+	color: #dbeafe;
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+`;
+
+const StepHeaderTitle = styled.h2`
+	font-size: 2rem;
+	font-weight: 700;
+	margin: 0;
+`;
+
+const StepHeaderSubtitle = styled.p`
+	font-size: 1.125rem;
+	margin: 0;
+	opacity: 0.9;
+`;
+
+const StepContent = styled.div`
+	padding: 2rem;
+	background-color: #ffffff;
+	border-radius: 0 0 1rem 1rem;
+	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+	border: 1px solid #e2e8f0;
+	border-top: none;
+`;
+
+const CollapsibleSection = styled.section`
+	margin-bottom: 1.5rem;
+	border: 1px solid ${({ theme }) => theme.colors.gray200};
+	border-radius: 0.75rem;
+	overflow: hidden;
+	background: #ffffff;
+`;
+
+const CollapsibleHeaderButton = styled.button`
+	width: 100%;
+	padding: 1.25rem 1.5rem;
+	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
 	border: none;
 	cursor: pointer;
-	transition: background-color 0.2s;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	transition: all 0.2s ease;
 
 	&:hover {
-		background-color: #f8fafc;
+		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
 	}
 `;
 
-const CollapsibleTitle = styled.div`
+const CollapsibleTitle = styled.span`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	font-size: 1.125rem;
-	font-weight: 600;
-	color: #1e293b;
+`;
+
+const CollapsibleToggleIcon = styled.div<{ $collapsed?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.5rem;
+	height: 1.5rem;
+	transition: transform 0.2s ease;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const CollapsibleContent = styled.div`
-	padding: 0 1.5rem 1.5rem;
+	padding: 1.5rem;
+	padding-top: 0;
+	animation: fadeIn 0.2s ease;
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 `;
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error' }>`
 	display: flex;
+	align-items: flex-start;
 	gap: 1rem;
-	padding: 1rem;
-	border-radius: 0.5rem;
-	margin: 1rem 0;
+	padding: 1.5rem;
+	border-radius: 0.75rem;
 	background: ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
 				return '#fef3c7';
 			case 'success':
 				return '#d1fae5';
-			case 'error':
-				return '#fee2e2';
 			default:
-				return '#dbeafe';
+				return '#eff6ff';
 		}
 	}};
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
 			case 'warning':
-				return '#fbbf24';
+				return '#f59e0b';
 			case 'success':
 				return '#10b981';
-			case 'error':
-				return '#ef4444';
 			default:
 				return '#3b82f6';
 		}
 	}};
-`;
-
-const FormGroup = styled.div`
 	margin-bottom: 1.5rem;
 `;
 
-const Label = styled.label`
-	display: block;
+const InfoTitle = styled.h3`
+	font-size: 1.125rem;
 	font-weight: 600;
-	color: #1e293b;
-	margin-bottom: 0.5rem;
-	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray900};
+	margin: 0 0 0.5rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
 `;
 
-const Input = styled.input`
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	font-size: 1rem;
-	transition: border-color 0.2s;
+const InfoText = styled.p`
+	color: ${({ theme }) => theme.colors.gray700};
+	margin: 0;
+	line-height: 1.6;
+`;
 
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+const InfoList = styled.ul`
+	margin: 1rem 0 0 0;
+	padding-left: 1.5rem;
+	color: ${({ theme }) => theme.colors.gray700};
+
+	li {
+		margin-bottom: 0.5rem;
+		line-height: 1.5;
 	}
 `;
 
-const Select = styled.select`
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	font-size: 1rem;
-	background: white;
-	cursor: pointer;
-
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
+const ActionRow = styled.div`
+	display: flex;
+	gap: 1rem;
+	justify-content: center;
+	margin: 1.5rem 0;
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'outline' | 'success' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'outline' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
-	font-weight: 600;
-	font-size: 1rem;
+	font-weight: 500;
+	font-size: 0.875rem;
 	cursor: pointer;
-	transition: all 0.2s;
-	display: inline-flex;
+	transition: all 0.2s ease;
+	display: flex;
 	align-items: center;
 	gap: 0.5rem;
 	border: none;
 
-	${({ $variant }) => {
-		if ($variant === 'success') {
-			return `
-				background: #10b981;
-				color: white;
-				&:hover { background: #059669; }
-			`;
+	${({ $variant, theme }) => {
+		switch ($variant) {
+			case 'primary':
+				return `
+					background: linear-gradient(135deg, #3b82f6, #2563eb);
+					color: white;
+					&:hover {
+						background: linear-gradient(135deg, #2563eb, #1d4ed8);
+						transform: translateY(-1px);
+					}
+				`;
+			case 'danger':
+				return `
+					background: linear-gradient(135deg, #ef4444, #dc2626);
+					color: white;
+					&:hover {
+						background: linear-gradient(135deg, #dc2626, #b91c1c);
+						transform: translateY(-1px);
+					}
+				`;
+			case 'outline':
+				return `
+					background: transparent;
+					color: ${theme.colors.gray700};
+					border: 1px solid ${theme.colors.gray300};
+					&:hover {
+						background: ${theme.colors.gray100};
+						border-color: ${theme.colors.gray400};
+					}
+				`;
+			default:
+				return `
+					background: ${theme.colors.gray100};
+					color: ${theme.colors.gray700};
+					&:hover {
+						background: ${theme.colors.gray200};
+					}
+				`;
 		}
-		if ($variant === 'outline') {
-			return `
-				background: white;
-				color: #3b82f6;
-				border: 2px solid #3b82f6;
-				&:hover { background: #eff6ff; }
-			`;
-		}
-		return `
-			background: #3b82f6;
-			color: white;
-			&:hover { background: #2563eb; }
-		`;
 	}}
 
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
+		transform: none !important;
 	}
 `;
 
@@ -286,14 +336,67 @@ const TokenDisplay = styled.div`
 	overflow-y: auto;
 `;
 
+const ParameterGrid = styled.div`
+	display: grid;
+	grid-template-columns: 1fr 2fr;
+	gap: 0.75rem 1rem;
+	align-items: start;
+`;
+
+const ParameterLabel = styled.div`
+	font-weight: 500;
+	color: ${({ theme }) => theme.colors.gray700};
+	font-size: 0.875rem;
+`;
+
+const ParameterValue = styled.div`
+	font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+	font-size: 0.875rem;
+	color: ${({ theme }) => theme.colors.gray900};
+	word-break: break-all;
+	background: ${({ theme }) => theme.colors.gray100};
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+`;
+
+
+const SectionDivider = styled.div`
+	height: 1px;
+	background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 50%, #e2e8f0 100%);
+	margin: 2rem 0;
+`;
+
 const OIDCHybridFlowV5: React.FC = () => {
 	const navigate = useNavigate();
 	const [searchParams] = useSearchParams();
 	const hybridFlow = useHybridFlow();
-	const [currentStep, setCurrentStep] = useState(0);
-	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+	const [currentStep, setCurrentStep] = useState(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step');
+			return step;
+		}
+		return 0;
+	});
+	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
+		overview: false,
+		flowDiagram: false,
+		credentials: false, // Always expanded - users need to see credentials first
+		configuration: false,
+		authRequest: false,
+		response: false,
+		exchange: false,
+		tokens: false,
+		complete: false,
+	});
 
 	usePageScroll();
+
+	// Scroll to top when step changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [currentStep]);
 
 	// Form state
 	const [environmentId, setEnvironmentId] = useState('');
@@ -303,6 +406,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const [responseType, setResponseType] = useState<
 		'code id_token' | 'code token' | 'code id_token token'
 	>('code id_token');
+	const [responseMode, setResponseMode] = useState<ResponseMode>('fragment');
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -321,7 +425,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				const tokens = JSON.parse(tokensJson);
 				hybridFlow.setTokens(tokens);
 				sessionStorage.removeItem('hybrid_tokens');
-				setCurrentStep(3); // Move to process response step
+				setCurrentStep(2); // Move to process response step
 				log.success('Tokens loaded from callback');
 			} catch (err) {
 				log.error('Failed to parse callback tokens', err);
@@ -348,6 +452,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 			clientSecret,
 			scopes,
 			responseType,
+			responseMode,
 		});
 
 		credentialManager.saveAllCredentials({
@@ -366,8 +471,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 			const authUrl = hybridFlow.generateAuthorizationUrl();
 			log.info('Redirecting to authorization URL');
 			window.location.href = authUrl;
-		} catch (err: any) {
-			v4ToastManager.showError(err.message || 'Failed to generate authorization URL');
+		} catch (err: unknown) {
+			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			v4ToastManager.showError(errorMessage);
 		}
 	}, [hybridFlow]);
 
@@ -379,15 +485,18 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 		try {
 			await hybridFlow.exchangeCodeForTokens(hybridFlow.tokens.code);
-			setCurrentStep(5); // Move to tokens received
-		} catch (_err: any) {
+			setCurrentStep(4); // Move to tokens received
+		} catch {
 			// Error already handled in hook
 		}
 	}, [hybridFlow]);
 
-	const toggleSection = (key: string) => {
-		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
-	};
+	const toggleSection = useCallback((sectionKey: IntroSectionKey) => {
+		setCollapsedSections((prev) => ({
+			...prev,
+			[sectionKey]: !prev[sectionKey],
+		}));
+	}, []);
 
 	const handleCopy = (text: string, label: string) => {
 		navigator.clipboard.writeText(text);
@@ -395,6 +504,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 	};
 
 	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oidc-hybrid-v5', currentStep, 'oidc');
+
 		if (hybridFlow.tokens?.access_token) {
 			localStorage.setItem('token_to_analyze', hybridFlow.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
@@ -402,9 +514,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 			log.info('Navigating to Token Management with access token');
 		}
 		navigate('/token-management');
-	}, [hybridFlow.tokens, navigate]);
+	}, [hybridFlow.tokens, navigate, currentStep]);
 
 	const navigateToTokenManagementWithIdToken = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oidc-hybrid-v5', currentStep, 'oidc');
+
 		if (hybridFlow.tokens?.id_token) {
 			localStorage.setItem('token_to_analyze', hybridFlow.tokens.id_token);
 			localStorage.setItem('token_type', 'id');
@@ -412,65 +527,79 @@ const OIDCHybridFlowV5: React.FC = () => {
 			log.info('Navigating to Token Management with ID token');
 		}
 		navigate('/token-management');
-	}, [hybridFlow.tokens, navigate]);
+	}, [hybridFlow.tokens, navigate, currentStep]);
 
-	const renderStepContent = () => {
-		switch (currentStep) {
-			case 0:
-				return renderIntroduction();
-			case 1:
-				return renderConfiguration();
-			case 2:
-				return renderAuthorizationRequest();
-			case 3:
-				return renderProcessResponse();
-			case 4:
-				return renderTokenExchange();
-			case 5:
-				return renderTokensReceived();
-			case 6:
-				return renderCompletion();
-			default:
-				return null;
-		}
-	};
+	const renderStepContent = useCallback(
+		(stepIndex: number) => {
+			switch (stepIndex) {
+				case 0:
+					return renderIntroduction();
+				case 1:
+					return renderAuthorizationRequest();
+				case 2:
+					return renderProcessResponse();
+				case 3:
+					return renderTokenExchange();
+				case 4:
+					return renderTokensReceived();
+				case 5:
+					return renderCompletion();
+				default:
+					return null;
+			}
+		},
+		[
+			collapsedSections,
+			environmentId,
+			clientId,
+			clientSecret,
+			scopes,
+			responseType,
+			hybridFlow,
+			handleSaveCredentials,
+			handleStartAuthorization,
+			handleExchangeCode,
+			toggleSection,
+			handleCopy,
+			navigateToTokenManagement,
+			navigateToTokenManagementWithIdToken,
+		]
+	);
 
 	const renderIntroduction = () => (
 		<>
-			<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
-
 			<CollapsibleSection>
-				<CollapsibleHeader onClick={() => toggleSection('intro')}>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('overview')}
+					aria-expanded={!collapsedSections.overview}
+				>
 					<CollapsibleTitle>
 						<FiInfo /> OIDC Hybrid Flow Overview
 					</CollapsibleTitle>
-					<FiChevronDown
-						style={{
-							transform: collapsedSections.intro ? 'rotate(0deg)' : 'rotate(180deg)',
-							transition: 'transform 0.2s',
-						}}
-					/>
-				</CollapsibleHeader>
-				{!collapsedSections.intro && (
+					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.overview && (
 					<CollapsibleContent>
 						<InfoBox $variant="info">
-							<FiShield size={24} />
+							<FiShield size={20} />
 							<div>
-								<strong>What is OIDC Hybrid Flow?</strong>
-								<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+								<InfoTitle>What is OIDC Hybrid Flow?</InfoTitle>
+								<InfoText>
 									The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to
 									be returned from both the authorization endpoint (in the fragment) and the token
 									endpoint. This provides flexibility for different client types and security
 									requirements.
-								</p>
+								</InfoText>
 							</div>
 						</InfoBox>
 
 						<InfoBox $variant="warning">
-							<FiAlertCircle size={24} />
+							<FiAlertCircle size={20} />
 							<div>
-								<strong>Response Types Supported:</strong>
-								<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+								<InfoTitle>Response Types Supported:</InfoTitle>
+								<InfoList>
 									<li>
 										<code>code id_token</code> - Returns code + ID token in fragment
 									</li>
@@ -481,20 +610,133 @@ const OIDCHybridFlowV5: React.FC = () => {
 										<code>code id_token token</code> - Returns code + ID token + access token in
 										fragment
 									</li>
-								</ul>
+								</InfoList>
 							</div>
 						</InfoBox>
 
 						<InfoBox>
-							<FiZap size={24} />
+							<FiZap size={20} />
 							<div>
-								<strong>Key Features:</strong>
-								<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+								<InfoTitle>Key Features:</InfoTitle>
+								<InfoList>
 									<li>Immediate access to ID token for client-side validation</li>
 									<li>Authorization code for secure token exchange</li>
 									<li>Flexible security model for different client types</li>
 									<li>Supports both public and confidential clients</li>
-								</ul>
+								</InfoList>
+							</div>
+						</InfoBox>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
+
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('credentials')}
+					aria-expanded={!collapsedSections.credentials}
+				>
+					<CollapsibleTitle>
+						<FiKey /> Configure Credentials
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.credentials && (
+					<CollapsibleContent>
+						<CredentialsInput
+							environmentId={environmentId}
+							clientId={clientId}
+							clientSecret={clientSecret}
+							scopes={scopes}
+							onEnvironmentIdChange={setEnvironmentId}
+							onClientIdChange={setClientId}
+							onClientSecretChange={setClientSecret}
+							onScopesChange={setScopes}
+							onCopy={handleCopy}
+							showRedirectUri={false}
+							showLoginHint={false}
+						/>
+
+						<SectionDivider />
+						
+						<InfoBox $variant="info">
+							<FiInfo size={20} />
+							<div>
+								<InfoTitle>Response Mode Selection</InfoTitle>
+								<InfoText>
+									Choose how PingOne returns the authorization response. Different modes are 
+									optimized for different application types and security requirements.
+								</InfoText>
+							</div>
+						</InfoBox>
+
+						<ResponseModeSelector
+							selectedMode={responseMode}
+							onModeChange={setResponseMode}
+							responseType={responseType}
+							clientType="confidential"
+							platform="web"
+							showRecommendations={true}
+							showUrlExamples={true}
+							baseUrl="https://auth.pingone.com/{envID}/as/authorize"
+						/>
+
+						<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
+
+						<SectionDivider />
+						<ConfigurationSummaryCard
+							configuration={{
+								environmentId,
+								clientId,
+								clientSecret,
+								scopes: scopes.split(' '),
+								responseType,
+								responseMode,
+							}}
+							onSaveConfiguration={handleSaveCredentials}
+							onLoadConfiguration={(config) => {
+								if (config) {
+									setEnvironmentId(config.environmentId || '');
+									setClientId(config.clientId || '');
+									setClientSecret(config.clientSecret || '');
+									setScopes(config.scopes?.join(' ') || 'openid profile email');
+									if (config.responseType) setResponseType(config.responseType as 'code id_token' | 'code token' | 'code id_token token');
+									if (config.responseMode) setResponseMode(config.responseMode as ResponseMode);
+								}
+							}}
+							primaryColor="#3b82f6"
+						/>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
+
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('flowDiagram')}
+					aria-expanded={!collapsedSections.flowDiagram}
+				>
+					<CollapsibleTitle>
+						<FiZap /> Hybrid Flow Sequence
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.flowDiagram && (
+					<CollapsibleContent>
+						<InfoBox>
+							<FiInfo size={20} />
+							<div>
+								<InfoTitle>Flow Steps:</InfoTitle>
+								<InfoList>
+									<li>User initiates authorization request with hybrid response type</li>
+									<li>Authorization server authenticates user and obtains consent</li>
+									<li>Server returns authorization code + tokens in fragment</li>
+									<li>Client extracts tokens from URL fragment</li>
+									<li>Client exchanges authorization code for additional tokens</li>
+									<li>Client receives all tokens (access, ID, refresh)</li>
+								</InfoList>
 							</div>
 						</InfoBox>
 					</CollapsibleContent>
@@ -503,107 +745,47 @@ const OIDCHybridFlowV5: React.FC = () => {
 		</>
 	);
 
-	const renderConfiguration = () => (
-		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('config')}>
-				<CollapsibleTitle>
-					<FiSettings /> Configuration
-				</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.config ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
-			{!collapsedSections.config && (
-				<CollapsibleContent>
-					<FormGroup>
-						<Label>Environment ID</Label>
-						<Input
-							type="text"
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-						/>
-					</FormGroup>
-
-					<FormGroup>
-						<Label>Client ID</Label>
-						<Input
-							type="text"
-							value={clientId}
-							onChange={(e) => setClientId(e.target.value)}
-							placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-						/>
-					</FormGroup>
-
-					<FormGroup>
-						<Label>Client Secret (Optional for Public Clients)</Label>
-						<Input
-							type="password"
-							value={clientSecret}
-							onChange={(e) => setClientSecret(e.target.value)}
-							autoComplete="current-password"
-							placeholder="Enter client secret if confidential client"
-						/>
-					</FormGroup>
-
-					<FormGroup>
-						<Label>Scopes</Label>
-						<Input
-							type="text"
-							value={scopes}
-							onChange={(e) => setScopes(e.target.value)}
-							placeholder="openid profile email"
-						/>
-					</FormGroup>
-
-					<FormGroup>
-						<Label>Response Type</Label>
-						<Select value={responseType} onChange={(e) => setResponseType(e.target.value as any)}>
-							<option value="code id_token">code id_token</option>
-							<option value="code token">code token</option>
-							<option value="code id_token token">code id_token token</option>
-						</Select>
-					</FormGroup>
-
-					<Button onClick={handleSaveCredentials}>
-						<FiCheckCircle /> Save Credentials
-					</Button>
-				</CollapsibleContent>
-			)}
-		</CollapsibleSection>
-	);
-
 	const renderAuthorizationRequest = () => (
 		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('authReq')}>
+			<CollapsibleHeaderButton
+				onClick={() => toggleSection('authRequest')}
+				aria-expanded={!collapsedSections.authRequest}
+			>
 				<CollapsibleTitle>
 					<FiExternalLink /> Authorization Request
 				</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.authReq ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
-			{!collapsedSections.authReq && (
+				<CollapsibleToggleIcon $collapsed={collapsedSections.authRequest}>
+					<FiChevronDown />
+				</CollapsibleToggleIcon>
+			</CollapsibleHeaderButton>
+			{!collapsedSections.authRequest && (
 				<CollapsibleContent>
 					<InfoBox>
-						<FiInfo size={24} />
+						<FiInfo size={20} />
 						<div>
-							<p style={{ margin: 0 }}>
+							<InfoText>
 								Click the button below to start the authorization flow. You'll be redirected to
 								PingOne where you can authenticate and authorize the application.
-							</p>
+							</InfoText>
 						</div>
 					</InfoBox>
 
-					<Button onClick={handleStartAuthorization} disabled={!hybridFlow.credentials}>
-						<FiExternalLink /> Start Authorization
-					</Button>
+					<ParameterGrid>
+						<ParameterLabel>Response Type</ParameterLabel>
+						<ParameterValue>{responseType}</ParameterValue>
+						<ParameterLabel>Scopes</ParameterLabel>
+						<ParameterValue>{scopes}</ParameterValue>
+					</ParameterGrid>
+
+					<ActionRow>
+						<Button
+							onClick={handleStartAuthorization}
+							disabled={!environmentId || !clientId}
+							$variant="primary"
+						>
+							<FiExternalLink /> Start Authorization
+						</Button>
+					</ActionRow>
 				</CollapsibleContent>
 			)}
 		</CollapsibleSection>
@@ -611,52 +793,52 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const renderProcessResponse = () => (
 		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('response')}>
+			<CollapsibleHeaderButton
+				onClick={() => toggleSection('response')}
+				aria-expanded={!collapsedSections.response}
+			>
 				<CollapsibleTitle>
 					<FiCheckCircle /> Process Response
 				</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.response ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
+				<CollapsibleToggleIcon $collapsed={collapsedSections.response}>
+					<FiChevronDown />
+				</CollapsibleToggleIcon>
+			</CollapsibleHeaderButton>
 			{!collapsedSections.response && (
 				<CollapsibleContent>
 					{hybridFlow.tokens ? (
 						<>
 							<InfoBox $variant="success">
-								<FiCheckCircle size={24} />
+								<FiCheckCircle size={20} />
 								<div>
-									<strong>Authorization Response Received!</strong>
-									<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+									<InfoTitle>Authorization Response Received!</InfoTitle>
+									<InfoText>
 										Tokens received from authorization endpoint. Click "Exchange Code" to get
 										additional tokens from the token endpoint.
-									</p>
+									</InfoText>
 								</div>
 							</InfoBox>
 
 							{hybridFlow.tokens.id_token && (
 								<div style={{ marginTop: '1rem' }}>
-									<Label>ID Token (from fragment)</Label>
+									<ParameterLabel>ID Token (from fragment)</ParameterLabel>
 									<TokenDisplay>{hybridFlow.tokens.id_token}</TokenDisplay>
-									<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+									<ActionRow>
 										<Button onClick={() => handleCopy(hybridFlow.tokens!.id_token!, 'ID Token')}>
 											<FiCopy /> Copy
 										</Button>
 										<Button onClick={navigateToTokenManagementWithIdToken} $variant="outline">
 											<FiExternalLink /> Decode ID Token
 										</Button>
-									</div>
+									</ActionRow>
 								</div>
 							)}
 
 							{hybridFlow.tokens.access_token && (
 								<div style={{ marginTop: '1rem' }}>
-									<Label>Access Token (from fragment)</Label>
+									<ParameterLabel>Access Token (from fragment)</ParameterLabel>
 									<TokenDisplay>{hybridFlow.tokens.access_token}</TokenDisplay>
-									<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+									<ActionRow>
 										<Button
 											onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}
 										>
@@ -665,24 +847,24 @@ const OIDCHybridFlowV5: React.FC = () => {
 										<Button onClick={navigateToTokenManagement} $variant="outline">
 											<FiExternalLink /> Decode Access Token
 										</Button>
-									</div>
+									</ActionRow>
 								</div>
 							)}
 
 							{hybridFlow.tokens.code && (
 								<div style={{ marginTop: '1rem' }}>
-									<Label>Authorization Code</Label>
+									<ParameterLabel>Authorization Code</ParameterLabel>
 									<TokenDisplay>{hybridFlow.tokens.code}</TokenDisplay>
 								</div>
 							)}
 						</>
 					) : (
 						<InfoBox $variant="warning">
-							<FiAlertCircle size={24} />
+							<FiAlertCircle size={20} />
 							<div>
-								<p style={{ margin: 0 }}>
+								<InfoText>
 									Waiting for authorization response. Please complete the authorization flow.
-								</p>
+								</InfoText>
 							</div>
 						</InfoBox>
 					)}
@@ -693,36 +875,48 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const renderTokenExchange = () => (
 		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('exchange')}>
+			<CollapsibleHeaderButton
+				onClick={() => toggleSection('exchange')}
+				aria-expanded={!collapsedSections.exchange}
+			>
 				<CollapsibleTitle>
 					<FiRefreshCw /> Token Exchange
 				</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.exchange ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
+				<CollapsibleToggleIcon $collapsed={collapsedSections.exchange}>
+					<FiChevronDown />
+				</CollapsibleToggleIcon>
+			</CollapsibleHeaderButton>
 			{!collapsedSections.exchange && (
 				<CollapsibleContent>
 					<InfoBox>
-						<FiInfo size={24} />
+						<FiInfo size={20} />
 						<div>
-							<p style={{ margin: 0 }}>
+							<InfoText>
 								Exchange the authorization code for additional tokens (access token, refresh token,
 								ID token) from the token endpoint.
-							</p>
+							</InfoText>
 						</div>
 					</InfoBox>
 
-					<Button
-						onClick={handleExchangeCode}
-						disabled={!hybridFlow.tokens?.code || hybridFlow.isExchangingCode}
-					>
-						<FiRefreshCw />{' '}
-						{hybridFlow.isExchangingCode ? 'Exchanging...' : 'Exchange Code for Tokens'}
-					</Button>
+					<ActionRow>
+						<Button
+							onClick={handleExchangeCode}
+							disabled={!hybridFlow.tokens?.code || hybridFlow.isExchangingCode}
+							$variant="primary"
+						>
+							{hybridFlow.isExchangingCode ? (
+								<>
+									<FiRefreshCw className="animate-spin" />
+									Exchanging...
+								</>
+							) : (
+								<>
+									<FiRefreshCw />
+									Exchange Code for Tokens
+								</>
+							)}
+						</Button>
+					</ActionRow>
 				</CollapsibleContent>
 			)}
 		</CollapsibleSection>
@@ -730,34 +924,34 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const renderTokensReceived = () => (
 		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('tokens')}>
+			<CollapsibleHeaderButton
+				onClick={() => toggleSection('tokens')}
+				aria-expanded={!collapsedSections.tokens}
+			>
 				<CollapsibleTitle>
 					<FiKey /> Tokens Received
 				</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.tokens ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
+				<CollapsibleToggleIcon $collapsed={collapsedSections.tokens}>
+					<FiChevronDown />
+				</CollapsibleToggleIcon>
+			</CollapsibleHeaderButton>
 			{!collapsedSections.tokens && (
 				<CollapsibleContent>
 					<InfoBox $variant="success">
-						<FiCheckCircle size={24} />
+						<FiCheckCircle size={20} />
 						<div>
-							<strong>All Tokens Received!</strong>
-							<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+							<InfoTitle>All Tokens Received!</InfoTitle>
+							<InfoText>
 								You now have all tokens from both the authorization endpoint and token endpoint.
-							</p>
+							</InfoText>
 						</div>
 					</InfoBox>
 
 					{hybridFlow.tokens?.access_token && (
 						<div style={{ marginTop: '1rem' }}>
-							<Label>Access Token</Label>
+							<ParameterLabel>Access Token</ParameterLabel>
 							<TokenDisplay>{hybridFlow.tokens.access_token}</TokenDisplay>
-							<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+							<ActionRow>
 								<Button
 									onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}
 								>
@@ -766,28 +960,28 @@ const OIDCHybridFlowV5: React.FC = () => {
 								<Button onClick={navigateToTokenManagement} $variant="outline">
 									<FiExternalLink /> Analyze in Token Management
 								</Button>
-							</div>
+							</ActionRow>
 						</div>
 					)}
 
 					{hybridFlow.tokens?.id_token && (
 						<div style={{ marginTop: '1rem' }}>
-							<Label>ID Token</Label>
+							<ParameterLabel>ID Token</ParameterLabel>
 							<TokenDisplay>{hybridFlow.tokens.id_token}</TokenDisplay>
-							<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+							<ActionRow>
 								<Button onClick={() => handleCopy(hybridFlow.tokens!.id_token!, 'ID Token')}>
 									<FiCopy /> Copy
 								</Button>
 								<Button onClick={navigateToTokenManagementWithIdToken} $variant="outline">
 									<FiExternalLink /> Decode ID Token
 								</Button>
-							</div>
+							</ActionRow>
 						</div>
 					)}
 
 					{hybridFlow.tokens?.refresh_token && (
 						<div style={{ marginTop: '1rem' }}>
-							<Label>Refresh Token</Label>
+							<ParameterLabel>Refresh Token</ParameterLabel>
 							<TokenDisplay>{hybridFlow.tokens.refresh_token}</TokenDisplay>
 							<Button
 								onClick={() => handleCopy(hybridFlow.tokens!.refresh_token!, 'Refresh Token')}
@@ -804,40 +998,40 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const renderCompletion = () => (
 		<CollapsibleSection>
-			<CollapsibleHeader onClick={() => toggleSection('complete')}>
+			<CollapsibleHeaderButton
+				onClick={() => toggleSection('complete')}
+				aria-expanded={!collapsedSections.complete}
+			>
 				<CollapsibleTitle>
 					<FiCheckCircle /> Flow Complete
 				</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.complete ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
+				<CollapsibleToggleIcon $collapsed={collapsedSections.complete}>
+					<FiChevronDown />
+				</CollapsibleToggleIcon>
+			</CollapsibleHeaderButton>
 			{!collapsedSections.complete && (
 				<CollapsibleContent>
 					<InfoBox $variant="success">
-						<FiCheckCircle size={24} />
+						<FiCheckCircle size={20} />
 						<div>
-							<strong>Hybrid Flow Completed Successfully!</strong>
-							<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+							<InfoTitle>Hybrid Flow Completed Successfully!</InfoTitle>
+							<InfoText>
 								You've successfully completed the OIDC Hybrid Flow and received all tokens.
-							</p>
+							</InfoText>
 						</div>
 					</InfoBox>
 
 					<div style={{ marginTop: '1.5rem' }}>
 						<strong>Next Steps:</strong>
-						<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
+						<InfoList>
 							<li>Analyze tokens in Token Management</li>
 							<li>Test token introspection</li>
 							<li>Try different response types</li>
 							<li>Implement in your application</li>
-						</ul>
+						</InfoList>
 					</div>
 
-					<div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
+					<ActionRow>
 						<Button onClick={navigateToTokenManagement}>
 							<FiExternalLink /> Go to Token Management
 						</Button>
@@ -850,7 +1044,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 						>
 							<FiRefreshCw /> Start Over
 						</Button>
-					</div>
+					</ActionRow>
 				</CollapsibleContent>
 			)}
 		</CollapsibleSection>
@@ -861,40 +1055,19 @@ const OIDCHybridFlowV5: React.FC = () => {
 		switch (stepIndex) {
 			case 0: // Step 0: Introduction & Setup
 				return true; // Always valid - introduction step
-			case 1: // Step 1: Configuration
-				return !!(hybridFlow.credentials.clientId && hybridFlow.credentials.clientSecret);
-			case 2: // Step 2: Authorization Request
-				return !!(hybridFlow.authUrl);
-			case 3: // Step 3: Process Response
+			case 1: // Step 1: Authorization Request
+				return !!(environmentId && clientId);
+			case 2: // Step 2: Process Response
 				return !!(hybridFlow.tokens);
-			case 4: // Step 4: Token Exchange
+			case 3: // Step 3: Token Exchange
 				return !!(hybridFlow.tokens);
-			case 5: // Step 5: Tokens Received
+			case 4: // Step 4: Tokens Received
 				return !!(hybridFlow.tokens);
 			default:
 				return false;
 		}
-	}, [hybridFlow.credentials, hybridFlow.authUrl, hybridFlow.tokens]);
+	}, [environmentId, clientId, hybridFlow.tokens]);
 
-	// Get step completion requirements for user guidance
-	const getStepRequirements = useCallback((stepIndex: number): string[] => {
-		switch (stepIndex) {
-			case 0: // Step 0: Introduction & Setup
-				return ['Review the flow overview and setup credentials'];
-			case 1: // Step 1: Configuration
-				return ['Enter client ID and client secret'];
-			case 2: // Step 2: Authorization Request
-				return ['Generate authorization URL with hybrid response type'];
-			case 3: // Step 3: Process Response
-				return ['Complete authorization and receive tokens'];
-			case 4: // Step 4: Token Exchange
-				return ['Exchange authorization code for additional tokens'];
-			case 5: // Step 5: Tokens Received
-				return ['View and analyze all received tokens'];
-			default:
-				return [];
-		}
-	}, []);
 
 	const canNavigateNext = useCallback((): boolean => {
 		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
@@ -903,72 +1076,35 @@ const OIDCHybridFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<Badge>🔀 OIDC Hybrid Flow V5</Badge>
-					<MainTitle>OIDC Hybrid Flow</MainTitle>
-					<Subtitle>
-						Combine Authorization Code and Implicit flows for flexible token delivery
-					</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowId="hybrid-v5" />
+				<FlowInfoCard flowInfo={getFlowInfo('hybrid')!} />
+				<FlowSequenceDisplay flowType="hybrid" />
 
-				<StepIndicator>
-					{STEP_METADATA.map((_, index) => (
-						<React.Fragment key={index}>
-							<StepDot
-								$active={currentStep === index}
-								$completed={currentStep > index}
-								onClick={() => setCurrentStep(index)}
-								style={{ cursor: 'pointer' }}
-							>
-								{currentStep > index ? <FiCheckCircle /> : index}
-							</StepDot>
-							{index < STEP_METADATA.length - 1 && (
-								<div
-									style={{
-										width: '2rem',
-										height: '2px',
-										background: currentStep > index ? '#10b981' : '#e2e8f0',
-									}}
-								/>
-							)}
-						</React.Fragment>
-					))}
-				</StepIndicator>
+				<MainCard>
+					<StepHeader>
+				<StepHeaderLeft>
+					<VersionBadge>V5</VersionBadge>
+					<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+					<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+				</StepHeaderLeft>
+			</StepHeader>
 
-				<div style={{ marginBottom: '2rem' }}>
-					<h2
-						style={{
-							fontSize: '1.5rem',
-							fontWeight: '600',
-							color: '#1e293b',
-							marginBottom: '0.5rem',
-						}}
-					>
-						{STEP_METADATA[currentStep].title}
-					</h2>
-					<p style={{ color: '#64748b' }}>{STEP_METADATA[currentStep].subtitle}</p>
-				</div>
-
-				{renderStepContent()}
-
-				<StepNavigationButtons
-					currentStep={currentStep}
-					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep(Math.max(0, currentStep - 1))}
-					onNext={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
-					onReset={() => {
-						hybridFlow.reset();
-						setCurrentStep(0);
-					}}
-					canNavigateNext={canNavigateNext()}
-					isFirstStep={currentStep === 0}
-					nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
-					disabledMessage="Complete the action above to continue"
-					stepRequirements={getStepRequirements(currentStep)}
-					onCompleteAction={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
-					showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
-				/>
+					<StepContent>{renderStepContent(currentStep)}</StepContent>
+				</MainCard>
 			</ContentWrapper>
+
+			<StepNavigationButtons
+				currentStep={currentStep}
+				totalSteps={STEP_METADATA.length}
+				onPrevious={() => setCurrentStep(Math.max(0, currentStep - 1))}
+				onNext={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
+				onReset={() => {
+					hybridFlow.reset();
+					setCurrentStep(0);
+				}}
+				canNavigateNext={canNavigateNext()}
+				isFirstStep={currentStep === 0}
+			/>
 		</Container>
 	);
 };
