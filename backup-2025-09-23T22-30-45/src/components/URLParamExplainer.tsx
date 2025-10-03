@@ -45,52 +45,53 @@ const Small = styled.small`
 `;
 
 type URLParamExplainerProps = {
-  url: string;
+	url: string;
 };
 
 const KNOWN_PARAM_DESCRIPTIONS: Record<string, string> = {
-  response_type: 'What you want back from authorization (PKCE: code).',
-  client_id: 'The RP/client identifier registered with the AS.',
-  redirect_uri: 'Exact redirect URI registered; must match for security.',
-  scope: 'Requested permissions/claims (e.g., openid profile email).',
-  state: 'Opaque value to prevent CSRF; must be validated on return.',
-  nonce: 'Opaque value to bind ID Token to request; mitigates replay.',
-  code_challenge: 'PKCE challenge derived from the code_verifier (base64url SHA-256).',
-  code_challenge_method: 'Method used to derive the challenge. Use S256.',
-  iss: 'Issuer id (mix-up defense) expected back in response (if supported).',
+	response_type: 'What you want back from authorization (PKCE: code).',
+	client_id: 'The RP/client identifier registered with the AS.',
+	redirect_uri: 'Exact redirect URI registered; must match for security.',
+	scope: 'Requested permissions/claims (e.g., openid profile email).',
+	state: 'Opaque value to prevent CSRF; must be validated on return.',
+	nonce: 'Opaque value to bind ID Token to request; mitigates replay.',
+	code_challenge: 'PKCE challenge derived from the code_verifier (base64url SHA-256).',
+	code_challenge_method: 'Method used to derive the challenge. Use S256.',
+	iss: 'Issuer id (mix-up defense) expected back in response (if supported).',
 };
 
 export const URLParamExplainer: React.FC<URLParamExplainerProps> = ({ url }) => {
-  if (!url) return null;
+	if (!url) return null;
 
-  let parsed: URL | null = null;
-  try {
-    parsed = new URL(url);
-  } catch {
-    return null;
-  }
+	let parsed: URL | null = null;
+	try {
+		parsed = new URL(url);
+	} catch {
+		return null;
+	}
 
-  const items = Array.from(parsed.searchParams.entries());
-  if (!items.length) return null;
+	const items = Array.from(parsed.searchParams.entries());
+	if (!items.length) return null;
 
-  return (
-    <Wrapper>
-      <Title>Authorization URL parameters</Title>
-      <ParamList>
-        {items.map(([name, value]) => (
-          <ParamItem key={name}>
-            <code className="name">{name}</code>
-            {': '}
-            <code className="value">{value}</code>
-            {KNOWN_PARAM_DESCRIPTIONS[name] ? ` — ${KNOWN_PARAM_DESCRIPTIONS[name]}` : ''}
-          </ParamItem>
-        ))}
-      </ParamList>
-      <Small>
-        Secure-by-default: Authorization Code + PKCE (S256). Validate state and nonce. Enforce exact redirect URI. Prefer PAR/JAR to avoid parameter tampering.
-      </Small>
-    </Wrapper>
-  );
+	return (
+		<Wrapper>
+			<Title>Authorization URL parameters</Title>
+			<ParamList>
+				{items.map(([name, value]) => (
+					<ParamItem key={name}>
+						<code className="name">{name}</code>
+						{': '}
+						<code className="value">{value}</code>
+						{KNOWN_PARAM_DESCRIPTIONS[name] ? ` — ${KNOWN_PARAM_DESCRIPTIONS[name]}` : ''}
+					</ParamItem>
+				))}
+			</ParamList>
+			<Small>
+				Secure-by-default: Authorization Code + PKCE (S256). Validate state and nonce. Enforce exact
+				redirect URI. Prefer PAR/JAR to avoid parameter tampering.
+			</Small>
+		</Wrapper>
+	);
 };
 
 export default URLParamExplainer;

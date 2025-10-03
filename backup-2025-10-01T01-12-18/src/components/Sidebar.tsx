@@ -107,7 +107,12 @@ const Submenu = styled.div<SubmenuProps>`
   transition: max-height 0.3s ease-in-out;
 `;
 
-const SubmenuItem = styled(Link)<{ $isActive?: boolean; $isV4?: boolean; $isV5?: boolean; $isWarning?: boolean }>`
+const SubmenuItem = styled(Link)<{
+	$isActive?: boolean;
+	$isV4?: boolean;
+	$isV5?: boolean;
+	$isWarning?: boolean;
+}>`
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -330,7 +335,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				// Auto-expand if current route matches
 				oauth: path.startsWith('/flows/') || prev.oauth,
 				oidc: path.startsWith('/oidc') || prev.oidc,
-				unsupported: path.startsWith('/flows/unsupported') || path.startsWith('/oauth/resource-owner-password') || prev.unsupported,
+				unsupported:
+					path.startsWith('/flows/unsupported') ||
+					path.startsWith('/oauth/resource-owner-password') ||
+					prev.unsupported,
 				'pingone-tokens': path.startsWith('/oidc/worker-token') || prev['pingone-tokens'],
 				resources:
 					path.startsWith('/oidc/userinfo') ||
@@ -358,7 +366,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		});
 	}, [location.pathname]);
 
-	const toggleMenu = (menu: 'oauth' | 'oidc' | 'unsupported' | 'pingone-tokens' | 'resources' | 'docs') => {
+	const toggleMenu = (
+		menu: 'oauth' | 'oidc' | 'unsupported' | 'pingone-tokens' | 'resources' | 'docs'
+	) => {
 		setOpenMenus((prev) => {
 			const newState = {
 				...prev,
@@ -393,22 +403,34 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					<FiShield />
 					<span>OAuth 2.1</span>
 				</NavItem>
-			<NavItem to="/documentation/oidc-overview" onClick={onClose} $isActive={isActiveRoute('/documentation/oidc-overview')}>
-				<FiBookOpen />
-				<span>OIDC Overview</span>
-			</NavItem>
-			<NavItem to="/ai-glossary" onClick={onClose} $isActive={isActiveRoute('/ai-glossary')}>
-				<FiBookOpen />
-				<span>AI Glossary</span>
-			</NavItem>
-				<NavItem to="/ai-agent-overview" onClick={onClose} $isActive={isActiveRoute('/ai-agent-overview')}>
+				<NavItem
+					to="/documentation/oidc-overview"
+					onClick={onClose}
+					$isActive={isActiveRoute('/documentation/oidc-overview')}
+				>
+					<FiBookOpen />
+					<span>OIDC Overview</span>
+				</NavItem>
+				<NavItem to="/ai-glossary" onClick={onClose} $isActive={isActiveRoute('/ai-glossary')}>
+					<FiBookOpen />
+					<span>AI Glossary</span>
+				</NavItem>
+				<NavItem
+					to="/ai-agent-overview"
+					onClick={onClose}
+					$isActive={isActiveRoute('/ai-agent-overview')}
+				>
 					<FiCpu />
 					<span>AI Agent Overview for PingOne</span>
 				</NavItem>
-			<NavItem to="/comprehensive-oauth-education" onClick={onClose} $isActive={isActiveRoute('/comprehensive-oauth-education')}>
-				<FiBookOpen />
-				<span>Comprehensive OAuth AI Education</span>
-			</NavItem>
+				<NavItem
+					to="/comprehensive-oauth-education"
+					onClick={onClose}
+					$isActive={isActiveRoute('/comprehensive-oauth-education')}
+				>
+					<FiBookOpen />
+					<span>Comprehensive OAuth AI Education</span>
+				</NavItem>
 			</NavSection>
 
 			<NavSection>
@@ -746,7 +768,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</SubmenuItem>
 					</Submenu>
 				</NavItemWithSubmenu>
-
 			</NavSection>
 		</SidebarContainer>
 	);

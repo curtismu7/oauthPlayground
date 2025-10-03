@@ -964,35 +964,35 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			setPingOneConfig(config);
 			sessionStorage.setItem('oauth-authorization-code-v5-app-config', JSON.stringify(config));
 
-		// Update controller credentials with PingOne configuration
-		const updatedCredentials = {
-			...controller.credentials,
-			// Client Authentication
-			clientAuthMethod: config.clientAuthMethod,
-			// JWT Authentication Settings
-			privateKey: config.privateKey,
-			keyId: config.keyId,
-			// Response Types
-			responseTypeCode: config.responseTypeCode,
-			responseTypeToken: config.responseTypeToken,
-			responseTypeIdToken: config.responseTypeIdToken,
-			// Advanced OIDC Parameters
-			initiateLoginUri: config.initiateLoginUri,
-			targetLinkUri: config.targetLinkUri,
-			signoffUrls: config.signoffUrls,
-			// Request Parameter Signature
-			requestParameterSignatureRequirement: config.requestParameterSignatureRequirement,
-			// Advanced Security Settings
-			additionalRefreshTokenReplayProtection: config.additionalRefreshTokenReplayProtection,
-			includeX5tParameter: config.includeX5tParameter,
-			oidcSessionManagement: config.oidcSessionManagement,
-			requestScopesForMultipleResources: config.requestScopesForMultipleResources,
-			terminateUserSessionByIdToken: config.terminateUserSessionByIdToken,
-			// CORS Settings
-			corsOrigins: config.corsOrigins,
-			corsAllowAnyOrigin: config.corsAllowAnyOrigin,
-		};
-		controller.setCredentials(updatedCredentials);
+			// Update controller credentials with PingOne configuration
+			const updatedCredentials = {
+				...controller.credentials,
+				// Client Authentication
+				clientAuthMethod: config.clientAuthMethod,
+				// JWT Authentication Settings
+				privateKey: config.privateKey,
+				keyId: config.keyId,
+				// Response Types
+				responseTypeCode: config.responseTypeCode,
+				responseTypeToken: config.responseTypeToken,
+				responseTypeIdToken: config.responseTypeIdToken,
+				// Advanced OIDC Parameters
+				initiateLoginUri: config.initiateLoginUri,
+				targetLinkUri: config.targetLinkUri,
+				signoffUrls: config.signoffUrls,
+				// Request Parameter Signature
+				requestParameterSignatureRequirement: config.requestParameterSignatureRequirement,
+				// Advanced Security Settings
+				additionalRefreshTokenReplayProtection: config.additionalRefreshTokenReplayProtection,
+				includeX5tParameter: config.includeX5tParameter,
+				oidcSessionManagement: config.oidcSessionManagement,
+				requestScopesForMultipleResources: config.requestScopesForMultipleResources,
+				terminateUserSessionByIdToken: config.terminateUserSessionByIdToken,
+				// CORS Settings
+				corsOrigins: config.corsOrigins,
+				corsAllowAnyOrigin: config.corsAllowAnyOrigin,
+			};
+			controller.setCredentials(updatedCredentials);
 		},
 		[controller]
 	);
@@ -1188,48 +1188,55 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-	const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-	const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
+			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
 
-	const requestBody: any = {
-		token: token,
-		client_id: credentials.clientId,
-		introspection_endpoint: introspectionEndpoint,
-		token_auth_method: tokenAuthMethod,
-	};
+			const requestBody: any = {
+				token: token,
+				client_id: credentials.clientId,
+				introspection_endpoint: introspectionEndpoint,
+				token_auth_method: tokenAuthMethod,
+			};
 
-	// Handle JWT-based authentication methods
-	if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
-		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-			const baseParams = new URLSearchParams();
-			
-			const authResult = await applyClientAuthentication({
-				method: tokenAuthMethod as any,
-				clientId: credentials.clientId,
-				clientSecret: tokenAuthMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
-				privateKey: tokenAuthMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
-				keyId: credentials.keyId,
-				tokenEndpoint,
-			}, baseParams);
-			
-			requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
-			requestBody.client_assertion = authResult.body.get('client_assertion');
-		} catch (error) {
-			throw new Error(`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-		}
-	} else if (tokenAuthMethod !== 'none') {
-		// For client_secret_basic and client_secret_post
-		requestBody.client_secret = credentials.clientSecret;
-	}
+			// Handle JWT-based authentication methods
+			if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
+				try {
+					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					const baseParams = new URLSearchParams();
 
-	const response = await fetch('/api/introspect-token', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(requestBody),
-	});
+					const authResult = await applyClientAuthentication(
+						{
+							method: tokenAuthMethod as any,
+							clientId: credentials.clientId,
+							clientSecret:
+								tokenAuthMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
+							privateKey:
+								tokenAuthMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
+							keyId: credentials.keyId,
+							tokenEndpoint,
+						},
+						baseParams
+					);
+
+					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
+					requestBody.client_assertion = authResult.body.get('client_assertion');
+				} catch (error) {
+					throw new Error(
+						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
+			} else if (tokenAuthMethod !== 'none') {
+				// For client_secret_basic and client_secret_post
+				requestBody.client_secret = credentials.clientSecret;
+			}
+
+			const response = await fetch('/api/introspect-token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
 
 			const data = await response.json();
 
@@ -1246,22 +1253,22 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			switch (stepIndex) {
-			case 0: // Step 0: Introduction & Setup
-				return true; // Always valid - introduction step
-			case 1: // Step 1: PKCE Parameters
-				return !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge);
-			case 2: // Step 2: Authorization Request
-				return !!(controller.authUrl && controller.pkceCodes.codeVerifier);
-			case 3: // Step 3: Authorization Response
-				return !!(controller.authCode || localAuthCode);
-			case 4: // Step 4: Token Exchange
-				return !!controller.tokens?.access_token;
-			case 5: // Step 5: Token Introspection
-				return !!controller.tokens?.access_token;
-			case 6: // Step 6: Flow Complete
-				return true; // Always valid - completion step
-			case 7: // Step 7: Security Features
-				return true; // Always valid - demonstration step
+				case 0: // Step 0: Introduction & Setup
+					return true; // Always valid - introduction step
+				case 1: // Step 1: PKCE Parameters
+					return !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge);
+				case 2: // Step 2: Authorization Request
+					return !!(controller.authUrl && controller.pkceCodes.codeVerifier);
+				case 3: // Step 3: Authorization Response
+					return !!(controller.authCode || localAuthCode);
+				case 4: // Step 4: Token Exchange
+					return !!controller.tokens?.access_token;
+				case 5: // Step 5: Token Introspection
+					return !!controller.tokens?.access_token;
+				case 6: // Step 6: Flow Complete
+					return true; // Always valid - completion step
+				case 7: // Step 7: Security Features
+					return true; // Always valid - demonstration step
 				default:
 					return false;
 			}
@@ -1278,22 +1285,22 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 	// Get step completion requirements for user guidance
 	const getStepRequirements = useCallback((stepIndex: number): string[] => {
 		switch (stepIndex) {
-		case 0: // Step 0: Introduction & Setup
-			return ['Review the flow overview and setup credentials'];
-		case 1: // Step 1: PKCE Parameters
-			return ['Generate PKCE code verifier and code challenge'];
-		case 2: // Step 2: Authorization Request
-			return ['Generate authorization URL with PKCE parameters'];
-		case 3: // Step 3: Authorization Response
-			return ['Receive authorization code from PingOne callback'];
-		case 4: // Step 4: Token Exchange
-			return ['Exchange authorization code for access and refresh tokens'];
-		case 5: // Step 5: Token Introspection
-			return ['Introspect access token to validate and inspect claims'];
-		case 6: // Step 6: Flow Complete
-			return ['Flow completed successfully'];
-		case 7: // Step 7: Security Features
-			return ['Demonstrate advanced security implementations'];
+			case 0: // Step 0: Introduction & Setup
+				return ['Review the flow overview and setup credentials'];
+			case 1: // Step 1: PKCE Parameters
+				return ['Generate PKCE code verifier and code challenge'];
+			case 2: // Step 2: Authorization Request
+				return ['Generate authorization URL with PKCE parameters'];
+			case 3: // Step 3: Authorization Response
+				return ['Receive authorization code from PingOne callback'];
+			case 4: // Step 4: Token Exchange
+				return ['Exchange authorization code for access and refresh tokens'];
+			case 5: // Step 5: Token Introspection
+				return ['Introspect access token to validate and inspect claims'];
+			case 6: // Step 6: Flow Complete
+				return ['Flow completed successfully'];
+			case 7: // Step 7: Security Features
+				return ['Demonstrate advanced security implementations'];
 			default:
 				return [];
 		}
@@ -1434,7 +1441,9 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Use Case</ParameterLabel>
-												<ParameterValue>API authorization without user identity requirements</ParameterValue>
+												<ParameterValue>
+													API authorization without user identity requirements
+												</ParameterValue>
 											</div>
 										</ParameterGrid>
 									</GeneratedContentBox>
@@ -2572,71 +2581,71 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					</>
 				);
 
-		case 5:
-			return (
-				<TokenIntrospect
-					flowName="OAuth 2.0 Authorization Code Flow"
-					flowVersion="V5"
-					tokens={controller.tokens as any}
-					credentials={controller.credentials as any}
-					userInfo={userInfo}
-					onFetchUserInfo={handleFetchUserInfo}
-					isFetchingUserInfo={isFetchingUserInfo}
-					onResetFlow={handleResetFlow}
-					onNavigateToTokenManagement={navigateToTokenManagement}
-					onIntrospectToken={handleIntrospectToken}
-					collapsedSections={{
-						completionOverview: collapsedSections.completionOverview,
-						completionDetails: collapsedSections.completionDetails,
-						introspectionDetails: collapsedSections.introspectionDetails,
-						rawJson: false, // Show raw JSON expanded by default
-					}}
-					onToggleSection={(section) => {
-						if (section === 'completionOverview' || section === 'completionDetails') {
-							toggleSection(section as IntroSectionKey);
-						}
-					}}
-					completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
-					nextSteps={[
-						'Inspect or decode tokens using the Token Management tools.',
-						'Repeat the flow with different scopes or redirect URIs.',
-						'Explore refresh tokens and introspection flows.',
-					]}
-				/>
-			);
+			case 5:
+				return (
+					<TokenIntrospect
+						flowName="OAuth 2.0 Authorization Code Flow"
+						flowVersion="V5"
+						tokens={controller.tokens as any}
+						credentials={controller.credentials as any}
+						userInfo={userInfo}
+						onFetchUserInfo={handleFetchUserInfo}
+						isFetchingUserInfo={isFetchingUserInfo}
+						onResetFlow={handleResetFlow}
+						onNavigateToTokenManagement={navigateToTokenManagement}
+						onIntrospectToken={handleIntrospectToken}
+						collapsedSections={{
+							completionOverview: collapsedSections.completionOverview,
+							completionDetails: collapsedSections.completionDetails,
+							introspectionDetails: collapsedSections.introspectionDetails,
+							rawJson: false, // Show raw JSON expanded by default
+						}}
+						onToggleSection={(section) => {
+							if (section === 'completionOverview' || section === 'completionDetails') {
+								toggleSection(section as IntroSectionKey);
+							}
+						}}
+						completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
+						nextSteps={[
+							'Inspect or decode tokens using the Token Management tools.',
+							'Repeat the flow with different scopes or redirect URIs.',
+							'Explore refresh tokens and introspection flows.',
+						]}
+					/>
+				);
 
-		case 6:
-			return (
-				<TokenIntrospect
-					flowName="OAuth 2.0 Authorization Code Flow"
-					flowVersion="V5"
-					tokens={controller.tokens as any}
-					credentials={controller.credentials as any}
-					onResetFlow={handleResetFlow}
-					onNavigateToTokenManagement={navigateToTokenManagement}
-					onIntrospectToken={handleIntrospectToken}
-					collapsedSections={{
-						completionOverview: collapsedSections.completionOverview,
-						completionDetails: collapsedSections.completionDetails,
-						introspectionDetails: collapsedSections.introspectionDetails,
-						rawJson: false,
-					}}
-					onToggleSection={(section) => {
-						if (section === 'completionOverview' || section === 'completionDetails') {
-							toggleSection(section as IntroSectionKey);
-						}
-					}}
-					completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
-					nextSteps={[
-						'Inspect or decode tokens using the Token Management tools.',
-						'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
-						'Repeat the flow with different scopes or redirect URIs.',
-						'Explore refresh tokens and introspection flows.',
-					]}
-				/>
-			);
+			case 6:
+				return (
+					<TokenIntrospect
+						flowName="OAuth 2.0 Authorization Code Flow"
+						flowVersion="V5"
+						tokens={controller.tokens as any}
+						credentials={controller.credentials as any}
+						onResetFlow={handleResetFlow}
+						onNavigateToTokenManagement={navigateToTokenManagement}
+						onIntrospectToken={handleIntrospectToken}
+						collapsedSections={{
+							completionOverview: collapsedSections.completionOverview,
+							completionDetails: collapsedSections.completionDetails,
+							introspectionDetails: collapsedSections.introspectionDetails,
+							rawJson: false,
+						}}
+						onToggleSection={(section) => {
+							if (section === 'completionOverview' || section === 'completionDetails') {
+								toggleSection(section as IntroSectionKey);
+							}
+						}}
+						completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
+						nextSteps={[
+							'Inspect or decode tokens using the Token Management tools.',
+							'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
+							'Repeat the flow with different scopes or redirect URIs.',
+							'Explore refresh tokens and introspection flows.',
+						]}
+					/>
+				);
 
-		case 7:
+			case 7:
 				return (
 					<SecurityFeaturesDemo
 						tokens={controller.tokens}
@@ -2700,21 +2709,21 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 						Experience the full PingOne Authorization Code Flow with PKCE, powered by the reusable
 						V5 controller architecture.
 					</Subtitle>
-			</HeaderSection>
+				</HeaderSection>
 
-			<FlowInfoCard flowInfo={getFlowInfo('oauth-authorization-code')!} />
+				<FlowInfoCard flowInfo={getFlowInfo('oauth-authorization-code')!} />
 
-			<MainCard>
+				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Authorization Code Flow · V5</VersionBadge>
 							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
 							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
-					<StepHeaderRight>
-						<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
-						<StepTotal>of 07</StepTotal>
-					</StepHeaderRight>
+						<StepHeaderRight>
+							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
+							<StepTotal>of 07</StepTotal>
+						</StepHeaderRight>
 					</StepHeader>
 
 					{/* Step Requirements Indicator */}

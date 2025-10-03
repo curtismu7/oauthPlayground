@@ -8,21 +8,21 @@ import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import TokenDisplayComponent from '../../components/TokenDisplay';
 import AuthorizationRequestModal from '../../components/AuthorizationRequestModal';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
-import { 
-  BaseOAuthFlow, 
-  Container, 
-  useOAuthFlowBase,
-  getPingOneEnvVars 
+import {
+	BaseOAuthFlow,
+	Container,
+	useOAuthFlowBase,
+	getPingOneEnvVars,
 } from '../../components/BaseOAuthFlow';
-import { 
-  buildOAuthURL, 
-  handleOAuthFlowError, 
-  storeOAuthTokensSafely,
-  generateState,
-  generateNonce,
-  logOAuthFlowEvent,
-  getOAuthFlowDescription,
-  getOAuthFlowUseCases
+import {
+	buildOAuthURL,
+	handleOAuthFlowError,
+	storeOAuthTokensSafely,
+	generateState,
+	generateNonce,
+	logOAuthFlowEvent,
+	getOAuthFlowDescription,
+	getOAuthFlowUseCases,
 } from '../../utils/flowUtils';
 import { OAuthFlowErrorBoundary } from '../../components/OAuthFlowErrorBoundary';
 
@@ -43,256 +43,250 @@ const DemoSection = styled(Card)`
 
 // Main Implicit Grant Flow Component
 const ImplicitGrantFlowContent: React.FC = () => {
-  const {
-    isLoading,
-    error,
-    handleError,
-    clearError,
-    startLoading,
-    stopLoading
-  } = useOAuthFlowBase('implicit');
+	const { isLoading, error, handleError, clearError, startLoading, stopLoading } =
+		useOAuthFlowBase('implicit');
 
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [currentStep, setCurrentStep] = useState(0);
-  const [authUrl, setAuthUrl] = useState('');
-  const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
-  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
-  const [showRedirectModal, setShowRedirectModal] = useState(false);
-  const [redirectUrl, setRedirectUrl] = useState('');
-  const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [currentStep, setCurrentStep] = useState(0);
+	const [authUrl, setAuthUrl] = useState('');
+	const [tokensReceived, setTokensReceived] = useState<Record<string, unknown> | null>(null);
+	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+	const [showRedirectModal, setShowRedirectModal] = useState(false);
+	const [redirectUrl, setRedirectUrl] = useState('');
+	const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
 
-  // Initialize flow
-  useEffect(() => {
-    logOAuthFlowEvent('Flow initialized', 'implicit');
-    setDemoStatus('idle');
-    setCurrentStep(0);
-    setStepsWithResults([]);
-    clearError();
-  }, [clearError]);
+	// Initialize flow
+	useEffect(() => {
+		logOAuthFlowEvent('Flow initialized', 'implicit');
+		setDemoStatus('idle');
+		setCurrentStep(0);
+		setStepsWithResults([]);
+		clearError();
+	}, [clearError]);
 
-  // Handle URL parameters from redirect
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const accessToken = urlParams.get('access_token');
-    const idToken = urlParams.get('id_token');
-    const state = urlParams.get('state');
-    const error = urlParams.get('error');
-    const errorDescription = urlParams.get('error_description');
+	// Handle URL parameters from redirect
+	useEffect(() => {
+		const urlParams = new URLSearchParams(window.location.search);
+		const accessToken = urlParams.get('access_token');
+		const idToken = urlParams.get('id_token');
+		const state = urlParams.get('state');
+		const error = urlParams.get('error');
+		const errorDescription = urlParams.get('error_description');
 
-    if (error) {
-      const oauthError = {
-        code: error,
-        message: errorDescription || 'OAuth error occurred',
-        description: errorDescription
-      };
-      handleError(new Error(oauthError.message), 'OAuth redirect error');
-      setDemoStatus('error');
-      return;
-    }
+		if (error) {
+			const oauthError = {
+				code: error,
+				message: errorDescription || 'OAuth error occurred',
+				description: errorDescription,
+			};
+			handleError(new Error(oauthError.message), 'OAuth redirect error');
+			setDemoStatus('error');
+			return;
+		}
 
-    if (accessToken || idToken) {
-      logOAuthFlowEvent('Tokens received from redirect', 'implicit', { 
-        hasAccessToken: !!accessToken, 
-        hasIdToken: !!idToken 
-      });
+		if (accessToken || idToken) {
+			logOAuthFlowEvent('Tokens received from redirect', 'implicit', {
+				hasAccessToken: !!accessToken,
+				hasIdToken: !!idToken,
+			});
 
-      const tokens: Record<string, unknown> = {};
-      if (accessToken) tokens.access_token = accessToken;
-      if (idToken) tokens.id_token = idToken;
-      if (state) tokens.state = state;
+			const tokens: Record<string, unknown> = {};
+			if (accessToken) tokens.access_token = accessToken;
+			if (idToken) tokens.id_token = idToken;
+			if (state) tokens.state = state;
 
-      setTokensReceived(tokens);
-      setDemoStatus('success');
-      setCurrentStep(2);
+			setTokensReceived(tokens);
+			setDemoStatus('success');
+			setCurrentStep(2);
 
-      // Store tokens
-      storeOAuthTokensSafely(tokens as any, 'implicit', 'Implicit Grant Flow');
+			// Store tokens
+			storeOAuthTokensSafely(tokens as any, 'implicit', 'Implicit Grant Flow');
 
-      // Update steps with results
-      setStepsWithResults(prev => [
-        ...prev,
-        {
-          id: 'redirect-complete',
-          title: 'Redirect Complete',
-          description: 'Tokens received from authorization server',
-          status: 'completed',
-          details: tokens
-        }
-      ]);
-    }
-  }, [handleError]);
+			// Update steps with results
+			setStepsWithResults((prev) => [
+				...prev,
+				{
+					id: 'redirect-complete',
+					title: 'Redirect Complete',
+					description: 'Tokens received from authorization server',
+					status: 'completed',
+					details: tokens,
+				},
+			]);
+		}
+	}, [handleError]);
 
-  // Generate authorization URL
-  const generateAuthUrl = () => {
-    try {
-      startLoading();
-      setDemoStatus('loading');
-      clearError();
+	// Generate authorization URL
+	const generateAuthUrl = () => {
+		try {
+			startLoading();
+			setDemoStatus('loading');
+			clearError();
 
-      const envVars = getPingOneEnvVars();
-      const flowConfig = getDefaultConfig('implicit');
-      
-      const state = generateState();
-      const nonce = generateNonce();
+			const envVars = getPingOneEnvVars();
+			const flowConfig = getDefaultConfig('implicit');
 
-      const oauthConfig = {
-        flowType: 'implicit',
-        flowName: 'Implicit Grant Flow',
-        clientId: envVars.clientId,
-        redirectUri: `${window.location.origin}/callback`,
-        scope: flowConfig.scope,
-        state,
-        nonce,
-        responseType: 'token id_token',
-        additionalParams: {
-          response_mode: 'fragment'
-        }
-      };
+			const state = generateState();
+			const nonce = generateNonce();
 
-      const authUrl = buildOAuthURL(`${envVars.apiUrl}/as/authorize`, oauthConfig);
-      
-      setAuthUrl(authUrl);
-      setRedirectUrl(`${window.location.origin}/callback`);
-      setRedirectParams({
-        access_token: '[ACCESS_TOKEN]',
-        id_token: '[ID_TOKEN]',
-        state: state,
-        token_type: 'Bearer',
-        expires_in: '3600'
-      });
+			const oauthConfig = {
+				flowType: 'implicit',
+				flowName: 'Implicit Grant Flow',
+				clientId: envVars.clientId,
+				redirectUri: `${window.location.origin}/callback`,
+				scope: flowConfig.scope,
+				state,
+				nonce,
+				responseType: 'token id_token',
+				additionalParams: {
+					response_mode: 'fragment',
+				},
+			};
 
-      setCurrentStep(1);
-      setDemoStatus('idle');
+			const authUrl = buildOAuthURL(`${envVars.apiUrl}/as/authorize`, oauthConfig);
 
-      logOAuthFlowEvent('Authorization URL generated', 'implicit', { 
-        hasState: !!state, 
-        hasNonce: !!nonce 
-      });
+			setAuthUrl(authUrl);
+			setRedirectUrl(`${window.location.origin}/callback`);
+			setRedirectParams({
+				access_token: '[ACCESS_TOKEN]',
+				id_token: '[ID_TOKEN]',
+				state: state,
+				token_type: 'Bearer',
+				expires_in: '3600',
+			});
 
-      // Update steps with results
-      setStepsWithResults(prev => [
-        ...prev,
-        {
-          id: 'url-generated',
-          title: 'Authorization URL Generated',
-          description: 'URL created with required parameters',
-          status: 'completed',
-          details: { url: authUrl, state, nonce }
-        }
-      ]);
+			setCurrentStep(1);
+			setDemoStatus('idle');
 
-    } catch (err) {
-      const oauthError = handleOAuthFlowError(err, 'implicit', 'Generate auth URL');
-      handleError(new Error(oauthError.message), 'Generate auth URL');
-      setDemoStatus('error');
-    } finally {
-      stopLoading();
-    }
-  };
+			logOAuthFlowEvent('Authorization URL generated', 'implicit', {
+				hasState: !!state,
+				hasNonce: !!nonce,
+			});
 
-  // Handle redirect simulation
-  const handleRedirectSimulation = () => {
-    setShowRedirectModal(true);
-  };
+			// Update steps with results
+			setStepsWithResults((prev) => [
+				...prev,
+				{
+					id: 'url-generated',
+					title: 'Authorization URL Generated',
+					description: 'URL created with required parameters',
+					status: 'completed',
+					details: { url: authUrl, state, nonce },
+				},
+			]);
+		} catch (err) {
+			const oauthError = handleOAuthFlowError(err, 'implicit', 'Generate auth URL');
+			handleError(new Error(oauthError.message), 'Generate auth URL');
+			setDemoStatus('error');
+		} finally {
+			stopLoading();
+		}
+	};
 
-  // Flow steps definition
-  const flowSteps: FlowStep[] = [
-    {
-      id: 'generate-url',
-      title: 'Generate Authorization URL',
-      description: 'Create the authorization URL with required parameters',
-      status: currentStep >= 1 ? 'completed' : 'pending',
-      action: generateAuthUrl,
-      actionText: 'Generate URL'
-    },
-    {
-      id: 'redirect-user',
-      title: 'Redirect User to Authorization Server',
-      description: 'User is redirected to PingOne for authentication',
-      status: currentStep >= 2 ? 'completed' : 'pending',
-      action: handleRedirectSimulation,
-      actionText: 'Simulate Redirect'
-    },
-    {
-      id: 'receive-tokens',
-      title: 'Receive Tokens',
-      description: 'Tokens are returned in the URL fragment',
-      status: currentStep >= 3 ? 'completed' : 'pending'
-    }
-  ];
+	// Handle redirect simulation
+	const handleRedirectSimulation = () => {
+		setShowRedirectModal(true);
+	};
 
-  return (
-    <Container>
-      <BaseOAuthFlow
-        title="Implicit Grant Flow"
-        description={getOAuthFlowDescription('implicit')}
-        flowType="implicit"
-        securityWarning={{
-          title: "Security Warning",
-          message: "The Implicit Grant flow is less secure than Authorization Code flow because tokens are exposed in the URL. Use only when necessary for client-side applications."
-        }}
-        useCaseHighlight={{
-          title: "Best Use Cases",
-          message: getOAuthFlowUseCases('implicit').join(', ')
-        }}
-      >
-        <DemoSection>
-          <CardHeader>
-            <h2>Interactive Demo</h2>
-          </CardHeader>
-          <CardBody>
-            {error && (
-              <ErrorMessage>
-                <FiAlertCircle style={{ marginRight: '0.5rem' }} />
-                {error}
-              </ErrorMessage>
-            )}
+	// Flow steps definition
+	const flowSteps: FlowStep[] = [
+		{
+			id: 'generate-url',
+			title: 'Generate Authorization URL',
+			description: 'Create the authorization URL with required parameters',
+			status: currentStep >= 1 ? 'completed' : 'pending',
+			action: generateAuthUrl,
+			actionText: 'Generate URL',
+		},
+		{
+			id: 'redirect-user',
+			title: 'Redirect User to Authorization Server',
+			description: 'User is redirected to PingOne for authentication',
+			status: currentStep >= 2 ? 'completed' : 'pending',
+			action: handleRedirectSimulation,
+			actionText: 'Simulate Redirect',
+		},
+		{
+			id: 'receive-tokens',
+			title: 'Receive Tokens',
+			description: 'Tokens are returned in the URL fragment',
+			status: currentStep >= 3 ? 'completed' : 'pending',
+		},
+	];
 
-            <StepByStepFlow
-              steps={flowSteps}
-              currentStep={currentStep}
-              onStepComplete={(stepId) => {
-                logOAuthFlowEvent(`Step completed: ${stepId}`, 'implicit');
-              }}
-            />
+	return (
+		<Container>
+			<BaseOAuthFlow
+				title="Implicit Grant Flow"
+				description={getOAuthFlowDescription('implicit')}
+				flowType="implicit"
+				securityWarning={{
+					title: 'Security Warning',
+					message:
+						'The Implicit Grant flow is less secure than Authorization Code flow because tokens are exposed in the URL. Use only when necessary for client-side applications.',
+				}}
+				useCaseHighlight={{
+					title: 'Best Use Cases',
+					message: getOAuthFlowUseCases('implicit').join(', '),
+				}}
+			>
+				<DemoSection>
+					<CardHeader>
+						<h2>Interactive Demo</h2>
+					</CardHeader>
+					<CardBody>
+						{error && (
+							<ErrorMessage>
+								<FiAlertCircle style={{ marginRight: '0.5rem' }} />
+								{error}
+							</ErrorMessage>
+						)}
 
-            {authUrl && (
-              <div style={{ marginTop: '2rem' }}>
-                <h3>Generated Authorization URL:</h3>
-                <ColorCodedURL url={authUrl} />
-                <URLParamExplainer url={authUrl} />
-              </div>
-            )}
+						<StepByStepFlow
+							steps={flowSteps}
+							currentStep={currentStep}
+							onStepComplete={(stepId) => {
+								logOAuthFlowEvent(`Step completed: ${stepId}`, 'implicit');
+							}}
+						/>
 
-            {tokensReceived && (
-              <div style={{ marginTop: '2rem' }}>
-                <h3>Received Tokens:</h3>
-                <TokenDisplayComponent tokens={tokensReceived} />
-              </div>
-            )}
-          </CardBody>
-        </DemoSection>
+						{authUrl && (
+							<div style={{ marginTop: '2rem' }}>
+								<h3>Generated Authorization URL:</h3>
+								<ColorCodedURL url={authUrl} />
+								<URLParamExplainer url={authUrl} />
+							</div>
+						)}
 
-        <AuthorizationRequestModal
-          isOpen={showRedirectModal}
-          onClose={() => setShowRedirectModal(false)}
-          authUrl={authUrl}
-          redirectUrl={redirectUrl}
-          redirectParams={redirectParams}
-          flowType="implicit"
-        />
-      </BaseOAuthFlow>
-    </Container>
-  );
+						{tokensReceived && (
+							<div style={{ marginTop: '2rem' }}>
+								<h3>Received Tokens:</h3>
+								<TokenDisplayComponent tokens={tokensReceived} />
+							</div>
+						)}
+					</CardBody>
+				</DemoSection>
+
+				<AuthorizationRequestModal
+					isOpen={showRedirectModal}
+					onClose={() => setShowRedirectModal(false)}
+					authUrl={authUrl}
+					redirectUrl={redirectUrl}
+					redirectParams={redirectParams}
+					flowType="implicit"
+				/>
+			</BaseOAuthFlow>
+		</Container>
+	);
 };
 
 // Main component with error boundary
 const ImplicitGrantFlow: React.FC = () => {
-  return (
-    <OAuthFlowErrorBoundary flowType="implicit">
-      <ImplicitGrantFlowContent />
-    </OAuthFlowErrorBoundary>
-  );
+	return (
+		<OAuthFlowErrorBoundary flowType="implicit">
+			<ImplicitGrantFlowContent />
+		</OAuthFlowErrorBoundary>
+	);
 };
 
 export default ImplicitGrantFlow;

@@ -17,7 +17,7 @@ import CollapsibleIcon from '../components/CollapsibleIcon';
 import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
 `;
@@ -456,7 +456,8 @@ const AIAgentOverview = () => {
 				customConfig={{
 					flowType: 'documentation',
 					title: 'AI Agent Authentication with PingOne',
-					subtitle: 'Explore OAuth 2.0 and OpenID Connect features for AI agents. See which advanced authentication and authorization capabilities PingOne supports today for secure machine-to-machine communication, token security, and agent delegation.',
+					subtitle:
+						'Explore OAuth 2.0 and OpenID Connect features for AI agents. See which advanced authentication and authorization capabilities PingOne supports today for secure machine-to-machine communication, token security, and agent delegation.',
 				}}
 			/>
 

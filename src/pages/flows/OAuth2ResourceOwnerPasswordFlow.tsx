@@ -11,7 +11,7 @@ import {
 	FiRefreshCw,
 	FiCopy,
 	FiEye,
-	FiEyeOff
+	FiEyeOff,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
@@ -198,21 +198,27 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	gap: 0.5rem;
 	transition: all 0.2s;
 	
-	${props => props.variant === 'primary' && `
+	${(props) =>
+		props.variant === 'primary' &&
+		`
 		background: #3b82f6;
 		color: white;
 		&:hover { background: #2563eb; }
 		&:disabled { background: #9ca3af; cursor: not-allowed; }
 	`}
 	
-	${props => props.variant === 'secondary' && `
+	${(props) =>
+		props.variant === 'secondary' &&
+		`
 		background: #f3f4f6;
 		color: #374151;
 		&:hover { background: #e5e7eb; }
 		&:disabled { background: #f9fafb; cursor: not-allowed; }
 	`}
 	
-	${props => props.variant === 'danger' && `
+	${(props) =>
+		props.variant === 'danger' &&
+		`
 		background: #dc2626;
 		color: white;
 		&:hover { background: #b91c1c; }
@@ -301,7 +307,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 			case 0:
 				return (
 					<FormContainer>
-						<h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								marginBottom: '1.5rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiKey />
 							PingOne Configuration
 						</h3>
@@ -344,7 +357,15 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							</PasswordInputContainer>
 						</FormGroup>
 
-						<h3 style={{ marginBottom: '1.5rem', marginTop: '2rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								marginBottom: '1.5rem',
+								marginTop: '2rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiUser />
 							User Credentials
 						</h3>
@@ -368,10 +389,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									onChange={(e) => handleCredentialChange('password', e.target.value)}
 									placeholder="Enter password"
 								/>
-								<PasswordToggle
-									type="button"
-									onClick={() => setShowPassword(!showPassword)}
-								>
+								<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
 									{showPassword ? <FiEyeOff /> : <FiEye />}
 								</PasswordToggle>
 							</PasswordInputContainer>
@@ -393,7 +411,13 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								onClick={controller.saveCredentials}
 								disabled={controller.isSavingCredentials}
 							>
-								{controller.isSavingCredentials ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiCheckCircle />}
+								{controller.isSavingCredentials ? (
+									<SpinningIcon>
+										<FiRefreshCw />
+									</SpinningIcon>
+								) : (
+									<FiCheckCircle />
+								)}
 								Save Configuration
 							</Button>
 						</div>
@@ -403,13 +427,21 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 			case 1:
 				return (
 					<FormContainer>
-						<h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								marginBottom: '1.5rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiLock />
 							Resource Owner Password Authentication
 						</h3>
 
 						<p style={{ marginBottom: '1.5rem', color: '#6b7280' }}>
-							This step will exchange the username and password for an access token using the Resource Owner Password Credentials grant.
+							This step will exchange the username and password for an access token using the
+							Resource Owner Password Credentials grant.
 						</p>
 
 						<Button
@@ -417,13 +449,26 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							onClick={controller.authenticateUser}
 							disabled={controller.isAuthenticating || !controller.hasCredentialsSaved}
 						>
-							{controller.isAuthenticating ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiLock />}
+							{controller.isAuthenticating ? (
+								<SpinningIcon>
+									<FiRefreshCw />
+								</SpinningIcon>
+							) : (
+								<FiLock />
+							)}
 							Authenticate User
 						</Button>
 
 						{controller.tokens && (
 							<div style={{ marginTop: '2rem' }}>
-								<h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<h4
+									style={{
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
 									<FiCheckCircle color="#059669" />
 									Access Token Received
 								</h4>
@@ -433,8 +478,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										<strong>Access Token:</strong>
 										<Button
 											variant="secondary"
-											style={{ marginLeft: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-											onClick={() => copyToClipboard(controller.tokens!.access_token, 'Access token')}
+											style={{
+												marginLeft: '0.5rem',
+												padding: '0.25rem 0.5rem',
+												fontSize: '0.75rem',
+											}}
+											onClick={() =>
+												copyToClipboard(controller.tokens!.access_token, 'Access token')
+											}
 										>
 											<FiCopy />
 										</Button>
@@ -444,7 +495,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									</div>
 								</TokenDisplay>
 
-								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+										gap: '1rem',
+										marginTop: '1rem',
+									}}
+								>
 									<div>
 										<strong>Token Type:</strong> {controller.tokens.token_type}
 									</div>
@@ -468,7 +526,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 			case 2:
 				return (
 					<FormContainer>
-						<h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								marginBottom: '1.5rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiUser />
 							User Information
 						</h3>
@@ -482,13 +547,26 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							onClick={controller.fetchUserInfo}
 							disabled={controller.isFetchingUserInfo || !controller.tokens}
 						>
-							{controller.isFetchingUserInfo ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiUser />}
+							{controller.isFetchingUserInfo ? (
+								<SpinningIcon>
+									<FiRefreshCw />
+								</SpinningIcon>
+							) : (
+								<FiUser />
+							)}
 							Fetch User Info
 						</Button>
 
 						{controller.userInfo && (
 							<div style={{ marginTop: '2rem' }}>
-								<h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<h4
+									style={{
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
 									<FiCheckCircle color="#059669" />
 									User Information
 								</h4>
@@ -504,7 +582,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 			case 3:
 				return (
 					<FormContainer>
-						<h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								marginBottom: '1.5rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiRefreshCw />
 							Token Refresh
 						</h3>
@@ -518,7 +603,13 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							onClick={controller.refreshTokens}
 							disabled={controller.isRefreshingTokens || !controller.tokens?.refresh_token}
 						>
-							{controller.isRefreshingTokens ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiRefreshCw />}
+							{controller.isRefreshingTokens ? (
+								<SpinningIcon>
+									<FiRefreshCw />
+								</SpinningIcon>
+							) : (
+								<FiRefreshCw />
+							)}
 							Refresh Tokens
 						</Button>
 
@@ -530,7 +621,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 
 						{controller.refreshedTokens && (
 							<div style={{ marginTop: '2rem' }}>
-								<h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<h4
+									style={{
+										marginBottom: '1rem',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+									}}
+								>
 									<FiCheckCircle color="#059669" />
 									New Access Token
 								</h4>
@@ -540,8 +638,17 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 										<strong>New Access Token:</strong>
 										<Button
 											variant="secondary"
-											style={{ marginLeft: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-											onClick={() => copyToClipboard(controller.refreshedTokens!.access_token, 'New access token')}
+											style={{
+												marginLeft: '0.5rem',
+												padding: '0.25rem 0.5rem',
+												fontSize: '0.75rem',
+											}}
+											onClick={() =>
+												copyToClipboard(
+													controller.refreshedTokens!.access_token,
+													'New access token'
+												)
+											}
 										>
 											<FiCopy />
 										</Button>
@@ -551,7 +658,14 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									</div>
 								</TokenDisplay>
 
-								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginTop: '1rem' }}>
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+										gap: '1rem',
+										marginTop: '1rem',
+									}}
+								>
 									<div>
 										<strong>Token Type:</strong> {controller.refreshedTokens.token_type}
 									</div>

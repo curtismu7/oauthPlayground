@@ -469,7 +469,9 @@ const CredentialStatusPanel: React.FC = () => {
 					<RefreshButton
 						onClick={(e) => {
 							console.log(' [CredentialStatusPanel] Refresh button clicked!', e);
-							v4ToastManager.showSuccess('Refreshing system status - loading all credential statuses...');
+							v4ToastManager.showSuccess(
+								'Refreshing system status - loading all credential statuses...'
+							);
 							refreshStatuses();
 						}}
 						disabled={isLoading}
@@ -479,7 +481,9 @@ const CredentialStatusPanel: React.FC = () => {
 					<StatusButton
 						onClick={() => {
 							setShowServerStatusModal(true);
-							v4ToastManager.showSuccess('Server status modal opened - checking frontend and backend servers');
+							v4ToastManager.showSuccess(
+								'Server status modal opened - checking frontend and backend servers'
+							);
 						}}
 					>
 						<FiServer size={16} />

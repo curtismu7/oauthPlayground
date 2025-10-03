@@ -168,8 +168,26 @@ const getStoredUser = (): UserInfo | null => {
 	}
 };
 
+// Loading state to prevent multiple simultaneous configuration loads
+let isLoadingConfiguration = false;
+
 // Function to load configuration from environment variables or localStorage
 async function loadConfiguration(): Promise<AppConfig> {
+	// Prevent multiple simultaneous loads
+	if (isLoadingConfiguration) {
+		console.log(' [NewAuthContext] Configuration load already in progress, skipping...');
+		return new Promise((resolve) => {
+			// Wait for current load to complete
+			const checkInterval = setInterval(() => {
+				if (!isLoadingConfiguration) {
+					clearInterval(checkInterval);
+					resolve(loadConfiguration());
+				}
+			}, 100);
+		});
+	}
+	
+	isLoadingConfiguration = true;
 	try {
 		console.log(' [NewAuthContext] Loading configuration...');
 
@@ -265,6 +283,8 @@ async function loadConfiguration(): Promise<AppConfig> {
 			environmentId: '',
 			hasConfigError: true,
 		};
+	} finally {
+		isLoadingConfiguration = false;
 	}
 }
 

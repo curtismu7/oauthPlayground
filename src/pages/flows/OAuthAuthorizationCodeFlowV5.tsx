@@ -24,10 +24,7 @@ import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -135,7 +132,6 @@ const ContentWrapper = styled.div`
 	margin: 0 auto;
 	padding: 0 1rem;
 `;
-
 
 const MainCard = styled.div`
 	background-color: #ffffff;
@@ -1199,11 +1195,17 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					const baseParams = new URLSearchParams();
 
 					const authConfig = {
-						method: tokenAuthMethod as 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt',
+						method: tokenAuthMethod as
+							| 'client_secret_post'
+							| 'client_secret_basic'
+							| 'client_secret_jwt'
+							| 'private_key_jwt',
 						clientId: credentials.clientId,
 						tokenEndpoint,
-						...(tokenAuthMethod === 'client_secret_jwt' && credentials.clientSecret && { clientSecret: credentials.clientSecret }),
-						...(tokenAuthMethod === 'private_key_jwt' && credentials.privateKey && { privateKey: credentials.privateKey }),
+						...(tokenAuthMethod === 'client_secret_jwt' &&
+							credentials.clientSecret && { clientSecret: credentials.clientSecret }),
+						...(tokenAuthMethod === 'private_key_jwt' &&
+							credentials.privateKey && { privateKey: credentials.privateKey }),
 					};
 
 					const authResult = await applyClientAuthentication(authConfig, baseParams);
@@ -1362,16 +1364,16 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-		case 0:
-			return (
-				<>
-					<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => toggleSection('overview')}
-							aria-expanded={!collapsedSections.overview}
-						>
-							<CollapsibleTitle>
+			case 0:
+				return (
+					<>
+						<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('overview')}
+								aria-expanded={!collapsedSections.overview}
+							>
+								<CollapsibleTitle>
 									<FiInfo /> Authorization Code Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
@@ -1442,7 +1444,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('credentials')}
@@ -1457,8 +1458,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
-									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
-
 									<CredentialsInput
 										environmentId={credentials.environmentId || ''}
 										clientId={credentials.clientId || ''}
@@ -1476,6 +1475,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 										emptyRequiredFields={emptyRequiredFields}
 										copiedField={copiedField}
 									/>
+
+									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
 
 									<ActionRow>
 										<Button onClick={handleSaveConfiguration} $variant="primary">
@@ -1516,7 +1517,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							}}
 							primaryColor="#3b82f6"
 						/>
-
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1690,7 +1690,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -1866,7 +1865,6 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-
 
 									<InfoBox $variant="warning">
 										<FiAlertCircle size={20} />
@@ -2598,7 +2596,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-authorization-code-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="oauth-authorization-code"
 					showAdditionalInfo={true}
 					showDocumentation={true}

@@ -410,7 +410,9 @@ const authUrl = '${config?.authorizationEndpoint || `https://auth.pingone.com/${
 					response_type: 'code',
 					client_id: config.pingone.clientId,
 					redirect_uri: getCallbackUrlForFlow('authorization-code'),
-					scope: (Array.isArray(config.scopes) ? config.scopes.join(' ') : config.scopes) || 'read write',
+					scope:
+						(Array.isArray(config.scopes) ? config.scopes.join(' ') : config.scopes) ||
+						'read write',
 					code_challenge: pkceData.codeChallenge,
 					code_challenge_method: 'S256',
 					state: Math.random().toString(36).substring(2, 15),

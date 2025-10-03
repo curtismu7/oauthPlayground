@@ -148,8 +148,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}, 1000);
 
 		return () => clearInterval(interval);
-	// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [expiresAt]); // stopPolling is stable, no need in deps
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [expiresAt, stopPolling]); // stopPolling is stable, no need in deps
 
 	// Format time remaining as MM:SS
 	const formatTimeRemaining = useCallback((ms: number): string => {
@@ -178,6 +178,14 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				client_id: credentials.clientId,
 				scope: credentials.scopes || 'openid',
 			});
+
+			// Add client_secret if available (for confidential clients)
+			if (credentials.clientSecret) {
+				params.append('client_secret', credentials.clientSecret);
+				console.log(`${LOG_PREFIX} [INFO] Using confidential client authentication`);
+			} else {
+				console.log(`${LOG_PREFIX} [INFO] Using public client authentication (no client_secret)`);
+			}
 
 			console.log(`${LOG_PREFIX} [INFO] Device authorization endpoint: ${deviceAuthEndpoint}`);
 			console.log(`${LOG_PREFIX} [INFO] Scopes: ${credentials.scopes || 'openid'}`);

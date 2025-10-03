@@ -25,10 +25,10 @@ export const decodeJWT = (token: string): { header: string; payload: string } =>
 	try {
 		const headerDecoded = base64UrlDecode(parts[0]);
 		const payloadDecoded = base64UrlDecode(parts[1]);
-		
+
 		return {
 			header: headerDecoded,
-			payload: payloadDecoded
+			payload: payloadDecoded,
 		};
 	} catch (parseError) {
 		throw new Error(`Failed to parse JWT: ${parseError}`);
@@ -42,11 +42,11 @@ export const isTokenExpired = (token: string): boolean => {
 	try {
 		const { payload } = decodeJWT(token);
 		const parsedPayload = JSON.parse(payload);
-		
+
 		if (!parsedPayload.exp) {
 			return false; // No expiration claim
 		}
-		
+
 		const now = Math.floor(Date.now() / 1000);
 		return now >= parsedPayload.exp;
 	} catch {
@@ -61,11 +61,11 @@ export const getTokenExpiration = (token: string): string | null => {
 	try {
 		const { payload } = decodeJWT(token);
 		const parsedPayload = JSON.parse(payload);
-		
+
 		if (!parsedPayload.exp) {
 			return null;
 		}
-		
+
 		return new Date(parsedPayload.exp * 1000).toLocaleString();
 	} catch {
 		return null;
@@ -75,21 +75,23 @@ export const getTokenExpiration = (token: string): string | null => {
 /**
  * Extract token type from JWT
  */
-export const getTokenType = (token: string): 'access_token' | 'id_token' | 'refresh_token' | 'unknown' => {
+export const getTokenType = (
+	token: string
+): 'access_token' | 'id_token' | 'refresh_token' | 'unknown' => {
 	try {
 		const { payload } = decodeJWT(token);
 		const parsedPayload = JSON.parse(payload);
-		
+
 		// Check for common ID token claims
 		if (parsedPayload.aud && parsedPayload.iss && parsedPayload.sub && parsedPayload.auth_time) {
 			return 'id_token';
 		}
-		
+
 		// Check for access token claims
 		if (parsedPayload.scope || parsedPayload.client_id) {
 			return 'access_token';
 		}
-		
+
 		return 'unknown';
 	} catch {
 		return 'unknown';
@@ -108,9 +110,9 @@ export const copyTokenToClipboard = (token: string, tokenType: string = 'Token')
  */
 export const isValidJWTFormat = (token: string): boolean => {
 	if (!token || typeof token !== 'string') return false;
-	
+
 	const parts = token.split('.');
-	return parts.length === 3 && parts.every(part => part.length > 0);
+	return parts.length === 3 && parts.every((part) => part.length > 0);
 };
 
 /**
