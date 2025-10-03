@@ -30,10 +30,14 @@ import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { pingOneConfigService } from '../../services/pingoneConfigService';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import FlowCredentials from '../../components/FlowCredentials';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -727,7 +731,20 @@ const _VerificationBox = styled.div`
 
 const DeviceAuthorizationFlowV5: React.FC = () => {
 	const deviceFlow = useDeviceAuthorizationFlow();
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		// Check for restore_step from token management navigation
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [DeviceAuthorizationFlowV5] Restoring to step:', step);
+			return step;
+		}
+		return 0;
+	});
+	
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 	const [collapsedSections, setCollapsedSections] = useState<Record<SectionKey, boolean>>({
 		overview: false,
 		flowDiagram: true,
@@ -861,6 +878,9 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 	}, [deviceFlow.credentials]);
 
 	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('device-authorization-v5', currentStep, 'oauth');
+
 		// Set flow source for Token Management page
 		sessionStorage.setItem('flow_source', 'device-authorization-v5');
 
@@ -884,7 +904,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		}
 
 		window.location.href = '/token-management';
-	}, [deviceFlow.tokens, deviceFlow.credentials]);
+	}, [deviceFlow.tokens, deviceFlow.credentials, currentStep]);
 
 	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		// Set flow source for Token Management page
@@ -1922,12 +1942,6 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									⏱️ Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
 								</CountdownTimer>
 							)}
-
-							<ActionRow style={{ marginTop: '1.5rem' }}>
-								<Button onClick={handleStartPolling} disabled={deviceFlow.pollingStatus.isPolling}>
-									<FiRefreshCw /> Start Polling for Authorization
-								</Button>
-							</ActionRow>
 						</CollapsibleContent>
 					)}
 				</CollapsibleSection>
@@ -2102,54 +2116,79 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			throw new Error('Missing credentials for introspection');
 		}
 
-		const introspectEndpoint = `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`;
-
-		const params = new URLSearchParams({
+		const request = {
 			token: token,
-			client_id: deviceFlow.credentials.clientId,
-		});
+			clientId: deviceFlow.credentials.clientId,
+			// No client secret for device flow (public client)
+			tokenTypeHint: 'access_token' as const
+		};
 
-		const response = await fetch(introspectEndpoint, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/x-www-form-urlencoded',
-			},
-			body: params.toString(),
-		});
-
-		if (!response.ok) {
-			const errorText = await response.text();
-			throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
+		try {
+			// Use the reusable service to create API call data and execute introspection
+			const result = await TokenIntrospectionService.introspectToken(
+				request,
+				'device-code',
+				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
+			);
+			
+			// Set the API call data for display
+			setIntrospectionApiCall(result.apiCall);
+			
+			return result.response;
+		} catch (error) {
+			// Create error API call using reusable service
+			const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+				request,
+				'device-code',
+				error instanceof Error ? error.message : 'Unknown error',
+				500,
+				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
+			);
+			
+			setIntrospectionApiCall(errorApiCall);
+			throw error;
 		}
-
-		return await response.json();
 	};
 
 	const renderIntrospection = () => (
-		<TokenIntrospect
-			flowName="OAuth Device Authorization Code Flow"
-			flowVersion="V5"
-			tokens={deviceFlow.tokens as unknown as Record<string, unknown>}
-			credentials={deviceFlow.credentials as unknown as Record<string, unknown>}
-			onResetFlow={handleReset}
-			onNavigateToTokenManagement={navigateToTokenManagement}
-			onIntrospectToken={handleIntrospectToken}
-			collapsedSections={{
-				introspectionDetails: collapsedSections.introspectionDetails || false,
-				rawJson: false,
-			}}
-			onToggleSection={(section) => {
-				if (section === 'introspectionDetails') {
-					toggleSection('introspectionDetails');
-				}
-			}}
-			completionMessage="Token introspection allows you to validate and inspect your access tokens."
-			nextSteps={[
-				'Use the introspection results to verify token validity and permissions',
-				'Check token expiration and active status',
-				'View granted scopes and client information',
-			]}
-		/>
+		<>
+			<TokenIntrospect
+				flowName="OAuth Device Authorization Code Flow"
+				flowVersion="V5"
+				tokens={deviceFlow.tokens as unknown as Record<string, unknown>}
+				credentials={deviceFlow.credentials as unknown as Record<string, unknown>}
+				onResetFlow={handleReset}
+				onNavigateToTokenManagement={navigateToTokenManagement}
+				onIntrospectToken={handleIntrospectToken}
+				collapsedSections={{
+					introspectionDetails: collapsedSections.introspectionDetails || false,
+					rawJson: false,
+				}}
+				onToggleSection={(section) => {
+					if (section === 'introspectionDetails') {
+						toggleSection('introspectionDetails');
+					}
+				}}
+				completionMessage="Token introspection allows you to validate and inspect your access tokens."
+				nextSteps={[
+					'Use the introspection results to verify token validity and permissions',
+					'Check token expiration and active status',
+					'View granted scopes and client information',
+				]}
+			/>
+
+			{/* API Call Display for Token Introspection */}
+			{introspectionApiCall && (
+				<EnhancedApiCallDisplay
+					apiCall={introspectionApiCall}
+					options={{
+						showEducationalNotes: true,
+						showFlowContext: true,
+						urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+					}}
+				/>
+			)}
+		</>
 	);
 
 	const renderCompletion = () => (

@@ -45,7 +45,7 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
-import { applyClientAuthentication } from '../../utils/clientAuthentication';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
@@ -726,6 +726,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 	// API call tracking for display
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
 	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
@@ -1301,65 +1302,38 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
-
-			const requestBody: Record<string, unknown> = {
+			const request = {
 				token: token,
-				client_id: credentials.clientId,
-				introspection_endpoint: introspectionEndpoint,
-				token_auth_method: tokenAuthMethod,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				tokenTypeHint: 'access_token' as const
 			};
 
-			// Handle JWT-based authentication methods
-			if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
-				try {
-					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-					const baseParams = new URLSearchParams();
-
-					const authConfig = {
-						method: tokenAuthMethod as
-							| 'client_secret_post'
-							| 'client_secret_basic'
-							| 'client_secret_jwt'
-							| 'private_key_jwt',
-						clientId: credentials.clientId,
-						tokenEndpoint,
-						...(tokenAuthMethod === 'client_secret_jwt' &&
-							credentials.clientSecret && { clientSecret: credentials.clientSecret }),
-						...(tokenAuthMethod === 'private_key_jwt' &&
-							credentials.privateKey && { privateKey: credentials.privateKey }),
-					};
-
-					const authResult = await applyClientAuthentication(authConfig, baseParams);
-
-					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
-					requestBody.client_assertion = authResult.body.get('client_assertion');
-				} catch (error) {
-					throw new Error(
-						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-					);
-				}
-			} else if (tokenAuthMethod !== 'none') {
-				// For client_secret_basic and client_secret_post
-				requestBody.client_secret = credentials.clientSecret;
+			try {
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'authorization-code',
+					'/api/introspect-token'
+				);
+				
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
+				
+				return result.response;
+			} catch (error) {
+				// Create error API call using reusable service
+				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+					request,
+					'authorization-code',
+					error instanceof Error ? error.message : 'Unknown error',
+					500,
+					'/api/introspect-token'
+				);
+				
+				setIntrospectionApiCall(errorApiCall);
+				throw error;
 			}
-
-			const response = await fetch('/api/introspect-token', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(requestBody),
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				throw new Error(data.error_description || data.error || 'Introspection failed');
-			}
-
-			return data;
 		},
 		[controller.credentials]
 	);
@@ -2647,6 +2621,18 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							]}
 						/>
 
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+								}}
+							/>
+						)}
+
 						{/* API Call Display for UserInfo Request */}
 						{userInfoApiCall && (
 							<EnhancedApiCallDisplay
@@ -2663,33 +2649,47 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 
 			case 6:
 				return (
-					<TokenIntrospect
-						flowName="OAuth 2.0 Authorization Code Flow"
-						flowVersion="V5"
-						tokens={controller.tokens as unknown as Record<string, unknown>}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false,
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
-							'Repeat the flow with different scopes or redirect URIs.',
-							'Explore refresh tokens and introspection flows.',
-						]}
-					/>
+					<>
+						<TokenIntrospect
+							flowName="OAuth 2.0 Authorization Code Flow"
+							flowVersion="V5"
+							tokens={controller.tokens as unknown as Record<string, unknown>}
+							credentials={controller.credentials as unknown as Record<string, unknown>}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false,
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
+							nextSteps={[
+								'Inspect or decode tokens using the Token Management tools.',
+								'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
+								'Repeat the flow with different scopes or redirect URIs.',
+								'Explore refresh tokens and introspection flows.',
+							]}
+						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+								}}
+							/>
+						)}
+					</>
 				);
 
 			case 7:
