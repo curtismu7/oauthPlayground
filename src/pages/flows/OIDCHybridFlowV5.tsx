@@ -435,68 +435,68 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const renderIntroduction = () => (
 		<>
 			<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
-			
+
 			<CollapsibleSection>
 				<CollapsibleHeader onClick={() => toggleSection('intro')}>
 					<CollapsibleTitle>
 						<FiInfo /> OIDC Hybrid Flow Overview
 					</CollapsibleTitle>
-				<FiChevronDown
-					style={{
-						transform: collapsedSections.intro ? 'rotate(0deg)' : 'rotate(180deg)',
-						transition: 'transform 0.2s',
-					}}
-				/>
-			</CollapsibleHeader>
-			{!collapsedSections.intro && (
-				<CollapsibleContent>
-					<InfoBox $variant="info">
-						<FiShield size={24} />
-						<div>
-							<strong>What is OIDC Hybrid Flow?</strong>
-							<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-								The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to
-								be returned from both the authorization endpoint (in the fragment) and the token
-								endpoint. This provides flexibility for different client types and security
-								requirements.
-							</p>
-						</div>
-					</InfoBox>
+					<FiChevronDown
+						style={{
+							transform: collapsedSections.intro ? 'rotate(0deg)' : 'rotate(180deg)',
+							transition: 'transform 0.2s',
+						}}
+					/>
+				</CollapsibleHeader>
+				{!collapsedSections.intro && (
+					<CollapsibleContent>
+						<InfoBox $variant="info">
+							<FiShield size={24} />
+							<div>
+								<strong>What is OIDC Hybrid Flow?</strong>
+								<p style={{ marginTop: '0.5rem', marginBottom: 0 }}>
+									The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to
+									be returned from both the authorization endpoint (in the fragment) and the token
+									endpoint. This provides flexibility for different client types and security
+									requirements.
+								</p>
+							</div>
+						</InfoBox>
 
-					<InfoBox $variant="warning">
-						<FiAlertCircle size={24} />
-						<div>
-							<strong>Response Types Supported:</strong>
-							<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-								<li>
-									<code>code id_token</code> - Returns code + ID token in fragment
-								</li>
-								<li>
-									<code>code token</code> - Returns code + access token in fragment
-								</li>
-								<li>
-									<code>code id_token token</code> - Returns code + ID token + access token in
-									fragment
-								</li>
-							</ul>
-						</div>
-					</InfoBox>
+						<InfoBox $variant="warning">
+							<FiAlertCircle size={24} />
+							<div>
+								<strong>Response Types Supported:</strong>
+								<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+									<li>
+										<code>code id_token</code> - Returns code + ID token in fragment
+									</li>
+									<li>
+										<code>code token</code> - Returns code + access token in fragment
+									</li>
+									<li>
+										<code>code id_token token</code> - Returns code + ID token + access token in
+										fragment
+									</li>
+								</ul>
+							</div>
+						</InfoBox>
 
-					<InfoBox>
-						<FiZap size={24} />
-						<div>
-							<strong>Key Features:</strong>
-							<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
-								<li>Immediate access to ID token for client-side validation</li>
-								<li>Authorization code for secure token exchange</li>
-								<li>Flexible security model for different client types</li>
-								<li>Supports both public and confidential clients</li>
-							</ul>
-						</div>
-					</InfoBox>
-				</CollapsibleContent>
-			)}
-		</CollapsibleSection>
+						<InfoBox>
+							<FiZap size={24} />
+							<div>
+								<strong>Key Features:</strong>
+								<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
+									<li>Immediate access to ID token for client-side validation</li>
+									<li>Authorization code for secure token exchange</li>
+									<li>Flexible security model for different client types</li>
+									<li>Supports both public and confidential clients</li>
+								</ul>
+							</div>
+						</InfoBox>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
 		</>
 	);
 

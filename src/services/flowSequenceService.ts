@@ -37,8 +37,7 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 1,
 				title: 'Device requests device code',
-				description:
-					'Device calls the device authorization endpoint with client_id and scopes',
+				description: 'Device calls the device authorization endpoint with client_id and scopes',
 				technicalDetails: 'POST /device_authorization',
 				exampleDisplay:
 					'Server responds with: device_code, user_code, verification_uri, expires_in, interval',
@@ -48,7 +47,8 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 				title: 'Display user code',
 				description:
 					'Device shows user_code and verification_uri to user on screen (e.g., "Visit example.com and enter code: ABCD-1234")',
-				exampleDisplay: 'Example display: "Go to https://auth.pingone.com/activate and enter: WDJB-MJHT"',
+				exampleDisplay:
+					'Example display: "Go to https://auth.pingone.com/activate and enter: WDJB-MJHT"',
 			},
 			{
 				stepNumber: 3,
@@ -60,8 +60,7 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 4,
 				title: 'Device polls for tokens',
-				description:
-					'Device continuously polls token endpoint until user completes authorization',
+				description: 'Device continuously polls token endpoint until user completes authorization',
 			},
 			{
 				stepNumber: 5,
@@ -93,7 +92,8 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 3,
 				title: 'User authorizes',
-				description: 'User is redirected to authorization server, authenticates, and approves scopes',
+				description:
+					'User is redirected to authorization server, authenticates, and approves scopes',
 			},
 			{
 				stepNumber: 4,
@@ -187,19 +187,18 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 2,
 				title: 'Exchange credentials for tokens',
-				description: 'Client sends username, password, client_id, and client_secret to token endpoint',
+				description:
+					'Client sends username, password, client_id, and client_secret to token endpoint',
 				technicalDetails: 'POST /token with grant_type=password',
 			},
 			{
 				stepNumber: 3,
 				title: 'Tokens received',
-				description: 'Server validates credentials and returns access token and optionally refresh token',
+				description:
+					'Server validates credentials and returns access token and optionally refresh token',
 			},
 		],
-		keyBenefits: [
-			'Legacy migration support',
-			'Direct credential exchange',
-		],
+		keyBenefits: ['Legacy migration support', 'Direct credential exchange'],
 	},
 
 	ciba: {
@@ -214,12 +213,13 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 2,
 				title: 'PingOne prompts end user',
-				description: 'PingOne sends push notification to user\'s registered authenticator device',
+				description: "PingOne sends push notification to user's registered authenticator device",
 			},
 			{
 				stepNumber: 3,
 				title: 'Client polls token endpoint',
-				description: 'Client polls token endpoint using auth_req_id received from backchannel request',
+				description:
+					'Client polls token endpoint using auth_req_id received from backchannel request',
 			},
 			{
 				stepNumber: 4,
@@ -250,7 +250,8 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 2,
 				title: 'Build authorization request',
-				description: 'Client constructs request with response_mode=pi.flow for embedded authentication',
+				description:
+					'Client constructs request with response_mode=pi.flow for embedded authentication',
 			},
 			{
 				stepNumber: 3,
@@ -268,11 +269,7 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 				description: 'Client exchanges authorization code for tokens',
 			},
 		],
-		keyBenefits: [
-			'No full-page redirect',
-			'Better user experience',
-			'PingOne-specific feature',
-		],
+		keyBenefits: ['No full-page redirect', 'Better user experience', 'PingOne-specific feature'],
 	},
 
 	hybrid: {
@@ -297,7 +294,8 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 4,
 				title: 'Exchange code for additional tokens',
-				description: 'Client exchanges authorization code for additional tokens (including refresh token)',
+				description:
+					'Client exchanges authorization code for additional tokens (including refresh token)',
 			},
 		],
 		keyBenefits: [
@@ -449,7 +447,8 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 				title: 'Receive user profile data',
 				description: 'Server responds with user profile information',
 				technicalDetails: 'JSON response with user claims',
-				exampleDisplay: 'Response: { "sub": "user123", "name": "John Doe", "email": "john@example.com" }',
+				exampleDisplay:
+					'Response: { "sub": "user123", "name": "John Doe", "email": "john@example.com" }',
 			},
 		],
 		keyBenefits: [

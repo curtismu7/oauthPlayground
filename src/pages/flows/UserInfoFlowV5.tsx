@@ -8,10 +8,7 @@ import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useUserInfoFlowController } from '../../hooks/useUserInfoFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -131,7 +128,6 @@ const FormTitle = styled.h3`
 	align-items: center;
 	gap: 0.5rem;
 `;
-
 
 const FormGroup = styled.div`
 	display: flex;
@@ -284,13 +280,8 @@ const UserInfoFlowV5: React.FC = () => {
 	const [userInfoResult, setUserInfoResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const {
-		credentials,
-		userInfo,
-		fetchUserInfo,
-		clearResults,
-		updateCredentials,
-	} = useUserInfoFlowController();
+	const { credentials, userInfo, fetchUserInfo, clearResults, updateCredentials } =
+		useUserInfoFlowController();
 
 	const handleNext = useCallback(() => {
 		if (currentStep < 3) {
@@ -346,11 +337,11 @@ const UserInfoFlowV5: React.FC = () => {
 								<FiUser /> User Info Flow
 							</ExplanationHeading>
 							<p>
-								The User Info Flow allows clients to retrieve user information using an access token.
-								This is commonly used in OIDC flows to get additional user details after authentication.
+								The User Info Flow allows clients to retrieve user information using an access
+								token. This is commonly used in OIDC flows to get additional user details after
+								authentication.
 							</p>
 						</ExplanationSection>
-
 
 						<EnhancedFlowWalkthrough flowId="user-info" />
 						<FlowSequenceDisplay flowType="user-info" />
@@ -403,7 +394,7 @@ const UserInfoFlowV5: React.FC = () => {
 									<FiCheckCircle />
 									User information requested successfully!
 								</SuccessMessage>
-								
+
 								<UserInfo>
 									{userInfo?.sub && (
 										<UserInfoRow>
@@ -445,7 +436,14 @@ const UserInfoFlowV5: React.FC = () => {
 
 								<ResultsSection>
 									<ResultsHeading>Full User Info Response</ResultsHeading>
-									<pre style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', overflow: 'auto' }}>
+									<pre
+										style={{
+											background: '#f3f4f6',
+											padding: '1rem',
+											borderRadius: '6px',
+											overflow: 'auto',
+										}}
+									>
 										{JSON.stringify(userInfoResult, null, 2)}
 									</pre>
 								</ResultsSection>
@@ -460,20 +458,33 @@ const UserInfoFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>User Info Request Complete</ResultsHeading>
 							<p>
-								The user information has been successfully retrieved. You now have access to
-								user details and claims that can be used for personalization and authorization.
+								The user information has been successfully retrieved. You now have access to user
+								details and claims that can be used for personalization and authorization.
 							</p>
 						</ResultsSection>
 
 						<ResultsSection>
 							<ResultsHeading>Key Information</ResultsHeading>
 							<ul style={{ paddingLeft: '1.5rem' }}>
-								<li><strong>Subject ID:</strong> {userInfo?.sub || 'Not available'}</li>
-								<li><strong>Name:</strong> {userInfo?.name || 'Not available'}</li>
-								<li><strong>Email:</strong> {userInfo?.email || 'Not available'}</li>
-								<li><strong>Preferred Username:</strong> {userInfo?.preferred_username || 'Not available'}</li>
-								<li><strong>Given Name:</strong> {userInfo?.given_name || 'Not available'}</li>
-								<li><strong>Family Name:</strong> {userInfo?.family_name || 'Not available'}</li>
+								<li>
+									<strong>Subject ID:</strong> {userInfo?.sub || 'Not available'}
+								</li>
+								<li>
+									<strong>Name:</strong> {userInfo?.name || 'Not available'}
+								</li>
+								<li>
+									<strong>Email:</strong> {userInfo?.email || 'Not available'}
+								</li>
+								<li>
+									<strong>Preferred Username:</strong>{' '}
+									{userInfo?.preferred_username || 'Not available'}
+								</li>
+								<li>
+									<strong>Given Name:</strong> {userInfo?.given_name || 'Not available'}
+								</li>
+								<li>
+									<strong>Family Name:</strong> {userInfo?.family_name || 'Not available'}
+								</li>
 							</ul>
 						</ResultsSection>
 
@@ -495,8 +506,8 @@ const UserInfoFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Flow Complete</ResultsHeading>
 							<p>
-								You have successfully completed the User Info Flow V5. This flow demonstrates
-								how to retrieve user information using access tokens for personalization and authorization.
+								You have successfully completed the User Info Flow V5. This flow demonstrates how to
+								retrieve user information using access tokens for personalization and authorization.
 							</p>
 						</ResultsSection>
 
@@ -522,7 +533,7 @@ const UserInfoFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="user-info-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="user-info"
 					showAdditionalInfo={true}
 					showDocumentation={true}

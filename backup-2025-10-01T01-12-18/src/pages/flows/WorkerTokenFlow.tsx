@@ -213,7 +213,7 @@ type ApiCall = {
 const WorkerTokenFlow = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Worker Token Flow', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

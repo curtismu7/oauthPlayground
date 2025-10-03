@@ -9,20 +9,20 @@ const CardContainer = styled.div`
   transition: all 0.2s ease-in-out;
   
   ${({ accent }) => {
-    if (!accent) return '';
-    
-    const accentColors = {
-      primary: '#003087',
-      success: '#28a745',
-      danger: '#dc3545',
-      warning: '#ffc107',
-      info: '#17a2b8',
-    };
-    
-    return css`
+		if (!accent) return '';
+
+		const accentColors = {
+			primary: '#003087',
+			success: '#28a745',
+			danger: '#dc3545',
+			warning: '#ffc107',
+			info: '#17a2b8',
+		};
+
+		return css`
       border-top: 3px solid ${accentColors[accent] || accentColors.primary};
     `;
-  }}
+	}}
 `;
 
 const CardHeader = styled.div`
@@ -61,11 +61,11 @@ const CardFooter = styled.div`
 `;
 
 const Card = ({ children, className, accent }) => {
-  return (
-    <CardContainer className={className} accent={accent}>
-      {children}
-    </CardContainer>
-  );
+	return (
+		<CardContainer className={className} accent={accent}>
+			{children}
+		</CardContainer>
+	);
 };
 
 export { Card, CardHeader, CardBody, CardFooter };

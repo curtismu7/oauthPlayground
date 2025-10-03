@@ -286,17 +286,29 @@ const AppRoutes = () => {
 							path="/flows/enhanced-authorization-code-v2"
 							element={<EnhancedAuthorizationCodeFlowV2 />}
 						/>
-					<Route path="/flows/oauth-authorization-code-v5" element={<OAuthAuthorizationCodeFlowV5 />} />
-					<Route path="/flows/oidc-authorization-code-v5" element={<OIDCAuthorizationCodeFlowV5 />} />
-					<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-					<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
-					<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
-					<Route path="/flows/oidc-device-authorization-v5" element={<OIDCDeviceAuthorizationFlowV5 />} />
-					<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
-					<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
-					<Route path="/flows/oidc-client-credentials-v5" element={<OIDCClientCredentialsFlowV5 />} />
-					<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
-					<Route path="/hybrid-callback" element={<HybridCallbackV5 />} />
+						<Route
+							path="/flows/oauth-authorization-code-v5"
+							element={<OAuthAuthorizationCodeFlowV5 />}
+						/>
+						<Route
+							path="/flows/oidc-authorization-code-v5"
+							element={<OIDCAuthorizationCodeFlowV5 />}
+						/>
+						<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+						<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+						<Route path="/flows/device-authorization-v5" element={<DeviceAuthorizationFlowV5 />} />
+						<Route
+							path="/flows/oidc-device-authorization-v5"
+							element={<OIDCDeviceAuthorizationFlowV5 />}
+						/>
+						<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+						<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+						<Route
+							path="/flows/oidc-client-credentials-v5"
+							element={<OIDCClientCredentialsFlowV5 />}
+						/>
+						<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
+						<Route path="/hybrid-callback" element={<HybridCallbackV5 />} />
 						<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 						<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
 						<Route path="/flows/authz-v4-new-windsurf" element={<AuthzV4NewWindsurfFlow />} />
@@ -327,13 +339,13 @@ const AppRoutes = () => {
 
 							<Route path="device-code" element={<DeviceCodeFlow />} />
 							<Route path="device-code-oidc" element={<DeviceCodeFlowOIDC />} />
-					</Route>
+						</Route>
 
-					{/* Unsupported by PingOne flows - TokenExchangeMockFlow removed as file doesn't exist */}
-					
-		{/* PingOne PAR Flow */}
-			<Route path="/flows/pingone-par" element={<PingOnePARFlow />} />
-			<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
+						{/* Unsupported by PingOne flows - TokenExchangeMockFlow removed as file doesn't exist */}
+
+						{/* PingOne PAR Flow */}
+						<Route path="/flows/pingone-par" element={<PingOnePARFlow />} />
+						<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
 
 						<Route path="/oauth/client-credentials" element={<ClientCredentialsFlow />} />
 						<Route
@@ -375,9 +387,12 @@ const AppRoutes = () => {
 						<Route path="/url-decoder" element={<URLDecoder />} />
 
 						<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
-<Route path="/ai-glossary" element={<AIGlossary />} />
-					<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
-<Route path="/comprehensive-oauth-education" element={<ComprehensiveOAuthEducation />} />
+						<Route path="/ai-glossary" element={<AIGlossary />} />
+						<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
+						<Route
+							path="/comprehensive-oauth-education"
+							element={<ComprehensiveOAuthEducation />}
+						/>
 
 						<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 

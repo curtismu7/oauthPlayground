@@ -115,7 +115,9 @@ const AuthzCallback: React.FC = () => {
 					isEnhancedV3 =
 						context?.flow === 'enhanced-authorization-code-v3' ||
 						context?.flow === 'oidc-authorization-code-v3';
-					const isV5 = context?.flow === 'oauth-authorization-code-v5' || context?.flow === 'oidc-authorization-code-v5';
+					const isV5 =
+						context?.flow === 'oauth-authorization-code-v5' ||
+						context?.flow === 'oidc-authorization-code-v5';
 
 					console.log(' [AuthzCallback] Flow context parsing successful:', {
 						flowContext: context?.flow,
@@ -296,7 +298,7 @@ const AuthzCallback: React.FC = () => {
 								setStatus('error');
 								// Determine correct V5 flow based on context
 								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v5';
-								const errorPath = isOIDCFlow 
+								const errorPath = isOIDCFlow
 									? '/flows/oidc-authorization-code-v5?error=' + encodeURIComponent(error)
 									: '/flows/oauth-authorization-code-v5?error=' + encodeURIComponent(error);
 								setTimeout(() => {
@@ -311,19 +313,21 @@ const AuthzCallback: React.FC = () => {
 								);
 
 								setStatus('success');
-								
+
 								// Determine correct V5 flow based on context
 								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v5';
 								const flowName = isOIDCFlow ? 'OIDC V5' : 'OAuth V5';
 								setMessage(`Authorization successful! Redirecting back to ${flowName} flow...`);
 
 								// Redirect back to correct V5 flow at step 4 (token exchange) with code and state as URL parameters
-								const returnPath = context?.returnPath || (isOIDCFlow 
-									? '/flows/oidc-authorization-code-v5?step=4'
-									: '/flows/oauth-authorization-code-v5?step=4');
+								const returnPath =
+									context?.returnPath ||
+									(isOIDCFlow
+										? '/flows/oidc-authorization-code-v5?step=4'
+										: '/flows/oauth-authorization-code-v5?step=4');
 								const separator = returnPath.includes('?') ? '&' : '?';
 								const fullReturnPath = `${returnPath}${separator}code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
-								
+
 								setTimeout(() => {
 									navigate(fullReturnPath);
 								}, 1500);

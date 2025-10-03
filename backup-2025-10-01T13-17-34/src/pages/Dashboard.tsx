@@ -1,13 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import CollapsibleIcon from '../components/CollapsibleIcon';
-import {
-	FiActivity,
-	FiCheckCircle,
-	FiGlobe,
-	FiKey,
-	FiRefreshCw,
-	FiServer,
-} from 'react-icons/fi';
+import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import ServerStatusModal from '../components/ServerStatusModal';
@@ -58,7 +51,6 @@ const Header = styled.div`
     font-size: 1rem;
   }
 `;
-
 
 // Removed unused MainContent styled component
 
@@ -588,7 +580,6 @@ const Dashboard = () => {
 		}
 	};
 
-
 	const calculateSuccessRate = useCallback((): number => {
 		if (recentActivity.length === 0) {
 			return 0;
@@ -614,7 +605,6 @@ const Dashboard = () => {
 
 		return score;
 	}, []);
-
 
 	// Get flow-specific status - simple configured vs not configured
 	// function getFlowStatus(flowType: string): { status: 'active' | 'pending' | 'error', message: string } {
@@ -694,7 +684,6 @@ const Dashboard = () => {
 					<h1>OAuth/OIDC Playground</h1>
 					<p>Your comprehensive OAuth 2.0 and OpenID Connect testing environment</p>
 				</Header>
-
 
 				{/* Combined System Status & Overview */}
 				<CollapsibleSection>
@@ -2061,38 +2050,38 @@ const Dashboard = () => {
 						<ContentCard style={{ marginBottom: '1rem' }}>
 							<CardHeader>
 								<CardTitle>Backend API endpoints for OAuth flows</CardTitle>
-							<div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
-								These endpoints are used by the OAuth flows to interact with the backend.
-							</div>
-							<div style={{ marginBottom: '1rem' }}>
-								<a 
-									href="https://github.com/pingidentity/pingone-oauth-flows/tree/main/docs/api-endpoints.md"
-									target="_blank"
-									rel="noopener noreferrer"
-									style={{
-										display: 'inline-flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '0.5rem 1rem',
-										background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
-										color: 'white',
-										textDecoration: 'none',
-										borderRadius: '0.5rem',
-										fontSize: '0.875rem',
-										fontWeight: '500',
-										transition: 'transform 0.2s ease',
-									}}
-									onMouseEnter={(e) => {
-										e.currentTarget.style.transform = 'translateY(-1px)';
-									}}
-									onMouseLeave={(e) => {
-										e.currentTarget.style.transform = 'translateY(0)';
-									}}
-								>
-									<FiGlobe />
-									View API Endpoints Documentation
-								</a>
-							</div>
+								<div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
+									These endpoints are used by the OAuth flows to interact with the backend.
+								</div>
+								<div style={{ marginBottom: '1rem' }}>
+									<a
+										href="https://github.com/pingidentity/pingone-oauth-flows/tree/main/docs/api-endpoints.md"
+										target="_blank"
+										rel="noopener noreferrer"
+										style={{
+											display: 'inline-flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											padding: '0.5rem 1rem',
+											background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+											color: 'white',
+											textDecoration: 'none',
+											borderRadius: '0.5rem',
+											fontSize: '0.875rem',
+											fontWeight: '500',
+											transition: 'transform 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.transform = 'translateY(-1px)';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.transform = 'translateY(0)';
+										}}
+									>
+										<FiGlobe />
+										View API Endpoints Documentation
+									</a>
+								</div>
 							</CardHeader>
 
 							<div

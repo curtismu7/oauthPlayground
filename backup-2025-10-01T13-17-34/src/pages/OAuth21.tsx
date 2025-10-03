@@ -492,7 +492,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 										PingOne Support - Partial
 									</h4>
 									<p style={{ margin: '0', color: '#dc2626', fontSize: '0.9rem' }}>
-										PingOne supports one-time use refresh tokens. Sender-constrained refresh tokens (mTLS, DPoP) are not currently supported.
+										PingOne supports one-time use refresh tokens. Sender-constrained refresh tokens
+										(mTLS, DPoP) are not currently supported.
 									</p>
 								</div>
 							</div>
@@ -562,7 +563,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							<strong>✓ Bearer Token Security:</strong> Proper token handling practices
 						</li>
 						<li>
-							<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens supported. Sender-constrained tokens (mTLS, DPoP) not yet available.
+							<strong>⚠️ Enhanced Refresh Tokens:</strong> One-time use refresh tokens supported.
+							Sender-constrained tokens (mTLS, DPoP) not yet available.
 						</li>
 						<li>
 							<strong>✓ Backward Compatibility:</strong> Gradual migration support
@@ -575,7 +577,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							<h4>Recommendation</h4>
 							<p>
 								Start implementing OAuth 2.1 practices now to ensure a smooth transition when the
-								specification is finalized. Use one-time use refresh tokens for public clients as an alternative to sender-constrained tokens.
+								specification is finalized. Use one-time use refresh tokens for public clients as an
+								alternative to sender-constrained tokens.
 							</p>
 						</div>
 					</PingOneNote>

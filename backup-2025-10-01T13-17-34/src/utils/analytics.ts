@@ -258,7 +258,11 @@ export class AnalyticsManager {
 	}
 
 	// Track error event
-	public trackError(error: Error, context?: string, properties: Record<string, unknown> = {}): void {
+	public trackError(
+		error: Error,
+		context?: string,
+		properties: Record<string, unknown> = {}
+	): void {
 		this.track('error_event', {
 			error: error.message,
 			stack: error.stack,
@@ -349,7 +353,9 @@ export class AnalyticsManager {
 		// Monitor memory usage
 		if ('memory' in performance) {
 			setInterval(() => {
-				const memory = (performance as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }).memory;
+				const memory = (
+					performance as { memory: { usedJSHeapSize: number; totalJSHeapSize: number } }
+				).memory;
 				this.trackPerformanceMetric('memory_used', memory.usedJSHeapSize);
 				this.trackPerformanceMetric('memory_total', memory.totalJSHeapSize);
 			}, 30000);
@@ -357,7 +363,8 @@ export class AnalyticsManager {
 
 		// Monitor network performance
 		if ('connection' in navigator) {
-			const connection = (navigator as { connection: { downlink: number; rtt: number } }).connection;
+			const connection = (navigator as { connection: { downlink: number; rtt: number } })
+				.connection;
 			this.trackPerformanceMetric('network_downlink', connection.downlink);
 			this.trackPerformanceMetric('network_rtt', connection.rtt);
 		}
@@ -550,7 +557,11 @@ export const trackSecurityEvent = (
 	analyticsManager.trackSecurityEvent(event, severity, properties);
 };
 
-export const trackError = (error: Error, context?: string, properties?: Record<string, unknown>) => {
+export const trackError = (
+	error: Error,
+	context?: string,
+	properties?: Record<string, unknown>
+) => {
 	analyticsManager.trackError(error, context, properties);
 };
 
