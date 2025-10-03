@@ -1,71 +1,116 @@
 // src/utils/uiSettings.ts
-// Utility for managing UI settings across the application
+// Legacy utility retained for backward compatibility with older imports.
+// The new `UISettingsContext` provides the canonical source of truth. This module
+// now proxies to that implementation while keeping the same API surface to avoid
+// runtime errors from stale imports.
 
-export interface UISettings {
-	showCredentialsModal: boolean;
-	showSuccessModal: boolean;
-	showAuthRequestModal: boolean;
-}
+import type { UISettings } from '../contexts/UISettingsContext';
 
-const DEFAULT_UI_SETTINGS: UISettings = {
+const LEGACY_DEFAULTS: Pick<
+	UISettings,
+	| 'showCredentialsModal'
+	| 'showSuccessModal'
+	| 'showAuthRequestModal'
+	| 'showFlowDebugConsole'
+	| 'darkMode'
+	| 'fontSize'
+	| 'colorScheme'
+	| 'autoAdvanceSteps'
+	| 'collapsibleDefaultState'
+	| 'showRequestResponseDetails'
+	| 'copyButtonBehavior'
+	| 'errorDetailLevel'
+	| 'consoleLoggingLevel'
+	| 'defaultPageOnLoad'
+	| 'hideCompletedFlows'
+	| 'quickActionsVisibility'
+	| 'showPollingPrompt'
+	| 'showApiCallExamples'
+> = {
 	showCredentialsModal: false,
 	showSuccessModal: true,
 	showAuthRequestModal: false,
+	showFlowDebugConsole: true,
+	darkMode: false,
+	fontSize: 'medium',
+	colorScheme: 'blue',
+	autoAdvanceSteps: false,
+	collapsibleDefaultState: 'collapsed',
+	showRequestResponseDetails: false,
+	copyButtonBehavior: 'confirmation',
+	errorDetailLevel: 'basic',
+	consoleLoggingLevel: 'normal',
+	defaultPageOnLoad: 'dashboard',
+	hideCompletedFlows: false,
+	quickActionsVisibility: true,
+	showPollingPrompt: true,
+	showApiCallExamples: true,
 };
 
-/**
- * Get UI settings from localStorage
- */
-export const getUISettings = (): UISettings => {
-	try {
-		const flowConfigKey = 'enhanced-flow-authorization-code';
-		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
+const UI_SETTINGS_KEY = 'ui-settings';
+const LEGACY_FLOW_CONFIG_KEY = 'enhanced-flow-authorization-code';
 
+const loadFromStorage = (): UISettings => {
+	try {
+		const uiSettings = JSON.parse(localStorage.getItem(UI_SETTINGS_KEY) || '{}');
+		const flowConfig = JSON.parse(localStorage.getItem(LEGACY_FLOW_CONFIG_KEY) || '{}');
 		return {
-			showCredentialsModal:
-				flowConfig.showCredentialsModal ?? DEFAULT_UI_SETTINGS.showCredentialsModal,
-			showSuccessModal: flowConfig.showSuccessModal ?? DEFAULT_UI_SETTINGS.showSuccessModal,
-			showAuthRequestModal:
-				flowConfig.showAuthRequestModal ?? DEFAULT_UI_SETTINGS.showAuthRequestModal,
+			...LEGACY_DEFAULTS,
+			...flowConfig,
+			...uiSettings,
 		};
 	} catch (error) {
-		console.warn('Failed to load UI settings from localStorage:', error);
-		return DEFAULT_UI_SETTINGS;
+		console.warn('[UISettings] Failed to parse settings from storage:', error);
+		return LEGACY_DEFAULTS as UISettings;
 	}
 };
 
-/**
- * Update a specific UI setting
- */
-export const updateUISetting = (key: keyof UISettings, value: boolean): void => {
+export const getUISettings = (): UISettings => {
+	return loadFromStorage();
+};
+
+export const updateUISetting = <K extends keyof UISettings>(key: K, value: UISettings[K]): void => {
 	try {
-		const flowConfigKey = 'enhanced-flow-authorization-code';
-		const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-		const updatedFlowConfig = {
-			...existingFlowConfig,
-			[key]: value,
-		};
-		localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
-		console.log(` [UISettings] Updated ${key} to ${value}`);
+		const current = loadFromStorage();
+		const updated = { ...current, [key]: value };
+		localStorage.setItem(UI_SETTINGS_KEY, JSON.stringify(updated));
+
+		const legacyConfig = JSON.parse(localStorage.getItem(LEGACY_FLOW_CONFIG_KEY) || '{}');
+		localStorage.setItem(
+			LEGACY_FLOW_CONFIG_KEY,
+			JSON.stringify({
+				...legacyConfig,
+				[key]: value,
+			})
+		);
+
+		window.dispatchEvent(
+			new CustomEvent('uiSettingsChanged', {
+				detail: { [key]: value, allSettings: updated },
+			})
+		);
+		console.log(`[UISettings] Legacy update ${String(key)} ->`, value);
 	} catch (error) {
-		console.error('Failed to update UI setting:', error);
+		console.error('[UISettings] Failed to update setting from legacy utility:', error);
 	}
 };
 
-/**
- * Subscribe to UI settings changes
- */
 export const subscribeToUISettings = (callback: (settings: UISettings) => void): (() => void) => {
-	const handleStorageChange = (event: StorageEvent) => {
-		if (event.key === 'enhanced-flow-authorization-code') {
-			callback(getUISettings());
+	const handler = (event: Event) => {
+		if (event instanceof CustomEvent && event.detail?.allSettings) {
+			callback(event.detail.allSettings as UISettings);
+			return;
 		}
+		callback(loadFromStorage());
 	};
 
-	window.addEventListener('storage', handleStorageChange);
+	window.addEventListener('uiSettingsChanged', handler as EventListener);
+	window.addEventListener('storage', handler as EventListener);
 
-	// Return unsubscribe function
+	callback(loadFromStorage());
+
 	return () => {
-		window.removeEventListener('storage', handleStorageChange);
+		window.removeEventListener('uiSettingsChanged', handler as EventListener);
+		window.removeEventListener('storage', handler as EventListener);
 	};
 };

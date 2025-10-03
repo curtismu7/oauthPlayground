@@ -52,3 +52,12 @@ Local URL: https://localhost:3000/
 Server Ready
 Local URL: https://localhost:3000/
 Network URL: https://:3000/
+[2025-10-03 07:55:06 CDT] OAuth Playground Startup
+Node: v22.16.0 | NPM: 11.6.0 | Env: development
+App Version: 	"version": "5.8.6", | Git: main@1b76c91
+Memory: .00177002MB / 64GB | CPU Cores: 10
+Starting dev server on port 3000
+Local URL: https://localhost:3000/
+Server Ready
+Local URL: https://localhost:3000/
+Network URL: https://:3000/

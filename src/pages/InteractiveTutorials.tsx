@@ -24,6 +24,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TutorialTextFormatter from '../components/TutorialTextFormatter';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import { FlowHeader } from '../services/flowHeaderService';
 
 // Tutorial type definitions
 interface TutorialStep {
@@ -3713,6 +3714,14 @@ export default App;`,
 
 	return (
 		<Container>
+			<FlowHeader 
+				flowType="documentation"
+				customConfig={{
+					title: "Interactive Tutorials",
+					subtitle: "Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect. Choose a tutorial and follow along with interactive examples and explanations.",
+					icon: "📚"
+				}}
+			/>
 			<Header>
 				<h1>
 					<FiBookOpen />

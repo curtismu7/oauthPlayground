@@ -3,6 +3,7 @@ import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer } from
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
+import type { ActivityItem } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -111,7 +112,7 @@ const Dashboard = () => {
 	const [flowCredentialStatuses, setFlowCredentialStatuses] = useState(
 		getAllFlowCredentialStatuses()
 	);
-	const [recentActivity, setRecentActivity] = useState<Record<string, unknown>[]>([]);
+	const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
 	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [serverStatus, setServerStatus] = useState({
 		frontend: 'checking' as 'online' | 'offline' | 'checking',
@@ -237,6 +238,13 @@ const Dashboard = () => {
 		{ method: 'GET', path: '/api/jwks', desc: 'Fetch PingOne JWKS' },
 		{ method: 'POST', path: '/api/user-jwks', desc: 'Generate JWKS from user key' },
 	];
+
+	const formatActivityAction = (action?: string) => {
+		if (!action) {
+			return 'Activity';
+		}
+		return action.replace(/Successfully\s+Implcit\s+Flow\s+Token/gi, 'Successfully Obtained Implicit Flow Token');
+	};
 
 	return (
 		<DashboardContainer>
@@ -761,58 +769,65 @@ const Dashboard = () => {
 			{/* Recent Activity */}
 			<ContentCard>
 				<CardHeader>
-					<CardTitle>Recent Activity</CardTitle>
+					<div>
+						<CardTitle>Recent Activity</CardTitle>
+						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
+							Latest OAuth flow runs, credential updates, and API interactions performed in this playground.
+						</p>
+					</div>
 				</CardHeader>
 
 				<div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-					{recentActivity.length === 0 ? (
-						<div style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-							<FiActivity size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
-							<p>No recent activity</p>
-							<p style={{ fontSize: '0.875rem' }}>Complete an OAuth flow to see activity here</p>
-						</div>
-					) : (
-						recentActivity.slice(0, 10).map((activity, index) => (
-							<div
-								key={activity.id || index}
-								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '1rem',
-									padding: '1rem',
-									borderBottom: index < recentActivity.length - 1 ? '1px solid #e5e7eb' : 'none',
-								}}
-							>
-								<div
+					<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+						{recentActivity.length === 0 ? (
+							<li style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+								<FiActivity size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+								<p>No recent activity</p>
+								<p style={{ fontSize: '0.875rem' }}>Complete an OAuth flow to see activity here</p>
+							</li>
+						) : (
+							recentActivity.slice(0, 10).map((activity, index) => (
+								<li
+									key={activity.id || index}
 									style={{
-										width: '40px',
-										height: '40px',
-										borderRadius: '50%',
-										backgroundColor: activity.success ? '#dcfce7' : '#fee2e2',
-										color: activity.success ? '#166534' : '#dc2626',
 										display: 'flex',
 										alignItems: 'center',
-										justifyContent: 'center',
-										fontSize: '1.2rem',
+										gap: '1rem',
+										padding: '1rem',
+										borderBottom: index < recentActivity.length - 1 ? '1px solid #e5e7eb' : 'none',
 									}}
 								>
-									{activity.success ? '✓' : '✗'}
-								</div>
-								<div style={{ flex: 1 }}>
-									<div style={{ fontWeight: '500', color: '#333', marginBottom: '0.25rem' }}>
-										{activity.action}
+									<div
+										style={{
+											width: '40px',
+											height: '40px',
+											borderRadius: '50%',
+											backgroundColor: activity.success ? '#dcfce7' : '#fee2e2',
+											color: activity.success ? '#166534' : '#dc2626',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											fontSize: '1.2rem',
+										}}
+									>
+										{activity.success ? '✓' : '✗'}
 									</div>
-									<div style={{ fontSize: '0.875rem', color: '#666' }}>
-										{new Date(activity.timestamp).toLocaleString()}
+									<div style={{ flex: 1 }}>
+										<div style={{ fontWeight: '500', color: '#333', marginBottom: '0.25rem' }}>
+											{formatActivityAction(activity.action)}
+										</div>
+										<div style={{ fontSize: '0.875rem', color: '#666' }}>
+											{new Date(activity.timestamp).toLocaleString()}
+										</div>
 									</div>
-								</div>
-							</div>
-						))
-					)}
+								</li>
+							))
+						)}
+					</ul>
 				</div>
 			</ContentCard>
-		</DashboardContainer>
-	);
+	</DashboardContainer>
+);
 };
 
 export default Dashboard;
