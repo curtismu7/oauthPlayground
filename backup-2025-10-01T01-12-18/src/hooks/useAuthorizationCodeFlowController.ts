@@ -122,22 +122,30 @@ const resolveTokenEndpoint = (creds: StepCredentials): string => {
 
 const loadStoredConfig = (storageKey: string, variant: FlowVariant): FlowConfig => {
 	if (typeof window === 'undefined') {
-		return getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+		return getDefaultConfig(
+			variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+		);
 	}
 
 	const stored = sessionStorage.getItem(storageKey);
 	if (!stored) {
-		return getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+		return getDefaultConfig(
+			variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+		);
 	}
 
 	try {
 		const parsed = safeJsonParse<FlowConfig>(stored, getDefaultConfig('oauth-authorization-code'));
 		return {
-			...getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'),
+			...getDefaultConfig(
+				variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+			),
 			...parsed,
 		};
 	} catch {
-		return getDefaultConfig(variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code');
+		return getDefaultConfig(
+			variant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+		);
 	}
 };
 
@@ -222,10 +230,15 @@ export const useAuthorizationCodeFlowController = (
 		if (stored) {
 			try {
 				const parsed = JSON.parse(stored);
-				console.log('🔄 [useAuthorizationCodeFlowController] Loaded PKCE codes from sessionStorage');
+				console.log(
+					'🔄 [useAuthorizationCodeFlowController] Loaded PKCE codes from sessionStorage'
+				);
 				return parsed;
 			} catch (error) {
-				console.warn('[useAuthorizationCodeFlowController] Failed to parse stored PKCE codes:', error);
+				console.warn(
+					'[useAuthorizationCodeFlowController] Failed to parse stored PKCE codes:',
+					error
+				);
 			}
 		}
 		// Fallback to empty PKCE codes if none stored
@@ -381,7 +394,13 @@ export const useAuthorizationCodeFlowController = (
 			return credentials[typedKey] !== originalCredentialsRef.current?.[typedKey];
 		});
 		setHasUnsavedCredentialChanges(hasChanges);
-	}, [credentials.environmentId, credentials.clientId, credentials.clientSecret, credentials.scopes, credentials.redirectUri]);
+	}, [
+		credentials.environmentId,
+		credentials.clientId,
+		credentials.clientSecret,
+		credentials.scopes,
+		credentials.redirectUri,
+	]);
 
 	const generatePkceCodes = useCallback(async () => {
 		try {
@@ -428,7 +447,8 @@ export const useAuthorizationCodeFlowController = (
 			throw new Error('PKCE parameters not generated. Please generate PKCE codes first.');
 		}
 
-		const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		const state =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 		// Build response_type based on configuration
 		const responseTypes = [];
 		if (credentials.responseTypeCode !== false) responseTypes.push('code'); // Default to true if not specified
@@ -538,7 +558,10 @@ export const useAuthorizationCodeFlowController = (
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
-		console.log('🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:', flowContext);
+		console.log(
+			'🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:',
+			flowContext
+		);
 		console.log('🔧 [useAuthorizationCodeFlowController] About to redirect to:', authUrl);
 
 		saveStepResult('user-authorization', {
@@ -602,9 +625,8 @@ export const useAuthorizationCodeFlowController = (
 			}
 
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: ''; // Use relative URL to go through Vite proxy
+			const backendUrl =
+				process.env.NODE_ENV === 'production' ? 'https://oauth-playground.vercel.app' : ''; // Use relative URL to go through Vite proxy
 
 			const requestBody = {
 				grant_type: 'authorization_code',
@@ -623,7 +645,9 @@ export const useAuthorizationCodeFlowController = (
 				redirect_uri: credentials.redirectUri,
 				client_id: credentials.clientId,
 				environment_id: credentials.environmentId,
-				code_verifier: pkceCodes.codeVerifier ? pkceCodes.codeVerifier.substring(0, 10) + '...' : 'MISSING',
+				code_verifier: pkceCodes.codeVerifier
+					? pkceCodes.codeVerifier.substring(0, 10) + '...'
+					: 'MISSING',
 			});
 
 			const response = await fetch(`${backendUrl}/api/token-exchange`, {
@@ -646,10 +670,13 @@ export const useAuthorizationCodeFlowController = (
 
 			// Store tokens for persistence
 			storeOAuthTokens(tokenData, 'authorization_code', 'Authorization Code Flow V5');
-			
+
 			// Also store in localStorage for cross-tab communication (Token Management page)
 			localStorage.setItem('oauth_tokens', JSON.stringify(tokenData));
-			localStorage.setItem('flow_source', flowVariant === 'oidc' ? 'oidc-authorization-code-v5' : 'oauth-authorization-code-v5');
+			localStorage.setItem(
+				'flow_source',
+				flowVariant === 'oidc' ? 'oidc-authorization-code-v5' : 'oauth-authorization-code-v5'
+			);
 
 			saveStepResult('exchange-tokens', {
 				...tokenData,
@@ -657,19 +684,27 @@ export const useAuthorizationCodeFlowController = (
 			});
 
 			// Track successful token exchange
-			trackTokenOperation('Exchange', true, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`);
-			
+			trackTokenOperation(
+				'Exchange',
+				true,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`
+			);
+
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Tokens received', 'Authorization code exchanged for tokens successfully.');
-			
+
 			// Return the token data for immediate use
 			return tokenData;
 		} catch (error) {
 			console.error('[useAuthorizationCodeFlowController] Token exchange failed:', error);
-			
+
 			// Track failed token exchange
-			trackTokenOperation('Exchange', false, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`);
-			
+			trackTokenOperation(
+				'Exchange',
+				false,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('Token exchange failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it
@@ -746,9 +781,8 @@ export const useAuthorizationCodeFlowController = (
 
 		try {
 			// Use backend proxy to avoid CORS issues
-			const backendUrl = process.env.NODE_ENV === 'production'
-				? 'https://oauth-playground.vercel.app'
-				: ''; // Use relative URL to go through Vite proxy
+			const backendUrl =
+				process.env.NODE_ENV === 'production' ? 'https://oauth-playground.vercel.app' : ''; // Use relative URL to go through Vite proxy
 
 			const requestBody = {
 				grant_type: 'refresh_token',
@@ -790,16 +824,24 @@ export const useAuthorizationCodeFlowController = (
 			});
 
 			// Track successful token refresh
-			trackTokenOperation('Refresh', true, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`);
+			trackTokenOperation(
+				'Refresh',
+				true,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code`
+			);
 
 			// Don't show success message here - let the calling component handle it
 			// showGlobalSuccess('Tokens refreshed', 'Access token refreshed successfully.');
 		} catch (error) {
 			console.error('[useAuthorizationCodeFlowController] Token refresh failed:', error);
-			
+
 			// Track failed token refresh
-			trackTokenOperation('Refresh', false, `${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`);
-			
+			trackTokenOperation(
+				'Refresh',
+				false,
+				`${flowVariant === 'oidc' ? 'OIDC' : 'OAuth'} Authorization Code - ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
+
 			// Don't show error message here - let the calling component handle it
 			// showGlobalError('Token refresh failed', error instanceof Error ? error.message : 'Unknown error');
 			// Re-throw the error so the calling component can handle it

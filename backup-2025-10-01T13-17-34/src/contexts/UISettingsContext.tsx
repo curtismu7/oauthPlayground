@@ -6,7 +6,7 @@ export interface UISettings {
 	showSuccessModal: boolean;
 	showAuthRequestModal: boolean;
 	showFlowDebugConsole: boolean;
-	
+
 	// New UI Settings
 	darkMode: boolean;
 	fontSize: 'small' | 'medium' | 'large';
@@ -29,7 +29,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
 	showSuccessModal: true,
 	showAuthRequestModal: false,
 	showFlowDebugConsole: true,
-	
+
 	// New UI Settings
 	darkMode: false,
 	fontSize: 'medium',
@@ -65,18 +65,18 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 	// Apply theme settings to document
 	const applyThemeSettings = (settings: UISettings) => {
 		const root = document.documentElement;
-		
+
 		// Apply dark mode
 		if (settings.darkMode) {
 			root.classList.add('dark-mode');
 		} else {
 			root.classList.remove('dark-mode');
 		}
-		
+
 		// Apply font size
 		root.classList.remove('font-small', 'font-medium', 'font-large');
 		root.classList.add(`font-${settings.fontSize}`);
-		
+
 		// Apply color scheme
 		root.classList.remove('color-blue', 'color-green', 'color-purple', 'color-orange', 'color-red');
 		root.classList.add(`color-${settings.colorScheme}`);
@@ -89,21 +89,21 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 				// Load from enhanced-flow-authorization-code config (existing pattern)
 				const flowConfigKey = 'enhanced-flow-authorization-code';
 				const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-				
+
 				// Load from dedicated UI settings key (new pattern)
 				const uiSettingsKey = 'ui-settings';
 				const uiSettings = JSON.parse(localStorage.getItem(uiSettingsKey) || '{}');
-				
+
 				// Merge settings with priority: uiSettings > flowConfig > defaults
 				const mergedSettings: UISettings = {
 					...DEFAULT_UI_SETTINGS,
 					...flowConfig,
 					...uiSettings,
 				};
-				
+
 				console.log('[UISettings] Loaded settings:', mergedSettings);
 				setSettings(mergedSettings);
-				
+
 				// Apply theme settings immediately
 				applyThemeSettings(mergedSettings);
 			} catch (error) {
@@ -117,14 +117,14 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 
 	// Update a specific setting
 	const updateSetting = <K extends keyof UISettings>(key: K, value: UISettings[K]) => {
-		setSettings(prev => {
+		setSettings((prev) => {
 			const newSettings = { ...prev, [key]: value };
-			
+
 			// Save to localStorage
 			try {
 				const uiSettingsKey = 'ui-settings';
 				localStorage.setItem(uiSettingsKey, JSON.stringify(newSettings));
-				
+
 				// Also update the legacy flow config for backward compatibility
 				const flowConfigKey = 'enhanced-flow-authorization-code';
 				const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
@@ -133,20 +133,22 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 					[key]: value,
 				};
 				localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
-				
+
 				console.log(`[UISettings] Updated ${key}:`, value);
-				
+
 				// Apply theme changes immediately
 				applyThemeSettings(newSettings);
-				
+
 				// Dispatch custom event to notify other components
-				window.dispatchEvent(new CustomEvent('uiSettingsChanged', {
-					detail: { [key]: value, allSettings: newSettings }
-				}));
+				window.dispatchEvent(
+					new CustomEvent('uiSettingsChanged', {
+						detail: { [key]: value, allSettings: newSettings },
+					})
+				);
 			} catch (error) {
 				console.error('[UISettings] Failed to save settings:', error);
 			}
-			
+
 			return newSettings;
 		});
 	};
@@ -154,16 +156,17 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 	// Reset all settings to defaults
 	const resetSettings = () => {
 		setSettings(DEFAULT_UI_SETTINGS);
-		
+
 		try {
-			
 			// Apply default theme settings
 			applyThemeSettings(DEFAULT_UI_SETTINGS);
-			
+
 			// Dispatch reset event
-			window.dispatchEvent(new CustomEvent('uiSettingsReset', {
-				detail: { settings: DEFAULT_UI_SETTINGS }
-			}));
+			window.dispatchEvent(
+				new CustomEvent('uiSettingsReset', {
+					detail: { settings: DEFAULT_UI_SETTINGS },
+				})
+			);
 		} catch (error) {
 			console.error('[UISettings] Failed to reset settings:', error);
 		}
@@ -173,19 +176,21 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		try {
 			// Save to localStorage
 			localStorage.setItem('ui-settings', JSON.stringify(settings));
-			
+
 			// Also save to the legacy key for backward compatibility
 			const flowConfigKey = 'enhanced-flow-authorization-code';
 			const existingFlowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
 			const updatedFlowConfig = { ...existingFlowConfig, ...settings };
 			localStorage.setItem(flowConfigKey, JSON.stringify(updatedFlowConfig));
-			
+
 			console.log('[UISettings] Settings saved successfully:', settings);
-			
+
 			// Dispatch save event
-			window.dispatchEvent(new CustomEvent('uiSettingsSaved', {
-				detail: { settings }
-			}));
+			window.dispatchEvent(
+				new CustomEvent('uiSettingsSaved', {
+					detail: { settings },
+				})
+			);
 		} catch (error) {
 			console.error('[UISettings] Failed to save settings:', error);
 			throw error;
@@ -198,11 +203,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		resetSettings,
 		saveSettings,
 	};
-	return (
-		<UISettingsContext.Provider value={contextValue}>
-			{children}
-		</UISettingsContext.Provider>
-	);
+	return <UISettingsContext.Provider value={contextValue}>{children}</UISettingsContext.Provider>;
 };
 
 // Custom hook to use UI settings

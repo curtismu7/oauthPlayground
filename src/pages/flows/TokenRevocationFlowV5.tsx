@@ -9,10 +9,7 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useTokenRevocationFlowController } from '../../hooks/useTokenRevocationFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -156,7 +153,6 @@ const Label = styled.label`
 	font-size: 0.875rem;
 `;
 
-
 const TextArea = styled.textarea`
 	padding: 0.75rem;
 	border: 1px solid #d1d5db;
@@ -251,12 +247,8 @@ const TokenRevocationFlowV5: React.FC = () => {
 	const [revocationResult, setRevocationResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const {
-		credentials,
-		revokeToken,
-		clearResults,
-		updateCredentials,
-	} = useTokenRevocationFlowController();
+	const { credentials, revokeToken, clearResults, updateCredentials } =
+		useTokenRevocationFlowController();
 
 	const handleNext = useCallback(() => {
 		if (currentStep < 3) {
@@ -312,11 +304,11 @@ const TokenRevocationFlowV5: React.FC = () => {
 								<FiShield /> Token Revocation
 							</ExplanationHeading>
 							<p>
-								Token revocation allows you to invalidate access and refresh tokens before they expire.
-								This is essential for security when users log out or when tokens are compromised.
+								Token revocation allows you to invalidate access and refresh tokens before they
+								expire. This is essential for security when users log out or when tokens are
+								compromised.
 							</p>
 						</ExplanationSection>
-
 
 						<EnhancedFlowWalkthrough flowId="token-revocation" />
 						<FlowSequenceDisplay flowType="token-revocation" />
@@ -373,7 +365,14 @@ const TokenRevocationFlowV5: React.FC = () => {
 								</SuccessMessage>
 								<ResultsSection>
 									<ResultsHeading>Revocation Response</ResultsHeading>
-									<pre style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', overflow: 'auto' }}>
+									<pre
+										style={{
+											background: '#f3f4f6',
+											padding: '1rem',
+											borderRadius: '6px',
+											overflow: 'auto',
+										}}
+									>
 										{JSON.stringify(revocationResult, null, 2)}
 									</pre>
 								</ResultsSection>
@@ -388,8 +387,8 @@ const TokenRevocationFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Revocation Complete</ResultsHeading>
 							<p>
-								The token(s) have been successfully revoked. They are no longer valid and cannot be used
-								for authentication or authorization.
+								The token(s) have been successfully revoked. They are no longer valid and cannot be
+								used for authentication or authorization.
 							</p>
 						</ResultsSection>
 
@@ -438,7 +437,7 @@ const TokenRevocationFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="token-revocation-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="token-revocation"
 					showAdditionalInfo={true}
 					showDocumentation={true}

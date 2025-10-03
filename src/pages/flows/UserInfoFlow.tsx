@@ -880,7 +880,8 @@ console.log('Welcome, ' + user.name + '!');`,
 				customConfig={{
 					flowType: 'oidc',
 					title: 'User Info',
-					subtitle: 'Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests.',
+					subtitle:
+						'Learn how to retrieve user profile information using the UserInfo endpoint. This endpoint provides detailed user claims and supports both authenticated and unauthenticated requests.',
 				}}
 			/>
 

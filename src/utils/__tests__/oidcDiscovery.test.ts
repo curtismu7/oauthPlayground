@@ -47,7 +47,7 @@ describe('OIDC Discovery Utilities', () => {
 		end_session_endpoint: 'https://auth.pingone.com/test/as/signoff',
 		revocation_endpoint: 'https://auth.pingone.com/test/as/revoke',
 		introspection_endpoint: 'https://auth.pingone.com/test/as/introspect',
-		device_authorization_endpoint: 'https://auth.pingone.com/test/as/device',
+		device_authorization_endpoint: 'https://auth.pingone.com/test/as/device_authorization',
 	};
 
 	beforeEach(() => {
@@ -488,7 +488,7 @@ describe('OIDC Discovery Utilities', () => {
 				...mockOIDCConfig,
 				code_challenge_methods_supported: ['S256'],
 				pushed_authorization_request_endpoint: 'https://auth.pingone.com/test/as/par',
-				device_authorization_endpoint: 'https://auth.pingone.com/test/as/device',
+				device_authorization_endpoint: 'https://auth.pingone.com/test/as/device_authorization',
 				backchannel_authentication_endpoint: 'https://auth.pingone.com/test/as/bca',
 				introspection_endpoint: 'https://auth.pingone.com/test/as/introspect',
 				revocation_endpoint: 'https://auth.pingone.com/test/as/revoke',

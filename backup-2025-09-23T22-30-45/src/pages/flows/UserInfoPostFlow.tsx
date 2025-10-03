@@ -103,33 +103,33 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -211,36 +211,36 @@ const UserInfoValue = styled.span`
 `;
 
 interface UserInfoPostFlowProps {
-  credentials?: {
-    clientId: string;
-    clientSecret: string;
-    environmentId: string;
-  };
+	credentials?: {
+		clientId: string;
+		clientSecret: string;
+		environmentId: string;
+	};
 }
 
 const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    environmentId: credentials?.environmentId || '',
-    accessToken: '',
-    scope: 'openid profile email',
-    claims: '{"userinfo": {"email": null, "phone_number": null, "address": null}}',
-    uiLocales: 'en',
-    includeClaims: true
-  });
-  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [formData, setFormData] = useState({
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		environmentId: credentials?.environmentId || '',
+		accessToken: '',
+		scope: 'openid profile email',
+		claims: '{"userinfo": {"email": null, "phone_number": null, "address": null}}',
+		uiLocales: 'en',
+		includeClaims: true,
+	});
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [userInfo, setUserInfo] = useState<Record<string, unknown> | null>(null);
 
-  const steps = [
-    {
-      id: 'step-1',
-      title: 'Configure UserInfo POST Settings',
-      description: 'Set up your OAuth client for UserInfo POST requests.',
-      code: `// UserInfo POST Configuration
+	const steps = [
+		{
+			id: 'step-1',
+			title: 'Configure UserInfo POST Settings',
+			description: 'Set up your OAuth client for UserInfo POST requests.',
+			code: `// UserInfo POST Configuration
 const userInfoConfig = {
   clientId: '${formData.clientId}',
   clientSecret: '${formData.clientSecret}',
@@ -253,15 +253,15 @@ const userInfoConfig = {
 };
 
 console.log('UserInfo POST configured:', userInfoConfig);`,
-      execute: async () => {
-        logger.info('UserInfoPostFlow', 'Configuring UserInfo POST settings');
-      }
-    },
-    {
-      id: 'step-2',
-      title: 'Prepare UserInfo POST Request',
-      description: 'Build the POST request for UserInfo endpoint.',
-      code: `// Prepare UserInfo POST Request
+			execute: async () => {
+				logger.info('UserInfoPostFlow', 'Configuring UserInfo POST settings');
+			},
+		},
+		{
+			id: 'step-2',
+			title: 'Prepare UserInfo POST Request',
+			description: 'Build the POST request for UserInfo endpoint.',
+			code: `// Prepare UserInfo POST Request
 const userInfoUrl = \`https://auth.pingone.com/\${environmentId}/as/userinfo\`;
 
 const formData = new FormData();
@@ -274,15 +274,15 @@ formData.append('ui_locales', '${formData.uiLocales}');
 
 console.log('UserInfo POST URL:', userInfoUrl);
 console.log('Form data prepared for POST request');`,
-      execute: async () => {
-        logger.info('UserInfoPostFlow', 'Preparing UserInfo POST request');
-      }
-    },
-    {
-      id: 'step-3',
-      title: 'Submit UserInfo POST Request',
-      description: 'Submit the POST request to the UserInfo endpoint.',
-      code: `// Submit UserInfo POST Request
+			execute: async () => {
+				logger.info('UserInfoPostFlow', 'Preparing UserInfo POST request');
+			},
+		},
+		{
+			id: 'step-3',
+			title: 'Submit UserInfo POST Request',
+			description: 'Submit the POST request to the UserInfo endpoint.',
+			code: `// Submit UserInfo POST Request
 try {
   const response = await fetch(userInfoUrl, {
     method: 'POST',
@@ -307,56 +307,56 @@ try {
   console.error('UserInfo error:', error);
   throw error;
 }`,
-      execute: async () => {
-        logger.info('UserInfoPostFlow', 'Submitting UserInfo POST request');
-        setDemoStatus('loading');
-        
-        try {
-          // Simulate UserInfo POST request
-          const mockUserInfo = {
-            sub: 'user_123456789',
-            name: 'John Doe',
-            given_name: 'John',
-            family_name: 'Doe',
-            email: 'john.doe@example.com',
-            email_verified: true,
-            phone_number: '+1-555-123-4567',
-            phone_number_verified: true,
-            address: {
-              street_address: '123 Main St',
-              locality: 'Anytown',
-              region: 'CA',
-              postal_code: '12345',
-              country: 'US'
-            },
-            locale: 'en-US',
-            updated_at: Math.floor(Date.now() / 1000)
-          };
+			execute: async () => {
+				logger.info('UserInfoPostFlow', 'Submitting UserInfo POST request');
+				setDemoStatus('loading');
 
-          const mockResponse = {
-            success: true,
-            message: 'UserInfo retrieved successfully',
-            userInfo: mockUserInfo,
-            method: 'POST',
-            endpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`
-          };
+				try {
+					// Simulate UserInfo POST request
+					const mockUserInfo = {
+						sub: 'user_123456789',
+						name: 'John Doe',
+						given_name: 'John',
+						family_name: 'Doe',
+						email: 'john.doe@example.com',
+						email_verified: true,
+						phone_number: '+1-555-123-4567',
+						phone_number_verified: true,
+						address: {
+							street_address: '123 Main St',
+							locality: 'Anytown',
+							region: 'CA',
+							postal_code: '12345',
+							country: 'US',
+						},
+						locale: 'en-US',
+						updated_at: Math.floor(Date.now() / 1000),
+					};
 
-          setResponse(mockResponse);
-          setUserInfo(mockUserInfo);
-          setDemoStatus('success');
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          setError(errorMessage);
-          setDemoStatus('error');
-          throw error;
-        }
-      }
-    },
-    {
-      id: 'step-4',
-      title: 'Process UserInfo Response',
-      description: 'Process and validate the UserInfo response.',
-      code: `// Process UserInfo Response
+					const mockResponse = {
+						success: true,
+						message: 'UserInfo retrieved successfully',
+						userInfo: mockUserInfo,
+						method: 'POST',
+						endpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
+					};
+
+					setResponse(mockResponse);
+					setUserInfo(mockUserInfo);
+					setDemoStatus('success');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					setDemoStatus('error');
+					throw error;
+				}
+			},
+		},
+		{
+			id: 'step-4',
+			title: 'Process UserInfo Response',
+			description: 'Process and validate the UserInfo response.',
+			code: `// Process UserInfo Response
 if (userInfo) {
   // Validate required claims
   const requiredClaims = ['sub', 'name', 'email'];
@@ -384,31 +384,31 @@ if (userInfo) {
   // Store processed user data
   localStorage.setItem('user_data', JSON.stringify(userData));
 }`,
-      execute: async () => {
-        logger.info('UserInfoPostFlow', 'Processing UserInfo response');
-        
-        if (userInfo) {
-          const processedUserData = {
-            id: userInfo.sub,
-            name: userInfo.name,
-            email: userInfo.email,
-            emailVerified: userInfo.email_verified,
-            phone: userInfo.phone_number,
-            phoneVerified: userInfo.phone_number_verified,
-            address: userInfo.address,
-            locale: userInfo.locale,
-            lastUpdated: new Date(userInfo.updated_at * 1000)
-          };
+			execute: async () => {
+				logger.info('UserInfoPostFlow', 'Processing UserInfo response');
 
-          setResponse(prev => ({ ...prev, processedUserData }));
-        }
-      }
-    },
-    {
-      id: 'step-5',
-      title: 'Handle UserInfo Errors',
-      description: 'Handle common UserInfo request errors and edge cases.',
-      code: `// Handle UserInfo Errors
+				if (userInfo) {
+					const processedUserData = {
+						id: userInfo.sub,
+						name: userInfo.name,
+						email: userInfo.email,
+						emailVerified: userInfo.email_verified,
+						phone: userInfo.phone_number,
+						phoneVerified: userInfo.phone_number_verified,
+						address: userInfo.address,
+						locale: userInfo.locale,
+						lastUpdated: new Date(userInfo.updated_at * 1000),
+					};
+
+					setResponse((prev) => ({ ...prev, processedUserData }));
+				}
+			},
+		},
+		{
+			id: 'step-5',
+			title: 'Handle UserInfo Errors',
+			description: 'Handle common UserInfo request errors and edge cases.',
+			code: `// Handle UserInfo Errors
 const handleUserInfoError = (error) => {
   if (error.status === 401) {
     console.error('Unauthorized: Invalid or expired access token');
@@ -446,232 +446,239 @@ const retryUserInfoRequest = async (retryCount = 0) => {
     console.error('Max retries exceeded for UserInfo request');
   }
 };`,
-      execute: async () => {
-        logger.info('UserInfoPostFlow', 'UserInfo error handling implemented');
-      }
-    }
-  ];
+			execute: async () => {
+				logger.info('UserInfoPostFlow', 'UserInfo error handling implemented');
+			},
+		},
+	];
 
-  const handleStepChange = useCallback((step: number) => {
-    setCurrentStep(step);
-    setDemoStatus('idle');
-    setResponse(null);
-    setError(null);
-  }, []);
+	const handleStepChange = useCallback((step: number) => {
+		setCurrentStep(step);
+		setDemoStatus('idle');
+		setResponse(null);
+		setError(null);
+	}, []);
 
-  const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('UserInfoPostFlow', `Step ${step + 1} completed`, result);
-  }, []);
+	const handleStepResult = useCallback((step: number, result: unknown) => {
+		logger.info('UserInfoPostFlow', `Step ${step + 1} completed`, result);
+	}, []);
 
-  const handleUserInfoRequest = async () => {
-    try {
-      setDemoStatus('loading');
-      setError(null);
-      
-      const userInfoUrl = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
-      
-      const mockUserInfo = {
-        sub: 'user_123456789',
-        name: 'John Doe',
-        given_name: 'John',
-        family_name: 'Doe',
-        email: 'john.doe@example.com',
-        email_verified: true,
-        phone_number: '+1-555-123-4567',
-        phone_number_verified: true,
-        address: {
-          street_address: '123 Main St',
-          locality: 'Anytown',
-          region: 'CA',
-          postal_code: '12345',
-          country: 'US'
-        },
-        locale: 'en-US',
-        updated_at: Math.floor(Date.now() / 1000)
-      };
+	const handleUserInfoRequest = async () => {
+		try {
+			setDemoStatus('loading');
+			setError(null);
 
-      const mockResponse = {
-        success: true,
-        message: 'UserInfo retrieved successfully',
-        userInfo: mockUserInfo,
-        method: 'POST',
-        endpoint: userInfoUrl
-      };
+			const userInfoUrl = `https://auth.pingone.com/${formData.environmentId}/as/userinfo`;
 
-      setResponse(mockResponse);
-      setUserInfo(mockUserInfo);
-      setDemoStatus('success');
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setError(errorMessage);
-      setDemoStatus('error');
-    }
-  };
+			const mockUserInfo = {
+				sub: 'user_123456789',
+				name: 'John Doe',
+				given_name: 'John',
+				family_name: 'Doe',
+				email: 'john.doe@example.com',
+				email_verified: true,
+				phone_number: '+1-555-123-4567',
+				phone_number_verified: true,
+				address: {
+					street_address: '123 Main St',
+					locality: 'Anytown',
+					region: 'CA',
+					postal_code: '12345',
+					country: 'US',
+				},
+				locale: 'en-US',
+				updated_at: Math.floor(Date.now() / 1000),
+			};
 
-  return (
-    <FlowContainer>
-      <FlowTitle>UserInfo POST Flow</FlowTitle>
-      <FlowDescription>
-        This flow demonstrates the UserInfo endpoint using POST requests. The UserInfo 
-        endpoint allows clients to retrieve information about the authenticated user 
-        using their access token.
-      </FlowDescription>
+			const mockResponse = {
+				success: true,
+				message: 'UserInfo retrieved successfully',
+				userInfo: mockUserInfo,
+				method: 'POST',
+				endpoint: userInfoUrl,
+			};
 
-      <InfoContainer>
-        <h4>👤 UserInfo POST Benefits</h4>
-        <p>
-          The UserInfo POST method allows for more complex requests with larger payloads, 
-          including custom claims and additional parameters. It's particularly useful 
-          when you need to request specific user information or when dealing with 
-          sensitive data that shouldn't be exposed in URL parameters.
-        </p>
-      </InfoContainer>
+			setResponse(mockResponse);
+			setUserInfo(mockUserInfo);
+			setDemoStatus('success');
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			setError(errorMessage);
+			setDemoStatus('error');
+		}
+	};
 
-      <FlowCredentials
-        flowType="userinfo-post"
-        onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
-            ...prev,
-            clientId: newCredentials.clientId || prev.clientId,
-            clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            environmentId: newCredentials.environmentId || prev.environmentId
-          }));
-        }}
-      />
+	return (
+		<FlowContainer>
+			<FlowTitle>UserInfo POST Flow</FlowTitle>
+			<FlowDescription>
+				This flow demonstrates the UserInfo endpoint using POST requests. The UserInfo endpoint
+				allows clients to retrieve information about the authenticated user using their access
+				token.
+			</FlowDescription>
 
-      <StepByStepFlow
-        steps={steps}
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-        onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
-        onReset={() => {
-          setCurrentStep(0);
-          setDemoStatus('idle');
-          setResponse(null);
-          setError(null);
-          setUserInfo(null);
-        }}
-        status={demoStatus}
-        disabled={demoStatus === 'loading'}
-        title="UserInfo POST Flow Steps"
-      />
+			<InfoContainer>
+				<h4>👤 UserInfo POST Benefits</h4>
+				<p>
+					The UserInfo POST method allows for more complex requests with larger payloads, including
+					custom claims and additional parameters. It's particularly useful when you need to request
+					specific user information or when dealing with sensitive data that shouldn't be exposed in
+					URL parameters.
+				</p>
+			</InfoContainer>
 
-      {userInfo && (
-        <UserInfoContainer>
-          <UserInfoTitle>User Information</UserInfoTitle>
-          
-          <UserInfoDetails>
-            <UserInfoDetail>
-              <UserInfoLabel>User ID</UserInfoLabel>
-              <UserInfoValue>{userInfo.sub}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Name</UserInfoLabel>
-              <UserInfoValue>{userInfo.name}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Email</UserInfoLabel>
-              <UserInfoValue>{userInfo.email}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Email Verified</UserInfoLabel>
-              <UserInfoValue>{userInfo.email_verified ? 'Yes' : 'No'}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Phone</UserInfoLabel>
-              <UserInfoValue>{userInfo.phone_number || 'Not provided'}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Phone Verified</UserInfoLabel>
-              <UserInfoValue>{userInfo.phone_number_verified ? 'Yes' : 'No'}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Locale</UserInfoLabel>
-              <UserInfoValue>{userInfo.locale}</UserInfoValue>
-            </UserInfoDetail>
-            <UserInfoDetail>
-              <UserInfoLabel>Last Updated</UserInfoLabel>
-              <UserInfoValue>{new Date(userInfo.updated_at * 1000).toLocaleString()}</UserInfoValue>
-            </UserInfoDetail>
-          </UserInfoDetails>
-        </UserInfoContainer>
-      )}
+			<FlowCredentials
+				flowType="userinfo-post"
+				onCredentialsChange={(newCredentials) => {
+					setFormData((prev) => ({
+						...prev,
+						clientId: newCredentials.clientId || prev.clientId,
+						clientSecret: newCredentials.clientSecret || prev.clientSecret,
+						environmentId: newCredentials.environmentId || prev.environmentId,
+					}));
+				}}
+			/>
 
-      {response && (
-        <ResponseContainer>
-          <h4>Response:</h4>
-          <CodeBlock>
-            <JSONHighlighter data={response} />
-          </CodeBlock>
-        </ResponseContainer>
-      )}
+			<StepByStepFlow
+				steps={steps}
+				currentStep={currentStep}
+				onStepChange={handleStepChange}
+				onStepResult={handleStepResult}
+				onStart={() => setDemoStatus('loading')}
+				onReset={() => {
+					setCurrentStep(0);
+					setDemoStatus('idle');
+					setResponse(null);
+					setError(null);
+					setUserInfo(null);
+				}}
+				status={demoStatus}
+				disabled={demoStatus === 'loading'}
+				title="UserInfo POST Flow Steps"
+			/>
 
-      {error && (
-        <ErrorContainer>
-          <h4>Error:</h4>
-          <p>{error}</p>
-        </ErrorContainer>
-      )}
+			{userInfo && (
+				<UserInfoContainer>
+					<UserInfoTitle>User Information</UserInfoTitle>
 
-      <FormContainer>
-        <h3>Manual UserInfo Configuration</h3>
-        <p>You can also manually configure the UserInfo POST request:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-          <FormGroup>
-            <Label>Access Token</Label>
-            <Input
-              type="text"
-              value={formData.accessToken}
-              onChange={(e) => setFormData(prev => ({ ...prev, accessToken: e.target.value }))}
-              placeholder="Enter access token"
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>Client ID</Label>
-            <Input
-              type="text"
-              value={formData.clientId}
-              onChange={(e) => setFormData(prev => ({ ...prev, clientId: e.target.value }))}
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>Scope</Label>
-            <Input
-              type="text"
-              value={formData.scope}
-              onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value }))}
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>UI Locales</Label>
-            <Input
-              type="text"
-              value={formData.uiLocales}
-              onChange={(e) => setFormData(prev => ({ ...prev, uiLocales: e.target.value }))}
-            />
-          </FormGroup>
-        </div>
-        
-        <FormGroup>
-          <Label>Claims (JSON)</Label>
-          <TextArea
-            value={formData.claims}
-            onChange={(e) => setFormData(prev => ({ ...prev, claims: e.target.value }))}
-            placeholder='{"userinfo": {"email": null, "phone_number": null}}'
-          />
-        </FormGroup>
-        
-        <Button $variant="primary" onClick={handleUserInfoRequest}>
-          Request UserInfo
-        </Button>
-      </FormContainer>
-    </FlowContainer>
-  );
+					<UserInfoDetails>
+						<UserInfoDetail>
+							<UserInfoLabel>User ID</UserInfoLabel>
+							<UserInfoValue>{userInfo.sub}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Name</UserInfoLabel>
+							<UserInfoValue>{userInfo.name}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Email</UserInfoLabel>
+							<UserInfoValue>{userInfo.email}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Email Verified</UserInfoLabel>
+							<UserInfoValue>{userInfo.email_verified ? 'Yes' : 'No'}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Phone</UserInfoLabel>
+							<UserInfoValue>{userInfo.phone_number || 'Not provided'}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Phone Verified</UserInfoLabel>
+							<UserInfoValue>{userInfo.phone_number_verified ? 'Yes' : 'No'}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Locale</UserInfoLabel>
+							<UserInfoValue>{userInfo.locale}</UserInfoValue>
+						</UserInfoDetail>
+						<UserInfoDetail>
+							<UserInfoLabel>Last Updated</UserInfoLabel>
+							<UserInfoValue>{new Date(userInfo.updated_at * 1000).toLocaleString()}</UserInfoValue>
+						</UserInfoDetail>
+					</UserInfoDetails>
+				</UserInfoContainer>
+			)}
+
+			{response && (
+				<ResponseContainer>
+					<h4>Response:</h4>
+					<CodeBlock>
+						<JSONHighlighter data={response} />
+					</CodeBlock>
+				</ResponseContainer>
+			)}
+
+			{error && (
+				<ErrorContainer>
+					<h4>Error:</h4>
+					<p>{error}</p>
+				</ErrorContainer>
+			)}
+
+			<FormContainer>
+				<h3>Manual UserInfo Configuration</h3>
+				<p>You can also manually configure the UserInfo POST request:</p>
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '1rem',
+						marginBottom: '1rem',
+					}}
+				>
+					<FormGroup>
+						<Label>Access Token</Label>
+						<Input
+							type="text"
+							value={formData.accessToken}
+							onChange={(e) => setFormData((prev) => ({ ...prev, accessToken: e.target.value }))}
+							placeholder="Enter access token"
+						/>
+					</FormGroup>
+
+					<FormGroup>
+						<Label>Client ID</Label>
+						<Input
+							type="text"
+							value={formData.clientId}
+							onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
+						/>
+					</FormGroup>
+
+					<FormGroup>
+						<Label>Scope</Label>
+						<Input
+							type="text"
+							value={formData.scope}
+							onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
+						/>
+					</FormGroup>
+
+					<FormGroup>
+						<Label>UI Locales</Label>
+						<Input
+							type="text"
+							value={formData.uiLocales}
+							onChange={(e) => setFormData((prev) => ({ ...prev, uiLocales: e.target.value }))}
+						/>
+					</FormGroup>
+				</div>
+
+				<FormGroup>
+					<Label>Claims (JSON)</Label>
+					<TextArea
+						value={formData.claims}
+						onChange={(e) => setFormData((prev) => ({ ...prev, claims: e.target.value }))}
+						placeholder='{"userinfo": {"email": null, "phone_number": null}}'
+					/>
+				</FormGroup>
+
+				<Button $variant="primary" onClick={handleUserInfoRequest}>
+					Request UserInfo
+				</Button>
+			</FormContainer>
+		</FlowContainer>
+	);
 };
 
 export default UserInfoPostFlow;

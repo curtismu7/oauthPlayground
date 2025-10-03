@@ -25,8 +25,8 @@ const Section = styled.div`
 
 const SectionHeader = styled.button<{ $isExpanded: boolean; $primaryColor: string }>`
 	width: 100%;
-	background: ${props => props.$isExpanded ? props.$primaryColor : '#f0fdf4'};
-	color: ${props => props.$isExpanded ? 'white' : '#166534'};
+	background: ${(props) => (props.$isExpanded ? props.$primaryColor : '#f0fdf4')};
+	color: ${(props) => (props.$isExpanded ? 'white' : '#166534')};
 	padding: 1rem 1.5rem;
 	border: none;
 	cursor: pointer;
@@ -37,7 +37,7 @@ const SectionHeader = styled.button<{ $isExpanded: boolean; $primaryColor: strin
 	transition: all 0.2s ease;
 	
 	&:hover {
-		background: ${props => props.$isExpanded ? props.$primaryColor : '#dcfce7'};
+		background: ${(props) => (props.$isExpanded ? props.$primaryColor : '#dcfce7')};
 	}
 `;
 
@@ -56,8 +56,8 @@ const ChevronIcon = styled.div`
 `;
 
 const SectionContent = styled.div<{ $isExpanded: boolean }>`
-	padding: ${props => props.$isExpanded ? '1.5rem' : '0'};
-	max-height: ${props => props.$isExpanded ? '1000px' : '0'};
+	padding: ${(props) => (props.$isExpanded ? '1.5rem' : '0')};
+	max-height: ${(props) => (props.$isExpanded ? '1000px' : '0')};
 	overflow: hidden;
 	transition: all 0.3s ease;
 	background: #fafafa;
@@ -127,11 +127,19 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 	primaryColor = '#0070cc',
 }) => {
 	const { settings } = useUISettings();
-	const _computedPrimaryColor = primaryColor || (settings.colorScheme === 'blue' ? '#0070cc' : 
-		settings.colorScheme === 'green' ? '#10b981' :
-		settings.colorScheme === 'purple' ? '#8b5cf6' :
-		settings.colorScheme === 'orange' ? '#f97316' :
-		settings.colorScheme === 'red' ? '#ef4444' : '#0070cc');
+	const _computedPrimaryColor =
+		primaryColor ||
+		(settings.colorScheme === 'blue'
+			? '#0070cc'
+			: settings.colorScheme === 'green'
+				? '#10b981'
+				: settings.colorScheme === 'purple'
+					? '#8b5cf6'
+					: settings.colorScheme === 'orange'
+						? '#f97316'
+						: settings.colorScheme === 'red'
+							? '#ef4444'
+							: '#0070cc');
 	const [isSummaryExpanded, setIsSummaryExpanded] = useState(true); // Start expanded
 
 	const handleSaveConfiguration = () => {
@@ -152,10 +160,10 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			console.log('🔄 [ConfigurationSummaryCard] Starting export...', configuration);
 
 			// Create a copy of the configuration
-			const configToExport = { 
+			const configToExport = {
 				...configuration,
 				exportedAt: new Date().toISOString(),
-				version: '1.0'
+				version: '1.0',
 			};
 
 			// Encrypt the client secret if it exists
@@ -193,7 +201,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 	const handleImportConfiguration = async () => {
 		try {
 			console.log('🔄 [ConfigurationSummaryCard] Starting import...');
-			
+
 			// Create file input element
 			const input = document.createElement('input');
 			input.type = 'file';
@@ -244,15 +252,11 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 		// Generate a random key (in production, use a more secure method)
 		const key = crypto.getRandomValues(new Uint8Array(32));
 		const iv = crypto.getRandomValues(new Uint8Array(12));
-		
+
 		// Import the key
-		const cryptoKey = await crypto.subtle.importKey(
-			'raw',
-			key,
-			{ name: 'AES-GCM' },
-			false,
-			['encrypt']
-		);
+		const cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, [
+			'encrypt',
+		]);
 
 		// Encrypt the secret
 		const encrypted = await crypto.subtle.encrypt(
@@ -274,7 +278,9 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 	const decryptSecret = async (encryptedSecret: string): Promise<string> => {
 		// Convert from base64
 		const combined = new Uint8Array(
-			atob(encryptedSecret).split('').map(c => c.charCodeAt(0))
+			atob(encryptedSecret)
+				.split('')
+				.map((c) => c.charCodeAt(0))
 		);
 
 		// Extract key, iv, and encrypted data
@@ -283,24 +289,15 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 		const encrypted = combined.slice(44);
 
 		// Import the key
-		const cryptoKey = await crypto.subtle.importKey(
-			'raw',
-			key,
-			{ name: 'AES-GCM' },
-			false,
-			['decrypt']
-		);
+		const cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'AES-GCM' }, false, [
+			'decrypt',
+		]);
 
 		// Decrypt the secret
-		const decrypted = await crypto.subtle.decrypt(
-			{ name: 'AES-GCM', iv },
-			cryptoKey,
-			encrypted
-		);
+		const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, cryptoKey, encrypted);
 
 		return new TextDecoder().decode(decrypted);
 	};
-
 
 	return (
 		<Card>
@@ -321,63 +318,126 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 				<SectionContent $isExpanded={isSummaryExpanded}>
 					{(hasConfiguration && configurationDetails) || configuration ? (
 						<div>
-							<div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '0.75rem 1rem', marginBottom: '1rem' }}>
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: 'auto 1fr',
+									gap: '0.75rem 1rem',
+									marginBottom: '1rem',
+								}}
+							>
 								<div style={{ fontWeight: '600', color: '#374151' }}>Environment ID:</div>
-								<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-									{(configuration?.environmentId || configurationDetails?.environmentId) || 'Not set'}
+								<div
+									style={{
+										fontFamily: 'monospace',
+										background: '#f1f5f9',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+									}}
+								>
+									{configuration?.environmentId || configurationDetails?.environmentId || 'Not set'}
 								</div>
-								
+
 								<div style={{ fontWeight: '600', color: '#374151' }}>Client ID:</div>
-								<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-									{(configuration?.clientId || configurationDetails?.clientId) || 'Not set'}
+								<div
+									style={{
+										fontFamily: 'monospace',
+										background: '#f1f5f9',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+									}}
+								>
+									{configuration?.clientId || configurationDetails?.clientId || 'Not set'}
 								</div>
-								
+
 								{(configuration?.redirectUri || configurationDetails?.redirectUri) && (
 									<>
 										<div style={{ fontWeight: '600', color: '#374151' }}>Redirect URI:</div>
-										<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px', wordBreak: 'break-all' }}>
-											{(configuration?.redirectUri || configurationDetails?.redirectUri) || 'Not set'}
+										<div
+											style={{
+												fontFamily: 'monospace',
+												background: '#f1f5f9',
+												padding: '0.25rem 0.5rem',
+												borderRadius: '4px',
+												wordBreak: 'break-all',
+											}}
+										>
+											{configuration?.redirectUri || configurationDetails?.redirectUri || 'Not set'}
 										</div>
 									</>
 								)}
-								
-								{((configuration?.scopes && typeof configuration.scopes === 'string') || (configurationDetails?.scopes && Array.isArray(configurationDetails.scopes) && configurationDetails.scopes.length > 0)) && (
+
+								{((configuration?.scopes && typeof configuration.scopes === 'string') ||
+									(configurationDetails?.scopes &&
+										Array.isArray(configurationDetails.scopes) &&
+										configurationDetails.scopes.length > 0)) && (
 									<>
 										<div style={{ fontWeight: '600', color: '#374151' }}>Scopes:</div>
-										<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
-											{configuration?.scopes || (configurationDetails?.scopes ? configurationDetails.scopes.join(', ') : '')}
+										<div
+											style={{
+												fontFamily: 'monospace',
+												background: '#f1f5f9',
+												padding: '0.25rem 0.5rem',
+												borderRadius: '4px',
+											}}
+										>
+											{configuration?.scopes ||
+												(configurationDetails?.scopes
+													? configurationDetails.scopes.join(', ')
+													: '')}
 										</div>
 									</>
 								)}
-								
+
 								{(configuration?.loginHint || configurationDetails?.loginHint) && (
 									<>
 										<div style={{ fontWeight: '600', color: '#374151' }}>Login Hint:</div>
-										<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+										<div
+											style={{
+												fontFamily: 'monospace',
+												background: '#f1f5f9',
+												padding: '0.25rem 0.5rem',
+												borderRadius: '4px',
+											}}
+										>
 											{configuration?.loginHint || configurationDetails?.loginHint}
 										</div>
 									</>
 								)}
-								
+
 								{(configuration?.responseType || configurationDetails?.responseType) && (
 									<>
 										<div style={{ fontWeight: '600', color: '#374151' }}>Response Type:</div>
-										<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+										<div
+											style={{
+												fontFamily: 'monospace',
+												background: '#f1f5f9',
+												padding: '0.25rem 0.5rem',
+												borderRadius: '4px',
+											}}
+										>
 											{configuration?.responseType || configurationDetails?.responseType}
 										</div>
 									</>
 								)}
-								
+
 								{(configuration?.grantType || configurationDetails?.grantType) && (
 									<>
 										<div style={{ fontWeight: '600', color: '#374151' }}>Grant Type:</div>
-										<div style={{ fontFamily: 'monospace', background: '#f1f5f9', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>
+										<div
+											style={{
+												fontFamily: 'monospace',
+												background: '#f1f5f9',
+												padding: '0.25rem 0.5rem',
+												borderRadius: '4px',
+											}}
+										>
 											{configuration?.grantType || configurationDetails?.grantType}
 										</div>
 									</>
 								)}
 							</div>
-							
+
 							<div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
 								<button
 									onClick={handleSaveConfiguration}
@@ -389,7 +449,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 										borderRadius: '6px',
 										cursor: 'pointer',
 										fontWeight: '500',
-										fontSize: '0.9rem'
+										fontSize: '0.9rem',
 									}}
 								>
 									Save Configuration
@@ -404,7 +464,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 										borderRadius: '6px',
 										cursor: 'pointer',
 										fontWeight: '500',
-										fontSize: '0.9rem'
+										fontSize: '0.9rem',
 									}}
 								>
 									Export Configuration
@@ -419,7 +479,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 										borderRadius: '6px',
 										cursor: 'pointer',
 										fontWeight: '500',
-										fontSize: '0.9rem'
+										fontSize: '0.9rem',
 									}}
 								>
 									Import Configuration
@@ -433,7 +493,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 					)}
 				</SectionContent>
 			</Section>
-			
+
 			<StatusSection>
 				<StatusTitle>
 					<FiCheckCircle size={18} />
@@ -442,9 +502,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 				<StatusText>
 					Save your PingOne credentials so they auto-populate in subsequent steps.
 				</StatusText>
-				<StatusText>
-					Save your configuration above to persist it for future sessions.
-				</StatusText>
+				<StatusText>Save your configuration above to persist it for future sessions.</StatusText>
 			</StatusSection>
 		</Card>
 	);

@@ -10,9 +10,9 @@ import { config } from '../services/config';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
-  __PINGONE_ENVIRONMENT_ID__?: string;
-  __PINGONE_API_URL__?: string;
-  __PINGONE_CLIENT_ID__?: string;
+	__PINGONE_ENVIRONMENT_ID__?: string;
+	__PINGONE_API_URL__?: string;
+	__PINGONE_CLIENT_ID__?: string;
 }
 
 // Base styled components that are reused across flows
@@ -149,147 +149,147 @@ export const InfoHighlight = styled.div`
 
 // Base OAuth Flow Props Interface
 export interface BaseOAuthFlowProps {
-  title: string;
-  description: string;
-  flowType: string;
-  children: ReactNode;
-  securityWarning?: {
-    title: string;
-    message: string;
-  };
-  useCaseHighlight?: {
-    title: string;
-    message: string;
-  };
-  infoHighlight?: {
-    title: string;
-    message: string;
-  };
-  showCredentials?: boolean;
-  className?: string;
+	title: string;
+	description: string;
+	flowType: string;
+	children: ReactNode;
+	securityWarning?: {
+		title: string;
+		message: string;
+	};
+	useCaseHighlight?: {
+		title: string;
+		message: string;
+	};
+	infoHighlight?: {
+		title: string;
+		message: string;
+	};
+	showCredentials?: boolean;
+	className?: string;
 }
 
 // Base OAuth Flow Component
 export const BaseOAuthFlow: React.FC<BaseOAuthFlowProps> = ({
-  title,
-  description,
-  flowType,
-  children,
-  securityWarning,
-  useCaseHighlight,
-  infoHighlight,
-  showCredentials = true,
-  className
+	title,
+	description,
+	flowType,
+	children,
+	securityWarning,
+	useCaseHighlight,
+	infoHighlight,
+	showCredentials = true,
+	className,
 }) => {
-  const { user, isAuthenticated } = useAuth();
-  useEffect(() => {
-    logger.info(`[${flowType}] Flow component mounted`);
-    
-    // Log flow access
-    if (isAuthenticated && user) {
-      logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
-    }
-  }, [flowType, isAuthenticated, user]);
+	const { user, isAuthenticated } = useAuth();
+	useEffect(() => {
+		logger.info(`[${flowType}] Flow component mounted`);
 
-  return (
-    <Container className={className}>
-      <PageTitle title={title} />
-      
-      <FlowOverview>
-        <CardHeader>
-          <h1>{title}</h1>
-        </CardHeader>
-        <CardBody>
-          <FlowDescription>
-            <h2>Flow Overview</h2>
-            <p>{description}</p>
-          </FlowDescription>
+		// Log flow access
+		if (isAuthenticated && user) {
+			logger.info(`[${flowType}] User ${user.email} accessed ${flowType} flow`);
+		}
+	}, [flowType, isAuthenticated, user]);
 
-          {securityWarning && (
-            <SecurityWarning>
-              <FiAlertCircle className="icon" size={20} />
-              <div className="content">
-                <h3>{securityWarning.title}</h3>
-                <p>{securityWarning.message}</p>
-              </div>
-            </SecurityWarning>
-          )}
+	return (
+		<Container className={className}>
+			<PageTitle title={title} />
 
-          {useCaseHighlight && (
-            <UseCaseHighlight>
-              <FiCheckCircle className="icon" size={20} />
-              <div className="content">
-                <h3>{useCaseHighlight.title}</h3>
-                <p>{useCaseHighlight.message}</p>
-              </div>
-            </UseCaseHighlight>
-          )}
+			<FlowOverview>
+				<CardHeader>
+					<h1>{title}</h1>
+				</CardHeader>
+				<CardBody>
+					<FlowDescription>
+						<h2>Flow Overview</h2>
+						<p>{description}</p>
+					</FlowDescription>
 
-          {infoHighlight && (
-            <InfoHighlight>
-              <FiInfo className="icon" size={20} />
-              <div className="content">
-                <h3>{infoHighlight.title}</h3>
-                <p>{infoHighlight.message}</p>
-              </div>
-            </InfoHighlight>
-          )}
+					{securityWarning && (
+						<SecurityWarning>
+							<FiAlertCircle className="icon" size={20} />
+							<div className="content">
+								<h3>{securityWarning.title}</h3>
+								<p>{securityWarning.message}</p>
+							</div>
+						</SecurityWarning>
+					)}
 
-          {showCredentials && <FlowCredentials />}
-        </CardBody>
-      </FlowOverview>
+					{useCaseHighlight && (
+						<UseCaseHighlight>
+							<FiCheckCircle className="icon" size={20} />
+							<div className="content">
+								<h3>{useCaseHighlight.title}</h3>
+								<p>{useCaseHighlight.message}</p>
+							</div>
+						</UseCaseHighlight>
+					)}
 
-      {children}
-    </Container>
-  );
+					{infoHighlight && (
+						<InfoHighlight>
+							<FiInfo className="icon" size={20} />
+							<div className="content">
+								<h3>{infoHighlight.title}</h3>
+								<p>{infoHighlight.message}</p>
+							</div>
+						</InfoHighlight>
+					)}
+
+					{showCredentials && <FlowCredentials />}
+				</CardBody>
+			</FlowOverview>
+
+			{children}
+		</Container>
+	);
 };
 
 // Hook for common OAuth flow logic
 export const useOAuthFlowBase = (flowType: string) => {
-  const { user, isAuthenticated } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const { user, isAuthenticated } = useAuth();
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const handleError = (error: Error, context: string) => {
-    logger.error(`[${flowType}] ${context}:`, error);
-    setError(error.message);
-    setIsLoading(false);
-  };
+	const handleError = (error: Error, context: string) => {
+		logger.error(`[${flowType}] ${context}:`, error);
+		setError(error.message);
+		setIsLoading(false);
+	};
 
-  const clearError = () => {
-    setError(null);
-  };
+	const clearError = () => {
+		setError(null);
+	};
 
-  const startLoading = () => {
-    setIsLoading(true);
-    clearError();
-  };
+	const startLoading = () => {
+		setIsLoading(true);
+		clearError();
+	};
 
-  const stopLoading = () => {
-    setIsLoading(false);
-  };
+	const stopLoading = () => {
+		setIsLoading(false);
+	};
 
-  return {
-    user,
-    isAuthenticated,
-    isLoading,
-    error,
-    handleError,
-    clearError,
-    startLoading,
-    stopLoading
-  };
+	return {
+		user,
+		isAuthenticated,
+		isLoading,
+		error,
+		handleError,
+		clearError,
+		startLoading,
+		stopLoading,
+	};
 };
 
 // Utility function to get PingOne environment variables
 export const getPingOneEnvVars = () => {
-  const windowWithPingOne = window as WindowWithPingOne;
-  
-  return {
-    environmentId: windowWithPingOne.__PINGONE_ENVIRONMENT_ID__ || config.pingone.environmentId,
-    apiUrl: windowWithPingOne.__PINGONE_API_URL__ || config.pingone.apiUrl,
-    clientId: windowWithPingOne.__PINGONE_CLIENT_ID__ || config.pingone.clientId
-  };
+	const windowWithPingOne = window as WindowWithPingOne;
+
+	return {
+		environmentId: windowWithPingOne.__PINGONE_ENVIRONMENT_ID__ || config.pingone.environmentId,
+		apiUrl: windowWithPingOne.__PINGONE_API_URL__ || config.pingone.apiUrl,
+		clientId: windowWithPingOne.__PINGONE_CLIENT_ID__ || config.pingone.clientId,
+	};
 };
 
 export default BaseOAuthFlow;
