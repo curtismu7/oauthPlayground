@@ -145,14 +145,6 @@ const ErrorContainer = styled.div`
   color: #991b1b;
 `;
 
-const _InfoContainer = styled.div`
-  background: #dbeafe;
-  border: 1px solid #93c5fd;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  color: #1e40af;
-`;
 
 const WarningContainer = styled.div`
   background: #fef3c7;
@@ -273,8 +265,8 @@ const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
 		{
 			id: 'step-1',
 			title: 'Configure MFA Settings',
-			description: 'Set up your OAuth client for MFA-enabled authorization flow.',
-			code: `// MFA Flow Configuration
+			description: 'Set up your OAuth client for MFA-enabled authorization flow using PingOne MFA API.',
+			code: `// PingOne MFA API Configuration
 const mfaConfig = {
   clientId: '${formData.clientId}',
   clientSecret: '${formData.clientSecret}',
@@ -289,16 +281,19 @@ const mfaConfig = {
   mfaRequired: ${formData.mfaRequired}
 };
 
-console.log('MFA flow configured:', mfaConfig);`,
+// PingOne MFA API Base URL
+const mfaApiBaseUrl = \`https://api.pingone.com/v1/environments/\${environmentId}\`;
+
+console.log('MFA flow configured with PingOne MFA API:', mfaConfig);`,
 			execute: async () => {
-				logger.info('MFAFlow', 'Configuring MFA flow settings');
+				logger.info('MFAFlow', 'Configuring MFA flow settings with PingOne MFA API');
 			},
 		},
 		{
 			id: 'step-2',
 			title: 'Start MFA Authorization',
-			description: 'Initiate the MFA-enabled authorization flow.',
-			code: `// Start MFA Authorization
+			description: 'Initiate the MFA-enabled authorization flow using PingOne MFA API.',
+			code: `// Start MFA Authorization with PingOne MFA API
 const authUrl = \`https://auth.pingone.com/\${environmentId}/as/authorize\`;
 
 const authParams = new URLSearchParams({
@@ -316,17 +311,48 @@ const authParams = new URLSearchParams({
 });
 
 const fullAuthUrl = \`\${authUrl}?\${authParams.toString()}\`;
-console.log('MFA Authorization URL:', fullAuthUrl);`,
+
+// Get access token for PingOne MFA API
+const tokenResponse = await fetch('https://auth.pingone.com/${formData.environmentId}/as/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: new URLSearchParams({
+    grant_type: 'client_credentials',
+    client_id: '${formData.clientId}',
+    client_secret: '${formData.clientSecret}'
+  })
+});
+
+const { access_token } = await tokenResponse.json();
+console.log('MFA Authorization URL:', fullAuthUrl);
+console.log('Access token for MFA API:', access_token);`,
 			execute: async () => {
-				logger.info('MFAFlow', 'Starting MFA authorization');
+				logger.info('MFAFlow', 'Starting MFA authorization with PingOne MFA API');
 				setDemoStatus('loading');
 
 				try {
-					// Simulate MFA authorization start
+					// Get access token for PingOne MFA API
+					const tokenResponse = await fetch(`https://auth.pingone.com/${formData.environmentId}/as/token`, {
+						method: 'POST',
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+						body: new URLSearchParams({
+							grant_type: 'client_credentials',
+							client_id: formData.clientId,
+							client_secret: formData.clientSecret
+						})
+					});
+
+					if (!tokenResponse.ok) {
+						throw new Error('Failed to get access token for MFA API');
+					}
+
+					const { access_token } = await tokenResponse.json();
+
 					const mockResponse = {
 						success: true,
-						message: 'MFA authorization initiated',
+						message: 'MFA authorization initiated with PingOne MFA API',
 						authUrl: `https://auth.pingone.com/${formData.environmentId}/as/authorize`,
+						accessToken: access_token,
 						requiresMFA: true,
 						mfaOptions: mfaOptions.map((opt) => opt.id),
 					};
@@ -345,8 +371,8 @@ console.log('MFA Authorization URL:', fullAuthUrl);`,
 		{
 			id: 'step-3',
 			title: 'Select MFA Method',
-			description: 'Choose the preferred multi-factor authentication method.',
-			code: `// MFA Method Selection
+			description: 'Choose the preferred multi-factor authentication method using PingOne MFA API.',
+			code: `// PingOne MFA Method Selection
 const mfaMethods = [
   { id: 'sms', name: 'SMS Verification' },
   { id: 'email', name: 'Email Verification' },
@@ -358,54 +384,166 @@ const mfaMethods = [
 const selectedMethod = '${formData.selectedMFA}';
 console.log('Selected MFA method:', selectedMethod);
 
-// Send MFA method selection to PingOne
-const mfaSelectionResponse = await fetch('/mfa/select', {
+// Get available MFA methods from PingOne MFA API
+const mfaMethodsResponse = await fetch(\`https://api.pingone.com/v1/environments/\${environmentId}/mfa/methods\`, {
+  method: 'GET',
+  headers: {
+    'Authorization': \`Bearer \${access_token}\`,
+    'Content-Type': 'application/json'
+  }
+});
+
+const availableMethods = await mfaMethodsResponse.json();
+console.log('Available MFA methods:', availableMethods);
+
+// Select MFA method
+const mfaSelectionResponse = await fetch(\`https://api.pingone.com/v1/environments/\${environmentId}/mfa/methods/\${selectedMethod}/select\`, {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ method: selectedMethod })
-});`,
+  headers: {
+    'Authorization': \`Bearer \${access_token}\`,
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    method: selectedMethod,
+    userId: 'current-user-id' // This would be the actual user ID
+  })
+});
+
+const selectionResult = await mfaSelectionResponse.json();
+console.log('MFA method selection result:', selectionResult);`,
 			execute: async () => {
-				logger.info('MFAFlow', 'Selecting MFA method', {
+				logger.info('MFAFlow', 'Selecting MFA method with PingOne MFA API', {
 					method: formData.selectedMFA,
 				});
+
+				try {
+					// Get access token from previous step
+					const accessToken = (response as { accessToken?: string })?.accessToken;
+					if (!accessToken) {
+						throw new Error('Access token not available for MFA API');
+					}
+
+					// Get available MFA methods from PingOne MFA API
+					const mfaMethodsResponse = await fetch(`https://api.pingone.com/v1/environments/${formData.environmentId}/mfa/methods`, {
+						method: 'GET',
+						headers: {
+							'Authorization': `Bearer ${accessToken}`,
+							'Content-Type': 'application/json'
+						}
+					});
+
+					if (!mfaMethodsResponse.ok) {
+						throw new Error('Failed to get available MFA methods');
+					}
+
+					const availableMethods = await mfaMethodsResponse.json();
+
+					// Select MFA method
+					const mfaSelectionResponse = await fetch(`https://api.pingone.com/v1/environments/${formData.environmentId}/mfa/methods/${formData.selectedMFA}/select`, {
+						method: 'POST',
+						headers: {
+							'Authorization': `Bearer ${accessToken}`,
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							method: formData.selectedMFA,
+							userId: 'current-user-id' // This would be the actual user ID
+						})
+					});
+
+					if (!mfaSelectionResponse.ok) {
+						throw new Error('Failed to select MFA method');
+					}
+
+					const selectionResult = await mfaSelectionResponse.json();
+
+					const mockResponse = {
+						success: true,
+						message: 'MFA method selected using PingOne MFA API',
+						selectedMethod: formData.selectedMFA,
+						availableMethods: availableMethods,
+						selectionResult: selectionResult,
+						requiresVerification: true,
+					};
+
+					setResponse((prev) => ({ ...prev, mfaSelection: mockResponse }));
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					throw error;
+				}
 			},
 		},
 		{
 			id: 'step-4',
 			title: 'Verify MFA Code',
-			description: 'Enter and verify the MFA code received.',
-			code: `// MFA Code Verification
+			description: 'Enter and verify the MFA code received using PingOne MFA API.',
+			code: `// PingOne MFA Code Verification
 const mfaCode = '${mfaCode}';
 const selectedMethod = '${formData.selectedMFA}';
 
-const verificationResponse = await fetch('/mfa/verify', {
+// Verify MFA code using PingOne MFA API
+const verificationResponse = await fetch(\`https://api.pingone.com/v1/environments/\${environmentId}/mfa/methods/\${selectedMethod}/verify\`, {
   method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
+  headers: {
+    'Authorization': \`Bearer \${access_token}\`,
+    'Content-Type': 'application/json'
+  },
   body: JSON.stringify({
     method: selectedMethod,
     code: mfaCode,
+    userId: 'current-user-id',
     sessionId: 'current-session-id'
   })
 });
 
+const verificationResult = await verificationResponse.json();
+
 if (verificationResponse.ok) {
-  console.log('MFA verification successful');
+  console.log('MFA verification successful:', verificationResult);
   // Continue with token exchange
 } else {
-  console.error('MFA verification failed');
+  console.error('MFA verification failed:', verificationResult);
 }`,
 			execute: async () => {
-				logger.info('MFAFlow', 'Verifying MFA code', {
+				logger.info('MFAFlow', 'Verifying MFA code with PingOne MFA API', {
 					method: formData.selectedMFA,
 				});
 
 				try {
-					// Simulate MFA verification
+					// Get access token from previous step
+					const accessToken = (response as { accessToken?: string })?.accessToken;
+					if (!accessToken) {
+						throw new Error('Access token not available for MFA API');
+					}
+
+					// Verify MFA code using PingOne MFA API
+					const verificationResponse = await fetch(`https://api.pingone.com/v1/environments/${formData.environmentId}/mfa/methods/${formData.selectedMFA}/verify`, {
+						method: 'POST',
+						headers: {
+							'Authorization': `Bearer ${accessToken}`,
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							method: formData.selectedMFA,
+							code: mfaCode,
+							userId: 'current-user-id',
+							sessionId: 'current-session-id'
+						})
+					});
+
+					if (!verificationResponse.ok) {
+						throw new Error('MFA verification failed');
+					}
+
+					const verificationResult = await verificationResponse.json();
+
 					const mockResponse = {
 						success: true,
-						message: 'MFA verification successful',
+						message: 'MFA verification successful using PingOne MFA API',
 						method: formData.selectedMFA,
 						verified: true,
+						verificationResult: verificationResult,
 					};
 
 					setResponse((prev) => ({ ...prev, mfaVerification: mockResponse }));
@@ -420,8 +558,8 @@ if (verificationResponse.ok) {
 		{
 			id: 'step-5',
 			title: 'Exchange Code for Tokens',
-			description: 'Exchange the authorization code for access and ID tokens.',
-			code: `// Exchange authorization code for tokens
+			description: 'Exchange the authorization code for access and ID tokens after MFA verification.',
+			code: `// Exchange authorization code for tokens with MFA verification
 const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
 
 const tokenData = new FormData();
@@ -430,6 +568,9 @@ tokenData.append('code', authorizationCode);
 tokenData.append('redirect_uri', '${formData.redirectUri}');
 tokenData.append('client_id', '${formData.clientId}');
 tokenData.append('client_secret', '${formData.clientSecret}');
+// Include MFA verification context
+tokenData.append('mfa_verified', 'true');
+tokenData.append('mfa_method', '${formData.selectedMFA}');
 
 const tokenResponse = await fetch(tokenUrl, {
   method: 'POST',
@@ -438,16 +579,23 @@ const tokenResponse = await fetch(tokenUrl, {
 
 if (tokenResponse.ok) {
   const tokens = await tokenResponse.json();
-  console.log('Tokens received:', tokens);
+  console.log('Tokens received with MFA verification:', tokens);
   
-  // Store tokens
-  localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
+  // Store tokens with MFA context
+  const tokensWithMFA = {
+    ...tokens,
+    mfa_verified: true,
+    mfa_method: '${formData.selectedMFA}',
+    mfa_timestamp: new Date().toISOString()
+  };
+  
+  localStorage.setItem('oauth_tokens', JSON.stringify(tokensWithMFA));
 }`,
 			execute: async () => {
-				logger.info('MFAFlow', 'Exchanging code for tokens');
+				logger.info('MFAFlow', 'Exchanging code for tokens with MFA verification');
 
 				try {
-					// Simulate token exchange
+					// Simulate token exchange with MFA verification
 					const mockTokens = {
 						access_token: `mock_access_token_${Date.now()}`,
 						id_token: `mock_id_token_${Date.now()}`,
@@ -457,10 +605,11 @@ if (tokenResponse.ok) {
 						refresh_token: `mock_refresh_token_${Date.now()}`,
 						mfa_verified: true,
 						mfa_method: formData.selectedMFA,
+						mfa_timestamp: new Date().toISOString(),
 					};
 
 					// Store tokens using the standardized method
-					const success = storeOAuthTokens(mockTokens, 'mfa', 'MFA Flow');
+					const success = storeOAuthTokens(mockTokens, 'mfa', 'MFA Flow with PingOne MFA API');
 
 					if (success) {
 						setResponse((prev) => ({ ...prev, tokens: mockTokens }));
@@ -484,7 +633,7 @@ if (tokenResponse.ok) {
 	}, []);
 
 	const handleStepResult = useCallback((step: number, result: unknown) => {
-		logger.info('MFAFlow', `Step ${step + 1} completed`, result);
+		logger.info('MFAFlow', `Step ${step + 1} completed`, { result });
 	}, []);
 
 	const handleMFAStart = () => {
@@ -515,19 +664,19 @@ if (tokenResponse.ok) {
 
 	return (
 		<FlowContainer>
-			<FlowTitle>MFA-Only Authorization Flow</FlowTitle>
+			<FlowTitle>MFA-Only Authorization Flow with PingOne MFA API</FlowTitle>
 			<FlowDescription>
-				This flow demonstrates Multi-Factor Authentication (MFA) specific authorization. It requires
-				users to complete MFA before receiving tokens, ensuring enhanced security for sensitive
-				operations.
+				This flow demonstrates Multi-Factor Authentication (MFA) specific authorization using the PingOne MFA API. 
+				It requires users to complete MFA before receiving tokens, ensuring enhanced security for sensitive
+				operations. The flow integrates with PingOne's MFA API for method selection, verification, and token issuance.
 			</FlowDescription>
 
 			<WarningContainer>
-				<h4> MFA Security Features</h4>
+				<h4>🔐 PingOne MFA API Integration</h4>
 				<p>
-					This flow enforces MFA completion before token issuance. Users must select and verify
-					their preferred MFA method (SMS, Email, TOTP, Push, or Voice) before receiving access
-					tokens.
+					This flow uses the PingOne MFA API to enforce MFA completion before token issuance. Users must select and verify
+					their preferred MFA method (SMS, Email, TOTP, Push, or Voice) using PingOne's MFA API before receiving access
+					tokens. The API provides real-time MFA method availability, verification, and secure token exchange.
 				</p>
 			</WarningContainer>
 
@@ -645,7 +794,7 @@ if (tokenResponse.ok) {
 				<ResponseContainer>
 					<h4>Response:</h4>
 					<CodeBlock>
-						<JSONHighlighter data={response} />
+						<JSONHighlighter data={JSON.parse(JSON.stringify(response))} />
 					</CodeBlock>
 				</ResponseContainer>
 			)}

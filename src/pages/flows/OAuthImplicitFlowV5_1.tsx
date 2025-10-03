@@ -304,9 +304,9 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 						loginHint: parsedConfig.loginHint || '',
 					});
 						console.log('Configuration loaded from localStorage');
-						v4ToastManager.showSuccess('Configuration loaded from saved settings');
+						v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 					} else {
-						v4ToastManager.showError('No saved configuration found');
+						v4ToastManager.showError('No saved configuration found.');
 					}
 				} catch (error) {
 					console.error('Failed to load configuration:', error);
@@ -326,7 +326,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 				loginHint: config.loginHint || '',
 			});
 				console.log('Configuration loaded from provided config');
-				v4ToastManager.showSuccess('Configuration loaded from provided settings');
+				v4ToastManager.showSuccess('Configuration loaded from provided settings.');
 			}
 		},
 		[controller]
@@ -372,7 +372,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 
 		try {
 			// Token validation would be implemented here
-			v4ToastManager.showSuccess('Token validation would be implemented here');
+			v4ToastManager.showSuccess('Token validation would be implemented here.');
 		} catch (error) {
 			console.error('[OAuthImplicitFlowV5_1] Token validation failed:', error);
 			v4ToastManager.showError(
@@ -389,7 +389,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 
 		try {
 			// User info fetching would be implemented here
-			v4ToastManager.showSuccess('User info fetching would be implemented here');
+			v4ToastManager.showSuccess('User info fetching would be implemented here.');
 		} catch (error) {
 			console.error('[OAuthImplicitFlowV5_1] User info fetching failed:', error);
 			v4ToastManager.showError(

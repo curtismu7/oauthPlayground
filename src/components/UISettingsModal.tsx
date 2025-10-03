@@ -375,14 +375,12 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 
 						<SettingRow>
 							<SettingLabel>
-								<SettingName>Show Request/Response Details</SettingName>
-								<SettingDescription>Display detailed HTTP information</SettingDescription>
+								<SettingName>Show API Call Examples</SettingName>
+								<SettingDescription>Display curl commands and API usage examples in OAuth flows</SettingDescription>
 							</SettingLabel>
 							<Toggle
-								$active={settings.showRequestResponseDetails}
-								onClick={() =>
-									updateSetting('showRequestResponseDetails', !settings.showRequestResponseDetails)
-								}
+								$active={settings.showApiCallExamples}
+								onClick={() => updateSetting('showApiCallExamples', !settings.showApiCallExamples)}
 							/>
 						</SettingRow>
 					</Section>

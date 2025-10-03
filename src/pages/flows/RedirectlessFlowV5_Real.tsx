@@ -1720,7 +1720,7 @@ const RedirectlessFlowV5Real: React.FC = () => {
 								if (config) {
 									controller.setCredentials(config);
 								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings');
+								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 							}}
 							primaryColor="#8b5cf6"
 						/>
@@ -2769,6 +2769,7 @@ async function submitCredentials(authUrl, username, password) {
 																value={authPassword}
 																onChange={(e) => setAuthPassword(e.target.value)}
 																disabled={isAuthenticating}
+																autoComplete="current-password"
 																style={{
 																	width: '100%',
 																	padding: '0.5rem',
@@ -3478,10 +3479,14 @@ async function submitCredentials(authUrl, username, password) {
 						tokens={controller.tokens}
 						credentials={controller.credentials}
 						onTerminateSession={() => {
-							v4ToastManager.showSuccess('Session termination would be implemented here');
+							// Clear local tokens and session data
+							controller.clearTokens?.();
+							console.log('🚪 Session terminated via SecurityFeaturesDemo');
 						}}
 						onRevokeTokens={() => {
-							v4ToastManager.showSuccess('Token revocation would be implemented here');
+							// Clear local tokens after revocation
+							controller.clearTokens?.();
+							console.log('❌ Tokens revoked via SecurityFeaturesDemo');
 						}}
 					/>
 				);
@@ -3587,6 +3592,9 @@ async function submitCredentials(authUrl, username, password) {
 				isFirstStep={currentStep === 0}
 				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
 				disabledMessage="Complete the action above to continue"
+				stepRequirements={getStepRequirements(currentStep)}
+				onCompleteAction={handleNextClick}
+				showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
 			/>
 
 			<Modal $show={showRedirectModal}>

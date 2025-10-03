@@ -21,6 +21,7 @@ export interface UISettings {
 	hideCompletedFlows: boolean;
 	quickActionsVisibility: boolean;
 	showPollingPrompt: boolean; // Device Authorization Code flow polling prompt
+	showApiCallExamples: boolean; // Show API call examples in OAuth flows
 }
 
 const DEFAULT_UI_SETTINGS: UISettings = {
@@ -44,6 +45,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
 	hideCompletedFlows: false,
 	quickActionsVisibility: true,
 	showPollingPrompt: true, // Show polling prompt modal by default
+	showApiCallExamples: true, // Show API call examples by default
 };
 
 interface UISettingsContextType {

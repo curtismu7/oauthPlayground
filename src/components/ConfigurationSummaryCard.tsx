@@ -116,6 +116,7 @@ interface ConfigurationSummaryCardProps {
 	// biome-ignore lint/suspicious/noExplicitAny: Configuration can be various credential types
 	onLoadConfiguration?: (config?: any) => void;
 	primaryColor?: string;
+	flowType?: string;
 }
 
 const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
@@ -125,6 +126,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 	onSaveConfiguration,
 	onLoadConfiguration,
 	primaryColor = '#0070cc',
+	flowType,
 }) => {
 	const { settings } = useUISettings();
 	const _computedPrimaryColor =
@@ -183,7 +185,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 			const url = URL.createObjectURL(blob);
 			const link = document.createElement('a');
 			link.href = url;
-			link.download = `oauth-config-${new Date().toISOString().split('T')[0]}.json`;
+			link.download = `${flowType ? `${flowType}-` : ''}oauth-config-${new Date().toISOString().split('T')[0]}.json`;
 			link.style.display = 'none';
 			document.body.appendChild(link);
 			link.click();
