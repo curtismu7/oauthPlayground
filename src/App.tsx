@@ -90,6 +90,7 @@ import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
 
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
+import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
 import TokenManagement from './pages/TokenManagement';
 import URLDecoder from './pages/URLDecoder';
@@ -376,6 +377,7 @@ const AppRoutes = () => {
 							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
+							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
