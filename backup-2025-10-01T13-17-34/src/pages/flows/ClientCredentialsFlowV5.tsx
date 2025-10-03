@@ -19,14 +19,8 @@ import {
 import styled from 'styled-components';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
-import {
-	ResultsHeading,
-	ResultsSection,
-} from '../../components/ResultsPanel';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { useClientCredentialsFlow, ClientAuthMethod } from '../../hooks/useClientCredentialsFlow';
 
@@ -380,7 +374,7 @@ const ParameterValue = styled.div`
 
 const ClientCredentialsFlowV5: React.FC = () => {
 	const clientCredsFlow = useClientCredentialsFlow();
-	
+
 	// Local form state
 	const [formData, setFormData] = useState({
 		issuer: clientCredsFlow.config?.issuer || '',
@@ -572,8 +566,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									<FiAlertCircle size={20} />
 									<div>
 										<InfoText>
-											<strong>Note:</strong> JWT assertion generation requires backend implementation
-											for proper cryptographic signing. This demo uses placeholder signatures.
+											<strong>Note:</strong> JWT assertion generation requires backend
+											implementation for proper cryptographic signing. This demo uses placeholder
+											signatures.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -651,9 +646,10 @@ const ClientCredentialsFlowV5: React.FC = () => {
 							<FiServer /> Client Credentials Flow Overview
 						</ExplanationHeading>
 						<InfoText>
-							The Client Credentials flow is used for <strong>server-to-server</strong> (machine-to-machine)
-							authentication where no user is involved. The client authenticates directly with the
-							authorization server using its credentials to obtain an access token.
+							The Client Credentials flow is used for <strong>server-to-server</strong>{' '}
+							(machine-to-machine) authentication where no user is involved. The client
+							authenticates directly with the authorization server using its credentials to obtain
+							an access token.
 						</InfoText>
 					</ExplanationSection>
 
@@ -663,10 +659,18 @@ const ClientCredentialsFlowV5: React.FC = () => {
 							<InfoTitle>When to Use This Flow</InfoTitle>
 							<InfoText>
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-									<li><strong>Backend Services</strong>: API-to-API communication</li>
-									<li><strong>Batch Jobs</strong>: Scheduled tasks and cron jobs</li>
-									<li><strong>Microservices</strong>: Service-to-service calls</li>
-									<li><strong>IoT Devices</strong>: Trusted device authentication</li>
+									<li>
+										<strong>Backend Services</strong>: API-to-API communication
+									</li>
+									<li>
+										<strong>Batch Jobs</strong>: Scheduled tasks and cron jobs
+									</li>
+									<li>
+										<strong>Microservices</strong>: Service-to-service calls
+									</li>
+									<li>
+										<strong>IoT Devices</strong>: Trusted device authentication
+									</li>
 								</ul>
 							</InfoText>
 						</div>
@@ -690,7 +694,9 @@ const ClientCredentialsFlowV5: React.FC = () => {
 							<InfoTitle>Security Best Practices</InfoTitle>
 							<InfoText>
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-									<li>Prefer <code>private_key_jwt</code> over client secrets</li>
+									<li>
+										Prefer <code>private_key_jwt</code> over client secrets
+									</li>
 									<li>Use mTLS when available for highest security</li>
 									<li>Never log or expose client secrets or tokens</li>
 									<li>Rotate credentials regularly</li>
@@ -707,24 +713,27 @@ const ClientCredentialsFlowV5: React.FC = () => {
 							<InfoText>
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
 									<li>
-										<strong>Configuration-Dependent:</strong> Whether a refresh token is issued depends on 
-										client settings and policy configuration in your Authorization Server (e.g., PingOne)
+										<strong>Configuration-Dependent:</strong> Whether a refresh token is issued
+										depends on client settings and policy configuration in your Authorization Server
+										(e.g., PingOne)
 									</li>
 									<li>
-										<strong>Not Always Enabled:</strong> Some security-conscious setups may disable refresh tokens 
-										for Client Credentials to reduce risk from long-lived tokens
+										<strong>Not Always Enabled:</strong> Some security-conscious setups may disable
+										refresh tokens for Client Credentials to reduce risk from long-lived tokens
 									</li>
 									<li>
-										<strong>Opt-In Required:</strong> Default behavior may not include refresh tokens — 
-										you may need to explicitly enable them in client or realm settings
+										<strong>Opt-In Required:</strong> Default behavior may not include refresh
+										tokens — you may need to explicitly enable them in client or realm settings
 									</li>
 									<li>
-										<strong>Best Practice:</strong> Even if refresh tokens are issued, combine them with 
-										rotation, short lifetimes, and protective measures (PingOne supports refresh token rotation)
+										<strong>Best Practice:</strong> Even if refresh tokens are issued, combine them
+										with rotation, short lifetimes, and protective measures (PingOne supports
+										refresh token rotation)
 									</li>
 									<li>
-										<strong>M2M Context:</strong> Many implementations skip refresh tokens for Client Credentials 
-										since the client can always request a new access token directly
+										<strong>M2M Context:</strong> Many implementations skip refresh tokens for
+										Client Credentials since the client can always request a new access token
+										directly
 									</li>
 								</ul>
 							</InfoText>
@@ -737,10 +746,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 
 	const renderTokenRequest = () => (
 		<CollapsibleSection>
-			<CollapsibleHeaderButton
-				onClick={() => handleRequestToken}
-				aria-expanded={true}
-			>
+			<CollapsibleHeaderButton onClick={() => handleRequestToken} aria-expanded={true}>
 				<CollapsibleTitle>
 					<FiKey /> Request Access Token
 				</CollapsibleTitle>
@@ -751,21 +757,21 @@ const ClientCredentialsFlowV5: React.FC = () => {
 						<FiAlertCircle size={20} />
 						<div>
 							<InfoTitle>Configuration Required</InfoTitle>
-							<InfoText>Please configure the flow settings above before requesting a token.</InfoText>
+							<InfoText>
+								Please configure the flow settings above before requesting a token.
+							</InfoText>
 						</div>
 					</InfoBox>
 				) : (
 					<>
 						<InfoText style={{ marginBottom: '1rem' }}>
 							Click the button below to request an access token using the Client Credentials flow.
-							The token will be obtained directly from the authorization server without user interaction.
+							The token will be obtained directly from the authorization server without user
+							interaction.
 						</InfoText>
 
 						<ActionRow>
-							<Button
-								onClick={handleRequestToken}
-								disabled={clientCredsFlow.isRequesting}
-							>
+							<Button onClick={handleRequestToken} disabled={clientCredsFlow.isRequesting}>
 								{clientCredsFlow.isRequesting ? (
 									<>
 										<FiRefreshCw className="spin" /> Requesting...
@@ -857,17 +863,12 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									{showTokens ? (
 										clientCredsFlow.tokens.access_token
 									) : (
-										<TokenMask>
-											{clientCredsFlow.tokens.access_token.replace(/./g, '•')}
-										</TokenMask>
+										<TokenMask>{clientCredsFlow.tokens.access_token.replace(/./g, '•')}</TokenMask>
 									)}
 								</TokenDisplay>
 
 								<ActionRow>
-									<Button
-										$variant="outline"
-										onClick={() => setShowTokens(!showTokens)}
-									>
+									<Button $variant="outline" onClick={() => setShowTokens(!showTokens)}>
 										<FiKey /> {showTokens ? 'Mask' : 'Reveal'} Token
 									</Button>
 									<Button
@@ -879,7 +880,10 @@ const ClientCredentialsFlowV5: React.FC = () => {
 									<Button
 										$variant="outline"
 										onClick={() => {
-											localStorage.setItem('token_to_analyze', clientCredsFlow.tokens!.access_token);
+											localStorage.setItem(
+												'token_to_analyze',
+												clientCredsFlow.tokens!.access_token
+											);
 											localStorage.setItem('token_type', 'access');
 											localStorage.setItem('flow_source', 'client-credentials-v5');
 											window.location.href = '/token-management';
@@ -915,17 +919,22 @@ const ClientCredentialsFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>JWT Claims</InfoTitle>
 											<InfoText>
-												<strong>Issuer (iss):</strong> {clientCredsFlow.decodedToken.payload.iss || 'N/A'}
+												<strong>Issuer (iss):</strong>{' '}
+												{clientCredsFlow.decodedToken.payload.iss || 'N/A'}
 												<br />
-												<strong>Subject (sub):</strong> {clientCredsFlow.decodedToken.payload.sub || 'N/A'}
+												<strong>Subject (sub):</strong>{' '}
+												{clientCredsFlow.decodedToken.payload.sub || 'N/A'}
 												<br />
-												<strong>Audience (aud):</strong> {Array.isArray(clientCredsFlow.decodedToken.payload.aud)
+												<strong>Audience (aud):</strong>{' '}
+												{Array.isArray(clientCredsFlow.decodedToken.payload.aud)
 													? clientCredsFlow.decodedToken.payload.aud.join(', ')
 													: clientCredsFlow.decodedToken.payload.aud || 'N/A'}
 												<br />
 												<strong>Expires:</strong>{' '}
 												{clientCredsFlow.decodedToken.payload.exp
-													? new Date(clientCredsFlow.decodedToken.payload.exp * 1000).toLocaleString()
+													? new Date(
+															clientCredsFlow.decodedToken.payload.exp * 1000
+														).toLocaleString()
 													: 'N/A'}
 											</InfoText>
 										</div>
@@ -940,8 +949,8 @@ const ClientCredentialsFlowV5: React.FC = () => {
 										<InfoTitle>Opaque Token</InfoTitle>
 										<InfoText>
 											This access token is opaque (not a JWT). Use token introspection to retrieve
-											metadata about the token. Navigate to the Token Management page for introspection
-											capabilities.
+											metadata about the token. Navigate to the Token Management page for
+											introspection capabilities.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -981,4 +990,3 @@ const ClientCredentialsFlowV5: React.FC = () => {
 };
 
 export default ClientCredentialsFlowV5;
-

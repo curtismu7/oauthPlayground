@@ -1,7 +1,15 @@
 // src/components/EnhancedFlowInfoCard.tsx - Enhanced flow information card with comprehensive details
 
 import React, { useEffect, useState } from 'react';
-import { FiChevronDown, FiExternalLink, FiInfo, FiShield, FiZap, FiUsers, FiServer } from 'react-icons/fi';
+import {
+	FiChevronDown,
+	FiExternalLink,
+	FiInfo,
+	FiShield,
+	FiZap,
+	FiUsers,
+	FiServer,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowInfoService, FlowInfoCardData } from '../services/FlowInfoService';
@@ -300,9 +308,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 						<FlowIcon>{flowInfoCard.header.icon}</FlowIcon>
 						{flowInfoCard.header.title}
 						{flowInfoCard.header.badge && (
-							<Badge $category={flowInfoCard.header.badge}>
-								{flowInfoCard.header.badge}
-							</Badge>
+							<Badge $category={flowInfoCard.header.badge}>{flowInfoCard.header.badge}</Badge>
 						)}
 					</CardHeader>
 				</CardHeaderContent>
@@ -377,9 +383,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 							</SectionTitle>
 							<SectionContent>
 								{flowInfoCard.useCases.map((useCase, index) => (
-									<UseCaseItem key={index}>
-										{useCase}
-									</UseCaseItem>
+									<UseCaseItem key={index}>{useCase}</UseCaseItem>
 								))}
 							</SectionContent>
 						</InfoSection>
@@ -395,19 +399,25 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 								{flowInfoCard.additionalInfo.complexity && (
 									<AdditionalInfoItem>
 										<AdditionalInfoLabel>Complexity:</AdditionalInfoLabel>
-										<AdditionalInfoValue>{flowInfoCard.additionalInfo.complexity}</AdditionalInfoValue>
+										<AdditionalInfoValue>
+											{flowInfoCard.additionalInfo.complexity}
+										</AdditionalInfoValue>
 									</AdditionalInfoItem>
 								)}
 								{flowInfoCard.additionalInfo.securityLevel && (
 									<AdditionalInfoItem>
 										<AdditionalInfoLabel>Security:</AdditionalInfoLabel>
-										<AdditionalInfoValue>{flowInfoCard.additionalInfo.securityLevel}</AdditionalInfoValue>
+										<AdditionalInfoValue>
+											{flowInfoCard.additionalInfo.securityLevel}
+										</AdditionalInfoValue>
 									</AdditionalInfoItem>
 								)}
 								{flowInfoCard.additionalInfo.userInteraction && (
 									<AdditionalInfoItem>
 										<AdditionalInfoLabel>User Interaction:</AdditionalInfoLabel>
-										<AdditionalInfoValue>{flowInfoCard.additionalInfo.userInteraction}</AdditionalInfoValue>
+										<AdditionalInfoValue>
+											{flowInfoCard.additionalInfo.userInteraction}
+										</AdditionalInfoValue>
 									</AdditionalInfoItem>
 								)}
 								{flowInfoCard.additionalInfo.backendRequired !== undefined && (
@@ -453,9 +463,7 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 										<div style={{ fontWeight: '600', color: '#ef4444', marginBottom: '0.25rem' }}>
 											Issue: {issue.issue}
 										</div>
-										<div style={{ color: '#10b981' }}>
-											Solution: {issue.solution}
-										</div>
+										<div style={{ color: '#10b981' }}>Solution: {issue.solution}</div>
 									</div>
 								))}
 							</SectionContent>

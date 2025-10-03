@@ -35,96 +35,111 @@ const MainContent = styled.main`
 `;
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
+	const { isAuthenticated, isLoading } = useAuth();
+	const location = useLocation();
 
-  if (isLoading) {
-    return <div>Loading...</div>; // Or a loading spinner
-  }
+	if (isLoading) {
+		return <div>Loading...</div>; // Or a loading spinner
+	}
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+	if (!isAuthenticated) {
+		return <Navigate to="/login" state={{ from: location }} replace />;
+	}
 
-  return children;
+	return children;
 };
 
 const AppRoutes = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const location = useLocation();
+	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const location = useLocation();
 
-  // Close sidebar when route changes
-  useEffect(() => {
-    setSidebarOpen(false);
-  }, [location]);
+	// Close sidebar when route changes
+	useEffect(() => {
+		setSidebarOpen(false);
+	}, [location]);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+	const toggleSidebar = () => {
+		setSidebarOpen(!sidebarOpen);
+	};
 
-  return (
-    <AppContainer>
-      <Navbar toggleSidebar={toggleSidebar} />
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      <MainContent>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/callback" element={<Callback />} />
-          
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/flows" element={
-            <ProtectedRoute>
-              <Flows />
-            </ProtectedRoute>
-          }>
-            <Route path="authorization-code" element={<div>Authorization Code Flow</div>} />
-            <Route path="implicit" element={<div>Implicit Flow</div>} />
-            <Route path="client-credentials" element={<div>Client Credentials Flow</div>} />
-            <Route path="pkce" element={<div>PKCE Flow</div>} />
-            <Route path="device-code" element={<div>Device Code Flow</div>} />
-          </Route>
-          
-          <Route path="/oidc" element={
-            <ProtectedRoute>
-              <div>OpenID Connect</div>
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/configuration" element={
-            <ProtectedRoute>
-              <Configuration />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="/documentation" element={
-            <ProtectedRoute>
-              <Documentation />
-            </ProtectedRoute>
-          } />
-          
-          <Route path="*" element={<div>Not Found</div>} />
-        </Routes>
-      </MainContent>
-    </AppContainer>
-  );
+	return (
+		<AppContainer>
+			<Navbar toggleSidebar={toggleSidebar} />
+			<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+			<MainContent>
+				<Routes>
+					<Route path="/login" element={<Login />} />
+					<Route path="/callback" element={<Callback />} />
+
+					<Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+					<Route
+						path="/dashboard"
+						element={
+							<ProtectedRoute>
+								<Dashboard />
+							</ProtectedRoute>
+						}
+					/>
+
+					<Route
+						path="/flows"
+						element={
+							<ProtectedRoute>
+								<Flows />
+							</ProtectedRoute>
+						}
+					>
+						<Route path="authorization-code" element={<div>Authorization Code Flow</div>} />
+						<Route path="implicit" element={<div>Implicit Flow</div>} />
+						<Route path="client-credentials" element={<div>Client Credentials Flow</div>} />
+						<Route path="pkce" element={<div>PKCE Flow</div>} />
+						<Route path="device-code" element={<div>Device Code Flow</div>} />
+					</Route>
+
+					<Route
+						path="/oidc"
+						element={
+							<ProtectedRoute>
+								<div>OpenID Connect</div>
+							</ProtectedRoute>
+						}
+					/>
+
+					<Route
+						path="/configuration"
+						element={
+							<ProtectedRoute>
+								<Configuration />
+							</ProtectedRoute>
+						}
+					/>
+
+					<Route
+						path="/documentation"
+						element={
+							<ProtectedRoute>
+								<Documentation />
+							</ProtectedRoute>
+						}
+					/>
+
+					<Route path="*" element={<div>Not Found</div>} />
+				</Routes>
+			</MainContent>
+		</AppContainer>
+	);
 };
 
 function App() {
-  return (
-    <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <GlobalStyle />
-        <AppRoutes />
-      </AuthProvider>
-    </ThemeProvider>
-  );
+	return (
+		<ThemeProvider theme={theme}>
+			<AuthProvider>
+				<GlobalStyle />
+				<AppRoutes />
+			</AuthProvider>
+		</ThemeProvider>
+	);
 }
 
 export default App;

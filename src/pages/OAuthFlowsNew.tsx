@@ -78,7 +78,7 @@ const OAuthFlowsNew: React.FC = () => {
 			</PageHeader>
 
 			<FlowCategories />
-			
+
 			{/* Nested routes render here */}
 			<Outlet />
 		</FlowsContainer>

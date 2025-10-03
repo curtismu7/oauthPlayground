@@ -215,9 +215,9 @@ const FlowConfigurationTable: React.FC = () => {
 				</Tbody>
 			</Table>
 			<Note>
-				<strong>Note:</strong> Configure your PingOne application's Token Endpoint Authentication Method
-				according to the flow you're using. Public clients (Device Authorization, Implicit) use{' '}
-				<code>none</code>, while confidential clients use <code>client_secret_post</code> or{' '}
+				<strong>Note:</strong> Configure your PingOne application's Token Endpoint Authentication
+				Method according to the flow you're using. Public clients (Device Authorization, Implicit)
+				use <code>none</code>, while confidential clients use <code>client_secret_post</code> or{' '}
 				<code>client_secret_basic</code>.
 			</Note>
 		</TableContainer>

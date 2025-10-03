@@ -6,24 +6,32 @@ import { logger } from '../utils/logger';
 
 const ErrorContainer = styled.div<{ $severity: string }>`
   border: 2px solid ${({ $severity }) => {
-    switch ($severity) {
-      case 'error': return '#ef4444';
-      case 'warning': return '#f59e0b';
-      case 'info': return '#3b82f6';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($severity) {
+			case 'error':
+				return '#ef4444';
+			case 'warning':
+				return '#f59e0b';
+			case 'info':
+				return '#3b82f6';
+			default:
+				return '#6b7280';
+		}
+	}};
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
   background: ${({ $severity }) => {
-    switch ($severity) {
-      case 'error': return 'rgba(239, 68, 68, 0.05)';
-      case 'warning': return 'rgba(245, 158, 11, 0.05)';
-      case 'info': return 'rgba(59, 130, 246, 0.05)';
-      default: return 'rgba(107, 114, 128, 0.05)';
-    }
-  }};
+		switch ($severity) {
+			case 'error':
+				return 'rgba(239, 68, 68, 0.05)';
+			case 'warning':
+				return 'rgba(245, 158, 11, 0.05)';
+			case 'info':
+				return 'rgba(59, 130, 246, 0.05)';
+			default:
+				return 'rgba(107, 114, 128, 0.05)';
+		}
+	}};
 `;
 
 const ErrorHeader = styled.div`
@@ -36,13 +44,17 @@ const ErrorHeader = styled.div`
 const ErrorIcon = styled.div<{ $severity: string }>`
   font-size: 1.5rem;
   color: ${({ $severity }) => {
-    switch ($severity) {
-      case 'error': return '#ef4444';
-      case 'warning': return '#f59e0b';
-      case 'info': return '#3b82f6';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($severity) {
+			case 'error':
+				return '#ef4444';
+			case 'warning':
+				return '#f59e0b';
+			case 'info':
+				return '#3b82f6';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const ErrorTitle = styled.h3<{ $severity: string }>`
@@ -50,13 +62,17 @@ const ErrorTitle = styled.h3<{ $severity: string }>`
   font-size: 1.125rem;
   font-weight: 600;
   color: ${({ $severity }) => {
-    switch ($severity) {
-      case 'error': return '#ef4444';
-      case 'warning': return '#f59e0b';
-      case 'info': return '#3b82f6';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($severity) {
+			case 'error':
+				return '#ef4444';
+			case 'warning':
+				return '#f59e0b';
+			case 'info':
+				return '#3b82f6';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const ErrorMessage = styled.p`
@@ -130,7 +146,7 @@ const CopyButton = styled.button`
 `;
 
 const TechnicalDetails = styled.div<{ $isExpanded: boolean }>`
-  max-height: ${({ $isExpanded }) => $isExpanded ? '200px' : '0'};
+  max-height: ${({ $isExpanded }) => ($isExpanded ? '200px' : '0')};
   overflow: hidden;
   transition: max-height 0.3s ease;
   margin-top: 0.75rem;
@@ -155,25 +171,37 @@ const CategoryBadge = styled.span<{ $category: string }>`
   gap: 0.25rem;
   padding: 0.125rem 0.5rem;
   background: ${({ $category }) => {
-    switch ($category) {
-      case 'configuration': return '#dbeafe';
-      case 'authentication': return '#fef3c7';
-      case 'authorization': return '#fecaca';
-      case 'network': return '#e0e7ff';
-      case 'validation': return '#d1fae5';
-      default: return '#f3f4f6';
-    }
-  }};
+		switch ($category) {
+			case 'configuration':
+				return '#dbeafe';
+			case 'authentication':
+				return '#fef3c7';
+			case 'authorization':
+				return '#fecaca';
+			case 'network':
+				return '#e0e7ff';
+			case 'validation':
+				return '#d1fae5';
+			default:
+				return '#f3f4f6';
+		}
+	}};
   color: ${({ $category }) => {
-    switch ($category) {
-      case 'configuration': return '#1e40af';
-      case 'authentication': return '#92400e';
-      case 'authorization': return '#991b1b';
-      case 'network': return '#3730a3';
-      case 'validation': return '#065f46';
-      default: return '#374151';
-    }
-  }};
+		switch ($category) {
+			case 'configuration':
+				return '#1e40af';
+			case 'authentication':
+				return '#92400e';
+			case 'authorization':
+				return '#991b1b';
+			case 'network':
+				return '#3730a3';
+			case 'validation':
+				return '#065f46';
+			default:
+				return '#374151';
+		}
+	}};
   border-radius: 0.25rem;
   font-size: 0.75rem;
   font-weight: 500;
@@ -181,96 +209,85 @@ const CategoryBadge = styled.span<{ $category: string }>`
 `;
 
 interface PingOneErrorDisplayProps {
-  error: unknown;
-  onRetry?: () => void;
-  onDismiss?: () => void;
+	error: unknown;
+	onRetry?: () => void;
+	onDismiss?: () => void;
 }
 
-const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ 
-  error, 
-  onRetry, 
-  onDismiss 
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
+const PingOneErrorDisplay: React.FC<PingOneErrorDisplayProps> = ({ error, onRetry, onDismiss }) => {
+	const [isExpanded, setIsExpanded] = useState(false);
+	const [copied, setCopied] = useState(false);
 
-  const interpretedError = PingOneErrorInterpreter.interpret(error);
-  const errorIcon = PingOneErrorInterpreter.getErrorIcon(interpretedError.category);
+	const interpretedError = PingOneErrorInterpreter.interpret(error);
+	const errorIcon = PingOneErrorInterpreter.getErrorIcon(interpretedError.category);
 
-  const handleCopyError = async () => {
-    try {
-      const errorText = PingOneErrorInterpreter.formatErrorForDisplay(interpretedError);
-      await navigator.clipboard.writeText(errorText);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      logger.ui('PingOneErrorDisplay', 'Error details copied to clipboard');
-    } catch (err) {
-      logger.error('PingOneErrorDisplay', 'Failed to copy error details', err);
-    }
-  };
+	const handleCopyError = async () => {
+		try {
+			const errorText = PingOneErrorInterpreter.formatErrorForDisplay(interpretedError);
+			await navigator.clipboard.writeText(errorText);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+			logger.ui('PingOneErrorDisplay', 'Error details copied to clipboard');
+		} catch (err) {
+			logger.error('PingOneErrorDisplay', 'Failed to copy error details', err);
+		}
+	};
 
-  const handleToggleDetails = () => {
-    setIsExpanded(!isExpanded);
-    logger.ui('PingOneErrorDisplay', `Technical details ${isExpanded ? 'collapsed' : 'expanded'}`);
-  };
+	const handleToggleDetails = () => {
+		setIsExpanded(!isExpanded);
+		logger.ui('PingOneErrorDisplay', `Technical details ${isExpanded ? 'collapsed' : 'expanded'}`);
+	};
 
-  return (
-    <ErrorContainer $severity={interpretedError.severity}>
-      <ErrorHeader>
-        <ErrorIcon $severity={interpretedError.severity}>
-          {errorIcon}
-        </ErrorIcon>
-        <ErrorTitle $severity={interpretedError.severity}>
-          {interpretedError.title}
-        </ErrorTitle>
-        <CategoryBadge $category={interpretedError.category}>
-          {interpretedError.category}
-        </CategoryBadge>
-      </ErrorHeader>
+	return (
+		<ErrorContainer $severity={interpretedError.severity}>
+			<ErrorHeader>
+				<ErrorIcon $severity={interpretedError.severity}>{errorIcon}</ErrorIcon>
+				<ErrorTitle $severity={interpretedError.severity}>{interpretedError.title}</ErrorTitle>
+				<CategoryBadge $category={interpretedError.category}>
+					{interpretedError.category}
+				</CategoryBadge>
+			</ErrorHeader>
 
-      <ErrorMessage>
-        {interpretedError.message}
-      </ErrorMessage>
+			<ErrorMessage>{interpretedError.message}</ErrorMessage>
 
-      <ErrorSuggestion>
-        <SuggestionLabel>💡 Suggestion:</SuggestionLabel>
-        <SuggestionText>{interpretedError.suggestion}</SuggestionText>
-      </ErrorSuggestion>
+			<ErrorSuggestion>
+				<SuggestionLabel>💡 Suggestion:</SuggestionLabel>
+				<SuggestionText>{interpretedError.suggestion}</SuggestionText>
+			</ErrorSuggestion>
 
-      <ErrorActions>
-        <ToggleButton onClick={handleToggleDetails}>
-          {isExpanded ? <FiChevronUp /> : <FiChevronDown />}
-          {isExpanded ? 'Hide' : 'Show'} Technical Details
-        </ToggleButton>
-        
-        <CopyButton onClick={handleCopyError}>
-          <FiCopy />
-          {copied ? 'Copied!' : 'Copy Error'}
-        </CopyButton>
+			<ErrorActions>
+				<ToggleButton onClick={handleToggleDetails}>
+					{isExpanded ? <FiChevronUp /> : <FiChevronDown />}
+					{isExpanded ? 'Hide' : 'Show'} Technical Details
+				</ToggleButton>
 
-        {onRetry && (
-          <CopyButton onClick={onRetry} style={{ background: '#10b981', borderColor: '#10b981' }}>
-            <FiExternalLink />
-            Retry
-          </CopyButton>
-        )}
+				<CopyButton onClick={handleCopyError}>
+					<FiCopy />
+					{copied ? 'Copied!' : 'Copy Error'}
+				</CopyButton>
 
-        {onDismiss && (
-          <ToggleButton onClick={onDismiss} style={{ background: '#ef4444', color: 'white', borderColor: '#ef4444' }}>
-            Dismiss
-          </ToggleButton>
-        )}
-      </ErrorActions>
+				{onRetry && (
+					<CopyButton onClick={onRetry} style={{ background: '#10b981', borderColor: '#10b981' }}>
+						<FiExternalLink />
+						Retry
+					</CopyButton>
+				)}
 
-      <TechnicalDetails $isExpanded={isExpanded}>
-        <TechnicalContent>
-          {interpretedError.technicalDetails}
-        </TechnicalContent>
-      </TechnicalDetails>
-    </ErrorContainer>
-  );
+				{onDismiss && (
+					<ToggleButton
+						onClick={onDismiss}
+						style={{ background: '#ef4444', color: 'white', borderColor: '#ef4444' }}
+					>
+						Dismiss
+					</ToggleButton>
+				)}
+			</ErrorActions>
+
+			<TechnicalDetails $isExpanded={isExpanded}>
+				<TechnicalContent>{interpretedError.technicalDetails}</TechnicalContent>
+			</TechnicalDetails>
+		</ErrorContainer>
+	);
 };
 
 export default PingOneErrorDisplay;
-
-

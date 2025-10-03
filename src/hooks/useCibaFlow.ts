@@ -167,12 +167,15 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		}
 	}, []);
 
-	const scheduleNextPoll = useCallback((intervalSeconds: number) => {
-		clearPollingTimer();
-		pollingTimerRef.current = setTimeout(async () => {
-			await pollForTokens();
-		}, Math.max(intervalSeconds, 1) * 1000);
-	}, [clearPollingTimer]);
+	const scheduleNextPoll = useCallback(
+		(intervalSeconds: number) => {
+			clearPollingTimer();
+			pollingTimerRef.current = setTimeout(async () => {
+				await pollForTokens();
+			}, Math.max(intervalSeconds, 1) * 1000);
+		},
+		[clearPollingTimer]
+	);
 
 	const pollForTokens = useCallback(async () => {
 		if (!authRequest || !config) {
@@ -218,7 +221,8 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 				}
 
 				if (errorCode === 'slow_down') {
-					const nextInterval = ((data.interval as number | undefined) ?? authRequest.interval ?? 5) + 5;
+					const nextInterval =
+						((data.interval as number | undefined) ?? authRequest.interval ?? 5) + 5;
 					scheduleNextPoll(nextInterval);
 					return;
 				}

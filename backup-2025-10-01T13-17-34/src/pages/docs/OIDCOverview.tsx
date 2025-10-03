@@ -549,10 +549,25 @@ const OIDCOverview = () => {
 
 			{/* Interactive Flow Diagrams */}
 			<section style={{ marginBottom: '3rem' }}>
-				<h2 style={{ fontSize: '2rem', fontWeight: '600', marginBottom: '2rem', color: '#1f2937', textAlign: 'center' }}>
+				<h2
+					style={{
+						fontSize: '2rem',
+						fontWeight: '600',
+						marginBottom: '2rem',
+						color: '#1f2937',
+						textAlign: 'center',
+					}}
+				>
 					Interactive Flow Diagrams
 				</h2>
-				<p style={{ textAlign: 'center', color: '#6b7280', marginBottom: '2rem', fontSize: '1.125rem' }}>
+				<p
+					style={{
+						textAlign: 'center',
+						color: '#6b7280',
+						marginBottom: '2rem',
+						fontSize: '1.125rem',
+					}}
+				>
 					Explore OAuth and OpenID Connect flows with interactive, step-by-step diagrams
 				</p>
 				<InteractiveFlowDiagram />

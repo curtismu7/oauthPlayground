@@ -95,9 +95,8 @@ const ChevronButton = styled.button<{ $collapsed: boolean }>`
 
 	&:hover {
 		background: #2563eb;
-		transform: ${({ $collapsed }) => 
-			$collapsed ? 'rotate(180deg) scale(1.05)' : 'rotate(0deg) scale(1.05)'
-		};
+		transform: ${({ $collapsed }) =>
+			$collapsed ? 'rotate(180deg) scale(1.05)' : 'rotate(0deg) scale(1.05)'};
 	}
 `;
 
@@ -224,19 +223,17 @@ export const EnhancedFlowWalkthrough: React.FC<EnhancedFlowWalkthroughProps> = (
 	flowId,
 	customConfig,
 	defaultCollapsed = false,
-	className
+	className,
 }) => {
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
 	// Get configuration from service
 	const baseConfig = FlowWalkthroughService.getWalkthroughConfig(flowId);
-	
+
 	if (!baseConfig) {
 		return (
 			<Container $flowType="oauth" className={className}>
-				<ErrorMessage>
-					No walkthrough configuration found for flow: {flowId}
-				</ErrorMessage>
+				<ErrorMessage>No walkthrough configuration found for flow: {flowId}</ErrorMessage>
 			</Container>
 		);
 	}
@@ -244,7 +241,7 @@ export const EnhancedFlowWalkthrough: React.FC<EnhancedFlowWalkthroughProps> = (
 	// Merge with custom configuration
 	const config: FlowWalkthroughConfig = {
 		...baseConfig,
-		...customConfig
+		...customConfig,
 	};
 
 	const toggleCollapsed = () => {
@@ -268,14 +265,10 @@ export const EnhancedFlowWalkthrough: React.FC<EnhancedFlowWalkthroughProps> = (
 				<StepsContainer>
 					{config.steps.map((step, index) => (
 						<StepItem key={index} $flowType={config.flowType}>
-							<StepNumber $flowType={config.flowType}>
-								{index + 1}
-							</StepNumber>
+							<StepNumber $flowType={config.flowType}>{index + 1}</StepNumber>
 							<StepContent>
 								<StepTitle>{step.title}</StepTitle>
-								{step.description && (
-									<StepDescription>{step.description}</StepDescription>
-								)}
+								{step.description && <StepDescription>{step.description}</StepDescription>}
 							</StepContent>
 						</StepItem>
 					))}

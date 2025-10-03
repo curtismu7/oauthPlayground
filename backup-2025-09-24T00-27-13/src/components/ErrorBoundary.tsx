@@ -104,99 +104,101 @@ const ActionButton = styled.button`
 `;
 
 interface Props {
-  children: ReactNode;
-  fallback?: ReactNode;
+	children: ReactNode;
+	fallback?: ReactNode;
 }
 
 interface State {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
+	hasError: boolean;
+	error: Error | null;
+	errorInfo: ErrorInfo | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null
-    };
-  }
+	constructor(props: Props) {
+		super(props);
+		this.state = {
+			hasError: false,
+			error: null,
+			errorInfo: null,
+		};
+	}
 
-  static getDerivedStateFromError(error: Error): State {
-    return {
-      hasError: true,
-      error,
-      errorInfo: null
-    };
-  }
+	static getDerivedStateFromError(error: Error): State {
+		return {
+			hasError: true,
+			error,
+			errorInfo: null,
+		};
+	}
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
-    this.setState({
-      error,
-      errorInfo
-    });
-  }
+	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+		console.error('ErrorBoundary caught an error:', error, errorInfo);
+		this.setState({
+			error,
+			errorInfo,
+		});
+	}
 
-  handleReload = () => {
-    window.location.reload();
-  };
+	handleReload = () => {
+		window.location.reload();
+	};
 
-  handleGoHome = () => {
-    window.location.href = '/dashboard';
-  };
+	handleGoHome = () => {
+		window.location.href = '/dashboard';
+	};
 
-  render() {
-    if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
+	render() {
+		if (this.state.hasError) {
+			if (this.props.fallback) {
+				return this.props.fallback;
+			}
 
-      return (
-        <ErrorContainer>
-          <ErrorCard>
-            <ErrorIcon>
-              <FiAlertTriangle />
-            </ErrorIcon>
-            <ErrorTitle>Something went wrong</ErrorTitle>
-            <ErrorMessage>
-              An unexpected error occurred. This might be due to a server connectivity issue 
-              or a problem with the application.
-            </ErrorMessage>
-            
-            <ErrorDetails>
-              <ErrorSummary>Error Details</ErrorSummary>
-              <div>
-                <p><strong>Error:</strong> {this.state.error?.message}</p>
-                {this.state.errorInfo && (
-                  <ErrorStack>
-                    {this.state.error?.stack}
-                    {'\n\nComponent Stack:'}
-                    {this.state.errorInfo.componentStack}
-                  </ErrorStack>
-                )}
-              </div>
-            </ErrorDetails>
+			return (
+				<ErrorContainer>
+					<ErrorCard>
+						<ErrorIcon>
+							<FiAlertTriangle />
+						</ErrorIcon>
+						<ErrorTitle>Something went wrong</ErrorTitle>
+						<ErrorMessage>
+							An unexpected error occurred. This might be due to a server connectivity issue or a
+							problem with the application.
+						</ErrorMessage>
 
-            <ActionButtons>
-              <ActionButton onClick={this.handleReload}>
-                <FiRefreshCw />
-                Reload Page
-              </ActionButton>
-              <ActionButton onClick={this.handleGoHome}>
-                <FiHome />
-                Go to Dashboard
-              </ActionButton>
-            </ActionButtons>
-          </ErrorCard>
-        </ErrorContainer>
-      );
-    }
+						<ErrorDetails>
+							<ErrorSummary>Error Details</ErrorSummary>
+							<div>
+								<p>
+									<strong>Error:</strong> {this.state.error?.message}
+								</p>
+								{this.state.errorInfo && (
+									<ErrorStack>
+										{this.state.error?.stack}
+										{'\n\nComponent Stack:'}
+										{this.state.errorInfo.componentStack}
+									</ErrorStack>
+								)}
+							</div>
+						</ErrorDetails>
 
-    return this.props.children;
-  }
+						<ActionButtons>
+							<ActionButton onClick={this.handleReload}>
+								<FiRefreshCw />
+								Reload Page
+							</ActionButton>
+							<ActionButton onClick={this.handleGoHome}>
+								<FiHome />
+								Go to Dashboard
+							</ActionButton>
+						</ActionButtons>
+					</ErrorCard>
+				</ErrorContainer>
+			);
+		}
+
+		return this.props.children;
+	}
 }
 
 export default ErrorBoundary;

@@ -23,14 +23,22 @@ export const checkSavedCredentials = (): boolean => {
 	try {
 		// Check credential manager first
 		const configCredentials = credentialManager.loadConfigCredentials();
-		if (configCredentials?.environmentId && configCredentials?.clientId && 
-			configCredentials.environmentId.trim() !== '' && configCredentials.clientId.trim() !== '') {
+		if (
+			configCredentials?.environmentId &&
+			configCredentials?.clientId &&
+			configCredentials.environmentId.trim() !== '' &&
+			configCredentials.clientId.trim() !== ''
+		) {
 			return true;
 		}
 
 		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
-		if (authzCredentials?.environmentId && authzCredentials?.clientId && 
-			authzCredentials.environmentId.trim() !== '' && authzCredentials.clientId.trim() !== '') {
+		if (
+			authzCredentials?.environmentId &&
+			authzCredentials?.clientId &&
+			authzCredentials.environmentId.trim() !== '' &&
+			authzCredentials.clientId.trim() !== ''
+		) {
 			return true;
 		}
 
@@ -38,8 +46,12 @@ export const checkSavedCredentials = (): boolean => {
 		const stored = localStorage.getItem('oauth_config');
 		if (stored) {
 			const config = JSON.parse(stored);
-			if (config?.environmentId && config?.clientId && 
-				config.environmentId.trim() !== '' && config.clientId.trim() !== '') {
+			if (
+				config?.environmentId &&
+				config?.clientId &&
+				config.environmentId.trim() !== '' &&
+				config.clientId.trim() !== ''
+			) {
 				return true;
 			}
 		}

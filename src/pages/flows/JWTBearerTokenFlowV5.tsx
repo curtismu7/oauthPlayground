@@ -10,10 +10,7 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -296,13 +293,8 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const {
-		credentials,
-		tokens,
-		requestToken,
-		clearResults,
-		updateCredentials,
-	} = useJWTBearerFlowController();
+	const { credentials, tokens, requestToken, clearResults, updateCredentials } =
+		useJWTBearerFlowController();
 
 	const handleNext = useCallback(() => {
 		if (currentStep < 3) {
@@ -338,7 +330,8 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 			v4ToastManager.showSuccess('JWT Bearer token requested successfully!');
 			handleNext();
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to request JWT Bearer token';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to request JWT Bearer token';
 			setError(errorMessage);
 			v4ToastManager.showError(errorMessage);
 		} finally {
@@ -362,62 +355,59 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 							</p>
 						</ExplanationSection>
 
-
 						<EnhancedFlowWalkthrough flowId="oauth-jwt-bearer" />
 						<FlowSequenceDisplay flowType="jwt-bearer" />
-					
-					{/* Configuration Summary */}
-					<ConfigurationSummaryCard
-						configuration={credentials}
-					/>
-				</>
-			);
 
-		case 1:
-			return (
-				<>
-					<FormSection>
-						<FormTitle>
-							<FiLock /> Request JWT Bearer Token
-						</FormTitle>
-						<FormGrid>
-							<FormGroup>
-								<Label>Client ID</Label>
-								<Input
-									placeholder="Enter client ID..."
-									value={credentials.clientId || ''}
-									onChange={(e) => updateCredentials({ clientId: e.target.value })}
-								/>
-							</FormGroup>
-							<FormGroup>
-								<Label>Token Endpoint</Label>
-								<Input
-									placeholder="Enter token endpoint URL..."
-									value={credentials.tokenEndpoint || ''}
-									onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
-								/>
-							</FormGroup>
-							<FormGroup>
-								<Label>Private Key (PEM format)</Label>
-								<TextArea
-									placeholder="Enter private key in PEM format..."
-									value={credentials.privateKey || ''}
-									onChange={(e) => updateCredentials({ privateKey: e.target.value })}
-								/>
-							</FormGroup>
-							<FormGroup>
-								<Label>Key ID (optional)</Label>
-								<Input
-									placeholder="Enter key ID..."
-									value={credentials.keyId || ''}
-									onChange={(e) => updateCredentials({ keyId: e.target.value })}
-								/>
-							</FormGroup>
-							<FormGroup>
-								<Label>Audience (optional)</Label>
-								<Input
-									placeholder="Enter audience..."
-									value={credentials.audience || ''}
+						{/* Configuration Summary */}
+						<ConfigurationSummaryCard configuration={credentials} />
+					</>
+				);
+
+			case 1:
+				return (
+					<>
+						<FormSection>
+							<FormTitle>
+								<FiLock /> Request JWT Bearer Token
+							</FormTitle>
+							<FormGrid>
+								<FormGroup>
+									<Label>Client ID</Label>
+									<Input
+										placeholder="Enter client ID..."
+										value={credentials.clientId || ''}
+										onChange={(e) => updateCredentials({ clientId: e.target.value })}
+									/>
+								</FormGroup>
+								<FormGroup>
+									<Label>Token Endpoint</Label>
+									<Input
+										placeholder="Enter token endpoint URL..."
+										value={credentials.tokenEndpoint || ''}
+										onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
+									/>
+								</FormGroup>
+								<FormGroup>
+									<Label>Private Key (PEM format)</Label>
+									<TextArea
+										placeholder="Enter private key in PEM format..."
+										value={credentials.privateKey || ''}
+										onChange={(e) => updateCredentials({ privateKey: e.target.value })}
+									/>
+								</FormGroup>
+								<FormGroup>
+									<Label>Key ID (optional)</Label>
+									<Input
+										placeholder="Enter key ID..."
+										value={credentials.keyId || ''}
+										onChange={(e) => updateCredentials({ keyId: e.target.value })}
+									/>
+								</FormGroup>
+								<FormGroup>
+									<Label>Audience (optional)</Label>
+									<Input
+										placeholder="Enter audience..."
+										value={credentials.audience || ''}
 										onChange={(e) => updateCredentials({ audience: e.target.value })}
 									/>
 								</FormGroup>
@@ -445,12 +435,14 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 									<FiCheckCircle />
 									JWT Bearer token requested successfully!
 								</SuccessMessage>
-								
+
 								<JWTInfo>
 									<JWTInfoRow>
 										<JWTInfoLabel>Access Token:</JWTInfoLabel>
 										<JWTInfoValue>
-											{tokens?.access_token ? tokens.access_token.substring(0, 50) + '...' : 'Not available'}
+											{tokens?.access_token
+												? tokens.access_token.substring(0, 50) + '...'
+												: 'Not available'}
 										</JWTInfoValue>
 									</JWTInfoRow>
 									{tokens?.token_type && (
@@ -475,7 +467,14 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 
 								<ResultsSection>
 									<ResultsHeading>Full Token Response</ResultsHeading>
-									<pre style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', overflow: 'auto' }}>
+									<pre
+										style={{
+											background: '#f3f4f6',
+											padding: '1rem',
+											borderRadius: '6px',
+											overflow: 'auto',
+										}}
+									>
 										{JSON.stringify(tokenResult, null, 2)}
 									</pre>
 								</ResultsSection>
@@ -498,10 +497,20 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Key Information</ResultsHeading>
 							<ul style={{ paddingLeft: '1.5rem' }}>
-								<li><strong>Access Token:</strong> {tokens?.access_token ? 'Received' : 'Not available'}</li>
-								<li><strong>Token Type:</strong> {tokens?.token_type || 'Not specified'}</li>
-								<li><strong>Expires In:</strong> {tokens?.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'}</li>
-								<li><strong>Scope:</strong> {tokens?.scope || 'Not specified'}</li>
+								<li>
+									<strong>Access Token:</strong>{' '}
+									{tokens?.access_token ? 'Received' : 'Not available'}
+								</li>
+								<li>
+									<strong>Token Type:</strong> {tokens?.token_type || 'Not specified'}
+								</li>
+								<li>
+									<strong>Expires In:</strong>{' '}
+									{tokens?.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'}
+								</li>
+								<li>
+									<strong>Scope:</strong> {tokens?.scope || 'Not specified'}
+								</li>
 							</ul>
 						</ResultsSection>
 
@@ -550,14 +559,14 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="jwt-bearer-token-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="jwt-bearer-token"
 					showAdditionalInfo={true}
 					showDocumentation={true}
 					showCommonIssues={false}
 					showImplementationNotes={false}
 				/>
-				
+
 				<FlowConfigurationRequirements flowType="jwt-bearer" variant="pingone" />
 
 				<MainCard>

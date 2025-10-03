@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiLogIn, FiAlertCircle, FiCopy, FiCheck, FiEdit, FiCheckCircle, FiEye, FiEyeOff } from 'react-icons/fi';
+import {
+	FiLogIn,
+	FiAlertCircle,
+	FiCopy,
+	FiCheck,
+	FiEdit,
+	FiCheckCircle,
+	FiEye,
+	FiEyeOff,
+} from 'react-icons/fi';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginContainer = styled.div`
@@ -167,13 +176,13 @@ const FormGroup = styled.div`
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: ${({ theme }) => "#495057"};
+    color: ${({ theme }) => '#495057'};
   }
 
   input {
     width: 100%;
     padding: 0.75rem;
-    border: 1px solid ${({ theme }) => "#dee2e6"};
+    border: 1px solid ${({ theme }) => '#dee2e6'};
     border-radius: 6px;
     font-size: 1rem;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -190,7 +199,7 @@ const FormGroup = styled.div`
     }
   }
   .error {
-    color: ${({ theme }) => "#dc3545"};
+    color: ${({ theme }) => '#dc3545'};
     font-size: 0.875rem;
     margin-top: 0.25rem;
   }
@@ -198,7 +207,7 @@ const FormGroup = styled.div`
 
 const ErrorIcon = styled(FiAlertCircle)`
   font-size: 3rem;
-  color: ${({ theme }) => "#dc3545"};
+  color: ${({ theme }) => '#dc3545'};
   margin-bottom: 1.5rem;
 `;
 
@@ -208,7 +217,7 @@ const SubmitButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
   color: white;
-  background-color: ${({ theme }) => "#007bff"};
+  background-color: ${({ theme }) => '#007bff'};
   border: none;
   border-radius: 0.375rem;
   cursor: pointer;
@@ -218,7 +227,7 @@ const SubmitButton = styled.button`
   transition: background-color 0.2s;
   
   &:hover {
-    background-color: ${({ theme }) => "#0056b3"};
+    background-color: ${({ theme }) => '#0056b3'};
   }
   
   &:disabled {
@@ -234,7 +243,7 @@ const SubmitButton = styled.button`
 const BackLink = styled(Link)`
   display: inline-flex;
   align-items: center;
-  color: ${({ theme }) => "#007bff"};
+  color: ${({ theme }) => '#007bff'};
   text-decoration: none;
   font-size: 0.9375rem;
   margin-top: 1rem;
@@ -256,7 +265,7 @@ const Alert = styled.div`
   align-items: flex-start;
   background-color: ${({ theme }) => `${theme.colors.danger}10`};
   border: 1px solid ${({ theme }) => `${theme.colors.danger}20`};
-  color: ${({ theme }) => "#dc3545"};
+  color: ${({ theme }) => '#dc3545'};
   
   svg {
     margin-right: 0.75rem;
@@ -432,416 +441,518 @@ const CopyButton = styled.button`
 `;
 
 const Login = () => {
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [credentials, setCredentials] = useState({
-    environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
-    clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
-    clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a'
-  });
-  const [showClientSecret, setShowClientSecret] = useState(false);
-  const toggleClientSecretVisibility = () => setShowClientSecret(!showClientSecret);
-  const [saveStatus, setSaveStatus] = useState<{ type: string; title: string; message: string } | null>(null);
-  
-  const { login, isAuthenticated } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
-  
-  const from = location.state?.from?.pathname || '/';
-  
-  // Redirect if already authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate(from, { replace: true });
-    }
-  }, [isAuthenticated, navigate, from]);
-  
-  const copyToClipboard = async (text: string, id: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch (err) {
-      console.error('Failed to copy text: ', err);
-    }
-  };
+	const [error, setError] = useState('');
+	const [isLoading, setIsLoading] = useState(false);
+	const [copiedId, setCopiedId] = useState<string | null>(null);
+	const [credentials, setCredentials] = useState({
+		environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
+		clientId: 'a4f963ea-0736-456a-be72-b1fa4f63f81f',
+		clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
+	});
+	const [showClientSecret, setShowClientSecret] = useState(false);
+	const toggleClientSecretVisibility = () => setShowClientSecret(!showClientSecret);
+	const [saveStatus, setSaveStatus] = useState<{
+		type: string;
+		title: string;
+		message: string;
+	} | null>(null);
 
-  const handleCredentialChange = (field: string, value: string) => {
-    setCredentials(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
+	const { login, isAuthenticated } = useAuth();
+	const navigate = useNavigate();
+	const location = useLocation();
 
-  const handleCredentialSave = () => {
-    setSaveStatus(null);
-    
-    try {
-      // Save to localStorage
-      localStorage.setItem('login_credentials', JSON.stringify(credentials));
-      
-      setSaveStatus({
-        type: 'success',
-        title: 'Credentials saved',
-        message: 'Your login credentials have been saved successfully.'
-      });
-    } catch (error) {
-      console.error('Failed to save credentials:', error);
-      setSaveStatus({
-        type: 'danger',
-        title: 'Error',
-        message: 'Failed to save credentials. Please try again.'
-      });
-    }
+	const from = location.state?.from?.pathname || '/';
 
-    // Clear success message after 3 seconds
-    setTimeout(() => {
-      setSaveStatus(null);
-    }, 3000);
-  };
+	// Redirect if already authenticated
+	useEffect(() => {
+		if (isAuthenticated) {
+			navigate(from, { replace: true });
+		}
+	}, [isAuthenticated, navigate, from]);
 
-  const handleLogin = async () => {
-    setError('');
+	const copyToClipboard = async (text: string, id: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			setCopiedId(id);
+			setTimeout(() => setCopiedId(null), 2000);
+		} catch (err) {
+			console.error('Failed to copy text: ', err);
+		}
+	};
 
-    setIsLoading(true);
+	const handleCredentialChange = (field: string, value: string) => {
+		setCredentials((prev) => ({
+			...prev,
+			[field]: value,
+		}));
+	};
 
-    try {
-      // Redirect to PingOne for authentication
-      await login();
-      // The login function will handle the redirect, so we don't need to do anything else
-    } catch (err) {
-      console.error('Login error:', err);
-      setError('An error occurred during login. Please try again.');
-      setIsLoading(false);
-    }
-  };
-  
-  return (
-    <LoginContainer>
-      <LoginLayout>
-        <SetupSection>
-            <DescriptionSection>
-              <p>
-                <span>
-                  📝 Interactive OAuth 2.0 testing application
-                  <DescCopyButton
-                    onClick={() => copyToClipboard('Interactive OAuth 2.0 testing application', 'app-description')}
-                    title="Copy Description"
-                  >
-                    {copiedId === 'app-description' ? <FiCheck size={12} /> : <FiCopy size={12} />}
-                    {copiedId === 'app-description' ? 'Copied!' : 'Copy'}
-                  </DescCopyButton>
-                </span>
-              </p>
-            </DescriptionSection>
+	const handleCredentialSave = () => {
+		setSaveStatus(null);
 
-            <PingOneSetupSection>
-            <h3>🔧 PingOne Configuration Required</h3>
-            <p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
+		try {
+			// Save to localStorage
+			localStorage.setItem('login_credentials', JSON.stringify(credentials));
 
-            <SetupSteps>
-              <h4>1. Access PingOne Admin Console</h4>
-              <ul>
-                <li>Navigate to your <strong>PingOne Admin Console</strong></li>
-                <li>Go to <strong>Applications</strong> → <strong>Applications</strong></li>
-                <li>Click <strong style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0070CC' }}>+ Add Application</strong></li>
-                <li>Select <strong>Web Application</strong></li>
-              </ul>
+			setSaveStatus({
+				type: 'success',
+				title: 'Credentials saved',
+				message: 'Your login credentials have been saved successfully.',
+			});
+		} catch (error) {
+			console.error('Failed to save credentials:', error);
+			setSaveStatus({
+				type: 'danger',
+				title: 'Error',
+				message: 'Failed to save credentials. Please try again.',
+			});
+		}
 
-              <h4>2. Configure Application Details</h4>
-              <ul>
-                <li><strong>Application Type:</strong> OIDC Web App</li>
-                <li>
-                  <strong>Application Name:</strong>
-                  <span style={{ fontWeight: '800', fontSize: '1rem', color: '#0070CC', marginLeft: '0.5rem' }}>
-                    PingOne OAuth Playground
-                    <button
-                      onClick={() => copyToClipboard('PingOne OAuth Playground', 'setup-app-name')}
-                      style={{
-                        background: 'none',
-                        border: '1px solid #0070CC',
-                        color: '#0070CC',
-                        cursor: 'pointer',
-                        padding: '0.125rem 0.25rem',
-                        borderRadius: '3px',
-                        fontSize: '0.7rem',
-                        fontWeight: '600',
-                        marginLeft: '0.5rem',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.125rem',
-                        transition: 'all 0.2s'
-                      }}
-                      title="Copy Application Name"
-                    >
-                      {copiedId === 'setup-app-name' ? <FiCheck size={10} /> : <FiCopy size={10} />}
-                    </button>
-                  </span>
-                </li>
-                <li><strong>Description:</strong> Interactive OAuth 2.0 testing application</li>
-                <li><strong>Hit Save Button</strong></li>
-              </ul>
+		// Clear success message after 3 seconds
+		setTimeout(() => {
+			setSaveStatus(null);
+		}, 3000);
+	};
 
-              <h4>3. Configure Authentication</h4>
-              <ul>
-                <li><strong>Enable Application - Grey button on top Right</strong></li>
-                <li><strong>Hit Configuration tab</strong></li>
-                <li>
-                  <strong>Hit blue pencil</strong>
-                  <span style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '20px',
-                    height: '20px',
-                    backgroundColor: '#0070CC',
-                    borderRadius: '50%',
-                    marginLeft: '8px',
-                    color: 'white'
-                  }}>
-                    <FiEdit size={12} />
-                  </span>
-                </li>
-                <li><strong>Response Type:</strong> Code</li>
-                <li><strong>Grant Type:</strong> Authorization Code</li>
-                <li>
-                  <strong>Redirect URIs:</strong>
-                  <span style={{ fontWeight: '800', fontSize: '1rem', color: '#0070CC', marginLeft: '0.5rem' }}>
-                    http://localhost:3000/callback
-                    <button
-                      onClick={() => copyToClipboard('http://localhost:3000/callback', 'setup-redirect-uri')}
-                      style={{
-                        background: 'none',
-                        border: '1px solid #0070CC',
-                        color: '#0070CC',
-                        cursor: 'pointer',
-                        padding: '0.125rem 0.25rem',
-                        borderRadius: '3px',
-                        fontSize: '0.7rem',
-                        fontWeight: '600',
-                        marginLeft: '0.5rem',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.125rem',
-                        transition: 'all 0.2s'
-                      }}
-                      title="Copy Redirect URI"
-                    >
-                      {copiedId === 'setup-redirect-uri' ? <FiCheck size={10} /> : <FiCopy size={10} />}
-                    </button>
-                  </span>
-                </li>
-                <li><strong>Token Endpoint Authentication Method:</strong> Client Secret Basic</li>
-                <li>Click <strong style={{ color: '#0070CC' }}>Save</strong> to create the application</li>
-              </ul>
+	const handleLogin = async () => {
+		setError('');
 
-              <h4>4. Save and Get Credentials</h4>
-              <ul>
-                <li>See the <strong>Environment ID (Issuer)</strong></li>
-                <li>See the <strong>Client ID</strong></li>
-                <li>
-                  See the <strong>Client Secret</strong>
-                  <span style={{ marginLeft: '0.375rem', color: '#6c757d', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
-                    (<FiEye size={12} /> show/hide)
-                  </span>
-                </li>
-              </ul>
-            </SetupSteps>
+		setIsLoading(true);
 
-            <CredentialsBox>
-              <h4>📝 Enter Your Credentials</h4>
-              
-              {saveStatus && (
-                <div style={{
-                  padding: '1rem',
-                  marginBottom: '1.5rem',
-                  borderRadius: '0.375rem',
-                  backgroundColor: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
-                  border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
-                  color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
-                  display: 'flex',
-                  alignItems: 'flex-start'
-                }}>
-                  {saveStatus.type === 'success' ? (
-                    <FiCheckCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
-                  ) : (
-                    <FiAlertCircle size={20} style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }} />
-                  )}
-                  <div>
-                    <h4 style={{ marginTop: 0, marginBottom: '0.5rem', fontWeight: 600 }}>{saveStatus.title}</h4>
-                    <p style={{ margin: 0, fontSize: '0.9375rem' }}>{saveStatus.message}</p>
-                  </div>
-                </div>
-              )}
+		try {
+			// Redirect to PingOne for authentication
+			await login();
+			// The login function will handle the redirect, so we don't need to do anything else
+		} catch (err) {
+			console.error('Login error:', err);
+			setError('An error occurred during login. Please try again.');
+			setIsLoading(false);
+		}
+	};
 
-              <CredentialRow>
-                <p><strong>Environment ID:</strong></p>
-                <CredentialWrapper>
-                  <input
-                    type="text"
-                    value={credentials.environmentId}
-                    onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem',
-                      border: '1px solid #dee2e6',
-                      borderRadius: '4px',
-                      fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-                      fontSize: '0.85rem',
-                      backgroundColor: '#f8f9fa'
-                    }}
-                    placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
-                  />
-                  <CopyButton
-                    onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
-                    title="Copy Environment ID"
-                  >
-                    {copiedId === 'env-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
-                  </CopyButton>
-                </CredentialWrapper>
-              </CredentialRow>
+	return (
+		<LoginContainer>
+			<LoginLayout>
+				<SetupSection>
+					<DescriptionSection>
+						<p>
+							<span>
+								📝 Interactive OAuth 2.0 testing application
+								<DescCopyButton
+									onClick={() =>
+										copyToClipboard('Interactive OAuth 2.0 testing application', 'app-description')
+									}
+									title="Copy Description"
+								>
+									{copiedId === 'app-description' ? <FiCheck size={12} /> : <FiCopy size={12} />}
+									{copiedId === 'app-description' ? 'Copied!' : 'Copy'}
+								</DescCopyButton>
+							</span>
+						</p>
+					</DescriptionSection>
 
-              <CredentialRow>
-                <p><strong>Client ID:</strong></p>
-                <CredentialWrapper>
-                  <input
-                    type="text"
-                    value={credentials.clientId}
-                    onChange={(e) => handleCredentialChange('clientId', e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '0.5rem',
-                      border: '1px solid #dee2e6',
-                      borderRadius: '4px',
-                      fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-                      fontSize: '0.85rem',
-                      backgroundColor: '#f8f9fa'
-                    }}
-                    placeholder="Enter your application's Client ID"
-                  />
-                  <CopyButton
-                    onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
-                    title="Copy Client ID"
-                  >
-                    {copiedId === 'client-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
-                  </CopyButton>
-                </CredentialWrapper>
-              </CredentialRow>
+					<PingOneSetupSection>
+						<h3>🔧 PingOne Configuration Required</h3>
+						<p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
 
-              <CredentialRow>
-                <p><strong>Client Secret:</strong></p>
-                <CredentialWrapper>
-                  <div style={{ position: 'relative', width: '100%' }}>
-                    <input
-                      type={showClientSecret ? 'text' : 'password'}
-                      value={credentials.clientSecret}
-                      onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '0.5rem 3.25rem 0.5rem 0.75rem',
-                        border: '1px solid #dee2e6',
-                        borderRadius: '4px',
-                        fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-                        fontSize: '0.85rem',
-                        backgroundColor: '#f8f9fa'
-                      }}
-                      placeholder="Enter your application's Client Secret"
-                    />
-                    <button
-                      onClick={toggleClientSecretVisibility}
-                      type="button"
-                      style={{
-                        position: 'absolute',
-                        right: '0.5rem',
-                        top: '50%',
-                        transform: 'translateY(-50%)',
-                        background: 'none',
-                        border: 'none',
-                        cursor: 'pointer',
-                        color: '#6c757d',
-                        padding: '0.25rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                      aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
-                    >
-                      {showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                    </button>
-                  </div>
-                  <CopyButton
-                    onClick={() => copyToClipboard(credentials.clientSecret, 'client-secret')}
-                    title="Copy Client Secret"
-                    style={{ marginLeft: '0.5rem' }}
-                  >
-                    {copiedId === 'client-secret' ? <FiCheck size={16} /> : <FiCopy size={16} />}
-                  </CopyButton>
-                </CredentialWrapper>
-              </CredentialRow>
+						<SetupSteps>
+							<h4>1. Access PingOne Admin Console</h4>
+							<ul>
+								<li>
+									Navigate to your <strong>PingOne Admin Console</strong>
+								</li>
+								<li>
+									Go to <strong>Applications</strong> → <strong>Applications</strong>
+								</li>
+								<li>
+									Click{' '}
+									<strong style={{ fontSize: '1.1rem', fontWeight: '800', color: '#0070CC' }}>
+										+ Add Application
+									</strong>
+								</li>
+								<li>
+									Select <strong>Web Application</strong>
+								</li>
+							</ul>
 
-              <CredentialRow>
-                <p><strong>Redirect URI:</strong></p>
-                <CredentialWrapper>
-                  <code>http://localhost:3000/callback</code>
-                  <CopyButton
-                    onClick={() => copyToClipboard('http://localhost:3000/callback', 'redirect-uri')}
-                    title="Copy Redirect URI"
-                  >
-                    {copiedId === 'redirect-uri' ? <FiCheck size={16} /> : <FiCopy size={16} />}
-                  </CopyButton>
-                </CredentialWrapper>
-              </CredentialRow>
+							<h4>2. Configure Application Details</h4>
+							<ul>
+								<li>
+									<strong>Application Type:</strong> OIDC Web App
+								</li>
+								<li>
+									<strong>Application Name:</strong>
+									<span
+										style={{
+											fontWeight: '800',
+											fontSize: '1rem',
+											color: '#0070CC',
+											marginLeft: '0.5rem',
+										}}
+									>
+										PingOne OAuth Playground
+										<button
+											onClick={() => copyToClipboard('PingOne OAuth Playground', 'setup-app-name')}
+											style={{
+												background: 'none',
+												border: '1px solid #0070CC',
+												color: '#0070CC',
+												cursor: 'pointer',
+												padding: '0.125rem 0.25rem',
+												borderRadius: '3px',
+												fontSize: '0.7rem',
+												fontWeight: '600',
+												marginLeft: '0.5rem',
+												display: 'inline-flex',
+												alignItems: 'center',
+												gap: '0.125rem',
+												transition: 'all 0.2s',
+											}}
+											title="Copy Application Name"
+										>
+											{copiedId === 'setup-app-name' ? <FiCheck size={10} /> : <FiCopy size={10} />}
+										</button>
+									</span>
+								</li>
+								<li>
+									<strong>Description:</strong> Interactive OAuth 2.0 testing application
+								</li>
+								<li>
+									<strong>Hit Save Button</strong>
+								</li>
+							</ul>
 
-              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                <SubmitButton onClick={handleCredentialSave} disabled={false} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
-                  <FiCheck />
-                  Save Credentials
-                </SubmitButton>
-              </div>
-            </CredentialsBox>
+							<h4>3. Configure Authentication</h4>
+							<ul>
+								<li>
+									<strong>Enable Application - Grey button on top Right</strong>
+								</li>
+								<li>
+									<strong>Hit Configuration tab</strong>
+								</li>
+								<li>
+									<strong>Hit blue pencil</strong>
+									<span
+										style={{
+											display: 'inline-flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											width: '20px',
+											height: '20px',
+											backgroundColor: '#0070CC',
+											borderRadius: '50%',
+											marginLeft: '8px',
+											color: 'white',
+										}}
+									>
+										<FiEdit size={12} />
+									</span>
+								</li>
+								<li>
+									<strong>Response Type:</strong> Code
+								</li>
+								<li>
+									<strong>Grant Type:</strong> Authorization Code
+								</li>
+								<li>
+									<strong>Redirect URIs:</strong>
+									<span
+										style={{
+											fontWeight: '800',
+											fontSize: '1rem',
+											color: '#0070CC',
+											marginLeft: '0.5rem',
+										}}
+									>
+										http://localhost:3000/callback
+										<button
+											onClick={() =>
+												copyToClipboard('http://localhost:3000/callback', 'setup-redirect-uri')
+											}
+											style={{
+												background: 'none',
+												border: '1px solid #0070CC',
+												color: '#0070CC',
+												cursor: 'pointer',
+												padding: '0.125rem 0.25rem',
+												borderRadius: '3px',
+												fontSize: '0.7rem',
+												fontWeight: '600',
+												marginLeft: '0.5rem',
+												display: 'inline-flex',
+												alignItems: 'center',
+												gap: '0.125rem',
+												transition: 'all 0.2s',
+											}}
+											title="Copy Redirect URI"
+										>
+											{copiedId === 'setup-redirect-uri' ? (
+												<FiCheck size={10} />
+											) : (
+												<FiCopy size={10} />
+											)}
+										</button>
+									</span>
+								</li>
+								<li>
+									<strong>Token Endpoint Authentication Method:</strong> Client Secret Basic
+								</li>
+								<li>
+									Click <strong style={{ color: '#0070CC' }}>Save</strong> to create the application
+								</li>
+							</ul>
 
-            <p><em>💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your PingOne administrator.</em></p>
-          </PingOneSetupSection>
-        </SetupSection>
+							<h4>4. Save and Get Credentials</h4>
+							<ul>
+								<li>
+									See the <strong>Environment ID (Issuer)</strong>
+								</li>
+								<li>
+									See the <strong>Client ID</strong>
+								</li>
+								<li>
+									See the <strong>Client Secret</strong>
+									<span
+										style={{
+											marginLeft: '0.375rem',
+											color: '#6c757d',
+											display: 'inline-flex',
+											alignItems: 'center',
+											gap: '0.25rem',
+										}}
+									>
+										(<FiEye size={12} /> show/hide)
+									</span>
+								</li>
+							</ul>
+						</SetupSteps>
 
-        <LoginSection>
-          <LoginCard>
-            <LoginHeader>
-              <h1>
-                <span>
-                  🔐 PingOne OAuth Playground
-                  <TitleCopyButton
-                    onClick={() => copyToClipboard('PingOne OAuth Playground', 'app-title')}
-                    title="Copy App Name"
-                  >
-                    {copiedId === 'app-title' ? <FiCheck size={14} /> : <FiCopy size={14} />}
-                    {copiedId === 'app-title' ? 'Copied!' : 'Copy'}
-                  </TitleCopyButton>
-                </span>
-              </h1>
-            </LoginHeader>
+						<CredentialsBox>
+							<h4>📝 Enter Your Credentials</h4>
 
-            <LoginBody>
-              {error && (
-                <Alert>
-                  <FiAlertCircle size={20} />
-                  <div>{error}</div>
-                </Alert>
-              )}
+							{saveStatus && (
+								<div
+									style={{
+										padding: '1rem',
+										marginBottom: '1.5rem',
+										borderRadius: '0.375rem',
+										backgroundColor: saveStatus.type === 'success' ? '#f0fdf4' : '#fef2f2',
+										border: `1px solid ${saveStatus.type === 'success' ? '#bbf7d0' : '#fecaca'}`,
+										color: saveStatus.type === 'success' ? '#166534' : '#991b1b',
+										display: 'flex',
+										alignItems: 'flex-start',
+									}}
+								>
+									{saveStatus.type === 'success' ? (
+										<FiCheckCircle
+											size={20}
+											style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }}
+										/>
+									) : (
+										<FiAlertCircle
+											size={20}
+											style={{ marginRight: '0.75rem', marginTop: '0.2rem', flexShrink: 0 }}
+										/>
+									)}
+									<div>
+										<h4 style={{ marginTop: 0, marginBottom: '0.5rem', fontWeight: 600 }}>
+											{saveStatus.title}
+										</h4>
+										<p style={{ margin: 0, fontSize: '0.9375rem' }}>{saveStatus.message}</p>
+									</div>
+								</div>
+							)}
 
-              <div style={{ textAlign: 'center', padding: '2rem 0' }}>
-                <SubmitButton onClick={handleLogin} disabled={isLoading} style={{ width: 'auto', padding: '0.75rem 2rem' }}>
-                  <FiLogIn />
-                  {isLoading ? 'Redirecting...' : 'Login with PingOne'}
-                </SubmitButton>
-              </div>
-            </LoginBody>
-          </LoginCard>
-        </LoginSection>
-      </LoginLayout>
-    </LoginContainer>
-  );
+							<CredentialRow>
+								<p>
+									<strong>Environment ID:</strong>
+								</p>
+								<CredentialWrapper>
+									<input
+										type="text"
+										value={credentials.environmentId}
+										onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #dee2e6',
+											borderRadius: '4px',
+											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+											fontSize: '0.85rem',
+											backgroundColor: '#f8f9fa',
+										}}
+										placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
+									/>
+									<CopyButton
+										onClick={() => copyToClipboard(credentials.environmentId, 'env-id')}
+										title="Copy Environment ID"
+									>
+										{copiedId === 'env-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+									</CopyButton>
+								</CredentialWrapper>
+							</CredentialRow>
+
+							<CredentialRow>
+								<p>
+									<strong>Client ID:</strong>
+								</p>
+								<CredentialWrapper>
+									<input
+										type="text"
+										value={credentials.clientId}
+										onChange={(e) => handleCredentialChange('clientId', e.target.value)}
+										style={{
+											width: '100%',
+											padding: '0.5rem',
+											border: '1px solid #dee2e6',
+											borderRadius: '4px',
+											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+											fontSize: '0.85rem',
+											backgroundColor: '#f8f9fa',
+										}}
+										placeholder="Enter your application's Client ID"
+									/>
+									<CopyButton
+										onClick={() => copyToClipboard(credentials.clientId, 'client-id')}
+										title="Copy Client ID"
+									>
+										{copiedId === 'client-id' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+									</CopyButton>
+								</CredentialWrapper>
+							</CredentialRow>
+
+							<CredentialRow>
+								<p>
+									<strong>Client Secret:</strong>
+								</p>
+								<CredentialWrapper>
+									<div style={{ position: 'relative', width: '100%' }}>
+										<input
+											type={showClientSecret ? 'text' : 'password'}
+											value={credentials.clientSecret}
+											onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
+											style={{
+												width: '100%',
+												padding: '0.5rem 3.25rem 0.5rem 0.75rem',
+												border: '1px solid #dee2e6',
+												borderRadius: '4px',
+												fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+												fontSize: '0.85rem',
+												backgroundColor: '#f8f9fa',
+											}}
+											placeholder="Enter your application's Client Secret"
+										/>
+										<button
+											onClick={toggleClientSecretVisibility}
+											type="button"
+											style={{
+												position: 'absolute',
+												right: '0.5rem',
+												top: '50%',
+												transform: 'translateY(-50%)',
+												background: 'none',
+												border: 'none',
+												cursor: 'pointer',
+												color: '#6c757d',
+												padding: '0.25rem',
+												display: 'flex',
+												alignItems: 'center',
+												justifyContent: 'center',
+											}}
+											aria-label={showClientSecret ? 'Hide client secret' : 'Show client secret'}
+										>
+											{showClientSecret ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+										</button>
+									</div>
+									<CopyButton
+										onClick={() => copyToClipboard(credentials.clientSecret, 'client-secret')}
+										title="Copy Client Secret"
+										style={{ marginLeft: '0.5rem' }}
+									>
+										{copiedId === 'client-secret' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+									</CopyButton>
+								</CredentialWrapper>
+							</CredentialRow>
+
+							<CredentialRow>
+								<p>
+									<strong>Redirect URI:</strong>
+								</p>
+								<CredentialWrapper>
+									<code>http://localhost:3000/callback</code>
+									<CopyButton
+										onClick={() =>
+											copyToClipboard('http://localhost:3000/callback', 'redirect-uri')
+										}
+										title="Copy Redirect URI"
+									>
+										{copiedId === 'redirect-uri' ? <FiCheck size={16} /> : <FiCopy size={16} />}
+									</CopyButton>
+								</CredentialWrapper>
+							</CredentialRow>
+
+							<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+								<SubmitButton
+									onClick={handleCredentialSave}
+									disabled={false}
+									style={{ width: 'auto', padding: '0.75rem 2rem' }}
+								>
+									<FiCheck />
+									Save Credentials
+								</SubmitButton>
+							</div>
+						</CredentialsBox>
+
+						<p>
+							<em>
+								💡 <strong>Need Help?</strong> Check the PingOne documentation or contact your
+								PingOne administrator.
+							</em>
+						</p>
+					</PingOneSetupSection>
+				</SetupSection>
+
+				<LoginSection>
+					<LoginCard>
+						<LoginHeader>
+							<h1>
+								<span>
+									🔐 PingOne OAuth Playground
+									<TitleCopyButton
+										onClick={() => copyToClipboard('PingOne OAuth Playground', 'app-title')}
+										title="Copy App Name"
+									>
+										{copiedId === 'app-title' ? <FiCheck size={14} /> : <FiCopy size={14} />}
+										{copiedId === 'app-title' ? 'Copied!' : 'Copy'}
+									</TitleCopyButton>
+								</span>
+							</h1>
+						</LoginHeader>
+
+						<LoginBody>
+							{error && (
+								<Alert>
+									<FiAlertCircle size={20} />
+									<div>{error}</div>
+								</Alert>
+							)}
+
+							<div style={{ textAlign: 'center', padding: '2rem 0' }}>
+								<SubmitButton
+									onClick={handleLogin}
+									disabled={isLoading}
+									style={{ width: 'auto', padding: '0.75rem 2rem' }}
+								>
+									<FiLogIn />
+									{isLoading ? 'Redirecting...' : 'Login with PingOne'}
+								</SubmitButton>
+							</div>
+						</LoginBody>
+					</LoginCard>
+				</LoginSection>
+			</LoginLayout>
+		</LoginContainer>
+	);
 };
 
 export default Login;

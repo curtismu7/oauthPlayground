@@ -4,7 +4,9 @@
 import React from 'react';
 
 export interface FlowStatusTableProps {
-	getFlowStatus: (flowId: string) => { lastExecutionTime?: string; hasCredentials?: boolean } | undefined;
+	getFlowStatus: (
+		flowId: string
+	) => { lastExecutionTime?: string; hasCredentials?: boolean } | undefined;
 }
 
 export interface FlowTableConfig {
@@ -37,7 +39,6 @@ export const FLOW_TABLE_CONFIGS: FlowTableConfig[] = [
 			{ id: 'oidc-authorization-code-v5', name: 'OIDC Authorization Code V5' },
 			{ id: 'oidc-implicit-v5', name: 'OIDC Implicit V5' },
 			{ id: 'hybrid-v5', name: 'OIDC Hybrid V5' },
-			{ id: 'oidc-client-credentials-v5', name: 'OIDC Client Credentials V5' },
 			{ id: 'oidc-device-authorization-v5', name: 'OIDC Device Authorization V5' },
 		],
 	},
@@ -119,7 +120,7 @@ export const FlowStatusTable: React.FC<FlowStatusTableProps & { config: FlowTabl
 					{config.flows.map((flow, index) => {
 						const status = getFlowStatus(flow.id);
 						const isLastRow = index === config.flows.length - 1;
-						
+
 						return (
 							<tr key={flow.id} style={{ backgroundColor: '#ffffff' }}>
 								<td
@@ -146,15 +147,19 @@ export const FlowStatusTable: React.FC<FlowStatusTableProps & { config: FlowTabl
 											borderRadius: '0.5rem',
 											fontSize: '0.75rem',
 											fontWeight: '600',
-											backgroundColor: status?.lastExecutionTime && status.lastExecutionTime !== 'Never' 
-												? '#dbeafe' 
-												: '#f3f4f6',
-											color: status?.lastExecutionTime && status.lastExecutionTime !== 'Never' 
-												? '#1e40af' 
-												: '#6b7280',
-											border: `1px solid ${status?.lastExecutionTime && status.lastExecutionTime !== 'Never' 
-												? '#93c5fd' 
-												: '#d1d5db'}`,
+											backgroundColor:
+												status?.lastExecutionTime && status.lastExecutionTime !== 'Never'
+													? '#dbeafe'
+													: '#f3f4f6',
+											color:
+												status?.lastExecutionTime && status.lastExecutionTime !== 'Never'
+													? '#1e40af'
+													: '#6b7280',
+											border: `1px solid ${
+												status?.lastExecutionTime && status.lastExecutionTime !== 'Never'
+													? '#93c5fd'
+													: '#d1d5db'
+											}`,
 										}}
 									>
 										{status?.lastExecutionTime || 'Never'}

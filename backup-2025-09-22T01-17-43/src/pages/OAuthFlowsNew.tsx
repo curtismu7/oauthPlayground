@@ -56,29 +56,29 @@ const WizardButton = styled.button`
 `;
 
 const OAuthFlowsNew: React.FC = () => {
-  const [showWizard, setShowWizard] = useState(false);
+	const [showWizard, setShowWizard] = useState(false);
 
-  if (showWizard) {
-    return <FlowRecommendationWizard onClose={() => setShowWizard(false)} />;
-  }
+	if (showWizard) {
+		return <FlowRecommendationWizard onClose={() => setShowWizard(false)} />;
+	}
 
-  return (
-    <FlowsContainer>
-      <PageHeader>
-        <h1>OAuth Flows</h1>
-        <p>
-          Choose the right OAuth flow for your application. Start with Essential Flows 
-          if you're new to OAuth, or use our wizard to find the perfect flow for your use case.
-        </p>
-        <WizardButton onClick={() => setShowWizard(true)}>
-          <FiHelpCircle />
-          Find the Right Flow for Me
-        </WizardButton>
-      </PageHeader>
+	return (
+		<FlowsContainer>
+			<PageHeader>
+				<h1>OAuth Flows</h1>
+				<p>
+					Choose the right OAuth flow for your application. Start with Essential Flows if you're new
+					to OAuth, or use our wizard to find the perfect flow for your use case.
+				</p>
+				<WizardButton onClick={() => setShowWizard(true)}>
+					<FiHelpCircle />
+					Find the Right Flow for Me
+				</WizardButton>
+			</PageHeader>
 
-      <FlowCategories />
-    </FlowsContainer>
-  );
+			<FlowCategories />
+		</FlowsContainer>
+	);
 };
 
 export default OAuthFlowsNew;
