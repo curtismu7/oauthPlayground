@@ -236,6 +236,12 @@ app.post('/api/token-exchange', async (req, res) => {
 				console.log('🔐 [Server] PKCE not used - omitting code_verifier parameter');
 			}
 
+			// Add x5t request parameter if includeX5tParameter is enabled
+			if (req.body.includeX5tParameter === true || req.body.includeX5tParameter === 'true') {
+				params.request_x5t = 'true';
+				console.log('🔐 [Server] Including x5t request parameter for JWT headers');
+			}
+
 			tokenRequestBody = new URLSearchParams(params);
 		}
 
@@ -753,10 +759,11 @@ app.post('/api/par', async (req, res) => {
 			Accept: 'application/json',
 		};
 
-		// Add client authentication if secret provided
+		// Add client authentication via form data (client_secret_post method)
+		// This is the preferred method for PAR requests in PingOne
 		if (client_secret) {
-			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
-			headers['Authorization'] = `Basic ${credentials}`;
+			formData.append('client_id', client_id);
+			formData.append('client_secret', client_secret);
 		}
 
 		const response = await fetch(parEndpoint, {
@@ -1239,10 +1246,21 @@ function generateSelfSignedCert() {
 	}
 }
 
-// Start HTTPS server
+// Start both HTTP and HTTPS servers
 const certs = generateSelfSignedCert();
-let server;
+let httpsServer;
+let httpServer;
 
+// Start HTTP server for proxy
+httpServer = app.listen(PORT, '0.0.0.0', () => {
+	console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
+	console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
+	console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
+	console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
+	console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
+});
+
+// Start HTTPS server if certificates are available
 if (certs) {
 	try {
 		const options = {
@@ -1250,42 +1268,38 @@ if (certs) {
 			cert: fs.readFileSync(certs.certPath),
 		};
 
-		server = https.createServer(options, app).listen(PORT, '0.0.0.0', () => {
-			console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTPS)`);
-			console.log(`📡 Health check: https://localhost:${PORT}/api/health`);
-			console.log(`🔐 Token exchange: https://localhost:${PORT}/api/token-exchange`);
-			console.log(`👤 UserInfo: https://localhost:${PORT}/api/userinfo`);
-			console.log(`✅ Token validation: https://localhost:${PORT}/api/validate-token`);
+		httpsServer = https.createServer(options, app).listen(PORT + 1, '0.0.0.0', () => {
+			console.log(`🔐 OAuth Playground Backend Server running on port ${PORT + 1} (HTTPS)`);
+			console.log(`📡 Health check: https://localhost:${PORT + 1}/api/health`);
+			console.log(`🔐 Token exchange: https://localhost:${PORT + 1}/api/token-exchange`);
+			console.log(`👤 UserInfo: https://localhost:${PORT + 1}/api/userinfo`);
+			console.log(`✅ Token validation: https://localhost:${PORT + 1}/api/validate-token`);
 		});
 	} catch (error) {
 		console.error('❌ Failed to start HTTPS server:', error.message);
-		console.log('🔄 Falling back to HTTP server...');
-		server = app.listen(PORT, '0.0.0.0', () => {
-			console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
-			console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-			console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
-			console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
-			console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
-		});
+		console.log('🔄 Continuing with HTTP server only...');
 	}
-} else {
-	server = app.listen(PORT, '0.0.0.0', () => {
-		console.log(`🚀 OAuth Playground Backend Server running on port ${PORT} (HTTP)`);
-		console.log(`📡 Health check: http://localhost:${PORT}/api/health`);
-		console.log(`🔐 Token exchange: http://localhost:${PORT}/api/token-exchange`);
-		console.log(`👤 UserInfo: http://localhost:${PORT}/api/userinfo`);
-		console.log(`✅ Token validation: http://localhost:${PORT}/api/validate-token`);
-	});
 }
 
-// Add error handling
-server.on('error', (err) => {
-	console.error('❌ Server error:', err);
+// Add error handling for both servers
+httpServer.on('error', (err) => {
+	console.error('❌ HTTP Server error:', err);
 });
 
-server.on('listening', () => {
-	const addr = server.address();
-	console.log(`🌐 Server listening on:`, addr);
+httpServer.on('listening', () => {
+	const addr = httpServer.address();
+	console.log(`🌐 HTTP Server listening on:`, addr);
 });
+
+if (httpsServer) {
+	httpsServer.on('error', (err) => {
+		console.error('❌ HTTPS Server error:', err);
+	});
+
+	httpsServer.on('listening', () => {
+		const addr = httpsServer.address();
+		console.log(`🌐 HTTPS Server listening on:`, addr);
+	});
+}
 
 export default app;

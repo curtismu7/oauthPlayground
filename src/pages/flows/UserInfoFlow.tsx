@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -349,6 +350,8 @@ const TokenDisplay = styled.div`
 
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();
+
+	usePageScroll();
 
 	// Debug logging
 	console.log(' [UserInfoFlow] Config:', config);
