@@ -242,6 +242,44 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 		<div>
 			<Section>
 				<SectionTitle>
+					<FiShield /> Pushed Authorization Request (PAR)
+				</SectionTitle>
+				<Grid>
+					<Field>
+						<CheckboxLabel>
+							<Checkbox
+								type="checkbox"
+								checked={value.requirePushedAuthorizationRequest}
+								onChange={(e) => onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })}
+							/>
+							Require Pushed Authorization Request
+						</CheckboxLabel>
+						<Helper>
+							Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications<br/>
+							<strong>Without PAR:</strong> <code>https://auth.pingone.com/env/as/authorize?<span style={{ color: '#059669' }}>response_type=code&client_id=...&redirect_uri=...&scope=openid&state=...</span></code><br/>
+							<strong>With PAR:</strong> <code>https://auth.pingone.com/env/as/authorize?<span style={{ color: '#dc2626' }}>request_uri=urn:ietf:params:oauth:request_uri:...</span></code>
+						</Helper>
+					</Field>
+
+					<Field>
+						<Label htmlFor="par-timeout">PAR Reference Timeout (seconds)</Label>
+						<Input
+							id="par-timeout"
+							type="number"
+							min="10"
+							max="600"
+							value={value.pushedAuthorizationRequestTimeout}
+							onChange={(e) => onChange({ ...value, pushedAuthorizationRequestTimeout: parseInt(e.target.value) || 60 })}
+						/>
+						<Helper>
+							Maximum time (in seconds) that a pushed authorization request remains valid before expiring
+						</Helper>
+					</Field>
+				</Grid>
+			</Section>
+
+			<Section>
+				<SectionTitle>
 					<FiSettings /> Client Authentication
 				</SectionTitle>
 				<Grid>
@@ -409,44 +447,6 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 
 			<Section>
 				<SectionTitle>
-					<FiShield /> Pushed Authorization Request (PAR)
-				</SectionTitle>
-				<Grid>
-					<Field>
-						<CheckboxLabel>
-							<Checkbox
-								type="checkbox"
-								checked={value.requirePushedAuthorizationRequest}
-								disabled
-								style={{ cursor: 'not-allowed' }}
-							/>
-							Require Pushed Authorization Request
-						</CheckboxLabel>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable PAR in your PingOne application settings to see this feature in the flow
-						</Helper>
-					</Field>
-
-					<Field>
-						<Label htmlFor="par-timeout">PAR Reference Timeout (seconds)</Label>
-						<Input
-							id="par-timeout"
-							type="number"
-							min="10"
-							max="600"
-							value={value.pushedAuthorizationRequestTimeout}
-							disabled
-							style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
-						/>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Set PAR timeout in PingOne application configuration
-						</Helper>
-					</Field>
-				</Grid>
-			</Section>
-
-			<Section>
-				<SectionTitle>
 					<FiGlobe /> Advanced Security Settings
 				</SectionTitle>
 				<Grid>
@@ -455,15 +455,17 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
-							disabled
-							style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
+							onChange={(e) => onChange({ ...value, requestParameterSignatureRequirement: e.target.value as 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED' })}
 						>
 							<option value="DEFAULT">Default</option>
 							<option value="REQUIRE_SIGNED">Require Signed</option>
 							<option value="ALLOW_UNSIGNED">Allow Unsigned</option>
 						</Select>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Set request signature requirements in PingOne application settings
+						<Helper>
+							Controls whether request parameters must be cryptographically signed for enhanced security and integrity<br/>
+							<strong>Default:</strong> Uses PingOne's default signature requirements<br/>
+							<strong>Require Signed:</strong> All requests must include valid signatures<br/>
+							<strong>Allow Unsigned:</strong> Permits requests without signatures (less secure)
 						</Helper>
 					</Field>
 
@@ -472,13 +474,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.additionalRefreshTokenReplayProtection}
-								disabled
-								style={{ cursor: 'not-allowed' }}
+								onChange={(e) => onChange({ ...value, additionalRefreshTokenReplayProtection: e.target.checked })}
 							/>
 							Additional Refresh Token Replay Protection
 						</CheckboxLabel>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable refresh token replay protection in PingOne application settings
+						<Helper>
+							Prevents refresh tokens from being used multiple times, enhancing security by ensuring each token can only be used once<br/>
+							<strong>Benefit:</strong> Prevents token replay attacks where stolen refresh tokens could be reused
 						</Helper>
 					</Field>
 
@@ -487,13 +489,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.includeX5tParameter}
-								disabled
-								style={{ cursor: 'not-allowed' }}
+								onChange={(e) => onChange({ ...value, includeX5tParameter: e.target.checked })}
 							/>
 							Include x5t Parameter
 						</CheckboxLabel>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable x5t parameter inclusion in PingOne application settings
+						<Helper>
+							Includes the x5t (X.509 certificate thumbprint) parameter in JWT tokens for certificate-based authentication validation<br/>
+							<strong>Purpose:</strong> Allows clients to validate that JWTs were signed with the expected certificate
 						</Helper>
 					</Field>
 
@@ -502,13 +504,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.oidcSessionManagement}
-								disabled
-								style={{ cursor: 'not-allowed' }}
+								onChange={(e) => onChange({ ...value, oidcSessionManagement: e.target.checked })}
 							/>
 							OpenID Connect Session Management
 						</CheckboxLabel>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable OIDC session management in PingOne application settings
+						<Helper>
+							Enables OIDC session management features including session state and logout functionality for better user session handling<br/>
+							<strong>Features:</strong> Session state tracking, logout redirection, and improved session lifecycle management
 						</Helper>
 					</Field>
 
@@ -517,13 +519,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.requestScopesForMultipleResources}
-								disabled
-								style={{ cursor: 'not-allowed' }}
+								onChange={(e) => onChange({ ...value, requestScopesForMultipleResources: e.target.checked })}
 							/>
 							Request Scopes for Multiple Resources
 						</CheckboxLabel>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable multi-resource scopes in PingOne application settings
+						<Helper>
+							Allows requesting permissions across multiple resource servers in a single authorization request, useful for microservices architectures<br/>
+							<strong>Use Case:</strong> Applications that need access to multiple APIs/services can request all permissions in one authorization flow
 						</Helper>
 					</Field>
 
@@ -532,13 +534,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.terminateUserSessionByIdToken}
-								disabled
-								style={{ cursor: 'not-allowed' }}
+								onChange={(e) => onChange({ ...value, terminateUserSessionByIdToken: e.target.checked })}
 							/>
 							Terminate User Session by ID Token
 						</CheckboxLabel>
-						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable ID token session termination in PingOne application settings
+						<Helper>
+							Allows terminating user sessions using the ID token, providing a way to logout users across all applications<br/>
+							<strong>Benefit:</strong> Enables single logout (SLO) functionality where logging out from one application logs the user out from all related applications
 						</Helper>
 					</Field>
 				</Grid>

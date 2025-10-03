@@ -36,7 +36,11 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Implicit Flow' },
@@ -47,7 +51,6 @@ const STEP_METADATA = [
 	{ title: 'Step 5: Security Features', subtitle: 'Advanced security demonstrations' },
 ] as const;
 
-type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
 	| 'flowDiagram'
@@ -102,25 +105,6 @@ const ContentWrapper = styled.div`
 	max-width: 64rem;
 	margin: 0 auto;
 	padding: 0 1rem;
-`;
-
-const _HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const _MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
-`;
-
-const _Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: var(--color-text-secondary, #4b5563);
-	margin: 0 auto;
-	max-width: 42rem;
 `;
 
 const MainCard = styled.div`
@@ -542,9 +526,20 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		}
 	}, [controller.credentials, controller.setCredentials]);
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step');
+			return step;
+		}
+		return 0;
+	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		overview: false,
 		flowDiagram: true,
@@ -576,18 +571,6 @@ const OIDCImplicitFlowV5: React.FC = () => {
 			window.history.replaceState({}, '', window.location.pathname);
 		}
 	}, [controller]);
-
-	const _stepCompletions = useMemo<StepCompletionState>(
-		() => ({
-			0: controller.hasCredentialsSaved,
-			1: Boolean(controller.authUrl),
-			2: Boolean(controller.tokens),
-			3: Boolean(controller.userInfo),
-			4: Boolean(controller.tokens),
-			5: Boolean(controller.tokens),
-		}),
-		[controller.hasCredentialsSaved, controller.authUrl, controller.tokens, controller.userInfo]
-	);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -706,10 +689,14 @@ const OIDCImplicitFlowV5: React.FC = () => {
 	}, []);
 
 	const navigateToTokenManagement = useCallback(() => {
-		sessionStorage.setItem('flow_source', 'oauth-implicit-v5');
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oidc-implicit-v5', currentStep, 'oidc');
+
+		// Set flow source for Token Management page (legacy support)
+		sessionStorage.setItem('flow_source', 'oidc-implicit-v5');
 
 		const flowContext = {
-			flow: 'oauth-implicit-v5',
+			flow: 'oidc-implicit-v5',
 			tokens: controller.tokens,
 			credentials: controller.credentials,
 			timestamp: Date.now(),
@@ -719,11 +706,11 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		if (controller.tokens?.access_token) {
 			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
-			localStorage.setItem('flow_source', 'oauth-implicit-v5');
+			localStorage.setItem('flow_source', 'oidc-implicit-v5');
 		}
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
@@ -738,41 +725,38 @@ const OIDCImplicitFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-
-			// For implicit flow (public client), use client_id only (no client_secret)
-			const params = new URLSearchParams({
+			const request = {
 				token: token,
-				client_id: credentials.clientId,
-			});
-
-			console.log('🔍 [OIDCImplicitFlowV5] Introspecting token:', {
-				introspectionEndpoint,
 				clientId: credentials.clientId,
-				tokenLength: token.length,
-			});
+				// No client secret for implicit flow (public client)
+				tokenTypeHint: 'access_token' as const
+			};
 
-			const response = await fetch(introspectionEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: params.toString(),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				console.error('❌ [OIDCImplicitFlowV5] Introspection failed:', {
-					status: response.status,
-					statusText: response.statusText,
-					errorText,
-				});
-				throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
+			try {
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'implicit',
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+				);
+				
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
+				
+				return result.response;
+			} catch (error) {
+				// Create error API call using reusable service
+				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+					request,
+					'implicit',
+					error instanceof Error ? error.message : 'Unknown error',
+					500,
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+				);
+				
+				setIntrospectionApiCall(errorApiCall);
+				throw error;
 			}
-
-			const data = await response.json();
-			console.log('✅ [OIDCImplicitFlowV5] Introspection successful:', data);
-			return data;
 		},
 		[controller.credentials]
 	);
@@ -1292,35 +1276,49 @@ const OIDCImplicitFlowV5: React.FC = () => {
 
 			case 4:
 				return (
-					<TokenIntrospect
-						flowName="OpenID Connect Implicit Flow"
-						flowVersion="V5"
-						tokens={controller.tokens as Record<string, unknown>}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						userInfo={userInfo}
-						onFetchUserInfo={handleFetchUserInfo}
-						isFetchingUserInfo={controller.isFetchingUserInfo}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false,
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="You've completed the OpenID Connect Implicit Flow. Remember: this flow is legacy and less secure than Authorization Code + PKCE."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Note: No refresh token is provided in Implicit Flow.',
-							'Consider migrating to Authorization Code + PKCE for better security.',
-						]}
-					/>
+					<>
+						<TokenIntrospect
+							flowName="OpenID Connect Implicit Flow"
+							flowVersion="V5"
+							tokens={controller.tokens as Record<string, unknown>}
+							credentials={controller.credentials as unknown as Record<string, unknown>}
+							userInfo={userInfo}
+							onFetchUserInfo={handleFetchUserInfo}
+							isFetchingUserInfo={controller.isFetchingUserInfo}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false,
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage="You've completed the OpenID Connect Implicit Flow. Remember: this flow is legacy and less secure than Authorization Code + PKCE."
+							nextSteps={[
+								'Inspect or decode tokens using the Token Management tools.',
+								'Note: No refresh token is provided in Implicit Flow.',
+								'Consider migrating to Authorization Code + PKCE for better security.',
+							]}
+						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit')
+								}}
+							/>
+						)}
+					</>
 				);
 
 			case 5:
@@ -1418,9 +1416,6 @@ const OIDCImplicitFlowV5: React.FC = () => {
 				isFirstStep={currentStep === 0}
 				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
 				disabledMessage="Complete the action above to continue"
-				stepRequirements={getStepRequirements(currentStep)}
-				onCompleteAction={handleNext}
-				showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
 			/>
 		</Container>
 	);

@@ -227,24 +227,22 @@ const OutputHeader = styled.div`
 const OutputTitle = styled.div`
   display: flex;
   align-items: center;
+{{ ... }}
   gap: 0.5rem;
   font-weight: 500;
 `;
 
-const OutputContent = styled.pre<{ isExpanded: boolean }>`
-  background: #1a202c;
-  color: #e2e8f0;
-  padding: 1rem;
-  margin: 0;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  overflow-x: auto;
-  max-height: ${(props) => (props.isExpanded ? '500px' : '0')};
-  overflow-y: ${(props) => (props.isExpanded ? 'auto' : 'hidden')};
-  transition: max-height 0.3s ease;
-  white-space: pre-wrap;
-  word-break: break-word;
+const OutputContent = styled.pre<{ $isExpanded: boolean }>`
+	background: #1a202c;
+	color: #e2e8f0;
+	padding: 1rem;
+	line-height: 1.5;
+	overflow-x: auto;
+	max-height: ${({ $isExpanded }) => ($isExpanded ? '500px' : '0')};
+	overflow-y: ${({ $isExpanded }) => ($isExpanded ? 'auto' : 'hidden')};
+	transition: max-height 0.3s ease;
+	white-space: pre-wrap;
+	word-break: break-word;
 `;
 
 const StatusIndicator = styled.div<{
@@ -619,7 +617,7 @@ const JWKSTroubleshooting: React.FC = () => {
 											Copy
 										</Button>
 									</OutputHeader>
-									<OutputContent isExpanded={expandedOutputs.has(key)}>
+									<OutputContent $isExpanded={expandedOutputs.has(key)}>
 										{result.output}
 									</OutputContent>
 								</OutputContainer>
