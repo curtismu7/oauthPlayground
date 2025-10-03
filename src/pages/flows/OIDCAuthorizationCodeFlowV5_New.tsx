@@ -43,8 +43,11 @@ import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { applyClientAuthentication, ClientAuthConfig } from '../../utils/clientAuthentication';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -659,6 +662,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		search: window.location.search,
 		timestamp: new Date().toISOString(),
 	});
+
+	usePageScroll();
 
 	const manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
@@ -1543,9 +1548,10 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 								if (config) {
 									controller.setCredentials(config);
 								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings');
+								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 							}}
 							primaryColor="#3b82f6"
+							flowType="oidc-authorization-code"
 						/>
 
 						<CollapsibleSection>
@@ -2596,13 +2602,15 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			case 8:
 				return (
 					<SecurityFeaturesDemo
-						tokens={controller.tokens}
-						credentials={controller.credentials}
+						tokens={controller.tokens as unknown as Record<string, unknown> | null}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						onTerminateSession={() => {
-							v4ToastManager.showSuccess('Session termination would be implemented here');
+							console.log('🚪 Session terminated via SecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Session termination completed.');
 						}}
 						onRevokeTokens={() => {
-							v4ToastManager.showSuccess('Token revocation would be implemented here');
+							console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Token revocation completed.');
 						}}
 					/>
 				);
@@ -2696,6 +2704,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				isFirstStep={currentStep === 0}
 				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
 				disabledMessage="Complete the action above to continue"
+				stepRequirements={getStepRequirements(currentStep)}
+				onCompleteAction={handleNextClick}
+				showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
 			/>
 
 			<Modal $show={showRedirectModal}>

@@ -124,7 +124,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			//     hashParams: Object.fromEntries(hashParams.entries())
 			//   }
 			// }, 'authorization'); // Temporarily commented to fix syntax
-			showGlobalError(` Authorization failed: ${errorDescription || error}`);
+			showGlobalError(`Authorization failed: ${errorDescription || error}`);
 			return;
 		}
 
@@ -150,7 +150,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				//     securityIssue: 'CSRF_PROTECTION'
 				//   }
 				// }, 'authorization'); // Temporarily commented to fix syntax
-				showGlobalError(' State parameter mismatch. Possible CSRF attack detected.');
+				showGlobalError('State parameter mismatch. Possible CSRF attack detected.');
 				return;
 			}
 
@@ -168,7 +168,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			console.log(' [OIDC-V3] Cleaned URL parameters from address bar');
 
 			showGlobalSuccess(
-				' Authorization successful! You can now exchange your authorization code for tokens.'
+				'Authorization successful! You can now exchange your authorization code for tokens.'
 			);
 		}
 
@@ -197,7 +197,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				}
 
 				showGlobalSuccess(
-					' Authorization successful via full redirect! You can now exchange your authorization code for tokens.'
+					'Authorization successful via full redirect! You can now exchange your authorization code for tokens.'
 				);
 			}
 		}
@@ -337,12 +337,12 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			});
 
 			if (success) {
-				showGlobalSuccess(' Credentials Saved Successfully');
+				showGlobalSuccess('Credentials saved successfully');
 			} else {
 				throw new Error('Failed to save credentials');
 			}
 		} catch (error) {
-			showGlobalError(' Failed to save credentials');
+			showGlobalError('Failed to save credentials');
 			throw error;
 		}
 	}, [credentials, flowConfig.clientAuthMethod]);
@@ -368,9 +368,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 				storedInSessionStorage: true,
 			});
 
-			showGlobalSuccess(' PKCE Codes Generated Successfully');
+			showGlobalSuccess('PKCE codes generated successfully');
 		} catch (error) {
-			showGlobalError(' Failed to generate PKCE codes');
+			showGlobalError('Failed to generate PKCE codes');
 			throw error;
 		}
 	}, []);
@@ -520,7 +520,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 			});
 
 			setAuthUrl(url);
-			showGlobalSuccess(' Authorization URL Generated Successfully with Advanced Parameters');
+			showGlobalSuccess('Authorization URL generated successfully with advanced parameters');
 		} catch (error) {
 			showGlobalError(' Failed to generate authorization URL');
 			throw error;
@@ -638,6 +638,7 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 					codeVerifier: pkceCodes.codeVerifier,
 					tokenEndpoint: flowConfig.tokenEndpoint || credentials.tokenEndpoint,
 					authMethod: flowConfig.clientAuthMethod,
+					...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
 				}),
 			});
 

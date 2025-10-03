@@ -10,6 +10,7 @@ import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { config } from '../../services/config';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 const Page = styled.div`
   display: flex;
@@ -116,6 +117,8 @@ const ImplicitFlowOIDC: React.FC = () => {
 		additionalScopes: '',
 	});
 	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+
+	usePageScroll();
 
 	const startImplicitFlow = () => {
 		setDemoStatus('loading');

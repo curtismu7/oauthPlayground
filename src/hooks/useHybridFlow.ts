@@ -30,6 +30,7 @@ export interface HybridFlowCredentials {
 	clientSecret?: string;
 	scopes: string;
 	responseType: 'code id_token' | 'code token' | 'code id_token token';
+	includeX5tParameter?: boolean;
 }
 
 export interface HybridFlowTokens {
@@ -213,6 +214,7 @@ export const useHybridFlow = (): HybridFlowState => {
 					code,
 					redirect_uri: redirectUri,
 					client_id: credentials.clientId,
+					...(credentials.includeX5tParameter && { request_x5t: 'true' }),
 				});
 
 				// Add client_secret if provided (confidential client)
