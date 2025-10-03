@@ -42,13 +42,16 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { applyClientAuthentication, ClientAuthConfig } from '../../utils/clientAuthentication';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
+import { ResponseMode } from '../../services/responseModeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -672,9 +675,17 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step');
+			return step;
+		}
+		return 0;
+	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [__emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
@@ -706,7 +717,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
-	const [__copiedField, setCopiedField] = useState<string | null>(null);
 	const [, setIsFetchingUserInfo] = useState(false);
 
 	// Load PingOne configuration from sessionStorage on mount
@@ -739,7 +749,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
 			}
 		}
-	}, [controller]);
+	}, []); // Empty dependency array - only run once on mount
 
 	// Debug: Always log the current authorization code state
 	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
@@ -891,26 +901,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	}, []);
 
-	const _handleFieldChange = useCallback(
-		(field: keyof StepCredentials, value: string) => {
-			const updatedCredentials = {
-				...controller.credentials,
-				[field]: value,
-			};
-			controller.setCredentials(updatedCredentials);
-			if (value.trim()) {
-				setEmptyRequiredFields((prev) => {
-					const next = new Set(prev);
-					next.delete(field as string);
-					return next;
-				});
-			} else {
-				setEmptyRequiredFields((prev) => new Set(prev).add(field as string));
-			}
-		},
-		[controller]
-	);
-
 	const handleSaveConfiguration = useCallback(async () => {
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
@@ -923,7 +913,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			return !value || (typeof value === 'string' && !value.trim());
 		});
 		if (missing.length > 0) {
-			setEmptyRequiredFields(new Set(missing.map((field) => field as string)));
 			v4ToastManager.showError(
 				'Missing required fields: Complete all required fields before saving.'
 			);
@@ -931,22 +920,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		}
 		await controller.saveCredentials();
 		v4ToastManager.showSuccess('Configuration saved successfully!');
-	}, [controller]);
-
-	const _handleClearConfiguration = useCallback(() => {
-		controller.setCredentials({
-			environmentId: '',
-			clientId: '',
-			clientSecret: '',
-			redirectUri: 'https://localhost:3000/authz-callback',
-			scope: 'openid',
-			responseType: 'code',
-			grantType: 'authorization_code',
-			clientAuthMethod: 'client_secret_post',
-		});
-		setEmptyRequiredFields(new Set(['environmentId', 'clientId', 'clientSecret', 'redirectUri']));
-		sessionStorage.removeItem('oidc-authorization-code-v5-app-config');
-		v4ToastManager.showSuccess('Configuration cleared. Enter PingOne credentials to continue.');
 	}, [controller]);
 
 	const savePingOneConfig = useCallback(
@@ -1104,8 +1077,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 
 	const handleCopy = useCallback((text: string, label: string) => {
 		v4ToastManager.handleCopyOperation(text, label);
-		setCopiedField(label);
-		setTimeout(() => setCopiedField(null), 1000);
 	}, []);
 
 	// Extract x5t parameter from JWT header
@@ -1120,6 +1091,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	}, []);
 
 	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oidc-authorization-code-v5', currentStep, 'oidc');
+
 		// Set flow source for Token Management page (legacy support)
 		sessionStorage.setItem('flow_source', 'oidc-authorization-code-v5');
 
@@ -1144,7 +1118,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		}
 
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		// Set flow source for Token Management page (legacy support)
@@ -1193,71 +1167,38 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
-
-			const requestBody: Record<string, unknown> = {
+			const request = {
 				token: token,
-				client_id: credentials.clientId,
-				introspection_endpoint: introspectionEndpoint,
-				token_auth_method: tokenAuthMethod,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				tokenTypeHint: 'access_token' as const
 			};
 
-			// Handle JWT-based authentication methods
-			if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
-				try {
-					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-					const baseParams = new URLSearchParams();
-
-					const authConfig: Partial<ClientAuthConfig> = {
-						method: tokenAuthMethod as
-							| 'client_secret_post'
-							| 'client_secret_basic'
-							| 'client_secret_jwt'
-							| 'private_key_jwt',
-						clientId: credentials.clientId,
-						tokenEndpoint,
-					};
-
-					if (tokenAuthMethod === 'client_secret_jwt' && credentials.clientSecret) {
-						authConfig.clientSecret = credentials.clientSecret;
-					}
-					if (tokenAuthMethod === 'private_key_jwt' && credentials.privateKey) {
-						authConfig.privateKey = credentials.privateKey;
-					}
-
-					const authResult = await applyClientAuthentication(
-						authConfig as ClientAuthConfig,
-						baseParams
-					);
-
-					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
-					requestBody.client_assertion = authResult.body.get('client_assertion');
-				} catch (error) {
-					throw new Error(
-						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-					);
-				}
-			} else if (tokenAuthMethod !== 'none') {
-				// For client_secret_basic and client_secret_post
-				requestBody.client_secret = credentials.clientSecret;
+			try {
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'authorization-code',
+					'/api/introspect-token'
+				);
+				
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
+				
+				return result.response;
+			} catch (error) {
+				// Create error API call using reusable service
+				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+					request,
+					'authorization-code',
+					error instanceof Error ? error.message : 'Unknown error',
+					500,
+					'/api/introspect-token'
+				);
+				
+				setIntrospectionApiCall(errorApiCall);
+				throw error;
 			}
-
-			const response = await fetch('/api/introspect-token', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(requestBody),
-			});
-
-			const data = await response.json();
-
-			if (!response.ok) {
-				throw new Error(data.error_description || data.error || 'Introspection failed');
-			}
-
-			return data;
 		},
 		[controller.credentials]
 	);
@@ -2535,68 +2476,96 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 
 			case 6:
 				return (
-					<TokenIntrospect
-						flowName="OpenID Connect Authorization Code Flow"
-						flowVersion="V5.1"
-						tokens={controller.tokens as unknown as Record<string, unknown>}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						userInfo={userInfo}
-						onFetchUserInfo={handleFetchUserInfo}
-						isFetchingUserInfo={isFetchingUserInfo}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false, // Show raw JSON expanded by default
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Repeat the flow with different scopes or redirect URIs.',
-							'Explore refresh tokens and introspection flows.',
-						]}
-					/>
+					<>
+						<TokenIntrospect
+							flowName="OpenID Connect Authorization Code Flow"
+							flowVersion="V5.1"
+							tokens={controller.tokens as unknown as Record<string, unknown>}
+							credentials={controller.credentials as unknown as Record<string, unknown>}
+							userInfo={userInfo}
+							onFetchUserInfo={handleFetchUserInfo}
+							isFetchingUserInfo={isFetchingUserInfo}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false, // Show raw JSON expanded by default
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
+							nextSteps={[
+								'Inspect or decode tokens using the Token Management tools.',
+								'Repeat the flow with different scopes or redirect URIs.',
+								'Explore refresh tokens and introspection flows.',
+							]}
+						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+								}}
+							/>
+						)}
+					</>
 				);
 
 			case 7:
 				return (
-					<TokenIntrospect
-						flowName="OpenID Connect Authorization Code Flow"
-						flowVersion="V5.1"
-						tokens={controller.tokens as unknown as Record<string, unknown>}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						userInfo={userInfo}
-						onFetchUserInfo={handleFetchUserInfo}
-						isFetchingUserInfo={isFetchingUserInfo}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false, // Show raw JSON expanded by default
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Repeat the flow with different scopes or redirect URIs.',
-							'Explore refresh tokens and introspection flows.',
-						]}
-					/>
+					<>
+						<TokenIntrospect
+							flowName="OpenID Connect Authorization Code Flow"
+							flowVersion="V5.1"
+							tokens={controller.tokens as unknown as Record<string, unknown>}
+							credentials={controller.credentials as unknown as Record<string, unknown>}
+							userInfo={userInfo}
+							onFetchUserInfo={handleFetchUserInfo}
+							isFetchingUserInfo={isFetchingUserInfo}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false, // Show raw JSON expanded by default
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
+							nextSteps={[
+								'Inspect or decode tokens using the Token Management tools.',
+								'Repeat the flow with different scopes or redirect URIs.',
+								'Explore refresh tokens and introspection flows.',
+							]}
+						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+								}}
+							/>
+						)}
+					</>
 				);
 
 			case 8:
@@ -2658,8 +2627,30 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-authorization-code-v5" />
-
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
+				<FlowSequenceDisplay flowType="authorization-code" />
+
+				<InfoBox $variant="info">
+					<FiInfo />
+					<div>
+						<InfoTitle>Response Mode Selection</InfoTitle>
+						<InfoText>
+							Choose how PingOne returns the authorization response. Different modes are 
+							optimized for different application types and security requirements.
+						</InfoText>
+					</div>
+				</InfoBox>
+
+				<ResponseModeSelector
+					selectedMode="query"
+					onModeChange={() => {}}
+					responseType="code"
+					clientType="confidential"
+					platform="web"
+					showRecommendations={true}
+					showUrlExamples={true}
+					baseUrl="https://auth.pingone.com/{envID}/as/authorize"
+				/>
 
 				<MainCard>
 					<StepHeader>
@@ -2704,9 +2695,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				isFirstStep={currentStep === 0}
 				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
 				disabledMessage="Complete the action above to continue"
-				stepRequirements={getStepRequirements(currentStep)}
-				onCompleteAction={handleNextClick}
-				showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
 			/>
 
 			<Modal $show={showRedirectModal}>

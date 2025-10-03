@@ -2,13 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
 	FiBookOpen,
 	FiClock,
-	FiCode,
 	FiCpu,
 	FiDatabase,
 	FiExternalLink,
+	FiEye,
 	FiFileText,
 	FiGitBranch,
-	FiGlobe,
 	FiHome,
 	FiKey,
 	FiLayers,
@@ -18,6 +17,7 @@ import {
 	FiSettings,
 	FiShield,
 	FiSmartphone,
+	FiTarget,
 	FiTool,
 	FiUser,
 	FiUserCheck,
@@ -185,10 +185,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'Core Overview': true,
 			'OAuth 2.0 Flows': true,
 			'OpenID Connect': true,
-			'PingOne Flows': false,
-			'Testing & Debugging': false,
-			'Learning & Education': false,
-			'AI learning': true,
+			'PingOne': false,
+			'Mock & Demo Flows': false,
+			'Artificial Intelligence': false,
 			'Security & Management': false,
 			'Tools & Utilities': false,
 			'Documentation': false,
@@ -340,27 +339,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					>
 						Client Credentials (V5)
 					</MenuItem>
-					<MenuItem
-						icon={<FiShield />}
-						active={isActive('/flows/jwt-bearer-v5')}
-						onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
-					>
-						JWT Bearer Token (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiUserCheck />}
-						active={isActive('/flows/oauth2-resource-owner-password')}
-						onClick={() => handleNavigation('/flows/oauth2-resource-owner-password')}
-					>
-						Resource Owner Password (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiLayers />}
-						active={isActive('/flows/rar-v5')}
-						onClick={() => handleNavigation('/flows/rar-v5')}
-					>
-						RAR Flow (Educational)
-					</MenuItem>
 					</SubMenu>
 
 					{/* OpenID Connect */}
@@ -398,13 +376,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					>
 						Hybrid Flow (V5)
 					</MenuItem>
-					<MenuItem
-						icon={<FiUserCheck />}
-						active={isActive('/oidc/resource-owner-password')}
-						onClick={() => handleNavigation('/oidc/resource-owner-password')}
-					>
-						Resource Owner Password
-					</MenuItem>
 						{/* V3 Hybrid Flow - Hidden, use V5 instead */}
 						{/* <MenuItem
 							active={isActive('/flows/oidc-hybrid-v3')}
@@ -414,12 +385,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</MenuItem> */}
 					</SubMenu>
 
-					{/* PingOne Flows */}
+					{/* PingOne */}
 					<SubMenu 
-						label="PingOne Flows" 
+						label="PingOne" 
 						icon={<FiKey />} 
-						open={openMenus['PingOne Flows']}
-						onOpenChange={() => toggleMenu('PingOne Flows')}
+						open={openMenus['PingOne']}
+						onOpenChange={() => toggleMenu('PingOne')}
 					>
 					<MenuItem
 						icon={<FiKey />}
@@ -433,180 +404,124 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						active={isActive('/flows/pingone-par-v5')}
 						onClick={() => handleNavigation('/flows/pingone-par-v5')}
 					>
-						PAR Flow (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiSmartphone />}
-						active={isActive('/flows/redirectless-flow-mock')}
-						onClick={() => handleNavigation('/flows/redirectless-flow-mock')}
-					>
-						Redirectless Flow V5 (Educational)
+						PAR (V5)
 					</MenuItem>
 					<MenuItem
 						icon={<FiSmartphone />}
 						active={isActive('/flows/redirectless-flow-v5')}
 						onClick={() => handleNavigation('/flows/redirectless-flow-v5')}
 					>
-						Redirectless Flow (V5)
+						Redirectless Flow Real (V5)
 					</MenuItem>
 					<MenuItem
 						icon={<FiSmartphone />}
 						active={isActive('/flows/ciba-v5')}
 						onClick={() => handleNavigation('/flows/ciba-v5')}
 					>
-						CIBA Flow V5 (Educational)
+						CBIA (V5)
 					</MenuItem>
 					<MenuItem
 						icon={<FiShield />}
 						active={isActive('/flows/pingone-mfa-v5')}
 						onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
 					>
-						PingOne MFA API
+						PingOne MFA API (V5)
 					</MenuItem>
 					</SubMenu>
 
-					{/* Testing & Debugging Section */}
+					{/* Mock & Demo Flows */}
 					<SubMenu 
-						label="Testing & Debugging" 
-						icon={<FiSearch />} 
-						open={openMenus['Testing & Debugging']}
-						onOpenChange={() => toggleMenu('Testing & Debugging')}
+						label="Mock & Demo Flows" 
+						icon={<FiEye />} 
+						open={openMenus['Mock & Demo Flows']}
+						onOpenChange={() => toggleMenu('Mock & Demo Flows')}
 					>
 					<MenuItem
-						icon={<FiCode />}
-						onClick={() => window.open('https://developer.pingidentity.com/en/tools/jwt-decoder.html', '_blank', 'noopener,noreferrer')}
+						icon={<FiEye />}
+						active={isActive('/flows/jwt-bearer-v5')}
+						onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
 					>
-						JWT Decoder
+						JWT Bearer Token (V5) (Mock)
 					</MenuItem>
 					<MenuItem
-						icon={<FiGlobe />}
-						active={isActive('/url-decoder')}
-						onClick={() => handleNavigation('/url-decoder')}
+						icon={<FiEye />}
+						active={isActive('/flows/oauth2-resource-owner-password')}
+						onClick={() => handleNavigation('/flows/oauth2-resource-owner-password')}
 					>
-						URL Decoder
+						ROPC (V5) (Mock)
 					</MenuItem>
 					<MenuItem
-						icon={<FiKey />}
-						active={isActive('/jwks-troubleshooting')}
-						onClick={() => handleNavigation('/jwks-troubleshooting')}
+						icon={<FiTarget />}
+						active={isActive('/flows/rar-v5')}
+						onClick={() => handleNavigation('/flows/rar-v5')}
 					>
-						JWKS Troubleshooting
+						RAR (V5) (Mock)
 					</MenuItem>
 					<MenuItem
-						icon={<FiExternalLink />}
-						onClick={() => window.open('https://decoder.pingidentity.cloud/', '_blank', 'noopener,noreferrer')}
+						icon={<FiEye />}
+						active={isActive('/code-examples-demo')}
+						onClick={() => handleNavigation('/code-examples-demo')}
 					>
-						Facile Decoder
+						Code Examples
 					</MenuItem>
 					</SubMenu>
 
-					{/* Learning & Education Section */}
+					{/* Artificial Intelligence */}
 					<SubMenu 
-						label="Learning & Education" 
-						icon={<FiBookOpen />} 
-						open={openMenus['Learning & Education']}
-						onOpenChange={() => toggleMenu('Learning & Education')}
-					>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/ai-glossary')}
-							onClick={() => handleNavigation('/ai-glossary')}
-						>
-							AI Glossary
-						</MenuItem>
-						<MenuItem
-							icon={<FiCpu />}
-							active={isActive('/ai-agent-overview')}
-							onClick={() => handleNavigation('/ai-agent-overview')}
-						>
-							AI Agent Overview for PingOne
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/comprehensive-oauth-education')}
-							onClick={() => handleNavigation('/comprehensive-oauth-education')}
-						>
-							Comprehensive OAuth AI Education
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/documentation/oidc-overview')}
-							onClick={() => handleNavigation('/documentation/oidc-overview')}
-						>
-							OIDC Overview
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/tutorials')}
-							onClick={() => handleNavigation('/tutorials')}
-						>
-							Interactive Tutorials
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/oauth-oidc-training')}
-							onClick={() => handleNavigation('/oauth-oidc-training')}
-						>
-							OAuth/OIDC Training
-						</MenuItem>
-					</SubMenu>
-
-					{/* AI learning Section */}
-					<SubMenu 
-						label="AI learning" 
+						label="Artificial Intelligence" 
 						icon={<FiCpu />} 
-						open={openMenus['AI learning']}
-						onOpenChange={() => toggleMenu('AI learning')}
+						open={openMenus['Artificial Intelligence']}
+						onOpenChange={() => toggleMenu('Artificial Intelligence')}
 					>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/ai-glossary')}
-							onClick={() => handleNavigation('/ai-glossary')}
-						>
-							AI Glossary
-						</MenuItem>
-						<MenuItem
-							icon={<FiCpu />}
-							active={isActive('/ai-agent-overview')}
-							onClick={() => handleNavigation('/ai-agent-overview')}
-						>
-							AI Agent Overview for PingOne
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/comprehensive-oauth-education')}
-							onClick={() => handleNavigation('/comprehensive-oauth-education')}
-						>
-							Comprehensive OAuth AI Education
-						</MenuItem>
-						<MenuItem
-							icon={<FiLock />}
-							active={isActive('/flows/pingone-par-v5')}
-							onClick={() => handleNavigation('/flows/pingone-par-v5')}
-						>
-							PAR Flow (V5)
-						</MenuItem>
-						<MenuItem
-							icon={<FiLayers />}
-							active={isActive('/flows/rar-v5')}
-							onClick={() => handleNavigation('/flows/rar-v5')}
-						>
-							RAR Flow (Educational)
-						</MenuItem>
-						<MenuItem
-							icon={<FiFileText />}
-							active={isActive('/docs/oidc-for-ai')}
-							onClick={() => handleNavigation('/docs/oidc-for-ai')}
-						>
-							OIDC for AI
-						</MenuItem>
-						<MenuItem
-							icon={<FiShield />}
-							active={isActive('/docs/oauth2-security-best-practices')}
-							onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
-						>
-							OAuth 2.0 Security Best Practices
-						</MenuItem>
+					<MenuItem
+						icon={<FiBookOpen />}
+						active={isActive('/ai-glossary')}
+						onClick={() => handleNavigation('/ai-glossary')}
+					>
+						AI Glossary
+					</MenuItem>
+					<MenuItem
+						icon={<FiCpu />}
+						active={isActive('/ai-agent-overview')}
+						onClick={() => handleNavigation('/ai-agent-overview')}
+					>
+						AI Agent Overview for PingOne
+					</MenuItem>
+					<MenuItem
+						icon={<FiBookOpen />}
+						active={isActive('/comprehensive-oauth-education')}
+						onClick={() => handleNavigation('/comprehensive-oauth-education')}
+					>
+						Comprehensive OAuth AI Education
+					</MenuItem>
+					<MenuItem
+						icon={<FiFileText />}
+						active={isActive('/docs/oidc-for-ai')}
+						onClick={() => handleNavigation('/docs/oidc-for-ai')}
+					>
+						OIDC for AI
+					</MenuItem>
+					<MenuItem
+						icon={<FiShield />}
+						active={isActive('/docs/oauth2-security-best-practices')}
+						onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
+					>
+						OAuth 2.0 Security best practices
+					</MenuItem>
+					<MenuItem
+						icon={<FiBookOpen />}
+						active={isActive('/oauth-oidc-training')}
+						onClick={() => handleNavigation('/oauth-oidc-training')}
+					>
+						OAuth/OIDC Training
+					</MenuItem>
+					<MenuItem
+						icon={<FiBookOpen />}
+						active={isActive('/tutorials')}
+						onClick={() => handleNavigation('/tutorials')}
+					>
+						Interactive Tutorials
+					</MenuItem>
 					</SubMenu>
 					<SubMenu 
 						label="Security & Management" 
@@ -671,13 +586,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						onClick={() => handleNavigation('/sdk-sample-app')}
 					>
 						SDK Sample App
-					</MenuItem>
-					<MenuItem
-						icon={<FiCode />}
-						active={isActive('/code-examples-demo')}
-						onClick={() => handleNavigation('/code-examples-demo')}
-					>
-						Code Examples Demo
 					</MenuItem>
 					<MenuItem
 						icon={<FiSettings />}

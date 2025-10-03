@@ -18,7 +18,7 @@ export interface EnhancedApiCallData {
 	timestamp?: Date;
 	duration?: number;
 	// OAuth-specific fields
-	flowType?: 'authorization-code' | 'implicit' | 'client-credentials' | 'device-code' | 'rar' | 'hybrid' | 'ciba';
+	flowType?: 'authorization-code' | 'implicit' | 'client-credentials' | 'device-code' | 'rar' | 'hybrid' | 'ciba' | 'worker-token';
 	stepName?: string;
 	description?: string;
 	educationalNotes?: string[];
@@ -218,6 +218,24 @@ export class EnhancedApiCallDisplayService {
 						description: 'OIDC prompt parameter for user interaction control',
 						color: '#7c3aed',
 						backgroundColor: '#ede9fe'
+					}
+				);
+				break;
+			case 'worker-token':
+				rules.push(
+					{
+						pattern: 'grant_type=',
+						label: 'Grant Type',
+						description: 'OAuth 2.0 grant type (client_credentials for worker tokens)',
+						color: '#dc2626',
+						backgroundColor: '#fef2f2'
+					},
+					{
+						pattern: 'scope=',
+						label: 'Scope',
+						description: 'OAuth 2.0 scope parameter defining access permissions',
+						color: '#dc2626',
+						backgroundColor: '#fef2f2'
 					}
 				);
 				break;
