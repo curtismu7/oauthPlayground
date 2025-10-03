@@ -82,12 +82,22 @@ export class V4ToastManager {
 	 */
 	showSuccess(
 		keyOrMessage: keyof ButtonToastScenarios | string,
-		variables: Record<string, string> = {}
+		variables: Record<string, string> = {},
+		options?: { duration?: number }
 	): void {
 		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
-		showGlobalSuccess(message);
+		
+		// Use longer duration for important success messages
+		const isImportantMessage = message.includes('Flow Complete') || 
+								   message.includes('Tokens received successfully') ||
+								   message.includes('Configuration saved successfully') ||
+								   message.includes('successfully!');
+		
+		const duration = options?.duration || (isImportantMessage ? 8000 : undefined); // 8 seconds for important messages
+		
+		showGlobalSuccess(message, duration ? { duration } : undefined);
 	}
 
 	/**

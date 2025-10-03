@@ -8,6 +8,7 @@ import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { getOAuthTokens } from '../../utils/tokenStorage';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -330,6 +331,8 @@ const IDTokensFlow = () => {
 	const [_stepResults, setStepResults] = useState<Record<number, unknown>>({});
 	const [_executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
 	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+
+	usePageScroll();
 
 	// Load ID token from storage on component mount
 	useEffect(() => {
