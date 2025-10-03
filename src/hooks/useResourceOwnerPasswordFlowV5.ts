@@ -47,7 +47,7 @@ export interface ResourceOwnerPasswordFlowV5Controller {
 	isAuthenticating: boolean;
 	authenticateUser: () => Promise<void>;
 	tokens: ResourceOwnerPasswordTokens | null;
-	
+
 	// User info
 	userInfo: ResourceOwnerPasswordUserInfo | null;
 	isFetchingUserInfo: boolean;
@@ -146,8 +146,13 @@ export const useResourceOwnerPasswordFlowV5 = ({
 
 	// Authenticate user using Resource Owner Password flow
 	const authenticateUser = useCallback(async () => {
-		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret || 
-			!credentials.username || !credentials.password) {
+		if (
+			!credentials.environmentId ||
+			!credentials.clientId ||
+			!credentials.clientSecret ||
+			!credentials.username ||
+			!credentials.password
+		) {
 			v4ToastManager.showError('All credentials are required for Resource Owner Password flow');
 			return;
 		}
@@ -159,7 +164,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			}
 
 			const backendUrl = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
-			
+
 			// Prepare request body for Resource Owner Password flow
 			const requestBody = {
 				grant_type: 'password',
@@ -221,7 +226,6 @@ export const useResourceOwnerPasswordFlowV5 = ({
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
-
 		} catch (error) {
 			console.error('[ResourceOwnerPasswordV5] Authentication failed:', error);
 			v4ToastManager.showError('Authentication failed', {
@@ -284,7 +288,6 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			});
 
 			v4ToastManager.showSuccess('User information fetched successfully.');
-
 		} catch (error) {
 			console.error('[ResourceOwnerPasswordV5] User info fetch failed:', error);
 			v4ToastManager.showError('Failed to fetch user information', {
@@ -360,7 +363,6 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			});
 
 			v4ToastManager.showSuccess('Tokens refreshed successfully.');
-
 		} catch (error) {
 			console.error('[ResourceOwnerPasswordV5] Token refresh failed:', error);
 			v4ToastManager.showError('Failed to refresh tokens', {
@@ -405,7 +407,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			try {
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
 				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
-					setCredentials(prev => ({
+					setCredentials((prev) => ({
 						...prev,
 						environmentId: savedCredentials.environmentId,
 						clientId: savedCredentials.clientId,

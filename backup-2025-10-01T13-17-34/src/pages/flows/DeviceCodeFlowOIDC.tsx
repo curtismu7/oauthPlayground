@@ -203,7 +203,9 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 				error: undefined,
 			}));
 
-			v4ToastManager.showWarning('Device code received - please visit the verification URL to complete authentication');
+			v4ToastManager.showWarning(
+				'Device code received - please visit the verification URL to complete authentication'
+			);
 
 			logger.success('DeviceCodeFlow', 'Device authorization successful', {
 				userCode: response.user_code,
@@ -214,7 +216,9 @@ const DeviceCodeFlowOIDC: React.FC = () => {
 			return { success: true };
 		} catch (error) {
 			logger.error('DeviceCodeFlow', 'Device authorization failed', error);
-			v4ToastManager.showError('Device authorization request failed - check your client credentials and try again');
+			v4ToastManager.showError(
+				'Device authorization request failed - check your client credentials and try again'
+			);
 			throw error;
 		} finally {
 			setIsRequestingAuthorization(false);

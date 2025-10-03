@@ -53,10 +53,12 @@ const FeatureGrid = styled.div`
 `;
 
 const FeatureCard = styled(Card)<{ $supported?: boolean }>`
-  border-left: 4px solid ${({ $supported, theme }) => 
-    $supported === true ? theme.colors.success : 
-    $supported === false ? theme.colors.error : 
-    theme.colors.warning};
+  border-left: 4px solid ${({ $supported, theme }) =>
+		$supported === true
+			? theme.colors.success
+			: $supported === false
+				? theme.colors.error
+				: theme.colors.warning};
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
@@ -99,24 +101,24 @@ const StatusBadge = styled.div<{ $status: 'supported' | 'not-supported' | 'parti
   font-weight: 600;
   
   ${({ $status }) => {
-    switch ($status) {
-      case 'supported':
-        return `
+		switch ($status) {
+			case 'supported':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'not-supported':
-        return `
+			case 'not-supported':
+				return `
           background-color: #fee2e2;
           color: #991b1b;
         `;
-      case 'partial':
-        return `
+			case 'partial':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-    }
-  }}
+		}
+	}}
 
   svg {
     width: 16px;
@@ -164,27 +166,27 @@ const PingOneNote = styled.div<{ $type: 'info' | 'warning' | 'success' }>`
   margin-top: 1rem;
   
   ${({ $type, theme }) => {
-    switch ($type) {
-      case 'info':
-        return `
+		switch ($type) {
+			case 'info':
+				return `
           background-color: ${theme.colors.info}10;
           border: 1px solid ${theme.colors.info}30;
           color: ${theme.colors.info};
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background-color: ${theme.colors.warning}10;
           border: 1px solid ${theme.colors.warning}30;
           color: ${theme.colors.warning};
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: ${theme.colors.success}10;
           border: 1px solid ${theme.colors.success}30;
           color: ${theme.colors.success};
         `;
-    }
-  }}
+		}
+	}}
 
   svg {
     flex-shrink: 0;
@@ -301,9 +303,9 @@ const AIAgentOverview = () => {
 	});
 
 	const toggleSection = (sectionId: string) => {
-		setExpandedSections(prev => ({
+		setExpandedSections((prev) => ({
 			...prev,
-			[sectionId]: !prev[sectionId]
+			[sectionId]: !prev[sectionId],
 		}));
 	};
 
@@ -313,7 +315,8 @@ const AIAgentOverview = () => {
 			title: 'Pushed Authorization Requests (PAR)',
 			icon: FiLock,
 			status: 'supported' as const,
-			description: 'PAR allows clients to push authorization request parameters directly to the authorization server before redirecting the user. Critical for AI agents to securely transmit complex authorization parameters.',
+			description:
+				'PAR allows clients to push authorization request parameters directly to the authorization server before redirecting the user. Critical for AI agents to securely transmit complex authorization parameters.',
 			technicalDetails: [
 				'RFC 9126 - Pushed Authorization Requests',
 				'Prevents parameter tampering and injection attacks',
@@ -323,7 +326,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'success' as const,
 				title: 'PingOne Support - Available',
-				message: 'PingOne fully supports PAR for enhanced security in authorization flows. Use the /as/par endpoint to push authorization parameters.',
+				message:
+					'PingOne fully supports PAR for enhanced security in authorization flows. Use the /as/par endpoint to push authorization parameters.',
 			},
 		},
 		{
@@ -331,7 +335,8 @@ const AIAgentOverview = () => {
 			title: 'Rich Authorization Requests (RAR)',
 			icon: FiZap,
 			status: 'not-supported' as const,
-			description: 'RAR enables fine-grained authorization by allowing clients to specify detailed authorization requirements using structured JSON. Essential for AI agents requiring specific permissions and resource access.',
+			description:
+				'RAR enables fine-grained authorization by allowing clients to specify detailed authorization requirements using structured JSON. Essential for AI agents requiring specific permissions and resource access.',
 			technicalDetails: [
 				'RFC 9396 - Rich Authorization Requests',
 				'Structured JSON authorization_details parameter',
@@ -341,7 +346,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'warning' as const,
 				title: 'PingOne Support - Not Available',
-				message: 'PingOne does not currently support RAR. Use traditional scopes or custom claims as an alternative for authorization requirements.',
+				message:
+					'PingOne does not currently support RAR. Use traditional scopes or custom claims as an alternative for authorization requirements.',
 			},
 		},
 		{
@@ -349,7 +355,8 @@ const AIAgentOverview = () => {
 			title: 'DPoP (Demonstrating Proof of Possession)',
 			icon: FiKey,
 			status: 'not-supported' as const,
-			description: 'DPoP provides sender-constrained tokens by requiring clients to prove possession of a private key. Critical for preventing token theft and replay attacks in AI agent scenarios.',
+			description:
+				'DPoP provides sender-constrained tokens by requiring clients to prove possession of a private key. Critical for preventing token theft and replay attacks in AI agent scenarios.',
 			technicalDetails: [
 				'RFC 9449 - OAuth 2.0 Demonstrating Proof-of-Possession',
 				'Sender-constrained access and refresh tokens',
@@ -359,7 +366,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'warning' as const,
 				title: 'PingOne Support - Not Available',
-				message: 'PingOne does not currently support DPoP. Consider using mTLS (mutual TLS) or one-time use refresh tokens as alternatives.',
+				message:
+					'PingOne does not currently support DPoP. Consider using mTLS (mutual TLS) or one-time use refresh tokens as alternatives.',
 			},
 		},
 		{
@@ -367,7 +375,8 @@ const AIAgentOverview = () => {
 			title: 'Mutual TLS (mTLS)',
 			icon: FiShield,
 			status: 'partial' as const,
-			description: 'mTLS provides certificate-based authentication and sender-constrained tokens. Important for high-security AI agent deployments requiring strong authentication.',
+			description:
+				'mTLS provides certificate-based authentication and sender-constrained tokens. Important for high-security AI agent deployments requiring strong authentication.',
 			technicalDetails: [
 				'RFC 8705 - OAuth 2.0 Mutual-TLS Client Authentication',
 				'Certificate-bound access tokens',
@@ -377,7 +386,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'warning' as const,
 				title: 'PingOne Support - Limited',
-				message: 'PingOne supports mTLS for client authentication but not for certificate-bound tokens. Contact PingOne support for enterprise mTLS requirements.',
+				message:
+					'PingOne supports mTLS for client authentication but not for certificate-bound tokens. Contact PingOne support for enterprise mTLS requirements.',
 			},
 		},
 		{
@@ -385,7 +395,8 @@ const AIAgentOverview = () => {
 			title: 'JWT-Secured Authorization Request (JAR)',
 			icon: FiServer,
 			status: 'supported' as const,
-			description: 'JAR allows authorization request parameters to be passed as a signed JWT. Provides integrity and authenticity for authorization requests from AI agents.',
+			description:
+				'JAR allows authorization request parameters to be passed as a signed JWT. Provides integrity and authenticity for authorization requests from AI agents.',
 			technicalDetails: [
 				'RFC 9101 - JWT-Secured Authorization Request',
 				'Signed and optionally encrypted request objects',
@@ -395,7 +406,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'success' as const,
 				title: 'PingOne Support - Available',
-				message: 'PingOne supports JAR through request objects. Use the request or request_uri parameter with signed JWTs.',
+				message:
+					'PingOne supports JAR through request objects. Use the request or request_uri parameter with signed JWTs.',
 			},
 		},
 		{
@@ -403,7 +415,8 @@ const AIAgentOverview = () => {
 			title: 'Client Credentials Grant',
 			icon: FiCpu,
 			status: 'supported' as const,
-			description: 'Essential OAuth 2.0 grant for machine-to-machine authentication. The primary flow for AI agents acting autonomously without user context.',
+			description:
+				'Essential OAuth 2.0 grant for machine-to-machine authentication. The primary flow for AI agents acting autonomously without user context.',
 			technicalDetails: [
 				'RFC 6749 Section 4.4 - Client Credentials',
 				'Machine-to-machine authentication',
@@ -413,7 +426,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'success' as const,
 				title: 'PingOne Support - Full Support',
-				message: 'PingOne fully supports Client Credentials grant with multiple authentication methods including client_secret_basic, client_secret_post, client_secret_jwt, and private_key_jwt.',
+				message:
+					'PingOne fully supports Client Credentials grant with multiple authentication methods including client_secret_basic, client_secret_post, client_secret_jwt, and private_key_jwt.',
 			},
 		},
 		{
@@ -421,7 +435,8 @@ const AIAgentOverview = () => {
 			title: 'Token Exchange',
 			icon: FiZap,
 			status: 'not-supported' as const,
-			description: 'Enables secure token exchange and delegation scenarios. Important for AI agents that need to act on behalf of users or exchange tokens between services.',
+			description:
+				'Enables secure token exchange and delegation scenarios. Important for AI agents that need to act on behalf of users or exchange tokens between services.',
 			technicalDetails: [
 				'RFC 8693 - OAuth 2.0 Token Exchange',
 				'Token delegation and impersonation',
@@ -431,7 +446,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'warning' as const,
 				title: 'PingOne Support - Not Available',
-				message: 'PingOne does not currently support RFC 8693 Token Exchange. Consider using refresh tokens or re-authentication for token renewal scenarios.',
+				message:
+					'PingOne does not currently support RFC 8693 Token Exchange. Consider using refresh tokens or re-authentication for token renewal scenarios.',
 			},
 		},
 		{
@@ -439,7 +455,8 @@ const AIAgentOverview = () => {
 			title: 'Device Authorization Grant',
 			icon: FiServer,
 			status: 'supported' as const,
-			description: 'Enables authentication on input-constrained devices. Useful for AI agents running on IoT devices, CLIs, or environments without browser access.',
+			description:
+				'Enables authentication on input-constrained devices. Useful for AI agents running on IoT devices, CLIs, or environments without browser access.',
 			technicalDetails: [
 				'RFC 8628 - OAuth 2.0 Device Authorization Grant',
 				'Browser-less authentication flow',
@@ -449,7 +466,8 @@ const AIAgentOverview = () => {
 			pingoneSupport: {
 				type: 'success' as const,
 				title: 'PingOne Support - Available',
-				message: 'PingOne supports Device Authorization Grant for input-constrained devices and CLI applications.',
+				message:
+					'PingOne supports Device Authorization Grant for input-constrained devices and CLI applications.',
 			},
 		},
 	];
@@ -462,7 +480,9 @@ const AIAgentOverview = () => {
 					AI Agent Overview for PingOne
 				</h1>
 				<p>
-					Comprehensive guide to OAuth 2.0 and OpenID Connect features required for secure AI agent authentication, authorization, and API access. Learn what PingOne supports today and what's on the roadmap.
+					Comprehensive guide to OAuth 2.0 and OpenID Connect features required for secure AI agent
+					authentication, authorization, and API access. Learn what PingOne supports today and
+					what's on the roadmap.
 				</p>
 			</Header>
 
@@ -483,19 +503,24 @@ const AIAgentOverview = () => {
 							</p>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8' }}>
 								<li>
-									<strong>Autonomous Operation:</strong> AI agents often operate without direct user supervision, requiring robust machine-to-machine authentication
+									<strong>Autonomous Operation:</strong> AI agents often operate without direct user
+									supervision, requiring robust machine-to-machine authentication
 								</li>
 								<li>
-									<strong>Fine-Grained Permissions:</strong> Agents need specific, granular permissions to access resources and perform actions
+									<strong>Fine-Grained Permissions:</strong> Agents need specific, granular
+									permissions to access resources and perform actions
 								</li>
 								<li>
-									<strong>Token Security:</strong> Long-running agents require sender-constrained tokens to prevent theft and misuse
+									<strong>Token Security:</strong> Long-running agents require sender-constrained
+									tokens to prevent theft and misuse
 								</li>
 								<li>
-									<strong>Complex Authorization:</strong> Agents may need to express complex authorization requirements beyond simple scopes
+									<strong>Complex Authorization:</strong> Agents may need to express complex
+									authorization requirements beyond simple scopes
 								</li>
 								<li>
-									<strong>Delegation:</strong> Agents acting on behalf of users need secure delegation mechanisms
+									<strong>Delegation:</strong> Agents acting on behalf of users need secure
+									delegation mechanisms
 								</li>
 							</ul>
 						</CardBody>
@@ -515,7 +540,16 @@ const AIAgentOverview = () => {
 				<CollapsibleContent $isOpen={expandedSections.features}>
 					<FeatureGrid>
 						{features.map((feature) => (
-							<FeatureCard key={feature.id} $supported={feature.status === 'supported' ? true : feature.status === 'not-supported' ? false : undefined}>
+							<FeatureCard
+								key={feature.id}
+								$supported={
+									feature.status === 'supported'
+										? true
+										: feature.status === 'not-supported'
+											? false
+											: undefined
+								}
+							>
 								<CardBody>
 									<FeatureHeader>
 										<FeatureTitle>
@@ -526,7 +560,11 @@ const AIAgentOverview = () => {
 											{feature.status === 'supported' && <FiCheckCircle />}
 											{feature.status === 'not-supported' && <FiX />}
 											{feature.status === 'partial' && <FiAlertTriangle />}
-											{feature.status === 'supported' ? 'Supported' : feature.status === 'not-supported' ? 'Not Supported' : 'Partial'}
+											{feature.status === 'supported'
+												? 'Supported'
+												: feature.status === 'not-supported'
+													? 'Not Supported'
+													: 'Partial'}
 										</StatusBadge>
 									</FeatureHeader>
 
@@ -578,51 +616,107 @@ const AIAgentOverview = () => {
 								</thead>
 								<tbody>
 									<tr>
-										<td><strong>PAR</strong></td>
+										<td>
+											<strong>PAR</strong>
+										</td>
 										<td>RFC 9126</td>
-										<td><StatusBadge $status="supported"><FiCheckCircle />Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="supported">
+												<FiCheckCircle />
+												Supported
+											</StatusBadge>
+										</td>
 										<td>-</td>
 									</tr>
 									<tr>
-										<td><strong>RAR</strong></td>
+										<td>
+											<strong>RAR</strong>
+										</td>
 										<td>RFC 9396</td>
-										<td><StatusBadge $status="not-supported"><FiX />Not Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="not-supported">
+												<FiX />
+												Not Supported
+											</StatusBadge>
+										</td>
 										<td>Use scopes or custom claims</td>
 									</tr>
 									<tr>
-										<td><strong>DPoP</strong></td>
+										<td>
+											<strong>DPoP</strong>
+										</td>
 										<td>RFC 9449</td>
-										<td><StatusBadge $status="not-supported"><FiX />Not Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="not-supported">
+												<FiX />
+												Not Supported
+											</StatusBadge>
+										</td>
 										<td>Use mTLS or one-time refresh tokens</td>
 									</tr>
 									<tr>
-										<td><strong>mTLS</strong></td>
+										<td>
+											<strong>mTLS</strong>
+										</td>
 										<td>RFC 8705</td>
-										<td><StatusBadge $status="partial"><FiAlertTriangle />Partial</StatusBadge></td>
+										<td>
+											<StatusBadge $status="partial">
+												<FiAlertTriangle />
+												Partial
+											</StatusBadge>
+										</td>
 										<td>Client auth only, not token binding</td>
 									</tr>
 									<tr>
-										<td><strong>JAR</strong></td>
+										<td>
+											<strong>JAR</strong>
+										</td>
 										<td>RFC 9101</td>
-										<td><StatusBadge $status="supported"><FiCheckCircle />Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="supported">
+												<FiCheckCircle />
+												Supported
+											</StatusBadge>
+										</td>
 										<td>-</td>
 									</tr>
 									<tr>
-										<td><strong>Client Credentials</strong></td>
+										<td>
+											<strong>Client Credentials</strong>
+										</td>
 										<td>RFC 6749</td>
-										<td><StatusBadge $status="supported"><FiCheckCircle />Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="supported">
+												<FiCheckCircle />
+												Supported
+											</StatusBadge>
+										</td>
 										<td>-</td>
 									</tr>
 									<tr>
-										<td><strong>Token Exchange</strong></td>
+										<td>
+											<strong>Token Exchange</strong>
+										</td>
 										<td>RFC 8693</td>
-										<td><StatusBadge $status="not-supported"><FiX />Not Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="not-supported">
+												<FiX />
+												Not Supported
+											</StatusBadge>
+										</td>
 										<td>Use refresh tokens</td>
 									</tr>
 									<tr>
-										<td><strong>Device Code</strong></td>
+										<td>
+											<strong>Device Code</strong>
+										</td>
 										<td>RFC 8628</td>
-										<td><StatusBadge $status="supported"><FiCheckCircle />Supported</StatusBadge></td>
+										<td>
+											<StatusBadge $status="supported">
+												<FiCheckCircle />
+												Supported
+											</StatusBadge>
+										</td>
 										<td>-</td>
 									</tr>
 								</tbody>
@@ -649,22 +743,28 @@ const AIAgentOverview = () => {
 							</h3>
 							<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.8', marginBottom: '2rem' }}>
 								<li>
-									<strong>Use Client Credentials Grant:</strong> Primary flow for AI agents with private_key_jwt authentication for enhanced security
+									<strong>Use Client Credentials Grant:</strong> Primary flow for AI agents with
+									private_key_jwt authentication for enhanced security
 								</li>
 								<li>
-									<strong>Implement PAR:</strong> Use Pushed Authorization Requests for complex authorization scenarios
+									<strong>Implement PAR:</strong> Use Pushed Authorization Requests for complex
+									authorization scenarios
 								</li>
 								<li>
-									<strong>Leverage JAR:</strong> Sign authorization requests with JWT for integrity protection
+									<strong>Leverage JAR:</strong> Sign authorization requests with JWT for integrity
+									protection
 								</li>
 								<li>
-									<strong>Scope-Based Authorization:</strong> Use well-defined scopes until RAR becomes available
+									<strong>Scope-Based Authorization:</strong> Use well-defined scopes until RAR
+									becomes available
 								</li>
 								<li>
-									<strong>Short-Lived Tokens:</strong> Implement short access token lifetimes with refresh token rotation
+									<strong>Short-Lived Tokens:</strong> Implement short access token lifetimes with
+									refresh token rotation
 								</li>
 								<li>
-									<strong>Device Code for CLI:</strong> Use Device Authorization Grant for command-line AI tools
+									<strong>Device Code for CLI:</strong> Use Device Authorization Grant for
+									command-line AI tools
 								</li>
 							</ul>
 
@@ -675,7 +775,10 @@ const AIAgentOverview = () => {
 								<li>Monitor PingOne roadmap for RAR, DPoP, and Token Exchange support</li>
 								<li>Plan migration strategy when sender-constrained tokens become available</li>
 								<li>Evaluate custom solutions for fine-grained authorization if RAR is critical</li>
-								<li>Consider hybrid approaches combining PingOne with policy engines (e.g., OPA) for complex authorization</li>
+								<li>
+									Consider hybrid approaches combining PingOne with policy engines (e.g., OPA) for
+									complex authorization
+								</li>
 							</ul>
 						</CardBody>
 					</Card>

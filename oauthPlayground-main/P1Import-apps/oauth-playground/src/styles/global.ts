@@ -1,42 +1,42 @@
 import { createGlobalStyle } from 'styled-components';
 
 export const theme = {
-  colors: {
-    primary: '#003087',
-    primaryLight: '#334d99',
-    primaryDark: '#001a4d',
-    secondary: '#ff4d4d',
-    success: '#28a745',
-    danger: '#dc3545',
-    warning: '#ffc107',
-    info: '#17a2b8',
-    light: '#f8f9fa',
-    dark: '#343a40',
-    gray100: '#f8f9fa',
-    gray200: '#e9ecef',
-    gray300: '#dee2e6',
-    gray400: '#ced4da',
-    gray500: '#adb5bd',
-    gray600: '#6c757d',
-    gray700: '#495057',
-    gray800: '#343a40',
-    gray900: '#212529',
-  },
-  fonts: {
-    body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
-    mono: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-  },
-  shadows: {
-    sm: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
-    md: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
-    lg: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
-  },
-  breakpoints: {
-    sm: '640px',
-    md: '768px',
-    lg: '1024px',
-    xl: '1280px',
-  },
+	colors: {
+		primary: '#003087',
+		primaryLight: '#334d99',
+		primaryDark: '#001a4d',
+		secondary: '#ff4d4d',
+		success: '#28a745',
+		danger: '#dc3545',
+		warning: '#ffc107',
+		info: '#17a2b8',
+		light: '#f8f9fa',
+		dark: '#343a40',
+		gray100: '#f8f9fa',
+		gray200: '#e9ecef',
+		gray300: '#dee2e6',
+		gray400: '#ced4da',
+		gray500: '#adb5bd',
+		gray600: '#6c757d',
+		gray700: '#495057',
+		gray800: '#343a40',
+		gray900: '#212529',
+	},
+	fonts: {
+		body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+		mono: 'SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+	},
+	shadows: {
+		sm: '0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24)',
+		md: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
+		lg: '0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)',
+	},
+	breakpoints: {
+		sm: '640px',
+		md: '768px',
+		lg: '1024px',
+		xl: '1280px',
+	},
 };
 
 export const GlobalStyle = createGlobalStyle`

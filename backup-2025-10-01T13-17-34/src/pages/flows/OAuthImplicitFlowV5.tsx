@@ -569,7 +569,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 			controller.setTokensFromFragment(hash);
 			setCurrentStep(2); // Go to token response step
 			v4ToastManager.showSuccess('Tokens received successfully from authorization server!');
-			
+
 			// Clean up URL
 			window.history.replaceState({}, '', window.location.pathname);
 		}
@@ -584,12 +584,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 			4: Boolean(controller.tokens),
 			5: Boolean(controller.tokens),
 		}),
-		[
-			controller.hasCredentialsSaved,
-			controller.authUrl,
-			controller.tokens,
-			controller.userInfo,
-		]
+		[controller.hasCredentialsSaved, controller.authUrl, controller.tokens, controller.userInfo]
 	);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
@@ -617,11 +612,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	);
 
 	const handleSaveConfiguration = useCallback(async () => {
-		const required: Array<keyof StepCredentials> = [
-			'environmentId',
-			'clientId',
-			'redirectUri',
-		];
+		const required: Array<keyof StepCredentials> = ['environmentId', 'clientId', 'redirectUri'];
 		const missing = required.filter((field) => {
 			const value = controller.credentials[field];
 			return !value || (typeof value === 'string' && !value.trim());
@@ -653,13 +644,10 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Configuration cleared. Enter credentials to continue.');
 	}, [controller]);
 
-	const savePingOneConfig = useCallback(
-		(config: PingOneApplicationState) => {
-			setPingOneConfig(config);
-			sessionStorage.setItem('oauth-implicit-v5-app-config', JSON.stringify(config));
-		},
-		[]
-	);
+	const savePingOneConfig = useCallback((config: PingOneApplicationState) => {
+		setPingOneConfig(config);
+		sessionStorage.setItem('oauth-implicit-v5-app-config', JSON.stringify(config));
+	}, []);
 
 	const handleGenerateAuthUrl = useCallback(async () => {
 		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
@@ -668,7 +656,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 			);
 			return;
 		}
-		
+
 		// Generate nonce and state if not set
 		if (!controller.nonce) {
 			controller.generateNonce();
@@ -680,7 +668,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		try {
 			// Mark this flow as active for callback handling
 			sessionStorage.setItem('oauth-implicit-v5-flow-active', 'true');
-			
+
 			await controller.generateAuthorizationUrl();
 			v4ToastManager.showSuccess('Authorization URL generated successfully!');
 		} catch (error) {
@@ -843,8 +831,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>OAuth 2.0 Implicit Flow</InfoTitle>
 											<InfoText>
-												This is the pure OAuth 2.0 Implicit Flow that returns <strong>Access Token only</strong>.
-												It's designed for authorization and API access, not for user authentication.
+												This is the pure OAuth 2.0 Implicit Flow that returns{' '}
+												<strong>Access Token only</strong>. It's designed for authorization and API
+												access, not for user authentication.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -854,9 +843,10 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Legacy Flow - Use with Caution</InfoTitle>
 											<InfoText>
-												The Implicit Flow is considered legacy and less secure than Authorization Code with PKCE.
-												Tokens are exposed in the URL, making them vulnerable to interception.
-												Use this flow only if you have specific requirements that prevent using Authorization Code + PKCE.
+												The Implicit Flow is considered legacy and less secure than Authorization
+												Code with PKCE. Tokens are exposed in the URL, making them vulnerable to
+												interception. Use this flow only if you have specific requirements that
+												prevent using Authorization Code + PKCE.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -892,8 +882,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 											<FiShield /> How Implicit Flow Works
 										</ExplanationHeading>
 										<InfoText>
-											In the Implicit Flow, tokens are returned directly from the authorization endpoint in the URL fragment (#),
-											without an intermediate authorization code exchange step. This makes it simpler but less secure.
+											In the Implicit Flow, tokens are returned directly from the authorization
+											endpoint in the URL fragment (#), without an intermediate authorization code
+											exchange step. This makes it simpler but less secure.
 										</InfoText>
 									</ExplanationSection>
 
@@ -966,8 +957,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle style={{ color: '#7f1d1d' }}>Security Warning</InfoTitle>
 											<InfoText style={{ color: '#7f1d1d' }}>
-												Implicit Flow exposes tokens in the URL. Never use this for highly sensitive data.
-												Consider migrating to Authorization Code + PKCE for better security.
+												Implicit Flow exposes tokens in the URL. Never use this for highly sensitive
+												data. Consider migrating to Authorization Code + PKCE for better security.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1011,9 +1002,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Building the Authorization URL</InfoTitle>
 											<InfoText>
-												The authorization URL includes all OAuth parameters. Unlike Authorization Code flow,
-												the response_type is 'token' or 'id_token token', telling PingOne to return tokens
-												directly instead of an authorization code.
+												The authorization URL includes all OAuth parameters. Unlike Authorization
+												Code flow, the response_type is 'token' or 'id_token token', telling PingOne
+												to return tokens directly instead of an authorization code.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1023,11 +1014,23 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>OAuth Implicit Flow Specific Parameters</InfoTitle>
 											<InfoList>
-												<li><strong>response_type:</strong> token (Access Token only)</li>
-												<li><strong>nonce:</strong> <span style={{ color: '#059669', fontWeight: 'bold' }}>NOT required</span> in OAuth Implicit (no ID Token)</li>
-												<li><strong>state:</strong> CSRF protection (recommended)</li>
-												<li><strong>No PKCE:</strong> Implicit flow doesn't support PKCE</li>
-												<li><strong>No ID Token:</strong> OAuth 2.0 doesn't provide identity tokens</li>
+												<li>
+													<strong>response_type:</strong> token (Access Token only)
+												</li>
+												<li>
+													<strong>nonce:</strong>{' '}
+													<span style={{ color: '#059669', fontWeight: 'bold' }}>NOT required</span>{' '}
+													in OAuth Implicit (no ID Token)
+												</li>
+												<li>
+													<strong>state:</strong> CSRF protection (recommended)
+												</li>
+												<li>
+													<strong>No PKCE:</strong> Implicit flow doesn't support PKCE
+												</li>
+												<li>
+													<strong>No ID Token:</strong> OAuth 2.0 doesn't provide identity tokens
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1037,8 +1040,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>OAuth vs OIDC</InfoTitle>
 											<InfoText>
-												OAuth 2.0 Implicit returns only an Access Token for API authorization.
-												If you need user authentication and identity, use OIDC Implicit Flow V5 which returns an ID Token.
+												OAuth 2.0 Implicit returns only an Access Token for API authorization. If
+												you need user authentication and identity, use OIDC Implicit Flow V5 which
+												returns an ID Token.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1052,14 +1056,17 @@ const OAuthImplicitFlowV5: React.FC = () => {
 								<FiCheckCircle size={18} /> Build Authorization URL
 							</ResultsHeading>
 							<HelperText>
-								Generate the authorization URL with Implicit flow parameters. Review it carefully before redirecting.
+								Generate the authorization URL with Implicit flow parameters. Review it carefully
+								before redirecting.
 							</HelperText>
 
 							<ActionRow>
 								<HighlightedActionButton
 									onClick={handleGenerateAuthUrl}
 									$priority="primary"
-									disabled={!!controller.authUrl || !credentials.clientId || !credentials.environmentId}
+									disabled={
+										!!controller.authUrl || !credentials.clientId || !credentials.environmentId
+									}
 								>
 									{controller.authUrl ? <FiCheckCircle /> : <FiGlobe />}{' '}
 									{controller.authUrl
@@ -1079,7 +1086,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 							{controller.authUrl && (
 								<GeneratedContentBox>
 									<GeneratedLabel>Generated</GeneratedLabel>
-									<div style={{ marginBottom: '1rem', wordBreak: 'break-all', fontSize: '0.875rem' }}>
+									<div
+										style={{ marginBottom: '1rem', wordBreak: 'break-all', fontSize: '0.875rem' }}
+									>
 										{controller.authUrl}
 									</div>
 									<Button
@@ -1116,8 +1125,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>Tokens Received Directly</InfoTitle>
 											<InfoText>
-												In Implicit Flow, tokens come back in the URL fragment (#) immediately after authorization.
-												No token exchange step is needed, making it simpler but exposing tokens in the browser.
+												In Implicit Flow, tokens come back in the URL fragment (#) immediately after
+												authorization. No token exchange step is needed, making it simpler but
+												exposing tokens in the browser.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1222,8 +1232,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 									<div>
 										<InfoTitle>No Refresh Token</InfoTitle>
 										<InfoText>
-											Implicit Flow does not provide refresh tokens for security reasons.
-											When the access token expires, users must re-authenticate.
+											Implicit Flow does not provide refresh tokens for security reasons. When the
+											access token expires, users must re-authenticate.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1307,14 +1317,14 @@ const OAuthImplicitFlowV5: React.FC = () => {
 				<HeaderSection>
 					<MainTitle>OAuth 2.0 Implicit Flow (V5)</MainTitle>
 					<Subtitle>
-						Experience the OAuth 2.0 Implicit Flow with modern UX. Note: This is a legacy flow - 
+						Experience the OAuth 2.0 Implicit Flow with modern UX. Note: This is a legacy flow -
 						consider using Authorization Code + PKCE instead.
 					</Subtitle>
-			</HeaderSection>
+				</HeaderSection>
 
-			<FlowInfoCard flowInfo={getFlowInfo('oauth-implicit')!} />
+				<FlowInfoCard flowInfo={getFlowInfo('oauth-implicit')!} />
 
-			<MainCard>
+				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Implicit Flow · V5 · Legacy</VersionBadge>

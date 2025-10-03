@@ -1,85 +1,85 @@
 // src/components/EnhancedStepFlowV2.tsx - Enhanced with new design system
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
-import { 
-  FiPlay, 
-  FiPause, 
-  FiSkipForward, 
-  FiSkipBack, 
-  FiRefreshCw, 
-  FiSave,
-  FiEye,
-  FiEyeOff,
-  FiCopy,
-  FiCheck,
-  FiX,
-  FiAlertCircle,
-  FiChevronLeft,
-  FiChevronRight,
-  FiSettings,
-  FiBookmark,
-  FiClock,
-  FiZap,
-  FiChevronDown,
-  FiChevronUp,
-  FiInfo,
-  FiShield,
-  FiUser,
-  FiKey,
-  FiGlobe,
-  FiCode,
-  FiCheckCircle,
-  FiXCircle,
-  FiAlertTriangle
+import {
+	FiPlay,
+	FiPause,
+	FiSkipForward,
+	FiSkipBack,
+	FiRefreshCw,
+	FiSave,
+	FiEye,
+	FiEyeOff,
+	FiCopy,
+	FiCheck,
+	FiX,
+	FiAlertCircle,
+	FiChevronLeft,
+	FiChevronRight,
+	FiSettings,
+	FiBookmark,
+	FiClock,
+	FiZap,
+	FiChevronDown,
+	FiChevronUp,
+	FiInfo,
+	FiShield,
+	FiUser,
+	FiKey,
+	FiGlobe,
+	FiCode,
+	FiCheckCircle,
+	FiXCircle,
+	FiAlertTriangle,
 } from 'react-icons/fi';
 import { logger } from '../utils/logger';
 import '../styles/enhanced-flow.css';
 
 // Enhanced step interface with more options
 export interface EnhancedFlowStep {
-  id: string;
-  title: string;
-  description: string;
-  icon?: React.ReactNode;
-  code?: string;
-  execute?: () => Promise<any>;
-  canExecute?: boolean;
-  result?: any;
-  error?: string;
-  timestamp?: number;
-  duration?: number;
-  canSkip?: boolean;
-  isOptional?: boolean;
-  dependencies?: string[]; // Step IDs this step depends on
-  category?: 'preparation' | 'authorization' | 'token-exchange' | 'validation' | 'cleanup';
-  debugInfo?: Record<string, any>;
-  tips?: string[];
-  securityNotes?: string[];
-  content?: React.ReactNode; // Custom content for the step
-  buttonText?: string; // Custom text for the execute button
-  hideDefaultButton?: boolean; // Hide the default execute button
+	id: string;
+	title: string;
+	description: string;
+	icon?: React.ReactNode;
+	code?: string;
+	execute?: () => Promise<any>;
+	canExecute?: boolean;
+	result?: any;
+	error?: string;
+	timestamp?: number;
+	duration?: number;
+	canSkip?: boolean;
+	isOptional?: boolean;
+	dependencies?: string[]; // Step IDs this step depends on
+	category?: 'preparation' | 'authorization' | 'token-exchange' | 'validation' | 'cleanup';
+	debugInfo?: Record<string, any>;
+	tips?: string[];
+	securityNotes?: string[];
+	content?: React.ReactNode; // Custom content for the step
+	buttonText?: string; // Custom text for the execute button
+	hideDefaultButton?: boolean; // Hide the default execute button
 }
 
 interface StepHistory {
-  stepId: string;
-  timestamp: number;
-  result?: any;
-  error?: string;
-  duration: number;
+	stepId: string;
+	timestamp: number;
+	result?: any;
+	error?: string;
+	duration: number;
 }
 
 interface EnhancedStepFlowProps {
-  steps: EnhancedFlowStep[];
-  title: string;
-  onStepComplete?: (stepId: string, result: any) => void;
-  onStepError?: (stepId: string, error: string) => void;
-  onFlowComplete?: (results: Record<string, any>) => void;
-  persistKey?: string; // Key for localStorage persistence
-  autoAdvance?: boolean;
-  showDebugInfo?: boolean;
-  allowStepJumping?: boolean;
-  initialStepIndex?: number; // Initial step to start on
-  onStepChange?: (stepIndex: number) => void; // Callback when step changes
+	steps: EnhancedFlowStep[];
+	title: string;
+	onStepComplete?: (stepId: string, result: any) => void;
+	onStepError?: (stepId: string, error: string) => void;
+	onFlowComplete?: (results: Record<string, any>) => void;
+	persistKey?: string; // Key for localStorage persistence
+	autoAdvance?: boolean;
+	showDebugInfo?: boolean;
+	allowStepJumping?: boolean;
+	initialStepIndex?: number; // Initial step to start on
+	onStepChange?: (stepIndex: number) => void; // Callback when step changes
 }
 
 // Enhanced Styled Components with new design system
@@ -149,35 +149,35 @@ const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' |
   position: relative;
   z-index: 2;
   
-  ${props => {
-    switch (props.$status) {
-      case 'completed':
-        return `
+  ${(props) => {
+		switch (props.$status) {
+			case 'completed':
+				return `
           background: #10b981;
           color: white;
           border-color: #10b981;
         `;
-      case 'active':
-        return `
+			case 'active':
+				return `
           background: #3b82f6;
           color: white;
           border-color: #3b82f6;
           box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background: #ef4444;
           color: white;
           border-color: #ef4444;
         `;
-      default:
-        return `
+			default:
+				return `
           background: white;
           color: #9ca3af;
           border-color: #e5e7eb;
         `;
-    }
-  }}
+		}
+	}}
   
   &:hover {
     transform: scale(1.05);
@@ -188,11 +188,11 @@ const StepIndicator = styled.div<{ $status: 'completed' | 'active' | 'pending' |
 const StepConnector = styled.div<{ $completed: boolean; $active: boolean }>`
   width: 3rem;
   height: 2px;
-  background: ${props => {
-    if (props.$completed) return '#10b981';
-    if (props.$active) return 'linear-gradient(to right, #10b981 50%, #e5e7eb 50%)';
-    return '#e5e7eb';
-  }};
+  background: ${(props) => {
+		if (props.$completed) return '#10b981';
+		if (props.$active) return 'linear-gradient(to right, #10b981 50%, #e5e7eb 50%)';
+		return '#e5e7eb';
+	}};
   position: relative;
   z-index: 1;
   transition: background 0.3s ease;
@@ -308,22 +308,25 @@ const ActionButtons = styled.div`
   border-top: 1px solid #e5e7eb;
 `;
 
-const Button = styled.button<{ 
-  $variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline';
-  $size?: 'sm' | 'md' | 'lg';
-  $loading?: boolean;
+const Button = styled.button<{
+	$variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline';
+	$size?: 'sm' | 'md' | 'lg';
+	$loading?: boolean;
 }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: ${props => {
-    switch (props.$size) {
-      case 'sm': return '0.5rem 1rem';
-      case 'lg': return '1rem 2rem';
-      default: return '0.75rem 1.5rem';
-    }
-  }};
+  padding: ${(props) => {
+		switch (props.$size) {
+			case 'sm':
+				return '0.5rem 1rem';
+			case 'lg':
+				return '1rem 2rem';
+			default:
+				return '0.75rem 1.5rem';
+		}
+	}};
   border: none;
   border-radius: 0.5rem;
   font-size: 0.875rem;
@@ -334,10 +337,10 @@ const Button = styled.button<{
   position: relative;
   overflow: hidden;
   
-  ${props => {
-    switch (props.$variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.$variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           color: white;
           &:hover:not(:disabled) {
@@ -346,8 +349,8 @@ const Button = styled.button<{
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
           }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: white;
           color: #1f2937;
           border: 1px solid #e5e7eb;
@@ -356,8 +359,8 @@ const Button = styled.button<{
             border-color: #6b7280;
           }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background: #10b981;
           color: white;
           &:hover:not(:disabled) {
@@ -365,8 +368,8 @@ const Button = styled.button<{
             transform: translateY(-1px);
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #ef4444;
           color: white;
           &:hover:not(:disabled) {
@@ -374,8 +377,8 @@ const Button = styled.button<{
             transform: translateY(-1px);
           }
         `;
-      case 'outline':
-        return `
+			case 'outline':
+				return `
           background: transparent;
           color: #3b82f6;
           border: 1px solid #3b82f6;
@@ -384,23 +387,25 @@ const Button = styled.button<{
             color: white;
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background: #6b7280;
           color: white;
           &:hover:not(:disabled) {
             background: #4b5563;
           }
         `;
-    }
-  }}
+		}
+	}}
   
   &:disabled {
     cursor: not-allowed;
     opacity: 0.6;
   }
   
-  ${props => props.$loading && `
+  ${(props) =>
+		props.$loading &&
+		`
     color: transparent;
     cursor: wait;
     
@@ -467,10 +472,10 @@ const PanelToggle = styled.button`
 `;
 
 const PanelContent = styled.div<{ $expanded: boolean }>`
-  max-height: ${props => props.$expanded ? '1000px' : '0'};
+  max-height: ${(props) => (props.$expanded ? '1000px' : '0')};
   overflow: hidden;
   transition: max-height 0.3s ease, padding 0.3s ease;
-  padding: ${props => props.$expanded ? '1.5rem' : '0 1.5rem'};
+  padding: ${(props) => (props.$expanded ? '1.5rem' : '0 1.5rem')};
 `;
 
 // Status Indicators
@@ -483,30 +488,30 @@ const StatusIndicator = styled.div<{ type: 'success' | 'error' | 'warning' | 'in
   font-size: 0.75rem;
   font-weight: 500;
   
-  ${props => {
-    switch (props.type) {
-      case 'success':
-        return `
+  ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return `
           background: #ecfdf5;
           color: #10b981;
         `;
-      case 'error':
-        return `
+			case 'error':
+				return `
           background: #fef2f2;
           color: #ef4444;
         `;
-      case 'warning':
-        return `
+			case 'warning':
+				return `
           background: #fffbeb;
           color: #f59e0b;
         `;
-      case 'info':
-        return `
+			case 'info':
+				return `
           background: #eff6ff;
           color: #3b82f6;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 // Code Blocks
@@ -595,7 +600,7 @@ const ProgressFill = styled.div<{ $progress: number }>`
   background: #3b82f6;
   transition: width 0.3s ease;
   border-radius: 0.25rem;
-  width: ${props => props.$progress}%;
+  width: ${(props) => props.$progress}%;
 `;
 
 // Responsive Design
@@ -649,567 +654,656 @@ const ResponsiveContainer = styled.div`
 
 // Main Component
 export const EnhancedStepFlowV2: React.FC<EnhancedStepFlowProps> = ({
-  steps,
-  title,
-  onStepComplete,
-  onStepError,
-  onFlowComplete,
-  persistKey,
-  autoAdvance = false,
-  showDebugInfo = true,
-  allowStepJumping = true,
-  initialStepIndex,
-  onStepChange
+	steps,
+	title,
+	onStepComplete,
+	onStepError,
+	onFlowComplete,
+	persistKey,
+	autoAdvance = false,
+	showDebugInfo = true,
+	allowStepJumping = true,
+	initialStepIndex,
+	onStepChange,
 }) => {
-  const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex || 0);
-  const [stepHistory, setStepHistory] = useState<StepHistory[]>([]);
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [showCredentials, setShowCredentials] = useState(false);
+	const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex || 0);
+	const [stepHistory, setStepHistory] = useState<StepHistory[]>([]);
+	const [isExecuting, setIsExecuting] = useState(false);
+	const [showCredentials, setShowCredentials] = useState(false);
 
-  // Notify parent component when step changes
-  useEffect(() => {
-    if (onStepChange) {
-      onStepChange(currentStepIndex);
-    }
-  }, [currentStepIndex, onStepChange]);
-  const [showDebug, setShowDebug] = useState(false);
-  const [copiedText, setCopiedText] = useState<string | null>(null);
+	// Notify parent component when step changes
+	useEffect(() => {
+		if (onStepChange) {
+			onStepChange(currentStepIndex);
+		}
+	}, [currentStepIndex, onStepChange]);
+	const [showDebug, setShowDebug] = useState(false);
+	const [copiedText, setCopiedText] = useState<string | null>(null);
 
+	// Load persisted state
+	useEffect(() => {
+		if (persistKey) {
+			try {
+				const saved = localStorage.getItem(`enhanced-flow-${persistKey}`);
+				if (saved) {
+					const data = JSON.parse(saved);
+					// Use initialStepIndex if provided, otherwise use persisted state
+					const stepIndex =
+						initialStepIndex !== undefined ? initialStepIndex : data.currentStepIndex || 0;
+					setCurrentStepIndex(stepIndex);
+					setStepHistory(data.stepHistory || []);
 
-  // Load persisted state
-  useEffect(() => {
-    if (persistKey) {
-      try {
-        const saved = localStorage.getItem(`enhanced-flow-${persistKey}`);
-        if (saved) {
-          const data = JSON.parse(saved);
-          // Use initialStepIndex if provided, otherwise use persisted state
-          const stepIndex = initialStepIndex !== undefined ? initialStepIndex : (data.currentStepIndex || 0);
-          setCurrentStepIndex(stepIndex);
-          setStepHistory(data.stepHistory || []);
-          
-          if (initialStepIndex !== undefined) {
-            console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex:', initialStepIndex);
-          }
-        } else if (initialStepIndex !== undefined) {
-          // If no persisted state but initialStepIndex is provided, use it
-          setCurrentStepIndex(initialStepIndex);
-          console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persisted state):', initialStepIndex);
-        }
-      } catch (error) {
-        logger.warn('Failed to load persisted flow state', `error: ${error}`);
-        // Fallback to initialStepIndex if provided
-        if (initialStepIndex !== undefined) {
-          setCurrentStepIndex(initialStepIndex);
-          console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (fallback):', initialStepIndex);
-        }
-      }
-    } else if (initialStepIndex !== undefined) {
-      // If no persistKey but initialStepIndex is provided, use it
-      setCurrentStepIndex(initialStepIndex);
-      console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persistKey):', initialStepIndex);
-    }
-  }, [persistKey, initialStepIndex]);
+					if (initialStepIndex !== undefined) {
+						console.log('🔍 [EnhancedStepFlowV2] Using initialStepIndex:', initialStepIndex);
+					}
+				} else if (initialStepIndex !== undefined) {
+					// If no persisted state but initialStepIndex is provided, use it
+					setCurrentStepIndex(initialStepIndex);
+					console.log(
+						'🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persisted state):',
+						initialStepIndex
+					);
+				}
+			} catch (error) {
+				logger.warn('Failed to load persisted flow state', `error: ${error}`);
+				// Fallback to initialStepIndex if provided
+				if (initialStepIndex !== undefined) {
+					setCurrentStepIndex(initialStepIndex);
+					console.log(
+						'🔍 [EnhancedStepFlowV2] Using initialStepIndex (fallback):',
+						initialStepIndex
+					);
+				}
+			}
+		} else if (initialStepIndex !== undefined) {
+			// If no persistKey but initialStepIndex is provided, use it
+			setCurrentStepIndex(initialStepIndex);
+			console.log(
+				'🔍 [EnhancedStepFlowV2] Using initialStepIndex (no persistKey):',
+				initialStepIndex
+			);
+		}
+	}, [persistKey, initialStepIndex]);
 
-  // Listen for custom step advancement events
-  useEffect(() => {
-    const handleAdvanceToStep = (event: CustomEvent) => {
-      const { stepIndex, stepName } = event.detail;
-      console.log('🔔 [EnhancedStepFlowV2] Received advance-to-step event:', { stepIndex, stepName });
-      setCurrentStepIndex(stepIndex);
-    };
+	// Listen for custom step advancement events
+	useEffect(() => {
+		const handleAdvanceToStep = (event: CustomEvent) => {
+			const { stepIndex, stepName } = event.detail;
+			console.log('🔔 [EnhancedStepFlowV2] Received advance-to-step event:', {
+				stepIndex,
+				stepName,
+			});
+			setCurrentStepIndex(stepIndex);
+		};
 
-    window.addEventListener('advance-to-step', handleAdvanceToStep as EventListener);
-    
-    return () => {
-      window.removeEventListener('advance-to-step', handleAdvanceToStep as EventListener);
-    };
-  }, []);
+		window.addEventListener('advance-to-step', handleAdvanceToStep as EventListener);
 
-  // Save state to localStorage
-  const saveState = useCallback(() => {
-    if (persistKey) {
-      try {
-        const data = {
-          currentStepIndex,
-          stepHistory,
-          timestamp: Date.now()
-        };
-        localStorage.setItem(`enhanced-flow-${persistKey}`, JSON.stringify(data));
-      } catch (error) {
-        logger.warn('Failed to save flow state', `error: ${error}`);
-      }
-    }
-  }, [persistKey, currentStepIndex, stepHistory]);
+		return () => {
+			window.removeEventListener('advance-to-step', handleAdvanceToStep as EventListener);
+		};
+	}, []);
 
-  useEffect(() => {
-    saveState();
-  }, [saveState]);
+	// Save state to localStorage
+	const saveState = useCallback(() => {
+		if (persistKey) {
+			try {
+				const data = {
+					currentStepIndex,
+					stepHistory,
+					timestamp: Date.now(),
+				};
+				localStorage.setItem(`enhanced-flow-${persistKey}`, JSON.stringify(data));
+			} catch (error) {
+				logger.warn('Failed to save flow state', `error: ${error}`);
+			}
+		}
+	}, [persistKey, currentStepIndex, stepHistory]);
 
-  // Get step status
-  const getStepStatus = useCallback((stepIndex: number): 'completed' | 'active' | 'pending' | 'error' | 'success' => {
-    const history = stepHistory.find(h => h.stepId === steps[stepIndex]?.id);
-    
-    // If step has an error, mark as error
-    if (history?.error) return 'error';
-    
-    // If step has a successful result, mark as completed (regardless of position)
-    if (history?.result && !history?.error) {
-      return stepIndex < currentStepIndex ? 'completed' : 'success';
-    }
-    
-    // If step is before current step and no history, assume completed
-    if (stepIndex < currentStepIndex) {
-      return 'completed';
-    }
-    
-    // If step is current step, mark as active
-    if (stepIndex === currentStepIndex) {
-      return 'active';
-    }
-    
-    // Otherwise, pending
-    return 'pending';
-  }, [currentStepIndex, stepHistory, steps]);
+	useEffect(() => {
+		saveState();
+	}, [saveState]);
 
+	// Get step status
+	const getStepStatus = useCallback(
+		(stepIndex: number): 'completed' | 'active' | 'pending' | 'error' | 'success' => {
+			const history = stepHistory.find((h) => h.stepId === steps[stepIndex]?.id);
 
-  // Execute step
-  const executeStep = useCallback(async (stepIndex: number) => {
-    console.log('🔧 [EnhancedStepFlowV2] executeStep called', { stepIndex, totalSteps: steps.length });
-    const step = steps[stepIndex];
-    console.log('🔧 [EnhancedStepFlowV2] Current step:', { step: step?.title, hasExecute: !!step?.execute });
-    
-    if (!step || !step.execute) {
-      console.log('❌ [EnhancedStepFlowV2] No step or execute function found');
-      return;
-    }
+			// If step has an error, mark as error
+			if (history?.error) return 'error';
 
-    setIsExecuting(true);
-    const startTime = Date.now();
+			// If step has a successful result, mark as completed (regardless of position)
+			if (history?.result && !history?.error) {
+				return stepIndex < currentStepIndex ? 'completed' : 'success';
+			}
 
-    try {
-      console.log('🚀 [EnhancedStepFlowV2] Starting execution of step:', step.title);
-      logger.info(`Executing step: ${step.title}`, `stepId: ${step.id}`);
-      const result = await step.execute();
-      const duration = Date.now() - startTime;
-      console.log('✅ [EnhancedStepFlowV2] Step execution completed:', { result, duration });
+			// If step is before current step and no history, assume completed
+			if (stepIndex < currentStepIndex) {
+				return 'completed';
+			}
 
-      const historyEntry: StepHistory = {
-        stepId: step.id,
-        timestamp: Date.now(),
-        result,
-        duration
-      };
+			// If step is current step, mark as active
+			if (stepIndex === currentStepIndex) {
+				return 'active';
+			}
 
-      setStepHistory(prev => [...prev.filter(h => h.stepId !== step.id), historyEntry]);
-      onStepComplete?.(step.id, result);
+			// Otherwise, pending
+			return 'pending';
+		},
+		[currentStepIndex, stepHistory, steps]
+	);
 
-      // Show success feedback
-      console.log('✅ [EnhancedStepFlowV2] Step completed successfully:', step.title);
-      
-      // Auto-advance if enabled and not the last step
-      if (autoAdvance && stepIndex < steps.length - 1) {
-        setTimeout(() => {
-          setCurrentStepIndex(stepIndex + 1);
-        }, 1000);
-      }
+	// Execute step
+	const executeStep = useCallback(
+		async (stepIndex: number) => {
+			console.log('🔧 [EnhancedStepFlowV2] executeStep called', {
+				stepIndex,
+				totalSteps: steps.length,
+			});
+			const step = steps[stepIndex];
+			console.log('🔧 [EnhancedStepFlowV2] Current step:', {
+				step: step?.title,
+				hasExecute: !!step?.execute,
+			});
 
-      logger.info(`Step completed: ${step.title}`, `duration: ${duration}ms, result: ${JSON.stringify(result)}`);
-    } catch (error) {
-      const duration = Date.now() - startTime;
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			if (!step || !step.execute) {
+				console.log('❌ [EnhancedStepFlowV2] No step or execute function found');
+				return;
+			}
 
-      const historyEntry: StepHistory = {
-        stepId: step.id,
-        timestamp: Date.now(),
-        error: errorMessage,
-        duration
-      };
+			setIsExecuting(true);
+			const startTime = Date.now();
 
-      setStepHistory(prev => [...prev.filter(h => h.stepId !== step.id), historyEntry]);
-      onStepError?.(step.id, errorMessage);
+			try {
+				console.log('🚀 [EnhancedStepFlowV2] Starting execution of step:', step.title);
+				logger.info(`Executing step: ${step.title}`, `stepId: ${step.id}`);
+				const result = await step.execute();
+				const duration = Date.now() - startTime;
+				console.log('✅ [EnhancedStepFlowV2] Step execution completed:', { result, duration });
 
-      logger.error(`Step failed: ${step.title}`, `error: ${errorMessage}, duration: ${duration}ms`);
-    } finally {
-      setIsExecuting(false);
-    }
-  }, [steps, autoAdvance, onStepComplete, onStepError]);
+				const historyEntry: StepHistory = {
+					stepId: step.id,
+					timestamp: Date.now(),
+					result,
+					duration,
+				};
 
-  // Navigation functions
-  const goToStep = useCallback((stepIndex: number) => {
-    if (allowStepJumping || stepIndex <= currentStepIndex) {
-      setCurrentStepIndex(stepIndex);
-    }
-  }, [allowStepJumping, currentStepIndex]);
+				setStepHistory((prev) => [...prev.filter((h) => h.stepId !== step.id), historyEntry]);
+				onStepComplete?.(step.id, result);
 
-  const goToNextStep = useCallback(() => {
-    if (currentStepIndex < steps.length - 1) {
-      setCurrentStepIndex(currentStepIndex + 1);
-      
-      // Custom scroll behavior based on page type
-      setTimeout(() => {
-        const isAuthorizationCodePage = window.location.pathname.includes('authorization-code');
-        
-        if (isAuthorizationCodePage) {
-          // For authorization code pages: scroll to progress bar (step indicator)
-          const progressBar = document.querySelector('[data-testid="progress-bar"]') || 
-                             document.querySelector('.progress-bar') ||
-                             document.querySelector('[role="progressbar"]');
-          if (progressBar) {
-            progressBar.scrollIntoView({ 
-              behavior: 'smooth', 
-              block: 'start' 
-            });
-          } else {
-            // Fallback: scroll to top of the flow container
-            const flowContainer = document.querySelector('[data-testid="enhanced-step-flow"]') ||
-                                 document.querySelector('.enhanced-step-flow') ||
-                                 document.querySelector('main');
-            if (flowContainer) {
-              flowContainer.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start' 
-              });
-            }
-          }
-        } else {
-          // For all other pages: scroll all the way to top
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-          const mainContent = document.querySelector('main');
-          if (mainContent) {
-            mainContent.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-        }
-      }, 100);
-    } else {
-      // Flow complete
-      const results = stepHistory.reduce((acc, entry) => {
-        if (entry.result) {
-          acc[entry.stepId] = entry.result;
-        }
-        return acc;
-      }, {} as Record<string, any>);
-      onFlowComplete?.(results);
-    }
-  }, [currentStepIndex, steps.length, stepHistory, onFlowComplete]);
+				// Show success feedback
+				console.log('✅ [EnhancedStepFlowV2] Step completed successfully:', step.title);
 
-  const goToPreviousStep = useCallback(() => {
-    if (currentStepIndex > 0) {
-      setCurrentStepIndex(currentStepIndex - 1);
-    }
-  }, [currentStepIndex]);
+				// Auto-advance if enabled and not the last step
+				if (autoAdvance && stepIndex < steps.length - 1) {
+					setTimeout(() => {
+						setCurrentStepIndex(stepIndex + 1);
+					}, 1000);
+				}
 
-  // Copy to clipboard
-  const copyToClipboard = useCallback(async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedText(text);
-      setTimeout(() => setCopiedText(null), 2000);
-    } catch (error) {
-      logger.error('Failed to copy to clipboard', `error: ${error}`);
-    }
-  }, []);
+				logger.info(
+					`Step completed: ${step.title}`,
+					`duration: ${duration}ms, result: ${JSON.stringify(result)}`
+				);
+			} catch (error) {
+				const duration = Date.now() - startTime;
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
-  // Get current step
-  const currentStep = steps[currentStepIndex];
-  const completedSteps = stepHistory.filter(h => !h.error).length;
-  const progress = (completedSteps / steps.length) * 100;
-  
-  // Check if current step has been completed successfully
-  const currentStepHistory = stepHistory.find(h => h.stepId === currentStep?.id);
-  const isCurrentStepCompleted = (currentStepHistory && !currentStepHistory.error) || currentStep?.completed;
+				const historyEntry: StepHistory = {
+					stepId: step.id,
+					timestamp: Date.now(),
+					error: errorMessage,
+					duration,
+				};
 
-  if (!currentStep) {
-    return (
-      <Container>
-        <Header>
-          <Title>Flow Complete!</Title>
-          <Subtitle>All steps have been completed successfully.</Subtitle>
-        </Header>
-      </Container>
-    );
-  }
+				setStepHistory((prev) => [...prev.filter((h) => h.stepId !== step.id), historyEntry]);
+				onStepError?.(step.id, errorMessage);
 
-  return (
-    <ResponsiveContainer>
-      <Container data-testid="enhanced-step-flow">
-        <Header>
-          <Title>{title}</Title>
-          <Subtitle>Interactive step-by-step OAuth flow with enhanced debugging</Subtitle>
-        </Header>
+				logger.error(
+					`Step failed: ${step.title}`,
+					`error: ${errorMessage}, duration: ${duration}ms`
+				);
+			} finally {
+				setIsExecuting(false);
+			}
+		},
+		[steps, autoAdvance, onStepComplete, onStepError]
+	);
 
-        {/* Step Progress Indicator */}
-        <StepProgressContainer data-testid="step-progress">
-          <StepProgressWrapper>
-            {steps.map((step, index) => {
-              const status = getStepStatus(index);
-              const isLast = index === steps.length - 1;
-              
-              return (
-                <React.Fragment key={step.id}>
-                  <StepIndicator
-                    $status={status}
-                    onClick={() => goToStep(index)}
-                    title={`Step ${index + 1}: ${step.title}`}
-                  >
-                    {status === 'completed' ? <FiCheckCircle /> : 
-                     status === 'success' ? <FiCheckCircle /> :
-                     status === 'error' ? <FiXCircle /> : 
-                     index + 1}
-                    <StepLabel>{step.title}</StepLabel>
-                  </StepIndicator>
-                  {!isLast && (
-                    <StepConnector
-                      $completed={status === 'completed'}
-                      $active={status === 'active'}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </StepProgressWrapper>
-          <StepCount>
-            {completedSteps} of {steps.length} completed
-          </StepCount>
-        </StepProgressContainer>
+	// Navigation functions
+	const goToStep = useCallback(
+		(stepIndex: number) => {
+			if (allowStepJumping || stepIndex <= currentStepIndex) {
+				setCurrentStepIndex(stepIndex);
+			}
+		},
+		[allowStepJumping, currentStepIndex]
+	);
 
-        {/* Progress Bar */}
-        <ProgressBar data-testid="progress-bar">
-          <ProgressFill $progress={progress} />
-        </ProgressBar>
+	const goToNextStep = useCallback(() => {
+		if (currentStepIndex < steps.length - 1) {
+			setCurrentStepIndex(currentStepIndex + 1);
 
-        {/* Step Content */}
-        <StepContent>
-          <StepHeader>
-            <StepIcon>
-              {currentStep.icon || <FiZap />}
-            </StepIcon>
-            <StepTitle>{currentStep.title}</StepTitle>
-          </StepHeader>
+			// Custom scroll behavior based on page type
+			setTimeout(() => {
+				const isAuthorizationCodePage = window.location.pathname.includes('authorization-code');
 
-          <StepDescription>
-            <StepDescriptionText>{currentStep.description}</StepDescriptionText>
-          </StepDescription>
+				if (isAuthorizationCodePage) {
+					// For authorization code pages: scroll to progress bar (step indicator)
+					const progressBar =
+						document.querySelector('[data-testid="progress-bar"]') ||
+						document.querySelector('.progress-bar') ||
+						document.querySelector('[role="progressbar"]');
+					if (progressBar) {
+						progressBar.scrollIntoView({
+							behavior: 'smooth',
+							block: 'start',
+						});
+					} else {
+						// Fallback: scroll to top of the flow container
+						const flowContainer =
+							document.querySelector('[data-testid="enhanced-step-flow"]') ||
+							document.querySelector('.enhanced-step-flow') ||
+							document.querySelector('main');
+						if (flowContainer) {
+							flowContainer.scrollIntoView({
+								behavior: 'smooth',
+								block: 'start',
+							});
+						}
+					}
+				} else {
+					// For all other pages: scroll all the way to top
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+					const mainContent = document.querySelector('main');
+					if (mainContent) {
+						mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+					}
+				}
+			}, 100);
+		} else {
+			// Flow complete
+			const results = stepHistory.reduce(
+				(acc, entry) => {
+					if (entry.result) {
+						acc[entry.stepId] = entry.result;
+					}
+					return acc;
+				},
+				{} as Record<string, any>
+			);
+			onFlowComplete?.(results);
+		}
+	}, [currentStepIndex, steps.length, stepHistory, onFlowComplete]);
 
-          {/* Custom Step Content */}
-          {currentStep.content && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              {currentStep.content}
-            </div>
-          )}
+	const goToPreviousStep = useCallback(() => {
+		if (currentStepIndex > 0) {
+			setCurrentStepIndex(currentStepIndex - 1);
+		}
+	}, [currentStepIndex]);
 
-          {/* Code Block */}
-          {currentStep.code && (
-            <CodeBlock>
-              <CopyButton onClick={() => copyToClipboard(currentStep.code!)}>
-                {copiedText === currentStep.code ? <FiCheck /> : <FiCopy />}
-              </CopyButton>
-              <pre>{currentStep.code}</pre>
-            </CodeBlock>
-          )}
+	// Copy to clipboard
+	const copyToClipboard = useCallback(async (text: string) => {
+		try {
+			await navigator.clipboard.writeText(text);
+			setCopiedText(text);
+			setTimeout(() => setCopiedText(null), 2000);
+		} catch (error) {
+			logger.error('Failed to copy to clipboard', `error: ${error}`);
+		}
+	}, []);
 
-          {/* Step Result */}
-          {currentStep.result && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h4>Result:</h4>
-              <JsonDisplay>
-                {JSON.stringify(currentStep.result, null, 2)}
-              </JsonDisplay>
-            </div>
-          )}
+	// Get current step
+	const currentStep = steps[currentStepIndex];
+	const completedSteps = stepHistory.filter((h) => !h.error).length;
+	const progress = (completedSteps / steps.length) * 100;
 
-          {/* Step Error */}
-          {currentStep.error && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <StatusIndicator type="error">
-                <FiAlertCircle />
-                Error: {currentStep.error}
-              </StatusIndicator>
-            </div>
-          )}
+	// Check if current step has been completed successfully
+	const currentStepHistory = stepHistory.find((h) => h.stepId === currentStep?.id);
+	const isCurrentStepCompleted =
+		(currentStepHistory && !currentStepHistory.error) || currentStep?.completed;
 
-          {/* Action Buttons */}
-          <ActionButtons>
-            <Button
-              $variant="secondary"
-              onClick={goToPreviousStep}
-              disabled={currentStepIndex === 0 || isExecuting}
-              $loading={isExecuting}
-              style={{ 
-                opacity: (currentStepIndex === 0 || isExecuting) ? 0.5 : 1,
-                cursor: (currentStepIndex === 0 || isExecuting) ? 'not-allowed' : 'pointer'
-              }}
-              title={currentStepIndex === 0 ? 'No previous step' : isExecuting ? 'Please wait...' : ''}
-            >
-              {isExecuting ? (
-                <>
-                  <LoadingSpinner />
-                  Please wait...
-                </>
-              ) : (
-                <>
-                  <FiChevronLeft />
-                  Back
-                </>
-              )}
-            </Button>
+	if (!currentStep) {
+		return (
+			<Container>
+				<Header>
+					<Title>Flow Complete!</Title>
+					<Subtitle>All steps have been completed successfully.</Subtitle>
+				</Header>
+			</Container>
+		);
+	}
 
-            {currentStep.execute && !currentStep.hideDefaultButton && (
-              <Button
-                $variant="primary"
-                onClick={() => {
-                  console.log('🔧 [EnhancedStepFlowV2] Execute button clicked', { 
-                    currentStepIndex, 
-                    stepTitle: currentStep.title,
-                    hasExecute: !!currentStep.execute,
-                    canExecute: currentStep.canExecute,
-                    isExecuting
-                  });
-                  executeStep(currentStepIndex);
-                }}
-                disabled={isExecuting || !currentStep.canExecute}
-                $loading={isExecuting}
-                style={{ 
-                  opacity: (!currentStep.canExecute || isExecuting) ? 0.5 : 1,
-                  cursor: (!currentStep.canExecute || isExecuting) ? 'not-allowed' : 'pointer'
-                }}
-                title={!currentStep.canExecute ? 'Complete the previous step first' : isExecuting ? 'Please wait...' : ''}
-              >
-                {isExecuting ? (
-                  <>
-                    <LoadingSpinner />
-                    {(currentStep.buttonText && currentStep.buttonText.includes('...')) ? currentStep.buttonText :
-                     (currentStep.id === 'setup-credentials' ? 'Saving...' :
-                      currentStep.id === 'generate-pkce' ? 'Generating...' :
-                      currentStep.id === 'build-auth-url' ? 'Building URL...' : 
-                      currentStep.id === 'exchange-tokens' ? 'Exchanging Tokens...' :
-                      currentStep.id === 'validate-tokens' ? 'Validating...' :
-                      'Executing...')}
-                  </>
-                ) : (
-                  <>
-                    {currentStep.id === 'setup-credentials' ? <FiSave /> :
-                     currentStep.id === 'generate-pkce' ? <FiShield /> :
-                     currentStep.id === 'build-auth-url' ? <FiGlobe /> : 
-                     currentStep.id === 'exchange-tokens' ? <FiKey /> :
-                     currentStep.id === 'validate-tokens' ? <FiUser /> :
-                     <FiPlay />}
-                    {currentStep.buttonText ||
-                     (currentStep.id === 'setup-credentials' ? 'Save' :
-                      currentStep.id === 'generate-pkce' ? 'Generate' :
-                      currentStep.id === 'build-auth-url' ? 'Build URL' : 
-                      currentStep.id === 'exchange-tokens' ? 'Exchange Tokens' :
-                      currentStep.id === 'validate-tokens' ? 'Get User Info' :
-                      'Sign On')}
-                  </>
-                )}
-              </Button>
-            )}
+	return (
+		<ResponsiveContainer>
+			<Container data-testid="enhanced-step-flow">
+				<Header>
+					<Title>{title}</Title>
+					<Subtitle>Interactive step-by-step OAuth flow with enhanced debugging</Subtitle>
+				</Header>
 
-            <Button
-              $variant="success"
-              onClick={goToNextStep}
-              disabled={currentStepIndex === steps.length - 1 || !isCurrentStepCompleted || isExecuting}
-              $loading={isExecuting}
-              style={{ 
-                opacity: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting ? 0.5 : 1,
-                cursor: (!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting ? 'not-allowed' : 'pointer'
-              }}
-              title={(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) ? 'Complete the current step first' : isExecuting ? 'Please wait...' : ''}
-            >
-              {isExecuting ? (
-                <>
-                  <LoadingSpinner />
-                  Please wait...
-                </>
-              ) : (
-                <>
-                  Next
-                  <FiChevronRight />
-                </>
-              )}
-            </Button>
-          </ActionButtons>
-        </StepContent>
+				{/* Step Progress Indicator */}
+				<StepProgressContainer data-testid="step-progress">
+					<StepProgressWrapper>
+						{steps.map((step, index) => {
+							const status = getStepStatus(index);
+							const isLast = index === steps.length - 1;
 
-        {/* Collapsible Panels */}
-        {showDebugInfo && (
-          <>
-            {/* Debug Information Panel */}
-            <CollapsiblePanel>
-              <PanelHeader onClick={() => setShowDebug(!showDebug)}>
-                <PanelTitle>
-                  <FiSettings />
-                  Debug Information
-                </PanelTitle>
-                <PanelToggle className={showDebug ? 'expanded' : ''}>
-                  <FiChevronDown />
-                </PanelToggle>
-              </PanelHeader>
-              <PanelContent $expanded={showDebug}>
-                <div>
-                  <h4>Step History:</h4>
-                  {stepHistory.map((entry, index) => (
-                    <div key={index} style={{ marginBottom: '0.5rem' }}>
-                      <StatusIndicator type={entry.error ? 'error' : 'success'}>
-                        {entry.error ? <FiXCircle /> : <FiCheckCircle />}
-                        Step {steps.findIndex(s => s.id === entry.stepId) + 1}: {entry.duration}ms
-                      </StatusIndicator>
-                    </div>
-                  ))}
-                  
-                  <h4>Current State:</h4>
-                  <JsonDisplay>
-                    {JSON.stringify({
-                      currentStep: currentStepIndex + 1,
-                      totalSteps: steps.length,
-                      completedSteps,
-                      progress: Math.round(progress)
-                    }, null, 2)}
-                  </JsonDisplay>
-                </div>
-              </PanelContent>
-            </CollapsiblePanel>
-          </>
-        )}
+							return (
+								<React.Fragment key={step.id}>
+									<StepIndicator
+										$status={status}
+										onClick={() => goToStep(index)}
+										title={`Step ${index + 1}: ${step.title}`}
+									>
+										{status === 'completed' ? (
+											<FiCheckCircle />
+										) : status === 'success' ? (
+											<FiCheckCircle />
+										) : status === 'error' ? (
+											<FiXCircle />
+										) : (
+											index + 1
+										)}
+										<StepLabel>{step.title}</StepLabel>
+									</StepIndicator>
+									{!isLast && (
+										<StepConnector
+											$completed={status === 'completed'}
+											$active={status === 'active'}
+										/>
+									)}
+								</React.Fragment>
+							);
+						})}
+					</StepProgressWrapper>
+					<StepCount>
+						{completedSteps} of {steps.length} completed
+					</StepCount>
+				</StepProgressContainer>
 
-        {/* Bottom Step Progress Indicator - Duplicate for easy access */}
-        <StepProgressContainer data-testid="step-progress-bottom" style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}>
-          <StepProgressWrapper>
-            {steps.map((step, index) => {
-              const status = getStepStatus(index);
-              const isLast = index === steps.length - 1;
-              
-              return (
-                <React.Fragment key={`bottom-${step.id}`}>
-                  <StepIndicator
-                    $status={status}
-                    onClick={() => goToStep(index)}
-                    title={`Step ${index + 1}: ${step.title}`}
-                  >
-                    {status === 'completed' ? <FiCheckCircle /> : 
-                     status === 'success' ? <FiCheckCircle /> :
-                     status === 'error' ? <FiXCircle /> : 
-                     index + 1}
-                    <StepLabel>{step.title}</StepLabel>
-                  </StepIndicator>
-                  {!isLast && (
-                    <StepConnector
-                      $completed={status === 'completed'}
-                      $active={status === 'active'}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </StepProgressWrapper>
-          <StepCount>
-            {completedSteps} of {steps.length} completed
-          </StepCount>
-        </StepProgressContainer>
-      </Container>
-    </ResponsiveContainer>
-  );
+				{/* Progress Bar */}
+				<ProgressBar data-testid="progress-bar">
+					<ProgressFill $progress={progress} />
+				</ProgressBar>
+
+				{/* Step Content */}
+				<StepContent>
+					<StepHeader>
+						<StepIcon>{currentStep.icon || <FiZap />}</StepIcon>
+						<StepTitle>{currentStep.title}</StepTitle>
+					</StepHeader>
+
+					<StepDescription>
+						<StepDescriptionText>{currentStep.description}</StepDescriptionText>
+					</StepDescription>
+
+					{/* Custom Step Content */}
+					{currentStep.content && (
+						<div style={{ marginBottom: '1.5rem' }}>{currentStep.content}</div>
+					)}
+
+					{/* Code Block */}
+					{currentStep.code && (
+						<CodeBlock>
+							<CopyButton onClick={() => copyToClipboard(currentStep.code!)}>
+								{copiedText === currentStep.code ? <FiCheck /> : <FiCopy />}
+							</CopyButton>
+							<pre>{currentStep.code}</pre>
+						</CodeBlock>
+					)}
+
+					{/* Step Result */}
+					{currentStep.result && (
+						<div style={{ marginBottom: '1.5rem' }}>
+							<h4>Result:</h4>
+							<JsonDisplay>{JSON.stringify(currentStep.result, null, 2)}</JsonDisplay>
+						</div>
+					)}
+
+					{/* Step Error */}
+					{currentStep.error && (
+						<div style={{ marginBottom: '1.5rem' }}>
+							<StatusIndicator type="error">
+								<FiAlertCircle />
+								Error: {currentStep.error}
+							</StatusIndicator>
+						</div>
+					)}
+
+					{/* Action Buttons */}
+					<ActionButtons>
+						<Button
+							$variant="secondary"
+							onClick={goToPreviousStep}
+							disabled={currentStepIndex === 0 || isExecuting}
+							$loading={isExecuting}
+							style={{
+								opacity: currentStepIndex === 0 || isExecuting ? 0.5 : 1,
+								cursor: currentStepIndex === 0 || isExecuting ? 'not-allowed' : 'pointer',
+							}}
+							title={
+								currentStepIndex === 0 ? 'No previous step' : isExecuting ? 'Please wait...' : ''
+							}
+						>
+							{isExecuting ? (
+								<>
+									<LoadingSpinner />
+									Please wait...
+								</>
+							) : (
+								<>
+									<FiChevronLeft />
+									Back
+								</>
+							)}
+						</Button>
+
+						{currentStep.execute && !currentStep.hideDefaultButton && (
+							<Button
+								$variant="primary"
+								onClick={() => {
+									console.log('🔧 [EnhancedStepFlowV2] Execute button clicked', {
+										currentStepIndex,
+										stepTitle: currentStep.title,
+										hasExecute: !!currentStep.execute,
+										canExecute: currentStep.canExecute,
+										isExecuting,
+									});
+									executeStep(currentStepIndex);
+								}}
+								disabled={isExecuting || !currentStep.canExecute}
+								$loading={isExecuting}
+								style={{
+									opacity: !currentStep.canExecute || isExecuting ? 0.5 : 1,
+									cursor: !currentStep.canExecute || isExecuting ? 'not-allowed' : 'pointer',
+								}}
+								title={
+									!currentStep.canExecute
+										? 'Complete the previous step first'
+										: isExecuting
+											? 'Please wait...'
+											: ''
+								}
+							>
+								{isExecuting ? (
+									<>
+										<LoadingSpinner />
+										{currentStep.buttonText && currentStep.buttonText.includes('...')
+											? currentStep.buttonText
+											: currentStep.id === 'setup-credentials'
+												? 'Saving...'
+												: currentStep.id === 'generate-pkce'
+													? 'Generating...'
+													: currentStep.id === 'build-auth-url'
+														? 'Building URL...'
+														: currentStep.id === 'exchange-tokens'
+															? 'Exchanging Tokens...'
+															: currentStep.id === 'validate-tokens'
+																? 'Validating...'
+																: 'Executing...'}
+									</>
+								) : (
+									<>
+										{currentStep.id === 'setup-credentials' ? (
+											<FiSave />
+										) : currentStep.id === 'generate-pkce' ? (
+											<FiShield />
+										) : currentStep.id === 'build-auth-url' ? (
+											<FiGlobe />
+										) : currentStep.id === 'exchange-tokens' ? (
+											<FiKey />
+										) : currentStep.id === 'validate-tokens' ? (
+											<FiUser />
+										) : (
+											<FiPlay />
+										)}
+										{currentStep.buttonText ||
+											(currentStep.id === 'setup-credentials'
+												? 'Save'
+												: currentStep.id === 'generate-pkce'
+													? 'Generate'
+													: currentStep.id === 'build-auth-url'
+														? 'Build URL'
+														: currentStep.id === 'exchange-tokens'
+															? 'Exchange Tokens'
+															: currentStep.id === 'validate-tokens'
+																? 'Get User Info'
+																: 'Sign On')}
+									</>
+								)}
+							</Button>
+						)}
+
+						<Button
+							$variant="success"
+							onClick={goToNextStep}
+							disabled={
+								currentStepIndex === steps.length - 1 || !isCurrentStepCompleted || isExecuting
+							}
+							$loading={isExecuting}
+							style={{
+								opacity:
+									(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting
+										? 0.5
+										: 1,
+								cursor:
+									(!isCurrentStepCompleted && currentStepIndex < steps.length - 1) || isExecuting
+										? 'not-allowed'
+										: 'pointer',
+							}}
+							title={
+								!isCurrentStepCompleted && currentStepIndex < steps.length - 1
+									? 'Complete the current step first'
+									: isExecuting
+										? 'Please wait...'
+										: ''
+							}
+						>
+							{isExecuting ? (
+								<>
+									<LoadingSpinner />
+									Please wait...
+								</>
+							) : (
+								<>
+									Next
+									<FiChevronRight />
+								</>
+							)}
+						</Button>
+					</ActionButtons>
+				</StepContent>
+
+				{/* Collapsible Panels */}
+				{showDebugInfo && (
+					<>
+						{/* Debug Information Panel */}
+						<CollapsiblePanel>
+							<PanelHeader onClick={() => setShowDebug(!showDebug)}>
+								<PanelTitle>
+									<FiSettings />
+									Debug Information
+								</PanelTitle>
+								<PanelToggle className={showDebug ? 'expanded' : ''}>
+									<FiChevronDown />
+								</PanelToggle>
+							</PanelHeader>
+							<PanelContent $expanded={showDebug}>
+								<div>
+									<h4>Step History:</h4>
+									{stepHistory.map((entry, index) => (
+										<div key={index} style={{ marginBottom: '0.5rem' }}>
+											<StatusIndicator type={entry.error ? 'error' : 'success'}>
+												{entry.error ? <FiXCircle /> : <FiCheckCircle />}
+												Step {steps.findIndex((s) => s.id === entry.stepId) + 1}: {entry.duration}ms
+											</StatusIndicator>
+										</div>
+									))}
+
+									<h4>Current State:</h4>
+									<JsonDisplay>
+										{JSON.stringify(
+											{
+												currentStep: currentStepIndex + 1,
+												totalSteps: steps.length,
+												completedSteps,
+												progress: Math.round(progress),
+											},
+											null,
+											2
+										)}
+									</JsonDisplay>
+								</div>
+							</PanelContent>
+						</CollapsiblePanel>
+					</>
+				)}
+
+				{/* Bottom Step Progress Indicator - Duplicate for easy access */}
+				<StepProgressContainer
+					data-testid="step-progress-bottom"
+					style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid #e5e7eb' }}
+				>
+					<StepProgressWrapper>
+						{steps.map((step, index) => {
+							const status = getStepStatus(index);
+							const isLast = index === steps.length - 1;
+
+							return (
+								<React.Fragment key={`bottom-${step.id}`}>
+									<StepIndicator
+										$status={status}
+										onClick={() => goToStep(index)}
+										title={`Step ${index + 1}: ${step.title}`}
+									>
+										{status === 'completed' ? (
+											<FiCheckCircle />
+										) : status === 'success' ? (
+											<FiCheckCircle />
+										) : status === 'error' ? (
+											<FiXCircle />
+										) : (
+											index + 1
+										)}
+										<StepLabel>{step.title}</StepLabel>
+									</StepIndicator>
+									{!isLast && (
+										<StepConnector
+											$completed={status === 'completed'}
+											$active={status === 'active'}
+										/>
+									)}
+								</React.Fragment>
+							);
+						})}
+					</StepProgressWrapper>
+					<StepCount>
+						{completedSteps} of {steps.length} completed
+					</StepCount>
+				</StepProgressContainer>
+			</Container>
+		</ResponsiveContainer>
+	);
 };
 
 export default EnhancedStepFlowV2;

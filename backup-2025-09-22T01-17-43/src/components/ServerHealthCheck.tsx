@@ -23,25 +23,33 @@ const HealthCheckContainer = styled.div`
 
 const HealthCard = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   background: ${({ $status }) => {
-    switch ($status) {
-      case 'checking': return '#fef3c7';
-      case 'online': return '#d1fae5';
-      case 'offline': return '#fee2e2';
-      default: return '#f3f4f6';
-    }
-  }};
+		switch ($status) {
+			case 'checking':
+				return '#fef3c7';
+			case 'online':
+				return '#d1fae5';
+			case 'offline':
+				return '#fee2e2';
+			default:
+				return '#f3f4f6';
+		}
+	}};
   border: 2px solid ${({ $status }) => {
-    switch ($status) {
-      case 'checking': return '#f59e0b';
-      case 'online': return '#10b981';
-      case 'offline': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($status) {
+			case 'checking':
+				return '#f59e0b';
+			case 'online':
+				return '#10b981';
+			case 'offline':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  animation: ${({ $status }) => $status === 'checking' ? css`${pulse} 2s infinite` : 'none'};
+  animation: ${({ $status }) => ($status === 'checking' ? css`${pulse} 2s infinite` : 'none')};
 `;
 
 const HealthHeader = styled.div`
@@ -53,16 +61,22 @@ const HealthHeader = styled.div`
 
 const HealthIcon = styled.div<{ $status: 'checking' | 'online' | 'offline' }>`
   color: ${({ $status }) => {
-    switch ($status) {
-      case 'checking': return '#f59e0b';
-      case 'online': return '#10b981';
-      case 'offline': return '#ef4444';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($status) {
+			case 'checking':
+				return '#f59e0b';
+			case 'online':
+				return '#10b981';
+			case 'offline':
+				return '#ef4444';
+			default:
+				return '#6b7280';
+		}
+	}};
   font-size: 1.25rem;
   
-  ${({ $status }) => $status === 'checking' && css`
+  ${({ $status }) =>
+		$status === 'checking' &&
+		css`
     animation: ${spin} 1s linear infinite;
   `}
 `;
@@ -129,135 +143,129 @@ const DismissButton = styled.button`
 `;
 
 interface ServerHealthCheckProps {
-  onDismiss?: () => void;
+	onDismiss?: () => void;
 }
 
 const ServerHealthCheck: React.FC<ServerHealthCheckProps> = ({ onDismiss }) => {
-  const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastCheck, setLastCheck] = useState<Date | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
+	const [status, setStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+	const [isVisible, setIsVisible] = useState(true);
+	const [lastCheck, setLastCheck] = useState<Date | null>(null);
+	const [retryCount, setRetryCount] = useState(0);
 
-  const checkServerHealth = async () => {
-    setStatus('checking');
-    setLastCheck(new Date());
-    
-    try {
-      const response = await fetch('/api/health', {
-        method: 'GET',
-        headers: {
-          'Accept': 'application/json',
-        },
-        // Add timeout
-        signal: AbortSignal.timeout(10000)
-      });
-      
-      if (response.ok) {
-        setStatus('online');
-        setRetryCount(0);
-      } else {
-        setStatus('offline');
-      }
-    } catch (error) {
-      console.warn('Server health check failed:', error);
-      setStatus('offline');
-      setRetryCount(prev => prev + 1);
-    }
-  };
+	const checkServerHealth = async () => {
+		setStatus('checking');
+		setLastCheck(new Date());
 
-  // Initial check with delay to allow backend to start
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      checkServerHealth();
-    }, 2000); // 2 second delay
-    
-    return () => clearTimeout(timer);
-  }, []);
+		try {
+			const response = await fetch('/api/health', {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+				},
+				// Add timeout
+				signal: AbortSignal.timeout(10000),
+			});
 
-  // Periodic checks every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (status === 'offline') {
-        checkServerHealth();
-      }
-    }, 30000);
+			if (response.ok) {
+				setStatus('online');
+				setRetryCount(0);
+			} else {
+				setStatus('offline');
+			}
+		} catch (error) {
+			console.warn('Server health check failed:', error);
+			setStatus('offline');
+			setRetryCount((prev) => prev + 1);
+		}
+	};
 
-    return () => clearInterval(interval);
-  }, [status]);
+	// Initial check with delay to allow backend to start
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			checkServerHealth();
+		}, 2000); // 2 second delay
 
-  const handleRetry = () => {
-    checkServerHealth();
-  };
+		return () => clearTimeout(timer);
+	}, []);
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-    onDismiss?.();
-  };
+	// Periodic checks every 30 seconds
+	useEffect(() => {
+		const interval = setInterval(() => {
+			if (status === 'offline') {
+				checkServerHealth();
+			}
+		}, 30000);
 
-  if (!isVisible) {
-    return null;
-  }
+		return () => clearInterval(interval);
+	}, [status]);
 
-  const getStatusInfo = () => {
-    switch (status) {
-      case 'checking':
-        return {
-          icon: <FiRefreshCw />,
-          title: 'Checking Server Status...',
-          message: 'Verifying connection to backend server...'
-        };
-      case 'online':
-        return {
-          icon: <FiCheckCircle />,
-          title: 'Backend Server Online',
-          message: 'Backend server is running and responding normally.'
-        };
-      case 'offline':
-        return {
-          icon: <FiWifiOff />,
-          title: 'Backend Server Offline',
-          message: `Backend server is not responding. ${retryCount > 0 ? `(${retryCount} failed attempts)` : ''} Please start the backend server with: node server.js`
-        };
-      default:
-        return {
-          icon: <FiAlertTriangle />,
-          title: 'Unknown Status',
-          message: 'Unable to determine server status.'
-        };
-    }
-  };
+	const handleRetry = () => {
+		checkServerHealth();
+	};
 
-  const statusInfo = getStatusInfo();
+	const handleDismiss = () => {
+		setIsVisible(false);
+		onDismiss?.();
+	};
 
-  return (
-    <HealthCheckContainer>
-      <HealthCard $status={status}>
-        <HealthHeader>
-          <HealthIcon $status={status}>
-            {statusInfo.icon}
-          </HealthIcon>
-          <HealthTitle>{statusInfo.title}</HealthTitle>
-        </HealthHeader>
-        <HealthMessage>{statusInfo.message}</HealthMessage>
-        {lastCheck && (
-          <HealthMessage style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-            Last checked: {lastCheck.toLocaleTimeString()}
-          </HealthMessage>
-        )}
-        <HealthActions>
-          <HealthButton onClick={handleRetry} disabled={status === 'checking'}>
-            <FiRefreshCw />
-            Retry
-          </HealthButton>
-          {status === 'online' && (
-            <DismissButton onClick={handleDismiss}>
-              Dismiss
-            </DismissButton>
-          )}
-        </HealthActions>
-      </HealthCard>
-    </HealthCheckContainer>
-  );
+	if (!isVisible) {
+		return null;
+	}
+
+	const getStatusInfo = () => {
+		switch (status) {
+			case 'checking':
+				return {
+					icon: <FiRefreshCw />,
+					title: 'Checking Server Status...',
+					message: 'Verifying connection to backend server...',
+				};
+			case 'online':
+				return {
+					icon: <FiCheckCircle />,
+					title: 'Backend Server Online',
+					message: 'Backend server is running and responding normally.',
+				};
+			case 'offline':
+				return {
+					icon: <FiWifiOff />,
+					title: 'Backend Server Offline',
+					message: `Backend server is not responding. ${retryCount > 0 ? `(${retryCount} failed attempts)` : ''} Please start the backend server with: node server.js`,
+				};
+			default:
+				return {
+					icon: <FiAlertTriangle />,
+					title: 'Unknown Status',
+					message: 'Unable to determine server status.',
+				};
+		}
+	};
+
+	const statusInfo = getStatusInfo();
+
+	return (
+		<HealthCheckContainer>
+			<HealthCard $status={status}>
+				<HealthHeader>
+					<HealthIcon $status={status}>{statusInfo.icon}</HealthIcon>
+					<HealthTitle>{statusInfo.title}</HealthTitle>
+				</HealthHeader>
+				<HealthMessage>{statusInfo.message}</HealthMessage>
+				{lastCheck && (
+					<HealthMessage style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+						Last checked: {lastCheck.toLocaleTimeString()}
+					</HealthMessage>
+				)}
+				<HealthActions>
+					<HealthButton onClick={handleRetry} disabled={status === 'checking'}>
+						<FiRefreshCw />
+						Retry
+					</HealthButton>
+					{status === 'online' && <DismissButton onClick={handleDismiss}>Dismiss</DismissButton>}
+				</HealthActions>
+			</HealthCard>
+		</HealthCheckContainer>
+	);
 };
 
 export default ServerHealthCheck;

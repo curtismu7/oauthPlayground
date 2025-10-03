@@ -170,61 +170,61 @@ const FlowInfoCard: React.FC<FlowInfoCardProps> = ({ flowInfo }) => {
 
 			<CardContent $isOpen={isOpen}>
 				<InfoGrid>
-				<InfoSection>
-					<SectionTitle>Tokens Returned</SectionTitle>
-					<SectionContent>{flowInfo.tokensReturned}</SectionContent>
-				</InfoSection>
-
-				<InfoSection>
-					<SectionTitle>Purpose</SectionTitle>
-					<SectionContent>{flowInfo.purpose}</SectionContent>
-				</InfoSection>
-
-				<InfoSection>
-					<SectionTitle>Spec Layer</SectionTitle>
-					<SectionContent>{flowInfo.specLayer}</SectionContent>
-				</InfoSection>
-
-				<InfoSection>
-					<SectionTitle>Nonce Requirement</SectionTitle>
-					<SectionContent>{flowInfo.nonceRequirement}</SectionContent>
-				</InfoSection>
-
-				<InfoSection style={{ gridColumn: 'span 2' }}>
-					<SectionTitle>Validation</SectionTitle>
-					<SectionContent>{flowInfo.validation}</SectionContent>
-				</InfoSection>
-
-				{flowInfo.securityNotes && flowInfo.securityNotes.length > 0 && (
-					<InfoSection style={{ gridColumn: '1 / -1' }}>
-						<SectionTitle>⚠️ Security Notes</SectionTitle>
-						<SectionContent>
-							<ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-								{flowInfo.securityNotes.map((note, index) => (
-									<li key={index} style={{ marginBottom: '0.25rem' }}>
-										{note}
-									</li>
-								))}
-							</ul>
-						</SectionContent>
+					<InfoSection>
+						<SectionTitle>Tokens Returned</SectionTitle>
+						<SectionContent>{flowInfo.tokensReturned}</SectionContent>
 					</InfoSection>
-				)}
 
-				{flowInfo.useCases && flowInfo.useCases.length > 0 && (
-					<InfoSection style={{ gridColumn: '1 / -1' }}>
-						<SectionTitle>✨ Best Use Cases</SectionTitle>
-						<SectionContent>
-							<ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
-								{flowInfo.useCases.map((useCase, index) => (
-									<li key={index} style={{ marginBottom: '0.25rem' }}>
-										{useCase}
-									</li>
-								))}
-							</ul>
-						</SectionContent>
+					<InfoSection>
+						<SectionTitle>Purpose</SectionTitle>
+						<SectionContent>{flowInfo.purpose}</SectionContent>
 					</InfoSection>
-				)}
-			</InfoGrid>
+
+					<InfoSection>
+						<SectionTitle>Spec Layer</SectionTitle>
+						<SectionContent>{flowInfo.specLayer}</SectionContent>
+					</InfoSection>
+
+					<InfoSection>
+						<SectionTitle>Nonce Requirement</SectionTitle>
+						<SectionContent>{flowInfo.nonceRequirement}</SectionContent>
+					</InfoSection>
+
+					<InfoSection style={{ gridColumn: 'span 2' }}>
+						<SectionTitle>Validation</SectionTitle>
+						<SectionContent>{flowInfo.validation}</SectionContent>
+					</InfoSection>
+
+					{flowInfo.securityNotes && flowInfo.securityNotes.length > 0 && (
+						<InfoSection style={{ gridColumn: '1 / -1' }}>
+							<SectionTitle>⚠️ Security Notes</SectionTitle>
+							<SectionContent>
+								<ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+									{flowInfo.securityNotes.map((note, index) => (
+										<li key={index} style={{ marginBottom: '0.25rem' }}>
+											{note}
+										</li>
+									))}
+								</ul>
+							</SectionContent>
+						</InfoSection>
+					)}
+
+					{flowInfo.useCases && flowInfo.useCases.length > 0 && (
+						<InfoSection style={{ gridColumn: '1 / -1' }}>
+							<SectionTitle>✨ Best Use Cases</SectionTitle>
+							<SectionContent>
+								<ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+									{flowInfo.useCases.map((useCase, index) => (
+										<li key={index} style={{ marginBottom: '0.25rem' }}>
+											{useCase}
+										</li>
+									))}
+								</ul>
+							</SectionContent>
+						</InfoSection>
+					)}
+				</InfoGrid>
 			</CardContent>
 		</CardContainer>
 	);

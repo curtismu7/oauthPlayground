@@ -73,41 +73,41 @@ const MenuButton = styled.button`
 `;
 
 const Navbar = ({ toggleSidebar }) => {
-  const { isAuthenticated, logout } = useAuth();
+	const { isAuthenticated, logout } = useAuth();
 
-  return (
-    <NavbarContainer>
-      <MenuButton onClick={toggleSidebar}>
-        <FiMenu size={24} />
-      </MenuButton>
-      
-      <Logo>
-        <span>PingOne OAuth Playground</span>
-      </Logo>
-      
-      <NavItems>
-        <a href="/documentation" title="Documentation">
-          <FiHelpCircle />
-          <span>Docs</span>
-        </a>
-        <a href="/configuration" title="Settings">
-          <FiSettings />
-          <span>Settings</span>
-        </a>
-        {isAuthenticated ? (
-          <button onClick={logout} title="Logout">
-            <FiLogOut />
-            <span>Logout</span>
-          </button>
-        ) : (
-          <a href="/login" title="Login">
-            <FiLogIn />
-            <span>Login</span>
-          </a>
-        )}
-      </NavItems>
-    </NavbarContainer>
-  );
+	return (
+		<NavbarContainer>
+			<MenuButton onClick={toggleSidebar}>
+				<FiMenu size={24} />
+			</MenuButton>
+
+			<Logo>
+				<span>PingOne OAuth Playground</span>
+			</Logo>
+
+			<NavItems>
+				<a href="/documentation" title="Documentation">
+					<FiHelpCircle />
+					<span>Docs</span>
+				</a>
+				<a href="/configuration" title="Settings">
+					<FiSettings />
+					<span>Settings</span>
+				</a>
+				{isAuthenticated ? (
+					<button onClick={logout} title="Logout">
+						<FiLogOut />
+						<span>Logout</span>
+					</button>
+				) : (
+					<a href="/login" title="Login">
+						<FiLogIn />
+						<span>Login</span>
+					</a>
+				)}
+			</NavItems>
+		</NavbarContainer>
+	);
 };
 
 export default Navbar;

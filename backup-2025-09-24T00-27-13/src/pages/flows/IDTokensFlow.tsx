@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiEye, FiCheckCircle, FiAlertCircle, FiCode, FiShield, FiKey } from 'react-icons/fi';
+import {
+	FiPlay,
+	FiEye,
+	FiCheckCircle,
+	FiAlertCircle,
+	FiCode,
+	FiShield,
+	FiKey,
+} from 'react-icons/fi';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
 import ConfigurationButton from '../../components/ConfigurationButton';
@@ -9,14 +17,11 @@ import PageTitle from '../../components/PageTitle';
 import { getOAuthTokens } from '../../utils/tokenStorage';
 import FlowCredentials from '../../components/FlowCredentials';
 
-
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem;
 `;
-
-
 
 const FlowOverview = styled(Card)`
   margin-bottom: 2rem;
@@ -150,8 +155,6 @@ const StatusIndicator = styled.div`
     color: ${({ theme }) => theme.colors.danger};
   }
 `;
-
-
 
 const CodeBlock = styled.pre`
   background-color: ${({ theme }) => theme.colors.gray900};
@@ -300,167 +303,194 @@ const ResponseBox = styled.div<{ $backgroundColor?: string; $borderColor?: strin
 
 // JWT parsing utility
 const parseJwt = (token: string) => {
-  try {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map((c) => {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
+	try {
+		const base64Url = token.split('.')[1];
+		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+		const jsonPayload = decodeURIComponent(
+			atob(base64)
+				.split('')
+				.map((c) => {
+					return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+				})
+				.join('')
+		);
 
-    return JSON.parse(jsonPayload);
-  } catch (error) {
-    console.error('Failed to parse JWT:', error);
-    return null;
-  }
+		return JSON.parse(jsonPayload);
+	} catch (error) {
+		console.error('Failed to parse JWT:', error);
+		return null;
+	}
 };
 
 const IDTokensFlow = () => {
-  const { config, tokens } = useAuth();
-  const [demoStatus, setDemoStatus] = useState('idle');
-  const [currentStep, setCurrentStep] = useState(0);
-  const [idToken, setIdToken] = useState('');
-  const [decodedToken, setDecodedToken] = useState(null);
-  const [validationResults, setValidationResults] = useState(null);
-  const [error, setError] = useState(null);
+	const { config, tokens } = useAuth();
+	const [demoStatus, setDemoStatus] = useState('idle');
+	const [currentStep, setCurrentStep] = useState(0);
+	const [idToken, setIdToken] = useState('');
+	const [decodedToken, setDecodedToken] = useState(null);
+	const [validationResults, setValidationResults] = useState(null);
+	const [error, setError] = useState(null);
 
-  // Track execution results for each step
-  const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
-  const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
-  const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
+	// Track execution results for each step
+	const [stepResults, setStepResults] = useState<Record<number, unknown>>({});
+	const [executedSteps, setExecutedSteps] = useState<Set<number>>(new Set());
+	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
-  // Load ID token from storage on component mount
-  useEffect(() => {
-    const loadStoredIDToken = () => {
-      try {
-        // First try to get from auth context
-        if (tokens?.id_token) {
-          console.log('✅ [IDTokensFlow] Found ID token in auth context:', tokens.id_token.substring(0, 50) + '...');
-          setIdToken(tokens.id_token);
-          return;
-        }
+	// Load ID token from storage on component mount
+	useEffect(() => {
+		const loadStoredIDToken = () => {
+			try {
+				// First try to get from auth context
+				if (tokens?.id_token) {
+					console.log(
+						'✅ [IDTokensFlow] Found ID token in auth context:',
+						tokens.id_token.substring(0, 50) + '...'
+					);
+					setIdToken(tokens.id_token);
+					return;
+				}
 
-        // Fallback to token storage utility
-        const oauthTokens = getOAuthTokens();
-        if (oauthTokens?.id_token) {
-          console.log('✅ [IDTokensFlow] Found ID token in storage:', oauthTokens.id_token.substring(0, 50) + '...');
-          setIdToken(oauthTokens.id_token);
-          return;
-        }
+				// Fallback to token storage utility
+				const oauthTokens = getOAuthTokens();
+				if (oauthTokens?.id_token) {
+					console.log(
+						'✅ [IDTokensFlow] Found ID token in storage:',
+						oauthTokens.id_token.substring(0, 50) + '...'
+					);
+					setIdToken(oauthTokens.id_token);
+					return;
+				}
 
-        // Check localStorage for any ID token
-        const storedTokens = localStorage.getItem('pingone_playground_tokens');
-        if (storedTokens) {
-          try {
-            const parsed = JSON.parse(storedTokens);
-            if (parsed.id_token) {
-              console.log('✅ [IDTokensFlow] Found ID token in localStorage:', parsed.id_token.substring(0, 50) + '...');
-              setIdToken(parsed.id_token);
-              return;
-            }
-          } catch (e) {
-            console.warn('⚠️ [IDTokensFlow] Failed to parse localStorage tokens:', e);
-          }
-        }
+				// Check localStorage for any ID token
+				const storedTokens = localStorage.getItem('pingone_playground_tokens');
+				if (storedTokens) {
+					try {
+						const parsed = JSON.parse(storedTokens);
+						if (parsed.id_token) {
+							console.log(
+								'✅ [IDTokensFlow] Found ID token in localStorage:',
+								parsed.id_token.substring(0, 50) + '...'
+							);
+							setIdToken(parsed.id_token);
+							return;
+						}
+					} catch (e) {
+						console.warn('⚠️ [IDTokensFlow] Failed to parse localStorage tokens:', e);
+					}
+				}
 
-        console.log('ℹ️ [IDTokensFlow] No ID token found in storage');
-      } catch (error) {
-        console.error('❌ [IDTokensFlow] Error loading stored ID token:', error);
-      }
-    };
+				console.log('ℹ️ [IDTokensFlow] No ID token found in storage');
+			} catch (error) {
+				console.error('❌ [IDTokensFlow] Error loading stored ID token:', error);
+			}
+		};
 
-    loadStoredIDToken();
-  }, [tokens]);
+		loadStoredIDToken();
+	}, [tokens]);
 
-  const simulateIDTokenFlow = async () => {
-    setDemoStatus('loading');
-    setCurrentStep(0);
-    setError(null);
-    setDecodedToken(null);
-    setValidationResults(null);
-    setStepResults({});
-    setExecutedSteps(new Set());
-    setStepsWithResults([...steps]);
+	const simulateIDTokenFlow = async () => {
+		setDemoStatus('loading');
+		setCurrentStep(0);
+		setError(null);
+		setDecodedToken(null);
+		setValidationResults(null);
+		setStepResults({});
+		setExecutedSteps(new Set());
+		setStepsWithResults([...steps]);
 
-    try {
-      setCurrentStep(1);
+		try {
+			setCurrentStep(1);
 
-      // Check if we have a stored ID token
-      if (!idToken) {
-        throw new Error('No ID token available. Please complete an OAuth flow first to obtain an ID token.');
-      }
+			// Check if we have a stored ID token
+			if (!idToken) {
+				throw new Error(
+					'No ID token available. Please complete an OAuth flow first to obtain an ID token.'
+				);
+			}
 
-      console.log('🔍 [IDTokensFlow] Processing stored ID token:', idToken.substring(0, 50) + '...');
-      setCurrentStep(2);
+			console.log(
+				'🔍 [IDTokensFlow] Processing stored ID token:',
+				idToken.substring(0, 50) + '...'
+			);
+			setCurrentStep(2);
 
-      // Parse the ID token
-      const decoded = parseJwt(mockIdToken);
-      setDecodedToken(decoded);
-      setCurrentStep(3);
+			// Parse the ID token
+			const decoded = parseJwt(mockIdToken);
+			setDecodedToken(decoded);
+			setCurrentStep(3);
 
-      // Validate the ID token
-      const validation = {
-        signature: { valid: true, message: 'Signature verification would require JWKS endpoint' },
-        issuer: {
-          valid: decoded?.iss && decoded.iss.includes('pingone.com'),
-          message: `Issuer: ${decoded?.iss || 'Unknown'}`
-        },
-        audience: {
-          valid: decoded?.aud && (decoded.aud === config?.clientId || Array.isArray(decoded.aud) && decoded.aud.includes(config?.clientId)),
-          message: `Audience: ${decoded?.aud || 'Unknown'} (Client ID: ${config?.clientId || 'Not configured'})`
-        },
-        expiration: {
-          valid: decoded?.exp && decoded.exp > Date.now() / 1000,
-          message: decoded?.exp ? `Expires: ${new Date(decoded.exp * 1000).toLocaleString()}` : 'No expiration claim'
-        },
-        issuedAt: {
-          valid: decoded?.iat && decoded.iat < Date.now() / 1000,
-          message: decoded?.iat ? `Issued: ${new Date(decoded.iat * 1000).toLocaleString()}` : 'No issued at claim'
-        },
-        nonce: {
-          valid: !!decoded?.nonce,
-          message: decoded?.nonce ? `Nonce present: ${decoded.nonce.substring(0, 10)}...` : 'No nonce claim'
-        }
-      };
+			// Validate the ID token
+			const validation = {
+				signature: { valid: true, message: 'Signature verification would require JWKS endpoint' },
+				issuer: {
+					valid: decoded?.iss && decoded.iss.includes('pingone.com'),
+					message: `Issuer: ${decoded?.iss || 'Unknown'}`,
+				},
+				audience: {
+					valid:
+						decoded?.aud &&
+						(decoded.aud === config?.clientId ||
+							(Array.isArray(decoded.aud) && decoded.aud.includes(config?.clientId))),
+					message: `Audience: ${decoded?.aud || 'Unknown'} (Client ID: ${config?.clientId || 'Not configured'})`,
+				},
+				expiration: {
+					valid: decoded?.exp && decoded.exp > Date.now() / 1000,
+					message: decoded?.exp
+						? `Expires: ${new Date(decoded.exp * 1000).toLocaleString()}`
+						: 'No expiration claim',
+				},
+				issuedAt: {
+					valid: decoded?.iat && decoded.iat < Date.now() / 1000,
+					message: decoded?.iat
+						? `Issued: ${new Date(decoded.iat * 1000).toLocaleString()}`
+						: 'No issued at claim',
+				},
+				nonce: {
+					valid: !!decoded?.nonce,
+					message: decoded?.nonce
+						? `Nonce present: ${decoded.nonce.substring(0, 10)}...`
+						: 'No nonce claim',
+				},
+			};
 
-      setValidationResults(validation);
-      setCurrentStep(4);
-      setDemoStatus('success');
+			setValidationResults(validation);
+			setCurrentStep(4);
+			setDemoStatus('success');
+		} catch (err) {
+			console.error('ID Token flow failed:', err);
+			setError('Failed to process ID token. Please check your configuration.');
+			setDemoStatus('error');
+		}
+	};
 
-    } catch (err) {
-      console.error('ID Token flow failed:', err);
-      setError('Failed to process ID token. Please check your configuration.');
-      setDemoStatus('error');
-    }
-  };
+	const resetDemo = () => {
+		setDemoStatus('idle');
+		setCurrentStep(0);
+		setIdToken('');
+		setDecodedToken(null);
+		setValidationResults(null);
+		setError(null);
+		setStepResults({});
+		setExecutedSteps(new Set());
+		setStepsWithResults([]);
+	};
 
-  const resetDemo = () => {
-    setDemoStatus('idle');
-    setCurrentStep(0);
-    setIdToken('');
-    setDecodedToken(null);
-    setValidationResults(null);
-    setError(null);
-    setStepResults({});
-    setExecutedSteps(new Set());
-    setStepsWithResults([]);
-  };
+	const handleStepResult = (stepIndex: number, result: unknown) => {
+		setStepResults((prev) => ({ ...prev, [stepIndex]: result }));
+		setStepsWithResults((prev) => {
+			const newSteps = [...prev];
+			if (newSteps[stepIndex]) {
+				newSteps[stepIndex] = { ...newSteps[stepIndex], result };
+			}
+			return newSteps;
+		});
+	};
 
-  const handleStepResult = (stepIndex: number, result: unknown) => {
-    setStepResults(prev => ({ ...prev, [stepIndex]: result }));
-    setStepsWithResults(prev => {
-      const newSteps = [...prev];
-      if (newSteps[stepIndex]) {
-        newSteps[stepIndex] = { ...newSteps[stepIndex], result };
-      }
-      return newSteps;
-    });
-  };
-
-  const steps = [
-    {
-      title: 'Obtain ID Token',
-      description: 'Get ID token from OAuth flow with openid scope',
-      code: `// Request ID token in OAuth flow
+	const steps = [
+		{
+			title: 'Obtain ID Token',
+			description: 'Get ID token from OAuth flow with openid scope',
+			code: `// Request ID token in OAuth flow
 const authUrl = '${config?.apiUrl || 'https://auth.pingone.com'}/authorize?' +
   new URLSearchParams({
     response_type: 'code', // or 'token id_token' for implicit
@@ -474,12 +504,12 @@ const authUrl = '${config?.apiUrl || 'https://auth.pingone.com'}/authorize?' +
 // ID token returned in:
 // - Authorization Code flow: token response
 // - Implicit flow: redirect URL fragment
-// - Hybrid flow: both`
-    },
-    {
-      title: 'Receive & Store ID Token',
-      description: 'Extract ID token from OAuth response and store securely',
-      code: `// Extract from token response
+// - Hybrid flow: both`,
+		},
+		{
+			title: 'Receive & Store ID Token',
+			description: 'Extract ID token from OAuth response and store securely',
+			code: `// Extract from token response
 const tokenResponse = await fetch('/token', {
   method: 'POST',
   body: formData
@@ -495,12 +525,12 @@ sessionStorage.setItem('id_token', idToken);
 
 // ID token structure: header.payload.signature
 const [header, payload, signature] = idToken.split('.');
-console.log('ID Token received:', idToken.substring(0, 50) + '...');`
-    },
-    {
-      title: 'Parse ID Token Claims',
-      description: 'Decode and validate the JWT payload',
-      code: `// Parse JWT payload (base64url decode)
+console.log('ID Token received:', idToken.substring(0, 50) + '...');`,
+		},
+		{
+			title: 'Parse ID Token Claims',
+			description: 'Decode and validate the JWT payload',
+			code: `// Parse JWT payload (base64url decode)
 const payload = JSON.parse(atob(idToken.split('.')[1]));
 
 // Standard OpenID Connect claims
@@ -523,12 +553,12 @@ const claims = {
   locale: payload.locale
 };
 
-console.log('User claims:', claims);`
-    },
-    {
-      title: 'Validate ID Token',
-      description: 'Verify token signature, issuer, audience, and expiration',
-      code: `// 1. Verify signature using JWKS
+console.log('User claims:', claims);`,
+		},
+		{
+			title: 'Validate ID Token',
+			description: 'Verify token signature, issuer, audience, and expiration',
+			code: `// 1. Verify signature using JWKS
 const jwksUrl = '${config?.apiUrl || 'https://auth.pingone.com'}/.well-known/jwks.json';
 const jwks = await fetch(jwksUrl).then(r => r.json());
 
@@ -553,182 +583,194 @@ if (!isValid) {
   throw new Error('ID token validation failed');
 }
 
-console.log('ID token is valid!');`
-    }
-  ];
+console.log('ID token is valid!');`,
+		},
+	];
 
-  return (
-    <Container>
-      <PageTitle 
-        title={
-          <>
-            <FiShield />
-            OpenID Connect ID Tokens
-          </>
-        }
-        subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
-      />
+	return (
+		<Container>
+			<PageTitle
+				title={
+					<>
+						<FiShield />
+						OpenID Connect ID Tokens
+					</>
+				}
+				subtitle="Learn how to handle and validate OpenID Connect ID tokens with real JWT parsing and cryptographic verification."
+			/>
 
-      <FlowCredentials
-        flowType="id_tokens"
-        onCredentialsChange={(credentials) => {
-          console.log('ID Tokens flow credentials updated:', credentials);
-        }}
-      />
+			<FlowCredentials
+				flowType="id_tokens"
+				onCredentialsChange={(credentials) => {
+					console.log('ID Tokens flow credentials updated:', credentials);
+				}}
+			/>
 
-      <FlowOverview>
-        <CardHeader>
-          <h2>ID Tokens Overview</h2>
-        </CardHeader>
-        <CardBody>
-          <FlowDescription>
-            <h2>What are ID Tokens?</h2>
-            <p>
-              ID tokens are JSON Web Tokens (JWTs) issued by the OpenID Connect provider
-              that contain user identity information. They are digitally signed and can be
-              validated by the client to ensure authenticity and integrity.
-            </p>
-            <p>
-              <strong>How they work:</strong> ID tokens are obtained as part of the OAuth/OIDC flow
-              when the 'openid' scope is requested. They contain user profile information and
-              must be validated before use to ensure they haven't been tampered with.
-            </p>
-          </FlowDescription>
+			<FlowOverview>
+				<CardHeader>
+					<h2>ID Tokens Overview</h2>
+				</CardHeader>
+				<CardBody>
+					<FlowDescription>
+						<h2>What are ID Tokens?</h2>
+						<p>
+							ID tokens are JSON Web Tokens (JWTs) issued by the OpenID Connect provider that
+							contain user identity information. They are digitally signed and can be validated by
+							the client to ensure authenticity and integrity.
+						</p>
+						<p>
+							<strong>How they work:</strong> ID tokens are obtained as part of the OAuth/OIDC flow
+							when the 'openid' scope is requested. They contain user profile information and must
+							be validated before use to ensure they haven't been tampered with.
+						</p>
+					</FlowDescription>
 
-          <SecurityHighlight>
-            <FiKey size={20} />
-            <div>
-              <h3>Security First</h3>
-              <p>
-                Always validate ID tokens by checking signature, issuer, audience,
-                expiration, and nonce to prevent security vulnerabilities.
-              </p>
-            </div>
-          </SecurityHighlight>
-        </CardBody>
-      </FlowOverview>
+					<SecurityHighlight>
+						<FiKey size={20} />
+						<div>
+							<h3>Security First</h3>
+							<p>
+								Always validate ID tokens by checking signature, issuer, audience, expiration, and
+								nonce to prevent security vulnerabilities.
+							</p>
+						</div>
+					</SecurityHighlight>
+				</CardBody>
+			</FlowOverview>
 
-      <DemoSection>
-        <CardHeader>
-          <h2>Interactive Demo</h2>
-        </CardHeader>
-        <CardBody>
-          <StepByStepFlow
-            steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
-            onStart={simulateIDTokenFlow}
-            onReset={resetDemo}
-            status={demoStatus}
-            currentStep={currentStep}
-            onStepChange={setCurrentStep}
-            onStepResult={handleStepResult}
-            disabled={!config || !idToken}
-            title="ID Token Flow"
-            configurationButton={
-              <ConfigurationButton flowType="id_tokens" />
-            }
-          />
+			<DemoSection>
+				<CardHeader>
+					<h2>Interactive Demo</h2>
+				</CardHeader>
+				<CardBody>
+					<StepByStepFlow
+						steps={stepsWithResults.length > 0 ? stepsWithResults : steps}
+						onStart={simulateIDTokenFlow}
+						onReset={resetDemo}
+						status={demoStatus}
+						currentStep={currentStep}
+						onStepChange={setCurrentStep}
+						onStepResult={handleStepResult}
+						disabled={!config || !idToken}
+						title="ID Token Flow"
+						configurationButton={<ConfigurationButton flowType="id_tokens" />}
+					/>
 
-          {!config && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Configuration Required:</strong> Please configure your PingOne settings
-              in the Configuration page before running this demo.
-            </ErrorMessage>
-          )}
+					{!config && (
+						<ErrorMessage>
+							<FiAlertCircle />
+							<strong>Configuration Required:</strong> Please configure your PingOne settings in the
+							Configuration page before running this demo.
+						</ErrorMessage>
+					)}
 
-          {!idToken && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>No ID Token Available:</strong> Please complete an OAuth flow (like Implicit Grant Flow or Authorization Code Flow) 
-              that includes the 'openid' scope to obtain an ID token before running this demo.
-            </ErrorMessage>
-          )}
+					{!idToken && (
+						<ErrorMessage>
+							<FiAlertCircle />
+							<strong>No ID Token Available:</strong> Please complete an OAuth flow (like Implicit
+							Grant Flow or Authorization Code Flow) that includes the 'openid' scope to obtain an
+							ID token before running this demo.
+						</ErrorMessage>
+					)}
 
-          {idToken && (
-            <div style={{ 
-              background: 'rgba(34, 197, 94, 0.1)', 
-              border: '1px solid rgba(34, 197, 94, 0.3)', 
-              borderRadius: '0.5rem', 
-              padding: '1rem', 
-              marginBottom: '1rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}>
-              <FiCheckCircle style={{ color: '#22c55e' }} />
-              <div>
-                <strong style={{ color: '#22c55e' }}>ID Token Available:</strong> 
-                <span style={{ color: '#059669' }}> Found stored ID token from previous OAuth flow</span>
-              </div>
-            </div>
-          )}
+					{idToken && (
+						<div
+							style={{
+								background: 'rgba(34, 197, 94, 0.1)',
+								border: '1px solid rgba(34, 197, 94, 0.3)',
+								borderRadius: '0.5rem',
+								padding: '1rem',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							<FiCheckCircle style={{ color: '#22c55e' }} />
+							<div>
+								<strong style={{ color: '#22c55e' }}>ID Token Available:</strong>
+								<span style={{ color: '#059669' }}>
+									{' '}
+									Found stored ID token from previous OAuth flow
+								</span>
+							</div>
+						</div>
+					)}
 
-          {error && (
-            <ErrorMessage>
-              <FiAlertCircle />
-              <strong>Error:</strong> {error}
-            </ErrorMessage>
-          )}
+					{error && (
+						<ErrorMessage>
+							<FiAlertCircle />
+							<strong>Error:</strong> {error}
+						</ErrorMessage>
+					)}
 
-          {idToken && (
-            <IDTokenDisplay>
-              <h4>ID Token (JWT):</h4>
-              <div className="id-token">{idToken}</div>
+					{idToken && (
+						<IDTokenDisplay>
+							<h4>ID Token (JWT):</h4>
+							<div className="id-token">{idToken}</div>
 
-              {decodedToken && (
-                <div className="token-parts">
-                  <div className="token-section">
-                    <h5>Header</h5>
-                    <div className="claims">
-                      alg: RS256<br />
-                      typ: JWT<br />
-                      kid: signing_key_id
-                    </div>
-                  </div>
-                  <div className="token-section">
-                    <h5>Payload (Claims)</h5>
-                    <div className="claims">
-                      sub: {decodedToken.sub}<br />
-                      iss: {decodedToken.iss}<br />
-                      aud: {decodedToken.aud}<br />
-                      exp: {new Date(decodedToken.exp * 1000).toLocaleString()}<br />
-                      iat: {new Date(decodedToken.iat * 1000).toLocaleString()}<br />
-                      email: {decodedToken.email}<br />
-                      name: {decodedToken.name}
-                    </div>
-                  </div>
-                  <div className="token-section">
-                    <h5>Signature</h5>
-                    <div className="claims">
-                      RS256 signature<br />
-                      using private key<br />
-                      from JWKS endpoint
-                    </div>
-                  </div>
-                </div>
-              )}
-            </IDTokenDisplay>
-          )}
+							{decodedToken && (
+								<div className="token-parts">
+									<div className="token-section">
+										<h5>Header</h5>
+										<div className="claims">
+											alg: RS256
+											<br />
+											typ: JWT
+											<br />
+											kid: signing_key_id
+										</div>
+									</div>
+									<div className="token-section">
+										<h5>Payload (Claims)</h5>
+										<div className="claims">
+											sub: {decodedToken.sub}
+											<br />
+											iss: {decodedToken.iss}
+											<br />
+											aud: {decodedToken.aud}
+											<br />
+											exp: {new Date(decodedToken.exp * 1000).toLocaleString()}
+											<br />
+											iat: {new Date(decodedToken.iat * 1000).toLocaleString()}
+											<br />
+											email: {decodedToken.email}
+											<br />
+											name: {decodedToken.name}
+										</div>
+									</div>
+									<div className="token-section">
+										<h5>Signature</h5>
+										<div className="claims">
+											RS256 signature
+											<br />
+											using private key
+											<br />
+											from JWKS endpoint
+										</div>
+									</div>
+								</div>
+							)}
+						</IDTokenDisplay>
+					)}
 
-          {validationResults && (
-            <ValidationResults>
-              <h4>Validation Results:</h4>
-              {Object.entries(validationResults).map(([key, result]) => (
-                <div key={key} className={`validation-item ${result.valid ? 'valid' : 'invalid'}`}>
-                  <FiCheckCircle size={16} />
-                  <span>
-                    <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {result.message}
-                  </span>
-                </div>
-              ))}
-            </ValidationResults>
-          )}
-
-          
-        </CardBody>
-      </DemoSection>
-    </Container>
-  );
+					{validationResults && (
+						<ValidationResults>
+							<h4>Validation Results:</h4>
+							{Object.entries(validationResults).map(([key, result]) => (
+								<div key={key} className={`validation-item ${result.valid ? 'valid' : 'invalid'}`}>
+									<FiCheckCircle size={16} />
+									<span>
+										<strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {result.message}
+									</span>
+								</div>
+							))}
+						</ValidationResults>
+					)}
+				</CardBody>
+			</DemoSection>
+		</Container>
+	);
 };
 
 export default IDTokensFlow;

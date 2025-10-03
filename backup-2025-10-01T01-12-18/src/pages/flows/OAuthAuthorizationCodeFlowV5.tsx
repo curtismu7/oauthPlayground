@@ -2540,34 +2540,34 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 					/>
 				);
 
-		case 6:
-			return (
-				<TokenIntrospect
-					flowName="OAuth 2.0 Authorization Code Flow"
-					flowVersion="V5"
-					tokens={controller.tokens as any}
-					credentials={controller.credentials as any}
-					onResetFlow={handleResetFlow}
-					onNavigateToTokenManagement={navigateToTokenManagement}
-					onIntrospectToken={handleIntrospectToken}
-					collapsedSections={{
-						completionOverview: collapsedSections.completionOverview,
-						completionDetails: collapsedSections.completionDetails,
-						introspectionDetails: collapsedSections.introspectionDetails,
-					}}
-					onToggleSection={(section) => {
-						if (section === 'completionOverview' || section === 'completionDetails') {
-							toggleSection(section as IntroSectionKey);
-						}
-					}}
-					completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
-					nextSteps={[
-						'Inspect or decode tokens using the Token Management tools.',
-						'Repeat the flow with different scopes or redirect URIs.',
-						'Explore refresh tokens and introspection flows.',
-					]}
-				/>
-			);
+			case 6:
+				return (
+					<TokenIntrospect
+						flowName="OAuth 2.0 Authorization Code Flow"
+						flowVersion="V5"
+						tokens={controller.tokens as any}
+						credentials={controller.credentials as any}
+						onResetFlow={handleResetFlow}
+						onNavigateToTokenManagement={navigateToTokenManagement}
+						onIntrospectToken={handleIntrospectToken}
+						collapsedSections={{
+							completionOverview: collapsedSections.completionOverview,
+							completionDetails: collapsedSections.completionDetails,
+							introspectionDetails: collapsedSections.introspectionDetails,
+						}}
+						onToggleSection={(section) => {
+							if (section === 'completionOverview' || section === 'completionDetails') {
+								toggleSection(section as IntroSectionKey);
+							}
+						}}
+						completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
+						nextSteps={[
+							'Inspect or decode tokens using the Token Management tools.',
+							'Repeat the flow with different scopes or redirect URIs.',
+							'Explore refresh tokens and introspection flows.',
+						]}
+					/>
+				);
 
 			case 7:
 				return (

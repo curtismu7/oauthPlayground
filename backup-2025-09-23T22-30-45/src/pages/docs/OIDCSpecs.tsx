@@ -69,153 +69,185 @@ const ExternalLink = styled.a`
 `;
 
 const OIDCSpecs = () => {
-  return (
-    <DocsContainer>
-      <PageTitle 
-        title={
-          <>
-            <FiBookOpen />
-            OpenID Connect Specifications
-          </>
-        }
-        subtitle="Official OpenID Connect specifications and related standards from the OpenID Foundation"
-      />
+	return (
+		<DocsContainer>
+			<PageTitle
+				title={
+					<>
+						<FiBookOpen />
+						OpenID Connect Specifications
+					</>
+				}
+				subtitle="Official OpenID Connect specifications and related standards from the OpenID Foundation"
+			/>
 
-      <Section>
-        <h2>
-          <FiShield />
-          Core Specifications
-        </h2>
-        <LinkGrid>
-          <ExternalLink href="https://openid.net/specs/openid-connect-core-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              OpenID Connect Core 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              The core OpenID Connect specification that defines how to authenticate users using OAuth 2.0.
-            </p>
-          </ExternalLink>
+			<Section>
+				<h2>
+					<FiShield />
+					Core Specifications
+				</h2>
+				<LinkGrid>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-core-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							OpenID Connect Core 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							The core OpenID Connect specification that defines how to authenticate users using
+							OAuth 2.0.
+						</p>
+					</ExternalLink>
 
-          <ExternalLink href="https://openid.net/specs/openid-connect-discovery-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              OpenID Connect Discovery 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines how clients can dynamically discover information about OpenID Providers.
-            </p>
-          </ExternalLink>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-discovery-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							OpenID Connect Discovery 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>Defines how clients can dynamically discover information about OpenID Providers.</p>
+					</ExternalLink>
 
-          <ExternalLink href="https://openid.net/specs/openid-connect-session-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              OpenID Connect Session Management 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines how to manage OpenID Connect sessions, including logout functionality.
-            </p>
-          </ExternalLink>
-        </LinkGrid>
-      </Section>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-session-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							OpenID Connect Session Management 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>Defines how to manage OpenID Connect sessions, including logout functionality.</p>
+					</ExternalLink>
+				</LinkGrid>
+			</Section>
 
-      <Section>
-        <h2>
-          <FiCode />
-          Authentication & Authorization
-        </h2>
-        <LinkGrid>
-          <ExternalLink href="https://openid.net/specs/openid-connect-basic-client-implemented-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              Basic Client Implemented 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines a simple profile for OpenID Connect relying parties using the Authorization Code flow.
-            </p>
-          </ExternalLink>
+			<Section>
+				<h2>
+					<FiCode />
+					Authentication & Authorization
+				</h2>
+				<LinkGrid>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-basic-client-implemented-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Basic Client Implemented 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							Defines a simple profile for OpenID Connect relying parties using the Authorization
+							Code flow.
+						</p>
+					</ExternalLink>
 
-          <ExternalLink href="https://openid.net/specs/openid-connect-implicit-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              Implicit Client Implemented 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines a profile for OpenID Connect relying parties using the Implicit flow (deprecated).
-            </p>
-          </ExternalLink>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-implicit-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Implicit Client Implemented 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							Defines a profile for OpenID Connect relying parties using the Implicit flow
+							(deprecated).
+						</p>
+					</ExternalLink>
 
-          <ExternalLink href="https://openid.net/specs/openid-connect-messages-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              Messages 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines the messages used in OpenID Connect, including request and response formats.
-            </p>
-          </ExternalLink>
-        </LinkGrid>
-      </Section>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-messages-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Messages 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							Defines the messages used in OpenID Connect, including request and response formats.
+						</p>
+					</ExternalLink>
+				</LinkGrid>
+			</Section>
 
-      <Section>
-        <h2>
-          <FiUsers />
-          User Information & Identity
-        </h2>
-        <LinkGrid>
-          <ExternalLink href="https://openid.net/specs/openid-connect-registration-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              Dynamic Client Registration 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines how OpenID Connect clients can register with OpenID Providers dynamically.
-            </p>
-          </ExternalLink>
+			<Section>
+				<h2>
+					<FiUsers />
+					User Information & Identity
+				</h2>
+				<LinkGrid>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-registration-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Dynamic Client Registration 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							Defines how OpenID Connect clients can register with OpenID Providers dynamically.
+						</p>
+					</ExternalLink>
 
-          <ExternalLink href="https://openid.net/specs/openid-connect-federation-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              Federation 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines how to establish trust between OpenID Providers and Relying Parties in federated environments.
-            </p>
-          </ExternalLink>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-federation-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Federation 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							Defines how to establish trust between OpenID Providers and Relying Parties in
+							federated environments.
+						</p>
+					</ExternalLink>
 
-          <ExternalLink href="https://openid.net/specs/openid-connect-4-identity-assurance-1_0.html" target="_blank" rel="noopener noreferrer">
-            <h3>
-              Identity Assurance 1.0
-              <FiExternalLink size={16} />
-            </h3>
-            <p>
-              Defines extensions for identity assurance and verification in OpenID Connect.
-            </p>
-          </ExternalLink>
-        </LinkGrid>
-      </Section>
+					<ExternalLink
+						href="https://openid.net/specs/openid-connect-4-identity-assurance-1_0.html"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Identity Assurance 1.0
+							<FiExternalLink size={16} />
+						</h3>
+						<p>Defines extensions for identity assurance and verification in OpenID Connect.</p>
+					</ExternalLink>
+				</LinkGrid>
+			</Section>
 
-      <Section>
-        <h2>
-          <FiShield />
-          Security & Best Practices
-        </h2>
-        <SpecCard title="Security Considerations">
-          <p>
-            When implementing OpenID Connect, consider these security best practices:
-          </p>
-          <ul>
-            <li>Always use HTTPS for all communications</li>
-            <li>Validate ID tokens properly, including signature verification</li>
-            <li>Use PKCE (Proof Key for Code Exchange) for public clients</li>
-            <li>Implement proper state parameter validation</li>
-            <li>Use secure token storage mechanisms</li>
-            <li>Implement proper session management and logout</li>
-          </ul>
-        </SpecCard>
-      </Section>
-    </DocsContainer>
-  );
+			<Section>
+				<h2>
+					<FiShield />
+					Security & Best Practices
+				</h2>
+				<SpecCard title="Security Considerations">
+					<p>When implementing OpenID Connect, consider these security best practices:</p>
+					<ul>
+						<li>Always use HTTPS for all communications</li>
+						<li>Validate ID tokens properly, including signature verification</li>
+						<li>Use PKCE (Proof Key for Code Exchange) for public clients</li>
+						<li>Implement proper state parameter validation</li>
+						<li>Use secure token storage mechanisms</li>
+						<li>Implement proper session management and logout</li>
+					</ul>
+				</SpecCard>
+			</Section>
+		</DocsContainer>
+	);
 };
 
 export default OIDCSpecs;

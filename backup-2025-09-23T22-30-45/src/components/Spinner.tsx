@@ -20,16 +20,16 @@ const SpinnerWrapper = styled.div<{ size?: number; color?: string }>`
 `;
 
 interface SpinnerProps {
-  size?: number;
-  color?: string;
+	size?: number;
+	color?: string;
 }
 
 const Spinner: React.FC<SpinnerProps> = ({ size = 16, color }) => {
-  return (
-    <SpinnerWrapper size={size} color={color}>
-      <FiLoader />
-    </SpinnerWrapper>
-  );
+	return (
+		<SpinnerWrapper size={size} color={color}>
+			<FiLoader />
+		</SpinnerWrapper>
+	);
 };
 
 export default Spinner;

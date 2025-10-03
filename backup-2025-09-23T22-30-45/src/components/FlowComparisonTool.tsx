@@ -1,36 +1,36 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Card, CardHeader, CardBody } from './Card';
-import { 
-  FiShield, 
-  FiClock, 
-  FiUser, 
-  FiCode, 
-  FiCheckCircle, 
-  FiXCircle,
-  FiAlertTriangle,
-  FiStar,
-  FiPlus,
-  FiMinus,
-  FiArrowRight,
-  FiExternalLink
+import {
+	FiShield,
+	FiClock,
+	FiUser,
+	FiCode,
+	FiCheckCircle,
+	FiXCircle,
+	FiAlertTriangle,
+	FiStar,
+	FiPlus,
+	FiMinus,
+	FiArrowRight,
+	FiExternalLink,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
 
 interface FlowComparison {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  security: 'high' | 'medium' | 'low';
-  complexity: 'low' | 'medium' | 'high';
-  implementationTime: string;
-  useCases: string[];
-  pros: string[];
-  cons: string[];
-  route: string;
-  recommended: boolean;
+	id: string;
+	title: string;
+	description: string;
+	icon: React.ReactNode;
+	security: 'high' | 'medium' | 'low';
+	complexity: 'low' | 'medium' | 'high';
+	implementationTime: string;
+	useCases: string[];
+	pros: string[];
+	cons: string[];
+	route: string;
+	recommended: boolean;
 }
 
 const ComparisonContainer = styled.div`
@@ -72,16 +72,13 @@ const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  border: 2px solid ${({ $selected, $added, theme }) => 
-    $added ? theme.colors.success : 
-    $selected ? theme.colors.primary : theme.colors.gray300};
+  border: 2px solid ${({ $selected, $added, theme }) =>
+		$added ? theme.colors.success : $selected ? theme.colors.primary : theme.colors.gray300};
   border-radius: 0.5rem;
-  background-color: ${({ $selected, $added, theme }) => 
-    $added ? `${theme.colors.success}10` : 
-    $selected ? `${theme.colors.primary}10` : 'white'};
-  color: ${({ $selected, $added, theme }) => 
-    $added ? theme.colors.success : 
-    $selected ? theme.colors.primary : theme.colors.gray700};
+  background-color: ${({ $selected, $added, theme }) =>
+		$added ? `${theme.colors.success}10` : $selected ? `${theme.colors.primary}10` : 'white'};
+  color: ${({ $selected, $added, theme }) =>
+		$added ? theme.colors.success : $selected ? theme.colors.primary : theme.colors.gray700};
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
@@ -195,29 +192,29 @@ const SecurityBadge = styled.span<{ $level: string }>`
   border-radius: 1rem;
   
   ${({ $level }) => {
-    switch ($level) {
-      case 'high':
-        return `
+		switch ($level) {
+			case 'high':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'medium':
-        return `
+			case 'medium':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      case 'low':
-        return `
+			case 'low':
+				return `
           background-color: #fee2e2;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: #f3f4f6;
           color: #374151;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ComplexityBadge = styled.span<{ $level: string }>`
@@ -230,29 +227,29 @@ const ComplexityBadge = styled.span<{ $level: string }>`
   border-radius: 1rem;
   
   ${({ $level }) => {
-    switch ($level) {
-      case 'low':
-        return `
+		switch ($level) {
+			case 'low':
+				return `
           background-color: #dcfce7;
           color: #166534;
         `;
-      case 'medium':
-        return `
+			case 'medium':
+				return `
           background-color: #fef3c7;
           color: #92400e;
         `;
-      case 'high':
-        return `
+			case 'high':
+				return `
           background-color: #fee2e2;
           color: #991b1b;
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: #f3f4f6;
           color: #374151;
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const ProsConsList = styled.ul`
@@ -342,355 +339,323 @@ const EmptyState = styled.div`
 `;
 
 const availableFlows: FlowComparison[] = [
-  {
-    id: 'oauth-v3',
-    title: 'OAuth 2.0 Authorization Code (V3)',
-    description: 'Pure OAuth 2.0 Authorization Code Flow for resource access',
-    icon: <FiCode />,
-    security: 'high',
-    complexity: 'medium',
-    implementationTime: '2-4 hours',
-    useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'API Access'],
-    pros: [
-      'Pure OAuth 2.0 implementation',
-      'PKCE security enhancement',
-      'Access and refresh tokens',
-      'No user identity information',
-      'Ideal for API access'
-    ],
-    cons: [
-      'Requires secure backend',
-      'No user profile information',
-      'Requires HTTPS'
-    ],
-    route: '/flows/oauth-authorization-code-v3',
-    recommended: true
-  },
-  {
-    id: 'oidc-v3',
-    title: 'OIDC Authorization Code (V3)',
-    description: 'Complete OpenID Connect Authorization Code Flow',
-    icon: <FiShield />,
-    security: 'high',
-    complexity: 'medium',
-    implementationTime: '2-4 hours',
-    useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Authentication'],
-    pros: [
-      'Complete OIDC implementation',
-      'Authentication and authorization',
-      'PKCE security enhancement',
-      'Access, ID, and refresh tokens',
-      'User profile information',
-      'OIDC compliance'
-    ],
-    cons: [
-      'Requires secure backend',
-      'More complex than pure OAuth',
-      'Requires HTTPS'
-    ],
-    route: '/flows/enhanced-authorization-code-v3',
-    recommended: true
-  },
-  {
-    id: 'client-credentials',
-    title: 'Client Credentials',
-    description: 'Machine-to-machine authentication',
-    icon: <FiUser />,
-    security: 'high',
-    complexity: 'low',
-    implementationTime: '1-2 hours',
-    useCases: ['Server-to-Server', 'Background Processes', 'API Services'],
-    pros: [
-      'Simple implementation',
-      'No user interaction',
-      'Perfect for APIs',
-      'Fast authentication'
-    ],
-    cons: [
-      'No user context',
-      'Limited to machine access',
-      'Requires client credentials'
-    ],
-    route: '/flows/client-credentials',
-    recommended: true
-  },
-  {
-    id: 'implicit',
-    title: 'Implicit Grant',
-    description: 'Simplified flow for client-side apps (deprecated)',
-    icon: <FiCode />,
-    security: 'low',
-    complexity: 'low',
-    implementationTime: '1-2 hours',
-    useCases: ['Legacy SPAs', 'Client-side only apps'],
-    pros: [
-      'Simple implementation',
-      'No backend required',
-      'Direct token access'
-    ],
-    cons: [
-      'Deprecated by OAuth 2.1',
-      'No refresh tokens',
-      'Tokens in URL fragment',
-      'Security vulnerabilities'
-    ],
-    route: '/flows/implicit',
-    recommended: false
-  },
-  {
-    id: 'device-code',
-    title: 'Device Code',
-    description: 'For devices with limited input capabilities',
-    icon: <FiClock />,
-    security: 'medium',
-    complexity: 'medium',
-    implementationTime: '3-5 hours',
-    useCases: ['Smart TVs', 'IoT Devices', 'Gaming Consoles'],
-    pros: [
-      'Works on limited devices',
-      'User-friendly for TVs',
-      'Secure authentication'
-    ],
-    cons: [
-      'More complex flow',
-      'Requires polling',
-      'User must have another device'
-    ],
-    route: '/flows/device-code',
-    recommended: false
-  },
-  {
-    id: 'hybrid',
-    title: 'Hybrid Flow',
-    description: 'Combines authorization code with implicit flow',
-    icon: <FiShield />,
-    security: 'high',
-    complexity: 'high',
-    implementationTime: '4-6 hours',
-    useCases: ['High Security Apps', 'Enterprise Applications'],
-    pros: [
-      'Maximum security',
-      'Multiple token types',
-      'Enterprise ready'
-    ],
-    cons: [
-      'Very complex',
-      'Long implementation time',
-      'Overkill for most apps'
-    ],
-    route: '/flows/hybrid',
-    recommended: false
-  }
+	{
+		id: 'oauth-v3',
+		title: 'OAuth 2.0 Authorization Code (V3)',
+		description: 'Pure OAuth 2.0 Authorization Code Flow for resource access',
+		icon: <FiCode />,
+		security: 'high',
+		complexity: 'medium',
+		implementationTime: '2-4 hours',
+		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'API Access'],
+		pros: [
+			'Pure OAuth 2.0 implementation',
+			'PKCE security enhancement',
+			'Access and refresh tokens',
+			'No user identity information',
+			'Ideal for API access',
+		],
+		cons: ['Requires secure backend', 'No user profile information', 'Requires HTTPS'],
+		route: '/flows/oauth-authorization-code-v3',
+		recommended: true,
+	},
+	{
+		id: 'oidc-v3',
+		title: 'OIDC Authorization Code (V3)',
+		description: 'Complete OpenID Connect Authorization Code Flow',
+		icon: <FiShield />,
+		security: 'high',
+		complexity: 'medium',
+		implementationTime: '2-4 hours',
+		useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Authentication'],
+		pros: [
+			'Complete OIDC implementation',
+			'Authentication and authorization',
+			'PKCE security enhancement',
+			'Access, ID, and refresh tokens',
+			'User profile information',
+			'OIDC compliance',
+		],
+		cons: ['Requires secure backend', 'More complex than pure OAuth', 'Requires HTTPS'],
+		route: '/flows/enhanced-authorization-code-v3',
+		recommended: true,
+	},
+	{
+		id: 'client-credentials',
+		title: 'Client Credentials',
+		description: 'Machine-to-machine authentication',
+		icon: <FiUser />,
+		security: 'high',
+		complexity: 'low',
+		implementationTime: '1-2 hours',
+		useCases: ['Server-to-Server', 'Background Processes', 'API Services'],
+		pros: [
+			'Simple implementation',
+			'No user interaction',
+			'Perfect for APIs',
+			'Fast authentication',
+		],
+		cons: ['No user context', 'Limited to machine access', 'Requires client credentials'],
+		route: '/flows/client-credentials',
+		recommended: true,
+	},
+	{
+		id: 'implicit',
+		title: 'Implicit Grant',
+		description: 'Simplified flow for client-side apps (deprecated)',
+		icon: <FiCode />,
+		security: 'low',
+		complexity: 'low',
+		implementationTime: '1-2 hours',
+		useCases: ['Legacy SPAs', 'Client-side only apps'],
+		pros: ['Simple implementation', 'No backend required', 'Direct token access'],
+		cons: [
+			'Deprecated by OAuth 2.1',
+			'No refresh tokens',
+			'Tokens in URL fragment',
+			'Security vulnerabilities',
+		],
+		route: '/flows/implicit',
+		recommended: false,
+	},
+	{
+		id: 'device-code',
+		title: 'Device Code',
+		description: 'For devices with limited input capabilities',
+		icon: <FiClock />,
+		security: 'medium',
+		complexity: 'medium',
+		implementationTime: '3-5 hours',
+		useCases: ['Smart TVs', 'IoT Devices', 'Gaming Consoles'],
+		pros: ['Works on limited devices', 'User-friendly for TVs', 'Secure authentication'],
+		cons: ['More complex flow', 'Requires polling', 'User must have another device'],
+		route: '/flows/device-code',
+		recommended: false,
+	},
+	{
+		id: 'hybrid',
+		title: 'Hybrid Flow',
+		description: 'Combines authorization code with implicit flow',
+		icon: <FiShield />,
+		security: 'high',
+		complexity: 'high',
+		implementationTime: '4-6 hours',
+		useCases: ['High Security Apps', 'Enterprise Applications'],
+		pros: ['Maximum security', 'Multiple token types', 'Enterprise ready'],
+		cons: ['Very complex', 'Long implementation time', 'Overkill for most apps'],
+		route: '/flows/hybrid',
+		recommended: false,
+	},
 ];
 
 const FlowComparisonTool: React.FC = () => {
-  const [selectedFlows, setSelectedFlows] = useState<string[]>([]);
+	const [selectedFlows, setSelectedFlows] = useState<string[]>([]);
 
-  const toggleFlow = (flowId: string) => {
-    setSelectedFlows(prev => {
-      if (prev.includes(flowId)) {
-        return prev.filter(id => id !== flowId);
-      } else if (prev.length < 4) {
-        return [...prev, flowId];
-      }
-      return prev;
-    });
-  };
+	const toggleFlow = (flowId: string) => {
+		setSelectedFlows((prev) => {
+			if (prev.includes(flowId)) {
+				return prev.filter((id) => id !== flowId);
+			} else if (prev.length < 4) {
+				return [...prev, flowId];
+			}
+			return prev;
+		});
+	};
 
-  const getSelectedFlowData = () => {
-    return availableFlows.filter(flow => selectedFlows.includes(flow.id));
-  };
+	const getSelectedFlowData = () => {
+		return availableFlows.filter((flow) => selectedFlows.includes(flow.id));
+	};
 
-  const selectedFlowData = getSelectedFlowData();
+	const selectedFlowData = getSelectedFlowData();
 
-  // Generate URL with credentials for a flow
-  const generateFlowUrl = (flow: FlowComparison): string => {
-    try {
-      // Get current credentials from credential manager
-      const credentials = credentialManager.loadAuthzFlowCredentials();
-      
-      // Only add credentials to URL if they exist
-      if (credentials.environmentId || credentials.clientId) {
-        const params = new URLSearchParams();
-        
-        if (credentials.environmentId) {
-          params.set('env', credentials.environmentId);
-        }
-        if (credentials.clientId) {
-          params.set('client', credentials.clientId);
-        }
-        if (credentials.scopes && credentials.scopes.length > 0) {
-          const scopeString = Array.isArray(credentials.scopes) 
-            ? credentials.scopes.join(' ') 
-            : credentials.scopes;
-          params.set('scope', scopeString);
-        }
-        if (credentials.redirectUri) {
-          params.set('redirect', credentials.redirectUri);
-        }
-        
-        const paramString = params.toString();
-        return paramString ? `${flow.route}?${paramString}` : flow.route;
-      }
-      
-      return flow.route;
-    } catch (error) {
-      console.error('Error generating flow URL with credentials:', error);
-      return flow.route;
-    }
-  };
+	// Generate URL with credentials for a flow
+	const generateFlowUrl = (flow: FlowComparison): string => {
+		try {
+			// Get current credentials from credential manager
+			const credentials = credentialManager.loadAuthzFlowCredentials();
 
-  return (
-    <ComparisonContainer>
-      <PageHeader>
-        <h1>OAuth Flow Comparison</h1>
-        <p>
-          Compare different OAuth flows side-by-side to find the best fit for your application. 
-          Select up to 4 flows to compare their features, security, and use cases.
-        </p>
-      </PageHeader>
+			// Only add credentials to URL if they exist
+			if (credentials.environmentId || credentials.clientId) {
+				const params = new URLSearchParams();
 
-      <FlowSelector>
-        {availableFlows.map((flow) => (
-          <FlowOption
-            key={flow.id}
-            $selected={selectedFlows.includes(flow.id)}
-            $added={selectedFlows.includes(flow.id)}
-            onClick={() => toggleFlow(flow.id)}
-            disabled={!selectedFlows.includes(flow.id) && selectedFlows.length >= 4}
-          >
-            {selectedFlows.includes(flow.id) ? <FiMinus /> : <FiPlus />}
-            {flow.icon}
-            {flow.title}
-            {flow.recommended && <FiStar />}
-          </FlowOption>
-        ))}
-      </FlowSelector>
+				if (credentials.environmentId) {
+					params.set('env', credentials.environmentId);
+				}
+				if (credentials.clientId) {
+					params.set('client', credentials.clientId);
+				}
+				if (credentials.scopes && credentials.scopes.length > 0) {
+					const scopeString = Array.isArray(credentials.scopes)
+						? credentials.scopes.join(' ')
+						: credentials.scopes;
+					params.set('scope', scopeString);
+				}
+				if (credentials.redirectUri) {
+					params.set('redirect', credentials.redirectUri);
+				}
 
-      {selectedFlowData.length === 0 ? (
-        <EmptyState>
-          <div className="empty-icon">🔍</div>
-          <h3>Select Flows to Compare</h3>
-          <p>
-            Choose up to 4 OAuth flows from the options above to see a detailed comparison 
-            of their features, security levels, and use cases.
-          </p>
-        </EmptyState>
-      ) : (
-        <ComparisonGrid $columns={selectedFlowData.length}>
-          {selectedFlowData.map((flow) => (
-            <ComparisonCard key={flow.id}>
-              <CardHeader>
-                <FlowHeader>
-                  <div className="flow-icon">{flow.icon}</div>
-                  <h3 className="flow-title">{flow.title}</h3>
-                  <p className="flow-description">{flow.description}</p>
-                  {flow.recommended && (
-                    <div style={{ marginTop: '0.5rem' }}>
-                      <span style={{ 
-                        display: 'inline-flex', 
-                        alignItems: 'center', 
-                        gap: '0.25rem',
-                        padding: '0.25rem 0.75rem',
-                        backgroundColor: '#dbeafe',
-                        color: '#1e40af',
-                        borderRadius: '1rem',
-                        fontSize: '0.75rem',
-                        fontWeight: '500'
-                      }}>
-                        <FiStar />
-                        Recommended
-                      </span>
-                    </div>
-                  )}
-                </FlowHeader>
-              </CardHeader>
-              
-              <CardBody>
-                <ComparisonSection>
-                  <h4>
-                    <FiShield />
-                    Security & Complexity
-                  </h4>
-                  <MetricGrid>
-                    <MetricItem>
-                      <div className="metric-label">Security</div>
-                      <div className="metric-value">
-                        <SecurityBadge $level={flow.security}>
-                          {flow.security}
-                        </SecurityBadge>
-                      </div>
-                    </MetricItem>
-                    <MetricItem>
-                      <div className="metric-label">Complexity</div>
-                      <div className="metric-value">
-                        <ComplexityBadge $level={flow.complexity}>
-                          {flow.complexity}
-                        </ComplexityBadge>
-                      </div>
-                    </MetricItem>
-                    <MetricItem>
-                      <div className="metric-label">Time</div>
-                      <div className="metric-value">{flow.implementationTime}</div>
-                    </MetricItem>
-                  </MetricGrid>
-                </ComparisonSection>
+				const paramString = params.toString();
+				return paramString ? `${flow.route}?${paramString}` : flow.route;
+			}
 
-                <ComparisonSection>
-                  <h4>
-                    <FiCheckCircle />
-                    Pros
-                  </h4>
-                  <ProsConsList>
-                    {flow.pros.map((pro, index) => (
-                      <li key={index}>
-                        <FiCheckCircle className="pros-icon" />
-                        {pro}
-                      </li>
-                    ))}
-                  </ProsConsList>
-                </ComparisonSection>
+			return flow.route;
+		} catch (error) {
+			console.error('Error generating flow URL with credentials:', error);
+			return flow.route;
+		}
+	};
 
-                <ComparisonSection>
-                  <h4>
-                    <FiXCircle />
-                    Cons
-                  </h4>
-                  <ProsConsList>
-                    {flow.cons.map((con, index) => (
-                      <li key={index}>
-                        <FiXCircle className="cons-icon" />
-                        {con}
-                      </li>
-                    ))}
-                  </ProsConsList>
-                </ComparisonSection>
+	return (
+		<ComparisonContainer>
+			<PageHeader>
+				<h1>OAuth Flow Comparison</h1>
+				<p>
+					Compare different OAuth flows side-by-side to find the best fit for your application.
+					Select up to 4 flows to compare their features, security, and use cases.
+				</p>
+			</PageHeader>
 
-                <ComparisonSection>
-                  <h4>
-                    <FiUser />
-                    Use Cases
-                  </h4>
-                  <UseCasesList>
-                    {flow.useCases.map((useCase, index) => (
-                      <span key={index} className="use-case">
-                        {useCase}
-                      </span>
-                    ))}
-                  </UseCasesList>
-                </ComparisonSection>
+			<FlowSelector>
+				{availableFlows.map((flow) => (
+					<FlowOption
+						key={flow.id}
+						$selected={selectedFlows.includes(flow.id)}
+						$added={selectedFlows.includes(flow.id)}
+						onClick={() => toggleFlow(flow.id)}
+						disabled={!selectedFlows.includes(flow.id) && selectedFlows.length >= 4}
+					>
+						{selectedFlows.includes(flow.id) ? <FiMinus /> : <FiPlus />}
+						{flow.icon}
+						{flow.title}
+						{flow.recommended && <FiStar />}
+					</FlowOption>
+				))}
+			</FlowSelector>
 
-                <ActionButton to={generateFlowUrl(flow)}>
-                  <FiExternalLink />
-                  Try This Flow
-                </ActionButton>
-              </CardBody>
-            </ComparisonCard>
-          ))}
-        </ComparisonGrid>
-      )}
-    </ComparisonContainer>
-  );
+			{selectedFlowData.length === 0 ? (
+				<EmptyState>
+					<div className="empty-icon">🔍</div>
+					<h3>Select Flows to Compare</h3>
+					<p>
+						Choose up to 4 OAuth flows from the options above to see a detailed comparison of their
+						features, security levels, and use cases.
+					</p>
+				</EmptyState>
+			) : (
+				<ComparisonGrid $columns={selectedFlowData.length}>
+					{selectedFlowData.map((flow) => (
+						<ComparisonCard key={flow.id}>
+							<CardHeader>
+								<FlowHeader>
+									<div className="flow-icon">{flow.icon}</div>
+									<h3 className="flow-title">{flow.title}</h3>
+									<p className="flow-description">{flow.description}</p>
+									{flow.recommended && (
+										<div style={{ marginTop: '0.5rem' }}>
+											<span
+												style={{
+													display: 'inline-flex',
+													alignItems: 'center',
+													gap: '0.25rem',
+													padding: '0.25rem 0.75rem',
+													backgroundColor: '#dbeafe',
+													color: '#1e40af',
+													borderRadius: '1rem',
+													fontSize: '0.75rem',
+													fontWeight: '500',
+												}}
+											>
+												<FiStar />
+												Recommended
+											</span>
+										</div>
+									)}
+								</FlowHeader>
+							</CardHeader>
+
+							<CardBody>
+								<ComparisonSection>
+									<h4>
+										<FiShield />
+										Security & Complexity
+									</h4>
+									<MetricGrid>
+										<MetricItem>
+											<div className="metric-label">Security</div>
+											<div className="metric-value">
+												<SecurityBadge $level={flow.security}>{flow.security}</SecurityBadge>
+											</div>
+										</MetricItem>
+										<MetricItem>
+											<div className="metric-label">Complexity</div>
+											<div className="metric-value">
+												<ComplexityBadge $level={flow.complexity}>
+													{flow.complexity}
+												</ComplexityBadge>
+											</div>
+										</MetricItem>
+										<MetricItem>
+											<div className="metric-label">Time</div>
+											<div className="metric-value">{flow.implementationTime}</div>
+										</MetricItem>
+									</MetricGrid>
+								</ComparisonSection>
+
+								<ComparisonSection>
+									<h4>
+										<FiCheckCircle />
+										Pros
+									</h4>
+									<ProsConsList>
+										{flow.pros.map((pro, index) => (
+											<li key={index}>
+												<FiCheckCircle className="pros-icon" />
+												{pro}
+											</li>
+										))}
+									</ProsConsList>
+								</ComparisonSection>
+
+								<ComparisonSection>
+									<h4>
+										<FiXCircle />
+										Cons
+									</h4>
+									<ProsConsList>
+										{flow.cons.map((con, index) => (
+											<li key={index}>
+												<FiXCircle className="cons-icon" />
+												{con}
+											</li>
+										))}
+									</ProsConsList>
+								</ComparisonSection>
+
+								<ComparisonSection>
+									<h4>
+										<FiUser />
+										Use Cases
+									</h4>
+									<UseCasesList>
+										{flow.useCases.map((useCase, index) => (
+											<span key={index} className="use-case">
+												{useCase}
+											</span>
+										))}
+									</UseCasesList>
+								</ComparisonSection>
+
+								<ActionButton to={generateFlowUrl(flow)}>
+									<FiExternalLink />
+									Try This Flow
+								</ActionButton>
+							</CardBody>
+						</ComparisonCard>
+					))}
+				</ComparisonGrid>
+			)}
+		</ComparisonContainer>
+	);
 };
 
 export default FlowComparisonTool;
