@@ -17,7 +17,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import FlowConfigurationTable from '../../components/FlowConfigurationTable';
 
 const Container = styled.div`
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem;
 `;
@@ -424,13 +424,13 @@ const OIDCOverview = () => {
 								>
 									{expandedFlow === flow.id ? 'Hide Details' : 'Show Details'}
 									<FiArrowRight
-									size={14}
-									style={{
-										transform: expandedFlow === flow.id ? 'rotate(90deg)' : 'rotate(0deg)',
-										transition: 'transform 0.2s',
-										marginLeft: '0.5rem',
-									}}
-								/>
+										size={14}
+										style={{
+											transform: expandedFlow === flow.id ? 'rotate(90deg)' : 'rotate(0deg)',
+											transition: 'transform 0.2s',
+											marginLeft: '0.5rem',
+										}}
+									/>
 								</button>
 								{expandedFlow === flow.id && (
 									<div
@@ -701,15 +701,15 @@ const OIDCOverview = () => {
 							sessions.
 						</p>
 					</div>
-			</div>
-		</section>
+				</div>
+			</section>
 
-		{/* Configuration Requirements Table */}
-		<section style={{ marginTop: '3rem' }}>
-			<FlowConfigurationTable />
-		</section>
-	</Container>
-);
+			{/* Configuration Requirements Table */}
+			<section style={{ marginTop: '3rem' }}>
+				<FlowConfigurationTable />
+			</section>
+		</Container>
+	);
 };
 
 export default OIDCOverview;

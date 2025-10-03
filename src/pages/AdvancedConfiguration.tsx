@@ -519,8 +519,8 @@ const AdvancedConfiguration = () => {
 								fontWeight: '500',
 								transition: 'background-color 0.2s',
 							}}
-							onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#dc2626'}
-							onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#ef4444'}
+							onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#dc2626')}
+							onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ef4444')}
 						>
 							<FiRotateCcw />
 							Reset to Defaults

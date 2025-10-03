@@ -112,16 +112,15 @@ export const useWorkerTokenFlowController = (
 	const stepResultKey = `${persistKey}-step-results`;
 	const configStorageKey = `${persistKey}-config`;
 
-	const [credentials, setCredentials] = useState<StepCredentials>(() =>
-		loadInitialCredentials()
-	);
+	const [credentials, setCredentials] = useState<StepCredentials>(() => loadInitialCredentials());
 
 	const [flowConfig, setFlowConfig] = useState<FlowConfig>(() =>
 		loadStoredConfig(configStorageKey, getDefaultConfig())
 	);
 
 	const [tokens, setTokens] = useState<WorkerTokenResponse | null>(null);
-	const [introspectionResults, setIntrospectionResults] = useState<TokenIntrospectionResponse | null>(null);
+	const [introspectionResults, setIntrospectionResults] =
+		useState<TokenIntrospectionResponse | null>(null);
 	const [isRequestingToken, setIsRequestingToken] = useState(false);
 	const [isIntrospecting, setIsIntrospecting] = useState(false);
 	const [isSavingCredentials, setIsSavingCredentials] = useState(false);
@@ -186,7 +185,8 @@ export const useWorkerTokenFlowController = (
 	// Track credential changes for unsaved changes detection
 	useEffect(() => {
 		if (originalCredentialsRef.current) {
-			const hasChanges = JSON.stringify(originalCredentialsRef.current) !== JSON.stringify(credentials);
+			const hasChanges =
+				JSON.stringify(originalCredentialsRef.current) !== JSON.stringify(credentials);
 			setHasUnsavedCredentialChanges(hasChanges);
 		}
 	}, [credentials]);
@@ -214,7 +214,9 @@ export const useWorkerTokenFlowController = (
 
 	const requestToken = useCallback(async () => {
 		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-			showGlobalError('Missing required credentials. Please configure your PingOne settings first.');
+			showGlobalError(
+				'Missing required credentials. Please configure your PingOne settings first.'
+			);
 			return;
 		}
 
@@ -241,7 +243,7 @@ export const useWorkerTokenFlowController = (
 
 			setTokens(tokenResponse);
 			saveStepResult('token-request', tokenResponse);
-			
+
 			// Store tokens for persistence
 			await storeOAuthTokens({
 				access_token: tokenResponse.access_token,
@@ -259,10 +261,11 @@ export const useWorkerTokenFlowController = (
 		} catch (error) {
 			console.error('❌ [useWorkerTokenFlowController] Token request failed:', error);
 			enhancedDebugger.logError('worker-token-request', error);
-			
-			const errorMessage = error instanceof Error ? error.message : 'Failed to request worker token';
+
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to request worker token';
 			showGlobalError(`Token request failed: ${errorMessage}`);
-			
+
 			// Track the failed operation
 			trackTokenOperation('worker-token-request', false, errorMessage);
 		} finally {
@@ -311,10 +314,10 @@ export const useWorkerTokenFlowController = (
 		} catch (error) {
 			console.error('❌ [useWorkerTokenFlowController] Token introspection failed:', error);
 			enhancedDebugger.logError('token-introspection', error);
-			
+
 			const errorMessage = error instanceof Error ? error.message : 'Failed to introspect token';
 			showGlobalError(`Token introspection failed: ${errorMessage}`);
-			
+
 			// Track the failed operation
 			trackTokenOperation('token-introspection', false, errorMessage);
 		} finally {
@@ -325,36 +328,43 @@ export const useWorkerTokenFlowController = (
 	const saveCredentials = useCallback(async () => {
 		try {
 			console.log('💾 [useWorkerTokenFlowController] Starting to save credentials...');
-			console.log('📋 [useWorkerTokenFlowController] Credentials object:', JSON.stringify(credentials, null, 2));
+			console.log(
+				'📋 [useWorkerTokenFlowController] Credentials object:',
+				JSON.stringify(credentials, null, 2)
+			);
 			console.log('🔍 [useWorkerTokenFlowController] Login Hint value:', credentials.loginHint);
 			setIsSavingCredentials(true);
-			
+
 			// Validate required fields
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-				showGlobalError('Missing required fields: Environment ID, Client ID, and Client Secret are required.');
+				showGlobalError(
+					'Missing required fields: Environment ID, Client ID, and Client Secret are required.'
+				);
 				return;
 			}
-			
+
 			// Use the direct method instead of the generic one
 			const success = credentialManager.saveWorkerFlowCredentials(credentials);
-			
+
 			if (success) {
 				// Verify what was actually saved
 				const saved = credentialManager.loadWorkerFlowCredentials();
 				console.log('✅ [useWorkerTokenFlowController] Credentials saved successfully');
 				console.log('🔍 [useWorkerTokenFlowController] Saved loginHint:', saved.loginHint);
-				
+
 				setHasCredentialsSaved(true);
 				setHasUnsavedCredentialChanges(false);
 				originalCredentialsRef.current = { ...credentials };
-				
+
 				showGlobalSuccess('Credentials saved successfully!');
 			} else {
 				throw new Error('Failed to save credentials to localStorage');
 			}
 		} catch (error) {
 			console.error('❌ [useWorkerTokenFlowController] Failed to save credentials:', error);
-			showGlobalError('Failed to save credentials: ' + (error instanceof Error ? error.message : 'Unknown error'));
+			showGlobalError(
+				'Failed to save credentials: ' + (error instanceof Error ? error.message : 'Unknown error')
+			);
 		} finally {
 			setIsSavingCredentials(false);
 		}
@@ -368,12 +378,12 @@ export const useWorkerTokenFlowController = (
 		setIsIntrospecting(false);
 		setHasCredentialsSaved(false);
 		setHasUnsavedCredentialChanges(false);
-		
+
 		clearStepResults();
 		stepManager.resetFlow();
-		
+
 		originalCredentialsRef.current = null;
-		
+
 		console.log('🔄 [useWorkerTokenFlowController] Flow reset');
 	}, [clearStepResults, stepManager]);
 
@@ -384,7 +394,8 @@ export const useWorkerTokenFlowController = (
 			return;
 		}
 
-		const hasChanges = JSON.stringify(credentials) !== JSON.stringify(originalCredentialsRef.current);
+		const hasChanges =
+			JSON.stringify(credentials) !== JSON.stringify(originalCredentialsRef.current);
 		setHasUnsavedCredentialChanges(hasChanges);
 	}, [credentials]);
 
@@ -392,7 +403,8 @@ export const useWorkerTokenFlowController = (
 	useEffect(() => {
 		try {
 			const stored = credentialManager.loadWorkerFlowCredentials();
-			const isSaved = stored.environmentId === credentials.environmentId &&
+			const isSaved =
+				stored.environmentId === credentials.environmentId &&
 				stored.clientId === credentials.clientId &&
 				stored.clientSecret === credentials.clientSecret;
 			setHasCredentialsSaved(Boolean(isSaved));

@@ -64,84 +64,89 @@ const InfoText = styled.p`
 `;
 
 const DeviceCodeStatus: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [status, setStatus] = useState<'info' | 'pending' | 'success' | 'error'>('info');
-  const [message, setMessage] = useState('Device Code Flow Status');
+	const navigate = useNavigate();
+	const location = useLocation();
+	const [status, setStatus] = useState<'info' | 'pending' | 'success' | 'error'>('info');
+	const [message, setMessage] = useState('Device Code Flow Status');
 
-  useEffect(() => {
-    const checkStatus = () => {
-      logger.info('DeviceCodeStatus', 'Device code status page accessed', { url: location.href });
-      
-      // Check if there are any device code parameters in the URL
-      const urlParams = new URLSearchParams(location.search);
-      const deviceCode = urlParams.get('device_code');
-      const userCode = urlParams.get('user_code');
-      const verificationUri = urlParams.get('verification_uri');
-      const verificationUriComplete = urlParams.get('verification_uri_complete');
-      
-      if (deviceCode || userCode) {
-        setStatus('pending');
-        setMessage('Device code flow in progress...');
-        logger.info('DeviceCodeStatus', 'Device code parameters found', { 
-          hasDeviceCode: !!deviceCode, 
-          hasUserCode: !!userCode,
-          verificationUri,
-          verificationUriComplete 
-        });
-      } else {
-        setStatus('info');
-        setMessage('Device Code Flow Status');
-      }
-    };
+	useEffect(() => {
+		const checkStatus = () => {
+			logger.info('DeviceCodeStatus', 'Device code status page accessed', { url: location.href });
 
-    checkStatus();
-  }, [location.href, location.search]);
+			// Check if there are any device code parameters in the URL
+			const urlParams = new URLSearchParams(location.search);
+			const deviceCode = urlParams.get('device_code');
+			const userCode = urlParams.get('user_code');
+			const verificationUri = urlParams.get('verification_uri');
+			const verificationUriComplete = urlParams.get('verification_uri_complete');
 
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'success':
-        return <FiCheckCircle />;
-      case 'error':
-        return <FiXCircle />;
-      case 'pending':
-        return <FiClock />;
-      default:
-        return <FiInfo />;
-    }
-  };
+			if (deviceCode || userCode) {
+				setStatus('pending');
+				setMessage('Device code flow in progress...');
+				logger.info('DeviceCodeStatus', 'Device code parameters found', {
+					hasDeviceCode: !!deviceCode,
+					hasUserCode: !!userCode,
+					verificationUri,
+					verificationUriComplete,
+				});
+			} else {
+				setStatus('info');
+				setMessage('Device Code Flow Status');
+			}
+		};
 
-  return (
-    <StatusContainer>
-      <StatusCard>
-        <StatusIcon>
-          {getStatusIcon()}
-        </StatusIcon>
-        <StatusTitle>
-          {status === 'info' && 'Device Code Flow Status'}
-          {status === 'pending' && 'Device Code Flow in Progress'}
-          {status === 'success' && 'Device Code Flow Successful'}
-          {status === 'error' && 'Device Code Flow Failed'}
-        </StatusTitle>
-        <StatusMessage>{message}</StatusMessage>
-        
-        <InfoBox>
-          <InfoTitle>About Device Code Flow</InfoTitle>
-          <InfoText>
-            The Device Code flow is designed for devices that don't have a browser or have limited input capabilities. 
-            This status page is for informational purposes only - there is no browser redirect in the Device Code flow specification.
-            <br /><br />
-            The flow works by:
-            <br />1. Device requests authorization codes
-            <br />2. User visits a URL on another device
-            <br />3. User enters a user code
-            <br />4. Device polls for completion
-            <br />5. Tokens are exchanged when user completes authorization
-          </InfoText>
-        </InfoBox>
-      </StatusCard>
-    </StatusContainer>
-  );
+		checkStatus();
+	}, [location.href, location.search]);
+
+	const getStatusIcon = () => {
+		switch (status) {
+			case 'success':
+				return <FiCheckCircle />;
+			case 'error':
+				return <FiXCircle />;
+			case 'pending':
+				return <FiClock />;
+			default:
+				return <FiInfo />;
+		}
+	};
+
+	return (
+		<StatusContainer>
+			<StatusCard>
+				<StatusIcon>{getStatusIcon()}</StatusIcon>
+				<StatusTitle>
+					{status === 'info' && 'Device Code Flow Status'}
+					{status === 'pending' && 'Device Code Flow in Progress'}
+					{status === 'success' && 'Device Code Flow Successful'}
+					{status === 'error' && 'Device Code Flow Failed'}
+				</StatusTitle>
+				<StatusMessage>{message}</StatusMessage>
+
+				<InfoBox>
+					<InfoTitle>About Device Code Flow</InfoTitle>
+					<InfoText>
+						The Device Code flow is designed for devices that don't have a browser or have limited
+						input capabilities. This status page is for informational purposes only - there is no
+						browser redirect in the Device Code flow specification.
+						<br />
+						<br />
+						The flow works by:
+						<br />
+						1. Device requests authorization codes
+						<br />
+						2. User visits a URL on another device
+						<br />
+						3. User enters a user code
+						<br />
+						4. Device polls for completion
+						<br />
+						5. Tokens are exchanged when user completes authorization
+					</InfoText>
+				</InfoBox>
+			</StatusCard>
+		</StatusContainer>
+	);
 };
 
 export default DeviceCodeStatus;

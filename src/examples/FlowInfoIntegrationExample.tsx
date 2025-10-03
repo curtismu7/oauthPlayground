@@ -12,7 +12,7 @@ const FlowInfoIntegrationExample: React.FC = () => {
 		<div>
 			{/* Before: Using old FlowInfoCard */}
 			{/* <FlowInfoCard flowInfo={getFlowInfo('oauth-authorization-code')!} /> */}
-			
+
 			{/* After: Using new EnhancedFlowInfoCard */}
 			<EnhancedFlowInfoCard flowType="oauth-authorization-code" />
 		</div>
@@ -21,7 +21,7 @@ const FlowInfoIntegrationExample: React.FC = () => {
 	// Example 2: Advanced integration with custom options
 	const advancedExample = (
 		<div>
-			<EnhancedFlowInfoCard 
+			<EnhancedFlowInfoCard
 				flowType="oidc-authorization-code"
 				showAdditionalInfo={true}
 				showDocumentation={true}
@@ -39,12 +39,12 @@ const FlowInfoIntegrationExample: React.FC = () => {
 			relatedFlows,
 			commonIssues,
 			implementationNotes,
-			documentationLinks
+			documentationLinks,
 		} = useFlowInfo(flowType, {
 			showAdditionalInfo: true,
 			showDocumentation: true,
 			showCommonIssues: true,
-			showImplementationNotes: true
+			showImplementationNotes: true,
 		});
 
 		if (!flowInfo) return <div>Flow not found</div>;
@@ -52,16 +52,24 @@ const FlowInfoIntegrationExample: React.FC = () => {
 		return (
 			<div>
 				<h2>{flowInfo.flowName}</h2>
-				<p><strong>Purpose:</strong> {flowInfo.purpose}</p>
-				<p><strong>Tokens:</strong> {flowInfo.tokensReturned}</p>
-				<p><strong>Security Level:</strong> {flowInfo.securityLevel}</p>
-				<p><strong>Complexity:</strong> {flowInfo.complexity}</p>
-				
+				<p>
+					<strong>Purpose:</strong> {flowInfo.purpose}
+				</p>
+				<p>
+					<strong>Tokens:</strong> {flowInfo.tokensReturned}
+				</p>
+				<p>
+					<strong>Security Level:</strong> {flowInfo.securityLevel}
+				</p>
+				<p>
+					<strong>Complexity:</strong> {flowInfo.complexity}
+				</p>
+
 				{relatedFlows.length > 0 && (
 					<div>
 						<h3>Related Flows:</h3>
 						<ul>
-							{relatedFlows.map(flow => (
+							{relatedFlows.map((flow) => (
 								<li key={flow}>{flow}</li>
 							))}
 						</ul>
@@ -73,7 +81,8 @@ const FlowInfoIntegrationExample: React.FC = () => {
 						<h3>Common Issues:</h3>
 						{commonIssues.map((issue, index) => (
 							<div key={index}>
-								<strong>Issue:</strong> {issue.issue}<br/>
+								<strong>Issue:</strong> {issue.issue}
+								<br />
 								<strong>Solution:</strong> {issue.solution}
 							</div>
 						))}
@@ -94,7 +103,7 @@ const FlowInfoIntegrationExample: React.FC = () => {
 				</div>
 
 				{/* Enhanced flow information card */}
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="oauth-authorization-code"
 					showAdditionalInfo={true}
 					showDocumentation={true}
@@ -103,9 +112,7 @@ const FlowInfoIntegrationExample: React.FC = () => {
 				/>
 
 				{/* Rest of the flow implementation */}
-				<div>
-					{/* Step content, forms, etc. */}
-				</div>
+				<div>{/* Step content, forms, etc. */}</div>
 			</div>
 		);
 	};
@@ -113,7 +120,7 @@ const FlowInfoIntegrationExample: React.FC = () => {
 	return (
 		<div>
 			<h1>FlowInfoService Integration Examples</h1>
-			
+
 			<section>
 				<h2>Basic Integration</h2>
 				{basicExample}

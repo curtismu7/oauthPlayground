@@ -828,7 +828,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				// Retrieve stored PKCE verifier - OIDC Spec Compliance
 				// Per RFC 7636 (PKCE): code_verifier MUST be provided in token exchange
 				let codeVerifier =
-					sessionStorage.getItem('code_verifier') || sessionStorage.getItem('oauth_code_verifier') || '';
+					sessionStorage.getItem('code_verifier') ||
+					sessionStorage.getItem('oauth_code_verifier') ||
+					'';
 				// Trim and ensure it's not empty
 				codeVerifier = codeVerifier.trim();
 				console.log(' [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
@@ -933,7 +935,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							parsed?.flow === 'enhanced-authorization-code-v3' ||
 							parsed?.flow === 'oauth-authorization-code-v3' ||
 							parsed?.flow === 'oidc-authorization-code-v3' ||
-							parsed?.flow === 'authorization-code-v5' || parsed?.flow === 'oidc-authorization-code-v5' || parsed?.flow === 'oauth-authorization-code-v5';
+							parsed?.flow === 'authorization-code-v5' ||
+							parsed?.flow === 'oidc-authorization-code-v5' ||
+							parsed?.flow === 'oauth-authorization-code-v5';
 
 						console.log(' [NewAuthContext] Flow type detection:', {
 							flowType: parsed?.flow,
@@ -1027,7 +1031,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				console.log(' [NewAuthContext] Token exchange request:', requestBody);
 				console.log(' [NewAuthContext] Config object:', config);
 				console.log(' [NewAuthContext] PingOne config:', config?.pingone);
-				
+
 				console.log(' [NewAuthContext] Request body validation:', {
 					hasGrantType: !!requestBody.grant_type,
 					hasCode: !!requestBody.code,

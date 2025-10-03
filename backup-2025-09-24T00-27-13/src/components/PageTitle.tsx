@@ -3,9 +3,9 @@ import styled from 'styled-components';
 import { usePageStyle } from '../contexts/PageStyleContext';
 
 interface PageTitleProps {
-  title: string;
-  subtitle?: string;
-  children?: React.ReactNode;
+	title: string;
+	subtitle?: string;
+	children?: React.ReactNode;
 }
 
 const TitleContainer = styled.div<{ $backgroundColor: string; $textColor: string }>`
@@ -69,20 +69,20 @@ const ChildrenContainer = styled.div`
 `;
 
 const PageTitle: React.FC<PageTitleProps> = ({ title, subtitle, children }) => {
-  const { currentPageStyle } = usePageStyle();
-  
-  return (
-    <TitleContainer 
-      $backgroundColor={currentPageStyle.titleBackgroundColor}
-      $textColor={currentPageStyle.titleTextColor}
-    >
-      <TitleContent>
-        <Title>{title}</Title>
-        {subtitle && <Subtitle>{subtitle}</Subtitle>}
-        {children && <ChildrenContainer>{children}</ChildrenContainer>}
-      </TitleContent>
-    </TitleContainer>
-  );
+	const { currentPageStyle } = usePageStyle();
+
+	return (
+		<TitleContainer
+			$backgroundColor={currentPageStyle.titleBackgroundColor}
+			$textColor={currentPageStyle.titleTextColor}
+		>
+			<TitleContent>
+				<Title>{title}</Title>
+				{subtitle && <Subtitle>{subtitle}</Subtitle>}
+				{children && <ChildrenContainer>{children}</ChildrenContainer>}
+			</TitleContent>
+		</TitleContainer>
+	);
 };
 
 export default PageTitle;

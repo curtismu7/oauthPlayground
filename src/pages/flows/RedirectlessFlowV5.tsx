@@ -78,7 +78,6 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-
 const MainCard = styled.div`
 	background-color: #ffffff;
 	border-radius: 1rem;
@@ -520,7 +519,6 @@ const RedirectlessFlowV5: React.FC = () => {
 		}
 	}, []);
 
-
 	const toggleSection = useCallback((key: IntroSectionKey) => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	}, []);
@@ -720,7 +718,6 @@ const RedirectlessFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('useCases')}
@@ -814,7 +811,11 @@ const RedirectlessFlowV5: React.FC = () => {
 									controller.setCredentials({ ...controller.credentials, scope: value })
 								}
 								onCopy={handleCopy}
-								emptyRequiredFields={controller.credentials.environmentId && controller.credentials.clientId ? new Set() : new Set(['environmentId', 'clientId'])}
+								emptyRequiredFields={
+									controller.credentials.environmentId && controller.credentials.clientId
+										? new Set()
+										: new Set(['environmentId', 'clientId'])
+								}
 								copiedField={copiedField}
 								showRedirectUri={true}
 							/>
@@ -831,13 +832,17 @@ const RedirectlessFlowV5: React.FC = () => {
 								</HighlightedActionButton>
 
 								{controller.hasCredentialsSaved && (
-									<HighlightedActionButton onClick={() => controller.setCredentials({
-										environmentId: '',
-										clientId: '',
-										clientSecret: '',
-										redirectUri: '',
-										scope: ''
-									})}>
+									<HighlightedActionButton
+										onClick={() =>
+											controller.setCredentials({
+												environmentId: '',
+												clientId: '',
+												clientSecret: '',
+												redirectUri: '',
+												scope: '',
+											})
+										}
+									>
 										<FiRefreshCw /> Clear Credentials
 									</HighlightedActionButton>
 								)}
@@ -1440,11 +1445,11 @@ const RedirectlessFlowV5: React.FC = () => {
 				<FlowHeader flowType="redirectless" />
 
 				<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
-				
+
 				<EnhancedFlowWalkthrough flowId="pingone-redirectless" />
 				<FlowSequenceDisplay flowType="redirectless" />
-				
-				<EnhancedFlowInfoCard 
+
+				<EnhancedFlowInfoCard
 					flowType="redirectless"
 					showAdditionalInfo={true}
 					showDocumentation={true}

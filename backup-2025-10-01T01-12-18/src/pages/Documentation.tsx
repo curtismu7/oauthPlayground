@@ -227,7 +227,7 @@ const FeatureButton = styled(Link)`
 const Documentation = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Documentation', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

@@ -386,8 +386,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 							</Select>
 						</ConfigField>
 
-						<ConfigField>
-						</ConfigField>
+						<ConfigField></ConfigField>
 					</ConfigGrid>
 				</SubSection>
 

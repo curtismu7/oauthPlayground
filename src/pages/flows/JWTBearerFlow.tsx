@@ -242,7 +242,8 @@ const JWTBearerFlow: React.FC = () => {
 		}
 
 		// Construct token endpoint URL from environment ID
-		const tokenEndpoint = config?.tokenEndpoint || `https://auth.pingone.com/${config.environmentId}/as/token`;
+		const tokenEndpoint =
+			config?.tokenEndpoint || `https://auth.pingone.com/${config.environmentId}/as/token`;
 
 		const now = Math.floor(Date.now() / 1000);
 		const payload = {
@@ -338,13 +339,16 @@ const JWTBearerFlow: React.FC = () => {
 				throw new Error('Environment ID, Client ID, and Client Secret are required');
 			}
 
-			logger.info('JWTBearerFlow', 'Simulating JWT Bearer token request (PingOne does not support this grant type)');
+			logger.info(
+				'JWTBearerFlow',
+				'Simulating JWT Bearer token request (PingOne does not support this grant type)'
+			);
 
 			// Note: PingOne does not support JWT Bearer grant type
 			// This is a mock/educational implementation to demonstrate the flow
-			
+
 			// Simulate API delay
-			await new Promise(resolve => setTimeout(resolve, 1500));
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 
 			// Generate mock token response for educational purposes
 			const tokenData = {
@@ -500,25 +504,29 @@ const JWTBearerFlow: React.FC = () => {
 			{/* Important Notice */}
 			<FlowSection>
 				<CardBody>
-					<div style={{
-						background: '#fef3c7',
-						border: '1px solid #f59e0b',
-						borderRadius: '0.5rem',
-						padding: '1rem',
-						marginBottom: '1rem',
-						display: 'flex',
-						alignItems: 'flex-start',
-						gap: '0.75rem'
-					}}>
-						<FiAlertTriangle style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }} />
+					<div
+						style={{
+							background: '#fef3c7',
+							border: '1px solid #f59e0b',
+							borderRadius: '0.5rem',
+							padding: '1rem',
+							marginBottom: '1rem',
+							display: 'flex',
+							alignItems: 'flex-start',
+							gap: '0.75rem',
+						}}
+					>
+						<FiAlertTriangle
+							style={{ color: '#d97706', fontSize: '1.25rem', marginTop: '0.125rem' }}
+						/>
 						<div>
 							<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '1rem' }}>
 								Educational Flow - PingOne Not Supported
 							</h4>
 							<p style={{ margin: 0, color: '#92400e', fontSize: '0.9rem' }}>
-								<strong>Important:</strong> PingOne does not support the JWT Bearer grant type. 
-								This flow is for educational purposes only and generates mock tokens to demonstrate 
-								how JWT Bearer authentication would work with OAuth 2.0 providers that support it.
+								<strong>Important:</strong> PingOne does not support the JWT Bearer grant type. This
+								flow is for educational purposes only and generates mock tokens to demonstrate how
+								JWT Bearer authentication would work with OAuth 2.0 providers that support it.
 							</p>
 						</div>
 					</div>

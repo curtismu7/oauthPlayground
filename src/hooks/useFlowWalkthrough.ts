@@ -44,7 +44,7 @@ export const useFlowWalkthrough = (flowId: string): UseFlowWalkthroughReturn => 
 		steps,
 		flowType,
 		flowName,
-		icon
+		icon,
 	};
 };
 

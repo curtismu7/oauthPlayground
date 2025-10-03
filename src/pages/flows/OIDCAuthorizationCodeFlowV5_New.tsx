@@ -4,10 +4,13 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
+	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
+	FiEye,
+	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
@@ -16,17 +19,12 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
-import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
@@ -43,7 +41,8 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { applyClientAuthentication } from '../../utils/clientAuthentication';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { applyClientAuthentication, ClientAuthConfig } from '../../utils/clientAuthentication';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -136,25 +135,6 @@ const ContentWrapper = styled.div`
 	max-width: 64rem;
 	margin: 0 auto;
 	padding: 0 1rem;
-`;
-
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
-`;
-
-const Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: var(--color-text-secondary, #4b5563);
-	margin: 0 auto;
-	max-width: 42rem;
 `;
 
 const MainCard = styled.div`
@@ -689,7 +669,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 
 	const [currentStep, setCurrentStep] = useState(0);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
+	const [__emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
@@ -721,7 +701,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
-	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [__copiedField, setCopiedField] = useState<string | null>(null);
 	const [, setIsFetchingUserInfo] = useState(false);
 
 	// Load PingOne configuration from sessionStorage on mount
@@ -906,7 +886,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	}, []);
 
-	const handleFieldChange = useCallback(
+	const _handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
 			const updatedCredentials = {
 				...controller.credentials,
@@ -948,7 +928,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Configuration saved successfully!');
 	}, [controller]);
 
-	const handleClearConfiguration = useCallback(() => {
+	const _handleClearConfiguration = useCallback(() => {
 		controller.setCredentials({
 			environmentId: '',
 			clientId: '',
@@ -1042,8 +1022,16 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	}, [controller]);
 
 	const handleExchangeTokens = useCallback(async () => {
+		console.log('🔄 [DEBUG] handleExchangeTokens called', {
+			controllerAuthCode: controller.authCode,
+			localAuthCode: localAuthCode,
+			hasControllerAuthCode: !!controller.authCode,
+			hasLocalAuthCode: !!localAuthCode,
+		});
+		
 		const authCode = controller.authCode || localAuthCode;
 		if (!authCode) {
+			console.log('❌ [DEBUG] No authorization code available');
 			v4ToastManager.showError(
 				'Complete above action: Authorize the application first to get authorization code.'
 			);
@@ -1056,9 +1044,12 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		}
 
 		try {
+			console.log('🔄 [DEBUG] About to call controller.exchangeTokens()');
 			await controller.exchangeTokens();
+			console.log('✅ [DEBUG] controller.exchangeTokens() completed successfully');
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
 		} catch (error) {
+			console.log('❌ [DEBUG] controller.exchangeTokens() failed:', error);
 			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
 
 			// Parse error message for better user feedback
@@ -1213,8 +1204,12 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 					const baseParams = new URLSearchParams();
 
-					const authConfig: Record<string, any> = {
-						method: tokenAuthMethod as 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt',
+					const authConfig: Partial<ClientAuthConfig> = {
+						method: tokenAuthMethod as
+							| 'client_secret_post'
+							| 'client_secret_basic'
+							| 'client_secret_jwt'
+							| 'private_key_jwt',
 						clientId: credentials.clientId,
 						tokenEndpoint,
 					};
@@ -1226,7 +1221,10 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 						authConfig.privateKey = credentials.privateKey;
 					}
 
-					const authResult = await applyClientAuthentication(authConfig, baseParams);
+					const authResult = await applyClientAuthentication(
+						authConfig as ClientAuthConfig,
+						baseParams
+					);
 
 					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
 					requestBody.client_assertion = authResult.body.get('client_assertion');
@@ -1391,7 +1389,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				return (
 					<>
 						<FlowConfigurationRequirements flowType="authorization-code" variant="oidc" />
-						
+
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
@@ -1484,7 +1482,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('credentials')}
@@ -1499,34 +1496,27 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
-									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
-
-									<CredentialsInput
-										environmentId={credentials.environmentId || ''}
-										clientId={credentials.clientId || ''}
-										clientSecret={credentials.clientSecret || ''}
-										redirectUri={credentials.redirectUri || ''}
-										scopes={credentials.scopes || credentials.scope || ''}
-										loginHint={credentials.loginHint || ''}
-										onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
-										onClientIdChange={(value) => handleFieldChange('clientId', value)}
-										onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
-										onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
-										onScopesChange={(value) => handleFieldChange('scopes', value)}
-										onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
-										onCopy={handleCopy}
-										emptyRequiredFields={emptyRequiredFields}
-										copiedField={copiedField}
+									{/* Credentials Configuration - Using service for reuse */}
+									<ConfigurationSummaryCard
+										configuration={controller.credentials}
+										hasConfiguration={
+											!!(controller.credentials.clientId && controller.credentials.environmentId)
+										}
+										onSaveConfiguration={handleSaveConfiguration}
 									/>
 
-									<ActionRow>
-										<Button onClick={handleSaveConfiguration} $variant="primary">
-											<FiSettings /> Save Configuration
-										</Button>
-										<Button onClick={handleClearConfiguration} $variant="danger">
-											<FiRefreshCw /> Clear Configuration
-										</Button>
-									</ActionRow>
+									{/* Separator line */}
+									<div
+										style={{
+											height: '1px',
+											backgroundColor: '#e5e7eb',
+											margin: '1.5rem 0',
+											borderRadius: '0.5px',
+										}}
+									/>
+
+									{/* Client Authentication Configuration */}
+									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
 
 									<InfoBox $variant="warning" style={{ marginTop: '2rem', color: '#92400e' }}>
 										<FiAlertCircle size={20} />
@@ -1547,7 +1537,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 
 						{/* Configuration Summary Card */}
 						<ConfigurationSummaryCard
-							configuration={credentials}
+							configuration={controller.credentials}
 							onSaveConfiguration={handleSaveConfiguration}
 							onLoadConfiguration={(config) => {
 								if (config) {
@@ -1557,7 +1547,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							}}
 							primaryColor="#3b82f6"
 						/>
-
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1731,7 +1720,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -1907,7 +1895,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-
 
 									<InfoBox $variant="warning">
 										<FiAlertCircle size={20} />
@@ -2346,9 +2333,23 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 
 									<ActionRow style={{ justifyContent: 'center' }}>
 										<HighlightedActionButton
-											onClick={handleExchangeTokens}
+											onClick={() => {
+												console.log('🔄 [DEBUG] Button clicked', {
+													disabled: !(controller.authCode || localAuthCode),
+													controllerAuthCode: controller.authCode,
+													localAuthCode: localAuthCode,
+													hasCredentials: !!(controller.credentials.clientId && controller.credentials.clientSecret && controller.credentials.environmentId),
+													hasPkce: !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge),
+												});
+												handleExchangeTokens();
+											}}
 											$priority="primary"
 											disabled={!(controller.authCode || localAuthCode)}
+											title={
+												!(controller.authCode || localAuthCode)
+													? 'Complete the authorization step first to get an authorization code'
+													: 'Exchange authorization code for tokens'
+											}
 										>
 											<FiRefreshCw /> Exchange Authorization Code for Tokens
 										</HighlightedActionButton>
@@ -2629,9 +2630,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		toggleSection,
 		canNavigateNext,
 		controller.setAuthCodeManually,
-		emptyRequiredFields.has,
-		handleClearConfiguration,
-		handleFieldChange,
 		handleNextClick,
 		handleOpenAuthUrl,
 		handleResetFlow,
@@ -2643,10 +2641,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		savePingOneConfig,
 		manualAuthCodeId,
 		getX5tParameter,
-		emptyRequiredFields,
-		copiedField,
 		showSavedSecret,
 		controller.isFetchingUserInfo,
+		controller.setCredentials,
 	]);
 
 	return (

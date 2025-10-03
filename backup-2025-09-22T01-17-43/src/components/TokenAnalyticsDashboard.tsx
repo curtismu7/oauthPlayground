@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { tokenLifecycleManager, TokenUsageAnalytics, TokenLifecycleInfo } from '../utils/tokenLifecycle';
+import {
+	tokenLifecycleManager,
+	TokenUsageAnalytics,
+	TokenLifecycleInfo,
+} from '../utils/tokenLifecycle';
 
 const DashboardContainer = styled.div`
   background: white;
@@ -188,170 +192,157 @@ const ExportButton = styled.button`
 `;
 
 const TokenAnalyticsDashboard: React.FC = () => {
-  const [analytics, setAnalytics] = useState<TokenUsageAnalytics | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+	const [analytics, setAnalytics] = useState<TokenUsageAnalytics | null>(null);
+	const [loading, setLoading] = useState(true);
+	const [error, setError] = useState<string | null>(null);
 
-  const loadAnalytics = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = tokenLifecycleManager.getTokenUsageAnalytics();
-      setAnalytics(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load analytics');
-    } finally {
-      setLoading(false);
-    }
-  };
+	const loadAnalytics = async () => {
+		try {
+			setLoading(true);
+			setError(null);
+			const data = tokenLifecycleManager.getTokenUsageAnalytics();
+			setAnalytics(data);
+		} catch (err) {
+			setError(err instanceof Error ? err.message : 'Failed to load analytics');
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  useEffect(() => {
-    loadAnalytics();
-  }, []);
+	useEffect(() => {
+		loadAnalytics();
+	}, []);
 
-  const handleCleanup = () => {
-    const cleanedCount = tokenLifecycleManager.cleanupExpiredTokens();
-    alert(`Cleaned up ${cleanedCount} expired tokens`);
-    loadAnalytics();
-  };
+	const handleCleanup = () => {
+		const cleanedCount = tokenLifecycleManager.cleanupExpiredTokens();
+		alert(`Cleaned up ${cleanedCount} expired tokens`);
+		loadAnalytics();
+	};
 
-  const handleExport = () => {
-    if (!analytics) return;
-    
-    const exportData = {
-      ...analytics,
-      exportedAt: new Date().toISOString(),
-      version: '1.0'
-    };
-    
-    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `token-analytics-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+	const handleExport = () => {
+		if (!analytics) return;
 
-  if (loading) {
-    return (
-      <DashboardContainer>
-        <div>Loading analytics...</div>
-      </DashboardContainer>
-    );
-  }
+		const exportData = {
+			...analytics,
+			exportedAt: new Date().toISOString(),
+			version: '1.0',
+		};
 
-  if (error) {
-    return (
-      <DashboardContainer>
-        <div style={{ color: '#ef4444' }}>Error: {error}</div>
-      </DashboardContainer>
-    );
-  }
+		const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = `token-analytics-${new Date().toISOString().split('T')[0]}.json`;
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	};
 
-  if (!analytics) {
-    return (
-      <DashboardContainer>
-        <div>No analytics data available</div>
-      </DashboardContainer>
-    );
-  }
+	if (loading) {
+		return (
+			<DashboardContainer>
+				<div>Loading analytics...</div>
+			</DashboardContainer>
+		);
+	}
 
-  const maxUsage = Math.max(...Object.values(analytics.tokenUsageByFlow));
-  const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
+	if (error) {
+		return (
+			<DashboardContainer>
+				<div style={{ color: '#ef4444' }}>Error: {error}</div>
+			</DashboardContainer>
+		);
+	}
 
-  return (
-    <DashboardContainer>
-      <DashboardHeader>
-        <DashboardTitle>Token Usage Analytics</DashboardTitle>
-        <div>
-          <ExportButton onClick={handleExport}>
-            Export Data
-          </ExportButton>
-          <CleanupButton onClick={handleCleanup}>
-            Cleanup Expired
-          </CleanupButton>
-          <RefreshButton onClick={loadAnalytics}>
-            Refresh
-          </RefreshButton>
-        </div>
-      </DashboardHeader>
+	if (!analytics) {
+		return (
+			<DashboardContainer>
+				<div>No analytics data available</div>
+			</DashboardContainer>
+		);
+	}
 
-      <StatsGrid>
-        <StatCard>
-          <StatValue>{analytics.totalTokens}</StatValue>
-          <StatLabel>Total Tokens</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue style={{ color: '#10b981' }}>{analytics.activeTokens}</StatValue>
-          <StatLabel>Active Tokens</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue style={{ color: '#ef4444' }}>{analytics.expiredTokens}</StatValue>
-          <StatLabel>Expired Tokens</StatLabel>
-        </StatCard>
-        <StatCard>
-          <StatValue>{Math.round(analytics.averageTokenLifetime)}m</StatValue>
-          <StatLabel>Avg Lifetime</StatLabel>
-        </StatCard>
-      </StatsGrid>
+	const maxUsage = Math.max(...Object.values(analytics.tokenUsageByFlow));
+	const colors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 
-      <Section>
-        <SectionTitle>Token Usage by Flow Type</SectionTitle>
-        <ChartContainer>
-          <BarChart>
-            {Object.entries(analytics.tokenUsageByFlow).map(([flowType, usage], index) => (
-              <div key={flowType}>
-                <Bar 
-                  height={(usage / maxUsage) * 100} 
-                  color={colors[index % colors.length]}
-                >
-                  {usage}
-                </Bar>
-                <BarLabel>{flowType}</BarLabel>
-              </div>
-            ))}
-          </BarChart>
-        </ChartContainer>
-      </Section>
+	return (
+		<DashboardContainer>
+			<DashboardHeader>
+				<DashboardTitle>Token Usage Analytics</DashboardTitle>
+				<div>
+					<ExportButton onClick={handleExport}>Export Data</ExportButton>
+					<CleanupButton onClick={handleCleanup}>Cleanup Expired</CleanupButton>
+					<RefreshButton onClick={loadAnalytics}>Refresh</RefreshButton>
+				</div>
+			</DashboardHeader>
 
-      <Section>
-        <SectionTitle>Most Used Flow</SectionTitle>
-        <div style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>
-          {analytics.mostUsedFlow}
-        </div>
-      </Section>
+			<StatsGrid>
+				<StatCard>
+					<StatValue>{analytics.totalTokens}</StatValue>
+					<StatLabel>Total Tokens</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue style={{ color: '#10b981' }}>{analytics.activeTokens}</StatValue>
+					<StatLabel>Active Tokens</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue style={{ color: '#ef4444' }}>{analytics.expiredTokens}</StatValue>
+					<StatLabel>Expired Tokens</StatLabel>
+				</StatCard>
+				<StatCard>
+					<StatValue>{Math.round(analytics.averageTokenLifetime)}m</StatValue>
+					<StatLabel>Avg Lifetime</StatLabel>
+				</StatCard>
+			</StatsGrid>
 
-      <Section>
-        <SectionTitle>Recent Activity</SectionTitle>
-        <ActivityList>
-          {analytics.recentActivity.length === 0 ? (
-            <div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
-              No recent activity
-            </div>
-          ) : (
-            analytics.recentActivity.map((activity, index) => (
-              <ActivityItem key={index}>
-                <ActivityInfo>
-                  <ActivityAction>
-                    {activity.action.replace('_', ' ').toUpperCase()}
-                  </ActivityAction>
-                  <ActivityDetails>
-                    {activity.flowType} • Token: {activity.tokenId.substring(0, 8)}...
-                  </ActivityDetails>
-                </ActivityInfo>
-                <ActivityTime>
-                  {activity.timestamp.toLocaleString()}
-                </ActivityTime>
-              </ActivityItem>
-            ))
-          )}
-        </ActivityList>
-      </Section>
-    </DashboardContainer>
-  );
+			<Section>
+				<SectionTitle>Token Usage by Flow Type</SectionTitle>
+				<ChartContainer>
+					<BarChart>
+						{Object.entries(analytics.tokenUsageByFlow).map(([flowType, usage], index) => (
+							<div key={flowType}>
+								<Bar height={(usage / maxUsage) * 100} color={colors[index % colors.length]}>
+									{usage}
+								</Bar>
+								<BarLabel>{flowType}</BarLabel>
+							</div>
+						))}
+					</BarChart>
+				</ChartContainer>
+			</Section>
+
+			<Section>
+				<SectionTitle>Most Used Flow</SectionTitle>
+				<div style={{ fontSize: '1.125rem', fontWeight: '600', color: '#1f2937' }}>
+					{analytics.mostUsedFlow}
+				</div>
+			</Section>
+
+			<Section>
+				<SectionTitle>Recent Activity</SectionTitle>
+				<ActivityList>
+					{analytics.recentActivity.length === 0 ? (
+						<div style={{ textAlign: 'center', color: '#6b7280', padding: '2rem' }}>
+							No recent activity
+						</div>
+					) : (
+						analytics.recentActivity.map((activity, index) => (
+							<ActivityItem key={index}>
+								<ActivityInfo>
+									<ActivityAction>{activity.action.replace('_', ' ').toUpperCase()}</ActivityAction>
+									<ActivityDetails>
+										{activity.flowType} • Token: {activity.tokenId.substring(0, 8)}...
+									</ActivityDetails>
+								</ActivityInfo>
+								<ActivityTime>{activity.timestamp.toLocaleString()}</ActivityTime>
+							</ActivityItem>
+						))
+					)}
+				</ActivityList>
+			</Section>
+		</DashboardContainer>
+	);
 };
 
 export default TokenAnalyticsDashboard;

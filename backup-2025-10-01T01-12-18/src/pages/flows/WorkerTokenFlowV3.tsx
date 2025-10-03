@@ -272,7 +272,7 @@ const CopyPrivateKeyButton = styled.button`
 const WorkerTokenFlowV3: React.FC = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Worker Token Flow V3', force: true });
-	
+
 	// UI Settings integration
 	const { settings: uiSettings } = useUISettings();
 

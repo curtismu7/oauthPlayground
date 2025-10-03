@@ -9,13 +9,13 @@ import { createSmartPoller, formatPollingStatus, PollingOptions } from '../../ut
 import { DeviceCodeTokens } from '../../types/deviceCode';
 
 interface DevicePollingProps {
-  deviceCode: string;
-  clientId: string;
-  tokenEndpoint: string;
-  interval: number;
-  onSuccess: (tokens: DeviceCodeTokens) => void;
-  onError: (error: Error) => void;
-  onProgress: (attempt: number, status: string) => void;
+	deviceCode: string;
+	clientId: string;
+	tokenEndpoint: string;
+	interval: number;
+	onSuccess: (tokens: DeviceCodeTokens) => void;
+	onError: (error: Error) => void;
+	onProgress: (attempt: number, status: string) => void;
 }
 
 const PollingContainer = styled.div`
@@ -41,22 +41,30 @@ const StatusIcon = styled.div<{ status: 'polling' | 'success' | 'error' | 'expir
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: ${props => {
-    switch (props.status) {
-      case 'success': return '#dcfce7';
-      case 'error': return '#fef2f2';
-      case 'expired': return '#fef3c7';
-      default: return '#eff6ff';
-    }
-  }};
-  color: ${props => {
-    switch (props.status) {
-      case 'success': return '#16a34a';
-      case 'error': return '#dc2626';
-      case 'expired': return '#d97706';
-      default: return '#3b82f6';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.status) {
+			case 'success':
+				return '#dcfce7';
+			case 'error':
+				return '#fef2f2';
+			case 'expired':
+				return '#fef3c7';
+			default:
+				return '#eff6ff';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.status) {
+			case 'success':
+				return '#16a34a';
+			case 'error':
+				return '#dc2626';
+			case 'expired':
+				return '#d97706';
+			default:
+				return '#3b82f6';
+		}
+	}};
 `;
 
 const StatusContent = styled.div`
@@ -96,7 +104,7 @@ const ProgressFill = styled.div<{ progress: number }>`
   background: #3b82f6;
   border-radius: 4px;
   transition: width 0.3s ease;
-  width: ${props => props.progress}%;
+  width: ${(props) => props.progress}%;
 `;
 
 const ProgressInfo = styled.div`
@@ -171,193 +179,197 @@ const ExpiredMessage = styled.div`
 `;
 
 const DevicePolling: React.FC<DevicePollingProps> = ({
-  deviceCode,
-  clientId,
-  tokenEndpoint,
-  interval,
-  onSuccess,
-  onError,
-  onProgress
+	deviceCode,
+	clientId,
+	tokenEndpoint,
+	interval,
+	onSuccess,
+	onError,
+	onProgress,
 }) => {
-  const [pollingStatus, setPollingStatus] = useState<'polling' | 'success' | 'error' | 'expired'>('polling');
-  const [currentAttempt, setCurrentAttempt] = useState(0);
-  const [currentStatus, setCurrentStatus] = useState('Starting polling...');
-  const [progress, setProgress] = useState(0);
-  const [startTime] = useState(Date.now());
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [tokens, setTokens] = useState<DeviceCodeTokens | null>(null);
+	const [pollingStatus, setPollingStatus] = useState<'polling' | 'success' | 'error' | 'expired'>(
+		'polling'
+	);
+	const [currentAttempt, setCurrentAttempt] = useState(0);
+	const [currentStatus, setCurrentStatus] = useState('Starting polling...');
+	const [progress, setProgress] = useState(0);
+	const [startTime] = useState(Date.now());
+	const [errorMessage, setErrorMessage] = useState<string>('');
+	const [tokens, setTokens] = useState<DeviceCodeTokens | null>(null);
 
-  const pollFn = useCallback(async () => {
-    return await pollTokenEndpoint(tokenEndpoint, deviceCode, clientId, interval);
-  }, [tokenEndpoint, deviceCode, clientId, interval]);
+	const pollFn = useCallback(async () => {
+		return await pollTokenEndpoint(tokenEndpoint, deviceCode, clientId, interval);
+	}, [tokenEndpoint, deviceCode, clientId, interval]);
 
-  useEffect(() => {
-    const options: PollingOptions = {
-      interval,
-      maxAttempts: 120, // 10 minutes with 5-second intervals
-      maxDuration: 600000, // 10 minutes
-      onProgress: (attempt, totalAttempts, status) => {
-        setCurrentAttempt(attempt);
-        setCurrentStatus(status);
-        setProgress((attempt / (totalAttempts || 120)) * 100);
-        onProgress(attempt, status);
-        logger.info('DevicePolling', 'Polling progress', { attempt, status });
-      },
-      onSuccess: (response) => {
-        setPollingStatus('success');
-        setCurrentStatus('Authorization successful!');
-        setProgress(100);
-        setTokens(response as DeviceCodeTokens);
-        onSuccess(response as DeviceCodeTokens);
-        logger.success('DevicePolling', 'Polling completed successfully', { tokens: response });
-      },
-      onError: (error) => {
-        setPollingStatus('error');
-        setErrorMessage(error.message);
-        setCurrentStatus('Authorization failed');
-        onError(error);
-        logger.error('DevicePolling', 'Polling failed', error);
-      },
-      onSlowDown: (newInterval) => {
-        logger.info('DevicePolling', 'Polling slowed down', { newInterval });
-      }
-    };
+	useEffect(() => {
+		const options: PollingOptions = {
+			interval,
+			maxAttempts: 120, // 10 minutes with 5-second intervals
+			maxDuration: 600000, // 10 minutes
+			onProgress: (attempt, totalAttempts, status) => {
+				setCurrentAttempt(attempt);
+				setCurrentStatus(status);
+				setProgress((attempt / (totalAttempts || 120)) * 100);
+				onProgress(attempt, status);
+				logger.info('DevicePolling', 'Polling progress', { attempt, status });
+			},
+			onSuccess: (response) => {
+				setPollingStatus('success');
+				setCurrentStatus('Authorization successful!');
+				setProgress(100);
+				setTokens(response as DeviceCodeTokens);
+				onSuccess(response as DeviceCodeTokens);
+				logger.success('DevicePolling', 'Polling completed successfully', { tokens: response });
+			},
+			onError: (error) => {
+				setPollingStatus('error');
+				setErrorMessage(error.message);
+				setCurrentStatus('Authorization failed');
+				onError(error);
+				logger.error('DevicePolling', 'Polling failed', error);
+			},
+			onSlowDown: (newInterval) => {
+				logger.info('DevicePolling', 'Polling slowed down', { newInterval });
+			},
+		};
 
-    const poller = createSmartPoller(pollFn, options);
+		const poller = createSmartPoller(pollFn, options);
 
-    // Start polling
-    poller.start().then((result) => {
-      if (!result.success) {
-        if (result.reason === 'timeout' || result.reason === 'max-attempts') {
-          setPollingStatus('expired');
-          setCurrentStatus('Authorization timed out');
-          setErrorMessage('The authorization request has expired. Please try again.');
-          onError(new Error('Authorization timed out'));
-        } else if (result.error) {
-          setPollingStatus('error');
-          setCurrentStatus('Authorization failed');
-          setErrorMessage(result.error.message);
-          onError(result.error);
-        }
-      }
-    }).catch((error) => {
-      setPollingStatus('error');
-      setCurrentStatus('Authorization failed');
-      setErrorMessage(error.message);
-      onError(error);
-      logger.error('DevicePolling', 'Polling start failed', error);
-    });
+		// Start polling
+		poller
+			.start()
+			.then((result) => {
+				if (!result.success) {
+					if (result.reason === 'timeout' || result.reason === 'max-attempts') {
+						setPollingStatus('expired');
+						setCurrentStatus('Authorization timed out');
+						setErrorMessage('The authorization request has expired. Please try again.');
+						onError(new Error('Authorization timed out'));
+					} else if (result.error) {
+						setPollingStatus('error');
+						setCurrentStatus('Authorization failed');
+						setErrorMessage(result.error.message);
+						onError(result.error);
+					}
+				}
+			})
+			.catch((error) => {
+				setPollingStatus('error');
+				setCurrentStatus('Authorization failed');
+				setErrorMessage(error.message);
+				onError(error);
+				logger.error('DevicePolling', 'Polling start failed', error);
+			});
 
-    return () => {
-      poller.stop();
-    };
-  }, [pollFn, options, onSuccess, onError, onProgress]);
+		return () => {
+			poller.stop();
+		};
+	}, [pollFn, options, onSuccess, onError, onProgress]);
 
-  const getStatusIcon = () => {
-    switch (pollingStatus) {
-      case 'success':
-        return <FiCheckCircle size={24} />;
-      case 'error':
-        return <FiXCircle size={24} />;
-      case 'expired':
-        return <FiClock size={24} />;
-      default:
-        return <FiLoader size={24} className="animate-spin" />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (pollingStatus) {
+			case 'success':
+				return <FiCheckCircle size={24} />;
+			case 'error':
+				return <FiXCircle size={24} />;
+			case 'expired':
+				return <FiClock size={24} />;
+			default:
+				return <FiLoader size={24} className="animate-spin" />;
+		}
+	};
 
-  const getStatusMessage = () => {
-    switch (pollingStatus) {
-      case 'success':
-        return (
-          <SuccessMessage>
-            <FiCheckCircle size={16} />
-            <div>
-              <div style={{ fontWeight: '500' }}>Authorization successful!</div>
-              <div>Access token received and stored.</div>
-            </div>
-          </SuccessMessage>
-        );
-      case 'error':
-        return (
-          <ErrorMessage>
-            <FiXCircle size={16} />
-            <div>
-              <div style={{ fontWeight: '500' }}>Authorization failed</div>
-              <div>{errorMessage}</div>
-            </div>
-          </ErrorMessage>
-        );
-      case 'expired':
-        return (
-          <ExpiredMessage>
-            <FiClock size={16} />
-            <div>
-              <div style={{ fontWeight: '500' }}>Authorization expired</div>
-              <div>The user code has expired. Please restart the device code flow.</div>
-            </div>
-          </ExpiredMessage>
-        );
-      default:
-        return null;
-    }
-  };
+	const getStatusMessage = () => {
+		switch (pollingStatus) {
+			case 'success':
+				return (
+					<SuccessMessage>
+						<FiCheckCircle size={16} />
+						<div>
+							<div style={{ fontWeight: '500' }}>Authorization successful!</div>
+							<div>Access token received and stored.</div>
+						</div>
+					</SuccessMessage>
+				);
+			case 'error':
+				return (
+					<ErrorMessage>
+						<FiXCircle size={16} />
+						<div>
+							<div style={{ fontWeight: '500' }}>Authorization failed</div>
+							<div>{errorMessage}</div>
+						</div>
+					</ErrorMessage>
+				);
+			case 'expired':
+				return (
+					<ExpiredMessage>
+						<FiClock size={16} />
+						<div>
+							<div style={{ fontWeight: '500' }}>Authorization expired</div>
+							<div>The user code has expired. Please restart the device code flow.</div>
+						</div>
+					</ExpiredMessage>
+				);
+			default:
+				return null;
+		}
+	};
 
-  return (
-    <PollingContainer>
-      <Header>
-        <StatusIcon status={pollingStatus}>
-          {getStatusIcon()}
-        </StatusIcon>
-        <StatusContent>
-          <StatusTitle>{formatPollingStatus(currentStatus, currentAttempt)}</StatusTitle>
-          <StatusDescription>
-            {pollingStatus === 'polling' && 'Waiting for you to complete authorization on your device...'}
-            {pollingStatus === 'success' && 'Your device has been successfully authorized!'}
-            {pollingStatus === 'error' && 'There was an error during authorization.'}
-            {pollingStatus === 'expired' && 'The authorization request has expired.'}
-          </StatusDescription>
-        </StatusContent>
-      </Header>
+	return (
+		<PollingContainer>
+			<Header>
+				<StatusIcon status={pollingStatus}>{getStatusIcon()}</StatusIcon>
+				<StatusContent>
+					<StatusTitle>{formatPollingStatus(currentStatus, currentAttempt)}</StatusTitle>
+					<StatusDescription>
+						{pollingStatus === 'polling' &&
+							'Waiting for you to complete authorization on your device...'}
+						{pollingStatus === 'success' && 'Your device has been successfully authorized!'}
+						{pollingStatus === 'error' && 'There was an error during authorization.'}
+						{pollingStatus === 'expired' && 'The authorization request has expired.'}
+					</StatusDescription>
+				</StatusContent>
+			</Header>
 
-      {pollingStatus === 'polling' && (
-        <ProgressSection>
-          <ProgressBar>
-            <ProgressFill progress={progress} />
-          </ProgressBar>
-          <ProgressInfo>
-            <span>Attempt {currentAttempt}</span>
-            <span>{Math.round(progress)}% complete</span>
-          </ProgressInfo>
-        </ProgressSection>
-      )}
+			{pollingStatus === 'polling' && (
+				<ProgressSection>
+					<ProgressBar>
+						<ProgressFill progress={progress} />
+					</ProgressBar>
+					<ProgressInfo>
+						<span>Attempt {currentAttempt}</span>
+						<span>{Math.round(progress)}% complete</span>
+					</ProgressInfo>
+				</ProgressSection>
+			)}
 
-      <PollingDetails>
-        <DetailRow>
-          <DetailLabel>Device Code:</DetailLabel>
-          <DetailValue>{deviceCode.substring(0, 8)}...</DetailValue>
-        </DetailRow>
-        <DetailRow>
-          <DetailLabel>Client ID:</DetailLabel>
-          <DetailValue>{clientId.substring(0, 8)}...</DetailValue>
-        </DetailRow>
-        <DetailRow>
-          <DetailLabel>Polling Interval:</DetailLabel>
-          <DetailValue>{interval}ms</DetailValue>
-        </DetailRow>
-        <DetailRow>
-          <DetailLabel>Attempts:</DetailLabel>
-          <DetailValue>{currentAttempt}</DetailValue>
-        </DetailRow>
-        <DetailRow>
-          <DetailLabel>Duration:</DetailLabel>
-          <DetailValue>{Math.round((Date.now() - startTime) / 1000)}s</DetailValue>
-        </DetailRow>
-      </PollingDetails>
+			<PollingDetails>
+				<DetailRow>
+					<DetailLabel>Device Code:</DetailLabel>
+					<DetailValue>{deviceCode.substring(0, 8)}...</DetailValue>
+				</DetailRow>
+				<DetailRow>
+					<DetailLabel>Client ID:</DetailLabel>
+					<DetailValue>{clientId.substring(0, 8)}...</DetailValue>
+				</DetailRow>
+				<DetailRow>
+					<DetailLabel>Polling Interval:</DetailLabel>
+					<DetailValue>{interval}ms</DetailValue>
+				</DetailRow>
+				<DetailRow>
+					<DetailLabel>Attempts:</DetailLabel>
+					<DetailValue>{currentAttempt}</DetailValue>
+				</DetailRow>
+				<DetailRow>
+					<DetailLabel>Duration:</DetailLabel>
+					<DetailValue>{Math.round((Date.now() - startTime) / 1000)}s</DetailValue>
+				</DetailRow>
+			</PollingDetails>
 
-      {getStatusMessage()}
-    </PollingContainer>
-  );
+			{getStatusMessage()}
+		</PollingContainer>
+	);
 };
 
 export default DevicePolling;

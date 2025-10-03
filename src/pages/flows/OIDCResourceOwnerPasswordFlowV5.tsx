@@ -10,10 +10,7 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -171,7 +168,6 @@ const Input = styled.input`
 	}
 `;
 
-
 const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 6px;
@@ -294,13 +290,8 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const {
-		credentials,
-		tokens,
-		requestToken,
-		clearResults,
-		updateCredentials,
-	} = useResourceOwnerPasswordFlowController();
+	const { credentials, tokens, requestToken, clearResults, updateCredentials } =
+		useResourceOwnerPasswordFlowController();
 
 	const handleNext = useCallback(() => {
 		if (currentStep < 3) {
@@ -336,7 +327,8 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 			v4ToastManager.showSuccess('OIDC Resource Owner Password token requested successfully!');
 			handleNext();
 		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to request OIDC Resource Owner Password token';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to request OIDC Resource Owner Password token';
 			setError(errorMessage);
 			v4ToastManager.showError(errorMessage);
 		} finally {
@@ -347,20 +339,20 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	const canNavigateNext = currentStep === 0 || (currentStep === 1 && !!tokenResult);
 
 	const renderStepContent = () => {
-	switch (currentStep) {
-		case 0:
-			return (
-				<>
-					<FlowConfigurationRequirements flowType="resource-owner-password" variant="oidc" />
-					
-					<ExplanationSection>
-						<ExplanationHeading>OIDC Resource Owner Password Flow</ExplanationHeading>
-						<p>
-							The Resource Owner Password Flow allows clients to obtain tokens by directly
-							exchanging username and password credentials for access and ID tokens. This flow
-							is deprecated and should only be used for legacy migration scenarios.
-						</p>
-					</ExplanationSection>
+		switch (currentStep) {
+			case 0:
+				return (
+					<>
+						<FlowConfigurationRequirements flowType="resource-owner-password" variant="oidc" />
+
+						<ExplanationSection>
+							<ExplanationHeading>OIDC Resource Owner Password Flow</ExplanationHeading>
+							<p>
+								The Resource Owner Password Flow allows clients to obtain tokens by directly
+								exchanging username and password credentials for access and ID tokens. This flow is
+								deprecated and should only be used for legacy migration scenarios.
+							</p>
+						</ExplanationSection>
 
 						<WarningMessage>
 							<FiAlertTriangle />
@@ -368,19 +360,22 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 							Consider using Authorization Code Flow with PKCE for better security.
 						</WarningMessage>
 
-
 						<EnhancedFlowWalkthrough flowId="oidc-resource-owner-password" />
 						<FlowSequenceDisplay flowType="resource-owner-password" />
-					
-					{/* Configuration Summary */}
-					<ConfigurationSummaryCard
-						configuration={credentials}
-						hasConfiguration={Boolean(credentials?.clientId) && Boolean(credentials?.username) && Boolean(credentials?.password)}
-					/>
-				</>
-			);
 
-		case 1:
+						{/* Configuration Summary */}
+						<ConfigurationSummaryCard
+							configuration={credentials}
+							hasConfiguration={
+								Boolean(credentials?.clientId) &&
+								Boolean(credentials?.username) &&
+								Boolean(credentials?.password)
+							}
+						/>
+					</>
+				);
+
+			case 1:
 				return (
 					<>
 						<FormSection>
@@ -436,7 +431,12 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 							<Button
 								variant="danger"
 								onClick={handleRequestToken}
-								disabled={isRequesting || !credentials.username || !credentials.password || !credentials.clientId}
+								disabled={
+									isRequesting ||
+									!credentials.username ||
+									!credentials.password ||
+									!credentials.clientId
+								}
 							>
 								{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
 								{isRequesting ? 'Requesting...' : 'Request OIDC Resource Owner Password Tokens'}
@@ -456,20 +456,20 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 									<FiCheckCircle />
 									OIDC Resource Owner Password tokens requested successfully!
 								</SuccessMessage>
-								
+
 								<TokenInfo>
 									<TokenInfoRow>
 										<TokenInfoLabel>Access Token:</TokenInfoLabel>
 										<TokenInfoValue>
-											{tokens?.access_token ? tokens.access_token.substring(0, 50) + '...' : 'Not available'}
+											{tokens?.access_token
+												? tokens.access_token.substring(0, 50) + '...'
+												: 'Not available'}
 										</TokenInfoValue>
 									</TokenInfoRow>
 									{tokens?.id_token && (
 										<TokenInfoRow>
 											<TokenInfoLabel>ID Token:</TokenInfoLabel>
-											<TokenInfoValue>
-												{tokens.id_token.substring(0, 50) + '...'}
-											</TokenInfoValue>
+											<TokenInfoValue>{tokens.id_token.substring(0, 50) + '...'}</TokenInfoValue>
 										</TokenInfoRow>
 									)}
 									{tokens?.token_type && (
@@ -494,7 +494,14 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 
 								<ResultsSection>
 									<ResultsHeading>Full Token Response</ResultsHeading>
-									<pre style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', overflow: 'auto' }}>
+									<pre
+										style={{
+											background: '#f3f4f6',
+											padding: '1rem',
+											borderRadius: '6px',
+											overflow: 'auto',
+										}}
+									>
 										{JSON.stringify(tokenResult, null, 2)}
 									</pre>
 								</ResultsSection>
@@ -509,26 +516,39 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Token Request Complete</ResultsHeading>
 							<p>
-								The OIDC Resource Owner Password tokens have been successfully requested.
-								You now have access and ID tokens that can be used for API authentication and user identification.
+								The OIDC Resource Owner Password tokens have been successfully requested. You now
+								have access and ID tokens that can be used for API authentication and user
+								identification.
 							</p>
 						</ResultsSection>
 
 						<ResultsSection>
 							<ResultsHeading>Key Information</ResultsHeading>
 							<ul style={{ paddingLeft: '1.5rem' }}>
-								<li><strong>Access Token:</strong> {tokens?.access_token ? 'Received' : 'Not available'}</li>
-								<li><strong>ID Token:</strong> {tokens?.id_token ? 'Received' : 'Not available'}</li>
-								<li><strong>Token Type:</strong> {tokens?.token_type || 'Not specified'}</li>
-								<li><strong>Expires In:</strong> {tokens?.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'}</li>
-								<li><strong>Scope:</strong> {tokens?.scope || 'Not specified'}</li>
+								<li>
+									<strong>Access Token:</strong>{' '}
+									{tokens?.access_token ? 'Received' : 'Not available'}
+								</li>
+								<li>
+									<strong>ID Token:</strong> {tokens?.id_token ? 'Received' : 'Not available'}
+								</li>
+								<li>
+									<strong>Token Type:</strong> {tokens?.token_type || 'Not specified'}
+								</li>
+								<li>
+									<strong>Expires In:</strong>{' '}
+									{tokens?.expires_in ? `${tokens.expires_in} seconds` : 'Not specified'}
+								</li>
+								<li>
+									<strong>Scope:</strong> {tokens?.scope || 'Not specified'}
+								</li>
 							</ul>
 						</ResultsSection>
 
 						<WarningMessage>
 							<FiAlertTriangle />
-							<strong>Migration Recommendation:</strong> Consider migrating to Authorization Code Flow with PKCE
-							for better security and user experience.
+							<strong>Migration Recommendation:</strong> Consider migrating to Authorization Code
+							Flow with PKCE for better security and user experience.
 						</WarningMessage>
 
 						<ResultsSection>
@@ -549,8 +569,9 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Flow Complete</ResultsHeading>
 							<p>
-								You have successfully completed the OIDC Resource Owner Password Flow V5. This flow demonstrates
-								how to authenticate users using username and password credentials for legacy migration scenarios.
+								You have successfully completed the OIDC Resource Owner Password Flow V5. This flow
+								demonstrates how to authenticate users using username and password credentials for
+								legacy migration scenarios.
 							</p>
 						</ResultsSection>
 
@@ -566,7 +587,8 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 
 						<WarningMessage>
 							<FiAlertTriangle />
-							<strong>Important:</strong> This flow is deprecated. For new applications, use Authorization Code Flow with PKCE.
+							<strong>Important:</strong> This flow is deprecated. For new applications, use
+							Authorization Code Flow with PKCE.
 						</WarningMessage>
 					</>
 				);
@@ -581,7 +603,7 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-resource-owner-password-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="oidc-resource-owner-password"
 					showAdditionalInfo={true}
 					showDocumentation={true}

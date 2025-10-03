@@ -131,7 +131,16 @@ export class FlowInfoGenerator {
 	/**
 	 * Create a flow information template for common flow patterns
 	 */
-	static createTemplate(pattern: 'authorization-code' | 'implicit' | 'client-credentials' | 'device' | 'ciba' | 'par' | 'custom'): FlowInfoTemplate {
+	static createTemplate(
+		pattern:
+			| 'authorization-code'
+			| 'implicit'
+			| 'client-credentials'
+			| 'device'
+			| 'ciba'
+			| 'par'
+			| 'custom'
+	): FlowInfoTemplate {
 		const baseTemplate: FlowInfoTemplate = {
 			flowType: 'oauth',
 			flowName: 'Custom Flow',
@@ -245,11 +254,7 @@ export class FlowInfoGenerator {
 					],
 					useCases: ['Legacy browser-based applications (migration only)'],
 					recommendedFor: [],
-					notRecommendedFor: [
-						'New applications',
-						'Production systems',
-						'Secure applications',
-					],
+					notRecommendedFor: ['New applications', 'Production systems', 'Secure applications'],
 					implementationNotes: [
 						'Migrate to Authorization Code Flow with PKCE',
 						'Implement proper token validation',
@@ -301,15 +306,8 @@ export class FlowInfoGenerator {
 						'Scheduled jobs and automation',
 						'System-to-system integration',
 					],
-					recommendedFor: [
-						'Microservices',
-						'Automated systems',
-						'Backend integrations',
-					],
-					notRecommendedFor: [
-						'User-facing applications',
-						'Client-side applications',
-					],
+					recommendedFor: ['Microservices', 'Automated systems', 'Backend integrations'],
+					notRecommendedFor: ['User-facing applications', 'Client-side applications'],
 					implementationNotes: [
 						'Securely store client credentials',
 						'Implement proper scope management',
@@ -367,10 +365,7 @@ export class FlowInfoGenerator {
 						'TV and streaming applications',
 						'IoT devices',
 					],
-					notRecommendedFor: [
-						'Web applications',
-						'Mobile applications with full UI',
-					],
+					notRecommendedFor: ['Web applications', 'Mobile applications with full UI'],
 					implementationNotes: [
 						'Implement proper polling intervals',
 						'Handle device code expiration',
@@ -411,7 +406,8 @@ export class FlowInfoGenerator {
 					purpose: 'Decoupled Authentication + Authorization',
 					specLayer: 'Defined in OIDC CIBA (RFC 8628 extension)',
 					nonceRequirement: 'Not applicable (backchannel flow)',
-					validation: 'Validate ID Token signature, issuer, audience, and expiry. Poll with auth_req_id.',
+					validation:
+						'Validate ID Token signature, issuer, audience, and expiry. Poll with auth_req_id.',
 					securityNotes: [
 						'✅ Secure decoupled authentication flow',
 						'Requires CIBA-enabled PingOne environment',
@@ -431,10 +427,7 @@ export class FlowInfoGenerator {
 						'IoT and embedded devices',
 						'High-security applications',
 					],
-					notRecommendedFor: [
-						'Simple web applications',
-						'Direct user interaction scenarios',
-					],
+					notRecommendedFor: ['Simple web applications', 'Direct user interaction scenarios'],
 					implementationNotes: [
 						'Implement proper polling with backoff',
 						'Handle authentication request expiration',
@@ -496,10 +489,7 @@ export class FlowInfoGenerator {
 						'Financial services',
 						'Healthcare systems',
 					],
-					notRecommendedFor: [
-						'Simple applications',
-						'Applications without security requirements',
-					],
+					notRecommendedFor: ['Simple applications', 'Applications without security requirements'],
 					implementationNotes: [
 						'Implement PAR endpoint on authorization server',
 						'Handle request URI generation and validation',
@@ -586,7 +576,9 @@ export class FlowInfoGenerator {
 		}
 	}
 
-	private static getUserInteractionLabel(userInteraction: DetailedFlowInfo['userInteraction']): string {
+	private static getUserInteractionLabel(
+		userInteraction: DetailedFlowInfo['userInteraction']
+	): string {
 		switch (userInteraction) {
 			case 'required':
 				return 'User Interaction Required';
