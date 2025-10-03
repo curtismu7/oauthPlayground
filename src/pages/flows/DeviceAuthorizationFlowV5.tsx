@@ -1213,14 +1213,16 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 					});
 				}}
 			/>
-			
+
 			{/* Info about redirect URI not being needed */}
 			<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 				<FiInfo style={{ flexShrink: 0, color: '#3b82f6' }} />
 				<div>
 					<InfoTitle>Note: Redirect URI Not Required</InfoTitle>
 					<InfoText>
-						The Device Authorization Flow does <strong>not require a redirect URI</strong>. This flow is designed for devices that cannot handle browser redirects (like smart TVs, IoT devices, or CLI tools). You can leave the Redirect URI field empty.
+						The Device Authorization Flow does <strong>not require a redirect URI</strong>. This
+						flow is designed for devices that cannot handle browser redirects (like smart TVs, IoT
+						devices, or CLI tools). You can leave the Redirect URI field empty.
 					</InfoText>
 				</div>
 			</InfoBox>
@@ -1228,9 +1230,10 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			{/* Configuration Summary */}
 			<ConfigurationSummaryCard
 				configuration={deviceFlow.credentials}
-				hasConfiguration={Boolean(deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId)}
+				hasConfiguration={Boolean(
+					deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId
+				)}
 			/>
-
 		</>
 	);
 
@@ -1271,19 +1274,21 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
-								<div style={{ 
-									background: '#3b82f6', 
-									color: 'white', 
-									borderRadius: '50%', 
-									width: '24px', 
-									height: '24px', 
-									display: 'flex', 
-									alignItems: 'center', 
-									justifyContent: 'center', 
-									fontSize: '0.875rem', 
-									fontWeight: 'bold',
-									flexShrink: 0
-								}}>
+								<div
+									style={{
+										background: '#3b82f6',
+										color: 'white',
+										borderRadius: '50%',
+										width: '24px',
+										height: '24px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontSize: '0.875rem',
+										fontWeight: 'bold',
+										flexShrink: 0,
+									}}
+								>
 									1
 								</div>
 								<div style={{ width: '100%' }}>
@@ -1291,53 +1296,69 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 									<InfoText style={{ marginBottom: '1rem' }}>
 										This is the PingOne endpoint that will be called to request the device code:
 									</InfoText>
-									<div style={{
-										background: '#1e293b',
-										color: '#e2e8f0',
-										padding: '1rem',
-										borderRadius: '0.5rem',
-										fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-										fontSize: '0.875rem',
-										wordBreak: 'break-all',
-										border: '1px solid #334155',
-										marginBottom: '1rem'
-									}}>
-										POST https://auth.pingone.com/{deviceFlow.credentials?.environmentId || 'environmentId'}/as/device_authorization
+									<div
+										style={{
+											background: '#1e293b',
+											color: '#e2e8f0',
+											padding: '1rem',
+											borderRadius: '0.5rem',
+											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+											fontSize: '0.875rem',
+											wordBreak: 'break-all',
+											border: '1px solid #334155',
+											marginBottom: '1rem',
+										}}
+									>
+										POST https://auth.pingone.com/
+										{deviceFlow.credentials?.environmentId || 'environmentId'}
+										/as/device_authorization
 									</div>
-									
+
 									<InfoText style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
 										<strong>Request Body (JSON):</strong>
 									</InfoText>
-									<div style={{
-										background: '#1e293b',
-										color: '#e2e8f0',
-										padding: '1rem',
-										borderRadius: '0.5rem',
-										fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-										fontSize: '0.875rem',
-										border: '1px solid #334155',
-										marginBottom: '1rem'
-									}}>
-										<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{JSON.stringify({
-											client_id: deviceFlow.credentials?.clientId || 'clientId',
-											scope: deviceFlow.credentials?.scopes || 'openid profile email'
-										}, null, 2)}</pre>
+									<div
+										style={{
+											background: '#1e293b',
+											color: '#e2e8f0',
+											padding: '1rem',
+											borderRadius: '0.5rem',
+											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+											fontSize: '0.875rem',
+											border: '1px solid #334155',
+											marginBottom: '1rem',
+										}}
+									>
+										<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+											{JSON.stringify(
+												{
+													client_id: deviceFlow.credentials?.clientId || 'clientId',
+													scope: deviceFlow.credentials?.scopes || 'openid profile email',
+												},
+												null,
+												2
+											)}
+										</pre>
 									</div>
 
 									<InfoText style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
 										<strong>cURL Example:</strong>
 									</InfoText>
-									<div style={{
-										background: '#1e293b',
-										color: '#e2e8f0',
-										padding: '1rem',
-										borderRadius: '0.5rem',
-										fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-										fontSize: '0.75rem',
-										border: '1px solid #334155',
-										overflowX: 'auto'
-									}}>
-										<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{`curl -X POST https://auth.pingone.com/${deviceFlow.credentials?.environmentId || 'environmentId'}/as/device_authorization \\
+									<div
+										style={{
+											background: '#1e293b',
+											color: '#e2e8f0',
+											padding: '1rem',
+											borderRadius: '0.5rem',
+											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+											fontSize: '0.75rem',
+											border: '1px solid #334155',
+											overflowX: 'auto',
+										}}
+									>
+										<pre
+											style={{ margin: 0, whiteSpace: 'pre-wrap' }}
+										>{`curl -X POST https://auth.pingone.com/${deviceFlow.credentials?.environmentId || 'environmentId'}/as/device_authorization \\
   -H "Content-Type: application/x-www-form-urlencoded" \\
   -d "client_id=${deviceFlow.credentials?.clientId || 'clientId'}" \\
   -d "scope=${deviceFlow.credentials?.scopes || 'openid profile email'}"`}</pre>
@@ -1346,36 +1367,48 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 							</InfoBox>
 
 							<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
-								<div style={{ 
-									background: '#22c55e', 
-									color: 'white', 
-									borderRadius: '50%', 
-									width: '24px', 
-									height: '24px', 
-									display: 'flex', 
-									alignItems: 'center', 
-									justifyContent: 'center', 
-									fontSize: '0.875rem', 
-									fontWeight: 'bold',
-									flexShrink: 0
-								}}>
+								<div
+									style={{
+										background: '#22c55e',
+										color: 'white',
+										borderRadius: '50%',
+										width: '24px',
+										height: '24px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontSize: '0.875rem',
+										fontWeight: 'bold',
+										flexShrink: 0,
+									}}
+								>
 									2
 								</div>
 								<div>
 									<InfoTitle>Make the Device Code Request</InfoTitle>
 									<InfoText>
-										Click the button below to send the POST request to PingOne and receive your device code, user code, and verification URI.
+										Click the button below to send the POST request to PingOne and receive your
+										device code, user code, and verification URI.
 									</InfoText>
 								</div>
 							</InfoBox>
 
-							<ActionRow style={{ marginTop: '1.5rem', flexDirection: 'column', alignItems: 'flex-start', gap: '0.75rem' }}>
-								<div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+							<ActionRow
+								style={{
+									marginTop: '1.5rem',
+									flexDirection: 'column',
+									alignItems: 'flex-start',
+									gap: '0.75rem',
+								}}
+							>
+								<div
+									style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}
+								>
 									<Button
 										onClick={handleRequestDeviceCode}
 										disabled={
-											!deviceFlow.credentials?.environmentId || 
-											!deviceFlow.credentials?.clientId || 
+											!deviceFlow.credentials?.environmentId ||
+											!deviceFlow.credentials?.clientId ||
 											!!deviceFlow.deviceCodeData
 										}
 										$variant="primary"
@@ -1388,31 +1421,34 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										</Button>
 									)}
 								</div>
-								
-								{(!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) && !deviceFlow.deviceCodeData && (
-									<div style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem',
-										padding: '0.75rem 1rem',
-										background: '#fef3c7',
-										border: '1px solid #fbbf24',
-										borderRadius: '0.5rem',
-										fontSize: '0.875rem',
-										color: '#92400e'
-									}}>
-										<FiAlertTriangle style={{ flexShrink: 0, color: '#f59e0b' }} />
-										<span>
-											<strong>Button disabled:</strong> Please configure your{' '}
-											{!deviceFlow.credentials?.environmentId && !deviceFlow.credentials?.clientId
-												? 'Environment ID and Client ID'
-												: !deviceFlow.credentials?.environmentId
-													? 'Environment ID'
-													: 'Client ID'}{' '}
-											in the credentials section above to enable this button.
-										</span>
-									</div>
-								)}
+
+								{(!deviceFlow.credentials?.environmentId || !deviceFlow.credentials?.clientId) &&
+									!deviceFlow.deviceCodeData && (
+										<div
+											style={{
+												display: 'flex',
+												alignItems: 'center',
+												gap: '0.5rem',
+												padding: '0.75rem 1rem',
+												background: '#fef3c7',
+												border: '1px solid #fbbf24',
+												borderRadius: '0.5rem',
+												fontSize: '0.875rem',
+												color: '#92400e',
+											}}
+										>
+											<FiAlertTriangle style={{ flexShrink: 0, color: '#f59e0b' }} />
+											<span>
+												<strong>Button disabled:</strong> Please configure your{' '}
+												{!deviceFlow.credentials?.environmentId && !deviceFlow.credentials?.clientId
+													? 'Environment ID and Client ID'
+													: !deviceFlow.credentials?.environmentId
+														? 'Environment ID'
+														: 'Client ID'}{' '}
+												in the credentials section above to enable this button.
+											</span>
+										</div>
+									)}
 							</ActionRow>
 						</ExplanationSection>
 					</CollapsibleContent>
@@ -2019,7 +2055,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		}
 
 		const introspectEndpoint = `https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`;
-		
+
 		const params = new URLSearchParams({
 			token: token,
 			client_id: deviceFlow.credentials.clientId,
@@ -2147,7 +2183,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		<FlowContainer>
 			<FlowContent>
 				<StandardFlowHeader flowId="device-authorization-v5" />
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="device-code"
 					showAdditionalInfo={true}
 					showDocumentation={true}
@@ -2156,34 +2192,34 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				/>
 
 				<FlowHeader>
-				<div>
-					<StepBadge>DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
-					<FlowTitle>{STEP_METADATA[currentStep].title}</FlowTitle>
-					<FlowSubtitle>{STEP_METADATA[currentStep].subtitle}</FlowSubtitle>
-				</div>
-				<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
-					{String(currentStep + 1).padStart(2, '0')}
-					<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
-						{' '}
-						of {STEP_METADATA.length}
-					</span>
-				</div>
-			</FlowHeader>
+					<div>
+						<StepBadge>DEVICE AUTHORIZATION CODE • V5 API</StepBadge>
+						<FlowTitle>{STEP_METADATA[currentStep].title}</FlowTitle>
+						<FlowSubtitle>{STEP_METADATA[currentStep].subtitle}</FlowSubtitle>
+					</div>
+					<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
+						{String(currentStep + 1).padStart(2, '0')}
+						<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
+							{' '}
+							of {STEP_METADATA.length}
+						</span>
+					</div>
+				</FlowHeader>
 
-			{renderStepContent()}
+				{renderStepContent()}
 
-			<StepNavigationButtons
-				currentStep={currentStep}
-				totalSteps={STEP_METADATA.length}
-				onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
-				onReset={handleReset}
-				onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
-				canNavigateNext={isStepValid(currentStep + 1)}
-				isFirstStep={currentStep === 0}
-				nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
-				disabledMessage="Complete the action above to continue"
-			/>
-		</FlowContent>
+				<StepNavigationButtons
+					currentStep={currentStep}
+					totalSteps={STEP_METADATA.length}
+					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
+					onReset={handleReset}
+					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
+					canNavigateNext={isStepValid(currentStep + 1)}
+					isFirstStep={currentStep === 0}
+					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
+					disabledMessage="Complete the action above to continue"
+				/>
+			</FlowContent>
 
 			{/* Polling Prompt Modal */}
 			<ModalOverlay $isOpen={showPollingModal}>

@@ -177,13 +177,13 @@ const Toggle = styled.button<{ $active: boolean }>`
   border: none;
   cursor: pointer;
   transition: all 0.2s ease;
-  background: ${props => props.$active ? 'var(--color-primary, #3b82f6)' : 'var(--color-border, #e2e8f0)'};
+  background: ${(props) => (props.$active ? 'var(--color-primary, #3b82f6)' : 'var(--color-border, #e2e8f0)')};
   
   &:before {
     content: '';
     position: absolute;
     top: 2px;
-    left: ${props => props.$active ? '22px' : '2px'};
+    left: ${(props) => (props.$active ? '22px' : '2px')};
     width: 20px;
     height: 20px;
     border-radius: 50%;
@@ -220,17 +220,17 @@ const ColorSchemeButton = styled.button<{ $color: string; $active: boolean }>`
   width: 40px;
   height: 40px;
   border-radius: 8px;
-  border: 2px solid ${props => props.$active ? 'var(--color-text-primary, #1e293b)' : 'transparent'};
-  background: ${props => {
-    const colors = {
-      blue: '#3b82f6',
-      green: '#22c55e',
-      purple: '#8b5cf6',
-      orange: '#f97316',
-      red: '#ef4444'
-    };
-    return colors[props.$color as keyof typeof colors] || '#3b82f6';
-  }};
+  border: 2px solid ${(props) => (props.$active ? 'var(--color-text-primary, #1e293b)' : 'transparent')};
+  background: ${(props) => {
+		const colors = {
+			blue: '#3b82f6',
+			green: '#22c55e',
+			purple: '#8b5cf6',
+			orange: '#f97316',
+			red: '#ef4444',
+		};
+		return colors[props.$color as keyof typeof colors] || '#3b82f6';
+	}};
   cursor: pointer;
   transition: all 0.2s ease;
   
@@ -240,214 +240,236 @@ const ColorSchemeButton = styled.button<{ $color: string; $active: boolean }>`
 `;
 
 interface UISettingsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
+	isOpen: boolean;
+	onClose: () => void;
 }
 
 export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClose }) => {
-  const { settings, updateSetting, saveSettings } = useUISettings();
-  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+	const { settings, updateSetting, saveSettings } = useUISettings();
+	const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
 
-  if (!isOpen) return null;
+	if (!isOpen) return null;
 
-  const handleSave = async () => {
-    setSaveStatus('saving');
-    try {
-      await saveSettings();
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-    } catch (error) {
-      console.error('Failed to save settings:', error);
-      setSaveStatus('idle');
-    }
-  };
+	const handleSave = async () => {
+		setSaveStatus('saving');
+		try {
+			await saveSettings();
+			setSaveStatus('saved');
+			setTimeout(() => setSaveStatus('idle'), 2000);
+		} catch (error) {
+			console.error('Failed to save settings:', error);
+			setSaveStatus('idle');
+		}
+	};
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
+	const handleOverlayClick = (e: React.MouseEvent) => {
+		if (e.target === e.currentTarget) {
+			onClose();
+		}
+	};
 
-  return (
-    <ModalOverlay onClick={handleOverlayClick}>
-      <ModalContent>
-        <ModalHeader>
-          <ModalTitle>
-            <FiSettings />
-            UI Settings
-          </ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX size={20} />
-          </CloseButton>
-        </ModalHeader>
-        
-        <ModalBody>
-          {/* Theme Settings */}
-          <Section>
-            <SectionTitle>
-              <FiSun />
-              Theme
-            </SectionTitle>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Dark Mode</SettingName>
-                <SettingDescription>Switch between light and dark themes</SettingDescription>
-              </SettingLabel>
-              <Toggle
-                $active={settings.darkMode}
-                onClick={() => updateSetting('darkMode', !settings.darkMode)}
-              />
-            </SettingRow>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Font Size</SettingName>
-                <SettingDescription>Adjust text size throughout the app</SettingDescription>
-              </SettingLabel>
-              <Select
-                value={settings.fontSize}
-                onChange={(e) => updateSetting('fontSize', e.target.value as 'small' | 'medium' | 'large')}
-              >
-                <option value="small">Small</option>
-                <option value="medium">Medium</option>
-                <option value="large">Large</option>
-              </Select>
-            </SettingRow>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Color Scheme</SettingName>
-                <SettingDescription>Choose your preferred accent color</SettingDescription>
-              </SettingLabel>
-              <ColorSchemeGrid>
-                {(['blue', 'green', 'purple', 'orange', 'red'] as const).map((color) => (
-                  <ColorSchemeButton
-                    key={color}
-                    $color={color}
-                    $active={settings.colorScheme === color}
-                    onClick={() => updateSetting('colorScheme', color)}
-                    title={color.charAt(0).toUpperCase() + color.slice(1)}
-                  />
-                ))}
-              </ColorSchemeGrid>
-            </SettingRow>
-          </Section>
+	return (
+		<ModalOverlay onClick={handleOverlayClick}>
+			<ModalContent>
+				<ModalHeader>
+					<ModalTitle>
+						<FiSettings />
+						UI Settings
+					</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX size={20} />
+					</CloseButton>
+				</ModalHeader>
 
-          {/* Behavior Settings */}
-          <Section>
-            <SectionTitle>
-              <FiEye />
-              Behavior
-            </SectionTitle>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Auto-advance Steps</SettingName>
-                <SettingDescription>Automatically progress through flow steps</SettingDescription>
-              </SettingLabel>
-              <Toggle
-                $active={settings.autoAdvanceSteps}
-                onClick={() => updateSetting('autoAdvanceSteps', !settings.autoAdvanceSteps)}
-              />
-            </SettingRow>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Collapsible Sections</SettingName>
-                <SettingDescription>Default state for expandable sections</SettingDescription>
-              </SettingLabel>
-              <Select
-                value={settings.collapsibleDefaultState}
-                onChange={(e) => updateSetting('collapsibleDefaultState', e.target.value as 'collapsed' | 'expanded')}
-              >
-                <option value="collapsed">Collapsed</option>
-                <option value="expanded">Expanded</option>
-              </Select>
-            </SettingRow>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Show Request/Response Details</SettingName>
-                <SettingDescription>Display detailed HTTP information</SettingDescription>
-              </SettingLabel>
-              <Toggle
-                $active={settings.showRequestResponseDetails}
-                onClick={() => updateSetting('showRequestResponseDetails', !settings.showRequestResponseDetails)}
-              />
-            </SettingRow>
-          </Section>
+				<ModalBody>
+					{/* Theme Settings */}
+					<Section>
+						<SectionTitle>
+							<FiSun />
+							Theme
+						</SectionTitle>
 
-          {/* Developer Settings */}
-          <Section>
-            <SectionTitle>
-              <FiCode />
-              Developer
-            </SectionTitle>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Console Logging Level</SettingName>
-                <SettingDescription>Amount of debug information logged</SettingDescription>
-              </SettingLabel>
-              <Select
-                value={settings.consoleLoggingLevel}
-                onChange={(e) => updateSetting('consoleLoggingLevel', e.target.value as 'minimal' | 'normal' | 'verbose')}
-              >
-                <option value="minimal">Minimal</option>
-                <option value="normal">Normal</option>
-                <option value="verbose">Verbose</option>
-              </Select>
-            </SettingRow>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Error Detail Level</SettingName>
-                <SettingDescription>How much error information to show</SettingDescription>
-              </SettingLabel>
-              <Select
-                value={settings.errorDetailLevel}
-                onChange={(e) => updateSetting('errorDetailLevel', e.target.value as 'basic' | 'detailed')}
-              >
-                <option value="basic">Basic</option>
-                <option value="detailed">Detailed</option>
-              </Select>
-            </SettingRow>
-            
-            <SettingRow>
-              <SettingLabel>
-                <SettingName>Copy Button Behavior</SettingName>
-                <SettingDescription>Show confirmation when copying text</SettingDescription>
-              </SettingLabel>
-              <Select
-                value={settings.copyButtonBehavior}
-                onChange={(e) => updateSetting('copyButtonBehavior', e.target.value as 'confirmation' | 'silent')}
-              >
-                <option value="confirmation">Show Confirmation</option>
-                <option value="silent">Silent</option>
-              </Select>
-            </SettingRow>
-          </Section>
-        </ModalBody>
-        
-        <ModalFooter>
-          <SaveStatus>
-            {saveStatus === 'saving' && 'Saving settings...'}
-            {saveStatus === 'saved' && 'Settings saved successfully!'}
-            {saveStatus === 'idle' && 'Settings are automatically saved'}
-          </SaveStatus>
-          <SaveButton 
-            onClick={handleSave}
-            className={saveStatus === 'saved' ? 'saved' : ''}
-            disabled={saveStatus === 'saving'}
-          >
-            <FiCheck />
-            {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved!' : 'Save Settings'}
-          </SaveButton>
-        </ModalFooter>
-      </ModalContent>
-    </ModalOverlay>
-  );
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Dark Mode</SettingName>
+								<SettingDescription>Switch between light and dark themes</SettingDescription>
+							</SettingLabel>
+							<Toggle
+								$active={settings.darkMode}
+								onClick={() => updateSetting('darkMode', !settings.darkMode)}
+							/>
+						</SettingRow>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Font Size</SettingName>
+								<SettingDescription>Adjust text size throughout the app</SettingDescription>
+							</SettingLabel>
+							<Select
+								value={settings.fontSize}
+								onChange={(e) =>
+									updateSetting('fontSize', e.target.value as 'small' | 'medium' | 'large')
+								}
+							>
+								<option value="small">Small</option>
+								<option value="medium">Medium</option>
+								<option value="large">Large</option>
+							</Select>
+						</SettingRow>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Color Scheme</SettingName>
+								<SettingDescription>Choose your preferred accent color</SettingDescription>
+							</SettingLabel>
+							<ColorSchemeGrid>
+								{(['blue', 'green', 'purple', 'orange', 'red'] as const).map((color) => (
+									<ColorSchemeButton
+										key={color}
+										$color={color}
+										$active={settings.colorScheme === color}
+										onClick={() => updateSetting('colorScheme', color)}
+										title={color.charAt(0).toUpperCase() + color.slice(1)}
+									/>
+								))}
+							</ColorSchemeGrid>
+						</SettingRow>
+					</Section>
+
+					{/* Behavior Settings */}
+					<Section>
+						<SectionTitle>
+							<FiEye />
+							Behavior
+						</SectionTitle>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Auto-advance Steps</SettingName>
+								<SettingDescription>Automatically progress through flow steps</SettingDescription>
+							</SettingLabel>
+							<Toggle
+								$active={settings.autoAdvanceSteps}
+								onClick={() => updateSetting('autoAdvanceSteps', !settings.autoAdvanceSteps)}
+							/>
+						</SettingRow>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Collapsible Sections</SettingName>
+								<SettingDescription>Default state for expandable sections</SettingDescription>
+							</SettingLabel>
+							<Select
+								value={settings.collapsibleDefaultState}
+								onChange={(e) =>
+									updateSetting(
+										'collapsibleDefaultState',
+										e.target.value as 'collapsed' | 'expanded'
+									)
+								}
+							>
+								<option value="collapsed">Collapsed</option>
+								<option value="expanded">Expanded</option>
+							</Select>
+						</SettingRow>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Show Request/Response Details</SettingName>
+								<SettingDescription>Display detailed HTTP information</SettingDescription>
+							</SettingLabel>
+							<Toggle
+								$active={settings.showRequestResponseDetails}
+								onClick={() =>
+									updateSetting('showRequestResponseDetails', !settings.showRequestResponseDetails)
+								}
+							/>
+						</SettingRow>
+					</Section>
+
+					{/* Developer Settings */}
+					<Section>
+						<SectionTitle>
+							<FiCode />
+							Developer
+						</SectionTitle>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Console Logging Level</SettingName>
+								<SettingDescription>Amount of debug information logged</SettingDescription>
+							</SettingLabel>
+							<Select
+								value={settings.consoleLoggingLevel}
+								onChange={(e) =>
+									updateSetting(
+										'consoleLoggingLevel',
+										e.target.value as 'minimal' | 'normal' | 'verbose'
+									)
+								}
+							>
+								<option value="minimal">Minimal</option>
+								<option value="normal">Normal</option>
+								<option value="verbose">Verbose</option>
+							</Select>
+						</SettingRow>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Error Detail Level</SettingName>
+								<SettingDescription>How much error information to show</SettingDescription>
+							</SettingLabel>
+							<Select
+								value={settings.errorDetailLevel}
+								onChange={(e) =>
+									updateSetting('errorDetailLevel', e.target.value as 'basic' | 'detailed')
+								}
+							>
+								<option value="basic">Basic</option>
+								<option value="detailed">Detailed</option>
+							</Select>
+						</SettingRow>
+
+						<SettingRow>
+							<SettingLabel>
+								<SettingName>Copy Button Behavior</SettingName>
+								<SettingDescription>Show confirmation when copying text</SettingDescription>
+							</SettingLabel>
+							<Select
+								value={settings.copyButtonBehavior}
+								onChange={(e) =>
+									updateSetting('copyButtonBehavior', e.target.value as 'confirmation' | 'silent')
+								}
+							>
+								<option value="confirmation">Show Confirmation</option>
+								<option value="silent">Silent</option>
+							</Select>
+						</SettingRow>
+					</Section>
+				</ModalBody>
+
+				<ModalFooter>
+					<SaveStatus>
+						{saveStatus === 'saving' && 'Saving settings...'}
+						{saveStatus === 'saved' && 'Settings saved successfully!'}
+						{saveStatus === 'idle' && 'Settings are automatically saved'}
+					</SaveStatus>
+					<SaveButton
+						onClick={handleSave}
+						className={saveStatus === 'saved' ? 'saved' : ''}
+						disabled={saveStatus === 'saving'}
+					>
+						<FiCheck />
+						{saveStatus === 'saving'
+							? 'Saving...'
+							: saveStatus === 'saved'
+								? 'Saved!'
+								: 'Save Settings'}
+					</SaveButton>
+				</ModalFooter>
+			</ModalContent>
+		</ModalOverlay>
+	);
 };
 
 export default UISettingsModal;

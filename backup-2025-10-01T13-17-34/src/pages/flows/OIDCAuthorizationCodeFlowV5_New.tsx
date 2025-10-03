@@ -1101,7 +1101,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			await controller.fetchUserInfo();
 			v4ToastManager.showSuccess('User info fetched successfully!');
 		} catch (error) {
-			v4ToastManager.showError('Failed to fetch user info: ' + (error instanceof Error ? error.message : 'Unknown error'));
+			v4ToastManager.showError(
+				'Failed to fetch user info: ' + (error instanceof Error ? error.message : 'Unknown error')
+			);
 		} finally {
 			setIsFetchingUserInfo(false);
 		}
@@ -1198,48 +1200,55 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-	const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-	const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
+			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+			const tokenAuthMethod = credentials.clientAuthMethod || 'client_secret_post';
 
-	const requestBody: any = {
-		token: token,
-		client_id: credentials.clientId,
-		introspection_endpoint: introspectionEndpoint,
-		token_auth_method: tokenAuthMethod,
-	};
+			const requestBody: any = {
+				token: token,
+				client_id: credentials.clientId,
+				introspection_endpoint: introspectionEndpoint,
+				token_auth_method: tokenAuthMethod,
+			};
 
-	// Handle JWT-based authentication methods
-	if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
-		try {
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
-			const baseParams = new URLSearchParams();
-			
-			const authResult = await applyClientAuthentication({
-				method: tokenAuthMethod as any,
-				clientId: credentials.clientId,
-				clientSecret: tokenAuthMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
-				privateKey: tokenAuthMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
-				keyId: credentials.keyId,
-				tokenEndpoint,
-			}, baseParams);
-			
-			requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
-			requestBody.client_assertion = authResult.body.get('client_assertion');
-		} catch (error) {
-			throw new Error(`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
-		}
-	} else if (tokenAuthMethod !== 'none') {
-		// For client_secret_basic and client_secret_post
-		requestBody.client_secret = credentials.clientSecret;
-	}
+			// Handle JWT-based authentication methods
+			if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
+				try {
+					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					const baseParams = new URLSearchParams();
 
-	const response = await fetch('/api/introspect-token', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(requestBody),
-	});
+					const authResult = await applyClientAuthentication(
+						{
+							method: tokenAuthMethod as any,
+							clientId: credentials.clientId,
+							clientSecret:
+								tokenAuthMethod === 'client_secret_jwt' ? credentials.clientSecret : undefined,
+							privateKey:
+								tokenAuthMethod === 'private_key_jwt' ? credentials.privateKey : undefined,
+							keyId: credentials.keyId,
+							tokenEndpoint,
+						},
+						baseParams
+					);
+
+					requestBody.client_assertion_type = authResult.body.get('client_assertion_type');
+					requestBody.client_assertion = authResult.body.get('client_assertion');
+				} catch (error) {
+					throw new Error(
+						`JWT generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+					);
+				}
+			} else if (tokenAuthMethod !== 'none') {
+				// For client_secret_basic and client_secret_post
+				requestBody.client_secret = credentials.clientSecret;
+			}
+
+			const response = await fetch('/api/introspect-token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(requestBody),
+			});
 
 			const data = await response.json();
 
@@ -1441,23 +1450,33 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Purpose</ParameterLabel>
-												<ParameterValue>Authentication (user identity) + Authorization (API access)</ParameterValue>
+												<ParameterValue>
+													Authentication (user identity) + Authorization (API access)
+												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Spec Layer</ParameterLabel>
-												<ParameterValue>Defined in OpenID Connect (built on OAuth 2.0)</ParameterValue>
+												<ParameterValue>
+													Defined in OpenID Connect (built on OAuth 2.0)
+												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Scope Requirement</ParameterLabel>
-												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>Must include 'openid'</ParameterValue>
+												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+													Must include 'openid'
+												</ParameterValue>
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Use Case</ParameterLabel>
-												<ParameterValue>User authentication + API access (full OIDC with identity claims)</ParameterValue>
+												<ParameterValue>
+													User authentication + API access (full OIDC with identity claims)
+												</ParameterValue>
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>ID Token Validation</ParameterLabel>
-												<ParameterValue>Validate locally (issuer, audience, signature, nonce if present)</ParameterValue>
+												<ParameterValue>
+													Validate locally (issuer, audience, signature, nonce if present)
+												</ParameterValue>
 											</div>
 										</ParameterGrid>
 									</GeneratedContentBox>
@@ -2609,37 +2628,37 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				);
 
 			case 6:
-			return (
-				<TokenIntrospect
-					flowName="OpenID Connect Authorization Code Flow"
-					flowVersion="V5.1"
-					tokens={controller.tokens as any}
-					credentials={controller.credentials as any}
-					userInfo={userInfo}
-					onFetchUserInfo={handleFetchUserInfo}
-					isFetchingUserInfo={isFetchingUserInfo}
-					onResetFlow={handleResetFlow}
-					onNavigateToTokenManagement={navigateToTokenManagement}
-					onIntrospectToken={handleIntrospectToken}
-					collapsedSections={{
-						completionOverview: collapsedSections.completionOverview,
-						completionDetails: collapsedSections.completionDetails,
-						introspectionDetails: collapsedSections.introspectionDetails,
-						rawJson: false, // Show raw JSON expanded by default
-					}}
-					onToggleSection={(section) => {
-						if (section === 'completionOverview' || section === 'completionDetails') {
-							toggleSection(section as IntroSectionKey);
-						}
-					}}
-					completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
-					nextSteps={[
-						'Inspect or decode tokens using the Token Management tools.',
-						'Repeat the flow with different scopes or redirect URIs.',
-						'Explore refresh tokens and introspection flows.',
-					]}
-				/>
-			);
+				return (
+					<TokenIntrospect
+						flowName="OpenID Connect Authorization Code Flow"
+						flowVersion="V5.1"
+						tokens={controller.tokens as any}
+						credentials={controller.credentials as any}
+						userInfo={userInfo}
+						onFetchUserInfo={handleFetchUserInfo}
+						isFetchingUserInfo={isFetchingUserInfo}
+						onResetFlow={handleResetFlow}
+						onNavigateToTokenManagement={navigateToTokenManagement}
+						onIntrospectToken={handleIntrospectToken}
+						collapsedSections={{
+							completionOverview: collapsedSections.completionOverview,
+							completionDetails: collapsedSections.completionDetails,
+							introspectionDetails: collapsedSections.introspectionDetails,
+							rawJson: false, // Show raw JSON expanded by default
+						}}
+						onToggleSection={(section) => {
+							if (section === 'completionOverview' || section === 'completionDetails') {
+								toggleSection(section as IntroSectionKey);
+							}
+						}}
+						completionMessage="Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE and ID Token using reusable V5.1 components."
+						nextSteps={[
+							'Inspect or decode tokens using the Token Management tools.',
+							'Repeat the flow with different scopes or redirect URIs.',
+							'Explore refresh tokens and introspection flows.',
+						]}
+					/>
+				);
 
 			case 7:
 				return (
@@ -2736,14 +2755,14 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				<HeaderSection>
 					<MainTitle>OpenID Connect Authorization Code Flow (V5.1)</MainTitle>
 					<Subtitle>
-						Experience the full OIDC Authorization Code Flow with PKCE and ID Token support, powered by the reusable
-						V5.1 controller architecture.
+						Experience the full OIDC Authorization Code Flow with PKCE and ID Token support, powered
+						by the reusable V5.1 controller architecture.
 					</Subtitle>
-			</HeaderSection>
+				</HeaderSection>
 
-			<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
+				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 
-			<MainCard>
+				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>OIDC Authorization Code Flow · V5.1</VersionBadge>

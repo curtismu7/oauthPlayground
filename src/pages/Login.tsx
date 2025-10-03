@@ -513,7 +513,11 @@ const Login = () => {
 				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
 				logoutEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/signoff`,
 				parEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/par`,
-				tokenAuthMethod: (credentials.tokenAuthMethod || 'client_secret_basic') as 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt',
+				tokenAuthMethod: (credentials.tokenAuthMethod || 'client_secret_basic') as
+					| 'client_secret_basic'
+					| 'client_secret_post'
+					| 'client_secret_jwt'
+					| 'private_key_jwt',
 			};
 
 			pingOneConfigService.saveConfig(configToSave);
@@ -651,13 +655,15 @@ const Login = () => {
 					<FlowHeader flowId="login" />
 
 					{/* Version Badge */}
-					<div style={{ 
-						marginTop: '1.5rem',
-						marginBottom: '1.5rem',
-						textAlign: 'center',
-						color: '#6c757d',
-						fontSize: '0.875rem'
-					}}>
+					<div
+						style={{
+							marginTop: '1.5rem',
+							marginBottom: '1.5rem',
+							textAlign: 'center',
+							color: '#6c757d',
+							fontSize: '0.875rem',
+						}}
+					>
 						Version {packageJson.version}
 					</div>
 

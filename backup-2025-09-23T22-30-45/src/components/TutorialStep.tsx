@@ -3,23 +3,23 @@ import styled from 'styled-components';
 import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCode, FiEye, FiPlay } from 'react-icons/fi';
 
 interface TutorialStepProps {
-  stepNumber: number;
-  title: string;
-  description: string;
-  codeExample?: string;
-  completed?: boolean;
-  onToggle?: () => void;
-  children?: React.ReactNode;
-  actionButton?: {
-    label: string;
-    onClick: () => void;
-    icon?: React.ReactNode;
-  };
+	stepNumber: number;
+	title: string;
+	description: string;
+	codeExample?: string;
+	completed?: boolean;
+	onToggle?: () => void;
+	children?: React.ReactNode;
+	actionButton?: {
+		label: string;
+		onClick: () => void;
+		icon?: React.ReactNode;
+	};
 }
 
 const StepContainer = styled.div<{ $completed?: boolean }>`
-  border: 2px solid ${({ $completed, theme }) => 
-    $completed ? theme.colors.success : theme.colors.gray300};
+  border: 2px solid ${({ $completed, theme }) =>
+		$completed ? theme.colors.success : theme.colors.gray300};
   border-radius: 0.75rem;
   background: white;
   margin-bottom: 1.5rem;
@@ -35,12 +35,12 @@ const StepHeader = styled.div<{ $clickable?: boolean }>`
   padding: 1.5rem;
   display: flex;
   align-items: center;
-  cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+  cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
   border-bottom: 1px solid ${({ theme }) => theme.colors.gray200};
 
   &:hover {
-    background-color: ${({ $clickable, theme }) => 
-      $clickable ? theme.colors.gray50 : 'transparent'};
+    background-color: ${({ $clickable, theme }) =>
+			$clickable ? theme.colors.gray50 : 'transparent'};
   }
 `;
 
@@ -48,8 +48,8 @@ const StepNumber = styled.div<{ $completed?: boolean }>`
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 50%;
-  background-color: ${({ $completed, theme }) => 
-    $completed ? theme.colors.success : theme.colors.primary};
+  background-color: ${({ $completed, theme }) =>
+		$completed ? theme.colors.success : theme.colors.primary};
   color: white;
   display: flex;
   align-items: center;
@@ -141,66 +141,67 @@ const CodeBlock = styled.pre`
 `;
 
 const TutorialStep: React.FC<TutorialStepProps> = ({
-  stepNumber,
-  title,
-  description,
-  codeExample,
-  completed = false,
-  onToggle,
-  children,
-  actionButton
+	stepNumber,
+	title,
+	description,
+	codeExample,
+	completed = false,
+	onToggle,
+	children,
+	actionButton,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+	const [isExpanded, setIsExpanded] = useState(false);
 
-  const hasExpandableContent = children || codeExample;
+	const hasExpandableContent = children || codeExample;
 
-  return (
-    <StepContainer $completed={completed}>
-      <StepHeader 
-        $clickable={hasExpandableContent}
-        onClick={hasExpandableContent ? () => setIsExpanded(!isExpanded) : undefined}
-      >
-        <StepNumber $completed={completed}>
-          {completed ? <FiCheckCircle size={16} /> : stepNumber}
-        </StepNumber>
-        
-        <StepContent>
-          <h3>{title}</h3>
-          <p>{description}</p>
-        </StepContent>
+	return (
+		<StepContainer $completed={completed}>
+			<StepHeader
+				$clickable={hasExpandableContent}
+				onClick={hasExpandableContent ? () => setIsExpanded(!isExpanded) : undefined}
+			>
+				<StepNumber $completed={completed}>
+					{completed ? <FiCheckCircle size={16} /> : stepNumber}
+				</StepNumber>
 
-        <StepActions>
-          {actionButton && (
-            <ActionButton onClick={(e) => {
-              e.stopPropagation();
-              actionButton.onClick();
-            }}>
-              {actionButton.icon}
-              {actionButton.label}
-            </ActionButton>
-          )}
-          
-          {hasExpandableContent && (
-            <ExpandButton>
-              {isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
-            </ExpandButton>
-          )}
-        </StepActions>
-      </StepHeader>
+				<StepContent>
+					<h3>{title}</h3>
+					<p>{description}</p>
+				</StepContent>
 
-      {isExpanded && hasExpandableContent && (
-        <StepBody>
-          {children}
-          {codeExample && (
-            <CodeBlock>
-              <code>{codeExample}</code>
-            </CodeBlock>
-          )}
-        </StepBody>
-      )}
-    </StepContainer>
-  );
+				<StepActions>
+					{actionButton && (
+						<ActionButton
+							onClick={(e) => {
+								e.stopPropagation();
+								actionButton.onClick();
+							}}
+						>
+							{actionButton.icon}
+							{actionButton.label}
+						</ActionButton>
+					)}
+
+					{hasExpandableContent && (
+						<ExpandButton>
+							{isExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+						</ExpandButton>
+					)}
+				</StepActions>
+			</StepHeader>
+
+			{isExpanded && hasExpandableContent && (
+				<StepBody>
+					{children}
+					{codeExample && (
+						<CodeBlock>
+							<code>{codeExample}</code>
+						</CodeBlock>
+					)}
+				</StepBody>
+			)}
+		</StepContainer>
+	);
 };
 
 export default TutorialStep;
-

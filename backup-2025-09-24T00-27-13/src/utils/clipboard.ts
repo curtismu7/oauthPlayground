@@ -5,10 +5,10 @@
  * @param label - Label for the copied item
  */
 const showCopySuccess = (label: string) => {
-  // Create a temporary success message
-  const successMsg = document.createElement('div');
-  successMsg.textContent = `✅ ${label} copied to clipboard!`;
-  successMsg.style.cssText = `
+	// Create a temporary success message
+	const successMsg = document.createElement('div');
+	successMsg.textContent = `✅ ${label} copied to clipboard!`;
+	successMsg.style.cssText = `
     position: fixed;
     top: 20px;
     right: 20px;
@@ -22,12 +22,12 @@ const showCopySuccess = (label: string) => {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     animation: slideInRight 0.3s ease-out;
   `;
-  
-  // Add animation keyframes if not already present
-  if (!document.getElementById('copy-feedback-styles')) {
-    const style = document.createElement('style');
-    style.id = 'copy-feedback-styles';
-    style.textContent = `
+
+	// Add animation keyframes if not already present
+	if (!document.getElementById('copy-feedback-styles')) {
+		const style = document.createElement('style');
+		style.id = 'copy-feedback-styles';
+		style.textContent = `
       @keyframes slideInRight {
         from { transform: translateX(100%); opacity: 0; }
         to { transform: translateX(0); opacity: 1; }
@@ -37,20 +37,20 @@ const showCopySuccess = (label: string) => {
         to { transform: translateX(100%); opacity: 0; }
       }
     `;
-    document.head.appendChild(style);
-  }
-  
-  document.body.appendChild(successMsg);
-  
-  // Remove after 3 seconds with fade out
-  setTimeout(() => {
-    successMsg.style.animation = 'slideOutRight 0.3s ease-in';
-    setTimeout(() => {
-      if (successMsg.parentNode) {
-        successMsg.parentNode.removeChild(successMsg);
-      }
-    }, 300);
-  }, 3000);
+		document.head.appendChild(style);
+	}
+
+	document.body.appendChild(successMsg);
+
+	// Remove after 3 seconds with fade out
+	setTimeout(() => {
+		successMsg.style.animation = 'slideOutRight 0.3s ease-in';
+		setTimeout(() => {
+			if (successMsg.parentNode) {
+				successMsg.parentNode.removeChild(successMsg);
+			}
+		}, 300);
+	}, 3000);
 };
 
 /**
@@ -59,36 +59,36 @@ const showCopySuccess = (label: string) => {
  * @param label - Label for user feedback (optional)
  */
 export const copyToClipboard = async (text: string, label?: string): Promise<void> => {
-  try {
-    await navigator.clipboard.writeText(text);
-    console.log(`✅ [Clipboard] Copied ${label || 'text'} to clipboard`);
-    
-    // Show visual success feedback
-    const labelText = label || 'Text';
-    showCopySuccess(labelText);
-  } catch (error) {
-    console.error('❌ [Clipboard] Failed to copy to clipboard:', error);
-    
-    // Fallback for older browsers
-    try {
-      const textArea = document.createElement('textarea');
-      textArea.value = text;
-      textArea.style.position = 'fixed';
-      textArea.style.left = '-999999px';
-      textArea.style.top = '-999999px';
-      document.body.appendChild(textArea);
-      textArea.focus();
-      textArea.select();
-      document.execCommand('copy');
-      textArea.remove();
-      
-      console.log(`✅ [Clipboard] Copied ${label || 'text'} using fallback method`);
-      showCopySuccess(label || 'Text');
-    } catch (fallbackError) {
-      console.error('❌ [Clipboard] Fallback copy failed:', fallbackError);
-      throw new Error(`Failed to copy ${label || 'text'} to clipboard`);
-    }
-  }
+	try {
+		await navigator.clipboard.writeText(text);
+		console.log(`✅ [Clipboard] Copied ${label || 'text'} to clipboard`);
+
+		// Show visual success feedback
+		const labelText = label || 'Text';
+		showCopySuccess(labelText);
+	} catch (error) {
+		console.error('❌ [Clipboard] Failed to copy to clipboard:', error);
+
+		// Fallback for older browsers
+		try {
+			const textArea = document.createElement('textarea');
+			textArea.value = text;
+			textArea.style.position = 'fixed';
+			textArea.style.left = '-999999px';
+			textArea.style.top = '-999999px';
+			document.body.appendChild(textArea);
+			textArea.focus();
+			textArea.select();
+			document.execCommand('copy');
+			textArea.remove();
+
+			console.log(`✅ [Clipboard] Copied ${label || 'text'} using fallback method`);
+			showCopySuccess(label || 'Text');
+		} catch (fallbackError) {
+			console.error('❌ [Clipboard] Fallback copy failed:', fallbackError);
+			throw new Error(`Failed to copy ${label || 'text'} to clipboard`);
+		}
+	}
 };
 
 export default { copyToClipboard };

@@ -148,7 +148,12 @@ const StepDescription = styled.div`
 	line-height: 1.5;
 `;
 
-export const FlowWalkthrough = ({ title, steps, icon, defaultCollapsed = false }: FlowWalkthroughProps) => {
+export const FlowWalkthrough = ({
+	title,
+	steps,
+	icon,
+	defaultCollapsed = false,
+}: FlowWalkthroughProps) => {
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
 	const toggleCollapsed = () => {

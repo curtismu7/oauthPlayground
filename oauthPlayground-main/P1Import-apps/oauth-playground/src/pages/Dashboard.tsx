@@ -63,90 +63,98 @@ const FeatureCard = styled(Card)`
 `;
 
 const Dashboard = () => {
-  const { isAuthenticated } = useAuth();
+	const { isAuthenticated } = useAuth();
 
-  const features = [
-    {
-      icon: <FiCode />,
-      title: 'OAuth 2.0 Flows',
-      description: 'Explore different OAuth 2.0 authorization flows including Authorization Code, Implicit, Client Credentials, and more.',
-      link: '/flows',
-    },
-    {
-      icon: <FiUser />,
-      title: 'OpenID Connect',
-      description: 'Learn about OpenID Connect and how it extends OAuth 2.0 with authentication and identity features.',
-      link: '/oidc',
-    },
-    {
-      icon: <FiLock />,
-      title: 'Security Features',
-      description: 'Understand security best practices including PKCE, state parameters, and token validation.',
-      link: '/security',
-    },
-  ];
+	const features = [
+		{
+			icon: <FiCode />,
+			title: 'OAuth 2.0 Flows',
+			description:
+				'Explore different OAuth 2.0 authorization flows including Authorization Code, Implicit, Client Credentials, and more.',
+			link: '/flows',
+		},
+		{
+			icon: <FiUser />,
+			title: 'OpenID Connect',
+			description:
+				'Learn about OpenID Connect and how it extends OAuth 2.0 with authentication and identity features.',
+			link: '/oidc',
+		},
+		{
+			icon: <FiLock />,
+			title: 'Security Features',
+			description:
+				'Understand security best practices including PKCE, state parameters, and token validation.',
+			link: '/security',
+		},
+	];
 
-  return (
-    <DashboardContainer>
-      <PageHeader>
-        <h1>PingOne OAuth 2.0 & OIDC Playground</h1>
-        <p>Learn, test, and master OAuth 2.0 and OpenID Connect with interactive examples</p>
-      </PageHeader>
+	return (
+		<DashboardContainer>
+			<PageHeader>
+				<h1>PingOne OAuth 2.0 & OIDC Playground</h1>
+				<p>Learn, test, and master OAuth 2.0 and OpenID Connect with interactive examples</p>
+			</PageHeader>
 
-      {!isAuthenticated && (
-        <Card accent="info" className="mb-6">
-          <CardBody>
-            <div className="flex items-start">
-              <FiInfo className="text-blue-500 text-xl mt-0.5 mr-3 flex-shrink-0" />
-              <div>
-                <h3 className="font-medium text-gray-900">Get Started</h3>
-                <p className="mt-1 text-sm text-gray-600">
-                  To begin exploring the OAuth 2.0 and OpenID Connect flows, please configure your PingOne environment in the settings.
-                </p>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
-      )}
+			{!isAuthenticated && (
+				<Card accent="info" className="mb-6">
+					<CardBody>
+						<div className="flex items-start">
+							<FiInfo className="text-blue-500 text-xl mt-0.5 mr-3 flex-shrink-0" />
+							<div>
+								<h3 className="font-medium text-gray-900">Get Started</h3>
+								<p className="mt-1 text-sm text-gray-600">
+									To begin exploring the OAuth 2.0 and OpenID Connect flows, please configure your
+									PingOne environment in the settings.
+								</p>
+							</div>
+						</div>
+					</CardBody>
+				</Card>
+			)}
 
-      <h2 className="text-xl font-semibold mb-4">Available Features</h2>
-      <Grid>
-        {features.map((feature, index) => (
-          <FeatureCard key={index}>
-            <CardBody className="flex flex-col h-full">
-              {feature.icon}
-              <h3>{feature.title}</h3>
-              <p>{feature.description}</p>
-              <a 
-                href={feature.link}
-                className="mt-auto inline-flex items-center text-sm font-medium text-primary hover:text-primary-dark"
-              >
-                Learn more
-                <svg className="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </a>
-            </CardBody>
-          </FeatureCard>
-        ))}
-      </Grid>
+			<h2 className="text-xl font-semibold mb-4">Available Features</h2>
+			<Grid>
+				{features.map((feature, index) => (
+					<FeatureCard key={index}>
+						<CardBody className="flex flex-col h-full">
+							{feature.icon}
+							<h3>{feature.title}</h3>
+							<p>{feature.description}</p>
+							<a
+								href={feature.link}
+								className="mt-auto inline-flex items-center text-sm font-medium text-primary hover:text-primary-dark"
+							>
+								Learn more
+								<svg className="ml-1 w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+									<path
+										fillRule="evenodd"
+										d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z"
+										clipRule="evenodd"
+									/>
+								</svg>
+							</a>
+						</CardBody>
+					</FeatureCard>
+				))}
+			</Grid>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Getting Started</h2>
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="p-6">
-            <ol className="list-decimal pl-5 space-y-3">
-              <li>Configure your PingOne environment in the Settings page</li>
-              <li>Select an OAuth 2.0 flow from the navigation menu</li>
-              <li>Follow the interactive guide to understand each step of the flow</li>
-              <li>Inspect the requests and responses in real-time</li>
-              <li>Review the documentation for detailed explanations</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </DashboardContainer>
-  );
+			<div className="mt-8">
+				<h2 className="text-xl font-semibold mb-4">Getting Started</h2>
+				<div className="bg-white rounded-lg shadow overflow-hidden">
+					<div className="p-6">
+						<ol className="list-decimal pl-5 space-y-3">
+							<li>Configure your PingOne environment in the Settings page</li>
+							<li>Select an OAuth 2.0 flow from the navigation menu</li>
+							<li>Follow the interactive guide to understand each step of the flow</li>
+							<li>Inspect the requests and responses in real-time</li>
+							<li>Review the documentation for detailed explanations</li>
+						</ol>
+					</div>
+				</div>
+			</div>
+		</DashboardContainer>
+	);
 };
 
 export default Dashboard;

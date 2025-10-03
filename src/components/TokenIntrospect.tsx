@@ -752,7 +752,9 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 										<UserInfoGrid>
 											{Object.entries(userInfo).map(([key, value]) => (
 												<UserInfoRow key={key}>
-													<ParameterLabel style={{ textTransform: 'uppercase', fontSize: '0.75rem' }}>
+													<ParameterLabel
+														style={{ textTransform: 'uppercase', fontSize: '0.75rem' }}
+													>
 														{key}
 													</ParameterLabel>
 													<ParameterValue>

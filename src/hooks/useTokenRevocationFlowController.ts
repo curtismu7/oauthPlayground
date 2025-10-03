@@ -47,7 +47,7 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 	const [error, setError] = useState<string | null>(null);
 
 	const updateCredentials = useCallback((newCredentials: Partial<TokenRevocationConfig>) => {
-		setCredentials(prev => ({ ...prev, ...newCredentials }));
+		setCredentials((prev) => ({ ...prev, ...newCredentials }));
 	}, []);
 
 	const revokeToken = useCallback(async (): Promise<TokenRevocationResult> => {
@@ -63,7 +63,8 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 		setError(null);
 
 		try {
-			const tokenEndpoint = credentials.tokenEndpoint || 
+			const tokenEndpoint =
+				credentials.tokenEndpoint ||
 				`https://auth.pingone.com/${credentials.environmentId}/as/revoke`;
 
 			const revokedTokens: string[] = [];
@@ -74,7 +75,7 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
-						'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+						Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
 					},
 					body: new URLSearchParams({
 						token: credentials.accessToken,
@@ -93,7 +94,7 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
-						'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+						Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
 					},
 					body: new URLSearchParams({
 						token: credentials.refreshToken,
@@ -115,7 +116,6 @@ export const useTokenRevocationFlowController = (): UseTokenRevocationFlowContro
 			setTokens(result);
 			console.log(`${LOG_PREFIX} [SUCCESS] Token revocation completed:`, result);
 			return result;
-
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Token revocation failed';
 			setError(errorMessage);

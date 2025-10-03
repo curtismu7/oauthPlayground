@@ -144,12 +144,12 @@ const HybridCallback: React.FC = () => {
 					// Check which version of hybrid flow is active
 					const isV5Flow = sessionStorage.getItem('oidc-hybrid-v5-flow-active');
 					const targetRoute = isV5Flow ? '/flows/hybrid-v5' : '/flows/oidc-hybrid-v3';
-					
+
 					// Clean up flow-active flag
 					if (isV5Flow) {
 						sessionStorage.removeItem('oidc-hybrid-v5-flow-active');
 					}
-					
+
 					// Redirect to the appropriate hybrid flow page
 					setTimeout(() => {
 						navigate(targetRoute);
@@ -178,12 +178,12 @@ const HybridCallback: React.FC = () => {
 					// Check which version of hybrid flow is active
 					const isV5Flow = sessionStorage.getItem('oidc-hybrid-v5-flow-active');
 					const targetRoute = isV5Flow ? '/flows/hybrid-v5' : '/flows/oidc-hybrid-v3';
-					
+
 					// Clean up flow-active flag
 					if (isV5Flow) {
 						sessionStorage.removeItem('oidc-hybrid-v5-flow-active');
 					}
-					
+
 					// Redirect to the appropriate hybrid flow page
 					setTimeout(() => {
 						navigate(targetRoute);

@@ -1,23 +1,18 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
 import {
-	Sidebar as ProSidebar,
-	Menu,
-	MenuItem,
-	SubMenu,
-} from 'react-pro-sidebar';
-import {
-	FiHome,
-	FiSettings,
-	FiShield,
 	FiBookOpen,
 	FiCpu,
-	FiUser,
-	FiKey,
-	FiTool,
 	FiFileText,
+	FiHome,
+	FiKey,
+	FiSettings,
+	FiShield,
+	FiTool,
+	FiUser,
 	FiX,
 } from 'react-icons/fi';
+import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
+import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
 interface SidebarProps {
@@ -36,7 +31,7 @@ const SidebarContainer = styled.div<{ $isOpen: boolean; $width: number }>`
 	transition: transform 0.3s ease;
 
 	@media (min-width: 768px) {
-		position: relative;
+		position: fixed;
 		transform: none;
 	}
 
@@ -174,7 +169,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
 			if (!isResizing.current) return;
-			
+
 			const newWidth = e.clientX;
 			if (newWidth >= 250 && newWidth <= 500) {
 				setSidebarWidth(newWidth);
@@ -229,11 +224,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					}}
 				>
 					{/* Overview Section */}
-					<SubMenu
-						label="Overview"
-						icon={<FiBookOpen />}
-						defaultOpen={true}
-					>
+					<SubMenu label="Overview" icon={<FiBookOpen />} defaultOpen={true}>
 						<MenuItem
 							icon={<FiHome />}
 							active={isActive('/dashboard')}
@@ -286,11 +277,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</SubMenu>
 
 					{/* OAuth 2.0 Flows */}
-					<SubMenu
-						label="OAuth 2.0 Flows"
-						icon={<FiShield />}
-						defaultOpen={true}
-					>
+					<SubMenu label="OAuth 2.0 Flows" icon={<FiShield />} defaultOpen={true}>
 						<MenuItem
 							active={isActive('/flows/oauth-authorization-code-v5')}
 							onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
@@ -321,14 +308,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							Client Credentials (V5)
 						</MenuItem>
+						<MenuItem
+							active={isActive('/flows/jwt-bearer-v5')}
+							onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
+						>
+							JWT Bearer Token (V5)
+						</MenuItem>
 					</SubMenu>
 
 					{/* OpenID Connect */}
-					<SubMenu
-						label="OpenID Connect"
-						icon={<FiUser />}
-						defaultOpen={true}
-					>
+					<SubMenu label="OpenID Connect" icon={<FiUser />} defaultOpen={true}>
 						<MenuItem
 							active={isActive('/flows/oidc-authorization-code-v5')}
 							onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
@@ -353,26 +342,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							Hybrid Flow (V5)
 						</MenuItem>
-						<MenuItem
+						{/* V3 Hybrid Flow - Hidden, use V5 instead */}
+						{/* <MenuItem
 							active={isActive('/flows/oidc-hybrid-v3')}
 							onClick={() => handleNavigation('/flows/oidc-hybrid-v3')}
 						>
 							Hybrid Flow (V3)
-						</MenuItem>
-						<MenuItem
-							active={isActive('/flows/oidc-client-credentials-v5')}
-							onClick={() => handleNavigation('/flows/oidc-client-credentials-v5')}
-						>
-							Client Credentials (V5)
-						</MenuItem>
+						</MenuItem> */}
 					</SubMenu>
 
 					{/* PingOne Flows */}
-					<SubMenu
-						label="PingOne Flows"
-						icon={<FiKey />}
-						defaultOpen={false}
-					>
+					<SubMenu label="PingOne Flows" icon={<FiKey />} defaultOpen={false}>
 						<MenuItem
 							active={isActive('/flows/worker-token-v5')}
 							onClick={() => handleNavigation('/flows/worker-token-v5')}
@@ -400,11 +380,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</SubMenu>
 
 					{/* Resources */}
-					<SubMenu
-						label="Resources"
-						icon={<FiTool />}
-						defaultOpen={false}
-					>
+					<SubMenu label="Resources" icon={<FiTool />} defaultOpen={false}>
 						<MenuItem
 							active={isActive('/token-management')}
 							onClick={() => handleNavigation('/token-management')}
@@ -426,11 +402,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</SubMenu>
 
 					{/* Documentation */}
-					<SubMenu
-						label="Documentation"
-						icon={<FiFileText />}
-						defaultOpen={false}
-					>
+					<SubMenu label="Documentation" icon={<FiFileText />} defaultOpen={false}>
 						<MenuItem
 							active={isActive('/documentation')}
 							onClick={() => handleNavigation('/documentation')}
@@ -457,7 +429,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</MenuItem>
 						<MenuItem
 							onClick={() => {
-								window.open('https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2', '_blank');
+								window.open(
+									'https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2',
+									'_blank'
+								);
 								onClose();
 							}}
 						>
