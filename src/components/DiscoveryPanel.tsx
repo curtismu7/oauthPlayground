@@ -4,6 +4,8 @@ import {
 	FiAlertCircle,
 	FiCheck,
 	FiCheckCircle,
+	FiCode,
+	FiEye,
 	FiGlobe,
 	FiRefreshCw,
 	FiSearch,
@@ -131,38 +133,47 @@ const Select = styled.select`
   }
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small' | 'normal' }>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   border: none;
 
-  ${({ variant = 'primary' }) =>
-		variant === 'primary'
-			? `
-    background: #3b82f6;
-    color: white;
+  ${({ variant = 'primary', size = 'normal' }) => `
+    ${size === 'small' ? `
+      padding: 0.375rem 0.75rem;
+      font-size: 0.75rem;
+    ` : `
+      padding: 0.75rem 1.5rem;
+      font-size: 0.875rem;
+    `}
 
-    &:hover:not(:disabled) {
-      background: #2563eb;
-    }
-  `
-			: `
-    background: transparent;
-    color: #6b7280;
-    border: 1px solid #d1d5db;
+    ${variant === 'primary' ? `
+      background: #3b82f6;
+      color: white;
 
-    &:hover:not(:disabled) {
-      background: #f9fafb;
+      &:hover:not(:disabled) {
+        background: #2563eb;
+        transform: translateY(-1px);
+      }
+    ` : `
+      background: #f3f4f6;
       color: #374151;
-    }
+      border: 1px solid #d1d5db;
+
+      &:hover:not(:disabled) {
+        background: #e5e7eb;
+      }
+    `}
   `}
+
+  &:active {
+    transform: translateY(0);
+  }
 
   &:disabled {
     opacity: 0.5;
@@ -241,18 +252,53 @@ const ConfigValue = styled.div`
 `;
 
 const CopyButton = styled.button`
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  color: #6b7280;
-  transition: all 0.2s;
+	background: none;
+	border: none;
+	cursor: pointer;
+	padding: 0.25rem;
+	border-radius: 0.25rem;
+	color: #6b7280;
+	transition: all 0.2s;
 
-  &:hover {
-    background: #f3f4f6;
-    color: #374151;
-  }
+	&:hover {
+		background: #f3f4f6;
+		color: #374151;
+	}
+`;
+
+const JsonDisplay = styled.pre`
+	background: #1e293b;
+	color: #e2e8f0;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	overflow-x: auto;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	margin: 0;
+	max-height: 400px;
+	overflow-y: auto;
+
+	/* JSON syntax highlighting */
+	.hljs-string {
+		color: #a3d977;
+	}
+
+	.hljs-number {
+		color: #f39c12;
+	}
+
+	.hljs-boolean {
+		color: #f39c12;
+	}
+
+	.hljs-null {
+		color: #f39c12;
+	}
+
+	.hljs-key {
+		color: #60a5fa;
+	}
 `;
 
 const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscovered, onClose }) => {
@@ -267,7 +313,9 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 		message: string;
 	} | null>(null);
 	const [discoveredConfig, setDiscoveredConfig] = useState<OpenIDConfiguration | null>(null);
+	const [rawJsonResponse, setRawJsonResponse] = useState<string | null>(null);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [viewMode, setViewMode] = useState<'formatted' | 'json'>('formatted');
 
 	// Load stored discovery preferences when component mounts
 	useEffect(() => {
@@ -365,9 +413,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 
 			if (result.success && result.configuration) {
 				setDiscoveredConfig(result.configuration);
+				// Store the raw JSON response for display
+				setRawJsonResponse(JSON.stringify(result.configuration, null, 2));
 				setStatus({
 					type: 'success',
-					message: 'Configuration discovered successfully',
+					message: 'Configuration discovered successfully. Switch between Formatted and JSON views to see the response.',
 				});
 				v4ToastManager.showSuccess('saveConfigurationSuccess');
 				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
@@ -396,6 +446,12 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 		if (discoveredConfig) {
 			try {
 				onConfigurationDiscovered(discoveredConfig, environmentId);
+
+				// Clear the discovered config and reset view mode before closing
+				setDiscoveredConfig(null);
+				setRawJsonResponse(null);
+				setViewMode('formatted');
+
 				v4ToastManager.showSuccess('saveConfigurationSuccess');
 				onClose();
 			} catch (error) {
@@ -490,84 +546,125 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 
 					{discoveredConfig && (
 						<ConfigurationDisplay>
-							<h3
-								style={{
-									margin: '0 0 1rem 0',
-									fontSize: '1rem',
-									fontWeight: '600',
-								}}
-							>
-								Discovered Configuration
-							</h3>
-
-							<ConfigItem>
-								<ConfigLabel>Issuer</ConfigLabel>
-								<ConfigValue>
-									{discoveredConfig.issuer}
-									<CopyButton
-										onClick={() => handleCopyToClipboard(discoveredConfig.issuer, 'issuer')}
-										title="Copy Issuer"
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+								<h3
+									style={{
+										margin: '0',
+										fontSize: '1rem',
+										fontWeight: '600',
+									}}
+								>
+									Discovered Configuration
+								</h3>
+								<div style={{ display: 'flex', gap: '0.5rem' }}>
+									<Button
+										variant={viewMode === 'formatted' ? 'primary' : 'secondary'}
+										size="small"
+										onClick={() => setViewMode('formatted')}
 									>
-										{copiedField === 'issuer' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
-									</CopyButton>
-								</ConfigValue>
-							</ConfigItem>
-
-							<ConfigItem>
-								<ConfigLabel>Authorization Endpoint</ConfigLabel>
-								<ConfigValue>
-									{discoveredConfig.authorization_endpoint}
-									<CopyButton
-										onClick={() =>
-											handleCopyToClipboard(discoveredConfig.authorization_endpoint, 'auth')
-										}
-										title="Copy Authorization Endpoint"
+										<FiEye size={14} />
+										Formatted
+									</Button>
+									<Button
+										variant={viewMode === 'json' ? 'primary' : 'secondary'}
+										size="small"
+										onClick={() => setViewMode('json')}
 									>
-										{copiedField === 'auth' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
-									</CopyButton>
-								</ConfigValue>
-							</ConfigItem>
+										<FiCode size={14} />
+										JSON
+									</Button>
+								</div>
+							</div>
 
-							<ConfigItem>
-								<ConfigLabel>Token Endpoint</ConfigLabel>
-								<ConfigValue>
-									{discoveredConfig.token_endpoint}
-									<CopyButton
-										onClick={() => handleCopyToClipboard(discoveredConfig.token_endpoint, 'token')}
-										title="Copy Token Endpoint"
-									>
-										{copiedField === 'token' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
-									</CopyButton>
-								</ConfigValue>
-							</ConfigItem>
+							{viewMode === 'formatted' ? (
+								<>
+									<ConfigItem>
+										<ConfigLabel>Issuer</ConfigLabel>
+										<ConfigValue>
+											{discoveredConfig.issuer}
+											<CopyButton
+												onClick={() => handleCopyToClipboard(discoveredConfig.issuer, 'issuer')}
+												title="Copy Issuer"
+											>
+												{copiedField === 'issuer' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+											</CopyButton>
+										</ConfigValue>
+									</ConfigItem>
 
-							<ConfigItem>
-								<ConfigLabel>UserInfo Endpoint</ConfigLabel>
-								<ConfigValue>
-									{discoveredConfig.userinfo_endpoint}
-									<CopyButton
-										onClick={() =>
-											handleCopyToClipboard(discoveredConfig.userinfo_endpoint, 'userinfo')
-										}
-										title="Copy UserInfo Endpoint"
-									>
-										{copiedField === 'userinfo' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
-									</CopyButton>
-								</ConfigValue>
-							</ConfigItem>
+									<ConfigItem>
+										<ConfigLabel>Authorization Endpoint</ConfigLabel>
+										<ConfigValue>
+											{discoveredConfig.authorization_endpoint}
+											<CopyButton
+												onClick={() =>
+													handleCopyToClipboard(discoveredConfig.authorization_endpoint, 'auth')
+												}
+												title="Copy Authorization Endpoint"
+											>
+												{copiedField === 'auth' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+											</CopyButton>
+										</ConfigValue>
+									</ConfigItem>
 
-							<ConfigItem>
-								<ConfigLabel>JWKS URI</ConfigLabel>
-								<ConfigValue>
-									{discoveredConfig.jwks_uri}
-									<CopyButton
-										onClick={() => handleCopyToClipboard(discoveredConfig.jwks_uri, 'jwks')}
-										title="Copy JWKS URI"
-									>
-										{copiedField === 'jwks' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
-									</CopyButton>
-								</ConfigValue>
-							</ConfigItem>
+									<ConfigItem>
+										<ConfigLabel>Token Endpoint</ConfigLabel>
+										<ConfigValue>
+											{discoveredConfig.token_endpoint}
+											<CopyButton
+												onClick={() => handleCopyToClipboard(discoveredConfig.token_endpoint, 'token')}
+												title="Copy Token Endpoint"
+											>
+												{copiedField === 'token' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+											</CopyButton>
+										</ConfigValue>
+									</ConfigItem>
+
+									<ConfigItem>
+										<ConfigLabel>UserInfo Endpoint</ConfigLabel>
+										<ConfigValue>
+											{discoveredConfig.userinfo_endpoint}
+											<CopyButton
+												onClick={() =>
+													handleCopyToClipboard(discoveredConfig.userinfo_endpoint, 'userinfo')
+												}
+												title="Copy UserInfo Endpoint"
+											>
+												{copiedField === 'userinfo' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+											</CopyButton>
+										</ConfigValue>
+									</ConfigItem>
+
+									<ConfigItem>
+										<ConfigLabel>JWKS URI</ConfigLabel>
+										<ConfigValue>
+											{discoveredConfig.jwks_uri}
+											<CopyButton
+												onClick={() => handleCopyToClipboard(discoveredConfig.jwks_uri, 'jwks')}
+												title="Copy JWKS URI"
+											>
+												{copiedField === 'jwks' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+											</CopyButton>
+										</ConfigValue>
+									</ConfigItem>
+								</>
+							) : (
+								<div style={{ marginTop: '1rem' }}>
+									<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+										<strong>Raw JSON Response</strong>
+										<Button
+											variant="secondary"
+											size="small"
+											onClick={() => rawJsonResponse && handleCopyToClipboard(rawJsonResponse, 'json')}
+										>
+											<CopyIcon size={14} />
+											Copy JSON
+										</Button>
+									</div>
+									<JsonDisplay>
+										{rawJsonResponse}
+									</JsonDisplay>
+								</div>
+							)}
 
 							<div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
 								<Button variant="primary" onClick={handleApplyConfiguration}>
@@ -579,6 +676,8 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										variant="secondary"
 										onClick={() => {
 											setDiscoveredConfig(null);
+											setRawJsonResponse(null);
+											setViewMode('formatted');
 											v4ToastManager.showSuccess('saveConfigurationSuccess');
 										}}
 									>

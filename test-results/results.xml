@@ -1,0 +1,66 @@
+<testsuites id="" name="" tests="5" failures="1" skipped="4" errors="0" time="3.7110959999999995">
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-10-03T13:10:45.628Z" hostname="chromium" tests="1" failures="0" skipped="1" time="0.89" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0.89">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-10-03T13:10:45.628Z" hostname="firefox" tests="1" failures="0" skipped="1" time="0.004" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0.004">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-10-03T13:10:45.628Z" hostname="webkit" tests="1" failures="0" skipped="1" time="1.118" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="1.118">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-10-03T13:10:45.628Z" hostname="Mobile Chrome" tests="1" failures="1" skipped="0" time="0.887" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="0.887">
+<failure message="config-validation.spec.ts:5:3 PingOne configuration validation" type="FAILURE">
+<![CDATA[  [Mobile Chrome] › tests/configuration/config-validation.spec.ts:5:3 › Configuration and Settings › PingOne configuration validation 
+
+    Error: page.goto: net::ERR_EMPTY_RESPONSE at http://localhost:3000/configuration
+    Call log:
+      - navigating to "http://localhost:3000/configuration", waiting until "load"
+
+
+       at fixtures/page-objects.ts:14
+
+      12 |
+      13 |   async goto(url: string = '/') {
+    > 14 |     await this.page.goto(url);
+         |                     ^
+      15 |   }
+      16 |
+      17 |   async waitForLoad() {
+        at ConfigurationPage.goto (/Users/cmuir/P1Import-apps/oauth-playground/e2e/fixtures/page-objects.ts:14:21)
+        at /Users/cmuir/P1Import-apps/oauth-playground/e2e/tests/configuration/config-validation.spec.ts:8:18
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../test-results/tests-configuration-config-db694-ne-configuration-validation-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../test-results/tests-configuration-config-db694-ne-configuration-validation-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+]]>
+</failure>
+<system-out>
+<![CDATA[
+[[ATTACHMENT|tests-configuration-config-db694-ne-configuration-validation-Mobile-Chrome/test-failed-1.png]]
+
+[[ATTACHMENT|tests-configuration-config-db694-ne-configuration-validation-Mobile-Chrome/video.webm]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="tests/configuration/config-validation.spec.ts" timestamp="2025-10-03T13:10:45.628Z" hostname="Mobile Safari" tests="1" failures="0" skipped="1" time="1.102" errors="0">
+<testcase name="Configuration and Settings › PingOne configuration validation" classname="tests/configuration/config-validation.spec.ts" time="1.102">
+<skipped>
+</skipped>
+</testcase>
+</testsuite>
+</testsuites>

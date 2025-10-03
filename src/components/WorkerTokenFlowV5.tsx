@@ -1,5 +1,6 @@
 // src/components/WorkerTokenFlowV5.tsx
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
 	FiCheckCircle,
 	FiChevronDown,
@@ -20,6 +21,7 @@ import { pingOneConfigService } from '../services/pingoneConfigService';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../utils/flowNavigation';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
 import FlowConfigurationRequirements from './FlowConfigurationRequirements';
@@ -31,6 +33,10 @@ import { HelperText, ResultsHeading, ResultsSection, SectionDivider } from './Re
 import SecurityFeaturesDemo from './SecurityFeaturesDemo';
 import { StepNavigationButtons } from './StepNavigationButtons';
 import TokenIntrospect from './TokenIntrospect';
+import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService } from '../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../services/tokenIntrospectionService';
+import PingOneWorkerInfo from './PingOneWorkerInfo';
 
 export interface WorkerTokenFlowV5Props {
 	flowName?: string;
@@ -48,22 +54,21 @@ const STEP_METADATA = [
 		title: 'Step 1: Worker Token Request',
 		subtitle: 'Request access token using client credentials',
 	},
-	{ title: 'Step 2: Token Response', subtitle: 'Review the received access token' },
-	{ title: 'Step 3: Flow Complete', subtitle: 'Review results and next steps' },
-	{ title: 'Step 4: Security Features', subtitle: 'Demonstrate advanced security implementations' },
-	{ title: 'Step 5: Token Introspection', subtitle: 'Validate and introspect the access token' },
+	{ title: 'Step 2: Token Response & Management', subtitle: 'Review tokens and manage them' },
+	{ title: 'Step 3: Security Features', subtitle: 'Demonstrate advanced security implementations' },
+	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and introspect the access token' },
 ] as const;
-
 type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
 	| 'flowDiagram'
 	| 'credentials'
-	| 'results'
+	| 'results' // Step 0
 	| 'securityOverview'
 	| 'securityDetails'
 	| 'introspectionOverview'
-	| 'introspectionDetails';
+	| 'introspectionDetails'
+	| 'workerInfo';
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -407,25 +412,72 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		'Explore token introspection and revocation flows.',
 	],
 }) => {
+	const navigate = useNavigate();
 	const _manualAuthCodeId = useId();
 	const controller = useWorkerTokenFlowController({
 		flowKey: 'worker-token-v5',
 		enableDebugger: true,
 	});
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		return restoreStep ? parseInt(restoreStep, 10) : 0;
+	});
+	
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+
+	// Wrapper for introspection that creates API call data using reusable service
+	const handleIntrospectToken = useCallback(async () => {
+		if (!controller.tokens?.access_token) {
+			v4ToastManager.showError('No access token available for introspection');
+			return;
+		}
+
+		const request = {
+			token: controller.tokens.access_token,
+			clientId: controller.credentials.clientId,
+			clientSecret: controller.credentials.clientSecret,
+			tokenTypeHint: 'access_token' as const
+		};
+
+		try {
+			await controller.introspectToken();
+			
+			// Create success API call using reusable service
+			const successApiCall = TokenIntrospectionService.createSuccessApiCall(
+				request,
+				'worker-token',
+				controller.introspectionResults as any
+			);
+			
+			setIntrospectionApiCall(successApiCall);
+		} catch (error) {
+			// Create error API call using reusable service
+			const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+				request,
+				'worker-token',
+				error instanceof Error ? error.message : 'Unknown error'
+			);
+			
+			setIntrospectionApiCall(errorApiCall);
+		}
+	}, [controller]);
+	
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
 		flowDiagram: true, // Collapsed by default
 		credentials: false, // Expanded by default - users need to see credentials first
 		results: false,
-		// Step 4
+		// Step 3
 		securityOverview: false,
 		securityDetails: false,
-		// Step 5
+		// Step 4
 		introspectionOverview: false,
 		introspectionDetails: false,
+		// Worker Info section - collapsed by default
+		workerInfo: true,
 	});
 
 	const [stepCompletion, setStepCompletion] = useState<StepCompletionState>({
@@ -535,20 +587,18 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 	}, []);
 
 	// Step validation functions
-	const isStepValid = useCallback(
+		const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
 					return true; // Always valid - introduction step
 				case 1: // Step 1: Worker Token Request
 					return Boolean(controller.tokens?.access_token);
-				case 2: // Step 2: Token Response
+				case 2: // Step 2: Token Response & Management
 					return Boolean(controller.tokens?.access_token);
-				case 3: // Step 3: Flow Complete
+				case 3: // Step 3: Security Features
 					return Boolean(controller.tokens?.access_token);
-				case 4: // Step 4: Security Features
-					return Boolean(controller.tokens?.access_token);
-				case 5: // Step 5: Token Introspection
+				case 4: // Step 4: Token Introspection
 					return Boolean(controller.tokens?.access_token);
 				default:
 					return false;
@@ -579,6 +629,11 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 		}
 	}, [currentStep, isStepValid, stepCompletion]);
 
+	// Scroll to top when step changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [currentStep]);
+
 	// Track flow activity
 	useEffect(() => {
 		if (controller.tokens?.access_token) {
@@ -601,14 +656,18 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 			};
 			sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 
+			// Store flow navigation state for back button
+			storeFlowNavigationState('worker-token-v5', currentStep, 'oauth');
+
 			// Pass access token to Token Management
 			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'worker-token-v5');
 		}
 
-		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+		// Navigate in the same tab to preserve flow navigation state
+		navigate('/token-management');
+	}, [navigate, controller.tokens, controller.credentials, currentStep]);
 
 	const renderStepContent = useMemo(() => {
 		switch (currentStep) {
@@ -729,6 +788,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								onCopy={controller.handleCopy}
 								copiedField={controller.copiedField}
 								showRedirectUri={false}
+								showLoginHint={false}
 							/>
 						</ResultsSection>
 
@@ -954,6 +1014,23 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 										<FiCopy /> Copy Access Token
 									</Button>
 								</ActionRow>
+
+								{/* Flow Complete Section */}
+								<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
+									<InfoTitle>Flow Complete!</InfoTitle>
+									<InfoText>{completionMessage}</InfoText>
+								</InfoBox>
+
+								<ResultsSection>
+									<ResultsHeading>
+										<FiCheckCircle size={18} /> Next Steps
+									</ResultsHeading>
+									<InfoList>
+										{nextSteps.map((step, index) => (
+											<li key={index}>{step}</li>
+										))}
+									</InfoList>
+								</ResultsSection>
 							</>
 						) : (
 							<InfoBox $variant="warning">
@@ -964,58 +1041,8 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 					</>
 				);
 
+
 			case 3:
-				return (
-					<>
-						<InfoBox $variant="success">
-							<InfoTitle>Flow Complete!</InfoTitle>
-							<InfoText>{completionMessage}</InfoText>
-						</InfoBox>
-
-						<ResultsSection>
-							<ResultsHeading>
-								<FiCheckCircle size={18} /> Next Steps
-							</ResultsHeading>
-							<InfoList>
-								{nextSteps.map((step, index) => (
-									<li key={index}>{step}</li>
-								))}
-							</InfoList>
-						</ResultsSection>
-
-						{controller.tokens && (
-							<ResultsSection>
-								<ResultsHeading>
-									<FiKey size={18} /> Token Summary
-								</ResultsHeading>
-								<GeneratedContentBox>
-									<ParameterGrid>
-										<ParameterLabel>Access Token</ParameterLabel>
-										<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-											{controller.tokens.access_token}
-										</ParameterValue>
-										<ParameterLabel>Token Type</ParameterLabel>
-										<ParameterValue>{controller.tokens.token_type || 'Bearer'}</ParameterValue>
-										{controller.tokens.expires_in && (
-											<>
-												<ParameterLabel>Expires In</ParameterLabel>
-												<ParameterValue>{controller.tokens.expires_in} seconds</ParameterValue>
-											</>
-										)}
-										{controller.tokens.scope && (
-											<>
-												<ParameterLabel>Scope</ParameterLabel>
-												<ParameterValue>{controller.tokens.scope}</ParameterValue>
-											</>
-										)}
-									</ParameterGrid>
-								</GeneratedContentBox>
-							</ResultsSection>
-						)}
-					</>
-				);
-
-			case 4:
 				return (
 					<>
 						<CollapsibleSection>
@@ -1050,11 +1077,12 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 							flowType="worker-token"
 							tokens={controller.tokens}
 							credentials={controller.credentials}
+							hideHeader={true}
 						/>
 					</>
 				);
 
-			case 5:
+			case 4:
 				return (
 					<>
 						<CollapsibleSection>
@@ -1089,10 +1117,22 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 							flowType="worker-token"
 							tokens={controller.tokens}
 							credentials={controller.credentials}
-							onIntrospect={controller.introspectToken}
+							onIntrospect={handleIntrospectToken}
 							isIntrospecting={controller.isIntrospecting}
 							introspectionResult={controller.introspectionResults}
 						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('worker-token')
+								}}
+							/>
+						)}
 					</>
 				);
 
@@ -1165,9 +1205,34 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="worker-token-v5" />
-				<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
-				<FlowSequenceDisplay flowType="worker-token" />
+				{/* Only show header on first page (Step 0) */}
+				{currentStep === 0 && (
+					<>
+						<FlowHeader flowId="worker-token-v5" />
+						<FlowInfoCard flowInfo={getFlowInfo('worker-token')!} />
+						<FlowSequenceDisplay flowType="worker-token" />
+
+						{/* PingOne Worker Info Section - V5 Collapsible */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('workerInfo')}
+								aria-expanded={!collapsedSections.workerInfo}
+							>
+								<CollapsibleTitle>
+									<FiInfo /> PingOne Worker Applications & Token Usage
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.workerInfo}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.workerInfo && (
+								<CollapsibleContent>
+									<PingOneWorkerInfo />
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				)}
 
 				<MainCard>
 					<StepHeader>

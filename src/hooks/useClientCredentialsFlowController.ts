@@ -135,6 +135,7 @@ const createEmptyCredentials = (): StepCredentials => ({
 	grantType: 'client_credentials',
 	authorizationEndpoint: '', // Not used in Client Credentials
 	tokenEndpoint: '',
+	clientAuthMethod: 'client_secret_post',
 });
 
 const createEmptyConfig = (): ClientCredentialsConfig => ({

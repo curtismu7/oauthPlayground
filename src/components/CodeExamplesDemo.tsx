@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { CodeExamplesDisplay } from './CodeExamplesDisplay';
 import { CodeExamplesInline } from './CodeExamplesInline';
 import { CodeExamplesConfig } from '../services/codeExamplesService';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
 	padding: 2rem;
@@ -183,6 +184,14 @@ export const CodeExamplesDemo: React.FC = () => {
 
 	return (
 		<Container>
+			<FlowHeader 
+				flowType="documentation"
+				customConfig={{
+					title: "Code Examples",
+					subtitle: "Comprehensive code examples for OAuth 2.0 and OpenID Connect flows in multiple programming languages. Copy, customize, and integrate into your applications.",
+					icon: "💻"
+				}}
+			/>
 			<Title>Code Examples Service Demo</Title>
 			
 			<DemoSection>
@@ -311,5 +320,11 @@ export const CodeExamplesDemo: React.FC = () => {
 };
 
 export default CodeExamplesDemo;
+
+
+
+
+
+
 
 

@@ -450,21 +450,6 @@ const ImplicitFlowV3: React.FC = () => {
 									The Implicit Flow is <strong>deprecated</strong> and should not be used in
 									production. It's included here for educational purposes only. Use Authorization
 									Code Flow with PKCE instead.
-								</p>
-							</WarningContent>
-						</WarningBox>
-
-						<CollapsibleSection
-							title=" Implicit Flow Details"
-							isExpanded={true}
-							onToggle={() => {}}
-							icon={<FiSettings />}
-						>
-							<div style={{ marginBottom: '1rem' }}>
-								<h3
-									style={{
-										margin: '0 0 0.5rem 0',
-										color: '#fff',
 										fontSize: '1.2rem',
 									}}
 								>

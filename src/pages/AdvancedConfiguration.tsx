@@ -61,7 +61,9 @@ const ConfigSection = styled(Card)`
   }
 `;
 
-const ScopeItem = styled.div`
+const ScopeItem = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== 'active',
+})<{ active?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: space-between;

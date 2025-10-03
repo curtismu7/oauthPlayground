@@ -11,7 +11,7 @@ import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/workerToken';
-import { requestClientCredentialsToken } from '../utils/workerToken';
+import { requestClientCredentialsToken, introspectToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 
@@ -66,6 +66,7 @@ const createEmptyCredentials = (): StepCredentials => ({
 	issuerUrl: '',
 	authServerId: '',
 	loginHint: '',
+	clientAuthMethod: 'client_secret_post',
 });
 
 const loadInitialCredentials = (): StepCredentials => {

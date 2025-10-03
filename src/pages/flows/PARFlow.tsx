@@ -32,6 +32,17 @@ const FlowDescription = styled.p`
   line-height: 1.6;
 `;
 
+const FlowBadge = styled.div`
+  display: inline-block;
+  background: #dbeafe;
+  color: #1e40af;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+`;
+
 const FormContainer = styled.div`
   background: #f9fafb;
   border: 1px solid #e5e7eb;
@@ -309,106 +320,50 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 	const steps = [
 		{
 			id: 'step-1',
-			title: 'Configure PAR Settings',
-			description: 'Set up your OAuth client for Pushed Authorization Request.',
-			code: `// PAR Configuration
-const parConfig = {
-  clientId: '${formData.clientId}',
-  clientSecret: '${formData.clientSecret}',
-  environmentId: '${formData.environmentId}',
-  responseType: '${formData.responseType}',
-  redirectUri: '${formData.redirectUri}',
+			title: 'Push PAR Request',
+			description: 'Send the authorization request to the PAR endpoint via POST.',
+			code: `// 🔹 Step 1: Client pushes the request (PAR)
+// POST /as/par HTTP/1.1
+// Host: idp.example.com
+// Authorization: Basic czZCaGRSa3F0MzpnWDFmQmF0M2JW
+// Content-Type: application/x-www-form-urlencoded
+
+const parRequest = new URLSearchParams({
+  response_type: '${formData.responseType}',
+  client_id: '${formData.clientId}',
+  redirect_uri: '${formData.redirectUri}',
   scope: '${formData.scope}',
   state: '${formData.state}',
   nonce: '${formData.nonce}',
-  codeChallenge: '${formData.codeChallenge}',
-  codeChallengeMethod: '${formData.codeChallengeMethod}',
-  acrValues: '${formData.acrValues}',
-  prompt: '${formData.prompt}',
-  maxAge: ${formData.maxAge},
-  uiLocales: '${formData.uiLocales}',
-  claims: ${formData.claims},
-  authMethod: '${activeAuthMethod}'
-};
+  code_challenge: '${formData.codeChallenge}',
+  code_challenge_method: '${formData.codeChallengeMethod}',
+});
 
-console.log('PAR configured:', parConfig);`,
+const parResponse = await fetch('/as/par', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Basic ' + btoa('${formData.clientId}:${formData.clientSecret}'),
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  body: parRequest
+});
+
+if (parResponse.ok) {
+  const { request_uri, expires_in } = await parResponse.json();
+  console.log('PAR Response:', { request_uri, expires_in });
+  return { request_uri, expires_in };
+} else {
+  throw new Error('PAR request failed');
+}`,
 			execute: async () => {
-				logger.info('PARFlow', 'Configuring PAR settings');
+				logger.info('PARFlow', 'Pushing PAR request');
 				generateState();
 				generateNonce();
 				generateCodeChallenge();
-			},
-		},
-		{
-			id: 'step-2',
-			title: `Generate PAR Request (${activeAuthMethod})`,
-			description: `Generate a Pushed Authorization Request using ${activeAuthMethod} authentication.`,
-			code: `// Generate PAR Request
-const parRequest: PARRequest = {
-  clientId: '${formData.clientId}',
-  clientSecret: '${formData.clientSecret}',
-  environmentId: '${formData.environmentId}',
-  responseType: '${formData.responseType}',
-  redirectUri: '${formData.redirectUri}',
-  scope: '${formData.scope}',
-  state: '${formData.state}',
-  nonce: '${formData.nonce}',
-  codeChallenge: '${formData.codeChallenge}',
-  codeChallengeMethod: '${formData.codeChallengeMethod}',
-  acrValues: '${formData.acrValues}',
-  prompt: '${formData.prompt}',
-  maxAge: '${formData.maxAge}',
-  uiLocales: '${formData.uiLocales}',
-  claims: '${formData.claims}'
-};
-
-const authMethod: PARAuthMethod = {
-  type: '${activeAuthMethod}',
-  clientId: '${formData.clientId}',
-  clientSecret: '${formData.clientSecret}',
-  privateKey: '${formData.privateKey}',
-  keyId: '${formData.keyId}',
-  jwksUri: '${formData.jwksUri}'
-};
-
-const parService = new PARService('${formData.environmentId}');
-const parResponse = await parService.generatePARRequest(parRequest, authMethod);
-console.log('PAR Response:', parResponse);`,
-			execute: async () => {
-				logger.info('PARFlow', 'Generating PAR request', {
-					authMethod: activeAuthMethod,
-				});
 				setDemoStatus('loading');
 
 				try {
-					const _parRequest: PARRequest = {
-						clientId: formData.clientId,
-						clientSecret: formData.clientSecret,
-						environmentId: formData.environmentId,
-						responseType: formData.responseType,
-						redirectUri: formData.redirectUri,
-						scope: formData.scope,
-						state: formData.state,
-						nonce: formData.nonce,
-						codeChallenge: formData.codeChallenge,
-						codeChallengeMethod: formData.codeChallengeMethod,
-						acrValues: formData.acrValues,
-						prompt: formData.prompt,
-						maxAge: formData.maxAge,
-						uiLocales: formData.uiLocales,
-						claims: formData.claims,
-					};
-
-					const _authMethod: PARAuthMethod = {
-						type: activeAuthMethod,
-						clientId: formData.clientId,
-						clientSecret: formData.clientSecret,
-						privateKey: formData.privateKey,
-						keyId: formData.keyId,
-						jwksUri: formData.jwksUri,
-					};
-
-					// Simulate PAR request
+					// Simulate Step 1: Push PAR Request
 					const mockParResponse: PARResponse = {
 						requestUri: `urn:ietf:params:oauth:request_uri:${Date.now()}_${Math.random().toString(36).substring(2, 8)}`,
 						expiresIn: 600,
@@ -418,9 +373,9 @@ console.log('PAR Response:', parResponse);`,
 					setParResponse(mockParResponse);
 					setResponse({
 						success: true,
-						message: 'PAR request generated successfully',
+						message: 'PAR request pushed successfully',
 						parResponse: mockParResponse,
-						authMethod: activeAuthMethod,
+						step: 'step-1-par-push',
 					});
 					setDemoStatus('success');
 				} catch (error) {
@@ -432,23 +387,27 @@ console.log('PAR Response:', parResponse);`,
 			},
 		},
 		{
-			id: 'step-3',
+			id: 'step-2',
 			title: 'Generate Authorization URL',
 			description: 'Generate the authorization URL using the request URI from PAR.',
-			code: `// Generate Authorization URL with Request URI
-const authorizationUrl = parService.generateAuthorizationURL(
-  '${parResponse?.requestUri || 'urn:ietf:params:oauth:request_uri:example'}',
-  {
-    // Additional parameters can be added here
-    // client_id: '${formData.clientId}',
-    // response_type: '${formData.responseType}'
-  }
-);
+			code: `// 🔹 Step 2: IdP responds with a request URI
+// If successful, the Authorization Server responds with a request_uri handle:
+
+{
+  "request_uri": "urn:ietf:params:oauth:request_uri:8esc_3BYpZpQd1w6",
+  "expires_in": 90
+}
+
+// 🔹 Step 3: Client redirects the user
+// Now the client only needs to redirect the user with the request_uri:
+
+const authorizationUrl = \`https://idp.example.com/as/authorize?\${new URLSearchParams({
+  client_id: '${formData.clientId}',
+  request_uri: '${parResponse?.requestUri || 'urn:ietf:params:oauth:request_uri:example'}'
+})}\`;
 
 console.log('Authorization URL:', authorizationUrl);
-
-// Redirect to authorization URL
-window.location.href = authorizationUrl;`,
+// Redirect: window.location.href = authorizationUrl;`,
 			execute: async () => {
 				logger.info('PARFlow', 'Generating authorization URL');
 
@@ -463,58 +422,112 @@ window.location.href = authorizationUrl;`,
 			},
 		},
 		{
+			id: 'step-3',
+			title: 'Simulate User Redirect',
+			description: 'Simulate redirecting the user to the authorization endpoint with request_uri.',
+			code: `// 🔹 Step 3: Client redirects the user
+// Now the client only needs to redirect the user with the request_uri (no long query string):
+
+const authorizationUrl = 'https://idp.example.com/as/authorize?' + new URLSearchParams({
+  client_id: '${formData.clientId}',
+  request_uri: '${parResponse?.requestUri || 'urn:ietf:params:oauth:request_uri:example'}'
+});
+
+console.log('🔗 Redirecting user to:', authorizationUrl);
+// In a real implementation: window.location.href = authorizationUrl;
+
+// 🔹 Step 4: User authenticates & consents
+// - The IdP authenticates the user
+// - Shows consent screen with the pushed request details
+// - User approves the authorization request
+
+// 🔹 Step 5: Authorization response
+// After approval, the IdP redirects back with an auth code:
+const callbackUrl = '${formData.redirectUri}?code=SplxlOBeZQQYbYS6WxSbIA&state=${formData.state}';
+console.log('✅ User redirected back with auth code');`,
+			execute: async () => {
+				logger.info('PARFlow', 'Simulating user redirect');
+
+				if (parResponse) {
+					const authUrl = parService.generateAuthorizationURL(parResponse.requestUri);
+					setResponse((prev) => ({
+						...prev,
+						authorizationUrl: authUrl,
+						message: 'User redirect simulated - in real flow, user would be redirected to authorization endpoint',
+					}));
+				}
+			},
+		},
+		{
 			id: 'step-4',
 			title: 'Handle Authorization Response',
-			description: 'Process the response from the authorization endpoint.',
-			code: `// Handle Authorization Response
-const urlParams = new URLSearchParams(window.location.search);
+			description: 'Process the authorization response containing the auth code.',
+			code: `// 🔹 Step 4: User authenticates & consents
+// - The IdP authenticates the user
+// - Shows consent screen with the pushed request details
+// - User approves the authorization request
+
+// 🔹 Step 5: Authorization response
+// After approval, the IdP redirects back with an auth code:
+
+const callbackUrl = '${formData.redirectUri}?code=SplxlOBeZQQYbYS6WxSbIA&state=${formData.state}';
+
+// Handle Authorization Response
+const urlParams = new URLSearchParams(callbackUrl.split('?')[1]);
 const code = urlParams.get('code');
 const state = urlParams.get('state');
-const error = urlParams.get('error');
-const errorDescription = urlParams.get('error_description');
 
 // Validate state parameter
-const storedState = localStorage.getItem('oauth_state');
+const storedState = '${formData.state}';
 if (state !== storedState) {
   throw new Error('Invalid state parameter');
 }
 
-if (error) {
-  console.error('Authorization error:', error, errorDescription);
-  throw new Error(\`Authorization failed: \${error}\`);
-}
-
-console.log('Authorization successful, code:', code);
-console.log('State validated:', state === storedState);`,
+console.log('✅ Authorization successful, code:', code);
+console.log('✅ State validated:', state === storedState);`,
 			execute: async () => {
 				logger.info('PARFlow', 'Handling authorization response');
+
+				// Simulate receiving auth code
+				const mockAuthCode = `SplxlOBeZQQYbYS6WxSbIA_${Date.now()}`;
+				setResponse((prev) => ({
+					...prev,
+					authCode: mockAuthCode,
+					message: 'Authorization response received with auth code',
+				}));
 			},
 		},
 		{
 			id: 'step-5',
 			title: 'Exchange Code for Tokens',
 			description: 'Exchange the authorization code for access and ID tokens.',
-			code: `// Exchange authorization code for tokens
-const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
+			code: `// 🔹 Step 5: Authorization response (continued)
+// From here, the flow continues as a normal Authorization Code flow:
 
-const tokenData = new FormData();
-tokenData.append('grant_type', 'authorization_code');
-tokenData.append('code', code);
-tokenData.append('redirect_uri', '${formData.redirectUri}');
-tokenData.append('client_id', '${formData.clientId}');
-tokenData.append('client_secret', '${formData.clientSecret}');
+const tokenUrl = \`https://auth.pingone.com/\${'${formData.environmentId}'}/as/token\`;
+
+const tokenData = new URLSearchParams({
+  grant_type: 'authorization_code',
+  code: '${parResponse ? 'mock_auth_code' : 'auth_code_from_callback'}',
+  redirect_uri: '${formData.redirectUri}',
+  client_id: '${formData.clientId}',
+  client_secret: '${formData.clientSecret}',
+});
 
 const tokenResponse = await fetch(tokenUrl, {
   method: 'POST',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
   body: tokenData
 });
 
 if (tokenResponse.ok) {
   const tokens = await tokenResponse.json();
-  console.log('Tokens received:', tokens);
-  
-  // Store tokens
-  localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
+  console.log('✅ Tokens received:', tokens);
+  return tokens;
+} else {
+  throw new Error('Token exchange failed');
 }`,
 			execute: async () => {
 				logger.info('PARFlow', 'Exchanging code for tokens');
@@ -588,6 +601,7 @@ if (tokenResponse.ok) {
 
 	return (
 		<FlowContainer>
+			<FlowBadge>RFC 9126 - Pushed Authorization Requests</FlowBadge>
 			<FlowTitle>Pushed Authorization Request (PAR) Flow</FlowTitle>
 			<FlowDescription>
 				The Pushed Authorization Request (PAR) flow allows clients to push authorization request
@@ -673,12 +687,12 @@ if (tokenResponse.ok) {
 				}}
 				status={demoStatus}
 				disabled={demoStatus === 'loading'}
-				title={`PAR Flow Steps (${activeAuthMethod})`}
+				title={`PAR Flow - Pushed Authorization Requests (${activeAuthMethod})`}
 			/>
 
 			{parResponse && (
 				<PARContainer>
-					<PARTitle>PAR Response Details</PARTitle>
+					<PARTitle>🔹 Step 2: PAR Response Details</PARTitle>
 
 					<PARDetails>
 						<PARDetail>
@@ -693,11 +707,25 @@ if (tokenResponse.ok) {
 							<PARLabel>Expires At</PARLabel>
 							<PARValue>{new Date(parResponse.expiresAt).toLocaleString()}</PARValue>
 						</PARDetail>
-						<PARDetail>
-							<PARLabel>Auth Method</PARLabel>
-							<PARValue>{activeAuthMethod}</PARValue>
-						</PARDetail>
 					</PARDetails>
+
+					{response?.authorizationUrl && (
+						<>
+							<PARTitle>🔹 Step 3: Authorization URL</PARTitle>
+							<PARDetails>
+								<PARDetail>
+									<PARLabel>Authorization URL</PARLabel>
+									<PARValue style={{ wordBreak: 'break-all' }}>
+										{response.authorizationUrl}
+									</PARValue>
+								</PARDetail>
+								<PARDetail>
+									<PARLabel>Note</PARLabel>
+									<PARValue>In a real implementation, the user would be redirected to this URL</PARValue>
+								</PARDetail>
+							</PARDetails>
+						</>
+					)}
 
 					<Button $variant="primary" onClick={handlePARStart}>
 						Generate New PAR Request
