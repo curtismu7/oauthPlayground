@@ -193,6 +193,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 					...requestBody,
 					environmentId: credentials.environmentId,
 					clientAuthMethod: credentials.clientAuthMethod,
+					...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
 				}),
 			});
 
@@ -335,6 +336,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 					...requestBody,
 					environmentId: credentials.environmentId,
 					clientAuthMethod: credentials.clientAuthMethod,
+					...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
 				}),
 			});
 

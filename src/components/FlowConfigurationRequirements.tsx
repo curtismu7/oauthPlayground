@@ -26,7 +26,8 @@ interface FlowConfigurationRequirementsProps {
 		| 'token-introspection'
 		| 'token-revocation'
 		| 'userinfo'
-		| 'redirectless';
+		| 'redirectless'
+		| 'rar';
 	variant?: 'oauth' | 'oidc' | 'pingone';
 }
 
@@ -121,6 +122,13 @@ const FLOW_REQUIREMENTS: Record<string, FlowConfigRequirement> = {
 		tokenAuthMethod: 'client_secret_post',
 		explanation:
 			'Redirectless Flow (PingOne response_mode=pi.flow) is an enhanced authorization code flow that embeds authentication in an iframe/webview. Supports both public (PKCE) and confidential clients. Redirect URI required for callback handling.',
+	},
+	rar: {
+		clientSecret: 'required',
+		redirectUri: 'required',
+		tokenAuthMethod: 'client_secret_post',
+		explanation:
+			'Rich Authorization Requests (RAR) extends OAuth 2.0 with granular authorization details. Requires client secret for confidential client authentication and redirect URI for authorization callback. Authorization details specify exact permissions requested.',
 	},
 };
 

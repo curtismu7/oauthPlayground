@@ -227,8 +227,9 @@ export const useAuthorizationCodeFlowController = (
 	);
 
 	const [pkceCodes, setPkceCodes] = useState<PKCECodes>(() => {
-		// Try to load PKCE codes from sessionStorage first
-		const stored = sessionStorage.getItem('authorization-code-v5-pkce-codes');
+		// Try to load PKCE codes from sessionStorage first using flow-specific key
+		const pkceStorageKey = `${persistKey}-pkce-codes`;
+		const stored = sessionStorage.getItem(pkceStorageKey);
 		if (stored) {
 			try {
 				const parsed = JSON.parse(stored);
@@ -254,10 +255,11 @@ export const useAuthorizationCodeFlowController = (
 	// Persist PKCE codes to sessionStorage whenever they change
 	useEffect(() => {
 		if (pkceCodes.codeVerifier && pkceCodes.codeChallenge) {
-			sessionStorage.setItem('authorization-code-v5-pkce-codes', JSON.stringify(pkceCodes));
+			const pkceStorageKey = `${persistKey}-pkce-codes`;
+			sessionStorage.setItem(pkceStorageKey, JSON.stringify(pkceCodes));
 			console.log('💾 [useAuthorizationCodeFlowController] PKCE codes persisted to sessionStorage');
 		}
-	}, [pkceCodes]);
+	}, [pkceCodes, persistKey]);
 
 	const [authUrl, setAuthUrl] = useState('');
 	const [showUrlExplainer, setShowUrlExplainer] = useState(false);
@@ -639,6 +641,7 @@ export const useAuthorizationCodeFlowController = (
 				environment_id: credentials.environmentId.trim(),
 				code_verifier: pkceCodes.codeVerifier.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
 			};
 
 			// Handle JWT-based authentication methods
@@ -864,6 +867,7 @@ export const useAuthorizationCodeFlowController = (
 				client_id: credentials.clientId.trim(),
 				environment_id: credentials.environmentId.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
 			};
 
 			// Handle JWT-based authentication methods
@@ -1011,7 +1015,8 @@ export const useAuthorizationCodeFlowController = (
 		clearStepResults();
 		stepManager.setStep(0, 'reset');
 		// Clear PKCE codes from sessionStorage
-		sessionStorage.removeItem('authorization-code-v5-pkce-codes');
+		const pkceStorageKey = `${persistKey}-pkce-codes`;
+		sessionStorage.removeItem(pkceStorageKey);
 		showGlobalSuccess('Flow reset', 'Start the authorization sequence again.');
 	}, [clearStepResults, stepManager, stopPopupWatch]);
 

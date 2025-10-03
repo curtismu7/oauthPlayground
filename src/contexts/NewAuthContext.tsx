@@ -4,6 +4,7 @@ import type { OAuthTokenResponse, OAuthTokens, UserInfo } from '../types/storage
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { generateCodeChallenge } from '../utils/oauth';
+import { getBackendUrl } from '../utils/protocolUtils';
 import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
@@ -845,16 +846,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				// Get code_verifier from sessionStorage for PKCE
 				// Retrieve stored PKCE verifier - OIDC Spec Compliance
 				// Per RFC 7636 (PKCE): code_verifier MUST be provided in token exchange
-				let codeVerifier =
-					sessionStorage.getItem('code_verifier') ||
-					sessionStorage.getItem('oauth_code_verifier') ||
-					'';
-				// Trim and ensure it's not empty
-				codeVerifier = codeVerifier.trim();
+				// Retrieve code_verifier from sessionStorage for PKCE
+				// Check multiple possible storage keys for code_verifier
+				const possibleKeys = [
+					'code_verifier',
+					'oauth_code_verifier', 
+					'authz_v3_code_verifier',
+					'oauth2_v3_code_verifier',
+					'oidc_v3_code_verifier'
+				];
+				
+				let codeVerifier = '';
+				for (const key of possibleKeys) {
+					const value = sessionStorage.getItem(key);
+					if (value && value.trim()) {
+						codeVerifier = value.trim();
+						console.log(` [NewAuthContext] Found code_verifier in sessionStorage key: ${key}`);
+						break;
+					}
+				}
+				
+				// If no code_verifier found, generate one as fallback
+				if (!codeVerifier) {
+					console.log(' [NewAuthContext] No code_verifier found, generating fallback...');
+					try {
+						// Import PKCE utilities dynamically to avoid circular dependency
+						const { generateCodeVerifier } = await import('../utils/oauth');
+						codeVerifier = generateCodeVerifier();
+						sessionStorage.setItem('code_verifier', codeVerifier);
+						console.log(' [NewAuthContext] Generated fallback code_verifier and stored in sessionStorage');
+					} catch (error) {
+						console.error(' [NewAuthContext] Failed to generate fallback code_verifier:', error);
+					}
+				}
+				
 				console.log(' [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
 					hasCodeVerifier: !!codeVerifier,
 					codeVerifierLength: codeVerifier?.length || 0,
 					codeVerifierPrefix: codeVerifier ? `${codeVerifier.substring(0, 10)}...` : 'MISSING',
+					checkedKeys: possibleKeys,
+				});
+
+				// Debug: Log all sessionStorage contents
+				console.log(' [NewAuthContext] All sessionStorage contents:', {
+					keys: Object.keys(sessionStorage),
+					values: Object.keys(sessionStorage).reduce((acc, key) => {
+						acc[key] = sessionStorage.getItem(key)?.substring(0, 20) + '...';
+						return acc;
+					}, {} as Record<string, string>)
 				});
 
 				// Fallback to credential manager if config is not loaded
@@ -1072,10 +1111,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				}
 
 				// Use backend proxy to avoid CORS issues
-				const backendUrl =
-					process.env.NODE_ENV === 'production'
-						? 'https://oauth-playground.vercel.app'
-						: 'https://localhost:3001';
+				const backendUrl = getBackendUrl();
 
 				console.log(' [NewAuthContext] Making token exchange request to backend');
 				console.log(' [NewAuthContext] Request details:', {
@@ -1470,10 +1506,7 @@ export const useAuth = (): AuthContextType => {
 // Helper function to get user info
 async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promise<UserInfo> {
 	// Use backend proxy to avoid CORS issues
-	const backendUrl =
-		process.env.NODE_ENV === 'production'
-			? 'https://oauth-playground.vercel.app'
-			: 'https://localhost:3001';
+	const backendUrl = getBackendUrl();
 
 	// Extract environment ID from userInfoEndpoint
 	const environmentId = userInfoEndpoint.match(/\/\/([^/]+)\/([^/]+)\/as\/userinfo/)?.[2];
