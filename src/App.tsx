@@ -47,6 +47,7 @@ import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
+import About from './pages/About';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
@@ -346,6 +347,7 @@ const AppRoutes = () => {
 
 							<Route path="/configuration" element={<Configuration />} />
 							<Route path="/documentation" element={<Documentation />} />
+							<Route path="/about" element={<About />} />
 							<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
 
 							<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
