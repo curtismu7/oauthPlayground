@@ -28,7 +28,8 @@ type FlowType =
 	| 'worker-token'
 	| 'token-introspection'
 	| 'token-revocation'
-	| 'user-info';
+	| 'user-info'
+	| 'rar';
 
 const flowSequences: Record<FlowType, FlowSequence> = {
 	'device-authorization': {
@@ -455,6 +456,59 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			'Retrieve user profile information',
 			'Access user claims and attributes',
 			'Personalize user experience',
+		],
+	},
+	rar: {
+		title: 'Rich Authorization Requests (RAR) Flow',
+		steps: [
+			{
+				stepNumber: 1,
+				title: 'Client prepares RAR authorization request',
+				description: 'Client constructs authorization request with authorization_details parameter containing specific permissions',
+				technicalDetails: 'GET /authorize?authorization_details=<json>',
+				exampleDisplay: 'Request includes authorization_details with type, locations, actions, and datatypes',
+			},
+			{
+				stepNumber: 2,
+				title: 'User reviews granular permissions',
+				description: 'Authorization server presents specific permissions to user for consent',
+				technicalDetails: 'User sees detailed permission breakdown',
+				exampleDisplay: 'User sees: "Access payment data at api.example.com/payments for initiate, status actions"',
+			},
+			{
+				stepNumber: 3,
+				title: 'User grants consent for specific details',
+				description: 'User approves the granular authorization details',
+				technicalDetails: 'User interaction with consent UI',
+				exampleDisplay: 'User clicks "Allow" for specific authorization details',
+			},
+			{
+				stepNumber: 4,
+				title: 'Authorization code returned with RAR context',
+				description: 'Server returns authorization code with RAR context preserved',
+				technicalDetails: 'Redirect to client with code and state',
+				exampleDisplay: 'Redirect: https://client.com/callback?code=abc123&state=xyz',
+			},
+			{
+				stepNumber: 5,
+				title: 'Client exchanges code for access token',
+				description: 'Client exchanges authorization code for access token with RAR claims',
+				technicalDetails: 'POST /token with code, client credentials',
+				exampleDisplay: 'Token response includes authorization_details as claims',
+			},
+			{
+				stepNumber: 6,
+				title: 'Access token contains RAR claims',
+				description: 'Access token includes authorization_details claims specifying exact permissions',
+				technicalDetails: 'JWT with authorization_details claim',
+				exampleDisplay: 'Token claims: { "authorization_details": [{ "type": "payment_initiation", ... }] }',
+			},
+		],
+		keyBenefits: [
+			'Granular permission control',
+			'Reduced over-privileged access',
+			'Enhanced security through specific authorization',
+			'Better compliance with data protection regulations',
 		],
 	},
 };

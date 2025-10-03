@@ -21,6 +21,7 @@ import styled from 'styled-components';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -292,6 +293,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
+	usePageScroll();
+
 	// Form state
 	const [environmentId, setEnvironmentId] = useState('');
 	const [clientId, setClientId] = useState('');
@@ -335,7 +338,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const handleSaveCredentials = useCallback(() => {
 		if (!environmentId || !clientId) {
-			v4ToastManager.showError('Please enter Environment ID and Client ID');
+			v4ToastManager.showError('Please enter Environment ID and Client ID.');
 			return;
 		}
 
@@ -370,7 +373,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const handleExchangeCode = useCallback(async () => {
 		if (!hybridFlow.tokens?.code) {
-			v4ToastManager.showError('No authorization code available');
+			v4ToastManager.showError('No authorization code available.');
 			return;
 		}
 
@@ -541,6 +544,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 							type="password"
 							value={clientSecret}
 							onChange={(e) => setClientSecret(e.target.value)}
+							autoComplete="current-password"
 							placeholder="Enter client secret if confidential client"
 						/>
 					</FormGroup>
@@ -852,6 +856,50 @@ const OIDCHybridFlowV5: React.FC = () => {
 		</CollapsibleSection>
 	);
 
+	// Step validation functions
+	const isStepValid = useCallback((stepIndex: number): boolean => {
+		switch (stepIndex) {
+			case 0: // Step 0: Introduction & Setup
+				return true; // Always valid - introduction step
+			case 1: // Step 1: Configuration
+				return !!(hybridFlow.credentials.clientId && hybridFlow.credentials.clientSecret);
+			case 2: // Step 2: Authorization Request
+				return !!(hybridFlow.authUrl);
+			case 3: // Step 3: Process Response
+				return !!(hybridFlow.tokens);
+			case 4: // Step 4: Token Exchange
+				return !!(hybridFlow.tokens);
+			case 5: // Step 5: Tokens Received
+				return !!(hybridFlow.tokens);
+			default:
+				return false;
+		}
+	}, [hybridFlow.credentials, hybridFlow.authUrl, hybridFlow.tokens]);
+
+	// Get step completion requirements for user guidance
+	const getStepRequirements = useCallback((stepIndex: number): string[] => {
+		switch (stepIndex) {
+			case 0: // Step 0: Introduction & Setup
+				return ['Review the flow overview and setup credentials'];
+			case 1: // Step 1: Configuration
+				return ['Enter client ID and client secret'];
+			case 2: // Step 2: Authorization Request
+				return ['Generate authorization URL with hybrid response type'];
+			case 3: // Step 3: Process Response
+				return ['Complete authorization and receive tokens'];
+			case 4: // Step 4: Token Exchange
+				return ['Exchange authorization code for additional tokens'];
+			case 5: // Step 5: Tokens Received
+				return ['View and analyze all received tokens'];
+			default:
+				return [];
+		}
+	}, []);
+
+	const canNavigateNext = useCallback((): boolean => {
+		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
+	}, [currentStep, isStepValid]);
+
 	return (
 		<Container>
 			<ContentWrapper>
@@ -912,8 +960,13 @@ const OIDCHybridFlowV5: React.FC = () => {
 						hybridFlow.reset();
 						setCurrentStep(0);
 					}}
-					canNavigateNext={true}
+					canNavigateNext={canNavigateNext()}
 					isFirstStep={currentStep === 0}
+					nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
+					disabledMessage="Complete the action above to continue"
+					stepRequirements={getStepRequirements(currentStep)}
+					onCompleteAction={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
+					showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
 				/>
 			</ContentWrapper>
 		</Container>

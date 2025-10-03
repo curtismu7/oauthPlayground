@@ -80,7 +80,7 @@ interface NotificationContextValue {
 const NotificationContext = createContext<NotificationContextValue | null>(null);
 
 export const DEFAULT_NOTIFICATION_DURATIONS: Record<NotificationTone, number> = {
-	success: 2000,
+	success: 5000, // Increased from 2000ms to 5000ms (5 seconds)
 	warning: 4000,
 	error: 6000,
 	info: 4000,

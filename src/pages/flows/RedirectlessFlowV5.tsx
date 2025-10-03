@@ -588,7 +588,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		};
 
 		setMockFlowResponse(mockResponse);
-		v4ToastManager.showSuccess('Flow response received! (Mock)');
+		v4ToastManager.showSuccess('Flow response received! (Mock).');
 	}, []);
 
 	const handleSimulateTokenResponse = useCallback(() => {
@@ -622,7 +622,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		};
 
 		setMockTokenResponse(mockTokens);
-		v4ToastManager.showSuccess('Tokens received in JSON format! (Mock)');
+		v4ToastManager.showSuccess('Tokens received in JSON format! (Mock).');
 	}, [controller.credentials]);
 
 	const handleCopy = useCallback((text: string, label: string) => {

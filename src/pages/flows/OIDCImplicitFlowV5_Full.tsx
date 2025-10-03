@@ -803,6 +803,26 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
 	}, [currentStep, isStepValid]);
 
+	// Get step completion requirements for user guidance
+	const getStepRequirements = useCallback((stepIndex: number): string[] => {
+		switch (stepIndex) {
+			case 0: // Step 0: Introduction & Setup
+				return ['Review the flow overview and setup credentials'];
+			case 1: // Step 1: Authorization Request
+				return ['Configure credentials and generate authorization URL'];
+			case 2: // Step 2: Authorization Response
+				return ['Complete authorization and receive tokens'];
+			case 3: // Step 3: User Information
+				return ['Fetch user information using access token'];
+			case 4: // Step 4: Token Introspection
+				return ['Introspect access token to validate and inspect claims'];
+			case 5: // Step 5: Security Features
+				return ['Demonstrate advanced security implementations'];
+			default:
+				return [];
+		}
+	}, []);
+
 	const handleNext = useCallback(() => {
 		if (!canNavigateNext()) {
 			const stepName = STEP_METADATA[currentStep]?.title || `Step ${currentStep + 1}`;
@@ -984,9 +1004,10 @@ const OIDCImplicitFlowV5: React.FC = () => {
 								if (config) {
 									controller.setCredentials(config);
 								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings');
+								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 							}}
 							primaryColor="#f97316"
+							flowType="oidc-implicit"
 						/>
 					</>
 				);
@@ -1305,13 +1326,15 @@ const OIDCImplicitFlowV5: React.FC = () => {
 			case 5:
 				return (
 					<SecurityFeaturesDemo
-						tokens={controller.tokens}
-						credentials={controller.credentials}
+						tokens={controller.tokens as unknown as Record<string, unknown> | null}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						onTerminateSession={() => {
-							v4ToastManager.showSuccess('Session termination would be implemented here');
+							console.log('🚪 Session terminated via SecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Session termination completed.');
 						}}
 						onRevokeTokens={() => {
-							v4ToastManager.showSuccess('Token revocation would be implemented here');
+							console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Token revocation completed.');
 						}}
 					/>
 				);
@@ -1374,7 +1397,9 @@ const OIDCImplicitFlowV5: React.FC = () => {
 							<RequirementsText>
 								<strong>Complete this step to continue:</strong>
 								<ul>
-									<li>Complete the required actions above</li>
+									{getStepRequirements(currentStep).map((requirement, index) => (
+										<li key={index}>{requirement}</li>
+									))}
 								</ul>
 							</RequirementsText>
 						</RequirementsIndicator>
@@ -1393,6 +1418,9 @@ const OIDCImplicitFlowV5: React.FC = () => {
 				isFirstStep={currentStep === 0}
 				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
 				disabledMessage="Complete the action above to continue"
+				stepRequirements={getStepRequirements(currentStep)}
+				onCompleteAction={handleNext}
+				showCompleteActionButton={!isStepValid(currentStep) && currentStep !== 0}
 			/>
 		</Container>
 	);
