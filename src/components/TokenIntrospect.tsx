@@ -13,6 +13,7 @@ import {
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CalloutCard } from './InfoBlocks';
+import NextSteps from './NextSteps';
 
 // Styled components (reused from AuthorizationCodeFlowV5)
 const CollapsibleSection = styled.section`
@@ -287,6 +288,8 @@ const HelperText = styled.p`
 	margin: 0 0 1rem;
 `;
 
+
+
 const _SectionDivider = styled.hr`
 	border: none;
 	border-top: 1px solid #e5e7eb;
@@ -493,11 +496,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 							<InfoTitle>
 								<FiShield /> Next Steps
 							</InfoTitle>
-							<InfoList>
-								{nextSteps.map((step, index) => (
-									<li key={index}>{step}</li>
-								))}
-							</InfoList>
+							<NextSteps steps={nextSteps} />
 						</CalloutCard>
 					</CollapsibleContent>
 				)}

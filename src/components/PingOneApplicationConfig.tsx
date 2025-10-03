@@ -266,13 +266,16 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="pkce-enforcement"
 							value={value.pkceEnforcement}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) => update({ pkceEnforcement: e.target.value as PingOneApplicationState['pkceEnforcement'] })}
+							disabled
+							style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
 						>
 							<option value="OPTIONAL">Optional</option>
 							<option value="REQUIRED">Required</option>
 							<option value="S256_REQUIRED">S256 Required</option>
 						</Select>
-						<Helper>PingOne can enforce PKCE for public clients</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings to see this feature in the flow
+						</Helper>
 					</Field>
 				</Grid>
 
@@ -321,14 +324,17 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Toggle
 							id="enable-jwks-toggle"
 							$active={value.enableJWKS}
-							onClick={() => update({ enableJWKS: !value.enableJWKS })}
+							disabled
+							style={{ cursor: 'not-allowed', opacity: 0.6 }}
 							aria-pressed={value.enableJWKS}
 							role="switch"
 							aria-label="Enable JWKS"
 						>
 							<span />
 						</Toggle>
-						<Helper>Enable JSON Web Key Set for token signature validation</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable JWKS in your PingOne application settings to see JWT signature validation features
+						</Helper>
 					</Field>
 
 					{value.enableJWKS && (
@@ -342,7 +348,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 											name="jwksMethod"
 											value="JWKS_URL"
 											checked={value.jwksMethod === 'JWKS_URL'}
-											onChange={() => update({ jwksMethod: 'JWKS_URL' })}
+											disabled
+											style={{ cursor: 'not-allowed' }}
 										/>
 										JWKS URL
 									</RadioLabel>
@@ -352,11 +359,15 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 											name="jwksMethod"
 											value="JWKS"
 											checked={value.jwksMethod === 'JWKS'}
-											onChange={() => update({ jwksMethod: 'JWKS' })}
+											disabled
+											style={{ cursor: 'not-allowed' }}
 										/>
 										JWKS
 									</RadioLabel>
 								</RadioGroup>
+								<Helper style={{ color: '#059669', fontWeight: '500' }}>
+									⚙️ Configured in PingOne → Set your JWKS method in PingOne application configuration
+								</Helper>
 							</Field>
 
 							{value.jwksMethod === 'JWKS_URL' && (
@@ -366,15 +377,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 										id="jwks-url"
 										type="url"
 										value={value.jwksUrl}
-										onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-											console.log('🔧 PingOne JWKS URL input changed:', e.target.value);
-											update({ jwksUrl: e.target.value });
-										}}
+										disabled
+										style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
 										placeholder="https://example.com/.well-known/jwks.json"
-										disabled={false}
-										readOnly={false}
 									/>
-									<Helper>URL where the JSON Web Key Set is hosted</Helper>
+									<Helper style={{ color: '#059669', fontWeight: '500' }}>
+										⚙️ Configured in PingOne → Set your JWKS URL in PingOne application settings
+									</Helper>
 								</Field>
 							)}
 
@@ -384,10 +393,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 									<Textarea
 										id="jwks"
 										value={value.jwks}
-										onChange={(e) => update({ jwks: e.target.value })}
+										disabled
+										style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
 										placeholder='{"keys": [...]}'
 									/>
-									<Helper>Paste your JWKS JSON directly</Helper>
+									<Helper style={{ color: '#059669', fontWeight: '500' }}>
+										⚙️ Configured in PingOne → Set your JWKS JSON in PingOne application settings
+									</Helper>
 								</Field>
 							)}
 						</>
@@ -405,12 +417,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.requirePushedAuthorizationRequest}
-								onChange={(e) => update({ requirePushedAuthorizationRequest: e.target.checked })}
+								disabled
+								style={{ cursor: 'not-allowed' }}
 							/>
 							Require Pushed Authorization Request
 						</CheckboxLabel>
-						<Helper>
-							Require authorization requests to be pushed to the authorization server first
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable PAR in your PingOne application settings to see this feature in the flow
 						</Helper>
 					</Field>
 
@@ -422,11 +435,12 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							min="10"
 							max="600"
 							value={value.pushedAuthorizationRequestTimeout}
-							onChange={(e) =>
-								update({ pushedAuthorizationRequestTimeout: parseInt(e.target.value, 10) || 60 })
-							}
+							disabled
+							style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
 						/>
-						<Helper>Timeout for the PAR reference (10-600 seconds)</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Set PAR timeout in PingOne application configuration
+						</Helper>
 					</Field>
 				</Grid>
 			</Section>
@@ -441,15 +455,16 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 						<Select
 							id="request-signature"
 							value={value.requestParameterSignatureRequirement}
-							onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
-								update({ requestParameterSignatureRequirement: e.target.value as PingOneApplicationState['requestParameterSignatureRequirement'] })
-							}
+							disabled
+							style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
 						>
 							<option value="DEFAULT">Default</option>
 							<option value="REQUIRE_SIGNED">Require Signed</option>
 							<option value="ALLOW_UNSIGNED">Allow Unsigned</option>
 						</Select>
-						<Helper>Define the signature requirement for request parameters</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Set request signature requirements in PingOne application settings
+						</Helper>
 					</Field>
 
 					<Field>
@@ -457,13 +472,14 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.additionalRefreshTokenReplayProtection}
-								onChange={(e) =>
-									update({ additionalRefreshTokenReplayProtection: e.target.checked })
-								}
+								disabled
+								style={{ cursor: 'not-allowed' }}
 							/>
 							Additional Refresh Token Replay Protection
 						</CheckboxLabel>
-						<Helper>Enable additional protection against refresh token replay attacks</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable refresh token replay protection in PingOne application settings
+						</Helper>
 					</Field>
 
 					<Field>
@@ -471,13 +487,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.includeX5tParameter}
-								onChange={(e) => update({ includeX5tParameter: e.target.checked })}
+								disabled
+								style={{ cursor: 'not-allowed' }}
 							/>
 							Include x5t Parameter
 						</CheckboxLabel>
-						<Helper>
-							Include the x5t parameter in the header of access tokens, ID tokens, and JWT-based
-							refresh tokens
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable x5t parameter inclusion in PingOne application settings
 						</Helper>
 					</Field>
 
@@ -486,11 +502,14 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.oidcSessionManagement}
-								onChange={(e) => update({ oidcSessionManagement: e.target.checked })}
+								disabled
+								style={{ cursor: 'not-allowed' }}
 							/>
 							OpenID Connect Session Management
 						</CheckboxLabel>
-						<Helper>Enable OpenID Connect Session Management for better session control</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable OIDC session management in PingOne application settings
+						</Helper>
 					</Field>
 
 					<Field>
@@ -498,11 +517,14 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.requestScopesForMultipleResources}
-								onChange={(e) => update({ requestScopesForMultipleResources: e.target.checked })}
+								disabled
+								style={{ cursor: 'not-allowed' }}
 							/>
 							Request Scopes for Multiple Resources
 						</CheckboxLabel>
-						<Helper>Enable requesting scopes for accessing multiple resources</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable multi-resource scopes in PingOne application settings
+						</Helper>
 					</Field>
 
 					<Field>
@@ -510,11 +532,14 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							<Checkbox
 								type="checkbox"
 								checked={value.terminateUserSessionByIdToken}
-								onChange={(e) => update({ terminateUserSessionByIdToken: e.target.checked })}
+								disabled
+								style={{ cursor: 'not-allowed' }}
 							/>
 							Terminate User Session by ID Token
 						</CheckboxLabel>
-						<Helper>Allow user sessions to be terminated using an ID token</Helper>
+						<Helper style={{ color: '#059669', fontWeight: '500' }}>
+							⚙️ Configured in PingOne → Enable ID token session termination in PingOne application settings
+						</Helper>
 					</Field>
 				</Grid>
 			</Section>

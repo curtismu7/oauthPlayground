@@ -2,6 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import {
 	FiAlertTriangle,
+	FiArrowLeft,
 	FiCheckCircle,
 	FiClock,
 	FiCopy,
@@ -30,7 +31,6 @@ import { useTokenAnalysis } from '../hooks/useTokenAnalysis';
 // JWT decoding functionality handled by token analysis service
 import {
 	clearTokenHistory,
-	getFlowDisplayName,
 	getFlowIcon,
 	getTokenHistory,
 	removeTokenFromHistory,
@@ -39,6 +39,8 @@ import {
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowHeader } from '../services/flowHeaderService';
+import { getFlowNavigationState, navigateBackToFlow, getFlowDisplayName } from '../utils/flowNavigation';
+import { useNavigate } from 'react-router-dom';
 
 type TokenIntrospectionResult = {
 	active?: boolean;
@@ -612,9 +614,13 @@ const RefreshStatus = styled.div<{
 
 const TokenManagement = () => {
 	const { tokens } = useAuth();
+	const navigate = useNavigate();
 
 	// Token analysis hooks
 	const { getTokenTypeInfo } = useTokenAnalysis();
+
+	// Flow navigation state
+	const [flowNavigationState] = useState(() => getFlowNavigationState());
 
 	// Track the last user-selected token type
 	const lastSelectedTokenType = useRef<string | null>(null);
@@ -1905,6 +1911,14 @@ const TokenManagement = () => {
 		[]
 	);
 
+	// Back to flow navigation handler
+	const handleBackToFlow = useCallback(() => {
+		const success = navigateBackToFlow(navigate);
+		if (!success) {
+			v4ToastManager.showError('Unable to navigate back to the originating flow. The flow state may have expired.');
+		}
+	}, [navigate]);
+
 	const formatTimestamp = (seconds?: number) => {
 		if (!seconds) {
 			return undefined;
@@ -1946,6 +1960,49 @@ const TokenManagement = () => {
 	return (
 		<Container>
 			<FlowHeader flowType="token-management" />
+
+			{/* Back to Flow Button */}
+			{flowNavigationState && (
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'flex-start',
+						marginBottom: '1.5rem',
+					}}
+				>
+					<button
+						onClick={handleBackToFlow}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							padding: '0.75rem 1.5rem',
+							backgroundColor: '#3b82f6',
+							color: 'white',
+							border: 'none',
+							borderRadius: '8px',
+							fontSize: '0.9rem',
+							fontWeight: '600',
+							cursor: 'pointer',
+							boxShadow: '0 2px 4px rgba(59, 130, 246, 0.2)',
+							transition: 'all 0.2s ease',
+						}}
+						onMouseOver={(e) => {
+							e.currentTarget.style.backgroundColor = '#2563eb';
+							e.currentTarget.style.transform = 'translateY(-1px)';
+							e.currentTarget.style.boxShadow = '0 4px 8px rgba(59, 130, 246, 0.3)';
+						}}
+						onMouseOut={(e) => {
+							e.currentTarget.style.backgroundColor = '#3b82f6';
+							e.currentTarget.style.transform = 'translateY(0)';
+							e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.2)';
+						}}
+					>
+						<FiArrowLeft size={16} />
+						Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step {flowNavigationState.stepIndex + 1})
+					</button>
+				</div>
+			)}
 
 			{/* Token Source Indicator */}
 			<div

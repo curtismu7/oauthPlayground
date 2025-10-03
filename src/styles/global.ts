@@ -176,4 +176,15 @@ export const GlobalStyle = createGlobalStyle`
       transform: rotate(360deg);
     }
   }
+
+  /* Text selection highlight */
+  ::selection {
+    background: #dc2626;
+    color: white;
+  }
+
+  ::-moz-selection {
+    background: #dc2626;
+    color: white;
+  }
 `;

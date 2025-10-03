@@ -66,13 +66,16 @@ export default defineConfig(({ mode }) => {
 			hmr: {
 				port: 3000,
 				host: 'localhost',
-				protocol: 'wss',
+				// Remove protocol to let Vite auto-detect
+				// protocol: 'wss',
 			},
 			proxy: {
 				'/api': {
-					target: 'https://localhost:3000',
+					target: 'http://localhost:3001', // Use HTTP instead of HTTPS
 					changeOrigin: true,
-					secure: false, // Allow self-signed certificates
+					secure: false,
+					timeout: 10000,
+					proxyTimeout: 10000,
 					rewrite: (path) => {
 						// Map /api/token to /api/token-exchange
 						if (path === '/api/token') {
@@ -81,11 +84,18 @@ export default defineConfig(({ mode }) => {
 						return path;
 					},
 					configure: (proxy) => {
-						// Add error handling for HTTPS fallback
+						// Add error handling
 						proxy.on('error', (err) => {
-							console.log('Proxy error, attempting HTTP fallback:', err.message);
-							// Note: In a real scenario, you might want to implement
-							// automatic fallback to HTTP target here
+							console.log('Proxy error:', err.message);
+						});
+						
+						// Add connection handling
+						proxy.on('proxyReq', (proxyReq) => {
+							proxyReq.setTimeout(10000);
+						});
+						
+						proxy.on('proxyRes', (proxyRes) => {
+							proxyRes.setTimeout(10000);
 						});
 					},
 				},

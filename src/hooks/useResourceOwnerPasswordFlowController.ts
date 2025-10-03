@@ -11,6 +11,7 @@ export interface ResourceOwnerPasswordConfig {
 	password: string;
 	scopes: string;
 	tokenEndpoint?: string;
+	includeX5tParameter?: boolean;
 }
 
 export interface ResourceOwnerPasswordResult {
@@ -89,6 +90,7 @@ export const useResourceOwnerPasswordFlowController =
 						username: credentials.username,
 						password: credentials.password,
 						scope: credentials.scopes,
+						...(credentials.includeX5tParameter && { request_x5t: 'true' }),
 					}),
 				});
 
