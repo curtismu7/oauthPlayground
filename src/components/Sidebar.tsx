@@ -449,19 +449,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					>
 						Redirectless Flow (V5)
 					</MenuItem>
-					<MenuItem
-						icon={<FiSmartphone />}
-						active={isActive('/flows/ciba-v5')}
-						onClick={() => handleNavigation('/flows/ciba-v5')}
-					>
-						CIBA Flow V5 (Educational)
-					</MenuItem>
 						<MenuItem
 							icon={<FiShield />}
 							active={isActive('/mfa-test')}
 							onClick={() => handleNavigation('/mfa-test')}
 						>
-							MFA Test
+							PingOne MFA API
 						</MenuItem>
 					</SubMenu>
 
@@ -541,6 +534,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={() => handleNavigation('/tutorials')}
 						>
 							Interactive Tutorials
+						</MenuItem>
+						<MenuItem
+							icon={<FiBookOpen />}
+							active={isActive('/oauth-oidc-training')}
+							onClick={() => handleNavigation('/oauth-oidc-training')}
+						>
+							OAuth/OIDC Training
 						</MenuItem>
 					</SubMenu>
 
