@@ -46,6 +46,8 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
@@ -1555,6 +1557,27 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
+									<OIDCDiscoveryInput
+										onDiscoveryComplete={async (result) => {
+											if (result.success && result.document) {
+												console.log('[OAuth AuthZ] OIDC Discovery completed successfully');
+												// Auto-populate environment ID if it's a PingOne issuer
+												const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+												if (envId) {
+													handleFieldChange('environmentId', envId);
+												}
+												// Set default redirect URI
+												if (!credentials.redirectUri) {
+													handleFieldChange('redirectUri', 'http://localhost:3000/callback');
+												}
+											}
+										}}
+										showSuggestions={true}
+										autoDiscover={false}
+									/>
+									
+									<SectionDivider />
+									
 									<CredentialsInput
 										environmentId={credentials.environmentId || ''}
 										clientId={credentials.clientId || ''}
