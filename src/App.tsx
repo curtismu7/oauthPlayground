@@ -52,10 +52,10 @@ import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractice
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
-import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
+import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up legacy flows
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // Import all the new OAuth and OIDC flow components
@@ -72,7 +72,6 @@ import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlow
 // V3 OIDC flows backed up
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 // OIDCHybridFlowV3 backed up
-import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 // OIDCImplicitFlowV3 backed up
 import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
@@ -80,12 +79,14 @@ import PARFlow from './pages/flows/PARFlow';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
-import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
+import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_real';
 import RARFlowV5 from './pages/flows/RARFlowV5';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
 import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
+
+import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
@@ -323,6 +324,7 @@ const AppRoutes = () => {
 							{/* PingOne PAR Flow - V5 only */}
 							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV5 />} />
+							<Route path="/flows/pingone-mfa-v5" element={<PingOneMFAFlowV5 />} />
 
 							{/* Legacy route removed - use V5 */}
 							<Route
