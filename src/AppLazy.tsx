@@ -33,6 +33,7 @@ const InteractiveTutorials = React.lazy(() => import('./pages/InteractiveTutoria
 const OAuth21 = React.lazy(() => import('./pages/OAuth21'));
 const OIDCSessionManagement = React.lazy(() => import('./pages/OIDCSessionManagement'));
 const OIDC = React.lazy(() => import('./pages/OIDC'));
+const OAuthOIDCTraining = React.lazy(() => import('./pages/OAuthOIDCTraining'));
 
 // Lazy load OAuth flow components
 const AuthorizationCodeFlow = React.lazy(() => import('./pages/flows/AuthorizationCodeFlow'));
@@ -520,6 +521,15 @@ const AppRoutes = () => {
 							element={
 								<LazyRouteWrapper fallbackMessage="Loading tutorials...">
 									<InteractiveTutorials />
+								</LazyRouteWrapper>
+							}
+						/>
+
+						<Route
+							path="/oauth-oidc-training"
+							element={
+								<LazyRouteWrapper fallbackMessage="Loading OAuth/OIDC Training...">
+									<OAuthOIDCTraining />
 								</LazyRouteWrapper>
 							}
 						/>

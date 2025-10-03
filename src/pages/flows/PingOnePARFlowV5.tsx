@@ -31,6 +31,7 @@ import { pingOneConfigService } from '../../services/pingoneConfigService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const STEP_METADATA = [
 	{
@@ -64,25 +65,6 @@ const ContentWrapper = styled.div`
 	max-width: 64rem;
 	margin: 0 auto;
 	padding: 0 1rem;
-`;
-
-const HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
-`;
-
-const Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: var(--color-text-secondary, #4b5563);
-	margin: 0 auto;
-	max-width: 42rem;
 `;
 
 const MainCard = styled.div`
@@ -366,14 +348,14 @@ const PingOnePARFlowV5: React.FC = () => {
 		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
 	}, []);
 
-	const generateRandomString = (length: number): string => {
+	const generateRandomString = useCallback((length: number): string => {
 		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
 		let result = '';
 		for (let i = 0; i < length; i++) {
 			result += chars.charAt(Math.floor(Math.random() * chars.length));
 		}
 		return result;
-	};
+	}, []);
 
 	const handleGeneratePkce = useCallback(async () => {
 		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
@@ -1064,7 +1046,6 @@ const PingOnePARFlowV5: React.FC = () => {
 		controller.credentials,
 		controller.setCredentials,
 		controller.saveCredentials,
-		controller.hasCredentialsSaved,
 		controller.pkceCodes,
 		handleGeneratePkce,
 		parRequestUri,
@@ -1076,15 +1057,14 @@ const PingOnePARFlowV5: React.FC = () => {
 		controller.authUrl,
 		handleGenerateAuthUrl,
 		handleOpenAuthUrl,
+		parApiCall,
+		authUrlApiCall,
 	]);
 
 	return (
 		<Container>
 			<ContentWrapper>
-				<HeaderSection>
-					<MainTitle>PingOne PAR Flow V5</MainTitle>
-					<Subtitle>Pushed Authorization Request (RFC 9126) with PingOne Integration</Subtitle>
-				</HeaderSection>
+				<FlowHeader flowId="pingone-par-v5" />
 
 				<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
 

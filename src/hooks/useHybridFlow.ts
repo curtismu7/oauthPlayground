@@ -30,6 +30,7 @@ export interface HybridFlowCredentials {
 	clientSecret?: string;
 	scopes: string;
 	responseType: 'code id_token' | 'code token' | 'code id_token token';
+	responseMode?: 'query' | 'fragment' | 'form_post' | 'pi.flow';
 	includeX5tParameter?: boolean;
 }
 
@@ -170,7 +171,7 @@ export const useHybridFlow = (): HybridFlowState => {
 				scope: credentials.scopes,
 				state: newState,
 				nonce: newNonce,
-				response_mode: 'fragment', // Hybrid uses fragment for tokens
+				response_mode: credentials.responseMode || 'fragment', // Use selected response mode or default to fragment
 			});
 
 			const url = `${baseUrl}?${params.toString()}`;

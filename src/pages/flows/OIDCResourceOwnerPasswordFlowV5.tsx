@@ -285,12 +285,15 @@ const TokenInfoValue = styled.span`
 `;
 
 const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
-	const [currentStep, setCurrentStep] = useState<StepIndex>(0);
+	const [currentStep, setCurrentStep] = useState<StepIndex>(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		return restoreStep ? (parseInt(restoreStep, 10) as StepIndex) : 0;
+	});
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const { credentials, tokens, requestToken, clearResults, updateCredentials } =
+	const { credentials, tokens, requestToken, clearResults, updateCredentials, saveCredentials } =
 		useResourceOwnerPasswordFlowController();
 
 	const handleNext = useCallback(() => {
@@ -383,6 +386,13 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 								Boolean(credentials?.username) &&
 								Boolean(credentials?.password)
 							}
+							onSaveConfiguration={saveCredentials}
+							onLoadConfiguration={(config) => {
+								if (config) {
+									updateCredentials(config);
+									v4ToastManager.showSuccess('Configuration loaded successfully!');
+								}
+							}}
 						/>
 					</>
 				);

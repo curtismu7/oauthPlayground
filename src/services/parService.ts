@@ -355,4 +355,5 @@ export class PARService {
 	}
 }
 
-export const parService = new PARService('default-environment');
+// Note: PAR service instance should be created with actual environment ID when needed
+// export const parService = new PARService('default-environment');
