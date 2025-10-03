@@ -2,6 +2,7 @@
 
 import { getCallbackUrlForFlow } from './callbackUrls';
 import { logger } from './logger';
+import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../services/oidcDiscoveryService';
 
 export interface PermanentCredentials {
 	environmentId: string;
@@ -16,6 +17,10 @@ export interface PermanentCredentials {
 	tokenAuthMethod?: string;
 	useJwksEndpoint?: boolean;
 	loginHint?: string;
+	// OIDC Discovery fields
+	issuerUrl?: string;
+	discoveredEndpoints?: OIDCDiscoveryDocument;
+	lastDiscoveryTime?: number;
 }
 
 export interface SessionCredentials {
@@ -1148,6 +1153,140 @@ class CredentialManager {
 			' [CredentialManager] login_credentials:',
 			localStorage.getItem('login_credentials')
 		);
+	}
+
+	/**
+	 * Discover OIDC endpoints from issuer URL and update credentials
+	 */
+	async discoverAndUpdateCredentials(issuerUrl: string, clientId: string, clientSecret?: string, redirectUri?: string): Promise<{
+		success: boolean;
+		credentials?: PermanentCredentials;
+		error?: string;
+	}> {
+		try {
+			logger.info('Starting OIDC discovery for issuer:', issuerUrl);
+			
+			const discoveryResult = await oidcDiscoveryService.discover({ issuerUrl });
+			
+			if (!discoveryResult.success || !discoveryResult.document) {
+				return {
+					success: false,
+					error: discoveryResult.error || 'Discovery failed'
+				};
+			}
+
+			// Convert discovery document to credentials
+			const credentials = oidcDiscoveryService.documentToCredentials(
+				discoveryResult.document,
+				clientId,
+				clientSecret,
+				redirectUri
+			);
+
+			// Create PermanentCredentials object
+			const permanentCredentials: PermanentCredentials = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
+				scopes: credentials.supportedScopes.includes('openid') ? ['openid', 'profile', 'email'] : ['read', 'write'],
+				authEndpoint: credentials.authorizationEndpoint,
+				tokenEndpoint: credentials.tokenEndpoint,
+				userInfoEndpoint: credentials.userInfoEndpoint,
+				endSessionEndpoint: credentials.endSessionEndpoint,
+				tokenAuthMethod: 'client_secret_post',
+				useJwksEndpoint: true,
+				loginHint: '',
+				issuerUrl: credentials.issuerUrl,
+				discoveredEndpoints: discoveryResult.document,
+				lastDiscoveryTime: Date.now()
+			};
+
+			// Save the discovered credentials
+			await this.savePermanentCredentials(permanentCredentials);
+
+			logger.info('Successfully discovered and saved OIDC endpoints');
+			return {
+				success: true,
+				credentials: permanentCredentials
+			};
+
+		} catch (error) {
+			logger.error('OIDC discovery failed:', String(error));
+			return {
+				success: false,
+				error: error instanceof Error ? error.message : 'Discovery failed'
+			};
+		}
+	}
+
+	/**
+	 * Check if discovered endpoints are still valid (not expired)
+	 */
+	isDiscoveryValid(credentials: PermanentCredentials): boolean {
+		if (!credentials.lastDiscoveryTime || !credentials.discoveredEndpoints) {
+			return false;
+		}
+
+		// Discovery is valid for 24 hours
+		const DISCOVERY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
+		const now = Date.now();
+		return (now - credentials.lastDiscoveryTime) < DISCOVERY_CACHE_DURATION;
+	}
+
+	/**
+	 * Refresh discovered endpoints if they're expired
+	 */
+	async refreshDiscoveryIfNeeded(credentials: PermanentCredentials): Promise<PermanentCredentials> {
+		if (!credentials.issuerUrl || this.isDiscoveryValid(credentials)) {
+			return credentials;
+		}
+
+		logger.info('Discovery expired, refreshing endpoints for:', credentials.issuerUrl);
+		
+		const result = await this.discoverAndUpdateCredentials(
+			credentials.issuerUrl,
+			credentials.clientId,
+			credentials.clientSecret,
+			credentials.redirectUri
+		);
+
+		if (result.success && result.credentials) {
+			return result.credentials;
+		}
+
+		// If refresh failed, return original credentials
+		logger.warn('Failed to refresh discovery, using cached endpoints');
+		return credentials;
+	}
+
+	/**
+	 * Get enhanced credentials with discovery information
+	 */
+	getEnhancedCredentials(): PermanentCredentials | null {
+		const credentials = this.loadPermanentCredentials();
+		if (!credentials) {
+			return null;
+		}
+
+		// If we have discovery information, return it
+		if (credentials.issuerUrl && credentials.discoveredEndpoints) {
+			return credentials;
+		}
+
+		// Otherwise, try to extract from existing endpoints
+		if (credentials.authEndpoint) {
+			const environmentId = oidcDiscoveryService.extractEnvironmentId(credentials.authEndpoint);
+			if (environmentId) {
+				return {
+					...credentials,
+					issuerUrl: `https://auth.pingone.com/${environmentId}`,
+					lastDiscoveryTime: Date.now() // Mark as discovered now
+				};
+			}
+		}
+
+		return credentials;
 	}
 
 	/**

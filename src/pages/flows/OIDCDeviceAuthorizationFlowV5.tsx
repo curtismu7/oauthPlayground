@@ -21,6 +21,7 @@ import {
 import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
@@ -30,6 +31,8 @@ import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderServi
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -44,29 +47,7 @@ const FlowContent = styled.div`
 	padding: 0 1rem;
 `;
 
-const _FlowHeader = styled.div`
-	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-	color: #ffffff;
-	padding: 2rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	border-radius: 1rem 1rem 0 0;
-	box-shadow: 0 10px 25px rgba(22, 163, 74, 0.2);
-`;
 
-const _FlowTitle = styled.h2`
-	font-size: 2rem;
-	font-weight: 700;
-	margin: 0;
-	color: #ffffff;
-`;
-
-const _FlowSubtitle = styled.p`
-	font-size: 1rem;
-	color: rgba(255, 255, 255, 0.9);
-	margin: 0.5rem 0 0 0;
-`;
 
 const _StepBadge = styled.span`
 	background: rgba(22, 163, 74, 0.2);
@@ -560,7 +541,17 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	const environmentId = useId();
 	const clientId = useId();
 	const scopesId = useId();
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		// Check for restore_step from token management navigation
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [OIDCDeviceAuthorizationFlowV5] Restoring to step:', step);
+			return step;
+		}
+		return 0;
+	});
 	const [collapsedSections, setCollapsedSections] = useState<Record<SectionKey, boolean>>({
 		overview: false,
 		flowDiagram: true,
@@ -663,11 +654,6 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		}
 	}, [deviceFlow]);
 
-	const handleStartPolling = useCallback(() => {
-		deviceFlow.startPolling();
-		setCurrentStep(3); // Move to polling step
-	}, [deviceFlow]);
-
 	const handleReset = useCallback(() => {
 		deviceFlow.reset();
 		setCurrentStep(0);
@@ -677,6 +663,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	}, [deviceFlow]);
 
 	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oidc-device-authorization-v5', currentStep, 'oidc');
+
 		// Set flow source for Token Management page (legacy support)
 		sessionStorage.setItem('flow_source', 'oidc-device-authorization-v5');
 
@@ -701,7 +690,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		}
 
 		window.open('/token-management', '_blank');
-	}, [deviceFlow.tokens, deviceFlow.credentials]);
+	}, [deviceFlow.tokens, deviceFlow.credentials, currentStep]);
 
 	// Step validation
 	const isStepValid = useCallback(
@@ -1401,12 +1390,6 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									⏱️ Code expires in: {deviceFlow.formatTimeRemaining(deviceFlow.timeRemaining)}
 								</CountdownTimer>
 							)}
-
-							<ActionRow style={{ marginTop: '1.5rem' }}>
-								<Button onClick={handleStartPolling} disabled={deviceFlow.pollingStatus.isPolling}>
-									<FiRefreshCw /> Start Polling for Authorization
-								</Button>
-							</ActionRow>
 						</CollapsibleContent>
 					)}
 				</CollapsibleSection>
@@ -1815,9 +1798,10 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 
 	return (
 		<FlowContainer>
-			<StandardFlowHeader flowId="oidc-device-authorization-v5" />
-
 			<FlowContent>
+				<StandardFlowHeader flowId="oidc-device-authorization-v5" />
+				<FlowInfoCard flowInfo={getFlowInfo('device-code')!} />
+				<FlowSequenceDisplay flowType="device-authorization" />
 				{renderStepContent()}
 
 				<StepNavigationButtons

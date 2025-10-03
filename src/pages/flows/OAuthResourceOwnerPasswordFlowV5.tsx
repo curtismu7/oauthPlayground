@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthResourceOwnerPasswordFlowV5.tsx
 // V5.0.0 OAuth Resource Owner Password Flow - Full V5 Implementation with Enhanced FlowInfoService
 
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -13,8 +13,10 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const STEP_METADATA = [
 	{
@@ -285,12 +287,48 @@ const TokenInfoValue = styled.span`
 `;
 
 const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
-	const [currentStep, setCurrentStep] = useState<StepIndex>(0);
+	const [currentStep, setCurrentStep] = useState<StepIndex>(() => {
+		// Check for restore_step from token management navigation
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [OAuthResourceOwnerPasswordFlowV5] Restoring to step:', step);
+			return step as StepIndex;
+		}
+		return 0;
+	});
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
 
-	const { credentials, tokens, requestToken, clearResults, updateCredentials } =
+	usePageScroll();
+
+	// Navigate to token management with flow state
+	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oauth-resource-owner-password-v5', currentStep, 'oauth');
+
+		// If we have tokens, pass them to Token Management
+		if (tokens?.access_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'oauth-resource-owner-password-v5');
+			console.log(
+				'🔍 [OAuthResourceOwnerPasswordFlowV5] Passing access token to Token Management via localStorage'
+			);
+		}
+
+		window.open('/token-management', '_blank');
+	}, [tokens, currentStep]);
+
+	// Scroll to top when step changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [currentStep]);
+
+	const { credentials, tokens, requestToken, clearResults, updateCredentials, saveCredentials } =
 		useResourceOwnerPasswordFlowController();
 
 	const handleNext = useCallback(() => {
@@ -383,6 +421,13 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 						<ConfigurationSummaryCard
 							configuration={credentials}
 							hasConfiguration={Boolean(credentials?.clientId)}
+							onSaveConfiguration={saveCredentials}
+							onLoadConfiguration={(config) => {
+								if (config) {
+									updateCredentials(config);
+									v4ToastManager.showSuccess('Configuration loaded successfully!');
+								}
+							}}
 						/>
 					</>
 				);
@@ -503,6 +548,15 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 										</TokenInfoRow>
 									)}
 								</TokenInfo>
+
+								{/* Token Management Button */}
+								{tokens?.access_token && (
+									<ResultsSection>
+										<Button onClick={navigateToTokenManagement} $variant="primary">
+											Open Token Management
+										</Button>
+									</ResultsSection>
+								)}
 
 								<ResultsSection>
 									<ResultsHeading>Full Token Response</ResultsHeading>

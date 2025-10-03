@@ -23,7 +23,9 @@ const Section = styled.div`
 	}
 `;
 
-const SectionHeader = styled.button<{ $isExpanded: boolean; $primaryColor: string }>`
+const SectionHeader = styled.button.withConfig({
+	shouldForwardProp: (prop) => prop !== '$isExpanded' && prop !== 'isExpanded',
+})<{ $isExpanded: boolean; $primaryColor: string }>`
 	width: 100%;
 	background: ${(props) => (props.$isExpanded ? props.$primaryColor : '#f0fdf4')};
 	color: ${(props) => (props.$isExpanded ? 'white' : '#166534')};
@@ -49,20 +51,20 @@ const SectionTitle = styled.div`
 `;
 
 const ChevronIcon = styled.div`
-	display: flex;
 	align-items: center;
 	justify-content: center;
 	transition: transform 0.2s;
 `;
 
-const SectionContent = styled.div<{ $isExpanded: boolean }>`
-	padding: ${(props) => (props.$isExpanded ? '1.5rem' : '0')};
-	max-height: ${(props) => (props.$isExpanded ? '1000px' : '0')};
+const SectionContent = styled.div.withConfig({
+	shouldForwardProp: (prop) => prop !== '$isExpanded' && prop !== 'isExpanded',
+})<{ $isExpanded: boolean }>`
+	padding: ${({ $isExpanded }) => ($isExpanded ? '1.5rem' : '0')};
+	max-height: ${({ $isExpanded }) => ($isExpanded ? '1000px' : '0')};
 	overflow: hidden;
 	transition: all 0.3s ease;
 	background: #fafafa;
 `;
-
 const StatusSection = styled.div`
 	padding: 1.5rem;
 	background: white;
@@ -129,7 +131,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 	flowType,
 }) => {
 	const { settings } = useUISettings();
-	const _computedPrimaryColor =
+	const computedPrimaryColor =
 		primaryColor ||
 		(settings.colorScheme === 'blue'
 			? '#0070cc'
@@ -146,10 +148,6 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 	const handleSaveConfiguration = () => {
 		onSaveConfiguration?.();
-	};
-
-	const _handleLoadConfiguration = () => {
-		onLoadConfiguration?.();
 	};
 
 	const handleExportConfiguration = async () => {
@@ -300,14 +298,14 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 		return new TextDecoder().decode(decrypted);
 	};
-
 	return (
 		<Card>
 			<Section>
 				<SectionHeader
+					$primaryColor={computedPrimaryColor}
 					$isExpanded={isSummaryExpanded}
-					$primaryColor={primaryColor}
 					onClick={() => setIsSummaryExpanded(!isSummaryExpanded)}
+					style={{ display: isSummaryExpanded ? 'block' : 'none' }}
 				>
 					<SectionTitle>
 						<FiCheckCircle size={18} />
@@ -323,7 +321,6 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 							<div
 								style={{
 									display: 'grid',
-									gridTemplateColumns: 'auto 1fr',
 									gap: '0.75rem 1rem',
 									marginBottom: '1rem',
 								}}

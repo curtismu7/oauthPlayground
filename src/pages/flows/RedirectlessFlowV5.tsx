@@ -444,7 +444,10 @@ const RedirectlessFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		const restoreStep = sessionStorage.getItem('restore_step');
+		return restoreStep ? parseInt(restoreStep, 10) : 0;
+	});
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,

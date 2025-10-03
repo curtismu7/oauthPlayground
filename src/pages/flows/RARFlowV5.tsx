@@ -4,6 +4,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import {
 	FiCheckCircle,
+	FiCode,
 	FiExternalLink,
 	FiKey,
 	FiRefreshCw,
@@ -23,10 +24,13 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { createOAuthTemplate } from '../../services/enhancedApiCallDisplayService';
-import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 import { trackOAuthFlow } from '../../utils/activityTracker';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 
 const STEP_METADATA = [
@@ -310,10 +314,162 @@ const AddButton = styled.button`
 	}
 `;
 
+// Example section styled components
+const ExampleSection = styled.div`
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	padding: 1.5rem;
+	margin: 1rem 0;
+	background: #fafafa;
+`;
+
+const ExampleHeader = styled.h3`
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 0 0 1rem 0;
+	font-size: 1.125rem;
+	font-weight: 600;
+	color: #374151;
+`;
+
+const ExampleContainer = styled.div`
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	overflow: hidden;
+`;
+
+const ExampleTabs = styled.div`
+	display: flex;
+	border-bottom: 1px solid #d1d5db;
+	background: #f9fafb;
+`;
+
+const ExampleTab = styled.button<{ active?: boolean }>`
+	flex: 1;
+	padding: 0.75rem 1rem;
+	border: none;
+	background: ${({ active }) => (active ? '#ffffff' : 'transparent')};
+	color: ${({ active }) => (active ? '#374151' : '#6b7280')};
+	font-size: 0.875rem;
+	font-weight: 500;
+	cursor: pointer;
+	border-bottom: ${({ active }) => (active ? '2px solid #3b82f6' : 'none')};
+	transition: all 0.2s;
+
+	&:hover {
+		background: ${({ active }) => (active ? '#ffffff' : '#f3f4f6')};
+	}
+`;
+
+const JsonExampleContainer = styled.div`
+	padding: 1.5rem;
+	background: #1e293b;
+`;
+
+const JsonExampleTitle = styled.h4`
+	margin: 0 0 1rem 0;
+	color: #e2e8f0;
+	font-size: 1rem;
+	font-weight: 600;
+`;
+
+const JsonExampleDisplay = styled.pre`
+	background: #0f172a;
+	color: #e2e8f0;
+	padding: 1rem;
+	border-radius: 4px;
+	overflow-x: auto;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.75rem;
+	line-height: 1.5;
+	margin: 0 0 1rem 0;
+	white-space: pre-wrap;
+	word-break: break-all;
+`;
+
+const JsonExampleActions = styled.div`
+	display: flex;
+	gap: 0.75rem;
+`;
+
+const JsonExampleButton = styled.button`
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.5rem 1rem;
+	border: 1px solid #475569;
+	border-radius: 4px;
+	background: #1e293b;
+	color: #e2e8f0;
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s;
+
+	&:hover {
+		background: #334155;
+		border-color: #64748b;
+	}
+`;
+
+const FormattedExampleContainer = styled.div`
+	padding: 1.5rem;
+	background: white;
+`;
+
+const FormattedExampleTitle = styled.h4`
+	margin: 0 0 1rem 0;
+	color: #374151;
+	font-size: 1rem;
+	font-weight: 600;
+`;
+
+const FormattedExampleList = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+`;
+
+const FormattedExampleItem = styled.div`
+	border: 1px solid #e5e7eb;
+	border-radius: 6px;
+	padding: 1rem;
+	background: #f9fafb;
+`;
+
+const FormattedExampleItemHeader = styled.div`
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.5rem;
+`;
+
+const FormattedExampleDetails = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+`;
+
+const FormattedExampleDetail = styled.div`
+	font-size: 0.75rem;
+	color: #6b7280;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+`;
+
 
 // RAR Flow Component
 export const RARFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(() => {
+		// Check for restore_step from sessionStorage first (higher priority)
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step');
+			console.log('🔄 [RAR-V5] Restored step from sessionStorage:', step);
+			return step;
+		}
+		
 		// Load current step from localStorage on initialization
 		const saved = localStorage.getItem('rar-v5-current-step');
 		if (saved) {
@@ -327,6 +483,9 @@ export const RARFlowV5: React.FC = () => {
 		}
 		return 0;
 	});
+	// API call tracking for display
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	
 	const [credentials, setCredentials] = useState(() => {
 		// Load credentials from localStorage on initialization
 		const saved = localStorage.getItem('rar-v5-credentials');
@@ -366,19 +525,19 @@ export const RARFlowV5: React.FC = () => {
 				console.warn('[RAR-V5] Failed to parse saved authorization details:', error);
 			}
 		}
+		// Use the example structure provided by user
 		return [
 			{
 				type: 'payment_initiation',
-				locations: ['https://api.example.com/payments'],
-				actions: ['initiate', 'status'],
-				datatypes: ['account', 'payment'],
-			},
-			{
-				type: 'account_information',
-				locations: ['https://api.example.com/accounts'],
-				actions: ['read'],
-				datatypes: ['account', 'balance'],
-			},
+				instructedAmount: {
+					currency: 'USD',
+					amount: '250.00'
+				},
+				creditorName: 'Acme Inc.',
+				creditorAccount: {
+					iban: 'DE02100100109307118603'
+				}
+			}
 		];
 	});
 
@@ -418,6 +577,7 @@ export const RARFlowV5: React.FC = () => {
 		return null;
 	});
 	const [isRequesting, setIsRequesting] = useState(false);
+	const [exampleViewMode, setExampleViewMode] = useState<'json' | 'formatted'>('formatted');
 
 	// Track flow usage
 	useEffect(() => {
@@ -582,54 +742,59 @@ export const RARFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Credentials saved successfully.');
 	}, [credentials]);
 
+	const navigateToTokenManagement = useCallback(() => {
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('rar-v5', currentStep, 'oauth');
+
+		// Set flow source for Token Management page (legacy support)
+		sessionStorage.setItem('flow_source', 'rar-v5');
+
+		// Store comprehensive flow context for Token Management page
+		const flowContext = {
+			flow: 'rar-v5',
+			tokens: tokens,
+			credentials: credentials,
+			timestamp: Date.now(),
+		};
+		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
+
+		// If we have tokens, pass them to Token Management
+		if (tokens?.access_token) {
+			// Use localStorage for cross-tab communication
+			localStorage.setItem('token_to_analyze', tokens.access_token);
+			localStorage.setItem('token_type', 'access');
+			localStorage.setItem('flow_source', 'rar-v5');
+			console.log(
+				'🔍 [RARFlowV5] Passing access token to Token Management via localStorage'
+			);
+		}
+
+		window.open('/token-management', '_blank');
+	}, [tokens, credentials, currentStep]);
+
 	// Handle authorization details update
-	const updateAuthorizationDetail = useCallback((index: number, field: string, value: string | string[]) => {
-		setAuthorizationDetails((prev: Array<{
-			type: string;
-			locations: string[];
-			actions: string[];
-			datatypes: string[];
-		}>) => 
-			prev.map((detail: {
-				type: string;
-				locations: string[];
-				actions: string[];
-				datatypes: string[];
-			}, i: number) => 
+	const updateAuthorizationDetail = useCallback((index: number, field: string, value: any) => {
+		setAuthorizationDetails((prev: any[]) =>
+			prev.map((detail: any, i: number) =>
 				i === index ? { ...detail, [field]: value } : detail
 			)
 		);
 	}, []);
 
 	const addAuthorizationDetail = useCallback(() => {
-		setAuthorizationDetails((prev: Array<{
-			type: string;
-			locations: string[];
-			actions: string[];
-			datatypes: string[];
-		}>) => [
+		setAuthorizationDetails((prev: any[]) => [
 			...prev,
 			{
-				type: '',
-				locations: [''],
-				actions: [''],
-				datatypes: [''],
+				type: 'payment_initiation',
+				instructedAmount: { currency: 'USD', amount: '0.00' },
+				creditorName: '',
+				creditorAccount: { iban: '' },
 			}
 		]);
 	}, []);
 
 	const removeAuthorizationDetail = useCallback((index: number) => {
-		setAuthorizationDetails((prev: Array<{
-			type: string;
-			locations: string[];
-			actions: string[];
-			datatypes: string[];
-		}>) => prev.filter((_: {
-			type: string;
-			locations: string[];
-			actions: string[];
-			datatypes: string[];
-		}, i: number) => i !== index));
+		setAuthorizationDetails((prev: any[]) => prev.filter((_: any, i: number) => i !== index));
 	}, []);
 
 	// Generate authorization URL
@@ -652,13 +817,8 @@ export const RARFlowV5: React.FC = () => {
 			// Add RAR authorization details
 			const rarDetails = {
 				type: 'oauth_authorization_details',
-				authorization_details: authorizationDetails.filter((detail: {
-					type: string;
-					locations: string[];
-					actions: string[];
-					datatypes: string[];
-				}) => 
-					detail.type && detail.locations[0] && detail.actions[0]
+				authorization_details: authorizationDetails.filter((detail: any) =>
+					detail.type && detail.instructedAmount && detail.creditorName && detail.creditorAccount?.iban
 				)
 			};
 
@@ -683,17 +843,12 @@ export const RARFlowV5: React.FC = () => {
 		try {
 			// Mock token exchange with RAR claims
 			const mockTokens = {
-				access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiYXVkIjoiY2xpZW50X2lkIiwiZXhwIjoxNzM1ODQ5NjAwLCJpYXQiOjE3MzU4NDYwMDAsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhdXRob3JpemF0aW9uX2RldGFpbHMiOlt7InR5cGUiOiJwYXltZW50X2luaXRpYXRpb24iLCJsb2NhdGlvbnMiOlsiaHR0cHM6Ly9hcGkuZXhhbXBsZS5jb20vcGF5bWVudHMiXSwiaWF0aW9ucyI6WyJpbml0aWF0ZSIsInN0YXR1cyJdLCJkYXRhdHlwZXMiOlsiYWNjb3VudCIsInBheW1lbnQiXX0seyJ0eXBlIjoiYWNjb3VudF9pbmZvcm1hdGlvbiIsImxvY2F0aW9ucyI6WyJodHRwczovL2FwaS5leGFtcGxlLmNvbS9hY2NvdW50cyJdLCJhY3Rpb25zIjpbInJlYWQiXSwiZGF0YXR5cGVzIjpbImFjY291bnQiLCJiYWxhbmNlIl19XX0.signature',
+				access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwiYXVkIjoiY2xpZW50X2lkIiwiZXhwIjoxNzM1ODQ5NjAwLCJpYXQiOjE3MzU4NDYwMDAsImlzcyI6Imh0dHBzOi8vYXV0aC5waW5nb25lLmNvbSIsInNjb3BlIjoib3BlbmlkIHByb2ZpbGUgZW1haWwiLCJhdXRob3JpemF0aW9uX2RldGFpbHMiOlt7InR5cGUiOiJwYXltZW50X2luaXRpYXRpb24iLCJpbnN0cnVjdGVkQW1vdW50Ijp7ImN1cnJlbmN5IjoiVVNEIiwiYW1vdW50IjoiMjUwLjAwIn0sImNyZWRpdG9yTmFtZSI6IkFjbWUgSW5jLiIsImNyZWRpdG9yQWNjb3VudCI6eyJpYmFuIjoiREUwMjEwMDEwMDEwOTMwNzExODYwMyJ9fV19.signature',
 				token_type: 'Bearer',
 				expires_in: 3600,
 				scope: credentials.scopes,
-				authorization_details: authorizationDetails.filter((detail: {
-					type: string;
-					locations: string[];
-					actions: string[];
-					datatypes: string[];
-				}) => 
-					detail.type && detail.locations[0] && detail.actions[0]
+				authorization_details: authorizationDetails.filter((detail: any) =>
+					detail.type && detail.instructedAmount && detail.creditorName && detail.creditorAccount?.iban
 				),
 			};
 
@@ -800,18 +955,92 @@ export const RARFlowV5: React.FC = () => {
 							/>
 						</FormGroup>
 
+						{/* RAR Example Display */}
+						<ExampleSection>
+							<ExampleHeader>
+								<FiExternalLink />
+								RAR Authorization Example
+							</ExampleHeader>
+							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
+								Here's an example of RAR authorization_details structure. You can use this as a starting point or create your own.
+							</p>
+
+							<ExampleContainer>
+								<ExampleTabs>
+									<ExampleTab
+										active={exampleViewMode === 'json'}
+										onClick={() => setExampleViewMode('json')}
+									>
+										<FiCode size={14} />
+										JSON Structure
+									</ExampleTab>
+									<ExampleTab
+										active={exampleViewMode === 'formatted'}
+										onClick={() => setExampleViewMode('formatted')}
+									>
+										<FiEye size={14} />
+										Formatted View
+									</ExampleTab>
+								</ExampleTabs>
+
+								{exampleViewMode === 'json' ? (
+									<JsonExampleContainer>
+										<JsonExampleTitle>Raw JSON Example</JsonExampleTitle>
+										<JsonExampleDisplay>
+											{JSON.stringify(exampleAuthorizationDetails, null, 2)}
+										</JsonExampleDisplay>
+										<JsonExampleActions>
+											<JsonExampleButton onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}>
+												<FiCheckCircle size={14} />
+												Use This Example
+											</JsonExampleButton>
+											<JsonExampleButton onClick={() => navigator.clipboard.writeText(JSON.stringify(exampleAuthorizationDetails, null, 2))}>
+												<FiExternalLink size={14} />
+												Copy JSON
+											</JsonExampleButton>
+										</JsonExampleActions>
+									</JsonExampleContainer>
+								) : (
+									<FormattedExampleContainer>
+										<FormattedExampleTitle>Formatted Example</FormattedExampleTitle>
+										<FormattedExampleList>
+											{exampleAuthorizationDetails.map((detail, index) => (
+												<FormattedExampleItem key={index}>
+													<FormattedExampleItemHeader>
+														<strong>Type:</strong> {detail.type}
+													</FormattedExampleItemHeader>
+													<FormattedExampleDetails>
+														<FormattedExampleDetail>
+															<strong>instructedAmount:</strong> {detail.instructedAmount ? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}` : 'Not set'}
+														</FormattedExampleDetail>
+														<FormattedExampleDetail>
+															<strong>creditorName:</strong> {detail.creditorName || 'Not set'}
+														</FormattedExampleDetail>
+														<FormattedExampleDetail>
+															<strong>creditorAccount.iban:</strong> {detail.creditorAccount?.iban || 'Not set'}
+														</FormattedExampleDetail>
+													</FormattedExampleDetails>
+												</FormattedExampleItem>
+											))}
+										</FormattedExampleList>
+										<JsonExampleActions>
+											<JsonExampleButton onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}>
+												<FiCheckCircle size={14} />
+												Use This Example
+											</JsonExampleButton>
+										</JsonExampleActions>
+									</FormattedExampleContainer>
+								)}
+							</ExampleContainer>
+						</ExampleSection>
+
 						<AuthorizationDetailsContainer>
 							<Label>Authorization Details (RAR)</Label>
 							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-								Define the specific authorization details that will be requested using RAR.
+								Define the specific authorization details that will be requested using RAR. Use the example above or create your own.
 							</p>
 							
-							{authorizationDetails.map((detail: {
-								type: string;
-								locations: string[];
-								actions: string[];
-								datatypes: string[];
-							}, index: number) => (
+							{authorizationDetails.map((detail: any, index: number) => (
 								<AuthorizationDetailItem key={index}>
 									<div style={{ minWidth: '120px' }}>
 										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Type</Label>
@@ -822,27 +1051,30 @@ export const RARFlowV5: React.FC = () => {
 										/>
 									</div>
 									<div style={{ minWidth: '200px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Locations</Label>
-										<DetailTextArea
-											value={detail.locations.join('\n')}
-											onChange={(e) => updateAuthorizationDetail(index, 'locations', e.target.value.split('\n'))}
-											placeholder="https://api.example.com/payments"
+										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Instructed Amount</Label>
+										<DetailInput
+											value={detail.instructedAmount ? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}` : ''}
+											onChange={(e) => {
+												const [currency, amount] = e.target.value.split(' ');
+												updateAuthorizationDetail(index, 'instructedAmount', { currency, amount });
+											}}
+											placeholder="USD 250.00"
 										/>
 									</div>
-									<div style={{ minWidth: '120px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Actions</Label>
+									<div style={{ minWidth: '150px' }}>
+										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Creditor Name</Label>
 										<DetailInput
-											value={detail.actions.join(',')}
-											onChange={(e) => updateAuthorizationDetail(index, 'actions', e.target.value.split(','))}
-											placeholder="initiate,status"
+											value={detail.creditorName || ''}
+											onChange={(e) => updateAuthorizationDetail(index, 'creditorName', e.target.value)}
+											placeholder="Acme Inc."
 										/>
 									</div>
-									<div style={{ minWidth: '120px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Data Types</Label>
+									<div style={{ minWidth: '200px' }}>
+										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Creditor Account</Label>
 										<DetailInput
-											value={detail.datatypes.join(',')}
-											onChange={(e) => updateAuthorizationDetail(index, 'datatypes', e.target.value.split(','))}
-											placeholder="account,payment"
+											value={detail.creditorAccount?.iban || ''}
+											onChange={(e) => updateAuthorizationDetail(index, 'creditorAccount', { iban: e.target.value })}
+											placeholder="DE02100100109307118603"
 										/>
 									</div>
 									<RemoveButton onClick={() => removeAuthorizationDetail(index)}>
@@ -907,13 +1139,8 @@ export const RARFlowV5: React.FC = () => {
 										clientId: credentials.clientId,
 										redirectUri: credentials.redirectUri,
 										scopes: credentials.scopes.split(' '),
-										authorizationDetails: authorizationDetails.filter((detail: {
-											type: string;
-											locations: string[];
-											actions: string[];
-											datatypes: string[];
-										}) => 
-											detail.type && detail.locations[0] && detail.actions[0]
+										authorizationDetails: authorizationDetails.filter((detail: any) =>
+											detail.type && detail.instructedAmount && detail.creditorName && detail.creditorAccount?.iban
 										)
 									})}
 									options={{
@@ -1025,7 +1252,58 @@ export const RARFlowV5: React.FC = () => {
 											clientSecret: credentials.clientSecret,
 										}}
 										onResetFlow={handleReset}
+										onNavigateToTokenManagement={navigateToTokenManagement}
+										onIntrospectToken={async (token: string) => {
+											if (!credentials.environmentId || !credentials.clientId) {
+												throw new Error('Missing credentials for introspection');
+											}
+
+											const request = {
+												token: token,
+												clientId: credentials.clientId,
+												clientSecret: credentials.clientSecret,
+												tokenTypeHint: 'access_token' as const
+											};
+
+											try {
+												// Use the reusable service to create API call data and execute introspection
+												const result = await TokenIntrospectionService.introspectToken(
+													request,
+													'rar',
+													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+												);
+												
+												// Set the API call data for display
+												setIntrospectionApiCall(result.apiCall);
+												
+												return result.response;
+											} catch (error) {
+												// Create error API call using reusable service
+												const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+													request,
+													'rar',
+													error instanceof Error ? error.message : 'Unknown error',
+													500,
+													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+												);
+												
+												setIntrospectionApiCall(errorApiCall);
+												throw error;
+											}
+										}}
 									/>
+
+									{/* API Call Display for Token Introspection */}
+									{introspectionApiCall && (
+										<EnhancedApiCallDisplay
+											apiCall={introspectionApiCall}
+											options={{
+												showEducationalNotes: true,
+												showFlowContext: true,
+												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('rar')
+											}}
+										/>
+									)}
 								</FormGroup>
 							</>
 						)}
@@ -1079,7 +1357,7 @@ export const RARFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<FlowHeader
-				flowType="rar"
+				flowId="rar"
 			/>
 
 			<StepContainer>

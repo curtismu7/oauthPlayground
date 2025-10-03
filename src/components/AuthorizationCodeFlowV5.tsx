@@ -372,6 +372,11 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 
 	usePageScroll();
 
+	// Scroll to top when step changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [currentStep]);
+
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: `${flowType}-authorization-code-v5`,
 		enableDebugger: true,
@@ -447,6 +452,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 			flowDiagram: defaultCollapsed,
 			credentials: false, // Always expanded - users need to see credentials first
 			pkce: defaultCollapsed,
+			pkceDetails: defaultCollapsed,
 			par: defaultCollapsed,
 			authRequest: defaultCollapsed,
 			authResponse: defaultCollapsed,
@@ -455,6 +461,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 			completionOverview: defaultCollapsed,
 			completionDetails: defaultCollapsed,
 			introspectionDetails: defaultCollapsed,
+			rawJson: true, // Default to collapsed for raw JSON
 		});
 		v4ToastManager.showSuccess(`${flowName} reset successfully!`);
 	}, [resetControllerFlow, flowName, defaultCollapsed]);

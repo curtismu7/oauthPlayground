@@ -10,17 +10,19 @@ export const theme = {
 		danger: '#dc3545',
 		warning: '#ffc107',
 		info: '#17a2b8',
-		light: '#f8f9fa',
-		dark: '#343a40',
-		gray100: '#f8f9fa',
-		gray200: '#e9ecef',
-		gray300: '#dee2e6',
-		gray400: '#ced4da',
-		gray500: '#adb5bd',
-		gray600: '#6c757d',
-		gray700: '#495057',
-		gray800: '#343a40',
-		gray900: '#212529',
+		light: '#ffffff',
+		dark: '#000000',
+		gray100: '#ffffff',
+		gray200: '#f5f5f5',
+		gray300: '#e0e0e0',
+		gray400: '#cccccc',
+		gray500: '#999999',
+		gray600: '#666666',
+		gray700: '#333333',
+		gray800: '#222222',
+		gray900: '#000000',
+		white: '#ffffff',
+		black: '#000000',
 	},
 	fonts: {
 		body: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
@@ -44,13 +46,13 @@ export const theme = {
 
 export const GlobalStyle = createGlobalStyle`
   :root {
-    /* Design Tokens for Spec Cards */
+    /* Design Tokens for Spec Cards - Black text, white background */
     --card-bg: #ffffff;
-    --card-fg: #111111;
-    --card-border: #E5E7EB;
-    --card-muted: #525252;
-    --code-bg: #f6f8fa;
-    --code-fg: #0f172a;
+    --card-fg: #000000;
+    --card-border: #e0e0e0;
+    --card-muted: #666666;
+    --code-bg: #ffffff;
+    --code-fg: #000000;
     --card-radius: 12px;
     --card-padding: 16px;
     --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
@@ -59,11 +61,11 @@ export const GlobalStyle = createGlobalStyle`
   /* Dark mode - Keep accessible contrast */
   .dark :root {
     --card-bg: #ffffff;
-    --card-fg: #111111;
-    --card-border: #E5E7EB;
-    --card-muted: #404040;
-    --code-bg: #f6f8fa;
-    --code-fg: #0f172a;
+    --card-fg: #000000;
+    --card-border: #e0e0e0;
+    --card-muted: #666666;
+    --code-bg: #ffffff;
+    --code-fg: #000000;
   }
 
   * {
@@ -80,8 +82,8 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${({ theme }) => theme.fonts.body};
     line-height: 1.5;
-    color: ${({ theme }) => theme.colors.gray900};
-    background-color: ${({ theme }) => theme.colors.gray100};
+    color: ${({ theme }) => theme.colors.black};
+    background-color: ${({ theme }) => theme.colors.white};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
@@ -97,7 +99,7 @@ export const GlobalStyle = createGlobalStyle`
     margin-bottom: 0.5rem;
     font-weight: 600;
     line-height: 1.2;
-    color: ${({ theme }) => theme.colors.gray900};
+    color: ${({ theme }) => theme.colors.black};
   }
 
   h1 { font-size: 2.5rem; }
@@ -132,8 +134,8 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   pre {
-    background-color: ${({ theme }) => theme.colors.gray900};
-    color: ${({ theme }) => theme.colors.gray100};
+    background-color: ${({ theme }) => theme.colors.white};
+    color: ${({ theme }) => theme.colors.black};
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -141,6 +143,7 @@ export const GlobalStyle = createGlobalStyle`
     font-size: 0.9rem;
     line-height: 1.5;
     margin: 1rem 0;
+    border: 1px solid ${({ theme }) => theme.colors.gray300};
 
     code {
       background-color: transparent;
@@ -152,15 +155,17 @@ export const GlobalStyle = createGlobalStyle`
 
   /* JWT Token Display - Clean and readable styling */
   pre[class*="TokenValue"] {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    color: #000000 !important;
+    background-color: ${({ theme }) => theme.colors.white} !important;
+    color: ${({ theme }) => theme.colors.black} !important;
+    border: 1px solid ${({ theme }) => theme.colors.gray300} !important;
   }
 
   /* Ensure token containers have proper text contrast */
   div[class*="TokenContainer"] pre,
   div[class*="TokenSection"] pre {
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    color: #000000 !important;
+    background-color: ${({ theme }) => theme.colors.white} !important;
+    color: ${({ theme }) => theme.colors.black} !important;
+    border: 1px solid ${({ theme }) => theme.colors.gray300} !important;
   }
 
   /* Spinner animation */

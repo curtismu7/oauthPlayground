@@ -88,6 +88,38 @@ export const storeOAuthTokens = (
 };
 
 /**
+ * Attempt to rehydrate OAuth tokens from storage for flows that need tokens after remounts.
+ * Order of precedence:
+ *   1. Secure token storage (preferred)
+ *   2. Local storage fallback (legacy cross-tab communication)
+ */
+export const rehydrateOAuthTokens = (): OAuthTokens | null => {
+	const secureTokens = getOAuthTokens();
+	if (secureTokens && secureTokens.access_token) {
+		return secureTokens;
+	}
+
+	if (typeof window === 'undefined') {
+		return null;
+	}
+
+	try {
+		const localStorageTokens = window.localStorage.getItem('oauth_tokens');
+		if (localStorageTokens) {
+			const parsed = JSON.parse(localStorageTokens) as OAuthTokens;
+			if (parsed?.access_token) {
+				logger.info('TokenStorage', 'Rehydrated tokens from localStorage fallback');
+				return parsed;
+			}
+		}
+	} catch (error) {
+		logger.error('TokenStorage', 'Failed to rehydrate tokens from localStorage', undefined, error);
+	}
+
+	return null;
+};
+
+/**
  * Retrieve OAuth tokens using the standardized storage method
  * @returns OAuthTokens | null - The stored tokens or null if not found
  */

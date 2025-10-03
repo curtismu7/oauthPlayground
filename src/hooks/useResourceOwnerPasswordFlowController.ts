@@ -33,6 +33,7 @@ interface UseResourceOwnerPasswordFlowControllerReturn {
 	// Actions
 	updateCredentials: (credentials: Partial<ResourceOwnerPasswordConfig>) => void;
 	requestToken: () => Promise<ResourceOwnerPasswordResult>;
+	saveCredentials: () => Promise<void>;
 	clearResults: () => void;
 }
 
@@ -40,14 +41,29 @@ const LOG_PREFIX = '[👤 RESOURCE-OWNER-PASSWORD]';
 
 export const useResourceOwnerPasswordFlowController =
 	(): UseResourceOwnerPasswordFlowControllerReturn => {
-		const [credentials, setCredentials] = useState<ResourceOwnerPasswordConfig>({
-			environmentId: '',
-			clientId: '',
-			clientSecret: '',
-			username: '',
-			password: '',
-			scopes: 'openid profile email',
-			tokenEndpoint: '',
+		const [credentials, setCredentials] = useState<ResourceOwnerPasswordConfig>(() => {
+			// Try to load saved credentials from sessionStorage
+			try {
+				const saved = sessionStorage.getItem('resource-owner-password-v5-credentials');
+				if (saved) {
+					const parsed = JSON.parse(saved);
+					console.log(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
+					return parsed;
+				}
+			} catch (error) {
+				console.warn(`${LOG_PREFIX} [WARN] Failed to load saved credentials:`, error);
+			}
+			
+			// Return default credentials if no saved credentials found
+			return {
+				environmentId: '',
+				clientId: '',
+				clientSecret: '',
+				username: '',
+				password: '',
+				scopes: 'openid profile email',
+				tokenEndpoint: '',
+			};
 		});
 		const [tokens, setTokens] = useState<ResourceOwnerPasswordResult | null>(null);
 		const [isRequesting, setIsRequesting] = useState(false);
@@ -116,18 +132,33 @@ export const useResourceOwnerPasswordFlowController =
 			}
 		}, [credentials]);
 
-		const clearResults = useCallback(() => {
-			setTokens(null);
-			setError(null);
-		}, []);
+	const saveCredentials = useCallback(async () => {
+		try {
+			console.log(`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`);
+			
+			// Save to sessionStorage for persistence
+			sessionStorage.setItem('resource-owner-password-v5-credentials', JSON.stringify(credentials));
+			
+			console.log(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`);
+		} catch (error) {
+			console.error(`${LOG_PREFIX} [ERROR] Failed to save credentials:`, error);
+			throw error;
+		}
+	}, [credentials]);
 
-		return {
-			credentials,
-			tokens,
-			isRequesting,
-			error,
-			updateCredentials,
-			requestToken,
-			clearResults,
-		};
+	const clearResults = useCallback(() => {
+		setTokens(null);
+		setError(null);
+	}, []);
+
+	return {
+		credentials,
+		tokens,
+		isRequesting,
+		error,
+		updateCredentials,
+		requestToken,
+		saveCredentials,
+		clearResults,
+	};
 	};
