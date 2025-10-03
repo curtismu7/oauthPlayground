@@ -1,6 +1,14 @@
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiCheckCircle, FiShield, FiEye, FiChevronDown, FiCopy, FiRefreshCw, FiKey } from 'react-icons/fi';
+import {
+	FiCheckCircle,
+	FiShield,
+	FiEye,
+	FiChevronDown,
+	FiCopy,
+	FiRefreshCw,
+	FiKey,
+} from 'react-icons/fi';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -182,11 +190,16 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' | 'o
 	padding: 0.5rem 1rem;
 	background: ${({ $variant, theme }) => {
 		switch ($variant) {
-			case 'primary': return theme.colors.primary;
-			case 'secondary': return theme.colors.secondary;
-			case 'danger': return '#dc2626';
-			case 'outline': return 'transparent';
-			default: return theme.colors.primary;
+			case 'primary':
+				return theme.colors.primary;
+			case 'secondary':
+				return theme.colors.secondary;
+			case 'danger':
+				return '#dc2626';
+			case 'outline':
+				return 'transparent';
+			default:
+				return theme.colors.primary;
 		}
 	}};
 	color: ${({ $variant }) => ($variant === 'outline' ? '#374151' : 'white')};
@@ -223,7 +236,7 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 	onResetFlow,
 	onNavigateToTokenManagement,
 	isIntrospecting = false,
-	flowType = 'oauth'
+	flowType = 'oauth',
 }) => {
 	const { primaryColor, secondaryColor } = useUISettings();
 	const [collapsedSections, setCollapsedSections] = useState({
@@ -233,9 +246,9 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 	});
 
 	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[section]: !prev[section]
+			[section]: !prev[section],
 		}));
 	}, []);
 
@@ -249,32 +262,35 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 			case 'oidc':
 				return {
 					title: 'OpenID Connect Authorization Code Flow',
-					description: 'Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE using reusable V5 components.',
+					description:
+						'Nice work! You successfully completed the OpenID Connect Authorization Code Flow with PKCE using reusable V5 components.',
 					nextSteps: [
 						'Inspect or decode tokens using the Token Management tools.',
 						'Repeat the flow with different scopes or redirect URIs.',
 						'Explore refresh tokens, ID tokens, and introspection flows.',
-					]
+					],
 				};
 			case 'worker':
 				return {
 					title: 'Worker Token Flow',
-					description: 'Nice work! You successfully completed the Worker Token Flow using reusable V5 components.',
+					description:
+						'Nice work! You successfully completed the Worker Token Flow using reusable V5 components.',
 					nextSteps: [
 						'Inspect or decode tokens using the Token Management tools.',
 						'Repeat the flow with different scopes.',
 						'Explore token introspection and validation flows.',
-					]
+					],
 				};
 			default: // oauth
 				return {
 					title: 'OAuth 2.0 Authorization Code Flow',
-					description: 'Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components.',
+					description:
+						'Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components.',
 					nextSteps: [
 						'Inspect or decode tokens using the Token Management tools.',
 						'Repeat the flow with different scopes or redirect URIs.',
 						'Explore refresh tokens and introspection flows.',
-					]
+					],
 				};
 		}
 	};
@@ -299,9 +315,7 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 					<CollapsibleContent>
 						<GeneratedContentBox>
 							<GeneratedLabel style={{ backgroundColor: primaryColor }}>All Done</GeneratedLabel>
-							<InfoText>
-								{flowText.description}
-							</InfoText>
+							<InfoText>{flowText.description}</InfoText>
 						</GeneratedContentBox>
 					</CollapsibleContent>
 				)}
@@ -356,9 +370,10 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 									<FiEye /> Access Token Introspection
 								</ResultsHeading>
 								<HelperText>
-									Introspect your access token to see detailed information about its validity, scopes, and claims.
+									Introspect your access token to see detailed information about its validity,
+									scopes, and claims.
 								</HelperText>
-								
+
 								<ActionRow style={{ justifyContent: 'center', marginBottom: '1rem' }}>
 									<HighlightedActionButton
 										onClick={onIntrospectToken}
@@ -375,14 +390,18 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 
 								{introspectionResults && (
 									<GeneratedContentBox>
-										<GeneratedLabel style={{ backgroundColor: primaryColor }}>Introspection Results</GeneratedLabel>
+										<GeneratedLabel style={{ backgroundColor: primaryColor }}>
+											Introspection Results
+										</GeneratedLabel>
 										<ParameterGrid>
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Token Status</ParameterLabel>
-												<ParameterValue style={{ 
-													color: Boolean(introspectionResults.active) ? '#16a34a' : '#dc2626',
-													fontWeight: 'bold'
-												}}>
+												<ParameterValue
+													style={{
+														color: Boolean(introspectionResults.active) ? '#16a34a' : '#dc2626',
+														fontWeight: 'bold',
+													}}
+												>
 													{Boolean(introspectionResults.active) ? '✅ Active' : '❌ Inactive'}
 												</ParameterValue>
 											</div>
@@ -441,7 +460,12 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 										</ParameterGrid>
 										<ActionRow>
 											<Button
-												onClick={() => handleCopy(JSON.stringify(introspectionResults, null, 2), 'Introspection Results')}
+												onClick={() =>
+													handleCopy(
+														JSON.stringify(introspectionResults, null, 2),
+														'Introspection Results'
+													)
+												}
 												$variant="outline"
 											>
 												<FiCopy /> Copy Results
@@ -455,14 +479,12 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 				</CollapsibleSection>
 			)}
 
-			<div
-				style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}
-			>
+			<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
 				<Button onClick={onResetFlow} $variant="danger">
 					<FiRefreshCw /> Start New Flow
 				</Button>
-				<Button 
-					onClick={onNavigateToTokenManagement} 
+				<Button
+					onClick={onNavigateToTokenManagement}
 					$variant="primary"
 					style={{
 						backgroundColor: primaryColor,

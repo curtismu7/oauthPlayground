@@ -84,88 +84,81 @@ const MenuButton = styled.button`
 `;
 
 interface NavbarProps {
-  toggleSidebar: () => void;
+	toggleSidebar: () => void;
 }
 
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
-  const { isAuthenticated, logout, user } = useAuth();
-  const navigate = useNavigate();
-  const { announceToScreenReader, setFocus } = useAccessibility();
+	const { isAuthenticated, logout, user } = useAuth();
+	const navigate = useNavigate();
+	const { announceToScreenReader, setFocus } = useAccessibility();
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-    announceToScreenReader('Logged out successfully');
-  };
+	const handleLogout = () => {
+		logout();
+		navigate('/login');
+		announceToScreenReader('Logged out successfully');
+	};
 
-  const handleMenuToggle = () => {
-    toggleSidebar();
-    announceToScreenReader('Navigation menu toggled');
-  };
+	const handleMenuToggle = () => {
+		toggleSidebar();
+		announceToScreenReader('Navigation menu toggled');
+	};
 
-  return (
-    <NavbarContainer 
-      role="banner"
-      aria-label="Main navigation"
-    >
-      <MenuButton 
-        onClick={handleMenuToggle}
-        aria-label="Toggle navigation menu"
-        aria-expanded="false"
-        aria-controls="sidebar-menu"
-        title="Toggle navigation menu"
-      >
-        <FiMenu size={24} aria-hidden="true" />
-      </MenuButton>
-      
-      <Logo>
-        <span>PingOne OAuth/OIDC Playground v{packageJson.version}</span>
-        {isAuthenticated && user && (
-          <div className="user-info" aria-live="polite">
-            Welcome, {user.name || user.email}
-          </div>
-        )}
-      </Logo>
-      
-      <NavItems role="navigation" aria-label="Main navigation">
-        <Link 
-          to="/documentation" 
-          title="View documentation and help"
-          aria-label="View documentation and help"
-        >
-          <FiHelpCircle aria-hidden="true" />
-          <span>Docs</span>
-        </Link>
-        <Link 
-          to="/configuration" 
-          title="Configure OAuth settings"
-          aria-label="Configure OAuth settings"
-        >
-          <FiSettings aria-hidden="true" />
-          <span>Configuration</span>
-        </Link>
-        {isAuthenticated ? (
-          <button 
-            onClick={handleLogout} 
-            title="Logout from the application"
-            aria-label="Logout from the application"
-          >
-            <FiLogOut aria-hidden="true" />
-            <span>Logout</span>
-          </button>
-        ) : (
-          <Link 
-            to="/login" 
-            title="Login to the application"
-            aria-label="Login to the application"
-          >
-            <FiLogIn aria-hidden="true" />
-            <span>Login</span>
-          </Link>
-        )}
-      </NavItems>
-    </NavbarContainer>
-  );
+	return (
+		<NavbarContainer role="banner" aria-label="Main navigation">
+			<MenuButton
+				onClick={handleMenuToggle}
+				aria-label="Toggle navigation menu"
+				aria-expanded="false"
+				aria-controls="sidebar-menu"
+				title="Toggle navigation menu"
+			>
+				<FiMenu size={24} aria-hidden="true" />
+			</MenuButton>
+
+			<Logo>
+				<span>PingOne OAuth/OIDC Playground v{packageJson.version}</span>
+				{isAuthenticated && user && (
+					<div className="user-info" aria-live="polite">
+						Welcome, {user.name || user.email}
+					</div>
+				)}
+			</Logo>
+
+			<NavItems role="navigation" aria-label="Main navigation">
+				<Link
+					to="/documentation"
+					title="View documentation and help"
+					aria-label="View documentation and help"
+				>
+					<FiHelpCircle aria-hidden="true" />
+					<span>Docs</span>
+				</Link>
+				<Link
+					to="/configuration"
+					title="Configure OAuth settings"
+					aria-label="Configure OAuth settings"
+				>
+					<FiSettings aria-hidden="true" />
+					<span>Configuration</span>
+				</Link>
+				{isAuthenticated ? (
+					<button
+						onClick={handleLogout}
+						title="Logout from the application"
+						aria-label="Logout from the application"
+					>
+						<FiLogOut aria-hidden="true" />
+						<span>Logout</span>
+					</button>
+				) : (
+					<Link to="/login" title="Login to the application" aria-label="Login to the application">
+						<FiLogIn aria-hidden="true" />
+						<span>Login</span>
+					</Link>
+				)}
+			</NavItems>
+		</NavbarContainer>
+	);
 };
 
 export default Navbar;

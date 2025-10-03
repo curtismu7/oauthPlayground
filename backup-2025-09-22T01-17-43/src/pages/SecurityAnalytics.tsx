@@ -16,18 +16,18 @@ const ContentContainer = styled.div`
 `;
 
 const SecurityAnalytics: React.FC = () => {
-  return (
-    <PageContainer>
-      <ContentContainer>
-        <PageTitle
-          title="Security Analytics"
-          subtitle="Monitor security events, compliance status, and threat intelligence across your OAuth flows"
-          icon="🛡️"
-        />
-        <SecurityAnalyticsDashboard />
-      </ContentContainer>
-    </PageContainer>
-  );
+	return (
+		<PageContainer>
+			<ContentContainer>
+				<PageTitle
+					title="Security Analytics"
+					subtitle="Monitor security events, compliance status, and threat intelligence across your OAuth flows"
+					icon="🛡️"
+				/>
+				<SecurityAnalyticsDashboard />
+			</ContentContainer>
+		</PageContainer>
+	);
 };
 
 export default SecurityAnalytics;

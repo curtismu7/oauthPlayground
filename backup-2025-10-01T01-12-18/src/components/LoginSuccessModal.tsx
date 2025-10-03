@@ -182,17 +182,15 @@ const LoginSuccessModal: React.FC<LoginSuccessModalProps> = ({
 				<CloseButton onClick={handleClose} aria-label="Close modal">
 					<FiX size={20} />
 				</CloseButton>
-				
+
 				<SuccessIcon>
 					<FiCheckCircle />
 				</SuccessIcon>
-				
+
 				<ModalTitle>{title}</ModalTitle>
 				<ModalMessage>{message}</ModalMessage>
-				
-				<ActionButton onClick={handleClose}>
-					Continue
-				</ActionButton>
+
+				<ActionButton onClick={handleClose}>Continue</ActionButton>
 			</ModalContainer>
 		</ModalOverlay>
 	);

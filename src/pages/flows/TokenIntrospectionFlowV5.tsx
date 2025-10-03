@@ -10,10 +10,7 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useTokenIntrospectionFlowController } from '../../hooks/useTokenIntrospectionFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -134,7 +131,6 @@ const FormTitle = styled.h3`
 	gap: 0.5rem;
 `;
 
-
 const FormGroup = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -146,7 +142,6 @@ const Label = styled.label`
 	color: #374151;
 	font-size: 0.875rem;
 `;
-
 
 const TextArea = styled.textarea`
 	padding: 0.75rem;
@@ -269,15 +264,13 @@ const TokenInfoValue = styled.span<{ $valid?: boolean }>`
 const TokenIntrospectionFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState<StepIndex>(0);
 	const [isIntrospecting, setIsIntrospecting] = useState(false);
-	const [introspectionResult, setIntrospectionResult] = useState<Record<string, unknown> | null>(null);
+	const [introspectionResult, setIntrospectionResult] = useState<Record<string, unknown> | null>(
+		null
+	);
 	const [error, setError] = useState<string | null>(null);
 
-	const {
-		credentials,
-		introspectToken,
-		clearResults,
-		updateCredentials,
-	} = useTokenIntrospectionFlowController();
+	const { credentials, introspectToken, clearResults, updateCredentials } =
+		useTokenIntrospectionFlowController();
 
 	const handleNext = useCallback(() => {
 		if (currentStep < 3) {
@@ -342,19 +335,18 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 							</p>
 						</ExplanationSection>
 
-
 						<EnhancedFlowWalkthrough flowId="token-introspection" />
 						<FlowSequenceDisplay flowType="token-introspection" />
-					
-					{/* Configuration Summary */}
-					<ConfigurationSummaryCard
-						configuration={credentials}
-						hasConfiguration={Boolean(credentials?.clientId)}
-					/>
-				</>
-			);
 
-		case 1:
+						{/* Configuration Summary */}
+						<ConfigurationSummaryCard
+							configuration={credentials}
+							hasConfiguration={Boolean(credentials?.clientId)}
+						/>
+					</>
+				);
+
+			case 1:
 				return (
 					<>
 						<FormSection>
@@ -392,7 +384,7 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 									<FiCheckCircle />
 									Token introspected successfully!
 								</SuccessMessage>
-								
+
 								{/* @ts-expect-error - TypeScript inference issue with conditional rendering */}
 								<TokenInfo>
 									<TokenInfoRow>
@@ -401,31 +393,41 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 											{Boolean(safeIntrospectionResult?.active) ? 'Yes' : 'No'}
 										</TokenInfoValue>
 									</TokenInfoRow>
-									{safeIntrospectionResult?.exp && typeof safeIntrospectionResult.exp === 'number' && (
-										<TokenInfoRow>
-											<TokenInfoLabel>Expires At:</TokenInfoLabel>
-											<TokenInfoValue>
-												{new Date(safeIntrospectionResult.exp * 1000).toLocaleString()}
-											</TokenInfoValue>
-										</TokenInfoRow>
-									)}
-									{safeIntrospectionResult?.scope && typeof safeIntrospectionResult.scope === 'string' && (
-										<TokenInfoRow>
-											<TokenInfoLabel>Scopes:</TokenInfoLabel>
-											<TokenInfoValue>{String(safeIntrospectionResult.scope)}</TokenInfoValue>
-										</TokenInfoRow>
-									)}
-									{safeIntrospectionResult?.client_id && typeof safeIntrospectionResult.client_id === 'string' && (
-										<TokenInfoRow>
-											<TokenInfoLabel>Client ID:</TokenInfoLabel>
-											<TokenInfoValue>{String(safeIntrospectionResult.client_id)}</TokenInfoValue>
-										</TokenInfoRow>
-									)}
+									{safeIntrospectionResult?.exp &&
+										typeof safeIntrospectionResult.exp === 'number' && (
+											<TokenInfoRow>
+												<TokenInfoLabel>Expires At:</TokenInfoLabel>
+												<TokenInfoValue>
+													{new Date(safeIntrospectionResult.exp * 1000).toLocaleString()}
+												</TokenInfoValue>
+											</TokenInfoRow>
+										)}
+									{safeIntrospectionResult?.scope &&
+										typeof safeIntrospectionResult.scope === 'string' && (
+											<TokenInfoRow>
+												<TokenInfoLabel>Scopes:</TokenInfoLabel>
+												<TokenInfoValue>{String(safeIntrospectionResult.scope)}</TokenInfoValue>
+											</TokenInfoRow>
+										)}
+									{safeIntrospectionResult?.client_id &&
+										typeof safeIntrospectionResult.client_id === 'string' && (
+											<TokenInfoRow>
+												<TokenInfoLabel>Client ID:</TokenInfoLabel>
+												<TokenInfoValue>{String(safeIntrospectionResult.client_id)}</TokenInfoValue>
+											</TokenInfoRow>
+										)}
 								</TokenInfo>
 
 								<ResultsSection>
 									<ResultsHeading>Full Introspection Response</ResultsHeading>
-									<pre style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '6px', overflow: 'auto' }}>
+									<pre
+										style={{
+											background: '#f3f4f6',
+											padding: '1rem',
+											borderRadius: '6px',
+											overflow: 'auto',
+										}}
+									>
 										{JSON.stringify(introspectionResult, null, 2)}
 									</pre>
 								</ResultsSection>
@@ -440,18 +442,36 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Introspection Complete</ResultsHeading>
 							<p>
-								The token has been successfully introspected. You now have detailed information about
-								the token's validity, expiration, scopes, and other claims.
+								The token has been successfully introspected. You now have detailed information
+								about the token's validity, expiration, scopes, and other claims.
 							</p>
 						</ResultsSection>
 
 						<ResultsSection>
 							<ResultsHeading>Key Information</ResultsHeading>
 							<ul style={{ paddingLeft: '1.5rem' }}>
-								<li><strong>Token Validity:</strong> {safeIntrospectionResult?.active ? 'Active' : 'Inactive'}</li>
-								<li><strong>Expiration:</strong> {safeIntrospectionResult?.exp && typeof safeIntrospectionResult.exp === 'number' ? new Date(safeIntrospectionResult.exp * 1000).toLocaleString() : 'Not specified'}</li>
-								<li><strong>Scopes:</strong> {safeIntrospectionResult?.scope ? String(safeIntrospectionResult.scope) : 'Not specified'}</li>
-								<li><strong>Client ID:</strong> {safeIntrospectionResult?.client_id ? String(safeIntrospectionResult.client_id) : 'Not specified'}</li>
+								<li>
+									<strong>Token Validity:</strong>{' '}
+									{safeIntrospectionResult?.active ? 'Active' : 'Inactive'}
+								</li>
+								<li>
+									<strong>Expiration:</strong>{' '}
+									{safeIntrospectionResult?.exp && typeof safeIntrospectionResult.exp === 'number'
+										? new Date(safeIntrospectionResult.exp * 1000).toLocaleString()
+										: 'Not specified'}
+								</li>
+								<li>
+									<strong>Scopes:</strong>{' '}
+									{safeIntrospectionResult?.scope
+										? String(safeIntrospectionResult.scope)
+										: 'Not specified'}
+								</li>
+								<li>
+									<strong>Client ID:</strong>{' '}
+									{safeIntrospectionResult?.client_id
+										? String(safeIntrospectionResult.client_id)
+										: 'Not specified'}
+								</li>
 							</ul>
 						</ResultsSection>
 
@@ -473,8 +493,9 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Flow Complete</ResultsHeading>
 							<p>
-								You have successfully completed the Token Introspection Flow V5. This flow demonstrates
-								how to introspect access tokens to get detailed information about their validity and claims.
+								You have successfully completed the Token Introspection Flow V5. This flow
+								demonstrates how to introspect access tokens to get detailed information about their
+								validity and claims.
 							</p>
 						</ResultsSection>
 
@@ -500,7 +521,7 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="token-introspection-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="token-introspection"
 					showAdditionalInfo={true}
 					showDocumentation={true}

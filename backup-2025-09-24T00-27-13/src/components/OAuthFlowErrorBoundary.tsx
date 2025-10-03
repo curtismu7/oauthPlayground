@@ -5,20 +5,20 @@ import { logger } from '../utils/logger';
 
 // Error boundary state interface
 interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-  errorInfo: ErrorInfo | null;
-  errorId: string;
+	hasError: boolean;
+	error: Error | null;
+	errorInfo: ErrorInfo | null;
+	errorId: string;
 }
 
 // Error boundary props interface
 interface ErrorBoundaryProps {
-  children: ReactNode;
-  fallback?: ReactNode;
-  onError?: (error: Error, errorInfo: ErrorInfo) => void;
-  resetOnPropsChange?: boolean;
-  resetKeys?: Array<string | number>;
-  flowType?: string;
+	children: ReactNode;
+	fallback?: ReactNode;
+	onError?: (error: Error, errorInfo: ErrorInfo) => void;
+	resetOnPropsChange?: boolean;
+	resetKeys?: Array<string | number>;
+	flowType?: string;
 }
 
 // Styled components for error display
@@ -139,211 +139,210 @@ const HomeButton = styled(ActionButton)`
 
 // OAuth Flow Error Boundary Component
 export class OAuthFlowErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
-  private resetTimeoutId: number | null = null;
+	private resetTimeoutId: number | null = null;
 
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = {
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      errorId: ''
-    };
-  }
+	constructor(props: ErrorBoundaryProps) {
+		super(props);
+		this.state = {
+			hasError: false,
+			error: null,
+			errorInfo: null,
+			errorId: '',
+		};
+	}
 
-  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
-    // Generate unique error ID for tracking
-    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    return {
-      hasError: true,
-      error,
-      errorId
-    };
-  }
+	static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+		// Generate unique error ID for tracking
+		const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    const { flowType, onError } = this.props;
-    const { errorId } = this.state;
+		return {
+			hasError: true,
+			error,
+			errorId,
+		};
+	}
 
-    // Log the error
-    logger.error(`[${flowType || 'OAuthFlow'}] Error Boundary caught error:`, {
-      error: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      errorId
-    });
+	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+		const { flowType, onError } = this.props;
+		const { errorId } = this.state;
 
-    // Update state with error info
-    this.setState({
-      error,
-      errorInfo
-    });
+		// Log the error
+		logger.error(`[${flowType || 'OAuthFlow'}] Error Boundary caught error:`, {
+			error: error.message,
+			stack: error.stack,
+			componentStack: errorInfo.componentStack,
+			errorId,
+		});
 
-    // Call custom error handler if provided
-    if (onError) {
-      onError(error, errorInfo);
-    }
+		// Update state with error info
+		this.setState({
+			error,
+			errorInfo,
+		});
 
-    // Report error to external service (if implemented)
-    this.reportError(error, errorInfo, errorId);
-  }
+		// Call custom error handler if provided
+		if (onError) {
+			onError(error, errorInfo);
+		}
 
-  componentDidUpdate(prevProps: ErrorBoundaryProps) {
-    const { resetOnPropsChange, resetKeys } = this.props;
-    const { hasError } = this.state;
+		// Report error to external service (if implemented)
+		this.reportError(error, errorInfo, errorId);
+	}
 
-    // Reset error boundary if props changed and resetOnPropsChange is true
-    if (hasError && resetOnPropsChange) {
-      if (resetKeys && prevProps.resetKeys) {
-        const hasResetKeyChanged = resetKeys.some((key, index) => 
-          key !== prevProps.resetKeys?.[index]
-        );
-        
-        if (hasResetKeyChanged) {
-          this.resetErrorBoundary();
-        }
-      }
-    }
-  }
+	componentDidUpdate(prevProps: ErrorBoundaryProps) {
+		const { resetOnPropsChange, resetKeys } = this.props;
+		const { hasError } = this.state;
 
-  componentWillUnmount() {
-    if (this.resetTimeoutId) {
-      clearTimeout(this.resetTimeoutId);
-    }
-  }
+		// Reset error boundary if props changed and resetOnPropsChange is true
+		if (hasError && resetOnPropsChange) {
+			if (resetKeys && prevProps.resetKeys) {
+				const hasResetKeyChanged = resetKeys.some(
+					(key, index) => key !== prevProps.resetKeys?.[index]
+				);
 
-  private reportError = (error: Error, errorInfo: ErrorInfo, errorId: string) => {
-    // This could be extended to report to external services like Sentry
-    const errorReport = {
-      errorId,
-      message: error.message,
-      stack: error.stack,
-      componentStack: errorInfo.componentStack,
-      timestamp: new Date().toISOString(),
-      userAgent: navigator.userAgent,
-      url: window.location.href,
-      flowType: this.props.flowType
-    };
+				if (hasResetKeyChanged) {
+					this.resetErrorBoundary();
+				}
+			}
+		}
+	}
 
-    // Log error report
-    logger.error(`[ErrorReporting] Error report generated:`, errorReport);
+	componentWillUnmount() {
+		if (this.resetTimeoutId) {
+			clearTimeout(this.resetTimeoutId);
+		}
+	}
 
-    // TODO: Implement external error reporting service
-    // Example: Sentry.captureException(error, { extra: errorReport });
-  };
+	private reportError = (error: Error, errorInfo: ErrorInfo, errorId: string) => {
+		// This could be extended to report to external services like Sentry
+		const errorReport = {
+			errorId,
+			message: error.message,
+			stack: error.stack,
+			componentStack: errorInfo.componentStack,
+			timestamp: new Date().toISOString(),
+			userAgent: navigator.userAgent,
+			url: window.location.href,
+			flowType: this.props.flowType,
+		};
 
-  private resetErrorBoundary = () => {
-    this.setState({
-      hasError: false,
-      error: null,
-      errorInfo: null,
-      errorId: ''
-    });
-  };
+		// Log error report
+		logger.error(`[ErrorReporting] Error report generated:`, errorReport);
 
-  private handleRetry = () => {
-    this.resetErrorBoundary();
-  };
+		// TODO: Implement external error reporting service
+		// Example: Sentry.captureException(error, { extra: errorReport });
+	};
 
-  private handleGoHome = () => {
-    window.location.href = '/';
-  };
+	private resetErrorBoundary = () => {
+		this.setState({
+			hasError: false,
+			error: null,
+			errorInfo: null,
+			errorId: '',
+		});
+	};
 
-  private handleReload = () => {
-    window.location.reload();
-  };
+	private handleRetry = () => {
+		this.resetErrorBoundary();
+	};
 
-  render() {
-    const { hasError, error, errorInfo, errorId } = this.state;
-    const { children, fallback } = this.props;
+	private handleGoHome = () => {
+		window.location.href = '/';
+	};
 
-    if (hasError) {
-      // Use custom fallback if provided
-      if (fallback) {
-        return fallback;
-      }
+	private handleReload = () => {
+		window.location.reload();
+	};
 
-      // Default error UI
-      return (
-        <ErrorContainer>
-          <ErrorIcon>
-            <FiAlertTriangle />
-          </ErrorIcon>
-          
-          <ErrorTitle>Something went wrong</ErrorTitle>
-          
-          <ErrorMessage>
-            An unexpected error occurred while processing the OAuth flow. 
-            This has been logged and we'll work to fix it. You can try again 
-            or return to the home page.
-          </ErrorMessage>
+	render() {
+		const { hasError, error, errorInfo, errorId } = this.state;
+		const { children, fallback } = this.props;
 
-          {error && (
-            <ErrorDetails>
-              <summary>Error Details (ID: {errorId})</summary>
-              <pre>
-                {error.message}
-                {error.stack && `\n\nStack Trace:\n${error.stack}`}
-                {errorInfo?.componentStack && `\n\nComponent Stack:\n${errorInfo.componentStack}`}
-              </pre>
-            </ErrorDetails>
-          )}
+		if (hasError) {
+			// Use custom fallback if provided
+			if (fallback) {
+				return fallback;
+			}
 
-          <ButtonGroup>
-            <RetryButton onClick={this.handleRetry}>
-              <FiRefreshCw size={16} />
-              Try Again
-            </RetryButton>
-            
-            <HomeButton onClick={this.handleGoHome}>
-              <FiHome size={16} />
-              Go Home
-            </HomeButton>
-          </ButtonGroup>
-        </ErrorContainer>
-      );
-    }
+			// Default error UI
+			return (
+				<ErrorContainer>
+					<ErrorIcon>
+						<FiAlertTriangle />
+					</ErrorIcon>
 
-    return children;
-  }
+					<ErrorTitle>Something went wrong</ErrorTitle>
+
+					<ErrorMessage>
+						An unexpected error occurred while processing the OAuth flow. This has been logged and
+						we'll work to fix it. You can try again or return to the home page.
+					</ErrorMessage>
+
+					{error && (
+						<ErrorDetails>
+							<summary>Error Details (ID: {errorId})</summary>
+							<pre>
+								{error.message}
+								{error.stack && `\n\nStack Trace:\n${error.stack}`}
+								{errorInfo?.componentStack && `\n\nComponent Stack:\n${errorInfo.componentStack}`}
+							</pre>
+						</ErrorDetails>
+					)}
+
+					<ButtonGroup>
+						<RetryButton onClick={this.handleRetry}>
+							<FiRefreshCw size={16} />
+							Try Again
+						</RetryButton>
+
+						<HomeButton onClick={this.handleGoHome}>
+							<FiHome size={16} />
+							Go Home
+						</HomeButton>
+					</ButtonGroup>
+				</ErrorContainer>
+			);
+		}
+
+		return children;
+	}
 }
 
 // Higher-order component for wrapping OAuth flows with error boundary
 export const withOAuthFlowErrorBoundary = <P extends object>(
-  WrappedComponent: React.ComponentType<P>,
-  flowType?: string
+	WrappedComponent: React.ComponentType<P>,
+	flowType?: string
 ) => {
-  const WithErrorBoundary = (props: P) => (
-    <OAuthFlowErrorBoundary flowType={flowType}>
-      <WrappedComponent {...props} />
-    </OAuthFlowErrorBoundary>
-  );
+	const WithErrorBoundary = (props: P) => (
+		<OAuthFlowErrorBoundary flowType={flowType}>
+			<WrappedComponent {...props} />
+		</OAuthFlowErrorBoundary>
+	);
 
-  WithErrorBoundary.displayName = `withOAuthFlowErrorBoundary(${WrappedComponent.displayName || WrappedComponent.name})`;
+	WithErrorBoundary.displayName = `withOAuthFlowErrorBoundary(${WrappedComponent.displayName || WrappedComponent.name})`;
 
-  return WithErrorBoundary;
+	return WithErrorBoundary;
 };
 
 // Hook for error boundary functionality
 export const useErrorBoundary = () => {
-  const [error, setError] = React.useState<Error | null>(null);
+	const [error, setError] = React.useState<Error | null>(null);
 
-  const resetError = React.useCallback(() => {
-    setError(null);
-  }, []);
+	const resetError = React.useCallback(() => {
+		setError(null);
+	}, []);
 
-  const captureError = React.useCallback((error: Error) => {
-    setError(error);
-  }, []);
+	const captureError = React.useCallback((error: Error) => {
+		setError(error);
+	}, []);
 
-  React.useEffect(() => {
-    if (error) {
-      throw error;
-    }
-  }, [error]);
+	React.useEffect(() => {
+		if (error) {
+			throw error;
+		}
+	}, [error]);
 
-  return { captureError, resetError };
+	return { captureError, resetError };
 };
 
 export default OAuthFlowErrorBoundary;

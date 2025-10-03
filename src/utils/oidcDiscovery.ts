@@ -239,7 +239,7 @@ function createFallbackConfiguration(options: DiscoveryOptions): DiscoveryResult
 		end_session_endpoint: `${issuer}/signoff`,
 		revocation_endpoint: `${issuer}/revoke`,
 		introspection_endpoint: `${issuer}/introspect`,
-		device_authorization_endpoint: `${issuer}/device`,
+		device_authorization_endpoint: `${issuer}/device_authorization`,
 		pushed_authorization_request_endpoint: `${issuer}/par`,
 	};
 

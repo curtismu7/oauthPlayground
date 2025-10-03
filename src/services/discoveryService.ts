@@ -135,7 +135,7 @@ class DiscoveryService {
 					end_session_endpoint: `https://auth.pingone.com/${environmentId}/as/signoff`,
 					revocation_endpoint: `https://auth.pingone.com/${environmentId}/as/revoke`,
 					introspection_endpoint: `https://auth.pingone.com/${environmentId}/as/introspect`,
-					device_authorization_endpoint: `https://auth.pingone.com/${environmentId}/as/device`,
+					device_authorization_endpoint: `https://auth.pingone.com/${environmentId}/as/device_authorization`,
 					pushed_authorization_request_endpoint: `https://auth.pingone.com/${environmentId}/as/par`,
 				};
 

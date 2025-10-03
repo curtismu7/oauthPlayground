@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiChevronDown, FiChevronRight, FiInfo, FiCheckCircle, FiXCircle, FiShield, FiUser, FiClock, FiKey, FiDatabase, FiGlobe } from 'react-icons/fi';
+import {
+	FiChevronDown,
+	FiChevronRight,
+	FiInfo,
+	FiCheckCircle,
+	FiXCircle,
+	FiShield,
+	FiUser,
+	FiClock,
+	FiKey,
+	FiDatabase,
+	FiGlobe,
+} from 'react-icons/fi';
 
 interface IDTokenEducationSectionProps {
-  className?: string;
-  defaultCollapsed?: boolean;
+	className?: string;
+	defaultCollapsed?: boolean;
 }
 
 const EducationContainer = styled.div`
@@ -56,7 +68,7 @@ const ChevronIcon = styled.div<{ $collapsed: boolean }>`
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
-  transform: ${({ $collapsed }) => $collapsed ? 'rotate(0deg)' : 'rotate(90deg)'};
+  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(90deg)')};
 
   svg {
     font-size: 1.25rem;
@@ -65,12 +77,12 @@ const ChevronIcon = styled.div<{ $collapsed: boolean }>`
 
   &:hover {
     background: rgba(255, 255, 255, 0.3);
-    transform: ${({ $collapsed }) => $collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(90deg) scale(1.1)'};
+    transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(90deg) scale(1.1)')};
   }
 `;
 
 const Content = styled.div<{ $collapsed: boolean }>`
-  max-height: ${({ $collapsed }) => $collapsed ? '0' : '2000px'};
+  max-height: ${({ $collapsed }) => ($collapsed ? '0' : '2000px')};
   overflow: hidden;
   transition: max-height 0.3s ease-in-out;
   background: white;
@@ -168,184 +180,247 @@ const DoDontItem = styled.li<{ $isPositive?: boolean }>`
   }
 `;
 
-const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({ 
-  className, 
-  defaultCollapsed = true 
+const IDTokenEducationSection: React.FC<IDTokenEducationSectionProps> = ({
+	className,
+	defaultCollapsed = true,
 }) => {
-  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+	const [collapsed, setCollapsed] = useState(defaultCollapsed);
 
-  const handleToggle = () => {
-    setCollapsed(!collapsed);
-  };
+	const handleToggle = () => {
+		setCollapsed(!collapsed);
+	};
 
-  return (
-    <EducationContainer className={className}>
-      <Header onClick={handleToggle}>
-        <HeaderContent>
-          <FiInfo size={20} />
-          <Title>Understanding ID Tokens</Title>
-        </HeaderContent>
-        <ChevronIcon $collapsed={collapsed}>
-          {collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
-        </ChevronIcon>
-      </Header>
-      
-      <Content $collapsed={collapsed}>
-        <ContentInner>
-          <Section>
-            <SectionTitle>
-              <FiUser size={16} />
-              Core Uses of ID Tokens
-            </SectionTitle>
-            
-            <div style={{ marginBottom: '1rem' }}>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>1. Verify User Authentication</h5>
-              <p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
-                The ID token provides proof of the authentication event, containing claims that tell you:
-              </p>
-              <UsesList>
-                <UseItem>
-                  <UseIcon><FiUser size={14} color="#10b981" /></UseIcon>
-                  <span><strong>WHO</strong> authenticated (sub claim)</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiClock size={14} color="#10b981" /></UseIcon>
-                  <span><strong>WHEN</strong> they authenticated (auth_time, iat)</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiKey size={14} color="#10b981" /></UseIcon>
-                  <span><strong>HOW</strong> they authenticated (amr - authentication methods)</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiShield size={14} color="#10b981" /></UseIcon>
-                  <span><strong>STRENGTH</strong> of authentication (acr - authentication level)</span>
-                </UseItem>
-              </UsesList>
-            </div>
+	return (
+		<EducationContainer className={className}>
+			<Header onClick={handleToggle}>
+				<HeaderContent>
+					<FiInfo size={20} />
+					<Title>Understanding ID Tokens</Title>
+				</HeaderContent>
+				<ChevronIcon $collapsed={collapsed}>
+					{collapsed ? <FiChevronRight size={16} /> : <FiChevronDown size={16} />}
+				</ChevronIcon>
+			</Header>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>2. Extract User Information</h5>
-              <p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
-                Claims provide information about the end user to relying parties:
-              </p>
-              <UsesList>
-                <UseItem>
-                  <UseIcon><FiUser size={14} color="#10b981" /></UseIcon>
-                  <span>Basic profile info (name, email, username)</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiDatabase size={14} color="#10b981" /></UseIcon>
-                  <span>Custom claims specific to your application</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiGlobe size={14} color="#10b981" /></UseIcon>
-                  <span>Group memberships and roles</span>
-                </UseItem>
-              </UsesList>
-            </div>
+			<Content $collapsed={collapsed}>
+				<ContentInner>
+					<Section>
+						<SectionTitle>
+							<FiUser size={16} />
+							Core Uses of ID Tokens
+						</SectionTitle>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>3. Token Verification & Security</h5>
-              <p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
-                Use the signature to verify that the token was issued by the trusted issuer:
-              </p>
-              <UsesList>
-                <UseItem>
-                  <UseIcon><FiShield size={14} color="#10b981" /></UseIcon>
-                  <span>Signature validation using JWKS keys</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiCheckCircle size={14} color="#10b981" /></UseIcon>
-                  <span>Claims validation (issuer, audience, expiration)</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiShield size={14} color="#10b981" /></UseIcon>
-                  <span>Ensuring the token hasn't been tampered with</span>
-                </UseItem>
-              </UsesList>
-            </div>
+						<div style={{ marginBottom: '1rem' }}>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>
+								1. Verify User Authentication
+							</h5>
+							<p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
+								The ID token provides proof of the authentication event, containing claims that tell
+								you:
+							</p>
+							<UsesList>
+								<UseItem>
+									<UseIcon>
+										<FiUser size={14} color="#10b981" />
+									</UseIcon>
+									<span>
+										<strong>WHO</strong> authenticated (sub claim)
+									</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiClock size={14} color="#10b981" />
+									</UseIcon>
+									<span>
+										<strong>WHEN</strong> they authenticated (auth_time, iat)
+									</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiKey size={14} color="#10b981" />
+									</UseIcon>
+									<span>
+										<strong>HOW</strong> they authenticated (amr - authentication methods)
+									</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiShield size={14} color="#10b981" />
+									</UseIcon>
+									<span>
+										<strong>STRENGTH</strong> of authentication (acr - authentication level)
+									</span>
+								</UseItem>
+							</UsesList>
+						</div>
 
-            <div style={{ marginBottom: '1rem' }}>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>4. Get Additional Claims</h5>
-              <p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
-                Clients can retrieve additional claims from the /oauth2/userinfo endpoint, where the sub Claim in the UserInfo Response MUST be verified to exactly match the sub Claim in the ID Token.
-              </p>
-            </div>
+						<div style={{ marginBottom: '1rem' }}>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>
+								2. Extract User Information
+							</h5>
+							<p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
+								Claims provide information about the end user to relying parties:
+							</p>
+							<UsesList>
+								<UseItem>
+									<UseIcon>
+										<FiUser size={14} color="#10b981" />
+									</UseIcon>
+									<span>Basic profile info (name, email, username)</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiDatabase size={14} color="#10b981" />
+									</UseIcon>
+									<span>Custom claims specific to your application</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiGlobe size={14} color="#10b981" />
+									</UseIcon>
+									<span>Group memberships and roles</span>
+								</UseItem>
+							</UsesList>
+						</div>
 
-            <div>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>5. Session Management & SSO</h5>
-              <p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
-                Use the ID token for:
-              </p>
-              <UsesList>
-                <UseItem>
-                  <UseIcon><FiClock size={14} color="#10b981" /></UseIcon>
-                  <span>Determining if user needs re-authentication</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiUser size={14} color="#10b981" /></UseIcon>
-                  <span>Managing session lifetime</span>
-                </UseItem>
-                <UseItem>
-                  <UseIcon><FiGlobe size={14} color="#10b981" /></UseIcon>
-                  <span>Implementing Single Sign-On across applications</span>
-                </UseItem>
-              </UsesList>
-            </div>
-          </Section>
+						<div style={{ marginBottom: '1rem' }}>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>
+								3. Token Verification & Security
+							</h5>
+							<p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
+								Use the signature to verify that the token was issued by the trusted issuer:
+							</p>
+							<UsesList>
+								<UseItem>
+									<UseIcon>
+										<FiShield size={14} color="#10b981" />
+									</UseIcon>
+									<span>Signature validation using JWKS keys</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiCheckCircle size={14} color="#10b981" />
+									</UseIcon>
+									<span>Claims validation (issuer, audience, expiration)</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiShield size={14} color="#10b981" />
+									</UseIcon>
+									<span>Ensuring the token hasn't been tampered with</span>
+								</UseItem>
+							</UsesList>
+						</div>
 
-          <ImportantSection>
-            <ImportantTitle>
-              <FiInfo size={16} />
-              Important Distinctions
-            </ImportantTitle>
-            
-            <div style={{ marginBottom: '1rem' }}>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '0.9rem' }}>What ID Tokens ARE for:</h5>
-              <DoDontList>
-                <DoDontItem $isPositive>
-                  <UseIcon><FiCheckCircle size={14} color="#059669" /></UseIcon>
-                  <span>Authentication (proving who the user is)</span>
-                </DoDontItem>
-                <DoDontItem $isPositive>
-                  <UseIcon><FiCheckCircle size={14} color="#059669" /></UseIcon>
-                  <span>Getting user identity information</span>
-                </DoDontItem>
-                <DoDontItem $isPositive>
-                  <UseIcon><FiCheckCircle size={14} color="#059669" /></UseIcon>
-                  <span>Session management</span>
-                </DoDontItem>
-                <DoDontItem $isPositive>
-                  <UseIcon><FiCheckCircle size={14} color="#059669" /></UseIcon>
-                  <span>Authorization decisions based on user attributes</span>
-                </DoDontItem>
-              </DoDontList>
-            </div>
+						<div style={{ marginBottom: '1rem' }}>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>
+								4. Get Additional Claims
+							</h5>
+							<p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
+								Clients can retrieve additional claims from the /oauth2/userinfo endpoint, where the
+								sub Claim in the UserInfo Response MUST be verified to exactly match the sub Claim
+								in the ID Token.
+							</p>
+						</div>
 
-            <div>
-              <h5 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '0.9rem' }}>What ID Tokens are NOT for:</h5>
-              <DoDontList>
-                <DoDontItem>
-                  <UseIcon><FiXCircle size={14} color="#dc2626" /></UseIcon>
-                  <span>ID tokens are private to the client and should never be sent to APIs</span>
-                </DoDontItem>
-                <DoDontItem>
-                  <UseIcon><FiXCircle size={14} color="#dc2626" /></UseIcon>
-                  <span>Long-term storage (they have shorter lifetimes)</span>
-                </DoDontItem>
-                <DoDontItem>
-                  <UseIcon><FiXCircle size={14} color="#dc2626" /></UseIcon>
-                  <span>API access (that's what access tokens are for)</span>
-                </DoDontItem>
-              </DoDontList>
-            </div>
-          </ImportantSection>
-        </ContentInner>
-      </Content>
-    </EducationContainer>
-  );
+						<div>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#1e40af', fontSize: '0.9rem' }}>
+								5. Session Management & SSO
+							</h5>
+							<p style={{ margin: '0 0 0.5rem 0', color: '#374151', fontSize: '0.875rem' }}>
+								Use the ID token for:
+							</p>
+							<UsesList>
+								<UseItem>
+									<UseIcon>
+										<FiClock size={14} color="#10b981" />
+									</UseIcon>
+									<span>Determining if user needs re-authentication</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiUser size={14} color="#10b981" />
+									</UseIcon>
+									<span>Managing session lifetime</span>
+								</UseItem>
+								<UseItem>
+									<UseIcon>
+										<FiGlobe size={14} color="#10b981" />
+									</UseIcon>
+									<span>Implementing Single Sign-On across applications</span>
+								</UseItem>
+							</UsesList>
+						</div>
+					</Section>
+
+					<ImportantSection>
+						<ImportantTitle>
+							<FiInfo size={16} />
+							Important Distinctions
+						</ImportantTitle>
+
+						<div style={{ marginBottom: '1rem' }}>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '0.9rem' }}>
+								What ID Tokens ARE for:
+							</h5>
+							<DoDontList>
+								<DoDontItem $isPositive>
+									<UseIcon>
+										<FiCheckCircle size={14} color="#059669" />
+									</UseIcon>
+									<span>Authentication (proving who the user is)</span>
+								</DoDontItem>
+								<DoDontItem $isPositive>
+									<UseIcon>
+										<FiCheckCircle size={14} color="#059669" />
+									</UseIcon>
+									<span>Getting user identity information</span>
+								</DoDontItem>
+								<DoDontItem $isPositive>
+									<UseIcon>
+										<FiCheckCircle size={14} color="#059669" />
+									</UseIcon>
+									<span>Session management</span>
+								</DoDontItem>
+								<DoDontItem $isPositive>
+									<UseIcon>
+										<FiCheckCircle size={14} color="#059669" />
+									</UseIcon>
+									<span>Authorization decisions based on user attributes</span>
+								</DoDontItem>
+							</DoDontList>
+						</div>
+
+						<div>
+							<h5 style={{ margin: '0 0 0.5rem 0', color: '#92400e', fontSize: '0.9rem' }}>
+								What ID Tokens are NOT for:
+							</h5>
+							<DoDontList>
+								<DoDontItem>
+									<UseIcon>
+										<FiXCircle size={14} color="#dc2626" />
+									</UseIcon>
+									<span>ID tokens are private to the client and should never be sent to APIs</span>
+								</DoDontItem>
+								<DoDontItem>
+									<UseIcon>
+										<FiXCircle size={14} color="#dc2626" />
+									</UseIcon>
+									<span>Long-term storage (they have shorter lifetimes)</span>
+								</DoDontItem>
+								<DoDontItem>
+									<UseIcon>
+										<FiXCircle size={14} color="#dc2626" />
+									</UseIcon>
+									<span>API access (that's what access tokens are for)</span>
+								</DoDontItem>
+							</DoDontList>
+						</div>
+					</ImportantSection>
+				</ContentInner>
+			</Content>
+		</EducationContainer>
+	);
 };
 
 export default IDTokenEducationSection;
-
-

@@ -299,62 +299,69 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 					</IconWrapper>
 					<Title>
 						PingOne Application Configuration Requirements
-						{variant === 'oidc' && <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>(OIDC)</span>}
+						{variant === 'oidc' && (
+							<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>(OIDC)</span>
+						)}
 					</Title>
 				</HeaderLeft>
 				<CollapseIcon>
-					{isCollapsed ? <FiChevronDown size={16} color="white" /> : <FiChevronUp size={16} color="white" />}
+					{isCollapsed ? (
+						<FiChevronDown size={16} color="white" />
+					) : (
+						<FiChevronUp size={16} color="white" />
+					)}
 				</CollapseIcon>
 			</Header>
 
 			<Content $isCollapsed={isCollapsed}>
 				<Explanation>{requirements.explanation}</Explanation>
 
-			<RequirementsGrid>
-				<RequirementCard $status={requirements.clientSecret}>
-					<RequirementHeader>
-						<RequirementLabel>Client Secret</RequirementLabel>
-						<StatusBadge $status={requirements.clientSecret}>
-							{getStatusIcon(requirements.clientSecret)}
-							{getStatusText(requirements.clientSecret)}
-						</StatusBadge>
-					</RequirementHeader>
-					<RequirementValue>
-						{requirements.clientSecret === 'required' && 'Must configure a client secret'}
-						{requirements.clientSecret === 'optional' && 'Optional - use for confidential clients'}
-						{requirements.clientSecret === 'not-used' && 'Public client - no secret needed'}
-					</RequirementValue>
-				</RequirementCard>
+				<RequirementsGrid>
+					<RequirementCard $status={requirements.clientSecret}>
+						<RequirementHeader>
+							<RequirementLabel>Client Secret</RequirementLabel>
+							<StatusBadge $status={requirements.clientSecret}>
+								{getStatusIcon(requirements.clientSecret)}
+								{getStatusText(requirements.clientSecret)}
+							</StatusBadge>
+						</RequirementHeader>
+						<RequirementValue>
+							{requirements.clientSecret === 'required' && 'Must configure a client secret'}
+							{requirements.clientSecret === 'optional' &&
+								'Optional - use for confidential clients'}
+							{requirements.clientSecret === 'not-used' && 'Public client - no secret needed'}
+						</RequirementValue>
+					</RequirementCard>
 
-				<RequirementCard $status={requirements.redirectUri}>
-					<RequirementHeader>
-						<RequirementLabel>Redirect URI</RequirementLabel>
-						<StatusBadge $status={requirements.redirectUri}>
-							{getStatusIcon(requirements.redirectUri)}
-							{getStatusText(requirements.redirectUri)}
-						</StatusBadge>
-					</RequirementHeader>
-					<RequirementValue>
-						{requirements.redirectUri === 'required' && 'Must configure redirect URI(s)'}
-						{requirements.redirectUri === 'optional' && 'Optional - depends on use case'}
-						{requirements.redirectUri === 'not-used' && 'No redirect URI needed'}
-					</RequirementValue>
-				</RequirementCard>
+					<RequirementCard $status={requirements.redirectUri}>
+						<RequirementHeader>
+							<RequirementLabel>Redirect URI</RequirementLabel>
+							<StatusBadge $status={requirements.redirectUri}>
+								{getStatusIcon(requirements.redirectUri)}
+								{getStatusText(requirements.redirectUri)}
+							</StatusBadge>
+						</RequirementHeader>
+						<RequirementValue>
+							{requirements.redirectUri === 'required' && 'Must configure redirect URI(s)'}
+							{requirements.redirectUri === 'optional' && 'Optional - depends on use case'}
+							{requirements.redirectUri === 'not-used' && 'No redirect URI needed'}
+						</RequirementValue>
+					</RequirementCard>
 
-				<RequirementCard $status="required">
-					<RequirementHeader>
-						<RequirementLabel>Token Endpoint Auth Method</RequirementLabel>
-						<StatusBadge $status="required">
-							<FiAlertTriangle size={14} />
-							Required
-						</StatusBadge>
-					</RequirementHeader>
-					<RequirementValue>
-						<strong>{requirements.tokenAuthMethod}</strong>
-						{requirements.tokenAuthMethod === 'none' && ' (public client)'}
-						{requirements.tokenAuthMethod === 'client_secret_post' && ' (confidential client)'}
-					</RequirementValue>
-				</RequirementCard>
+					<RequirementCard $status="required">
+						<RequirementHeader>
+							<RequirementLabel>Token Endpoint Auth Method</RequirementLabel>
+							<StatusBadge $status="required">
+								<FiAlertTriangle size={14} />
+								Required
+							</StatusBadge>
+						</RequirementHeader>
+						<RequirementValue>
+							<strong>{requirements.tokenAuthMethod}</strong>
+							{requirements.tokenAuthMethod === 'none' && ' (public client)'}
+							{requirements.tokenAuthMethod === 'client_secret_post' && ' (confidential client)'}
+						</RequirementValue>
+					</RequirementCard>
 				</RequirementsGrid>
 			</Content>
 		</Container>

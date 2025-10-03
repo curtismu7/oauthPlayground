@@ -66,7 +66,7 @@ export const useUserInfoFlowController = (): UseUserInfoFlowControllerReturn => 
 	const [error, setError] = useState<string | null>(null);
 
 	const updateCredentials = useCallback((newCredentials: Partial<UserInfoConfig>) => {
-		setCredentials(prev => ({ ...prev, ...newCredentials }));
+		setCredentials((prev) => ({ ...prev, ...newCredentials }));
 	}, []);
 
 	const fetchUserInfo = useCallback(async (): Promise<UserInfoResult> => {
@@ -78,14 +78,15 @@ export const useUserInfoFlowController = (): UseUserInfoFlowControllerReturn => 
 		setError(null);
 
 		try {
-			const userInfoEndpoint = credentials.userInfoEndpoint || 
+			const userInfoEndpoint =
+				credentials.userInfoEndpoint ||
 				`https://auth.pingone.com/${credentials.environmentId}/as/userinfo`;
 
 			const response = await fetch(userInfoEndpoint, {
 				method: 'GET',
 				headers: {
-					'Authorization': `Bearer ${credentials.accessToken}`,
-					'Accept': 'application/json',
+					Authorization: `Bearer ${credentials.accessToken}`,
+					Accept: 'application/json',
 				},
 			});
 
@@ -95,10 +96,9 @@ export const useUserInfoFlowController = (): UseUserInfoFlowControllerReturn => 
 
 			const result: UserInfoResult = await response.json();
 			setUserInfo(result);
-			
+
 			console.log(`${LOG_PREFIX} [SUCCESS] UserInfo fetched:`, result);
 			return result;
-
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'UserInfo request failed';
 			setError(errorMessage);

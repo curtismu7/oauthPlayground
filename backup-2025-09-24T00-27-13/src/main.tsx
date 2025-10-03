@@ -6,17 +6,17 @@ import { ThemeProvider } from 'styled-components';
 import { GlobalStyle, theme } from './styles/global';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter
-      future={{
-        v7_startTransition: true,
-        v7_relativeSplatPath: true
-      }}
-    >
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        <App />
-      </ThemeProvider>
-    </BrowserRouter>
-  </React.StrictMode>
+	<React.StrictMode>
+		<BrowserRouter
+			future={{
+				v7_startTransition: true,
+				v7_relativeSplatPath: true,
+			}}
+		>
+			<ThemeProvider theme={theme}>
+				<GlobalStyle />
+				<App />
+			</ThemeProvider>
+		</BrowserRouter>
+	</React.StrictMode>
 );

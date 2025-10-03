@@ -542,7 +542,9 @@ export class TokenAnalyzer {
 					recommendation: 'Use a valid token',
 				},
 			];
-			result.recommendations = ['The provided token is invalid. Please check the token and try again.'];
+			result.recommendations = [
+				'The provided token is invalid. Please check the token and try again.',
+			];
 			return result;
 		}
 		return 100;

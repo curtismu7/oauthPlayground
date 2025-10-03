@@ -25,8 +25,8 @@ const SpinnerOverlay = styled.div<{ $isVisible: boolean }>`
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  opacity: ${({ $isVisible }) => $isVisible ? 1 : 0};
-  visibility: ${({ $isVisible }) => $isVisible ? 'visible' : 'hidden'};
+  opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  visibility: ${({ $isVisible }) => ($isVisible ? 'visible' : 'hidden')};
   transition: opacity 0.3s ease, visibility 0.3s ease;
   animation: ${fadeIn} 0.3s ease;
 `;
@@ -76,62 +76,62 @@ const ProgressBar = styled.div<{ $progress: number }>`
 `;
 
 interface PageChangeSpinnerProps {
-  isVisible: boolean;
-  message?: string;
+	isVisible: boolean;
+	message?: string;
 }
 
-const PageChangeSpinner: React.FC<PageChangeSpinnerProps> = ({ 
-  isVisible, 
-  message = "Loading page..." 
+const PageChangeSpinner: React.FC<PageChangeSpinnerProps> = ({
+	isVisible,
+	message = 'Loading page...',
 }) => {
-  const [progress, setProgress] = useState(0);
-  const [startTime, setStartTime] = useState<number | null>(null);
+	const [progress, setProgress] = useState(0);
+	const [startTime, setStartTime] = useState<number | null>(null);
 
-  useEffect(() => {
-    if (isVisible) {
-      setStartTime(Date.now());
-      setProgress(0);
-      
-      // Simulate progress
-      const progressInterval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 15;
-        });
-      }, 200);
+	useEffect(() => {
+		if (isVisible) {
+			setStartTime(Date.now());
+			setProgress(0);
 
-      return () => clearInterval(progressInterval);
-    } else {
-      setProgress(0);
-      setStartTime(null);
-    }
-  }, [isVisible]);
+			// Simulate progress
+			const progressInterval = setInterval(() => {
+				setProgress((prev) => {
+					if (prev >= 90) return prev;
+					return prev + Math.random() * 15;
+				});
+			}, 200);
 
-  // Ensure minimum display time
-  useEffect(() => {
-    if (isVisible && startTime) {
-      const minDisplayTime = 800; // 800ms minimum
-      const elapsed = Date.now() - startTime;
-      
-      if (elapsed < minDisplayTime) {
-        const timer = setTimeout(() => {
-          // This will be handled by the parent component
-        }, minDisplayTime - elapsed);
-        
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [isVisible, startTime]);
+			return () => clearInterval(progressInterval);
+		} else {
+			setProgress(0);
+			setStartTime(null);
+		}
+	}, [isVisible]);
 
-  return (
-    <SpinnerOverlay $isVisible={isVisible}>
-      <SpinnerContainer>
-        <SpinnerIcon />
-        <SpinnerText>{message}</SpinnerText>
-        <ProgressBar $progress={progress} />
-      </SpinnerContainer>
-    </SpinnerOverlay>
-  );
+	// Ensure minimum display time
+	useEffect(() => {
+		if (isVisible && startTime) {
+			const minDisplayTime = 800; // 800ms minimum
+			const elapsed = Date.now() - startTime;
+
+			if (elapsed < minDisplayTime) {
+				const timer = setTimeout(() => {
+					// This will be handled by the parent component
+				}, minDisplayTime - elapsed);
+
+				return () => clearTimeout(timer);
+			}
+		}
+	}, [isVisible, startTime]);
+
+	return (
+		<SpinnerOverlay $isVisible={isVisible}>
+			<SpinnerContainer>
+				<SpinnerIcon />
+				<SpinnerText>{message}</SpinnerText>
+				<ProgressBar $progress={progress} />
+			</SpinnerContainer>
+		</SpinnerOverlay>
+	);
 };
 
 export default PageChangeSpinner;

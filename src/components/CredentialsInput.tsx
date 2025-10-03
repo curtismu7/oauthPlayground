@@ -65,6 +65,10 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	font-family: inherit;
 	background: #ffffff;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	cursor: text;
+	pointer-events: auto;
+	position: relative;
+	z-index: 5;
 
 	&:hover {
 		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#9ca3af')};
@@ -78,6 +82,29 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 
 	&::placeholder {
 		color: #9ca3af;
+	}
+
+	&:disabled {
+		background: #f9fafb;
+		color: #6b7280;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	&[readonly] {
+		background: #f9fafb;
+		color: #6b7280;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+
+	/* Ensure inputs are always interactive when not disabled/readonly */
+	&:not(:disabled):not([readonly]) {
+		background: #ffffff !important;
+		color: #111827 !important;
+		cursor: text !important;
+		pointer-events: auto !important;
+		user-select: text !important;
 	}
 `;
 
@@ -93,6 +120,10 @@ const IconButton = styled.button`
 	justify-content: center;
 	transition: all 0.2s ease;
 	border-radius: 0.375rem;
+	z-index: 10;
+	pointer-events: auto;
+	width: 2rem;
+	height: 2rem;
 
 	&:hover {
 		color: #2563eb;
@@ -154,6 +185,8 @@ export const CredentialsInput = ({
 						}
 						value={environmentId}
 						onChange={(e) => onEnvironmentIdChange(e.target.value)}
+						disabled={false}
+						readOnly={false}
 						$hasError={emptyRequiredFields.has('environmentId')}
 						style={{ paddingRight: '2.5rem' }}
 					/>
@@ -168,6 +201,8 @@ export const CredentialsInput = ({
 									? 'translateY(-50%) scale(1.2)'
 									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Environment ID' ? '#10b981' : '#6b7280',
+							width: '2rem',
+							height: '2rem',
 						}}
 						title="Copy Environment ID"
 					>
@@ -192,6 +227,8 @@ export const CredentialsInput = ({
 						onChange={(e) => onClientIdChange(e.target.value)}
 						$hasError={emptyRequiredFields.has('clientId')}
 						style={{ paddingRight: '2.5rem' }}
+						disabled={false}
+						readOnly={false}
 					/>
 					<IconButton
 						type="button"
@@ -204,6 +241,8 @@ export const CredentialsInput = ({
 									? 'translateY(-50%) scale(1.2)'
 									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Client ID' ? '#10b981' : '#6b7280',
+							width: '2rem',
+							height: '2rem',
 						}}
 						title="Copy Client ID"
 					>
@@ -229,6 +268,8 @@ export const CredentialsInput = ({
 							onChange={(e) => onClientSecretChange(e.target.value)}
 							$hasError={emptyRequiredFields.has('clientSecret')}
 							style={{ paddingRight: '5rem' }}
+							disabled={false}
+							readOnly={false}
 						/>
 						<IconButton
 							type="button"
@@ -241,6 +282,8 @@ export const CredentialsInput = ({
 										? 'translateY(-50%) scale(1.2)'
 										: 'translateY(-50%) scale(1)',
 								color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
+								width: '2rem',
+								height: '2rem',
 							}}
 							title="Copy Client Secret"
 						>
@@ -253,11 +296,32 @@ export const CredentialsInput = ({
 								right: '0.5rem',
 								top: '50%',
 								transform: 'translateY(-50%)',
+								width: '2rem',
+								height: '2rem',
 							}}
 							title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 						>
 							{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
 						</IconButton>
+					</div>
+				</FormField>
+			)}
+
+			{!showClientSecret && (
+				<FormField style={{ gridColumn: '1 / -1' }}>
+					<div
+						style={{
+							fontSize: '0.875rem',
+							color: '#6b7280',
+							backgroundColor: '#f3f4f6',
+							padding: '0.75rem',
+							borderRadius: '0.5rem',
+							border: '1px solid #e5e7eb',
+							marginTop: '0.5rem',
+						}}
+					>
+						<strong>Note:</strong> Client Secret is not required for this flow type. This flow uses
+						public client authentication (client_id only).
 					</div>
 				</FormField>
 			)}
@@ -279,6 +343,8 @@ export const CredentialsInput = ({
 							onChange={(e) => onRedirectUriChange?.(e.target.value)}
 							$hasError={emptyRequiredFields.has('redirectUri')}
 							style={{ paddingRight: '2.5rem' }}
+							disabled={false}
+							readOnly={false}
 						/>
 						<IconButton
 							type="button"
@@ -291,11 +357,32 @@ export const CredentialsInput = ({
 										? 'translateY(-50%) scale(1.2)'
 										: 'translateY(-50%) scale(1)',
 								color: copiedField === 'Redirect URI' ? '#10b981' : '#6b7280',
+								width: '2rem',
+								height: '2rem',
 							}}
 							title="Copy Redirect URI"
 						>
 							<FiCopy size={16} />
 						</IconButton>
+					</div>
+				</FormField>
+			)}
+
+			{!showRedirectUri && (
+				<FormField style={{ gridColumn: '1 / -1' }}>
+					<div
+						style={{
+							fontSize: '0.875rem',
+							color: '#6b7280',
+							backgroundColor: '#f3f4f6',
+							padding: '0.75rem',
+							borderRadius: '0.5rem',
+							border: '1px solid #e5e7eb',
+							marginTop: '0.5rem',
+						}}
+					>
+						<strong>Note:</strong> Redirect URI is not required for this flow type. This flow
+						handles authentication without redirects.
 					</div>
 				</FormField>
 			)}
@@ -319,6 +406,8 @@ export const CredentialsInput = ({
 						}}
 						$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
 						style={{ paddingRight: '2.5rem' }}
+						disabled={false}
+						readOnly={false}
 					/>
 					<IconButton
 						type="button"
@@ -331,6 +420,8 @@ export const CredentialsInput = ({
 									? 'translateY(-50%) scale(1.2)'
 									: 'translateY(-50%) scale(1)',
 							color: copiedField === 'Scopes' ? '#10b981' : '#6b7280',
+							width: '2rem',
+							height: '2rem',
 						}}
 						title="Copy Scopes"
 					>
@@ -355,6 +446,8 @@ export const CredentialsInput = ({
 							value={loginHint}
 							onChange={(e) => onLoginHintChange?.(e.target.value)}
 							style={{ paddingRight: '2.5rem' }}
+							disabled={false}
+							readOnly={false}
 						/>
 						<IconButton
 							type="button"
@@ -367,6 +460,8 @@ export const CredentialsInput = ({
 										? 'translateY(-50%) scale(1.2)'
 										: 'translateY(-50%) scale(1)',
 								color: copiedField === 'Login Hint' ? '#10b981' : '#6b7280',
+								width: '2rem',
+								height: '2rem',
 							}}
 							title="Copy Login Hint"
 						>

@@ -38,8 +38,10 @@ export const V4_TOAST_MESSAGES: ButtonToastScenarios = {
 	noTokensInSession: 'No active session tokens found',
 
 	// Token Introspection
-	introspectionNotSupported: 'ID tokens cannot be introspected - they are validated locally using JWKS',
-	introspectionCredentialsRequired: 'Introspection requires PingOne credentials. Please configure them in Settings.',
+	introspectionNotSupported:
+		'ID tokens cannot be introspected - they are validated locally using JWKS',
+	introspectionCredentialsRequired:
+		'Introspection requires PingOne credentials. Please configure them in Settings.',
 	introspectionSuccess: 'Token introspection completed successfully',
 
 	// User Info
@@ -78,8 +80,11 @@ export class V4ToastManager {
 	/**
 	 * Show success toast with message interpolation or custom message
 	 */
-	showSuccess(keyOrMessage: keyof ButtonToastScenarios | string, variables: Record<string, string> = {}): void {
-		const message = this.isPresetKey(keyOrMessage) 
+	showSuccess(
+		keyOrMessage: keyof ButtonToastScenarios | string,
+		variables: Record<string, string> = {}
+	): void {
+		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
 		showGlobalSuccess(message);
@@ -88,7 +93,10 @@ export class V4ToastManager {
 	/**
 	 * Show error toast with message interpolation or custom message
 	 */
-	showError(keyOrMessage: keyof ButtonToastScenarios | string, variables: Record<string, string> = {}): void {
+	showError(
+		keyOrMessage: keyof ButtonToastScenarios | string,
+		variables: Record<string, string> = {}
+	): void {
 		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
@@ -98,7 +106,10 @@ export class V4ToastManager {
 	/**
 	 * Show warning toast with message interpolation or custom message
 	 */
-	showWarning(keyOrMessage: keyof ButtonToastScenarios | string, variables: Record<string, string> = {}): void {
+	showWarning(
+		keyOrMessage: keyof ButtonToastScenarios | string,
+		variables: Record<string, string> = {}
+	): void {
 		const message = this.isPresetKey(keyOrMessage)
 			? this.interpolateMessage(this.messages[keyOrMessage], variables)
 			: keyOrMessage;
@@ -342,7 +353,8 @@ export class V4ToastManager {
 	 * Convenience method for copy operations
 	 */
 	handleCopyOperation(text: string, label: string): Promise<void> {
-		return navigator.clipboard.writeText(text)
+		return navigator.clipboard
+			.writeText(text)
 			.then(() => this.showSuccess(`${label} copied to clipboard!`))
 			.catch(() => this.showError(`Failed to copy ${label}: Unable to copy to clipboard.`));
 	}

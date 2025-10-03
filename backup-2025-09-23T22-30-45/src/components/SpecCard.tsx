@@ -89,32 +89,32 @@ const SpecCardContainer = styled.section`
 `;
 
 interface SpecCardProps {
-  title?: string;
-  children: React.ReactNode;
-  className?: string;
-  'aria-label'?: string;
+	title?: string;
+	children: React.ReactNode;
+	className?: string;
+	'aria-label'?: string;
 }
 
 /**
  * SpecCard component for consistent spec/info card styling
  * Provides white background with black text for optimal readability
  */
-export const SpecCard: React.FC<SpecCardProps> = ({ 
-  title, 
-  children, 
-  className = '', 
-  'aria-label': ariaLabel 
+export const SpecCard: React.FC<SpecCardProps> = ({
+	title,
+	children,
+	className = '',
+	'aria-label': ariaLabel,
 }) => {
-  return (
-    <SpecCardContainer 
-      className={`spec-card ${className}`}
-      role="region"
-      aria-label={ariaLabel || title}
-    >
-      {title && <h3 className="spec-card-title">{title}</h3>}
-      <div className="spec-card-content">{children}</div>
-    </SpecCardContainer>
-  );
+	return (
+		<SpecCardContainer
+			className={`spec-card ${className}`}
+			role="region"
+			aria-label={ariaLabel || title}
+		>
+			{title && <h3 className="spec-card-title">{title}</h3>}
+			<div className="spec-card-content">{children}</div>
+		</SpecCardContainer>
+	);
 };
 
 export default SpecCard;

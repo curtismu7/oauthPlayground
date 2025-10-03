@@ -18,19 +18,25 @@ const CallbackContainer = styled.div`
 
 const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
   background: ${({ $status }) => {
-    switch ($status) {
-      case 'success': return '#f0fdf4';
-      case 'error': return '#fef2f2';
-      default: return '#f8fafc';
-    }
-  }};
+		switch ($status) {
+			case 'success':
+				return '#f0fdf4';
+			case 'error':
+				return '#fef2f2';
+			default:
+				return '#f8fafc';
+		}
+	}};
   border: 1px solid ${({ $status }) => {
-    switch ($status) {
-      case 'success': return '#bbf7d0';
-      case 'error': return '#fecaca';
-      default: return '#e2e8f0';
-    }
-  }};
+		switch ($status) {
+			case 'success':
+				return '#bbf7d0';
+			case 'error':
+				return '#fecaca';
+			default:
+				return '#e2e8f0';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 2rem;
   max-width: 500px;
@@ -40,12 +46,15 @@ const StatusCard = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
 const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' }>`
   font-size: 3rem;
   color: ${({ $status }) => {
-    switch ($status) {
-      case 'success': return '#16a34a';
-      case 'error': return '#dc2626';
-      default: return '#6b7280';
-    }
-  }};
+		switch ($status) {
+			case 'success':
+				return '#16a34a';
+			case 'error':
+				return '#dc2626';
+			default:
+				return '#6b7280';
+		}
+	}};
   margin-bottom: 1rem;
 `;
 
@@ -74,76 +83,76 @@ const ErrorDetails = styled.pre`
 `;
 
 const WorkerTokenCallback: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { handleCallback } = useAuth();
-  const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
-  const [message, setMessage] = useState('Processing worker token callback...');
-  const [error, setError] = useState<string | null>(null);
+	const navigate = useNavigate();
+	const location = useLocation();
+	const { handleCallback } = useAuth();
+	const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
+	const [message, setMessage] = useState('Processing worker token callback...');
+	const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const processCallback = async () => {
-      try {
-        const currentUrl = getValidatedCurrentUrl('WorkerTokenCallback');
-        logger.oauth('WorkerTokenCallback', 'Processing worker token callback', { url: currentUrl });
-        
-        const result = await handleCallback(currentUrl);
-        
-        if (result.success) {
-          setStatus('success');
-          setMessage('Worker token flow successful! Redirecting...');
-          logger.oauth('WorkerTokenCallback', 'Worker token flow successful', { redirectUrl: result.redirectUrl });
-          
-          // Redirect after a short delay
-          setTimeout(() => {
-            navigate(result.redirectUrl || '/');
-          }, 1500);
-        } else {
-          setStatus('error');
-          setMessage('Worker token flow failed');
-          setError(result.error || 'Unknown error occurred');
-          logger.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
-        }
-      } catch (err) {
-        setStatus('error');
-        setMessage('Worker token flow failed');
-        setError(err instanceof Error ? err.message : 'Unknown error occurred');
-        logger.error('WorkerTokenCallback', 'Error processing worker token callback', err);
-      }
-    };
+	useEffect(() => {
+		const processCallback = async () => {
+			try {
+				const currentUrl = getValidatedCurrentUrl('WorkerTokenCallback');
+				logger.oauth('WorkerTokenCallback', 'Processing worker token callback', {
+					url: currentUrl,
+				});
 
-    processCallback();
-  }, [location.href, handleCallback, navigate]);
+				const result = await handleCallback(currentUrl);
 
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'success':
-        return <FiCheckCircle />;
-      case 'error':
-        return <FiXCircle />;
-      default:
-        return <FiLoader className="animate-spin" />;
-    }
-  };
+				if (result.success) {
+					setStatus('success');
+					setMessage('Worker token flow successful! Redirecting...');
+					logger.oauth('WorkerTokenCallback', 'Worker token flow successful', {
+						redirectUrl: result.redirectUrl,
+					});
 
-  return (
-    <CallbackContainer>
-      <StatusCard $status={status}>
-        <StatusIcon $status={status}>
-          {getStatusIcon()}
-        </StatusIcon>
-        <StatusTitle>
-          {status === 'loading' && 'Processing Worker Token'}
-          {status === 'success' && 'Worker Token Successful'}
-          {status === 'error' && 'Worker Token Failed'}
-        </StatusTitle>
-        <StatusMessage>{message}</StatusMessage>
-        {error && (
-          <ErrorDetails>{error}</ErrorDetails>
-        )}
-      </StatusCard>
-    </CallbackContainer>
-  );
+					// Redirect after a short delay
+					setTimeout(() => {
+						navigate(result.redirectUrl || '/');
+					}, 1500);
+				} else {
+					setStatus('error');
+					setMessage('Worker token flow failed');
+					setError(result.error || 'Unknown error occurred');
+					logger.error('WorkerTokenCallback', 'Worker token flow failed', { error: result.error });
+				}
+			} catch (err) {
+				setStatus('error');
+				setMessage('Worker token flow failed');
+				setError(err instanceof Error ? err.message : 'Unknown error occurred');
+				logger.error('WorkerTokenCallback', 'Error processing worker token callback', err);
+			}
+		};
+
+		processCallback();
+	}, [location.href, handleCallback, navigate]);
+
+	const getStatusIcon = () => {
+		switch (status) {
+			case 'success':
+				return <FiCheckCircle />;
+			case 'error':
+				return <FiXCircle />;
+			default:
+				return <FiLoader className="animate-spin" />;
+		}
+	};
+
+	return (
+		<CallbackContainer>
+			<StatusCard $status={status}>
+				<StatusIcon $status={status}>{getStatusIcon()}</StatusIcon>
+				<StatusTitle>
+					{status === 'loading' && 'Processing Worker Token'}
+					{status === 'success' && 'Worker Token Successful'}
+					{status === 'error' && 'Worker Token Failed'}
+				</StatusTitle>
+				<StatusMessage>{message}</StatusMessage>
+				{error && <ErrorDetails>{error}</ErrorDetails>}
+			</StatusCard>
+		</CallbackContainer>
+	);
 };
 
 export default WorkerTokenCallback;

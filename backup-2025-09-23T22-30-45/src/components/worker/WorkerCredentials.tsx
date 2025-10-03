@@ -49,15 +49,15 @@ const Label = styled.label`
 
 const Input = styled.input<{ hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${props => props.hasError ? '#ef4444' : '#d1d5db'};
+  border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#d1d5db')};
   border-radius: 8px;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: ${props => props.hasError ? '#ef4444' : '#3b82f6'};
-    box-shadow: 0 0 0 3px ${props => props.hasError ? '#fef2f2' : '#eff6ff'};
+    border-color: ${(props) => (props.hasError ? '#ef4444' : '#3b82f6')};
+    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? '#fef2f2' : '#eff6ff')};
   }
   
   &:disabled {
@@ -92,7 +92,7 @@ const ToggleButton = styled.button`
 
 const Textarea = styled.textarea<{ hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid ${props => props.hasError ? '#ef4444' : '#d1d5db'};
+  border: 1px solid ${(props) => (props.hasError ? '#ef4444' : '#d1d5db')};
   border-radius: 8px;
   font-size: 0.875rem;
   min-height: 80px;
@@ -102,8 +102,8 @@ const Textarea = styled.textarea<{ hasError?: boolean }>`
   
   &:focus {
     outline: none;
-    border-color: ${props => props.hasError ? '#ef4444' : '#3b82f6'};
-    box-shadow: 0 0 0 3px ${props => props.hasError ? '#fef2f2' : '#eff6ff'};
+    border-color: ${(props) => (props.hasError ? '#ef4444' : '#3b82f6')};
+    box-shadow: 0 0 0 3px ${(props) => (props.hasError ? '#fef2f2' : '#eff6ff')};
   }
 `;
 
@@ -169,14 +169,17 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
   border: none;
   
-  ${props => props.variant === 'primary' ? `
+  ${(props) =>
+		props.variant === 'primary'
+			? `
     background-color: #3b82f6;
     color: white;
     
     &:hover:not(:disabled) {
       background-color: #2563eb;
     }
-  ` : `
+  `
+			: `
     background-color: #f3f4f6;
     color: #374151;
     
@@ -198,277 +201,289 @@ const ButtonGroup = styled.div`
 `;
 
 interface WorkerCredentialsProps {
-  credentials: WorkerTokenCredentials;
-  onChange: (credentials: WorkerTokenCredentials) => void;
-  onValidate?: (isValid: boolean, errors: string[]) => void;
-  showAdvanced?: boolean;
-  autoDiscover?: boolean;
+	credentials: WorkerTokenCredentials;
+	onChange: (credentials: WorkerTokenCredentials) => void;
+	onValidate?: (isValid: boolean, errors: string[]) => void;
+	showAdvanced?: boolean;
+	autoDiscover?: boolean;
 }
 
 export const WorkerCredentials: React.FC<WorkerCredentialsProps> = ({
-  credentials,
-  onChange,
-  onValidate,
-  showAdvanced = false,
-  autoDiscover = true
+	credentials,
+	onChange,
+	onValidate,
+	showAdvanced = false,
+	autoDiscover = true,
 }) => {
-  const [showSecret, setShowSecret] = useState(false);
-  const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [isValidating, setIsValidating] = useState(false);
+	const [showSecret, setShowSecret] = useState(false);
+	const [validationErrors, setValidationErrors] = useState<string[]>([]);
+	const [isValidating, setIsValidating] = useState(false);
 
-  // Validate credentials whenever they change
-  useEffect(() => {
-    const validateCredentials = () => {
-      const errors: string[] = [];
-      
-      // Validate client ID
-      if (!credentials.client_id || credentials.client_id.trim().length === 0) {
-        errors.push('Client ID is required');
-      } else if (credentials.client_id.length < 8) {
-        errors.push('Client ID appears to be too short');
-      }
+	// Validate credentials whenever they change
+	useEffect(() => {
+		const validateCredentials = () => {
+			const errors: string[] = [];
 
-      // Validate client secret
-      if (!credentials.client_secret || credentials.client_secret.trim().length === 0) {
-        errors.push('Client Secret is required');
-      } else if (credentials.client_secret.length < 16) {
-        errors.push('Client Secret appears to be too short');
-      }
+			// Validate client ID
+			if (!credentials.client_id || credentials.client_id.trim().length === 0) {
+				errors.push('Client ID is required');
+			} else if (credentials.client_id.length < 8) {
+				errors.push('Client ID appears to be too short');
+			}
 
-      // Validate environment ID
-      if (!credentials.environment_id || credentials.environment_id.trim().length === 0) {
-        errors.push('Environment ID is required');
-      } else if (!validateEnvironmentId(credentials.environment_id)) {
-        errors.push('Environment ID should be a valid UUID');
-      }
+			// Validate client secret
+			if (!credentials.client_secret || credentials.client_secret.trim().length === 0) {
+				errors.push('Client Secret is required');
+			} else if (credentials.client_secret.length < 16) {
+				errors.push('Client Secret appears to be too short');
+			}
 
-      // Validate scopes
-      if (!credentials.scopes || credentials.scopes.length === 0) {
-        errors.push('At least one scope is required');
-      }
+			// Validate environment ID
+			if (!credentials.environment_id || credentials.environment_id.trim().length === 0) {
+				errors.push('Environment ID is required');
+			} else if (!validateEnvironmentId(credentials.environment_id)) {
+				errors.push('Environment ID should be a valid UUID');
+			}
 
-      setValidationErrors(errors);
-      onValidate?.(errors.length === 0, errors);
-      
-      return errors.length === 0;
-    };
+			// Validate scopes
+			if (!credentials.scopes || credentials.scopes.length === 0) {
+				errors.push('At least one scope is required');
+			}
 
-    validateCredentials();
-  }, [credentials, onValidate]);
+			setValidationErrors(errors);
+			onValidate?.(errors.length === 0, errors);
 
-  const handleFieldChange = useCallback((field: keyof WorkerTokenCredentials, value: any) => {
-    const updatedCredentials = {
-      ...credentials,
-      [field]: value
-    };
-    
-    // Auto-generate endpoints when environment ID changes
-    if (field === 'environment_id' && autoDiscover && value && validateEnvironmentId(value)) {
-      updatedCredentials.token_endpoint = `https://auth.pingone.com/${value}/as/token`;
-      updatedCredentials.introspection_endpoint = `https://auth.pingone.com/${value}/as/introspect`;
-    }
-    
-    onChange(updatedCredentials);
-  }, [credentials, onChange, autoDiscover]);
+			return errors.length === 0;
+		};
 
-  const handleScopeToggle = useCallback((scope: string, checked: boolean) => {
-    const updatedScopes = checked
-      ? [...credentials.scopes, scope]
-      : credentials.scopes.filter(s => s !== scope);
-    
-    handleFieldChange('scopes', updatedScopes);
-  }, [credentials.scopes, handleFieldChange]);
+		validateCredentials();
+	}, [credentials, onValidate]);
 
-  const handleTestConnection = useCallback(async () => {
-    setIsValidating(true);
-    
-    try {
-      logger.info('WORKER-CREDENTIALS', 'Testing connection', {
-        clientId: credentials.client_id.substring(0, 8) + '...',
-        environmentId: credentials.environment_id
-      });
+	const handleFieldChange = useCallback(
+		(field: keyof WorkerTokenCredentials, value: any) => {
+			const updatedCredentials = {
+				...credentials,
+				[field]: value,
+			};
 
-      // Basic validation
-      const validation = validateCredentialFormat(credentials.client_id, credentials.client_secret);
-      if (!validation.isValid) {
-        setValidationErrors(validation.errors);
-        return;
-      }
+			// Auto-generate endpoints when environment ID changes
+			if (field === 'environment_id' && autoDiscover && value && validateEnvironmentId(value)) {
+				updatedCredentials.token_endpoint = `https://auth.pingone.com/${value}/as/token`;
+				updatedCredentials.introspection_endpoint = `https://auth.pingone.com/${value}/as/introspect`;
+			}
 
-      // Test token endpoint accessibility
-      const response = await fetch(credentials.token_endpoint || `https://auth.pingone.com/${credentials.environment_id}/as/token`, {
-        method: 'HEAD',
-        mode: 'cors'
-      });
+			onChange(updatedCredentials);
+		},
+		[credentials, onChange, autoDiscover]
+	);
 
-      if (response.ok) {
-        logger.success('WORKER-CREDENTIALS', 'Connection test successful');
-        setValidationErrors([]);
-      } else {
-        throw new Error(`Token endpoint returned ${response.status}`);
-      }
-    } catch (error) {
-      logger.error('WORKER-CREDENTIALS', 'Connection test failed', error);
-      setValidationErrors([`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`]);
-    } finally {
-      setIsValidating(false);
-    }
-  }, [credentials]);
+	const handleScopeToggle = useCallback(
+		(scope: string, checked: boolean) => {
+			const updatedScopes = checked
+				? [...credentials.scopes, scope]
+				: credentials.scopes.filter((s) => s !== scope);
 
-  const handleLoadFromEnv = useCallback(() => {
-    // In a real implementation, this would load from actual environment variables
-    // For now, we'll just show a placeholder
-    logger.info('WORKER-CREDENTIALS', 'Loading credentials from environment variables');
-    // This would be implemented based on the actual environment variable loading mechanism
-  }, []);
+			handleFieldChange('scopes', updatedScopes);
+		},
+		[credentials.scopes, handleFieldChange]
+	);
 
-  return (
-    <Container>
-      <Header>
-        <FiSettings size={20} color="#3b82f6" />
-        <h3>Worker Application Credentials</h3>
-      </Header>
+	const handleTestConnection = useCallback(async () => {
+		setIsValidating(true);
 
-      <Form>
-        <FieldGroup>
-          <Label htmlFor="client_id">Client ID *</Label>
-          <Input
-            id="client_id"
-            type="text"
-            value={credentials.client_id}
-            onChange={(e) => handleFieldChange('client_id', e.target.value)}
-            placeholder="Enter your PingOne client ID"
-            hasError={validationErrors.some(error => error.includes('Client ID'))}
-            autoComplete="username"
-          />
-          {validationErrors.some(error => error.includes('Client ID')) && (
-            <ErrorMessage>
-              <FiAlertCircle size={14} />
-              {validationErrors.find(error => error.includes('Client ID'))}
-            </ErrorMessage>
-          )}
-        </FieldGroup>
+		try {
+			logger.info('WORKER-CREDENTIALS', 'Testing connection', {
+				clientId: credentials.client_id.substring(0, 8) + '...',
+				environmentId: credentials.environment_id,
+			});
 
-        <FieldGroup>
-          <Label htmlFor="client_secret">Client Secret *</Label>
-          <SecureInputContainer>
-            <SecureInput
-              id="client_secret"
-              type={showSecret ? 'text' : 'password'}
-              value={credentials.client_secret}
-              onChange={(e) => handleFieldChange('client_secret', e.target.value)}
-              placeholder="Enter your PingOne client secret"
-              hasError={validationErrors.some(error => error.includes('Client Secret'))}
-              autoComplete="current-password"
-            />
-            <ToggleButton
-              type="button"
-              onClick={() => setShowSecret(!showSecret)}
-              title={showSecret ? 'Hide secret' : 'Show secret'}
-            >
-              {showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-            </ToggleButton>
-          </SecureInputContainer>
-          {validationErrors.some(error => error.includes('Client Secret')) && (
-            <ErrorMessage>
-              <FiAlertCircle size={14} />
-              {validationErrors.find(error => error.includes('Client Secret'))}
-            </ErrorMessage>
-          )}
-        </FieldGroup>
+			// Basic validation
+			const validation = validateCredentialFormat(credentials.client_id, credentials.client_secret);
+			if (!validation.isValid) {
+				setValidationErrors(validation.errors);
+				return;
+			}
 
-        <FieldGroup>
-          <Label htmlFor="environment_id">Environment ID *</Label>
-          <Input
-            id="environment_id"
-            type="text"
-            value={credentials.environment_id}
-            onChange={(e) => handleFieldChange('environment_id', e.target.value)}
-            placeholder="Enter your PingOne environment ID (UUID)"
-            hasError={validationErrors.some(error => error.includes('Environment ID'))}
-          />
-          {validationErrors.some(error => error.includes('Environment ID')) && (
-            <ErrorMessage>
-              <FiAlertCircle size={14} />
-              {validationErrors.find(error => error.includes('Environment ID'))}
-            </ErrorMessage>
-          )}
-          {credentials.environment_id && validateEnvironmentId(credentials.environment_id) && (
-            <SuccessMessage>
-              <FiCheck size={14} />
-              Valid environment ID format
-            </SuccessMessage>
-          )}
-        </FieldGroup>
+			// Test token endpoint accessibility
+			const response = await fetch(
+				credentials.token_endpoint ||
+					`https://auth.pingone.com/${credentials.environment_id}/as/token`,
+				{
+					method: 'HEAD',
+					mode: 'cors',
+				}
+			);
 
-        <FieldGroup>
-          <Label>Scopes *</Label>
-          <ScopeContainer>
-            <ScopeList>
-              {DEFAULT_WORKER_SCOPES.map(scope => (
-                <ScopeItem key={scope}>
-                  <Checkbox
-                    type="checkbox"
-                    checked={credentials.scopes.includes(scope)}
-                    onChange={(e) => handleScopeToggle(scope, e.target.checked)}
-                  />
-                  <span>{scope}</span>
-                </ScopeItem>
-              ))}
-            </ScopeList>
-          </ScopeContainer>
-          {validationErrors.some(error => error.includes('scope')) && (
-            <ErrorMessage>
-              <FiAlertCircle size={14} />
-              {validationErrors.find(error => error.includes('scope'))}
-            </ErrorMessage>
-          )}
-        </FieldGroup>
+			if (response.ok) {
+				logger.success('WORKER-CREDENTIALS', 'Connection test successful');
+				setValidationErrors([]);
+			} else {
+				throw new Error(`Token endpoint returned ${response.status}`);
+			}
+		} catch (error) {
+			logger.error('WORKER-CREDENTIALS', 'Connection test failed', error);
+			setValidationErrors([
+				`Connection test failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+			]);
+		} finally {
+			setIsValidating(false);
+		}
+	}, [credentials]);
 
-        {showAdvanced && (
-          <>
-            <FieldGroup>
-              <Label htmlFor="token_endpoint">Token Endpoint</Label>
-              <Input
-                id="token_endpoint"
-                type="url"
-                value={credentials.token_endpoint || ''}
-                onChange={(e) => handleFieldChange('token_endpoint', e.target.value)}
-                placeholder="Auto-generated from environment ID"
-                disabled={autoDiscover}
-              />
-            </FieldGroup>
+	const handleLoadFromEnv = useCallback(() => {
+		// In a real implementation, this would load from actual environment variables
+		// For now, we'll just show a placeholder
+		logger.info('WORKER-CREDENTIALS', 'Loading credentials from environment variables');
+		// This would be implemented based on the actual environment variable loading mechanism
+	}, []);
 
-            <FieldGroup>
-              <Label htmlFor="introspection_endpoint">Introspection Endpoint</Label>
-              <Input
-                id="introspection_endpoint"
-                type="url"
-                value={credentials.introspection_endpoint || ''}
-                onChange={(e) => handleFieldChange('introspection_endpoint', e.target.value)}
-                placeholder="Auto-generated from environment ID"
-                disabled={autoDiscover}
-              />
-            </FieldGroup>
-          </>
-        )}
+	return (
+		<Container>
+			<Header>
+				<FiSettings size={20} color="#3b82f6" />
+				<h3>Worker Application Credentials</h3>
+			</Header>
 
-        <ButtonGroup>
-          <Button type="button" onClick={handleLoadFromEnv} variant="secondary">
-            Load from Environment
-          </Button>
-          <Button 
-            type="button" 
-            onClick={handleTestConnection} 
-            variant="secondary"
-            disabled={isValidating || validationErrors.length > 0}
-          >
-            {isValidating ? 'Testing...' : 'Test Connection'}
-          </Button>
-        </ButtonGroup>
-      </Form>
-    </Container>
-  );
+			<Form>
+				<FieldGroup>
+					<Label htmlFor="client_id">Client ID *</Label>
+					<Input
+						id="client_id"
+						type="text"
+						value={credentials.client_id}
+						onChange={(e) => handleFieldChange('client_id', e.target.value)}
+						placeholder="Enter your PingOne client ID"
+						hasError={validationErrors.some((error) => error.includes('Client ID'))}
+						autoComplete="username"
+					/>
+					{validationErrors.some((error) => error.includes('Client ID')) && (
+						<ErrorMessage>
+							<FiAlertCircle size={14} />
+							{validationErrors.find((error) => error.includes('Client ID'))}
+						</ErrorMessage>
+					)}
+				</FieldGroup>
+
+				<FieldGroup>
+					<Label htmlFor="client_secret">Client Secret *</Label>
+					<SecureInputContainer>
+						<SecureInput
+							id="client_secret"
+							type={showSecret ? 'text' : 'password'}
+							value={credentials.client_secret}
+							onChange={(e) => handleFieldChange('client_secret', e.target.value)}
+							placeholder="Enter your PingOne client secret"
+							hasError={validationErrors.some((error) => error.includes('Client Secret'))}
+							autoComplete="current-password"
+						/>
+						<ToggleButton
+							type="button"
+							onClick={() => setShowSecret(!showSecret)}
+							title={showSecret ? 'Hide secret' : 'Show secret'}
+						>
+							{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						</ToggleButton>
+					</SecureInputContainer>
+					{validationErrors.some((error) => error.includes('Client Secret')) && (
+						<ErrorMessage>
+							<FiAlertCircle size={14} />
+							{validationErrors.find((error) => error.includes('Client Secret'))}
+						</ErrorMessage>
+					)}
+				</FieldGroup>
+
+				<FieldGroup>
+					<Label htmlFor="environment_id">Environment ID *</Label>
+					<Input
+						id="environment_id"
+						type="text"
+						value={credentials.environment_id}
+						onChange={(e) => handleFieldChange('environment_id', e.target.value)}
+						placeholder="Enter your PingOne environment ID (UUID)"
+						hasError={validationErrors.some((error) => error.includes('Environment ID'))}
+					/>
+					{validationErrors.some((error) => error.includes('Environment ID')) && (
+						<ErrorMessage>
+							<FiAlertCircle size={14} />
+							{validationErrors.find((error) => error.includes('Environment ID'))}
+						</ErrorMessage>
+					)}
+					{credentials.environment_id && validateEnvironmentId(credentials.environment_id) && (
+						<SuccessMessage>
+							<FiCheck size={14} />
+							Valid environment ID format
+						</SuccessMessage>
+					)}
+				</FieldGroup>
+
+				<FieldGroup>
+					<Label>Scopes *</Label>
+					<ScopeContainer>
+						<ScopeList>
+							{DEFAULT_WORKER_SCOPES.map((scope) => (
+								<ScopeItem key={scope}>
+									<Checkbox
+										type="checkbox"
+										checked={credentials.scopes.includes(scope)}
+										onChange={(e) => handleScopeToggle(scope, e.target.checked)}
+									/>
+									<span>{scope}</span>
+								</ScopeItem>
+							))}
+						</ScopeList>
+					</ScopeContainer>
+					{validationErrors.some((error) => error.includes('scope')) && (
+						<ErrorMessage>
+							<FiAlertCircle size={14} />
+							{validationErrors.find((error) => error.includes('scope'))}
+						</ErrorMessage>
+					)}
+				</FieldGroup>
+
+				{showAdvanced && (
+					<>
+						<FieldGroup>
+							<Label htmlFor="token_endpoint">Token Endpoint</Label>
+							<Input
+								id="token_endpoint"
+								type="url"
+								value={credentials.token_endpoint || ''}
+								onChange={(e) => handleFieldChange('token_endpoint', e.target.value)}
+								placeholder="Auto-generated from environment ID"
+								disabled={autoDiscover}
+							/>
+						</FieldGroup>
+
+						<FieldGroup>
+							<Label htmlFor="introspection_endpoint">Introspection Endpoint</Label>
+							<Input
+								id="introspection_endpoint"
+								type="url"
+								value={credentials.introspection_endpoint || ''}
+								onChange={(e) => handleFieldChange('introspection_endpoint', e.target.value)}
+								placeholder="Auto-generated from environment ID"
+								disabled={autoDiscover}
+							/>
+						</FieldGroup>
+					</>
+				)}
+
+				<ButtonGroup>
+					<Button type="button" onClick={handleLoadFromEnv} variant="secondary">
+						Load from Environment
+					</Button>
+					<Button
+						type="button"
+						onClick={handleTestConnection}
+						variant="secondary"
+						disabled={isValidating || validationErrors.length > 0}
+					>
+						{isValidating ? 'Testing...' : 'Test Connection'}
+					</Button>
+				</ButtonGroup>
+			</Form>
+		</Container>
+	);
 };
 
 export default WorkerCredentials;

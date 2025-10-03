@@ -19,10 +19,7 @@ import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import PingOneApplicationConfig, {
 	type PingOneApplicationState,
 } from '../../components/PingOneApplicationConfig';
@@ -107,19 +104,19 @@ const ContentWrapper = styled.div`
 	padding: 0 1rem;
 `;
 
-const HeaderSection = styled.div`
+const _HeaderSection = styled.div`
 	text-align: center;
 	margin-bottom: 2rem;
 `;
 
-const MainTitle = styled.h1`
+const _MainTitle = styled.h1`
 	font-size: 1.875rem;
 	font-weight: 700;
 	color: var(--color-text-primary, #111827);
 	margin-bottom: 1rem;
 `;
 
-const Subtitle = styled.p`
+const _Subtitle = styled.p`
 	font-size: 1.125rem;
 	color: var(--color-text-secondary, #4b5563);
 	margin: 0 auto;
@@ -743,26 +740,38 @@ const OIDCImplicitFlowV5: React.FC = () => {
 
 			const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
 
-			const response = await fetch('/api/introspect-token', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					token: token,
-					client_id: credentials.clientId,
-					introspection_endpoint: introspectionEndpoint,
-					token_auth_method: 'none',
-					client_secret: '', // Not needed for public clients
-				}),
+			// For implicit flow (public client), use client_id only (no client_secret)
+			const params = new URLSearchParams({
+				token: token,
+				client_id: credentials.clientId,
 			});
 
-			const data = await response.json();
+			console.log('🔍 [OIDCImplicitFlowV5] Introspecting token:', {
+				introspectionEndpoint,
+				clientId: credentials.clientId,
+				tokenLength: token.length,
+			});
+
+			const response = await fetch(introspectionEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: params.toString(),
+			});
 
 			if (!response.ok) {
-				throw new Error(data.error_description || data.error || 'Introspection failed');
+				const errorText = await response.text();
+				console.error('❌ [OIDCImplicitFlowV5] Introspection failed:', {
+					status: response.status,
+					statusText: response.statusText,
+					errorText,
+				});
+				throw new Error(`Introspection failed: ${response.status} - ${errorText}`);
 			}
 
+			const data = await response.json();
+			console.log('✅ [OIDCImplicitFlowV5] Introspection successful:', data);
 			return data;
 		},
 		[controller.credentials]
@@ -817,14 +826,14 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		const userInfo = controller.userInfo;
 
 		switch (currentStep) {
-		case 0:
-			return (
-				<>
-					<FlowConfigurationRequirements flowType="implicit" variant="oidc" />
-					<CollapsibleSection>
-						<CollapsibleHeaderButton
-							onClick={() => toggleSection('overview')}
-							aria-expanded={!collapsedSections.overview}
+			case 0:
+				return (
+					<>
+						<FlowConfigurationRequirements flowType="implicit" variant="oidc" />
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('overview')}
+								aria-expanded={!collapsedSections.overview}
 							>
 								<CollapsibleTitle>
 									<FiInfo /> Implicit Flow Overview
@@ -904,7 +913,6 @@ const OIDCImplicitFlowV5: React.FC = () => {
 											exchange step. This makes it simpler but less secure.
 										</InfoText>
 									</ExplanationSection>
-
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -1337,7 +1345,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-implicit-v5" />
 
-				<EnhancedFlowInfoCard 
+				<EnhancedFlowInfoCard
 					flowType="oidc-implicit"
 					showAdditionalInfo={true}
 					showDocumentation={true}

@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiDatabase, FiTrash2, FiDownload, FiRefreshCw, FiCheckCircle, FiXCircle, FiInfo } from 'react-icons/fi';
+import {
+	FiDatabase,
+	FiTrash2,
+	FiDownload,
+	FiRefreshCw,
+	FiCheckCircle,
+	FiXCircle,
+	FiInfo,
+} from 'react-icons/fi';
 import { useServiceWorker } from '../hooks/useServiceWorker';
 import { logger } from '../utils/logger';
 
@@ -90,19 +98,25 @@ const StatusIcon = styled.div<{ $status: 'active' | 'inactive' | 'error' }>`
   height: 32px;
   border-radius: 8px;
   background: ${({ $status }) => {
-    switch ($status) {
-      case 'active': return '#dcfce7';
-      case 'inactive': return '#f3f4f6';
-      case 'error': return '#fee2e2';
-    }
-  }};
+		switch ($status) {
+			case 'active':
+				return '#dcfce7';
+			case 'inactive':
+				return '#f3f4f6';
+			case 'error':
+				return '#fee2e2';
+		}
+	}};
   color: ${({ $status }) => {
-    switch ($status) {
-      case 'active': return '#16a34a';
-      case 'inactive': return '#6b7280';
-      case 'error': return '#dc2626';
-    }
-  }};
+		switch ($status) {
+			case 'active':
+				return '#16a34a';
+			case 'inactive':
+				return '#6b7280';
+			case 'error':
+				return '#dc2626';
+		}
+	}};
   font-size: 16px;
 `;
 
@@ -182,26 +196,34 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   border: 1px solid ${({ variant, theme }) => {
-    switch (variant) {
-      case 'primary': return theme.colors.primary;
-      case 'danger': return theme.colors.danger;
-      default: return theme.colors.gray300;
-    }
-  }};
+		switch (variant) {
+			case 'primary':
+				return theme.colors.primary;
+			case 'danger':
+				return theme.colors.danger;
+			default:
+				return theme.colors.gray300;
+		}
+	}};
   background: ${({ variant, theme }) => {
-    switch (variant) {
-      case 'primary': return theme.colors.primary;
-      case 'danger': return theme.colors.danger;
-      default: return 'white';
-    }
-  }};
+		switch (variant) {
+			case 'primary':
+				return theme.colors.primary;
+			case 'danger':
+				return theme.colors.danger;
+			default:
+				return 'white';
+		}
+	}};
   color: ${({ variant }) => {
-    switch (variant) {
-      case 'primary':
-      case 'danger': return 'white';
-      default: return '#374151';
-    }
-  }};
+		switch (variant) {
+			case 'primary':
+			case 'danger':
+				return 'white';
+			default:
+				return '#374151';
+		}
+	}};
   font-weight: 600;
   font-size: 0.875rem;
   cursor: pointer;
@@ -209,12 +231,15 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
   
   &:hover:not(:disabled) {
     background: ${({ variant, theme }) => {
-      switch (variant) {
-        case 'primary': return theme.colors.primaryDark;
-        case 'danger': return '#dc2626';
-        default: return theme.colors.gray100;
-      }
-    }};
+			switch (variant) {
+				case 'primary':
+					return theme.colors.primaryDark;
+				case 'danger':
+					return '#dc2626';
+				default:
+					return theme.colors.gray100;
+			}
+		}};
     transform: translateY(-1px);
   }
   
@@ -243,13 +268,17 @@ const Notification = styled.div<{ type: 'info' | 'success' | 'warning' | 'error'
   border-radius: 8px;
   box-shadow: ${({ theme }) => theme.shadows.lg};
   border-left: 4px solid ${({ type }) => {
-    switch (type) {
-      case 'success': return '#10b981';
-      case 'warning': return '#f59e0b';
-      case 'error': return '#ef4444';
-      default: return '#3b82f6';
-    }
-  }};
+		switch (type) {
+			case 'success':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#3b82f6';
+		}
+	}};
   min-width: 300px;
   animation: slideIn 0.3s ease-out;
   
@@ -267,13 +296,17 @@ const Notification = styled.div<{ type: 'info' | 'success' | 'warning' | 'error'
 
 const NotificationIcon = styled.div<{ type: 'info' | 'success' | 'warning' | 'error' }>`
   color: ${({ type }) => {
-    switch (type) {
-      case 'success': return '#10b981';
-      case 'warning': return '#f59e0b';
-      case 'error': return '#ef4444';
-      default: return '#3b82f6';
-    }
-  }};
+		switch (type) {
+			case 'success':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#3b82f6';
+		}
+	}};
   font-size: 18px;
 `;
 
@@ -284,299 +317,276 @@ const NotificationMessage = styled.span`
 
 // CachingDashboard component
 export const CachingDashboard: React.FC = () => {
-  const {
-    isRegistered,
-    isActive,
-    cacheNames,
-    cacheSize,
-    updateAvailable,
-    isLoading,
-    error,
-    register,
-    unregister,
-    update,
-    skipWaiting,
-    clearCaches,
-    updateState,
-    formatCacheSize,
-    getCacheSizeFormatted
-  } = useServiceWorker({
-    autoRegister: true,
-    autoUpdate: false,
-    onUpdateAvailable: () => {
-      logger.info('[CachingDashboard] Service worker update available');
-    },
-    onUpdateInstalled: () => {
-      logger.info('[CachingDashboard] Service worker update installed');
-    }
-  });
+	const {
+		isRegistered,
+		isActive,
+		cacheNames,
+		cacheSize,
+		updateAvailable,
+		isLoading,
+		error,
+		register,
+		unregister,
+		update,
+		skipWaiting,
+		clearCaches,
+		updateState,
+		formatCacheSize,
+		getCacheSizeFormatted,
+	} = useServiceWorker({
+		autoRegister: true,
+		autoUpdate: false,
+		onUpdateAvailable: () => {
+			logger.info('[CachingDashboard] Service worker update available');
+		},
+		onUpdateInstalled: () => {
+			logger.info('[CachingDashboard] Service worker update installed');
+		},
+	});
 
-  const [notifications, setNotifications] = useState<{
-    type: 'info' | 'success' | 'warning' | 'error';
-    message: string;
-    timestamp: number;
-  }[]>([]);
+	const [notifications, setNotifications] = useState<
+		{
+			type: 'info' | 'success' | 'warning' | 'error';
+			message: string;
+			timestamp: number;
+		}[]
+	>([]);
 
-  // Add notification
-  const addNotification = (type: 'info' | 'success' | 'warning' | 'error', message: string) => {
-    const notification = {
-      type,
-      message,
-      timestamp: Date.now()
-    };
-    
-    setNotifications(prev => [...prev, notification]);
-    
-    // Auto-remove after 5 seconds
-    setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.timestamp !== notification.timestamp));
-    }, 5000);
-  };
+	// Add notification
+	const addNotification = (type: 'info' | 'success' | 'warning' | 'error', message: string) => {
+		const notification = {
+			type,
+			message,
+			timestamp: Date.now(),
+		};
 
-  // Handle register
-  const handleRegister = async () => {
-    try {
-      await register();
-      addNotification('success', 'Service worker registered successfully');
-    } catch (_error) {
-      addNotification('error', 'Failed to register service worker');
-    }
-  };
+		setNotifications((prev) => [...prev, notification]);
 
-  // Handle unregister
-  const handleUnregister = async () => {
-    try {
-      await unregister();
-      addNotification('success', 'Service worker unregistered successfully');
-    } catch (_error) {
-      addNotification('error', 'Failed to unregister service worker');
-    }
-  };
+		// Auto-remove after 5 seconds
+		setTimeout(() => {
+			setNotifications((prev) => prev.filter((n) => n.timestamp !== notification.timestamp));
+		}, 5000);
+	};
 
-  // Handle update
-  const handleUpdate = async () => {
-    try {
-      await update();
-      addNotification('success', 'Service worker update triggered');
-    } catch (_error) {
-      addNotification('error', 'Failed to update service worker');
-    }
-  };
+	// Handle register
+	const handleRegister = async () => {
+		try {
+			await register();
+			addNotification('success', 'Service worker registered successfully');
+		} catch (_error) {
+			addNotification('error', 'Failed to register service worker');
+		}
+	};
 
-  // Handle skip waiting
-  const handleSkipWaiting = async () => {
-    try {
-      await skipWaiting();
-      addNotification('success', 'Service worker updated and activated');
-    } catch (_error) {
-      addNotification('error', 'Failed to activate new service worker');
-    }
-  };
+	// Handle unregister
+	const handleUnregister = async () => {
+		try {
+			await unregister();
+			addNotification('success', 'Service worker unregistered successfully');
+		} catch (_error) {
+			addNotification('error', 'Failed to unregister service worker');
+		}
+	};
 
-  // Handle clear caches
-  const handleClearCaches = async () => {
-    try {
-      await clearCaches();
-      addNotification('success', 'All caches cleared successfully');
-    } catch (_error) {
-      addNotification('error', 'Failed to clear caches');
-    }
-  };
+	// Handle update
+	const handleUpdate = async () => {
+		try {
+			await update();
+			addNotification('success', 'Service worker update triggered');
+		} catch (_error) {
+			addNotification('error', 'Failed to update service worker');
+		}
+	};
 
-  // Handle refresh
-  const handleRefresh = async () => {
-    try {
-      await updateState();
-      addNotification('info', 'Cache status refreshed');
-    } catch (_error) {
-      addNotification('error', 'Failed to refresh cache status');
-    }
-  };
+	// Handle skip waiting
+	const handleSkipWaiting = async () => {
+		try {
+			await skipWaiting();
+			addNotification('success', 'Service worker updated and activated');
+		} catch (_error) {
+			addNotification('error', 'Failed to activate new service worker');
+		}
+	};
 
-  // Get status for display
-  const getStatus = (): 'active' | 'inactive' | 'error' => {
-    if (error) return 'error';
-    if (isActive) return 'active';
-    return 'inactive';
-  };
+	// Handle clear caches
+	const handleClearCaches = async () => {
+		try {
+			await clearCaches();
+			addNotification('success', 'All caches cleared successfully');
+		} catch (_error) {
+			addNotification('error', 'Failed to clear caches');
+		}
+	};
 
-  return (
-    <DashboardContainer>
-      <DashboardHeader>
-        <DashboardIcon>
-          <FiDatabase />
-        </DashboardIcon>
-        <div>
-          <DashboardTitle>Caching Dashboard</DashboardTitle>
-          <DashboardSubtitle>
-            Manage service worker, cache storage, and offline functionality
-          </DashboardSubtitle>
-        </div>
-      </DashboardHeader>
+	// Handle refresh
+	const handleRefresh = async () => {
+		try {
+			await updateState();
+			addNotification('info', 'Cache status refreshed');
+		} catch (_error) {
+			addNotification('error', 'Failed to refresh cache status');
+		}
+	};
 
-      <StatusGrid>
-        <StatusCard $status={getStatus()}>
-          <StatusHeader>
-            <StatusLabel>Service Worker</StatusLabel>
-            <StatusIcon $status={getStatus()}>
-              {isActive ? <FiCheckCircle /> : <FiXCircle />}
-            </StatusIcon>
-          </StatusHeader>
-          <StatusValue>
-            {isActive ? 'Active' : 'Inactive'}
-          </StatusValue>
-          <StatusDescription>
-            {isActive 
-              ? 'Service worker is running and caching resources'
-              : 'Service worker is not active'
-            }
-          </StatusDescription>
-        </StatusCard>
+	// Get status for display
+	const getStatus = (): 'active' | 'inactive' | 'error' => {
+		if (error) return 'error';
+		if (isActive) return 'active';
+		return 'inactive';
+	};
 
-        <StatusCard $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
-          <StatusHeader>
-            <StatusLabel>Cache Storage</StatusLabel>
-            <StatusIcon $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
-              <FiDatabase />
-            </StatusIcon>
-          </StatusHeader>
-          <StatusValue>
-            {cacheNames.length}
-          </StatusValue>
-          <StatusDescription>
-            {cacheNames.length > 0 
-              ? 'Caches are available for offline use'
-              : 'No caches available'
-            }
-          </StatusDescription>
-        </StatusCard>
+	return (
+		<DashboardContainer>
+			<DashboardHeader>
+				<DashboardIcon>
+					<FiDatabase />
+				</DashboardIcon>
+				<div>
+					<DashboardTitle>Caching Dashboard</DashboardTitle>
+					<DashboardSubtitle>
+						Manage service worker, cache storage, and offline functionality
+					</DashboardSubtitle>
+				</div>
+			</DashboardHeader>
 
-        <StatusCard $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
-          <StatusHeader>
-            <StatusLabel>Cache Size</StatusLabel>
-            <StatusIcon $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
-              <FiDownload />
-            </StatusIcon>
-          </StatusHeader>
-          <StatusValue>
-            {getCacheSizeFormatted()}
-          </StatusValue>
-          <StatusDescription>
-            Total storage used by cached resources
-          </StatusDescription>
-        </StatusCard>
+			<StatusGrid>
+				<StatusCard $status={getStatus()}>
+					<StatusHeader>
+						<StatusLabel>Service Worker</StatusLabel>
+						<StatusIcon $status={getStatus()}>
+							{isActive ? <FiCheckCircle /> : <FiXCircle />}
+						</StatusIcon>
+					</StatusHeader>
+					<StatusValue>{isActive ? 'Active' : 'Inactive'}</StatusValue>
+					<StatusDescription>
+						{isActive
+							? 'Service worker is running and caching resources'
+							: 'Service worker is not active'}
+					</StatusDescription>
+				</StatusCard>
 
-        <StatusCard $status={updateAvailable ? 'active' : 'inactive'}>
-          <StatusHeader>
-            <StatusLabel>Updates</StatusLabel>
-            <StatusIcon $status={updateAvailable ? 'active' : 'inactive'}>
-              <FiRefreshCw />
-            </StatusIcon>
-          </StatusHeader>
-          <StatusValue>
-            {updateAvailable ? 'Available' : 'Up to Date'}
-          </StatusValue>
-          <StatusDescription>
-            {updateAvailable 
-              ? 'New service worker version available'
-              : 'Service worker is up to date'
-            }
-          </StatusDescription>
-        </StatusCard>
-      </StatusGrid>
+				<StatusCard $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
+					<StatusHeader>
+						<StatusLabel>Cache Storage</StatusLabel>
+						<StatusIcon $status={cacheNames.length > 0 ? 'active' : 'inactive'}>
+							<FiDatabase />
+						</StatusIcon>
+					</StatusHeader>
+					<StatusValue>{cacheNames.length}</StatusValue>
+					<StatusDescription>
+						{cacheNames.length > 0 ? 'Caches are available for offline use' : 'No caches available'}
+					</StatusDescription>
+				</StatusCard>
 
-      {cacheNames.length > 0 && (
-        <CacheSection>
-          <SectionTitle>Cache Storage</SectionTitle>
-          <CacheList>
-            {cacheNames.map((cacheName) => (
-              <CacheItem key={cacheName}>
-                <CacheInfo>
-                  <CacheName>{cacheName}</CacheName>
-                  <CacheSize>
-                    {formatCacheSize(cacheSize.cacheSizes[cacheName] || 0)}
-                  </CacheSize>
-                </CacheInfo>
-              </CacheItem>
-            ))}
-          </CacheList>
-        </CacheSection>
-      )}
+				<StatusCard $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
+					<StatusHeader>
+						<StatusLabel>Cache Size</StatusLabel>
+						<StatusIcon $status={cacheSize.totalSize > 0 ? 'active' : 'inactive'}>
+							<FiDownload />
+						</StatusIcon>
+					</StatusHeader>
+					<StatusValue>{getCacheSizeFormatted()}</StatusValue>
+					<StatusDescription>Total storage used by cached resources</StatusDescription>
+				</StatusCard>
 
-      <Actions>
-        <ActionButton
-          variant="primary"
-          onClick={handleRegister}
-          disabled={isLoading || isRegistered}
-        >
-          <FiCheckCircle />
-          Register Service Worker
-        </ActionButton>
+				<StatusCard $status={updateAvailable ? 'active' : 'inactive'}>
+					<StatusHeader>
+						<StatusLabel>Updates</StatusLabel>
+						<StatusIcon $status={updateAvailable ? 'active' : 'inactive'}>
+							<FiRefreshCw />
+						</StatusIcon>
+					</StatusHeader>
+					<StatusValue>{updateAvailable ? 'Available' : 'Up to Date'}</StatusValue>
+					<StatusDescription>
+						{updateAvailable
+							? 'New service worker version available'
+							: 'Service worker is up to date'}
+					</StatusDescription>
+				</StatusCard>
+			</StatusGrid>
 
-        <ActionButton
-          variant="secondary"
-          onClick={handleUnregister}
-          disabled={isLoading || !isRegistered}
-        >
-          <FiXCircle />
-          Unregister Service Worker
-        </ActionButton>
+			{cacheNames.length > 0 && (
+				<CacheSection>
+					<SectionTitle>Cache Storage</SectionTitle>
+					<CacheList>
+						{cacheNames.map((cacheName) => (
+							<CacheItem key={cacheName}>
+								<CacheInfo>
+									<CacheName>{cacheName}</CacheName>
+									<CacheSize>{formatCacheSize(cacheSize.cacheSizes[cacheName] || 0)}</CacheSize>
+								</CacheInfo>
+							</CacheItem>
+						))}
+					</CacheList>
+				</CacheSection>
+			)}
 
-        <ActionButton
-          variant="secondary"
-          onClick={handleUpdate}
-          disabled={isLoading || !isRegistered}
-        >
-          <FiRefreshCw />
-          Check for Updates
-        </ActionButton>
+			<Actions>
+				<ActionButton
+					variant="primary"
+					onClick={handleRegister}
+					disabled={isLoading || isRegistered}
+				>
+					<FiCheckCircle />
+					Register Service Worker
+				</ActionButton>
 
-        {updateAvailable && (
-          <ActionButton
-            variant="primary"
-            onClick={handleSkipWaiting}
-            disabled={isLoading}
-          >
-            <FiRefreshCw />
-            Activate Update
-          </ActionButton>
-        )}
+				<ActionButton
+					variant="secondary"
+					onClick={handleUnregister}
+					disabled={isLoading || !isRegistered}
+				>
+					<FiXCircle />
+					Unregister Service Worker
+				</ActionButton>
 
-        <ActionButton
-          variant="danger"
-          onClick={handleClearCaches}
-          disabled={isLoading || cacheNames.length === 0}
-        >
-          <FiTrash2 />
-          Clear All Caches
-        </ActionButton>
+				<ActionButton
+					variant="secondary"
+					onClick={handleUpdate}
+					disabled={isLoading || !isRegistered}
+				>
+					<FiRefreshCw />
+					Check for Updates
+				</ActionButton>
 
-        <ActionButton
-          variant="secondary"
-          onClick={handleRefresh}
-          disabled={isLoading}
-        >
-          <FiRefreshCw />
-          Refresh Status
-        </ActionButton>
-      </Actions>
+				{updateAvailable && (
+					<ActionButton variant="primary" onClick={handleSkipWaiting} disabled={isLoading}>
+						<FiRefreshCw />
+						Activate Update
+					</ActionButton>
+				)}
 
-      {/* Notifications */}
-      <NotificationContainer>
-        {notifications.map((notification) => (
-          <Notification key={notification.timestamp} type={notification.type}>
-            <NotificationIcon type={notification.type}>
-              {notification.type === 'success' && <FiCheckCircle />}
-              {notification.type === 'error' && <FiXCircle />}
-              {notification.type === 'warning' && <FiInfo />}
-              {notification.type === 'info' && <FiInfo />}
-            </NotificationIcon>
-            <NotificationMessage>{notification.message}</NotificationMessage>
-          </Notification>
-        ))}
-      </NotificationContainer>
-    </DashboardContainer>
-  );
+				<ActionButton
+					variant="danger"
+					onClick={handleClearCaches}
+					disabled={isLoading || cacheNames.length === 0}
+				>
+					<FiTrash2 />
+					Clear All Caches
+				</ActionButton>
+
+				<ActionButton variant="secondary" onClick={handleRefresh} disabled={isLoading}>
+					<FiRefreshCw />
+					Refresh Status
+				</ActionButton>
+			</Actions>
+
+			{/* Notifications */}
+			<NotificationContainer>
+				{notifications.map((notification) => (
+					<Notification key={notification.timestamp} type={notification.type}>
+						<NotificationIcon type={notification.type}>
+							{notification.type === 'success' && <FiCheckCircle />}
+							{notification.type === 'error' && <FiXCircle />}
+							{notification.type === 'warning' && <FiInfo />}
+							{notification.type === 'info' && <FiInfo />}
+						</NotificationIcon>
+						<NotificationMessage>{notification.message}</NotificationMessage>
+					</Notification>
+				))}
+			</NotificationContainer>
+		</DashboardContainer>
+	);
 };
 
 export default CachingDashboard;

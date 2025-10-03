@@ -42,78 +42,86 @@ interface UseTokenIntrospectionFlowControllerReturn {
 
 const LOG_PREFIX = '[🔍 TOKEN-INTROSPECTION]';
 
-export const useTokenIntrospectionFlowController = (): UseTokenIntrospectionFlowControllerReturn => {
-	const [credentials, setCredentials] = useState<TokenIntrospectionConfig>({
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
-		token: '',
-		introspectionEndpoint: '',
-	});
-	const [introspectionResult, setIntrospectionResult] = useState<TokenIntrospectionResult | null>(null);
-	const [isRequesting, setIsRequesting] = useState(false);
-	const [error, setError] = useState<string | null>(null);
+export const useTokenIntrospectionFlowController =
+	(): UseTokenIntrospectionFlowControllerReturn => {
+		const [credentials, setCredentials] = useState<TokenIntrospectionConfig>({
+			environmentId: '',
+			clientId: '',
+			clientSecret: '',
+			token: '',
+			introspectionEndpoint: '',
+		});
+		const [introspectionResult, setIntrospectionResult] = useState<TokenIntrospectionResult | null>(
+			null
+		);
+		const [isRequesting, setIsRequesting] = useState(false);
+		const [error, setError] = useState<string | null>(null);
 
-	const updateCredentials = useCallback((newCredentials: Partial<TokenIntrospectionConfig>) => {
-		setCredentials(prev => ({ ...prev, ...newCredentials }));
-	}, []);
+		const updateCredentials = useCallback((newCredentials: Partial<TokenIntrospectionConfig>) => {
+			setCredentials((prev) => ({ ...prev, ...newCredentials }));
+		}, []);
 
-	const introspectToken = useCallback(async (): Promise<TokenIntrospectionResult> => {
-		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret || !credentials.token) {
-			throw new Error('Missing required credentials or token');
-		}
-
-		setIsRequesting(true);
-		setError(null);
-
-		try {
-			const introspectionEndpoint = credentials.introspectionEndpoint || 
-				`https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
-
-			const response = await fetch(introspectionEndpoint, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-					'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
-				},
-				body: new URLSearchParams({
-					token: credentials.token,
-					token_type_hint: 'access_token',
-				}),
-			});
-
-			if (!response.ok) {
-				throw new Error(`Token introspection failed: ${response.status} ${response.statusText}`);
+		const introspectToken = useCallback(async (): Promise<TokenIntrospectionResult> => {
+			if (
+				!credentials.environmentId ||
+				!credentials.clientId ||
+				!credentials.clientSecret ||
+				!credentials.token
+			) {
+				throw new Error('Missing required credentials or token');
 			}
 
-			const result: TokenIntrospectionResult = await response.json();
-			setIntrospectionResult(result);
-			
-			console.log(`${LOG_PREFIX} [SUCCESS] Token introspection completed:`, result);
-			return result;
+			setIsRequesting(true);
+			setError(null);
 
-		} catch (err) {
-			const errorMessage = err instanceof Error ? err.message : 'Token introspection failed';
-			setError(errorMessage);
-			console.error(`${LOG_PREFIX} [ERROR] Token introspection failed:`, err);
-			throw err;
-		} finally {
-			setIsRequesting(false);
-		}
-	}, [credentials]);
+			try {
+				const introspectionEndpoint =
+					credentials.introspectionEndpoint ||
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
 
-	const clearResults = useCallback(() => {
-		setIntrospectionResult(null);
-		setError(null);
-	}, []);
+				const response = await fetch(introspectionEndpoint, {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+					},
+					body: new URLSearchParams({
+						token: credentials.token,
+						token_type_hint: 'access_token',
+					}),
+				});
 
-	return {
-		credentials,
-		introspectionResult: introspectionResult,
-		isRequesting,
-		error,
-		updateCredentials,
-		introspectToken,
-		clearResults,
+				if (!response.ok) {
+					throw new Error(`Token introspection failed: ${response.status} ${response.statusText}`);
+				}
+
+				const result: TokenIntrospectionResult = await response.json();
+				setIntrospectionResult(result);
+
+				console.log(`${LOG_PREFIX} [SUCCESS] Token introspection completed:`, result);
+				return result;
+			} catch (err) {
+				const errorMessage = err instanceof Error ? err.message : 'Token introspection failed';
+				setError(errorMessage);
+				console.error(`${LOG_PREFIX} [ERROR] Token introspection failed:`, err);
+				throw err;
+			} finally {
+				setIsRequesting(false);
+			}
+		}, [credentials]);
+
+		const clearResults = useCallback(() => {
+			setIntrospectionResult(null);
+			setError(null);
+		}, []);
+
+		return {
+			credentials,
+			introspectionResult: introspectionResult,
+			isRequesting,
+			error,
+			updateCredentials,
+			introspectToken,
+			clearResults,
+		};
 	};
-};

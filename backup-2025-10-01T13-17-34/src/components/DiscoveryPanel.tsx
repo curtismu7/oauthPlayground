@@ -346,7 +346,9 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				type: 'error',
 				message: 'Invalid Environment ID format. Please enter a valid UUID.',
 			});
-			v4ToastManager.showError('Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)');
+			v4ToastManager.showError(
+				'Environment ID must be a valid UUID format (e.g., 12345678-1234-1234-1234-123456789abc)'
+			);
 			return;
 		}
 

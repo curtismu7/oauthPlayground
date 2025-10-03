@@ -1,5 +1,5 @@
 /* eslint-disable */
-// OAuth Playground Backend Server
+console.log("🚀 Starting OAuth Playground Backend Server...");// OAuth Playground Backend Server
 // Provides secure server-side OAuth flow implementations
 
 import { execSync } from 'node:child_process';
@@ -65,6 +65,24 @@ app.get('/api/health', (_req, res) => {
 		timestamp: new Date().toISOString(),
 		version: '5.8.2',
 	});
+});
+
+// Generic OAuth callback handler - redirects to frontend callback component
+app.get('/callback', (req, res) => {
+	console.log('🔄 [Server] OAuth callback received:', {
+		code: req.query.code ? `${req.query.code.substring(0, 20)}...` : 'none',
+		state: req.query.state,
+		error: req.query.error,
+		error_description: req.query.error_description,
+	});
+	
+	// Redirect to the frontend callback handler
+	res.redirect(`https://localhost:3001/callback?${req.url.split('?')[1] || ''}`);
+});
+
+// Favicon handler - return 204 No Content to prevent 404 errors
+app.get('/favicon.ico', (_req, res) => {
+	res.status(204).end();
 });
 
 // Environment variables endpoint (for frontend to load default credentials)
@@ -299,7 +317,7 @@ app.post('/api/token-exchange', async (req, res) => {
 		const tokenResponse = await fetch(tokenEndpoint, {
 			method: 'POST',
 			headers,
-			body: tokenRequestBody,
+			body: tokenRequestBody.toString(),
 		});
 
 		console.log('📥 [Server] PingOne token response:', {

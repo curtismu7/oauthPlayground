@@ -60,12 +60,14 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 						isValid: false,
 						tokenType: 'unknown',
 						format: 'unknown',
-						securityIssues: [{
-							type: 'invalid_signature',
-							severity: 'critical',
-							description: 'Invalid or malformed token',
-							recommendation: 'Please check the token and try again',
-						}],
+						securityIssues: [
+							{
+								type: 'invalid_signature',
+								severity: 'critical',
+								description: 'Invalid or malformed token',
+								recommendation: 'Please check the token and try again',
+							},
+						],
 						validationErrors: [],
 						recommendations: ['The token is invalid or malformed'],
 						riskScore: 100,
@@ -78,12 +80,14 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 						claimSecurity: 0,
 						transportSecurity: 0,
 						lifecycleSecurity: 0,
-						issues: [{
-							type: 'invalid_signature',
-							severity: 'critical',
-							description: 'Invalid or malformed token',
-							recommendation: 'Please check the token and try again',
-						}],
+						issues: [
+							{
+								type: 'invalid_signature',
+								severity: 'critical',
+								description: 'Invalid or malformed token',
+								recommendation: 'Please check the token and try again',
+							},
+						],
 						recommendations: ['The token is invalid or malformed'],
 					};
 				}
@@ -113,12 +117,14 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 					isValid: false,
 					tokenType: 'unknown',
 					format: 'unknown',
-					securityIssues: [{
-						type: 'invalid_signature',
-						severity: 'critical',
-						description: 'Token analysis failed',
-						recommendation: 'Please check the token and try again',
-					}],
+					securityIssues: [
+						{
+							type: 'invalid_signature',
+							severity: 'critical',
+							description: 'Token analysis failed',
+							recommendation: 'Please check the token and try again',
+						},
+					],
 					validationErrors: [],
 					recommendations: ['Failed to analyze token: ' + err.message],
 					riskScore: 100,
@@ -135,12 +141,14 @@ export const useTokenAnalysis = (config: UseTokenAnalysisConfig = {}) => {
 						claimSecurity: 0,
 						transportSecurity: 0,
 						lifecycleSecurity: 0,
-						issues: [{
-							type: 'invalid_signature',
-							severity: 'critical',
-							description: 'Token analysis failed',
-							recommendation: 'Please check the token and try again',
-						}],
+						issues: [
+							{
+								type: 'invalid_signature',
+								severity: 'critical',
+								description: 'Token analysis failed',
+								recommendation: 'Please check the token and try again',
+							},
+						],
 						recommendations: ['Failed to analyze token: ' + err.message],
 					},
 					isAnalyzing: false,

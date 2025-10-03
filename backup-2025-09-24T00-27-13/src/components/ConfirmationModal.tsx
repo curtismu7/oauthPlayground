@@ -90,9 +90,9 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   gap: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'danger':
-        return `
+		switch ($variant) {
+			case 'danger':
+				return `
           background-color: #dc2626;
           color: white;
           border-color: #dc2626;
@@ -102,8 +102,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
             border-color: #b91c1c;
           }
         `;
-      case 'primary':
-        return `
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           border-color: #3b82f6;
@@ -113,8 +113,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
             border-color: #2563eb;
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background-color: white;
           color: #374151;
           border-color: #d1d5db;
@@ -124,8 +124,8 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
             border-color: #9ca3af;
           }
         `;
-    }
-  }}
+		}
+	}}
   
   &:disabled {
     opacity: 0.5;
@@ -134,81 +134,77 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
 `;
 
 interface ConfirmationModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: () => void;
-  title: string;
-  message: string;
-  confirmText?: string;
-  cancelText?: string;
-  variant?: 'primary' | 'danger';
-  isLoading?: boolean;
+	isOpen: boolean;
+	onClose: () => void;
+	onConfirm: () => void;
+	title: string;
+	message: string;
+	confirmText?: string;
+	cancelText?: string;
+	variant?: 'primary' | 'danger';
+	isLoading?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'primary',
-  isLoading = false
+	isOpen,
+	onClose,
+	onConfirm,
+	title,
+	message,
+	confirmText = 'Confirm',
+	cancelText = 'Cancel',
+	variant = 'primary',
+	isLoading = false,
 }) => {
-  // Handle ESC key to close modal
-  useEffect(() => {
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
+	// Handle ESC key to close modal
+	useEffect(() => {
+		const handleEscape = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && isOpen) {
+				onClose();
+			}
+		};
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      return () => document.removeEventListener('keydown', handleEscape);
-    }
-  }, [isOpen, onClose]);
+		if (isOpen) {
+			document.addEventListener('keydown', handleEscape);
+			return () => document.removeEventListener('keydown', handleEscape);
+		}
+	}, [isOpen, onClose]);
 
-  if (!isOpen) return null;
+	if (!isOpen) return null;
 
-  const handleConfirm = () => {
-    onConfirm();
-    onClose();
-  };
+	const handleConfirm = () => {
+		onConfirm();
+		onClose();
+	};
 
-  return (
-    <ModalOverlay onClick={onClose}>
-      <ModalContainer onClick={(e) => e.stopPropagation()}>
-        <ModalHeader>
-          <ModalTitle>
-            <FiAlertTriangle />
-            {title}
-          </ModalTitle>
-          <CloseButton onClick={onClose}>
-            <FiX size={20} />
-          </CloseButton>
-        </ModalHeader>
-        
-        <ModalBody>
-          <ModalMessage>{message}</ModalMessage>
-          
-          <ButtonGroup>
-            <Button onClick={onClose} disabled={isLoading}>
-              {cancelText}
-            </Button>
-            <Button 
-              $variant={variant} 
-              onClick={handleConfirm}
-              disabled={isLoading}
-            >
-              {isLoading ? 'Processing...' : confirmText}
-            </Button>
-          </ButtonGroup>
-        </ModalBody>
-      </ModalContainer>
-    </ModalOverlay>
-  );
+	return (
+		<ModalOverlay onClick={onClose}>
+			<ModalContainer onClick={(e) => e.stopPropagation()}>
+				<ModalHeader>
+					<ModalTitle>
+						<FiAlertTriangle />
+						{title}
+					</ModalTitle>
+					<CloseButton onClick={onClose}>
+						<FiX size={20} />
+					</CloseButton>
+				</ModalHeader>
+
+				<ModalBody>
+					<ModalMessage>{message}</ModalMessage>
+
+					<ButtonGroup>
+						<Button onClick={onClose} disabled={isLoading}>
+							{cancelText}
+						</Button>
+						<Button $variant={variant} onClick={handleConfirm} disabled={isLoading}>
+							{isLoading ? 'Processing...' : confirmText}
+						</Button>
+					</ButtonGroup>
+				</ModalBody>
+			</ModalContainer>
+		</ModalOverlay>
+	);
 };
 
 export default ConfirmationModal;

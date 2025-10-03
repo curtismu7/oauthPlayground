@@ -213,233 +213,224 @@ const ClaimRow = styled.div`
 `;
 
 const TokenInspector = () => {
-  const [token, setToken] = useState('');
-  const [formattedToken, setFormattedToken] = useState(null);
-  const [validation, setValidation] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+	const [token, setToken] = useState('');
+	const [formattedToken, setFormattedToken] = useState(null);
+	const [validation, setValidation] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
 
-  // Load stored tokens on component mount
-  useEffect(() => {
-    const storedTokens = oauthStorage.getTokens();
-    if (storedTokens?.access_token) {
-      setToken(storedTokens.access_token);
-    }
-  }, []);
+	// Load stored tokens on component mount
+	useEffect(() => {
+		const storedTokens = oauthStorage.getTokens();
+		if (storedTokens?.access_token) {
+			setToken(storedTokens.access_token);
+		}
+	}, []);
 
-  // Analyze token when it changes
-  useEffect(() => {
-    if (token.trim()) {
-      analyzeToken(token.trim());
-    } else {
-      setFormattedToken(null);
-      setValidation(null);
-    }
-  }, [token]);
+	// Analyze token when it changes
+	useEffect(() => {
+		if (token.trim()) {
+			analyzeToken(token.trim());
+		} else {
+			setFormattedToken(null);
+			setValidation(null);
+		}
+	}, [token]);
 
-  const analyzeToken = async (tokenToAnalyze) => {
-    setIsLoading(true);
-    try {
-      // Format the token
-      const formatted = formatJwt(tokenToAnalyze);
-      setFormattedToken(formatted);
+	const analyzeToken = async (tokenToAnalyze) => {
+		setIsLoading(true);
+		try {
+			// Format the token
+			const formatted = formatJwt(tokenToAnalyze);
+			setFormattedToken(formatted);
 
-      // Validate the token
-      const validationResult = validateToken(tokenToAnalyze, {
-        requiredClaims: ['iss', 'sub', 'aud', 'exp', 'iat'],
-        requiredScopes: []
-      });
-      setValidation(validationResult);
+			// Validate the token
+			const validationResult = validateToken(tokenToAnalyze, {
+				requiredClaims: ['iss', 'sub', 'aud', 'exp', 'iat'],
+				requiredScopes: [],
+			});
+			setValidation(validationResult);
+		} catch (error) {
+			console.error('Error analyzing token:', error);
+			setValidation({
+				valid: false,
+				error: error.message || 'Invalid token format',
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-    } catch (error) {
-      console.error('Error analyzing token:', error);
-      setValidation({
-        valid: false,
-        error: error.message || 'Invalid token format'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	const loadStoredTokens = () => {
+		const storedTokens = oauthStorage.getTokens();
+		if (storedTokens?.access_token) {
+			setToken(storedTokens.access_token);
+		} else if (storedTokens?.id_token) {
+			setToken(storedTokens.id_token);
+		}
+	};
 
-  const loadStoredTokens = () => {
-    const storedTokens = oauthStorage.getTokens();
-    if (storedTokens?.access_token) {
-      setToken(storedTokens.access_token);
-    } else if (storedTokens?.id_token) {
-      setToken(storedTokens.id_token);
-    }
-  };
+	const clearToken = () => {
+		setToken('');
+		setFormattedToken(null);
+		setValidation(null);
+	};
 
-  const clearToken = () => {
-    setToken('');
-    setFormattedToken(null);
-    setValidation(null);
-  };
+	const copyToken = () => {
+		navigator.clipboard.writeText(token);
+	};
 
-  const copyToken = () => {
-    navigator.clipboard.writeText(token);
-  };
+	const downloadToken = () => {
+		const blob = new Blob([token], { type: 'text/plain' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'token.txt';
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
+		URL.revokeObjectURL(url);
+	};
 
-  const downloadToken = () => {
-    const blob = new Blob([token], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'token.txt';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+	const renderClaims = (claims) => {
+		if (!claims) return null;
 
-  const renderClaims = (claims) => {
-    if (!claims) return null;
+		const entries = Object.entries(claims).map(([key, value]) => ({
+			key,
+			value: typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value),
+			isJson: typeof value === 'object',
+		}));
 
-    const entries = Object.entries(claims).map(([key, value]) => ({
-      key,
-      value: typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value),
-      isJson: typeof value === 'object'
-    }));
+		return (
+			<ClaimsTable>
+				{entries.map(({ key, value, isJson }) => (
+					<ClaimRow key={key}>
+						<div className="claim-key">{key}</div>
+						<div className={`claim-value ${isJson ? 'json' : ''}`}>{value}</div>
+					</ClaimRow>
+				))}
+			</ClaimsTable>
+		);
+	};
 
-    return (
-      <ClaimsTable>
-        {entries.map(({ key, value, isJson }) => (
-          <ClaimRow key={key}>
-            <div className="claim-key">{key}</div>
-            <div className={`claim-value ${isJson ? 'json' : ''}`}>
-              {value}
-            </div>
-          </ClaimRow>
-        ))}
-      </ClaimsTable>
-    );
-  };
+	return (
+		<TokenInspectorContainer>
+			<PageHeader>
+				<h1>Token Inspector</h1>
+				<p>Analyze and inspect JWT tokens from your OAuth flows</p>
+			</PageHeader>
 
-  return (
-    <TokenInspectorContainer>
-      <PageHeader>
-        <h1>Token Inspector</h1>
-        <p>Analyze and inspect JWT tokens from your OAuth flows</p>
-      </PageHeader>
+			<TokenInputSection>
+				<CardHeader>
+					<h2>Token Input</h2>
+				</CardHeader>
+				<CardBody>
+					<TokenInput>
+						<label htmlFor="token-input">JWT Token</label>
+						<textarea
+							id="token-input"
+							value={token}
+							onChange={(e) => setToken(e.target.value)}
+							placeholder="Paste your JWT token here..."
+							spellCheck={false}
+						/>
+					</TokenInput>
 
-      <TokenInputSection>
-        <CardHeader>
-          <h2>Token Input</h2>
-        </CardHeader>
-        <CardBody>
-          <TokenInput>
-            <label htmlFor="token-input">JWT Token</label>
-            <textarea
-              id="token-input"
-              value={token}
-              onChange={(e) => setToken(e.target.value)}
-              placeholder="Paste your JWT token here..."
-              spellCheck={false}
-            />
-          </TokenInput>
+					<TokenActions>
+						<LoadStoredButton onClick={loadStoredTokens}>
+							<FiEye /> Load Stored Token
+						</LoadStoredButton>
+						<button onClick={copyToken} disabled={!token}>
+							<FiCopy /> Copy
+						</button>
+						<button onClick={downloadToken} disabled={!token}>
+							<FiDownload /> Download
+						</button>
+						<ClearButton onClick={clearToken}>
+							<FiXCircle /> Clear
+						</ClearButton>
+					</TokenActions>
+				</CardBody>
+			</TokenInputSection>
 
-          <TokenActions>
-            <LoadStoredButton onClick={loadStoredTokens}>
-              <FiEye /> Load Stored Token
-            </LoadStoredButton>
-            <button onClick={copyToken} disabled={!token}>
-              <FiCopy /> Copy
-            </button>
-            <button onClick={downloadToken} disabled={!token}>
-              <FiDownload /> Download
-            </button>
-            <ClearButton onClick={clearToken}>
-              <FiXCircle /> Clear
-            </ClearButton>
-          </TokenActions>
-        </CardBody>
-      </TokenInputSection>
+			{formattedToken && (
+				<AnalysisGrid>
+					<div>
+						<TokenValidationCard>
+							<CardHeader>
+								<h3>
+									{validation?.valid ? (
+										<>
+											<FiCheckCircle />
+											Token Valid
+										</>
+									) : (
+										<>
+											<FiXCircle />
+											Token Invalid
+										</>
+									)}
+								</h3>
+							</CardHeader>
+							<CardBody>
+								<ValidationStatus className={validation?.valid ? 'valid' : 'invalid'}>
+									{validation?.valid ? (
+										<>
+											<FiCheckCircle />
+											Token is valid and properly formatted
+										</>
+									) : (
+										<>
+											<FiXCircle />
+											{validation?.error || 'Token validation failed'}
+										</>
+									)}
+								</ValidationStatus>
 
-      {formattedToken && (
-        <AnalysisGrid>
-          <div>
-            <TokenValidationCard>
-              <CardHeader>
-                <h3>
-                  {validation?.valid ? (
-                    <>
-                      <FiCheckCircle />
-                      Token Valid
-                    </>
-                  ) : (
-                    <>
-                      <FiXCircle />
-                      Token Invalid
-                    </>
-                  )}
-                </h3>
-              </CardHeader>
-              <CardBody>
-                <ValidationStatus className={validation?.valid ? 'valid' : 'invalid'}>
-                  {validation?.valid ? (
-                    <>
-                      <FiCheckCircle />
-                      Token is valid and properly formatted
-                    </>
-                  ) : (
-                    <>
-                      <FiXCircle />
-                      {validation?.error || 'Token validation failed'}
-                    </>
-                  )}
-                </ValidationStatus>
+								{formattedToken.payload?.exp && (
+									<div style={{ marginTop: '1rem' }}>
+										<strong>Expires:</strong> {getTimeRemainingFormatted(formattedToken.raw)}
+									</div>
+								)}
+							</CardBody>
+						</TokenValidationCard>
 
-                {formattedToken.payload?.exp && (
-                  <div style={{ marginTop: '1rem' }}>
-                    <strong>Expires:</strong> {getTimeRemainingFormatted(formattedToken.raw)}
-                  </div>
-                )}
-              </CardBody>
-            </TokenValidationCard>
+						<TokenPartCard>
+							<CardHeader>
+								<h4>Header</h4>
+							</CardHeader>
+							<CardBody>
+								<TokenDisplay>{JSON.stringify(formattedToken.header, null, 2)}</TokenDisplay>
+							</CardBody>
+						</TokenPartCard>
+					</div>
 
-            <TokenPartCard>
-              <CardHeader>
-                <h4>Header</h4>
-              </CardHeader>
-              <CardBody>
-                <TokenDisplay>
-                  {JSON.stringify(formattedToken.header, null, 2)}
-                </TokenDisplay>
-              </CardBody>
-            </TokenPartCard>
-          </div>
+					<div>
+						<TokenPartCard>
+							<CardHeader>
+								<h4>Payload (Claims)</h4>
+							</CardHeader>
+							<CardBody>
+								{formattedToken.payload ? (
+									renderClaims(formattedToken.payload)
+								) : (
+									<TokenDisplay>{JSON.stringify(formattedToken.payload, null, 2)}</TokenDisplay>
+								)}
+							</CardBody>
+						</TokenPartCard>
 
-          <div>
-            <TokenPartCard>
-              <CardHeader>
-                <h4>Payload (Claims)</h4>
-              </CardHeader>
-              <CardBody>
-                {formattedToken.payload ? (
-                  renderClaims(formattedToken.payload)
-                ) : (
-                  <TokenDisplay>
-                    {JSON.stringify(formattedToken.payload, null, 2)}
-                  </TokenDisplay>
-                )}
-              </CardBody>
-            </TokenPartCard>
-
-            <TokenPartCard>
-              <CardHeader>
-                <h4>Signature</h4>
-              </CardHeader>
-              <CardBody>
-                <TokenDisplay>
-                  {formattedToken.signature}
-                </TokenDisplay>
-              </CardBody>
-            </TokenPartCard>
-          </div>
-        </AnalysisGrid>
-      )}
-    </TokenInspectorContainer>
-  );
+						<TokenPartCard>
+							<CardHeader>
+								<h4>Signature</h4>
+							</CardHeader>
+							<CardBody>
+								<TokenDisplay>{formattedToken.signature}</TokenDisplay>
+							</CardBody>
+						</TokenPartCard>
+					</div>
+				</AnalysisGrid>
+			)}
+		</TokenInspectorContainer>
+	);
 };
 
 export default TokenInspector;

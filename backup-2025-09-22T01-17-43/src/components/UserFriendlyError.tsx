@@ -3,12 +3,12 @@ import styled from 'styled-components';
 import { FiAlertCircle, FiRefreshCw, FiHome } from 'react-icons/fi';
 
 interface UserFriendlyErrorProps {
-  title?: string;
-  message: string;
-  details?: string;
-  onRetry?: () => void;
-  onGoHome?: () => void;
-  showDetails?: boolean;
+	title?: string;
+	message: string;
+	details?: string;
+	onRetry?: () => void;
+	onGoHome?: () => void;
+	showDetails?: boolean;
 }
 
 const ErrorContainer = styled.div`
@@ -108,47 +108,47 @@ const HomeButton = styled(Button)`
 `;
 
 export const UserFriendlyError: React.FC<UserFriendlyErrorProps> = ({
-  title = 'Something went wrong',
-  message,
-  details,
-  onRetry,
-  onGoHome,
-  showDetails = false
+	title = 'Something went wrong',
+	message,
+	details,
+	onRetry,
+	onGoHome,
+	showDetails = false,
 }) => {
-  return (
-    <ErrorContainer>
-      <ErrorIcon>
-        <FiAlertCircle />
-      </ErrorIcon>
-      
-      <ErrorTitle>{title}</ErrorTitle>
-      
-      <ErrorMessage>{message}</ErrorMessage>
-      
-      {details && (
-        <ErrorDetails open={showDetails}>
-          <summary>Technical Details</summary>
-          <pre>{details}</pre>
-        </ErrorDetails>
-      )}
-      
-      <ButtonGroup>
-        {onRetry && (
-          <RetryButton onClick={onRetry}>
-            <FiRefreshCw />
-            Try Again
-          </RetryButton>
-        )}
-        
-        {onGoHome && (
-          <HomeButton onClick={onGoHome}>
-            <FiHome />
-            Go Home
-          </HomeButton>
-        )}
-      </ButtonGroup>
-    </ErrorContainer>
-  );
+	return (
+		<ErrorContainer>
+			<ErrorIcon>
+				<FiAlertCircle />
+			</ErrorIcon>
+
+			<ErrorTitle>{title}</ErrorTitle>
+
+			<ErrorMessage>{message}</ErrorMessage>
+
+			{details && (
+				<ErrorDetails open={showDetails}>
+					<summary>Technical Details</summary>
+					<pre>{details}</pre>
+				</ErrorDetails>
+			)}
+
+			<ButtonGroup>
+				{onRetry && (
+					<RetryButton onClick={onRetry}>
+						<FiRefreshCw />
+						Try Again
+					</RetryButton>
+				)}
+
+				{onGoHome && (
+					<HomeButton onClick={onGoHome}>
+						<FiHome />
+						Go Home
+					</HomeButton>
+				)}
+			</ButtonGroup>
+		</ErrorContainer>
+	);
 };
 
 export default UserFriendlyError;

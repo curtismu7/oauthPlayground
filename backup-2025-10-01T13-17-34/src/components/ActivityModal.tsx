@@ -1,6 +1,6 @@
-import { styled } from "styled-components";
+import { styled } from 'styled-components';
 
-	const ModalOverlay = styled.div<{ $isOpen: boolean }>`
+const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;

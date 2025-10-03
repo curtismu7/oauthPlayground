@@ -83,7 +83,7 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 
 			return () => clearInterval(interval);
 		}
-		
+
 		return undefined;
 	}, [checkHealth, checkInterval, health.isOnline]);
 

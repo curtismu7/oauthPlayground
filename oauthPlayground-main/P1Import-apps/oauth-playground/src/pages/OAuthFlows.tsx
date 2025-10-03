@@ -206,15 +206,15 @@ const DemoStep = styled.div`
   padding: 1rem;
   border-radius: 0.5rem;
   background-color: ${({ active, completed }) => {
-    if (completed) return 'rgba(34, 197, 94, 0.1)';
-    if (active) return 'rgba(59, 130, 246, 0.1)';
-    return 'transparent';
-  }};
+		if (completed) return 'rgba(34, 197, 94, 0.1)';
+		if (active) return 'rgba(59, 130, 246, 0.1)';
+		return 'transparent';
+	}};
   border: 2px solid ${({ active, completed }) => {
-    if (completed) return '#22c55e';
-    if (active) return '#3b82f6';
-    return 'transparent';
-  }};
+		if (completed) return '#22c55e';
+		if (active) return '#3b82f6';
+		return 'transparent';
+	}};
 `;
 
 const StepNumber = styled.div`
@@ -229,23 +229,23 @@ const StepNumber = styled.div`
   flex-shrink: 0;
   
   ${({ active, completed }) => {
-    if (completed) {
-      return `
+		if (completed) {
+			return `
         background-color: #22c55e;
         color: white;
       `;
-    }
-    if (active) {
-      return `
+		}
+		if (active) {
+			return `
         background-color: #3b82f6;
         color: white;
       `;
-    }
-    return `
+		}
+		return `
       background-color: #e5e7eb;
       color: #6b7280;
     `;
-  }}
+	}}
 `;
 
 const StepContent = styled.div`
@@ -277,418 +277,423 @@ const CodeBlock = styled.pre`
 `;
 
 const flows = [
-  {
-    id: 'authorization-code',
-    title: 'Authorization Code Flow',
-    icon: <FiCode />,
-    description: 'The most common OAuth 2.0 flow for web applications with a server-side component.',
-    security: 'high',
-    useCases: ['Web apps with backend', 'Mobile apps with backend', 'SPAs with backend'],
-    steps: [
-      {
-        title: 'User initiates login',
-        description: 'User clicks login button, triggering the OAuth flow',
-        code: `// Redirect to authorization server
-window.location.href = authUrl;`
-      },
-      {
-        title: 'Authorization server authenticates user',
-        description: 'User is redirected to PingOne for authentication',
-        code: `// PingOne handles authentication
-// User consents to scopes`
-      },
-      {
-        title: 'Authorization server redirects back',
-        description: 'User is redirected to your app with authorization code',
-        code: `// Callback URL with code
-https://yourapp.com/callback?code=abc123&state=xyz789`
-      },
-      {
-        title: 'Your server exchanges code for tokens',
-        description: 'Server makes secure request to exchange code for access token',
-        code: `POST /token
+	{
+		id: 'authorization-code',
+		title: 'Authorization Code Flow',
+		icon: <FiCode />,
+		description:
+			'The most common OAuth 2.0 flow for web applications with a server-side component.',
+		security: 'high',
+		useCases: ['Web apps with backend', 'Mobile apps with backend', 'SPAs with backend'],
+		steps: [
+			{
+				title: 'User initiates login',
+				description: 'User clicks login button, triggering the OAuth flow',
+				code: `// Redirect to authorization server
+window.location.href = authUrl;`,
+			},
+			{
+				title: 'Authorization server authenticates user',
+				description: 'User is redirected to PingOne for authentication',
+				code: `// PingOne handles authentication
+// User consents to scopes`,
+			},
+			{
+				title: 'Authorization server redirects back',
+				description: 'User is redirected to your app with authorization code',
+				code: `// Callback URL with code
+https://yourapp.com/callback?code=abc123&state=xyz789`,
+			},
+			{
+				title: 'Your server exchanges code for tokens',
+				description: 'Server makes secure request to exchange code for access token',
+				code: `POST /token
 {
   "grant_type": "authorization_code",
   "code": "abc123",
   "redirect_uri": "https://yourapp.com/callback"
-}`
-      },
-      {
-        title: 'Your app receives tokens',
-        description: 'Server returns tokens to frontend, authentication complete',
-        code: `{
+}`,
+			},
+			{
+				title: 'Your app receives tokens',
+				description: 'Server returns tokens to frontend, authentication complete',
+				code: `{
   "access_token": "eyJ...",
   "id_token": "eyJ...",
   "token_type": "Bearer",
   "expires_in": 3600
-}`
-      }
-    ]
-  },
-  {
-    id: 'pkce',
-    title: 'PKCE Flow',
-    icon: <FiShield />,
-    description: 'Authorization Code flow with Proof Key for Code Exchange for enhanced security.',
-    security: 'high',
-    useCases: ['Mobile apps', 'SPAs', 'Native apps'],
-    steps: [
-      {
-        title: 'Generate code verifier and challenge',
-        description: 'Create a cryptographically random code verifier',
-        code: `const codeVerifier = generateRandomString(64);
-const codeChallenge = await generateCodeChallenge(codeVerifier);`
-      },
-      {
-        title: 'Include challenge in authorization request',
-        description: 'Send code challenge with authorization request',
-        code: `GET /authorize?response_type=code
+}`,
+			},
+		],
+	},
+	{
+		id: 'pkce',
+		title: 'PKCE Flow',
+		icon: <FiShield />,
+		description: 'Authorization Code flow with Proof Key for Code Exchange for enhanced security.',
+		security: 'high',
+		useCases: ['Mobile apps', 'SPAs', 'Native apps'],
+		steps: [
+			{
+				title: 'Generate code verifier and challenge',
+				description: 'Create a cryptographically random code verifier',
+				code: `const codeVerifier = generateRandomString(64);
+const codeChallenge = await generateCodeChallenge(codeVerifier);`,
+			},
+			{
+				title: 'Include challenge in authorization request',
+				description: 'Send code challenge with authorization request',
+				code: `GET /authorize?response_type=code
   &client_id=your_client_id
   &redirect_uri=https://yourapp.com/callback
   &code_challenge=${codeChallenge}
-  &code_challenge_method=S256`
-      },
-      {
-        title: 'Authorization server processes request',
-        description: 'Server stores code challenge for later verification',
-        code: `// Server stores challenge for code exchange`
-      },
-      {
-        title: 'Exchange code with verifier',
-        description: 'Include code verifier in token exchange request',
-        code: `POST /token
+  &code_challenge_method=S256`,
+			},
+			{
+				title: 'Authorization server processes request',
+				description: 'Server stores code challenge for later verification',
+				code: `// Server stores challenge for code exchange`,
+			},
+			{
+				title: 'Exchange code with verifier',
+				description: 'Include code verifier in token exchange request',
+				code: `POST /token
 {
   "grant_type": "authorization_code",
   "code": "abc123",
   "code_verifier": "${codeVerifier}",
   "redirect_uri": "https://yourapp.com/callback"
-}`
-      },
-      {
-        title: 'Server validates and returns tokens',
-        description: 'Server validates code verifier matches stored challenge',
-        code: `// Server validates: SHA256(codeVerifier) === storedChallenge
+}`,
+			},
+			{
+				title: 'Server validates and returns tokens',
+				description: 'Server validates code verifier matches stored challenge',
+				code: `// Server validates: SHA256(codeVerifier) === storedChallenge
 {
   "access_token": "eyJ...",
   "token_type": "Bearer",
   "expires_in": 3600
-}`
-      }
-    ]
-  },
-  {
-    id: 'implicit',
-    title: 'Implicit Flow',
-    icon: <FiLock />,
-    description: 'Simplified flow for client-side applications (deprecated for security reasons).',
-    security: 'low',
-    useCases: ['Legacy SPAs', 'Client-side only apps'],
-    steps: [
-      {
-        title: 'User initiates login',
-        description: 'User clicks login, redirected to authorization server',
-        code: `GET /authorize?response_type=token
+}`,
+			},
+		],
+	},
+	{
+		id: 'implicit',
+		title: 'Implicit Flow',
+		icon: <FiLock />,
+		description: 'Simplified flow for client-side applications (deprecated for security reasons).',
+		security: 'low',
+		useCases: ['Legacy SPAs', 'Client-side only apps'],
+		steps: [
+			{
+				title: 'User initiates login',
+				description: 'User clicks login, redirected to authorization server',
+				code: `GET /authorize?response_type=token
   &client_id=your_client_id
   &redirect_uri=https://yourapp.com/callback
-  &scope=openid profile email`
-      },
-      {
-        title: 'Authorization server authenticates user',
-        description: 'User authenticates and grants consent',
-        code: `// User authenticates with PingOne`
-      },
-      {
-        title: 'Authorization server redirects with tokens',
-        description: 'Tokens are included directly in redirect URL fragment',
-        code: `#access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+  &scope=openid profile email`,
+			},
+			{
+				title: 'Authorization server authenticates user',
+				description: 'User authenticates and grants consent',
+				code: `// User authenticates with PingOne`,
+			},
+			{
+				title: 'Authorization server redirects with tokens',
+				description: 'Tokens are included directly in redirect URL fragment',
+				code: `#access_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
 &id_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
-&token_type=Bearer&expires_in=3600`
-      },
-      {
-        title: 'Frontend extracts tokens',
-        description: 'JavaScript extracts tokens from URL fragment',
-        code: `const hash = window.location.hash.substring(1);
+&token_type=Bearer&expires_in=3600`,
+			},
+			{
+				title: 'Frontend extracts tokens',
+				description: 'JavaScript extracts tokens from URL fragment',
+				code: `const hash = window.location.hash.substring(1);
 const params = new URLSearchParams(hash);
-const accessToken = params.get('access_token');`
-      },
-      {
-        title: 'Authentication complete',
-        description: 'Frontend can now make authenticated API calls',
-        code: `fetch('/api/user', {
+const accessToken = params.get('access_token');`,
+			},
+			{
+				title: 'Authentication complete',
+				description: 'Frontend can now make authenticated API calls',
+				code: `fetch('/api/user', {
   headers: {
     'Authorization': 'Bearer ' + accessToken
   }
-});`
-      }
-    ]
-  },
-  {
-    id: 'client-credentials',
-    title: 'Client Credentials',
-    icon: <FiUser />,
-    description: 'Machine-to-machine authentication without user interaction.',
-    security: 'high',
-    useCases: ['Server-to-server', 'Background processes', 'API services'],
-    steps: [
-      {
-        title: 'Prepare credentials',
-        description: 'Server prepares client credentials for authentication',
-        code: `const credentials = btoa(clientId + ':' + clientSecret);`
-      },
-      {
-        title: 'Request access token',
-        description: 'Server requests access token using client credentials',
-        code: `POST /token
+});`,
+			},
+		],
+	},
+	{
+		id: 'client-credentials',
+		title: 'Client Credentials',
+		icon: <FiUser />,
+		description: 'Machine-to-machine authentication without user interaction.',
+		security: 'high',
+		useCases: ['Server-to-server', 'Background processes', 'API services'],
+		steps: [
+			{
+				title: 'Prepare credentials',
+				description: 'Server prepares client credentials for authentication',
+				code: `const credentials = btoa(clientId + ':' + clientSecret);`,
+			},
+			{
+				title: 'Request access token',
+				description: 'Server requests access token using client credentials',
+				code: `POST /token
 Authorization: Basic ${credentials}
 Content-Type: application/x-www-form-urlencoded
 
-grant_type=client_credentials&scope=api:read`
-      },
-      {
-        title: 'Authorization server validates credentials',
-        description: 'Server validates client ID and secret',
-        code: `// Server validates client credentials
-// Issues access token for machine-to-machine communication`
-      },
-      {
-        title: 'Receive access token',
-        description: 'Server receives access token for API calls',
-        code: `{
+grant_type=client_credentials&scope=api:read`,
+			},
+			{
+				title: 'Authorization server validates credentials',
+				description: 'Server validates client ID and secret',
+				code: `// Server validates client credentials
+// Issues access token for machine-to-machine communication`,
+			},
+			{
+				title: 'Receive access token',
+				description: 'Server receives access token for API calls',
+				code: `{
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "Bearer",
   "expires_in": 3600,
   "scope": "api:read"
-}`
-      },
-      {
-        title: 'Make authenticated API calls',
-        description: 'Server uses access token to authenticate API requests',
-        code: `fetch('/api/data', {
+}`,
+			},
+			{
+				title: 'Make authenticated API calls',
+				description: 'Server uses access token to authenticate API requests',
+				code: `fetch('/api/data', {
   headers: {
     'Authorization': 'Bearer ' + accessToken
   }
-});`
-      }
-    ]
-  },
-  {
-    id: 'device-code',
-    title: 'Device Code Flow',
-    icon: <FiClock />,
-    description: 'Flow for devices with limited input capabilities (TVs, IoT devices).',
-    security: 'medium',
-    useCases: ['Smart TVs', 'IoT devices', 'Gaming consoles'],
-    steps: [
-      {
-        title: 'Device requests device code',
-        description: 'Device initiates flow by requesting device and user codes',
-        code: `POST /device_authorization
+});`,
+			},
+		],
+	},
+	{
+		id: 'device-code',
+		title: 'Device Code Flow',
+		icon: <FiClock />,
+		description: 'Flow for devices with limited input capabilities (TVs, IoT devices).',
+		security: 'medium',
+		useCases: ['Smart TVs', 'IoT devices', 'Gaming consoles'],
+		steps: [
+			{
+				title: 'Device requests device code',
+				description: 'Device initiates flow by requesting device and user codes',
+				code: `POST /device_authorization
 Content-Type: application/x-www-form-urlencoded
 
-client_id=your_client_id&scope=openid profile`
-      },
-      {
-        title: 'Receive device and user codes',
-        description: 'Authorization server returns codes and verification URI',
-        code: `{
+client_id=your_client_id&scope=openid profile`,
+			},
+			{
+				title: 'Receive device and user codes',
+				description: 'Authorization server returns codes and verification URI',
+				code: `{
   "device_code": "GmRhmhcxhwAzkoEqiMEg_DnyE-oqGpZC9yIwBhLJrRgI...",
   "user_code": "WDJB-MJHT",
   "verification_uri": "https://pingone.com/device",
   "verification_uri_complete": "https://pingone.com/device?user_code=WDJB-MJHT",
   "expires_in": 1800,
   "interval": 5
-}`
-      },
-      {
-        title: 'Device displays user code',
-        description: 'Device shows user-friendly code and verification URL',
-        code: `console.log('Go to:', verification_uri);
-console.log('Enter code:', user_code);`
-      },
-      {
-        title: 'User authenticates on separate device',
-        description: 'User visits verification URL and enters the code',
-        code: `// User visits verification_uri
-// Enters user_code to authenticate`
-      },
-      {
-        title: 'Device polls for token',
-        description: 'Device polls token endpoint until user completes authentication',
-        code: `POST /token
+}`,
+			},
+			{
+				title: 'Device displays user code',
+				description: 'Device shows user-friendly code and verification URL',
+				code: `console.log('Go to:', verification_uri);
+console.log('Enter code:', user_code);`,
+			},
+			{
+				title: 'User authenticates on separate device',
+				description: 'User visits verification URL and enters the code',
+				code: `// User visits verification_uri
+// Enters user_code to authenticate`,
+			},
+			{
+				title: 'Device polls for token',
+				description: 'Device polls token endpoint until user completes authentication',
+				code: `POST /token
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=urn:ietf:params:oauth:grant-type:device_code
 &device_code=${device_code}
-&client_id=your_client_id`
-      },
-      {
-        title: 'Receive tokens when user authenticates',
-        description: 'Once user completes authentication, device receives tokens',
-        code: `{
+&client_id=your_client_id`,
+			},
+			{
+				title: 'Receive tokens when user authenticates',
+				description: 'Once user completes authentication, device receives tokens',
+				code: `{
   "access_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "id_token": "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...",
   "token_type": "Bearer",
   "expires_in": 3600
-}`
-      }
-    ]
-  }
+}`,
+			},
+		],
+	},
 ];
 
 const OAuthFlows = () => {
-  const { startOAuthFlow, isAuthenticated, tokens, config } = useOAuth();
-  const [selectedFlow, setSelectedFlow] = useState(null);
-  const [demoStatus, setDemoStatus] = useState('idle');
-  const [currentStep, setCurrentStep] = useState(0);
+	const { startOAuthFlow, isAuthenticated, tokens, config } = useOAuth();
+	const [selectedFlow, setSelectedFlow] = useState(null);
+	const [demoStatus, setDemoStatus] = useState('idle');
+	const [currentStep, setCurrentStep] = useState(0);
 
-  const handleFlowSelect = (flow) => {
-    setSelectedFlow(flow);
-    setCurrentStep(0);
-    setDemoStatus('idle');
-  };
+	const handleFlowSelect = (flow) => {
+		setSelectedFlow(flow);
+		setCurrentStep(0);
+		setDemoStatus('idle');
+	};
 
-  const handleStartDemo = async () => {
-    if (!config) {
-      alert('Please configure your PingOne settings first in the Configuration page.');
-      return;
-    }
+	const handleStartDemo = async () => {
+		if (!config) {
+			alert('Please configure your PingOne settings first in the Configuration page.');
+			return;
+		}
 
-    setDemoStatus('loading');
-    setCurrentStep(0);
+		setDemoStatus('loading');
+		setCurrentStep(0);
 
-    try {
-      const success = await startOAuthFlow(selectedFlow.id);
-      if (success) {
-        setDemoStatus('success');
-        // Simulate progress through steps
-        const interval = setInterval(() => {
-          setCurrentStep(prev => {
-            if (prev < selectedFlow.steps.length - 1) {
-              return prev + 1;
-            } else {
-              clearInterval(interval);
-              return prev;
-            }
-          });
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Demo failed:', error);
-      setDemoStatus('error');
-    }
-  };
+		try {
+			const success = await startOAuthFlow(selectedFlow.id);
+			if (success) {
+				setDemoStatus('success');
+				// Simulate progress through steps
+				const interval = setInterval(() => {
+					setCurrentStep((prev) => {
+						if (prev < selectedFlow.steps.length - 1) {
+							return prev + 1;
+						} else {
+							clearInterval(interval);
+							return prev;
+						}
+					});
+				}, 2000);
+			}
+		} catch (error) {
+			console.error('Demo failed:', error);
+			setDemoStatus('error');
+		}
+	};
 
-  const getSecurityBadgeColor = (security) => {
-    switch (security) {
-      case 'high': return 'high';
-      case 'medium': return 'medium';
-      case 'low': return 'low';
-      default: return 'medium';
-    }
-  };
+	const getSecurityBadgeColor = (security) => {
+		switch (security) {
+			case 'high':
+				return 'high';
+			case 'medium':
+				return 'medium';
+			case 'low':
+				return 'low';
+			default:
+				return 'medium';
+		}
+	};
 
-  return (
-    <FlowsContainer>
-      <PageHeader>
-        <h1>OAuth 2.0 Flows</h1>
-        <p>Interactive demonstrations of different OAuth 2.0 and OpenID Connect flows</p>
-      </PageHeader>
+	return (
+		<FlowsContainer>
+			<PageHeader>
+				<h1>OAuth 2.0 Flows</h1>
+				<p>Interactive demonstrations of different OAuth 2.0 and OpenID Connect flows</p>
+			</PageHeader>
 
-      <FlowsGrid>
-        {flows.map((flow) => (
-          <FlowCard
-            key={flow.id}
-            className={selectedFlow?.id === flow.id ? 'active' : ''}
-            onClick={() => handleFlowSelect(flow)}
-          >
-            <CardBody>
-              <FlowIcon>{flow.icon}</FlowIcon>
-              <FlowTitle>{flow.title}</FlowTitle>
-              <FlowDescription>{flow.description}</FlowDescription>
+			<FlowsGrid>
+				{flows.map((flow) => (
+					<FlowCard
+						key={flow.id}
+						className={selectedFlow?.id === flow.id ? 'active' : ''}
+						onClick={() => handleFlowSelect(flow)}
+					>
+						<CardBody>
+							<FlowIcon>{flow.icon}</FlowIcon>
+							<FlowTitle>{flow.title}</FlowTitle>
+							<FlowDescription>{flow.description}</FlowDescription>
 
-              <FlowMeta>
-                <SecurityBadge className={getSecurityBadgeColor(flow.security)}>
-                  <FiShield />
-                  {flow.security.toUpperCase()} Security
-                </SecurityBadge>
-              </FlowMeta>
+							<FlowMeta>
+								<SecurityBadge className={getSecurityBadgeColor(flow.security)}>
+									<FiShield />
+									{flow.security.toUpperCase()} Security
+								</SecurityBadge>
+							</FlowMeta>
 
-              <FlowActions>
-                <FlowButton
-                  className="primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleFlowSelect(flow);
-                  }}
-                >
-                  <FiPlay /> Try Demo
-                </FlowButton>
-              </FlowActions>
-            </CardBody>
-          </FlowCard>
-        ))}
-      </FlowsGrid>
+							<FlowActions>
+								<FlowButton
+									className="primary"
+									onClick={(e) => {
+										e.stopPropagation();
+										handleFlowSelect(flow);
+									}}
+								>
+									<FiPlay /> Try Demo
+								</FlowButton>
+							</FlowActions>
+						</CardBody>
+					</FlowCard>
+				))}
+			</FlowsGrid>
 
-      {selectedFlow && (
-        <FlowDemo>
-          <DemoHeader>
-            <h2>{selectedFlow.icon} {selectedFlow.title} Demo</h2>
-            <DemoControls>
-              <DemoStatus className={demoStatus}>
-                {demoStatus === 'idle' && 'Ready to start'}
-                {demoStatus === 'loading' && 'Running demo...'}
-                {demoStatus === 'success' && 'Demo completed'}
-                {demoStatus === 'error' && 'Demo failed'}
-              </DemoStatus>
-              <FlowButton
-                className="primary"
-                onClick={handleStartDemo}
-                disabled={demoStatus === 'loading' || !config}
-              >
-                <FiPlay /> Start Demo
-              </FlowButton>
-            </DemoControls>
-          </DemoHeader>
+			{selectedFlow && (
+				<FlowDemo>
+					<DemoHeader>
+						<h2>
+							{selectedFlow.icon} {selectedFlow.title} Demo
+						</h2>
+						<DemoControls>
+							<DemoStatus className={demoStatus}>
+								{demoStatus === 'idle' && 'Ready to start'}
+								{demoStatus === 'loading' && 'Running demo...'}
+								{demoStatus === 'success' && 'Demo completed'}
+								{demoStatus === 'error' && 'Demo failed'}
+							</DemoStatus>
+							<FlowButton
+								className="primary"
+								onClick={handleStartDemo}
+								disabled={demoStatus === 'loading' || !config}
+							>
+								<FiPlay /> Start Demo
+							</FlowButton>
+						</DemoControls>
+					</DemoHeader>
 
-          <CardBody>
-            <div style={{ marginBottom: '1.5rem' }}>
-              <h3>Use Cases</h3>
-              <ul>
-                {selectedFlow.useCases.map((useCase, index) => (
-                  <li key={index}>{useCase}</li>
-                ))}
-              </ul>
-            </div>
+					<CardBody>
+						<div style={{ marginBottom: '1.5rem' }}>
+							<h3>Use Cases</h3>
+							<ul>
+								{selectedFlow.useCases.map((useCase, index) => (
+									<li key={index}>{useCase}</li>
+								))}
+							</ul>
+						</div>
 
-            <DemoSteps>
-              <h3>Flow Steps</h3>
-              {selectedFlow.steps.map((step, index) => (
-                <DemoStep
-                  key={index}
-                  active={currentStep === index && demoStatus === 'loading'}
-                  completed={currentStep > index}
-                >
-                  <StepNumber
-                    active={currentStep === index && demoStatus === 'loading'}
-                    completed={currentStep > index}
-                  >
-                    {index + 1}
-                  </StepNumber>
-                  <StepContent>
-                    <h4>{step.title}</h4>
-                    <p>{step.description}</p>
-                    {step.code && (
-                      <CodeBlock>{step.code}</CodeBlock>
-                    )}
-                  </StepContent>
-                </DemoStep>
-              ))}
-            </DemoSteps>
-          </CardBody>
-        </FlowDemo>
-      )}
-    </FlowsContainer>
-  );
+						<DemoSteps>
+							<h3>Flow Steps</h3>
+							{selectedFlow.steps.map((step, index) => (
+								<DemoStep
+									key={index}
+									active={currentStep === index && demoStatus === 'loading'}
+									completed={currentStep > index}
+								>
+									<StepNumber
+										active={currentStep === index && demoStatus === 'loading'}
+										completed={currentStep > index}
+									>
+										{index + 1}
+									</StepNumber>
+									<StepContent>
+										<h4>{step.title}</h4>
+										<p>{step.description}</p>
+										{step.code && <CodeBlock>{step.code}</CodeBlock>}
+									</StepContent>
+								</DemoStep>
+							))}
+						</DemoSteps>
+					</CardBody>
+				</FlowDemo>
+			)}
+		</FlowsContainer>
+	);
 };
 
 export default OAuthFlows;

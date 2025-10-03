@@ -8,18 +8,18 @@
  * @returns {Object} Parsed query parameters as key-value pairs
  */
 export const parseQueryParams = (url) => {
-  const params = {};
-  const queryString = url.split('?')[1] || '';
-  const pairs = queryString.split('&');
-  
-  for (const pair of pairs) {
-    const [key, value] = pair.split('=');
-    if (key) {
-      params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-    }
-  }
-  
-  return params;
+	const params = {};
+	const queryString = url.split('?')[1] || '';
+	const pairs = queryString.split('&');
+
+	for (const pair of pairs) {
+		const [key, value] = pair.split('=');
+		if (key) {
+			params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+		}
+	}
+
+	return params;
 };
 
 /**
@@ -28,18 +28,18 @@ export const parseQueryParams = (url) => {
  * @returns {Object} Parsed hash parameters as key-value pairs
  */
 export const parseHashFragment = (url) => {
-  const params = {};
-  const hash = url.split('#')[1] || '';
-  const pairs = hash.split('&');
-  
-  for (const pair of pairs) {
-    const [key, value] = pair.split('=');
-    if (key) {
-      params[decodeURIComponent(key)] = decodeURIComponent(value || '');
-    }
-  }
-  
-  return params;
+	const params = {};
+	const hash = url.split('#')[1] || '';
+	const pairs = hash.split('&');
+
+	for (const pair of pairs) {
+		const [key, value] = pair.split('=');
+		if (key) {
+			params[decodeURIComponent(key)] = decodeURIComponent(value || '');
+		}
+	}
+
+	return params;
 };
 
 /**
@@ -49,19 +49,19 @@ export const parseHashFragment = (url) => {
  * @returns {string} The constructed URL with query parameters
  */
 export const buildUrl = (baseUrl, params = {}) => {
-  const url = new URL(baseUrl);
-  
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
-        value.forEach(v => url.searchParams.append(key, v));
-      } else {
-        url.searchParams.append(key, value);
-      }
-    }
-  });
-  
-  return url.toString();
+	const url = new URL(baseUrl);
+
+	Object.entries(params).forEach(([key, value]) => {
+		if (value !== undefined && value !== null) {
+			if (Array.isArray(value)) {
+				value.forEach((v) => url.searchParams.append(key, v));
+			} else {
+				url.searchParams.append(key, value);
+			}
+		}
+	});
+
+	return url.toString();
 };
 
 /**
@@ -71,21 +71,21 @@ export const buildUrl = (baseUrl, params = {}) => {
  * @returns {string} The URL with added query parameters
  */
 export const addQueryParams = (url, params = {}) => {
-  const urlObj = new URL(url, window.location.origin);
-  
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
-        // Remove existing parameters with the same name
-        urlObj.searchParams.delete(key);
-        value.forEach(v => urlObj.searchParams.append(key, v));
-      } else {
-        urlObj.searchParams.set(key, value);
-      }
-    }
-  });
-  
-  return urlObj.toString();
+	const urlObj = new URL(url, window.location.origin);
+
+	Object.entries(params).forEach(([key, value]) => {
+		if (value !== undefined && value !== null) {
+			if (Array.isArray(value)) {
+				// Remove existing parameters with the same name
+				urlObj.searchParams.delete(key);
+				value.forEach((v) => urlObj.searchParams.append(key, v));
+			} else {
+				urlObj.searchParams.set(key, value);
+			}
+		}
+	});
+
+	return urlObj.toString();
 };
 
 /**
@@ -95,14 +95,14 @@ export const addQueryParams = (url, params = {}) => {
  * @returns {string} The URL with specified query parameters removed
  */
 export const removeQueryParams = (url, paramNames) => {
-  const urlObj = new URL(url, window.location.origin);
-  const paramsToRemove = Array.isArray(paramNames) ? paramNames : [paramNames];
-  
-  paramsToRemove.forEach(param => {
-    urlObj.searchParams.delete(param);
-  });
-  
-  return urlObj.toString();
+	const urlObj = new URL(url, window.location.origin);
+	const paramsToRemove = Array.isArray(paramNames) ? paramNames : [paramNames];
+
+	paramsToRemove.forEach((param) => {
+		urlObj.searchParams.delete(param);
+	});
+
+	return urlObj.toString();
 };
 
 /**
@@ -112,17 +112,17 @@ export const removeQueryParams = (url, paramNames) => {
  * @returns {string} The current URL
  */
 export const getCurrentUrl = (includeSearch = true, includeHash = true) => {
-  let url = window.location.pathname;
-  
-  if (includeSearch && window.location.search) {
-    url += window.location.search;
-  }
-  
-  if (includeHash && window.location.hash) {
-    url += window.location.hash;
-  }
-  
-  return url;
+	let url = window.location.pathname;
+
+	if (includeSearch && window.location.search) {
+		url += window.location.search;
+	}
+
+	if (includeHash && window.location.hash) {
+		url += window.location.hash;
+	}
+
+	return url;
 };
 
 /**
@@ -131,7 +131,7 @@ export const getCurrentUrl = (includeSearch = true, includeHash = true) => {
  * @returns {boolean} True if the URL is absolute
  */
 export const isAbsoluteUrl = (url) => {
-  return /^[a-z][a-z0-9+.-]*:/.test(url);
+	return /^[a-z][a-z0-9+.-]*:/.test(url);
 };
 
 /**
@@ -140,22 +140,22 @@ export const isAbsoluteUrl = (url) => {
  * @returns {string} An absolute URL
  */
 export const ensureAbsoluteUrl = (url) => {
-  if (!url) return '';
-  if (isAbsoluteUrl(url)) return url;
-  
-  // Handle protocol-relative URLs (e.g., //example.com)
-  if (url.startsWith('//')) {
-    return `${window.location.protocol}${url}`;
-  }
-  
-  // Handle root-relative URLs (e.g., /path)
-  if (url.startsWith('/')) {
-    return `${window.location.origin}${url}`;
-  }
-  
-  // Handle relative URLs (e.g., path)
-  const base = window.location.href.replace(/[^/]*$/, '');
-  return new URL(url, base).href;
+	if (!url) return '';
+	if (isAbsoluteUrl(url)) return url;
+
+	// Handle protocol-relative URLs (e.g., //example.com)
+	if (url.startsWith('//')) {
+		return `${window.location.protocol}${url}`;
+	}
+
+	// Handle root-relative URLs (e.g., /path)
+	if (url.startsWith('/')) {
+		return `${window.location.origin}${url}`;
+	}
+
+	// Handle relative URLs (e.g., path)
+	const base = window.location.href.replace(/[^/]*$/, '');
+	return new URL(url, base).href;
 };
 
 /**
@@ -164,8 +164,8 @@ export const ensureAbsoluteUrl = (url) => {
  * @returns {string} The base URL
  */
 export const getBaseUrl = (url) => {
-  const urlObj = url ? new URL(url, window.location.origin) : new URL(window.location.href);
-  return `${urlObj.origin}${urlObj.pathname}`.replace(/\/$/, '');
+	const urlObj = url ? new URL(url, window.location.origin) : new URL(window.location.href);
+	return `${urlObj.origin}${urlObj.pathname}`.replace(/\/$/, '');
 };
 
 /**
@@ -175,13 +175,13 @@ export const getBaseUrl = (url) => {
  * @returns {boolean} True if the URLs have the same origin
  */
 export const sameOrigin = (url1, url2) => {
-  try {
-    const a = new URL(url1, window.location.href);
-    const b = new URL(url2, window.location.href);
-    return a.origin === b.origin;
-  } catch (e) {
-    return false;
-  }
+	try {
+		const a = new URL(url1, window.location.href);
+		const b = new URL(url2, window.location.href);
+		return a.origin === b.origin;
+	} catch (e) {
+		return false;
+	}
 };
 
 /**
@@ -189,7 +189,7 @@ export const sameOrigin = (url1, url2) => {
  * @returns {boolean} True if the page is loaded over HTTPS
  */
 export const isHttps = () => {
-  return window.location.protocol === 'https:';
+	return window.location.protocol === 'https:';
 };
 
 /**
@@ -197,22 +197,24 @@ export const isHttps = () => {
  * @returns {boolean} True if the page is loaded on localhost
  */
 export const isLocalhost = () => {
-  return window.location.hostname === 'localhost' || 
-         window.location.hostname === '127.0.0.1' ||
-         window.location.hostname === '[::1]';
+	return (
+		window.location.hostname === 'localhost' ||
+		window.location.hostname === '127.0.0.1' ||
+		window.location.hostname === '[::1]'
+	);
 };
 
 export default {
-  parseQueryParams,
-  parseHashFragment,
-  buildUrl,
-  addQueryParams,
-  removeQueryParams,
-  getCurrentUrl,
-  isAbsoluteUrl,
-  ensureAbsoluteUrl,
-  getBaseUrl,
-  sameOrigin,
-  isHttps,
-  isLocalhost
+	parseQueryParams,
+	parseHashFragment,
+	buildUrl,
+	addQueryParams,
+	removeQueryParams,
+	getCurrentUrl,
+	isAbsoluteUrl,
+	ensureAbsoluteUrl,
+	getBaseUrl,
+	sameOrigin,
+	isHttps,
+	isLocalhost,
 };

@@ -86,27 +86,27 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -146,51 +146,53 @@ const WarningContainer = styled.div`
 `;
 
 interface ImplicitPostFlowProps {
-  credentials?: {
-    clientId: string;
-    redirectUri: string;
-    environmentId: string;
-  };
+	credentials?: {
+		clientId: string;
+		redirectUri: string;
+		environmentId: string;
+	};
 }
 
 const ImplicitPostFlow: React.FC<ImplicitPostFlowProps> = ({ credentials }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
-    environmentId: credentials?.environmentId || '',
-    responseType: 'token id_token',
-    scope: 'openid profile email',
-    state: '',
-    nonce: '',
-    acrValues: '',
-    prompt: '',
-    maxAge: '',
-    uiLocales: '',
-    claims: ''
-  });
-  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
-  const [error, setError] = useState<string | null>(null);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [formData, setFormData] = useState({
+		clientId: credentials?.clientId || '',
+		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
+		environmentId: credentials?.environmentId || '',
+		responseType: 'token id_token',
+		scope: 'openid profile email',
+		state: '',
+		nonce: '',
+		acrValues: '',
+		prompt: '',
+		maxAge: '',
+		uiLocales: '',
+		claims: '',
+	});
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
+	const [error, setError] = useState<string | null>(null);
 
-  const generateState = useCallback(() => {
-    const state = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    setFormData(prev => ({ ...prev, state }));
-    return state;
-  }, []);
+	const generateState = useCallback(() => {
+		const state =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		setFormData((prev) => ({ ...prev, state }));
+		return state;
+	}, []);
 
-  const generateNonce = useCallback(() => {
-    const nonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    setFormData(prev => ({ ...prev, nonce }));
-    return nonce;
-  }, []);
+	const generateNonce = useCallback(() => {
+		const nonce =
+			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+		setFormData((prev) => ({ ...prev, nonce }));
+		return nonce;
+	}, []);
 
-  const steps = [
-    {
-      id: 'step-1',
-      title: 'Configure Client Settings',
-      description: 'Set up your OAuth client for implicit flow with POST requests.',
-      code: `// Client Configuration for Implicit Flow
+	const steps = [
+		{
+			id: 'step-1',
+			title: 'Configure Client Settings',
+			description: 'Set up your OAuth client for implicit flow with POST requests.',
+			code: `// Client Configuration for Implicit Flow
 const clientConfig = {
   clientId: '${formData.clientId}',
   redirectUri: '${formData.redirectUri}',
@@ -201,16 +203,17 @@ const clientConfig = {
 
 // Note: Implicit flow does not use client secret
 console.log('Client configured for implicit flow');`,
-      execute: async () => {
-        logger.info('ImplicitPostFlow', 'Configuring client settings');
-        return { message: 'Client settings configured for implicit flow' };
-      }
-    },
-    {
-      id: 'step-2',
-      title: 'Generate State and Nonce',
-      description: 'Generate state parameter for CSRF protection and nonce for ID token validation.',
-      code: `// Generate state and nonce
+			execute: async () => {
+				logger.info('ImplicitPostFlow', 'Configuring client settings');
+				return { message: 'Client settings configured for implicit flow' };
+			},
+		},
+		{
+			id: 'step-2',
+			title: 'Generate State and Nonce',
+			description:
+				'Generate state parameter for CSRF protection and nonce for ID token validation.',
+			code: `// Generate state and nonce
 const state = generateState();
 const nonce = generateNonce();
 
@@ -220,18 +223,18 @@ localStorage.setItem('oauth_nonce', nonce);
 
 console.log('State:', state);
 console.log('Nonce:', nonce);`,
-      execute: async () => {
-        logger.info('ImplicitPostFlow', 'Generating state and nonce');
-        const state = generateState();
-        const nonce = generateNonce();
-        return { state, nonce };
-      }
-    },
-    {
-      id: 'step-3',
-      title: 'Create Authorization Request Form',
-      description: 'Build the POST form data for the implicit authorization request.',
-      code: `// Create form data for POST request
+			execute: async () => {
+				logger.info('ImplicitPostFlow', 'Generating state and nonce');
+				const state = generateState();
+				const nonce = generateNonce();
+				return { state, nonce };
+			},
+		},
+		{
+			id: 'step-3',
+			title: 'Create Authorization Request Form',
+			description: 'Build the POST form data for the implicit authorization request.',
+			code: `// Create form data for POST request
 const formData = new FormData();
 formData.append('client_id', '${formData.clientId}');
 formData.append('response_type', '${formData.responseType}');
@@ -244,16 +247,16 @@ ${formData.prompt ? `formData.append('prompt', '${formData.prompt}');` : ''}
 ${formData.maxAge ? `formData.append('max_age', '${formData.maxAge}');` : ''}
 ${formData.uiLocales ? `formData.append('ui_locales', '${formData.uiLocales}');` : ''}
 ${formData.claims ? `formData.append('claims', '${formData.claims}');` : ''}`,
-      execute: async () => {
-        logger.info('ImplicitPostFlow', 'Creating authorization request form');
-        return { message: 'Authorization request form created' };
-      }
-    },
-    {
-      id: 'step-4',
-      title: 'Submit Authorization Request',
-      description: 'Submit the POST request to the authorization endpoint.',
-      code: `// Submit authorization request
+			execute: async () => {
+				logger.info('ImplicitPostFlow', 'Creating authorization request form');
+				return { message: 'Authorization request form created' };
+			},
+		},
+		{
+			id: 'step-4',
+			title: 'Submit Authorization Request',
+			description: 'Submit the POST request to the authorization endpoint.',
+			code: `// Submit authorization request
 const authUrl = \`https://auth.pingone.com/\${environmentId}/as/authorize\`;
 
 try {
@@ -272,52 +275,52 @@ try {
 } catch (error) {
   console.error('Authorization error:', error);
 }`,
-      execute: async () => {
-        logger.info('ImplicitPostFlow', 'Submitting authorization request');
-        setDemoStatus('loading');
-        
-        try {
-          // Simulate POST request to authorization endpoint
-          const authUrl = `https://auth.pingone.com/${formData.environmentId}/as/authorize`;
-          
-          const formDataObj = new FormData();
-          formDataObj.append('client_id', formData.clientId);
-          formDataObj.append('response_type', formData.responseType);
-          formDataObj.append('redirect_uri', formData.redirectUri);
-          formDataObj.append('scope', formData.scope);
-          formDataObj.append('state', formData.state);
-          formDataObj.append('nonce', formData.nonce);
-          
-          if (formData.acrValues) formDataObj.append('acr_values', formData.acrValues);
-          if (formData.prompt) formDataObj.append('prompt', formData.prompt);
-          if (formData.maxAge) formDataObj.append('max_age', formData.maxAge);
-          if (formData.uiLocales) formDataObj.append('ui_locales', formData.uiLocales);
-          if (formData.claims) formDataObj.append('claims', formData.claims);
+			execute: async () => {
+				logger.info('ImplicitPostFlow', 'Submitting authorization request');
+				setDemoStatus('loading');
 
-          // For demo purposes, simulate a successful response
-          const mockResponse = {
-            success: true,
-            message: 'Authorization request submitted successfully',
-            authUrl: authUrl,
-            formData: Object.fromEntries(formDataObj.entries())
-          };
+				try {
+					// Simulate POST request to authorization endpoint
+					const authUrl = `https://auth.pingone.com/${formData.environmentId}/as/authorize`;
 
-          setResponse(mockResponse);
-          setDemoStatus('success');
-          return mockResponse;
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          setError(errorMessage);
-          setDemoStatus('error');
-          throw error;
-        }
-      }
-    },
-    {
-      id: 'step-5',
-      title: 'Handle Token Response',
-      description: 'Extract tokens from the URL fragment in the callback.',
-      code: `// Handle token response from URL fragment
+					const formDataObj = new FormData();
+					formDataObj.append('client_id', formData.clientId);
+					formDataObj.append('response_type', formData.responseType);
+					formDataObj.append('redirect_uri', formData.redirectUri);
+					formDataObj.append('scope', formData.scope);
+					formDataObj.append('state', formData.state);
+					formDataObj.append('nonce', formData.nonce);
+
+					if (formData.acrValues) formDataObj.append('acr_values', formData.acrValues);
+					if (formData.prompt) formDataObj.append('prompt', formData.prompt);
+					if (formData.maxAge) formDataObj.append('max_age', formData.maxAge);
+					if (formData.uiLocales) formDataObj.append('ui_locales', formData.uiLocales);
+					if (formData.claims) formDataObj.append('claims', formData.claims);
+
+					// For demo purposes, simulate a successful response
+					const mockResponse = {
+						success: true,
+						message: 'Authorization request submitted successfully',
+						authUrl: authUrl,
+						formData: Object.fromEntries(formDataObj.entries()),
+					};
+
+					setResponse(mockResponse);
+					setDemoStatus('success');
+					return mockResponse;
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					setDemoStatus('error');
+					throw error;
+				}
+			},
+		},
+		{
+			id: 'step-5',
+			title: 'Handle Token Response',
+			description: 'Extract tokens from the URL fragment in the callback.',
+			code: `// Handle token response from URL fragment
 const hashParams = new URLSearchParams(window.location.hash.substring(1));
 const accessToken = hashParams.get('access_token');
 const idToken = hashParams.get('id_token');
@@ -337,16 +340,16 @@ console.log('ID Token:', idToken);
 console.log('Token Type:', tokenType);
 console.log('Expires In:', expiresIn);
 console.log('Scope:', scope);`,
-      execute: async () => {
-        logger.info('ImplicitPostFlow', 'Handling token response');
-        return { message: 'Token response handling implemented' };
-      }
-    },
-    {
-      id: 'step-6',
-      title: 'Store Tokens',
-      description: 'Store the received tokens for future use.',
-      code: `// Store tokens
+			execute: async () => {
+				logger.info('ImplicitPostFlow', 'Handling token response');
+				return { message: 'Token response handling implemented' };
+			},
+		},
+		{
+			id: 'step-6',
+			title: 'Store Tokens',
+			description: 'Store the received tokens for future use.',
+			code: `// Store tokens
 const tokens = {
   access_token: accessToken,
   id_token: idToken,
@@ -359,178 +362,178 @@ const tokens = {
 localStorage.setItem('oauth_tokens', JSON.stringify(tokens));
 
 console.log('Tokens stored successfully:', tokens);`,
-      execute: async () => {
-        logger.info('ImplicitPostFlow', 'Storing tokens');
-        
-        try {
-          // Simulate token storage
-          const mockTokens = {
-            access_token: 'mock_access_token_' + Date.now(),
-            id_token: 'mock_id_token_' + Date.now(),
-            token_type: 'Bearer',
-            expires_in: 3600,
-            scope: formData.scope
-          };
+			execute: async () => {
+				logger.info('ImplicitPostFlow', 'Storing tokens');
 
-          // Store tokens using the standardized method
-          const success = storeOAuthTokens(mockTokens, 'implicit', 'Implicit POST Flow');
-          
-          if (success) {
-            setResponse({ tokens: mockTokens, message: 'Tokens stored successfully' });
-            return { tokens: mockTokens };
-          } else {
-            throw new Error('Failed to store tokens');
-          }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          setError(errorMessage);
-          throw error;
-        }
-      }
-    }
-  ];
+				try {
+					// Simulate token storage
+					const mockTokens = {
+						access_token: 'mock_access_token_' + Date.now(),
+						id_token: 'mock_id_token_' + Date.now(),
+						token_type: 'Bearer',
+						expires_in: 3600,
+						scope: formData.scope,
+					};
 
-  const handleStepChange = useCallback((step: number) => {
-    setCurrentStep(step);
-    setDemoStatus('idle');
-    setResponse(null);
-    setError(null);
-  }, []);
+					// Store tokens using the standardized method
+					const success = storeOAuthTokens(mockTokens, 'implicit', 'Implicit POST Flow');
 
-  const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('ImplicitPostFlow', `Step ${step + 1} completed`, result);
-  }, []);
+					if (success) {
+						setResponse({ tokens: mockTokens, message: 'Tokens stored successfully' });
+						return { tokens: mockTokens };
+					} else {
+						throw new Error('Failed to store tokens');
+					}
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					throw error;
+				}
+			},
+		},
+	];
 
-  return (
-    <FlowContainer>
-      <FlowTitle>Implicit Flow (POST)</FlowTitle>
-      <FlowDescription>
-        This flow demonstrates the Implicit flow using POST requests. The Implicit flow is designed 
-        for public clients (like SPAs) that cannot securely store client secrets. Tokens are returned 
-        directly in the URL fragment.
-      </FlowDescription>
+	const handleStepChange = useCallback((step: number) => {
+		setCurrentStep(step);
+		setDemoStatus('idle');
+		setResponse(null);
+		setError(null);
+	}, []);
 
-      <WarningContainer>
-        <h4>⚠️ Security Warning</h4>
-        <SpecCard>
-          <p>
-            The Implicit flow is less secure than the Authorization Code flow because tokens are 
-            exposed in the URL. It's recommended to use Authorization Code flow with PKCE for 
-            better security, especially for new applications.
-          </p>
-        </SpecCard>
-      </WarningContainer>
+	const handleStepResult = useCallback((step: number, result: unknown) => {
+		logger.info('ImplicitPostFlow', `Step ${step + 1} completed`, result);
+	}, []);
 
-      <FlowCredentials
-        flowType="implicit-post"
-        onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
-            ...prev,
-            clientId: newCredentials.clientId || prev.clientId,
-            redirectUri: newCredentials.redirectUri || prev.redirectUri,
-            environmentId: newCredentials.environmentId || prev.environmentId
-          }));
-        }}
-      />
+	return (
+		<FlowContainer>
+			<FlowTitle>Implicit Flow (POST)</FlowTitle>
+			<FlowDescription>
+				This flow demonstrates the Implicit flow using POST requests. The Implicit flow is designed
+				for public clients (like SPAs) that cannot securely store client secrets. Tokens are
+				returned directly in the URL fragment.
+			</FlowDescription>
 
-      <StepByStepFlow
-        steps={steps}
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-        onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
-        onReset={() => {
-          setCurrentStep(0);
-          setDemoStatus('idle');
-          setResponse(null);
-          setError(null);
-        }}
-        status={demoStatus}
-        disabled={demoStatus === 'loading'}
-        title="Implicit POST Flow Steps"
-      />
+			<WarningContainer>
+				<h4>⚠️ Security Warning</h4>
+				<SpecCard>
+					<p>
+						The Implicit flow is less secure than the Authorization Code flow because tokens are
+						exposed in the URL. It's recommended to use Authorization Code flow with PKCE for better
+						security, especially for new applications.
+					</p>
+				</SpecCard>
+			</WarningContainer>
 
-      {response && (
-        <ResponseContainer>
-          <h4>Response:</h4>
-          <CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
-        </ResponseContainer>
-      )}
+			<FlowCredentials
+				flowType="implicit-post"
+				onCredentialsChange={(newCredentials) => {
+					setFormData((prev) => ({
+						...prev,
+						clientId: newCredentials.clientId || prev.clientId,
+						redirectUri: newCredentials.redirectUri || prev.redirectUri,
+						environmentId: newCredentials.environmentId || prev.environmentId,
+					}));
+				}}
+			/>
 
-      {error && (
-        <ErrorContainer>
-          <h4>Error:</h4>
-          <p>{error}</p>
-        </ErrorContainer>
-      )}
+			<StepByStepFlow
+				steps={steps}
+				currentStep={currentStep}
+				onStepChange={handleStepChange}
+				onStepResult={handleStepResult}
+				onStart={() => setDemoStatus('loading')}
+				onReset={() => {
+					setCurrentStep(0);
+					setDemoStatus('idle');
+					setResponse(null);
+					setError(null);
+				}}
+				status={demoStatus}
+				disabled={demoStatus === 'loading'}
+				title="Implicit POST Flow Steps"
+			/>
 
-      <PostForm>
-        <h3>Manual Form Submission</h3>
-        <p>You can also manually submit the authorization request using the form below:</p>
-        
-        <FormGroup>
-          <Label>Client ID</Label>
-          <Input
-            type="text"
-            value={formData.clientId}
-            onChange={(e) => setFormData(prev => ({ ...prev, clientId: e.target.value }))}
-          />
-        </FormGroup>
-        
-        <FormGroup>
-          <Label>Response Type</Label>
-          <Select
-            value={formData.responseType}
-            onChange={(e) => setFormData(prev => ({ ...prev, responseType: e.target.value }))}
-          >
-            <option value="token">token</option>
-            <option value="id_token">id_token</option>
-            <option value="token id_token">token id_token</option>
-          </Select>
-        </FormGroup>
-        
-        <FormGroup>
-          <Label>Redirect URI</Label>
-          <Input
-            type="url"
-            value={formData.redirectUri}
-            onChange={(e) => setFormData(prev => ({ ...prev, redirectUri: e.target.value }))}
-          />
-        </FormGroup>
-        
-        <FormGroup>
-          <Label>Scope</Label>
-          <Input
-            type="text"
-            value={formData.scope}
-            onChange={(e) => setFormData(prev => ({ ...prev, scope: e.target.value }))}
-          />
-        </FormGroup>
-        
-        <FormGroup>
-          <Label>State</Label>
-          <Input
-            type="text"
-            value={formData.state}
-            onChange={(e) => setFormData(prev => ({ ...prev, state: e.target.value }))}
-          />
-        </FormGroup>
-        
-        <FormGroup>
-          <Label>Nonce</Label>
-          <Input
-            type="text"
-            value={formData.nonce}
-            onChange={(e) => setFormData(prev => ({ ...prev, nonce: e.target.value }))}
-          />
-        </FormGroup>
-        
-        <Button $variant="primary" type="submit">
-          Submit Authorization Request
-        </Button>
-      </PostForm>
-    </FlowContainer>
-  );
+			{response && (
+				<ResponseContainer>
+					<h4>Response:</h4>
+					<CodeBlock>{JSON.stringify(response, null, 2)}</CodeBlock>
+				</ResponseContainer>
+			)}
+
+			{error && (
+				<ErrorContainer>
+					<h4>Error:</h4>
+					<p>{error}</p>
+				</ErrorContainer>
+			)}
+
+			<PostForm>
+				<h3>Manual Form Submission</h3>
+				<p>You can also manually submit the authorization request using the form below:</p>
+
+				<FormGroup>
+					<Label>Client ID</Label>
+					<Input
+						type="text"
+						value={formData.clientId}
+						onChange={(e) => setFormData((prev) => ({ ...prev, clientId: e.target.value }))}
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Response Type</Label>
+					<Select
+						value={formData.responseType}
+						onChange={(e) => setFormData((prev) => ({ ...prev, responseType: e.target.value }))}
+					>
+						<option value="token">token</option>
+						<option value="id_token">id_token</option>
+						<option value="token id_token">token id_token</option>
+					</Select>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Redirect URI</Label>
+					<Input
+						type="url"
+						value={formData.redirectUri}
+						onChange={(e) => setFormData((prev) => ({ ...prev, redirectUri: e.target.value }))}
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Scope</Label>
+					<Input
+						type="text"
+						value={formData.scope}
+						onChange={(e) => setFormData((prev) => ({ ...prev, scope: e.target.value }))}
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>State</Label>
+					<Input
+						type="text"
+						value={formData.state}
+						onChange={(e) => setFormData((prev) => ({ ...prev, state: e.target.value }))}
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Nonce</Label>
+					<Input
+						type="text"
+						value={formData.nonce}
+						onChange={(e) => setFormData((prev) => ({ ...prev, nonce: e.target.value }))}
+					/>
+				</FormGroup>
+
+				<Button $variant="primary" type="submit">
+					Submit Authorization Request
+				</Button>
+			</PostForm>
+		</FlowContainer>
+	);
 };
 
 export default ImplicitPostFlow;
