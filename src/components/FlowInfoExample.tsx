@@ -118,10 +118,26 @@ const FlowInfoExample: React.FC = () => {
 	});
 
 	const flows = [
-		{ type: 'oauth-authorization-code', name: 'OAuth Authorization Code', description: 'Most secure OAuth 2.0 flow' },
-		{ type: 'oidc-authorization-code', name: 'OIDC Authorization Code', description: 'Authentication + Authorization' },
-		{ type: 'client-credentials', name: 'Client Credentials', description: 'Machine-to-machine authentication' },
-		{ type: 'device-code', name: 'Device Authorization', description: 'For input-constrained devices' },
+		{
+			type: 'oauth-authorization-code',
+			name: 'OAuth Authorization Code',
+			description: 'Most secure OAuth 2.0 flow',
+		},
+		{
+			type: 'oidc-authorization-code',
+			name: 'OIDC Authorization Code',
+			description: 'Authentication + Authorization',
+		},
+		{
+			type: 'client-credentials',
+			name: 'Client Credentials',
+			description: 'Machine-to-machine authentication',
+		},
+		{
+			type: 'device-code',
+			name: 'Device Authorization',
+			description: 'For input-constrained devices',
+		},
 		{ type: 'oidc-ciba-v5', name: 'OIDC CIBA', description: 'Decoupled authentication' },
 		{ type: 'par', name: 'Pushed Authorization Request', description: 'Enhanced security flow' },
 	];
@@ -130,7 +146,8 @@ const FlowInfoExample: React.FC = () => {
 		<Container>
 			<Title>Flow Information Service Examples</Title>
 			<Subtitle>
-				Comprehensive flow information cards for all V5 flows with detailed security notes, use cases, and implementation guidance.
+				Comprehensive flow information cards for all V5 flows with detailed security notes, use
+				cases, and implementation guidance.
 			</Subtitle>
 
 			<FlowSection>

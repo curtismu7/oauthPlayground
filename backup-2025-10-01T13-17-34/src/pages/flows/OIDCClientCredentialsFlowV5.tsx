@@ -20,14 +20,8 @@ import {
 import styled from 'styled-components';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import {
-	ExplanationHeading,
-	ExplanationSection,
-} from '../../components/InfoBlocks';
-import {
-	ResultsHeading,
-	ResultsSection,
-} from '../../components/ResultsPanel';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { useClientCredentialsFlow, ClientAuthMethod } from '../../hooks/useClientCredentialsFlow';
 
@@ -381,7 +375,7 @@ const ParameterValue = styled.div`
 
 const OIDCClientCredentialsFlowV5: React.FC = () => {
 	const clientCredsFlow = useClientCredentialsFlow();
-	
+
 	// Local form state - OIDC specific defaults
 	const [formData, setFormData] = useState({
 		issuer: clientCredsFlow.config?.issuer || '',
@@ -438,9 +432,11 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 	const handleSaveConfiguration = useCallback(() => {
 		// Warn if 'openid' scope is included
 		if (formData.scopes.includes('openid')) {
-			v4ToastManager.showWarning('Warning: "openid" scope typically ignored in Client Credentials (no user context)');
+			v4ToastManager.showWarning(
+				'Warning: "openid" scope typically ignored in Client Credentials (no user context)'
+			);
 		}
-		
+
 		clientCredsFlow.setConfig({
 			issuer: formData.issuer,
 			clientId: formData.clientId,
@@ -494,9 +490,11 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<InfoTitle>⚠️ Common Misconception</InfoTitle>
 							<InfoText>
 								<strong>OIDC Client Credentials does NOT issue ID Tokens!</strong>
-								<br /><br />
-								OIDC only issues ID Tokens when a <strong>user authenticates</strong>. 
-								Client Credentials is machine-to-machine with no user involved, so you'll only receive an <strong>Access Token</strong>.
+								<br />
+								<br />
+								OIDC only issues ID Tokens when a <strong>user authenticates</strong>. Client
+								Credentials is machine-to-machine with no user involved, so you'll only receive an{' '}
+								<strong>Access Token</strong>.
 							</InfoText>
 						</div>
 					</InfoBox>
@@ -509,39 +507,93 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<table style={{ width: '100%', borderCollapse: 'collapse' }}>
 								<thead>
 									<tr style={{ backgroundColor: '#f8fafc' }}>
-										<th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>Aspect</th>
-										<th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>OAuth 2.0</th>
-										<th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>OIDC</th>
+										<th
+											style={{
+												padding: '0.75rem',
+												textAlign: 'left',
+												borderBottom: '2px solid #e2e8f0',
+											}}
+										>
+											Aspect
+										</th>
+										<th
+											style={{
+												padding: '0.75rem',
+												textAlign: 'left',
+												borderBottom: '2px solid #e2e8f0',
+											}}
+										>
+											OAuth 2.0
+										</th>
+										<th
+											style={{
+												padding: '0.75rem',
+												textAlign: 'left',
+												borderBottom: '2px solid #e2e8f0',
+											}}
+										>
+											OIDC
+										</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><strong>Standard Spec</strong></td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>RFC 6749 Section 4.4</td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Same (OIDC assumes user context)</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											<strong>Standard Spec</strong>
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											RFC 6749 Section 4.4
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											Same (OIDC assumes user context)
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><strong>Tokens Returned</strong></td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Access Token only</td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Access Token only (no ID Token)</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											<strong>Tokens Returned</strong>
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											Access Token only
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											Access Token only (no ID Token)
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><strong>Subject (sub)</strong></td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>The client app</td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Still the client (not a user)</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											<strong>Subject (sub)</strong>
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											The client app
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											Still the client (not a user)
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><strong>User Identity</strong></td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											<strong>User Identity</strong>
+										</td>
 										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>None</td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>None (OIDC adds nothing here)</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											None (OIDC adds nothing here)
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}><strong>Claims Structure</strong></td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>Basic (iss, aud, scope)</td>
-										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>May include OIDC-style claims</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											<strong>Claims Structure</strong>
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											Basic (iss, aud, scope)
+										</td>
+										<td style={{ padding: '0.75rem', borderBottom: '1px solid #e2e8f0' }}>
+											May include OIDC-style claims
+										</td>
 									</tr>
 									<tr>
-										<td style={{ padding: '0.75rem' }}><strong>Use Case</strong></td>
+										<td style={{ padding: '0.75rem' }}>
+											<strong>Use Case</strong>
+										</td>
 										<td style={{ padding: '0.75rem' }}>M2M, API-to-API</td>
 										<td style={{ padding: '0.75rem' }}>Same (system-level APIs)</td>
 									</tr>
@@ -557,10 +609,17 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<InfoText>
 								If you request <code>scope=openid</code> with Client Credentials:
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-									<li>Most OIDC providers will <strong>reject</strong> the request</li>
-									<li>Some will <strong>ignore</strong> the openid scope</li>
+									<li>
+										Most OIDC providers will <strong>reject</strong> the request
+									</li>
+									<li>
+										Some will <strong>ignore</strong> the openid scope
+									</li>
 									<li>You'll still only get an Access Token (no ID Token)</li>
-									<li><strong>Reason:</strong> openid requires user authentication, which doesn't exist in Client Credentials</li>
+									<li>
+										<strong>Reason:</strong> openid requires user authentication, which doesn't
+										exist in Client Credentials
+									</li>
 								</ul>
 							</InfoText>
 						</div>
@@ -573,10 +632,18 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<InfoText>
 								If your OIDC provider supports Client Credentials:
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-									<li><strong>OIDC-style claims</strong> in the Access Token (iss, aud, client_id)</li>
-									<li><strong>Standardized endpoints</strong> (/.well-known/openid-configuration)</li>
-									<li><strong>JWKS for verification</strong> (public keys at /.well-known/jwks.json)</li>
-									<li><strong>System/client-level scopes</strong> for OIDC-protected APIs</li>
+									<li>
+										<strong>OIDC-style claims</strong> in the Access Token (iss, aud, client_id)
+									</li>
+									<li>
+										<strong>Standardized endpoints</strong> (/.well-known/openid-configuration)
+									</li>
+									<li>
+										<strong>JWKS for verification</strong> (public keys at /.well-known/jwks.json)
+									</li>
+									<li>
+										<strong>System/client-level scopes</strong> for OIDC-protected APIs
+									</li>
 								</ul>
 							</InfoText>
 						</div>
@@ -605,8 +672,9 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 						<FiInfo size={20} />
 						<div>
 							<InfoText>
-								<strong>OIDC Provider:</strong> Use an OIDC-compliant authorization server (e.g., PingOne, Okta, Auth0).
-								The token endpoint and claims structure will follow OIDC standards.
+								<strong>OIDC Provider:</strong> Use an OIDC-compliant authorization server (e.g.,
+								PingOne, Okta, Auth0). The token endpoint and claims structure will follow OIDC
+								standards.
 							</InfoText>
 						</div>
 					</InfoBox>
@@ -672,8 +740,9 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<FiAlertTriangle size={16} />
 							<div>
 								<InfoText style={{ fontSize: '0.8rem' }}>
-									<strong>Note:</strong> Including "openid" scope will likely be rejected or ignored by OIDC providers, 
-									as Client Credentials has no user context for ID Token issuance.
+									<strong>Note:</strong> Including "openid" scope will likely be rejected or ignored
+									by OIDC providers, as Client Credentials has no user context for ID Token
+									issuance.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -739,9 +808,9 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<FiServer /> Flow Overview
 						</ExplanationHeading>
 						<InfoText>
-							OIDC Client Credentials follows the same OAuth 2.0 flow, but uses an <strong>OIDC provider</strong> that
-							may include OIDC-style claims in the access token. <strong>No ID Token is issued</strong> because there's
-							no user authentication.
+							OIDC Client Credentials follows the same OAuth 2.0 flow, but uses an{' '}
+							<strong>OIDC provider</strong> that may include OIDC-style claims in the access token.{' '}
+							<strong>No ID Token is issued</strong> because there's no user authentication.
 						</InfoText>
 					</ExplanationSection>
 
@@ -751,9 +820,13 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 						</ExplanationHeading>
 						<ol style={{ marginLeft: '1.5rem', lineHeight: '1.8' }}>
 							<li>Client authenticates with OIDC provider (client ID + credentials)</li>
-							<li>Client requests access token with <code>grant_type=client_credentials</code></li>
+							<li>
+								Client requests access token with <code>grant_type=client_credentials</code>
+							</li>
 							<li>OIDC provider validates credentials</li>
-							<li>Provider issues <strong>Access Token</strong> (may include OIDC-style claims)</li>
+							<li>
+								Provider issues <strong>Access Token</strong> (may include OIDC-style claims)
+							</li>
 							<li>Client uses access token to call protected APIs</li>
 						</ol>
 					</div>
@@ -765,13 +838,27 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<InfoText>
 								Your access token may include:
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-									<li><code>iss</code> - Issuer (OIDC provider URL)</li>
-									<li><code>sub</code> - Subject (client ID, not a user)</li>
-									<li><code>aud</code> - Audience (target API)</li>
-									<li><code>exp</code> - Expiration timestamp</li>
-									<li><code>iat</code> - Issued at timestamp</li>
-									<li><code>client_id</code> - Your application's client ID</li>
-									<li><code>scope</code> - Granted scopes (NOT including "openid")</li>
+									<li>
+										<code>iss</code> - Issuer (OIDC provider URL)
+									</li>
+									<li>
+										<code>sub</code> - Subject (client ID, not a user)
+									</li>
+									<li>
+										<code>aud</code> - Audience (target API)
+									</li>
+									<li>
+										<code>exp</code> - Expiration timestamp
+									</li>
+									<li>
+										<code>iat</code> - Issued at timestamp
+									</li>
+									<li>
+										<code>client_id</code> - Your application's client ID
+									</li>
+									<li>
+										<code>scope</code> - Granted scopes (NOT including "openid")
+									</li>
 								</ul>
 							</InfoText>
 						</div>
@@ -783,10 +870,14 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<InfoTitle>Security Best Practices</InfoTitle>
 							<InfoText>
 								<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', marginBottom: 0 }}>
-									<li>Prefer <code>private_key_jwt</code> over client secrets</li>
+									<li>
+										Prefer <code>private_key_jwt</code> over client secrets
+									</li>
 									<li>Use OIDC Discovery (/.well-known/openid-configuration)</li>
 									<li>Verify token signature using JWKS endpoint</li>
-									<li>Validate <code>iss</code>, <code>aud</code>, and <code>exp</code> claims</li>
+									<li>
+										Validate <code>iss</code>, <code>aud</code>, and <code>exp</code> claims
+									</li>
 									<li>Use short-lived tokens with appropriate scopes</li>
 									<li>Never include "openid" scope (will be rejected)</li>
 								</ul>
@@ -800,10 +891,7 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 
 	const renderTokenRequest = () => (
 		<CollapsibleSection>
-			<CollapsibleHeaderButton
-				onClick={() => handleRequestToken}
-				aria-expanded={true}
-			>
+			<CollapsibleHeaderButton onClick={() => handleRequestToken} aria-expanded={true}>
 				<CollapsibleTitle>
 					<FiKey /> Request Access Token
 				</CollapsibleTitle>
@@ -814,21 +902,20 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 						<FiAlertCircle size={20} />
 						<div>
 							<InfoTitle>Configuration Required</InfoTitle>
-							<InfoText>Please configure the OIDC settings above before requesting a token.</InfoText>
+							<InfoText>
+								Please configure the OIDC settings above before requesting a token.
+							</InfoText>
 						</div>
 					</InfoBox>
 				) : (
 					<>
 						<InfoText style={{ marginBottom: '1rem' }}>
-							Click the button below to request an access token from your OIDC provider using Client Credentials.
-							You will receive an <strong>Access Token only</strong> (no ID Token).
+							Click the button below to request an access token from your OIDC provider using Client
+							Credentials. You will receive an <strong>Access Token only</strong> (no ID Token).
 						</InfoText>
 
 						<ActionRow>
-							<Button
-								onClick={handleRequestToken}
-								disabled={clientCredsFlow.isRequesting}
-							>
+							<Button onClick={handleRequestToken} disabled={clientCredsFlow.isRequesting}>
 								{clientCredsFlow.isRequesting ? (
 									<>
 										<FiRefreshCw className="spin" /> Requesting...
@@ -887,8 +974,8 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 							<div>
 								<InfoTitle>✅ Token Received (No ID Token)</InfoTitle>
 								<InfoText>
-									As expected with Client Credentials, you received an <strong>Access Token</strong> only.
-									OIDC providers do not issue ID Tokens without user authentication.
+									As expected with Client Credentials, you received an <strong>Access Token</strong>{' '}
+									only. OIDC providers do not issue ID Tokens without user authentication.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -931,17 +1018,12 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 									{showTokens ? (
 										clientCredsFlow.tokens.access_token
 									) : (
-										<TokenMask>
-											{clientCredsFlow.tokens.access_token.replace(/./g, '•')}
-										</TokenMask>
+										<TokenMask>{clientCredsFlow.tokens.access_token.replace(/./g, '•')}</TokenMask>
 									)}
 								</TokenDisplay>
 
 								<ActionRow>
-									<Button
-										$variant="outline"
-										onClick={() => setShowTokens(!showTokens)}
-									>
+									<Button $variant="outline" onClick={() => setShowTokens(!showTokens)}>
 										<FiKey /> {showTokens ? 'Mask' : 'Reveal'} Token
 									</Button>
 									<Button
@@ -953,7 +1035,10 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 									<Button
 										$variant="outline"
 										onClick={() => {
-											localStorage.setItem('token_to_analyze', clientCredsFlow.tokens!.access_token);
+											localStorage.setItem(
+												'token_to_analyze',
+												clientCredsFlow.tokens!.access_token
+											);
 											localStorage.setItem('token_type', 'access');
 											localStorage.setItem('flow_source', 'oidc-client-credentials-v5');
 											window.location.href = '/token-management';
@@ -989,21 +1074,27 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 										<div>
 											<InfoTitle>OIDC-Style Claims Detected</InfoTitle>
 											<InfoText>
-												<strong>Issuer (iss):</strong> {clientCredsFlow.decodedToken.payload.iss || 'N/A'}
+												<strong>Issuer (iss):</strong>{' '}
+												{clientCredsFlow.decodedToken.payload.iss || 'N/A'}
 												<br />
-												<strong>Subject (sub):</strong> {clientCredsFlow.decodedToken.payload.sub || 'N/A'} 
-												{' '}<em>(This is the client, not a user)</em>
+												<strong>Subject (sub):</strong>{' '}
+												{clientCredsFlow.decodedToken.payload.sub || 'N/A'}{' '}
+												<em>(This is the client, not a user)</em>
 												<br />
-												<strong>Audience (aud):</strong> {Array.isArray(clientCredsFlow.decodedToken.payload.aud)
+												<strong>Audience (aud):</strong>{' '}
+												{Array.isArray(clientCredsFlow.decodedToken.payload.aud)
 													? clientCredsFlow.decodedToken.payload.aud.join(', ')
 													: clientCredsFlow.decodedToken.payload.aud || 'N/A'}
 												<br />
 												<strong>Expires:</strong>{' '}
 												{clientCredsFlow.decodedToken.payload.exp
-													? new Date(clientCredsFlow.decodedToken.payload.exp * 1000).toLocaleString()
+													? new Date(
+															clientCredsFlow.decodedToken.payload.exp * 1000
+														).toLocaleString()
 													: 'N/A'}
 												<br />
-												<strong>Client ID:</strong> {clientCredsFlow.decodedToken.payload.client_id || 'N/A'}
+												<strong>Client ID:</strong>{' '}
+												{clientCredsFlow.decodedToken.payload.client_id || 'N/A'}
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1017,7 +1108,8 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 										<InfoTitle>Opaque Token</InfoTitle>
 										<InfoText>
 											This access token is opaque (not a JWT). Use token introspection to retrieve
-											metadata. Navigate to the Token Management page for introspection capabilities.
+											metadata. Navigate to the Token Management page for introspection
+											capabilities.
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1058,4 +1150,3 @@ const OIDCClientCredentialsFlowV5: React.FC = () => {
 };
 
 export default OIDCClientCredentialsFlowV5;
-

@@ -18,7 +18,9 @@ const Square = styled.div<{ $isForeground?: boolean }>`
   border-radius: 2px;
   background: transparent;
   
-  ${({ $isForeground }) => $isForeground && `
+  ${({ $isForeground }) =>
+		$isForeground &&
+		`
     top: 2px;
     left: 2px;
     box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
@@ -26,14 +28,12 @@ const Square = styled.div<{ $isForeground?: boolean }>`
 `;
 
 const CopyIcon: React.FC<{ size?: number }> = ({ size = 16 }) => {
-  return (
-    <CopyIconContainer style={{ width: size, height: size }}>
-      <Square />
-      <Square $isForeground />
-    </CopyIconContainer>
-  );
+	return (
+		<CopyIconContainer style={{ width: size, height: size }}>
+			<Square />
+			<Square $isForeground />
+		</CopyIconContainer>
+	);
 };
 
 export default CopyIcon;
-
-

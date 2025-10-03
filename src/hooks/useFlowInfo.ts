@@ -134,7 +134,9 @@ export const useFlowSearch = (criteria: {
 /**
  * Hook to get flows by category
  */
-export const useFlowsByCategory = (category: 'standard' | 'experimental' | 'deprecated' | 'pingone-specific') => {
+export const useFlowsByCategory = (
+	category: 'standard' | 'experimental' | 'deprecated' | 'pingone-specific'
+) => {
 	return useMemo(() => {
 		return FlowInfoService.getFlowsByCategory(category);
 	}, [category]);

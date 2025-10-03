@@ -1,7 +1,14 @@
 // src/components/CredentialStatusPanel.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiAlertTriangle, FiRefreshCw, FiClock, FiShield } from 'react-icons/fi';
+import {
+	FiCheckCircle,
+	FiXCircle,
+	FiAlertTriangle,
+	FiRefreshCw,
+	FiClock,
+	FiShield,
+} from 'react-icons/fi';
 import { credentialManager, type PermanentCredentials } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -116,24 +123,30 @@ const StatusIndicator = styled.div<{ $type: 'tokens' | 'environment' }>`
   font-size: 0.875rem;
   font-weight: 600;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  background: ${props => {
-    switch (props.$type) {
-      case 'tokens': return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
-      case 'environment': return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
-    }
-  }};
-  color: ${props => {
-    switch (props.$type) {
-      case 'tokens': return '#991b1b';
-      case 'environment': return '#166534';
-    }
-  }};
-  border: 2px solid ${props => {
-    switch (props.$type) {
-      case 'tokens': return '#fecaca';
-      case 'environment': return '#bbf7d0';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$type) {
+			case 'tokens':
+				return 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)';
+			case 'environment':
+				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.$type) {
+			case 'tokens':
+				return '#991b1b';
+			case 'environment':
+				return '#166534';
+		}
+	}};
+  border: 2px solid ${(props) => {
+		switch (props.$type) {
+			case 'tokens':
+				return '#fecaca';
+			case 'environment':
+				return '#bbf7d0';
+		}
+	}};
   transition: all 0.2s ease;
   
   &:hover {
@@ -149,20 +162,26 @@ const FlowStatusGrid = styled.div`
 `;
 
 const FlowStatusCard = styled.div<{ $status: 'configured' | 'partial' | 'missing' }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'configured': return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
-      case 'partial': return 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)';
-      case 'missing': return 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)';
-    }
-  }};
-  border: 2px solid ${props => {
-    switch (props.$status) {
-      case 'configured': return '#bbf7d0';
-      case 'partial': return '#fed7aa';
-      case 'missing': return '#fecaca';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'configured':
+				return 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)';
+			case 'partial':
+				return 'linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%)';
+			case 'missing':
+				return 'linear-gradient(135deg, #fef2f2 0%, #fecaca 100%)';
+		}
+	}};
+  border: 2px solid ${(props) => {
+		switch (props.$status) {
+			case 'configured':
+				return '#bbf7d0';
+			case 'partial':
+				return '#fed7aa';
+			case 'missing':
+				return '#fecaca';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 1.25rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -177,25 +196,31 @@ const FlowStatusCard = styled.div<{ $status: 'configured' | 'partial' | 'missing
     left: 0;
     right: 0;
     height: 4px;
-    background: ${props => {
-      switch (props.$status) {
-        case 'configured': return 'linear-gradient(90deg, #10b981, #34d399)';
-        case 'partial': return 'linear-gradient(90deg, #f59e0b, #fbbf24)';
-        case 'missing': return 'linear-gradient(90deg, #ef4444, #f87171)';
-      }
-    }};
+    background: ${(props) => {
+			switch (props.$status) {
+				case 'configured':
+					return 'linear-gradient(90deg, #10b981, #34d399)';
+				case 'partial':
+					return 'linear-gradient(90deg, #f59e0b, #fbbf24)';
+				case 'missing':
+					return 'linear-gradient(90deg, #ef4444, #f87171)';
+			}
+		}};
   }
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    border-color: ${props => {
-      switch (props.$status) {
-        case 'configured': return '#86efac';
-        case 'partial': return '#fcd34d';
-        case 'missing': return '#fca5a5';
-      }
-    }};
+    border-color: ${(props) => {
+			switch (props.$status) {
+				case 'configured':
+					return '#86efac';
+				case 'partial':
+					return '#fcd34d';
+				case 'missing':
+					return '#fca5a5';
+			}
+		}};
   }
 `;
 
@@ -218,27 +243,36 @@ const StatusBadge = styled.div<{ $status: 'configured' | 'partial' | 'missing' }
   font-size: 0.75rem;
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  background: ${props => {
-    switch (props.$status) {
-      case 'configured': return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
-      case 'partial': return 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)';
-      case 'missing': return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
-    }
-  }};
-  color: ${props => {
-    switch (props.$status) {
-      case 'configured': return '#166534';
-      case 'partial': return '#92400e';
-      case 'missing': return '#991b1b';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.$status) {
-      case 'configured': return '#86efac';
-      case 'partial': return '#fcd34d';
-      case 'missing': return '#fca5a5';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'configured':
+				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+			case 'partial':
+				return 'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)';
+			case 'missing':
+				return 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'configured':
+				return '#166534';
+			case 'partial':
+				return '#92400e';
+			case 'missing':
+				return '#991b1b';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.$status) {
+			case 'configured':
+				return '#86efac';
+			case 'partial':
+				return '#fcd34d';
+			case 'missing':
+				return '#fca5a5';
+		}
+	}};
   transition: all 0.2s ease;
   
   &:hover {
@@ -287,237 +321,245 @@ const EmptyState = styled.div`
 `;
 
 interface FlowCredentialStatus {
-  flowName: string;
-  flowType: 'config' | 'authz' | 'implicit';
-  credentials: PermanentCredentials;
-  status: 'configured' | 'partial' | 'missing';
-  lastUpdated?: number;
+	flowName: string;
+	flowType: 'config' | 'authz' | 'implicit';
+	credentials: PermanentCredentials;
+	status: 'configured' | 'partial' | 'missing';
+	lastUpdated?: number;
 }
 
 const CredentialStatusPanel: React.FC = () => {
-  const { tokens, isAuthenticated } = useAuth();
-  const [flowStatuses, setFlowStatuses] = useState<FlowCredentialStatus[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+	const { tokens, isAuthenticated } = useAuth();
+	const [flowStatuses, setFlowStatuses] = useState<FlowCredentialStatus[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  const checkCredentials = (credentials: PermanentCredentials): 'configured' | 'partial' | 'missing' => {
-    const hasRequired = credentials.environmentId && credentials.clientId && credentials.redirectUri;
-    const hasOptional = credentials.clientSecret || credentials.authEndpoint || credentials.tokenEndpoint;
-    
-    if (hasRequired && hasOptional) return 'configured';
-    if (hasRequired) return 'partial';
-    return 'missing';
-  };
+	const checkCredentials = (
+		credentials: PermanentCredentials
+	): 'configured' | 'partial' | 'missing' => {
+		const hasRequired =
+			credentials.environmentId && credentials.clientId && credentials.redirectUri;
+		const hasOptional =
+			credentials.clientSecret || credentials.authEndpoint || credentials.tokenEndpoint;
 
-  const refreshStatuses = useCallback(async () => {
-    console.log('🔄 [CredentialStatusPanel] Refreshing statuses - button clicked');
-    setIsLoading(true);
-    try {
-      console.log('🔄 [CredentialStatusPanel] Loading credentials...');
-      const configCredentials = credentialManager.loadConfigCredentials();
-      const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
-      const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
-      
-      console.log('🔄 [CredentialStatusPanel] Loaded credentials:', {
-        config: configCredentials,
-        authz: authzFlowCredentials,
-        implicit: implicitFlowCredentials
-      });
-      
-      logger.debug('CredentialStatusPanel', 'Loaded credentials', {
-        config: configCredentials,
-        authz: authzFlowCredentials,
-        implicit: implicitFlowCredentials
-      });
-      
-      const statuses: FlowCredentialStatus[] = [
-        {
-          flowName: 'Dashboard Configuration',
-          flowType: 'config',
-          credentials: configCredentials || {},
-          status: checkCredentials(configCredentials || {}),
-          lastUpdated: configCredentials?.lastUpdated
-        },
-        {
-          flowName: 'Authorization Code Flow',
-          flowType: 'authz',
-          credentials: authzFlowCredentials || {},
-          status: checkCredentials(authzFlowCredentials || {}),
-          lastUpdated: authzFlowCredentials?.lastUpdated
-        },
-        {
-          flowName: 'Implicit Flow',
-          flowType: 'implicit',
-          credentials: implicitFlowCredentials || {},
-          status: checkCredentials(implicitFlowCredentials || {}),
-          lastUpdated: implicitFlowCredentials?.lastUpdated
-        }
-      ];
-      
-      console.log('🔄 [CredentialStatusPanel] Setting new statuses:', statuses);
-      setFlowStatuses(statuses);
-      setLastRefresh(new Date());
-      
-      console.log('🔄 [CredentialStatusPanel] Statuses updated successfully');
-      logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
-    } catch (error) {
-      logger.error('CredentialStatusPanel', 'Error refreshing statuses', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+		if (hasRequired && hasOptional) return 'configured';
+		if (hasRequired) return 'partial';
+		return 'missing';
+	};
 
-  // Load initial statuses
-  useEffect(() => {
-    refreshStatuses();
-  }, [refreshStatuses]);
+	const refreshStatuses = useCallback(async () => {
+		console.log('🔄 [CredentialStatusPanel] Refreshing statuses - button clicked');
+		setIsLoading(true);
+		try {
+			console.log('🔄 [CredentialStatusPanel] Loading credentials...');
+			const configCredentials = credentialManager.loadConfigCredentials();
+			const authzFlowCredentials = credentialManager.loadAuthzFlowCredentials();
+			const implicitFlowCredentials = credentialManager.loadImplicitFlowCredentials();
 
-  const getStatusIcon = (status: 'configured' | 'partial' | 'missing') => {
-    switch (status) {
-      case 'configured': return <FiCheckCircle size={16} color="#10b981" />;
-      case 'partial': return <FiAlertTriangle size={16} color="#f59e0b" />;
-      case 'missing': return <FiXCircle size={16} color="#ef4444" />;
-    }
-  };
+			console.log('🔄 [CredentialStatusPanel] Loaded credentials:', {
+				config: configCredentials,
+				authz: authzFlowCredentials,
+				implicit: implicitFlowCredentials,
+			});
 
-  const getStatusText = (status: 'configured' | 'partial' | 'missing') => {
-    switch (status) {
-      case 'configured': return 'Fully Configured';
-      case 'partial': return 'Partially Configured';
-      case 'missing': return 'Not Configured';
-    }
-  };
+			logger.debug('CredentialStatusPanel', 'Loaded credentials', {
+				config: configCredentials,
+				authz: authzFlowCredentials,
+				implicit: implicitFlowCredentials,
+			});
 
-  const formatLastUpdated = (timestamp?: number) => {
-    if (!timestamp) return 'Never';
-    const date = new Date(timestamp);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
-    return date.toLocaleDateString();
-  };
+			const statuses: FlowCredentialStatus[] = [
+				{
+					flowName: 'Dashboard Configuration',
+					flowType: 'config',
+					credentials: configCredentials || {},
+					status: checkCredentials(configCredentials || {}),
+					lastUpdated: configCredentials?.lastUpdated,
+				},
+				{
+					flowName: 'Authorization Code Flow',
+					flowType: 'authz',
+					credentials: authzFlowCredentials || {},
+					status: checkCredentials(authzFlowCredentials || {}),
+					lastUpdated: authzFlowCredentials?.lastUpdated,
+				},
+				{
+					flowName: 'Implicit Flow',
+					flowType: 'implicit',
+					credentials: implicitFlowCredentials || {},
+					status: checkCredentials(implicitFlowCredentials || {}),
+					lastUpdated: implicitFlowCredentials?.lastUpdated,
+				},
+			];
 
-  return (
-    <StatusPanel>
-      <StatusHeader>
-        <h3>System Status</h3>
-        <ButtonGroup>
-          <RefreshButton 
-            onClick={(e) => {
-              console.log('🔄 [CredentialStatusPanel] Refresh button clicked!', e);
-              refreshStatuses();
-            }} 
-            disabled={isLoading}
-          >
-            <FiRefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
-            {isLoading ? 'Refreshing...' : 'Refresh'}
-          </RefreshButton>
-          <StatusButton>
-            <FiCheckCircle size={16} />
-            Status
-          </StatusButton>
-        </ButtonGroup>
-      </StatusHeader>
-      
-      <StatusIndicators>
-        <StatusIndicator $type="tokens">
-          <FiClock size={16} />
-          {tokens && isAuthenticated ? 'Active Tokens' : 'No Active Tokens'}
-        </StatusIndicator>
-        <StatusIndicator $type="environment">
-          <FiShield size={16} />
-          Environment Configured
-        </StatusIndicator>
-      </StatusIndicators>
-      
-      {flowStatuses.length === 0 ? (
-        <EmptyState>
-          <div className="icon">🔍</div>
-          <p>No credential information available</p>
-        </EmptyState>
-      ) : (
-        <FlowStatusGrid>
-          {flowStatuses.map((flow) => (
-            <FlowStatusCard key={flow.flowType} $status={flow.status}>
-              <FlowName>
-                {getStatusIcon(flow.status)}
-                {flow.flowName}
-              </FlowName>
-              
-              <StatusBadge $status={flow.status}>
-                {getStatusIcon(flow.status)}
-                {getStatusText(flow.status)}
-              </StatusBadge>
-              
-              <FlowDetails>
-                <div className="detail-row">
-                  <span className="field-name">Environment ID:</span>
-                  <span className="field-status">
-                    {flow.credentials.environmentId ? (
-                      <>
-                        <FiCheckCircle size={12} />
-                        {flow.credentials.environmentId.substring(0, 8)}...
-                      </>
-                    ) : (
-                      <>
-                        <FiXCircle size={12} />
-                        Missing
-                      </>
-                    )}
-                  </span>
-                </div>
-                
-                <div className="detail-row">
-                  <span className="field-name">Client ID:</span>
-                  <span className="field-status">
-                    {flow.credentials.clientId ? (
-                      <>
-                        <FiCheckCircle size={12} />
-                        {flow.credentials.clientId.substring(0, 8)}...
-                      </>
-                    ) : (
-                      <>
-                        <FiXCircle size={12} />
-                        Missing
-                      </>
-                    )}
-                  </span>
-                </div>
-                
-                <div className="detail-row">
-                  <span className="field-name">Redirect URI:</span>
-                  <span className="field-status">
-                    {flow.credentials.redirectUri ? (
-                      <>
-                        <FiCheckCircle size={12} />
-                        Configured
-                      </>
-                    ) : (
-                      <>
-                        <FiXCircle size={12} />
-                        Missing
-                      </>
-                    )}
-                  </span>
-                </div>
-                
-                <div className="detail-row">
-                  <span className="field-name">Last Updated:</span>
-                  <span className="field-status">
-                    {formatLastUpdated(flow.lastUpdated)}
-                  </span>
-                </div>
-              </FlowDetails>
-            </FlowStatusCard>
-          ))}
-        </FlowStatusGrid>
-      )}
-    </StatusPanel>
-  );
+			console.log('🔄 [CredentialStatusPanel] Setting new statuses:', statuses);
+			setFlowStatuses(statuses);
+			setLastRefresh(new Date());
+
+			console.log('🔄 [CredentialStatusPanel] Statuses updated successfully');
+			logger.debug('CredentialStatusPanel', 'Statuses updated', statuses);
+		} catch (error) {
+			logger.error('CredentialStatusPanel', 'Error refreshing statuses', error);
+		} finally {
+			setIsLoading(false);
+		}
+	}, []);
+
+	// Load initial statuses
+	useEffect(() => {
+		refreshStatuses();
+	}, [refreshStatuses]);
+
+	const getStatusIcon = (status: 'configured' | 'partial' | 'missing') => {
+		switch (status) {
+			case 'configured':
+				return <FiCheckCircle size={16} color="#10b981" />;
+			case 'partial':
+				return <FiAlertTriangle size={16} color="#f59e0b" />;
+			case 'missing':
+				return <FiXCircle size={16} color="#ef4444" />;
+		}
+	};
+
+	const getStatusText = (status: 'configured' | 'partial' | 'missing') => {
+		switch (status) {
+			case 'configured':
+				return 'Fully Configured';
+			case 'partial':
+				return 'Partially Configured';
+			case 'missing':
+				return 'Not Configured';
+		}
+	};
+
+	const formatLastUpdated = (timestamp?: number) => {
+		if (!timestamp) return 'Never';
+		const date = new Date(timestamp);
+		const now = new Date();
+		const diffMs = now.getTime() - date.getTime();
+		const diffMins = Math.floor(diffMs / 60000);
+
+		if (diffMins < 1) return 'Just now';
+		if (diffMins < 60) return `${diffMins}m ago`;
+		if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
+		return date.toLocaleDateString();
+	};
+
+	return (
+		<StatusPanel>
+			<StatusHeader>
+				<h3>System Status</h3>
+				<ButtonGroup>
+					<RefreshButton
+						onClick={(e) => {
+							console.log('🔄 [CredentialStatusPanel] Refresh button clicked!', e);
+							refreshStatuses();
+						}}
+						disabled={isLoading}
+					>
+						<FiRefreshCw size={16} className={isLoading ? 'animate-spin' : ''} />
+						{isLoading ? 'Refreshing...' : 'Refresh'}
+					</RefreshButton>
+					<StatusButton>
+						<FiCheckCircle size={16} />
+						Status
+					</StatusButton>
+				</ButtonGroup>
+			</StatusHeader>
+
+			<StatusIndicators>
+				<StatusIndicator $type="tokens">
+					<FiClock size={16} />
+					{tokens && isAuthenticated ? 'Active Tokens' : 'No Active Tokens'}
+				</StatusIndicator>
+				<StatusIndicator $type="environment">
+					<FiShield size={16} />
+					Environment Configured
+				</StatusIndicator>
+			</StatusIndicators>
+
+			{flowStatuses.length === 0 ? (
+				<EmptyState>
+					<div className="icon">🔍</div>
+					<p>No credential information available</p>
+				</EmptyState>
+			) : (
+				<FlowStatusGrid>
+					{flowStatuses.map((flow) => (
+						<FlowStatusCard key={flow.flowType} $status={flow.status}>
+							<FlowName>
+								{getStatusIcon(flow.status)}
+								{flow.flowName}
+							</FlowName>
+
+							<StatusBadge $status={flow.status}>
+								{getStatusIcon(flow.status)}
+								{getStatusText(flow.status)}
+							</StatusBadge>
+
+							<FlowDetails>
+								<div className="detail-row">
+									<span className="field-name">Environment ID:</span>
+									<span className="field-status">
+										{flow.credentials.environmentId ? (
+											<>
+												<FiCheckCircle size={12} />
+												{flow.credentials.environmentId.substring(0, 8)}...
+											</>
+										) : (
+											<>
+												<FiXCircle size={12} />
+												Missing
+											</>
+										)}
+									</span>
+								</div>
+
+								<div className="detail-row">
+									<span className="field-name">Client ID:</span>
+									<span className="field-status">
+										{flow.credentials.clientId ? (
+											<>
+												<FiCheckCircle size={12} />
+												{flow.credentials.clientId.substring(0, 8)}...
+											</>
+										) : (
+											<>
+												<FiXCircle size={12} />
+												Missing
+											</>
+										)}
+									</span>
+								</div>
+
+								<div className="detail-row">
+									<span className="field-name">Redirect URI:</span>
+									<span className="field-status">
+										{flow.credentials.redirectUri ? (
+											<>
+												<FiCheckCircle size={12} />
+												Configured
+											</>
+										) : (
+											<>
+												<FiXCircle size={12} />
+												Missing
+											</>
+										)}
+									</span>
+								</div>
+
+								<div className="detail-row">
+									<span className="field-name">Last Updated:</span>
+									<span className="field-status">{formatLastUpdated(flow.lastUpdated)}</span>
+								</div>
+							</FlowDetails>
+						</FlowStatusCard>
+					))}
+				</FlowStatusGrid>
+			)}
+		</StatusPanel>
+	);
 };
 
 export default CredentialStatusPanel;

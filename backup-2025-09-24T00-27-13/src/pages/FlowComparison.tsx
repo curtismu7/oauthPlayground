@@ -16,18 +16,18 @@ const ContentContainer = styled.div`
 `;
 
 const FlowComparison: React.FC = () => {
-  return (
-    <PageContainer>
-      <ContentContainer>
-        <PageTitle
-          title="OAuth Flow Comparison"
-          subtitle="Compare OAuth 2.0 and OpenID Connect flows to understand their differences, security implications, and use cases"
-          icon="🔍"
-        />
-        <FlowComparisonTools />
-      </ContentContainer>
-    </PageContainer>
-  );
+	return (
+		<PageContainer>
+			<ContentContainer>
+				<PageTitle
+					title="OAuth Flow Comparison"
+					subtitle="Compare OAuth 2.0 and OpenID Connect flows to understand their differences, security implications, and use cases"
+					icon="🔍"
+				/>
+				<FlowComparisonTools />
+			</ContentContainer>
+		</PageContainer>
+	);
 };
 
 export default FlowComparison;

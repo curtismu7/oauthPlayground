@@ -79,7 +79,6 @@ const SequenceContainer = styled.div`
 	color: #1f2937;
 `;
 
-
 const StepsList = styled.ol`
 	list-style: none;
 	counter-reset: step-counter;
@@ -259,7 +258,9 @@ export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowTy
 									<StepContent>
 										<StepTitle>{step.title}</StepTitle>
 										<StepDescription>{step.description}</StepDescription>
-										{step.technicalDetails && <TechnicalDetails>{step.technicalDetails}</TechnicalDetails>}
+										{step.technicalDetails && (
+											<TechnicalDetails>{step.technicalDetails}</TechnicalDetails>
+										)}
 										{step.exampleDisplay && <ExampleDisplay>{step.exampleDisplay}</ExampleDisplay>}
 									</StepContent>
 								</StepItem>

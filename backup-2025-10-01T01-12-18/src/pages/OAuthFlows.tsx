@@ -712,7 +712,9 @@ const OAuthFlows = () => {
 
 	const handleStartDemo = async () => {
 		if (!config) {
-			v4ToastManager.showError('Please configure your PingOne settings first in the Configuration page.');
+			v4ToastManager.showError(
+				'Please configure your PingOne settings first in the Configuration page.'
+			);
 			return;
 		}
 

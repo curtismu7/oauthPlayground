@@ -4,64 +4,67 @@ import styled, { keyframes } from 'styled-components';
 type NotificationType = 'success' | 'error' | 'info' | 'warning';
 
 interface Notification {
-  id: string;
-  message: string;
-  type: NotificationType;
-  duration?: number;
+	id: string;
+	message: string;
+	type: NotificationType;
+	duration?: number;
 }
 
 interface NotificationContextType {
-  notify: (message: string, type?: NotificationType, duration?: number) => void;
-  notifications: Notification[];
-  removeNotification: (id: string) => void;
+	notify: (message: string, type?: NotificationType, duration?: number) => void;
+	notifications: Notification[];
+	removeNotification: (id: string) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
 
 export const NotificationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+	const [notifications, setNotifications] = useState<Notification[]>([]);
 
-  const removeNotification = useCallback((id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
+	const removeNotification = useCallback((id: string) => {
+		setNotifications((prev) => prev.filter((n) => n.id !== id));
+	}, []);
 
-  const notify = useCallback((message: string, type: NotificationType = 'info', duration: number = 5000) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const notification = { id, message, type, duration };
-    
-    setNotifications(prev => [...prev, notification]);
-    
-    if (duration > 0) {
-      setTimeout(() => {
-        removeNotification(id);
-      }, duration);
-    }
-  }, [removeNotification]);
+	const notify = useCallback(
+		(message: string, type: NotificationType = 'info', duration: number = 5000) => {
+			const id = Math.random().toString(36).substr(2, 9);
+			const notification = { id, message, type, duration };
 
-  return (
-    <NotificationContext.Provider value={{ notify, notifications, removeNotification }}>
-      {children}
-      <NotificationContainer>
-        {notifications.map(notification => (
-          <NotificationItem 
-            key={notification.id} 
-            type={notification.type}
-            onClick={() => removeNotification(notification.id)}
-          >
-            {notification.message}
-          </NotificationItem>
-        ))}
-      </NotificationContainer>
-    </NotificationContext.Provider>
-  );
+			setNotifications((prev) => [...prev, notification]);
+
+			if (duration > 0) {
+				setTimeout(() => {
+					removeNotification(id);
+				}, duration);
+			}
+		},
+		[removeNotification]
+	);
+
+	return (
+		<NotificationContext.Provider value={{ notify, notifications, removeNotification }}>
+			{children}
+			<NotificationContainer>
+				{notifications.map((notification) => (
+					<NotificationItem
+						key={notification.id}
+						type={notification.type}
+						onClick={() => removeNotification(notification.id)}
+					>
+						{notification.message}
+					</NotificationItem>
+				))}
+			</NotificationContainer>
+		</NotificationContext.Provider>
+	);
 };
 
 export const useNotifications = (): NotificationContextType => {
-  const context = useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotifications must be used within a NotificationProvider');
-  }
-  return context;
+	const context = useContext(NotificationContext);
+	if (!context) {
+		throw new Error('useNotifications must be used within a NotificationProvider');
+	}
+	return context;
 };
 
 // Styled components
@@ -91,15 +94,18 @@ const NotificationItem = styled.div<{ type: NotificationType }>`
   border-radius: 4px;
   color: white;
   background-color: ${({ type, theme }) => {
-    switch (type) {
-      case 'success': return theme.colors.success || '#10b981';
-      case 'error': return theme.colors.danger || '#ef4444';
-      case 'warning': return theme.colors.warning || '#f59e0b';
-      case 'info':
-      default:
-        return theme.colors.primary || '#3b82f6';
-    }
-  }};
+		switch (type) {
+			case 'success':
+				return theme.colors.success || '#10b981';
+			case 'error':
+				return theme.colors.danger || '#ef4444';
+			case 'warning':
+				return theme.colors.warning || '#f59e0b';
+			case 'info':
+			default:
+				return theme.colors.primary || '#3b82f6';
+		}
+	}};
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   animation: ${slideIn} 0.3s ease-out forwards;
   cursor: pointer;

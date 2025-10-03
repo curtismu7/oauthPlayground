@@ -753,7 +753,7 @@ export const useAuthorizationCodeFlowController = (
 
 			// Show user-friendly error message
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			
+
 			// Parse specific error types for better user feedback
 			if (errorMessage.includes('401') && errorMessage.includes('invalid_client')) {
 				showGlobalError(
@@ -768,7 +768,7 @@ export const useAuthorizationCodeFlowController = (
 			} else {
 				showGlobalError('Token Exchange Failed', errorMessage);
 			}
-			
+
 			// Re-throw the error so the calling component can handle it
 			throw error;
 		} finally {
@@ -792,7 +792,10 @@ export const useAuthorizationCodeFlowController = (
 		const userInfoEndpoint = credentials.userInfoEndpoint;
 		if (!userInfoEndpoint) {
 			console.error('❌ [fetchUserInfo] No userinfo endpoint configured');
-			showGlobalError('Missing user info endpoint', 'Configure PingOne user info endpoint in credentials.');
+			showGlobalError(
+				'Missing user info endpoint',
+				'Configure PingOne user info endpoint in credentials.'
+			);
 			return;
 		}
 

@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { 
-  FiHome, FiCode, FiUser, FiSettings, 
-  FiChevronDown, FiBookOpen 
-} from 'react-icons/fi';
+import { FiHome, FiCode, FiUser, FiSettings, FiChevronDown, FiBookOpen } from 'react-icons/fi';
 
 const SidebarContainer = styled.aside`
   position: fixed;
@@ -20,7 +17,7 @@ const SidebarContainer = styled.aside`
   padding: 1rem 0;
   
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
-    transform: ${({ isOpen }) => isOpen ? 'translateX(0)' : 'translateX(-100%)'};
+    transform: ${({ isOpen }) => (isOpen ? 'translateX(0)' : 'translateX(-100%)')};
   }
 `;
 
@@ -70,7 +67,7 @@ const NavItem = styled(NavLink)`
 
 const Submenu = styled.div`
   overflow: hidden;
-  max-height: ${({ isOpen }) => isOpen ? '500px' : '0'};
+  max-height: ${({ isOpen }) => (isOpen ? '500px' : '0')};
   transition: max-height 0.3s ease-in-out;
 `;
 
@@ -131,112 +128,106 @@ const NavItemHeader = styled.div`
   
   svg:last-child {
     transition: transform 0.2s;
-    transform: rotate(${({ isOpen }) => isOpen ? '0deg' : '-90deg'});
+    transform: rotate(${({ isOpen }) => (isOpen ? '0deg' : '-90deg')});
   }
 `;
 
 const Sidebar = ({ isOpen, onClose }) => {
-  const location = useLocation();
-  const [openMenus, setOpenMenus] = useState({
-    flows: false,
-    oidc: false,
-  });
+	const location = useLocation();
+	const [openMenus, setOpenMenus] = useState({
+		flows: false,
+		oidc: false,
+	});
 
-  // Auto-open menu based on current route
-  useEffect(() => {
-    const path = location.pathname;
-    setOpenMenus({
-      flows: path.startsWith('/flows'),
-      oidc: path.startsWith('/oidc'),
-    });
-  }, [location.pathname]);
+	// Auto-open menu based on current route
+	useEffect(() => {
+		const path = location.pathname;
+		setOpenMenus({
+			flows: path.startsWith('/flows'),
+			oidc: path.startsWith('/oidc'),
+		});
+	}, [location.pathname]);
 
-  const toggleMenu = (menu) => {
-    setOpenMenus(prev => ({
-      ...prev,
-      [menu]: !prev[menu]
-    }));
-  };
+	const toggleMenu = (menu) => {
+		setOpenMenus((prev) => ({
+			...prev,
+			[menu]: !prev[menu],
+		}));
+	};
 
-  return (
-    <SidebarContainer isopen={isOpen}>
-      <NavSection>
-        <NavItem to="/dashboard" onClick={onClose}>
-          <FiHome />
-          <span>Dashboard</span>
-        </NavItem>
-      </NavSection>
+	return (
+		<SidebarContainer isopen={isOpen}>
+			<NavSection>
+				<NavItem to="/dashboard" onClick={onClose}>
+					<FiHome />
+					<span>Dashboard</span>
+				</NavItem>
+			</NavSection>
 
-      <NavSection>
-        <NavSectionTitle>OAuth 2.0 Flows</NavSectionTitle>
-        
-        <NavItemWithSubmenu>
-          <NavItemHeader 
-            onClick={() => toggleMenu('flows')}
-            isopen={openMenus.flows}
-          >
-            <div>
-              <FiCode />
-              <span>OAuth 2.0 Flows</span>
-            </div>
-            <FiChevronDown />
-          </NavItemHeader>
-          
-          <Submenu isopen={openMenus.flows}>
-            <SubmenuItem to="/flows/authorization-code" onClick={onClose}>
-              Authorization Code
-            </SubmenuItem>
-            <SubmenuItem to="/flows/implicit" onClick={onClose}>
-              Implicit
-            </SubmenuItem>
-            <SubmenuItem to="/flows/client-credentials" onClick={onClose}>
-              Client Credentials
-            </SubmenuItem>
-            <SubmenuItem to="/flows/pkce" onClick={onClose}>
-              PKCE
-            </SubmenuItem>
-            <SubmenuItem to="/flows/device-code" onClick={onClose}>
-              Device Code
-            </SubmenuItem>
-          </Submenu>
-        </NavItemWithSubmenu>
-        
-        <NavItemWithSubmenu>
-          <NavItemHeader 
-            onClick={() => toggleMenu('oidc')}
-            isopen={openMenus.oidc}
-          >
-            <div>
-              <FiUser />
-              <span>OpenID Connect</span>
-            </div>
-            <FiChevronDown />
-          </NavItemHeader>
-          
-          <Submenu isopen={openMenus.oidc}>
-            <SubmenuItem to="/oidc/userinfo" onClick={onClose}>
-              UserInfo Endpoint
-            </SubmenuItem>
-            <SubmenuItem to="/oidc/tokens" onClick={onClose}>
-              ID Tokens
-            </SubmenuItem>
-          </Submenu>
-        </NavItemWithSubmenu>
-      </NavSection>
-      
-      <NavSection>
-        <NavSectionTitle>Resources</NavSectionTitle>
-        <NavItem to="/documentation" onClick={onClose}>
-          <FiBookOpen />
-          <span>Documentation</span>
-        </NavItem>
-        <NavItem to="/configuration" onClick={onClose}>
-          <FiSettings />
-          <span>Configuration</span>
-        </NavItem>
-      </NavSection>
-    </SidebarContainer>
-  );
+			<NavSection>
+				<NavSectionTitle>OAuth 2.0 Flows</NavSectionTitle>
+
+				<NavItemWithSubmenu>
+					<NavItemHeader onClick={() => toggleMenu('flows')} isopen={openMenus.flows}>
+						<div>
+							<FiCode />
+							<span>OAuth 2.0 Flows</span>
+						</div>
+						<FiChevronDown />
+					</NavItemHeader>
+
+					<Submenu isopen={openMenus.flows}>
+						<SubmenuItem to="/flows/authorization-code" onClick={onClose}>
+							Authorization Code
+						</SubmenuItem>
+						<SubmenuItem to="/flows/implicit" onClick={onClose}>
+							Implicit
+						</SubmenuItem>
+						<SubmenuItem to="/flows/client-credentials" onClick={onClose}>
+							Client Credentials
+						</SubmenuItem>
+						<SubmenuItem to="/flows/pkce" onClick={onClose}>
+							PKCE
+						</SubmenuItem>
+						<SubmenuItem to="/flows/device-code" onClick={onClose}>
+							Device Code
+						</SubmenuItem>
+					</Submenu>
+				</NavItemWithSubmenu>
+
+				<NavItemWithSubmenu>
+					<NavItemHeader onClick={() => toggleMenu('oidc')} isopen={openMenus.oidc}>
+						<div>
+							<FiUser />
+							<span>OpenID Connect</span>
+						</div>
+						<FiChevronDown />
+					</NavItemHeader>
+
+					<Submenu isopen={openMenus.oidc}>
+						<SubmenuItem to="/oidc/userinfo" onClick={onClose}>
+							UserInfo Endpoint
+						</SubmenuItem>
+						<SubmenuItem to="/oidc/tokens" onClick={onClose}>
+							ID Tokens
+						</SubmenuItem>
+					</Submenu>
+				</NavItemWithSubmenu>
+			</NavSection>
+
+			<NavSection>
+				<NavSectionTitle>Resources</NavSectionTitle>
+				<NavItem to="/documentation" onClick={onClose}>
+					<FiBookOpen />
+					<span>Documentation</span>
+				</NavItem>
+				<NavItem to="/configuration" onClick={onClose}>
+					<FiSettings />
+					<span>Configuration</span>
+				</NavItem>
+			</NavSection>
+		</SidebarContainer>
+	);
 };
 
 export default Sidebar;

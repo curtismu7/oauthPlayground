@@ -103,33 +103,33 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'success' | '
   margin-bottom: 0.5rem;
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background-color: #3b82f6;
           color: white;
           &:hover { background-color: #2563eb; }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background-color: #6b7280;
           color: white;
           &:hover { background-color: #4b5563; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background-color: #10b981;
           color: white;
           &:hover { background-color: #059669; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background-color: #ef4444;
           color: white;
           &:hover { background-color: #dc2626; }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const CodeBlock = styled.pre`
@@ -232,51 +232,53 @@ const ApprovalButtons = styled.div`
 `;
 
 interface TransactionApprovalFlowProps {
-  credentials?: {
-    clientId: string;
-    clientSecret: string;
-    redirectUri: string;
-    environmentId: string;
-  };
+	credentials?: {
+		clientId: string;
+		clientSecret: string;
+		redirectUri: string;
+		environmentId: string;
+	};
 }
 
 const TransactionApprovalFlow: React.FC<TransactionApprovalFlowProps> = ({ credentials }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-  const [formData, setFormData] = useState({
-    clientId: credentials?.clientId || '',
-    clientSecret: credentials?.clientSecret || '',
-    redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
-    environmentId: credentials?.environmentId || '',
-    scope: 'openid profile email',
-    transactionType: 'payment',
-    transactionAmount: '100.00',
-    transactionCurrency: 'USD',
-    transactionDescription: 'Sample payment transaction',
-    transactionId: '',
-    acrValues: 'urn:mace:pingidentity.com:loc:1',
-    prompt: 'consent',
-    maxAge: '3600',
-    uiLocales: 'en',
-    claims: '{"userinfo": {"email": null, "phone_number": null}}'
-  });
-  const [response, setResponse] = useState<Record<string, unknown> | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [transactionStep, setTransactionStep] = useState<'initiate' | 'approve' | 'complete'>('initiate');
-  const [transactionApproved, setTransactionApproved] = useState<boolean | null>(null);
+	const [currentStep, setCurrentStep] = useState(0);
+	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+	const [formData, setFormData] = useState({
+		clientId: credentials?.clientId || '',
+		clientSecret: credentials?.clientSecret || '',
+		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
+		environmentId: credentials?.environmentId || '',
+		scope: 'openid profile email',
+		transactionType: 'payment',
+		transactionAmount: '100.00',
+		transactionCurrency: 'USD',
+		transactionDescription: 'Sample payment transaction',
+		transactionId: '',
+		acrValues: 'urn:mace:pingidentity.com:loc:1',
+		prompt: 'consent',
+		maxAge: '3600',
+		uiLocales: 'en',
+		claims: '{"userinfo": {"email": null, "phone_number": null}}',
+	});
+	const [response, setResponse] = useState<Record<string, unknown> | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [transactionStep, setTransactionStep] = useState<'initiate' | 'approve' | 'complete'>(
+		'initiate'
+	);
+	const [transactionApproved, setTransactionApproved] = useState<boolean | null>(null);
 
-  const generateTransactionId = () => {
-    const id = 'TXN_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8).toUpperCase();
-    setFormData(prev => ({ ...prev, transactionId: id }));
-    return id;
-  };
+	const generateTransactionId = () => {
+		const id = 'TXN_' + Date.now() + '_' + Math.random().toString(36).substring(2, 8).toUpperCase();
+		setFormData((prev) => ({ ...prev, transactionId: id }));
+		return id;
+	};
 
-  const steps = [
-    {
-      id: 'step-1',
-      title: 'Configure Transaction Approval Settings',
-      description: 'Set up your OAuth client for transaction approval flow.',
-      code: `// Transaction Approval Configuration
+	const steps = [
+		{
+			id: 'step-1',
+			title: 'Configure Transaction Approval Settings',
+			description: 'Set up your OAuth client for transaction approval flow.',
+			code: `// Transaction Approval Configuration
 const transactionConfig = {
   clientId: '${formData.clientId}',
   clientSecret: '${formData.clientSecret}',
@@ -295,16 +297,16 @@ const transactionConfig = {
 };
 
 console.log('Transaction approval configured:', transactionConfig);`,
-      execute: async () => {
-        logger.info('TransactionApprovalFlow', 'Configuring transaction approval settings');
-        generateTransactionId();
-      }
-    },
-    {
-      id: 'step-2',
-      title: 'Initiate Transaction',
-      description: 'Create a transaction that requires user approval.',
-      code: `// Initiate Transaction
+			execute: async () => {
+				logger.info('TransactionApprovalFlow', 'Configuring transaction approval settings');
+				generateTransactionId();
+			},
+		},
+		{
+			id: 'step-2',
+			title: 'Initiate Transaction',
+			description: 'Create a transaction that requires user approval.',
+			code: `// Initiate Transaction
 const transactionId = '${formData.transactionId}';
 const transaction = {
   id: transactionId,
@@ -320,44 +322,44 @@ console.log('Transaction initiated:', transaction);
 
 // Store transaction for approval
 localStorage.setItem('pending_transaction', JSON.stringify(transaction));`,
-      execute: async () => {
-        logger.info('TransactionApprovalFlow', 'Initiating transaction');
-        setDemoStatus('loading');
-        
-        try {
-          const transaction = {
-            id: formData.transactionId,
-            type: formData.transactionType,
-            amount: formData.transactionAmount,
-            currency: formData.transactionCurrency,
-            description: formData.transactionDescription,
-            timestamp: new Date().toISOString(),
-            status: 'pending_approval'
-          };
+			execute: async () => {
+				logger.info('TransactionApprovalFlow', 'Initiating transaction');
+				setDemoStatus('loading');
 
-          const mockResponse = {
-            success: true,
-            message: 'Transaction initiated successfully',
-            transaction: transaction,
-            requiresApproval: true
-          };
+				try {
+					const transaction = {
+						id: formData.transactionId,
+						type: formData.transactionType,
+						amount: formData.transactionAmount,
+						currency: formData.transactionCurrency,
+						description: formData.transactionDescription,
+						timestamp: new Date().toISOString(),
+						status: 'pending_approval',
+					};
 
-          setResponse(mockResponse);
-          setDemoStatus('success');
-          setTransactionStep('approve');
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          setError(errorMessage);
-          setDemoStatus('error');
-          throw error;
-        }
-      }
-    },
-    {
-      id: 'step-3',
-      title: 'Request Transaction Approval',
-      description: 'Request user approval for the pending transaction.',
-      code: `// Request Transaction Approval
+					const mockResponse = {
+						success: true,
+						message: 'Transaction initiated successfully',
+						transaction: transaction,
+						requiresApproval: true,
+					};
+
+					setResponse(mockResponse);
+					setDemoStatus('success');
+					setTransactionStep('approve');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					setDemoStatus('error');
+					throw error;
+				}
+			},
+		},
+		{
+			id: 'step-3',
+			title: 'Request Transaction Approval',
+			description: 'Request user approval for the pending transaction.',
+			code: `// Request Transaction Approval
 const authUrl = \`https://auth.pingone.com/\${environmentId}/as/authorize\`;
 
 const authParams = new URLSearchParams({
@@ -381,15 +383,15 @@ const authParams = new URLSearchParams({
 
 const fullAuthUrl = \`\${authUrl}?\${authParams.toString()}\`;
 console.log('Transaction approval URL:', fullAuthUrl);`,
-      execute: async () => {
-        logger.info('TransactionApprovalFlow', 'Requesting transaction approval');
-      }
-    },
-    {
-      id: 'step-4',
-      title: 'Process Transaction Approval',
-      description: 'Handle the user\'s approval or denial of the transaction.',
-      code: `// Process Transaction Approval
+			execute: async () => {
+				logger.info('TransactionApprovalFlow', 'Requesting transaction approval');
+			},
+		},
+		{
+			id: 'step-4',
+			title: 'Process Transaction Approval',
+			description: "Handle the user's approval or denial of the transaction.",
+			code: `// Process Transaction Approval
 const approvalResponse = await fetch('/transaction/approve', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
@@ -412,33 +414,33 @@ if (approvalResponse.ok) {
     console.log('Transaction denied by user');
   }
 }`,
-      execute: async () => {
-        logger.info('TransactionApprovalFlow', 'Processing transaction approval');
-        
-        try {
-          // Simulate approval processing
-          const mockResponse = {
-            success: true,
-            message: 'Transaction approval processed',
-            transactionId: formData.transactionId,
-            approved: transactionApproved,
-            timestamp: new Date().toISOString()
-          };
+			execute: async () => {
+				logger.info('TransactionApprovalFlow', 'Processing transaction approval');
 
-          setResponse(prev => ({ ...prev, approval: mockResponse }));
-          setTransactionStep('complete');
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          setError(errorMessage);
-          throw error;
-        }
-      }
-    },
-    {
-      id: 'step-5',
-      title: 'Exchange Code for Tokens',
-      description: 'Exchange the authorization code for access and ID tokens.',
-      code: `// Exchange authorization code for tokens
+				try {
+					// Simulate approval processing
+					const mockResponse = {
+						success: true,
+						message: 'Transaction approval processed',
+						transactionId: formData.transactionId,
+						approved: transactionApproved,
+						timestamp: new Date().toISOString(),
+					};
+
+					setResponse((prev) => ({ ...prev, approval: mockResponse }));
+					setTransactionStep('complete');
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					throw error;
+				}
+			},
+		},
+		{
+			id: 'step-5',
+			title: 'Exchange Code for Tokens',
+			description: 'Exchange the authorization code for access and ID tokens.',
+			code: `// Exchange authorization code for tokens
 const tokenUrl = \`https://auth.pingone.com/\${environmentId}/as/token\`;
 
 const tokenData = new FormData();
@@ -466,244 +468,267 @@ if (tokenResponse.ok) {
   
   localStorage.setItem('oauth_tokens', JSON.stringify(tokensWithTransaction));
 }`,
-      execute: async () => {
-        logger.info('TransactionApprovalFlow', 'Exchanging code for tokens');
-        
-        try {
-          // Simulate token exchange
-          const mockTokens = {
-            access_token: 'mock_access_token_' + Date.now(),
-            id_token: 'mock_id_token_' + Date.now(),
-            token_type: 'Bearer',
-            expires_in: 3600,
-            scope: formData.scope,
-            refresh_token: 'mock_refresh_token_' + Date.now(),
-            transaction_id: formData.transactionId,
-            transaction_approved: true
-          };
+			execute: async () => {
+				logger.info('TransactionApprovalFlow', 'Exchanging code for tokens');
 
-          // Store tokens using the standardized method
-          const success = storeOAuthTokens(mockTokens, 'transaction-approval', 'Transaction Approval Flow');
-          
-          if (success) {
-            setResponse(prev => ({ ...prev, tokens: mockTokens }));
-          } else {
-            throw new Error('Failed to store tokens');
-          }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          setError(errorMessage);
-          throw error;
-        }
-      }
-    }
-  ];
+				try {
+					// Simulate token exchange
+					const mockTokens = {
+						access_token: 'mock_access_token_' + Date.now(),
+						id_token: 'mock_id_token_' + Date.now(),
+						token_type: 'Bearer',
+						expires_in: 3600,
+						scope: formData.scope,
+						refresh_token: 'mock_refresh_token_' + Date.now(),
+						transaction_id: formData.transactionId,
+						transaction_approved: true,
+					};
 
-  const handleStepChange = useCallback((step: number) => {
-    setCurrentStep(step);
-    setDemoStatus('idle');
-    setResponse(null);
-    setError(null);
-  }, []);
+					// Store tokens using the standardized method
+					const success = storeOAuthTokens(
+						mockTokens,
+						'transaction-approval',
+						'Transaction Approval Flow'
+					);
 
-  const handleStepResult = useCallback((step: number, result: unknown) => {
-    logger.info('TransactionApprovalFlow', `Step ${step + 1} completed`, result);
-  }, []);
+					if (success) {
+						setResponse((prev) => ({ ...prev, tokens: mockTokens }));
+					} else {
+						throw new Error('Failed to store tokens');
+					}
+				} catch (error) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setError(errorMessage);
+					throw error;
+				}
+			},
+		},
+	];
 
-  const handleTransactionApproval = (approved: boolean) => {
-    setTransactionApproved(approved);
-    logger.info('TransactionApprovalFlow', 'Transaction approval decision', { approved });
-  };
+	const handleStepChange = useCallback((step: number) => {
+		setCurrentStep(step);
+		setDemoStatus('idle');
+		setResponse(null);
+		setError(null);
+	}, []);
 
-  const handleTransactionComplete = () => {
-    setTransactionStep('initiate');
-    setTransactionApproved(null);
-    setResponse(null);
-    setError(null);
-  };
+	const handleStepResult = useCallback((step: number, result: unknown) => {
+		logger.info('TransactionApprovalFlow', `Step ${step + 1} completed`, result);
+	}, []);
 
-  return (
-    <FlowContainer>
-      <FlowTitle>Transaction Approval Flow</FlowTitle>
-      <FlowDescription>
-        This flow demonstrates transaction approval authorization. It requires users to 
-        explicitly approve specific transactions before receiving tokens, providing 
-        enhanced security for financial and sensitive operations.
-      </FlowDescription>
+	const handleTransactionApproval = (approved: boolean) => {
+		setTransactionApproved(approved);
+		logger.info('TransactionApprovalFlow', 'Transaction approval decision', { approved });
+	};
 
-      <InfoContainer>
-        <h4>💰 Transaction Approval Benefits</h4>
-        <p>
-          The Transaction Approval flow ensures users explicitly approve each transaction 
-          before authorization. This is particularly useful for financial applications, 
-          payment processing, and other sensitive operations where user consent is critical.
-        </p>
-      </InfoContainer>
+	const handleTransactionComplete = () => {
+		setTransactionStep('initiate');
+		setTransactionApproved(null);
+		setResponse(null);
+		setError(null);
+	};
 
-      <FlowCredentials
-        flowType="transaction-approval"
-        onCredentialsChange={(newCredentials) => {
-          setFormData(prev => ({
-            ...prev,
-            clientId: newCredentials.clientId || prev.clientId,
-            clientSecret: newCredentials.clientSecret || prev.clientSecret,
-            redirectUri: newCredentials.redirectUri || prev.redirectUri,
-            environmentId: newCredentials.environmentId || prev.environmentId
-          }));
-        }}
-      />
+	return (
+		<FlowContainer>
+			<FlowTitle>Transaction Approval Flow</FlowTitle>
+			<FlowDescription>
+				This flow demonstrates transaction approval authorization. It requires users to explicitly
+				approve specific transactions before receiving tokens, providing enhanced security for
+				financial and sensitive operations.
+			</FlowDescription>
 
-      <StepByStepFlow
-        steps={steps}
-        currentStep={currentStep}
-        onStepChange={handleStepChange}
-        onStepResult={handleStepResult}
-        onStart={() => setDemoStatus('loading')}
-        onReset={() => {
-          setCurrentStep(0);
-          setDemoStatus('idle');
-          setResponse(null);
-          setError(null);
-          setTransactionStep('initiate');
-          setTransactionApproved(null);
-        }}
-        status={demoStatus}
-        disabled={demoStatus === 'loading'}
-        title="Transaction Approval Flow Steps"
-      />
+			<InfoContainer>
+				<h4>💰 Transaction Approval Benefits</h4>
+				<p>
+					The Transaction Approval flow ensures users explicitly approve each transaction before
+					authorization. This is particularly useful for financial applications, payment processing,
+					and other sensitive operations where user consent is critical.
+				</p>
+			</InfoContainer>
 
-      {transactionStep === 'approve' && response && (
-        <TransactionContainer>
-          <TransactionTitle>Transaction Approval Required</TransactionTitle>
-          
-          <TransactionDetails>
-            <TransactionDetail>
-              <TransactionLabel>Transaction ID</TransactionLabel>
-              <TransactionValue>{response.transaction.id}</TransactionValue>
-            </TransactionDetail>
-            <TransactionDetail>
-              <TransactionLabel>Type</TransactionLabel>
-              <TransactionValue>{response.transaction.type}</TransactionValue>
-            </TransactionDetail>
-            <TransactionDetail>
-              <TransactionLabel>Amount</TransactionLabel>
-              <TransactionValue>{response.transaction.currency} {response.transaction.amount}</TransactionValue>
-            </TransactionDetail>
-            <TransactionDetail>
-              <TransactionLabel>Description</TransactionLabel>
-              <TransactionValue>{response.transaction.description}</TransactionValue>
-            </TransactionDetail>
-            <TransactionDetail>
-              <TransactionLabel>Status</TransactionLabel>
-              <TransactionValue>{response.transaction.status}</TransactionValue>
-            </TransactionDetail>
-            <TransactionDetail>
-              <TransactionLabel>Timestamp</TransactionLabel>
-              <TransactionValue>{new Date(response.transaction.timestamp).toLocaleString()}</TransactionValue>
-            </TransactionDetail>
-          </TransactionDetails>
+			<FlowCredentials
+				flowType="transaction-approval"
+				onCredentialsChange={(newCredentials) => {
+					setFormData((prev) => ({
+						...prev,
+						clientId: newCredentials.clientId || prev.clientId,
+						clientSecret: newCredentials.clientSecret || prev.clientSecret,
+						redirectUri: newCredentials.redirectUri || prev.redirectUri,
+						environmentId: newCredentials.environmentId || prev.environmentId,
+					}));
+				}}
+			/>
 
-          <ApprovalContainer>
-            <ApprovalQuestion>
-              Do you approve this transaction?
-            </ApprovalQuestion>
-            <ApprovalButtons>
-              <Button $variant="success" onClick={() => handleTransactionApproval(true)}>
-                Approve Transaction
-              </Button>
-              <Button $variant="danger" onClick={() => handleTransactionApproval(false)}>
-                Deny Transaction
-              </Button>
-            </ApprovalButtons>
-          </ApprovalContainer>
-        </TransactionContainer>
-      )}
+			<StepByStepFlow
+				steps={steps}
+				currentStep={currentStep}
+				onStepChange={handleStepChange}
+				onStepResult={handleStepResult}
+				onStart={() => setDemoStatus('loading')}
+				onReset={() => {
+					setCurrentStep(0);
+					setDemoStatus('idle');
+					setResponse(null);
+					setError(null);
+					setTransactionStep('initiate');
+					setTransactionApproved(null);
+				}}
+				status={demoStatus}
+				disabled={demoStatus === 'loading'}
+				title="Transaction Approval Flow Steps"
+			/>
 
-      {transactionStep === 'complete' && (
-        <TransactionContainer>
-          <TransactionTitle>Transaction Approval Complete</TransactionTitle>
-          <p>
-            Transaction {transactionApproved ? 'approved' : 'denied'} successfully. 
-            {transactionApproved ? ' Proceeding with authorization flow.' : ' Authorization cancelled.'}
-          </p>
-          
-          <Button $variant="primary" onClick={handleTransactionComplete}>
-            Start New Transaction
-          </Button>
-        </TransactionContainer>
-      )}
+			{transactionStep === 'approve' && response && (
+				<TransactionContainer>
+					<TransactionTitle>Transaction Approval Required</TransactionTitle>
 
-      {response && (
-        <ResponseContainer>
-          <h4>Response:</h4>
-          <CodeBlock>
-            <JSONHighlighter data={response} />
-          </CodeBlock>
-        </ResponseContainer>
-      )}
+					<TransactionDetails>
+						<TransactionDetail>
+							<TransactionLabel>Transaction ID</TransactionLabel>
+							<TransactionValue>{response.transaction.id}</TransactionValue>
+						</TransactionDetail>
+						<TransactionDetail>
+							<TransactionLabel>Type</TransactionLabel>
+							<TransactionValue>{response.transaction.type}</TransactionValue>
+						</TransactionDetail>
+						<TransactionDetail>
+							<TransactionLabel>Amount</TransactionLabel>
+							<TransactionValue>
+								{response.transaction.currency} {response.transaction.amount}
+							</TransactionValue>
+						</TransactionDetail>
+						<TransactionDetail>
+							<TransactionLabel>Description</TransactionLabel>
+							<TransactionValue>{response.transaction.description}</TransactionValue>
+						</TransactionDetail>
+						<TransactionDetail>
+							<TransactionLabel>Status</TransactionLabel>
+							<TransactionValue>{response.transaction.status}</TransactionValue>
+						</TransactionDetail>
+						<TransactionDetail>
+							<TransactionLabel>Timestamp</TransactionLabel>
+							<TransactionValue>
+								{new Date(response.transaction.timestamp).toLocaleString()}
+							</TransactionValue>
+						</TransactionDetail>
+					</TransactionDetails>
 
-      {error && (
-        <ErrorContainer>
-          <h4>Error:</h4>
-          <p>{error}</p>
-        </ErrorContainer>
-      )}
+					<ApprovalContainer>
+						<ApprovalQuestion>Do you approve this transaction?</ApprovalQuestion>
+						<ApprovalButtons>
+							<Button $variant="success" onClick={() => handleTransactionApproval(true)}>
+								Approve Transaction
+							</Button>
+							<Button $variant="danger" onClick={() => handleTransactionApproval(false)}>
+								Deny Transaction
+							</Button>
+						</ApprovalButtons>
+					</ApprovalContainer>
+				</TransactionContainer>
+			)}
 
-      <FormContainer>
-        <h3>Manual Transaction Configuration</h3>
-        <p>You can also manually configure the transaction approval flow:</p>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-          <FormGroup>
-            <Label>Transaction Type</Label>
-            <Select
-              value={formData.transactionType}
-              onChange={(e) => setFormData(prev => ({ ...prev, transactionType: e.target.value }))}
-            >
-              <option value="payment">Payment</option>
-              <option value="transfer">Transfer</option>
-              <option value="withdrawal">Withdrawal</option>
-              <option value="deposit">Deposit</option>
-              <option value="refund">Refund</option>
-            </Select>
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>Amount</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={formData.transactionAmount}
-              onChange={(e) => setFormData(prev => ({ ...prev, transactionAmount: e.target.value }))}
-            />
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>Currency</Label>
-            <Select
-              value={formData.transactionCurrency}
-              onChange={(e) => setFormData(prev => ({ ...prev, transactionCurrency: e.target.value }))}
-            >
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="GBP">GBP</option>
-              <option value="JPY">JPY</option>
-              <option value="CAD">CAD</option>
-            </Select>
-          </FormGroup>
-          
-          <FormGroup>
-            <Label>Description</Label>
-            <Input
-              type="text"
-              value={formData.transactionDescription}
-              onChange={(e) => setFormData(prev => ({ ...prev, transactionDescription: e.target.value }))}
-            />
-          </FormGroup>
-        </div>
-      </FormContainer>
-    </FlowContainer>
-  );
+			{transactionStep === 'complete' && (
+				<TransactionContainer>
+					<TransactionTitle>Transaction Approval Complete</TransactionTitle>
+					<p>
+						Transaction {transactionApproved ? 'approved' : 'denied'} successfully.
+						{transactionApproved
+							? ' Proceeding with authorization flow.'
+							: ' Authorization cancelled.'}
+					</p>
+
+					<Button $variant="primary" onClick={handleTransactionComplete}>
+						Start New Transaction
+					</Button>
+				</TransactionContainer>
+			)}
+
+			{response && (
+				<ResponseContainer>
+					<h4>Response:</h4>
+					<CodeBlock>
+						<JSONHighlighter data={response} />
+					</CodeBlock>
+				</ResponseContainer>
+			)}
+
+			{error && (
+				<ErrorContainer>
+					<h4>Error:</h4>
+					<p>{error}</p>
+				</ErrorContainer>
+			)}
+
+			<FormContainer>
+				<h3>Manual Transaction Configuration</h3>
+				<p>You can also manually configure the transaction approval flow:</p>
+
+				<div
+					style={{
+						display: 'grid',
+						gridTemplateColumns: '1fr 1fr',
+						gap: '1rem',
+						marginBottom: '1rem',
+					}}
+				>
+					<FormGroup>
+						<Label>Transaction Type</Label>
+						<Select
+							value={formData.transactionType}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, transactionType: e.target.value }))
+							}
+						>
+							<option value="payment">Payment</option>
+							<option value="transfer">Transfer</option>
+							<option value="withdrawal">Withdrawal</option>
+							<option value="deposit">Deposit</option>
+							<option value="refund">Refund</option>
+						</Select>
+					</FormGroup>
+
+					<FormGroup>
+						<Label>Amount</Label>
+						<Input
+							type="number"
+							step="0.01"
+							value={formData.transactionAmount}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, transactionAmount: e.target.value }))
+							}
+						/>
+					</FormGroup>
+
+					<FormGroup>
+						<Label>Currency</Label>
+						<Select
+							value={formData.transactionCurrency}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, transactionCurrency: e.target.value }))
+							}
+						>
+							<option value="USD">USD</option>
+							<option value="EUR">EUR</option>
+							<option value="GBP">GBP</option>
+							<option value="JPY">JPY</option>
+							<option value="CAD">CAD</option>
+						</Select>
+					</FormGroup>
+
+					<FormGroup>
+						<Label>Description</Label>
+						<Input
+							type="text"
+							value={formData.transactionDescription}
+							onChange={(e) =>
+								setFormData((prev) => ({ ...prev, transactionDescription: e.target.value }))
+							}
+						/>
+					</FormGroup>
+				</div>
+			</FormContainer>
+		</FlowContainer>
+	);
 };
 
 export default TransactionApprovalFlow;

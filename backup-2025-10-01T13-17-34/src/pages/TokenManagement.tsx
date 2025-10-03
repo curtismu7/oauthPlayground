@@ -637,7 +637,7 @@ const TokenManagement = () => {
 		return sessionStorage.getItem('flow_source') || '';
 	});
 
-	const isOAuthFlow = (flowSourceState.includes('oauth') && !flowSourceState.includes('oidc'));
+	const isOAuthFlow = flowSourceState.includes('oauth') && !flowSourceState.includes('oidc');
 	const isOIDCFlow = flowSourceState.includes('oidc') || flowSourceState.includes('enhanced');
 
 	console.log(' [TokenManagement] Flow source detection:', {
@@ -783,68 +783,74 @@ const TokenManagement = () => {
 		return `${encodedHeader}.${encodedPayload}.${noSignature}`;
 	};
 
-	const decodeJWT = useCallback((token: string) => {
-		try {
-			if (!token || token.trim() === '') {
-				throw new Error('Please enter a JWT token');
-			}
-
-			console.log(' [TokenManagement] Attempting to decode token:', `${token.substring(0, 50)}...`);
-
-			const parts = token.split('.');
-			console.log(' [TokenManagement] Token parts count:', parts.length);
-
-			if (parts.length !== 3) {
-				throw new Error('Invalid JWT format. JWT should have 3 parts separated by dots.');
-			}
-
-			// Helper function to decode base64url
-			const base64UrlDecode = (str: string): string => {
-				// Add padding if needed
-				const padding = '='.repeat((4 - (str.length % 4)) % 4);
-				const base64 = str.replace(/-/g, '+').replace(/_/g, '/') + padding;
-				return atob(base64);
-			};
-
+	const decodeJWT = useCallback(
+		(token: string) => {
 			try {
-				const headerDecoded = base64UrlDecode(parts[0]);
-				const payloadDecoded = base64UrlDecode(parts[1]);
-
-				console.log(' [TokenManagement] Successfully decoded JWT header');
-				console.log(' [TokenManagement] Successfully decoded JWT payload');
-
-				setJwtHeader(headerDecoded);
-				setJwtPayload(payloadDecoded);
-				setTokenStatus('valid');
-
-				// Update token string only if it's different (to avoid unnecessary re-renders)
-				if (tokenString !== token) {
-					setTokenString(token);
+				if (!token || token.trim() === '') {
+					throw new Error('Please enter a JWT token');
 				}
-			} catch (parseError) {
-				console.error(' [TokenManagement] Error parsing JWT:', parseError);
+
+				console.log(
+					' [TokenManagement] Attempting to decode token:',
+					`${token.substring(0, 50)}...`
+				);
+
+				const parts = token.split('.');
+				console.log(' [TokenManagement] Token parts count:', parts.length);
+
+				if (parts.length !== 3) {
+					throw new Error('Invalid JWT format. JWT should have 3 parts separated by dots.');
+				}
+
+				// Helper function to decode base64url
+				const base64UrlDecode = (str: string): string => {
+					// Add padding if needed
+					const padding = '='.repeat((4 - (str.length % 4)) % 4);
+					const base64 = str.replace(/-/g, '+').replace(/_/g, '/') + padding;
+					return atob(base64);
+				};
+
+				try {
+					const headerDecoded = base64UrlDecode(parts[0]);
+					const payloadDecoded = base64UrlDecode(parts[1]);
+
+					console.log(' [TokenManagement] Successfully decoded JWT header');
+					console.log(' [TokenManagement] Successfully decoded JWT payload');
+
+					setJwtHeader(headerDecoded);
+					setJwtPayload(payloadDecoded);
+					setTokenStatus('valid');
+
+					// Update token string only if it's different (to avoid unnecessary re-renders)
+					if (tokenString !== token) {
+						setTokenString(token);
+					}
+				} catch (parseError) {
+					console.error(' [TokenManagement] Error parsing JWT:', parseError);
+					setJwtHeader('');
+					setJwtPayload('');
+					setTokenStatus('invalid');
+					throw new Error(`Failed to parse JWT: ${parseError}`);
+				}
+			} catch (error) {
+				console.error(' [TokenManagement] JWT decode error:', error);
 				setJwtHeader('');
 				setJwtPayload('');
 				setTokenStatus('invalid');
-				throw new Error(`Failed to parse JWT: ${parseError}`);
-			}
-		} catch (error) {
-			console.error(' [TokenManagement] JWT decode error:', error);
-			setJwtHeader('');
-			setJwtPayload('');
-			setTokenStatus('invalid');
 
-			if (error instanceof Error) {
-				setTokenSource({
-					source: 'Error',
-					description: error.message,
-					timestamp: new Date().toLocaleString(),
-				});
-			}
+				if (error instanceof Error) {
+					setTokenSource({
+						source: 'Error',
+						description: error.message,
+						timestamp: new Date().toLocaleString(),
+					});
+				}
 
-			throw error;
-		}
-	}, [tokenString]);
+				throw error;
+			}
+		},
+		[tokenString]
+	);
 
 	// Update the token type when user selects a specific token
 	const updateSelectedTokenType = (type: string) => {
@@ -853,10 +859,13 @@ const TokenManagement = () => {
 
 	useEffect(() => {
 		const checkForPassedToken = () => {
-			// Check both localStorage (for cross-tab) and sessionStorage (for same-tab) 
-			const tokenToAnalyze = localStorage.getItem('token_to_analyze') || sessionStorage.getItem('token_to_analyze');
-			const tokenType = localStorage.getItem('token_type') || sessionStorage.getItem('token_type') || 'access';
-			const flowSource = localStorage.getItem('flow_source') || sessionStorage.getItem('flow_source') || 'unknown';
+			// Check both localStorage (for cross-tab) and sessionStorage (for same-tab)
+			const tokenToAnalyze =
+				localStorage.getItem('token_to_analyze') || sessionStorage.getItem('token_to_analyze');
+			const tokenType =
+				localStorage.getItem('token_type') || sessionStorage.getItem('token_type') || 'access';
+			const flowSource =
+				localStorage.getItem('flow_source') || sessionStorage.getItem('flow_source') || 'unknown';
 
 			// Update the last selected token type
 			lastSelectedTokenType.current = tokenType;
@@ -950,7 +959,9 @@ const TokenManagement = () => {
 
 				// Skip auto-loading if user has manually selected a token
 				if (lastSelectedTokenType.current && tokenString) {
-					console.log(`[TokenManagement] User has selected ${lastSelectedTokenType.current}, skipping auto-load`);
+					console.log(
+						`[TokenManagement] User has selected ${lastSelectedTokenType.current}, skipping auto-load`
+					);
 					return;
 				}
 
@@ -1128,7 +1139,9 @@ const TokenManagement = () => {
 				}
 			} else {
 				console.log(' [TokenManagement] No current access token available');
-				v4ToastManager.showError('No access token found - please generate tokens first or load from storage');
+				v4ToastManager.showError(
+					'No access token found - please generate tokens first or load from storage'
+				);
 			}
 		} catch (error) {
 			console.error(' [TokenManagement] Error getting token:', error);
@@ -1273,11 +1286,20 @@ const TokenManagement = () => {
 			let allCredentials: IntrospectionCredentials = {};
 
 			// Load credentials based on the flow source
-			if (flowSourceState.includes('oidc-v3') || flowSourceState.includes('oauth-v3') || flowSourceState.includes('authorization-code-v5') || flowSourceState.includes('oidc-authorization-code-v5') || flowSourceState.includes('oauth-authorization-code-v5')) {
+			if (
+				flowSourceState.includes('oidc-v3') ||
+				flowSourceState.includes('oauth-v3') ||
+				flowSourceState.includes('authorization-code-v5') ||
+				flowSourceState.includes('oidc-authorization-code-v5') ||
+				flowSourceState.includes('oauth-authorization-code-v5')
+			) {
 				// For OIDC/OAuth V3/V5 flows, use authz flow credentials
 				allCredentials = credentialManager.loadAuthzFlowCredentials();
 				console.log(' [TokenManagement] Loaded authz flow credentials for OIDC/OAuth V3/V5');
-			} else if (flowSourceState.includes('worker-token-v3') || flowSourceState.includes('worker-token-v5')) {
+			} else if (
+				flowSourceState.includes('worker-token-v3') ||
+				flowSourceState.includes('worker-token-v5')
+			) {
 				// For Worker Token V3/V5, use worker flow credentials
 				allCredentials = credentialManager.loadWorkerFlowCredentials();
 				console.log(' [TokenManagement] Loaded worker flow credentials');
@@ -1411,13 +1433,13 @@ const TokenManagement = () => {
 
 			// Store introspection results for display
 			setIntrospectionResults(data);
-			
+
 			// Scroll to introspection results section
 			setTimeout(() => {
 				if (introspectionSectionRef.current) {
 					introspectionSectionRef.current.scrollIntoView({
 						behavior: 'smooth',
-						block: 'start'
+						block: 'start',
 					});
 				}
 			}, 100);
@@ -1980,7 +2002,8 @@ const TokenManagement = () => {
 							marginTop: '0.75rem',
 						}}
 					>
-						<strong>Flow Source:</strong> {flowSourceState.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+						<strong>Flow Source:</strong>{' '}
+						{flowSourceState.replace(/-/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
 					</div>
 				)}
 			</div>
@@ -2022,7 +2045,11 @@ const TokenManagement = () => {
 							<div className="detail">
 								<span className="label">Scope</span>
 								<span className="value">
-									{tokens?.scope || (Array.isArray(tokenTypeInfo?.scopes) ? tokenTypeInfo.scopes.join(' ') : tokenTypeInfo?.scopes) || 'openid profile email'}
+									{tokens?.scope ||
+										(Array.isArray(tokenTypeInfo?.scopes)
+											? tokenTypeInfo.scopes.join(' ')
+											: tokenTypeInfo?.scopes) ||
+										'openid profile email'}
 								</span>
 							</div>
 							<div className="detail">
@@ -2166,7 +2193,6 @@ const TokenManagement = () => {
 							</div>
 						</div>
 					)}
-
 				</CardBody>
 			</TokenSection>
 
@@ -2294,11 +2320,7 @@ const TokenManagement = () => {
 						}}
 					>
 						<FiShield />
-						{isLoading
-							? 'Getting...'
-							: isOAuthFlow
-								? 'Get ID Token (OAuth N/A)'
-								: 'Get ID Token'}
+						{isLoading ? 'Getting...' : isOAuthFlow ? 'Get ID Token (OAuth N/A)' : 'Get ID Token'}
 					</ActionButton>
 
 					<ActionButton
@@ -2405,10 +2427,7 @@ const TokenManagement = () => {
 							console.log(' [TokenManagement] Loading tokens from storage...');
 							const storedTokens = getOAuthTokens();
 
-							console.log(
-								' [TokenManagement] Stored tokens from getOAuthTokens():',
-								storedTokens
-							);
+							console.log(' [TokenManagement] Stored tokens from getOAuthTokens():', storedTokens);
 
 							if (storedTokens?.access_token) {
 								console.log(' [TokenManagement] Found stored tokens, loading...');
@@ -2484,7 +2503,9 @@ const TokenManagement = () => {
 									setTimeout(() => decodeJWT(storedTokens.access_token), 100);
 
 									// Show success message
-									v4ToastManager.showSuccess('Sample JWT loaded - this demonstrates a typical token structure');
+									v4ToastManager.showSuccess(
+										'Sample JWT loaded - this demonstrates a typical token structure'
+									);
 								} else {
 									v4ToastManager.showWarning('saveConfigurationStart');
 								}
@@ -2648,168 +2669,168 @@ const TokenManagement = () => {
 			{introspectionResults && (
 				<div ref={introspectionSectionRef}>
 					<TokenSection>
-					<CardHeader>
-						<h2> Token Introspection</h2>
-					</CardHeader>
-					<CardBody>
-						<div
-							style={{
-								border: '1px solid #dbeafe',
-								borderRadius: '10px',
-								background: '#f8fbff',
-								padding: '1.75rem',
-							}}
-						>
+						<CardHeader>
+							<h2> Token Introspection</h2>
+						</CardHeader>
+						<CardBody>
 							<div
 								style={{
-									display: 'flex',
-									alignItems: 'center',
-									gap: '0.75rem',
-									marginBottom: '1.5rem',
+									border: '1px solid #dbeafe',
+									borderRadius: '10px',
+									background: '#f8fbff',
+									padding: '1.75rem',
 								}}
 							>
 								<div
 									style={{
-										background: introspectionResults.active ? '#16a34a' : '#dc2626',
-										borderRadius: '50%',
-										width: '2.5rem',
-										height: '2.5rem',
 										display: 'flex',
 										alignItems: 'center',
-										justifyContent: 'center',
-										boxShadow: `0 8px 20px ${introspectionResults.active ? 'rgba(22, 163, 74, 0.25)' : 'rgba(220, 38, 38, 0.25)'}`,
+										gap: '0.75rem',
+										marginBottom: '1.5rem',
 									}}
 								>
-									{introspectionResults.active ? <FiShield size={18} color="white" /> : ''}
-								</div>
-								<div>
 									<div
 										style={{
-											margin: 0,
-											fontSize: '1.1rem',
-											fontWeight: 700,
-											color: introspectionResults.active ? '#166534' : '#b91c1c',
+											background: introspectionResults.active ? '#16a34a' : '#dc2626',
+											borderRadius: '50%',
+											width: '2.5rem',
+											height: '2.5rem',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											boxShadow: `0 8px 20px ${introspectionResults.active ? 'rgba(22, 163, 74, 0.25)' : 'rgba(220, 38, 38, 0.25)'}`,
 										}}
 									>
-										{introspectionResults.active ? 'Token is Active' : 'Token is Inactive'}
+										{introspectionResults.active ? <FiShield size={18} color="white" /> : ''}
 									</div>
-									<p
-										style={{
-											margin: '0.35rem 0 0 0',
-											color: '#475569',
-											fontSize: '0.875rem',
-										}}
-									>
-										PingOne{' '}
-										{introspectionResults.active
-											? 'validated this token.'
-											: 'reported this token as inactive.'}
-									</p>
+									<div>
+										<div
+											style={{
+												margin: 0,
+												fontSize: '1.1rem',
+												fontWeight: 700,
+												color: introspectionResults.active ? '#166534' : '#b91c1c',
+											}}
+										>
+											{introspectionResults.active ? 'Token is Active' : 'Token is Inactive'}
+										</div>
+										<p
+											style={{
+												margin: '0.35rem 0 0 0',
+												color: '#475569',
+												fontSize: '0.875rem',
+											}}
+										>
+											PingOne{' '}
+											{introspectionResults.active
+												? 'validated this token.'
+												: 'reported this token as inactive.'}
+										</p>
+									</div>
 								</div>
-							</div>
 
-							{/* Token Status */}
-							{renderIntrospectionItem(
-								'Token Status',
-								introspectionResults.active ? '✅ Active' : '❌ Inactive'
-							)}
+								{/* Token Status */}
+								{renderIntrospectionItem(
+									'Token Status',
+									introspectionResults.active ? '✅ Active' : '❌ Inactive'
+								)}
 
-							<div
-								style={{
-									display: 'grid',
-									gap: '1rem',
-									gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-								}}
-							>
-								{/* Core Token Information */}
-								{renderIntrospectionItem('Client ID', introspectionResults.client_id)}
-								{renderIntrospectionItem('Subject', introspectionResults.sub)}
-								{renderIntrospectionItem('Username', introspectionResults.username)}
-								{renderIntrospectionItem('Token Type', introspectionResults.token_type)}
-								{renderIntrospectionItem('Scope', introspectionResults.scope)}
-								
-								{/* Token Metadata */}
-								{renderIntrospectionItem('Audience', introspectionResults.aud)}
-								{renderIntrospectionItem('Issuer', introspectionResults.iss)}
-								{renderIntrospectionItem('JWT ID', introspectionResults.jti)}
-								
-								{/* Timestamps */}
-								{renderIntrospectionItem(
-									'Issued At',
-									introspectionResults.iat ? formatTimestamp(introspectionResults.iat) : undefined
-								)}
-								{renderIntrospectionItem(
-									'Not Before',
-									introspectionResults.nbf ? formatTimestamp(introspectionResults.nbf) : undefined
-								)}
-								{renderIntrospectionItem(
-									'Expires At',
-									introspectionResults.exp ? formatTimestamp(introspectionResults.exp) : undefined
-								)}
-								{/* ID Token specific fields */}
-								{!isAccessToken &&
-									introspectionResults.auth_time &&
-									renderIntrospectionItem(
-										'Auth Time',
-										formatTimestamp(introspectionResults.auth_time)
-									)}
-								{!isAccessToken &&
-									introspectionResults.nonce &&
-									renderIntrospectionItem('Nonce', introspectionResults.nonce)}
-								{!isAccessToken &&
-									introspectionResults.acr &&
-									renderIntrospectionItem('ACR', introspectionResults.acr)}
-								{!isAccessToken &&
-									introspectionResults.amr &&
-									renderIntrospectionItem(
-										'AMR',
-										Array.isArray(introspectionResults.amr)
-											? introspectionResults.amr.join(', ')
-											: introspectionResults.amr
-									)}
-								{!isAccessToken &&
-									introspectionResults.at_hash &&
-									renderIntrospectionItem('AT Hash', introspectionResults.at_hash)}
-								{!isAccessToken &&
-									introspectionResults.c_hash &&
-									renderIntrospectionItem('C Hash', introspectionResults.c_hash)}
-							</div>
-
-							{introspectionResults.username && (
 								<div
 									style={{
-										marginTop: '1.25rem',
-										paddingTop: '1.25rem',
-										borderTop: '1px solid #e2e8f0',
+										display: 'grid',
+										gap: '1rem',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
 									}}
 								>
-									<div
-										style={{
-											fontWeight: 600,
-											fontSize: '0.95rem',
-											color: '#2563eb',
-											marginBottom: '0.75rem',
-										}}
-									>
-										Subject Details
-									</div>
-									<div
-										style={{
-											display: 'grid',
-											gap: '0.75rem',
-											gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-										}}
-									>
-										{renderIntrospectionItem('Username', introspectionResults.username)}
-										{renderIntrospectionItem('Email', introspectionResults.email)}
-										{renderIntrospectionItem('Given Name', introspectionResults.given_name)}
-										{renderIntrospectionItem('Family Name', introspectionResults.family_name)}
-									</div>
+									{/* Core Token Information */}
+									{renderIntrospectionItem('Client ID', introspectionResults.client_id)}
+									{renderIntrospectionItem('Subject', introspectionResults.sub)}
+									{renderIntrospectionItem('Username', introspectionResults.username)}
+									{renderIntrospectionItem('Token Type', introspectionResults.token_type)}
+									{renderIntrospectionItem('Scope', introspectionResults.scope)}
+
+									{/* Token Metadata */}
+									{renderIntrospectionItem('Audience', introspectionResults.aud)}
+									{renderIntrospectionItem('Issuer', introspectionResults.iss)}
+									{renderIntrospectionItem('JWT ID', introspectionResults.jti)}
+
+									{/* Timestamps */}
+									{renderIntrospectionItem(
+										'Issued At',
+										introspectionResults.iat ? formatTimestamp(introspectionResults.iat) : undefined
+									)}
+									{renderIntrospectionItem(
+										'Not Before',
+										introspectionResults.nbf ? formatTimestamp(introspectionResults.nbf) : undefined
+									)}
+									{renderIntrospectionItem(
+										'Expires At',
+										introspectionResults.exp ? formatTimestamp(introspectionResults.exp) : undefined
+									)}
+									{/* ID Token specific fields */}
+									{!isAccessToken &&
+										introspectionResults.auth_time &&
+										renderIntrospectionItem(
+											'Auth Time',
+											formatTimestamp(introspectionResults.auth_time)
+										)}
+									{!isAccessToken &&
+										introspectionResults.nonce &&
+										renderIntrospectionItem('Nonce', introspectionResults.nonce)}
+									{!isAccessToken &&
+										introspectionResults.acr &&
+										renderIntrospectionItem('ACR', introspectionResults.acr)}
+									{!isAccessToken &&
+										introspectionResults.amr &&
+										renderIntrospectionItem(
+											'AMR',
+											Array.isArray(introspectionResults.amr)
+												? introspectionResults.amr.join(', ')
+												: introspectionResults.amr
+										)}
+									{!isAccessToken &&
+										introspectionResults.at_hash &&
+										renderIntrospectionItem('AT Hash', introspectionResults.at_hash)}
+									{!isAccessToken &&
+										introspectionResults.c_hash &&
+										renderIntrospectionItem('C Hash', introspectionResults.c_hash)}
 								</div>
-							)}
-						</div>
-					</CardBody>
-				</TokenSection>
+
+								{introspectionResults.username && (
+									<div
+										style={{
+											marginTop: '1.25rem',
+											paddingTop: '1.25rem',
+											borderTop: '1px solid #e2e8f0',
+										}}
+									>
+										<div
+											style={{
+												fontWeight: 600,
+												fontSize: '0.95rem',
+												color: '#2563eb',
+												marginBottom: '0.75rem',
+											}}
+										>
+											Subject Details
+										</div>
+										<div
+											style={{
+												display: 'grid',
+												gap: '0.75rem',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+											}}
+										>
+											{renderIntrospectionItem('Username', introspectionResults.username)}
+											{renderIntrospectionItem('Email', introspectionResults.email)}
+											{renderIntrospectionItem('Given Name', introspectionResults.given_name)}
+											{renderIntrospectionItem('Family Name', introspectionResults.family_name)}
+										</div>
+									</div>
+								)}
+							</div>
+						</CardBody>
+					</TokenSection>
 				</div>
 			)}
 
@@ -3133,7 +3154,10 @@ const TokenManagement = () => {
 												)}
 												{tokenTypeInfo()?.scopes && (
 													<div>
-														<strong>Scopes:</strong> {Array.isArray(tokenTypeInfo()?.scopes) ? tokenTypeInfo().scopes.join(', ') : tokenTypeInfo()?.scopes}
+														<strong>Scopes:</strong>{' '}
+														{Array.isArray(tokenTypeInfo()?.scopes)
+															? tokenTypeInfo().scopes.join(', ')
+															: tokenTypeInfo()?.scopes}
 													</div>
 												)}
 											</div>
