@@ -967,6 +967,7 @@ console.log('Token validation result:', validation);`,
 											resourceSecret: e.target.value,
 										}))
 									}
+									autoComplete="current-password"
 									placeholder="Enter resource secret"
 								/>
 							</FormGroup>

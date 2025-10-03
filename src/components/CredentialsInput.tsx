@@ -170,7 +170,8 @@ export const CredentialsInput = ({
 	};
 
 	return (
-		<FormGrid>
+		<form>
+			<FormGrid>
 			<FormField>
 				<FormLabel>
 					Environment ID <span style={{ color: '#ef4444' }}>*</span>
@@ -270,6 +271,7 @@ export const CredentialsInput = ({
 							style={{ paddingRight: '5rem' }}
 							disabled={false}
 							readOnly={false}
+							autoComplete="current-password"
 						/>
 						<IconButton
 							type="button"
@@ -475,6 +477,7 @@ export const CredentialsInput = ({
 				</FormField>
 			)}
 		</FormGrid>
+		</form>
 	);
 };
 

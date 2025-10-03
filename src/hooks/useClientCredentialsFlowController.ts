@@ -44,6 +44,9 @@ export interface ClientCredentialsConfig {
 	// Token lifetime settings
 	accessTokenLifetime?: number;
 	refreshTokenLifetime?: number;
+
+	// Security settings
+	includeX5tParameter?: boolean;
 }
 
 export interface ClientCredentialsTokens {
@@ -342,6 +345,7 @@ export const useClientCredentialsFlowController = (
 			if (flowConfig.scopes) requestBody.append('scope', flowConfig.scopes);
 			if (flowConfig.audience) requestBody.append('audience', flowConfig.audience);
 			if (flowConfig.resource) requestBody.append('resource', flowConfig.resource);
+			if (flowConfig.includeX5tParameter) requestBody.append('request_x5t', 'true');
 
 			// Apply client authentication
 			const { headers, body } = await applyClientAuthentication(flowConfig, requestBody);
@@ -449,15 +453,14 @@ export const useClientCredentialsFlowController = (
 
 	// Reset flow
 	const resetFlow = useCallback(() => {
-		setCredentials(createEmptyCredentials());
+		// Reset flow state but preserve credentials
 		setFlowConfig(createEmptyConfig());
 		setTokens(null);
 		setDecodedToken(null);
-		setHasCredentialsSaved(false);
 		setHasUnsavedCredentialChanges(false);
 		stepManager.resetFlow();
 		scrollToTopAfterAction();
-		showGlobalSuccess('Flow reset successfully');
+		showGlobalSuccess('Flow reset successfully. Credentials preserved.');
 	}, [stepManager, scrollToTopAfterAction]);
 
 	// Copy handler

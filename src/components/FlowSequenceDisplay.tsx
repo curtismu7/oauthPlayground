@@ -218,7 +218,8 @@ interface FlowSequenceDisplayProps {
 		| 'worker-token'
 		| 'token-introspection'
 		| 'token-revocation'
-		| 'user-info';
+		| 'user-info'
+		| 'rar';
 }
 
 export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowType }) => {

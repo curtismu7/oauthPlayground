@@ -405,24 +405,24 @@ export const useWorkerTokenFlowController = (
 	}, [credentials]);
 
 	const resetFlow = useCallback(() => {
-		console.log('🔄 [useWorkerTokenFlowController] Reset flow called');
+		console.log('🔄 [useWorkerTokenFlowController] Reset flow called (preserving credentials)');
 
-		setCredentials(createEmptyCredentials());
+		// Reset flow state but preserve credentials
 		setTokens(null);
 		setIntrospectionResults(null);
 		setIsRequestingToken(false);
 		setIsIntrospecting(false);
-		setHasCredentialsSaved(false);
 		setHasUnsavedCredentialChanges(false);
 
 		clearStepResults();
 		stepManager.resetFlow();
 
-		originalCredentialsRef.current = null;
+		// Reset original credentials reference to current credentials
+		originalCredentialsRef.current = { ...credentials };
 
-		console.log('✅ [useWorkerTokenFlowController] Flow reset completed');
-		showGlobalSuccess('Worker Token Flow reset successfully!');
-	}, [clearStepResults, stepManager]);
+		console.log('✅ [useWorkerTokenFlowController] Flow reset completed (credentials preserved)');
+		showGlobalSuccess('Worker Token Flow reset successfully! Credentials preserved.');
+	}, [clearStepResults, stepManager, credentials]);
 
 	const loadCredentials = useCallback((config: StepCredentials) => {
 		console.log('📥 [useWorkerTokenFlowController] Loading credentials from config');

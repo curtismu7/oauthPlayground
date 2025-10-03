@@ -42,7 +42,7 @@ const showCopySuccess = (label: string) => {
 
 	document.body.appendChild(successMsg);
 
-	// Remove after 3 seconds with fade out
+	// Remove after 4 seconds with fade out (increased from 3 seconds)
 	setTimeout(() => {
 		successMsg.style.animation = 'slideOutRight 0.3s ease-in';
 		setTimeout(() => {
@@ -50,7 +50,7 @@ const showCopySuccess = (label: string) => {
 				successMsg.parentNode.removeChild(successMsg);
 			}
 		}, 300);
-	}, 3000);
+	}, 4000);
 };
 
 /**

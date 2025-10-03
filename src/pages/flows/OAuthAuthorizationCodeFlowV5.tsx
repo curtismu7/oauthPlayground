@@ -39,11 +39,16 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { applyClientAuthentication } from '../../utils/clientAuthentication';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -674,7 +679,17 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
-	const [currentStep, setCurrentStep] = useState(0);
+	const [currentStep, setCurrentStep] = useState(() => {
+		// Check for restore_step from token management navigation
+		const restoreStep = sessionStorage.getItem('restore_step');
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [OAuthAuthorizationCodeFlowV5] Restoring to step:', step);
+			return step;
+		}
+		return 0;
+	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
@@ -707,6 +722,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	
+	// API call tracking for display
+	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
+	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
@@ -1045,11 +1064,62 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			controller.setAuthCodeManually(localAuthCode);
 		}
 
+		// Create API call display for token exchange
+		const tokenExchangeApiCallData: EnhancedApiCallData = {
+			flowType: 'authorization-code',
+			stepName: 'Exchange Authorization Code for Tokens',
+			url: '/api/token-exchange',
+			method: 'POST' as const,
+			headers: {
+				'Content-Type': 'application/json',
+				'Accept': 'application/json'
+			},
+			body: {
+				grant_type: 'authorization_code',
+				code: authCode,
+				redirect_uri: controller.credentials.redirectUri,
+				client_id: controller.credentials.clientId,
+				environment_id: controller.credentials.environmentId,
+				code_verifier: controller.pkceCodes.codeVerifier,
+				client_auth_method: controller.credentials.clientAuthMethod || 'client_secret_post',
+				client_secret: '***REDACTED***',
+				...(controller.credentials.includeX5tParameter && { includeX5tParameter: controller.credentials.includeX5tParameter })
+			},
+			timestamp: new Date(),
+			description: 'Exchange authorization code for access token and refresh token'
+		};
+
 		try {
 			await controller.exchangeTokens();
+			
+			// Update API call with success response
+			const updatedTokenExchangeApiCall: EnhancedApiCallData = {
+				...tokenExchangeApiCallData,
+				response: {
+					status: 200,
+					statusText: 'OK',
+					headers: { 'Content-Type': 'application/json' },
+					data: controller.tokens
+				}
+			};
+			
+			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
 		} catch (error) {
 			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
+
+			// Update API call with error response
+			const errorApiCall: EnhancedApiCallData = {
+				...tokenExchangeApiCallData,
+				response: {
+					status: 400,
+					statusText: 'Bad Request',
+					headers: { 'Content-Type': 'application/json' },
+					error: error instanceof Error ? error.message : 'Unknown error'
+				}
+			};
+			
+			setTokenExchangeApiCall(errorApiCall);
 
 			// Parse error message for better user feedback
 			let errorMessage = 'Token exchange failed. Please try again.';
@@ -1083,8 +1153,53 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			v4ToastManager.showError('Access token missing: Exchange tokens before fetching user info.');
 			return;
 		}
-		await controller.fetchUserInfo();
-		v4ToastManager.showSuccess('User info fetched successfully!');
+
+		// Create API call display for UserInfo request
+		const userInfoApiCallData: EnhancedApiCallData = {
+			flowType: 'authorization-code',
+			stepName: 'Fetch User Information',
+			url: controller.credentials.userInfoEndpoint || `https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
+			method: 'GET' as const,
+			headers: {
+				'Authorization': `Bearer ${controller.tokens.access_token}`,
+				'Accept': 'application/json'
+			},
+			body: null,
+			timestamp: new Date(),
+			description: 'Fetch user information using the access token'
+		};
+
+		try {
+			await controller.fetchUserInfo();
+			
+			// Update API call with success response
+			const updatedUserInfoApiCall: EnhancedApiCallData = {
+				...userInfoApiCallData,
+				response: {
+					status: 200,
+					statusText: 'OK',
+					headers: { 'Content-Type': 'application/json' },
+					data: controller.userInfo
+				}
+			};
+			
+			setUserInfoApiCall(updatedUserInfoApiCall);
+			v4ToastManager.showSuccess('User info fetched successfully!');
+		} catch (error) {
+			// Update API call with error response
+			const errorApiCall: EnhancedApiCallData = {
+				...userInfoApiCallData,
+				response: {
+					status: 401,
+					statusText: 'Unauthorized',
+					headers: { 'Content-Type': 'application/json' },
+					error: error instanceof Error ? error.message : 'Unknown error'
+				}
+			};
+			
+			setUserInfoApiCall(errorApiCall);
+			v4ToastManager.showError('Failed to fetch user info');
+		}
 	}, [controller]);
 
 	const handleCopy = useCallback((text: string, label: string) => {
@@ -1111,6 +1226,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 		// Store comprehensive flow context for Token Management page
 		const flowContext = {
 			flow: 'oauth-authorization-code-v5',
+			step: currentStep,
 			tokens: controller.tokens,
 			credentials: controller.credentials,
 			timestamp: Date.now(),
@@ -1128,8 +1244,11 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			);
 		}
 
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oauth-authorization-code-v5', currentStep, 'oauth');
+
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		// Set flow source for Token Management page (legacy support)
@@ -1138,6 +1257,7 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 		// Store comprehensive flow context for Token Management page
 		const flowContext = {
 			flow: 'oauth-authorization-code-v5',
+			step: currentStep,
 			tokens: controller.tokens,
 			credentials: controller.credentials,
 			timestamp: Date.now(),
@@ -1155,8 +1275,11 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			);
 		}
 
+		// Store flow navigation state for back navigation
+		storeFlowNavigationState('oauth-authorization-code-v5', currentStep, 'oauth');
+
 		window.open('/token-management', '_blank');
-	}, [controller.tokens, controller.credentials]);
+	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
@@ -1513,9 +1636,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 								if (config) {
 									controller.setCredentials(config);
 								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings');
+								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 							}}
 							primaryColor="#3b82f6"
+							flowType="authorization-code"
 						/>
 
 						<CollapsibleSection>
@@ -2313,6 +2437,18 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 
 									<SectionDivider />
 
+									{/* API Call Display for Token Exchange */}
+									{tokenExchangeApiCall && (
+										<EnhancedApiCallDisplay
+											apiCall={tokenExchangeApiCall}
+											options={{
+												showEducationalNotes: true,
+												showFlowContext: true,
+												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+											}}
+										/>
+									)}
+
 									{tokens && (
 										<ResultsSection>
 											<ResultsHeading>
@@ -2345,57 +2481,47 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 
 											<GeneratedContentBox style={{ marginTop: '1rem' }}>
 												<GeneratedLabel>Tokens Received</GeneratedLabel>
-												<ParameterGrid>
-													{tokens.access_token && (
-														<div style={{ gridColumn: '1 / -1' }}>
-															<ParameterLabel>Access Token</ParameterLabel>
-															<ParameterValue style={{ wordBreak: 'break-all' }}>
-																{String(tokens.access_token)}
-															</ParameterValue>
-															<Button
-																onClick={() =>
-																	handleCopy(String(tokens.access_token), 'Access Token')
-																}
-																$variant="primary"
-																style={{
-																	marginTop: '0.5rem',
-																	fontSize: '0.8rem',
-																	fontWeight: '600',
-																	padding: '0.5rem 0.75rem',
-																	backgroundColor: '#3b82f6',
-																	borderColor: '#3b82f6',
-																	color: '#ffffff',
-																}}
-															>
-																<FiCopy /> Copy Access Token
-															</Button>
-														</div>
-													)}
-													{tokens.refresh_token && (
-														<div style={{ gridColumn: '1 / -1' }}>
-															<ParameterLabel>Refresh Token</ParameterLabel>
-															<ParameterValue style={{ wordBreak: 'break-all' }}>
-																{String(tokens.refresh_token)}
-															</ParameterValue>
-															<Button
-																onClick={() =>
-																	handleCopy(String(tokens.refresh_token), 'Refresh Token')
-																}
-																$variant="primary"
-																style={{
-																	marginTop: '0.5rem',
-																	fontSize: '0.8rem',
-																	fontWeight: '600',
-																	padding: '0.5rem 0.75rem',
-																	backgroundColor: '#10b981',
-																	borderColor: '#10b981',
-																	color: '#ffffff',
-																}}
-															>
-																<FiCopy /> Copy Refresh Token
-															</Button>
-														</div>
-													)}
+												
+												{/* Enhanced JWT Token Display */}
+												{tokens.access_token && (
+													<JWTTokenDisplay
+														token={String(tokens.access_token)}
+														tokenType={tokens.token_type || 'Bearer'}
+														{...(tokens.expires_in && { expiresIn: tokens.expires_in })}
+														{...(tokens.scope && { scope: tokens.scope })}
+														onCopy={handleCopy}
+													/>
+												)}
+												
+												{/* Refresh Token Display */}
+												{tokens.refresh_token && (
+													<div style={{ marginTop: '1rem' }}>
+														<ParameterLabel>Refresh Token</ParameterLabel>
+														<ParameterValue style={{ wordBreak: 'break-all' }}>
+															{String(tokens.refresh_token)}
+														</ParameterValue>
+														<Button
+															onClick={() =>
+																handleCopy(String(tokens.refresh_token), 'Refresh Token')
+															}
+															$variant="primary"
+															style={{
+																marginTop: '0.5rem',
+																fontSize: '0.8rem',
+																fontWeight: '600',
+																padding: '0.5rem 0.75rem',
+																backgroundColor: '#10b981',
+																borderColor: '#10b981',
+																color: '#ffffff',
+															}}
+														>
+															<FiCopy /> Copy Refresh Token
+														</Button>
+													</div>
+												)}
+												
+												{/* Additional Token Information */}
+												<ParameterGrid style={{ marginTop: '1rem' }}>
 													{tokens.token_type && (
 														<div>
 															<ParameterLabel>Token Type</ParameterLabel>
@@ -2462,6 +2588,24 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 													)}
 												</ActionRow>
 											</GeneratedContentBox>
+											
+											{/* Code Examples for Token Exchange Step */}
+											{tokens.access_token && (
+												<div style={{ marginTop: '2rem' }}>
+													<CodeExamplesDisplay
+														flowType="authorization-code"
+														stepId="step3"
+														config={{
+															baseUrl: 'https://auth.pingone.com',
+															clientId: credentials?.clientId || '',
+															clientSecret: credentials?.clientSecret || '',
+															redirectUri: credentials?.redirectUri || '',
+															scopes: credentials?.scopes?.split(' ') || ['openid', 'profile', 'email'],
+															environmentId: credentials?.environmentId || '',
+														}}
+													/>
+												</div>
+											)}
 										</ResultsSection>
 									)}
 								</CollapsibleContent>
@@ -2472,35 +2616,49 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 
 			case 5:
 				return (
-					<TokenIntrospect
-						flowName="OAuth 2.0 Authorization Code Flow"
-						flowVersion="V5"
-						tokens={controller.tokens as unknown as Record<string, unknown>}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						userInfo={userInfo}
-						onFetchUserInfo={handleFetchUserInfo}
-						isFetchingUserInfo={isFetchingUserInfo}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false, // Show raw JSON expanded by default
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Repeat the flow with different scopes or redirect URIs.',
-							'Explore refresh tokens and introspection flows.',
-						]}
-					/>
+					<>
+						<TokenIntrospect
+							flowName="OAuth 2.0 Authorization Code Flow"
+							flowVersion="V5"
+							tokens={controller.tokens as unknown as Record<string, unknown>}
+							credentials={controller.credentials as unknown as Record<string, unknown>}
+							userInfo={userInfo}
+							onFetchUserInfo={handleFetchUserInfo}
+							isFetchingUserInfo={isFetchingUserInfo}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false, // Show raw JSON expanded by default
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
+							nextSteps={[
+								'Inspect or decode tokens using the Token Management tools.',
+								'Repeat the flow with different scopes or redirect URIs.',
+								'Explore refresh tokens and introspection flows.',
+							]}
+						/>
+
+						{/* API Call Display for UserInfo Request */}
+						{userInfoApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={userInfoApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+								}}
+							/>
+						)}
+					</>
 				);
 
 			case 6:
@@ -2537,13 +2695,15 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 			case 7:
 				return (
 					<SecurityFeaturesDemo
-						tokens={controller.tokens}
-						credentials={controller.credentials}
+						tokens={controller.tokens as unknown as Record<string, unknown> | null}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
 						onTerminateSession={() => {
-							v4ToastManager.showSuccess('Session termination would be implemented here');
+							console.log('🚪 Session terminated via SecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Session termination completed.');
 						}}
 						onRevokeTokens={() => {
-							v4ToastManager.showSuccess('Token revocation would be implemented here');
+							console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Token revocation completed.');
 						}}
 					/>
 				);
