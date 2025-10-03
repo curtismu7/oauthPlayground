@@ -90,8 +90,10 @@ import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
 
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
+import OAuth21 from './pages/OAuth21';
 import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
+import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import TokenManagement from './pages/TokenManagement';
 import URLDecoder from './pages/URLDecoder';
 
@@ -362,6 +364,8 @@ const AppRoutes = () => {
 
 							<Route path="/auto-discover" element={<AutoDiscover />} />
 							<Route path="/token-management" element={<TokenManagement />} />
+							<Route path="/oauth-2-1" element={<OAuth21 />} />
+							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
 							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
