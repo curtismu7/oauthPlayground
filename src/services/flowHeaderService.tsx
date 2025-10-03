@@ -140,15 +140,6 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚡',
 		version: 'V5',
 	},
-	'oauth-implicit-v5-1': {
-		flowType: 'oauth',
-		title: 'Implicit Flow - Service Architecture Demo',
-		subtitle:
-			'OAuth 2.0 Implicit Flow built with the new V5.1 service-based architecture. Demonstrates how reusable services create consistent, maintainable flows with 96% less code.',
-		icon: '🚀',
-		version: 'V5.1',
-		isExperimental: true,
-	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
 		title: 'Client Credentials Flow - Server-to-Server Authentication',
@@ -351,6 +342,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Client Initiated Backchannel Authentication flow for decoupled authentication scenarios with secondary device approval',
 		version: 'V5',
 	},
+	'rar': {
+		flowType: 'oauth',
+		title: 'Rich Authorization Requests (RAR) Flow',
+		subtitle:
+			'Enhanced OAuth 2.0 flow with granular authorization details for fine-grained access control. Enables detailed permission specifications beyond simple scopes.',
+		icon: '🎯',
+		version: 'V5',
+	},
 	'jwt-bearer': {
 		flowType: 'oauth',
 		title: 'OAuth 2.0 JWT Bearer Flow',
@@ -379,7 +378,8 @@ export interface FlowHeaderProps {
 export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, customConfig }) => {
 	// Support both flowId (existing) and flowType (new page types)
 	const configKey = flowId || flowType;
-	const config = configKey ? { ...FLOW_CONFIGS[configKey], ...customConfig } : null;
+	const baseConfig = configKey ? FLOW_CONFIGS[configKey] : null;
+	const config = baseConfig ? { ...baseConfig, ...customConfig } : null;
 
 	if (!config) {
 		console.warn(`No configuration found for flow ID/type: ${configKey}`);
@@ -387,6 +387,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 	}
 
 	const getBadgeText = () => {
+		if (!config.flowType) return 'UNKNOWN';
 		const typeText = config.flowType.toUpperCase();
 		return config.version ? `${typeText} ${config.version}` : typeText;
 	};

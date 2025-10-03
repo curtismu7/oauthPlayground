@@ -1576,6 +1576,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 				environment_id: credentials.environmentId,
 				scope: flowType === 'oidc' ? 'openid profile email' : 'read write',
 				client_auth_method: credentials.clientAuthMethod, // Tell backend which auth method to use
+				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
 			};
 
 			console.log(` [${flowType.toUpperCase()}-V3] Simplified token exchange request:`, {

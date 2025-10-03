@@ -2,8 +2,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
+	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
+	FiCode,
 	FiCopy,
 	FiExternalLink,
 	FiGlobe,
@@ -38,6 +40,7 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
+import NextSteps from '../../components/NextSteps';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 // New service imports for enhanced functionality
@@ -45,6 +48,8 @@ import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowStateService } from '../../services/flowStateService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { ApiCallDisplayService } from '../../services/apiCallDisplayService';
+import { useUISettings } from '../../contexts/UISettingsContext';
 
 // Flow configuration
 const FLOW_TYPE = 'implicit';
@@ -56,6 +61,7 @@ const STEP_CONFIGS = [
 	{ title: 'Step 2: Token Response', subtitle: 'Receive tokens directly from URL fragment' },
 	{ title: 'Step 3: Token Introspection', subtitle: 'Validate and inspect tokens' },
 	{ title: 'Step 4: Security Features', subtitle: 'Advanced security demonstrations' },
+	{ title: 'Step 5: Flow Summary', subtitle: 'Complete flow overview and next steps' },
 ];
 
 // Service-generated metadata
@@ -74,7 +80,12 @@ type IntroSectionKey =
 	| 'introspectionOverview'
 	| 'introspectionDetails'
 	| 'completionOverview'
-	| 'completionDetails';
+	| 'completionDetails'
+	| 'apiCallDisplay'
+	| 'securityOverview'
+	| 'securityBestPractices'
+	| 'flowSummary'
+	| 'flowComparison';
 
 const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	clientAuthMethod: 'none', // Implicit flow doesn't use client authentication
@@ -114,25 +125,6 @@ const ContentWrapper = styled.div`
 	max-width: 64rem;
 	margin: 0 auto;
 	padding: 0 1rem;
-`;
-
-const _HeaderSection = styled.div`
-	text-align: center;
-	margin-bottom: 2rem;
-`;
-
-const _MainTitle = styled.h1`
-	font-size: 1.875rem;
-	font-weight: 700;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 1rem;
-`;
-
-const _Subtitle = styled.p`
-	font-size: 1.125rem;
-	color: var(--color-text-secondary, #4b5563);
-	margin: 0 auto;
-	max-width: 42rem;
 `;
 
 const MainCard = styled.div`
@@ -510,6 +502,9 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
+	const { settings } = useUISettings();
+	const { showApiCallExamples } = settings;
+
 	// Override response_type for OAuth Implicit (access token only)
 	useEffect(() => {
 		if (controller.credentials.responseType !== 'token') {
@@ -523,9 +518,14 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
-	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
-		FlowStateService.createDefaultCollapsedSections(INTRO_SECTION_KEYS)
-	);
+	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
+		...FlowStateService.createDefaultCollapsedSections(INTRO_SECTION_KEYS),
+		apiCallDisplay: false, // Default to expanded for API call examples
+		securityOverview: false, // Default to expanded for security overview
+		securityBestPractices: false, // Default to expanded for best practices
+		flowSummary: false, // Default to expanded for flow summary
+		flowComparison: true, // Default to collapsed for comparison
+	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 
 	// Check for tokens in URL fragment on mount
@@ -739,6 +739,8 @@ const OAuthImplicitFlowV5: React.FC = () => {
 					return Boolean(controller.tokens);
 				case 4:
 					return true;
+				case 5:
+					return true;
 				default:
 					return false;
 			}
@@ -754,6 +756,10 @@ const OAuthImplicitFlowV5: React.FC = () => {
 				return ['Complete authorization and receive tokens'];
 			case 3:
 				return ['Validate and inspect received tokens'];
+			case 4:
+				return ['Review security features and best practices'];
+			case 5:
+				return ['Review flow completion and next steps'];
 			default:
 				return [];
 		}
@@ -913,6 +919,19 @@ const OAuthImplicitFlowV5: React.FC = () => {
 										</Button>
 									</ActionRow>
 
+									{(!credentials.clientId || !credentials.environmentId) && (
+										<InfoBox $variant="warning" style={{ marginTop: '1.5rem' }}>
+											<FiAlertCircle size={20} />
+											<div>
+												<InfoTitle>Required: Fill in Credentials</InfoTitle>
+												<InfoText>
+													<strong>Environment ID</strong> and <strong>Client ID</strong> are required to continue. 
+													Fill these in above, then click "Save Configuration" before proceeding to Step 1.
+												</InfoText>
+											</div>
+										</InfoBox>
+									)}
+
 									<InfoBox $variant="danger" style={{ marginTop: '2rem', color: '#7f1d1d' }}>
 										<FiAlertCircle size={20} />
 										<div>
@@ -934,9 +953,10 @@ const OAuthImplicitFlowV5: React.FC = () => {
 								if (config) {
 									controller.setCredentials(config);
 								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings');
+								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 							}}
 							primaryColor="#f97316"
+							flowType="implicit"
 						/>
 					</>
 				);
@@ -1021,12 +1041,30 @@ const OAuthImplicitFlowV5: React.FC = () => {
 								before redirecting.
 							</HelperText>
 
+							{(!credentials.clientId || !credentials.environmentId) && (
+								<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Missing Required Credentials</InfoTitle>
+										<InfoText>
+											<strong>Environment ID</strong> and <strong>Client ID</strong> are required to generate the authorization URL. 
+											Please go back to Step 0 to fill in these credentials first.
+										</InfoText>
+									</div>
+								</InfoBox>
+							)}
+
 							<ActionRow>
 								<HighlightedActionButton
 									onClick={handleGenerateAuthUrl}
 									$priority="primary"
 									disabled={
 										!!controller.authUrl || !credentials.clientId || !credentials.environmentId
+									}
+									title={
+										!credentials.clientId || !credentials.environmentId
+											? 'Complete Step 0: Fill in Environment ID and Client ID first'
+											: 'Generate authorization URL with current credentials'
 									}
 								>
 									{controller.authUrl ? <FiCheckCircle /> : <FiGlobe />}{' '}
@@ -1205,47 +1243,392 @@ const OAuthImplicitFlowV5: React.FC = () => {
 
 			case 3:
 				return (
-					<TokenIntrospect
-						flowName="OAuth 2.0 Implicit Flow"
-						flowVersion="V5"
-						tokens={controller.tokens || {}}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						onResetFlow={handleResetFlow}
-						onNavigateToTokenManagement={navigateToTokenManagement}
-						onIntrospectToken={handleIntrospectToken}
-						collapsedSections={{
-							completionOverview: collapsedSections.completionOverview,
-							completionDetails: collapsedSections.completionDetails,
-							introspectionDetails: collapsedSections.introspectionDetails,
-							rawJson: false,
-						}}
-						onToggleSection={(section) => {
-							if (section === 'completionOverview' || section === 'completionDetails') {
-								toggleSection(section as IntroSectionKey);
-							}
-						}}
-						completionMessage="You've completed the OAuth 2.0 Implicit Flow. Remember: this flow is legacy and less secure than Authorization Code + PKCE."
-						nextSteps={[
-							'Inspect or decode tokens using the Token Management tools.',
-							'Note: No refresh token is provided in Implicit Flow.',
-							'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
-							'Consider migrating to Authorization Code + PKCE for better security.',
-						]}
-					/>
+					<>
+						<TokenIntrospect
+							flowName="OAuth 2.0 Implicit Flow"
+							flowVersion="V5"
+							tokens={controller.tokens || {}}
+							credentials={controller.credentials as unknown as Record<string, unknown>}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false,
+							}}
+							onToggleSection={(section) => {
+								if (section === 'completionOverview' || section === 'completionDetails') {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+							completionMessage="You've completed the OAuth 2.0 Implicit Flow. Remember: this flow is legacy and less secure than Authorization Code + PKCE."
+							nextSteps={[
+								'Inspect or decode tokens using the Token Management tools.',
+								'Note: No refresh token is provided in Implicit Flow.',
+								'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
+								'Consider migrating to Authorization Code + PKCE for better security.',
+							]}
+						/>
+
+						{/* API Call Display Section */}
+						{controller.tokens?.access_token && showApiCallExamples && (
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('apiCallDisplay')}
+									aria-expanded={!collapsedSections.apiCallDisplay}
+								>
+									<CollapsibleTitle>
+										<FiCode /> API Call Examples
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallDisplay}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.apiCallDisplay && (
+									<CollapsibleContent>
+										<ResultsSection>
+											<ResultsHeading>
+												<FiCode size={18} /> Test Your Access Token
+											</ResultsHeading>
+											<HelperText>
+												Use the access token to make authenticated API calls. Copy the curl command below to test your token with a PingOne API endpoint.
+											</HelperText>
+
+											{/* API Call Display using service methods */}
+											{(() => {
+												const apiCall = {
+													method: 'GET' as const,
+													url: `https://api.pingone.com/v1/environments/${controller.credentials.environmentId || '{environmentId}'}/users/me`,
+													headers: {
+														'Authorization': `Bearer ${controller.tokens.access_token}`,
+														'Content-Type': 'application/json'
+													}
+												};
+
+												const curlCommand = ApiCallDisplayService.generateCurlCommand(apiCall);
+												const sanitizedCall = ApiCallDisplayService.sanitizeApiCall(apiCall);
+
+												return (
+													<>
+														<InfoBox $variant="info" style={{ marginBottom: '1rem' }}>
+															<FiCode size={20} />
+															<div>
+																<InfoTitle>Get Current User Profile</InfoTitle>
+																<InfoText>
+																	Retrieve the authenticated user's profile information using the access token.
+																	The Authorization header contains your actual access token.
+																</InfoText>
+															</div>
+														</InfoBox>
+
+														<GeneratedContentBox>
+															<GeneratedLabel>API Request Details</GeneratedLabel>
+															<div style={{ marginBottom: '1rem' }}>
+																<strong>Method:</strong> {sanitizedCall.method}<br/>
+																<strong>URL:</strong> {sanitizedCall.url}<br/>
+																<strong>Headers:</strong>
+																<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
+																	{Object.entries(sanitizedCall.headers || {}).map(([key, value]) => (
+																		<li key={key} style={{ fontFamily: 'monospace', fontSize: '0.875rem' }}>
+																			{key}: {value}
+																		</li>
+																	))}
+																</ul>
+															</div>
+														</GeneratedContentBox>
+
+														<GeneratedContentBox style={{ marginTop: '1rem' }}>
+															<GeneratedLabel>cURL Command</GeneratedLabel>
+															<CodeBlock style={{ margin: 0 }}>{curlCommand}</CodeBlock>
+															<ActionRow>
+																<Button
+																	onClick={() => handleCopy(curlCommand, 'API call curl command')}
+																	$variant="primary"
+																>
+																	<FiCopy /> Copy cURL Command
+																</Button>
+															</ActionRow>
+														</GeneratedContentBox>
+													</>
+												);
+											})()}
+
+											<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
+												<FiInfo size={20} />
+												<div>
+													<InfoTitle>API Testing Tips</InfoTitle>
+													<InfoText>
+														• Replace <code>{'{environmentId}'}</code> with your actual PingOne environment ID<br/>
+														• The access token is valid for the scopes you requested<br/>
+														• Test with different API endpoints to verify token functionality<br/>
+														• Monitor token expiration and handle refresh scenarios
+													</InfoText>
+												</div>
+											</InfoBox>
+										</ResultsSection>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+						)}
+					</>
 				);
 
 			case 4:
 				return (
-					<SecurityFeaturesDemo
-						tokens={controller.tokens}
-						credentials={controller.credentials}
-						onTerminateSession={() => {
-							v4ToastManager.showSuccess('Session termination would be implemented here');
-						}}
-						onRevokeTokens={() => {
-							v4ToastManager.showSuccess('Token revocation would be implemented here');
-						}}
-					/>
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('securityOverview')}
+								aria-expanded={!collapsedSections.securityOverview}
+							>
+								<CollapsibleTitle>
+									<FiShield /> Security Features Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.securityOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.securityOverview && (
+								<CollapsibleContent>
+									<InfoBox $variant="warning">
+										<FiAlertTriangle size={20} />
+										<div>
+											<InfoTitle>Implicit Flow Security Considerations</InfoTitle>
+											<InfoText>
+												The Implicit Flow has inherent security limitations. Tokens are exposed in the URL,
+												making them vulnerable to interception. This step demonstrates security best practices
+												and mitigation strategies.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>Security Features Demonstrated</InfoTitle>
+											<InfoList>
+												<li><strong>Token Revocation:</strong> Ability to revoke access tokens before expiration</li>
+												<li><strong>Session Termination:</strong> End user sessions and invalidate tokens</li>
+												<li><strong>State Parameter:</strong> CSRF protection using state parameter</li>
+												<li><strong>HTTPS Only:</strong> All communications must use HTTPS</li>
+												<li><strong>Token Validation:</strong> Always validate tokens before use</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiShield size={18} /> Interactive Security Demonstrations
+							</ResultsHeading>
+							<HelperText>
+								Test security features and understand how to protect your OAuth implementation.
+							</HelperText>
+
+							<SecurityFeaturesDemo
+								tokens={controller.tokens as unknown as Record<string, unknown> | null}
+								credentials={controller.credentials as unknown as Record<string, unknown>}
+								onTerminateSession={() => {
+									console.log('🚪 Session terminated via SecurityFeaturesDemo');
+									v4ToastManager.showSuccess('Session termination completed.');
+								}}
+								onRevokeTokens={() => {
+									console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+									v4ToastManager.showSuccess('Token revocation completed.');
+								}}
+							/>
+						</ResultsSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('securityBestPractices')}
+								aria-expanded={!collapsedSections.securityBestPractices}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Security Best Practices
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.securityBestPractices}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.securityBestPractices && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Recommended Security Practices</InfoTitle>
+											<InfoList>
+												<li><strong>Use HTTPS:</strong> Always use HTTPS for all OAuth endpoints</li>
+												<li><strong>Validate State:</strong> Always validate the state parameter to prevent CSRF</li>
+												<li><strong>Short Token Lifetimes:</strong> Use short-lived access tokens</li>
+												<li><strong>Token Storage:</strong> Never store tokens in localStorage for production</li>
+												<li><strong>Consider PKCE:</strong> Use Authorization Code + PKCE instead of Implicit</li>
+												<li><strong>Regular Audits:</strong> Regularly audit and rotate client secrets</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="danger">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Critical Security Warnings</InfoTitle>
+											<InfoText>
+												<strong>⚠️ Production Warning:</strong> The Implicit Flow is deprecated by OAuth 2.1
+												specification due to security concerns. Use Authorization Code + PKCE flow for
+												new implementations.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				);
+
+			case 5:
+				return (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('flowSummary')}
+								aria-expanded={!collapsedSections.flowSummary}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Flow Completion Summary
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.flowSummary}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.flowSummary && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>OAuth 2.0 Implicit Flow Completed!</InfoTitle>
+											<InfoText>
+												Congratulations! You have successfully completed the OAuth 2.0 Implicit Flow demonstration.
+												This flow returned an access token directly in the URL fragment for API authorization.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<GeneratedContentBox>
+										<GeneratedLabel>Flow Summary</GeneratedLabel>
+										<ParameterGrid>
+											<div>
+												<ParameterLabel>Flow Type</ParameterLabel>
+												<ParameterValue>OAuth 2.0 Implicit</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Tokens Received</ParameterLabel>
+												<ParameterValue>Access Token Only</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Security Level</ParameterLabel>
+												<ParameterValue>Legacy (Deprecated)</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Refresh Token</ParameterLabel>
+												<ParameterValue>Not Provided</ParameterValue>
+											</div>
+											<div style={{ gridColumn: '1 / -1' }}>
+												<ParameterLabel>Recommended Alternative</ParameterLabel>
+												<ParameterValue>Authorization Code + PKCE Flow</ParameterValue>
+											</div>
+										</ParameterGrid>
+									</GeneratedContentBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiExternalLink size={18} /> Next Steps & Recommendations
+							</ResultsHeading>
+							<HelperText>
+								What to do now that you've completed the Implicit Flow demonstration.
+							</HelperText>
+
+							<InfoBox $variant="info">
+								<FiInfo size={20} />
+								<div>
+									<InfoTitle>Recommended Actions</InfoTitle>
+									<NextSteps steps={[
+										'Try Authorization Code + PKCE: Experience the more secure modern OAuth flow',
+										'Explore OIDC Implicit: See how OpenID Connect adds identity tokens',
+										'Test API Calls: Use your access token to call protected APIs',
+										'Review Security: Understand the limitations of Implicit Flow',
+										'Token Management: Decode and inspect your tokens in detail'
+									]} />
+								</div>
+							</InfoBox>
+
+							<ActionRow style={{ justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+								<Button onClick={() => window.open('/authorization-code-v5', '_blank')} $variant="primary">
+									<FiExternalLink /> Try Auth Code + PKCE
+								</Button>
+								<Button onClick={() => window.open('/oidc-implicit-v5', '_blank')} $variant="secondary">
+									<FiExternalLink /> Try OIDC Implicit
+								</Button>
+								<Button onClick={navigateToTokenManagement} $variant="success">
+									<FiKey /> Token Management
+								</Button>
+								<Button onClick={handleResetFlow} $variant="outline">
+									<FiRefreshCw /> Reset Flow
+								</Button>
+							</ActionRow>
+						</ResultsSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('flowComparison')}
+								aria-expanded={!collapsedSections.flowComparison}
+							>
+								<CollapsibleTitle>
+									<FiShield /> Flow Comparison & Migration Guide
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.flowComparison}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.flowComparison && (
+								<CollapsibleContent>
+									<InfoBox $variant="warning">
+										<FiAlertTriangle size={20} />
+										<div>
+											<InfoTitle>Implicit Flow vs Authorization Code + PKCE</InfoTitle>
+											<NextSteps steps={[
+												'Security: Auth Code + PKCE is more secure (no token exposure)',
+												'Tokens: Auth Code provides refresh tokens for long-term access',
+												'Standards: Auth Code + PKCE is OAuth 2.1 recommended',
+												'Browser Support: Auth Code works better with modern browsers',
+												'Migration: Implicit Flow is deprecated - plan migration'
+											]} />
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Migration Benefits</InfoTitle>
+											<InfoText>
+												Migrating to Authorization Code + PKCE provides better security, refresh tokens,
+												and compliance with modern OAuth standards. Your applications will be more secure
+												and future-proof.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
 				);
 
 			default:
@@ -1268,6 +1651,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 		navigateToTokenManagement,
 		pingOneConfig,
 		savePingOneConfig,
+		showApiCallExamples,
 		toggleSection,
 	]);
 

@@ -318,6 +318,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							<FiKey />
 							PingOne Configuration
 						</h3>
+						<form>
 
 						<FormGroup>
 							<FormLabel>Environment ID</FormLabel>
@@ -388,6 +389,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									value={controller.credentials.password}
 									onChange={(e) => handleCredentialChange('password', e.target.value)}
 									placeholder="Enter password"
+									autoComplete="current-password"
 								/>
 								<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
 									{showPassword ? <FiEyeOff /> : <FiEye />}
@@ -421,6 +423,7 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 								Save Configuration
 							</Button>
 						</div>
+						</form>
 					</FormContainer>
 				);
 
@@ -733,9 +736,16 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 			<StepNavigationButtons
 				currentStep={controller.stepManager.currentStepIndex}
 				totalSteps={STEP_METADATA.length}
-				onStepChange={(step) => controller.stepManager.setStep(step, 'manual navigation')}
-				stepMetadata={STEP_METADATA}
+				onPrevious={() => controller.stepManager.setStep(Math.max(0, controller.stepManager.currentStepIndex - 1), 'previous')}
+				onNext={() => controller.stepManager.setStep(Math.min(STEP_METADATA.length - 1, controller.stepManager.currentStepIndex + 1), 'next')}
 				onReset={controller.resetFlow}
+				canNavigateNext={controller.stepManager.currentStepIndex < STEP_METADATA.length - 1}
+				isFirstStep={controller.stepManager.currentStepIndex === 0}
+				nextButtonText="Next"
+				disabledMessage="Complete the action above to continue"
+				stepRequirements={['Review the flow overview and setup credentials', 'Enter username and password, then request access token', 'Fetch user details using access token', 'Refresh access token using refresh token']}
+				onCompleteAction={() => controller.stepManager.setStep(Math.min(STEP_METADATA.length - 1, controller.stepManager.currentStepIndex + 1), 'complete action')}
+				showCompleteActionButton={false}
 			/>
 
 			<CollapsibleSection title="✅ Recommended Alternatives">

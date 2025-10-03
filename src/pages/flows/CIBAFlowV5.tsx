@@ -363,6 +363,22 @@ const CIBAFlowV5: React.FC = () => {
 		return true;
 	}, [currentStep, missingRequiredFields.size, tokens]);
 
+	// Get step completion requirements for user guidance
+	const getStepRequirements = useCallback((stepIndex: number): string[] => {
+		switch (stepIndex) {
+			case 0: // Step 0: Introduction & Setup
+				return ['Review the flow overview and setup credentials'];
+			case 1: // Step 1: Configuration
+				return ['Enter all required configuration fields'];
+			case 2: // Step 2: Authentication Request
+				return ['Complete CIBA authentication request'];
+			case 3: // Step 3: Results
+				return ['View authentication results'];
+			default:
+				return [];
+		}
+	}, []);
+
 	const disabledMessage = useMemo(() => {
 		if (currentStep === 1 && missingRequiredFields.size > 0) {
 			return 'Provide required PingOne credentials to continue.';
@@ -673,7 +689,18 @@ const CIBAFlowV5: React.FC = () => {
 									</HelperText>
 								)}
 								<SectionDivider />
-								<SecurityFeaturesDemo />
+								<SecurityFeaturesDemo
+									tokens={tokens as unknown as Record<string, unknown> | null}
+									credentials={effectiveConfig as unknown as Record<string, unknown>}
+									onTerminateSession={() => {
+										console.log('🚪 Session terminated via SecurityFeaturesDemo');
+										v4ToastManager.showSuccess('Session termination completed.');
+									}}
+									onRevokeTokens={() => {
+										console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+										v4ToastManager.showSuccess('Token revocation completed.');
+									}}
+								/>
 							</ResultsSection>
 						)}
 					</StepBody>
@@ -688,6 +715,9 @@ const CIBAFlowV5: React.FC = () => {
 					isFirstStep={currentStep === 0}
 					nextButtonText={currentStep === 2 ? 'View results' : 'Next'}
 					disabledMessage={disabledMessage || ''}
+					stepRequirements={getStepRequirements(currentStep)}
+					onCompleteAction={handleNext}
+					showCompleteActionButton={!canNavigateNext && currentStep !== 0}
 				/>
 			</Content>
 		</Container>

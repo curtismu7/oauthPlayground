@@ -26,6 +26,7 @@ import {
 	logOAuthFlowEvent,
 	storeOAuthTokensSafely,
 } from '../../utils/flowUtils';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Styled components specific to this flow
 const ErrorMessage = styled.div`
@@ -55,6 +56,8 @@ const ImplicitGrantFlowContent: React.FC = () => {
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [redirectUrl, setRedirectUrl] = useState('');
 	const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
+
+	usePageScroll();
 
 	// Initialize flow
 	useEffect(() => {
