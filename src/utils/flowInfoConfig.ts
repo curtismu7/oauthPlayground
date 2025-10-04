@@ -267,7 +267,7 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Any scenario requiring decoupled user approval',
 		],
 	},
-	'rar': {
+	rar: {
 		flowType: 'oauth',
 		flowName: 'Rich Authorization Requests (RAR)',
 		tokensReturned: 'Access Token with RAR Claims',
@@ -310,7 +310,7 @@ export const PRESET_FLOW_CONFIGS = {
 	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
 	redirectless: FLOW_INFO_CONFIG['redirectless'],
 	'oidc-ciba-v5': FLOW_INFO_CONFIG['oidc-ciba-v5'],
-	'rar': FLOW_INFO_CONFIG['rar'],
+	rar: FLOW_INFO_CONFIG['rar'],
 };
 
 export default {

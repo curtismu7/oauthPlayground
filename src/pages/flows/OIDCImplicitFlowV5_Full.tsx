@@ -13,9 +13,8 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import styled from 'styled-components';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -36,11 +35,62 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
+import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import {
+	TokenIntrospectionService,
+	IntrospectionApiCallData,
+} from '../../services/tokenIntrospectionService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+
+// Import shared services
+import { FlowUIService } from '../../services/flowUIService';
+
+// Get all UI components from the shared service
+const {
+	Container,
+	ContentWrapper,
+	MainCard,
+	StepHeader,
+	StepHeaderLeft,
+	VersionBadge,
+	StepHeaderTitle,
+	StepHeaderSubtitle,
+	StepHeaderRight,
+	StepNumber,
+	StepTotal,
+	StepContentWrapper,
+	CollapsibleSection,
+	CollapsibleHeaderButton,
+	CollapsibleTitle,
+	CollapsibleToggleIcon,
+	CollapsibleContent,
+	InfoBox,
+	InfoTitle,
+	InfoText,
+	InfoList,
+	ActionRow,
+	Button,
+	HighlightedActionButton,
+	HighlightBadge,
+	CodeBlock,
+	GeneratedContentBox,
+	GeneratedLabel,
+	ParameterGrid,
+	ParameterLabel,
+	ParameterValue,
+	RequirementsIndicator,
+	RequirementsIcon,
+	RequirementsText,
+} = FlowUIService.getFlowUIComponents();
+
+// Get all UI components from the shared service
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Implicit Flow' },
@@ -58,6 +108,7 @@ type IntroSectionKey =
 	| 'results'
 	| 'authRequestOverview'
 	| 'authRequestDetails'
+	| 'responseMode' // Response mode selection
 	| 'tokenResponseOverview'
 	| 'tokenResponseDetails'
 	| 'userInfoOverview'
@@ -65,7 +116,8 @@ type IntroSectionKey =
 	| 'introspectionOverview'
 	| 'introspectionDetails'
 	| 'completionOverview'
-	| 'completionDetails';
+	| 'completionDetails'
+	| 'flowSummary'; // Step X
 
 const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	clientAuthMethod: 'none', // Implicit flow doesn't use client authentication
@@ -84,7 +136,6 @@ const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: false,
-	pushedAuthorizationRequestTimeout: 60,
 	additionalRefreshTokenReplayProtection: false,
 	includeX5tParameter: false,
 	oidcSessionManagement: false,
@@ -94,415 +145,10 @@ const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	corsAllowAnyOrigin: false,
 };
 
-// Styled components (reusing AuthZ V5 styles with orange theme for Implicit)
-const Container = styled.div`
-	min-height: 100vh;
-	background-color: #f9fafb;
-	padding: 2rem 0 6rem;
-`;
-
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
-
-const MainCard = styled.div`
-	background-color: #ffffff;
-	border-radius: 1rem;
-	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-	border: 1px solid #e2e8f0;
-	overflow: hidden;
-`;
-
-const StepHeader = styled.div`
-	background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
-	color: #ffffff;
-	padding: 2rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-`;
-
-const StepHeaderLeft = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-`;
-
-const VersionBadge = styled.span`
-	align-self: flex-start;
-	background: rgba(249, 115, 22, 0.2);
-	border: 1px solid #fb923c;
-	color: #fed7aa;
-	font-size: 0.75rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-`;
-
-const StepHeaderTitle = styled.h2`
-	font-size: 2rem;
-	font-weight: 700;
-	margin: 0;
-`;
-
-const StepHeaderSubtitle = styled.p`
-	font-size: 1rem;
-	color: rgba(255, 255, 255, 0.85);
-	margin: 0;
-`;
-
-const StepHeaderRight = styled.div`
-	text-align: right;
-`;
-
-const StepNumber = styled.div`
-	font-size: 2.5rem;
-	font-weight: 700;
-	line-height: 1;
-`;
-
-const StepTotal = styled.div`
-	font-size: 0.875rem;
-	color: rgba(255, 255, 255, 0.75);
-	letter-spacing: 0.05em;
-`;
-
-const StepContentWrapper = styled.div`
-	padding: 2rem;
-	background: #ffffff;
-`;
-
-const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-	background-color: #ffffff;
-	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-`;
-
-const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1.25rem 1.5rem;
-	background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
-	border: none;
-	border-radius: 0.75rem;
-	cursor: pointer;
-	font-size: 1.1rem;
-	font-weight: 600;
-	color: #7c2d12;
-	transition: background 0.2s ease;
-
-	&:hover {
-		background: linear-gradient(135deg, #fed7aa 0%, #fdba74 100%);
-	}
-`;
-
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
-	color: #ea580c;
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-	animation: fadeIn 0.2s ease;
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-`;
-
-const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'danger' }>`
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin-bottom: 1.5rem;
-	display: flex;
-	gap: 1rem;
-	align-items: flex-start;
-	border: 1px solid
-		${({ $variant }) => {
-			if ($variant === 'warning') return '#f59e0b';
-			if ($variant === 'success') return '#22c55e';
-			if ($variant === 'danger') return '#ef4444';
-			return '#3b82f6';
-		}};
-	background-color:
-		${({ $variant }) => {
-			if ($variant === 'warning') return '#fef3c7';
-			if ($variant === 'success') return '#dcfce7';
-			if ($variant === 'danger') return '#fee2e2';
-			return '#dbeafe';
-		}};
-`;
-
-const InfoTitle = styled.h3`
-	font-size: 1rem;
-	font-weight: 600;
-	color: #0f172a;
-	margin: 0 0 0.5rem 0;
-`;
-
-const InfoText = styled.p`
-	font-size: 0.95rem;
-	color: #3f3f46;
-	line-height: 1.7;
-	margin: 0;
-`;
-
-const InfoList = styled.ul`
-	font-size: 0.875rem;
-	color: #334155;
-	line-height: 1.5;
-	margin: 0.5rem 0 0;
-	padding-left: 1.5rem;
-`;
-
-const ActionRow = styled.div`
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1rem;
-	align-items: center;
-	margin-top: 1.5rem;
-`;
-
-const Button = styled.button<{
-	$variant?: 'primary' | 'success' | 'secondary' | 'danger' | 'outline';
-}>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: 0.5rem;
-	padding: 0.75rem 1.5rem;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	font-weight: 600;
-	cursor: ${(props) => (props.disabled ? 'not-allowed' : 'pointer')};
-	transition: all 0.2s;
-	border: 1px solid transparent;
-	opacity: ${(props) => (props.disabled ? 0.6 : 1)};
-
-	${({ $variant }) =>
-		$variant === 'primary' &&
-		`
-		background-color: #f97316;
-		color: #ffffff;
-		&:hover:not(:disabled) {
-			background-color: #ea580c;
-		}
-	`}
-
-	${({ $variant }) =>
-		$variant === 'success' &&
-		`
-		background-color: #22c55e;
-		color: #ffffff;
-		&:hover:not(:disabled) {
-			background-color: #16a34a;
-		}
-	`}
-
-	${({ $variant }) =>
-		$variant === 'secondary' &&
-		`
-		background-color: #0ea5e9;
-		color: #ffffff;
-		&:hover:not(:disabled) {
-			background-color: #0284c7;
-		}
-	`}
-
-	${({ $variant }) =>
-		$variant === 'danger' &&
-		`
-		background-color: #ef4444;
-		color: #ffffff;
-		&:hover:not(:disabled) {
-			background-color: #dc2626;
-		}
-	`}
-
-	${({ $variant }) =>
-		$variant === 'outline' &&
-		`
-		background-color: transparent;
-		color: #7c2d12;
-		border-color: #fed7aa;
-		&:hover:not(:disabled) {
-			background-color: #ffedd5;
-			border-color: #f97316;
-		}
-	`}
-`;
-
-const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success' }>`
-	position: relative;
-	background:
-		${({ $priority }) =>
-			$priority === 'primary'
-				? 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
-				: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)'};
-	box-shadow:
-		${({ $priority }) =>
-			$priority === 'primary'
-				? '0 6px 18px rgba(249, 115, 22, 0.35)'
-				: '0 6px 18px rgba(234, 88, 12, 0.35)'};
-	color: #ffffff;
-	padding-right: 2.5rem;
-
-	&:hover {
-		transform: scale(1.02);
-	}
-
-	&:disabled {
-		background:
-			${({ $priority }) =>
-				$priority === 'primary'
-					? 'linear-gradient(135deg, rgba(249,115,22,0.6) 0%, rgba(234,88,12,0.6) 100%)'
-					: 'linear-gradient(135deg, rgba(251,146,60,0.6) 0%, rgba(249,115,22,0.6) 100%)'};
-		box-shadow: none;
-	}
-`;
-
-const HighlightBadge = styled.span`
-	position: absolute;
-	top: -10px;
-	right: -10px;
-	background: #f97316;
-	color: #ffffff;
-	border-radius: 9999px;
-	width: 24px;
-	height: 24px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	font-size: 0.75rem;
-	font-weight: 700;
-`;
-
-const CodeBlock = styled.pre`
-	background-color: #1e293b;
-	border: 1px solid #334155;
-	border-radius: 0.5rem;
-	padding: 1.25rem;
-	font-size: 0.875rem;
-	color: #e2e8f0;
-	overflow-x: auto;
-	margin: 1rem 0;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	line-height: 1.5;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
-
-const GeneratedContentBox = styled.div`
-	background-color: #fff7ed;
-	border: 1px solid #fb923c;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin: 1.5rem 0;
-	position: relative;
-`;
-
-const GeneratedLabel = styled.div`
-	position: absolute;
-	top: -10px;
-	left: 16px;
-	background-color: #ea580c;
-	color: white;
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	font-weight: 600;
-`;
-
-const ParameterGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1rem;
-	margin: 1rem 0;
-`;
-
-const ParameterLabel = styled.div`
-	font-size: 0.75rem;
-	font-weight: 600;
-	color: #ea580c;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-	margin-bottom: 0.5rem;
-`;
-
-const ParameterValue = styled.div`
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	color: #7c2d12;
-	word-break: break-all;
-	background-color: #ffedd5;
-	padding: 0.5rem;
-	border-radius: 0.25rem;
-	border: 1px solid #fed7aa;
-`;
-
-const RequirementsIndicator = styled.div`
-	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-	border: 1px solid #f59e0b;
-	border-radius: 8px;
-	padding: 1rem;
-	margin: 1rem 0;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-`;
-
-const RequirementsIcon = styled.div`
-	color: #d97706;
-	font-size: 1.25rem;
-	margin-top: 0.125rem;
-	flex-shrink: 0;
-`;
-
-const RequirementsText = styled.div`
-	color: #92400e;
-	font-size: 0.875rem;
-	line-height: 1.5;
-
-	strong {
-		font-weight: 600;
-		display: block;
-		margin-bottom: 0.5rem;
-	}
-
-	ul {
-		margin: 0;
-		padding-left: 1.25rem;
-	}
-
-	li {
-		margin-bottom: 0.25rem;
-	}
-`;
-
 const OIDCImplicitFlowV5: React.FC = () => {
+	// Ensure page starts at top
+	usePageScroll({ pageName: 'OIDCImplicitFlowV5', force: true });
+
 	console.log('🚀 [OIDCImplicitFlowV5] Component loaded!', {
 		url: window.location.href,
 		hash: window.location.hash,
@@ -513,6 +159,14 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		flowKey: 'oidc-implicit-v5',
 		defaultFlowVariant: 'oidc',
 		enableDebugger: true,
+	});
+
+	// Response mode integration using centralized service
+	const { setResponseMode } = useResponseModeIntegration({
+		flowKey: 'oidc-implicit',
+		credentials: controller.credentials,
+		setCredentials: controller.setCredentials,
+		logPrefix: '[🔐 OIDC-IMPLICIT]',
 	});
 
 	// Override response_type for OIDC Implicit (ID token + optionally access token)
@@ -537,9 +191,11 @@ const OIDCImplicitFlowV5: React.FC = () => {
 	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		overview: false,
 		flowDiagram: true,
@@ -547,6 +203,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		results: false,
 		authRequestOverview: false,
 		authRequestDetails: false,
+		responseMode: false, // Default to expanded for response mode selection
 		tokenResponseOverview: false,
 		tokenResponseDetails: false,
 		userInfoOverview: false,
@@ -555,6 +212,8 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		introspectionDetails: false,
 		completionOverview: false,
 		completionDetails: false,
+	
+		flowSummary: false, // New Flow Completion Service step
 	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -577,7 +236,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 	}, []);
 
 	const handleFieldChange = useCallback(
-		(field: keyof StepCredentials, value: string) => {
+		async (field: keyof StepCredentials, value: string) => {
 			const updatedCredentials = {
 				...controller.credentials,
 				[field]: value,
@@ -591,6 +250,15 @@ const OIDCImplicitFlowV5: React.FC = () => {
 				});
 			} else {
 				setEmptyRequiredFields((prev) => new Set(prev).add(field as string));
+			}
+
+			// Auto-save logic for OIDC Implicit Flow
+			if (field === 'environmentId' && value.trim() && updatedCredentials.clientId?.trim()) {
+				await controller.saveCredentials();
+				v4ToastManager.showSuccess('Configuration auto-saved after environment ID change');
+			} else if (field === 'clientId' && value.trim() && updatedCredentials.environmentId?.trim()) {
+				await controller.saveCredentials();
+				v4ToastManager.showSuccess('Configuration auto-saved after client ID change');
 			}
 		},
 		[controller]
@@ -729,7 +397,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 				token: token,
 				clientId: credentials.clientId,
 				// No client secret for implicit flow (public client)
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -739,10 +407,10 @@ const OIDCImplicitFlowV5: React.FC = () => {
 					'implicit',
 					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -753,7 +421,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 					500,
 					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -824,7 +492,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		setCurrentStep(currentStep - 1);
 	}, [currentStep]);
 
-	const renderStepContent = useMemo(() => {
+const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
 		const tokens = controller.tokens;
 		const userInfo = controller.userInfo;
@@ -937,6 +605,33 @@ const OIDCImplicitFlowV5: React.FC = () => {
 								<CollapsibleContent>
 									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
 
+									<EnvironmentIdInput
+										initialEnvironmentId={credentials.environmentId || ''}
+										onEnvironmentIdChange={(newEnvId) => {
+											handleFieldChange('environmentId', newEnvId);
+										}}
+										onIssuerUrlChange={() => {}}
+										onDiscoveryComplete={async (result) => {
+											if (result.success && result.document) {
+												console.log('🎯 [OIDCImplicit] OIDC Discovery completed successfully');
+												// Auto-populate environment ID if it's a PingOne issuer
+												const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+												if (envId) {
+													await handleFieldChange('environmentId', envId);
+													// Auto-save credentials if we have both environmentId and clientId
+													if (controller.credentials?.clientId?.trim()) {
+														await controller.saveCredentials();
+														v4ToastManager.showSuccess('Configuration auto-saved after OIDC discovery');
+													}
+												}
+											}
+										}}
+										showSuggestions={true}
+										autoDiscover={false}
+									/>
+
+									<SectionDivider />
+
 									<CredentialsInput
 										environmentId={credentials.environmentId || ''}
 										clientId={credentials.clientId || ''}
@@ -957,10 +652,10 @@ const OIDCImplicitFlowV5: React.FC = () => {
 									/>
 
 									<ActionRow>
-										<Button onClick={handleSaveConfiguration} $variant="success">
+										<Button onClick={handleSaveConfiguration} variant="success">
 											<FiSettings /> Save Configuration
 										</Button>
-										<Button onClick={handleClearConfiguration} $variant="danger">
+										<Button onClick={handleClearConfiguration} variant="danger">
 											<FiRefreshCw /> Clear Configuration
 										</Button>
 									</ActionRow>
@@ -981,18 +676,6 @@ const OIDCImplicitFlowV5: React.FC = () => {
 
 						<FlowSequenceDisplay flowType="implicit" />
 
-						<ConfigurationSummaryCard
-							configuration={credentials}
-							onSaveConfiguration={handleSaveConfiguration}
-							onLoadConfiguration={(config) => {
-								if (config) {
-									controller.setCredentials(config);
-								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
-							}}
-							primaryColor="#f97316"
-							flowType="oidc-implicit"
-						/>
 					</>
 				);
 
@@ -1070,6 +753,39 @@ const OIDCImplicitFlowV5: React.FC = () => {
 						</CollapsibleSection>
 
 						<SectionDivider />
+
+						{/* Response Mode Selection */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('responseMode')}
+								aria-expanded={!collapsedSections.responseMode}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Response Mode Selection
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.responseMode}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.responseMode && (
+								<CollapsibleContent>
+									<ResponseModeSelector
+										flowKey="implicit"
+										responseType="token id_token"
+										redirectUri={`${window.location.origin}/oidc-implicit-callback`}
+										clientId={controller.credentials.clientId}
+										scope={controller.credentials.scope || 'openid profile email'}
+										state="random_state_123"
+										nonce="random_nonce_456"
+										defaultMode="fragment"
+										readOnlyFlowContext={false}
+										onModeChange={setResponseMode}
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
 						<ResultsSection>
 							<ResultsHeading>
 								<FiCheckCircle size={18} /> Build Authorization URL
@@ -1112,7 +828,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 									</div>
 									<Button
 										onClick={() => handleCopy(controller.authUrl, 'Authorization URL')}
-										$variant="outline"
+										variant="outline"
 									>
 										<FiCopy /> Copy URL
 									</Button>
@@ -1169,7 +885,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 									<ActionRow>
 										<Button
 											onClick={() => handleCopy(JSON.stringify(tokens, null, 2), 'Token Response')}
-											$variant="primary"
+											variant="primary"
 										>
 											<FiCopy /> Copy JSON Response
 										</Button>
@@ -1178,37 +894,35 @@ const OIDCImplicitFlowV5: React.FC = () => {
 
 								<GeneratedContentBox style={{ marginTop: '1rem' }}>
 									<GeneratedLabel>Tokens Received</GeneratedLabel>
+									{/* JWT Token Display with decoding capabilities */}
+									{tokens.access_token && (
+										<JWTTokenDisplay
+											token={String(tokens.access_token)}
+											tokenType="access_token"
+											onCopy={(tokenValue, label) => handleCopy(tokenValue, label)}
+											copyLabel="Access Token"
+											showTokenType={true}
+											showExpiry={true}
+											{...(tokens.expires_in && { expiresIn: Number(tokens.expires_in) })}
+											{...(tokens.scope && { scope: String(tokens.scope) })}
+										/>
+									)}
+
+									{tokens.id_token && (
+										<JWTTokenDisplay
+											token={String(tokens.id_token)}
+											tokenType="id_token"
+											onCopy={(tokenValue, label) => handleCopy(tokenValue, label)}
+											copyLabel="ID Token"
+											showTokenType={true}
+											showExpiry={true}
+											{...(tokens.expires_in && { expiresIn: Number(tokens.expires_in) })}
+											{...(tokens.scope && { scope: String(tokens.scope) })}
+										/>
+									)}
+
+									{/* Additional token information */}
 									<ParameterGrid>
-										{tokens.access_token && (
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Access Token</ParameterLabel>
-												<ParameterValue style={{ wordBreak: 'break-all' }}>
-													{String(tokens.access_token)}
-												</ParameterValue>
-												<Button
-													onClick={() => handleCopy(String(tokens.access_token), 'Access Token')}
-													$variant="primary"
-													style={{ marginTop: '0.5rem' }}
-												>
-													<FiCopy /> Copy Access Token
-												</Button>
-											</div>
-										)}
-										{tokens.id_token && (
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>ID Token</ParameterLabel>
-												<ParameterValue style={{ wordBreak: 'break-all' }}>
-													{String(tokens.id_token)}
-												</ParameterValue>
-												<Button
-													onClick={() => handleCopy(String(tokens.id_token), 'ID Token')}
-													$variant="secondary"
-													style={{ marginTop: '0.5rem' }}
-												>
-													<FiCopy /> Copy ID Token
-												</Button>
-											</div>
-										)}
 										{tokens.token_type && (
 											<div>
 												<ParameterLabel>Token Type</ParameterLabel>
@@ -1230,12 +944,12 @@ const OIDCImplicitFlowV5: React.FC = () => {
 									</ParameterGrid>
 
 									<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
-										<Button onClick={navigateToTokenManagement} $variant="primary">
+										<Button onClick={navigateToTokenManagement} variant="primary">
 											<FiExternalLink /> Open Token Management
 										</Button>
 										<Button
 											onClick={navigateToTokenManagement}
-											$variant="primary"
+											variant="primary"
 											style={{
 												backgroundColor: '#f97316',
 												borderColor: '#f97316',
@@ -1314,7 +1028,8 @@ const OIDCImplicitFlowV5: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit'),
 								}}
 							/>
 						)}
@@ -1359,6 +1074,8 @@ const OIDCImplicitFlowV5: React.FC = () => {
 		pingOneConfig,
 		savePingOneConfig,
 		toggleSection,
+		introspectionApiCall,
+		setResponseMode,
 	]);
 
 	return (
@@ -1383,7 +1100,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
-							<StepTotal>of 06</StepTotal>
+							<StepTotal>of 07</StepTotal>
 						</StepHeaderRight>
 					</StepHeader>
 

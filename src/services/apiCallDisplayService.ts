@@ -35,7 +35,10 @@ export class ApiCallDisplayService {
 	/**
 	 * Format an API call for display with curl command and response summary
 	 */
-	static formatApiCall(apiCall: ApiCallData, options: CurlCommandOptions = {}): ApiCallDisplayResult {
+	static formatApiCall(
+		apiCall: ApiCallData,
+		options: CurlCommandOptions = {}
+	): ApiCallDisplayResult {
 		const {
 			includeHeaders = true,
 			includeBody = true,
@@ -45,7 +48,12 @@ export class ApiCallDisplayService {
 		} = options;
 
 		const formattedCall = this.formatApiCallText(apiCall, prettyPrint);
-		const curlCommand = this.generateCurlCommand(apiCall, { includeHeaders, includeBody, verbose, insecure });
+		const curlCommand = this.generateCurlCommand(apiCall, {
+			includeHeaders,
+			includeBody,
+			verbose,
+			insecure,
+		});
 		const responseSummary = this.formatResponseSummary(apiCall);
 		const timingInfo = apiCall.duration ? this.formatTimingInfo(apiCall.duration) : undefined;
 
@@ -61,7 +69,12 @@ export class ApiCallDisplayService {
 	 * Generate a curl command for the API call
 	 */
 	static generateCurlCommand(apiCall: ApiCallData, options: CurlCommandOptions = {}): string {
-		const { includeHeaders = true, includeBody = true, verbose = false, insecure = false } = options;
+		const {
+			includeHeaders = true,
+			includeBody = true,
+			verbose = false,
+			insecure = false,
+		} = options;
 
 		let curlCommand = 'curl';
 
@@ -243,9 +256,15 @@ export class ApiCallDisplayService {
 			}
 		}
 
-		if (apiCall.method !== 'GET' && apiCall.method !== 'POST' && apiCall.method !== 'PUT' &&
-			apiCall.method !== 'DELETE' && apiCall.method !== 'PATCH' && apiCall.method !== 'HEAD' &&
-			apiCall.method !== 'OPTIONS') {
+		if (
+			apiCall.method !== 'GET' &&
+			apiCall.method !== 'POST' &&
+			apiCall.method !== 'PUT' &&
+			apiCall.method !== 'DELETE' &&
+			apiCall.method !== 'PATCH' &&
+			apiCall.method !== 'HEAD' &&
+			apiCall.method !== 'OPTIONS'
+		) {
 			errors.push('Invalid HTTP method');
 		}
 
@@ -258,14 +277,17 @@ export class ApiCallDisplayService {
 	/**
 	 * Sanitize sensitive data from API call for display
 	 */
-	static sanitizeApiCall(apiCall: ApiCallData, sensitiveFields: string[] = ['authorization', 'password', 'secret', 'token']): ApiCallData {
+	static sanitizeApiCall(
+		apiCall: ApiCallData,
+		sensitiveFields: string[] = ['authorization', 'password', 'secret', 'token']
+	): ApiCallData {
 		const sanitized = { ...apiCall };
 
 		// Sanitize headers
 		if (sanitized.headers) {
 			sanitized.headers = { ...sanitized.headers };
-			Object.keys(sanitized.headers).forEach(key => {
-				if (sensitiveFields.some(field => key.toLowerCase().includes(field))) {
+			Object.keys(sanitized.headers).forEach((key) => {
+				if (sensitiveFields.some((field) => key.toLowerCase().includes(field))) {
 					sanitized.headers![key] = '***REDACTED***';
 				}
 			});
@@ -294,11 +316,14 @@ export class ApiCallDisplayService {
 
 		const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
 
-		Object.keys(sanitized).forEach(key => {
-			if (sensitiveFields.some(field => key.toLowerCase().includes(field))) {
+		Object.keys(sanitized).forEach((key) => {
+			if (sensitiveFields.some((field) => key.toLowerCase().includes(field))) {
 				(sanitized as Record<string, unknown>)[key] = '***REDACTED***';
 			} else if (typeof (sanitized as Record<string, unknown>)[key] === 'object') {
-				(sanitized as Record<string, unknown>)[key] = this.sanitizeObject((sanitized as Record<string, unknown>)[key], sensitiveFields);
+				(sanitized as Record<string, unknown>)[key] = this.sanitizeObject(
+					(sanitized as Record<string, unknown>)[key],
+					sensitiveFields
+				);
 			}
 		});
 

@@ -638,7 +638,9 @@ const EnhancedAuthorizationCodeFlowV3: React.FC = () => {
 					codeVerifier: pkceCodes.codeVerifier,
 					tokenEndpoint: flowConfig.tokenEndpoint || credentials.tokenEndpoint,
 					authMethod: flowConfig.clientAuthMethod,
-					...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+					...(credentials.includeX5tParameter && {
+						includeX5tParameter: credentials.includeX5tParameter,
+					}),
 				}),
 			});
 

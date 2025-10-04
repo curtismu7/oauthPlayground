@@ -89,9 +89,10 @@
 ### ✅ Keep (V5 Flows in Menu): 17 files
 - All OAuth 2.0 V5 flows (5 files)
 - All OIDC V5 flows (4 files)
-- Unsupported flows in menu (3 files)
+- Unsupported flows in menu (2 files)
 - PingOne Token flows (4 files)
 - PAR Flow (1 file)
+- MFA Flow (1 file)
 
 ### ❌ Backup (V2/V3/V4 Not in Menu): ~20 files
 - V4 flows (2 files)
