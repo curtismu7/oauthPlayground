@@ -19,7 +19,6 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -42,16 +41,22 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
+import { ResponseMode } from '../../services/responseModeService';
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -66,12 +71,14 @@ const STEP_METADATA = [
 	{ title: 'Step 6: Token Introspection', subtitle: 'Introspect access token and review results' },
 	{ title: 'Step 7: Flow Complete', subtitle: 'Review your results and next steps' },
 	{ title: 'Step 8: Security Features', subtitle: 'Demonstrate advanced security implementations' },
+	{ title: 'Step 9: Flow Summary', subtitle: 'Comprehensive completion overview' },
 ] as const;
 
 type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
 	| 'credentials'
+	| 'responseMode' // Step 0
 	| 'results' // Step 0
 	| 'pkceOverview'
 	| 'pkceDetails' // Step 1
@@ -86,7 +93,8 @@ type IntroSectionKey =
 	| 'introspectionOverview'
 	| 'introspectionDetails' // Step 6
 	| 'completionOverview'
-	| 'completionDetails'; // Step 7
+	| 'completionDetails' // Step 7
+	| 'flowSummary'; // Step 9
 
 const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	clientAuthMethod: 'client_secret_post',
@@ -675,6 +683,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
+
+
 	const [currentStep, setCurrentStep] = useState(() => {
 		const restoreStep = sessionStorage.getItem('restore_step');
 		if (restoreStep) {
@@ -686,10 +696,12 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	});
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
 		overview: false,
 		credentials: false, // Expanded by default - users need to see credentials first
+		responseMode: false, // Expanded by default - users need to see response mode options
 		results: false,
 		// Step 1
 		pkceOverview: false,
@@ -712,6 +724,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		// Step 7
 		completionOverview: false,
 		completionDetails: false,
+		// Step 9
+		flowSummary: false, // New Flow Completion Service step
 	});
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
@@ -923,7 +937,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	}, [controller]);
 
 	const savePingOneConfig = useCallback(
-		(config: PingOneApplicationState) => {
+		async (config: PingOneApplicationState) => {
 			setPingOneConfig(config);
 			sessionStorage.setItem('oidc-authorization-code-v5-app-config', JSON.stringify(config));
 
@@ -951,6 +965,12 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				corsAllowAnyOrigin: config.corsAllowAnyOrigin,
 			};
 			controller.setCredentials(updatedCredentials);
+
+			// Auto-save if we have essential credentials
+			if (updatedCredentials.environmentId?.trim() && updatedCredentials.clientId?.trim()) {
+				await controller.saveCredentials();
+				v4ToastManager.showSuccess('Configuration auto-saved after PingOne settings update');
+			}
 		},
 		[controller]
 	);
@@ -1225,6 +1245,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					return true; // Always valid - completion step
 				case 8: // Step 8: Security Features
 					return true; // Always valid - demonstration step
+				case 9: // Step 9: Flow Summary
+					return true; // Always valid - flow summary step
 				default:
 					return false;
 			}
@@ -1260,6 +1282,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				return ['Flow completed successfully'];
 			case 8: // Step 8: Security Features
 				return ['Demonstrate advanced security implementations'];
+			case 9: // Step 9: Flow Summary
+				return ['Flow summary and completion overview'];
 			default:
 				return [];
 		}
@@ -1321,6 +1345,28 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 
 		handleNext();
 	}, [canNavigateNext, handleNext]);
+
+	const renderFlowSummary = useCallback(() => {
+		const completionConfig = {
+			...FlowCompletionConfigs.authorizationCode,
+			onStartNewFlow: () => {
+				controller.resetFlow();
+				setCurrentStep(0);
+			},
+			showUserInfo: Boolean(controller.userInfo),
+			showIntrospection: Boolean(introspectionApiCall),
+			userInfo: controller.userInfo,
+			introspectionResult: introspectionApiCall?.response
+		};
+
+		return (
+			<FlowCompletionService
+				config={completionConfig}
+				collapsed={collapsedSections.flowSummary}
+				onToggleCollapsed={() => toggleSection('flowSummary')}
+			/>
+		);
+	}, [controller, collapsedSections.flowSummary, toggleSection, introspectionApiCall]);
 
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
@@ -1442,14 +1488,102 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
-									{/* Credentials Configuration - Using service for reuse */}
-									<ConfigurationSummaryCard
-										configuration={controller.credentials}
-										hasConfiguration={
-											!!(controller.credentials.clientId && controller.credentials.environmentId)
-										}
-										onSaveConfiguration={handleSaveConfiguration}
+									{/* Environment ID Input */}
+									<EnvironmentIdInput
+										initialEnvironmentId={controller.credentials.environmentId || ''}
+										onEnvironmentIdChange={(newEnvId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												environmentId: newEnvId,
+											});
+											// Auto-save if we have both environmentId and clientId
+											if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+												controller.saveCredentials();
+												v4ToastManager.showSuccess('Credentials auto-saved');
+											}
+										}}
+										onIssuerUrlChange={() => {}}
+										showSuggestions={true}
+										autoDiscover={false}
 									/>
+
+									{/* Credentials Input */}
+									<CredentialsInput
+										environmentId={controller.credentials.environmentId || ''}
+										clientId={controller.credentials.clientId || ''}
+										clientSecret={controller.credentials.clientSecret || ''}
+										scopes={controller.credentials.scope || 'openid profile email'}
+										postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+										onEnvironmentIdChange={(newEnvId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												environmentId: newEnvId,
+											});
+										}}
+										onClientIdChange={(newClientId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												clientId: newClientId,
+											});
+											// Auto-save if we have both environmentId and clientId
+											if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+												controller.saveCredentials();
+												v4ToastManager.showSuccess('Credentials auto-saved');
+											}
+										}}
+										onClientSecretChange={(newClientSecret) => {
+											controller.setCredentials({
+												...controller.credentials,
+												clientSecret: newClientSecret,
+											});
+										}}
+										onScopesChange={(newScopes) => {
+											controller.setCredentials({
+												...controller.credentials,
+												scope: newScopes,
+											});
+										}}
+										onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
+											controller.setCredentials({
+												...controller.credentials,
+												postLogoutRedirectUri: newPostLogoutRedirectUri,
+											});
+										}}
+										onCopy={handleCopy}
+										showRedirectUri={true}
+										showLoginHint={false}
+										showPostLogoutRedirectUri={true}
+									/>
+
+									{/* Response Mode Configuration */}
+									<CollapsibleSection
+										title="Response Mode Configuration"
+										collapsed={collapsedSections.responseMode}
+										onToggle={() => toggleSection('responseMode')}
+									>
+										<InfoBox $variant="info">
+											<FiInfo size={20} />
+											<div>
+												<InfoTitle>Response Mode Selection</InfoTitle>
+												<div style={{ marginTop: '0.5rem', color: '#6b7280' }}>
+													Choose how the authorization response should be returned to your application.
+													This affects how the authorization code and other parameters are delivered.
+												</div>
+											</div>
+										</InfoBox>
+										<ResponseModeSelector
+											selectedMode={(controller.credentials.responseMode as ResponseMode) || 'query'}
+											onModeChange={(mode) => {
+												controller.setCredentials({
+													...controller.credentials,
+													responseMode: mode,
+												});
+											}}
+											responseType="code"
+											clientType="confidential"
+											platform="web"
+										/>
+									</CollapsibleSection>
 
 									{/* Separator line */}
 									<div
@@ -1481,148 +1615,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 						<EnhancedFlowWalkthrough flowId="oidc-authorization-code" />
 						<FlowSequenceDisplay flowType="authorization-code" />
 
-						{/* Configuration Summary Card */}
-						<ConfigurationSummaryCard
-							configuration={controller.credentials}
-							onSaveConfiguration={handleSaveConfiguration}
-							onLoadConfiguration={(config) => {
-								if (config) {
-									controller.setCredentials(config);
-								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
-							}}
-							primaryColor="#3b82f6"
-							flowType="oidc-authorization-code"
-						/>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('results')}
-								aria-expanded={!collapsedSections.results}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Saved Configuration Summary
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.results}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.results && (
-								<CollapsibleContent>
-									<SectionDivider />
-									<ResultsSection>
-										<ResultsHeading>
-											<FiCheckCircle size={18} /> Configuration Status
-										</ResultsHeading>
-										<HelperText>
-											Save your PingOne credentials so they auto-populate in subsequent steps.
-										</HelperText>
-										{stepCompletions[0] ? (
-											<GeneratedContentBox>
-												<GeneratedLabel>Saved</GeneratedLabel>
-												<ParameterGrid style={{ gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-													<div>
-														<ParameterLabel>ENVIRONMENT ID</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.environmentId || 'Not provided'}
-														</ParameterValue>
-													</div>
-													<div>
-														<ParameterLabel>CLIENT ID</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.clientId || 'Not provided'}
-														</ParameterValue>
-													</div>
-													<div>
-														<ParameterLabel>CLIENT SECRET</ParameterLabel>
-														<div style={{ position: 'relative' }}>
-															<ParameterValue
-																style={{
-																	fontFamily: 'monospace',
-																	wordBreak: 'break-all',
-																	padding: '0.75rem',
-																	paddingRight: '2.5rem',
-																	background: '#f8fafc',
-																	border: '1px solid #e2e8f0',
-																	borderRadius: '0.375rem',
-																}}
-															>
-																{credentials.clientSecret
-																	? showSavedSecret
-																		? credentials.clientSecret
-																		: '•'.repeat(credentials.clientSecret.length)
-																	: 'Not provided'}
-															</ParameterValue>
-															{credentials.clientSecret && (
-																<button
-																	type="button"
-																	onClick={() => setShowSavedSecret(!showSavedSecret)}
-																	style={{
-																		position: 'absolute',
-																		right: '0.75rem',
-																		top: '50%',
-																		transform: 'translateY(-50%)',
-																		background: 'none',
-																		border: 'none',
-																		cursor: 'pointer',
-																		color: '#6b7280',
-																		display: 'flex',
-																		alignItems: 'center',
-																		justifyContent: 'center',
-																	}}
-																	title={
-																		showSavedSecret ? 'Hide client secret' : 'Show client secret'
-																	}
-																>
-																	{showSavedSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-																</button>
-															)}
-														</div>
-													</div>
-													<div>
-														<ParameterLabel>REDIRECT URI</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.redirectUri || 'Not provided'}
-														</ParameterValue>
-													</div>
-												</ParameterGrid>
-											</GeneratedContentBox>
-										) : (
-											<HelperText>
-												Save your configuration above to persist it for future sessions.
-											</HelperText>
-										)}
-									</ResultsSection>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 					</>
 				);
 
@@ -1949,45 +1942,15 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 													re-auth required
 												</li>
 												<li>
-													<strong>acr_values:</strong> Requested Authentication Context Class
-													Reference values
-												</li>
-												<li>
-													<strong>login_hint:</strong> Hint about the user identifier (email,
-													username)
-												</li>
-											</InfoList>
-										</div>
-									</InfoBox>
-
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>Authorization URL Parameters</InfoTitle>
-											<InfoText>The authorization URL includes these key parameters:</InfoText>
-											<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
-												<li>
-													<strong>response_type=code</strong> - Authorization Code flow
-												</li>
-												<li>
-													<strong>client_id</strong> - Your PingOne application ID
-												</li>
-												<li>
-													<strong>redirect_uri</strong> - Where to return after authorization
-												</li>
-												<li>
-													<strong>scope</strong> - Permissions requested (openid, profile, email)
-												</li>
-												<li>
-													<strong>state</strong> - CSRF protection token
+													<strong>prompt:</strong> Prompt type (login, consent, select_account)
 												</li>
 												<li>
 													<strong>code_challenge</strong> - PKCE challenge (SHA256 hash)
 												</li>
 												<li>
 													<strong>code_challenge_method=S256</strong> - PKCE method
-												</li>
-											</ul>
+											</li>
+											</InfoList>
 										</div>
 									</InfoBox>
 								</CollapsibleContent>
@@ -2044,16 +2007,15 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							</ActionRow>
 
 							{controller.authUrl ? (
-								<GeneratedUrlDisplay>
-									<GeneratedLabel>Generated</GeneratedLabel>
-									<div style={{ marginBottom: '1rem' }}>{controller.authUrl}</div>
-									<HighlightedActionButton
-										onClick={() => handleCopy(controller.authUrl ?? '', 'Authorization URL')}
-										$priority="primary"
-									>
-										<FiCopy /> Copy Authorization URL
-									</HighlightedActionButton>
-								</GeneratedUrlDisplay>
+								<ColoredUrlDisplay
+									url={controller.authUrl}
+									label="Generated Authorization URL"
+									showCopyButton={true}
+									showInfoButton={true}
+									showOpenButton={true}
+									onOpen={() => window.open(controller.authUrl!, '_blank')}
+									height="120px"
+								/>
 							) : (
 								<HelperText>Generate an authorization URL above to continue to PingOne.</HelperText>
 							)}
@@ -2507,7 +2469,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							]}
 						/>
 
-						{/* API Call Display for Token Introspection */}
 						{introspectionApiCall && (
 							<EnhancedApiCallDisplay
 								apiCall={introspectionApiCall}
@@ -2584,6 +2545,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					/>
 				);
 
+			case 9:
+				return renderFlowSummary();
+
 			default:
 				return null;
 		}
@@ -2630,27 +2594,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
 
-				<InfoBox $variant="info">
-					<FiInfo />
-					<div>
-						<InfoTitle>Response Mode Selection</InfoTitle>
-						<InfoText>
-							Choose how PingOne returns the authorization response. Different modes are 
-							optimized for different application types and security requirements.
-						</InfoText>
-					</div>
-				</InfoBox>
 
-				<ResponseModeSelector
-					selectedMode="query"
-					onModeChange={() => {}}
-					responseType="code"
-					clientType="confidential"
-					platform="web"
-					showRecommendations={true}
-					showUrlExamples={true}
-					baseUrl="https://auth.pingone.com/{envID}/as/authorize"
-				/>
 
 				<MainCard>
 					<StepHeader>
@@ -2661,7 +2605,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
-							<StepTotal>of 08</StepTotal>
+							<StepTotal>of 09</StepTotal>
 						</StepHeaderRight>
 					</StepHeader>
 

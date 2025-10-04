@@ -76,7 +76,8 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 				privateKey: jwtBearerCredentials?.privateKey || '',
 				keyId: jwtBearerCredentials?.keyId || '',
 				tokenEndpoint: jwtBearerCredentials?.tokenEndpoint || '',
-				redirectUri: jwtBearerCredentials?.redirectUri || `${window.location.origin}/authz-callback`,
+				redirectUri:
+					jwtBearerCredentials?.redirectUri || `${window.location.origin}/authz-callback`,
 				scopes: jwtBearerCredentials?.scopes || ['openid'],
 				authEndpoint: jwtBearerCredentials?.authEndpoint || '',
 				userInfoEndpoint: jwtBearerCredentials?.userInfoEndpoint || '',
@@ -99,12 +100,10 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 	}, []);
 
 	const requestToken = useCallback(async (): Promise<JWTBearerResult> => {
-		if (
-			!credentials.clientId ||
-			!credentials.privateKey ||
-			!credentials.environmentId
-		) {
-			throw new Error('Missing required credentials: environmentId, clientId and privateKey are required');
+		if (!credentials.clientId || !credentials.privateKey || !credentials.environmentId) {
+			throw new Error(
+				'Missing required credentials: environmentId, clientId and privateKey are required'
+			);
 		}
 
 		setIsRequesting(true);
@@ -114,12 +113,17 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 			console.log(`${LOG_PREFIX} [MOCK] Simulating JWT Bearer Token flow...`);
 
 			// Simulate processing delay
-			await new Promise(resolve => setTimeout(resolve, 1500));
+			await new Promise((resolve) => setTimeout(resolve, 1500));
 
 			// Validate private key format (basic check)
 			const privateKeyPem = credentials.privateKey;
-			if (!privateKeyPem.includes('-----BEGIN PRIVATE KEY-----') || !privateKeyPem.includes('-----END PRIVATE KEY-----')) {
-				throw new Error('Invalid private key format. Please ensure it includes proper PEM headers.');
+			if (
+				!privateKeyPem.includes('-----BEGIN PRIVATE KEY-----') ||
+				!privateKeyPem.includes('-----END PRIVATE KEY-----')
+			) {
+				throw new Error(
+					'Invalid private key format. Please ensure it includes proper PEM headers.'
+				);
 			}
 
 			// Generate mock JWT assertion (for display purposes)
@@ -136,11 +140,16 @@ export const useJWTBearerFlowController = (): UseJWTBearerFlowControllerReturn =
 
 			setTokens(mockTokenResult);
 
-			console.log(`${LOG_PREFIX} [MOCK SUCCESS] JWT Bearer token simulation completed:`, mockTokenResult);
+			console.log(
+				`${LOG_PREFIX} [MOCK SUCCESS] JWT Bearer token simulation completed:`,
+				mockTokenResult
+			);
 			console.log(`${LOG_PREFIX} [MOCK INFO] Simulated JWT assertion:`, mockJWT);
 
 			// Show success message
-			v4ToastManager.showSuccess('JWT Bearer Token flow completed successfully (Mock Implementation)');
+			v4ToastManager.showSuccess(
+				'JWT Bearer Token flow completed successfully (Mock Implementation)'
+			);
 
 			return mockTokenResult;
 		} catch (err) {

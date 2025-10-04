@@ -21,9 +21,9 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { themeService } from '../../services/themeService';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import {
 	HelperText,
 	ResultsHeading,
@@ -33,7 +33,10 @@ import {
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
+import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 
 const STEP_METADATA = [
 	{
@@ -64,7 +67,8 @@ type IntroSectionKey =
 	| 'tokenResponseOverview'
 	| 'tokenResponseDetails' // Step 4
 	| 'completionOverview'
-	| 'completionDetails'; // Step 5
+	| 'completionDetails'
+	| 'flowSummary'; // Step X // Step 5
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -467,6 +471,16 @@ const RedirectlessFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
+	// Response mode integration using centralized service
+	const responseModeIntegration = useResponseModeIntegration({
+		flowKey: 'redirectless-mock',
+		credentials: controller.credentials,
+		setCredentials: controller.setCredentials,
+		logPrefix: '[🔐 REDIRECTLESS-MOCK]',
+	});
+
+	const { responseMode, setResponseMode } = responseModeIntegration;
+
 	const [currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
 		// Step 0
@@ -488,6 +502,8 @@ const RedirectlessFlowV5: React.FC = () => {
 		// Step 5
 		completionOverview: false,
 		completionDetails: false,
+	
+		flowSummary: false, // New Flow Completion Service step
 	});
 
 	const [mockFlowResponse, setMockFlowResponse] = useState<any>(null);
@@ -537,9 +553,11 @@ const RedirectlessFlowV5: React.FC = () => {
 				return ['Simulate token response'];
 			case 5:
 				return [];
+			case 1: // Step 1: Flow Summary
+				return ['Flow summary and completion overview'];
 			default:
 				return [];
-		}
+			}
 	}, []);
 
 	const _stepCompletions = useMemo<StepCompletionState>(
@@ -705,7 +723,28 @@ const RedirectlessFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Flow reset successfully!');
 	}, [controller]);
 
-	const renderStepContent = useMemo(() => {
+	
+	const renderFlowSummary = useCallback(() => {
+		const completionConfig = {
+			...FlowCompletionConfigs.authorizationCode,
+			onStartNewFlow: () => {
+				// Add flow reset logic here
+				setCurrentStep(0);
+			},
+			showUserInfo: false, // Update based on flow capabilities
+			showIntrospection: false // Update based on flow capabilities
+		};
+
+		return (
+			<FlowCompletionService
+				config={completionConfig}
+				collapsed={collapsedSections.flowSummary}
+				onToggleCollapsed={() => toggleSection('flowSummary')}
+			/>
+		);
+	}, [collapsedSections.flowSummary, toggleSection]);
+
+const renderStepContent = useMemo(() => {
 		switch (currentStep) {
 			case 0:
 				return (
@@ -878,11 +917,63 @@ const RedirectlessFlowV5: React.FC = () => {
 						</ResultsSection>
 
 						<SectionDivider />
-						<ConfigurationSummaryCard
-							configuration={controller.credentials}
-							onSaveConfiguration={controller.saveCredentials}
-							onLoadConfiguration={controller.loadCredentials}
-							primaryColor="#8b5cf6"
+						{/* Environment ID Input */}
+						<EnvironmentIdInput
+							initialEnvironmentId={controller.credentials.environmentId || ''}
+							onEnvironmentIdChange={(newEnvId) => {
+								controller.setCredentials({
+									...controller.credentials,
+									environmentId: newEnvId,
+								});
+								// Auto-save if we have both environmentId and clientId
+								if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+									controller.saveCredentials();
+									v4ToastManager.showSuccess('Credentials auto-saved');
+								}
+							}}
+							onIssuerUrlChange={() => {}}
+							showSuggestions={true}
+							autoDiscover={false}
+						/>
+
+						{/* Credentials Input */}
+						<CredentialsInput
+							environmentId={controller.credentials.environmentId || ''}
+							clientId={controller.credentials.clientId || ''}
+							clientSecret={controller.credentials.clientSecret || ''}
+							scopes={controller.credentials.scope || 'openid profile email'}
+							onEnvironmentIdChange={(newEnvId) => {
+								controller.setCredentials({
+									...controller.credentials,
+									environmentId: newEnvId,
+								});
+							}}
+							onClientIdChange={(newClientId) => {
+								controller.setCredentials({
+									...controller.credentials,
+									clientId: newClientId,
+								});
+								// Auto-save if we have both environmentId and clientId
+								if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+									controller.saveCredentials();
+									v4ToastManager.showSuccess('Credentials auto-saved');
+								}
+							}}
+							onClientSecretChange={(newClientSecret) => {
+								controller.setCredentials({
+									...controller.credentials,
+									clientSecret: newClientSecret,
+								});
+							}}
+							onScopesChange={(newScopes) => {
+								controller.setCredentials({
+									...controller.credentials,
+									scope: newScopes,
+								});
+							}}
+							onCopy={handleCopy}
+							showRedirectUri={true}
+							showLoginHint={false}
 						/>
 					</>
 				);
