@@ -142,18 +142,18 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  border: 2px solid ${props => props.$variant === 'primary' ? '#3b82f6' : '#d1d5db'};
+  border: 2px solid ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#d1d5db')};
   border-radius: 0.5rem;
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : 'white'};
-  color: ${props => props.$variant === 'primary' ? 'white' : '#374151'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.$variant === 'primary' ? 'white' : '#374151')};
   cursor: pointer;
   font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.$variant === 'primary' ? '#2563eb' : '#f9fafb'};
-    border-color: ${props => props.$variant === 'primary' ? '#2563eb' : '#9ca3af'};
+    background: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#f9fafb')};
+    border-color: ${(props) => (props.$variant === 'primary' ? '#2563eb' : '#9ca3af')};
   }
 
   &:disabled {
@@ -192,7 +192,6 @@ const TutorialGrid = styled.div`
   gap: 2rem;
   margin-bottom: 3rem;
 `;
-
 
 const TutorialIcon = styled.div`
   width: 80px;
@@ -367,7 +366,6 @@ const CodeBlock = styled.pre`
   color: #1f2937;
 `;
 
-
 const InteractiveTutorials = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Interactive Tutorials', force: true });
@@ -415,7 +413,9 @@ const InteractiveTutorials = () => {
 				redirectUri,
 			};
 			localStorage.setItem('pingone-tutorial-config', JSON.stringify(config));
-			v4ToastManager.showSuccess('Configuration saved successfully! Your settings will persist across sessions.');
+			v4ToastManager.showSuccess(
+				'Configuration saved successfully! Your settings will persist across sessions.'
+			);
 		} catch (error) {
 			console.error('Failed to save configuration:', error);
 			v4ToastManager.showError('Failed to save configuration. Please try again.');
@@ -440,7 +440,13 @@ const InteractiveTutorials = () => {
 
 	// Check if all required fields are filled
 	const isConfigurationComplete = () => {
-		return environmentId.trim() && clientId.trim() && clientSecret.trim() && pingoneAuthUrl.trim() && redirectUri.trim();
+		return (
+			environmentId.trim() &&
+			clientId.trim() &&
+			clientSecret.trim() &&
+			pingoneAuthUrl.trim() &&
+			redirectUri.trim()
+		);
 	};
 
 	// Debug selectedTutorial state changes
@@ -485,7 +491,8 @@ Why OAuth Matters:
 				},
 				{
 					title: 'OAuth 2.0 vs OAuth 1.0',
-					content: 'Understanding the evolution from OAuth 1.0 to 2.0 and why the change was necessary.',
+					content:
+						'Understanding the evolution from OAuth 1.0 to 2.0 and why the change was necessary.',
 					code: `OAuth 1.0 vs OAuth 2.0 Comparison:
 
 OAuth 1.0 (2010):
@@ -518,7 +525,8 @@ Migration Timeline:
 				},
 				{
 					title: 'OAuth Roles Deep Dive',
-					content: 'Detailed understanding of each role in the OAuth ecosystem and their responsibilities.',
+					content:
+						'Detailed understanding of each role in the OAuth ecosystem and their responsibilities.',
 					code: `🎭 OAuth 2.0 Roles & Responsibilities:
 
 1. Resource Owner (User)
@@ -860,7 +868,8 @@ OAuth 2.1 Security Improvements:
 		{
 			id: 'auth-code-flow',
 			title: 'Authorization Code Flow',
-			description: 'Master the most secure OAuth flow with comprehensive examples and real-world scenarios',
+			description:
+				'Master the most secure OAuth flow with comprehensive examples and real-world scenarios',
 			difficulty: 'intermediate',
 			duration: '35 min',
 			icon: FiCode,
@@ -900,7 +909,8 @@ Instead of storing employee passwords, you use OAuth to get secure access tokens
 				},
 				{
 					title: 'Step 1: Authorization Request',
-					content: 'The client initiates the flow by redirecting the user to the authorization server with specific parameters.',
+					content:
+						'The client initiates the flow by redirecting the user to the authorization server with specific parameters.',
 					code: `🚀 Step 1: Authorization Request
 
 The client redirects the user to PingOne with these parameters:
@@ -994,7 +1004,8 @@ Security Considerations:
 				},
 				{
 					title: 'Step 3: Authorization Code Response',
-					content: 'After successful authorization, PingOne redirects the user back with an authorization code.',
+					content:
+						'After successful authorization, PingOne redirects the user back with an authorization code.',
 					code: `📨 Step 3: Authorization Code Response
 
 Successful Response:
@@ -2148,7 +2159,8 @@ POST /token
 				},
 				{
 					title: 'State Parameter Protection',
-					content: 'The state parameter prevents CSRF attacks by binding the authorization request to the callback.',
+					content:
+						'The state parameter prevents CSRF attacks by binding the authorization request to the callback.',
 					code: `// Generate cryptographically secure state
 const state = crypto.randomBytes(32).toString('hex');
 
@@ -2296,7 +2308,8 @@ Error Response:
 				},
 				{
 					title: 'Step 3: Authorization with Request URI',
-					content: 'The client redirects the user using the request_uri instead of individual parameters.',
+					content:
+						'The client redirects the user using the request_uri instead of individual parameters.',
 					code: `GET https://auth.pingone.com/{environmentId}/as/authorize?
   client_id={clientId}&
   request_uri={requestUri}
@@ -3607,7 +3620,6 @@ export default App;`,
 		}
 	};
 
-
 	const renderStepContent = (step: TutorialStep) => {
 		// Replace placeholders with actual configuration values
 		const replacePlaceholders = (code: string) => {
@@ -3618,7 +3630,10 @@ export default App;`,
 				.replace(/\{pingoneAuthUrl\}/g, pingoneAuthUrl || '{pingoneAuthUrl}')
 				.replace(/\{redirectUri\}/g, redirectUri || '{redirectUri}')
 				.replace(/your_client_id/g, clientId || 'your_client_id')
-				.replace(/https:\/\/your-app\.com\/callback/g, redirectUri || 'https://your-app.com/callback')
+				.replace(
+					/https:\/\/your-app\.com\/callback/g,
+					redirectUri || 'https://your-app.com/callback'
+				)
 				.replace(/https:\/\/auth\.pingone\.com/g, pingoneAuthUrl || 'https://auth.pingone.com');
 		};
 
@@ -3633,75 +3648,25 @@ export default App;`,
 					</div>
 				);
 			case 'diagram':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="diagram"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="diagram" />;
 			case 'info':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="info"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="info" />;
 			case 'security':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="security"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="security" />;
 			case 'validation':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="validation"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="validation" />;
 			case 'comparison':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="comparison"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="comparison" />;
 			case 'jwt':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="jwt"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="jwt" />;
 			case 'claims':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="claims"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="claims" />;
 			case 'discovery':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="discovery"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="discovery" />;
 			case 'architecture':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="architecture"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="architecture" />;
 			case 'enterprise':
-				return (
-					<TutorialTextFormatter
-						content={processedCode}
-						type="enterprise"
-					/>
-				);
+				return <TutorialTextFormatter content={processedCode} type="enterprise" />;
 			default:
 				return (
 					<div>
@@ -3714,12 +3679,13 @@ export default App;`,
 
 	return (
 		<Container>
-			<FlowHeader 
+			<FlowHeader
 				flowType="documentation"
 				customConfig={{
-					title: "Interactive Tutorials",
-					subtitle: "Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect. Choose a tutorial and follow along with interactive examples and explanations.",
-					icon: "📚"
+					title: 'Interactive Tutorials',
+					subtitle:
+						'Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect. Choose a tutorial and follow along with interactive examples and explanations.',
+					icon: '📚',
 				}}
 			/>
 			<Header>
@@ -3919,7 +3885,9 @@ export default App;`,
 										if (isConfigurationComplete()) {
 											startTutorial(tutorial);
 										} else {
-											v4ToastManager.showWarning('Please complete all configuration fields before starting a tutorial');
+											v4ToastManager.showWarning(
+												'Please complete all configuration fields before starting a tutorial'
+											);
 										}
 									}}
 									style={{
@@ -3972,7 +3940,11 @@ export default App;`,
 								}}
 								canNavigateNext={true}
 								isFirstStep={currentStep === 0}
-								nextButtonText={currentStep === selectedTutorial.steps.length - 1 ? 'Complete Tutorial' : 'Next Step'}
+								nextButtonText={
+									currentStep === selectedTutorial.steps.length - 1
+										? 'Complete Tutorial'
+										: 'Next Step'
+								}
 							/>
 						</StepContainer>
 					</ModalContent>

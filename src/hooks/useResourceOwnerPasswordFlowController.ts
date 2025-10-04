@@ -53,7 +53,7 @@ export const useResourceOwnerPasswordFlowController =
 			} catch (error) {
 				console.warn(`${LOG_PREFIX} [WARN] Failed to load saved credentials:`, error);
 			}
-			
+
 			// Return default credentials if no saved credentials found
 			return {
 				environmentId: '',
@@ -132,33 +132,36 @@ export const useResourceOwnerPasswordFlowController =
 			}
 		}, [credentials]);
 
-	const saveCredentials = useCallback(async () => {
-		try {
-			console.log(`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`);
-			
-			// Save to sessionStorage for persistence
-			sessionStorage.setItem('resource-owner-password-v5-credentials', JSON.stringify(credentials));
-			
-			console.log(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`);
-		} catch (error) {
-			console.error(`${LOG_PREFIX} [ERROR] Failed to save credentials:`, error);
-			throw error;
-		}
-	}, [credentials]);
+		const saveCredentials = useCallback(async () => {
+			try {
+				console.log(`${LOG_PREFIX} [SAVE] Saving Resource Owner Password credentials...`);
 
-	const clearResults = useCallback(() => {
-		setTokens(null);
-		setError(null);
-	}, []);
+				// Save to sessionStorage for persistence
+				sessionStorage.setItem(
+					'resource-owner-password-v5-credentials',
+					JSON.stringify(credentials)
+				);
 
-	return {
-		credentials,
-		tokens,
-		isRequesting,
-		error,
-		updateCredentials,
-		requestToken,
-		saveCredentials,
-		clearResults,
-	};
+				console.log(`${LOG_PREFIX} [SUCCESS] Credentials saved successfully`);
+			} catch (error) {
+				console.error(`${LOG_PREFIX} [ERROR] Failed to save credentials:`, error);
+				throw error;
+			}
+		}, [credentials]);
+
+		const clearResults = useCallback(() => {
+			setTokens(null);
+			setError(null);
+		}, []);
+
+		return {
+			credentials,
+			tokens,
+			isRequesting,
+			error,
+			updateCredentials,
+			requestToken,
+			saveCredentials,
+			clearResults,
+		};
 	};
