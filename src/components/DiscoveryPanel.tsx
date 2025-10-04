@@ -144,15 +144,21 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small'
   border: none;
 
   ${({ variant = 'primary', size = 'normal' }) => `
-    ${size === 'small' ? `
+    ${
+			size === 'small'
+				? `
       padding: 0.375rem 0.75rem;
       font-size: 0.75rem;
-    ` : `
+    `
+				: `
       padding: 0.75rem 1.5rem;
       font-size: 0.875rem;
-    `}
+    `
+		}
 
-    ${variant === 'primary' ? `
+    ${
+			variant === 'primary'
+				? `
       background: #3b82f6;
       color: white;
 
@@ -160,7 +166,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small'
         background: #2563eb;
         transform: translateY(-1px);
       }
-    ` : `
+    `
+				: `
       background: #f3f4f6;
       color: #374151;
       border: 1px solid #d1d5db;
@@ -168,7 +175,8 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary'; size?: 'small'
       &:hover:not(:disabled) {
         background: #e5e7eb;
       }
-    `}
+    `
+		}
   `}
 
   &:active {
@@ -417,7 +425,8 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 				setRawJsonResponse(JSON.stringify(result.configuration, null, 2));
 				setStatus({
 					type: 'success',
-					message: 'Configuration discovered successfully. Switch between Formatted and JSON views to see the response.',
+					message:
+						'Configuration discovered successfully. Switch between Formatted and JSON views to see the response.',
 				});
 				v4ToastManager.showSuccess('saveConfigurationSuccess');
 				logger.success('DiscoveryPanel', 'Configuration discovered successfully', {
@@ -546,7 +555,14 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 
 					{discoveredConfig && (
 						<ConfigurationDisplay>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '1rem',
+								}}
+							>
 								<h3
 									style={{
 										margin: '0',
@@ -611,7 +627,9 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 										<ConfigValue>
 											{discoveredConfig.token_endpoint}
 											<CopyButton
-												onClick={() => handleCopyToClipboard(discoveredConfig.token_endpoint, 'token')}
+												onClick={() =>
+													handleCopyToClipboard(discoveredConfig.token_endpoint, 'token')
+												}
 												title="Copy Token Endpoint"
 											>
 												{copiedField === 'token' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
@@ -629,7 +647,11 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 												}
 												title="Copy UserInfo Endpoint"
 											>
-												{copiedField === 'userinfo' ? <FiCheck size={14} /> : <CopyIcon size={14} />}
+												{copiedField === 'userinfo' ? (
+													<FiCheck size={14} />
+												) : (
+													<CopyIcon size={14} />
+												)}
 											</CopyButton>
 										</ConfigValue>
 									</ConfigItem>
@@ -649,20 +671,27 @@ const DiscoveryPanel: React.FC<DiscoveryPanelProps> = ({ onConfigurationDiscover
 								</>
 							) : (
 								<div style={{ marginTop: '1rem' }}>
-									<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+									<div
+										style={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											alignItems: 'center',
+											marginBottom: '0.5rem',
+										}}
+									>
 										<strong>Raw JSON Response</strong>
 										<Button
 											variant="secondary"
 											size="small"
-											onClick={() => rawJsonResponse && handleCopyToClipboard(rawJsonResponse, 'json')}
+											onClick={() =>
+												rawJsonResponse && handleCopyToClipboard(rawJsonResponse, 'json')
+											}
 										>
 											<CopyIcon size={14} />
 											Copy JSON
 										</Button>
 									</div>
-									<JsonDisplay>
-										{rawJsonResponse}
-									</JsonDisplay>
+									<JsonDisplay>{rawJsonResponse}</JsonDisplay>
 								</div>
 							)}
 
