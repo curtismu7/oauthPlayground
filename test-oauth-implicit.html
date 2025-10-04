@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Implicit Flow Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #2563eb;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        .info { background: #dbeafe; color: #1e40af; }
+        .test-results {
+            margin-top: 20px;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-left: 4px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        .test-item.pass { border-left-color: #10b981; }
+        .test-item.fail { border-left-color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🧪 OAuth Implicit Flow Test</h1>
+        <p>This page tests the OAuth Implicit flow functionality after our cleanup.</p>
+        
+        <div class="status info">
+            <strong>Test Status:</strong> <span id="testStatus">Ready to test</span>
+        </div>
+        
+        <div>
+            <button class="test-button" onclick="testServerConnection()">1. Test Server Connection</button>
+            <button class="test-button" onclick="testOAuthImplicitPage()">2. Test OAuth Implicit Page</button>
+            <button class="test-button" onclick="testFlowComponents()">3. Test Flow Components</button>
+            <button class="test-button" onclick="runAllTests()">Run All Tests</button>
+        </div>
+        
+        <div class="test-results" id="testResults">
+            <!-- Test results will appear here -->
+        </div>
+    </div>
+
+    <script>
+        const testResults = document.getElementById('testResults');
+        const testStatus = document.getElementById('testStatus');
+        
+        function addTestResult(testName, passed, message) {
+            const testItem = document.createElement('div');
+            testItem.className = `test-item ${passed ? 'pass' : 'fail'}`;
+            testItem.innerHTML = `
+                <strong>${testName}:</strong> ${passed ? '✅ PASS' : '❌ FAIL'}
+                <br><small>${message}</small>
+            `;
+            testResults.appendChild(testItem);
+        }
+        
+        function clearResults() {
+            testResults.innerHTML = '';
+        }
+        
+        async function testServerConnection() {
+            clearResults();
+            testStatus.textContent = 'Testing server connection...';
+            
+            try {
+                const response = await fetch('http://localhost:3000', {
+                    method: 'HEAD',
+                    mode: 'no-cors'
+                });
+                addTestResult('Server Connection', true, 'Server is responding');
+                testStatus.textContent = 'Server connection successful';
+            } catch (error) {
+                addTestResult('Server Connection', false, `Error: ${error.message}`);
+                testStatus.textContent = 'Server connection failed';
+            }
+        }
+        
+        async function testOAuthImplicitPage() {
+            testStatus.textContent = 'Testing OAuth Implicit page...';
+            
+            try {
+                const response = await fetch('http://localhost:3000/flows/oauth-implicit-v5');
+                if (response.ok) {
+                    addTestResult('OAuth Implicit Page', true, 'Page loads successfully');
+                } else {
+                    addTestResult('OAuth Implicit Page', false, `HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                addTestResult('OAuth Implicit Page', false, `Error: ${error.message}`);
+            }
+        }
+        
+        async function testFlowComponents() {
+            testStatus.textContent = 'Testing flow components...';
+            
+            // Test if the page contains expected OAuth Implicit flow elements
+            try {
+                const response = await fetch('http://localhost:3000/flows/oauth-implicit-v5');
+                const html = await response.text();
+                
+                const hasFlowHeader = html.includes('FlowHeader') || html.includes('Implicit Flow');
+                const hasCredentialsInput = html.includes('CredentialsInput') || html.includes('environmentId');
+                const hasResponseMode = html.includes('ResponseMode') || html.includes('response_mode');
+                
+                addTestResult('Flow Header Component', hasFlowHeader, hasFlowHeader ? 'Flow header present' : 'Flow header missing');
+                addTestResult('Credentials Input', hasCredentialsInput, hasCredentialsInput ? 'Credentials input present' : 'Credentials input missing');
+                addTestResult('Response Mode Selector', hasResponseMode, hasResponseMode ? 'Response mode selector present' : 'Response mode selector missing');
+                
+            } catch (error) {
+                addTestResult('Flow Components', false, `Error: ${error.message}`);
+            }
+        }
+        
+        async function runAllTests() {
+            clearResults();
+            testStatus.textContent = 'Running all tests...';
+            
+            await testServerConnection();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testOAuthImplicitPage();
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            await testFlowComponents();
+            
+            testStatus.textContent = 'All tests completed';
+        }
+        
+        // Auto-run basic connection test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testServerConnection, 1000);
+        });
+    </script>
+</body>
+</html>
