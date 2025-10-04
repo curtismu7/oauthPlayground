@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/NewAuthContext';
 import { config } from '../../services/config';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { ResponseMode } from '../../services/responseModeService';
 
 const Page = styled.div`
   display: flex;
@@ -115,6 +116,7 @@ const ImplicitFlowOIDC: React.FC = () => {
 		clientSecret: '',
 		redirectUri: '',
 		additionalScopes: '',
+		responseMode: 'fragment' as ResponseMode,
 	});
 	const [stepsWithResults, setStepsWithResults] = useState<FlowStep[]>([]);
 
@@ -159,6 +161,7 @@ const ImplicitFlowOIDC: React.FC = () => {
   client_id=${flowCredentials.clientId || 'your_client_id'}
   &redirect_uri=${flowCredentials.redirectUri || 'https://your-app.com/callback'}
   &response_type=id_token token
+  &response_mode=${flowCredentials.responseMode}
   &scope=${flowCredentials.additionalScopes || 'openid profile email'}
   &nonce=${Math.random().toString(36).substring(2, 15)}
   &state=${Math.random().toString(36).substring(2, 15)}`,
@@ -181,6 +184,7 @@ const ImplicitFlowOIDC: React.FC = () => {
 					client_id: credentials.clientId,
 					redirect_uri: redirectUri,
 					response_type: 'id_token token',
+					response_mode: flowCredentials.responseMode,
 					scope: flowCredentials.additionalScopes || 'openid profile email',
 					nonce: Math.random().toString(36).substring(2, 15),
 					state: Math.random().toString(36).substring(2, 15),

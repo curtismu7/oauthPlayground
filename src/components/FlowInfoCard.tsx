@@ -80,7 +80,7 @@ const ToggleIcon = styled.div<{ $isOpen: boolean }>`
 	justify-content: center;
 	color: white;
 	transition: transform 0.2s ease;
-	transform: ${({ $isOpen }) => ($isOpen ? 'rotate(180deg)' : 'rotate(0deg)')};
+	transform: ${({ $isOpen }) => ($isOpen ? 'rotate(0deg)' : 'rotate(-90deg)')};
 	flex-shrink: 0;
 `;
 

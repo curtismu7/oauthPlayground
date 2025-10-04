@@ -164,7 +164,7 @@ export class RSAKeyGenerationService {
 			}
 
 			// Try to decode as base64
-			const binaryDer = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+			const binaryDer = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
 
 			// Try to import the key
 			await crypto.subtle.importKey(

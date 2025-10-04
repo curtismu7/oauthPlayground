@@ -376,7 +376,9 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 						<SettingRow>
 							<SettingLabel>
 								<SettingName>Show API Call Examples</SettingName>
-								<SettingDescription>Display curl commands and API usage examples in OAuth flows</SettingDescription>
+								<SettingDescription>
+									Display curl commands and API usage examples in OAuth flows
+								</SettingDescription>
 							</SettingLabel>
 							<Toggle
 								$active={settings.showApiCallExamples}

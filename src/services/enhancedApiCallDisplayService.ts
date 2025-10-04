@@ -18,7 +18,15 @@ export interface EnhancedApiCallData {
 	timestamp?: Date;
 	duration?: number;
 	// OAuth-specific fields
-	flowType?: 'authorization-code' | 'implicit' | 'client-credentials' | 'device-code' | 'rar' | 'hybrid' | 'ciba' | 'worker-token';
+	flowType?:
+		| 'authorization-code'
+		| 'implicit'
+		| 'client-credentials'
+		| 'device-code'
+		| 'rar'
+		| 'hybrid'
+		| 'ciba'
+		| 'worker-token';
 	stepName?: string;
 	description?: string;
 	educationalNotes?: string[];
@@ -58,7 +66,11 @@ export class EnhancedApiCallDisplayService {
 	/**
 	 * Generate OAuth flow-specific API call templates
 	 */
-	static createOAuthTemplate(flowType: string, stepName: string, config: Record<string, unknown>): EnhancedApiCallData {
+	static createOAuthTemplate(
+		flowType: string,
+		stepName: string,
+		config: Record<string, unknown>
+	): EnhancedApiCallData {
 		const templates: Record<string, Record<string, Partial<EnhancedApiCallData>>> = {
 			'authorization-code': {
 				'authorization-request': {
@@ -69,36 +81,36 @@ export class EnhancedApiCallDisplayService {
 						client_id: config.clientId as string,
 						redirect_uri: config.redirectUri as string,
 						scope: (config.scopes as string[])?.join(' ') || 'openid profile email',
-						state: 'random-state-value'
+						state: 'random-state-value',
 					},
 					description: 'Initiate OAuth 2.0 Authorization Code flow',
 					educationalNotes: [
 						'The user will be redirected to this URL to authenticate',
 						'After authentication, the user will be redirected back with an authorization code',
-						'The state parameter helps prevent CSRF attacks'
-					]
+						'The state parameter helps prevent CSRF attacks',
+					],
 				},
 				'token-exchange': {
 					method: 'POST' as const,
 					url: `https://auth.pingone.com/${config.environmentId as string}/as/token`,
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
-						'Authorization': `Basic ${btoa(`${config.clientId as string}:${config.clientSecret as string}`)}`
+						Authorization: `Basic ${btoa(`${config.clientId as string}:${config.clientSecret as string}`)}`,
 					},
 					body: {
 						grant_type: 'authorization_code',
 						code: '[authorization_code]',
-						redirect_uri: config.redirectUri as string
+						redirect_uri: config.redirectUri as string,
 					},
 					description: 'Exchange authorization code for access token',
 					educationalNotes: [
 						'This request exchanges the authorization code for an access token',
 						'Client credentials are sent via Basic authentication',
-						'The response will contain access_token and refresh_token'
-					]
-				}
+						'The response will contain access_token and refresh_token',
+					],
+				},
 			},
-			'rar': {
+			rar: {
 				'authorization-request': {
 					method: 'GET' as const,
 					url: `https://auth.pingone.com/${config.environmentId as string}/as/authorize`,
@@ -110,36 +122,36 @@ export class EnhancedApiCallDisplayService {
 						state: 'rar-flow-state',
 						authorization_details: JSON.stringify({
 							type: 'oauth_authorization_details',
-							authorization_details: (config.authorizationDetails as unknown[]) || []
-						})
+							authorization_details: (config.authorizationDetails as unknown[]) || [],
+						}),
 					},
 					description: 'Initiate RAR (Rich Authorization Requests) flow',
 					educationalNotes: [
 						'RAR extends OAuth 2.0 with granular authorization details',
 						'The authorization_details parameter specifies exact permissions',
-						'This enables fine-grained access control for APIs'
-					]
+						'This enables fine-grained access control for APIs',
+					],
 				},
 				'token-exchange': {
 					method: 'POST' as const,
 					url: `https://auth.pingone.com/${config.environmentId as string}/as/token`,
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
-						'Authorization': `Basic ${btoa(`${config.clientId as string}:${config.clientSecret as string}`)}`
+						Authorization: `Basic ${btoa(`${config.clientId as string}:${config.clientSecret as string}`)}`,
 					},
 					body: {
 						grant_type: 'authorization_code',
 						code: (config.authorizationCode as string) || '[authorization_code]',
-						redirect_uri: config.redirectUri as string
+						redirect_uri: config.redirectUri as string,
 					},
 					description: 'Exchange authorization code for access token with RAR claims',
 					educationalNotes: [
 						'The access token will contain authorization_details as claims',
 						'These claims specify exactly what the client is authorized to do',
-						'Resource servers can use these claims for fine-grained authorization'
-					]
-				}
-			}
+						'Resource servers can use these claims for fine-grained authorization',
+					],
+				},
+			},
 		};
 
 		const flowTemplates = templates[flowType];
@@ -156,7 +168,7 @@ export class EnhancedApiCallDisplayService {
 			...template,
 			flowType: flowType as EnhancedApiCallData['flowType'],
 			stepName,
-			timestamp: new Date()
+			timestamp: new Date(),
 		} as EnhancedApiCallData;
 	}
 
@@ -171,9 +183,10 @@ export class EnhancedApiCallDisplayService {
 				rules.push({
 					pattern: 'authorization_details=',
 					label: 'RAR Parameter',
-					description: 'Rich Authorization Requests parameter containing granular authorization requirements',
+					description:
+						'Rich Authorization Requests parameter containing granular authorization requirements',
 					color: '#92400e',
-					backgroundColor: '#fef3c7'
+					backgroundColor: '#fef3c7',
 				});
 				break;
 			case 'par':
@@ -182,7 +195,7 @@ export class EnhancedApiCallDisplayService {
 					label: 'PAR Parameter',
 					description: 'Pushed Authorization Request URI parameter',
 					color: '#1e40af',
-					backgroundColor: '#dbeafe'
+					backgroundColor: '#dbeafe',
 				});
 				break;
 			case 'pkce':
@@ -192,14 +205,14 @@ export class EnhancedApiCallDisplayService {
 						label: 'PKCE Challenge',
 						description: 'PKCE code challenge parameter for security',
 						color: '#059669',
-						backgroundColor: '#d1fae5'
+						backgroundColor: '#d1fae5',
 					},
 					{
 						pattern: 'code_challenge_method=',
 						label: 'PKCE Method',
 						description: 'PKCE challenge method (S256 recommended)',
 						color: '#059669',
-						backgroundColor: '#d1fae5'
+						backgroundColor: '#d1fae5',
 					}
 				);
 				break;
@@ -210,14 +223,14 @@ export class EnhancedApiCallDisplayService {
 						label: 'Nonce',
 						description: 'OIDC nonce parameter for ID token binding',
 						color: '#7c3aed',
-						backgroundColor: '#ede9fe'
+						backgroundColor: '#ede9fe',
 					},
 					{
 						pattern: 'prompt=',
 						label: 'Prompt',
 						description: 'OIDC prompt parameter for user interaction control',
 						color: '#7c3aed',
-						backgroundColor: '#ede9fe'
+						backgroundColor: '#ede9fe',
 					}
 				);
 				break;
@@ -228,14 +241,14 @@ export class EnhancedApiCallDisplayService {
 						label: 'Grant Type',
 						description: 'OAuth 2.0 grant type (client_credentials for worker tokens)',
 						color: '#dc2626',
-						backgroundColor: '#fef2f2'
+						backgroundColor: '#fef2f2',
 					},
 					{
 						pattern: 'scope=',
 						label: 'Scope',
 						description: 'OAuth 2.0 scope parameter defining access permissions',
 						color: '#dc2626',
-						backgroundColor: '#fef2f2'
+						backgroundColor: '#fef2f2',
 					}
 				);
 				break;
@@ -247,7 +260,10 @@ export class EnhancedApiCallDisplayService {
 	/**
 	 * Highlight URL parts based on provided rules
 	 */
-	static highlightURL(url: string, rules: URLHighlightRule[] = []): Array<{
+	static highlightURL(
+		url: string,
+		rules: URLHighlightRule[] = []
+	): Array<{
 		content: string;
 		isHighlighted: boolean;
 		label?: string;
@@ -278,14 +294,17 @@ export class EnhancedApiCallDisplayService {
 			rule: URLHighlightRule;
 		}> = [];
 
-		rules.forEach(rule => {
-			const pattern = typeof rule.pattern === 'string' ? new RegExp(rule.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g') : rule.pattern;
+		rules.forEach((rule) => {
+			const pattern =
+				typeof rule.pattern === 'string'
+					? new RegExp(rule.pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')
+					: rule.pattern;
 			let match;
 			while ((match = pattern.exec(remainingUrl)) !== null) {
 				matches.push({
 					start: match.index,
 					end: match.index + match[0].length,
-					rule
+					rule,
 				});
 			}
 		});
@@ -299,7 +318,7 @@ export class EnhancedApiCallDisplayService {
 			if (match.start > lastIndex) {
 				parts.push({
 					content: remainingUrl.substring(lastIndex, match.start),
-					isHighlighted: false
+					isHighlighted: false,
 				});
 			}
 
@@ -310,7 +329,7 @@ export class EnhancedApiCallDisplayService {
 				label: match.rule.label,
 				description: match.rule.description,
 				color: match.rule.color || undefined,
-				backgroundColor: match.rule.backgroundColor || undefined
+				backgroundColor: match.rule.backgroundColor || undefined,
 			});
 
 			lastIndex = match.end;
@@ -320,7 +339,7 @@ export class EnhancedApiCallDisplayService {
 		if (lastIndex < remainingUrl.length) {
 			parts.push({
 				content: remainingUrl.substring(lastIndex),
-				isHighlighted: false
+				isHighlighted: false,
 			});
 		}
 
@@ -330,8 +349,17 @@ export class EnhancedApiCallDisplayService {
 	/**
 	 * Generate enhanced curl command with better formatting
 	 */
-	static generateEnhancedCurlCommand(apiCall: EnhancedApiCallData, options: ApiCallDisplayOptions = {}): string {
-		const { includeHeaders = true, includeBody = true, includeQueryParams = true, verbose = false, insecure = false } = options;
+	static generateEnhancedCurlCommand(
+		apiCall: EnhancedApiCallData,
+		options: ApiCallDisplayOptions = {}
+	): string {
+		const {
+			includeHeaders = true,
+			includeBody = true,
+			includeQueryParams = true,
+			verbose = false,
+			insecure = false,
+		} = options;
 
 		let curlCommand = 'curl';
 		const lines: string[] = [];
@@ -488,40 +516,40 @@ export class EnhancedApiCallDisplayService {
 	 * Track API call execution
 	 */
 	static async trackApiCall(
-		apiCall: EnhancedApiCallData, 
+		apiCall: EnhancedApiCallData,
 		executeFn: () => Promise<Response>
 	): Promise<EnhancedApiCallData> {
 		const startTime = Date.now();
-		
+
 		try {
 			const response = await executeFn();
 			const duration = Date.now() - startTime;
-			
+
 			const responseData = await response.json().catch(() => null);
-			
+
 			return {
 				...apiCall,
 				response: {
 					status: response.status,
 					statusText: response.statusText,
 					headers: Object.fromEntries(response.headers.entries()),
-					data: responseData
+					data: responseData,
 				},
 				duration,
-				timestamp: new Date()
+				timestamp: new Date(),
 			};
 		} catch (error) {
 			const duration = Date.now() - startTime;
-			
+
 			return {
 				...apiCall,
 				response: {
 					status: 0,
 					statusText: 'Network Error',
-					error: error instanceof Error ? error.message : 'Unknown error'
+					error: error instanceof Error ? error.message : 'Unknown error',
 				},
 				duration,
-				timestamp: new Date()
+				timestamp: new Date(),
 			};
 		}
 	}
@@ -529,7 +557,10 @@ export class EnhancedApiCallDisplayService {
 	/**
 	 * Create a complete display string with all API call information
 	 */
-	static createFullDisplay(apiCall: EnhancedApiCallData, options: ApiCallDisplayOptions = {}): string {
+	static createFullDisplay(
+		apiCall: EnhancedApiCallData,
+		options: ApiCallDisplayOptions = {}
+	): string {
 		const curlCommand = this.generateEnhancedCurlCommand(apiCall, options);
 		const formattedCall = this.formatApiCallText(apiCall, options.prettyPrint);
 		const responseSummary = this.formatResponseSummary(apiCall);
@@ -563,11 +594,16 @@ export class EnhancedApiCallDisplayService {
 }
 
 // Export utility functions
-export const createOAuthTemplate = (flowType: string, stepName: string, config: Record<string, unknown>) =>
-	EnhancedApiCallDisplayService.createOAuthTemplate(flowType, stepName, config);
+export const createOAuthTemplate = (
+	flowType: string,
+	stepName: string,
+	config: Record<string, unknown>
+) => EnhancedApiCallDisplayService.createOAuthTemplate(flowType, stepName, config);
 
-export const generateEnhancedCurlCommand = (apiCall: EnhancedApiCallData, options?: ApiCallDisplayOptions) =>
-	EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
+export const generateEnhancedCurlCommand = (
+	apiCall: EnhancedApiCallData,
+	options?: ApiCallDisplayOptions
+) => EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
 
 export const trackApiCall = (apiCall: EnhancedApiCallData, executeFn: () => Promise<Response>) =>
 	EnhancedApiCallDisplayService.trackApiCall(apiCall, executeFn);

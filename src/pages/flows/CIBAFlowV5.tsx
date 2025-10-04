@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { FiAlertCircle, FiCopy, FiInfo, FiRefreshCw, FiSmartphone, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import {
@@ -15,9 +15,13 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import {
+	TokenIntrospectionService,
+	IntrospectionApiCallData,
+} from '../../services/tokenIntrospectionService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -25,6 +29,7 @@ import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -242,6 +247,9 @@ const REQUIRED_FIELDS: Array<keyof CibaConfig> = [
 ];
 
 const CIBAFlowV5: React.FC = () => {
+	// Ensure page starts at top
+	usePageScroll({ pageName: 'CIBAFlowV5', force: true });
+
 	const {
 		config,
 		authRequest,
@@ -265,9 +273,11 @@ const CIBAFlowV5: React.FC = () => {
 		return 0;
 	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 
 	const effectiveConfig = useMemo(() => config ?? buildInitialConfig(), [config]);
 
@@ -340,9 +350,7 @@ const CIBAFlowV5: React.FC = () => {
 			localStorage.setItem('token_to_analyze', tokens.access_token);
 			localStorage.setItem('token_type', 'access');
 			localStorage.setItem('flow_source', 'ciba-v5');
-			console.log(
-				'🔍 [CIBAFlowV5] Passing access token to Token Management via localStorage'
-			);
+			console.log('🔍 [CIBAFlowV5] Passing access token to Token Management via localStorage');
 		}
 
 		window.open('/token-management', '_blank');
@@ -434,6 +442,16 @@ const CIBAFlowV5: React.FC = () => {
 			<Content>
 				<FlowHeader flowId="oidc-ciba-v5" />
 
+				<EnhancedFlowInfoCard
+					flowType="oidc-ciba-v5"
+					showAdditionalInfo={true}
+					showDocumentation={true}
+					showCommonIssues={false}
+					showImplementationNotes={false}
+				/>
+
+				<FlowConfigurationRequirements flowType="ciba" variant="oidc" />
+
 				{/* Warning Notice */}
 				<div
 					style={{
@@ -511,10 +529,10 @@ const CIBAFlowV5: React.FC = () => {
 										<FiSmartphone /> Decoupled authentication
 									</ExplanationHeading>
 									<p>
-										<strong>Client Initiated Backchannel Authentication (CIBA)</strong> lets a client trigger user
-										authentication on a secondary device. PingOne notifies the end user through a
-										registered authenticator. Once approved, the client polls the token endpoint
-										with the returned <code>auth_req_id</code> to obtain tokens.
+										<strong>Client Initiated Backchannel Authentication (CIBA)</strong> lets a
+										client trigger user authentication on a secondary device. PingOne notifies the
+										end user through a registered authenticator. Once approved, the client polls the
+										token endpoint with the returned <code>auth_req_id</code> to obtain tokens.
 									</p>
 								</ExplanationSection>
 							</>
@@ -522,17 +540,24 @@ const CIBAFlowV5: React.FC = () => {
 
 						{currentStep === 1 && (
 							<>
-								<ConfigurationSummaryCard
-									hasConfiguration={Boolean(
-										effectiveConfig.environmentId && effectiveConfig.clientId
-									)}
-									configurationDetails={{
-										environmentId: effectiveConfig.environmentId,
-										clientId: effectiveConfig.clientId,
-										scopes: effectiveConfig.scope.split(' ').filter(Boolean),
-										loginHint: effectiveConfig.loginHint,
+								{/* Environment ID Input */}
+								<EnvironmentIdInput
+									initialEnvironmentId={effectiveConfig.environmentId || ''}
+									onEnvironmentIdChange={(newEnvId) => {
+										setEffectiveConfig(prev => ({
+											...prev,
+											environmentId: newEnvId,
+										}));
+										// Auto-save if we have both environmentId and clientId
+										if (newEnvId && effectiveConfig.clientId && newEnvId.trim() && effectiveConfig.clientId.trim()) {
+											// Auto-save logic can be added here if needed
+										}
 									}}
+									onIssuerUrlChange={() => {}}
+									showSuggestions={true}
+									autoDiscover={false}
 								/>
+
 								<InlineNotice>
 									<FiInfo size={18} />
 									<div>
@@ -543,6 +568,8 @@ const CIBAFlowV5: React.FC = () => {
 										</p>
 									</div>
 								</InlineNotice>
+
+								{/* Credentials Input */}
 								<CredentialsInput
 									environmentId={effectiveConfig.environmentId}
 									clientId={effectiveConfig.clientId}
@@ -683,8 +710,10 @@ const CIBAFlowV5: React.FC = () => {
 												const request = {
 													token: token,
 													clientId: effectiveConfig.clientId,
-													...(effectiveConfig.clientSecret && { clientSecret: effectiveConfig.clientSecret }),
-													tokenTypeHint: 'access_token' as const
+													...(effectiveConfig.clientSecret && {
+														clientSecret: effectiveConfig.clientSecret,
+													}),
+													tokenTypeHint: 'access_token' as const,
 												};
 
 												try {
@@ -723,7 +752,8 @@ const CIBAFlowV5: React.FC = () => {
 												options={{
 													showEducationalNotes: true,
 													showFlowContext: true,
-													urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('ciba')
+													urlHighlightRules:
+														EnhancedApiCallDisplayService.getDefaultHighlightRules('ciba'),
 												}}
 											/>
 										)}

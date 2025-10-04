@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Playground - All Display Services Mock</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 1rem;
+            background: #f8fafc;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 0.5rem 0 0 0;
+            opacity: 0.9;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .service-section {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .service-section:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .service-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .service-header h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-info {
+            font-family: monospace;
+            font-size: 0.75rem;
+            background: #f1f5f9;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin: 0.5rem 0;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .service-names {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-top: 0.5rem;
+        }
+
+        .service-names strong {
+            color: #374151;
+        }
+
+        .service-content {
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .service-content.active {
+            display: block;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+
+        .feature-list li {
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+
+        .feature-list li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .mock-demo {
+            background: #f9fafb;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .mock-demo h4 {
+            margin: 0 0 0.75rem 0;
+            font-size: 1rem;
+            color: #374151;
+        }
+
+        .form-field {
+            margin-bottom: 0.75rem;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+            color: #374151;
+            font-size: 0.875rem;
+        }
+
+        .form-field input, .form-field select, .form-field textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            background: white;
+            box-sizing: border-box;
+        }
+
+        .form-field input:focus, .form-field select:focus, .form-field textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
+        }
+
+        .button:hover {
+            background: #2563eb;
+        }
+
+        .button.secondary {
+            background: #6b7280;
+        }
+
+        .button.secondary:hover {
+            background: #4b5563;
+        }
+
+        .button.success {
+            background: #10b981;
+        }
+
+        .button.success:hover {
+            background: #059669;
+        }
+
+        .button.warning {
+            background: #f59e0b;
+        }
+
+        .button.warning:hover {
+            background: #d97706;
+        }
+
+        .button.danger {
+            background: #ef4444;
+        }
+
+        .button.danger:hover {
+            background: #dc2626;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s;
+        }
+
+        .toggle-btn:hover {
+            color: #374151;
+        }
+
+        .category-header {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 2rem 0 1rem 0;
+            text-align: center;
+        }
+
+        .category-header h2 {
+            margin: 0;
+            color: #1e40af;
+            font-size: 1.5rem;
+        }
+
+        .demo-display {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .json-display {
+            background: #1f2937;
+            color: #d1d5db;
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.75rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+
+        .status-indicator.active {
+            background: #10b981;
+        }
+
+        .status-indicator.inactive {
+            background: #ef4444;
+        }
+
+        .status-indicator.warning {
+            background: #f59e0b;
+        }
+
+        .quick-reference {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .quick-reference h3 {
+            margin: 0 0 1rem 0;
+            color: #1e40af;
+            text-align: center;
+        }
+
+        .reference-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .reference-card {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .reference-card h4 {
+            margin: 0 0 0.5rem 0;
+            color: #374151;
+        }
+
+        .reference-card code {
+            background: #f1f5f9;
+            padding: 0.125rem 0.25rem;
+            border-radius: 3px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎭 OAuth Playground - All Display Services Mock</h1>
+            <p>Comprehensive overview of all visual components and services for easy identification and selection</p>
+        </div>
+
+        <!-- Input & Form Services -->
+        <div class="category-header">
+            <h2>📝 Input & Form Services</h2>
+        </div>
+
+        <div class="services-grid">
+            <!-- CredentialsInput Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('credentials-input')">
+                    <h3>🔑 CredentialsInput Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/CredentialsInput.tsx<br>
+                        <strong>Component:</strong> CredentialsInput
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "CredentialsInput", "credentials-input", "credential input service"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="credentials-input">
+                    <ul class="feature-list">
+                        <li>Unified credential input interface</li>
+                        <li>Environment ID, Client ID, Client Secret fields</li>
+                        <li>Copy-to-clipboard functionality</li>
+                        <li>Real-time validation</li>
+                        <li>Auto-save trigger integration</li>
+                        <li>Response mode selection</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <div class="form-field">
+                                <label for="demo-env-id">Environment ID</label>
+                                <input type="text" id="demo-env-id" placeholder="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
+                            </div>
+                            <div class="form-field">
+                                <label for="demo-client-id">Client ID</label>
+                                <input type="text" id="demo-client-id" placeholder="OAuth application client ID">
+                            </div>
+                        </div>
+                        <button class="button">📋 Copy</button>
+                        <button class="button success">💾 Save</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EnvironmentIdInput Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('environment-input')">
+                    <h3>🌐 EnvironmentIdInput Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/EnvironmentIdInput.tsx<br>
+                        <strong>Component:</strong> EnvironmentIdInput
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "EnvironmentIdInput", "environment-input", "OIDC discovery"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="environment-input">
+                    <ul class="feature-list">
+                        <li>PingOne environment detection</li>
+                        <li>Multi-region support (US/EU/AP/CA)</li>
+                        <li>OIDC discovery integration</li>
+                        <li>Auto-constructed issuer URLs</li>
+                        <li>Environment suggestions</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div class="form-field">
+                            <label for="demo-env-input">Environment ID / Custom Issuer</label>
+                            <input type="text" id="demo-env-input" placeholder="Enter PingOne Environment ID">
+                        </div>
+                        <button class="button">🔍 Discover OIDC</button>
+                        <button class="button secondary">💡 Suggestions</button>
+                        <div class="demo-display">Discovery: Ready to fetch .well-known/openid_configuration</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PingOneApplicationConfig Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('pingone-config')">
+                    <h3>⚙️ PingOneApplicationConfig Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/PingOneApplicationConfig.tsx<br>
+                        <strong>Component:</strong> PingOneApplicationConfig
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "PingOneApplicationConfig", "pingone-config", "advanced config"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="pingone-config">
+                    <ul class="feature-list">
+                        <li>Client authentication methods</li>
+                        <li>PKCE enforcement settings</li>
+                        <li>Response & grant types</li>
+                        <li>JWKS configuration</li>
+                        <li>PAR (Pushed Auth Request)</li>
+                        <li>Security enhancements</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div class="form-field">
+                            <label for="demo-auth-method">Client Auth Method</label>
+                            <select id="demo-auth-method">
+                                <option value="client_secret_post">Client Secret POST</option>
+                                <option value="private_key_jwt">Private Key JWT</option>
+                            </select>
+                        </div>
+                        <button class="button">⚙️ Update Config</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ResponseModeSelector Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('response-mode')">
+                    <h3>📡 ResponseModeSelector Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/ResponseModeSelector.tsx<br>
+                        <strong>Component:</strong> ResponseModeSelector
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "ResponseModeSelector", "response-mode", "response mode selector"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="response-mode">
+                    <ul class="feature-list">
+                        <li>OAuth response mode selection</li>
+                        <li>Query, fragment, form_post modes</li>
+                        <li>Security recommendations</li>
+                        <li>Flow-specific filtering</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div class="form-field">
+                            <label for="demo-response-mode">Response Mode</label>
+                            <select id="demo-response-mode">
+                                <option value="query">Query</option>
+                                <option value="fragment">Fragment</option>
+                                <option value="form_post">Form POST</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Display & Information Services -->
+        <div class="category-header">
+            <h2>📊 Display & Information Services</h2>
+        </div>
+
+        <div class="services-grid">
+            <!-- TokenDisplay Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('token-display')">
+                    <h3>🎫 TokenDisplay Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/TokenDisplay.tsx<br>
+                        <strong>Component:</strong> TokenDisplay
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "TokenDisplay", "token-display", "token viewer"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="token-display">
+                    <ul class="feature-list">
+                        <li>JWT token visualization</li>
+                        <li>Header, payload, signature sections</li>
+                        <li>Syntax highlighting</li>
+                        <li>Copy functionality</li>
+                        <li>Token validation status</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Display:</h4>
+                        <div class="json-display">
+{
+  "header": {
+    "alg": "RS256",
+    "typ": "JWT"
+  },
+  "payload": {
+    "sub": "user123",
+    "aud": "client456",
+    "exp": 1696435200
+  }
+}
+                        </div>
+                        <button class="button">📋 Copy Token</button>
+                        <button class="button secondary">🔍 Validate</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JSONHighlighter Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('json-highlighter')">
+                    <h3>🎨 JSONHighlighter Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/JSONHighlighter.tsx<br>
+                        <strong>Component:</strong> JSONHighlighter
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "JSONHighlighter", "json-highlighter", "syntax highlighter"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="json-highlighter">
+                    <ul class="feature-list">
+                        <li>Syntax highlighting for JSON</li>
+                        <li>Collapsible object/array sections</li>
+                        <li>Copy functionality</li>
+                        <li>Error highlighting</li>
+                        <li>Pretty formatting</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Display:</h4>
+                        <div class="json-display">
+<span style="color: #f59e0b;">"access_token"</span>: <span style="color: #10b981;">"eyJhbGciOiJSUzI1NiJ9..."</span>,
+<span style="color: #f59e0b;">"token_type"</span>: <span style="color: #10b981;">"Bearer"</span>,
+<span style="color: #f59e0b;">"expires_in"</span>: <span style="color: #3b82f6;">3600</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CodeExamplesDisplay Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('code-examples')">
+                    <h3>💻 CodeExamplesDisplay Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/CodeExamplesDisplay.tsx<br>
+                        <strong>Component:</strong> CodeExamplesDisplay
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "CodeExamplesDisplay", "code-examples", "code samples"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="code-examples">
+                    <ul class="feature-list">
+                        <li>Multi-language code examples</li>
+                        <li>Syntax highlighting</li>
+                        <li>Copy to clipboard</li>
+                        <li>Language tabs</li>
+                        <li>Live code preview</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Display:</h4>
+                        <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                            <button class="button" onclick="showLanguage('js')">JavaScript</button>
+                            <button class="button secondary" onclick="showLanguage('py')">Python</button>
+                            <button class="button secondary" onclick="showLanguage('curl')">cURL</button>
+                        </div>
+                        <div class="json-display" id="code-display">
+// JavaScript Example
+const response = await fetch('/oauth/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ grant_type: 'authorization_code' })
+});
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FlowSequenceDisplay Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('flow-sequence')">
+                    <h3>🔄 FlowSequenceDisplay Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/FlowSequenceDisplay.tsx<br>
+                        <strong>Component:</strong> FlowSequenceDisplay
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "FlowSequenceDisplay", "flow-sequence", "sequence diagram"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="flow-sequence">
+                    <ul class="feature-list">
+                        <li>OAuth flow sequence diagrams</li>
+                        <li>Interactive step highlighting</li>
+                        <li>Request/response visualization</li>
+                        <li>Flow progression tracking</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Display:</h4>
+                        <div class="demo-display">
+1. User → Client: Click "Login"
+2. Client → Auth Server: Authorization Request
+3. Auth Server → User: Login Prompt
+4. User → Auth Server: Credentials
+5. Auth Server → Client: Authorization Code
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation & UI Services -->
+        <div class="category-header">
+            <h2>🧭 Navigation & UI Services</h2>
+        </div>
+
+        <div class="services-grid">
+            <!-- StepNavigationButtons Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('step-navigation')">
+                    <h3>⏭️ StepNavigationButtons Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/StepNavigationButtons.tsx<br>
+                        <strong>Component:</strong> StepNavigationButtons
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "StepNavigationButtons", "step-navigation", "navigation buttons"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="step-navigation">
+                    <ul class="feature-list">
+                        <li>Multi-step flow navigation</li>
+                        <li>Previous/Next buttons</li>
+                        <li>Step validation</li>
+                        <li>Progress indicators</li>
+                        <li>Skip/Reset options</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <button class="button secondary">⬅️ Previous</button>
+                            <div style="display: flex; gap: 0.25rem;">
+                                <span class="status-indicator active"></span>
+                                <span class="status-indicator active"></span>
+                                <span class="status-indicator inactive"></span>
+                                <span class="status-indicator inactive"></span>
+                            </div>
+                            <button class="button">Next ➡️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('sidebar')">
+                    <h3>📋 Sidebar Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/Sidebar.tsx<br>
+                        <strong>Component:</strong> Sidebar
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "Sidebar", "sidebar", "navigation sidebar"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="sidebar">
+                    <ul class="feature-list">
+                        <li>Collapsible navigation menu</li>
+                        <li>Flow categories</li>
+                        <li>Quick access links</li>
+                        <li>Settings integration</li>
+                        <li>Mobile responsive</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div style="background: #374151; color: white; padding: 1rem; border-radius: 4px;">
+                            <div style="margin-bottom: 0.5rem; font-weight: bold;">OAuth Flows</div>
+                            <div style="padding-left: 1rem; font-size: 0.875rem;">
+                                <div>• Authorization Code</div>
+                                <div>• Client Credentials</div>
+                                <div>• OIDC Implicit</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navbar Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('navbar')">
+                    <h3>🏠 Navbar Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/Navbar.tsx<br>
+                        <strong>Component:</strong> Navbar
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "Navbar", "navbar", "navigation bar"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="navbar">
+                    <ul class="feature-list">
+                        <li>Top navigation bar</li>
+                        <li>Logo and branding</li>
+                        <li>User authentication status</li>
+                        <li>Settings access</li>
+                        <li>Theme switching</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div style="background: #1f2937; color: white; padding: 0.75rem 1rem; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight: bold;">OAuth Playground</div>
+                            <div style="display: flex; gap: 1rem; font-size: 0.875rem;">
+                                <span>Flows</span>
+                                <span>Docs</span>
+                                <span>Settings</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FlowComparisonTool Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('flow-comparison')">
+                    <h3>⚖️ FlowComparisonTool Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/FlowComparisonTool.tsx<br>
+                        <strong>Component:</strong> FlowComparisonTool
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "FlowComparisonTool", "flow-comparison", "comparison tool"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="flow-comparison">
+                    <ul class="feature-list">
+                        <li>Side-by-side flow comparison</li>
+                        <li>Feature matrix display</li>
+                        <li>Security analysis</li>
+                        <li>Use case recommendations</li>
+                        <li>Interactive selection</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Interface:</h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                            <div style="background: #dbeafe; padding: 0.5rem; border-radius: 4px; text-align: center;">
+                                <strong>Authorization Code</strong><br>
+                                <small>Most Secure</small>
+                            </div>
+                            <div style="background: #fef3c7; padding: 0.5rem; border-radius: 4px; text-align: center;">
+                                <strong>Client Credentials</strong><br>
+                                <small>Server-to-Server</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal & Dialog Services -->
+        <div class="category-header">
+            <h2>🔔 Modal & Dialog Services</h2>
+        </div>
+
+        <div class="services-grid">
+            <!-- AuthorizationRequestModal Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('auth-request-modal')">
+                    <h3>🚪 AuthorizationRequestModal Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/AuthorizationRequestModal.tsx<br>
+                        <strong>Component:</strong> AuthorizationRequestModal
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "AuthorizationRequestModal", "auth-request-modal", "authorization modal"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="auth-request-modal">
+                    <ul class="feature-list">
+                        <li>Authorization request details</li>
+                        <li>Parameter breakdown</li>
+                        <li>URL construction preview</li>
+                        <li>Security warnings</li>
+                        <li>Launch authorization flow</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Modal:</h4>
+                        <div style="border: 2px solid #3b82f6; border-radius: 8px; padding: 1rem; background: white;">
+                            <h4 style="margin: 0 0 0.5rem 0;">🔐 Authorization Request</h4>
+                            <div class="demo-display">
+                                response_type=code&client_id=abc123&redirect_uri=...
+                            </div>
+                            <div style="margin-top: 0.75rem;">
+                                <button class="button">🚀 Launch Authorization</button>
+                                <button class="button secondary">❌ Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ConfirmationModal Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('confirmation-modal')">
+                    <h3>❓ ConfirmationModal Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/ConfirmationModal.tsx<br>
+                        <strong>Component:</strong> ConfirmationModal
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "ConfirmationModal", "confirmation-modal", "confirm dialog"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="confirmation-modal">
+                    <ul class="feature-list">
+                        <li>User confirmation dialogs</li>
+                        <li>Customizable messages</li>
+                        <li>Action buttons</li>
+                        <li>Destructive action warnings</li>
+                        <li>Keyboard navigation</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Modal:</h4>
+                        <div style="border: 2px solid #f59e0b; border-radius: 8px; padding: 1rem; background: white;">
+                            <h4 style="margin: 0 0 0.5rem 0;">⚠️ Confirm Action</h4>
+                            <p style="margin: 0 0 0.75rem 0; font-size: 0.875rem;">Are you sure you want to reset all credentials?</p>
+                            <button class="button danger">✓ Confirm</button>
+                            <button class="button secondary">✗ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UISettingsModal Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('ui-settings-modal')">
+                    <h3>⚙️ UISettingsModal Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/UISettingsModal.tsx<br>
+                        <strong>Component:</strong> UISettingsModal
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "UISettingsModal", "ui-settings-modal", "settings modal"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="ui-settings-modal">
+                    <ul class="feature-list">
+                        <li>UI customization settings</li>
+                        <li>Theme selection</li>
+                        <li>Layout preferences</li>
+                        <li>Accessibility options</li>
+                        <li>Debug mode toggles</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Modal:</h4>
+                        <div style="border: 2px solid #10b981; border-radius: 8px; padding: 1rem; background: white;">
+                            <h4 style="margin: 0 0 0.75rem 0;">🎨 UI Settings</h4>
+                            <div class="form-field">
+                                <label for="demo-theme">Theme</label>
+                                <select id="demo-theme" style="width: auto;">
+                                    <option>Light</option>
+                                    <option>Dark</option>
+                                    <option>Auto</option>
+                                </select>
+                            </div>
+                            <button class="button success">💾 Save Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CredentialSetupModal Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('credential-setup-modal')">
+                    <h3>🔧 CredentialSetupModal Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/CredentialSetupModal.tsx<br>
+                        <strong>Component:</strong> CredentialSetupModal
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "CredentialSetupModal", "credential-setup-modal", "setup modal"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="credential-setup-modal">
+                    <ul class="feature-list">
+                        <li>Initial credential configuration</li>
+                        <li>Step-by-step setup wizard</li>
+                        <li>Validation and testing</li>
+                        <li>Quick start templates</li>
+                        <li>Import/export functionality</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Modal:</h4>
+                        <div style="border: 2px solid #8b5cf6; border-radius: 8px; padding: 1rem; background: white;">
+                            <h4 style="margin: 0 0 0.75rem 0;">🚀 Credential Setup</h4>
+                            <div style="display: flex; gap: 0.25rem; margin-bottom: 0.75rem;">
+                                <span class="status-indicator active"></span>
+                                <span class="status-indicator warning"></span>
+                                <span class="status-indicator inactive"></span>
+                            </div>
+                            <p style="margin: 0 0 0.75rem 0; font-size: 0.875rem;">Step 2 of 3: Configure OAuth Settings</p>
+                            <button class="button">Continue ➡️</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status & Monitoring Services -->
+        <div class="category-header">
+            <h2>📈 Status & Monitoring Services</h2>
+        </div>
+
+        <div class="services-grid">
+            <!-- ServerStatusProvider Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('server-status')">
+                    <h3>🖥️ ServerStatusProvider Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/ServerStatusProvider.tsx<br>
+                        <strong>Component:</strong> ServerStatusProvider
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "ServerStatusProvider", "server-status", "health monitor"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="server-status">
+                    <ul class="feature-list">
+                        <li>Real-time server health monitoring</li>
+                        <li>Connection status indicators</li>
+                        <li>Error state management</li>
+                        <li>Retry mechanisms</li>
+                        <li>Performance metrics</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Status:</h4>
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <div><span class="status-indicator active"></span>Backend: Online</div>
+                            <div><span class="status-indicator active"></span>Auth: Connected</div>
+                            <div><span class="status-indicator warning"></span>Cache: Slow</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LoadingSpinner Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('loading-spinner')">
+                    <h3>⏳ LoadingSpinner Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/LoadingSpinner.tsx<br>
+                        <strong>Component:</strong> LoadingSpinner
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "LoadingSpinner", "loading-spinner", "spinner"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="loading-spinner">
+                    <ul class="feature-list">
+                        <li>Loading state indicators</li>
+                        <li>Customizable animations</li>
+                        <li>Overlay options</li>
+                        <li>Progress indicators</li>
+                        <li>Timeout handling</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Spinner:</h4>
+                        <div style="text-align: center; padding: 1rem;">
+                            <div style="display: inline-block; width: 24px; height: 24px; border: 3px solid #e5e7eb; border-top: 3px solid #3b82f6; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+                            <div style="margin-top: 0.5rem; font-size: 0.875rem;">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ErrorBoundary Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('error-boundary')">
+                    <h3>🚨 ErrorBoundary Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/ErrorBoundary.tsx<br>
+                        <strong>Component:</strong> ErrorBoundary
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "ErrorBoundary", "error-boundary", "error handler"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="error-boundary">
+                    <ul class="feature-list">
+                        <li>React error boundary</li>
+                        <li>Graceful error handling</li>
+                        <li>User-friendly error messages</li>
+                        <li>Recovery options</li>
+                        <li>Error reporting</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Error:</h4>
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 1rem;">
+                            <div style="color: #dc2626; font-weight: bold; margin-bottom: 0.5rem;">⚠️ Something went wrong</div>
+                            <div style="font-size: 0.875rem; color: #7f1d1d;">An unexpected error occurred. Please try again.</div>
+                            <button class="button" style="margin-top: 0.5rem;">🔄 Retry</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GlobalErrorDisplay Service -->
+            <div class="service-section">
+                <div class="service-header" onclick="toggleService('global-error')">
+                    <h3>🌐 GlobalErrorDisplay Service</h3>
+                    <div class="file-info">
+                        <strong>File:</strong> src/components/GlobalErrorDisplay.tsx<br>
+                        <strong>Component:</strong> GlobalErrorDisplay
+                    </div>
+                    <div class="service-names">
+                        <strong>Service Names:</strong> "GlobalErrorDisplay", "global-error", "error display"
+                    </div>
+                    <button class="toggle-btn">▼</button>
+                </div>
+                <div class="service-content" id="global-error">
+                    <ul class="feature-list">
+                        <li>Application-wide error display</li>
+                        <li>Toast notifications</li>
+                        <li>Persistent error banners</li>
+                        <li>Error categorization</li>
+                        <li>Dismissal controls</li>
+                    </ul>
+                    <div class="mock-demo">
+                        <h4>Demo Error Toast:</h4>
+                        <div style="background: #fef2f2; border-left: 4px solid #ef4444; padding: 0.75rem; border-radius: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div>
+                                    <div style="color: #dc2626; font-weight: bold;">Network Error</div>
+                                    <div style="font-size: 0.875rem; color: #7f1d1d;">Failed to connect to authentication server</div>
+                                </div>
+                                <button style="background: none; border: none; color: #dc2626; cursor: pointer;">×</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Discovery Reference -->
+        <div class="quick-reference">
+            <h3>🔍 Quick Service Reference Guide</h3>
+            <p style="text-align: center; margin-bottom: 1.5rem;">Use these exact service names when requesting modifications:</p>
+            
+            <div class="reference-grid">
+                <div class="reference-card">
+                    <h4>📝 Input Services</h4>
+                    <p><code>"CredentialsInput"</code> - Main credential form</p>
+                    <p><code>"EnvironmentIdInput"</code> - PingOne environment input</p>
+                    <p><code>"PingOneApplicationConfig"</code> - Advanced settings</p>
+                    <p><code>"ResponseModeSelector"</code> - Response mode picker</p>
+                </div>
+                
+                <div class="reference-card">
+                    <h4>📊 Display Services</h4>
+                    <p><code>"TokenDisplay"</code> - JWT token viewer</p>
+                    <p><code>"JSONHighlighter"</code> - Syntax highlighter</p>
+                    <p><code>"CodeExamplesDisplay"</code> - Code samples</p>
+                    <p><code>"FlowSequenceDisplay"</code> - Flow diagrams</p>
+                </div>
+                
+                <div class="reference-card">
+                    <h4>🧭 Navigation Services</h4>
+                    <p><code>"StepNavigationButtons"</code> - Step controls</p>
+                    <p><code>"Sidebar"</code> - Navigation menu</p>
+                    <p><code>"Navbar"</code> - Top navigation</p>
+                    <p><code>"FlowComparisonTool"</code> - Flow comparison</p>
+                </div>
+                
+                <div class="reference-card">
+                    <h4>🔔 Modal Services</h4>
+                    <p><code>"AuthorizationRequestModal"</code> - Auth request modal</p>
+                    <p><code>"ConfirmationModal"</code> - Confirm dialogs</p>
+                    <p><code>"UISettingsModal"</code> - Settings modal</p>
+                    <p><code>"CredentialSetupModal"</code> - Setup wizard</p>
+                </div>
+                
+                <div class="reference-card">
+                    <h4>📈 Status Services</h4>
+                    <p><code>"ServerStatusProvider"</code> - Health monitoring</p>
+                    <p><code>"LoadingSpinner"</code> - Loading states</p>
+                    <p><code>"ErrorBoundary"</code> - Error handling</p>
+                    <p><code>"GlobalErrorDisplay"</code> - Error notifications</p>
+                </div>
+                
+                <div class="reference-card">
+                    <h4>💡 Usage Examples</h4>
+                    <p><strong>Good:</strong> "Update the <code>CredentialsInput</code> service to..."</p>
+                    <p><strong>Good:</strong> "Modify <code>TokenDisplay</code> to show..."</p>
+                    <p><strong>Avoid:</strong> "Change the form" (which form?)</p>
+                    <p><strong>Avoid:</strong> "Fix the display" (which display?)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+
+    <script>
+        function toggleService(serviceId) {
+            const content = document.getElementById(serviceId);
+            const button = content.previousElementSibling.querySelector('.toggle-btn');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                button.textContent = '▼';
+            } else {
+                content.classList.add('active');
+                button.textContent = '▲';
+            }
+        }
+
+        function showLanguage(lang) {
+            const display = document.getElementById('code-display');
+            const buttons = document.querySelectorAll('[onclick^="showLanguage"]');
+            
+            // Reset button styles
+            buttons.forEach(btn => {
+                btn.className = 'button secondary';
+            });
+            
+            // Highlight active button
+            event.target.className = 'button';
+            
+            // Update code display
+            switch(lang) {
+                case 'js':
+                    display.textContent = `// JavaScript Example
+const response = await fetch('/oauth/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ grant_type: 'authorization_code' })
+});`;
+                    break;
+                case 'py':
+                    display.textContent = `# Python Example
+import requests
+
+response = requests.post('/oauth/token', json={
+    'grant_type': 'authorization_code'
+})`;
+                    break;
+                case 'curl':
+                    display.textContent = `# cURL Example
+curl -X POST https://auth.example.com/oauth/token \\
+  -H "Content-Type: application/json" \\
+  -d '{"grant_type": "authorization_code"}'`;
+                    break;
+            }
+        }
+
+        // Auto-expand first few services on load
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleService('credentials-input');
+            toggleService('token-display');
+            toggleService('step-navigation');
+        });
+    </script>
+</body>
+</html>
