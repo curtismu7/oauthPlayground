@@ -7,7 +7,7 @@ const apiCall: ApiCallData = {
 	method: 'POST',
 	url: 'https://api.pingone.com/v1/environments/{envId}/users',
 	headers: {
-		'Authorization': 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+		Authorization: 'Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
 		'Content-Type': 'application/json',
 	},
 	body: {

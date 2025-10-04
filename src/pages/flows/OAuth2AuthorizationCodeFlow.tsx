@@ -4,8 +4,6 @@ import { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiChevronDown,
-	FiChevronRight,
 	FiClock,
 	FiCode,
 	FiCopy,
@@ -48,6 +46,7 @@ import { logger } from '../../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
 import { getBackendUrl } from '../../utils/protocolUtils';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import { FlowComponentService } from '../../services/flowComponentService';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI
@@ -1688,7 +1687,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 	}, []);
 
 	// Generate authorization URL with Flow Config integration
-	const generateAuthUrl = useCallback(() => {
+	const generateAuthUrl = useCallback(async () => {
 		// Use state from Flow Config or generate new one
 		const generatedState = flowConfig.state || Math.random().toString(36).substring(2, 15);
 		setState(generatedState);
@@ -2511,7 +2510,7 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 						>
 							OAuth Credentials Configuration
 						</h4>
-						{collapsedSections['setup-credentials'] ? <FiChevronRight /> : <FiChevronDown />}
+						<FlowComponentService.createCollapsibleToggleIcon collapsed={collapsedSections['setup-credentials']} />
 					</div>
 					{!collapsedSections['setup-credentials'] && (
 						<div>

@@ -13,7 +13,7 @@ describe('ApiCallDisplayService', () => {
 		url: 'https://api.example.com/oauth/token',
 		headers: {
 			'Content-Type': 'application/x-www-form-urlencoded',
-			'Authorization': 'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=',
+			Authorization: 'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=',
 		},
 		body: 'grant_type=authorization_code&code=abc123&redirect_uri=https://app.example.com/callback',
 		response: {
@@ -52,7 +52,9 @@ describe('ApiCallDisplayService', () => {
 			expect(result).toContain('curl -X POST');
 			expect(result).toContain('-H "Content-Type: application/x-www-form-urlencoded"');
 			expect(result).toContain('-H "Authorization: Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ="');
-			expect(result).toContain('-d "grant_type=authorization_code&code=abc123&redirect_uri=https://app.example.com/callback"');
+			expect(result).toContain(
+				'-d "grant_type=authorization_code&code=abc123&redirect_uri=https://app.example.com/callback"'
+			);
 		});
 
 		it('should handle GET requests without body', () => {
@@ -60,7 +62,7 @@ describe('ApiCallDisplayService', () => {
 				method: 'GET',
 				url: 'https://api.example.com/user/profile',
 				headers: {
-					'Authorization': 'Bearer token123',
+					Authorization: 'Bearer token123',
 				},
 			};
 
@@ -77,7 +79,7 @@ describe('ApiCallDisplayService', () => {
 				method: 'POST',
 				url: 'https://api.example.com/data',
 				headers: {
-					'Authorization': 'Bearer token123',
+					Authorization: 'Bearer token123',
 				},
 				body: { key: 'value', number: 42 },
 			};
@@ -159,7 +161,7 @@ describe('ApiCallDisplayService', () => {
 				method: 'POST',
 				url: 'https://api.example.com/token',
 				headers: {
-					'Authorization': 'Bearer secret-token',
+					Authorization: 'Bearer secret-token',
 					'X-API-Secret': 'secret-key',
 					'Content-Type': 'application/json',
 				},

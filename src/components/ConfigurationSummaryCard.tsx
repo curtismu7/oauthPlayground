@@ -1,9 +1,9 @@
 // src/components/ConfigurationSummaryCard.tsx
 import React, { useState } from 'react';
-import { FiCheckCircle, FiChevronDown, FiChevronUp } from 'react-icons/fi';
+import { FiCheckCircle, FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { showGlobalSuccess, showGlobalError } from '../hooks/useNotifications';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
 // Styled Components
 const Card = styled.div`
@@ -50,10 +50,15 @@ const SectionTitle = styled.div`
 	font-size: 1rem;
 `;
 
-const ChevronIcon = styled.div`
+const ChevronIcon = styled.div<{ $collapsed?: boolean }>`
+	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: transform 0.2s;
+	width: 1.5rem;
+	height: 1.5rem;
+	transition: transform 0.2s ease;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+	color: ${({ theme }) => theme.colors.gray600};
 `;
 
 const SectionContent = styled.div.withConfig({
@@ -311,8 +316,8 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 						<FiCheckCircle size={18} />
 						Saved Configuration Summary
 					</SectionTitle>
-					<ChevronIcon>
-						{isSummaryExpanded ? <FiChevronUp size={20} /> : <FiChevronDown size={20} />}
+					<ChevronIcon $collapsed={!isSummaryExpanded}>
+						<FiChevronDown size={20} />
 					</ChevronIcon>
 				</SectionHeader>
 				<SectionContent $isExpanded={isSummaryExpanded}>
@@ -439,6 +444,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 
 							<div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
 								<button
+									type="button"
 									onClick={handleSaveConfiguration}
 									style={{
 										background: '#10b981',
@@ -454,6 +460,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 									Save Configuration
 								</button>
 								<button
+									type="button"
 									onClick={handleExportConfiguration}
 									style={{
 										background: '#3b82f6',
@@ -469,6 +476,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 									Export Configuration
 								</button>
 								<button
+									type="button"
 									onClick={handleImportConfiguration}
 									style={{
 										background: '#8b5cf6',

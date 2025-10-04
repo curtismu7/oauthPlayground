@@ -8,6 +8,7 @@ interface JWTTokenDisplayProps {
 	token: string;
 	tokenType?: string;
 	onCopy?: (text: string, label: string) => void;
+	copyLabel?: string;
 	showTokenType?: boolean;
 	showExpiry?: boolean;
 	expiresIn?: number;
@@ -161,8 +162,9 @@ const ErrorMessage = styled.div`
 
 export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 	token,
-	tokenType = 'Bearer',
+	tokenType = 'Access Token',
 	onCopy,
+	copyLabel,
 	showTokenType = true,
 	showExpiry = true,
 	expiresIn,
@@ -171,6 +173,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 	const [isDecoded, setIsDecoded] = useState(false);
 	const [decodedToken, setDecodedToken] = useState<DecodedJWT | null>(null);
 	const [decodeError, setDecodeError] = useState<string | null>(null);
+	const displayTokenType = tokenType || 'Token';
 
 	const handleToggleDecode = () => {
 		if (!isDecoded) {
@@ -191,8 +194,9 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 	};
 
 	const handleCopy = () => {
+		const label = copyLabel || displayTokenType;
 		if (onCopy) {
-			onCopy(token, 'Access Token');
+			onCopy(token, label);
 		} else {
 			navigator.clipboard.writeText(token);
 		}
@@ -202,7 +206,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 		const hours = Math.floor(seconds / 3600);
 		const minutes = Math.floor((seconds % 3600) / 60);
 		const remainingSeconds = seconds % 60;
-		
+
 		if (hours > 0) {
 			return `${hours}h ${minutes}m ${remainingSeconds}s`;
 		} else if (minutes > 0) {
@@ -217,18 +221,24 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 			<TokenHeader>
 				<TokenTitle>
 					<FiKey size={14} />
-					Access Token
+					{displayTokenType}
 				</TokenTitle>
 				<TokenActions>
 					<ToggleButton
 						onClick={handleToggleDecode}
 						disabled={!isJWT(token)}
-						title={!isJWT(token) ? 'Token is not a JWT' : isDecoded ? 'Hide decoded token' : 'Show decoded token'}
+						title={
+							!isJWT(token)
+								? 'Token is not a JWT'
+								: isDecoded
+									? 'Hide decoded token'
+									: 'Show decoded token'
+						}
 					>
 						{isDecoded ? <FiEyeOff size={12} /> : <FiEye size={12} />}
 						{isDecoded ? 'Hide Decoded' : 'Decode JWT'}
 					</ToggleButton>
-					<CopyButton onClick={handleCopy} title="Copy token">
+					<CopyButton onClick={handleCopy} title={`Copy ${copyLabel || displayTokenType}`}>
 						<FiCopy size={12} />
 						Copy
 					</CopyButton>
@@ -266,9 +276,7 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 					{decodeError ? (
 						<ErrorMessage>{decodeError}</ErrorMessage>
 					) : decodedToken ? (
-						<DecodedContent>
-							{JSON.stringify(decodedToken.payload, null, 2)}
-						</DecodedContent>
+						<DecodedContent>{JSON.stringify(decodedToken.payload, null, 2)}</DecodedContent>
 					) : null}
 				</DecodedSection>
 			)}
@@ -277,11 +285,4 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 };
 
 export default JWTTokenDisplay;
-
-
-
-
-
-
-
 

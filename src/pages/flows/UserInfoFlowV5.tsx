@@ -525,6 +525,8 @@ const UserInfoFlowV5: React.FC = () => {
 						</ResultsSection>
 					</>
 				);
+			case 1:
+				return renderFlowSummary();
 
 			default:
 				return null;

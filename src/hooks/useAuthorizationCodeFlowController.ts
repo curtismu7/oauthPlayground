@@ -347,10 +347,10 @@ export const useAuthorizationCodeFlowController = (
 			const errorParam = url.searchParams.get('error');
 
 			if (errorParam) {
-				showGlobalError(
-					'Authorization error',
-					url.searchParams.get('error_description') || errorParam
-				);
+				showGlobalError('Authorization error', {
+					description: url.searchParams.get('error_description') || errorParam,
+					meta: { source: 'authorization-callback' },
+				});
 				return;
 			}
 
@@ -433,27 +433,36 @@ export const useAuthorizationCodeFlowController = (
 			});
 		} catch (error) {
 			console.error('[useAuthorizationCodeFlowController] PKCE generation failed:', error);
-			showGlobalError('PKCE generation failed', 'Failed to generate secure PKCE codes.');
+			showGlobalError('PKCE generation failed', {
+				description: 'Failed to generate secure PKCE codes.',
+				meta: { source: 'generatePkceCodes' },
+			});
 		}
 	}, [saveStepResult]);
 
 	const generateAuthorizationUrl = useCallback(async () => {
 		const authEndpoint = resolveAuthEndpoint(credentials);
 		if (!authEndpoint) {
-			showGlobalError(
-				'Missing authorization endpoint',
-				'Configure PingOne environment ID or authorization endpoint.'
-			);
+			showGlobalError('Missing authorization endpoint', {
+				description: 'Configure PingOne environment ID or authorization endpoint.',
+				meta: { field: 'authorizationEndpoint' },
+			});
 			return;
 		}
 
 		if (!credentials.clientId) {
-			showGlobalError('Missing client ID', 'Configure PingOne client ID.');
+			showGlobalError('Missing client ID', {
+				description: 'Configure PingOne client ID.',
+				meta: { field: 'clientId' },
+			});
 			return;
 		}
 
 		if (!credentials.redirectUri) {
-			showGlobalError('Missing redirect URI', 'Configure PingOne redirect URI.');
+			showGlobalError('Missing redirect URI', {
+				description: 'Configure PingOne redirect URI.',
+				meta: { field: 'redirectUri' },
+			});
 			return;
 		}
 
@@ -548,10 +557,11 @@ export const useAuthorizationCodeFlowController = (
 				console.log('🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:', url);
 			} catch (error) {
 				console.error('❌ [useAuthorizationCodeFlowController] PAR request failed:', error);
-				showGlobalError(
-					'PAR request failed',
-					'Failed to generate pushed authorization request. Please check your PingOne configuration.'
-				);
+				showGlobalError('PAR request failed', {
+					description:
+						'Failed to generate pushed authorization request. Please check your PingOne configuration.',
+					meta: { source: 'parService.generatePARRequest' },
+				});
 				return;
 			}
 		} else {
@@ -622,10 +632,9 @@ export const useAuthorizationCodeFlowController = (
 
 	const handlePopupAuthorization = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError(
-				'Authorization URL missing',
-				'Generate the authorization URL before starting the flow.'
-			);
+			showGlobalError('Authorization URL missing', {
+				description: 'Generate the authorization URL before starting the flow.',
+			});
 			return;
 		}
 
@@ -701,17 +710,23 @@ export const useAuthorizationCodeFlowController = (
 
 	const exchangeTokens = useCallback(async () => {
 		if (!authCode) {
-			showGlobalError('Missing authorization code', 'Complete the authorization step first.');
+			showGlobalError('Missing authorization code', {
+				description: 'Complete the authorization step first.',
+			});
 			return;
 		}
 
 		if (!credentials.clientId || !credentials.clientSecret) {
-			showGlobalError('Missing credentials', 'Configure PingOne client ID and client secret.');
+			showGlobalError('Missing credentials', {
+				description: 'Configure PingOne client ID and client secret.',
+			});
 			return;
 		}
 
 		if (!credentials.environmentId) {
-			showGlobalError('Missing environment ID', 'Configure PingOne environment ID.');
+			showGlobalError('Missing environment ID', {
+				description: 'Configure PingOne environment ID.',
+			});
 			return;
 		}
 
@@ -864,17 +879,21 @@ export const useAuthorizationCodeFlowController = (
 
 			// Parse specific error types for better user feedback
 			if (errorMessage.includes('401') && errorMessage.includes('invalid_client')) {
-				showGlobalError(
-					'Authentication Failed',
-					'The client credentials are invalid or the authentication method is not supported. Please check your Client ID and Client Secret configuration in PingOne.'
-				);
+				showGlobalError('Authentication failed', {
+					description:
+						'The client credentials are invalid or the authentication method is not supported. Please check your Client ID and Client Secret configuration in PingOne.',
+					meta: { phase: 'tokenExchange', errorCode: 'invalid_client' },
+				});
 			} else if (errorMessage.includes('401')) {
-				showGlobalError(
-					'Unauthorized',
-					'Authentication failed. Please verify your PingOne credentials and application configuration.'
-				);
+				showGlobalError('Unauthorized', {
+					description: 'Authentication failed. Please verify your PingOne credentials and application configuration.',
+					meta: { phase: 'tokenExchange', errorCode: 'unauthorized' },
+				});
 			} else {
-				showGlobalError('Token Exchange Failed', errorMessage);
+				showGlobalError('Token exchange failed', {
+					description: errorMessage,
+					meta: { phase: 'tokenExchange' },
+				});
 			}
 
 			// Re-throw the error so the calling component can handle it
@@ -893,17 +912,20 @@ export const useAuthorizationCodeFlowController = (
 
 		if (!tokens?.access_token) {
 			console.error('❌ [fetchUserInfo] No access token available');
-			showGlobalError('Missing access token', 'Exchange tokens first.');
+			showGlobalError('Missing access token', {
+				description: 'Exchange tokens first.',
+				meta: { phase: 'userInfo' },
+			});
 			return;
 		}
 
 		const userInfoEndpoint = credentials.userInfoEndpoint;
 		if (!userInfoEndpoint) {
 			console.error('❌ [fetchUserInfo] No userinfo endpoint configured');
-			showGlobalError(
-				'Missing user info endpoint',
-				'Configure PingOne user info endpoint in credentials.'
-			);
+			showGlobalError('Missing user info endpoint', {
+				description: 'Configure PingOne user info endpoint in credentials.',
+				meta: { field: 'userInfoEndpoint' },
+			});
 			return;
 		}
 
@@ -945,17 +967,23 @@ export const useAuthorizationCodeFlowController = (
 
 	const refreshTokens = useCallback(async () => {
 		if (!refreshToken) {
-			showGlobalError('Missing refresh token', 'No refresh token available.');
+			showGlobalError('Missing refresh token', {
+				description: 'No refresh token available.',
+			});
 			return;
 		}
 
 		if (!credentials.clientId || !credentials.clientSecret) {
-			showGlobalError('Missing credentials', 'Configure PingOne client ID and client secret.');
+			showGlobalError('Missing credentials', {
+				description: 'Configure PingOne client ID and client secret.',
+			});
 			return;
 		}
 
 		if (!credentials.environmentId) {
-			showGlobalError('Missing environment ID', 'Configure PingOne environment ID.');
+			showGlobalError('Missing environment ID', {
+				description: 'Configure PingOne environment ID.',
+			});
 			return;
 		}
 
@@ -1122,7 +1150,10 @@ export const useAuthorizationCodeFlowController = (
 		// Clear PKCE codes from sessionStorage
 		const pkceStorageKey = `${persistKey}-pkce-codes`;
 		sessionStorage.removeItem(pkceStorageKey);
-		showGlobalSuccess('Flow reset', 'Start the authorization sequence again.');
+		showGlobalSuccess('Flow reset', {
+		description: 'Start the authorization sequence again.',
+		meta: { action: 'resetFlow' },
+	});
 	}, [clearStepResults, stepManager, stopPopupWatch]);
 
 	const setAuthCodeManually = useCallback(

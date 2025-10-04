@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSettings } from 'react-icons/fi';
+import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSearch, FiSettings } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -50,9 +50,9 @@ const NavItems = styled.div`
   margin-left: auto;
   
   button, a {
-    background: none;
-    border: none;
-    color: white;
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: black;
     font-size: 1.25rem;
     cursor: pointer;
     padding: 0.5rem;
@@ -60,10 +60,12 @@ const NavItems = styled.div`
     display: flex;
     align-items: center;
     margin-left: 0.5rem;
-    transition: background-color 0.2s;
+    transition: all 0.2s;
     
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: #f8fafc;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     span {
@@ -93,17 +95,17 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 	const { isAuthenticated, logout, user } = useAuth();
 	const navigate = useNavigate();
-	const { announceToScreenReader, setFocus } = useAccessibility();
+	const { announce } = useAccessibility();
 
 	const handleLogout = () => {
 		logout();
 		navigate('/login');
-		announceToScreenReader('Logged out successfully');
+		announce('Logged out successfully');
 	};
 
 	const handleMenuToggle = () => {
 		toggleSidebar();
-		announceToScreenReader('Navigation menu toggled');
+		announce('Navigation menu toggled');
 	};
 
 	return (
@@ -138,6 +140,14 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 				>
 					<FiSettings aria-hidden="true" />
 					<span>Configuration</span>
+				</Link>
+				<Link
+					to="/auto-discover"
+					title="OIDC Discovery tool"
+					aria-label="OIDC Discovery tool"
+				>
+					<FiSearch aria-hidden="true" />
+					<span>OIDC Discovery</span>
 				</Link>
 				{isAuthenticated ? (
 					<button

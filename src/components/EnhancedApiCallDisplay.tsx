@@ -1,21 +1,21 @@
 // src/components/EnhancedApiCallDisplay.tsx
 // React component for displaying API calls with enhanced features
 
-import React, { useState, useCallback } from 'react';
-import { FiCopy, FiExternalLink, FiChevronDown, FiChevronUp, FiCode, FiInfo } from 'react-icons/fi';
+import React, { useCallback, useState } from 'react';
+import { FiChevronDown, FiChevronUp, FiCode, FiCopy, FiExternalLink, FiInfo } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { 
-	EnhancedApiCallDisplayService, 
-	type EnhancedApiCallData, 
-	type ApiCallDisplayOptions
+import {
+	type ApiCallDisplayOptions,
+	type EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
 } from '../services/enhancedApiCallDisplayService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Styled Components
 const Container = styled.div<{ $theme?: 'light' | 'dark' }>`
-	background: ${({ $theme }) => $theme === 'dark' ? '#1f2937' : '#ffffff'};
-	border: 1px solid ${({ $theme }) => $theme === 'dark' ? '#374151' : '#e5e7eb'};
+	background: ${({ $theme }) => ($theme === 'dark' ? '#1f2937' : '#ffffff')};
+	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? '#374151' : '#e5e7eb')};
 	border-radius: 12px;
 	padding: 1.5rem;
 	margin: 1rem 0;
@@ -42,7 +42,10 @@ const Title = styled.h3`
 	gap: 0.75rem;
 `;
 
-const StatusBadge = styled.div<{ $status: 'success' | 'error' | 'pending' | 'info'; $clickable?: boolean }>`
+const StatusBadge = styled.div<{
+	$status: 'success' | 'error' | 'pending' | 'info';
+	$clickable?: boolean;
+}>`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -52,28 +55,40 @@ const StatusBadge = styled.div<{ $status: 'success' | 'error' | 'pending' | 'inf
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.05em;
-	cursor: ${({ $clickable }) => $clickable ? 'pointer' : 'default'};
+	cursor: ${({ $clickable }) => ($clickable ? 'pointer' : 'default')};
 	transition: all 0.2s ease;
 	background: ${({ $status }) => {
 		switch ($status) {
-			case 'success': return '#d1fae5';
-			case 'error': return '#fee2e2';
-			case 'pending': return '#fef3c7';
-			case 'info': return '#dbeafe';
-			default: return '#f3f4f6';
+			case 'success':
+				return '#d1fae5';
+			case 'error':
+				return '#fee2e2';
+			case 'pending':
+				return '#fef3c7';
+			case 'info':
+				return '#dbeafe';
+			default:
+				return '#f3f4f6';
 		}
 	}};
 	color: ${({ $status }) => {
 		switch ($status) {
-			case 'success': return '#065f46';
-			case 'error': return '#991b1b';
-			case 'pending': return '#92400e';
-			case 'info': return '#1e40af';
-			default: return '#374151';
+			case 'success':
+				return '#065f46';
+			case 'error':
+				return '#991b1b';
+			case 'pending':
+				return '#92400e';
+			case 'info':
+				return '#1e40af';
+			default:
+				return '#374151';
 		}
 	}};
 
-	${({ $clickable }) => $clickable && `
+	${({ $clickable }) =>
+		$clickable &&
+		`
 		&:hover {
 			transform: scale(1.05);
 			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -112,25 +127,25 @@ const SectionTitle = styled.h4`
 `;
 
 const SectionContent = styled.div<{ $isExpanded: boolean }>`
-	max-height: ${({ $isExpanded }) => $isExpanded ? '1000px' : '0'};
+	max-height: ${({ $isExpanded }) => ($isExpanded ? '1000px' : '0')};
 	overflow: hidden;
 	transition: max-height 0.3s ease;
-	padding: ${({ $isExpanded }) => $isExpanded ? '1rem' : '0'};
-	border: ${({ $isExpanded }) => $isExpanded ? '1px solid #e2e8f0' : 'none'};
+	padding: ${({ $isExpanded }) => ($isExpanded ? '1rem' : '0')};
+	border: ${({ $isExpanded }) => ($isExpanded ? '1px solid #e2e8f0' : 'none')};
 	border-top: none;
 	border-radius: 0 0 6px 6px;
 `;
 
 const CodeBlock = styled.pre<{ $theme?: 'light' | 'dark' }>`
-	background: ${({ $theme }) => $theme === 'dark' ? '#111827' : '#f8fafc'};
-	border: 1px solid ${({ $theme }) => $theme === 'dark' ? '#374151' : '#e2e8f0'};
+	background: ${({ $theme }) => ($theme === 'dark' ? '#111827' : '#f8fafc')};
+	border: 1px solid ${({ $theme }) => ($theme === 'dark' ? '#374151' : '#e2e8f0')};
 	border-radius: 6px;
 	padding: 1rem;
 	overflow-x: auto;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	color: ${({ $theme }) => $theme === 'dark' ? '#f9fafb' : '#374151'};
+	color: ${({ $theme }) => ($theme === 'dark' ? '#f9fafb' : '#374151')};
 	margin: 0;
 	white-space: pre-wrap;
 `;
@@ -148,9 +163,9 @@ const InfoTooltip = styled.div<{ $show: boolean }>`
 	z-index: 1000;
 	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 	white-space: nowrap;
-	opacity: ${({ $show }) => $show ? 1 : 0};
-	visibility: ${({ $show }) => $show ? 'visible' : 'hidden'};
-	transform: ${({ $show }) => $show ? 'translateY(0)' : 'translateY(-10px)'};
+	opacity: ${({ $show }) => ($show ? 1 : 0)};
+	visibility: ${({ $show }) => ($show ? 'visible' : 'hidden')};
+	transform: ${({ $show }) => ($show ? 'translateY(0)' : 'translateY(-10px)')};
 	transition: all 0.2s ease;
 	max-width: 300px;
 	white-space: normal;
@@ -181,19 +196,18 @@ const URLDisplay = styled.div`
 	position: relative;
 `;
 
-const URLPart = styled.span<{ 
+const URLPart = styled.span<{
 	$isHighlighted?: boolean;
 	$color?: string;
 	$backgroundColor?: string;
 }>`
-	background: ${({ $isHighlighted, $backgroundColor }) => 
+	background: ${({ $isHighlighted, $backgroundColor }) =>
 		$isHighlighted ? ($backgroundColor || '#fef3c7') : 'transparent'};
-	color: ${({ $isHighlighted, $color }) => 
-		$isHighlighted ? ($color || '#92400e') : 'inherit'};
-	padding: ${({ $isHighlighted }) => $isHighlighted ? '2px 4px' : '0'};
-	border-radius: ${({ $isHighlighted }) => $isHighlighted ? '4px' : '0'};
-	font-weight: ${({ $isHighlighted }) => $isHighlighted ? '600' : 'normal'};
-	border: ${({ $isHighlighted, $color }) => 
+	color: ${({ $isHighlighted, $color }) => ($isHighlighted ? $color || '#92400e' : 'inherit')};
+	padding: ${({ $isHighlighted }) => ($isHighlighted ? '2px 4px' : '0')};
+	border-radius: ${({ $isHighlighted }) => ($isHighlighted ? '4px' : '0')};
+	font-weight: ${({ $isHighlighted }) => ($isHighlighted ? '600' : 'normal')};
+	border: ${({ $isHighlighted, $color }) =>
 		$isHighlighted ? `1px solid ${$color || '#f59e0b'}` : 'none'};
 `;
 
@@ -235,31 +249,46 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'succe
 	transition: all 0.2s;
 	background: ${({ $variant }) => {
 		switch ($variant) {
-			case 'primary': return '#3b82f6';
-			case 'secondary': return '#f3f4f6';
-			case 'success': return '#10b981';
-			case 'danger': return '#ef4444';
-			default: return '#f3f4f6';
+			case 'primary':
+				return '#3b82f6';
+			case 'secondary':
+				return '#f3f4f6';
+			case 'success':
+				return '#10b981';
+			case 'danger':
+				return '#ef4444';
+			default:
+				return '#f3f4f6';
 		}
 	}};
 	color: ${({ $variant }) => {
 		switch ($variant) {
-			case 'primary': return 'white';
-			case 'secondary': return '#374151';
-			case 'success': return 'white';
-			case 'danger': return 'white';
-			default: return '#374151';
+			case 'primary':
+				return 'white';
+			case 'secondary':
+				return '#374151';
+			case 'success':
+				return 'white';
+			case 'danger':
+				return 'white';
+			default:
+				return '#374151';
 		}
 	}};
 	
 	&:hover {
 		background: ${({ $variant }) => {
 			switch ($variant) {
-				case 'primary': return '#2563eb';
-				case 'secondary': return '#e5e7eb';
-				case 'success': return '#059669';
-				case 'danger': return '#dc2626';
-				default: return '#e5e7eb';
+				case 'primary':
+					return '#2563eb';
+				case 'secondary':
+					return '#e5e7eb';
+				case 'success':
+					return '#059669';
+				case 'danger':
+					return '#dc2626';
+				default:
+					return '#e5e7eb';
 			}
 		}};
 	}
@@ -330,9 +359,11 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	options = {},
 	onExecute,
 	showExecuteButton = false,
-	className
+	className,
 }) => {
-	const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['curl', 'details', 'url']));
+	const [expandedSections, setExpandedSections] = useState<Set<string>>(
+		new Set(['curl', 'details', 'url'])
+	);
 	const [isExecuting, setIsExecuting] = useState(false);
 	const [showInfoTooltip, setShowInfoTooltip] = useState(false);
 	const navigate = useNavigate();
@@ -340,7 +371,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	const { theme = 'light', showEducationalNotes = true, showFlowContext = true } = options;
 
 	const toggleSection = useCallback((section: string) => {
-		setExpandedSections(prev => {
+		setExpandedSections((prev) => {
 			const newSet = new Set(prev);
 			if (newSet.has(section)) {
 				newSet.delete(section);
@@ -362,7 +393,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 	const handleExecute = useCallback(async () => {
 		if (!onExecute) return;
-		
+
 		setIsExecuting(true);
 		try {
 			await onExecute();
@@ -399,47 +430,47 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	const curlCommand = EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
 
 	// Function to highlight URL based on service rules
-	const highlightURL = useCallback((url: string) => {
-		if (!url) return null;
+	const highlightURL = useCallback(
+		(url: string) => {
+			if (!url) return null;
 
-		// Get highlighting rules from service
-		const rules = options.urlHighlightRules || 
-			EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
-		
-		if (rules.length === 0) return null;
+			// Get highlighting rules from service
+			const rules =
+				options.urlHighlightRules ||
+				EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
 
-		// Use service to highlight URL
-		const highlightedParts = EnhancedApiCallDisplayService.highlightURL(url, rules);
-		
-		// Check if any parts are highlighted
-		const hasHighlights = highlightedParts.some(part => part.isHighlighted);
-		if (!hasHighlights) return null;
+			if (rules.length === 0) return null;
 
-		return highlightedParts.map((part, index) => {
-			const props: {
-				key: number;
-				$isHighlighted: boolean;
-				$color?: string;
-				$backgroundColor?: string;
-				title?: string | undefined;
-			} = {
-				key: index,
-				$isHighlighted: part.isHighlighted
-			};
-			
-			if (part.isHighlighted && part.label && part.description) {
-				props.title = `${part.label}: ${part.description}`;
-			}
-			if (part.color) props.$color = part.color;
-			if (part.backgroundColor) props.$backgroundColor = part.backgroundColor;
-			
-			return (
-				<URLPart {...props}>
-					{part.content}
-				</URLPart>
-			);
-		});
-	}, [apiCall.flowType, options.urlHighlightRules]);
+			// Use service to highlight URL
+			const highlightedParts = EnhancedApiCallDisplayService.highlightURL(url, rules);
+
+			// Check if any parts are highlighted
+			const hasHighlights = highlightedParts.some((part) => part.isHighlighted);
+			if (!hasHighlights) return null;
+
+			return highlightedParts.map((part, index) => {
+				const props: {
+					key: number;
+					$isHighlighted: boolean;
+					$color?: string;
+					$backgroundColor?: string;
+					title?: string | undefined;
+				} = {
+					key: index,
+					$isHighlighted: part.isHighlighted,
+				};
+
+				if (part.isHighlighted && part.label && part.description) {
+					props.title = `${part.label}: ${part.description}`;
+				}
+				if (part.color) props.$color = part.color;
+				if (part.backgroundColor) props.$backgroundColor = part.backgroundColor;
+
+				return <URLPart {...props}>{part.content}</URLPart>;
+			});
+		},
+		[apiCall.flowType, options.urlHighlightRules]
+	);
 
 	return (
 		<Container $theme={theme} className={className}>
@@ -449,8 +480,8 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 					{apiCall.stepName && ` - ${apiCall.stepName}`}
 				</Title>
 				<div style={{ position: 'relative' }}>
-					<StatusBadge 
-						$status={getStatus()} 
+					<StatusBadge
+						$status={getStatus()}
 						$clickable={getStatus() === 'info'}
 						onClick={getStatus() === 'info' ? handleInfoClick : undefined}
 						title={getStatus() === 'info' ? 'Click for more information' : undefined}
@@ -459,8 +490,11 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 					</StatusBadge>
 					{getStatus() === 'info' && (
 						<InfoTooltip $show={showInfoTooltip}>
-							<strong>API Call Ready</strong><br />
-							This API call is prepared but not yet executed. Click the "Open Authorization URL" button above to test the authorization flow, or use the cURL command below to test the API call directly.
+							<strong>API Call Ready</strong>
+							<br />
+							This API call is prepared but not yet executed. Click the "Open Authorization URL"
+							button above to test the authorization flow, or use the cURL command below to test the
+							API call directly.
 						</InfoTooltip>
 					)}
 				</div>
@@ -482,18 +516,32 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			<CollapsibleSection>
 				<SectionHeader onClick={() => toggleSection('details')}>
 					<SectionTitle>Request Details</SectionTitle>
-					{expandedSections.has('details') ? <FiChevronUp /> : <FiChevronDown />}
+					<FiChevronDown
+						style={{
+							transform: expandedSections.has('details') ? 'rotate(0deg)' : 'rotate(-90deg)',
+							transition: 'transform 0.2s ease',
+						}}
+					/>
 				</SectionHeader>
 				<SectionContent $isExpanded={expandedSections.has('details')}>
 					{apiCall.queryParams && Object.keys(apiCall.queryParams).length > 0 && (
 						<div style={{ marginBottom: '1rem' }}>
-							<h5 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
 								Query Parameters
 							</h5>
 							<ParameterList>
 								{Object.entries(apiCall.queryParams).map(([key, value]) => (
 									<ParameterItem key={key}>
-										<span><strong>{key}:</strong></span>
+										<span>
+											<strong>{key}:</strong>
+										</span>
 										<ParameterValue>{value}</ParameterValue>
 									</ParameterItem>
 								))}
@@ -503,13 +551,22 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 					{apiCall.headers && Object.keys(apiCall.headers).length > 0 && (
 						<div style={{ marginBottom: '1rem' }}>
-							<h5 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
 								Headers
 							</h5>
 							<ParameterList>
 								{Object.entries(apiCall.headers).map(([key, value]) => (
 									<ParameterItem key={key}>
-										<span><strong>{key}:</strong></span>
+										<span>
+											<strong>{key}:</strong>
+										</span>
 										<ParameterValue>{value}</ParameterValue>
 									</ParameterItem>
 								))}
@@ -519,14 +576,20 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 					{apiCall.body && (
 						<div>
-							<h5 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
 								Request Body
 							</h5>
 							<CodeBlock $theme={theme}>
-								{typeof apiCall.body === 'string' 
-									? apiCall.body 
-									: JSON.stringify(apiCall.body, null, 2)
-								}
+								{typeof apiCall.body === 'string'
+									? apiCall.body
+									: JSON.stringify(apiCall.body, null, 2)}
 							</CodeBlock>
 						</div>
 					)}
@@ -538,21 +601,26 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				<CollapsibleSection>
 					<SectionHeader onClick={() => toggleSection('url')}>
 						<SectionTitle>Authorization URL (Highlighted)</SectionTitle>
-						{expandedSections.has('url') ? <FiChevronUp /> : <FiChevronDown />}
+						<FiChevronDown
+							style={{
+								transform: expandedSections.has('url') ? 'rotate(0deg)' : 'rotate(-90deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
 					</SectionHeader>
 					<SectionContent $isExpanded={expandedSections.has('url')}>
-						<URLDisplay>
-							{highlightURL(apiCall.url)}
-						</URLDisplay>
+						<URLDisplay>{highlightURL(apiCall.url)}</URLDisplay>
 						{apiCall.flowType && (
 							<RARNote>
 								<RARIcon>
 									<FiInfo size={16} />
 								</RARIcon>
 								<div>
-									<strong>{apiCall.flowType.toUpperCase()} Parameters:</strong><br />
-									The highlighted sections show important OAuth/OIDC parameters specific to this flow type. 
-									Hover over highlighted sections to see detailed descriptions of each parameter.
+									<strong>{apiCall.flowType.toUpperCase()} Parameters:</strong>
+									<br />
+									The highlighted sections show important OAuth/OIDC parameters specific to this
+									flow type. Hover over highlighted sections to see detailed descriptions of each
+									parameter.
 								</div>
 							</RARNote>
 						)}
@@ -564,29 +632,28 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			<CollapsibleSection>
 				<SectionHeader onClick={() => toggleSection('curl')}>
 					<SectionTitle>cURL Command</SectionTitle>
-					{expandedSections.has('curl') ? <FiChevronUp /> : <FiChevronDown />}
+					<FiChevronDown
+						style={{
+							transform: expandedSections.has('curl') ? 'rotate(0deg)' : 'rotate(-90deg)',
+							transition: 'transform 0.2s ease',
+						}}
+					/>
 				</SectionHeader>
 				<SectionContent $isExpanded={expandedSections.has('curl')}>
 					<CodeBlock $theme={theme}>{curlCommand}</CodeBlock>
 					<ActionButtons>
-						<ActionButton 
+						<ActionButton
 							$variant="primary"
 							onClick={() => handleCopy(curlCommand, 'cURL command')}
 						>
 							<FiCopy size={14} />
 							Copy cURL Command
 						</ActionButton>
-						<ActionButton 
-							$variant="secondary"
-							onClick={() => window.open(apiCall.url, '_blank')}
-						>
+						<ActionButton $variant="secondary" onClick={() => window.open(apiCall.url, '_blank')}>
 							<FiExternalLink size={14} />
 							Open URL
 						</ActionButton>
-						<ActionButton 
-							$variant="success"
-							onClick={handleViewCodeExamples}
-						>
+						<ActionButton $variant="success" onClick={handleViewCodeExamples}>
 							<FiCode size={14} />
 							View Code Examples
 						</ActionButton>
@@ -599,18 +666,22 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				<CollapsibleSection>
 					<SectionHeader onClick={() => toggleSection('response')}>
 						<SectionTitle>Response</SectionTitle>
-						{expandedSections.has('response') ? <FiChevronUp /> : <FiChevronDown />}
+						<FiChevronDown
+							style={{
+								transform: expandedSections.has('response') ? 'rotate(0deg)' : 'rotate(-90deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
 					</SectionHeader>
 					<SectionContent $isExpanded={expandedSections.has('response')}>
 						<CodeBlock $theme={theme}>
-							{apiCall.response.error 
+							{apiCall.response.error
 								? `Error: ${apiCall.response.error}`
 								: `HTTP ${apiCall.response.status} ${apiCall.response.statusText}\n\n${
-									apiCall.response.data 
-										? JSON.stringify(apiCall.response.data, null, 2)
-										: 'No response body'
-								}`
-							}
+										apiCall.response.data
+											? JSON.stringify(apiCall.response.data, null, 2)
+											: 'No response body'
+									}`}
 						</CodeBlock>
 					</SectionContent>
 				</CollapsibleSection>
@@ -621,7 +692,12 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 				<CollapsibleSection>
 					<SectionHeader onClick={() => toggleSection('notes')}>
 						<SectionTitle>Educational Notes</SectionTitle>
-						{expandedSections.has('notes') ? <FiChevronUp /> : <FiChevronDown />}
+						<FiChevronDown
+							style={{
+								transform: expandedSections.has('notes') ? 'rotate(0deg)' : 'rotate(-90deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
 					</SectionHeader>
 					<SectionContent $isExpanded={expandedSections.has('notes')}>
 						{apiCall.educationalNotes.map((note, index) => (
@@ -637,11 +713,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			{/* Execute Button */}
 			{showExecuteButton && onExecute && (
 				<ActionButtons>
-					<ActionButton 
-						$variant="success"
-						onClick={handleExecute}
-						disabled={isExecuting}
-					>
+					<ActionButton $variant="success" onClick={handleExecute} disabled={isExecuting}>
 						{isExecuting ? 'Executing...' : 'Execute API Call'}
 					</ActionButton>
 				</ActionButtons>
@@ -649,8 +721,20 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 			{/* Performance Info */}
 			{apiCall.duration && (
-				<div style={{ marginTop: '1rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '6px', fontSize: '0.875rem', color: '#6b7280' }}>
-					<strong>Duration:</strong> {apiCall.duration < 1000 ? `${apiCall.duration}ms` : `${(apiCall.duration / 1000).toFixed(2)}s`}
+				<div
+					style={{
+						marginTop: '1rem',
+						padding: '0.75rem',
+						background: '#f8fafc',
+						borderRadius: '6px',
+						fontSize: '0.875rem',
+						color: '#6b7280',
+					}}
+				>
+					<strong>Duration:</strong>{' '}
+					{apiCall.duration < 1000
+						? `${apiCall.duration}ms`
+						: `${(apiCall.duration / 1000).toFixed(2)}s`}
 				</div>
 			)}
 		</Container>

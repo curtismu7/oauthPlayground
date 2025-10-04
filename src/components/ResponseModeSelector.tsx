@@ -4,7 +4,11 @@
 import React, { useState, useEffect } from 'react';
 import { FiChevronDown, FiInfo, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ResponseModeService, ResponseMode, ResponseModeInfo } from '../services/responseModeService';
+import {
+	ResponseModeService,
+	ResponseMode,
+	ResponseModeInfo,
+} from '../services/responseModeService';
 
 interface ResponseModeSelectorProps {
 	selectedMode: ResponseMode;
@@ -20,8 +24,8 @@ interface ResponseModeSelectorProps {
 }
 
 const Container = styled.div<{ $disabled?: boolean }>`
-	opacity: ${props => props.$disabled ? 0.6 : 1};
-	pointer-events: ${props => props.$disabled ? 'none' : 'auto'};
+	opacity: ${(props) => (props.$disabled ? 0.6 : 1)};
+	pointer-events: ${(props) => (props.$disabled ? 'none' : 'auto')};
 `;
 
 const SelectorWrapper = styled.div`
@@ -36,7 +40,7 @@ const SelectButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
 	background: white;
-	border: 2px solid ${props => props.$hasError ? '#ef4444' : props.$isOpen ? '#3b82f6' : '#e5e7eb'};
+	border: 2px solid ${(props) => (props.$hasError ? '#ef4444' : props.$isOpen ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
@@ -45,7 +49,7 @@ const SelectButton = styled.button<{ $isOpen: boolean; $hasError?: boolean }>`
 	transition: all 0.2s ease;
 
 	&:hover {
-		border-color: ${props => props.$hasError ? '#dc2626' : '#3b82f6'};
+		border-color: ${(props) => (props.$hasError ? '#dc2626' : '#3b82f6')};
 	}
 
 	&:focus {
@@ -63,7 +67,7 @@ const SelectedMode = styled.div`
 
 const ModeIcon = styled.span<{ $color: string }>`
 	font-size: 1.125rem;
-	color: ${props => props.$color};
+	color: ${(props) => props.$color};
 `;
 
 const ModeName = styled.span`
@@ -72,7 +76,7 @@ const ModeName = styled.span`
 
 const ChevronIcon = styled(FiChevronDown)<{ $isOpen: boolean }>`
 	transition: transform 0.2s ease;
-	transform: ${props => props.$isOpen ? 'rotate(180deg)' : 'rotate(0deg)'};
+	transform: ${(props) => (props.$isOpen ? 'rotate(0deg)' : 'rotate(-90deg)')};
 	color: #6b7280;
 `;
 
@@ -88,9 +92,9 @@ const Dropdown = styled.div<{ $isOpen: boolean }>`
 	border-radius: 0.5rem;
 	box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 	overflow: hidden;
-	opacity: ${props => props.$isOpen ? 1 : 0};
-	visibility: ${props => props.$isOpen ? 'visible' : 'hidden'};
-	transform: ${props => props.$isOpen ? 'translateY(0)' : 'translateY(-10px)'};
+	opacity: ${(props) => (props.$isOpen ? 1 : 0)};
+	visibility: ${(props) => (props.$isOpen ? 'visible' : 'hidden')};
+	transform: ${(props) => (props.$isOpen ? 'translateY(0)' : 'translateY(-10px)')};
 	transition: all 0.2s ease;
 `;
 
@@ -100,7 +104,7 @@ const Option = styled.button<{ $isSelected: boolean; $isRecommended?: boolean }>
 	gap: 0.75rem;
 	width: 100%;
 	padding: 1rem;
-	background: ${props => props.$isSelected ? '#f3f4f6' : 'white'};
+	background: ${(props) => (props.$isSelected ? '#f3f4f6' : 'white')};
 	border: none;
 	text-align: left;
 	cursor: pointer;
@@ -119,7 +123,7 @@ const Option = styled.button<{ $isSelected: boolean; $isRecommended?: boolean }>
 
 const OptionIcon = styled.span<{ $color: string }>`
 	font-size: 1.25rem;
-	color: ${props => props.$color};
+	color: ${(props) => props.$color};
 	margin-top: 0.125rem;
 `;
 
@@ -128,7 +132,7 @@ const OptionContent = styled.div`
 `;
 
 const OptionName = styled.div<{ $isSelected: boolean }>`
-	font-weight: ${props => props.$isSelected ? 600 : 500};
+	font-weight: ${(props) => (props.$isSelected ? 600 : 500)};
 	color: #111827;
 	margin-bottom: 0.25rem;
 	display: flex;
@@ -233,11 +237,15 @@ const UrlExample = styled.div`
 `;
 
 const UrlText = styled.code`
-	color: #e2e8f0;
+	color: #1e293b;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
 	line-height: 1.4;
 	word-break: break-all;
+	background: #f8fafc;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	border: 1px solid #e2e8f0;
 `;
 
 const HighlightedParam = styled.span`
@@ -249,19 +257,24 @@ const HighlightedParam = styled.span`
 `;
 
 const ResponseExample = styled.div`
-	background: #1e293b;
+	background: white;
+	border: 1px solid #f1f5f9;
 	border-radius: 0.375rem;
 	padding: 0.75rem;
 	overflow-x: auto;
 `;
 
 const ResponseText = styled.pre`
-	color: #e2e8f0;
+	color: #1e293b;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
 	line-height: 1.4;
 	margin: 0;
 	white-space: pre-wrap;
+	background: #f8fafc;
+	padding: 0.5rem;
+	border-radius: 0.375rem;
+	border: 1px solid #e2e8f0;
 `;
 
 const CopyButton = styled.button`
@@ -291,21 +304,33 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 	showRecommendations = true,
 	showUrlExamples = true,
 	baseUrl = 'https://auth.pingone.com/{envID}/as/authorize',
-	className
+	className,
 }) => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [compatibilityIssues, setCompatibilityIssues] = useState<string[]>([]);
 
 	const allModes = ResponseModeService.getAllModes();
 	const selectedModeInfo = ResponseModeService.getModeInfo(selectedMode);
-	const recommendedMode = showRecommendations 
+	const recommendedMode = showRecommendations
 		? ResponseModeService.getRecommendedMode({ platform, clientType, responseType })
 		: null;
 
 	// Check compatibility when mode changes
 	useEffect(() => {
-		const validation = ResponseModeService.validateCompatibility(selectedMode, responseType, clientType);
-		setCompatibilityIssues(validation.issues);
+		const validation = ResponseModeService.validateCompatibility(
+			selectedMode,
+			responseType,
+			clientType
+		);
+		// Only update if the issues actually changed
+		setCompatibilityIssues(prevIssues => {
+			const newIssues = validation.issues;
+			if (prevIssues.length !== newIssues.length || 
+				!prevIssues.every((issue, index) => issue === newIssues[index])) {
+				return newIssues;
+			}
+			return prevIssues;
+		});
 	}, [selectedMode, responseType, clientType]);
 
 	const handleModeSelect = (mode: ResponseMode) => {
@@ -324,7 +349,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 			redirect_uri: '{redirectURI}',
 			scope: 'openid profile email',
 			state: '{state}',
-			nonce: '{nonce}'
+			nonce: '{nonce}',
 		});
 
 		const url = `${baseUrl}?${params.toString()}`;
@@ -402,7 +427,11 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 					{allModes.map((modeInfo) => {
 						const isSelected = modeInfo.mode === selectedMode;
 						const isRecommended = recommendedMode === modeInfo.mode;
-						const validation = ResponseModeService.validateCompatibility(modeInfo.mode, responseType, clientType);
+						const validation = ResponseModeService.validateCompatibility(
+							modeInfo.mode,
+							responseType,
+							clientType
+						);
 						const hasIssues = !validation.valid;
 
 						return (
@@ -473,33 +502,31 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 						<FiInfo size={16} />
 						Live Examples for {selectedModeInfo.name}
 					</UrlExampleTitle>
-					
+
 					<div>
 						<strong>Authorization URL:</strong>
 						<UrlExample>
 							<UrlText>
-								{generateUrlExample().split('&').map((param, index) => {
-									if (param.startsWith('response_mode=')) {
+								{generateUrlExample()
+									.split('&')
+									.map((param, index) => {
+										if (param.startsWith('response_mode=')) {
+											return (
+												<React.Fragment key={index}>
+													{index > 0 && '&'}
+													<HighlightedParam>{param}</HighlightedParam>
+												</React.Fragment>
+											);
+										}
 										return (
 											<React.Fragment key={index}>
 												{index > 0 && '&'}
-												<HighlightedParam>
-													{param}
-												</HighlightedParam>
+												{param}
 											</React.Fragment>
 										);
-									}
-									return (
-										<React.Fragment key={index}>
-											{index > 0 && '&'}
-											{param}
-										</React.Fragment>
-									);
-								})}
+									})}
 							</UrlText>
-							<CopyButton onClick={handleCopyUrl}>
-								Copy URL
-							</CopyButton>
+							<CopyButton onClick={handleCopyUrl}>Copy URL</CopyButton>
 						</UrlExample>
 					</div>
 
@@ -507,9 +534,7 @@ code=abc123&state=xyz789&scope=openid+profile+email`;
 						<strong>Response Format:</strong>
 						<ResponseExample>
 							<ResponseText>{generateResponseExample()}</ResponseText>
-							<CopyButton onClick={handleCopyResponse}>
-								Copy Response
-							</CopyButton>
+							<CopyButton onClick={handleCopyResponse}>Copy Response</CopyButton>
 						</ResponseExample>
 					</div>
 				</UrlExampleSection>

@@ -2,6 +2,7 @@
 import React from 'react';
 import { FiGlobe, FiKey, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
+import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
 export interface PingOneApplicationState {
 	clientAuthMethod:
@@ -41,7 +42,6 @@ export interface PingOneApplicationState {
 
 	// Pushed Authorization Request (PAR)
 	requirePushedAuthorizationRequest: boolean;
-	pushedAuthorizationRequestTimeout: number; // in seconds
 
 	// Advanced Security Settings
 	additionalRefreshTokenReplayProtection: boolean;
@@ -233,6 +233,25 @@ const RadioLabel = styled.label`
 	cursor: pointer;
 `;
 
+const UrlExampleContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin-top: 1rem;
+`;
+
+const UrlExample = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+`;
+
+const UrlLabel = styled.div`
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #374151;
+`;
+
 const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ value, onChange }) => {
 	const update = (updates: Partial<PingOneApplicationState>) => {
 		onChange({ ...value, ...updates });
@@ -255,29 +274,35 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							Require Pushed Authorization Request
 						</CheckboxLabel>
 						<Helper>
-							Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications<br/>
-							<strong>Without PAR:</strong> <code>https://auth.pingone.com/env/as/authorize?<span style={{ color: '#059669' }}>response_type=code&client_id=...&redirect_uri=...&scope=openid&state=...</span></code><br/>
-							<strong>With PAR:</strong> <code>https://auth.pingone.com/env/as/authorize?<span style={{ color: '#dc2626' }}>request_uri=urn:ietf:params:oauth:request_uri:...</span></code>
+							Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
 						</Helper>
+						
+						<UrlExampleContainer>
+							<UrlExample>
+								<UrlLabel>Without PAR:</UrlLabel>
+								<ColoredUrlDisplay
+									url="https://auth.pingone.com/env/as/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid&state=..."
+									title="Authorization URL without PAR"
+									showCopyButton={true}
+									showExplanationButton={true}
+								/>
+							</UrlExample>
+							
+							<UrlExample>
+								<UrlLabel>With PAR:</UrlLabel>
+								<ColoredUrlDisplay
+									url="https://auth.pingone.com/env/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:..."
+									title="Authorization URL with PAR"
+									showCopyButton={true}
+									showExplanationButton={true}
+								/>
+							</UrlExample>
+						</UrlExampleContainer>
 					</Field>
 
-					<Field>
-						<Label htmlFor="par-timeout">PAR Reference Timeout (seconds)</Label>
-						<Input
-							id="par-timeout"
-							type="number"
-							min="10"
-							max="600"
-							value={value.pushedAuthorizationRequestTimeout}
-							onChange={(e) => onChange({ ...value, pushedAuthorizationRequestTimeout: parseInt(e.target.value) || 60 })}
-						/>
-						<Helper>
-							Maximum time (in seconds) that a pushed authorization request remains valid before expiring
-						</Helper>
-					</Field>
 				</Grid>
 			</Section>
-
+			
 			<Section>
 				<SectionTitle>
 					<FiSettings /> Client Authentication

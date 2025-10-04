@@ -14,8 +14,8 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -646,42 +646,55 @@ const PingOnePARFlowV5: React.FC = () => {
 
 						<SectionDivider />
 						<ResultsSection>
-							<ResultsHeading>
-								<FiSettings size={18} /> PingOne Configuration
-							</ResultsHeading>
-							<HelperText>
-								Configure your PingOne environment and application credentials to use the PAR flow.
-							</HelperText>
+				<ResultsHeading>
+					<FiSettings size={18} /> PingOne Configuration
+				</ResultsHeading>
+				<HelperText>
+					Configure your PingOne environment and application credentials to use the PAR flow.
+				</HelperText>
 
-							<CredentialsInput
-								environmentId={controller.credentials.environmentId || ''}
-								clientId={controller.credentials.clientId || ''}
-								clientSecret={controller.credentials.clientSecret || ''}
-								redirectUri={controller.credentials.redirectUri || ''}
-								scopes={controller.credentials.scope || ''}
-								onEnvironmentIdChange={(value) =>
-									controller.setCredentials({ ...controller.credentials, environmentId: value })
-								}
-								onClientIdChange={(value) =>
-									controller.setCredentials({ ...controller.credentials, clientId: value })
-								}
-								onClientSecretChange={(value) =>
-									controller.setCredentials({ ...controller.credentials, clientSecret: value })
-								}
-								onRedirectUriChange={(value) =>
-									controller.setCredentials({ ...controller.credentials, redirectUri: value })
-								}
-								onCopy={handleCopy}
-							/>
-						</ResultsSection>
+				<div style={{ marginTop: '1.5rem' }}>
+					<EnvironmentIdInput
+						initialEnvironmentId={controller.credentials.environmentId || ''}
+						onEnvironmentIdChange={(newEnvId) => {
+							controller.setCredentials({ ...controller.credentials, environmentId: newEnvId });
+							if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+								controller.saveCredentials();
+								v4ToastManager.showSuccess('Credentials auto-saved');
+							}
+						}}
+						onIssuerUrlChange={() => {}}
+						showSuggestions={true}
+						autoDiscover={false}
+					/>
 
-						<SectionDivider />
-						<ConfigurationSummaryCard
-							configuration={controller.credentials}
-							onSaveConfiguration={() => controller.saveCredentials()}
-							onLoadConfiguration={() => {}}
-							primaryColor="#16a34a"
-						/>
+					<CredentialsInput
+						environmentId={controller.credentials.environmentId || ''}
+						clientId={controller.credentials.clientId || ''}
+						clientSecret={controller.credentials.clientSecret || ''}
+						scopes={controller.credentials.scope || 'openid profile email'}
+						onEnvironmentIdChange={(newEnvId) =>
+							controller.setCredentials({ ...controller.credentials, environmentId: newEnvId })
+						}
+						onClientIdChange={(newClientId) => {
+							controller.setCredentials({ ...controller.credentials, clientId: newClientId });
+							if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+								controller.saveCredentials();
+								v4ToastManager.showSuccess('Credentials auto-saved');
+							}
+						}}
+						onClientSecretChange={(newClientSecret) =>
+							controller.setCredentials({ ...controller.credentials, clientSecret: newClientSecret })
+						}
+						onScopesChange={(newScopes) =>
+							controller.setCredentials({ ...controller.credentials, scope: newScopes })
+						}
+						onCopy={handleCopy}
+						showRedirectUri={true}
+						showLoginHint={false}
+					/>
+				</div>
+			</ResultsSection>
 					</>
 				);
 

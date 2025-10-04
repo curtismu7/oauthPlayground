@@ -187,7 +187,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 			}, 100);
 		});
 	}
-	
+
 	isLoadingConfiguration = true;
 	try {
 		console.log(' [NewAuthContext] Loading configuration...');
@@ -850,12 +850,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				// Check multiple possible storage keys for code_verifier
 				const possibleKeys = [
 					'code_verifier',
-					'oauth_code_verifier', 
+					'oauth_code_verifier',
 					'authz_v3_code_verifier',
 					'oauth2_v3_code_verifier',
-					'oidc_v3_code_verifier'
+					'oidc_v3_code_verifier',
 				];
-				
+
 				let codeVerifier = '';
 				for (const key of possibleKeys) {
 					const value = sessionStorage.getItem(key);
@@ -865,7 +865,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						break;
 					}
 				}
-				
+
 				// If no code_verifier found, generate one as fallback
 				if (!codeVerifier) {
 					console.log(' [NewAuthContext] No code_verifier found, generating fallback...');
@@ -874,12 +874,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						const { generateCodeVerifier } = await import('../utils/oauth');
 						codeVerifier = generateCodeVerifier();
 						sessionStorage.setItem('code_verifier', codeVerifier);
-						console.log(' [NewAuthContext] Generated fallback code_verifier and stored in sessionStorage');
+						console.log(
+							' [NewAuthContext] Generated fallback code_verifier and stored in sessionStorage'
+						);
 					} catch (error) {
 						console.error(' [NewAuthContext] Failed to generate fallback code_verifier:', error);
 					}
 				}
-				
+
 				console.log(' [NewAuthContext] Retrieved code_verifier from sessionStorage:', {
 					hasCodeVerifier: !!codeVerifier,
 					codeVerifierLength: codeVerifier?.length || 0,
@@ -890,10 +892,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				// Debug: Log all sessionStorage contents
 				console.log(' [NewAuthContext] All sessionStorage contents:', {
 					keys: Object.keys(sessionStorage),
-					values: Object.keys(sessionStorage).reduce((acc, key) => {
-						acc[key] = sessionStorage.getItem(key)?.substring(0, 20) + '...';
-						return acc;
-					}, {} as Record<string, string>)
+					values: Object.keys(sessionStorage).reduce(
+						(acc, key) => {
+							acc[key] = sessionStorage.getItem(key)?.substring(0, 20) + '...';
+							return acc;
+						},
+						{} as Record<string, string>
+					),
 				});
 
 				// Fallback to credential manager if config is not loaded

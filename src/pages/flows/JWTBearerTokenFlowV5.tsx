@@ -3,7 +3,8 @@
 
 import React, { useCallback, useState, useEffect } from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiLock } from 'react-icons/fi';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import type { DefaultTheme } from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
@@ -15,6 +16,9 @@ import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowControll
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { rsaKeyGenerationService } from '../../services/rsaKeyGenerationService';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import JSONHighlighter, { JSONData } from '../../components/JSONHighlighter';
+import { usePageScroll } from '../../hooks/usePageScroll';
 
 const STEP_METADATA = [
 	{
@@ -114,22 +118,28 @@ const StepContent = styled.div`
 	padding: 2rem;
 `;
 
-const FormSection = styled.div`
-	background: ${({ theme }) => theme.colors.gray100};
+type ThemeProps = { theme: DefaultTheme };
+
+const FormSection = styled.div(
+	({ theme }: ThemeProps) => css`
+	background: ${theme.colors.gray100};
 	border-radius: 8px;
 	padding: 1.5rem;
 	margin-bottom: 2rem;
-`;
+`
+);
 
-const FormTitle = styled.h3`
+const FormTitle = styled.h3(
+	({ theme }: ThemeProps) => css`
 	font-size: 1.25rem;
 	font-weight: 600;
-	color: ${({ theme }) => theme.colors.gray800};
+	color: ${theme.colors.gray800};
 	margin-bottom: 1rem;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-`;
+`
+);
 
 const FormGrid = styled.div`
 	display: grid;
@@ -161,23 +171,26 @@ const Label = styled.label`
 	font-size: 0.875rem;
 `;
 
-const Input = styled.input`
+const Input = styled.input(
+	({ theme }: ThemeProps) => css`
 	padding: 0.75rem;
-	border: 1px solid ${({ theme }) => theme.colors.gray400};
+	border: 1px solid ${theme.colors.gray400};
 	border-radius: 6px;
 	font-size: 0.875rem;
 	transition: border-color 0.2s ease;
 
 	&:focus {
 		outline: none;
-		border-color: ${({ theme }) => theme.colors.primary};
+		border-color: ${theme.colors.primary};
 		box-shadow: 0 0 0 3px rgba(0, 48, 135, 0.1);
 	}
-`;
+`
+);
 
-const TextArea = styled.textarea`
+const TextArea = styled.textarea(
+	({ theme }: ThemeProps) => css`
 	padding: 0.75rem;
-	border: 1px solid ${({ theme }) => theme.colors.gray400};
+	border: 1px solid ${theme.colors.gray400};
 	border-radius: 6px;
 	font-size: 0.875rem;
 	min-height: 100px;
@@ -186,64 +199,82 @@ const TextArea = styled.textarea`
 
 	&:focus {
 		outline: none;
-		border-color: ${({ theme }) => theme.colors.primary};
+		border-color: ${theme.colors.primary};
 		box-shadow: 0 0 0 3px rgba(0, 48, 135, 0.1);
 	}
-`;
+`
+);
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>`
-	padding: 0.75rem 1.5rem;
-	border-radius: 6px;
-	font-weight: 500;
-	font-size: 0.875rem;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	border: none;
+const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'success' }>(
+	({
+		variant = 'primary',
+		theme,
+	}: {
+		variant?: 'primary' | 'secondary' | 'success';
+		theme: DefaultTheme;
+	}) => {
+		const baseStyles = css`
+		padding: 0.75rem 1.5rem;
+		border-radius: 6px;
+		font-weight: 500;
+		font-size: 0.875rem;
+		cursor: pointer;
+		transition: all 0.2s ease;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		border: none;
 
-	${({ variant = 'primary' }) => {
-		switch (variant) {
-			case 'primary':
-				return `
-					background: #3b82f6;
-					color: white;
-					&:hover:not(:disabled) {
-						background: #2563eb;
-					}
-				`;
-			case 'secondary':
-				return `
-					background: ${({ theme }) => theme.colors.gray200};
-					color: ${({ theme }) => theme.colors.gray700};
-					&:hover:not(:disabled) {
-						background: ${({ theme }) => theme.colors.gray300};
-					}
-				`;
-			case 'success':
-				return `
-					background: #10b981;
-					color: white;
-					&:hover:not(:disabled) {
-						background: #059669;
-					}
-				`;
+		&:disabled {
+			opacity: 0.5;
+			cursor: not-allowed;
 		}
-	}}
+	`;
 
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
+		switch (variant) {
+			case 'secondary':
+				return css`
+				${baseStyles};
+				background: ${theme.colors.gray200};
+				color: ${theme.colors.gray700};
+
+				&:hover:not(:disabled) {
+					background: ${theme.colors.gray300};
+				}
+			`;
+			case 'success':
+				return css`
+				${baseStyles};
+				background: #10b981;
+				color: white;
+
+				&:hover:not(:disabled) {
+					background: #059669;
+				}
+			`;
+			case 'primary':
+			default:
+				return css`
+				${baseStyles};
+				background: #3b82f6;
+				color: white;
+
+				&:hover:not(:disabled) {
+					background: #2563eb;
+				}
+			`;
+		}
 	}
-`;
+);
 
-const ResultsContainer = styled.div`
-	background: ${({ theme }) => theme.colors.gray100};
+const ResultsContainer = styled.div(
+	({ theme }: ThemeProps) => css`
+	background: ${theme.colors.gray100};
 	border-radius: 8px;
 	padding: 1.5rem;
 	margin-top: 1rem;
-`;
+`
+);
 
 const SuccessMessage = styled.div`
 	display: flex;
@@ -254,14 +285,16 @@ const SuccessMessage = styled.div`
 	margin-bottom: 1rem;
 `;
 
-const ErrorMessage = styled.div`
+const ErrorMessage = styled.div(
+	({ theme }: ThemeProps) => css`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	color: ${({ theme }) => theme.colors.danger};
+	color: ${theme.colors.danger};
 	font-weight: 500;
 	margin-bottom: 1rem;
-`;
+`
+);
 
 const JWTInfo = styled.div`
 	background: white;
@@ -294,23 +327,27 @@ const JWTInfoValue = styled.span`
 	font-size: 0.875rem;
 `;
 
-const PingOneConfigCard = styled.div`
-	background: ${({ theme }) => theme.colors.gray100};
-	border: 1px solid ${({ theme }) => theme.colors.gray300};
+const PingOneConfigCard = styled.div(
+	({ theme }: ThemeProps) => css`
+	background: ${theme.colors.gray100};
+	border: 1px solid ${theme.colors.gray300};
 	border-radius: 8px;
 	padding: 1.5rem;
 	margin: 1rem 0;
-`;
+`
+);
 
-const PingOneConfigTitle = styled.h3`
+const PingOneConfigTitle = styled.h3(
+	({ theme }: ThemeProps) => css`
 	font-size: 1.125rem;
 	font-weight: 600;
-	color: ${({ theme }) => theme.colors.gray800};
+	color: ${theme.colors.gray800};
 	margin: 0 0 1rem 0;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-`;
+`
+);
 
 const PingOneConfigStep = styled.div`
 	margin-bottom: 0.75rem;
@@ -340,24 +377,28 @@ const PingOneConfigList = styled.div`
 	counter-reset: step-counter;
 `;
 
-const PingOneConfigNote = styled.div`
-	background: ${({ theme }) => theme.colors.warning}20; /* 20% opacity */
-	border: 1px solid ${({ theme }) => theme.colors.warning};
+const PingOneConfigNote = styled.div(
+	({ theme }: ThemeProps) => css`
+	background: ${theme.colors.warning}20; /* 20% opacity */
+	border: 1px solid ${theme.colors.warning};
 	border-radius: 6px;
 	padding: 0.75rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: ${({ theme }) => theme.colors.warning}e6; /* 90% opacity */
-`;
+	color: ${theme.colors.warning}e6; /* 90% opacity */
+`
+);
 
-const PingOneConfigCode = styled.code`
-	background: ${({ theme }) => theme.colors.gray200};
+const PingOneConfigCode = styled.code(
+	({ theme }: ThemeProps) => css`
+	background: ${theme.colors.gray200};
 	padding: 0.25rem 0.5rem;
 	border-radius: 4px;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.75rem;
-	color: ${({ theme }) => theme.colors.gray800};
-`;
+	color: ${theme.colors.gray800};
+`
+);
 
 const PingOneConfigurationSection: React.FC = () => {
 	const [pingOneConfig, setPingOneConfig] = useState<{
@@ -394,15 +435,15 @@ const PingOneConfigurationSection: React.FC = () => {
 
 	return (
 		<PingOneConfigCard>
-			<PingOneConfigTitle>
-				🔧 {instructions.title}
-			</PingOneConfigTitle>
+			<PingOneConfigTitle>🔧 {instructions.title}</PingOneConfigTitle>
 
 			<div style={{ marginBottom: '1rem' }}>
 				<strong>Requirements:</strong>
 				<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 					{instructions.requirements.map((req, index) => (
-						<li key={index} style={{ marginBottom: '0.25rem' }}>{req}</li>
+						<li key={index} style={{ marginBottom: '0.25rem' }}>
+							{req}
+						</li>
 					))}
 				</ul>
 			</div>
@@ -411,9 +452,7 @@ const PingOneConfigurationSection: React.FC = () => {
 				<strong>Configuration Steps:</strong>
 				<PingOneConfigList>
 					{instructions.steps.map((step, index) => (
-						<PingOneConfigStep key={index}>
-							{step}
-						</PingOneConfigStep>
+						<PingOneConfigStep key={index}>{step}</PingOneConfigStep>
 					))}
 				</PingOneConfigList>
 			</div>
@@ -422,13 +461,28 @@ const PingOneConfigurationSection: React.FC = () => {
 				<div style={{ marginBottom: '1rem' }}>
 					<strong>Generated Key Information:</strong>
 					<div style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
-						<div><strong>Key ID:</strong> <PingOneConfigCode>{pingOneConfig.keyId}</PingOneConfigCode></div>
-						<div><strong>Algorithm:</strong> <PingOneConfigCode>{pingOneConfig.algorithm}</PingOneConfigCode></div>
-						<div><strong>Key Size:</strong> <PingOneConfigCode>{pingOneConfig.keySize} bits</PingOneConfigCode></div>
+						<div>
+							<strong>Key ID:</strong> <PingOneConfigCode>{pingOneConfig.keyId}</PingOneConfigCode>
+						</div>
+						<div>
+							<strong>Algorithm:</strong>{' '}
+							<PingOneConfigCode>{pingOneConfig.algorithm}</PingOneConfigCode>
+						</div>
+						<div>
+							<strong>Key Size:</strong>{' '}
+							<PingOneConfigCode>{pingOneConfig.keySize} bits</PingOneConfigCode>
+						</div>
 					</div>
 
 					<div style={{ marginTop: '1rem' }}>
-						<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+						<div
+							style={{
+								display: 'flex',
+								justifyContent: 'space-between',
+								alignItems: 'center',
+								marginBottom: '0.5rem',
+							}}
+						>
 							<strong>Public Key (for PingOne upload):</strong>
 							<Button
 								variant="secondary"
@@ -442,32 +496,43 @@ const PingOneConfigurationSection: React.FC = () => {
 								📋 Copy Key
 							</Button>
 						</div>
-						<pre style={{
-							background: 'white',
-							padding: '0.75rem',
-							borderRadius: '4px',
-							fontSize: '0.75rem',
-							overflow: 'auto',
-							marginTop: '0.5rem',
-							border: '1px solid #e0e0e0',
-							maxHeight: '200px'
-						}}>
+						<pre
+							style={{
+								background: 'white',
+								padding: '0.75rem',
+								borderRadius: '4px',
+								fontSize: '0.75rem',
+								overflow: 'auto',
+								marginTop: '0.5rem',
+								border: '1px solid #e0e0e0',
+								maxHeight: '200px',
+							}}
+						>
 							{pingOneConfig.publicKeyPEM}
 						</pre>
-						<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#28a745', fontWeight: '500' }}>
+						<div
+							style={{
+								marginTop: '0.5rem',
+								fontSize: '0.75rem',
+								color: '#28a745',
+								fontWeight: '500',
+							}}
+						>
 							✅ Ready to copy and paste into PingOne Admin Console
 						</div>
 					</div>
 				</div>
 			) : (
 				<div style={{ marginBottom: '1rem' }}>
-					<div style={{
-						background: '#ffc10720',
-						border: '1px solid #ffc107',
-						borderRadius: '6px',
-						padding: '1rem',
-						textAlign: 'center'
-					}}>
+					<div
+						style={{
+							background: '#ffc10720',
+							border: '1px solid #ffc107',
+							borderRadius: '6px',
+							padding: '1rem',
+							textAlign: 'center',
+						}}
+					>
 						<div style={{ fontSize: '0.875rem', color: '#856404', marginBottom: '0.5rem' }}>
 							🔑 Generate an RSA key pair to get your public key for PingOne
 						</div>
@@ -482,7 +547,9 @@ const PingOneConfigurationSection: React.FC = () => {
 				<strong>Important Notes:</strong>
 				<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 					{instructions.notes.map((note, index) => (
-						<li key={index} style={{ marginBottom: '0.25rem' }}>{note}</li>
+						<li key={index} style={{ marginBottom: '0.25rem' }}>
+							{note}
+						</li>
 					))}
 				</ul>
 			</PingOneConfigNote>
@@ -491,6 +558,9 @@ const PingOneConfigurationSection: React.FC = () => {
 };
 
 const JWTBearerTokenFlowV5: React.FC = () => {
+	// Ensure page starts at top
+	usePageScroll({ pageName: 'JWTBearerTokenFlowV5', force: true });
+
 	const [currentStep, setCurrentStep] = useState<StepIndex>(0);
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [isGeneratingKey, setIsGeneratingKey] = useState(false);
@@ -505,9 +575,10 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 		setError(null);
 
 		try {
-			const { privateKeyPEM, keyId, pingOneConfig } = await rsaKeyGenerationService.generatePrivateKeyForJWT({
-				keySize: 2048,
-			});
+			const { privateKeyPEM, keyId, pingOneConfig } =
+				await rsaKeyGenerationService.generatePrivateKeyForJWT({
+					keySize: 2048,
+				});
 
 			updateCredentials({
 				privateKey: privateKeyPEM,
@@ -519,7 +590,8 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 
 			v4ToastManager.showSuccess('RSA private key has been generated and added to the form.');
 		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : 'Failed to generate private key';
+			const errorMessage =
+				error instanceof Error ? error.message : 'Failed to generate private key';
 			setError(errorMessage);
 			v4ToastManager.showError(errorMessage);
 		} finally {
@@ -582,9 +654,10 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 		}
 	}, [credentials, requestToken, handleNext]);
 
-	const canNavigateNext =
+	const canNavigateNext = Boolean(
 		(currentStep === 0 && credentials.environmentId && credentials.clientId) ||
-		(currentStep === 1 && !!tokenResult);
+			(currentStep === 1 && !!tokenResult)
+	);
 
 	const renderStepContent = () => {
 		switch (currentStep) {
@@ -598,17 +671,20 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 								instead of traditional client credentials. This provides enhanced security and
 								enables more sophisticated authentication scenarios.
 							</p>
-							<div style={{
-								background: '#fef3c7',
-								border: '1px solid #f59e0b',
-								borderRadius: '6px',
-								padding: '0.75rem',
-								margin: '1rem 0',
-								fontSize: '0.875rem',
-								color: '#92400e'
-							}}>
-								<strong>🔧 Mock Implementation:</strong> This flow simulates JWT Bearer Token authentication.
-								No actual requests are made to PingOne. Tokens are generated for demonstration purposes.
+							<div
+								style={{
+									background: '#fef3c7',
+									border: '1px solid #f59e0b',
+									borderRadius: '6px',
+									padding: '0.75rem',
+									margin: '1rem 0',
+									fontSize: '0.875rem',
+									color: '#92400e',
+								}}
+							>
+								<strong>🔧 Mock Implementation:</strong> This flow simulates JWT Bearer Token
+								authentication. No actual requests are made to PingOne. Tokens are generated for
+								demonstration purposes.
 							</div>
 						</ExplanationSection>
 
@@ -640,33 +716,39 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 								</FormGroup>
 							</FormGrid>
 
-							<div style={{
-								display: 'grid',
-								gridTemplateColumns: 'auto 1fr',
-								gap: '0.75rem 1rem',
-								marginTop: '1rem'
-							}}>
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: 'auto 1fr',
+									gap: '0.75rem 1rem',
+									marginTop: '1rem',
+								}}
+							>
 								<div style={{ fontWeight: '600', color: '#374151' }}>Environment ID:</div>
-								<div style={{
-									fontFamily: 'monospace',
-									background: '#f1f5f9',
-									padding: '0.25rem 0.5rem',
-									borderRadius: '4px',
-									fontSize: '0.875rem',
-									wordBreak: 'break-all'
-								}}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										background: '#f1f5f9',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+										fontSize: '0.875rem',
+										wordBreak: 'break-all',
+									}}
+								>
 									{credentials.environmentId || 'Not configured'}
 								</div>
 
 								<div style={{ fontWeight: '600', color: '#374151' }}>Client ID:</div>
-								<div style={{
-									fontFamily: 'monospace',
-									background: '#f1f5f9',
-									padding: '0.25rem 0.5rem',
-									borderRadius: '4px',
-									fontSize: '0.875rem',
-									wordBreak: 'break-all'
-								}}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										background: '#f1f5f9',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+										fontSize: '0.875rem',
+										wordBreak: 'break-all',
+									}}
+								>
 									{credentials.clientId || 'Not configured'}
 								</div>
 							</div>
@@ -678,47 +760,62 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 				return (
 					<>
 						{/* Configuration Summary */}
-						<div style={{
-							background: 'white',
-							border: '1px solid #e5e7eb',
-							borderRadius: '8px',
-							padding: '1.5rem',
-							marginBottom: '2rem'
-						}}>
-							<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937', fontSize: '1.25rem', fontWeight: '600' }}>
+						<div
+							style={{
+								background: 'white',
+								border: '1px solid #e5e7eb',
+								borderRadius: '8px',
+								padding: '1.5rem',
+								marginBottom: '2rem',
+							}}
+						>
+							<h3
+								style={{
+									margin: '0 0 1rem 0',
+									color: '#1f2937',
+									fontSize: '1.25rem',
+									fontWeight: '600',
+								}}
+							>
 								JWT Bearer Token Configuration
 							</h3>
 							<div style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
 								Configure JWT-specific settings for the token request.
 							</div>
 
-							<div style={{
-								display: 'grid',
-								gridTemplateColumns: 'auto 1fr',
-								gap: '0.75rem 1rem',
-								marginBottom: '1rem'
-							}}>
+							<div
+								style={{
+									display: 'grid',
+									gridTemplateColumns: 'auto 1fr',
+									gap: '0.75rem 1rem',
+									marginBottom: '1rem',
+								}}
+							>
 								<div style={{ fontWeight: '600', color: '#374151' }}>Environment ID:</div>
-								<div style={{
-									fontFamily: 'monospace',
-									background: '#f1f5f9',
-									padding: '0.25rem 0.5rem',
-									borderRadius: '4px',
-									fontSize: '0.875rem',
-									wordBreak: 'break-all'
-								}}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										background: '#f1f5f9',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+										fontSize: '0.875rem',
+										wordBreak: 'break-all',
+									}}
+								>
 									{credentials.environmentId || 'Not configured'}
 								</div>
 
 								<div style={{ fontWeight: '600', color: '#374151' }}>Client ID:</div>
-								<div style={{
-									fontFamily: 'monospace',
-									background: '#f1f5f9',
-									padding: '0.25rem 0.5rem',
-									borderRadius: '4px',
-									fontSize: '0.875rem',
-									wordBreak: 'break-all'
-								}}>
+								<div
+									style={{
+										fontFamily: 'monospace',
+										background: '#f1f5f9',
+										padding: '0.25rem 0.5rem',
+										borderRadius: '4px',
+										fontSize: '0.875rem',
+										wordBreak: 'break-all',
+									}}
+								>
 									{credentials.clientId || 'Not configured'}
 								</div>
 							</div>
@@ -757,7 +854,14 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 										value={credentials.privateKey || ''}
 										onChange={(e) => updateCredentials({ privateKey: e.target.value })}
 									/>
-									<div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+									<div
+										style={{
+											marginTop: '0.75rem',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.75rem',
+										}}
+									>
 										<Button
 											variant="primary"
 											onClick={handleGeneratePrivateKey}
@@ -811,7 +915,12 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 							<Button
 								variant="success"
 								onClick={handleRequestToken}
-								disabled={isRequesting || !credentials.clientId || !credentials.privateKey || !credentials.environmentId}
+								disabled={
+									isRequesting ||
+									!credentials.clientId ||
+									!credentials.privateKey ||
+									!credentials.environmentId
+								}
 							>
 								{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiLock />}
 								{isRequesting ? 'Simulating...' : 'Request JWT Bearer Token (Mock)'}
@@ -866,16 +975,19 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 
 								<ResultsSection>
 									<ResultsHeading>Mock Token Response</ResultsHeading>
-									<div style={{
-										background: '#f0f9ff',
-										border: '1px solid #0ea5e9',
-										borderRadius: '6px',
-										padding: '0.75rem',
-										marginBottom: '1rem',
-										fontSize: '0.875rem',
-										color: '#0c4a6e'
-									}}>
-										<strong>ℹ️ Mock Implementation:</strong> These are simulated tokens for demonstration purposes only.
+									<div
+										style={{
+											background: '#f0f9ff',
+											border: '1px solid #0ea5e9',
+											borderRadius: '6px',
+											padding: '0.75rem',
+											marginBottom: '1rem',
+											fontSize: '0.875rem',
+											color: '#0c4a6e',
+										}}
+									>
+										<strong>ℹ️ Mock Implementation:</strong> These are simulated tokens for
+										demonstration purposes only.
 									</div>
 									<pre
 										style={{
@@ -900,19 +1012,22 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Mock Token Request Complete</ResultsHeading>
 							<p>
-								The JWT Bearer Token flow simulation has completed successfully. You now have mock tokens
-								that demonstrate the structure and format of real JWT Bearer Token responses.
+								The JWT Bearer Token flow simulation has completed successfully. You now have mock
+								tokens that demonstrate the structure and format of real JWT Bearer Token responses.
 							</p>
-							<div style={{
-								background: '#f0f9ff',
-								border: '1px solid #0ea5e9',
-								borderRadius: '6px',
-								padding: '0.75rem',
-								margin: '1rem 0',
-								fontSize: '0.875rem',
-								color: '#0c4a6e'
-							}}>
-								<strong>ℹ️ Educational Purpose:</strong> These tokens are generated for learning JWT Bearer Token concepts and cannot be used for actual API authentication.
+							<div
+								style={{
+									background: '#f0f9ff',
+									border: '1px solid #0ea5e9',
+									borderRadius: '6px',
+									padding: '0.75rem',
+									margin: '1rem 0',
+									fontSize: '0.875rem',
+									color: '#0c4a6e',
+								}}
+							>
+								<strong>ℹ️ Educational Purpose:</strong> These tokens are generated for learning JWT
+								Bearer Token concepts and cannot be used for actual API authentication.
 							</div>
 						</ResultsSection>
 
@@ -954,8 +1069,9 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 						<ResultsSection>
 							<ResultsHeading>Mock Flow Complete</ResultsHeading>
 							<p>
-								You have successfully completed the JWT Bearer Token Flow simulation. This mock implementation
-								demonstrates the complete JWT Bearer Token authentication process without requiring external services.
+								You have successfully completed the JWT Bearer Token Flow simulation. This mock
+								implementation demonstrates the complete JWT Bearer Token authentication process
+								without requiring external services.
 							</p>
 						</ResultsSection>
 
@@ -967,16 +1083,19 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 								<li>Mock implementation patterns for educational flows</li>
 								<li>Understanding JWT Bearer Token authentication without external dependencies</li>
 							</ul>
-							<div style={{
-								background: '#f0f9ff',
-								border: '1px solid #0ea5e9',
-								borderRadius: '6px',
-								padding: '0.75rem',
-								margin: '1rem 0',
-								fontSize: '0.875rem',
-								color: '#0c4a6e'
-							}}>
-								<strong>🎓 Educational Value:</strong> This mock implementation helps you understand JWT Bearer Token concepts without requiring actual PingOne integration.
+							<div
+								style={{
+									background: '#f0f9ff',
+									border: '1px solid #0ea5e9',
+									borderRadius: '6px',
+									padding: '0.75rem',
+									margin: '1rem 0',
+									fontSize: '0.875rem',
+									color: '#0c4a6e',
+								}}
+							>
+								<strong>🎓 Educational Value:</strong> This mock implementation helps you understand
+								JWT Bearer Token concepts without requiring actual PingOne integration.
 							</div>
 						</ResultsSection>
 					</>
@@ -1029,8 +1148,12 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 				isFirstStep={currentStep === 0}
 				nextButtonText={
 					currentStep === 0
-						? (credentials.environmentId && credentials.clientId ? 'Next: Configure JWT' : 'Enter Environment ID and Client ID')
-						: (canNavigateNext ? 'Next' : 'Complete JWT configuration')
+						? credentials.environmentId && credentials.clientId
+							? 'Next: Configure JWT'
+							: 'Enter Environment ID and Client ID'
+						: canNavigateNext
+							? 'Next'
+							: 'Complete JWT configuration'
 				}
 				disabledMessage={
 					currentStep === 0

@@ -189,7 +189,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 const getStoredStepResults = (storageKey: string): Record<string, unknown> => {
 	if (typeof window === 'undefined') return {};
 	const stored = sessionStorage.getItem(storageKey);
-	return stored ? safeJsonParse(stored, {}) : {};
+	return stored ? safeJsonParse<Record<string, unknown>>(stored, 100000) || {} : {};
 };
 
 export const useImplicitFlowController = (
@@ -249,7 +249,12 @@ export const useImplicitFlowController = (
 
 	useAuthorizationFlowScroll('Implicit Flow V5');
 
-	const stepManager = useFlowStepManager(flowKey);
+	const stepManager = useFlowStepManager({
+		flowType: 'implicit',
+		persistKey: flowKey,
+		defaultStep: 0,
+		enableAutoAdvance: false,
+	});
 
 	const saveStepResult = useCallback(
 		(stepId: string, result: unknown) => {
@@ -286,7 +291,7 @@ export const useImplicitFlowController = (
 	// Initialize debugger if enabled
 	useEffect(() => {
 		if (options.enableDebugger) {
-			const sessionId = enhancedDebugger.startSession();
+			const sessionId = enhancedDebugger.startSession('implicit');
 			console.log('🔍 [useImplicitFlowController] Debug session started:', sessionId);
 
 			return () => {
@@ -491,7 +496,7 @@ export const useImplicitFlowController = (
 		}
 
 		setIsFetchingUserInfo(true);
-		enhancedDebugger.logStep('fetch-userinfo', 'Fetching user information');
+		enhancedDebugger.logStep('fetch-userinfo', 'Fetching user information', 'executing');
 
 		try {
 			const userInfoEndpoint =

@@ -622,11 +622,14 @@ export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
 							<FiSettings />
 							{title}
 						</h3>
-						{isExpanded ? (
-							<FiChevronUp className="collapse-icon" title="Collapse" />
-						) : (
-							<FiChevronDown className="collapse-icon" title="Expand" />
-						)}
+						<FiChevronDown
+							className="collapse-icon"
+							title={isExpanded ? 'Collapse' : 'Expand'}
+							style={{
+								transform: isExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+								transition: 'transform 0.2s ease',
+							}}
+						/>
 					</CollapsibleHeader>
 					<p>{subtitle}</p>
 				</CardHeader>

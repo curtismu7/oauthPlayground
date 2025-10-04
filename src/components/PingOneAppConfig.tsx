@@ -322,7 +322,12 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 					<FiSettings />
 					PingOne Application Configuration
 				</SectionTitle>
-				{isCollapsed ? <FiChevronDown /> : <FiChevronUp />}
+				<FiChevronDown
+					style={{
+						transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+						transition: 'transform 0.2s ease',
+					}}
+				/>
 			</SectionToggle>
 
 			<SectionContent $collapsed={isCollapsed}>

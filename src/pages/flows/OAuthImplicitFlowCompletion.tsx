@@ -1,5 +1,17 @@
 import React, { useCallback, useState } from 'react';
-import { FiCheckCircle, FiExternalLink, FiKey, FiRefreshCw, FiShield, FiAlertTriangle, FiInfo, FiChevronDown, FiAward, FiTrendingUp, FiBookOpen } from 'react-icons/fi';
+import {
+	FiCheckCircle,
+	FiExternalLink,
+	FiKey,
+	FiRefreshCw,
+	FiShield,
+	FiAlertTriangle,
+	FiInfo,
+	FiChevronDown,
+	FiAward,
+	FiTrendingUp,
+	FiBookOpen,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 
@@ -153,12 +165,12 @@ const SectionTitle = styled.h2`
 
 const SectionToggle = styled.div<{ $expanded: boolean }>`
 	transition: transform 0.2s ease;
-	transform: ${({ $expanded }) => $expanded ? 'rotate(0deg)' : 'rotate(-90deg)'};
+	transform: ${({ $expanded }) => ($expanded ? 'rotate(0deg)' : 'rotate(-90deg)')};
 	color: #64748b;
 `;
 
 const SectionContent = styled.div<{ $expanded: boolean }>`
-	max-height: ${({ $expanded }) => $expanded ? '2000px' : '0'};
+	max-height: ${({ $expanded }) => ($expanded ? '2000px' : '0')};
 	overflow: hidden;
 	transition: max-height 0.3s ease;
 `;
@@ -178,23 +190,14 @@ const AchievementCard = styled.div<{ $variant: 'success' | 'warning' | 'info' }>
 	align-items: flex-start;
 	gap: 1rem;
 	background: ${({ $variant }) =>
-		$variant === 'success' ? '#f0fdf4' :
-		$variant === 'warning' ? '#fffbeb' :
-		'#f0f9ff'
-	};
+		$variant === 'success' ? '#f0fdf4' : $variant === 'warning' ? '#fffbeb' : '#f0f9ff'};
 	border-color: ${({ $variant }) =>
-		$variant === 'success' ? '#22c55e' :
-		$variant === 'warning' ? '#f59e0b' :
-		'#3b82f6'
-	};
+		$variant === 'success' ? '#22c55e' : $variant === 'warning' ? '#f59e0b' : '#3b82f6'};
 `;
 
 const AchievementIcon = styled.div<{ $variant: 'success' | 'warning' | 'info' }>`
 	color: ${({ $variant }) =>
-		$variant === 'success' ? '#16a34a' :
-		$variant === 'warning' ? '#d97706' :
-		'#2563eb'
-	};
+		$variant === 'success' ? '#16a34a' : $variant === 'warning' ? '#d97706' : '#2563eb'};
 	font-size: 1.5rem;
 	margin-top: 0.125rem;
 `;
@@ -366,15 +369,18 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 	});
 
 	const toggleSection = useCallback((section: keyof typeof expandedSections) => {
-		setExpandedSections(prev => ({
+		setExpandedSections((prev) => ({
 			...prev,
-			[section]: !prev[section]
+			[section]: !prev[section],
 		}));
 	}, []);
 
-	const handleNavigate = useCallback((path: string) => {
-		navigate(path);
-	}, [navigate]);
+	const handleNavigate = useCallback(
+		(path: string) => {
+			navigate(path);
+		},
+		[navigate]
+	);
 
 	const handleExternalLink = useCallback((url: string) => {
 		window.open(url, '_blank');
@@ -390,8 +396,9 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 					</TrophyIcon>
 					<HeroTitle>OAuth Implicit Flow Mastered!</HeroTitle>
 					<HeroSubtitle>
-						Congratulations! You've successfully completed the OAuth 2.0 Implicit Flow demonstration.
-						This legacy flow returned tokens directly in the URL fragment for API authorization.
+						Congratulations! You've successfully completed the OAuth 2.0 Implicit Flow
+						demonstration. This legacy flow returned tokens directly in the URL fragment for API
+						authorization.
 					</HeroSubtitle>
 				</HeroSection>
 
@@ -437,7 +444,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>Flow Completion</AchievementTitle>
 										<AchievementText>
-											Successfully executed the complete OAuth 2.0 Implicit Flow from authorization request to token validation.
+											Successfully executed the complete OAuth 2.0 Implicit Flow from authorization
+											request to token validation.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -449,7 +457,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>Token Management</AchievementTitle>
 										<AchievementText>
-											Learned to handle access tokens, validate them, and understand their security implications.
+											Learned to handle access tokens, validate them, and understand their security
+											implications.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -461,7 +470,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>Security Awareness</AchievementTitle>
 										<AchievementText>
-											Recognized the security limitations of Implicit Flow and the importance of modern OAuth practices.
+											Recognized the security limitations of Implicit Flow and the importance of
+											modern OAuth practices.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -473,7 +483,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>OAuth Knowledge</AchievementTitle>
 										<AchievementText>
-											Gained deep understanding of OAuth 2.0 flows, token types, and authorization patterns.
+											Gained deep understanding of OAuth 2.0 flows, token types, and authorization
+											patterns.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -501,7 +512,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>Token Exposure</AchievementTitle>
 										<AchievementText>
-											Implicit Flow exposes tokens in the browser URL, making them vulnerable to interception and logging.
+											Implicit Flow exposes tokens in the browser URL, making them vulnerable to
+											interception and logging.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -513,7 +525,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>No Refresh Tokens</AchievementTitle>
 										<AchievementText>
-											Implicit Flow doesn't provide refresh tokens, requiring re-authentication when access tokens expire.
+											Implicit Flow doesn't provide refresh tokens, requiring re-authentication when
+											access tokens expire.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -525,7 +538,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>Simplicity Benefits</AchievementTitle>
 										<AchievementText>
-											No intermediate token exchange step makes Implicit Flow simpler for certain use cases.
+											No intermediate token exchange step makes Implicit Flow simpler for certain
+											use cases.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -537,7 +551,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									<AchievementContent>
 										<AchievementTitle>Modern Standards</AchievementTitle>
 										<AchievementText>
-											OAuth 2.1 deprecates Implicit Flow in favor of Authorization Code + PKCE for better security.
+											OAuth 2.1 deprecates Implicit Flow in favor of Authorization Code + PKCE for
+											better security.
 										</AchievementText>
 									</AchievementContent>
 								</AchievementCard>
@@ -562,17 +577,11 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 								<FiExternalLink />
 								Explore OIDC Implicit
 							</ActionButton>
-							<ActionButton
-								$variant="success"
-								onClick={() => handleNavigate('/token-management')}
-							>
+							<ActionButton $variant="success" onClick={() => handleNavigate('/token-management')}>
 								<FiKey />
 								Token Management
 							</ActionButton>
-							<ActionButton
-								$variant="outline"
-								onClick={() => handleNavigate('/oauth-implicit-v5')}
-							>
+							<ActionButton $variant="outline" onClick={() => handleNavigate('/oauth-implicit-v5')}>
 								<FiRefreshCw />
 								Restart Flow
 							</ActionButton>
@@ -597,8 +606,9 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 									Why Migrate?
 								</MigrationTitle>
 								<MigrationText>
-									The Implicit Flow is deprecated by OAuth 2.1 specifications due to security concerns.
-									Authorization Code + PKCE provides better security, refresh tokens, and modern standards compliance.
+									The Implicit Flow is deprecated by OAuth 2.1 specifications due to security
+									concerns. Authorization Code + PKCE provides better security, refresh tokens, and
+									modern standards compliance.
 								</MigrationText>
 
 								<MigrationSteps>
@@ -606,7 +616,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 										<StepNumber>1</StepNumber>
 										<StepTitle>Update Client Configuration</StepTitle>
 										<StepDescription>
-											Change response_type from 'token' to 'code' and enable PKCE in your OAuth client settings.
+											Change response_type from 'token' to 'code' and enable PKCE in your OAuth
+											client settings.
 										</StepDescription>
 									</MigrationStep>
 
@@ -614,7 +625,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 										<StepNumber>2</StepNumber>
 										<StepTitle>Implement Token Exchange</StepTitle>
 										<StepDescription>
-											Add backend endpoint to exchange authorization code for access and refresh tokens.
+											Add backend endpoint to exchange authorization code for access and refresh
+											tokens.
 										</StepDescription>
 									</MigrationStep>
 
@@ -622,7 +634,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 										<StepNumber>3</StepNumber>
 										<StepTitle>Secure Token Storage</StepTitle>
 										<StepDescription>
-											Move token storage from browser to secure server-side storage or httpOnly cookies.
+											Move token storage from browser to secure server-side storage or httpOnly
+											cookies.
 										</StepDescription>
 									</MigrationStep>
 
@@ -630,7 +643,8 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 										<StepNumber>4</StepNumber>
 										<StepTitle>Add Refresh Logic</StepTitle>
 										<StepDescription>
-											Implement automatic token refresh using refresh tokens to maintain user sessions.
+											Implement automatic token refresh using refresh tokens to maintain user
+											sessions.
 										</StepDescription>
 									</MigrationStep>
 								</MigrationSteps>
@@ -641,10 +655,7 @@ const OAuthImplicitFlowCompletion: React.FC = () => {
 
 				{/* Footer Actions */}
 				<FooterActions>
-					<ActionButton
-						$variant="outline"
-						onClick={() => handleNavigate('/flows')}
-					>
+					<ActionButton $variant="outline" onClick={() => handleNavigate('/flows')}>
 						<FiBookOpen />
 						Explore More Flows
 					</ActionButton>

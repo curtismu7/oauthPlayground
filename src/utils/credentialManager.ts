@@ -199,7 +199,7 @@ class CredentialManager {
 
 			return true;
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to save authz flow credentials', error);
+			logger.error('CredentialManager', 'Failed to save authz flow credentials', String(error));
 			return false;
 		}
 	}
@@ -718,7 +718,7 @@ class CredentialManager {
 
 			return true;
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to save permanent credentials', error);
+			logger.error('CredentialManager', 'Failed to save permanent credentials', String(error));
 			return false;
 		}
 	}
@@ -768,7 +768,7 @@ class CredentialManager {
 			}
 		} catch (error) {
 			console.error(' [CredentialManager] Failed to load permanent credentials:', error);
-			logger.error('CredentialManager', 'Failed to load permanent credentials', error);
+			logger.error('CredentialManager', 'Failed to load permanent credentials', String(error));
 			return {
 				environmentId: '',
 				clientId: '',
@@ -829,7 +829,7 @@ class CredentialManager {
 			}
 		} catch (error) {
 			console.error(' [CredentialManager] Failed to load permanent credentials:', error);
-			logger.error('CredentialManager', 'Failed to load permanent credentials', error);
+			logger.error('CredentialManager', 'Failed to load permanent credentials', String(error));
 
 			// Final fallback to environment variables
 			return await this.loadFromEnvironmentVariables();
@@ -895,7 +895,7 @@ class CredentialManager {
 
 			return true;
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to save session credentials', error);
+			logger.error('CredentialManager', 'Failed to save session credentials', String(error));
 			return false;
 		}
 	}
@@ -914,7 +914,7 @@ class CredentialManager {
 
 			return JSON.parse(stored);
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to load session credentials', error);
+			logger.error('CredentialManager', 'Failed to load session credentials', String(error));
 			return {
 				clientSecret: '',
 			};
@@ -1007,7 +1007,7 @@ class CredentialManager {
 			logger.info('CredentialManager', 'Cleared session credentials');
 			return true;
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to clear session credentials', error);
+			logger.error('CredentialManager', 'Failed to clear session credentials', String(error));
 			return false;
 		}
 	}
@@ -1022,7 +1022,7 @@ class CredentialManager {
 			logger.info('CredentialManager', 'Cleared all credentials');
 			return true;
 		} catch (error) {
-			logger.error('CredentialManager', 'Failed to clear all credentials', error);
+			logger.error('CredentialManager', 'Failed to clear all credentials', String(error));
 			return false;
 		}
 	}
@@ -1158,20 +1158,25 @@ class CredentialManager {
 	/**
 	 * Discover OIDC endpoints from issuer URL and update credentials
 	 */
-	async discoverAndUpdateCredentials(issuerUrl: string, clientId: string, clientSecret?: string, redirectUri?: string): Promise<{
+	async discoverAndUpdateCredentials(
+		issuerUrl: string,
+		clientId: string,
+		clientSecret?: string,
+		redirectUri?: string
+	): Promise<{
 		success: boolean;
 		credentials?: PermanentCredentials;
 		error?: string;
 	}> {
 		try {
 			logger.info('Starting OIDC discovery for issuer:', issuerUrl);
-			
+
 			const discoveryResult = await oidcDiscoveryService.discover({ issuerUrl });
-			
+
 			if (!discoveryResult.success || !discoveryResult.document) {
 				return {
 					success: false,
-					error: discoveryResult.error || 'Discovery failed'
+					error: discoveryResult.error || 'Discovery failed',
 				};
 			}
 
@@ -1189,7 +1194,9 @@ class CredentialManager {
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
-				scopes: credentials.supportedScopes.includes('openid') ? ['openid', 'profile', 'email'] : ['read', 'write'],
+				scopes: credentials.supportedScopes.includes('openid')
+					? ['openid', 'profile', 'email']
+					: ['read', 'write'],
 				authEndpoint: credentials.authorizationEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
 				userInfoEndpoint: credentials.userInfoEndpoint,
@@ -1199,23 +1206,22 @@ class CredentialManager {
 				loginHint: '',
 				issuerUrl: credentials.issuerUrl,
 				discoveredEndpoints: discoveryResult.document,
-				lastDiscoveryTime: Date.now()
+				lastDiscoveryTime: Date.now(),
 			};
 
 			// Save the discovered credentials
 			await this.savePermanentCredentials(permanentCredentials);
 
-			logger.info('Successfully discovered and saved OIDC endpoints');
+			logger.info('CredentialManager', 'Successfully discovered and saved OIDC endpoints');
 			return {
 				success: true,
-				credentials: permanentCredentials
+				credentials: permanentCredentials,
 			};
-
 		} catch (error) {
 			logger.error('OIDC discovery failed:', String(error));
 			return {
 				success: false,
-				error: error instanceof Error ? error.message : 'Discovery failed'
+				error: error instanceof Error ? error.message : 'Discovery failed',
 			};
 		}
 	}
@@ -1231,7 +1237,7 @@ class CredentialManager {
 		// Discovery is valid for 24 hours
 		const DISCOVERY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
 		const now = Date.now();
-		return (now - credentials.lastDiscoveryTime) < DISCOVERY_CACHE_DURATION;
+		return now - credentials.lastDiscoveryTime < DISCOVERY_CACHE_DURATION;
 	}
 
 	/**
@@ -1243,7 +1249,7 @@ class CredentialManager {
 		}
 
 		logger.info('Discovery expired, refreshing endpoints for:', credentials.issuerUrl);
-		
+
 		const result = await this.discoverAndUpdateCredentials(
 			credentials.issuerUrl,
 			credentials.clientId,
@@ -1256,7 +1262,7 @@ class CredentialManager {
 		}
 
 		// If refresh failed, return original credentials
-		logger.warn('Failed to refresh discovery, using cached endpoints');
+		logger.warn('CredentialManager', 'Failed to refresh discovery, using cached endpoints');
 		return credentials;
 	}
 
@@ -1281,7 +1287,7 @@ class CredentialManager {
 				return {
 					...credentials,
 					issuerUrl: `https://auth.pingone.com/${environmentId}`,
-					lastDiscoveryTime: Date.now() // Mark as discovered now
+					lastDiscoveryTime: Date.now(), // Mark as discovered now
 				};
 			}
 		}
@@ -1293,12 +1299,7 @@ class CredentialManager {
 	 * Clear the cache to force fresh data loading
 	 */
 	clearCache(): void {
-		this.cache = {
-			permanent: null,
-			session: null,
-			all: null,
-			timestamp: null,
-		};
+		this.cache = {};
 		console.log(' [CredentialManager] Cache cleared');
 	}
 }

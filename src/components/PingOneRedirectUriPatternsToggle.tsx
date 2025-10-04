@@ -113,12 +113,3 @@ const PingOneRedirectUriPatternsToggle: React.FC<PingOneRedirectUriPatternsToggl
 
 export default PingOneRedirectUriPatternsToggle;
 
-
-
-
-
-
-
-
-
-

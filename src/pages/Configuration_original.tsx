@@ -2037,23 +2037,23 @@ const Configuration = () => {
 				<FormGroup>
 					<div className="checkbox-container">
 						<input
-						type="checkbox"
-						id={formIds.showCredentialsModal}
-						name="showCredentialsModal"
-						checked={uiSettings.showCredentialsModal}
-						onChange={(e) => {
-							const isEnabled = e.target.checked;
-							console.log(' [Configuration] showCredentialsModal changed:', isEnabled);
-							updateSetting('showCredentialsModal', isEnabled);
-							showGlobalSuccess(
-								isEnabled ? 'Credentials modal enabled' : 'Credentials modal disabled',
-								{
-									description: isEnabled
-										? 'The credentials setup modal will be shown when needed'
-										: 'The credentials setup modal will be hidden',
-								}
-							);
-						}}
+							type="checkbox"
+							id={formIds.showCredentialsModal}
+							name="showCredentialsModal"
+							checked={uiSettings.showCredentialsModal}
+							onChange={(e) => {
+								const isEnabled = e.target.checked;
+								console.log(' [Configuration] showCredentialsModal changed:', isEnabled);
+								updateSetting('showCredentialsModal', isEnabled);
+								showGlobalSuccess(
+									isEnabled ? 'Credentials modal enabled' : 'Credentials modal disabled',
+									{
+										description: isEnabled
+											? 'The credentials setup modal will be shown when needed'
+											: 'The credentials setup modal will be hidden',
+									}
+								);
+							}}
 						/>
 						<label htmlFor={formIds.showCredentialsModal}>
 							Show Credentials Modal at Startup
@@ -2063,6 +2063,25 @@ const Configuration = () => {
 							</div>
 						</label>
 					</div>
+				</FormGroup>
+
+				<FormGroup>
+					<div className="checkbox-container">
+						<input
+							type="checkbox"
+							id={formIds.showSuccessModal}
+							name="showSuccessModal"
+							checked={formData.showSuccessModal}
+							onChange={(e) => {
+								const isEnabled = e.target.checked;
+								setFormData((prev) => ({ ...prev, showSuccessModal: isEnabled }));
+								showGlobalSuccess(isEnabled ? 'Success modal enabled' : 'Success modal disabled', {
+									description: isEnabled
+										? 'Success messages will be shown in a modal'
+										: 'Success messages will be shown inline',
+								});
+							}}
+						/>
 						<label htmlFor={formIds.showSuccessModal}>
 							Show Success Modal
 							<div className="form-text">
@@ -2097,9 +2116,11 @@ const Configuration = () => {
 								console.log(' [Configuration] UI settings auto-saved:', updatedFlowConfig);
 								showGlobalSuccess(
 									isEnabled ? ' Auth Request Modal Enabled' : ' Auth Request Modal Disabled',
-									isEnabled
-										? 'OAuth request details will be shown in a debugging modal'
-										: 'OAuth requests will redirect directly without showing debug modal'
+									{
+										description: isEnabled
+											? 'OAuth request details will be shown in a debugging modal'
+											: 'OAuth requests will redirect directly without showing debug modal',
+									}
 								);
 							}}
 						/>
@@ -2146,9 +2167,11 @@ const Configuration = () => {
 
 								showGlobalSuccess(
 									isEnabled ? ' Flow Debug Console Enabled' : ' Flow Debug Console Disabled',
-									isEnabled
-										? 'The Flow Debug Console will be visible on all flow pages'
-										: 'The Flow Debug Console will be hidden on all flow pages'
+									{
+										description: isEnabled
+											? 'The Flow Debug Console will be visible on all flow pages'
+											: 'The Flow Debug Console will be hidden on all flow pages',
+									}
 								);
 							}}
 						/>
@@ -2571,7 +2594,7 @@ const Configuration = () => {
 										marginLeft: 8,
 										color: 'white',
 									}}
-									aria-hidden
+									aria-hidden={true}
 								></span>
 							</li>
 							<li>

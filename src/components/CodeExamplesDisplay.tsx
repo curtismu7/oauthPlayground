@@ -1,13 +1,13 @@
 // src/components/CodeExamplesDisplay.tsx
 
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
+import { FiCheck, FiCode, FiCopy, FiDownload } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiCheck, FiCode, FiDownload } from 'react-icons/fi';
-import { 
-	CodeExamplesService, 
-	CodeExample, 
-	SupportedLanguage, 
-	CodeExamplesConfig 
+import {
+	CodeExample,
+	CodeExamplesConfig,
+	CodeExamplesService,
+	SupportedLanguage,
 } from '../services/codeExamplesService';
 
 interface CodeExamplesDisplayProps {
@@ -52,10 +52,10 @@ const LanguageSelector = styled.div`
 
 const LanguageButton = styled.button<{ $active: boolean }>`
 	padding: 0.375rem 0.75rem;
-	border: 1px solid ${({ $active }) => $active ? '#3b82f6' : '#d1d5db'};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
 	border-radius: 6px;
-	background: ${({ $active }) => $active ? '#3b82f6' : '#ffffff'};
-	color: ${({ $active }) => $active ? '#ffffff' : '#374151'};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
 	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
@@ -63,8 +63,8 @@ const LanguageButton = styled.button<{ $active: boolean }>`
 	white-space: nowrap;
 
 	&:hover {
-		background: ${({ $active }) => $active ? '#2563eb' : '#f3f4f6'};
-		border-color: ${({ $active }) => $active ? '#2563eb' : '#9ca3af'};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
+		border-color: ${({ $active }) => ($active ? '#2563eb' : '#9ca3af')};
 	}
 `;
 
@@ -183,11 +183,15 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 	config,
 	className,
 }) => {
-	const [selectedLanguages, setSelectedLanguages] = useState<SupportedLanguage[]>(['javascript', 'typescript', 'ping-sdk']);
+	const [selectedLanguages, setSelectedLanguages] = useState<SupportedLanguage[]>([
+		'javascript',
+		'typescript',
+		'ping-sdk',
+	]);
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
 	const codeExamplesService = useMemo(() => new CodeExamplesService(config), [config]);
-	
+
 	const stepData = useMemo(() => {
 		return codeExamplesService.getExamplesForStep(flowType, stepId);
 	}, [codeExamplesService, flowType, stepId]);
@@ -198,10 +202,8 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 	}, [stepData, selectedLanguages, codeExamplesService]);
 
 	const handleLanguageToggle = (language: SupportedLanguage) => {
-		setSelectedLanguages(prev => 
-			prev.includes(language)
-				? prev.filter(l => l !== language)
-				: [...prev, language]
+		setSelectedLanguages((prev) =>
+			prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]
 		);
 	};
 
@@ -216,16 +218,23 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 	};
 
 	const handleDownloadCode = (example: CodeExample) => {
-		const extension = example.language === 'typescript' ? 'ts' : 
-			example.language === 'javascript' ? 'js' : 
-			example.language === 'go' ? 'go' :
-			example.language === 'ruby' ? 'rb' : 
-			example.language === 'ping-sdk' ? 'ts' : 'py';
-		
+		const extension =
+			example.language === 'typescript'
+				? 'ts'
+				: example.language === 'javascript'
+					? 'js'
+					: example.language === 'go'
+						? 'go'
+						: example.language === 'ruby'
+							? 'rb'
+							: example.language === 'ping-sdk'
+								? 'ts'
+								: 'py';
+
 		const filename = `${example.title.toLowerCase().replace(/\s+/g, '-')}.${extension}`;
 		const blob = new Blob([example.code], { type: 'text/plain' });
 		const url = URL.createObjectURL(blob);
-		
+
 		const a = document.createElement('a');
 		a.href = url;
 		a.download = filename;
@@ -238,9 +247,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 	if (!stepData) {
 		return (
 			<Container className={className}>
-				<ErrorState>
-					No code examples available for this step.
-				</ErrorState>
+				<ErrorState>No code examples available for this step.</ErrorState>
 			</Container>
 		);
 	}
@@ -253,7 +260,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 					{stepData.stepName} - Code Examples
 				</Title>
 				<LanguageSelector>
-					{codeExamplesService.getSupportedLanguages().map(language => (
+					{codeExamplesService.getSupportedLanguages().map((language) => (
 						<LanguageButton
 							key={language}
 							$active={selectedLanguages.includes(language)}
@@ -266,9 +273,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 			</Header>
 
 			{filteredExamples.length === 0 ? (
-				<EmptyState>
-					No examples selected. Choose one or more languages above.
-				</EmptyState>
+				<EmptyState>No examples selected. Choose one or more languages above.</EmptyState>
 			) : (
 				filteredExamples.map((example, index) => (
 					<CodeContainer key={`${example.language}-${index}`}>

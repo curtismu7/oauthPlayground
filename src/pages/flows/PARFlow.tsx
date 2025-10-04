@@ -11,6 +11,7 @@ import {
 } from '../../services/parService';
 import { logger } from '../../utils/logger';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 const FlowContainer = styled.div`
   max-width: 1200px;
@@ -453,7 +454,8 @@ console.log('✅ User redirected back with auth code');`,
 					setResponse((prev) => ({
 						...prev,
 						authorizationUrl: authUrl,
-						message: 'User redirect simulated - in real flow, user would be redirected to authorization endpoint',
+						message:
+							'User redirect simulated - in real flow, user would be redirected to authorization endpoint',
 					}));
 				}
 			},
@@ -712,16 +714,21 @@ if (tokenResponse.ok) {
 					{response?.authorizationUrl && (
 						<>
 							<PARTitle>🔹 Step 3: Authorization URL</PARTitle>
+							<ColoredUrlDisplay
+								url={response.authorizationUrl}
+								label="Generated Authorization URL"
+								showCopyButton={true}
+								showInfoButton={true}
+								showOpenButton={true}
+								onOpen={() => window.open(response.authorizationUrl!, '_blank')}
+								height="120px"
+							/>
 							<PARDetails>
 								<PARDetail>
-									<PARLabel>Authorization URL</PARLabel>
-									<PARValue style={{ wordBreak: 'break-all' }}>
-										{response.authorizationUrl}
-									</PARValue>
-								</PARDetail>
-								<PARDetail>
 									<PARLabel>Note</PARLabel>
-									<PARValue>In a real implementation, the user would be redirected to this URL</PARValue>
+									<PARValue>
+										In a real implementation, the user would be redirected to this URL
+									</PARValue>
 								</PARDetail>
 							</PARDetails>
 						</>

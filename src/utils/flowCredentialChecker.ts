@@ -137,12 +137,7 @@ export const checkFlowCredentials = (
 		}
 
 		// Check private key for JWT Bearer Token flows
-		if (
-			[
-				'jwt-bearer-token-v5',
-				'jwt-bearer-v5',
-			].includes(flowType)
-		) {
+		if (['jwt-bearer-token-v5', 'jwt-bearer-v5'].includes(flowType)) {
 			// For JWT Bearer Token flow, check if required fields exist in flow-specific storage
 			const flowCredentials = credentialManager.loadFlowCredentials(flowType);
 			if (!flowCredentials?.clientId || flowCredentials.clientId.trim() === '') {
@@ -232,7 +227,9 @@ export const getLastExecutionTime = (flowType: string): string => {
 			return new Date(timestamp).toLocaleDateString();
 		}
 	} catch (error) {
-		logger.error('flowCredentialChecker', `Error getting execution time for ${flowType}`, { error });
+		logger.error('flowCredentialChecker', `Error getting execution time for ${flowType}`, {
+			error,
+		});
 		return 'Unknown';
 	}
 };
@@ -246,7 +243,9 @@ export const setLastExecutionTime = (flowType: string): void => {
 		localStorage.setItem(executionKey, Date.now().toString());
 		logger.info('flowCredentialChecker', `Flow execution time recorded for ${flowType}`);
 	} catch (error) {
-		logger.error('flowCredentialChecker', `Error setting execution time for ${flowType}`, { error });
+		logger.error('flowCredentialChecker', `Error setting execution time for ${flowType}`, {
+			error,
+		});
 	}
 };
 
@@ -266,23 +265,47 @@ export const trackFlowCompletion = (flowType: string, success: boolean = true): 
 export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 	const flows = [
 		// OAuth 2.0 V5 Flows
-		{ flowType: 'oauth-authorization-code-v5', flowName: 'Authorization Code Flow - Secure User Authentication' },
-		{ flowType: 'oauth-implicit-v5', flowName: 'Implicit Flow - Legacy Browser-Based Authentication' },
-		{ flowType: 'client-credentials-v5', flowName: 'Client Credentials Flow - Server-to-Server Authentication' },
-		{ flowType: 'device-authorization-v5', flowName: 'Device Authorization Flow - Input-Constrained Devices' },
-		{ flowType: 'oauth-resource-owner-password-v5', flowName: 'OAuth 2.0 Resource Owner Password Flow (V5)' },
+		{
+			flowType: 'oauth-authorization-code-v5',
+			flowName: 'Authorization Code Flow - Secure User Authentication',
+		},
+		{
+			flowType: 'oauth-implicit-v5',
+			flowName: 'Implicit Flow - Legacy Browser-Based Authentication',
+		},
+		{
+			flowType: 'client-credentials-v5',
+			flowName: 'Client Credentials Flow - Server-to-Server Authentication',
+		},
+		{
+			flowType: 'device-authorization-v5',
+			flowName: 'Device Authorization Flow - Input-Constrained Devices',
+		},
+		{
+			flowType: 'oauth-resource-owner-password-v5',
+			flowName: 'OAuth 2.0 Resource Owner Password Flow (V5)',
+		},
 		{ flowType: 'worker-token-v5', flowName: 'Worker Token Flow' },
 		{ flowType: 'rar-v5', flowName: 'Rich Authorization Requests (RAR) Flow' },
 
 		// OIDC V5 Flows
-		{ flowType: 'oidc-authorization-code-v5', flowName: 'Authorization Code Flow - User Identity & Authentication' },
+		{
+			flowType: 'oidc-authorization-code-v5',
+			flowName: 'Authorization Code Flow - User Identity & Authentication',
+		},
 		{ flowType: 'oidc-implicit-v5', flowName: 'Implicit Flow - Legacy Browser Authentication' },
 		{ flowType: 'hybrid-v5', flowName: 'Hybrid Flow - Combined Authorization Approach' },
-		{ flowType: 'oidc-device-authorization-v5', flowName: 'Device Authorization Flow - OIDC for Constrained Devices' },
+		{
+			flowType: 'oidc-device-authorization-v5',
+			flowName: 'Device Authorization Flow - OIDC for Constrained Devices',
+		},
 		{ flowType: 'ciba-v5', flowName: 'OIDC CIBA Flow (V5)' },
 
 		// Additional flows
-		{ flowType: 'jwt-bearer-token-v5', flowName: 'JWT Bearer Token Flow - JWT Assertion Authentication' },
+		{
+			flowType: 'jwt-bearer-token-v5',
+			flowName: 'JWT Bearer Token Flow - JWT Assertion Authentication',
+		},
 		{ flowType: 'dashboard', flowName: 'Dashboard' },
 		{ flowType: 'url-decoder', flowName: 'URL Decoder' },
 		{ flowType: 'oauth2-security', flowName: 'OAuth 2.0 Security' },
