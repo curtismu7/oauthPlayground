@@ -189,6 +189,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			console.log(`${LOG_PREFIX} [INFO] Device authorization endpoint: ${deviceAuthEndpoint}`);
 			console.log(`${LOG_PREFIX} [INFO] Scopes: ${credentials.scopes || 'openid'}`);
+			console.log(`${LOG_PREFIX} [INFO] Request body: ${params.toString()}`);
 
 			const response = await fetch(deviceAuthEndpoint, {
 				method: 'POST',
@@ -197,6 +198,8 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				},
 				body: params.toString(),
 			});
+
+			console.log(`${LOG_PREFIX} [INFO] Response status: ${response.status} ${response.statusText}`);
 
 			if (!response.ok) {
 				const errorText = await response.text();

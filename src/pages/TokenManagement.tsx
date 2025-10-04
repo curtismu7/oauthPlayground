@@ -39,7 +39,11 @@ import {
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowHeader } from '../services/flowHeaderService';
-import { getFlowNavigationState, navigateBackToFlow, getFlowDisplayName } from '../utils/flowNavigation';
+import {
+	getFlowNavigationState,
+	navigateBackToFlow,
+	getFlowDisplayName,
+} from '../utils/flowNavigation';
 import { useNavigate } from 'react-router-dom';
 
 type TokenIntrospectionResult = {
@@ -1915,7 +1919,9 @@ const TokenManagement = () => {
 	const handleBackToFlow = useCallback(() => {
 		const success = navigateBackToFlow(navigate);
 		if (!success) {
-			v4ToastManager.showError('Unable to navigate back to the originating flow. The flow state may have expired.');
+			v4ToastManager.showError(
+				'Unable to navigate back to the originating flow. The flow state may have expired.'
+			);
 		}
 	}, [navigate]);
 
@@ -1999,7 +2005,8 @@ const TokenManagement = () => {
 						}}
 					>
 						<FiArrowLeft size={16} />
-						Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step {flowNavigationState.stepIndex + 1})
+						Back to {getFlowDisplayName(flowNavigationState.flowSource)} (Step{' '}
+						{flowNavigationState.stepIndex + 1})
 					</button>
 				</div>
 			)}

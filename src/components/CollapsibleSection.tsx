@@ -90,7 +90,7 @@ const ChevronIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
 	color: #ffffff;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	transition: transform 0.2s ease;
 	display: flex;
 	align-items: center;
@@ -101,11 +101,11 @@ const ChevronIcon = styled.div.withConfig({
 	}
 
 	&:hover {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')} scale(1.1);
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.1);
 	}
 
 	&:active {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')} scale(1.05);
+		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')} scale(1.05);
 	}
 `;
 

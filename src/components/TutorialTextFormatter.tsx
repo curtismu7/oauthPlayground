@@ -4,7 +4,18 @@ import styled from 'styled-components';
 
 interface TutorialTextFormatterProps {
 	content: string;
-	type?: 'info' | 'code' | 'diagram' | 'security' | 'validation' | 'comparison' | 'jwt' | 'claims' | 'discovery' | 'architecture' | 'enterprise';
+	type?:
+		| 'info'
+		| 'code'
+		| 'diagram'
+		| 'security'
+		| 'validation'
+		| 'comparison'
+		| 'jwt'
+		| 'claims'
+		| 'discovery'
+		| 'architecture'
+		| 'enterprise';
 }
 
 const ContentContainer = styled.div<{ $type: string }>`
@@ -326,13 +337,11 @@ const ContentContainer = styled.div<{ $type: string }>`
 	}
 `;
 
-const TutorialTextFormatter: React.FC<TutorialTextFormatterProps> = ({ content, type = 'info' }) => {
-	return (
-		<ContentContainer
-			$type={type}
-			dangerouslySetInnerHTML={{ __html: content }}
-		/>
-	);
+const TutorialTextFormatter: React.FC<TutorialTextFormatterProps> = ({
+	content,
+	type = 'info',
+}) => {
+	return <ContentContainer $type={type} dangerouslySetInnerHTML={{ __html: content }} />;
 };
 
 export default TutorialTextFormatter;

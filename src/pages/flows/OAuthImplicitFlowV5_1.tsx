@@ -15,9 +15,10 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import PingOneApplicationConfig, {
@@ -31,6 +32,7 @@ import { FlowControllerService } from '../../services/flowControllerService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import { FlowStateService } from '../../services/flowStateService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
@@ -153,18 +155,26 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 	const serviceStepMetadata = flowConfig
 		? FlowStateService.createStepMetadata(flowConfig.stepConfigs)
 		: [];
-	
+
 	// Fallback step metadata if service-generated is empty
-	const stepMetadata = serviceStepMetadata.length > 0 ? serviceStepMetadata : [
-		{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OAuth Implicit Flow' },
-		{ title: 'Step 1: Configuration', subtitle: 'Configure credentials and parameters' },
-		{ title: 'Step 2: Authorization Request', subtitle: 'Build and launch authorization URL' },
-		{ title: 'Step 3: Process Response', subtitle: 'Handle callback and extract tokens' },
-		{ title: 'Step 4: Token Validation', subtitle: 'Validate received tokens' },
-		{ title: 'Step 5: User Info & Completion', subtitle: 'Fetch user info and complete flow' },
-	];
-	
-	
+	const stepMetadata =
+		serviceStepMetadata.length > 0
+			? serviceStepMetadata
+			: [
+					{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OAuth Implicit Flow' },
+					{ title: 'Step 1: Configuration', subtitle: 'Configure credentials and parameters' },
+					{
+						title: 'Step 2: Authorization Request',
+						subtitle: 'Build and launch authorization URL',
+					},
+					{ title: 'Step 3: Process Response', subtitle: 'Handle callback and extract tokens' },
+					{ title: 'Step 4: Token Validation', subtitle: 'Validate received tokens' },
+					{
+						title: 'Step 5: User Info & Completion',
+						subtitle: 'Fetch user info and complete flow',
+					},
+				];
+
 	const introSectionKeys = FlowStateService.createIntroSectionKeys('implicit');
 	// Add additional section keys for V5.1
 	const additionalSectionKeys = ['pingOneConfig', 'credentials'];
@@ -189,14 +199,12 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 		stepMetadata.length, // Use actual step count
 		introSectionKeys
 	);
-	
 
 	// Service-generated analytics tracking
 	useEffect(() => {
 		FlowAnalyticsService.trackFlowStart('implicit', 'oauth-implicit-v5-1');
 		return () => FlowAnalyticsService.trackFlowComplete(true);
 	}, []);
-	
 
 	// Service-generated state management
 	const [collapsedSections, setCollapsedSections] = useState(defaultCollapsedSections);
@@ -294,15 +302,15 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 					const savedConfig = localStorage.getItem('oauth-implicit-v5-1-config');
 					if (savedConfig) {
 						const parsedConfig = JSON.parse(savedConfig);
-					controller.setCredentials({
-						...controller.credentials,
-						environmentId: parsedConfig.environmentId || '',
-						clientId: parsedConfig.clientId || '',
-						clientSecret: parsedConfig.clientSecret || '',
-						redirectUri: parsedConfig.redirectUri || 'https://localhost:3000/implicit-callback',
-						scopes: parsedConfig.scopes || 'openid profile email',
-						loginHint: parsedConfig.loginHint || '',
-					});
+						controller.setCredentials({
+							...controller.credentials,
+							environmentId: parsedConfig.environmentId || '',
+							clientId: parsedConfig.clientId || '',
+							clientSecret: parsedConfig.clientSecret || '',
+							redirectUri: parsedConfig.redirectUri || 'https://localhost:3000/implicit-callback',
+							scopes: parsedConfig.scopes || 'openid profile email',
+							loginHint: parsedConfig.loginHint || '',
+						});
 						console.log('Configuration loaded from localStorage');
 						v4ToastManager.showSuccess('Configuration loaded from saved settings.');
 					} else {
@@ -316,15 +324,15 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 				}
 			} else {
 				// Load from provided config
-			controller.setCredentials({
-				...controller.credentials,
-				environmentId: config.environmentId || '',
-				clientId: config.clientId || '',
-				clientSecret: config.clientSecret || '',
-				redirectUri: config.redirectUri || 'https://localhost:3000/implicit-callback',
-				scopes: config.scopes || 'openid profile email',
-				loginHint: config.loginHint || '',
-			});
+				controller.setCredentials({
+					...controller.credentials,
+					environmentId: config.environmentId || '',
+					clientId: config.clientId || '',
+					clientSecret: config.clientSecret || '',
+					redirectUri: config.redirectUri || 'https://localhost:3000/implicit-callback',
+					scopes: config.scopes || 'openid profile email',
+					loginHint: config.loginHint || '',
+				});
 				console.log('Configuration loaded from provided config');
 				v4ToastManager.showSuccess('Configuration loaded from provided settings.');
 			}
@@ -375,9 +383,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 			v4ToastManager.showSuccess('Token validation would be implemented here.');
 		} catch (error) {
 			console.error('[OAuthImplicitFlowV5_1] Token validation failed:', error);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Token validation failed'
-			);
+			v4ToastManager.showError(error instanceof Error ? error.message : 'Token validation failed');
 		}
 	}, [controller.tokens]);
 
@@ -401,7 +407,28 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 	// Controller provides handleCopy and handleFieldChange - no need to redefine
 
 	// Service-generated step content
-	const renderStepContent = useMemo(() => {
+	
+	const renderFlowSummary = useCallback(() => {
+		const completionConfig = {
+			...FlowCompletionConfigs.authorizationCode,
+			onStartNewFlow: () => {
+				// Add flow reset logic here
+				setCurrentStep(0);
+			},
+			showUserInfo: false, // Update based on flow capabilities
+			showIntrospection: false // Update based on flow capabilities
+		};
+
+		return (
+			<FlowCompletionService
+				config={completionConfig}
+				collapsed={collapsedSections.flowSummary}
+				onToggleCollapsed={() => toggleSection('flowSummary')}
+			/>
+		);
+	}, [collapsedSections.flowSummary, toggleSection]);
+
+const renderStepContent = useMemo(() => {
 		const currentStep = flowController.state.currentStep;
 
 		switch (currentStep) {
@@ -462,12 +489,22 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 										redirectUri={controller.credentials.redirectUri || ''}
 										scopes={controller.credentials.scopes || controller.credentials.scope || ''}
 										loginHint={controller.credentials.loginHint || ''}
-										onEnvironmentIdChange={(value) => controller.setCredentials({...controller.credentials, environmentId: value})}
-										onClientIdChange={(value) => controller.setCredentials({...controller.credentials, clientId: value})}
+										onEnvironmentIdChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, environmentId: value })
+										}
+										onClientIdChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, clientId: value })
+										}
 										onClientSecretChange={() => {}} // Not used in Implicit
-										onRedirectUriChange={(value) => controller.setCredentials({...controller.credentials, redirectUri: value})}
-										onScopesChange={(value) => controller.setCredentials({...controller.credentials, scopes: value})}
-										onLoginHintChange={(value) => controller.setCredentials({...controller.credentials, loginHint: value})}
+										onRedirectUriChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, redirectUri: value })
+										}
+										onScopesChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, scopes: value })
+										}
+										onLoginHintChange={(value) =>
+											controller.setCredentials({ ...controller.credentials, loginHint: value })
+										}
 										onCopy={controller.handleCopy}
 										emptyRequiredFields={new Set()}
 										copiedField={controller.copiedField}
@@ -740,11 +777,22 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 							</HelperText>
 							<GeneratedContentBox>
 								<GeneratedLabel>Response</GeneratedLabel>
+								{/* JWT Token Display with decoding capabilities */}
+								{controller.tokens?.access_token && (
+									<JWTTokenDisplay
+										token={String(controller.tokens.access_token)}
+										tokenType="access_token"
+										onCopy={(tokenValue, label) => controller.handleCopy(tokenValue, label)}
+										copyLabel="Access Token"
+										showTokenType={true}
+										showExpiry={true}
+										{...(controller.tokens.expires_in && { expiresIn: Number(controller.tokens.expires_in) })}
+										{...(controller.tokens.scope && { scope: String(controller.tokens.scope) })}
+									/>
+								)}
+
+								{/* Additional token information */}
 								<ParameterGrid>
-									<div>
-										<ParameterLabel>Access Token</ParameterLabel>
-										<ParameterValue>eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</ParameterValue>
-									</div>
 									<div>
 										<ParameterLabel>Token Type</ParameterLabel>
 										<ParameterValue>Bearer</ParameterValue>
@@ -758,11 +806,6 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 										<ParameterValue>openid profile email</ParameterValue>
 									</div>
 								</ParameterGrid>
-								<ActionRow>
-									<Button $variant="primary" onClick={() => controller.handleCopy(controller.tokens?.access_token || '', 'Access Token')}>
-										<FiCopy /> Copy Access Token
-									</Button>
-								</ActionRow>
 							</GeneratedContentBox>
 						</ResultsSection>
 					</>
@@ -966,7 +1009,8 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 														borderRadius: '0.25rem',
 													}}
 												>
-													https://auth.pingone.com/{controller.credentials.environmentId}/as/userinfo
+													https://auth.pingone.com/{controller.credentials.environmentId}
+													/as/userinfo
 												</code>
 											</small>
 										</div>
@@ -1136,7 +1180,7 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 							<StepNumber>
 								{String(flowController.state.currentStep + 1).padStart(2, '0')}
 							</StepNumber>
-							<StepTotal>of 06</StepTotal>
+							<StepTotal>of 07</StepTotal>
 						</StepHeaderRight>
 					</StepHeader>
 
@@ -1163,30 +1207,63 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
 
-				<ConfigurationSummaryCard
-					configuration={{
-						environmentId: controller.credentials.environmentId,
-						clientId: controller.credentials.clientId,
-						clientSecret: controller.credentials.clientSecret,
-						redirectUri: controller.credentials.redirectUri,
-						scopes: controller.credentials.scopes,
-						loginHint: controller.credentials.loginHint,
-						responseType: 'token',
-						grantType: 'implicit',
+				{/* Environment ID Input */}
+				<EnvironmentIdInput
+					initialEnvironmentId={controller.credentials.environmentId || ''}
+					onEnvironmentIdChange={(newEnvId) => {
+						controller.setCredentials({
+							...controller.credentials,
+							environmentId: newEnvId,
+						});
+						// Auto-save if we have both environmentId and clientId
+						if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+							controller.saveCredentials();
+							v4ToastManager.showSuccess('Credentials auto-saved');
+						}
 					}}
-					hasConfiguration={Boolean(controller.credentials.environmentId && controller.credentials.clientId)}
-					configurationDetails={{
-						environmentId: controller.credentials.environmentId || '',
-						clientId: controller.credentials.clientId || '',
-						redirectUri: controller.credentials.redirectUri || '',
-						scopes: controller.credentials.scopes ? controller.credentials.scopes.split(' ') : [],
-						loginHint: controller.credentials.loginHint || '',
-						responseType: 'token',
-						grantType: 'implicit',
+					onIssuerUrlChange={() => {}}
+					showSuggestions={true}
+					autoDiscover={false}
+				/>
+
+				{/* Credentials Input */}
+				<CredentialsInput
+					environmentId={controller.credentials.environmentId || ''}
+					clientId={controller.credentials.clientId || ''}
+					clientSecret={controller.credentials.clientSecret || ''}
+					scopes={controller.credentials.scopes || 'openid profile email'}
+					onEnvironmentIdChange={(newEnvId) => {
+						controller.setCredentials({
+							...controller.credentials,
+							environmentId: newEnvId,
+						});
 					}}
-					onSaveConfiguration={handleSaveConfiguration}
-					onLoadConfiguration={handleLoadConfiguration}
-					primaryColor="#f97316"
+					onClientIdChange={(newClientId) => {
+						controller.setCredentials({
+							...controller.credentials,
+							clientId: newClientId,
+						});
+						// Auto-save if we have both environmentId and clientId
+						if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+							controller.saveCredentials();
+							v4ToastManager.showSuccess('Credentials auto-saved');
+						}
+					}}
+					onClientSecretChange={(newClientSecret) => {
+						controller.setCredentials({
+							...controller.credentials,
+							clientSecret: newClientSecret,
+						});
+					}}
+					onScopesChange={(newScopes) => {
+						controller.setCredentials({
+							...controller.credentials,
+							scopes: newScopes,
+						});
+					}}
+					onCopy={handleCopy}
+					showRedirectUri={true}
+					showLoginHint={true}
 				/>
 			</ContentWrapper>
 

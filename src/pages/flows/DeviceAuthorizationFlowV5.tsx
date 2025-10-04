@@ -30,16 +30,21 @@ import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { pingOneConfigService } from '../../services/pingoneConfigService';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import {
+	TokenIntrospectionService,
+	IntrospectionApiCallData,
+} from '../../services/tokenIntrospectionService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import FlowCredentials from '../../components/FlowCredentials';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import { usePageScroll } from '../../hooks/usePageScroll';
 
 // Styled Components (V5 Parity)
@@ -135,7 +140,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	transition: transform 0.2s ease;
 
 	svg {
@@ -145,7 +150,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 
 	&:hover {
 		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)'};
+			$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
 	}
 `;
 
@@ -742,9 +747,11 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		}
 		return 0;
 	});
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 	const [collapsedSections, setCollapsedSections] = useState<Record<SectionKey, boolean>>({
 		overview: false,
 		flowDiagram: true,
@@ -1040,6 +1047,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				return renderIntrospection(); // Old step 5
 			case 5:
 				return renderCompletion(); // Old step 6
+
 			default:
 				return null;
 		}
@@ -1292,12 +1300,58 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				</div>
 			</InfoBox>
 
-			{/* Configuration Summary */}
-			<ConfigurationSummaryCard
-				configuration={deviceFlow.credentials}
-				hasConfiguration={Boolean(
-					deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId
-				)}
+			{/* Environment ID Input */}
+			<EnvironmentIdInput
+				initialEnvironmentId={deviceFlow.credentials?.environmentId || ''}
+				onEnvironmentIdChange={(newEnvId) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						environmentId: newEnvId,
+					});
+				}}
+				onIssuerUrlChange={() => {}}
+				showSuggestions={true}
+				autoDiscover={false}
+			/>
+
+			{/* Credentials Input */}
+			<CredentialsInput
+				environmentId={deviceFlow.credentials?.environmentId || ''}
+				clientId={deviceFlow.credentials?.clientId || ''}
+				clientSecret={deviceFlow.credentials?.clientSecret || ''}
+				scopes={deviceFlow.credentials?.scope || 'openid profile email'}
+				onEnvironmentIdChange={(newEnvId) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						environmentId: newEnvId,
+					});
+				}}
+				onClientIdChange={(newClientId) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						clientId: newClientId,
+					});
+					// Auto-save if we have both environmentId and clientId
+					if (deviceFlow.credentials?.environmentId && newClientId && deviceFlow.credentials.environmentId.trim() && newClientId.trim()) {
+						deviceFlow.saveCredentials();
+						v4ToastManager.showSuccess('Credentials auto-saved');
+					}
+				}}
+				onClientSecretChange={(newClientSecret) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						clientSecret: newClientSecret,
+					});
+				}}
+				onScopesChange={(newScopes) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						scope: newScopes,
+					});
+				}}
+				onCopy={handleCopy}
+				showRedirectUri={false}
+				showLoginHint={false}
 			/>
 		</>
 	);
@@ -2120,7 +2174,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			token: token,
 			clientId: deviceFlow.credentials.clientId,
 			// No client secret for device flow (public client)
-			tokenTypeHint: 'access_token' as const
+			tokenTypeHint: 'access_token' as const,
 		};
 
 		try {
@@ -2130,10 +2184,10 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				'device-code',
 				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
 			);
-			
+
 			// Set the API call data for display
 			setIntrospectionApiCall(result.apiCall);
-			
+
 			return result.response;
 		} catch (error) {
 			// Create error API call using reusable service
@@ -2144,7 +2198,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				500,
 				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
 			);
-			
+
 			setIntrospectionApiCall(errorApiCall);
 			throw error;
 		}
@@ -2184,7 +2238,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 					options={{
 						showEducationalNotes: true,
 						showFlowContext: true,
-						urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+						urlHighlightRules:
+							EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code'),
 					}}
 				/>
 			)}

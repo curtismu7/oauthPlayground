@@ -67,8 +67,6 @@ import type { ReactNode } from 'react';
 
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
-	const location = useLocation();
-
 	useEffect(() => {
 		// Scroll to top immediately
 		window.scrollTo(0, 0);
@@ -88,7 +86,7 @@ const ScrollToTop: React.FC = () => {
 		}, 100);
 
 		return () => clearTimeout(timer);
-	}, [location.pathname]);
+	}, []);
 
 	return null;
 };

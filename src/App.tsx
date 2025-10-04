@@ -8,6 +8,7 @@ import { PageFooter } from './services/footerService';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
+import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
@@ -17,13 +18,13 @@ import Sidebar from './components/Sidebar';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import Callback from './pages/Callback';
-import CodeExamplesDemo from './components/CodeExamplesDemo';
+import ClientGenerator from './pages/ClientGenerator';
 import Configuration from './pages/Configuration';
-import Dashboard from './pages/Dashboard';
 import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import { credentialManager } from './utils/credentialManager';
+import { scrollToTop } from './utils/scrollManager';
 
 // Removed useScrollToBottom - using centralized scroll management per page
 
@@ -42,16 +43,18 @@ import ErrorBoundary from './components/ErrorBoundary';
 import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import ServerStatusProvider from './components/ServerStatusProvider';
+import About from './pages/About';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
-import About from './pages/About';
+import Dashboard from './pages/Dashboard';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
+import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
@@ -62,12 +65,11 @@ import IDTokensFlow from './pages/flows/IDTokensFlow';
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
 import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
 import MFAFlow from './pages/flows/MFAFlow';
-import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
-import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
+import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
 // V3 OIDC flows backed up
@@ -78,22 +80,25 @@ import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
+import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
+import RARFlowV5 from './pages/flows/RARFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
-import RARFlowV5 from './pages/flows/RARFlowV5';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
 import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
-
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
+import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
 import OAuth21 from './pages/OAuth21';
 import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
+import SDKSampleApp from './pages/SDKSampleApp';
+import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import URLDecoder from './pages/URLDecoder';
 
@@ -174,8 +179,6 @@ const DARK_MODE_OVERRIDES: Partial<DefaultTheme['colors']> = {
 };
 
 const ScrollToTop = () => {
-	const location = useLocation();
-
 	useEffect(() => {
 		// Small delay to ensure the page has rendered before scrolling
 		const timer = setTimeout(() => {
@@ -183,7 +186,7 @@ const ScrollToTop = () => {
 		}, 0);
 
 		return () => clearTimeout(timer);
-	}, [location.pathname, location.search]);
+	}, []);
 
 	return null;
 };
@@ -193,6 +196,45 @@ const AppRoutes = () => {
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
+	const location = useLocation();
+
+	// Global scroll to top on route change - FOOLPROOF
+	useEffect(() => {
+		console.log('🌍 [GlobalScroll] Route changed to:', location.pathname);
+		
+		// Immediate scroll - multiple methods for maximum compatibility
+		window.scrollTo(0, 0);
+		document.documentElement.scrollTop = 0;
+		document.body.scrollTop = 0;
+		
+		// Additional scroll attempts with delays to catch late-loading content
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}, 0);
+		
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}, 50);
+		
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}, 100);
+		
+		setTimeout(() => {
+			window.scrollTo(0, 0);
+			document.documentElement.scrollTop = 0;
+			document.body.scrollTop = 0;
+		}, 200);
+		
+		// Also use the scroll manager for additional reliability
+		scrollToTop({ force: true, smooth: false });
+	}, [location.pathname]);
 
 	// Close sidebar on mount
 	useEffect(() => {
@@ -263,7 +305,6 @@ const AppRoutes = () => {
 						<Routes>
 							<Route path="/login" element={<Login />} />
 							<Route path="/callback" element={<Callback />} />
-
 							{/* Per-flow callback routes */}
 							<Route path="/authz-callback" element={<AuthzCallback />} />
 							<Route path="/oauth-v3-callback" element={<OAuthV3Callback />} />
@@ -273,16 +314,15 @@ const AppRoutes = () => {
 							<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
 							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
 							<Route path="/dashboard-callback" element={<DashboardCallback />} />
-
 							<Route path="/" element={<Navigate to="/dashboard" replace />} />
-
 							<Route path="/dashboard" element={<Dashboard />} />
-
 							<Route path="/flows" element={<OAuthFlowsNew />}>
 								<Route path="compare" element={<FlowComparisonTool />} />
 								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
 								<Route path="mfa" element={<MFAFlow />} />
 							</Route>
+							{/* Tools & Utilities Routes */}
+							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 							{/* Backed up V2/V3/V4 routes removed */}
 							<Route
 								path="/flows/oauth-authorization-code-v5"
@@ -293,7 +333,10 @@ const AppRoutes = () => {
 								element={<OIDCAuthorizationCodeFlowV5 />}
 							/>
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-							<Route path="/flows/oauth-implicit-completion" element={<OAuthImplicitFlowCompletion />} />
+							<Route
+								path="/flows/oauth-implicit-completion"
+								element={<OAuthImplicitFlowCompletion />}
+							/>
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 							<Route
 								path="/flows/device-authorization-v5"
@@ -314,7 +357,6 @@ const AppRoutes = () => {
 							{/* V3/V4 routes backed up - use V5 versions instead */}
 							<Route path="/flows/par" element={<PARFlow />} />
 							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
-
 							{/* Unsupported by PingOne flows */}
 							<Route
 								path="/oauth/resource-owner-password"
@@ -328,7 +370,6 @@ const AppRoutes = () => {
 							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
 							<Route path="/flows/pingone-mfa-v5" element={<PingOneMFAFlowV5 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV5 />} />
-
 							{/* Legacy route removed - use V5 */}
 							<Route
 								path="/flows/oauth2-resource-owner-password"
@@ -349,19 +390,19 @@ const AppRoutes = () => {
 							</Route>
 							{/* Backward-compatible redirect for older links */}
 							<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
-
+							<Route path="/client-generator" element={<ClientGenerator />} />{' '}
 							<Route path="/configuration" element={<Configuration />} />
 							<Route path="/documentation" element={<Documentation />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
-
+							<Route path="/test-demo" element={<TestDemo />} />
+							<Route path="/environment-id-demo" element={<EnvironmentIdInputDemo />} />
 							<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
 							<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
 							<Route
 								path="/docs/oauth2-security-best-practices"
 								element={<OAuth2SecurityBestPractices />}
 							/>
-
 							<Route path="/auto-discover" element={<AutoDiscover />} />
 							<Route path="/token-management" element={<TokenManagement />} />
 							<Route path="/oauth-2-1" element={<OAuth21 />} />
@@ -369,7 +410,6 @@ const AppRoutes = () => {
 							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
-
 							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
 							<Route path="/ai-glossary" element={<AIGlossary />} />
 							<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
@@ -377,12 +417,10 @@ const AppRoutes = () => {
 								path="/comprehensive-oauth-education"
 								element={<ComprehensiveOAuthEducation />}
 							/>
-
 							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
-
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
-
+							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 							<Route
@@ -401,7 +439,6 @@ const AppRoutes = () => {
 							/>
 							<Route path="/flows/oidc-hybrid-v5" element={<OIDCHybridFlowV5 />} />
 							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
-
 							<Route path="*" element={<Navigate to="/dashboard" replace />} />
 						</Routes>
 					</MainContent>

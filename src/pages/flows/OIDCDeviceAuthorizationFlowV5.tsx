@@ -19,7 +19,8 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { CredentialsInput } from '../../components/CredentialsInput';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -33,6 +34,9 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import logger from '../../utils/logger';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -46,8 +50,6 @@ const FlowContent = styled.div`
 	margin: 0 auto;
 	padding: 0 1rem;
 `;
-
-
 
 const _StepBadge = styled.span`
 	background: rgba(22, 163, 74, 0.2);
@@ -102,7 +104,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	align-items: center;
 	justify-content: center;
 	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	color: #0369a1;
 `;
 
@@ -317,6 +319,7 @@ const STEP_METADATA = [
 	{ title: 'Step 5: User Information', subtitle: 'Fetch user profile data' },
 	{ title: 'Step 6: Token Introspection', subtitle: 'Validate and inspect tokens' },
 	{ title: 'Step 7: Flow Complete', subtitle: 'Summary and next steps' },
+	{ title: 'Step 8: Flow Summary', subtitle: 'Comprehensive completion overview' },
 ] as const;
 
 type SectionKey =
@@ -336,7 +339,8 @@ type SectionKey =
 	| 'introspectionOverview'
 	| 'introspectionDetails'
 	| 'completionOverview'
-	| 'completionDetails';
+	| 'completionDetails'
+	| 'flowSummary';
 
 // Styled Components
 const _UserCodeDisplay = styled.div`
@@ -536,6 +540,61 @@ const _VerificationBox = styled.div`
 	text-align: center;
 `;
 
+const ModalOverlay = styled.div<{ $isOpen: boolean }>`
+	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	z-index: 1000;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+`;
+
+const ModalContent = styled.div`
+	background: white;
+	border-radius: 1rem;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	max-width: 32rem;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+`;
+
+const ModalHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+	padding: 1.5rem 1.5rem 0 1.5rem;
+`;
+
+const ModalTitle = styled.h3`
+	margin: 0;
+	font-size: 1.5rem;
+	font-weight: 600;
+	color: #1e293b;
+`;
+
+const ModalBody = styled.div`
+	color: #475569;
+	font-size: 1rem;
+	line-height: 1.6;
+	padding: 1.5rem;
+	flex: 1;
+`;
+
+const ModalActions = styled.div`
+	display: flex;
+	gap: 0.75rem;
+	padding: 0 1.5rem 1.5rem 1.5rem;
+	justify-content: flex-end;
+`;
+
 const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	const deviceFlow = useDeviceAuthorizationFlow();
 	const environmentId = useId();
@@ -570,11 +629,13 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		introspectionDetails: false,
 		completionOverview: false,
 		completionDetails: false,
+		flowSummary: false, // New Flow Completion Service step
 	});
 	const [_copiedField, setCopiedField] = useState<string | null>(null);
 	const [userInfo, setUserInfo] = useState<unknown>(null);
 	const [introspectionResult, setIntrospectionResult] = useState<unknown>(null);
 	const [hasScrolledToTV, setHasScrolledToTV] = useState(false);
+	const [showPollingModal, setShowPollingModal] = useState(false);
 
 	usePageScroll();
 
@@ -645,10 +706,28 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		console.log('[📺 OAUTH-DEVICE] [INFO] Credentials saved to credential manager');
 	}, [deviceFlow.credentials]);
 
+	const handleDiscoveryComplete = useCallback(
+		(discoveryResult: DiscoveryResult) => {
+			if (discoveryResult.success && discoveryResult.document) {
+				const environmentId = oidcDiscoveryService.extractEnvironmentId(discoveryResult.issuerUrl || discoveryResult.document.issuer);
+
+				logger.discovery('OIDCDeviceAuthorizationFlowV5', `Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`);
+
+				// Auto-populate environment ID from discovery
+				if (environmentId) {
+					handleCredentialsChange('environmentId', environmentId);
+				}
+			}
+		},
+		[handleCredentialsChange]
+	);
+
 	const handleRequestDeviceCode = useCallback(async () => {
 		try {
 			await deviceFlow.requestDeviceCode();
 			setCurrentStep(2); // Auto-advance to User Authorization step
+			// Show polling modal after device code is requested
+			setShowPollingModal(true);
 		} catch (_error) {
 			// Error already handled in hook
 		}
@@ -660,7 +739,19 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		setUserInfo(null);
 		setIntrospectionResult(null);
 		setHasScrolledToTV(false);
+		setShowPollingModal(false);
 	}, [deviceFlow]);
+
+	const handleStartPolling = useCallback(() => {
+		setShowPollingModal(false);
+		deviceFlow.startPolling();
+		// Stay on current step (User Authorization - step 2) so user can see Smart TV update
+		// Don't advance to step 3 - let user see the real-time polling results on the TV display
+	}, [deviceFlow]);
+
+	const handleDismissModal = useCallback(() => {
+		setShowPollingModal(false);
+	}, []);
 
 	const navigateToTokenManagement = useCallback(() => {
 		// Store flow navigation state for back navigation
@@ -712,6 +803,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 					return !!deviceFlow.tokens;
 				case 7:
 					return true; // Completion
+				case 8:
+					return true; // Flow Summary
 				default:
 					return false;
 			}
@@ -783,6 +876,8 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 				return renderIntrospection();
 			case 7:
 				return renderCompletion();
+			case 8:
+				return renderFlowSummary();
 			default:
 				return null;
 		}
@@ -919,6 +1014,69 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 								Enter your PingOne credentials to enable the Device Authorization Flow.
 							</InfoText>
 							<div style={{ marginTop: '1.5rem' }}>
+								<EnvironmentIdInput
+									initialEnvironmentId={deviceFlow.credentials?.environmentId || ''}
+									onEnvironmentIdChange={(newEnvId) => {
+										deviceFlow.setCredentials({
+											...deviceFlow.credentials,
+											environmentId: newEnvId,
+										});
+									}}
+									onIssuerUrlChange={() => {}}
+									showSuggestions={true}
+									autoDiscover={false}
+								/>
+							</div>
+							
+							<div style={{ 
+								margin: '1.5rem 0', 
+								height: '1px', 
+								backgroundColor: '#e5e7eb',
+								position: 'relative'
+							}}>
+								<div style={{
+									position: 'absolute',
+									left: '50%',
+									top: '-0.5rem',
+									transform: 'translateX(-50%)',
+									backgroundColor: '#f9fafb',
+									padding: '0 1rem',
+									color: '#6b7280',
+									fontSize: '0.875rem',
+									fontWeight: '500'
+								}}>
+									OR
+								</div>
+							</div>
+							
+							<div style={{ marginTop: '1.5rem' }}>
+								<div style={{ 
+									marginBottom: '1rem',
+									padding: '0.75rem',
+									backgroundColor: '#f8fafc',
+									border: '1px solid #e2e8f0',
+									borderRadius: '0.5rem'
+								}}>
+									<h4 style={{ 
+										margin: '0 0 0.5rem 0', 
+										fontSize: '0.875rem', 
+										fontWeight: '600', 
+										color: '#374151',
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem'
+									}}>
+										<FiKey size={16} />
+										Manual Configuration
+									</h4>
+									<p style={{ 
+										margin: '0 0 1rem 0', 
+										fontSize: '0.75rem', 
+										color: '#6b7280' 
+									}}>
+										Enter your PingOne credentials manually if you prefer not to use OIDC Discovery.
+									</p>
+								</div>
 								<div style={{ marginBottom: '1rem' }}>
 									<label
 										htmlFor={environmentId}
@@ -1037,11 +1195,44 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 			</CollapsibleSection>
 
 			{/* Configuration Summary */}
-			<ConfigurationSummaryCard
-				configuration={deviceFlow.credentials}
-				hasConfiguration={Boolean(
-					deviceFlow.credentials?.environmentId && deviceFlow.credentials?.clientId
-				)}
+			{/* Credentials Input */}
+			<CredentialsInput
+				environmentId={deviceFlow.credentials?.environmentId || ''}
+				clientId={deviceFlow.credentials?.clientId || ''}
+				clientSecret={deviceFlow.credentials?.clientSecret || ''}
+				scopes={deviceFlow.credentials?.scope || 'openid profile email'}
+				onEnvironmentIdChange={(newEnvId) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						environmentId: newEnvId,
+					});
+				}}
+				onClientIdChange={(newClientId) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						clientId: newClientId,
+					});
+					// Auto-save if we have both environmentId and clientId
+					if (deviceFlow.credentials?.environmentId && newClientId && deviceFlow.credentials.environmentId.trim() && newClientId.trim()) {
+						deviceFlow.saveCredentials();
+						v4ToastManager.showSuccess('Credentials auto-saved');
+					}
+				}}
+				onClientSecretChange={(newClientSecret) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						clientSecret: newClientSecret,
+					});
+				}}
+				onScopesChange={(newScopes) => {
+					deviceFlow.setCredentials({
+						...deviceFlow.credentials,
+						scope: newScopes,
+					});
+				}}
+				onCopy={handleCopy}
+				showRedirectUri={false}
+				showLoginHint={false}
 			/>
 		</>
 	);
@@ -1538,45 +1729,19 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 										<FiKey size={18} /> Access Token
 									</ResultsHeading>
 									<GeneratedContentBox>
-										<ParameterGrid>
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Access Token</ParameterLabel>
-												<ParameterValue
-													style={{
-														wordBreak: 'break-all',
-														fontFamily: 'monospace',
-														fontSize: '0.75rem',
-													}}
-												>
-													{deviceFlow.tokens.access_token}
-												</ParameterValue>
-											</div>
-											{deviceFlow.tokens.token_type && (
-												<div>
-													<ParameterLabel>Token Type</ParameterLabel>
-													<ParameterValue>{deviceFlow.tokens.token_type}</ParameterValue>
-												</div>
-											)}
-											{deviceFlow.tokens.expires_in && (
-												<div>
-													<ParameterLabel>Expires In</ParameterLabel>
-													<ParameterValue>{deviceFlow.tokens.expires_in} seconds</ParameterValue>
-												</div>
-											)}
-											{deviceFlow.tokens.scope && (
-												<div style={{ gridColumn: '1 / -1' }}>
-													<ParameterLabel>Scope</ParameterLabel>
-													<ParameterValue>{deviceFlow.tokens.scope}</ParameterValue>
-												</div>
-											)}
-										</ParameterGrid>
+										{/* JWT Token Display with decoding capabilities */}
+										<JWTTokenDisplay
+											token={deviceFlow.tokens.access_token}
+											tokenType="access_token"
+											onCopy={(tokenValue, label) => handleCopy(tokenValue, label)}
+											copyLabel="Access Token"
+											showTokenType={true}
+											showExpiry={true}
+											{...(deviceFlow.tokens.expires_in && { expiresIn: Number(deviceFlow.tokens.expires_in) })}
+											{...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })}
+										/>
+
 										<ActionRow>
-											<Button
-												onClick={() => handleCopy(deviceFlow.tokens!.access_token, 'Access Token')}
-												$variant="outline"
-											>
-												<FiCopy /> Copy Access Token
-											</Button>
 											<Button onClick={navigateToTokenManagement} $variant="primary">
 												<FiExternalLink /> Open Token Management
 											</Button>
@@ -1590,28 +1755,17 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											<FiShield size={18} /> ID Token
 										</ResultsHeading>
 										<GeneratedContentBox>
-											<ParameterGrid>
-												<div style={{ gridColumn: '1 / -1' }}>
-													<ParameterLabel>ID Token (JWT)</ParameterLabel>
-													<ParameterValue
-														style={{
-															wordBreak: 'break-all',
-															fontFamily: 'monospace',
-															fontSize: '0.75rem',
-														}}
-													>
-														{deviceFlow.tokens.id_token}
-													</ParameterValue>
-												</div>
-											</ParameterGrid>
-											<ActionRow>
-												<Button
-													onClick={() => handleCopy(deviceFlow.tokens!.id_token!, 'ID Token')}
-													$variant="outline"
-												>
-													<FiCopy /> Copy ID Token
-												</Button>
-											</ActionRow>
+											{/* JWT Token Display with decoding capabilities */}
+											<JWTTokenDisplay
+												token={deviceFlow.tokens.id_token}
+												tokenType="id_token"
+												onCopy={(tokenValue, label) => handleCopy(tokenValue, label)}
+												copyLabel="ID Token"
+												showTokenType={true}
+												showExpiry={true}
+												{...(deviceFlow.tokens.expires_in && { expiresIn: Number(deviceFlow.tokens.expires_in) })}
+												{...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })}
+											/>
 										</GeneratedContentBox>
 									</ResultsSection>
 								)}
@@ -1721,80 +1875,43 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 		</>
 	);
 
-	const renderCompletion = () => (
-		<>
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('completionOverview')}
-					aria-expanded={!collapsedSections.completionOverview}
-				>
-					<CollapsibleTitle>
-						<FiCheckCircle /> Flow Complete
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.completionOverview && (
-					<CollapsibleContent>
-						<InfoBox $variant="success">
-							<FiCheckCircle size={24} />
-							<div>
-								<InfoTitle>Device Authorization Flow Complete!</InfoTitle>
-								<InfoText>
-									You've successfully completed the OAuth Device Authorization Grant flow. The
-									device has been authorized and tokens have been received.
-								</InfoText>
-							</div>
-						</InfoBox>
+	const renderCompletion = () => {
+		const completionConfig = {
+			...FlowCompletionConfigs.deviceAuthorization,
+			onStartNewFlow: handleReset,
+			showUserInfo: Boolean(userInfo),
+			showIntrospection: Boolean(introspectionResult),
+			userInfo,
+			introspectionResult
+		};
 
-						<ExplanationSection style={{ marginTop: '1.5rem' }}>
-							<ExplanationHeading>
-								<FiInfo /> Summary
-							</ExplanationHeading>
-							<div
-								style={{
-									backgroundColor: '#f8fafc',
-									padding: '1.5rem',
-									borderRadius: '0.5rem',
-									border: '1px solid #e2e8f0',
-								}}
-							>
-								<ul style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
-									<li>✅ Device code requested and received</li>
-									<li>✅ User code displayed to user</li>
-									<li>✅ User authorized on secondary device</li>
-									<li>✅ Tokens received via polling</li>
-									{Boolean(userInfo) && <li>✅ User information retrieved</li>}
-									{Boolean(introspectionResult) && <li>✅ Token introspected and validated</li>}
-								</ul>
-							</div>
-						</ExplanationSection>
+		return (
+			<FlowCompletionService
+				config={completionConfig}
+				collapsed={collapsedSections.completionOverview}
+				onToggleCollapsed={() => toggleSection('completionOverview')}
+			/>
+		);
+	};
 
-						<ExplanationSection style={{ marginTop: '1.5rem' }}>
-							<ExplanationHeading>
-								<FiZap /> Next Steps
-							</ExplanationHeading>
-							<InfoText>In a production application, you would:</InfoText>
-							<ul style={{ marginTop: '0.75rem', paddingLeft: '1.5rem', lineHeight: '1.8' }}>
-								<li>Store the access token securely</li>
-								<li>Use the access token to call protected APIs</li>
-								<li>Refresh the token when it expires (if refresh token provided)</li>
-								<li>Handle token expiration and re-authorization</li>
-								<li>Implement proper error handling and retry logic</li>
-							</ul>
-						</ExplanationSection>
+	const renderFlowSummary = () => {
+		const completionConfig = {
+			...FlowCompletionConfigs.deviceAuthorization,
+			onStartNewFlow: handleReset,
+			showUserInfo: Boolean(userInfo),
+			showIntrospection: Boolean(introspectionResult),
+			userInfo,
+			introspectionResult
+		};
 
-						<ActionRow style={{ marginTop: '1.5rem' }}>
-							<Button onClick={handleReset} $variant="danger">
-								<FiRefreshCw /> Start New Flow
-							</Button>
-						</ActionRow>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
-		</>
-	);
+		return (
+			<FlowCompletionService
+				config={completionConfig}
+				collapsed={collapsedSections.flowSummary}
+				onToggleCollapsed={() => toggleSection('flowSummary')}
+			/>
+		);
+	};
 
 	return (
 		<FlowContainer>
@@ -1816,6 +1933,56 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 					disabledMessage="Complete the action above to continue"
 				/>
 			</FlowContent>
+
+			{/* Polling Prompt Modal */}
+			<ModalOverlay $isOpen={showPollingModal}>
+				<ModalContent>
+					<ModalHeader>
+						<FiClock size={32} color="#3b82f6" />
+						<ModalTitle>Ready to Start Polling?</ModalTitle>
+					</ModalHeader>
+					<ModalBody>
+						<p>
+							The device code has been generated and displayed on the Smart TV. The user can now
+							scan the QR code or enter the code on their phone.
+						</p>
+						<p style={{ marginTop: '1rem' }}>
+							<strong>Next step:</strong> Start polling the authorization server to check if the
+							user has completed authorization. The app will automatically check every{' '}
+							{deviceFlow.deviceCodeData?.interval || 5} seconds.
+						</p>
+						<p
+							style={{
+								marginTop: '1rem',
+								padding: '0.75rem',
+								backgroundColor: '#eff6ff',
+								borderRadius: '0.5rem',
+								border: '1px solid #bfdbfe',
+							}}
+						>
+							📺 <strong>Watch the Smart TV display update in real-time</strong> as the user
+							authorizes on their phone!
+						</p>
+						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+							<FiInfo size={18} />
+							<div>
+								<InfoText style={{ fontSize: '0.875rem', margin: 0 }}>
+									💡 <strong>Tip:</strong> You can disable this prompt in UI Settings if you prefer
+									to start polling manually.
+								</InfoText>
+							</div>
+						</InfoBox>
+					</ModalBody>
+					<ModalActions>
+						<Button onClick={handleDismissModal} $variant="outline">
+							I'll Start Later
+						</Button>
+						<Button onClick={handleStartPolling} $variant="primary">
+							<FiRefreshCw /> Start Polling Now
+						</Button>
+					</ModalActions>
+				</ModalContent>
+			</ModalOverlay>
 		</FlowContainer>
 	);
 };

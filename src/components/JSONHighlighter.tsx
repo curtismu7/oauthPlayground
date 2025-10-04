@@ -10,8 +10,10 @@ interface JSONObject {
 
 interface JSONArray extends Array<JSONValue> {}
 
+export type JSONData = JSONValue;
+
 interface JSONHighlighterProps {
-	data: JSONValue;
+	data: JSONData;
 	className?: string;
 }
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import { FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import styled from 'styled-components';
 
 interface CollapsibleIconProps {
@@ -26,7 +26,7 @@ const IconWrapper = styled.div<{ $isExpanded: boolean }>`
 export const CollapsibleIcon: React.FC<CollapsibleIconProps> = ({ isExpanded, className }) => {
 	return (
 		<IconWrapper $isExpanded={isExpanded} className={className}>
-			{isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+			{isExpanded ? <FiChevronDown /> : <FiChevronUp />}
 		</IconWrapper>
 	);
 };

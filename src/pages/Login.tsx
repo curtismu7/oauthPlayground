@@ -12,6 +12,7 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../services/themeService';
 import { useLocation } from 'react-router-dom';
+import { usePageScroll } from '../hooks/usePageScroll';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
@@ -290,7 +291,7 @@ const ChevronIcon = styled.div.withConfig({
 	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
 })<{ $collapsed: boolean }>`
 	${() => themeService.getCollapseIconStyles()}
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	transition: transform 0.2s ease;
 
 	svg {
@@ -299,6 +300,9 @@ const ChevronIcon = styled.div.withConfig({
 `;
 
 const Login = () => {
+	// Ensure page starts at top
+	usePageScroll({ pageName: 'Login', force: true });
+
 	const [error, setError] = useState('');
 	const [isLoading, setIsLoading] = useState(false);
 	const [copiedId, setCopiedId] = useState<string | null>(null);

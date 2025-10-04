@@ -329,7 +329,7 @@ export class FlowComponentService {
       background: ${color};
       color: white;
       transition: transform 0.2s ease;
-      transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+      transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 
       svg {
         width: 16px;
@@ -338,7 +338,7 @@ export class FlowComponentService {
 
       &:hover {
         transform: ${({ $collapsed }) =>
-					$collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)'};
+					$collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)'};
       }
     `;
 	}

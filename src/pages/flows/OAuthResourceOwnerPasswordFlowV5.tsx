@@ -5,7 +5,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
@@ -15,6 +16,7 @@ import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 
@@ -417,17 +419,43 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 						<EnhancedFlowWalkthrough flowId="oauth-resource-owner-password" />
 						<FlowSequenceDisplay flowType="resource-owner-password" />
 
-						{/* Configuration Summary */}
-						<ConfigurationSummaryCard
-							configuration={credentials}
-							hasConfiguration={Boolean(credentials?.clientId)}
-							onSaveConfiguration={saveCredentials}
-							onLoadConfiguration={(config) => {
-								if (config) {
-									updateCredentials(config);
-									v4ToastManager.showSuccess('Configuration loaded successfully!');
+						{/* Environment ID Input */}
+						<EnvironmentIdInput
+							initialEnvironmentId={credentials?.environmentId || ''}
+							onEnvironmentIdChange={(newEnvId) => {
+								updateCredentials({ ...credentials, environmentId: newEnvId });
+							}}
+							onIssuerUrlChange={() => {}}
+							showSuggestions={true}
+							autoDiscover={false}
+						/>
+
+						{/* Credentials Input */}
+						<CredentialsInput
+							environmentId={credentials?.environmentId || ''}
+							clientId={credentials?.clientId || ''}
+							clientSecret={credentials?.clientSecret || ''}
+							scopes={credentials?.scope || 'openid profile email'}
+							onEnvironmentIdChange={(newEnvId) => {
+								updateCredentials({ ...credentials, environmentId: newEnvId });
+							}}
+							onClientIdChange={(newClientId) => {
+								updateCredentials({ ...credentials, clientId: newClientId });
+								// Auto-save if we have both environmentId and clientId
+								if (credentials?.environmentId && newClientId && credentials.environmentId.trim() && newClientId.trim()) {
+									saveCredentials();
+									v4ToastManager.showSuccess('Credentials auto-saved');
 								}
 							}}
+							onClientSecretChange={(newClientSecret) => {
+								updateCredentials({ ...credentials, clientSecret: newClientSecret });
+							}}
+							onScopesChange={(newScopes) => {
+								updateCredentials({ ...credentials, scope: newScopes });
+							}}
+							onCopy={handleCopy}
+							showRedirectUri={false}
+							showLoginHint={false}
 						/>
 					</>
 				);
@@ -439,70 +467,66 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 							<FormTitle>
 								<FiUser /> Request OAuth Resource Owner Password Token
 							</FormTitle>
-							<ConfigurationSummaryCard
-								configuration={credentials}
-								hasConfiguration={Boolean(credentials?.clientId)}
-							/>
 							<form>
 								<FormGrid>
-								<FormGroup>
-									<Label>Client ID</Label>
-									<Input
-										placeholder="Enter client ID..."
-										value={credentials.clientId || ''}
-										onChange={(e) => updateCredentials({ clientId: e.target.value })}
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Client Secret (optional)</Label>
-									<Input
-										type="password"
-										placeholder="Enter client secret..."
-										value={credentials.clientSecret || ''}
-										onChange={(e) => updateCredentials({ clientSecret: e.target.value })}
-										autoComplete="current-password"
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Username</Label>
-									<Input
-										placeholder="Enter username..."
-										value={credentials.username || ''}
-										onChange={(e) => updateCredentials({ username: e.target.value })}
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Password</Label>
-									<Input
-										type="password"
-										placeholder="Enter password..."
-										value={credentials.password || ''}
-										onChange={(e) => updateCredentials({ password: e.target.value })}
-										autoComplete="current-password"
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Token Endpoint</Label>
-									<Input
-										placeholder="Enter token endpoint URL..."
-										value={credentials.tokenEndpoint || ''}
-										onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
-									/>
-								</FormGroup>
-							</FormGrid>
-							<Button
-								variant="danger"
-								onClick={handleRequestToken}
-								disabled={
-									isRequesting ||
-									!credentials.username ||
-									!credentials.password ||
-									!credentials.clientId
-								}
-							>
-								{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
-								{isRequesting ? 'Requesting...' : 'Request OAuth Resource Owner Password Token'}
-							</Button>
+									<FormGroup>
+										<Label>Client ID</Label>
+										<Input
+											placeholder="Enter client ID..."
+											value={credentials.clientId || ''}
+											onChange={(e) => updateCredentials({ clientId: e.target.value })}
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Client Secret (optional)</Label>
+										<Input
+											type="password"
+											placeholder="Enter client secret..."
+											value={credentials.clientSecret || ''}
+											onChange={(e) => updateCredentials({ clientSecret: e.target.value })}
+											autoComplete="current-password"
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Username</Label>
+										<Input
+											placeholder="Enter username..."
+											value={credentials.username || ''}
+											onChange={(e) => updateCredentials({ username: e.target.value })}
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Password</Label>
+										<Input
+											type="password"
+											placeholder="Enter password..."
+											value={credentials.password || ''}
+											onChange={(e) => updateCredentials({ password: e.target.value })}
+											autoComplete="current-password"
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Token Endpoint</Label>
+										<Input
+											placeholder="Enter token endpoint URL..."
+											value={credentials.tokenEndpoint || ''}
+											onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
+										/>
+									</FormGroup>
+								</FormGrid>
+								<Button
+									variant="danger"
+									onClick={handleRequestToken}
+									disabled={
+										isRequesting ||
+										!credentials.username ||
+										!credentials.password ||
+										!credentials.clientId
+									}
+								>
+									{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
+									{isRequesting ? 'Requesting...' : 'Request OAuth Resource Owner Password Token'}
+								</Button>
 							</form>
 						</FormSection>
 

@@ -2,9 +2,9 @@
 // Enhanced FlowWalkthrough component using the FlowWalkthroughService
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiChevronDown, FiGlobe } from 'react-icons/fi';
-import { FlowWalkthroughService, FlowWalkthroughConfig } from '../services/FlowWalkthroughService';
+import styled from 'styled-components';
+import { FlowWalkthroughConfig, FlowWalkthroughService } from '../services/FlowWalkthroughService';
 
 export interface EnhancedFlowWalkthroughProps {
 	flowId: string;
@@ -91,12 +91,12 @@ const ChevronButton = styled.button<{ $collapsed: boolean }>`
 	justify-content: center;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(180deg)' : 'rotate(0deg)')};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 
 	&:hover {
 		background: #2563eb;
 		transform: ${({ $collapsed }) =>
-			$collapsed ? 'rotate(180deg) scale(1.05)' : 'rotate(0deg) scale(1.05)'};
+			$collapsed ? 'rotate(-90deg) scale(1.05)' : 'rotate(0deg) scale(1.05)'};
 	}
 `;
 
@@ -222,7 +222,7 @@ const ErrorMessage = styled.div`
 export const EnhancedFlowWalkthrough: React.FC<EnhancedFlowWalkthroughProps> = ({
 	flowId,
 	customConfig,
-	defaultCollapsed = false,
+	defaultCollapsed = true,
 	className,
 }) => {
 	const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);

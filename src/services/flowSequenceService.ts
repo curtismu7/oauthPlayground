@@ -464,16 +464,19 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 1,
 				title: 'Client prepares RAR authorization request',
-				description: 'Client constructs authorization request with authorization_details parameter containing specific permissions',
+				description:
+					'Client constructs authorization request with authorization_details parameter containing specific permissions',
 				technicalDetails: 'GET /authorize?authorization_details=<json>',
-				exampleDisplay: 'Request includes authorization_details with type, locations, actions, and datatypes',
+				exampleDisplay:
+					'Request includes authorization_details with type, locations, actions, and datatypes',
 			},
 			{
 				stepNumber: 2,
 				title: 'User reviews granular permissions',
 				description: 'Authorization server presents specific permissions to user for consent',
 				technicalDetails: 'User sees detailed permission breakdown',
-				exampleDisplay: 'User sees: "Access payment data at api.example.com/payments for initiate, status actions"',
+				exampleDisplay:
+					'User sees: "Access payment data at api.example.com/payments for initiate, status actions"',
 			},
 			{
 				stepNumber: 3,
@@ -499,9 +502,11 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 			{
 				stepNumber: 6,
 				title: 'Access token contains RAR claims',
-				description: 'Access token includes authorization_details claims specifying exact permissions',
+				description:
+					'Access token includes authorization_details claims specifying exact permissions',
 				technicalDetails: 'JWT with authorization_details claim',
-				exampleDisplay: 'Token claims: { "authorization_details": [{ "type": "payment_initiation", ... }] }',
+				exampleDisplay:
+					'Token claims: { "authorization_details": [{ "type": "payment_initiation", ... }] }',
 			},
 		],
 		keyBenefits: [

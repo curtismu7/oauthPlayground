@@ -213,8 +213,11 @@ export interface StepCredentials {
 	scopes?: string; // Should be optional
 	scope?: string; // Alternative scope format
 	responseType?: string; // OAuth response type
+	responseMode?: string; // OAuth response mode (query, fragment, form_post, pi.flow)
 	grantType?: string; // OAuth grant type
+	introspectionEndpoint?: string; // OIDC introspection endpoint
 	authorizationEndpoint?: string;
+	nonce?: string; // Optional OIDC nonce value
 
 	// JWT Authentication Settings
 	privateKey?: string; // For private_key_jwt authentication
@@ -230,6 +233,7 @@ export interface StepCredentials {
 	targetLinkUri?: string;
 	signoffUrls?: string[];
 	loginHint?: string; // OIDC login_hint parameter
+	postLogoutRedirectUri?: string; // Post-logout redirect URI for session termination
 
 	// Request Parameter Signature
 	requestParameterSignatureRequirement?: 'DEFAULT' | 'REQUIRE_SIGNED' | 'ALLOW_UNSIGNED';

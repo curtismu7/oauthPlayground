@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Authorization Code Flow with Environment ID Input</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 1.75rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            overflow: hidden;
+        }
+
+        .section {
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            background: #f8fafc;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .section-header:hover {
+            background: #f1f5f9;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .section-content {
+            padding: 1.5rem;
+        }
+
+        .environment-section {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .environment-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .environment-header h3 {
+            color: #1e40af;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .region-selector {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-right: none;
+            border-radius: 6px 0 0 6px;
+            font-size: 0.875rem;
+            background: white;
+            color: #1f2937;
+            min-width: 140px;
+        }
+
+        .region-selector:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .env-input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0 6px 6px 0;
+            font-size: 0.875rem;
+            background: white;
+            color: #1f2937;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        }
+
+        .env-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .discover-btn {
+            position: absolute;
+            right: 0.5rem;
+            padding: 0.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .discover-btn:hover {
+            background: #2563eb;
+        }
+
+        .discover-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        .issuer-url-display {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            color: #334155;
+            word-break: break-all;
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .copy-btn:hover {
+            background: #2563eb;
+        }
+
+        .region-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: #f0f9ff;
+            border: 1px solid #7dd3fc;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            color: #0c4a6e;
+            margin-top: 1rem;
+        }
+
+        .status-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .status-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        .status-loading {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+        }
+
+        .credentials-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-input {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+            color: #1f2937;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .save-btn {
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+        .save-btn:hover {
+            background: #059669;
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        .before-after {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .before-card, .after-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .before-card {
+            border-left: 4px solid #ef4444;
+        }
+
+        .after-card {
+            border-left: 4px solid #10b981;
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .old-input {
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: #f9fafb;
+            color: #6b7280;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            margin-bottom: 1rem;
+        }
+
+        .old-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+        }
+
+        @media (max-width: 768px) {
+            .before-after {
+                grid-template-columns: 1fr;
+            }
+            
+            .credentials-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .input-group {
+                flex-direction: column;
+            }
+            
+            .region-selector {
+                border-right: 1px solid #d1d5db;
+                border-radius: 6px 6px 0 0;
+            }
+            
+            .env-input {
+                border-radius: 0 0 6px 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 OAuth Authorization Code Flow</h1>
+            <p>Secure User Authentication with PKCE</p>
+        </div>
+
+        <div class="main-card">
+            <!-- Environment ID Section (NEW) -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        🌍 PingOne Environment Configuration
+                    </div>
+                    <span class="chevron">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="environment-section">
+                        <div class="environment-header">
+                            <h3>🔧 Quick Setup with Environment ID</h3>
+                        </div>
+                        
+                        <div class="input-container">
+                            <label class="label" for="env-id">Environment ID</label>
+                            <div class="input-group">
+                                <select class="region-selector" id="region">
+                                    <option value="us">US - North America</option>
+                                    <option value="eu">EU - Europe</option>
+                                    <option value="ap">AP - Asia Pacific</option>
+                                    <option value="ca">CA - Canada</option>
+                                </select>
+                                <input 
+                                    type="text" 
+                                    class="env-input" 
+                                    id="env-id"
+                                    placeholder="your-environment-id"
+                                    value="12345678-1234-1234-1234-123456789012"
+                                />
+                                <button class="discover-btn" id="discover-btn">
+                                    🔍 Discover
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="region-info">
+                            ℹ️ Selected region: <strong>US - North America</strong> - https://auth.pingone.com
+                        </div>
+
+                        <div id="issuer-url-display" class="issuer-url-display">
+                            <button class="copy-btn" onclick="copyIssuerUrl()">📋 Copy</button>
+                            <div id="issuer-url-text">https://auth.pingone.com/12345678-1234-1234-1234-123456789012</div>
+                        </div>
+
+                        <div id="status-container" class="status-container status-success">
+                            <span>✅ Successfully discovered OIDC endpoints</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Credentials Section -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        🔑 Application Credentials
+                    </div>
+                    <span class="chevron">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="credentials-form">
+                        <div class="form-group">
+                            <label class="label" for="client-id">Client ID</label>
+                            <input type="text" class="form-input" id="client-id" placeholder="your-client-id" />
+                        </div>
+                        <div class="form-group">
+                            <label class="label" for="redirect-uri">Redirect URI</label>
+                            <input type="text" class="form-input" id="redirect-uri" value="http://localhost:3000/callback" />
+                        </div>
+                        <div class="form-group">
+                            <label class="label" for="scopes">Scopes</label>
+                            <input type="text" class="form-input" id="scopes" value="openid profile email" />
+                        </div>
+                        <div class="form-group">
+                            <label class="label" for="environment-id">Environment ID</label>
+                            <input type="text" class="form-input" id="environment-id" value="12345678-1234-1234-1234-123456789012" readonly />
+                        </div>
+                    </div>
+                    <button class="save-btn">💾 Save Configuration</button>
+                </div>
+            </div>
+
+            <!-- Before/After Comparison -->
+            <div class="section">
+                <div class="section-header">
+                    <div class="section-title">
+                        📊 Configuration Experience Comparison
+                    </div>
+                    <span class="chevron">▼</span>
+                </div>
+                <div class="section-content">
+                    <div class="before-after">
+                        <div class="before-card">
+                            <h3 class="card-title">
+                                <span style="color: #ef4444;">❌</span>
+                                Old Way
+                            </h3>
+                            <p><strong>Manual Issuer URL Entry:</strong></p>
+                            <input 
+                                type="text" 
+                                class="old-input" 
+                                placeholder="https://auth.pingone.com/12345678-1234-1234-1234-123456789012"
+                                disabled
+                            />
+                            <ul style="font-size: 0.875rem; color: #6b7280; padding-left: 1.5rem;">
+                                <li>Users must type full issuer URL</li>
+                                <li>Easy to make typos</li>
+                                <li>No regional guidance</li>
+                                <li>Manual endpoint discovery</li>
+                                <li>Complex error messages</li>
+                            </ul>
+                        </div>
+
+                        <div class="after-card">
+                            <h3 class="card-title">
+                                <span style="color: #10b981;">✅</span>
+                                New Way
+                            </h3>
+                            <p><strong>Environment ID + Region:</strong></p>
+                            <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                                <select style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem;">
+                                    <option>US</option>
+                                </select>
+                                <input 
+                                    type="text" 
+                                    style="flex: 1; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-size: 0.875rem; font-family: monospace;"
+                                    placeholder="env-id"
+                                    value="12345678-1234-1234-1234-123456789012"
+                                />
+                            </div>
+                            <ul style="font-size: 0.875rem; color: #059669; padding-left: 1.5rem;">
+                                <li>Just enter environment ID</li>
+                                <li>Region selector prevents errors</li>
+                                <li>Auto-generates issuer URL</li>
+                                <li>One-click OIDC discovery</li>
+                                <li>Visual feedback and status</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const regionUrls = {
+            us: 'https://auth.pingone.com',
+            eu: 'https://auth.pingone.eu',
+            ap: 'https://auth.pingone.asia',
+            ca: 'https://auth.pingone.ca'
+        };
+
+        const regionLabels = {
+            us: 'US - North America',
+            eu: 'EU - Europe',
+            ap: 'AP - Asia Pacific',
+            ca: 'CA - Canada'
+        };
+
+        const envInput = document.getElementById('env-id');
+        const regionSelect = document.getElementById('region');
+        const discoverBtn = document.getElementById('discover-btn');
+        const issuerUrlText = document.getElementById('issuer-url-text');
+        const regionInfo = document.querySelector('.region-info');
+
+        function updateRegionInfo() {
+            const region = regionSelect.value;
+            const label = regionLabels[region];
+            const url = regionUrls[region];
+            regionInfo.innerHTML = `ℹ️ Selected region: <strong>${label}</strong> - ${url}`;
+        }
+
+        function updateIssuerUrl() {
+            const envId = envInput.value.trim();
+            const region = regionSelect.value;
+            
+            if (envId) {
+                const issuerUrl = `${regionUrls[region]}/${envId}`;
+                issuerUrlText.textContent = issuerUrl;
+                
+                // Auto-update the environment ID field in credentials
+                document.getElementById('environment-id').value = envId;
+            }
+        }
+
+        function copyIssuerUrl() {
+            const url = issuerUrlText.textContent;
+            navigator.clipboard.writeText(url).then(() => {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = '✅ Copied!';
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                }, 2000);
+            });
+        }
+
+        // Event listeners
+        envInput.addEventListener('input', updateIssuerUrl);
+        regionSelect.addEventListener('change', () => {
+            updateRegionInfo();
+            updateIssuerUrl();
+        });
+
+        // Initialize
+        updateRegionInfo();
+        updateIssuerUrl();
+    </script>
+</body>
+</html>
