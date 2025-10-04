@@ -1,7 +1,7 @@
 // src/components/OIDCDiscoveryInput.tsx
 /**
  * OIDC Discovery Input Component
- * 
+ *
  * Provides a user-friendly interface for entering issuer URLs and automatically
  * discovering OIDC endpoints. Includes validation, suggestions, and real-time
  * feedback on discovery status.
@@ -10,16 +10,20 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 import { FiGlobe, FiCheck, FiAlertCircle, FiLoader, FiInfo, FiRefreshCw } from 'react-icons/fi';
-import { oidcDiscoveryService, type DiscoveryResult, type OIDCDiscoveryDocument } from '../services/oidcDiscoveryService';
+import {
+	oidcDiscoveryService,
+	type DiscoveryResult,
+	type OIDCDiscoveryDocument,
+} from '../services/oidcDiscoveryService';
 
 interface OIDCDiscoveryInputProps {
-  onDiscoveryComplete?: (result: DiscoveryResult) => void;
-  onCredentialsGenerated?: (credentials: any) => void;
-  initialIssuerUrl?: string;
-  className?: string;
-  disabled?: boolean;
-  showSuggestions?: boolean;
-  autoDiscover?: boolean;
+	onDiscoveryComplete?: (result: DiscoveryResult) => void;
+	onCredentialsGenerated?: (credentials: any) => void;
+	initialIssuerUrl?: string;
+	className?: string;
+	disabled?: boolean;
+	showSuggestions?: boolean;
+	autoDiscover?: boolean;
 }
 
 const Container = styled.div`
@@ -72,14 +76,13 @@ const InputGroup = styled.div`
   align-items: center;
 `;
 
-const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
+const Input = styled.input.withConfig({
+	shouldForwardProp: (prop) => !['hasError', 'hasSuccess'].includes(prop),
+})<{ hasError?: boolean; hasSuccess?: boolean }>`
   flex: 1;
   padding: 0.75rem 2.5rem 0.75rem 2.5rem;
-  border: 1px solid ${props => 
-    props.hasError ? '#ef4444' : 
-    props.hasSuccess ? '#10b981' : 
-    '#d1d5db'
-  };
+  border: 1px solid ${(props) =>
+		props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#d1d5db'};
   border-radius: 6px;
   font-size: 0.875rem;
   background: white;
@@ -88,16 +91,14 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
 
   &:focus {
     outline: none;
-    border-color: ${props => 
-      props.hasError ? '#ef4444' : 
-      props.hasSuccess ? '#10b981' : 
-      '#3b82f6'
-    };
-    box-shadow: 0 0 0 3px ${props => 
-      props.hasError ? 'rgba(239, 68, 68, 0.1)' : 
-      props.hasSuccess ? 'rgba(16, 185, 129, 0.1)' : 
-      'rgba(59, 130, 246, 0.1)'
-    };
+    border-color: ${(props) =>
+			props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#3b82f6'};
+    box-shadow: 0 0 0 3px ${(props) =>
+			props.hasError
+				? 'rgba(239, 68, 68, 0.1)'
+				: props.hasSuccess
+					? 'rgba(16, 185, 129, 0.1)'
+					: 'rgba(59, 130, 246, 0.1)'};
   }
 
   &:disabled {
@@ -107,27 +108,31 @@ const Input = styled.input<{ hasError?: boolean; hasSuccess?: boolean }>`
   }
 `;
 
-const InputIcon = styled.div<{ hasError?: boolean; hasSuccess?: boolean; isLoading?: boolean }>`
+const InputIcon = styled.div.withConfig({
+	shouldForwardProp: (prop) => !['hasError', 'hasSuccess', 'isLoading'].includes(prop),
+})<{ hasError?: boolean; hasSuccess?: boolean; isLoading?: boolean }>`
   position: absolute;
   left: 0.75rem;
-  color: ${props => {
-    if (props.isLoading) return '#3b82f6';
-    if (props.hasError) return '#ef4444';
-    if (props.hasSuccess) return '#10b981';
-    return '#6b7280';
-  }};
+  color: ${(props) => {
+		if (props.isLoading) return '#3b82f6';
+		if (props.hasError) return '#ef4444';
+		if (props.hasSuccess) return '#10b981';
+		return '#6b7280';
+	}};
   z-index: 1;
 `;
 
-const DiscoverButton = styled.button<{ isLoading?: boolean }>`
+const DiscoverButton = styled.button.withConfig({
+	shouldForwardProp: (prop) => !['isLoading'].includes(prop),
+})<{ isLoading?: boolean }>`
   position: absolute;
   right: 0.5rem;
   padding: 0.5rem;
-  background: ${props => props.isLoading ? '#f3f4f6' : '#3b82f6'};
-  color: ${props => props.isLoading ? '#6b7280' : 'white'};
+  background: ${(props) => (props.isLoading ? '#f3f4f6' : '#3b82f6')};
+  color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
   border: none;
   border-radius: 4px;
-  cursor: ${props => props.isLoading ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -140,6 +145,32 @@ const DiscoverButton = styled.button<{ isLoading?: boolean }>`
 
   &:disabled {
     cursor: not-allowed;
+  }
+`;
+
+const ClearButton = styled.button`
+  padding: 0.5rem 1rem;
+  background: #f8fafc;
+  color: #6b7280;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+
+  &:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #475569;
+  }
+
+  &:active {
+    background: #e2e8f0;
   }
 `;
 
@@ -185,33 +216,48 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
   gap: 0.5rem;
   padding: 0.75rem;
   border-radius: 6px;
-  background: ${props => {
-    switch (props.type) {
-      case 'success': return '#f0fdf4';
-      case 'error': return '#fef2f2';
-      case 'info': return '#eff6ff';
-      case 'loading': return '#f8fafc';
-      default: return '#f8fafc';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.type) {
-      case 'success': return '#bbf7d0';
-      case 'error': return '#fecaca';
-      case 'info': return '#bfdbfe';
-      case 'loading': return '#e2e8f0';
-      default: return '#e2e8f0';
-    }
-  }};
-  color: ${props => {
-    switch (props.type) {
-      case 'success': return '#166534';
-      case 'error': return '#dc2626';
-      case 'info': return '#1d4ed8';
-      case 'loading': return '#475569';
-      default: return '#475569';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return '#f0fdf4';
+			case 'error':
+				return '#fef2f2';
+			case 'info':
+				return '#eff6ff';
+			case 'loading':
+				return '#f8fafc';
+			default:
+				return '#f8fafc';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return '#bbf7d0';
+			case 'error':
+				return '#fecaca';
+			case 'info':
+				return '#bfdbfe';
+			case 'loading':
+				return '#e2e8f0';
+			default:
+				return '#e2e8f0';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return '#166534';
+			case 'error':
+				return '#dc2626';
+			case 'info':
+				return '#1d4ed8';
+			case 'loading':
+				return '#475569';
+			default:
+				return '#475569';
+		}
+	}};
 `;
 
 const StatusText = styled.div`
@@ -255,210 +301,300 @@ const ErrorMessage = styled.div`
 `;
 
 const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
-  onDiscoveryComplete,
-  onCredentialsGenerated,
-  initialIssuerUrl = '',
-  className,
-  disabled = false,
-  showSuggestions = true,
-  autoDiscover = false
+	onDiscoveryComplete,
+	onCredentialsGenerated,
+	initialIssuerUrl = '',
+	className,
+	disabled = false,
+	showSuggestions = true,
+	autoDiscover = false,
 }) => {
-  const [issuerUrl, setIssuerUrl] = useState(initialIssuerUrl);
-  const [isDiscovering, setIsDiscovering] = useState(false);
-  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
+	// Load saved settings from localStorage
+	const loadSavedSettings = useCallback(() => {
+		try {
+			const saved = localStorage.getItem('oidc-discovery-settings');
+			if (saved) {
+				const settings = JSON.parse(saved);
+				return {
+					issuerUrl: settings.issuerUrl || initialIssuerUrl || '',
+					discoveryResult: settings.discoveryResult || null,
+					error: settings.error || null,
+				};
+			}
+		} catch (error) {
+			console.warn('Failed to load OIDC Discovery settings:', error);
+		}
+		return {
+			issuerUrl: initialIssuerUrl || '',
+			discoveryResult: null,
+			error: null,
+		};
+	}, [initialIssuerUrl]);
 
-  const suggestedIssuers = oidcDiscoveryService.getSuggestedIssuers();
+	const [issuerUrl, setIssuerUrl] = useState(initialIssuerUrl);
+	const [isDiscovering, setIsDiscovering] = useState(false);
+	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+	const [error, setError] = useState<string | null>(null);
 
-  const handleDiscover = useCallback(async () => {
-    if (!issuerUrl.trim()) {
-      setError('Please enter an issuer URL');
-      return;
-    }
+	// Initialize state from saved settings
+	useEffect(() => {
+		const savedSettings = loadSavedSettings();
+		setIssuerUrl(savedSettings.issuerUrl);
+		setDiscoveryResult(savedSettings.discoveryResult);
+		setError(savedSettings.error);
+	}, [loadSavedSettings]);
 
-    setIsDiscovering(true);
-    setError(null);
-    setDiscoveryResult(null);
+	// Save settings to localStorage whenever they change
+	useEffect(() => {
+		const settings = {
+			issuerUrl,
+			discoveryResult,
+			error,
+		};
+		try {
+			localStorage.setItem('oidc-discovery-settings', JSON.stringify(settings));
+		} catch (error) {
+			console.warn('Failed to save OIDC Discovery settings:', error);
+		}
+	}, [issuerUrl, discoveryResult, error]);
 
-    try {
-      const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
-      setDiscoveryResult(result);
+	const suggestedIssuers = oidcDiscoveryService.getSuggestedIssuers();
 
-      if (result.success && result.document) {
-        onDiscoveryComplete?.(result);
-      } else {
-        setError(result.error || 'Discovery failed');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
-      setError(errorMessage);
-      setDiscoveryResult({
-        success: false,
-        error: errorMessage
-      });
-    } finally {
-      setIsDiscovering(false);
-    }
-  }, [issuerUrl, onDiscoveryComplete]);
+	// Clear saved settings
+	const clearSavedSettings = useCallback(() => {
+		try {
+			localStorage.removeItem('oidc-discovery-settings');
+			setIssuerUrl(initialIssuerUrl);
+			setDiscoveryResult(null);
+			setError(null);
+		} catch (error) {
+			console.warn('Failed to clear OIDC Discovery settings:', error);
+		}
+	}, [initialIssuerUrl]);
 
-  const handleSuggestionClick = useCallback((suggestion: string) => {
-    setIssuerUrl(suggestion);
-    setError(null);
-    setDiscoveryResult(null);
-  }, []);
+	const handleDiscover = useCallback(async () => {
+		if (!issuerUrl.trim()) {
+			setError('Please enter an issuer URL');
+			return;
+		}
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setIssuerUrl(e.target.value);
-    setError(null);
-    if (discoveryResult) {
-      setDiscoveryResult(null);
-    }
-  }, [discoveryResult]);
+		// Validate URL format before attempting discovery
+		try {
+			const url = new URL(issuerUrl.trim());
+			if (!url.hostname.includes('pingone')) {
+				setError('Only PingOne issuer URLs are supported. Please use a URL like https://auth.pingone.com/{environment-id}');
+				return;
+			}
+		} catch (urlError) {
+			setError('Please enter a valid URL');
+			return;
+		}
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isDiscovering && !disabled) {
-      handleDiscover();
-    }
-  }, [handleDiscover, isDiscovering, disabled]);
+		setIsDiscovering(true);
+		setError(null);
+		setDiscoveryResult(null);
 
-  // Auto-discover on mount if autoDiscover is enabled and we have an initial URL
-  useEffect(() => {
-    if (autoDiscover && initialIssuerUrl && !discoveryResult) {
-      handleDiscover();
-    }
-  }, [autoDiscover, initialIssuerUrl, discoveryResult, handleDiscover]);
+		try {
+			console.log('[OIDC Discovery Input] Starting discovery for URL:', issuerUrl.trim());
+			const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
+			setDiscoveryResult(result);
 
-  const renderStatus = () => {
-    if (isDiscovering) {
-      return (
-        <StatusContainer type="loading">
-          <FiLoader className="animate-spin" />
-          <StatusText>Discovering OIDC endpoints...</StatusText>
-        </StatusContainer>
-      );
-    }
+			if (result.success && result.document) {
+				onDiscoveryComplete?.(result);
+			} else {
+				setError(result.error || 'Discovery failed');
+			}
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
+			console.error('[OIDC Discovery Input] Discovery failed:', errorMessage);
+			setError(errorMessage);
+			setDiscoveryResult({
+				success: false,
+				error: errorMessage,
+			});
+		} finally {
+			setIsDiscovering(false);
+		}
+	}, [issuerUrl, onDiscoveryComplete]);
 
-    if (discoveryResult?.success) {
-      return (
-        <StatusContainer type="success">
-          <FiCheck />
-          <StatusText>
-            Successfully discovered OIDC endpoints
-            {discoveryResult.cached && ' (cached)'}
-          </StatusText>
-        </StatusContainer>
-      );
-    }
+	const handleSuggestionClick = useCallback((suggestion: string) => {
+		setIssuerUrl(suggestion);
+		setError(null);
+		setDiscoveryResult(null);
+	}, []);
 
-    if (discoveryResult && !discoveryResult.success) {
-      return (
-        <StatusContainer type="error">
-          <FiAlertCircle />
-          <StatusText>Discovery failed: {discoveryResult.error}</StatusText>
-        </StatusContainer>
-      );
-    }
+	const handleInputChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setIssuerUrl(e.target.value);
+			setError(null);
+			if (discoveryResult) {
+				setDiscoveryResult(null);
+			}
+		},
+		[discoveryResult]
+	);
 
-    return null;
-  };
+	const handleKeyPress = useCallback(
+		(e: React.KeyboardEvent) => {
+			if (e.key === 'Enter' && !isDiscovering && !disabled) {
+				handleDiscover();
+			}
+		},
+		[handleDiscover, isDiscovering, disabled]
+	);
 
-  const renderEndpoints = () => {
-    if (!discoveryResult?.success || !discoveryResult.document) {
-      return null;
-    }
+	// Auto-discover on mount if autoDiscover is enabled and we have an initial URL
+	useEffect(() => {
+		if (autoDiscover && initialIssuerUrl && !discoveryResult) {
+			handleDiscover();
+		}
+	}, [autoDiscover, initialIssuerUrl, discoveryResult, handleDiscover]);
 
-    const doc = discoveryResult.document;
-    const endpoints = [
-      { label: 'Authorization', url: doc.authorization_endpoint },
-      { label: 'Token', url: doc.token_endpoint },
-      ...(doc.userinfo_endpoint ? [{ label: 'UserInfo', url: doc.userinfo_endpoint }] : []),
-      ...(doc.end_session_endpoint ? [{ label: 'End Session', url: doc.end_session_endpoint }] : []),
-      ...(doc.device_authorization_endpoint ? [{ label: 'Device Auth', url: doc.device_authorization_endpoint }] : []),
-      ...(doc.pushed_authorization_request_endpoint ? [{ label: 'PAR', url: doc.pushed_authorization_request_endpoint }] : [])
-    ];
+	const renderStatus = () => {
+		if (isDiscovering) {
+			return (
+				<StatusContainer type="loading">
+					<FiLoader className="animate-spin" />
+					<StatusText>Discovering OIDC endpoints...</StatusText>
+				</StatusContainer>
+			);
+		}
 
-    return (
-      <EndpointsList>
-        {endpoints.map((endpoint, index) => (
-          <EndpointItem key={index}>
-            <EndpointLabel>{endpoint.label}:</EndpointLabel>
-            <EndpointUrl>{endpoint.url}</EndpointUrl>
-          </EndpointItem>
-        ))}
-      </EndpointsList>
-    );
-  };
+		if (discoveryResult?.success) {
+			return (
+				<StatusContainer type="success">
+					<FiCheck />
+					<StatusText>
+						Successfully discovered OIDC endpoints
+						{discoveryResult.cached && ' (cached)'}
+					</StatusText>
+				</StatusContainer>
+			);
+		}
 
-  return (
-    <Container className={className}>
-      <Header>
-        <FiGlobe />
-        <Title>OIDC Discovery</Title>
-      </Header>
-      
-      <Description>
-        Enter your OIDC issuer URL to automatically discover all available endpoints.
-        This eliminates the need to manually configure authorization, token, and other endpoints.
-      </Description>
+		if (discoveryResult && !discoveryResult.success) {
+			return (
+				<StatusContainer type="error">
+					<FiAlertCircle />
+					<StatusText>Discovery failed: {discoveryResult.error}</StatusText>
+				</StatusContainer>
+			);
+		}
 
-      <InputContainer>
-        <Label htmlFor="issuer-url">Issuer URL</Label>
-        <InputGroup>
-          <InputIcon 
-            hasError={!!error} 
-            hasSuccess={discoveryResult?.success} 
-            isLoading={isDiscovering}
-          >
-            {isDiscovering ? <FiLoader className="animate-spin" /> : <FiGlobe />}
-          </InputIcon>
-          
-          <Input
-            id="issuer-url"
-            type="url"
-            value={issuerUrl}
-            onChange={handleInputChange}
-            onKeyPress={handleKeyPress}
-            placeholder="https://auth.pingone.com/your-environment-id"
-            hasError={!!error}
-            hasSuccess={discoveryResult?.success}
-            disabled={disabled || isDiscovering}
-          />
-          
-          <DiscoverButton
-            onClick={handleDiscover}
-            disabled={disabled || isDiscovering || !issuerUrl.trim()}
-            isLoading={isDiscovering}
-            title="Discover OIDC endpoints"
-          >
-            {isDiscovering ? <FiLoader className="animate-spin" /> : <FiRefreshCw />}
-          </DiscoverButton>
-        </InputGroup>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-      </InputContainer>
+		return null;
+	};
 
-      {showSuggestions && (
-        <SuggestionsContainer>
-          <SuggestionsLabel>Suggested PingOne Issuers</SuggestionsLabel>
-          <SuggestionsList>
-            {suggestedIssuers.map((suggestion, index) => (
-              <SuggestionButton
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion.value)}
-                disabled={disabled}
-                title={`${suggestion.label} - ${suggestion.region.toUpperCase()} region`}
-              >
-                {suggestion.label}
-              </SuggestionButton>
-            ))}
-          </SuggestionsList>
-        </SuggestionsContainer>
-      )}
+	const renderEndpoints = () => {
+		if (!discoveryResult?.success || !discoveryResult.document) {
+			return null;
+		}
 
-      {renderStatus()}
-      {renderEndpoints()}
-    </Container>
-  );
+		const doc = discoveryResult.document;
+		const endpoints = [
+			{ label: 'Authorization', url: doc.authorization_endpoint },
+			{ label: 'Token', url: doc.token_endpoint },
+			...(doc.userinfo_endpoint ? [{ label: 'UserInfo', url: doc.userinfo_endpoint }] : []),
+			...(doc.end_session_endpoint
+				? [{ label: 'End Session', url: doc.end_session_endpoint }]
+				: []),
+			...(doc.device_authorization_endpoint
+				? [{ label: 'Device Auth', url: doc.device_authorization_endpoint }]
+				: []),
+			...(doc.pushed_authorization_request_endpoint
+				? [{ label: 'PAR', url: doc.pushed_authorization_request_endpoint }]
+				: []),
+		];
+
+		return (
+			<EndpointsList>
+				{endpoints.map((endpoint, index) => (
+					<EndpointItem key={index}>
+						<EndpointLabel>{endpoint.label}:</EndpointLabel>
+						<EndpointUrl>{endpoint.url}</EndpointUrl>
+					</EndpointItem>
+				))}
+			</EndpointsList>
+		);
+	};
+
+	return (
+		<Container className={className}>
+			<Header>
+				<FiGlobe />
+				<Title>OIDC Discovery</Title>
+			</Header>
+
+			<Description>
+				Enter your OIDC issuer URL to automatically discover all available endpoints. This
+				eliminates the need to manually configure authorization, token, and other endpoints.
+			</Description>
+
+			<InputContainer>
+				<Label htmlFor="issuer-url">Issuer URL</Label>
+				<InputGroup>
+					<InputIcon
+						hasError={!!error}
+						hasSuccess={discoveryResult?.success}
+						isLoading={isDiscovering}
+					>
+						{isDiscovering ? <FiLoader className="animate-spin" /> : <FiGlobe />}
+					</InputIcon>
+
+					<Input
+						id="issuer-url"
+						type="url"
+						value={issuerUrl}
+						onChange={handleInputChange}
+						onKeyPress={handleKeyPress}
+						placeholder="https://auth.pingone.com/your-environment-id"
+						hasError={!!error}
+						hasSuccess={discoveryResult?.success}
+						disabled={disabled || isDiscovering}
+					/>
+
+					<DiscoverButton
+						onClick={handleDiscover}
+						disabled={disabled || isDiscovering || !issuerUrl.trim()}
+						isLoading={isDiscovering}
+						title="Discover OIDC endpoints"
+					>
+						{isDiscovering ? <FiLoader className="animate-spin" /> : <FiRefreshCw />}
+					</DiscoverButton>
+				</InputGroup>
+
+				{error && <ErrorMessage>{error}</ErrorMessage>}
+			</InputContainer>
+
+			{showSuggestions && (
+				<SuggestionsContainer>
+					<SuggestionsLabel>Suggested PingOne Issuers</SuggestionsLabel>
+					<SuggestionsList>
+						{suggestedIssuers.map((suggestion, index) => (
+							<SuggestionButton
+								key={index}
+								onClick={() => handleSuggestionClick(suggestion.value)}
+								disabled={disabled}
+								title={`${suggestion.label} - ${suggestion.region.toUpperCase()} region`}
+							>
+								{suggestion.label}
+							</SuggestionButton>
+						))}
+					</SuggestionsList>
+				</SuggestionsContainer>
+			)}
+
+			{/* Clear Settings Button */}
+			{(issuerUrl || discoveryResult || error) && (
+				<ClearButton onClick={clearSavedSettings}>
+					<FiRefreshCw size={16} />
+					Clear Settings
+				</ClearButton>
+			)}
+
+			{renderStatus()}
+			{renderEndpoints()}
+		</Container>
+	);
 };
 
 export default OIDCDiscoveryInput;

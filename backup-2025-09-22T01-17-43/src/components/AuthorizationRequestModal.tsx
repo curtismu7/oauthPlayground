@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useId } from 'react';
 import styled from 'styled-components';
 import { FiExternalLink, FiCopy, FiCheck, FiX } from 'react-icons/fi';
 import ColorCodedURL from './ColorCodedURL';
@@ -245,6 +245,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 }) => {
 	const [copied, setCopied] = React.useState(false);
 	const [dontShowAgain, setDontShowAgain] = React.useState(false);
+	const checkboxId = useId();
 
 	// Handle escape key to close modal
 	useEffect(() => {
@@ -288,7 +289,7 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 			<ModalContent>
 				<ModalHeader>
 					<h2>🔐 OAuth Authorization Request</h2>
-					<button className="close-button" onClick={onClose}>
+					<button type="button" className="close-button" onClick={onClose}>
 						<FiX />
 					</button>
 				</ModalHeader>
@@ -331,11 +332,11 @@ const AuthorizationRequestModal: React.FC<AuthorizationRequestModalProps> = ({
 					<CheckboxContainer>
 						<input
 							type="checkbox"
-							id="dontShowAgain"
+							id={checkboxId}
 							checked={dontShowAgain}
 							onChange={(e) => setDontShowAgain(e.target.checked)}
 						/>
-						<label htmlFor="dontShowAgain">Do not show this modal again</label>
+						<label htmlFor={checkboxId}>Do not show this modal again</label>
 					</CheckboxContainer>
 
 					<ActionButtons>
