@@ -11,7 +11,7 @@ export interface ServerHealth {
 export const useServerHealth = (checkInterval: number = 30000) => {
 	const [health, setHealth] = useState<ServerHealth>({
 		isOnline: false,
-		isChecking: true,
+		isChecking: false, // Start as not checking when disabled
 		lastChecked: null,
 		error: null,
 		retryCount: 0,
@@ -63,14 +63,16 @@ export const useServerHealth = (checkInterval: number = 30000) => {
 		}
 	}, []);
 
-	// Initial check with delay to allow backend to start
+	// Initial check with delay to allow backend to start - only if checkInterval > 0
 	useEffect(() => {
-		const timer = setTimeout(() => {
-			checkHealth();
-		}, 2000); // 2 second delay
+		if (checkInterval > 0) {
+			const timer = setTimeout(() => {
+				checkHealth();
+			}, 2000); // 2 second delay
 
-		return () => clearTimeout(timer);
-	}, [checkHealth]);
+			return () => clearTimeout(timer);
+		}
+	}, [checkHealth, checkInterval]);
 
 	// Periodic checks
 	useEffect(() => {

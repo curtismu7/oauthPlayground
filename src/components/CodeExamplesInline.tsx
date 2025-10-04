@@ -1,10 +1,10 @@
 // src/components/CodeExamplesInline.tsx
 
 import React, { useState } from 'react';
+import { FiCheck, FiChevronDown, FiCode, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCode, FiChevronDown, FiChevronUp, FiCopy, FiCheck } from 'react-icons/fi';
+import { CodeExamplesConfig, SupportedLanguage } from '../services/codeExamplesService';
 import { CodeExamplesDisplay } from './CodeExamplesDisplay';
-import { SupportedLanguage, CodeExamplesConfig } from '../services/codeExamplesService';
 
 interface CodeExamplesInlineProps {
 	flowType: string;
@@ -24,9 +24,9 @@ const Container = styled.div`
 const ToggleButton = styled.button<{ $isOpen: boolean }>`
 	width: 100%;
 	padding: 0.75rem 1rem;
-	background: ${({ $isOpen }) => $isOpen ? '#e2e8f0' : '#f8fafc'};
+	background: ${({ $isOpen }) => ($isOpen ? '#e2e8f0' : '#f8fafc')};
 	border: none;
-	border-bottom: ${({ $isOpen }) => $isOpen ? '1px solid #e2e8f0' : 'none'};
+	border-bottom: ${({ $isOpen }) => ($isOpen ? '1px solid #e2e8f0' : 'none')};
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -41,7 +41,7 @@ const ToggleButton = styled.button<{ $isOpen: boolean }>`
 `;
 
 const ToggleContent = styled.div<{ $isOpen: boolean }>`
-	max-height: ${({ $isOpen }) => $isOpen ? '1000px' : '0'};
+	max-height: ${({ $isOpen }) => ($isOpen ? '1000px' : '0')};
 	overflow: hidden;
 	transition: max-height 0.3s ease;
 `;
@@ -89,9 +89,9 @@ const LanguageTabs = styled.div`
 
 const LanguageTab = styled.button<{ $active: boolean }>`
 	padding: 0.375rem 0.75rem;
-	background: ${({ $active }) => $active ? '#3b82f6' : '#ffffff'};
-	color: ${({ $active }) => $active ? '#ffffff' : '#374151'};
-	border: 1px solid ${({ $active }) => $active ? '#3b82f6' : '#d1d5db'};
+	background: ${({ $active }) => ($active ? '#3b82f6' : '#ffffff')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#374151')};
+	border: 1px solid ${({ $active }) => ($active ? '#3b82f6' : '#d1d5db')};
 	border-radius: 6px 6px 0 0;
 	font-size: 0.875rem;
 	font-weight: 500;
@@ -99,7 +99,7 @@ const LanguageTab = styled.button<{ $active: boolean }>`
 	transition: all 0.2s ease;
 
 	&:hover {
-		background: ${({ $active }) => $active ? '#2563eb' : '#f3f4f6'};
+		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
 	}
 `;
 
@@ -139,7 +139,9 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 	// Get a quick preview of the code
 	const getQuickPreview = (code: string): string => {
 		const lines = code.split('\n');
-		return lines.slice(0, 8).join('\n') + (lines.length > 8 ? '\n// ... (click to see full code)' : '');
+		return (
+			lines.slice(0, 8).join('\n') + (lines.length > 8 ? '\n// ... (click to see full code)' : '')
+		);
 	};
 
 	const handleCopyCode = async (code: string) => {
@@ -160,28 +162,40 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 						<FiCode />
 						Code Examples
 					</span>
-					{isOpen ? <FiChevronUp /> : <FiChevronDown />}
+					<FiChevronDown
+						style={{
+							transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+							transition: 'transform 0.2s ease',
+						}}
+					/>
 				</ToggleButton>
-				
+
 				<ToggleContent $isOpen={isOpen}>
 					<LanguageTabs>
-						{['javascript', 'typescript', 'go', 'ruby', 'python'].map(lang => (
+						{['javascript', 'typescript', 'go', 'ruby', 'python'].map((lang) => (
 							<LanguageTab
 								key={lang}
 								$active={selectedLanguage === lang}
 								onClick={() => setSelectedLanguage(lang as SupportedLanguage)}
 							>
-								{getLanguageIcon(lang as SupportedLanguage)} {getLanguageDisplayName(lang as SupportedLanguage)}
+								{getLanguageIcon(lang as SupportedLanguage)}{' '}
+								{getLanguageDisplayName(lang as SupportedLanguage)}
 							</LanguageTab>
 						))}
 					</LanguageTabs>
-					
+
 					<QuickCodePreview>
-						<CopyButton onClick={() => handleCopyCode('// Code preview - click to see full examples')}>
+						<CopyButton
+							onClick={() => handleCopyCode('// Code preview - click to see full examples')}
+						>
 							{copiedCode ? <FiCheck /> : <FiCopy />}
 							{copiedCode ? 'Copied!' : 'Copy'}
 						</CopyButton>
-						<pre>{getQuickPreview('// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation')}</pre>
+						<pre>
+							{getQuickPreview(
+								'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
+							)}
+						</pre>
 					</QuickCodePreview>
 				</ToggleContent>
 			</Container>
@@ -195,15 +209,16 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 					<FiCode />
 					Code Examples ({flowType} - {stepId})
 				</span>
-				{isOpen ? <FiChevronUp /> : <FiChevronDown />}
-			</ToggleButton>
-			
-			<ToggleContent $isOpen={isOpen}>
-				<CodeExamplesDisplay
-					flowType={flowType}
-					stepId={stepId}
-					config={config || {}}
+				<FiChevronDown
+					style={{
+						transform: isOpen ? 'rotate(0deg)' : 'rotate(-90deg)',
+						transition: 'transform 0.2s ease',
+					}}
 				/>
+			</ToggleButton>
+
+			<ToggleContent $isOpen={isOpen}>
+				<CodeExamplesDisplay flowType={flowType} stepId={stepId} config={config || {}} />
 			</ToggleContent>
 		</Container>
 	);

@@ -1,4 +1,4 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react';
 import { logger } from '../utils/logger';
 
 interface Props {
@@ -21,11 +21,11 @@ class AuthErrorBoundary extends Component<Props, State> {
 		return { hasError: true, error };
 	}
 
-	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
 		logger.error('AuthErrorBoundary', 'Caught error in auth context', { error, errorInfo });
 	}
 
-	render() {
+	override render() {
 		if (this.state.hasError) {
 			// You can render any custom fallback UI
 			return (
@@ -44,6 +44,7 @@ class AuthErrorBoundary extends Component<Props, State> {
 						There was an error with the authentication system. Please refresh the page.
 					</p>
 					<button
+						type="button"
 						onClick={() => window.location.reload()}
 						style={{
 							backgroundColor: '#dc2626',

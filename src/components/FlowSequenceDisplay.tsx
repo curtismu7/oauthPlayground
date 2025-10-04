@@ -223,7 +223,7 @@ interface FlowSequenceDisplayProps {
 }
 
 export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowType }) => {
-	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [isCollapsed, setIsCollapsed] = useState(true);
 	const sequence = getFlowSequence(flowType);
 
 	if (!sequence) {
