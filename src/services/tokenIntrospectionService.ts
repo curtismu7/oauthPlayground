@@ -27,7 +27,15 @@ export interface IntrospectionResponse {
 }
 
 export interface IntrospectionApiCallData extends EnhancedApiCallData {
-	flowType: 'authorization-code' | 'implicit' | 'client-credentials' | 'device-code' | 'rar' | 'hybrid' | 'ciba' | 'worker-token';
+	flowType:
+		| 'authorization-code'
+		| 'implicit'
+		| 'client-credentials'
+		| 'device-code'
+		| 'rar'
+		| 'hybrid'
+		| 'ciba'
+		| 'worker-token';
 	stepName: 'Token Introspection';
 }
 
@@ -47,16 +55,16 @@ export class TokenIntrospectionService {
 			method: 'POST' as const,
 			headers: {
 				'Content-Type': 'application/x-www-form-urlencoded',
-				'Accept': 'application/json'
+				Accept: 'application/json',
 			},
 			body: {
 				token: request.token,
 				token_type_hint: request.tokenTypeHint || 'access_token',
 				client_id: request.clientId,
-				...(request.clientSecret && { client_secret: '***REDACTED***' })
+				...(request.clientSecret && { client_secret: '***REDACTED***' }),
 			},
 			timestamp: new Date(),
-			description: 'Introspect access token to validate its current state and metadata'
+			description: 'Introspect access token to validate its current state and metadata',
 		};
 	}
 
@@ -66,7 +74,8 @@ export class TokenIntrospectionService {
 	static async introspectToken(
 		request: IntrospectionRequest,
 		flowType: IntrospectionApiCallData['flowType'],
-		baseUrl: string = '/api/introspect'
+		baseUrl: string = '/api/introspect',
+		introspectionEndpoint?: string
 	): Promise<{
 		apiCall: IntrospectionApiCallData;
 		response: IntrospectionResponse;
@@ -81,14 +90,18 @@ export class TokenIntrospectionService {
 			if (request.clientSecret) {
 				formData.append('client_secret', request.clientSecret);
 			}
+			// Add introspection endpoint if provided
+			if (introspectionEndpoint) {
+				formData.append('introspection_endpoint', introspectionEndpoint);
+			}
 
 			const response = await fetch(baseUrl, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
-					'Accept': 'application/json'
+					Accept: 'application/json',
 				},
-				body: formData
+				body: formData,
 			});
 
 			const data = await response.json();
@@ -100,13 +113,13 @@ export class TokenIntrospectionService {
 					status: response.status,
 					statusText: response.statusText,
 					headers: { 'Content-Type': 'application/json' },
-					data: data
-				}
+					data: data,
+				},
 			};
 
 			return {
 				apiCall: updatedApiCall,
-				response: data as IntrospectionResponse
+				response: data as IntrospectionResponse,
 			};
 		} catch (error) {
 			// Update API call with error
@@ -116,13 +129,13 @@ export class TokenIntrospectionService {
 					status: 500,
 					statusText: 'Internal Server Error',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
-				}
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
 			};
 
 			throw {
 				apiCall: errorApiCall,
-				error: error instanceof Error ? error.message : 'Unknown error'
+				error: error instanceof Error ? error.message : 'Unknown error',
 			};
 		}
 	}
@@ -137,15 +150,15 @@ export class TokenIntrospectionService {
 		baseUrl: string = '/api/introspect'
 	): IntrospectionApiCallData {
 		const apiCall = this.createIntrospectionApiCall(request, flowType, baseUrl);
-		
+
 		return {
 			...apiCall,
 			response: {
 				status: 200,
 				statusText: 'OK',
 				headers: { 'Content-Type': 'application/json' },
-				data: response
-			}
+				data: response,
+			},
 		};
 	}
 
@@ -160,23 +173,18 @@ export class TokenIntrospectionService {
 		baseUrl: string = '/api/introspect'
 	): IntrospectionApiCallData {
 		const apiCall = this.createIntrospectionApiCall(request, flowType, baseUrl);
-		
+
 		return {
 			...apiCall,
 			response: {
 				status,
 				statusText: status === 400 ? 'Bad Request' : 'Internal Server Error',
 				headers: { 'Content-Type': 'application/json' },
-				error
-			}
+				error,
+			},
 		};
 	}
 }
 
 export default TokenIntrospectionService;
-
-
-
-
-
 

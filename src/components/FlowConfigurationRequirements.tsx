@@ -313,11 +313,14 @@ const FlowConfigurationRequirements: React.FC<FlowConfigurationRequirementsProps
 					</Title>
 				</HeaderLeft>
 				<CollapseIcon>
-					{isCollapsed ? (
-						<FiChevronDown size={16} color="white" />
-					) : (
-						<FiChevronUp size={16} color="white" />
-					)}
+					<FiChevronDown
+						size={16}
+						color="white"
+						style={{
+							transform: isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)',
+							transition: 'transform 0.2s ease',
+						}}
+					/>
 				</CollapseIcon>
 			</Header>
 

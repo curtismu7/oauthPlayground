@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+	FiArrowRight,
 	FiCheckCircle,
 	FiClock,
 	FiCode,
@@ -38,25 +39,7 @@ const ComparisonContainer = styled.div`
   padding: 1.5rem;
 `;
 
-const PageHeader = styled.div`
-  text-align: center;
-  margin-bottom: 2rem;
-  
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 1rem;
-  }
-  
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    font-size: 1.2rem;
-    max-width: 600px;
-    margin: 0 auto;
-    line-height: 1.6;
-  }
-`;
+// Remove PageHeader since we now use FlowHeader
 
 const FlowSelector = styled.div`
   display: flex;
@@ -339,135 +322,152 @@ const EmptyState = styled.div`
 
 const availableFlows: FlowComparison[] = [
 	{
-		id: 'authz-code-v5',
-		title: 'Authorization Code Flow V5 (Template)',
+		id: 'oauth-authz-code-v5',
+		title: 'OAuth 2.0 Authorization Code V5',
 		description:
-			'Reusable OAuth + OIDC template with PKCE, backend exchange, refresh tokens, and modular steps',
+			'Modern OAuth 2.0 Authorization Code flow with PKCE, comprehensive token management, and educational features',
 		icon: <FiTarget />,
 		security: 'high',
 		complexity: 'medium',
 		implementationTime: '2-4 hours',
-		useCases: [
-			'Reusable templates',
-			'Production integrations',
-			'Client workshops',
-			'SPAs with backend',
-		],
+		useCases: ['Web applications', 'SPAs with backend', 'Mobile apps', 'Production integrations'],
 		pros: [
-			'Unified controller hook for new flows',
-			'Popup and redirect authorization supported',
-			'Backend token exchange with refresh workflow',
-			'Inline education panels and persistent step state',
-			'Easiest starting point for new flows',
+			'PKCE support for enhanced security',
+			'Refresh token management',
+			'Comprehensive token introspection',
+			'Educational step-by-step guidance',
+			'Real PingOne integration',
 		],
-		cons: ['Requires backend token endpoint', 'Needs real PingOne configuration to demo'],
+		cons: ['Requires backend token endpoint', 'More complex than implicit flow'],
 		route: '/flows/oauth-authorization-code-v5',
 		recommended: true,
 	},
 	{
-		id: 'oauth-v3',
-		title: 'Authorization Code Flow V3 (OAuth)',
-		description: 'Deep-dive OAuth-only experience focused on API access and debugging',
-		icon: <FiCode />,
-		security: 'high',
-		complexity: 'medium',
-		implementationTime: '2-4 hours',
-		useCases: ['API-only access', 'Credential debugging', 'Legacy OAuth 2.0 scenarios'],
-		pros: [
-			'Extensive logging and storage inspection',
-			'PKCE and refresh token coverage',
-			'Great for understanding pure OAuth without ID token noise',
-		],
-		cons: ['No user profile walkthrough', 'More verbose UI than V5 template'],
-		route: '/flows/oauth-authorization-code-v3',
-		recommended: true,
-	},
-	{
-		id: 'oidc-v3',
-		title: 'Authorization Code Flow V3 (OIDC)',
+		id: 'oidc-authz-code-v5',
+		title: 'OIDC Authorization Code V5',
 		description:
-			'Educational OpenID Connect walkthrough including ID token validation and UserInfo demos',
+			'OpenID Connect Authorization Code flow with ID token validation, user claims, and profile management',
 		icon: <FiShield />,
 		security: 'high',
 		complexity: 'medium',
 		implementationTime: '2-4 hours',
-		useCases: ['Authentication training', 'OIDC workshops', 'Token validation demos'],
+		useCases: [
+			'User authentication',
+			'Profile management',
+			'Identity verification',
+			'Single Sign-On (SSO)',
+		],
 		pros: [
-			'Step-by-step education with modal tips',
-			'ID token validation and custom claim checking',
-			'UserInfo integration with debug tooling',
+			'ID token validation and parsing',
+			'UserInfo endpoint integration',
+			'Custom claim handling',
+			'JWT signature verification',
+			'Complete user profile access',
 		],
-		cons: [
-			'Less reusable than the V5 template',
-			'UI optimized for education rather than production',
-		],
-		route: '/flows/enhanced-authorization-code-v3',
+		cons: ['Requires OIDC configuration', 'More complex than OAuth-only flows'],
+		route: '/flows/oidc-authorization-code-v5',
 		recommended: true,
 	},
 	{
-		id: 'client-credentials',
-		title: 'Client Credentials',
-		description: 'Machine-to-machine authentication',
-		icon: <FiUser />,
-		security: 'high',
-		complexity: 'low',
-		implementationTime: '1-2 hours',
-		useCases: ['Server-to-Server', 'Background Processes', 'API Services'],
-		pros: [
-			'Simple implementation',
-			'No user interaction',
-			'Perfect for APIs',
-			'Fast authentication',
-		],
-		cons: ['No user context', 'Limited to machine access', 'Requires client credentials'],
-		route: '/flows/client-credentials',
-		recommended: true,
-	},
-	{
-		id: 'implicit',
-		title: 'Implicit Grant',
-		description: 'Simplified flow for client-side apps (deprecated)',
-		icon: <FiCode />,
+		id: 'oauth-implicit-v5',
+		title: 'OAuth 2.0 Implicit Flow V5',
+		description:
+			'Legacy implicit flow for educational purposes and understanding security considerations',
+		icon: <FiArrowRight />,
 		security: 'low',
 		complexity: 'low',
 		implementationTime: '1-2 hours',
-		useCases: ['Legacy SPAs', 'Client-side only apps'],
-		pros: ['Simple implementation', 'No backend required', 'Direct token access'],
+		useCases: ['Educational purposes', 'Understanding legacy flows', 'Security comparison'],
+		pros: [
+			'Simple implementation',
+			'No backend required',
+			'Direct token access',
+			'Good for learning OAuth concepts',
+		],
 		cons: [
 			'Deprecated by OAuth 2.1',
 			'No refresh tokens',
 			'Tokens in URL fragment',
 			'Security vulnerabilities',
 		],
-		route: '/flows/implicit',
+		route: '/flows/oauth-implicit-v5',
 		recommended: false,
 	},
 	{
-		id: 'device-code',
-		title: 'Device Code',
-		description: 'For devices with limited input capabilities',
-		icon: <FiClock />,
-		security: 'medium',
-		complexity: 'medium',
-		implementationTime: '3-5 hours',
-		useCases: ['Smart TVs', 'IoT Devices', 'Gaming Consoles'],
-		pros: ['Works on limited devices', 'User-friendly for TVs', 'Secure authentication'],
-		cons: ['More complex flow', 'Requires polling', 'User must have another device'],
-		route: '/flows/device-code',
-		recommended: false,
-	},
-	{
-		id: 'hybrid',
-		title: 'Hybrid Flow',
-		description: 'Combines authorization code with implicit flow',
+		id: 'oidc-hybrid-v5',
+		title: 'OIDC Hybrid Flow V5',
+		description: 'Advanced OpenID Connect flow combining authorization code with implicit flow',
 		icon: <FiShield />,
 		security: 'high',
 		complexity: 'high',
 		implementationTime: '4-6 hours',
-		useCases: ['High Security Apps', 'Enterprise Applications'],
-		pros: ['Maximum security', 'Multiple token types', 'Enterprise ready'],
-		cons: ['Very complex', 'Long implementation time', 'Overkill for most apps'],
-		route: '/flows/hybrid',
+		useCases: ['High-security applications', 'Enterprise SSO', 'Advanced identity scenarios'],
+		pros: [
+			'Maximum security',
+			'Multiple token types',
+			'Flexible response modes',
+			'Enterprise-ready',
+		],
+		cons: ['Very complex', 'Long implementation time', 'Overkill for most applications'],
+		route: '/flows/oidc-hybrid-v5',
+		recommended: false,
+	},
+	{
+		id: 'client-credentials-v5',
+		title: 'Client Credentials Flow V5',
+		description: 'Machine-to-machine authentication for server-to-server communication',
+		icon: <FiUser />,
+		security: 'high',
+		complexity: 'low',
+		implementationTime: '1-2 hours',
+		useCases: ['Server-to-Server', 'Background Processes', 'API Services', 'Microservices'],
+		pros: [
+			'Simple implementation',
+			'No user interaction required',
+			'Perfect for APIs',
+			'Fast authentication',
+			'No redirects needed',
+		],
+		cons: ['No user context', 'Limited to machine access', 'Requires client credentials'],
+		route: '/flows/client-credentials-v5',
+		recommended: true,
+	},
+	{
+		id: 'device-code-v5',
+		title: 'OIDC Device Code Flow V5',
+		description: 'For devices with limited input capabilities like smart TVs and IoT devices',
+		icon: <FiClock />,
+		security: 'medium',
+		complexity: 'medium',
+		implementationTime: '3-5 hours',
+		useCases: ['Smart TVs', 'IoT Devices', 'Gaming Consoles', 'Limited input devices'],
+		pros: [
+			'Works on limited devices',
+			'User-friendly for TVs',
+			'Secure authentication',
+			'No complex UI required',
+		],
+		cons: ['More complex flow', 'Requires polling', 'User must have another device'],
+		route: '/flows/oidc-device-authorization-v5',
+		recommended: false,
+	},
+	{
+		id: 'redirectless-v5',
+		title: 'Redirectless Flow V5',
+		description: 'PingOne-specific flow using pi.flow response mode for seamless authentication',
+		icon: <FiTarget />,
+		security: 'high',
+		complexity: 'medium',
+		implementationTime: '2-3 hours',
+		useCases: ['PingOne integrations', 'Seamless authentication', 'Advanced scenarios'],
+		pros: [
+			'No redirects required',
+			'Direct token response',
+			'PingOne-specific features',
+			'Enhanced user experience',
+		],
+		cons: ['PingOne-specific', 'Limited to PingOne platform', 'Newer flow type'],
+		route: '/flows/redirectless-v5',
 		recommended: false,
 	},
 ];
@@ -531,14 +531,6 @@ const FlowComparisonTool: React.FC = () => {
 
 	return (
 		<ComparisonContainer>
-			<PageHeader>
-				<h1>OAuth Flow Comparison</h1>
-				<p>
-					Compare different OAuth flows side-by-side to find the best fit for your application.
-					Select up to 4 flows to compare their features, security, and use cases.
-				</p>
-			</PageHeader>
-
 			<FlowSelector>
 				{availableFlows.map((flow) => (
 					<FlowOption

@@ -319,110 +319,109 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							PingOne Configuration
 						</h3>
 						<form>
-
-						<FormGroup>
-							<FormLabel>Environment ID</FormLabel>
-							<FormInput
-								type="text"
-								value={controller.credentials.environmentId}
-								onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
-								placeholder="Enter your PingOne Environment ID"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<FormLabel>Client ID</FormLabel>
-							<FormInput
-								type="text"
-								value={controller.credentials.clientId}
-								onChange={(e) => handleCredentialChange('clientId', e.target.value)}
-								placeholder="Enter your PingOne Client ID"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<FormLabel>Client Secret</FormLabel>
-							<PasswordInputContainer>
+							<FormGroup>
+								<FormLabel>Environment ID</FormLabel>
 								<FormInput
-									type={showClientSecret ? 'text' : 'password'}
-									value={controller.credentials.clientSecret}
-									onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
-									placeholder="Enter your PingOne Client Secret"
+									type="text"
+									value={controller.credentials.environmentId}
+									onChange={(e) => handleCredentialChange('environmentId', e.target.value)}
+									placeholder="Enter your PingOne Environment ID"
 								/>
-								<PasswordToggle
-									type="button"
-									onClick={() => setShowClientSecret(!showClientSecret)}
-								>
-									{showClientSecret ? <FiEyeOff /> : <FiEye />}
-								</PasswordToggle>
-							</PasswordInputContainer>
-						</FormGroup>
+							</FormGroup>
 
-						<h3
-							style={{
-								marginBottom: '1.5rem',
-								marginTop: '2rem',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-							}}
-						>
-							<FiUser />
-							User Credentials
-						</h3>
-
-						<FormGroup>
-							<FormLabel>Username</FormLabel>
-							<FormInput
-								type="text"
-								value={controller.credentials.username}
-								onChange={(e) => handleCredentialChange('username', e.target.value)}
-								placeholder="Enter username (email)"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<FormLabel>Password</FormLabel>
-							<PasswordInputContainer>
+							<FormGroup>
+								<FormLabel>Client ID</FormLabel>
 								<FormInput
-									type={showPassword ? 'text' : 'password'}
-									value={controller.credentials.password}
-									onChange={(e) => handleCredentialChange('password', e.target.value)}
-									placeholder="Enter password"
-									autoComplete="current-password"
+									type="text"
+									value={controller.credentials.clientId}
+									onChange={(e) => handleCredentialChange('clientId', e.target.value)}
+									placeholder="Enter your PingOne Client ID"
 								/>
-								<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
-									{showPassword ? <FiEyeOff /> : <FiEye />}
-								</PasswordToggle>
-							</PasswordInputContainer>
-						</FormGroup>
+							</FormGroup>
 
-						<FormGroup>
-							<FormLabel>Scope</FormLabel>
-							<FormInput
-								type="text"
-								value={controller.credentials.scope}
-								onChange={(e) => handleCredentialChange('scope', e.target.value)}
-								placeholder="read write"
-							/>
-						</FormGroup>
+							<FormGroup>
+								<FormLabel>Client Secret</FormLabel>
+								<PasswordInputContainer>
+									<FormInput
+										type={showClientSecret ? 'text' : 'password'}
+										value={controller.credentials.clientSecret}
+										onChange={(e) => handleCredentialChange('clientSecret', e.target.value)}
+										placeholder="Enter your PingOne Client Secret"
+									/>
+									<PasswordToggle
+										type="button"
+										onClick={() => setShowClientSecret(!showClientSecret)}
+									>
+										{showClientSecret ? <FiEyeOff /> : <FiEye />}
+									</PasswordToggle>
+								</PasswordInputContainer>
+							</FormGroup>
 
-						<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-							<Button
-								variant="primary"
-								onClick={controller.saveCredentials}
-								disabled={controller.isSavingCredentials}
+							<h3
+								style={{
+									marginBottom: '1.5rem',
+									marginTop: '2rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
 							>
-								{controller.isSavingCredentials ? (
-									<SpinningIcon>
-										<FiRefreshCw />
-									</SpinningIcon>
-								) : (
-									<FiCheckCircle />
-								)}
-								Save Configuration
-							</Button>
-						</div>
+								<FiUser />
+								User Credentials
+							</h3>
+
+							<FormGroup>
+								<FormLabel>Username</FormLabel>
+								<FormInput
+									type="text"
+									value={controller.credentials.username}
+									onChange={(e) => handleCredentialChange('username', e.target.value)}
+									placeholder="Enter username (email)"
+								/>
+							</FormGroup>
+
+							<FormGroup>
+								<FormLabel>Password</FormLabel>
+								<PasswordInputContainer>
+									<FormInput
+										type={showPassword ? 'text' : 'password'}
+										value={controller.credentials.password}
+										onChange={(e) => handleCredentialChange('password', e.target.value)}
+										placeholder="Enter password"
+										autoComplete="current-password"
+									/>
+									<PasswordToggle type="button" onClick={() => setShowPassword(!showPassword)}>
+										{showPassword ? <FiEyeOff /> : <FiEye />}
+									</PasswordToggle>
+								</PasswordInputContainer>
+							</FormGroup>
+
+							<FormGroup>
+								<FormLabel>Scope</FormLabel>
+								<FormInput
+									type="text"
+									value={controller.credentials.scope}
+									onChange={(e) => handleCredentialChange('scope', e.target.value)}
+									placeholder="read write"
+								/>
+							</FormGroup>
+
+							<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+								<Button
+									variant="primary"
+									onClick={controller.saveCredentials}
+									disabled={controller.isSavingCredentials}
+								>
+									{controller.isSavingCredentials ? (
+										<SpinningIcon>
+											<FiRefreshCw />
+										</SpinningIcon>
+									) : (
+										<FiCheckCircle />
+									)}
+									Save Configuration
+								</Button>
+							</div>
 						</form>
 					</FormContainer>
 				);
@@ -736,15 +735,35 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 			<StepNavigationButtons
 				currentStep={controller.stepManager.currentStepIndex}
 				totalSteps={STEP_METADATA.length}
-				onPrevious={() => controller.stepManager.setStep(Math.max(0, controller.stepManager.currentStepIndex - 1), 'previous')}
-				onNext={() => controller.stepManager.setStep(Math.min(STEP_METADATA.length - 1, controller.stepManager.currentStepIndex + 1), 'next')}
+				onPrevious={() =>
+					controller.stepManager.setStep(
+						Math.max(0, controller.stepManager.currentStepIndex - 1),
+						'previous'
+					)
+				}
+				onNext={() =>
+					controller.stepManager.setStep(
+						Math.min(STEP_METADATA.length - 1, controller.stepManager.currentStepIndex + 1),
+						'next'
+					)
+				}
 				onReset={controller.resetFlow}
 				canNavigateNext={controller.stepManager.currentStepIndex < STEP_METADATA.length - 1}
 				isFirstStep={controller.stepManager.currentStepIndex === 0}
 				nextButtonText="Next"
 				disabledMessage="Complete the action above to continue"
-				stepRequirements={['Review the flow overview and setup credentials', 'Enter username and password, then request access token', 'Fetch user details using access token', 'Refresh access token using refresh token']}
-				onCompleteAction={() => controller.stepManager.setStep(Math.min(STEP_METADATA.length - 1, controller.stepManager.currentStepIndex + 1), 'complete action')}
+				stepRequirements={[
+					'Review the flow overview and setup credentials',
+					'Enter username and password, then request access token',
+					'Fetch user details using access token',
+					'Refresh access token using refresh token',
+				]}
+				onCompleteAction={() =>
+					controller.stepManager.setStep(
+						Math.min(STEP_METADATA.length - 1, controller.stepManager.currentStepIndex + 1),
+						'complete action'
+					)
+				}
 				showCompleteActionButton={false}
 			/>
 

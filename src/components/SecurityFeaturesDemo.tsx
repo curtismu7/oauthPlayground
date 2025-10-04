@@ -1,10 +1,9 @@
 // src/components/SecurityFeaturesDemo.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
-	FiChevronUp,
 	FiClock,
 	FiDownload,
 	FiExternalLink,
@@ -24,6 +23,10 @@ import ConfirmationModal from './ConfirmationModal';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import {
+	buildLogoutUrl,
+	terminateSession as terminateSessionService,
+} from '../services/sessionTerminationService';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string }>`
@@ -318,7 +321,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 }) => {
 	const { settings } = useUISettings();
 	const { fontSize, colorScheme } = settings;
-	
+
 	// Color scheme mapping
 	const getColors = (scheme: string) => {
 		const colorMap = {
@@ -330,7 +333,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		};
 		return colorMap[scheme as keyof typeof colorMap] || colorMap.blue;
 	};
-	
+
 	const colors = getColors(colorScheme);
 	const [showLogoutUrl, setShowLogoutUrl] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
@@ -345,12 +348,50 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 	const [collapsedSecurityReport, setCollapsedSecurityReport] = useState(false);
 	const [collapsedSecurityTest, setCollapsedSecurityTest] = useState(false);
 	const [sessionResults, setSessionResults] = useState<string | null>(null);
+
+	const normalizedCredentials = useMemo(
+		() =>
+			(credentials || {}) as {
+				environmentId?: string;
+				issuer?: string;
+				clientId?: string;
+				clientSecret?: string;
+				postLogoutRedirectUri?: string;
+			},
+		[credentials]
+	);
+
+	const normalizedTokens = useMemo(
+		() =>
+			(tokens || {}) as {
+				id_token?: string;
+			},
+		[tokens]
+	);
+
+	const calculatedLogoutUrl = useMemo(
+		() =>
+			buildLogoutUrl({
+				environmentId: normalizedCredentials.environmentId,
+				issuer: normalizedCredentials.issuer,
+				clientId: normalizedCredentials.clientId,
+				idToken: normalizedTokens.id_token,
+				postLogoutRedirectUri: normalizedCredentials.postLogoutRedirectUri,
+				allowPlaceholders: true,
+			}) || undefined,
+		[normalizedCredentials, normalizedTokens]
+	);
 	const [confirmModal, setConfirmModal] = useState<{
 		isOpen: boolean;
 		title: string;
 		message: string;
 		onConfirm: () => void;
-	}>({ isOpen: false, title: '', message: '', onConfirm: () => {} });
+	}>({
+		isOpen: false,
+		title: '',
+		message: '',
+		onConfirm: () => {},
+	});
 
 	// Scroll to top when component mounts
 	useEffect(() => {
@@ -369,7 +410,9 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 		allowedOrigins: ['https://localhost:3000', 'https://app.example.com'],
 		newOrigin: '',
 	});
-	const [corsTestResults, setCorsTestResults] = useState<Array<Record<string, unknown>> | null>(null);
+	const [corsTestResults, setCorsTestResults] = useState<Array<Record<string, unknown>> | null>(
+		null
+	);
 	const [isTestingCors, setIsTestingCors] = useState(false);
 
 	// Extract x5t parameter from JWT header
@@ -410,23 +453,27 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 			const x5t = getX5tParameter(tokens.access_token);
 			if (x5t) {
 				// Show real x5t value with enhanced formatting
-				const message = `🔐 X.509 Certificate Thumbprint (x5t) Found!\n\n` +
+				const message =
+					`🔐 X.509 Certificate Thumbprint (x5t) Found!\n\n` +
 					`📋 JWT Header Information:\n` +
 					`• x5t: ${x5t}\n` +
 					`• kid: Key identifier for key rotation\n` +
 					`• Algorithm: RS256\n\n` +
 					`✅ This enables certificate validation and key management.\n` +
 					`🔒 Enhanced security through X.509 certificate verification.`;
-				
+
 				v4ToastManager.showSuccess(message);
-				
+
 				// Also show a more prominent info message
 				setTimeout(() => {
-					v4ToastManager.showSuccess(`🔐 Real x5t Parameter: ${x5t}\n\nThis is extracted from your actual JWT token!`);
+					v4ToastManager.showSuccess(
+						`🔐 Real x5t Parameter: ${x5t}\n\nThis is extracted from your actual JWT token!`
+					);
 				}, 2000);
 			} else {
 				// Show demo x5t value for educational purposes
-				const message = `📚 X.509 Certificate Thumbprint (x5t) Demo\n\n` +
+				const message =
+					`📚 X.509 Certificate Thumbprint (x5t) Demo\n\n` +
 					`📋 JWT Header Information:\n` +
 					`• x5t: ${x5tValue} (Demo Data)\n` +
 					`• kid: Key identifier for key rotation\n` +
@@ -434,7 +481,7 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 					`ℹ️ This is demo data for educational purposes.\n` +
 					`🔒 Real x5t enables certificate validation and key management.\n\n` +
 					`💡 Enable "Include x5t Parameter" in Configuration to include this in real tokens.`;
-				
+
 				v4ToastManager.showSuccess(message);
 			}
 		} else {
@@ -482,155 +529,33 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 				'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
 			onConfirm: async () => {
 				try {
-					let sessionTerminationResponse = null;
-					let logoutResponse = null;
-					let userId = null;
+					const result = await terminateSessionService({
+						issuer: normalizedCredentials.issuer,
+						environmentId: normalizedCredentials.environmentId,
+						clientId: normalizedCredentials.clientId,
+						clientSecret: normalizedCredentials.clientSecret,
+						idToken: normalizedTokens.id_token,
+						postLogoutRedirectUri: normalizedCredentials.postLogoutRedirectUri,
+						clearClientStorage: true,
+					});
 
-					// Extract user ID from ID token if available
-					if (tokens?.id_token) {
-						try {
-							const payload = JSON.parse(atob(tokens.id_token.split('.')[1]));
-							userId = payload.sub;
-						} catch (error) {
-							console.warn('Could not extract user ID from ID token:', error);
-						}
-					}
-
-					// Terminate PingOne session if we have user ID and credentials
-					if (userId && credentials?.issuer && credentials?.environmentId) {
-						try {
-							// First, get an access token for the management API
-							const tokenResponse = await fetch(`${credentials.issuer}/as/token`, {
-								method: 'POST',
-								headers: {
-									'Content-Type': 'application/x-www-form-urlencoded',
-									'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret || ''}`)}`,
-								},
-								body: new URLSearchParams({
-									grant_type: 'client_credentials',
-									scope: 'p1:read:user p1:delete:user-session',
-								}),
-							});
-
-							if (tokenResponse.ok) {
-								const tokenData = await tokenResponse.json();
-								const managementToken = tokenData.access_token;
-
-								// Now terminate all sessions for the user
-								const sessionResponse = await fetch(
-									`${credentials.issuer.replace('/as', '')}/v1/environments/${credentials.environmentId}/users/${userId}/sessions`,
-									{
-										method: 'DELETE',
-										headers: {
-											'Authorization': `Bearer ${managementToken}`,
-											'Content-Type': 'application/json',
-										},
-									}
-								);
-
-								sessionTerminationResponse = {
-									status: sessionResponse.status,
-									statusText: sessionResponse.statusText,
-									success: sessionResponse.ok,
-									userId: userId,
-									endpoint: `${credentials.issuer.replace('/as', '')}/v1/environments/${credentials.environmentId}/users/${userId}/sessions`,
-								};
-							} else {
-								sessionTerminationResponse = {
-									error: 'Failed to obtain management token',
-									status: tokenResponse.status,
-									statusText: tokenResponse.statusText,
-								};
-							}
-						} catch (error) {
-							sessionTerminationResponse = {
-								error: 'Session termination failed',
-								message: (error as Error).message,
-								note: 'Management API call failed - may not have proper permissions or credentials'
-							};
-						}
-					}
-
-					// Call OIDC logout endpoint for browser session cleanup
-					if (credentials?.issuer && tokens?.id_token) {
-						const logoutUrl = `${credentials.issuer}/as/signoff`;
-						const logoutParams = new URLSearchParams({
-							id_token_hint: tokens.id_token as string,
-						});
-						
-						if (credentials.clientId && typeof credentials.clientId === 'string') {
-							logoutParams.set('client_id', credentials.clientId);
-						}
-
-						try {
-							const response = await fetch(`${logoutUrl}?${logoutParams}`, {
-								method: 'GET',
-								redirect: 'manual', // Don't follow redirects automatically
-							});
-							
-							logoutResponse = {
-								status: response.status,
-								statusText: response.statusText,
-								headers: Object.fromEntries(response.headers.entries()),
-								redirected: response.redirected,
-								url: response.url,
-							};
-						} catch (error) {
-							logoutResponse = {
-								error: 'Network error or CORS restriction',
-								message: (error as Error).message,
-								note: 'Logout typically redirects, which may cause CORS issues in demo mode'
-							};
-						}
-					}
-
-					// Call the parent's termination function
 					onTerminateSession?.();
-
-					const sessionResult = `🚪 SESSION TERMINATION COMPLETE
-Executed: ${new Date().toLocaleString()}
-
-✅ ACTIONS PERFORMED:
-• PingOne Session Termination: ${sessionTerminationResponse?.success ? 'SUCCESS' : 'FAILED/NOT ATTEMPTED'}
-• Browser Logout: ${logoutResponse ? 'COMPLETED' : 'NOT ATTEMPTED'}
-• Local storage cleared
-• Session cookies removed
-• User redirected to logout URL
-
-� PINGONE SESSION TERMINATION:
-${sessionTerminationResponse ? JSON.stringify(sessionTerminationResponse, null, 2) : 'No session termination attempted (missing user ID or credentials)'}
-
-� OIDC LOGOUT RESPONSE:
-${logoutResponse ? JSON.stringify(logoutResponse, null, 2) : 'No logout endpoint called (missing credentials or ID token)'}
-
-�🔒 SECURITY IMPACT:
-• Access token: REVOKED
-• Refresh token: REVOKED  
-• ID token: INVALIDATED
-• PingOne Session: TERMINATED
-• Browser Session: CLEARED
-
-🌐 LOGOUT URL CALLED:
-${credentials?.issuer || 'https://auth.pingone.com'}/as/signoff?id_token_hint=${tokens?.id_token ? 'present' : 'not_available'}
-
-⚠️ NEXT STEPS:
-• User must re-authenticate to access protected resources
-• All API calls with old tokens will fail with 401 Unauthorized
-• New login flow required for continued access
-• PingOne session is fully terminated - no silent re-authentication possible`;
-
-					setSessionResults(sessionResult);
+					setSessionResults(result.summary);
 					v4ToastManager.showSuccess('🚪 Session terminated! View detailed results below.');
 				} catch (error) {
 					const errorResult = `❌ SESSION TERMINATION ERROR
 Executed: ${new Date().toLocaleString()}
 
 ERROR DETAILS:
-${JSON.stringify({
-	message: (error as Error).message,
-	type: (error as Error).name,
-	stack: (error as Error).stack?.split('\n').slice(0, 3).join('\n')
-}, null, 2)}
+${JSON.stringify(
+	{
+		message: (error as Error).message,
+		type: (error as Error).name,
+		stack: (error as Error).stack?.split('\n').slice(0, 3).join('\n'),
+	},
+	null,
+	2
+)}
 
 ⚠️ NOTE:
 Session termination may fail in demo mode due to CORS restrictions, missing management API permissions, or insufficient credentials.`;
@@ -640,7 +565,7 @@ Session termination may fail in demo mode due to CORS restrictions, missing mana
 				}
 			},
 		});
-	}, [onTerminateSession, credentials, tokens]);
+	}, [normalizedCredentials, normalizedTokens, onTerminateSession]);
 
 	const revokeTokens = useCallback(async () => {
 		setConfirmModal({
@@ -650,16 +575,22 @@ Session termination may fail in demo mode due to CORS restrictions, missing mana
 				'Are you sure you want to revoke all tokens? This will immediately invalidate access and refresh tokens.',
 			onConfirm: async () => {
 				try {
-					const revocationResults: Array<{ tokenType: string; response: unknown; error?: string }> = [];
+					const revocationResults: Array<{ tokenType: string; response: unknown; error?: string }> =
+						[];
 
 					// Revoke Access Token
-					if (tokens?.access_token && credentials?.issuer && credentials?.clientId && credentials?.clientSecret) {
+					if (
+						tokens?.access_token &&
+						credentials?.issuer &&
+						credentials?.clientId &&
+						credentials?.clientSecret
+					) {
 						try {
 							const response = await fetch(`${credentials.issuer}/as/revoke`, {
 								method: 'POST',
 								headers: {
 									'Content-Type': 'application/x-www-form-urlencoded',
-									'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+									Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
 								},
 								body: new URLSearchParams({
 									token: tokens.access_token as string,
@@ -667,9 +598,10 @@ Session termination may fail in demo mode due to CORS restrictions, missing mana
 								}),
 							});
 
-							const responseData = response.status === 200 ? 
-								{ status: 'success', message: 'Token revoked successfully' } :
-								await response.text();
+							const responseData =
+								response.status === 200
+									? { status: 'success', message: 'Token revoked successfully' }
+									: await response.text();
 
 							revocationResults.push({
 								tokenType: 'Access Token',
@@ -690,13 +622,18 @@ Session termination may fail in demo mode due to CORS restrictions, missing mana
 					}
 
 					// Revoke Refresh Token
-					if (tokens?.refresh_token && credentials?.issuer && credentials?.clientId && credentials?.clientSecret) {
+					if (
+						tokens?.refresh_token &&
+						credentials?.issuer &&
+						credentials?.clientId &&
+						credentials?.clientSecret
+					) {
 						try {
 							const response = await fetch(`${credentials.issuer}/as/revoke`, {
 								method: 'POST',
 								headers: {
 									'Content-Type': 'application/x-www-form-urlencoded',
-									'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+									Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
 								},
 								body: new URLSearchParams({
 									token: tokens.refresh_token as string,
@@ -704,9 +641,10 @@ Session termination may fail in demo mode due to CORS restrictions, missing mana
 								}),
 							});
 
-							const responseData = response.status === 200 ? 
-								{ status: 'success', message: 'Token revoked successfully' } :
-								await response.text();
+							const responseData =
+								response.status === 200
+									? { status: 'success', message: 'Token revoked successfully' }
+									: await response.text();
 
 							revocationResults.push({
 								tokenType: 'Refresh Token',
@@ -733,11 +671,13 @@ Session termination may fail in demo mode due to CORS restrictions, missing mana
 Executed: ${new Date().toLocaleString()}
 
 🔑 REVOCATION ATTEMPTS:
-${revocationResults.length > 0 ? 
-	revocationResults.map(result => 
-		`• ${result.tokenType}: ${result.error ? 'FAILED' : 'SUCCESS'}`
-	).join('\n') : 
-	'• No tokens available for revocation'}
+${
+	revocationResults.length > 0
+		? revocationResults
+				.map((result) => `• ${result.tokenType}: ${result.error ? 'FAILED' : 'SUCCESS'}`)
+				.join('\n')
+		: '• No tokens available for revocation'
+}
 
 📡 DETAILED API RESPONSES:
 ${JSON.stringify(revocationResults, null, 2)}
@@ -763,10 +703,14 @@ POST ${credentials?.issuer || 'https://auth.pingone.com'}/as/revoke`;
 Executed: ${new Date().toLocaleString()}
 
 ERROR DETAILS:
-${JSON.stringify({
-	message: (error as Error).message,
-	type: (error as Error).name,
-}, null, 2)}
+${JSON.stringify(
+	{
+		message: (error as Error).message,
+		type: (error as Error).name,
+	},
+	null,
+	2
+)}
 
 ⚠️ NOTE:
 Token revocation may fail in demo mode due to CORS restrictions or missing real credentials.`;
@@ -788,13 +732,18 @@ Token revocation may fail in demo mode due to CORS restrictions or missing real 
 				try {
 					let revocationResponse = null;
 
-					if (tokens?.refresh_token && credentials?.issuer && credentials?.clientId && credentials?.clientSecret) {
+					if (
+						tokens?.refresh_token &&
+						credentials?.issuer &&
+						credentials?.clientId &&
+						credentials?.clientSecret
+					) {
 						try {
 							const response = await fetch(`${credentials.issuer}/as/revoke`, {
 								method: 'POST',
 								headers: {
 									'Content-Type': 'application/x-www-form-urlencoded',
-									'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
+									Authorization: `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`,
 								},
 								body: new URLSearchParams({
 									token: tokens.refresh_token as string,
@@ -802,9 +751,10 @@ Token revocation may fail in demo mode due to CORS restrictions or missing real 
 								}),
 							});
 
-							const responseData = response.status === 200 ? 
-								{ status: 'success', message: 'Refresh token revoked successfully' } :
-								await response.text();
+							const responseData =
+								response.status === 200
+									? { status: 'success', message: 'Refresh token revoked successfully' }
+									: await response.text();
 
 							revocationResponse = {
 								status: response.status,
@@ -821,7 +771,7 @@ Token revocation may fail in demo mode due to CORS restrictions or missing real 
 							revocationResponse = {
 								error: 'Network error or CORS restriction',
 								message: (error as Error).message,
-								note: 'Revocation may fail due to CORS policies in demo mode'
+								note: 'Revocation may fail due to CORS policies in demo mode',
 							};
 
 							v4ToastManager.showError(
@@ -835,10 +785,14 @@ Token revocation may fail in demo mode due to CORS restrictions or missing real 
 					}
 				} catch (error) {
 					v4ToastManager.showError(
-						`❌ Refresh Token Revocation Error:\n\n${JSON.stringify({
-							message: (error as Error).message,
-							type: (error as Error).name,
-						}, null, 2)}`
+						`❌ Refresh Token Revocation Error:\n\n${JSON.stringify(
+							{
+								message: (error as Error).message,
+								type: (error as Error).name,
+							},
+							null,
+							2
+						)}`
 					);
 				}
 			},
@@ -980,7 +934,10 @@ Success Rate: 100%
 	}, []);
 
 	// Get x5t parameter from access token (or show demo value)
-	const realX5t = tokens?.access_token && typeof tokens.access_token === 'string' ? getX5tParameter(tokens.access_token) : null;
+	const realX5t =
+		tokens?.access_token && typeof tokens.access_token === 'string'
+			? getX5tParameter(tokens.access_token)
+			: null;
 	const x5tValue = realX5t || 'a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6';
 
 	// Calculate real security score based on actual conditions
@@ -992,65 +949,148 @@ Success Rate: 100%
 		// Token presence and validation (30 points)
 		if (tokens?.access_token) {
 			score += 15;
-			factors.push({ name: 'Access Token Present', status: true, points: 15, reason: 'Valid access token available' });
+			factors.push({
+				name: 'Access Token Present',
+				status: true,
+				points: 15,
+				reason: 'Valid access token available',
+			});
 		} else {
-			factors.push({ name: 'Access Token Present', status: false, points: 0, reason: 'No access token available' });
+			factors.push({
+				name: 'Access Token Present',
+				status: false,
+				points: 0,
+				reason: 'No access token available',
+			});
 		}
 
 		if (tokens?.refresh_token) {
 			score += 10;
-			factors.push({ name: 'Refresh Token Present', status: true, points: 10, reason: 'Refresh token available for renewal' });
+			factors.push({
+				name: 'Refresh Token Present',
+				status: true,
+				points: 10,
+				reason: 'Refresh token available for renewal',
+			});
 		} else {
-			factors.push({ name: 'Refresh Token Present', status: false, points: 0, reason: 'No refresh token available' });
+			factors.push({
+				name: 'Refresh Token Present',
+				status: false,
+				points: 0,
+				reason: 'No refresh token available',
+			});
 		}
 
 		if (tokens?.id_token) {
 			score += 5;
-			factors.push({ name: 'ID Token Present', status: true, points: 5, reason: 'ID token available for user info' });
+			factors.push({
+				name: 'ID Token Present',
+				status: true,
+				points: 5,
+				reason: 'ID token available for user info',
+			});
 		} else {
-			factors.push({ name: 'ID Token Present', status: false, points: 0, reason: 'No ID token available' });
+			factors.push({
+				name: 'ID Token Present',
+				status: false,
+				points: 0,
+				reason: 'No ID token available',
+			});
 		}
 
 		// Certificate validation (20 points)
 		if (realX5t) {
 			score += 20;
-			factors.push({ name: 'Certificate Validation', status: true, points: 20, reason: 'x5t parameter present in JWT header' });
+			factors.push({
+				name: 'Certificate Validation',
+				status: true,
+				points: 20,
+				reason: 'x5t parameter present in JWT header',
+			});
 		} else {
-			factors.push({ name: 'Certificate Validation', status: false, points: 0, reason: 'No x5t parameter in tokens' });
+			factors.push({
+				name: 'Certificate Validation',
+				status: false,
+				points: 0,
+				reason: 'No x5t parameter in tokens',
+			});
 		}
 
 		// CORS configuration (15 points)
 		const hasProperCors = !corsSettings.allowAnyOrigin && corsSettings.allowedOrigins.length > 0;
 		if (hasProperCors) {
 			score += 15;
-			factors.push({ name: 'CORS Security', status: true, points: 15, reason: 'CORS restricted to specific origins' });
+			factors.push({
+				name: 'CORS Security',
+				status: true,
+				points: 15,
+				reason: 'CORS restricted to specific origins',
+			});
 		} else if (corsSettings.allowAnyOrigin) {
 			score += 5;
-			factors.push({ name: 'CORS Security', status: false, points: 5, reason: 'CORS allows any origin (reduced security)' });
+			factors.push({
+				name: 'CORS Security',
+				status: false,
+				points: 5,
+				reason: 'CORS allows any origin (reduced security)',
+			});
 		} else {
-			factors.push({ name: 'CORS Security', status: false, points: 0, reason: 'CORS not configured' });
+			factors.push({
+				name: 'CORS Security',
+				status: false,
+				points: 0,
+				reason: 'CORS not configured',
+			});
 		}
 
 		// API call success (15 points)
 		const hasSuccessfulApiCalls = revokeResults || sessionResults;
 		if (hasSuccessfulApiCalls) {
 			score += 15;
-			factors.push({ name: 'API Integration', status: true, points: 15, reason: 'Successful API calls to PingOne' });
+			factors.push({
+				name: 'API Integration',
+				status: true,
+				points: 15,
+				reason: 'Successful API calls to PingOne',
+			});
 		} else {
-			factors.push({ name: 'API Integration', status: false, points: 0, reason: 'No API calls attempted' });
+			factors.push({
+				name: 'API Integration',
+				status: false,
+				points: 0,
+				reason: 'No API calls attempted',
+			});
 		}
 
 		// Token validation performed (5 points)
 		const hasValidationResults = validationResults || expirationResults;
 		if (hasValidationResults) {
 			score += 5;
-			factors.push({ name: 'Token Validation', status: true, points: 5, reason: 'Token validation performed' });
+			factors.push({
+				name: 'Token Validation',
+				status: true,
+				points: 5,
+				reason: 'Token validation performed',
+			});
 		} else {
-			factors.push({ name: 'Token Validation', status: false, points: 0, reason: 'No token validation performed' });
+			factors.push({
+				name: 'Token Validation',
+				status: false,
+				points: 0,
+				reason: 'No token validation performed',
+			});
 		}
 
 		return { score: Math.min(score, maxScore), factors };
-	}, [tokens, realX5t, corsSettings, revokeResults, sessionResults, validationResults, expirationResults]);
+	}, [
+		tokens,
+		realX5t,
+		corsSettings,
+		revokeResults,
+		sessionResults,
+		validationResults,
+		expirationResults,
+	]);
 
 	const securityScore = calculateSecurityScore();
 
@@ -1078,19 +1118,26 @@ ${sessionResults ? '✅' : '❌'} Session Management: ${sessionResults ? 'Succes
 ${corsTestResults ? '✅' : '❌'} CORS Configuration: ${corsTestResults ? 'Tested' : 'Not tested'}
 
 📋 DETAILED SCORING BREAKDOWN
-${securityScore.factors.map(factor => 
-	`${factor.status ? '✅' : '❌'} ${factor.name}: ${factor.reason} (${factor.points} points)`
-).join('\n')}
+${securityScore.factors
+	.map(
+		(factor) =>
+			`${factor.status ? '✅' : '❌'} ${factor.name}: ${factor.reason} (${factor.points} points)`
+	)
+	.join('\n')}
 
 🎯 OVERALL SECURITY SCORE: ${securityScore.score}/100
-${securityScore.score >= 80 ? 'Excellent security configuration!' : 
- securityScore.score >= 60 ? 'Good security with room for improvement.' : 
- 'Security improvements needed.'}
+${
+	securityScore.score >= 80
+		? 'Excellent security configuration!'
+		: securityScore.score >= 60
+			? 'Good security with room for improvement.'
+			: 'Security improvements needed.'
+}
 
 📋 RECOMMENDATIONS
 ${securityScore.factors
-	.filter(factor => !factor.status)
-	.map(factor => `• ${factor.name}: ${factor.reason}`)
+	.filter((factor) => !factor.status)
+	.map((factor) => `• ${factor.name}: ${factor.reason}`)
 	.join('\n')}
 
 For more detailed implementation guides, visit:
@@ -1099,7 +1146,17 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 
 		setSecurityReportResults(report);
 		v4ToastManager.showSuccess('📄 Security Report generated with real data! View results below.');
-	}, [tokens, realX5t, corsSettings, revokeResults, sessionResults, validationResults, expirationResults, corsTestResults, securityScore]);
+	}, [
+		tokens,
+		realX5t,
+		corsSettings,
+		revokeResults,
+		sessionResults,
+		validationResults,
+		expirationResults,
+		corsTestResults,
+		securityScore,
+	]);
 
 	return (
 		<Container $primaryColor={colors.primary}>
@@ -1134,7 +1191,11 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									<strong>How:</strong> Sign request params → Include in Authorization header →
 									Server validates
 								</FeatureDescription>
-								<Button $variant="primary" $primaryColor={colors.primary} onClick={showSignatureDemo}>
+								<Button
+									$variant="primary"
+									$primaryColor={colors.primary}
+									onClick={showSignatureDemo}
+								>
 									<FiEye /> View Signature Demo
 								</Button>
 								<Button
@@ -1182,130 +1243,164 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								<FeatureDescription>
 									Includes X.509 certificate thumbprint in JWT headers for enhanced security.
 									{!realX5t && (
-										<div style={{ 
-											marginTop: '0.5rem', 
-											padding: '0.5rem', 
-											background: '#fef3c7', 
-											border: '1px solid #f59e0b', 
-											borderRadius: '0.375rem',
-											fontSize: '0.8rem',
-											color: '#92400e'
-										}}>
-											💡 <strong>To enable x5t in real tokens:</strong> Configure "Include x5t Parameter" in your PingOne client settings or use the Configuration page to enable this feature.
+										<div
+											style={{
+												marginTop: '0.5rem',
+												padding: '0.5rem',
+												background: '#fef3c7',
+												border: '1px solid #f59e0b',
+												borderRadius: '0.375rem',
+												fontSize: '0.8rem',
+												color: '#92400e',
+											}}
+										>
+											💡 <strong>To enable x5t in real tokens:</strong> Configure "Include x5t
+											Parameter" in your PingOne client settings or use the Configuration page to
+											enable this feature.
 										</div>
 									)}
 								</FeatureDescription>
 								<Button $variant="primary" $primaryColor={colors.primary} onClick={showX5tDemo}>
 									<FiKey /> View x5t in Tokens
 								</Button>
-								<Button $variant="primary" $primaryColor={colors.primary} onClick={verifyCertificate}>
+								<Button
+									$variant="primary"
+									$primaryColor={colors.primary}
+									onClick={verifyCertificate}
+								>
 									<FiShield /> Verify Certificate
 								</Button>
 
 								{/* x5t Header and Certificate Display */}
 								{x5tValue && (
-									<div style={{
-										marginTop: '1.5rem',
-										padding: '1rem',
-										background: '#f8fafc',
-										border: '1px solid #e2e8f0',
-										borderRadius: '0.5rem',
-										overflow: 'hidden',
-										wordWrap: 'break-word',
-										overflowWrap: 'break-word',
-										maxWidth: '100%',
-										boxSizing: 'border-box'
-									}}>
-										<div style={{
-											fontSize: '0.9rem',
-											fontWeight: '600',
-											color: '#374151',
-											marginBottom: '1rem',
-											wordWrap: 'break-word'
-										}}>
+									<div
+										style={{
+											marginTop: '1.5rem',
+											padding: '1rem',
+											background: '#f8fafc',
+											border: '1px solid #e2e8f0',
+											borderRadius: '0.5rem',
+											overflow: 'hidden',
+											wordWrap: 'break-word',
+											overflowWrap: 'break-word',
+											maxWidth: '100%',
+											boxSizing: 'border-box',
+										}}
+									>
+										<div
+											style={{
+												fontSize: '0.9rem',
+												fontWeight: '600',
+												color: '#374151',
+												marginBottom: '1rem',
+												wordWrap: 'break-word',
+											}}
+										>
 											🔐 JWT Header & Certificate Information
 											{!realX5t && (
-												<span style={{
-													fontSize: '0.8rem',
-													color: '#6b7280',
-													marginLeft: '0.5rem',
-													fontWeight: 'normal'
-												}}>
+												<span
+													style={{
+														fontSize: '0.8rem',
+														color: '#6b7280',
+														marginLeft: '0.5rem',
+														fontWeight: 'normal',
+													}}
+												>
 													(Demo Data)
 												</span>
 											)}
 											{realX5t && (
-												<span style={{
-													fontSize: '0.8rem',
-													color: '#16a34a',
-													marginLeft: '0.5rem',
-													fontWeight: 'normal'
-												}}>
+												<span
+													style={{
+														fontSize: '0.8rem',
+														color: '#16a34a',
+														marginLeft: '0.5rem',
+														fontWeight: 'normal',
+													}}
+												>
 													(From Real Data)
 												</span>
 											)}
 										</div>
 
-										<div style={{
-											display: 'grid',
-											gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-											gap: '1rem',
-											width: '100%',
-											maxWidth: '100%',
-											boxSizing: 'border-box'
-										}}>
+										<div
+											style={{
+												display: 'grid',
+												gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+												gap: '1rem',
+												width: '100%',
+												maxWidth: '100%',
+												boxSizing: 'border-box',
+											}}
+										>
 											{/* JWT Header Section */}
-											<div style={{
-												minWidth: 0,
-												overflow: 'hidden'
-											}}>
-												<div style={{
-													fontSize: '0.85rem',
-													fontWeight: '600',
-													color: '#1f2937',
-													marginBottom: '0.5rem',
-													borderBottom: '1px solid #d1d5db',
-													paddingBottom: '0.25rem'
-												}}>
+											<div
+												style={{
+													minWidth: 0,
+													overflow: 'hidden',
+												}}
+											>
+												<div
+													style={{
+														fontSize: '0.85rem',
+														fontWeight: '600',
+														color: '#1f2937',
+														marginBottom: '0.5rem',
+														borderBottom: '1px solid #d1d5db',
+														paddingBottom: '0.25rem',
+													}}
+												>
 													JWT Header
 												</div>
-												<div style={{
-													fontFamily: 'monospace',
-													fontSize: '0.8rem',
-													lineHeight: '1.4',
-													wordWrap: 'break-word',
-													overflowWrap: 'break-word'
-												}}>
-													<div><span style={{ color: '#6b7280' }}>alg:</span> RS256</div>
-													<div><span style={{ color: '#6b7280' }}>typ:</span> JWT</div>
-													<div><span style={{ color: '#6b7280' }}>kid:</span> rsa-key-2024-001</div>
+												<div
+													style={{
+														fontFamily: 'monospace',
+														fontSize: '0.8rem',
+														lineHeight: '1.4',
+														wordWrap: 'break-word',
+														overflowWrap: 'break-word',
+													}}
+												>
+													<div>
+														<span style={{ color: '#6b7280' }}>alg:</span> RS256
+													</div>
+													<div>
+														<span style={{ color: '#6b7280' }}>typ:</span> JWT
+													</div>
+													<div>
+														<span style={{ color: '#6b7280' }}>kid:</span> rsa-key-2024-001
+													</div>
 													<div style={{ wordBreak: 'break-all', marginBottom: '0.5rem' }}>
 														<span style={{ color: '#6b7280' }}>x5t:</span>
-														<div style={{ 
-															fontSize: '0.7rem', 
-															marginTop: '0.25rem',
-															wordBreak: 'break-all',
-															lineHeight: '1.3',
-															background: '#f3f4f6',
-															padding: '0.25rem',
-															borderRadius: '0.25rem',
-															fontFamily: 'monospace'
-														}}>
+														<div
+															style={{
+																fontSize: '0.7rem',
+																marginTop: '0.25rem',
+																wordBreak: 'break-all',
+																lineHeight: '1.3',
+																background: '#f3f4f6',
+																padding: '0.25rem',
+																borderRadius: '0.25rem',
+																fontFamily: 'monospace',
+															}}
+														>
 															{x5tValue}
 														</div>
 													</div>
 													<div style={{ wordBreak: 'break-all', marginBottom: '0.5rem' }}>
 														<span style={{ color: '#6b7280' }}>x5t#S256:</span>
-														<div style={{ 
-															fontSize: '0.7rem', 
-															marginTop: '0.25rem',
-															wordBreak: 'break-all',
-															lineHeight: '1.3',
-															background: '#f3f4f6',
-															padding: '0.25rem',
-															borderRadius: '0.25rem',
-															fontFamily: 'monospace'
-														}}>
+														<div
+															style={{
+																fontSize: '0.7rem',
+																marginTop: '0.25rem',
+																wordBreak: 'break-all',
+																lineHeight: '1.3',
+																background: '#f3f4f6',
+																padding: '0.25rem',
+																borderRadius: '0.25rem',
+																fontFamily: 'monospace',
+															}}
+														>
 															{x5tValue.replace(/./g, 'a').substring(0, 43)}
 														</div>
 													</div>
@@ -1313,82 +1408,111 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 											</div>
 
 											{/* Certificate Information Section */}
-											<div style={{
-												minWidth: 0,
-												overflow: 'hidden'
-											}}>
-												<div style={{
-													fontSize: '0.85rem',
-													fontWeight: '600',
-													color: '#1f2937',
-													marginBottom: '0.5rem',
-													borderBottom: '1px solid #d1d5db',
-													paddingBottom: '0.25rem'
-												}}>
+											<div
+												style={{
+													minWidth: 0,
+													overflow: 'hidden',
+												}}
+											>
+												<div
+													style={{
+														fontSize: '0.85rem',
+														fontWeight: '600',
+														color: '#1f2937',
+														marginBottom: '0.5rem',
+														borderBottom: '1px solid #d1d5db',
+														paddingBottom: '0.25rem',
+													}}
+												>
 													X.509 Certificate Details
 												</div>
-												<div style={{
-													fontFamily: 'monospace',
-													fontSize: '0.8rem',
-													lineHeight: '1.4',
-													wordWrap: 'break-word',
-													overflowWrap: 'break-word'
-												}}>
+												<div
+													style={{
+														fontFamily: 'monospace',
+														fontSize: '0.8rem',
+														lineHeight: '1.4',
+														wordWrap: 'break-word',
+														overflowWrap: 'break-word',
+													}}
+												>
 													<div style={{ marginBottom: '0.75rem' }}>
 														<span style={{ color: '#6b7280' }}>Thumbprint (SHA-1):</span>
-														<div style={{
-															wordBreak: 'break-all',
-															marginTop: '0.25rem',
-															fontSize: '0.7rem',
-															lineHeight: '1.3',
-															background: '#f3f4f6',
-															padding: '0.25rem',
-															borderRadius: '0.25rem',
-															fontFamily: 'monospace'
-														}}>
+														<div
+															style={{
+																wordBreak: 'break-all',
+																marginTop: '0.25rem',
+																fontSize: '0.7rem',
+																lineHeight: '1.3',
+																background: '#f3f4f6',
+																padding: '0.25rem',
+																borderRadius: '0.25rem',
+																fontFamily: 'monospace',
+															}}
+														>
 															{x5tValue}
 														</div>
 													</div>
 													<div style={{ marginBottom: '0.75rem' }}>
 														<span style={{ color: '#6b7280' }}>Thumbprint (SHA-256):</span>
-														<div style={{
-															wordBreak: 'break-all',
-															marginTop: '0.25rem',
-															fontSize: '0.7rem',
-															lineHeight: '1.3',
-															background: '#f3f4f6',
-															padding: '0.25rem',
-															borderRadius: '0.25rem',
-															fontFamily: 'monospace'
-														}}>
+														<div
+															style={{
+																wordBreak: 'break-all',
+																marginTop: '0.25rem',
+																fontSize: '0.7rem',
+																lineHeight: '1.3',
+																background: '#f3f4f6',
+																padding: '0.25rem',
+																borderRadius: '0.25rem',
+																fontFamily: 'monospace',
+															}}
+														>
 															{x5tValue.replace(/./g, 'a').substring(0, 43)}
 														</div>
 													</div>
-													<div style={{ wordBreak: 'break-word' }}><span style={{ color: '#6b7280' }}>Subject:</span> CN=auth.pingone.com</div>
-													<div style={{ wordBreak: 'break-word' }}><span style={{ color: '#6b7280' }}>Issuer:</span> CN=DigiCert SHA2, O=DigiCert Inc</div>
-													<div><span style={{ color: '#6b7280' }}>Valid From:</span> 2024-01-01</div>
-													<div><span style={{ color: '#6b7280' }}>Valid To:</span> 2025-01-01</div>
-													<div><span style={{ color: '#6b7280' }}>Status:</span> <span style={{ color: '#16a34a' }}>Valid</span></div>
+													<div style={{ wordBreak: 'break-word' }}>
+														<span style={{ color: '#6b7280' }}>Subject:</span> CN=auth.pingone.com
+													</div>
+													<div style={{ wordBreak: 'break-word' }}>
+														<span style={{ color: '#6b7280' }}>Issuer:</span> CN=DigiCert SHA2,
+														O=DigiCert Inc
+													</div>
+													<div>
+														<span style={{ color: '#6b7280' }}>Valid From:</span> 2024-01-01
+													</div>
+													<div>
+														<span style={{ color: '#6b7280' }}>Valid To:</span> 2025-01-01
+													</div>
+													<div>
+														<span style={{ color: '#6b7280' }}>Status:</span>{' '}
+														<span style={{ color: '#16a34a' }}>Valid</span>
+													</div>
 												</div>
 											</div>
 										</div>
 
-										<div style={{
-											marginTop: '1rem',
-											padding: '0.75rem',
-											background: '#eff6ff',
-											border: '1px solid #bfdbfe',
-											borderRadius: '0.375rem',
-											wordWrap: 'break-word',
-											overflowWrap: 'break-word'
-										}}>
-											<div style={{
-												fontSize: '0.8rem',
-												color: '#1e40af',
-												lineHeight: '1.4',
-												wordBreak: 'break-word'
-											}}>
-												<strong>Security Purpose:</strong> The x5t parameter enables certificate validation by allowing clients to verify that JWTs are signed with the expected certificate. This prevents impersonation attacks and ensures token authenticity.
+										<div
+											style={{
+												marginTop: '1rem',
+												padding: '0.75rem',
+												background: '#eff6ff',
+												border: '1px solid #bfdbfe',
+												borderRadius: '0.375rem',
+												wordWrap: 'break-word',
+												overflowWrap: 'break-word',
+											}}
+										>
+											<div
+												style={{
+													fontSize: '0.8rem',
+													color: '#1e40af',
+													lineHeight: '1.4',
+													wordBreak: 'break-word',
+												}}
+											>
+												<strong>Security Purpose:</strong> The x5t parameter enables certificate
+												validation by allowing clients to verify that JWTs are signed with the
+												expected certificate. This prevents impersonation attacks and ensures token
+												authenticity.
 											</div>
 										</div>
 									</div>
@@ -1459,12 +1583,16 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 												<ParamValue>
 													{x5tValue}
 													{!realX5t && (
-														<span style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: '0.5rem' }}>
+														<span
+															style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: '0.5rem' }}
+														>
 															(Demo)
 														</span>
 													)}
 													{realX5t && (
-														<span style={{ fontSize: '0.8rem', color: '#16a34a', marginLeft: '0.5rem' }}>
+														<span
+															style={{ fontSize: '0.8rem', color: '#16a34a', marginLeft: '0.5rem' }}
+														>
 															(Real)
 														</span>
 													)}
@@ -1489,10 +1617,18 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									<br />
 									<strong>How:</strong> Verify signature → Check expiration → Validate claims
 								</FeatureDescription>
-								<Button $variant="primary" $primaryColor={colors.primary} onClick={validateAllTokens}>
+								<Button
+									$variant="primary"
+									$primaryColor={colors.primary}
+									onClick={validateAllTokens}
+								>
 									<FiCheckCircle /> Validate All Tokens
 								</Button>
-								<Button $variant="primary" $primaryColor={colors.primary} onClick={checkTokenExpiry}>
+								<Button
+									$variant="primary"
+									$primaryColor={colors.primary}
+									onClick={checkTokenExpiry}
+								>
 									<FiClock /> Check Expiration
 								</Button>
 								{/* Validation Results Display */}
@@ -1624,31 +1760,60 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 									$primaryColor={colors.primary}
 									onClick={() => setShowLogoutUrl(!showLogoutUrl)}
 								>
-									<FiExternalLink /> View Logout URL
+									<FiGlobe /> {showLogoutUrl ? 'Hide' : 'Show'} Logout URL
 								</Button>
 
 								{/* Session Termination Request URL Display */}
 								{showLogoutUrl && (
-									<InfoBox style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}>
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}
+									>
 										<InfoTitle style={{ color: '#475569' }}>🌐 Logout Request URL</InfoTitle>
 										<CodeBlock $isVisible={true}>
-											{`GET ${credentials?.issuer || 'https://auth.pingone.com'}/as/signoff?` +
-											`id_token_hint=${tokens?.id_token || '{{idToken}}'}` +
-											`&client_id=${credentials?.clientId || '{{clientId}}'}`}
+											{calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff'}
 										</CodeBlock>
-										<InfoText style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+										<InfoText
+											style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}
+										>
 											<strong>Parameters:</strong>
 											<br />• id_token_hint: ID token for logout hint
 											<br />• client_id: Client identifier
 											<br />• post_logout_redirect_uri: Optional redirect after logout
 										</InfoText>
+										<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+											<Button
+												$variant="primary"
+												$primaryColor={colors.primary}
+												onClick={() => {
+													const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+													window.open(logoutUrl, '_blank');
+												}}
+											>
+												<FiExternalLink /> Execute Logout URL
+											</Button>
+											<Button
+												$variant="secondary"
+												$primaryColor={colors.primary}
+												onClick={() => {
+													const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+													navigator.clipboard.writeText(logoutUrl);
+													v4ToastManager.showSuccess('📋 Logout URL copied to clipboard!');
+												}}
+											>
+												<FiDownload /> Copy URL
+											</Button>
+										</div>
 									</InfoBox>
 								)}
 
 								{/* Session Termination Results Display */}
 								{sessionResults && (
-									<InfoBox style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}>
-										<InfoTitle style={{ color: '#dc2626' }}>🚪 Session Termination Results</InfoTitle>
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+									>
+										<InfoTitle style={{ color: '#dc2626' }}>
+											🚪 Session Termination Results
+										</InfoTitle>
 										<InfoText
 											style={{
 												color: '#dc2626',
@@ -1681,12 +1846,18 @@ https://openid.net/specs/openid-connect-core-1_0.html`;
 								<Button $variant="danger" $primaryColor={colors.primary} onClick={revokeTokens}>
 									<FiX /> Revoke All Tokens
 								</Button>
-								<Button $variant="danger" $primaryColor={colors.primary} onClick={revokeRefreshToken}>
+								<Button
+									$variant="danger"
+									$primaryColor={colors.primary}
+									onClick={revokeRefreshToken}
+								>
 									<FiRefreshCw /> Revoke Refresh Token
 								</Button>
 
 								{/* Token Revocation Request URL Display */}
-								<InfoBox style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}>
+								<InfoBox
+									style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}
+								>
 									<InfoTitle style={{ color: '#475569' }}>🌐 Revocation Request URL</InfoTitle>
 									<CodeBlock $isVisible={true}>
 										{`POST ${credentials?.issuer || 'https://auth.pingone.com'}/as/revoke
@@ -1702,7 +1873,8 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									<InfoText style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>
 										<strong>Parameters:</strong>
 										<br />• token: The token to revoke (access_token or refresh_token)
-										<br />• token_type_hint: Type of token (access_token, refresh_token, or id_token)
+										<br />• token_type_hint: Type of token (access_token, refresh_token, or
+										id_token)
 										<br />• client_id: Client identifier (in Authorization header)
 										<br />• client_secret: Client secret (in Authorization header)
 									</InfoText>
@@ -1710,7 +1882,9 @@ token=${tokens?.access_token || '{{accessToken}}'}
 
 								{/* Token Revocation Results Display */}
 								{revokeResults && (
-									<InfoBox style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}>
+									<InfoBox
+										style={{ marginTop: '1rem', background: '#fef2f2', borderColor: '#fecaca' }}
+									>
 										<InfoTitle style={{ color: '#dc2626' }}>❌ Token Revocation Results</InfoTitle>
 										<InfoText
 											style={{
@@ -1726,7 +1900,6 @@ token=${tokens?.access_token || '{{accessToken}}'}
 								)}
 							</FeatureCard>
 						</FeatureGrid>
-
 
 						<InfoBox>
 							<InfoTitle>📚 Understanding Session & Token Management</InfoTitle>
@@ -1971,14 +2144,22 @@ token=${tokens?.access_token || '{{accessToken}}'}
 							<FeatureCard>
 								<FeatureTitle>
 									Current Security Score
-									<StatusBadge $status={securityScore.score >= 80 ? 'enabled' : securityScore.score >= 60 ? 'required' : 'disabled'}>
+									<StatusBadge
+										$status={
+											securityScore.score >= 80
+												? 'enabled'
+												: securityScore.score >= 60
+													? 'required'
+													: 'disabled'
+										}
+									>
 										{securityScore.score}/100
 									</StatusBadge>
 								</FeatureTitle>
 								<FeatureDescription>
-									{securityScore.score >= 80 
+									{securityScore.score >= 80
 										? 'Your OAuth implementation has excellent security practices.'
-										: securityScore.score >= 60 
+										: securityScore.score >= 60
 											? 'Your OAuth implementation has good security practices with room for improvement.'
 											: 'Your OAuth implementation needs security improvements.'}
 								</FeatureDescription>
@@ -1992,9 +2173,17 @@ token=${tokens?.access_token || '{{accessToken}}'}
 									<ParamLabel>x5t Certificate:</ParamLabel>
 									<ParamValue>{realX5t ? '✅ Valid' : '❌ Missing'}</ParamValue>
 									<ParamLabel>CORS Security:</ParamLabel>
-									<ParamValue>{!corsSettings.allowAnyOrigin && corsSettings.allowedOrigins.length > 0 ? '✅ Restricted' : corsSettings.allowAnyOrigin ? '⚠️ Any Origin' : '❌ Not Configured'}</ParamValue>
+									<ParamValue>
+										{!corsSettings.allowAnyOrigin && corsSettings.allowedOrigins.length > 0
+											? '✅ Restricted'
+											: corsSettings.allowAnyOrigin
+												? '⚠️ Any Origin'
+												: '❌ Not Configured'}
+									</ParamValue>
 									<ParamLabel>API Integration:</ParamLabel>
-									<ParamValue>{revokeResults || sessionResults ? '✅ Tested' : '❌ Not Tested'}</ParamValue>
+									<ParamValue>
+										{revokeResults || sessionResults ? '✅ Tested' : '❌ Not Tested'}
+									</ParamValue>
 								</ParameterGrid>
 							</FeatureCard>
 
@@ -2048,7 +2237,13 @@ token=${tokens?.access_token || '{{accessToken}}'}
 							onClick={() => setCollapsedSecurityReport(!collapsedSecurityReport)}
 						>
 							<CollapsibleTitle>📄 Security Analysis Report</CollapsibleTitle>
-							{collapsedSecurityReport ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+							<FiChevronDown
+								size={20}
+								style={{
+									transform: collapsedSecurityReport ? 'rotate(-90deg)' : 'rotate(0deg)',
+									transition: 'transform 0.2s ease',
+								}}
+							/>
 						</CollapsibleHeader>
 						<CollapsibleContent $isCollapsed={collapsedSecurityReport}>
 							<InfoText
@@ -2073,7 +2268,13 @@ token=${tokens?.access_token || '{{accessToken}}'}
 							onClick={() => setCollapsedSecurityTest(!collapsedSecurityTest)}
 						>
 							<CollapsibleTitle>🧪 Security Test Suite Results</CollapsibleTitle>
-							{collapsedSecurityTest ? <FiChevronDown size={20} /> : <FiChevronUp size={20} />}
+							<FiChevronDown
+								size={20}
+								style={{
+									transform: collapsedSecurityTest ? 'rotate(-90deg)' : 'rotate(0deg)',
+									transition: 'transform 0.2s ease',
+								}}
+							/>
 						</CollapsibleHeader>
 						<CollapsibleContent $isCollapsed={collapsedSecurityTest}>
 							<InfoText

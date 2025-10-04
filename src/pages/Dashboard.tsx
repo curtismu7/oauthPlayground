@@ -243,7 +243,10 @@ const Dashboard = () => {
 		if (!action) {
 			return 'Activity';
 		}
-		return action.replace(/Successfully\s+Implcit\s+Flow\s+Token/gi, 'Successfully Obtained Implicit Flow Token');
+		return action.replace(
+			/Successfully\s+Implcit\s+Flow\s+Token/gi,
+			'Successfully Obtained Implicit Flow Token'
+		);
 	};
 
 	return (
@@ -772,7 +775,8 @@ const Dashboard = () => {
 					<div>
 						<CardTitle>Recent Activity</CardTitle>
 						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
-							Latest OAuth flow runs, credential updates, and API interactions performed in this playground.
+							Latest OAuth flow runs, credential updates, and API interactions performed in this
+							playground.
 						</p>
 					</div>
 				</CardHeader>
@@ -826,8 +830,8 @@ const Dashboard = () => {
 					</ul>
 				</div>
 			</ContentCard>
-	</DashboardContainer>
-);
+		</DashboardContainer>
+	);
 };
 
 export default Dashboard;
