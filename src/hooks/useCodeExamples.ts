@@ -1,12 +1,12 @@
 // src/hooks/useCodeExamples.ts
 
 import { useState, useMemo, useCallback } from 'react';
-import { 
-	CodeExamplesService, 
-	SupportedLanguage, 
+import {
+	CodeExamplesService,
+	SupportedLanguage,
 	FlowStepCodeExamples,
 	CodeExamplesConfig,
-	CodeExample
+	CodeExample,
 } from '../services/codeExamplesService';
 
 interface UseCodeExamplesProps {
@@ -48,7 +48,7 @@ export const useCodeExamples = ({
 
 	const stepData = useMemo(() => {
 		if (!codeExamplesService) return null;
-		
+
 		try {
 			setIsLoading(true);
 			setError(null);
@@ -64,7 +64,7 @@ export const useCodeExamples = ({
 
 	const filteredExamples = useMemo(() => {
 		if (!stepData || !codeExamplesService) return [];
-		
+
 		try {
 			return codeExamplesService.filterExamplesByLanguage(stepData.examples, selectedLanguages);
 		} catch {
@@ -74,10 +74,8 @@ export const useCodeExamples = ({
 	}, [stepData, selectedLanguages, codeExamplesService]);
 
 	const toggleLanguage = useCallback((language: SupportedLanguage) => {
-		setSelectedLanguages(prev => 
-			prev.includes(language)
-				? prev.filter(l => l !== language)
-				: [...prev, language]
+		setSelectedLanguages((prev) =>
+			prev.includes(language) ? prev.filter((l) => l !== language) : [...prev, language]
 		);
 	}, []);
 

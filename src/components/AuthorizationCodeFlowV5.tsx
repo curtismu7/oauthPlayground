@@ -6,7 +6,6 @@ import {
 	FiCheckCircle,
 	FiChevronDown,
 	FiCopy,
-	FiExternalLink,
 	FiGlobe,
 	FiInfo,
 	FiKey,
@@ -15,10 +14,10 @@ import {
 import styled from 'styled-components';
 import { useFlowBehaviorSettings } from '../contexts/UISettingsContext';
 import { useAuthorizationCodeFlowController } from '../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
-import { FlowHeader } from '../services/flowHeaderService';
-import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import ConfigurationSummaryCard from './ConfigurationSummaryCard';
 import { CredentialsInput } from './CredentialsInput';
@@ -26,7 +25,6 @@ import FlowInfoCard from './FlowInfoCard';
 import { FlowDiagram, FlowStep, FlowStepContent, FlowStepNumber } from './InfoBlocks';
 import LoginSuccessModal from './LoginSuccessModal';
 import PingOneApplicationConfig from './PingOneApplicationConfig';
-import { ResultsHeading, ResultsSection, SectionDivider } from './ResultsPanel';
 import SecurityFeaturesDemo from './SecurityFeaturesDemo';
 import { StepNavigationButtons } from './StepNavigationButtons';
 import TokenIntrospect from './TokenIntrospect';
@@ -375,7 +373,7 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 	// Scroll to top when step changes
 	useEffect(() => {
 		window.scrollTo({ top: 0, behavior: 'smooth' });
-	}, [currentStep]);
+	}, []);
 
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: `${flowType}-authorization-code-v5`,
@@ -408,10 +406,10 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 
 	// Wrapper functions for consistency with component naming
 	const handleGenerateAuthUrl = generateAuthorizationUrl;
-	const handleIntrospectToken = () => {
+	const handleIntrospectToken = useCallback(() => {
 		// Introspection functionality to be implemented
 		console.log('Introspect token clicked');
-	};
+	}, []);
 
 	// Get UI settings for collapsible default state
 	const { collapsibleDefaultState } = useFlowBehaviorSettings();
@@ -688,7 +686,6 @@ export const AuthorizationCodeFlowV5: React.FC<AuthorizationCodeFlowV5Props> = (
 											onChange={handleFlowConfigChange}
 										/>
 
-										<SectionDivider />
 										<ConfigurationSummaryCard
 											configuration={credentials}
 											onSaveConfiguration={saveCredentials}

@@ -17,10 +17,8 @@ import {
 	FiSettings,
 	FiShield,
 	FiSmartphone,
-	FiTarget,
 	FiTool,
 	FiUser,
-	FiUserCheck,
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
@@ -185,12 +183,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'Core Overview': true,
 			'OAuth 2.0 Flows': true,
 			'OpenID Connect': true,
-			'PingOne': false,
+			PingOne: false,
 			'Mock & Demo Flows': false,
 			'Artificial Intelligence': false,
 			'Security & Management': false,
 			'Tools & Utilities': false,
-			'Documentation': false,
+			Documentation: false,
 		};
 	});
 
@@ -211,7 +209,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		setOpenMenus((prev: Record<string, boolean>) => {
 			const newState = {
 				...prev,
-				[menuLabel]: !prev[menuLabel]
+				[menuLabel]: !prev[menuLabel],
 			};
 
 			try {
@@ -282,9 +280,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					}}
 				>
 					{/* Core Overview Section */}
-					<SubMenu 
-						label="Core Overview" 
-						icon={<FiHome />} 
+					<SubMenu
+						label="Core Overview"
+						icon={<FiHome />}
 						open={openMenus['Core Overview']}
 						onOpenChange={() => toggleMenu('Core Overview')}
 					>
@@ -305,77 +303,77 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</SubMenu>
 
 					{/* OAuth 2.0 Flows */}
-					<SubMenu 
-						label="OAuth 2.0 Flows" 
-						icon={<FiShield />} 
+					<SubMenu
+						label="OAuth 2.0 Flows"
+						icon={<FiShield />}
 						open={openMenus['OAuth 2.0 Flows']}
 						onOpenChange={() => toggleMenu('OAuth 2.0 Flows')}
 					>
-					<MenuItem
-						icon={<FiLock />}
-						active={isActive('/flows/oauth-authorization-code-v5')}
-						onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
-					>
-						Authorization Code (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiZap />}
-						active={isActive('/flows/oauth-implicit-v5')}
-						onClick={() => handleNavigation('/flows/oauth-implicit-v5')}
-					>
-						Implicit Flow (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiSmartphone />}
-						active={isActive('/flows/device-authorization-v5')}
-						onClick={() => handleNavigation('/flows/device-authorization-v5')}
-					>
-						Device Authorization (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiKey />}
-						active={isActive('/flows/client-credentials-v5')}
-						onClick={() => handleNavigation('/flows/client-credentials-v5')}
-					>
-						Client Credentials (V5)
-					</MenuItem>
+						<MenuItem
+							icon={<FiLock />}
+							active={isActive('/flows/oauth-authorization-code-v5')}
+							onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
+						>
+							Authorization Code (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiZap />}
+							active={isActive('/flows/oauth-implicit-v5')}
+							onClick={() => handleNavigation('/flows/oauth-implicit-v5')}
+						>
+							Implicit Flow (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiSmartphone />}
+							active={isActive('/flows/device-authorization-v5')}
+							onClick={() => handleNavigation('/flows/device-authorization-v5')}
+						>
+							Device Authorization (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiKey />}
+							active={isActive('/flows/client-credentials-v5')}
+							onClick={() => handleNavigation('/flows/client-credentials-v5')}
+						>
+							Client Credentials (V5)
+						</MenuItem>
 					</SubMenu>
 
 					{/* OpenID Connect */}
-					<SubMenu 
-						label="OpenID Connect" 
-						icon={<FiUser />} 
+					<SubMenu
+						label="OpenID Connect"
+						icon={<FiUser />}
 						open={openMenus['OpenID Connect']}
 						onOpenChange={() => toggleMenu('OpenID Connect')}
 					>
-					<MenuItem
-						icon={<FiLock />}
-						active={isActive('/flows/oidc-authorization-code-v5')}
-						onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
-					>
-						Authorization Code (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiZap />}
-						active={isActive('/flows/oidc-implicit-v5')}
-						onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
-					>
-						Implicit Flow (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiSmartphone />}
-						active={isActive('/flows/oidc-device-authorization-v5')}
-						onClick={() => handleNavigation('/flows/oidc-device-authorization-v5')}
-					>
-						Device Authorization (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiGitBranch />}
-						active={isActive('/flows/hybrid-v5')}
-						onClick={() => handleNavigation('/flows/hybrid-v5')}
-					>
-						Hybrid Flow (V5)
-					</MenuItem>
+						<MenuItem
+							icon={<FiLock />}
+							active={isActive('/flows/oidc-authorization-code-v5')}
+							onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
+						>
+							Authorization Code (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiZap />}
+							active={isActive('/flows/oidc-implicit-v5')}
+							onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
+						>
+							Implicit Flow (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiSmartphone />}
+							active={isActive('/flows/oidc-device-authorization-v5')}
+							onClick={() => handleNavigation('/flows/oidc-device-authorization-v5')}
+						>
+							Device Authorization (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiGitBranch />}
+							active={isActive('/flows/hybrid-v5')}
+							onClick={() => handleNavigation('/flows/hybrid-v5')}
+						>
+							Hybrid Flow (V5)
+						</MenuItem>
 						{/* V3 Hybrid Flow - Hidden, use V5 instead */}
 						{/* <MenuItem
 							active={isActive('/flows/oidc-hybrid-v3')}
@@ -386,146 +384,153 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</SubMenu>
 
 					{/* PingOne */}
-					<SubMenu 
-						label="PingOne" 
-						icon={<FiKey />} 
+					<SubMenu
+						label="PingOne"
+						icon={<FiKey />}
 						open={openMenus['PingOne']}
 						onOpenChange={() => toggleMenu('PingOne')}
 					>
-					<MenuItem
-						icon={<FiKey />}
-						active={isActive('/flows/worker-token-v5')}
-						onClick={() => handleNavigation('/flows/worker-token-v5')}
-					>
-						Worker Token (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiLock />}
-						active={isActive('/flows/pingone-par-v5')}
-						onClick={() => handleNavigation('/flows/pingone-par-v5')}
-					>
-						PAR (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiSmartphone />}
-						active={isActive('/flows/redirectless-flow-v5')}
-						onClick={() => handleNavigation('/flows/redirectless-flow-v5')}
-					>
-						Redirectless Flow Real (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiSmartphone />}
-						active={isActive('/flows/ciba-v5')}
-						onClick={() => handleNavigation('/flows/ciba-v5')}
-					>
-						CBIA (V5)
-					</MenuItem>
-					<MenuItem
-						icon={<FiShield />}
-						active={isActive('/flows/pingone-mfa-v5')}
-						onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
-					>
-						PingOne MFA API (V5)
-					</MenuItem>
+						<MenuItem
+							icon={<FiKey />}
+							active={isActive('/flows/worker-token-v5')}
+							onClick={() => handleNavigation('/flows/worker-token-v5')}
+						>
+							Worker Token (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiLock />}
+							active={isActive('/flows/pingone-par-v5')}
+							onClick={() => handleNavigation('/flows/pingone-par-v5')}
+						>
+							PAR (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiSmartphone />}
+							active={isActive('/flows/redirectless-flow-v5')}
+							onClick={() => handleNavigation('/flows/redirectless-flow-v5')}
+						>
+							Redirectless Flow V5 (Real)
+						</MenuItem>
+						<MenuItem
+							icon={<FiSmartphone />}
+							active={isActive('/flows/ciba-v5')}
+							onClick={() => handleNavigation('/flows/ciba-v5')}
+						>
+							CBIA (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiShield />}
+							active={isActive('/flows/pingone-mfa-v5')}
+							onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
+						>
+							PingOne MFA
+						</MenuItem>
 					</SubMenu>
 
 					{/* Mock & Demo Flows */}
-					<SubMenu 
-						label="Mock & Demo Flows" 
-						icon={<FiEye />} 
+					<SubMenu
+						label="Mock & Demo Flows"
+						icon={<FiEye />}
 						open={openMenus['Mock & Demo Flows']}
 						onOpenChange={() => toggleMenu('Mock & Demo Flows')}
 					>
-					<MenuItem
-						icon={<FiEye />}
-						active={isActive('/flows/jwt-bearer-v5')}
-						onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
-					>
-						JWT Bearer Token (V5) (Mock)
-					</MenuItem>
-					<MenuItem
-						icon={<FiEye />}
-						active={isActive('/flows/oauth2-resource-owner-password')}
-						onClick={() => handleNavigation('/flows/oauth2-resource-owner-password')}
-					>
-						ROPC (V5) (Mock)
-					</MenuItem>
-					<MenuItem
-						icon={<FiTarget />}
-						active={isActive('/flows/rar-v5')}
-						onClick={() => handleNavigation('/flows/rar-v5')}
-					>
-						RAR (V5) (Mock)
-					</MenuItem>
-					<MenuItem
-						icon={<FiEye />}
-						active={isActive('/code-examples-demo')}
-						onClick={() => handleNavigation('/code-examples-demo')}
-					>
-						Code Examples
-					</MenuItem>
+						<MenuItem
+							icon={<FiEye />}
+							active={isActive('/flows/jwt-bearer-v5')}
+							onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
+						>
+							JWT Bearer Token (Mock) (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiEye />}
+							active={isActive('/flows/oauth2-resource-owner-password')}
+							onClick={() => handleNavigation('/flows/oauth2-resource-owner-password')}
+						>
+							ROPC (Mock) (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiEye />}
+							active={isActive('/flows/rar-v5')}
+							onClick={() => handleNavigation('/flows/rar-v5')}
+						>
+							RAR (Mock) (V5)
+						</MenuItem>
+						<MenuItem
+							icon={<FiEye />}
+							active={isActive('/code-examples-demo')}
+							onClick={() => handleNavigation('/code-examples-demo')}
+						>
+							Code Examples
+						</MenuItem>
+						<MenuItem
+							icon={<FiSmartphone />}
+							active={isActive('/flows/redirectless-flow-mock')}
+							onClick={() => handleNavigation('/flows/redirectless-flow-mock')}
+						>
+							Redirectless Flow V5 (Educational)
+						</MenuItem>
 					</SubMenu>
 
 					{/* Artificial Intelligence */}
-					<SubMenu 
-						label="Artificial Intelligence" 
-						icon={<FiCpu />} 
+					<SubMenu
+						label="Artificial Intelligence"
+						icon={<FiCpu />}
 						open={openMenus['Artificial Intelligence']}
 						onOpenChange={() => toggleMenu('Artificial Intelligence')}
 					>
-					<MenuItem
-						icon={<FiBookOpen />}
-						active={isActive('/ai-glossary')}
-						onClick={() => handleNavigation('/ai-glossary')}
-					>
-						AI Glossary
-					</MenuItem>
-					<MenuItem
-						icon={<FiCpu />}
-						active={isActive('/ai-agent-overview')}
-						onClick={() => handleNavigation('/ai-agent-overview')}
-					>
-						AI Agent Overview for PingOne
-					</MenuItem>
-					<MenuItem
-						icon={<FiBookOpen />}
-						active={isActive('/comprehensive-oauth-education')}
-						onClick={() => handleNavigation('/comprehensive-oauth-education')}
-					>
-						Comprehensive OAuth AI Education
-					</MenuItem>
-					<MenuItem
-						icon={<FiFileText />}
-						active={isActive('/docs/oidc-for-ai')}
-						onClick={() => handleNavigation('/docs/oidc-for-ai')}
-					>
-						OIDC for AI
-					</MenuItem>
-					<MenuItem
-						icon={<FiShield />}
-						active={isActive('/docs/oauth2-security-best-practices')}
-						onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
-					>
-						OAuth 2.0 Security best practices
-					</MenuItem>
-					<MenuItem
-						icon={<FiBookOpen />}
-						active={isActive('/oauth-oidc-training')}
-						onClick={() => handleNavigation('/oauth-oidc-training')}
-					>
-						OAuth/OIDC Training
-					</MenuItem>
-					<MenuItem
-						icon={<FiBookOpen />}
-						active={isActive('/tutorials')}
-						onClick={() => handleNavigation('/tutorials')}
-					>
-						Interactive Tutorials
-					</MenuItem>
+						<MenuItem
+							icon={<FiBookOpen />}
+							active={isActive('/ai-glossary')}
+							onClick={() => handleNavigation('/ai-glossary')}
+						>
+							AI Glossary
+						</MenuItem>
+						<MenuItem
+							icon={<FiCpu />}
+							active={isActive('/ai-agent-overview')}
+							onClick={() => handleNavigation('/ai-agent-overview')}
+						>
+							AI Agent Overview for PingOne
+						</MenuItem>
+						<MenuItem
+							icon={<FiBookOpen />}
+							active={isActive('/comprehensive-oauth-education')}
+							onClick={() => handleNavigation('/comprehensive-oauth-education')}
+						>
+							Comprehensive OAuth AI Education
+						</MenuItem>
+						<MenuItem
+							icon={<FiFileText />}
+							active={isActive('/docs/oidc-for-ai')}
+							onClick={() => handleNavigation('/docs/oidc-for-ai')}
+						>
+							OIDC for AI
+						</MenuItem>
+						<MenuItem
+							icon={<FiShield />}
+							active={isActive('/docs/oauth2-security-best-practices')}
+							onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
+						>
+							OAuth 2.0 Security Best Practices
+						</MenuItem>
+						<MenuItem
+							icon={<FiBookOpen />}
+							active={isActive('/oauth-oidc-training')}
+							onClick={() => handleNavigation('/oauth-oidc-training')}
+						>
+							OAuth/OIDC Training
+						</MenuItem>
+						<MenuItem
+							icon={<FiBookOpen />}
+							active={isActive('/tutorials')}
+							onClick={() => handleNavigation('/tutorials')}
+						>
+							Interactive Tutorials
+						</MenuItem>
 					</SubMenu>
-					<SubMenu 
-						label="Security & Management" 
-						icon={<FiShield />} 
+					<SubMenu
+						label="Security & Management"
+						icon={<FiShield />}
 						open={openMenus['Security & Management']}
 						onOpenChange={() => toggleMenu('Security & Management')}
 					>
@@ -536,122 +541,122 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							OAuth 2.1
 						</MenuItem>
-					<MenuItem
-						icon={<FiDatabase />}
-						active={isActive('/token-management')}
-						onClick={() => handleNavigation('/token-management')}
-					>
-						Token Management
-					</MenuItem>
-					<MenuItem
-						icon={<FiClock />}
-						active={isActive('/oidc-session-management')}
-						onClick={() => handleNavigation('/oidc-session-management')}
-					>
-						Session Management
-					</MenuItem>
-					<MenuItem
-						icon={<FiSearch />}
-						active={isActive('/auto-discover')}
-						onClick={() => handleNavigation('/auto-discover')}
-					>
-						OIDC Discovery
-					</MenuItem>
+						<MenuItem
+							icon={<FiDatabase />}
+							active={isActive('/token-management')}
+							onClick={() => handleNavigation('/token-management')}
+						>
+							Token Management
+						</MenuItem>
+						<MenuItem
+							icon={<FiClock />}
+							active={isActive('/oidc-session-management')}
+							onClick={() => handleNavigation('/oidc-session-management')}
+						>
+							Session Management
+						</MenuItem>
+						<MenuItem
+							icon={<FiSearch />}
+							active={isActive('/auto-discover')}
+							onClick={() => handleNavigation('/auto-discover')}
+						>
+							OIDC Discovery
+						</MenuItem>
 					</SubMenu>
 
 					{/* Tools & Utilities Section */}
-					<SubMenu 
-						label="Tools & Utilities" 
-						icon={<FiTool />} 
+					<SubMenu
+						label="Tools & Utilities"
+						icon={<FiTool />}
 						open={openMenus['Tools & Utilities']}
 						onOpenChange={() => toggleMenu('Tools & Utilities')}
 					>
-					<MenuItem
-						icon={<FiGitBranch />}
-						active={isActive('/flows/compare')}
-						onClick={() => handleNavigation('/flows/compare')}
-					>
-						Flow Comparison
-					</MenuItem>
-					<MenuItem
-						icon={<FiLayers />}
-						active={isActive('/flows/diagrams')}
-						onClick={() => handleNavigation('/flows/diagrams')}
-					>
-						Interactive Diagrams
-					</MenuItem>
-					<MenuItem
-						icon={<FiPackage />}
-						active={isActive('/sdk-sample-app')}
-						onClick={() => handleNavigation('/sdk-sample-app')}
-					>
-						SDK Sample App
-					</MenuItem>
-					<MenuItem
-						icon={<FiSettings />}
-						active={isActive('/advanced-config')}
-						onClick={() => handleNavigation('/advanced-config')}
-					>
-						Advanced Configuration
-					</MenuItem>
+						<MenuItem
+							icon={<FiGitBranch />}
+							active={isActive('/flows/compare')}
+							onClick={() => handleNavigation('/flows/compare')}
+						>
+							Flow Comparison
+						</MenuItem>
+						<MenuItem
+							icon={<FiLayers />}
+							active={isActive('/flows/diagrams')}
+							onClick={() => handleNavigation('/flows/diagrams')}
+						>
+							Interactive Diagrams
+						</MenuItem>
+						<MenuItem
+							icon={<FiPackage />}
+							active={isActive('/sdk-sample-app')}
+							onClick={() => handleNavigation('/sdk-sample-app')}
+						>
+							SDK Sample App
+						</MenuItem>
+						<MenuItem
+							icon={<FiSettings />}
+							active={isActive('/advanced-config')}
+							onClick={() => handleNavigation('/advanced-config')}
+						>
+							Advanced Configuration
+						</MenuItem>
 					</SubMenu>
 
 					{/* Documentation */}
-					<SubMenu 
-						label="Documentation" 
-						icon={<FiFileText />} 
+					<SubMenu
+						label="Documentation"
+						icon={<FiFileText />}
 						open={openMenus['Documentation']}
 						onOpenChange={() => toggleMenu('Documentation')}
 					>
-					<MenuItem
-						icon={<FiFileText />}
-						active={isActive('/documentation')}
-						onClick={() => handleNavigation('/documentation')}
-					>
-						Local Documentation
-					</MenuItem>
-					<MenuItem
-						icon={<FiFileText />}
-						active={isActive('/docs/oidc-specs')}
-						onClick={() => handleNavigation('/docs/oidc-specs')}
-					>
-						OIDC Specs
-					</MenuItem>
-					<MenuItem
-						icon={<FiFileText />}
-						active={isActive('/docs/oidc-for-ai')}
-						onClick={() => handleNavigation('/docs/oidc-for-ai')}
-					>
-						OIDC for AI
-					</MenuItem>
-					<MenuItem
-						icon={<FiShield />}
-						active={isActive('/docs/oauth2-security-best-practices')}
-						onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
-					>
-						OAuth 2.0 Security Best Practices
-					</MenuItem>
-					<MenuItem
-						icon={<FiExternalLink />}
-						onClick={() => {
-							window.open(
-								'https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2',
-								'_blank'
-							);
-							onClose();
-						}}
-					>
-						PingOne API Docs
-					</MenuItem>
-					<MenuItem
-						icon={<FiExternalLink />}
-						onClick={() => {
-							window.open('https://docs.pingidentity.com/sdks/latest/sdks/index.html', '_blank');
-							onClose();
-						}}
-					>
-						PingOne SDKs
-					</MenuItem>
+						<MenuItem
+							icon={<FiFileText />}
+							active={isActive('/documentation')}
+							onClick={() => handleNavigation('/documentation')}
+						>
+							Local Documentation
+						</MenuItem>
+						<MenuItem
+							icon={<FiFileText />}
+							active={isActive('/docs/oidc-specs')}
+							onClick={() => handleNavigation('/docs/oidc-specs')}
+						>
+							OIDC Specs
+						</MenuItem>
+						<MenuItem
+							icon={<FiFileText />}
+							active={isActive('/docs/oidc-for-ai')}
+							onClick={() => handleNavigation('/docs/oidc-for-ai')}
+						>
+							OIDC for AI
+						</MenuItem>
+						<MenuItem
+							icon={<FiShield />}
+							active={isActive('/docs/oauth2-security-best-practices')}
+							onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
+						>
+							OAuth 2.0 Security Best Practices
+						</MenuItem>
+						<MenuItem
+							icon={<FiExternalLink />}
+							onClick={() => {
+								window.open(
+									'https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2',
+									'_blank'
+								);
+								onClose();
+							}}
+						>
+							PingOne API Docs
+						</MenuItem>
+						<MenuItem
+							icon={<FiExternalLink />}
+							onClick={() => {
+								window.open('https://docs.pingidentity.com/sdks/latest/sdks/index.html', '_blank');
+								onClose();
+							}}
+						>
+							PingOne SDKs
+						</MenuItem>
 					</SubMenu>
 				</Menu>
 			</ProSidebar>

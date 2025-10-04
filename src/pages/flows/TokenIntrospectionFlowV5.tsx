@@ -5,7 +5,8 @@ import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { CredentialsInput } from '../../components/CredentialsInput';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
@@ -14,6 +15,7 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useTokenIntrospectionFlowController } from '../../hooks/useTokenIntrospectionFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -338,10 +340,58 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 						<EnhancedFlowWalkthrough flowId="token-introspection" />
 						<FlowSequenceDisplay flowType="token-introspection" />
 
-						{/* Configuration Summary */}
-						<ConfigurationSummaryCard
-							configuration={credentials}
-							hasConfiguration={Boolean(credentials?.clientId)}
+						{/* Environment ID Input */}
+						<EnvironmentIdInput
+							initialEnvironmentId={credentials?.environmentId || ''}
+							onEnvironmentIdChange={(newEnvId) => {
+								controller.setCredentials({
+									...credentials,
+									environmentId: newEnvId,
+								});
+							}}
+							onIssuerUrlChange={() => {}}
+							showSuggestions={true}
+							autoDiscover={false}
+						/>
+
+						{/* Credentials Input */}
+						<CredentialsInput
+							environmentId={credentials?.environmentId || ''}
+							clientId={credentials?.clientId || ''}
+							clientSecret={credentials?.clientSecret || ''}
+							scopes={credentials?.scope || 'openid profile email'}
+							onEnvironmentIdChange={(newEnvId) => {
+								controller.setCredentials({
+									...credentials,
+									environmentId: newEnvId,
+								});
+							}}
+							onClientIdChange={(newClientId) => {
+								controller.setCredentials({
+									...credentials,
+									clientId: newClientId,
+								});
+								// Auto-save if we have both environmentId and clientId
+								if (credentials?.environmentId && newClientId && credentials.environmentId.trim() && newClientId.trim()) {
+									controller.saveCredentials();
+									v4ToastManager.showSuccess('Credentials auto-saved');
+								}
+							}}
+							onClientSecretChange={(newClientSecret) => {
+								controller.setCredentials({
+									...credentials,
+									clientSecret: newClientSecret,
+								});
+							}}
+							onScopesChange={(newScopes) => {
+								controller.setCredentials({
+									...credentials,
+									scope: newScopes,
+								});
+							}}
+							onCopy={handleCopy}
+							showRedirectUri={false}
+							showLoginHint={false}
 						/>
 					</>
 				);

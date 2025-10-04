@@ -36,6 +36,9 @@ import { credentialManager } from '../../utils/credentialManager';
 import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { logger } from '../../utils/logger';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
+import { ResponseMode } from '../../services/responseModeService';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -147,6 +150,7 @@ const ImplicitFlowV3: React.FC = () => {
 		scopes: 'openid',
 		redirectUri: getCallbackUrlForFlow('implicit'),
 		responseType: 'id_token token' as 'id_token' | 'id_token token' | 'token',
+		responseMode: 'fragment' as ResponseMode,
 		state: '',
 		nonce: '',
 	});
@@ -277,6 +281,7 @@ const ImplicitFlowV3: React.FC = () => {
 				client_id: credentials.clientId,
 				redirect_uri: credentials.redirectUri,
 				response_type: credentials.responseType,
+				response_mode: credentials.responseMode,
 				scope: credentials.scopes,
 				state,
 				nonce,
@@ -440,77 +445,84 @@ const ImplicitFlowV3: React.FC = () => {
 				description: 'Configure your PingOne environment and client settings for the Implicit Flow',
 				content: (
 					<div style={{ display: 'grid', gap: '1.5rem' }}>
-						<WarningBox>
-							<WarningIcon>
-								<FiAlertTriangle size={20} />
-							</WarningIcon>
-							<WarningContent>
-								<h3> Security Warning</h3>
-								<p>
-									The Implicit Flow is <strong>deprecated</strong> and should not be used in
-									production. It's included here for educational purposes only. Use Authorization
-									Code Flow with PKCE instead.
-										fontSize: '1.2rem',
-									}}
-								>
-									What is the Implicit Flow?
-								</h3>
-								<p style={{ margin: '0 0 1rem 0', lineHeight: '1.5' }}>
-									The Implicit Flow is a simplified OAuth 2.0 flow where tokens are returned
-									directly in the URL fragment after user authorization. It was designed for
-									client-side applications but is now deprecated due to security concerns.
-								</p>
-							</div>
+						<CollapsibleSection title="Security Warning" defaultExpanded={true}>
+							<WarningBox>
+								<WarningIcon>
+									<FiAlertTriangle size={20} />
+								</WarningIcon>
+								<WarningContent>
+									<h3>Security Warning</h3>
+									<p>
+										The Implicit Flow is <strong>deprecated</strong> and should not be used in
+										production. It's included here for educational purposes only. Use Authorization
+										Code Flow with PKCE instead.
+									</p>
+									<h3
+										style={{
+											margin: '1rem 0 0.5rem 0',
+											color: '#fff',
+											fontSize: '1.2rem',
+										}}
+									>
+										What is the Implicit Flow?
+									</h3>
+									<p style={{ margin: '0 0 1rem 0', lineHeight: '1.5' }}>
+										The Implicit Flow is a simplified OAuth 2.0 flow where tokens are returned
+										directly in the URL fragment after user authorization. It was designed for
+										client-side applications but is now deprecated due to security concerns.
+									</p>
 
-							<div style={{ marginBottom: '1rem' }}>
-								<h3
-									style={{
-										margin: '0 0 0.5rem 0',
-										color: '#fff',
-										fontSize: '1.2rem',
-									}}
-								>
-									Why is it Deprecated?
-								</h3>
-								<ul
-									style={{
-										margin: '0',
-										paddingLeft: '1.5rem',
-										lineHeight: '1.6',
-									}}
-								>
-									<li>
-										<strong>Token Exposure:</strong> Tokens are visible in the URL and browser
-										history
-									</li>
-									<li>
-										<strong>No Refresh Tokens:</strong> Cannot securely refresh expired tokens
-									</li>
-									<li>
-										<strong>CSRF Vulnerabilities:</strong> Susceptible to cross-site request forgery
-										attacks
-									</li>
-									<li>
-										<strong>No Client Authentication:</strong> Cannot verify client identity
-									</li>
-								</ul>
-							</div>
+									<div style={{ marginBottom: '1rem' }}>
+										<h3
+											style={{
+												margin: '0 0 0.5rem 0',
+												color: '#fff',
+												fontSize: '1.2rem',
+											}}
+										>
+											Why is it Deprecated?
+										</h3>
+										<ul
+											style={{
+												margin: '0',
+												paddingLeft: '1.5rem',
+												lineHeight: '1.6',
+											}}
+										>
+											<li>
+												<strong>Token Exposure:</strong> Tokens are visible in the URL and browser
+												history
+											</li>
+											<li>
+												<strong>No Refresh Tokens:</strong> Cannot securely refresh expired tokens
+											</li>
+											<li>
+												<strong>CSRF Vulnerabilities:</strong> Susceptible to cross-site request forgery
+												attacks
+											</li>
+											<li>
+												<strong>No Client Authentication:</strong> Cannot verify client identity
+											</li>
+										</ul>
+									</div>
 
-							<div>
-								<h3
-									style={{
-										margin: '0 0 0.5rem 0',
-										color: '#fff',
-										fontSize: '1.2rem',
-									}}
-								>
-									Modern Alternative
-								</h3>
-								<p style={{ margin: '0', lineHeight: '1.5' }}>
-									Use <strong>Authorization Code Flow with PKCE</strong> for secure client-side
-									applications. It provides the same functionality with much better security.
-								</p>
-							</div>
+									<div>
+										<h3
+											style={{
+												margin: '0 0 0.5rem 0',
+												color: '#fff',
+												fontSize: '1.2rem',
+											}}
+										>
+											Modern Alternative
+										</h3>
+										<p style={{ margin: '0', lineHeight: '1.5' }}>
+											Use <strong>Authorization Code Flow with PKCE</strong> for secure client-side
+											applications. It provides the same functionality with much better security.
+										</p>
+									</div>
+								</WarningContent>
+							</WarningBox>
 						</CollapsibleSection>
 
 						<FormField>
@@ -686,6 +698,24 @@ const ImplicitFlowV3: React.FC = () => {
 							</div>
 						</FormField>
 
+						<FormField>
+							<FormLabel>Response Mode</FormLabel>
+							<ResponseModeSelector
+								selectedMode={credentials.responseMode}
+								onModeChange={(mode) =>
+									setCredentials({
+										...credentials,
+										responseMode: mode,
+									})
+								}
+								responseType={credentials.responseType}
+								clientType="public"
+								platform="web"
+								showRecommendations={true}
+								showUrlExamples={true}
+							/>
+						</FormField>
+
 						<div
 							style={{
 								display: 'flex',
@@ -786,66 +816,15 @@ const ImplicitFlowV3: React.FC = () => {
 						</div>
 
 						{authUrl && (
-							<div
-								style={{
-									background: '#f9fafb',
-									border: '1px solid #e5e7eb',
-									borderRadius: '8px',
-									padding: '1rem',
-								}}
-							>
-								<div
-									style={{
-										display: 'flex',
-										justifyContent: 'space-between',
-										alignItems: 'center',
-										marginBottom: '0.5rem',
-									}}
-								>
-									<h4
-										style={{
-											margin: '0',
-											fontSize: '0.875rem',
-											fontWeight: '600',
-											color: '#374151',
-										}}
-									>
-										Generated Authorization URL:
-									</h4>
-									<button
-										type="button"
-										onClick={() => copyToClipboard(authUrl, 'Authorization URL')}
-										style={{
-											background: 'none',
-											border: 'none',
-											cursor: 'pointer',
-											color: '#6b7280',
-											display: 'flex',
-											alignItems: 'center',
-											gap: '0.25rem',
-											fontSize: '0.75rem',
-										}}
-									>
-										<FiCopy size={14} />
-										Copy
-									</button>
-								</div>
-								<pre
-									style={{
-										background: '#1f2937',
-										color: '#f9fafb',
-										padding: '1rem',
-										borderRadius: '0.375rem',
-										fontSize: '0.75rem',
-										overflow: 'auto',
-										margin: '0',
-										whiteSpace: 'pre-wrap',
-										wordBreak: 'break-all',
-									}}
-								>
-									{authUrl}
-								</pre>
-							</div>
+							<ColoredUrlDisplay
+								url={authUrl}
+								label="Generated Authorization URL"
+								showCopyButton={true}
+								showInfoButton={true}
+								showOpenButton={false}
+								onCopy={copyToClipboard}
+								height="120px"
+							/>
 						)}
 					</div>
 				),
