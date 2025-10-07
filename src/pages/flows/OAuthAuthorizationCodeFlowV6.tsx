@@ -17,6 +17,8 @@ import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../../services
 import {
 	buildAuthUrl,
 	exchangeCodeForTokens,
+	getUserInfo,
+	introspectToken,
 	generateCodeChallenge,
 	generateCodeVerifier,
 	generateCsrfToken,
@@ -96,6 +98,7 @@ interface CredentialsState {
 	authorizationEndpoint: string;
 	tokenEndpoint: string;
 	userInfoEndpoint: string;
+	introspectionEndpoint: string;
 }
 
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';
@@ -125,6 +128,29 @@ interface TokenState {
 	scope: string;
 	error: string | null;
 	isExchanging: boolean;
+}
+
+interface IntrospectionState {
+	active: boolean;
+	client_id: string;
+	exp: number;
+	iat: number;
+	iss: string;
+	sub: string;
+	error: string | null;
+	isIntrospecting: boolean;
+}
+
+interface UserInfoState {
+	sub: string;
+	name: string | undefined;
+	email: string | undefined;
+	email_verified: boolean | undefined;
+	given_name: string | undefined;
+	family_name: string | undefined;
+	preferred_username: string | undefined;
+	error: string | null;
+	isFetching: boolean;
 }
 
 interface PkceState {
@@ -168,7 +194,15 @@ type CollapsibleSectionKey =
 	| 'tokenExchangeDetails'
 	| 'tokenExchangeApi'
 	| 'tokenExchangeTokens'
-	| 'tokenExchangeValidation';
+	| 'tokenExchangeValidation'
+	| 'introspectionOverview'
+	| 'introspectionDetails'
+	| 'introspectionApi'
+	| 'introspectionResponse'
+	| 'userInfoOverview'
+	| 'userInfoDetails'
+	| 'userInfoApi'
+	| 'userInfoResponse';
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
@@ -184,6 +218,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		authorizationEndpoint: '',
 		tokenEndpoint: '',
 		userInfoEndpoint: '',
+		introspectionEndpoint: '',
 	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [flowState, setFlowState] = useState<FlowState | null>(null);
@@ -194,6 +229,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [callbackUrl, setCallbackUrl] = useState('');
 	const [authResponse, setAuthResponse] = useState<AuthResponseState>({ code: '', state: '', error: null, isValid: false });
 	const [tokenState, setTokenState] = useState<TokenState>({ accessToken: '', refreshToken: '', idToken: '', tokenType: '', expiresIn: 0, scope: '', error: null, isExchanging: false });
+	const [introspectionState, setIntrospectionState] = useState<IntrospectionState>({ active: false, client_id: '', exp: 0, iat: 0, iss: '', sub: '', error: null, isIntrospecting: false });
+	const [userInfoState, setUserInfoState] = useState<UserInfoState>({ sub: '', name: undefined, email: undefined, email_verified: undefined, given_name: undefined, family_name: undefined, preferred_username: undefined, error: null, isFetching: false });
 	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
 		status: false,
 		validation: false,
@@ -219,6 +256,14 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		tokenExchangeApi: false,
 		tokenExchangeTokens: false,
 		tokenExchangeValidation: false,
+		introspectionOverview: false,
+		introspectionDetails: true,
+		introspectionApi: false,
+		introspectionResponse: false,
+		userInfoOverview: false,
+		userInfoDetails: true,
+		userInfoApi: false,
+		userInfoResponse: false,
 	});
 
 	const statusManager = useMemo(
@@ -414,6 +459,55 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			setTokenState(prev => ({ ...prev, isExchanging: false, error: message }));
 		}
 	}, [authResponse.code, pkceState.codeVerifier, credentials, statusManager]);
+
+	const handleIntrospection = useCallback(async () => {
+		if (!tokenState.accessToken || !credentials.introspectionEndpoint) {
+			setIntrospectionState(prev => ({ ...prev, error: 'Missing access token or introspection endpoint' }));
+			return;
+		}
+		setIntrospectionState(prev => ({ ...prev, isIntrospecting: true, error: null }));
+		try {
+			const response = await introspectToken(credentials.introspectionEndpoint, tokenState.accessToken, credentials.clientId, credentials.clientSecret);
+			setIntrospectionState({
+				active: response.active,
+				client_id: response.client_id,
+				exp: response.exp,
+				iat: response.iat,
+				iss: response.iss,
+				sub: response.sub,
+				error: null,
+				isIntrospecting: false,
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Introspection failed';
+			setIntrospectionState(prev => ({ ...prev, isIntrospecting: false, error: message }));
+		}
+	}, [tokenState.accessToken, credentials, statusManager]);
+
+	const handleUserInfo = useCallback(async () => {
+		if (!tokenState.accessToken || !credentials.userInfoEndpoint) {
+			setUserInfoState(prev => ({ ...prev, error: 'Missing access token or userInfo endpoint' }));
+			return;
+		}
+		setUserInfoState(prev => ({ ...prev, isFetching: true, error: null }));
+		try {
+			const userInfo = await getUserInfo(credentials.userInfoEndpoint, tokenState.accessToken);
+			setUserInfoState({
+				sub: userInfo.sub,
+				name: userInfo.name,
+				email: userInfo.email,
+				email_verified: userInfo.email_verified,
+				given_name: userInfo.given_name,
+				family_name: userInfo.family_name,
+				preferred_username: userInfo.preferred_username,
+				error: null,
+				isFetching: false,
+			});
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'UserInfo fetch failed';
+			setUserInfoState(prev => ({ ...prev, isFetching: false, error: message }));
+		}
+	}, [tokenState.accessToken, credentials]);
 
 	useEffect(() => {
 		if (validationReady && !introCompleted) {
