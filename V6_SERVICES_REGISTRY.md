@@ -16,7 +16,7 @@
 
 **Features**:
 - Blue gradient header with hover effects
-- White circular arrow indicators that rotate on toggle
+- White arrow indicators (→ right when collapsed, ↓ down when expanded)
 - Smooth expand/collapse animations
 - Controlled and uncontrolled component modes
 - Prevents infinite render loops
@@ -37,10 +37,12 @@
 }
 ```
 
-**Used By**:
-- Dashboard (5 sections)
-- Configuration (5 sections)
-- OAuthAuthorizationCodeFlowV6 (all sections)
+**Used By** (25+ pages, 330+ usages):
+- **V5 Flows**: RedirectlessFlow (23), OIDC Device Auth (21), OIDC Auth Code (21), OAuth Implicit (21), OIDC Hybrid (17), Device Auth (15), PAR (11), Client Credentials (11), JWT Bearer (5), MFA (3)
+- **V6 Flows**: OAuthAuthorizationCodeFlowV6 (23)
+- **Core Pages**: AIGlossary (13 categories), Dashboard (12), AIAgentOverview (13), InteractiveFlowDiagram (11), Configuration (11 - upgraded Oct 7)
+- **Training/Config**: OAuthOIDCTraining (9), AdvancedConfiguration (7), SDKSampleApp (5), InteractiveTutorials (5), OIDCSessionManagement (3)
+- **Other**: TokenManagement (1), OAuth21 (1)
 
 **Fixed Issues**:
 - ✅ Prevented "Maximum update depth exceeded" errors

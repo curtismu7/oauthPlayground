@@ -189,7 +189,7 @@ const IconContainer = styled.div`
   flex-shrink: 0;
 `;
 
-// Default arrow SVG
+// Default arrow SVG - Right arrow when collapsed, Down arrow when expanded
 const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
   <svg
     width="14"
@@ -199,7 +199,7 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d={collapsed ? "M6 9L12 15L18 9" : "M18 15L12 9L6 15"}
+      d={collapsed ? "M9 6L15 12L9 18" : "M6 9L12 15L18 9"}
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"

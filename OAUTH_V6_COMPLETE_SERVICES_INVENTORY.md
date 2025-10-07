@@ -56,8 +56,10 @@
 | **shallowEqual.ts** | Utility to prevent infinite React render loops | ✅ Active |
 
 **Used By**:
-- Dashboard (5 collapsible sections, V6 pageLayoutService, improved styling)
-- Configuration (5 collapsible sections)
+- 25+ pages across the application
+- 330+ total usages
+- All V5 flows, V6 flows, core pages, training pages, setup pages
+- See "Pages Using It" section below for complete breakdown
 
 **Files**:
 - `src/services/pageLayoutService.ts` (7.5 KB)
@@ -108,7 +110,7 @@ These services are documented as planned V6 architecture but have not been imple
 
 **Key Features**:
 - Blue gradient background (linear-gradient(135deg, #3b82f6 0%, #2563eb 100%))
-- White circular arrow indicators
+- White arrow indicators (→ right when collapsed, ↓ down when expanded)
 - Smooth 0.3s animations
 - Controlled and uncontrolled modes
 - ARIA accessibility attributes
@@ -117,9 +119,16 @@ These services are documented as planned V6 architecture but have not been imple
 - Max-height: 2000px when expanded
 - Prevents React infinite render loops
 
-**Pages Using It**:
-- Dashboard.tsx (5 sections)
-- Configuration.tsx (5 sections)
+**Pages Using It** (25 pages, 330+ usages):
+- **V5 Flows** (most sections): RedirectlessFlow (23), OIDC Device Auth (21), OIDC Auth Code (21), OAuth Implicit (21), OIDC Hybrid (17), Device Auth (15), PAR (11), Client Credentials (11), MFA (3), JWT Bearer (5)
+- **V6 Flows**: OAuthAuthorizationCodeFlowV6 (23 sections)
+- **Core Pages**: AIGlossary (13 categories), Dashboard (12), AIAgentOverview (13), InteractiveFlowDiagram (11), Configuration (11 sections with 5 collapsible groups)
+- **Training/Config Pages**: OAuthOIDCTraining (9), AdvancedConfiguration (7), SDKSampleApp (5), InteractiveTutorials (5), OIDCSessionManagement (3)
+- **Other Pages**: TokenManagement, OAuth21
+
+**Latest Updates (Oct 7, 2025)**:
+- ✅ **Configuration.tsx** - Upgraded to V6 with 5 collapsible sections (App Info, Quick Start, Alternative Startup, Troubleshooting, Resources)
+- ✅ **JWTBearerTokenFlowV5.tsx** - Added 2 collapsible sections (About Flow, Config Requirements)
 
 ---
 

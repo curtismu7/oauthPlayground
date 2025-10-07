@@ -67,7 +67,7 @@ import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
 import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
-import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
+// OAuthAuthorizationCodeFlowV5 removed - was causing 500 errors
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
@@ -324,10 +324,7 @@ const AppRoutes = () => {
 							{/* Tools & Utilities Routes */}
 							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 							{/* Backed up V2/V3/V4 routes removed */}
-							<Route
-								path="/flows/oauth-authorization-code-v5"
-								element={<OAuthAuthorizationCodeFlowV5 />}
-							/>
+							{/* OAuthAuthorizationCodeFlowV5 removed - was causing 500 errors */}
 							<Route
 								path="/flows/oidc-authorization-code-v5"
 								element={<OIDCAuthorizationCodeFlowV5 />}
