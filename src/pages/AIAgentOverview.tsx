@@ -13,8 +13,10 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody } from '../components/Card';
-import CollapsibleIcon from '../components/CollapsibleIcon';
 import { FlowHeader } from '../services/flowHeaderService';
+import { CollapsibleHeader as V6CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { PageLayoutService } from '../services/pageLayoutService';
+import { FlowUIService } from '../services/flowUIService';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -392,14 +394,21 @@ const CollapsibleContent = styled.div<{ $isOpen: boolean }>`
 `;
 
 const AIAgentOverview = () => {
-	// State for collapsible sections
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '1400px',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'ai-agent-overview',
+	};
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+		PageLayoutService.createPageLayout(pageConfig);
+
+	// State for collapsible sections (only for inner comparison table)
 	const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-		overview: true,
-		features: true,
-		comparison: true,
 		comparisonTable: true, // Add state for the inner comparison table - expanded by default
-		recommendations: true,
-		'mcp-servers': true, // Add state for MCP Servers section - expanded by default
 	});
 
 	// State for popup explanations
@@ -755,27 +764,17 @@ const AIAgentOverview = () => {
 	];
 
 	return (
-		<Container>
-			<FlowHeader
-				flowType="documentation"
-				customConfig={{
-					flowType: 'documentation',
-					title: 'AI Agent Authentication & MCP Integration Guide',
-					subtitle:
-						'Comprehensive guide to OAuth 2.0 and OpenID Connect for AI agents, including advanced security features, identity provider comparisons, and Model Context Protocol (MCP) server integration for secure AI agent deployments.',
-				}}
-			/>
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
 			{/* Overview Section */}
-			<CollapsibleSection>
-				<CollapsibleHeader onClick={() => toggleSection('overview')}>
-					<h2>
-						<FiInfo />
-						Why AI Agents Need Advanced OAuth/OIDC Features
-					</h2>
-					<CollapsibleIcon isExpanded={expandedSections.overview} />
-				</CollapsibleHeader>
-				<CollapsibleContent $isOpen={expandedSections.overview}>
+			<V6CollapsibleHeader
+				title="Why AI Agents Need Advanced OAuth/OIDC Features"
+				subtitle="Understanding the security requirements for AI agent authentication and authorization"
+				icon={<FiInfo />}
+				defaultCollapsed={false}
+			>
 					<Card>
 						<CardBody>
 							<p style={{ lineHeight: '1.6', marginBottom: '1rem' }}>
@@ -850,19 +849,15 @@ const AIAgentOverview = () => {
 							</ul>
 						</CardBody>
 					</Card>
-				</CollapsibleContent>
-			</CollapsibleSection>
+			</V6CollapsibleHeader>
 
 			{/* Features Grid */}
-			<CollapsibleSection>
-				<CollapsibleHeader onClick={() => toggleSection('features')}>
-					<h2>
-						<FiShield />
-						Key OAuth/OIDC Features for AI Agents
-					</h2>
-					<CollapsibleIcon isExpanded={expandedSections.features} />
-				</CollapsibleHeader>
-				<CollapsibleContent $isOpen={expandedSections.features}>
+			<V6CollapsibleHeader
+				title="Key OAuth/OIDC Features for AI Agents"
+				subtitle="Advanced features required for secure AI agent authentication and authorization"
+				icon={<FiShield />}
+				defaultCollapsed={false}
+			>
 					<FeatureGrid>
 						{features.map((feature) => (
 							<FeatureCard
@@ -915,19 +910,15 @@ const AIAgentOverview = () => {
 							</FeatureCard>
 						))}
 					</FeatureGrid>
-				</CollapsibleContent>
-			</CollapsibleSection>
+			</V6CollapsibleHeader>
 
 			{/* Comparison Table */}
-			<CollapsibleSection>
-				<CollapsibleHeader onClick={() => toggleSection('comparison')}>
-					<h2>
-						<FiServer />
-						Identity Provider Comparison for AI Agents
-					</h2>
-					<CollapsibleIcon isExpanded={expandedSections.comparison} />
-				</CollapsibleHeader>
-				<CollapsibleContent $isOpen={expandedSections.comparison}>
+			<V6CollapsibleHeader
+				title="Identity Provider Comparison for AI Agents"
+				subtitle="Comparing PingOne, PingFederate, and PingOne Advanced Services for AI agent authentication"
+				icon={<FiServer />}
+				defaultCollapsed={false}
+			>
 					<ComparisonSection>
 						<CardBody>
 							{/* Collapsible header for the comparison table */}
@@ -1523,19 +1514,15 @@ const AIAgentOverview = () => {
 							</CollapsibleContent>
 						</CardBody>
 					</ComparisonSection>
-				</CollapsibleContent>
-			</CollapsibleSection>
+			</V6CollapsibleHeader>
 
 			{/* Recommendations */}
-			<CollapsibleSection>
-				<CollapsibleHeader onClick={() => toggleSection('recommendations')}>
-					<h2>
-						<FiCheckCircle />
-						Product Selection & Best Practices for AI Agents
-					</h2>
-					<CollapsibleIcon isExpanded={expandedSections.recommendations} />
-				</CollapsibleHeader>
-				<CollapsibleContent $isOpen={expandedSections.recommendations}>
+			<V6CollapsibleHeader
+				title="Product Selection & Best Practices for AI Agents"
+				subtitle="Recommendations for choosing the right identity provider for your AI agent deployment"
+				icon={<FiCheckCircle />}
+				defaultCollapsed={false}
+			>
 					<Card>
 						<CardBody>
 							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
@@ -1576,19 +1563,15 @@ const AIAgentOverview = () => {
 							</ul>
 						</CardBody>
 					</Card>
-				</CollapsibleContent>
-			</CollapsibleSection>
+			</V6CollapsibleHeader>
 
 			{/* MCP Servers Section */}
-			<CollapsibleSection>
-				<CollapsibleHeader onClick={() => toggleSection('mcp-servers')}>
-					<h2>
-						<FiServer />
-						MCP Servers: The Future of AI Agent Integration
-					</h2>
-					<CollapsibleIcon isExpanded={expandedSections['mcp-servers']} />
-				</CollapsibleHeader>
-				<CollapsibleContent $isOpen={expandedSections['mcp-servers']}>
+			<V6CollapsibleHeader
+				title="MCP Servers: The Future of AI Agent Integration"
+				subtitle="Understanding Model Context Protocol and its integration with OAuth 2.0 for AI agents"
+				icon={<FiServer />}
+				defaultCollapsed={false}
+			>
 					<Card>
 						<CardBody>
 							<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
@@ -1701,8 +1684,7 @@ const AIAgentOverview = () => {
 							</ul>
 						</CardBody>
 					</Card>
-				</CollapsibleContent>
-			</CollapsibleSection>
+			</V6CollapsibleHeader>
 
 			{/* Popup for feature explanations */}
 			{popupData && (
@@ -1714,7 +1696,8 @@ const AIAgentOverview = () => {
 					</PopupContent>
 				</PopupOverlay>
 			)}
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
