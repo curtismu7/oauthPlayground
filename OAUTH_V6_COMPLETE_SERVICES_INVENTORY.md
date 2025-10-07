@@ -32,7 +32,7 @@
 
 | Version | Count | Status | Description |
 |---------|-------|--------|-------------|
-| **V6** | 2 | ✅ Restored | Next-gen architecture (collapsibleHeaderService + shallowEqual) |
+| **V6** | 6 | ✅ Active | Next-gen architecture (layout, UI, status, OIDC services) |
 | **V5** | 35+ | ✅ Active | Current production services |
 | **V4** | 10+ | ⚠️ Legacy | Older services, still in use |
 | **V3** | 5+ | 📦 Deprecated | Being phased out |
@@ -43,20 +43,30 @@
 
 > **Update Oct 7, 2025**: Core V6 services restored and actively used in Dashboard and Configuration
 
-### ✅ V6 Core Services (Restored & Active)
+### ✅ V6 Core Services (Active)
 
 | Service | Purpose | Status |
 |---------|---------|--------|
-| **collapsibleHeaderService.tsx** | Blue gradient collapsible sections with controlled state, prevents render loops | ✅ Restored & Active |
-| **shallowEqual.ts** | Utility to prevent infinite React render loops | ✅ Restored & Active |
+| **pageLayoutService.ts** | Standardized page dimensions (64rem/72rem), responsive breakpoints, integrated FlowHeader | ✅ Built & Active |
+| **collapsibleHeaderService.tsx** | Blue gradient collapsible sections with controlled state, prevents render loops | ✅ Active |
+| **flowStepLayoutService.tsx** | Consistent step headers, containers, and navigation | ✅ Built & Active |
+| **flowUIComponentsService.tsx** | Common UI components (InfoBox, Buttons, ParameterGrid) | ✅ Built & Active |
+| **flowStatusManagementService.ts** | Flow progress tracking, step timing, error recovery | ✅ Built & Active |
+| **oidcIdTokenService.tsx** | ID Token validation and claims extraction | ✅ Built & Active |
+| **shallowEqual.ts** | Utility to prevent infinite React render loops | ✅ Active |
 
 **Used By**:
-- Dashboard (5 collapsible sections)
+- Dashboard (5 collapsible sections, V6 pageLayoutService, improved styling)
 - Configuration (5 collapsible sections)
 
-**Location**:
-- `src/services/collapsibleHeaderService.tsx` (8.2 KB)
-- `src/utils/shallowEqual.ts` (1.4 KB)
+**Files**:
+- `src/services/pageLayoutService.ts` (7.5 KB)
+- `src/services/collapsibleHeaderService.tsx` (8.0 KB)
+- `src/services/flowStepLayoutService.tsx` (6.8 KB)
+- `src/services/flowUIComponentsService.tsx` (8.2 KB)
+- `src/services/flowStatusManagementService.ts` (7.7 KB)
+- `src/services/oidcIdTokenService.tsx` (6.4 KB)
+- `src/utils/shallowEqual.ts` (1.3 KB)
 
 ---
 
@@ -66,18 +76,8 @@ These services are documented as planned V6 architecture but have not been imple
 
 | Service | Purpose | Status |
 |---------|---------|--------|
-| **pageLayoutService.ts** | Standardized page dimensions (64rem/72rem), responsive breakpoints, integrated FlowHeader | 📋 Planned (Use V5 flowLayoutService.ts instead) |
-| **flowStepLayoutService.tsx** | Consistent step headers, containers, and navigation | 📋 Planned (Use V5 flowLayoutService.ts instead) |
-| **flowUIComponentsService.tsx** | Common UI components (InfoBox, Buttons, ParameterGrid) | 📋 Planned (Use V5 flowUIService.tsx instead) |
-| **flowStatusManagementService.ts** | Flow progress tracking, step timing, error recovery | 📋 Planned (Use V5 flowStatusService.tsx instead) |
-
-### 🔨 V6 OIDC Services (Planned - Not Yet Built)
-
-| Service | Purpose | Status |
-|---------|---------|--------|
-| **OIDCIdTokenService** | ID Token validation and claims extraction | 📋 Planned (Not yet implemented) |
-| **OIDCUserInfoService** | UserInfo endpoint integration | 📋 Planned (Not yet implemented) |
-| **OIDCSessionManagementService** | OIDC session management and logout | 📋 Planned (Not yet implemented) |
+| **oidcUserInfoService.tsx** | UserInfo endpoint integration | 📋 Planned (Not yet implemented) |
+| **oidcSessionManagementService.tsx** | OIDC session management and logout | 📋 Planned (Not yet implemented) |
 
 ### 🔨 V6 Enhanced UI Services (Planned - Not Yet Built)
 
@@ -831,3 +831,4 @@ const update = useCallback((updates) => {
 **In Development**: 🔨 V6 Services (needs rebuild)  
 **Last Inventory**: October 7, 2025
 
+CleanShot 2025-10-07 at 07.13.15.png
