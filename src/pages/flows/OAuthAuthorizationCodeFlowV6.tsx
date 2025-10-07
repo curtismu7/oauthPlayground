@@ -16,6 +16,7 @@ import { FlowValidationService } from '../../services/flowValidationService';
 import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../../services/oidcDiscoveryService';
 import {
 	buildAuthUrl,
+	exchangeCodeForTokens,
 	generateCodeChallenge,
 	generateCodeVerifier,
 	generateCsrfToken,
@@ -115,6 +116,25 @@ interface AuthResponseState {
 	isValid: boolean;
 }
 
+interface TokenState {
+	accessToken: string;
+	refreshToken: string;
+	idToken: string;
+	tokenType: string;
+	expiresIn: number;
+	scope: string;
+	error: string | null;
+	isExchanging: boolean;
+}
+
+interface PkceState {
+	codeVerifier: string;
+	codeChallenge: string;
+	method: string;
+	isGenerating: boolean;
+	error: string | null;
+}
+
 const createInitialAuthRequestState = (): AuthRequestState => ({
 	responseMode: 'query',
 	state: generateCsrfToken(),
@@ -143,7 +163,12 @@ type CollapsibleSectionKey =
 	| 'authResponseDetails'
 	| 'authResponseValidation'
 	| 'authResponseErrors'
-	| 'authResponseCode';
+	| 'authResponseCode'
+	| 'tokenExchangeOverview'
+	| 'tokenExchangeDetails'
+	| 'tokenExchangeApi'
+	| 'tokenExchangeTokens'
+	| 'tokenExchangeValidation';
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
@@ -164,16 +189,11 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [flowState, setFlowState] = useState<FlowState | null>(null);
 	const [introCompleted, setIntroCompleted] = useState(false);
 	const [pkceReady, setPkceReady] = useState(false);
-	const [pkceState, setPkceState] = useState({
-		codeVerifier: '',
-		codeChallenge: '',
-		method: 'S256',
-		isGenerating: false,
-		error: '' as string | null,
-	});
+	const [pkceState, setPkceState] = useState<PkceState>({ codeVerifier: '', codeChallenge: '', method: 'S256', isGenerating: false, error: null });
 	const [authRequest, setAuthRequest] = useState<AuthRequestState>(createInitialAuthRequestState);
 	const [callbackUrl, setCallbackUrl] = useState('');
 	const [authResponse, setAuthResponse] = useState<AuthResponseState>({ code: '', state: '', error: null, isValid: false });
+	const [tokenState, setTokenState] = useState<TokenState>({ accessToken: '', refreshToken: '', idToken: '', tokenType: '', expiresIn: 0, scope: '', error: null, isExchanging: false });
 	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
 		status: false,
 		validation: false,
@@ -194,6 +214,11 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		authResponseValidation: false,
 		authResponseErrors: false,
 		authResponseCode: false,
+		tokenExchangeOverview: false,
+		tokenExchangeDetails: true,
+		tokenExchangeApi: false,
+		tokenExchangeTokens: false,
+		tokenExchangeValidation: false,
 	});
 
 	const statusManager = useMemo(
@@ -353,6 +378,42 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			setAuthResponse({ code: '', state: '', error: 'Invalid callback URL format', isValid: false });
 		}
 	}, [statusManager]);
+
+	const handleTokenExchange = useCallback(async () => {
+		if (!authResponse.code || !pkceState.codeVerifier || !credentials.tokenEndpoint) {
+			setTokenState(prev => ({ ...prev, error: 'Missing required parameters for token exchange' }));
+			return;
+		}
+		setTokenState(prev => ({ ...prev, isExchanging: true, error: null }));
+		try {
+			const tokens = await exchangeCodeForTokens({
+				tokenEndpoint: credentials.tokenEndpoint,
+				clientId: credentials.clientId,
+				redirectUri: credentials.redirectUri,
+				code: authResponse.code,
+				codeVerifier: pkceState.codeVerifier,
+				clientSecret: credentials.clientSecret,
+			});
+			setTokenState({
+				accessToken: tokens.access_token,
+				refreshToken: tokens.refresh_token || '',
+				idToken: tokens.id_token || '',
+				tokenType: tokens.token_type,
+				expiresIn: tokens.expires_in,
+				scope: tokens.scope,
+				error: null,
+				isExchanging: false,
+			});
+			statusManager.completeStep('token-exchange', { tokensReceived: true });
+			const updated = statusManager.getState();
+			if (updated) {
+				setFlowState({ ...updated });
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Token exchange failed';
+			setTokenState(prev => ({ ...prev, isExchanging: false, error: message }));
+		}
+	}, [authResponse.code, pkceState.codeVerifier, credentials, statusManager]);
 
 	useEffect(() => {
 		if (validationReady && !introCompleted) {
@@ -848,6 +909,189 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				);
 			}
 
+			if (step.id === 'token-exchange') {
+				return (
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+						<CollapsibleHeader
+							title="Token Exchange Overview"
+							subtitle="Exchanging the authorization code for tokens"
+							onToggle={() => toggleSection('tokenExchangeOverview')}
+							collapsed={collapsedSections.tokenExchangeOverview}
+						>
+							<p>
+								After receiving the authorization code, the client exchanges it for access and refresh tokens. This is done securely with the PKCE verifier and client credentials.
+							</p>
+							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+								<li>Send POST request to token endpoint</li>
+								<li>Include authorization code, PKCE verifier, and client credentials</li>
+								<li>Receive access token, refresh token, and ID token</li>
+								<li>Validate tokens before use</li>
+							</ul>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Token Exchange Details"
+							subtitle="Technical details about the token exchange process"
+							onToggle={() => toggleSection('tokenExchangeDetails')}
+							collapsed={collapsedSections.tokenExchangeDetails}
+						>
+							<div style={{ display: 'grid', gap: '1rem' }}>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>Request Parameters</h4>
+									<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+										<li><strong>grant_type:</strong> authorization_code</li>
+										<li><strong>client_id:</strong> Your client ID</li>
+										<li><strong>code:</strong> The authorization code</li>
+										<li><strong>code_verifier:</strong> PKCE verifier</li>
+										<li><strong>redirect_uri:</strong> Must match the authorization request</li>
+									</ul>
+								</section>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>Security Features</h4>
+									<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+										<li>PKCE prevents code interception attacks</li>
+										<li>Client authentication ensures legitimate requests</li>
+										<li>Tokens are short-lived for security</li>
+										<li>Refresh tokens enable seamless re-authentication</li>
+									</ul>
+								</section>
+							</div>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Exchange Authorization Code"
+							subtitle="Send the token exchange request"
+							onToggle={() => toggleSection('tokenExchangeApi')}
+							collapsed={collapsedSections.tokenExchangeApi}
+						>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+								<button
+									type="button"
+									onClick={handleTokenExchange}
+									disabled={tokenState.isExchanging}
+									style={{
+										alignSelf: 'flex-start',
+										padding: '0.75rem 1.25rem',
+										background: '#2563eb',
+										color: '#ffffff',
+										border: 'none',
+										borderRadius: '0.5rem',
+										cursor: tokenState.isExchanging ? 'not-allowed' : 'pointer',
+									}}
+								>
+									{tokenState.isExchanging ? 'Exchanging…' : 'Exchange Code for Tokens'}
+								</button>
+								{tokenState.error && (
+									<p style={{ color: '#dc2626', margin: 0 }}>{tokenState.error}</p>
+								)}
+								{tokenState.accessToken && (
+									<div
+										style={{
+											display: 'grid',
+											gap: '1rem',
+											background: '#f1f5f9',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.75rem',
+											padding: '1.25rem',
+										}}
+									>
+										<section>
+											<h4 style={{ margin: '0 0 0.5rem 0' }}>Access Token</h4>
+											<pre
+												style={{
+													margin: 0,
+													padding: '0.75rem',
+													background: '#ffffff',
+													borderRadius: '0.5rem',
+													wordBreak: 'break-all',
+												}}
+											>
+												{tokenState.accessToken}
+											</pre>
+											<button
+												type="button"
+												onClick={() => handleCopy(tokenState.accessToken, 'Access Token')}
+												style={{
+													marginTop: '0.5rem',
+													padding: '0.5rem 0.75rem',
+													background: '#0ea5e9',
+													color: '#ffffff',
+													border: 'none',
+													borderRadius: '0.5rem',
+													cursor: 'pointer',
+												}}
+											>
+												Copy Access Token
+											</button>
+										</section>
+										{tokenState.refreshToken && (
+											<section>
+												<h4 style={{ margin: '0 0 0.5rem 0' }}>Refresh Token</h4>
+												<pre
+													style={{
+														margin: 0,
+														padding: '0.75rem',
+														background: '#ffffff',
+														borderRadius: '0.5rem',
+														wordBreak: 'break-all',
+													}}
+												>
+													{tokenState.refreshToken}
+												</pre>
+												<button
+													type="button"
+													onClick={() => handleCopy(tokenState.refreshToken, 'Refresh Token')}
+													style={{
+														marginTop: '0.5rem',
+														padding: '0.5rem 0.75rem',
+														background: '#0f766e',
+														color: '#ffffff',
+														border: 'none',
+														borderRadius: '0.5rem',
+														cursor: 'pointer',
+													}}
+												>
+													Copy Refresh Token
+												</button>
+											</section>
+										)}
+										{tokenState.idToken && (
+											<section>
+												<h4 style={{ margin: '0 0 0.5rem 0' }}>ID Token</h4>
+												<pre
+													style={{
+														margin: 0,
+														padding: '0.75rem',
+														background: '#ffffff',
+														borderRadius: '0.5rem',
+														wordBreak: 'break-all',
+													}}
+												>
+													{tokenState.idToken}
+												</pre>
+												<button
+													type="button"
+													onClick={() => handleCopy(tokenState.idToken, 'ID Token')}
+													style={{
+														marginTop: '0.5rem',
+														padding: '0.5rem 0.75rem',
+														background: '#7c3aed',
+														color: '#ffffff',
+														border: 'none',
+														borderRadius: '0.5rem',
+														cursor: 'pointer',
+													}}
+												>
+													Copy ID Token
+												</button>
+											</section>
+										)}
+									</div>
+								)}
+							</div>
+						</CollapsibleHeader>
+					</div>
+				);
+			}
+
 			return (
 				<CollapsibleHeader
 					title="Service integration in progress"
@@ -870,7 +1114,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			handleCredentialChange,
 			handleDiscoveryComplete,
 			handleParseCallbackUrl,
+			handleTokenExchange,
 			toggleSection,
+			tokenState,
 			validationReady,
 			validationRequirements,
 		],
@@ -893,8 +1139,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				<MainCard>
 					{STEP_METADATA.map((step, index) => {
 					const isFirstStep = index === 0;
-					const isNextEnabled = step.id === 'introduction' ? validationReady : step.id === 'authorization-response' ? authResponse.isValid : false;
-					const nextLabel = step.id === 'introduction' ? 'Proceed to PKCE' : step.id === 'authorization-response' ? 'Proceed to Token Exchange' : 'Next';
+					const isNextEnabled = step.id === 'introduction' ? validationReady : step.id === 'authorization-response' ? authResponse.isValid : step.id === 'token-exchange' ? !!tokenState.accessToken : false;
+					const nextLabel = step.id === 'introduction' ? 'Proceed to PKCE' : step.id === 'authorization-response' ? 'Proceed to Token Exchange' : step.id === 'token-exchange' ? 'Proceed to Introspection' : 'Next';
 					return (
 							<StepSection
 								key={step.id}
