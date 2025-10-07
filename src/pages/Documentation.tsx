@@ -229,13 +229,15 @@ const FeatureButton = styled(Link)`
   &:hover {
     background-color: #2563eb;
     color: white !important;
+    border-color: white;
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   }
   
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+    border-color: white;
   }
 `;
 
