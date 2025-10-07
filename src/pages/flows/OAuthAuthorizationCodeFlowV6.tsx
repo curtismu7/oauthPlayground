@@ -667,6 +667,42 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							</ParameterGrid>
 						</GeneratedContentBox>
 					</CollapsibleHeader>
+
+					<CollapsibleHeader
+						title="Application Configuration & Credentials"
+						subtitle="Provide your PingOne configuration details"
+						onToggle={() => toggleSection('credentials')}
+						isCollapsed={collapsedSections.credentials}
+					>
+						<OIDCDiscoveryInput
+							onDiscoveryComplete={(result) => {
+								if (result?.success && result.document) {
+									handleDiscoveryComplete(result.document);
+								}
+							}}
+							initialIssuerUrl={credentials.issuerUrl}
+						/>
+
+						<CredentialsInput
+							environmentId={credentials.environmentId}
+							clientId={credentials.clientId}
+							clientSecret={credentials.clientSecret}
+							redirectUri={credentials.redirectUri}
+							scopes={credentials.scopes}
+							loginHint={credentials.loginHint}
+							onEnvironmentIdChange={(value) => handleCredentialChange('environmentId', value)}
+							onClientIdChange={(value) => handleCredentialChange('clientId', value)}
+							onClientSecretChange={(value) => handleCredentialChange('clientSecret', value)}
+							onRedirectUriChange={(value) => handleCredentialChange('redirectUri', value)}
+							onScopesChange={(value) => handleCredentialChange('scopes', value)}
+							onLoginHintChange={(value) => handleCredentialChange('loginHint', value)}
+							onCopy={handleCopy}
+							emptyRequiredFields={emptyRequiredFields}
+							copiedField={copiedField}
+						/>
+					</CollapsibleHeader>
+
+					<EnhancedFlowWalkthrough flowId="oauth-authorization-code" defaultCollapsed={false} />
 				</>
 			);
 		}
