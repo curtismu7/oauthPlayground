@@ -17,6 +17,7 @@ import {
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowUIService } from '../services/flowUIService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { credentialManager } from '../utils/credentialManager';
 import { CredentialsInput } from '../components/CredentialsInput';
@@ -188,43 +189,6 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
 	}}
 `;
 
-const ActionButton = styled.a<{ $variant?: 'primary' | 'secondary' }>`
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-  margin: 0.5rem 0.5rem 0.5rem 0;
-  
-  ${({ $variant, theme }) => {
-		if ($variant === 'primary') {
-			return `
-        background-color: ${theme.colors.primary};
-        color: white;
-        
-        &:hover {
-          background-color: ${theme.colors.primaryDark};
-          transform: translateY(-1px);
-        }
-      `;
-		} else {
-			return `
-        background-color: white;
-        color: ${theme.colors.gray700};
-        border: 1px solid ${theme.colors.gray300};
-        
-        &:hover {
-          background-color: ${theme.colors.gray50};
-          border-color: ${theme.colors.gray400};
-        }
-      `;
-		}
-	}}
-`;
 
 const FeatureGrid = styled.div`
   display: grid;
@@ -533,7 +497,7 @@ cd oauthPlayground`}
 							style={{
 								background: hasCredentials ? '#10b981' : '#3b82f6',
 								color: 'white',
-								border: 'none',
+								border: '1px solid #ffffff',
 								borderRadius: '0.5rem',
 								padding: '0.75rem 1.5rem',
 								fontSize: '0.875rem',
@@ -543,6 +507,14 @@ cd oauthPlayground`}
 								alignItems: 'center',
 								gap: '0.5rem',
 								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = hasCredentials ? '#059669' : '#2563eb';
+								e.currentTarget.style.borderColor = '#ffffff';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = hasCredentials ? '#10b981' : '#3b82f6';
+								e.currentTarget.style.borderColor = '#ffffff';
 							}}
 						>
 							<FiSave size={16} />
@@ -677,35 +649,98 @@ cd oauthPlayground`}
 			>
 				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
 				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-					<ActionButton
+					<a
 						href="https://github.com/curtismu7/oauthPlayground"
 						target="_blank"
 						rel="noopener noreferrer"
-						$variant="primary"
+						style={{
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							padding: '0.75rem 1.5rem',
+							backgroundColor: '#3b82f6',
+							color: 'white',
+							textDecoration: 'none',
+							borderRadius: '0.5rem',
+							fontWeight: '600',
+							fontSize: '0.875rem',
+							border: '1px solid #ffffff',
+							transition: 'all 0.2s',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.backgroundColor = '#2563eb';
+							e.currentTarget.style.borderColor = '#ffffff';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.backgroundColor = '#3b82f6';
+							e.currentTarget.style.borderColor = '#ffffff';
+						}}
 					>
 						<FiGithub />
 						View on GitHub
-					</ActionButton>
+					</a>
 
-					<ActionButton
+					<a
 						href="https://docs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2"
 						target="_blank"
 						rel="noopener noreferrer"
-						$variant="secondary"
+						style={{
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							padding: '0.75rem 1.5rem',
+							backgroundColor: 'white',
+							color: '#3b82f6',
+							textDecoration: 'none',
+							borderRadius: '0.5rem',
+							fontWeight: '600',
+							fontSize: '0.875rem',
+							border: '1px solid #3b82f6',
+							transition: 'all 0.2s',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.backgroundColor = '#f8fafc';
+							e.currentTarget.style.borderColor = '#2563eb';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.backgroundColor = 'white';
+							e.currentTarget.style.borderColor = '#3b82f6';
+						}}
 					>
 						<FiExternalLink />
 						PingOne API Docs
-					</ActionButton>
+					</a>
 
-					<ActionButton
+					<a
 						href="https://docs.pingidentity.com/sdks/latest/sdks/index.html"
 						target="_blank"
 						rel="noopener noreferrer"
-						$variant="secondary"
+						style={{
+							display: 'inline-flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							padding: '0.75rem 1.5rem',
+							backgroundColor: 'white',
+							color: '#3b82f6',
+							textDecoration: 'none',
+							borderRadius: '0.5rem',
+							fontWeight: '600',
+							fontSize: '0.875rem',
+							border: '1px solid #3b82f6',
+							transition: 'all 0.2s',
+						}}
+						onMouseEnter={(e) => {
+							e.currentTarget.style.backgroundColor = '#f8fafc';
+							e.currentTarget.style.borderColor = '#2563eb';
+						}}
+						onMouseLeave={(e) => {
+							e.currentTarget.style.backgroundColor = 'white';
+							e.currentTarget.style.borderColor = '#3b82f6';
+						}}
 					>
 						<FiDownload />
 						PingOne SDKs
-					</ActionButton>
+					</a>
 				</div>
 			</Card>
 			</CollapsibleHeader>
