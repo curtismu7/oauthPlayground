@@ -15,13 +15,23 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
-import CollapsibleSection from '../components/CollapsibleSection';
-import PageTitle from '../components/PageTitle';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
+// White background container with better spacing
+const WhiteContainer = styled.div`
+  background-color: white;
+  min-height: 100vh;
+  color: #1f2937; // Dark text for readability
+  line-height: 1.6;
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: #111827; // Darker headers
+  }
+  
+  p {
+    color: #374151; // Medium dark text
+  }
 `;
 
 const OverviewCard = styled(Card)`
@@ -333,6 +343,20 @@ const WarningCard = styled(Card)`
 `;
 
 const OIDCSessionManagement = () => {
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for session management content (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'oidc-session-management', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	const [activeDemo, setActiveDemo] = useState<string | null>(null);
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
@@ -380,16 +404,18 @@ const OIDCSessionManagement = () => {
 	);
 
 	return (
-		<Container>
-			<PageTitle
-				title={
-					<>
-						<FiUsers />
-						OpenID Connect Session Management
-					</>
-				}
-				subtitle="OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, including when to log out the End-User. It enables Relying Parties to monitor the End-User's login status at the OpenID Provider on an ongoing basis."
-			/>
+		<WhiteContainer>
+			<PageContainer>
+				<ContentWrapper>
+					{LayoutFlowHeader && <LayoutFlowHeader />}
+
+					<CollapsibleHeader
+						title="What is OpenID Connect Session Management?"
+						subtitle="OpenID Connect Session Management 1.0 is a specification that defines how to manage sessions for OpenID Connect, including when to log out the End-User."
+						icon={<FiUsers />}
+						defaultCollapsed={false}
+					>
+						<div style={{ padding: '1.5rem' }}>
 
 			<OverviewCard>
 				<CardHeader>
@@ -2105,7 +2131,10 @@ sessionMonitor.startPolling();`,
 					</WarningCard>
 				</div>
 			</CollapsibleSection>
-		</Container>
+				</div>
+			</ContentWrapper>
+		</PageContainer>
+		</WhiteContainer>
 	);
 };
 

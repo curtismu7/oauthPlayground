@@ -1,23 +1,33 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 import { FlowComparisonTool } from '../components/FlowComparisonTool';
 import { usePageScroll } from '../hooks/usePageScroll';
-
-const Container = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
-`;
 
 const FlowComparison: React.FC = () => {
 	usePageScroll({ pageName: 'Flow Comparison', force: true });
 
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for flow comparison (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'flow-comparison', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	return (
-		<Container>
-			<FlowHeader flowId="flow-comparison" />
-			<FlowComparisonTool />
-		</Container>
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<FlowComparisonTool />
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
