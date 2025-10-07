@@ -450,7 +450,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			setPkceState((prev) => ({ ...prev, isGenerating: false, error: message }));
 			setPkceReady(false);
 		}
-	}, [statusManager]);
+	}, []);
 
 	const handleParseCallbackUrl = useCallback((callbackUrl: string) => {
 		if (!callbackUrl.trim()) {
@@ -473,7 +473,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		} catch (e) {
 			setAuthResponse({ code: '', state: '', error: 'Invalid callback URL format', isValid: false });
 		}
-	}, [statusManager]);
+	}, []);
 
 	const handleTokenExchange = useCallback(async () => {
 		if (!authResponse.code || !pkceState.codeVerifier || !credentials.tokenEndpoint) {
@@ -1232,7 +1232,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			copiedField,
 			credentials,
 			emptyRequiredFields,
-			flowState,
+			
 			handleCopy,
 			handleCredentialChange,
 			handleDiscoveryComplete,
