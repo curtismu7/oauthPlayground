@@ -177,7 +177,7 @@ const ResizeHandle = styled.div`
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [sidebarWidth, setSidebarWidth] = useState(320);
+	const [sidebarWidth, setSidebarWidth] = useState(380); // Increased to fit widest menu items
 	const isResizing = useRef(false);
 
 	// Load persisted menu state from localStorage
@@ -240,7 +240,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			if (!isResizing.current) return;
 
 			const newWidth = e.clientX;
-			if (newWidth >= 250 && newWidth <= 500) {
+			if (newWidth >= 300 && newWidth <= 600) {
 				setSidebarWidth(newWidth);
 			}
 		};
