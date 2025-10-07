@@ -848,12 +848,20 @@ export class FlowUIService {
 			InfoBox: this.getInfoBox(),
 			InfoTitle: this.getInfoTitle(),
 			InfoText: this.getInfoText(),
-			InfoList: this.getInfoList(),
 
-			// Parameter grid
+			// Flow suitability components
+			FlowSuitability: this.getFlowSuitability(),
+			SuitabilityCard: this.getSuitabilityCard(),
+
+			// Parameter display components
 			ParameterGrid: this.getParameterGrid(),
 			ParameterLabel: this.getParameterLabel(),
 			ParameterValue: this.getParameterValue(),
+
+			// Generated content components
+			GeneratedContentBox: this.getGeneratedContentBox(),
+			GeneratedLabel: this.getGeneratedLabel(),
+			InfoList: this.getInfoList(),
 
 			// Action components
 			ActionRow: this.getActionRow(),
@@ -974,6 +982,119 @@ export class FlowUIService {
 				flex: 1;
 			`,
 		};
+	}
+
+	// ============================================================================
+	// FLOW SUITABILITY COMPONENTS
+	// ============================================================================
+
+	static getFlowSuitability() {
+		return styled.div`
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+			gap: 1rem;
+			margin: 1.5rem 0 0;
+		`;
+	}
+
+	static getSuitabilityCard() {
+		return styled.div<{ $variant: 'success' | 'warning' | 'danger' }>`
+			border-radius: 1rem;
+			padding: 1.25rem;
+			border: 2px solid
+				${({ $variant }) => {
+					if ($variant === 'success') return '#34d399';
+					if ($variant === 'warning') return '#fbbf24';
+					return '#f87171';
+				}};
+			background-color: ${({ $variant }) => {
+				if ($variant === 'success') return '#f0fdf4';
+				if ($variant === 'warning') return '#fffbeb';
+				return '#fef2f2';
+			}};
+
+			h4 {
+				font-size: 0.875rem;
+				font-weight: 600;
+				margin: 0 0 0.5rem 0;
+				color: ${({ $variant }) => {
+					if ($variant === 'success') return '#166534';
+					if ($variant === 'warning') return '#92400e';
+					return '#991b1b';
+				}};
+			}
+
+			ul {
+				margin: 0;
+				padding-left: 1.25rem;
+				line-height: 1.6;
+			}
+		`;
+	}
+
+	// ============================================================================
+	// PARAMETER DISPLAY COMPONENTS
+	// ============================================================================
+
+	static getParameterGrid() {
+		return styled.div`
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+			gap: 1rem;
+			margin: 1rem 0;
+		`;
+	}
+
+	static getParameterLabel() {
+		return styled.div`
+			font-size: 0.75rem;
+			font-weight: 600;
+			color: #16a34a;
+			text-transform: uppercase;
+			letter-spacing: 0.05em;
+		`;
+	}
+
+	static getParameterValue() {
+		return styled.div`
+			font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+			font-size: 0.875rem;
+			color: #064e3b;
+			word-break: break-all;
+			background-color: #f0fdf4;
+			border: 1px solid #bbf7d0;
+			border-radius: 0.375rem;
+			padding: 0.5rem;
+		`;
+	}
+
+	// ============================================================================
+	// GENERATED CONTENT COMPONENTS
+	// ============================================================================
+
+	static getGeneratedContentBox() {
+		return styled.div`
+			background-color: #dcfce7;
+			border: 1px solid #22c55e;
+			border-radius: 0.75rem;
+			padding: 1.5rem;
+			margin: 1.5rem 0;
+			position: relative;
+		`;
+	}
+
+	static getGeneratedLabel() {
+		return styled.div`
+			position: absolute;
+			top: -10px;
+			left: 16px;
+			background-color: #16a34a;
+			color: white;
+			padding: 0.25rem 0.75rem;
+			border-radius: 9999px;
+			font-size: 0.75rem;
+			font-weight: 600;
+		`;
 	}
 }
 

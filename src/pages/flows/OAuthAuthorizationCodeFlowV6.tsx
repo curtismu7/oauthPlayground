@@ -3,13 +3,17 @@ import PageLayoutService from '../../services/pageLayoutService';
 import FlowStepLayoutService from '../../services/flowStepLayoutService'; // V5Stepper service
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowUIService } from '../../services/flowUIService';
 // Removed FlowStatusManagementService - not a service we built
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
+import FlowInfoCard from '../../components/FlowInfoCard';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { FlowValidationService } from '../../services/flowValidationService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../../services/oidcDiscoveryService';
 import {
 	buildAuthUrl,
