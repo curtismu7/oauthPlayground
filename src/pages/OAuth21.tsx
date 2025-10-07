@@ -2,7 +2,8 @@ import { FiCheck, FiInfo, FiShield, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
-import { FlowHeader } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -129,9 +130,24 @@ const PingOneNote = styled.div`
 `;
 
 const OAuth21 = () => {
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for OAuth 2.1 content (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'oauth-2-1', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	return (
-		<Container>
-			<FlowHeader flowType="oauth21" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
 			<OverviewCard>
 				<CardHeader>
@@ -573,7 +589,8 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 					</PingOneNote>
 				</CardBody>
 			</Card>
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
