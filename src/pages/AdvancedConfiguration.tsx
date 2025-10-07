@@ -313,7 +313,12 @@ const AdvancedConfiguration = () => {
 	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
 		PageLayoutService.createPageLayout(pageConfig);
 
-	const [selectedScopes, setSelectedScopes] = useState(new Set(['openid', 'profile', 'email']));
+	// Load defaults from credentialManager
+	const currentDefaults = credentialManager.loadAuthzFlowCredentials();
+	
+	const [environmentId, setEnvironmentId] = useState(currentDefaults.environmentId || '');
+	const [redirectUri, setRedirectUri] = useState(currentDefaults.redirectUri || 'https://localhost:3000/authz-callback');
+	const [selectedScopes, setSelectedScopes] = useState(new Set(currentDefaults.scope ? currentDefaults.scope.split(' ') : ['openid', 'profile', 'email']));
 	const [customScopes, setCustomScopes] = useState(['']);
 	const [customClaims, setCustomClaims] = useState(['']);
 	const [saved, setSaved] = useState(false);
