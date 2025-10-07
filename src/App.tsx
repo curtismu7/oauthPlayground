@@ -74,6 +74,8 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
+// Import the new V6 flow
+import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
 // V3 OIDC flows backed up
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 // OIDCHybridFlowV3 backed up
@@ -427,6 +429,11 @@ const AppRoutes = () => {
 							<Route
 								path="/flows/oidc-authorization-code-v5"
 								element={<OIDCAuthorizationCodeFlowV5 />}
+							/>
+							{/* V6 flow with service architecture */}
+							<Route
+								path="/flows/oidc-authorization-code-v6"
+								element={<OAuthAuthorizationCodeFlowV6 />}
 							/>
 							<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />

@@ -354,6 +354,18 @@ const flowCategories: FlowCategory[] = [
 				useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Reusable Templates'],
 				route: '/flows/oauth-authorization-code-v5',
 			},
+			{
+				id: 'authorization-code-v6',
+				title: 'Authorization Code Flow V6',
+				description: 'Service architecture version with advanced features and session management',
+				icon: <FiCode />,
+				security: 'high',
+				recommended: true,
+				complexity: 'high',
+				implementationTime: '4-6 hours',
+				useCases: ['Web Apps', 'Mobile Apps', 'SPAs', 'Advanced Integrations'],
+				route: '/flows/oidc-authorization-code-v6',
+			},
 			// Hidden: Authorization Code Flow V3 options
 			// {
 			// 	id: 'authorization-code-v3-oauth',
