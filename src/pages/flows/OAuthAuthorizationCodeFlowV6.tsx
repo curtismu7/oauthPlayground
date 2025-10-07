@@ -1,57 +1,43 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV6.tsx
-// V6.0.0 OAuth Authorization Code Flow - Following V5 Structure with Comprehensive Discovery
+// V6.0.0 OAuth Authorization Code Flow - Using V6 Service Architecture
 
-import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
-	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
-	FiCopy,
-	FiExternalLink,
-	FiEye,
-	FiEyeOff,
-	FiGlobe,
 	FiInfo,
-	FiKey,
 	FiRefreshCw,
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import styled from 'styled-components';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import FlowInfoCard from '../../components/FlowInfoCard';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
-import {
-	HelperText,
-	ResultsHeading,
-	ResultsSection,
-	SectionDivider,
-} from '../../components/ResultsPanel';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import ComprehensiveDiscoveryInput from '../../components/ComprehensiveDiscoveryInput';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { decodeJWTHeader } from '../../utils/jwks';
+import { IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { comprehensiveDiscoveryService, DiscoveryResult } from '../../services/comprehensiveDiscoveryService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
+
+// Import V6 Service Architecture
+import { V6FlowService } from '../../services/v6FlowService';
+
+// Create all V6 components with blue theme
+const {
+	Layout,
+	Collapsible,
+	Info,
+	Cards,
+} = V6FlowService.createFlowComponents('blue');
 
 const STEP_METADATA = [
 	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
@@ -69,335 +55,26 @@ const STEP_METADATA = [
 	{ title: 'Step 9: Flow Summary', subtitle: 'Comprehensive completion overview' },
 ] as const;
 
-type StepCompletionState = Record<number, boolean>;
 type IntroSectionKey =
 	| 'overview'
 	| 'credentials'
-	| 'responseMode' // Step 0
-	| 'results' // Step 0
+	| 'responseMode'
+	| 'results'
 	| 'pkceOverview'
-	| 'pkceDetails' // Step 1
+	| 'pkceDetails'
 	| 'authRequestOverview'
-	| 'authRequestDetails' // Step 2
+	| 'authRequestDetails'
 	| 'authResponseOverview'
-	| 'authResponseDetails' // Step 3
+	| 'authResponseDetails'
 	| 'tokenExchangeOverview'
-	| 'tokenExchangeDetails' // Step 4
+	| 'tokenExchangeDetails'
 	| 'userInfoOverview'
-	| 'userInfoDetails' // Step 5
+	| 'userInfoDetails'
 	| 'introspectionOverview'
-	| 'introspectionDetails' // Step 6
+	| 'introspectionDetails'
 	| 'completionOverview'
-	| 'completionDetails' // Step 7
-	| 'flowSummary'; // Step 9
-
-// V5-style Styled Components (matching OIDCAuthorizationCodeFlowV5_New.tsx)
-const Container = styled.div`
-	min-height: 100vh;
-	background-color: #f9fafb;
-	padding: 2rem 0 6rem;
-`;
-
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
-
-const MainCard = styled.div`
-	background-color: #ffffff;
-	border-radius: 1rem;
-	box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
-	border: 1px solid #e2e8f0;
-	overflow: hidden;
-`;
-
-const StepHeader = styled.div`
-	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-	color: #ffffff;
-	padding: 2rem;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-`;
-
-const StepHeaderLeft = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-`;
-
-const VersionBadge = styled.span`
-	align-self: flex-start;
-	background: rgba(59, 130, 246, 0.2);
-	border: 1px solid #60a5fa;
-	color: #bfdbfe;
-	font-size: 0.75rem;
-	font-weight: 600;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-`;
-
-const StepHeaderTitle = styled.h2`
-	font-size: 2rem;
-	font-weight: 700;
-	margin: 0;
-`;
-
-const StepHeaderSubtitle = styled.p`
-	font-size: 1rem;
-	color: rgba(255, 255, 255, 0.85);
-	margin: 0;
-`;
-
-const StepHeaderRight = styled.div`
-	text-align: right;
-`;
-
-const StepNumber = styled.div`
-	font-size: 2.5rem;
-	font-weight: 700;
-	line-height: 1;
-`;
-
-const StepTotal = styled.div`
-	font-size: 0.875rem;
-	color: rgba(255, 255, 255, 0.75);
-	letter-spacing: 0.05em;
-`;
-
-const StepContentWrapper = styled.div`
-	padding: 2rem;
-	background: #ffffff;
-`;
-
-const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-	background-color: #ffffff;
-	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-`;
-
-const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1.25rem 1.5rem;
-	background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-	border: none;
-	border-radius: 0.75rem;
-	cursor: pointer;
-	font-size: 1.1rem;
-	font-weight: 600;
-	color: #1e40af;
-	transition: background 0.2s ease;
-
-	&:hover {
-		background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-	}
-`;
-
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	color: #3b82f6;
-	font-size: 1.25rem;
-	transition: transform 0.2s ease;
-
-	${({ $collapsed }) => $collapsed && `transform: rotate(-90deg);`}
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	border-top: 1px solid #e2e8f0;
-`;
-
-const InfoBox = styled.div<{ $variant?: 'success' | 'info' | 'warning' | 'danger' }>`
-	display: flex;
-	align-items: flex-start;
-	gap: 1rem;
-	padding: 1.25rem;
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-
-	${({ $variant = 'info' }) => {
-		switch ($variant) {
-			case 'success':
-				return `
-					background-color: #f0fdf4;
-					border: 1px solid #bbf7d0;
-					color: #166534;
-				`;
-			case 'info':
-				return `
-					background-color: #eff6ff;
-					border: 1px solid #bfdbfe;
-					color: #1e40af;
-				`;
-			case 'warning':
-				return `
-					background-color: #fffbeb;
-					border: 1px solid #fde68a;
-					color: #92400e;
-				`;
-			case 'danger':
-				return `
-					background-color: #fef2f2;
-					border: 1px solid #fecaca;
-					color: #991b1b;
-				`;
-		}
-	}}
-`;
-
-const InfoTitle = styled.h3`
-	font-size: 1rem;
-	font-weight: 600;
-	margin: 0 0 0.5rem 0;
-`;
-
-const InfoText = styled.p`
-	font-size: 0.95rem;
-	line-height: 1.5;
-	margin: 0;
-`;
-
-const FlowSuitability = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1rem;
-	margin: 1.5rem 0 0;
-`;
-
-const SuitabilityCard = styled.div<{ $variant: 'success' | 'warning' | 'danger' }>`
-	border-radius: 1rem;
-	padding: 1.25rem;
-	border: 2px solid
-		${({ $variant }) => {
-			if ($variant === 'success') return '#34d399';
-			if ($variant === 'warning') return '#fbbf24';
-			return '#f87171';
-		}};
-	background-color: ${({ $variant }) => {
-		if ($variant === 'success') return '#f0fdf4';
-		if ($variant === 'warning') return '#fffbeb';
-		return '#fef2f2';
-	}};
-
-	h4 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		margin: 0 0 0.5rem 0;
-		color: ${({ $variant }) => {
-			if ($variant === 'success') return '#166534';
-			if ($variant === 'warning') return '#92400e';
-			return '#991b1b';
-		}};
-	}
-
-	ul {
-		margin: 0;
-		padding-left: 1.25rem;
-		line-height: 1.6;
-	}
-`;
-
-const ParameterGrid = styled.div`
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-	gap: 1rem;
-	margin: 1rem 0;
-`;
-
-const ParameterLabel = styled.div`
-	font-size: 0.75rem;
-	font-weight: 600;
-	color: #3b82f6;
-	text-transform: uppercase;
-	letter-spacing: 0.05em;
-`;
-
-const ParameterValue = styled.div`
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	color: #1e40af;
-	word-break: break-all;
-	background-color: #eff6ff;
-	border: 1px solid #bfdbfe;
-	border-radius: 0.375rem;
-	padding: 0.5rem;
-`;
-
-const GeneratedContentBox = styled.div`
-	background-color: #dbeafe;
-	border: 1px solid #3b82f6;
-	border-radius: 0.75rem;
-	padding: 1.5rem;
-	margin: 1.5rem 0;
-	position: relative;
-`;
-
-const GeneratedLabel = styled.div`
-	position: absolute;
-	top: -10px;
-	left: 16px;
-	background-color: #2563eb;
-	color: white;
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-	font-size: 0.75rem;
-	font-weight: 600;
-`;
-
-const RequirementsIndicator = styled.div`
-	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-	border: 1px solid #f59e0b;
-	border-radius: 8px;
-	padding: 1rem;
-	margin: 1rem 0;
-	display: flex;
-	align-items: flex-start;
-	gap: 0.75rem;
-`;
-
-const RequirementsIcon = styled.div`
-	color: #d97706;
-	font-size: 1.25rem;
-	margin-top: 0.125rem;
-	flex-shrink: 0;
-`;
-
-const RequirementsText = styled.div`
-	color: #92400e;
-	font-size: 0.875rem;
-	line-height: 1.5;
-
-	strong {
-		font-weight: 600;
-		display: block;
-		margin-bottom: 0.5rem;
-	}
-
-	ul {
-		margin: 0;
-		padding-left: 1.25rem;
-	}
-
-	li {
-		margin-bottom: 0.25rem;
-	}
-`;
+	| 'completionDetails'
+	| 'flowSummary';
 
 // Main Component
 const OAuthAuthorizationCodeFlowV6: React.FC = () => {
@@ -512,106 +189,106 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					<>
 						<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
+						<Collapsible.CollapsibleSection>
+							<Collapsible.CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
 								aria-expanded={!collapsedSections.overview}
 							>
-								<CollapsibleTitle>
+								<Collapsible.CollapsibleTitle>
 									<FiInfo /> Authorization Code Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+								</Collapsible.CollapsibleTitle>
+								<Collapsible.CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
 									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+								</Collapsible.CollapsibleToggleIcon>
+							</Collapsible.CollapsibleHeaderButton>
 							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+								<Collapsible.CollapsibleContent>
+									<Info.InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
-											<InfoTitle>When to Use Authorization Code</InfoTitle>
-											<InfoText>
+											<Info.InfoTitle>When to Use Authorization Code</Info.InfoTitle>
+											<Info.InfoText>
 												Authorization Code Flow is perfect when you can securely store a client
 												secret on a backend and need OAuth 2.0 access tokens.
-											</InfoText>
+											</Info.InfoText>
 										</div>
-									</InfoBox>
-									<FlowSuitability>
-										<SuitabilityCard $variant="success">
+									</Info.InfoBox>
+									<Cards.FlowSuitability>
+										<Cards.SuitabilityCard $variant="success">
 											<h4>Great Fit</h4>
 											<ul>
 												<li>Web apps with backend session storage</li>
 												<li>SPAs or native apps using PKCE</li>
 												<li>Hybrid flows that need refresh tokens</li>
 											</ul>
-										</SuitabilityCard>
-										<SuitabilityCard $variant="warning">
+										</Cards.SuitabilityCard>
+										<Cards.SuitabilityCard $variant="warning">
 											<h4>Consider Alternatives</h4>
 											<ul>
 												<li>Machine-to-machine workloads (Client Credentials)</li>
 												<li>IoT or low-input devices (Device Authorization)</li>
 											</ul>
-										</SuitabilityCard>
-										<SuitabilityCard $variant="danger">
+										</Cards.SuitabilityCard>
+										<Cards.SuitabilityCard $variant="danger">
 											<h4>Avoid When</h4>
 											<ul>
 												<li>Secrets cannot be protected at all</li>
 												<li>You just need simple backend API access</li>
 											</ul>
-										</SuitabilityCard>
-									</FlowSuitability>
+										</Cards.SuitabilityCard>
+									</Cards.FlowSuitability>
 
-									<GeneratedContentBox style={{ marginTop: '2rem' }}>
-										<GeneratedLabel>OAuth vs OIDC Authorization Code</GeneratedLabel>
-										<ParameterGrid>
+									<Cards.GeneratedContentBox style={{ marginTop: '2rem' }}>
+										<Cards.GeneratedLabel>OAuth vs OIDC Authorization Code</Cards.GeneratedLabel>
+										<Cards.ParameterGrid>
 											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Tokens Returned</ParameterLabel>
-												<ParameterValue>Access Token + Refresh Token (no ID Token)</ParameterValue>
+												<Cards.ParameterLabel>Tokens Returned</Cards.ParameterLabel>
+												<Cards.ParameterValue>Access Token + Refresh Token (no ID Token)</Cards.ParameterValue>
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Purpose</ParameterLabel>
-												<ParameterValue>
+												<Cards.ParameterLabel>Purpose</Cards.ParameterLabel>
+												<Cards.ParameterValue>
 													Authorization (API access) only
-												</ParameterValue>
+												</Cards.ParameterValue>
 											</div>
 											<div>
-												<ParameterLabel>Spec Layer</ParameterLabel>
-												<ParameterValue>
+												<Cards.ParameterLabel>Spec Layer</Cards.ParameterLabel>
+												<Cards.ParameterValue>
 													OAuth 2.0 / OAuth 2.1
-												</ParameterValue>
+												</Cards.ParameterValue>
 											</div>
 											<div>
-												<ParameterLabel>Scope Requirement</ParameterLabel>
-												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+												<Cards.ParameterLabel>Scope Requirement</Cards.ParameterLabel>
+												<Cards.ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>
 													No 'openid' required
-												</ParameterValue>
+												</Cards.ParameterValue>
 											</div>
 											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Use Case</ParameterLabel>
-												<ParameterValue>
+												<Cards.ParameterLabel>Use Case</Cards.ParameterLabel>
+												<Cards.ParameterValue>
 													API access without user identity verification
-												</ParameterValue>
+												</Cards.ParameterValue>
 											</div>
-										</ParameterGrid>
-									</GeneratedContentBox>
-								</CollapsibleContent>
+										</Cards.ParameterGrid>
+									</Cards.GeneratedContentBox>
+								</Collapsible.CollapsibleContent>
 							)}
-						</CollapsibleSection>
+						</Collapsible.CollapsibleSection>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
+						<Collapsible.CollapsibleSection>
+							<Collapsible.CollapsibleHeaderButton
 								onClick={() => toggleSection('credentials')}
 								aria-expanded={!collapsedSections.credentials}
 							>
-								<CollapsibleTitle>
+								<Collapsible.CollapsibleTitle>
 									<FiSettings /> Application Configuration & Credentials
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
+								</Collapsible.CollapsibleTitle>
+								<Collapsible.CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
 									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+								</Collapsible.CollapsibleToggleIcon>
+							</Collapsible.CollapsibleHeaderButton>
 							{!collapsedSections.credentials && (
-								<CollapsibleContent>
+								<Collapsible.CollapsibleContent>
 									{/* Comprehensive Discovery Input */}
 									<ComprehensiveDiscoveryInput
 										onDiscoveryComplete={handleDiscoveryComplete}
@@ -662,9 +339,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										isSaving={controller.isSavingCredentials}
 										requireClientSecret={true}
 									/>
-								</CollapsibleContent>
+								</Collapsible.CollapsibleContent>
 							)}
-						</CollapsibleSection>
+						</Collapsible.CollapsibleSection>
 
 						{/* Enhanced Flow Walkthrough */}
 						<EnhancedFlowWalkthrough flowType="authorization-code" variant="oauth" />
@@ -674,15 +351,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			case 1:
 				return (
 					<>
-						<InfoBox $variant="info">
+						<Info.InfoBox $variant="info">
 							<FiShield size={20} />
 							<div>
-								<InfoTitle>PKCE Protection</InfoTitle>
-								<InfoText>
+								<Info.InfoTitle>PKCE Protection</Info.InfoTitle>
+								<Info.InfoText>
 									PKCE (Proof Key for Code Exchange) protects against authorization code interception attacks.
-								</InfoText>
+								</Info.InfoText>
 							</div>
-						</InfoBox>
+						</Info.InfoBox>
 						{/* TODO: Add PKCE generation UI */}
 					</>
 				);
@@ -690,41 +367,41 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			// TODO: Add remaining steps
 			default:
 				return (
-					<InfoBox $variant="info">
+					<Info.InfoBox $variant="info">
 						<FiInfo size={20} />
 						<div>
-							<InfoTitle>Step {currentStep} - In Development</InfoTitle>
-							<InfoText>This step is being developed using V6 service architecture.</InfoText>
+							<Info.InfoTitle>Step {currentStep} - In Development</Info.InfoTitle>
+							<Info.InfoText>This step is being developed using V6 service architecture.</Info.InfoText>
 						</div>
-					</InfoBox>
+					</Info.InfoBox>
 				);
 		}
-	}, [currentStep, controller, collapsedSections, toggleSection, handleDiscoveryComplete]);
+	}, [currentStep, controller, collapsedSections, toggleSection, handleDiscoveryComplete, Cards, Info, Collapsible]);
 
 	return (
-		<Container>
+		<Layout.Container>
 			<FlowHeader
 				title="OAuth 2.0 Authorization Code Flow"
 				subtitle="V6 with Comprehensive Discovery Service"
 				icon={<FiShield />}
 			/>
-			<ContentWrapper>
-				<MainCard>
-					<StepHeader>
-						<StepHeaderLeft>
-							<VersionBadge>V6.0 - Service Architecture</VersionBadge>
-							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
-							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
-						</StepHeaderLeft>
-						<StepHeaderRight>
-							<StepNumber>{currentStep}</StepNumber>
-							<StepTotal>of {STEP_METADATA.length - 1}</StepTotal>
-						</StepHeaderRight>
-					</StepHeader>
+			<Layout.ContentWrapper>
+				<Layout.MainCard>
+					<Layout.StepHeader>
+						<Layout.StepHeaderLeft>
+							<Layout.VersionBadge>V6.0 - Service Architecture</Layout.VersionBadge>
+							<Layout.StepHeaderTitle>{STEP_METADATA[currentStep].title}</Layout.StepHeaderTitle>
+							<Layout.StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</Layout.StepHeaderSubtitle>
+						</Layout.StepHeaderLeft>
+						<Layout.StepHeaderRight>
+							<Layout.StepNumber>{currentStep}</Layout.StepNumber>
+							<Layout.StepTotal>of {STEP_METADATA.length - 1}</Layout.StepTotal>
+						</Layout.StepHeaderRight>
+					</Layout.StepHeader>
 
-					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
-				</MainCard>
-			</ContentWrapper>
+					<Layout.StepContentWrapper>{renderStepContent}</Layout.StepContentWrapper>
+				</Layout.MainCard>
+			</Layout.ContentWrapper>
 
 			<StepNavigationButtons
 				currentStep={currentStep}
@@ -745,7 +422,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					}}
 				/>
 			)}
-		</Container>
+		</Layout.Container>
 	);
 };
 
