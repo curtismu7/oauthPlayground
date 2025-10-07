@@ -2133,7 +2133,6 @@ sessionMonitor.startPolling();`,
 					</WarningCard>
 				</div>
 			</CollapsibleSection>
-				</div>
 			</ContentWrapper>
 		</PageContainer>
 		</WhiteContainer>
