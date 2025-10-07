@@ -114,6 +114,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [flowState, setFlowState] = useState<FlowState | null>(null);
+	const [introCompleted, setIntroCompleted] = useState(false);
 	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
 		status: false,
 		validation: false,
@@ -205,7 +206,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		return () => window.clearTimeout(timeout);
 	}, [copiedField]);
 
-	const handleDiscoveryComplete = useCallback((document: any) => {
+	const handleDiscoveryComplete = useCallback((document: OIDCDiscoveryDocument) => {
 		if (!document) {
 			return;
 		}
@@ -226,6 +227,30 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			[key]: !prev[key],
 		}));
 	}, []);
+
+	useEffect(() => {
+		if (validationReady && !introCompleted) {
+			statusManager.completeStep('introduction', {
+				credentialsReady: true,
+			});
+			const updated = statusManager.getState();
+			if (updated) {
+				setFlowState({ ...updated });
+			}
+			setIntroCompleted(true);
+		}
+	}, [introCompleted, statusManager, validationReady]);
+
+	useEffect(() => {
+		if (!validationReady && introCompleted) {
+			statusManager.startStep('introduction');
+			const updated = statusManager.getState();
+			if (updated) {
+				setFlowState({ ...updated });
+			}
+			setIntroCompleted(false);
+		}
+	}, [introCompleted, statusManager, validationReady]);
 	const pageLayout = useMemo(
 		() =>
 			PageLayoutService.createPageLayout({
@@ -416,28 +441,36 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				/>
 				<Spacing $size="sm" />
 				<MainCard>
-					{STEP_METADATA.map((step, index) => (
-						<StepSection
-							key={step.id}
-							index={index}
-							step={step}
-							stepCount={STEP_METADATA.length}
-							components={{
-								StepContainer,
-								StepHeader,
-								StepHeaderLeft,
-								VersionBadge,
-								StepHeaderTitle,
-								StepHeaderSubtitle,
-								StepContent,
-								StepNavigation,
-								PrimaryButton,
-								SecondaryButton,
-								StepProgress,
-							}}
-							renderStepContent={renderStepContent}
-						/>
-					))}
+					{STEP_METADATA.map((step, index) => {
+						const isFirstStep = index === 0;
+						const isNextEnabled = step.id === 'introduction' ? validationReady : false;
+						const nextLabel = step.id === 'introduction' ? 'Proceed to PKCE' : 'Next';
+						return (
+							<StepSection
+								key={step.id}
+								index={index}
+								step={step}
+								stepCount={STEP_METADATA.length}
+								isFirstStep={isFirstStep}
+								isNextEnabled={isNextEnabled}
+								nextLabel={nextLabel}
+								components={{
+									StepContainer,
+									StepHeader,
+									StepHeaderLeft,
+									VersionBadge,
+									StepHeaderTitle,
+									StepHeaderSubtitle,
+									StepContent,
+									StepNavigation,
+									PrimaryButton,
+									SecondaryButton,
+									StepProgress,
+								}}
+								renderStepContent={renderStepContent}
+							/>
+						);
+					})}
 				</MainCard>
 			</ContentWrapper>
 		</PageContainer>
@@ -448,6 +481,9 @@ interface StepSectionProps {
 	index: number;
 	stepCount: number;
 	step: StepMetadata;
+	isFirstStep: boolean;
+	isNextEnabled: boolean;
+	nextLabel: string;
 	components: {
 		StepContainer: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepContainer'];
 		StepHeader: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepHeader'];
@@ -468,6 +504,9 @@ const StepSection: React.FC<StepSectionProps> = ({
 	index,
 	stepCount,
 	step,
+	isFirstStep,
+	isNextEnabled,
+	nextLabel,
 	components,
 	renderStepContent,
 }) => {
@@ -501,11 +540,11 @@ const StepSection: React.FC<StepSectionProps> = ({
 				{renderStepContent(step)}
 			</StepContent>
 			<StepNavigation>
-				<SecondaryButton type="button" disabled>
+				<SecondaryButton type="button" disabled={isFirstStep}>
 					Back
 				</SecondaryButton>
-				<PrimaryButton type="button" disabled>
-					Next
+				<PrimaryButton type="button" disabled={!isNextEnabled}>
+					{nextLabel}
 				</PrimaryButton>
 			</StepNavigation>
 		</StepContainer>
