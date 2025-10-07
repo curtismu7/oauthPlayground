@@ -273,13 +273,14 @@ export class ComprehensiveDiscoveryService {
 
 		// For PingOne URLs, use backend proxy to avoid CORS
 		if (issuerUrl.includes('pingone.com')) {
-			// Extract environment ID and use backend proxy
-			const envMatch = issuerUrl.match(/\/([a-f0-9-]+)\/as/i);
+			// Extract environment ID - match both with and without /as
+			const envMatch = issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
 			if (envMatch) {
 				const environmentId = envMatch[1];
 				const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=na`;
 				
 				console.log('[Comprehensive Discovery] Using backend proxy:', proxyUrl);
+				console.log('[Comprehensive Discovery] Extracted environment ID:', environmentId);
 				
 				const controller = new AbortController();
 				const timeoutId = setTimeout(() => controller.abort(), timeout);
