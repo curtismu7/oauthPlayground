@@ -20,6 +20,7 @@ import {
 	generateCodeVerifier,
 	generateCsrfToken,
 	generateRandomString,
+	parseUrlParams,
 } from '../../utils/oauth';
 
 const STEP_METADATA = [
@@ -107,6 +108,13 @@ interface AuthRequestState {
 	error: string | null;
 }
 
+interface AuthResponseState {
+	code: string;
+	state: string;
+	error: string | null;
+	isValid: boolean;
+}
+
 const createInitialAuthRequestState = (): AuthRequestState => ({
 	responseMode: 'query',
 	state: generateCsrfToken(),
@@ -130,7 +138,12 @@ type CollapsibleSectionKey =
 	| 'authRequestOverview'
 	| 'authRequestDetails'
 	| 'authResponseMode'
-	| 'authUrlBuilder';
+	| 'authUrlBuilder'
+	| 'authResponseOverview'
+	| 'authResponseDetails'
+	| 'authResponseValidation'
+	| 'authResponseErrors'
+	| 'authResponseCode';
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
@@ -159,6 +172,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		error: '' as string | null,
 	});
 	const [authRequest, setAuthRequest] = useState<AuthRequestState>(createInitialAuthRequestState);
+	const [callbackUrl, setCallbackUrl] = useState('');
+	const [authResponse, setAuthResponse] = useState<AuthResponseState>({ code: '', state: '', error: null, isValid: false });
 	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
 		status: false,
 		validation: false,
@@ -174,6 +189,11 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		authRequestDetails: true,
 		authResponseMode: false,
 		authUrlBuilder: false,
+		authResponseOverview: false,
+		authResponseDetails: true,
+		authResponseValidation: false,
+		authResponseErrors: false,
+		authResponseCode: false,
 	});
 
 	const statusManager = useMemo(
@@ -304,6 +324,33 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			const message = error instanceof Error ? error.message : 'Failed to generate PKCE parameters';
 			setPkceState((prev) => ({ ...prev, isGenerating: false, error: message }));
 			setPkceReady(false);
+		}
+	}, [statusManager]);
+
+	const handleParseCallbackUrl = useCallback((callbackUrl: string) => {
+		if (!callbackUrl.trim()) {
+			setAuthResponse({ code: '', state: '', error: 'Please enter a callback URL', isValid: false });
+			return;
+		}
+		try {
+			const params = parseUrlParams(callbackUrl);
+			const code = params.code;
+			const state = params.state;
+			const error = params.error;
+			if (error) {
+				setAuthResponse({ code: '', state: '', error: `Authorization error: ${error}`, isValid: false });
+			} else if (code && state) {
+				setAuthResponse({ code, state, error: null, isValid: true });
+				statusManager.completeStep('authorization-response', { codeReceived: true });
+				const updated = statusManager.getState();
+				if (updated) {
+					setFlowState({ ...updated });
+				}
+			} else {
+				setAuthResponse({ code: '', state: '', error: 'Missing code or state parameter in callback URL', isValid: false });
+			}
+		} catch (e) {
+			setAuthResponse({ code: '', state: '', error: 'Invalid callback URL format', isValid: false });
 		}
 	}, [statusManager]);
 
@@ -639,6 +686,168 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				);
 			}
 
+			if (step.id === 'authorization-response') {
+				return (
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+						<CollapsibleHeader
+							title="Authorization Response Overview"
+							subtitle="Understanding what happens when PingOne redirects back to your application"
+							onToggle={() => toggleSection('authResponseOverview')}
+							collapsed={collapsedSections.authResponseOverview}
+						>
+							<p>
+								After the user authenticates with PingOne, they are redirected back to your application with an authorization code. This code is short-lived and must be exchanged for tokens immediately.
+							</p>
+							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+								<li>The redirect URL contains the authorization code and state parameter.</li>
+								<li>Validate the state parameter to prevent CSRF attacks.</li>
+								<li>Extract the code for the next step (token exchange).</li>
+								<li>Handle any error parameters if the authorization failed.</li>
+							</ul>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Authorization Code Details"
+							subtitle="Technical details about the authorization code and its security properties"
+							onToggle={() => toggleSection('authResponseDetails')}
+							collapsed={collapsedSections.authResponseDetails}
+						>
+							<div style={{ display: 'grid', gap: '1rem' }}>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>What is an Authorization Code?</h4>
+									<p style={{ margin: 0 }}>
+										A short-lived token that proves the user has successfully authenticated. It's exchanged for access and refresh tokens in the next step.
+									</p>
+								</section>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>Security Properties</h4>
+									<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+										<li>One-time use only</li>
+										<li>Expires quickly (typically 10 minutes)</li>
+										<li>Bound to the client_id and redirect_uri</li>
+										<li>Cannot be intercepted without the PKCE verifier</li>
+									</ul>
+								</section>
+							</div>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Parse Authorization Response"
+							subtitle="Extract the authorization code from the callback URL"
+							onToggle={() => toggleSection('authResponseCode')}
+							collapsed={collapsedSections.authResponseCode}
+						>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+								<label>
+									<strong>Callback URL:</strong>
+									<textarea
+										placeholder="Paste the full callback URL from PingOne (e.g., https://localhost:3000/callback?code=...&state=...)"
+										value={callbackUrl}
+										onChange={(e) => setCallbackUrl(e.target.value)}
+										style={{
+											width: '100%',
+											minHeight: '100px',
+											padding: '0.75rem',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.5rem',
+											fontFamily: 'monospace',
+											fontSize: '0.875rem',
+										}}
+									/>
+								</label>
+								<button
+									type="button"
+									onClick={() => handleParseCallbackUrl(callbackUrl)}
+									style={{
+										alignSelf: 'flex-start',
+										padding: '0.75rem 1.25rem',
+										background: '#2563eb',
+										color: '#ffffff',
+										border: 'none',
+										borderRadius: '0.5rem',
+										cursor: 'pointer',
+									}}
+								>
+									Parse Callback URL
+								</button>
+								{authResponse.error && (
+									<p style={{ color: '#dc2626', margin: 0 }}>{authResponse.error}</p>
+								)}
+								{authResponse.isValid && (
+									<div
+										style={{
+											display: 'grid',
+											gap: '1rem',
+											background: '#f1f5f9',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.75rem',
+											padding: '1.25rem',
+										}}
+									>
+										<section>
+											<h4 style={{ margin: '0 0 0.5rem 0' }}>Authorization Code</h4>
+											<pre
+												style={{
+													margin: 0,
+													padding: '0.75rem',
+													background: '#ffffff',
+													borderRadius: '0.5rem',
+													wordBreak: 'break-all',
+												}}
+											>
+												{authResponse.code}
+											</pre>
+											<button
+												type="button"
+												onClick={() => handleCopy(authResponse.code, 'Authorization Code')}
+												style={{
+													marginTop: '0.5rem',
+													padding: '0.5rem 0.75rem',
+													background: '#0ea5e9',
+													color: '#ffffff',
+													border: 'none',
+													borderRadius: '0.5rem',
+													cursor: 'pointer',
+												}}
+											>
+												Copy Code
+											</button>
+										</section>
+										<section>
+											<h4 style={{ margin: '0 0 0.5rem 0' }}>State Parameter</h4>
+											<pre
+												style={{
+													margin: 0,
+													padding: '0.75rem',
+													background: '#ffffff',
+													borderRadius: '0.5rem',
+													wordBreak: 'break-all',
+												}}
+											>
+												{authResponse.state}
+											</pre>
+											<button
+												type="button"
+												onClick={() => handleCopy(authResponse.state, 'State Parameter')}
+												style={{
+													marginTop: '0.5rem',
+													padding: '0.5rem 0.75rem',
+													background: '#0f766e',
+													color: '#ffffff',
+													border: 'none',
+													borderRadius: '0.5rem',
+													cursor: 'pointer',
+												}}
+											>
+												Copy State
+											</button>
+										</section>
+									</div>
+								)}
+							</div>
+						</CollapsibleHeader>
+					</div>
+				);
+			}
+
 			return (
 				<CollapsibleHeader
 					title="Service integration in progress"
@@ -650,6 +859,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			);
 		},
 		[
+			authResponse,
+			callbackUrl,
 			collapsedSections,
 			copiedField,
 			credentials,
@@ -658,6 +869,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			handleCopy,
 			handleCredentialChange,
 			handleDiscoveryComplete,
+			handleParseCallbackUrl,
 			toggleSection,
 			validationReady,
 			validationRequirements,
@@ -680,10 +892,10 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				<Spacing $size="sm" />
 				<MainCard>
 					{STEP_METADATA.map((step, index) => {
-						const isFirstStep = index === 0;
-						const isNextEnabled = step.id === 'introduction' ? validationReady : false;
-						const nextLabel = step.id === 'introduction' ? 'Proceed to PKCE' : 'Next';
-						return (
+					const isFirstStep = index === 0;
+					const isNextEnabled = step.id === 'introduction' ? validationReady : step.id === 'authorization-response' ? authResponse.isValid : false;
+					const nextLabel = step.id === 'introduction' ? 'Proceed to PKCE' : step.id === 'authorization-response' ? 'Proceed to Token Exchange' : 'Next';
+					return (
 							<StepSection
 								key={step.id}
 								index={index}
