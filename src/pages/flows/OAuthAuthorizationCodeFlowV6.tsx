@@ -8,7 +8,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
 // Removed FlowStatusManagementService - not a service we built
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
+import ComprehensiveDiscoveryInput from '../../components/ComprehensiveDiscoveryInput';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
@@ -670,13 +670,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						onToggle={() => toggleSection('credentials')}
 						isCollapsed={collapsedSections.credentials}
 					>
-						<OIDCDiscoveryInput
+						<ComprehensiveDiscoveryInput
 							onDiscoveryComplete={(result) => {
 								if (result?.success && result.document) {
 									handleDiscoveryComplete(result.document);
 								}
 							}}
-							initialIssuerUrl={credentials.issuerUrl}
+							initialInput={credentials.issuerUrl || credentials.environmentId}
+							placeholder="Enter Environment ID, issuer URL, or provider..."
+							showProviderInfo={true}
 						/>
 
 						<CredentialsInput
