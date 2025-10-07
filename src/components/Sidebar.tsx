@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
 	FiBookOpen,
-	FiBrain,
 	FiClock,
 	FiCpu,
 	FiDatabase,
@@ -573,7 +572,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							OIDC for AI
 						</MenuItem>
 						<MenuItem
-							icon={<FiBrain />}
+							icon={<FiCpu />}
 							active={isActive('/docs/ping-view-on-ai')}
 							onClick={() => handleNavigation('/docs/ping-view-on-ai')}
 						>
