@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { FiShield } from 'react-icons/fi';
 import PageLayoutService from '../../services/pageLayoutService';
-import FlowStepLayoutService from '../../services/flowStepLayoutService'; // V5Stepper service
+import V5StepperService from '../../services/v5StepperService'; // V5Stepper service
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
@@ -228,30 +228,26 @@ type CollapsibleSectionKey =
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
-// V6 Service Components - using FlowUIService for consistent styling
-const Container = FlowUIService.getContainer();
-const ContentWrapper = FlowUIService.getContentWrapper();
-const MainCard = FlowUIService.getMainCard();
-const StepHeader = FlowUIService.getStepHeader('blue');
-const StepHeaderLeft = FlowUIService.getStepHeaderLeft();
-const StepHeaderRight = FlowUIService.getStepHeaderRight();
-const VersionBadge = FlowUIService.getVersionBadge('blue');
-const StepHeaderTitle = FlowUIService.getStepHeaderTitle();
-const StepHeaderSubtitle = FlowUIService.getStepHeaderSubtitle();
-const StepNumber = FlowUIService.getStepNumber();
-const StepTotal = FlowUIService.getStepTotal();
-const StepContentWrapper = FlowUIService.getStepContentWrapper();
-const NavigationButton = FlowUIService.getButton();
-
-// Create StepNavigation component
-const StepNavigation = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 1.5rem 2rem;
-	background: #f9fafb;
-	border-top: 1px solid #e5e7eb;
-`;
+	// V6 Service Components - using FlowUIService and V5Stepper for consistent styling
+	const Container = FlowUIService.getContainer();
+	const ContentWrapper = FlowUIService.getContentWrapper();
+	
+	// V5Stepper service components
+	const stepLayout = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+	const {
+		StepContainer,
+		StepHeader,
+		StepHeaderLeft,
+		StepHeaderRight,
+		VersionBadge,
+		StepHeaderTitle,
+		StepHeaderSubtitle,
+		StepNumber,
+		StepTotal,
+		StepContent,
+		StepNavigation,
+		NavigationButton
+	} = stepLayout;
 
 // Flow suitability components
 const FlowSuitability = FlowUIService.getFlowSuitability();
@@ -1249,7 +1245,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				<FlowInfoCard flowInfo={getFlowInfo('authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
 
-				<MainCard>
+				<StepContainer>
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>OAuth Authorization Code Flow · V6</VersionBadge>
@@ -1262,17 +1258,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						</StepHeaderRight>
 					</StepHeader>
 
-					<StepContentWrapper>{renderStepContent(STEP_METADATA[currentStep])}</StepContentWrapper>
+					<StepContent>{renderStepContent(STEP_METADATA[currentStep])}</StepContent>
 
 					<StepNavigation>
-						<NavigationButton variant="secondary" disabled={currentStep === 0} onClick={handlePrev}>
+						<NavigationButton $variant="secondary" disabled={currentStep === 0} onClick={handlePrev}>
 							Back
 						</NavigationButton>
-						<NavigationButton variant="primary" disabled={currentStep === STEP_METADATA.length - 1} onClick={handleNext}>
+						<NavigationButton $variant="primary" disabled={currentStep === STEP_METADATA.length - 1} onClick={handleNext}>
 							Next
 						</NavigationButton>
 					</StepNavigation>
-				</MainCard>
+				</StepContainer>
 			</ContentWrapper>
 		</Container>
 	);
