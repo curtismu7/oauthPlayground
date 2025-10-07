@@ -23,6 +23,7 @@ yarn-error.log*
 .vscode/*
 !.vscode/extensions.json
 .windsurf/
+!PROJECT_RULES.md
 .idea
 .DS_Store
 *.suo
