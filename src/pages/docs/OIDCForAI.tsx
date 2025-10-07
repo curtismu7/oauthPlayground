@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import PageTitle from '../../components/PageTitle';
 import { SpecCard } from '../../components/SpecCard';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { PageLayoutService } from '../../services/pageLayoutService';
+import { FlowUIService } from '../../services/flowUIService';
 
 const DocsContainer = styled.div`
   max-width: 1200px;
@@ -69,15 +72,29 @@ const ExternalLink = styled.a`
 `;
 
 const OIDCForAI = () => {
-	return (
-		<DocsContainer>
-			<FlowHeader flowType="oidc-for-ai" />
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '1200px',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'oidc-for-ai',
+	};
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+		PageLayoutService.createPageLayout(pageConfig);
 
-			<Section>
-				<h2>
-					<FiShield />
-					Industry Resources
-				</h2>
+	return (
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
+
+			<CollapsibleHeader
+				title="Industry Resources"
+				subtitle="Comprehensive guides and resources for implementing OAuth 2.0 and OpenID Connect for AI applications"
+				icon={<FiShield />}
+				defaultCollapsed={false}
+			>
 				<LinkGrid>
 					<ExternalLink
 						href="https://www.pingidentity.com/en/resources/identity-fundamentals/agentic-ai.html"
@@ -136,13 +153,14 @@ const OIDCForAI = () => {
 						</p>
 					</ExternalLink>
 				</LinkGrid>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiCode />
-					Research & Standards
-				</h2>
+			<CollapsibleHeader
+				title="Research & Standards"
+				subtitle="Official specifications and research papers for OAuth 2.0 and OpenID Connect"
+				icon={<FiCode />}
+				defaultCollapsed={false}
+			>
 				<LinkGrid>
 					<ExternalLink
 						href="https://www.ietf.org/rfc/rfc6749.txt"
@@ -182,13 +200,14 @@ const OIDCForAI = () => {
 						<p>The JWT specification used for ID tokens and access tokens in OpenID Connect.</p>
 					</ExternalLink>
 				</LinkGrid>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiUsers />
-					AI Authentication Training
-				</h2>
+			<CollapsibleHeader
+				title="AI Authentication Training"
+				subtitle="Comprehensive training content for AI authentication and authorization"
+				icon={<FiUsers />}
+				defaultCollapsed={false}
+			>
 				<SpecCard title="AI Authentication Fundamentals">
 					<p>Understanding how AI systems authenticate and authorize access to resources and services:</p>
 					<ul>
@@ -319,13 +338,14 @@ audience=https://downstream-api.example.com`}
 						<li>Data minimization and purpose limitation for AI operations</li>
 					</ul>
 				</SpecCard>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiBookOpen />
-					Implementation Guides
-				</h2>
+			<CollapsibleHeader
+				title="Implementation Guides"
+				subtitle="Step-by-step guides for implementing OAuth 2.0 and OpenID Connect in AI applications"
+				icon={<FiBookOpen />}
+				defaultCollapsed={false}
+			>
 				<LinkGrid>
 					<ExternalLink
 						href="https://developers.google.com/identity/protocols/oauth2"
@@ -368,8 +388,9 @@ audience=https://downstream-api.example.com`}
 						<p>AWS implementation patterns for OAuth 2.0 in cloud-based AI applications.</p>
 					</ExternalLink>
 				</LinkGrid>
-			</Section>
-		</DocsContainer>
+			</CollapsibleHeader>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
