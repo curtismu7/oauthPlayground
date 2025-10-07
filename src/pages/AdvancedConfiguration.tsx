@@ -14,7 +14,8 @@ import {
 	FiTerminal,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { credentialManager } from '../utils/credentialManager';
 import JsonEditor from '../components/JsonEditor';
@@ -298,6 +299,20 @@ const CredentialStatus = styled.div<{ $status: 'complete' | 'partial' | 'missing
 const AdvancedConfiguration = () => {
 	usePageScroll({ pageName: 'Advanced Configuration', force: true });
 
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for advanced config (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'advanced-configuration', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	const [selectedScopes, setSelectedScopes] = useState(new Set(['openid', 'profile', 'email']));
 	const [customScopes, setCustomScopes] = useState(['']);
 	const [customClaims, setCustomClaims] = useState(['']);
@@ -504,8 +519,9 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 	const credentialStatus = hasCredentials ? 'complete' : 'missing';
 
 	return (
-		<Container>
-			<FlowHeader flowId="advanced-configuration" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
 			<Header>
 				<h1>
@@ -779,7 +795,8 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 					</div>
 				</CardBody>
 			</PreviewSection>
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
