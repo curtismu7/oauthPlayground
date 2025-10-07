@@ -314,7 +314,7 @@ const Configuration: React.FC = () => {
 			<Header>
 				<h1>
 					<FiSettings />
-					Configuration & Setup
+					Setup & Config
 				</h1>
 				<p>
 					Complete setup guide for the PingOne OAuth/OIDC Playground. Get your environment
