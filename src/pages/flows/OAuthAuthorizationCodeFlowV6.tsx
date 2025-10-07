@@ -1259,10 +1259,10 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					<StepContentWrapper>{renderStepContent(STEP_METADATA[currentStep])}</StepContentWrapper>
 
 					<StepNavigation>
-						<NavigationButton variant="secondary" disabled={currentStep === 0}>
+						<NavigationButton variant="secondary" disabled={currentStep === 0} onClick={handlePrev}>
 							Back
 						</NavigationButton>
-						<NavigationButton variant="primary" disabled={currentStep === STEP_METADATA.length - 1}>
+						<NavigationButton variant="primary" disabled={currentStep === STEP_METADATA.length - 1} onClick={handleNext}>
 							Next
 						</NavigationButton>
 					</StepNavigation>
@@ -1272,78 +1272,5 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	);
 }
 
-interface StepSectionProps {
-	index: number;
-	stepCount: number;
-	step: StepMetadata;
-	isFirstStep: boolean;
-	isNextEnabled: boolean;
-	nextLabel: string;
-	components: {
-		StepContainer: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepContainer'];
-		StepHeader: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepHeader'];
-		StepHeaderLeft: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepHeaderLeft'];
-		VersionBadge: ReturnType<typeof FlowStepLayoutService.createStepLayout>['VersionBadge'];
-		StepHeaderTitle: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepHeaderTitle'];
-		StepHeaderSubtitle: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepHeaderSubtitle'];
-		StepContent: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepContent'];
-		StepNavigation: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepNavigation'];
-		PrimaryButton: ReturnType<typeof FlowStepLayoutService.createStepLayout>['PrimaryButton'];
-		SecondaryButton: ReturnType<typeof FlowStepLayoutService.createStepLayout>['SecondaryButton'];
-		StepProgress: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepProgress'];
-	};
-	renderStepContent: (step: StepMetadata) => React.ReactNode;
-}
-
-const StepSection: React.FC<StepSectionProps> = ({
-	index,
-	stepCount,
-	step,
-	isFirstStep,
-	isNextEnabled,
-	nextLabel,
-	components,
-	renderStepContent,
-}) => {
-	const {
-		StepContainer,
-		StepHeader,
-		StepHeaderLeft,
-		VersionBadge,
-		StepHeaderTitle,
-		StepHeaderSubtitle,
-		StepContent,
-		StepNavigation,
-		PrimaryButton,
-		SecondaryButton,
-		StepProgress,
-	} = components;
-
-	return (
-		<StepContainer>
-			<StepHeader>
-				<StepHeaderLeft>
-					<VersionBadge>V6</VersionBadge>
-					<StepHeaderTitle>{step.title}</StepHeaderTitle>
-					<StepHeaderSubtitle>{step.subtitle}</StepHeaderSubtitle>
-				</StepHeaderLeft>
-				<StepProgress>
-					Step {index + 1} of {stepCount}
-				</StepProgress>
-			</StepHeader>
-			<StepContent>
-				{renderStepContent(step)}
-			</StepContent>
-			<StepNavigation>
-				<SecondaryButton type="button" disabled={isFirstStep}>
-					Back
-				</SecondaryButton>
-				<PrimaryButton type="button" disabled={!isNextEnabled}>
-					{nextLabel}
-				</PrimaryButton>
-			</StepNavigation>
-		</StepContainer>
-	);
-};
 
 export default OAuthAuthorizationCodeFlowV6;
