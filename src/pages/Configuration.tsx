@@ -11,9 +11,12 @@ import {
 	FiSettings,
 	FiTerminal,
 	FiSave,
+	FiPlay,
+	FiAlertCircle,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { credentialManager } from '../utils/credentialManager';
 import { CredentialsInput } from '../components/CredentialsInput';
@@ -355,18 +358,16 @@ const Configuration: React.FC = () => {
 				</p>
 			</Header>
 
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiPackage />
-						Application Information
-					</h2>
-					<p>Current version and system requirements for the OAuth Playground.</p>
-				</CardHeader>
-
-				<div
-					style={{
-						display: 'grid',
+		<CollapsibleHeader
+			title="Application Information"
+			subtitle="Current version and system requirements for the OAuth Playground"
+			icon={<FiPackage />}
+			defaultCollapsed={false}
+		>
+			<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
+			<div
+				style={{
+					display: 'grid',
 						gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
 						gap: '1rem',
 						marginBottom: '2rem',
@@ -440,16 +441,15 @@ const Configuration: React.FC = () => {
 					</FeatureItem>
 				</FeatureGrid>
 			</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiTerminal />
-						Quick Start Setup
-					</h2>
-					<p>Get the OAuth Playground running in minutes with these simple steps.</p>
-				</CardHeader>
-
+			<CollapsibleHeader
+				title="Quick Start Setup"
+				subtitle="Get the OAuth Playground running in minutes with these simple steps"
+				icon={<FiTerminal />}
+				defaultCollapsed={false}
+			>
+				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
 				<StepCard>
 					<StepHeader>
 						<div className="step-number">1</div>
@@ -567,17 +567,16 @@ cd oauthPlayground`}
 					</InfoBox>
 				</StepCard>
 			</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiGlobe />
-						Alternative Startup Options
-					</h2>
-					<p>Different ways to start the application depending on your needs.</p>
-				</CardHeader>
-
-				<div style={{ display: 'grid', gap: '1rem' }}>
+		<CollapsibleHeader
+			title="Alternative Startup Options"
+			subtitle="Different ways to start the application depending on your needs"
+			icon={<FiPlay />}
+			defaultCollapsed={true}
+		>
+			<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
+			<div style={{ display: 'grid', gap: '1rem' }}>
 					<div
 						style={{
 							padding: '1.5rem',
@@ -633,17 +632,16 @@ cd oauthPlayground`}
 					</div>
 				</div>
 			</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiInfo />
-						Troubleshooting
-					</h2>
-					<p>Common issues and their solutions.</p>
-				</CardHeader>
-
-				<div style={{ display: 'grid', gap: '1rem' }}>
+		<CollapsibleHeader
+			title="Troubleshooting"
+			subtitle="Common issues and their solutions"
+			icon={<FiAlertCircle />}
+			defaultCollapsed={true}
+		>
+			<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
+			<div style={{ display: 'grid', gap: '1rem' }}>
 					<InfoBox $type="warning">
 						<strong>Port Already in Use:</strong> The restart script automatically handles this, but
 						if issues persist, check what's using ports 3000 and 3001 with{' '}
@@ -669,16 +667,15 @@ cd oauthPlayground`}
 					</InfoBox>
 				</div>
 			</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiExternalLink />
-						Additional Resources
-					</h2>
-					<p>Explore more resources to get the most out of the OAuth Playground.</p>
-				</CardHeader>
-
+			<CollapsibleHeader
+				title="Additional Resources"
+				subtitle="Explore more resources to get the most out of the OAuth Playground"
+				icon={<FiExternalLink />}
+				defaultCollapsed={true}
+			>
+				<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
 				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
 					<ActionButton
 						href="https://github.com/curtismu7/oauthPlayground"
@@ -711,6 +708,7 @@ cd oauthPlayground`}
 					</ActionButton>
 				</div>
 			</Card>
+			</CollapsibleHeader>
 		</Container>
 	);
 };

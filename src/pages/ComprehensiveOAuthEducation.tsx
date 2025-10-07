@@ -113,7 +113,7 @@ const ActionButton = styled.a`
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background-color: #3b82f6;
-  color: white;
+  color: white !important;
   text-decoration: none;
   border-radius: 0.5rem;
   font-weight: 500;
@@ -123,6 +123,7 @@ const ActionButton = styled.a`
 
   &:hover {
     background-color: #2563eb;
+    color: white !important;
   }
 `;
 

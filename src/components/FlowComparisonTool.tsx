@@ -12,11 +12,15 @@ import {
 	FiTarget,
 	FiUser,
 	FiXCircle,
+	FiGitBranch,
+	FiInfo,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
 import { Card, CardBody, CardHeader } from './Card';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowUIService } from '../services/flowUIService';
 
 interface FlowComparison {
 	id: string;
@@ -54,25 +58,29 @@ const FlowOption = styled.button<{ $selected: boolean; $added: boolean }>`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  border: 2px solid ${({ $selected, $added, theme }) =>
-		$added ? theme.colors.success : $selected ? theme.colors.primary : theme.colors.gray300};
+  border: 2px solid ${({ $selected, $added }) =>
+		$added ? '#dc2626' : $selected ? '#dc2626' : '#d1d5db'};
   border-radius: 0.5rem;
-  background-color: ${({ $selected, $added, theme }) =>
-		$added ? `${theme.colors.success}10` : $selected ? `${theme.colors.primary}10` : 'white'};
-  color: ${({ $selected, $added, theme }) =>
-		$added ? theme.colors.success : $selected ? theme.colors.primary : theme.colors.gray700};
-  font-weight: 500;
+  background-color: ${({ $selected, $added }) =>
+		$added ? '#fef2f2' : $selected ? '#fef2f2' : 'white'};
+  color: ${({ $selected, $added }) =>
+		$added ? '#dc2626' : $selected ? '#dc2626' : '#374151'};
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    border-color: ${({ theme }) => theme.colors.primary};
-    background-color: ${({ theme }) => theme.colors.primary}10;
+    border-color: #dc2626;
+    background-color: #fef2f2;
+    color: #dc2626;
   }
   
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    background-color: #f9fafb;
+    color: #9ca3af;
+    border-color: #e5e7eb;
   }
 `;
 
@@ -283,18 +291,27 @@ const ActionButton = styled(Link)`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background-color: ${({ theme }) => theme.colors.primary};
-  color: white;
+  background-color: #dc2626;
+  color: white !important;
   border-radius: 0.5rem;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
   width: 100%;
   justify-content: center;
+  border: 2px solid #dc2626;
   
   &:hover {
-    background-color: ${({ theme }) => theme.colors.primaryDark};
+    background-color: #b91c1c;
+    border-color: #b91c1c;
+    color: white !important;
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.3);
   }
 `;
 
@@ -495,6 +512,11 @@ const FlowComparisonTool: React.FC = () => {
 	// Generate URL with credentials for a flow
 	const generateFlowUrl = (flow: FlowComparison): string => {
 		try {
+			// Validate route exists, fallback to dashboard if not
+			if (!flow.route || flow.route === '/dashboard') {
+				return '/dashboard';
+			}
+
 			// Get current credentials from credential manager
 			const credentials = credentialManager.loadAuthzFlowCredentials();
 
@@ -525,150 +547,174 @@ const FlowComparisonTool: React.FC = () => {
 			return flow.route;
 		} catch (error) {
 			console.error('Error generating flow URL with credentials:', error);
-			return flow.route;
+			// Fallback to dashboard if there's an error
+			return '/dashboard';
 		}
 	};
 
 	return (
 		<ComparisonContainer>
-			<FlowSelector>
-				{availableFlows.map((flow) => (
-					<FlowOption
-						key={flow.id}
-						$selected={selectedFlows.includes(flow.id)}
-						$added={selectedFlows.includes(flow.id)}
-						onClick={() => toggleFlow(flow.id)}
-						disabled={!selectedFlows.includes(flow.id) && selectedFlows.length >= 4}
-					>
-						{selectedFlows.includes(flow.id) ? <FiMinus /> : <FiPlus />}
-						{flow.icon}
-						{flow.title}
-						{flow.recommended && <FiStar />}
-					</FlowOption>
-				))}
-			</FlowSelector>
+			<CollapsibleHeader
+				title="Flow Selection"
+				subtitle="Choose up to 4 OAuth flows to compare side by side"
+            icon={<FiGitBranch />}
+				defaultCollapsed={false}
+			>
+				<FlowSelector>
+					{availableFlows.map((flow) => (
+						<FlowOption
+							key={flow.id}
+							$selected={selectedFlows.includes(flow.id)}
+							$added={selectedFlows.includes(flow.id)}
+							onClick={() => toggleFlow(flow.id)}
+							disabled={!selectedFlows.includes(flow.id) && selectedFlows.length >= 4}
+						>
+							{selectedFlows.includes(flow.id) ? <FiMinus /> : <FiPlus />}
+							{flow.icon}
+							{flow.title}
+							{flow.recommended && <FiStar />}
+						</FlowOption>
+					))}
+				</FlowSelector>
+			</CollapsibleHeader>
 
 			{selectedFlowData.length === 0 ? (
-				<EmptyState>
-					<div className="empty-icon"></div>
-					<h3>Select Flows to Compare</h3>
-					<p>
-						Choose up to 4 OAuth flows from the options above to see a detailed comparison of their
-						features, security levels, and use cases.
-					</p>
-				</EmptyState>
+				<CollapsibleHeader
+					title="Get Started"
+					subtitle="Select flows from above to begin comparison"
+					icon={<FiInfo />}
+					defaultCollapsed={false}
+				>
+					<EmptyState>
+                 <div className="empty-icon">
+                   <FiGitBranch />
+                 </div>
+						<h3>Select Flows to Compare</h3>
+						<p>
+							Choose up to 4 OAuth flows from the options above to see a detailed comparison of their
+							features, security levels, and use cases.
+						</p>
+					</EmptyState>
+				</CollapsibleHeader>
 			) : (
-				<ComparisonGrid $columns={selectedFlowData.length}>
-					{selectedFlowData.map((flow) => (
-						<ComparisonCard key={flow.id}>
-							<CardHeader>
-								<FlowHeader>
-									<div className="flow-icon">{flow.icon}</div>
-									<h3 className="flow-title">{flow.title}</h3>
-									<p className="flow-description">{flow.description}</p>
-									{flow.recommended && (
-										<div style={{ marginTop: '0.5rem' }}>
-											<span
-												style={{
-													display: 'inline-flex',
-													alignItems: 'center',
-													gap: '0.25rem',
-													padding: '0.25rem 0.75rem',
-													backgroundColor: '#dbeafe',
-													color: '#1e40af',
-													borderRadius: '1rem',
-													fontSize: '0.75rem',
-													fontWeight: '500',
-												}}
-											>
-												<FiStar />
-												Recommended
-											</span>
-										</div>
-									)}
-								</FlowHeader>
-							</CardHeader>
-
-							<CardBody>
-								<ComparisonSection>
-									<h4>
-										<FiShield />
-										Security & Complexity
-									</h4>
-									<MetricGrid>
-										<MetricItem>
-											<div className="metric-label">Security</div>
-											<div className="metric-value">
-												<SecurityBadge $level={flow.security}>{flow.security}</SecurityBadge>
+				<CollapsibleHeader
+					title="Flow Comparison"
+					subtitle={`Comparing ${selectedFlows.length} OAuth flow${selectedFlows.length > 1 ? 's' : ''} side by side`}
+					icon={<FiInfo />}
+					defaultCollapsed={false}
+				>
+					<ComparisonGrid $columns={selectedFlowData.length}>
+						{selectedFlowData.map((flow) => (
+							<ComparisonCard key={flow.id}>
+								<CardHeader>
+									<FlowHeader>
+										<div className="flow-icon">{flow.icon}</div>
+										<h3 className="flow-title">{flow.title}</h3>
+										<p className="flow-description">{flow.description}</p>
+										{flow.recommended && (
+											<div style={{ marginTop: '0.5rem' }}>
+												<span
+													style={{
+														display: 'inline-flex',
+														alignItems: 'center',
+														gap: '0.25rem',
+														padding: '0.25rem 0.75rem',
+														backgroundColor: '#dbeafe',
+														color: '#1e40af',
+														borderRadius: '1rem',
+														fontSize: '0.75rem',
+														fontWeight: '500',
+													}}
+												>
+													<FiStar />
+													Recommended
+												</span>
 											</div>
-										</MetricItem>
-										<MetricItem>
-											<div className="metric-label">Complexity</div>
-											<div className="metric-value">
-												<ComplexityBadge $level={flow.complexity}>
-													{flow.complexity}
-												</ComplexityBadge>
-											</div>
-										</MetricItem>
-										<MetricItem>
-											<div className="metric-label">Time</div>
-											<div className="metric-value">{flow.implementationTime}</div>
-										</MetricItem>
-									</MetricGrid>
-								</ComparisonSection>
+										)}
+									</FlowHeader>
+								</CardHeader>
 
-								<ComparisonSection>
-									<h4>
-										<FiCheckCircle />
-										Pros
-									</h4>
-									<ProsConsList>
-										{flow.pros.map((pro, index) => (
-											<li key={index}>
-												<FiCheckCircle className="pros-icon" />
-												{pro}
-											</li>
-										))}
-									</ProsConsList>
-								</ComparisonSection>
+								<CardBody>
+									<ComparisonSection>
+										<h4>
+											<FiShield />
+											Security & Complexity
+										</h4>
+										<MetricGrid>
+											<MetricItem>
+												<div className="metric-label">Security</div>
+												<div className="metric-value">
+													<SecurityBadge $level={flow.security}>{flow.security}</SecurityBadge>
+												</div>
+											</MetricItem>
+											<MetricItem>
+												<div className="metric-label">Complexity</div>
+												<div className="metric-value">
+													<ComplexityBadge $level={flow.complexity}>
+														{flow.complexity}
+													</ComplexityBadge>
+												</div>
+											</MetricItem>
+											<MetricItem>
+												<div className="metric-label">Time</div>
+												<div className="metric-value">{flow.implementationTime}</div>
+											</MetricItem>
+										</MetricGrid>
+									</ComparisonSection>
 
-								<ComparisonSection>
-									<h4>
-										<FiXCircle />
-										Cons
-									</h4>
-									<ProsConsList>
-										{flow.cons.map((con, index) => (
-											<li key={index}>
-												<FiXCircle className="cons-icon" />
-												{con}
-											</li>
-										))}
-									</ProsConsList>
-								</ComparisonSection>
+									<ComparisonSection>
+										<h4>
+											<FiCheckCircle />
+											Pros
+										</h4>
+										<ProsConsList>
+											{flow.pros.map((pro, index) => (
+												<li key={index}>
+													<FiCheckCircle className="pros-icon" />
+													{pro}
+												</li>
+											))}
+										</ProsConsList>
+									</ComparisonSection>
 
-								<ComparisonSection>
-									<h4>
-										<FiUser />
-										Use Cases
-									</h4>
-									<UseCasesList>
-										{flow.useCases.map((useCase, index) => (
-											<span key={index} className="use-case">
-												{useCase}
-											</span>
-										))}
-									</UseCasesList>
-								</ComparisonSection>
+									<ComparisonSection>
+										<h4>
+											<FiXCircle />
+											Cons
+										</h4>
+										<ProsConsList>
+											{flow.cons.map((con, index) => (
+												<li key={index}>
+													<FiXCircle className="cons-icon" />
+													{con}
+												</li>
+											))}
+										</ProsConsList>
+									</ComparisonSection>
 
-								<ActionButton to={generateFlowUrl(flow)}>
-									<FiExternalLink />
-									Try This Flow
-								</ActionButton>
-							</CardBody>
-						</ComparisonCard>
-					))}
-				</ComparisonGrid>
+									<ComparisonSection>
+										<h4>
+											<FiUser />
+											Use Cases
+										</h4>
+										<UseCasesList>
+											{flow.useCases.map((useCase, index) => (
+												<span key={index} className="use-case">
+													{useCase}
+												</span>
+											))}
+										</UseCasesList>
+									</ComparisonSection>
+
+									<ActionButton to={generateFlowUrl(flow)}>
+										<FiExternalLink />
+										Try This Flow
+									</ActionButton>
+								</CardBody>
+							</ComparisonCard>
+						))}
+					</ComparisonGrid>
+				</CollapsibleHeader>
 			)}
 		</ComparisonContainer>
 	);
