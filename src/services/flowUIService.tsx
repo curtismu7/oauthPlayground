@@ -470,8 +470,10 @@ export class FlowUIService {
 						return `
 							background-color: #3b82f6;
 							color: #ffffff;
+							border: 1px solid #ffffff;
 							&:hover:not(:disabled) {
 								background-color: #2563eb;
+								border-color: #ffffff;
 							}
 						`;
 					case 'success':
