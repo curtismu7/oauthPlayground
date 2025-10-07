@@ -1,7 +1,8 @@
 import React from 'react';
 import { FiCode, FiDownload, FiExternalLink, FiGithub, FiPackage, FiPlay } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
 
 const Container = styled.div`
@@ -203,6 +204,20 @@ const FeatureList = styled.ul`
 const SdkSampleApp: React.FC = () => {
 	usePageScroll({ pageName: 'SDK Sample App', force: true });
 
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for SDK content (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'sdk-sample-app', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	const sdks = [
 		{
 			id: 'nodejs',
@@ -278,32 +293,28 @@ const SdkSampleApp: React.FC = () => {
 	];
 
 	return (
-		<Container>
-			<FlowHeader flowId="sdk-sample-app" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			<Header>
-				<h1>
-					<FiPackage />
-					PingOne SDK Sample Applications
-				</h1>
-				<p>
-					Explore our official SDKs and sample applications to quickly integrate PingOne identity
-					services into your applications. Each SDK includes comprehensive documentation, examples,
-					and best practices.
-				</p>
-			</Header>
-
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiPlay />
-						Quick Start Guide
-					</h2>
-					<p>
-						Get started with PingOne SDKs in minutes. Choose your preferred language and follow the
-						installation and setup instructions.
-					</p>
-				</CardHeader>
+				<CollapsibleHeader
+					title="Quick Start Guide"
+					subtitle="Get started with PingOne SDKs in minutes. Choose your preferred language and follow the installation and setup instructions."
+					icon={<FiPlay />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1.5rem' }}>
+						<Card>
+							<CardHeader>
+								<h2>
+									<FiPlay />
+									Quick Start Guide
+								</h2>
+								<p>
+									Get started with PingOne SDKs in minutes. Choose your preferred language and follow the
+									installation and setup instructions.
+								</p>
+							</CardHeader>
 
 				<div>
 					<h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
@@ -419,19 +430,28 @@ app.get('/callback', async (req, res) => {
 						</SdkCard>
 					))}
 				</SdkGrid>
-			</Card>
+					</div>
+				</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>
-						<FiDownload />
-						Sample Applications
-					</h2>
-					<p>
-						Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID
-						Connect integration patterns.
-					</p>
-				</CardHeader>
+			<CollapsibleHeader
+				title="Sample Applications"
+				subtitle="Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID Connect integration patterns."
+				icon={<FiDownload />}
+				defaultCollapsed={false}
+			>
+				<div style={{ padding: '1.5rem' }}>
+					<Card>
+						<CardHeader>
+							<h2>
+								<FiDownload />
+								Sample Applications
+							</h2>
+							<p>
+								Download and run complete sample applications that demonstrate OAuth 2.0 and OpenID
+								Connect integration patterns.
+							</p>
+						</CardHeader>
 
 				<div style={{ display: 'grid', gap: '1rem' }}>
 					<div
@@ -485,8 +505,11 @@ app.get('/callback', async (req, res) => {
 						</ActionButton>
 					</div>
 				</div>
-			</Card>
-		</Container>
+					</div>
+				</Card>
+			</CollapsibleHeader>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 

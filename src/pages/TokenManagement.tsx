@@ -38,7 +38,8 @@ import {
 } from '../utils/tokenHistory';
 import { getOAuthTokens } from '../utils/tokenStorage';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FlowHeader } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
 	getFlowNavigationState,
 	navigateBackToFlow,
@@ -632,6 +633,20 @@ const TokenManagement = () => {
 	// Scroll to top when page loads
 	// Use centralized scroll management
 	usePageScroll({ pageName: 'Token Management', force: true });
+
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for token management (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'token-management', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
 
 	// Track flow source so tokens passed from other flows persist after sessionStorage is cleared
 	const [flowSourceState, setFlowSourceState] = useState(() => {
@@ -1964,8 +1979,9 @@ const TokenManagement = () => {
 	};
 
 	return (
-		<Container>
-			<FlowHeader flowType="token-management" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
 			{/* Back to Flow Button */}
 			{flowNavigationState && (
@@ -3538,7 +3554,8 @@ const TokenManagement = () => {
 			/>
 
 			{/* Centralized Success/Error Messages */}
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
