@@ -1262,19 +1262,16 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							onToggle={() => toggleSection('overview')}
 							icon={<FiInfo />}
 						>
-							<InfoBox $variant="info">
+							<InfoBox variant="info">
 								<FiShield size={20} />
 								<div>
-									<InfoTitle>When to Use Authorization Code</InfoTitle>
-									<InfoText>
-										Authorization Code Flow is perfect when you can securely store a client
-										secret on a backend and need full OIDC context.
-									</InfoText>
+									{FlowUIService.getInfoTitle()({ children: 'When to Use Authorization Code' })}
+									{FlowUIService.getInfoText()({ children: 'Authorization Code Flow is perfect when you can securely store a client secret on a backend and need full OIDC context.' })}
 								</div>
 							</InfoBox>
 							<FlowSuitability>
 								<SuitabilityCard $variant="success">
-									<InfoTitle>Great Fit</InfoTitle>
+									{FlowUIService.getInfoTitle()({ children: 'Great Fit' })}
 									<ul>
 										<li>Web apps with backend session storage</li>
 										<li>SPAs or native apps using PKCE</li>
@@ -1282,14 +1279,14 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 									</ul>
 								</SuitabilityCard>
 								<SuitabilityCard $variant="warning">
-									<InfoTitle>Consider Alternatives</InfoTitle>
+									{FlowUIService.getInfoTitle()({ children: 'Consider Alternatives' })}
 									<ul>
 										<li>Machine-to-machine workloads (Client Credentials)</li>
 										<li>IoT or low-input devices (Device Authorization)</li>
 									</ul>
 								</SuitabilityCard>
 								<SuitabilityCard $variant="danger">
-									<InfoTitle>Avoid When</InfoTitle>
+									{FlowUIService.getInfoTitle()({ children: 'Avoid When' })}
 									<ul>
 										<li>Secrets cannot be protected at all</li>
 										<li>You just need simple backend API access</li>
@@ -1633,48 +1630,52 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 								<InfoBox variant="info">
 									<FiKey size={20} />
 									<div>
-										<InfoTitle>Required Parameters</InfoTitle>
-										<InfoList>
-											<li>
-												<strong>response_type=code:</strong> Tells PingOne you want an
-												authorization code (not tokens)
-											</li>
-											<li>
-												<strong>client_id:</strong> Your application's unique identifier in
-												PingOne
-											</li>
-											<li>
-												<strong>redirect_uri:</strong> Exact URL where PingOne sends the user
-												back
-											</li>
-											<li>
-												<strong>scope:</strong> Permissions you're requesting (openid, profile,
-												email, etc.)
-											</li>
-										</InfoList>
+										{FlowUIService.getInfoTitle()({ children: 'Required Parameters' })}
+										{FlowUIService.getInfoList()({ children: (
+											<>
+												<li>
+													<strong>response_type=code:</strong> Tells PingOne you want an
+													authorization code (not tokens)
+												</li>
+												<li>
+													<strong>client_id:</strong> Your application's unique identifier in
+													PingOne
+												</li>
+												<li>
+													<strong>redirect_uri:</strong> Exact URL where PingOne sends the user
+													back
+												</li>
+												<li>
+													<strong>scope:</strong> Permissions you're requesting (openid, profile,
+													email, etc.)
+												</li>
+											</>
+										) })}
 									</div>
 								</InfoBox>
 
 								<InfoBox variant="success">
 									<FiShield size={20} />
 									<div>
-										<InfoTitle>Security Parameters</InfoTitle>
-										<InfoList>
-											<li>
-												<strong>state:</strong> Random value to prevent CSRF attacks and
-												maintain session state
-											</li>
-											<li>
-												<strong>code_challenge:</strong> PKCE parameter for secure code exchange
-											</li>
-											<li>
-												<strong>code_challenge_method:</strong> Always "S256" for SHA256 hashing
-											</li>
-											<li>
-												<strong>nonce:</strong> (OIDC) Random value to prevent replay attacks on
-												ID tokens
-											</li>
-										</InfoList>
+										{FlowUIService.getInfoTitle()({ children: 'Security Parameters' })}
+										{FlowUIService.getInfoList()({ children: (
+											<>
+												<li>
+													<strong>state:</strong> Random value to prevent CSRF attacks and
+													maintain session state
+												</li>
+												<li>
+													<strong>code_challenge:</strong> PKCE parameter for secure code exchange
+												</li>
+												<li>
+													<strong>code_challenge_method:</strong> Always "S256" for SHA256 hashing
+												</li>
+												<li>
+													<strong>nonce:</strong> (OIDC) Random value to prevent replay attacks on
+													ID tokens
+												</li>
+											</>
+										) })}
 									</div>
 								</InfoBox>
 							</ParameterGrid>
@@ -1682,8 +1683,8 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 							<InfoBox variant="warning">
 								<FiAlertCircle size={20} />
 								<div>
-									<InfoTitle>Optional But Recommended Parameters</InfoTitle>
-									<InfoList>
+									{FlowUIService.getInfoTitle()({ children: 'Optional But Recommended Parameters' })}
+									{FlowUIService.getInfoList()({ children: (
 										<li>
 											<strong>prompt:</strong> Controls authentication behavior (none, login,
 											consent, select_account)
@@ -1700,15 +1701,15 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 											<strong>login_hint:</strong> Hint about the user identifier (email,
 											username)
 										</li>
-									</InfoList>
+									) })}
 								</div>
 							</InfoBox>
 
 							<InfoBox variant="info">
 								<FiInfo size={20} />
 								<div>
-									<InfoTitle>Authorization URL Parameters</InfoTitle>
-									<InfoText>The authorization URL includes these key parameters:</InfoText>
+									{FlowUIService.getInfoTitle()({ children: 'Authorization URL Parameters' })}
+									{FlowUIService.getInfoText()({ children: 'The authorization URL includes these key parameters:' })}
 									<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 										<li>
 											<strong>response_type=code</strong> - Authorization Code flow

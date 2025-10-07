@@ -76,6 +76,9 @@ const DiagramContainer = styled.div`
 	margin: 1rem 0;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	border: 1px solid #e5e7eb;
+	overflow: visible;
+	width: 100%;
+	min-height: 400px;
 `;
 
 const DiagramHeader = styled.div`
@@ -102,18 +105,22 @@ const DiagramWrapper = styled.div`
 	padding: 1.5rem;
 	margin: 1rem 0;
 	border: 1px solid #e2e8f0;
-	overflow-x: auto;
+	overflow: visible;
+	width: 100%;
+	min-height: 400px;
 
 	.mermaid {
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		min-height: 300px;
+		width: 100%;
 	}
 
 	svg {
 		max-width: 100%;
 		height: auto;
+		width: 100%;
 	}
 `;
 
