@@ -226,6 +226,50 @@ type CollapsibleSectionKey =
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
+// V6 Service Components - using FlowUIService for consistent styling
+const Container = FlowUIService.getContainer();
+const ContentWrapper = FlowUIService.getContentWrapper();
+const MainCard = FlowUIService.getMainCard();
+const StepHeader = FlowUIService.getStepHeader('blue');
+const StepHeaderLeft = FlowUIService.getStepHeaderLeft();
+const StepHeaderRight = FlowUIService.getStepHeaderRight();
+const VersionBadge = FlowUIService.getVersionBadge('blue');
+const StepHeaderTitle = FlowUIService.getStepHeaderTitle();
+const StepHeaderSubtitle = FlowUIService.getStepHeaderSubtitle();
+const StepNumber = FlowUIService.getStepNumber();
+const StepTotal = FlowUIService.getStepTotal();
+const StepContentWrapper = FlowUIService.getStepContentWrapper();
+const NavigationButton = FlowUIService.getButton();
+
+// Create StepNavigation component
+const StepNavigation = styled.div`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1.5rem 2rem;
+	background: #f9fafb;
+	border-top: 1px solid #e5e7eb;
+`;
+
+// Flow suitability components
+const FlowSuitability = FlowUIService.getFlowSuitability();
+const SuitabilityCard = FlowUIService.getSuitabilityCard();
+
+// Parameter display components
+const ParameterGrid = FlowUIService.getParameterGrid();
+const ParameterLabel = FlowUIService.getParameterLabel();
+const ParameterValue = FlowUIService.getParameterValue();
+
+// Generated content components
+const GeneratedContentBox = FlowUIService.getGeneratedContentBox();
+const GeneratedLabel = FlowUIService.getGeneratedLabel();
+
+// Info components
+const InfoBox = FlowUIService.getInfoBox();
+const InfoTitle = FlowUIService.getInfoTitle();
+const InfoText = FlowUIService.getInfoText();
+const InfoList = FlowUIService.getInfoList();
+
 const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(0);
 
@@ -1201,40 +1245,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		],
 	);
 
-	// V6 Service Components - using FlowUIService for consistent styling
-	const Container = FlowUIService.getContainer();
-	const ContentWrapper = FlowUIService.getContentWrapper();
-	const MainCard = FlowUIService.getMainCard();
-	const StepHeader = FlowUIService.getStepHeader('blue');
-	const StepHeaderLeft = FlowUIService.getStepHeaderLeft();
-	const StepHeaderRight = FlowUIService.getStepHeaderRight();
-	const VersionBadge = FlowUIService.getVersionBadge('blue');
-	const StepHeaderTitle = FlowUIService.getStepHeaderTitle();
-	const StepHeaderSubtitle = FlowUIService.getStepHeaderSubtitle();
-	const StepNumber = FlowUIService.getStepNumber();
-	const StepTotal = FlowUIService.getStepTotal();
-	const StepContentWrapper = FlowUIService.getStepContentWrapper();
-	const StepNavigation = FlowUIService.getStepNavigation();
-	const NavigationButton = FlowUIService.getButton();
-
-	// Flow suitability components
-	const FlowSuitability = FlowUIService.getFlowSuitability();
-	const SuitabilityCard = FlowUIService.getSuitabilityCard();
-
-	// Parameter display components
-	const ParameterGrid = FlowUIService.getParameterGrid();
-	const ParameterLabel = FlowUIService.getParameterLabel();
-	const ParameterValue = FlowUIService.getParameterValue();
-
-	// Generated content components
-	const GeneratedContentBox = FlowUIService.getGeneratedContentBox();
-	const GeneratedLabel = FlowUIService.getGeneratedLabel();
-
-	// Info components
-	const InfoBox = FlowUIService.getInfoBox();
-	const InfoTitle = FlowUIService.getInfoTitle();
-	const InfoText = FlowUIService.getInfoText();
-	const InfoList = FlowUIService.getInfoList();
 
 	return (
 		<Container>
