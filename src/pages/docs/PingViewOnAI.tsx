@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiBrain, FiShield, FiUsers, FiGlobe, FiKey, FiCheckCircle, FiAlertTriangle, FiExternalLink, FiBookOpen, FiZap } from 'react-icons/fi';
+import { FiCpu, FiShield, FiUsers, FiGlobe, FiKey, FiCheckCircle, FiAlertTriangle, FiExternalLink, FiBookOpen, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
@@ -141,7 +141,7 @@ const PingViewOnAI: React.FC = () => {
     <Container>
       <Header>
         <h1>
-          <FiBrain />
+          <FiCpu />
           Ping View on AI
         </h1>
         <p>
@@ -163,7 +163,7 @@ const PingViewOnAI: React.FC = () => {
           </p>
           
           <InfoBox $type="info">
-            <FiBrain size={20} />
+            <FiCpu size={20} />
             <div>
               <strong>Ping's AI Vision:</strong> We believe AI should enhance security while maintaining user privacy 
               and regulatory compliance. Our approach focuses on AI-powered identity solutions that are secure, 
@@ -218,7 +218,7 @@ const PingViewOnAI: React.FC = () => {
             </FeatureCard>
             
             <FeatureCard>
-              <h3><FiBrain />Behavioral Analytics</h3>
+              <h3><FiCpu />Behavioral Analytics</h3>
               <p>
                 Machine learning models that analyze user patterns, access patterns, and behavioral indicators 
                 to detect anomalies and potential security threats.
@@ -400,7 +400,7 @@ const PingViewOnAI: React.FC = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <FiBrain />
+              <FiCpu />
               Agentic AI Guide
             </ExternalLink>
 
@@ -424,7 +424,7 @@ const PingViewOnAI: React.FC = () => {
           </div>
 
           <InfoBox $type="info">
-            <FiBrain size={20} />
+            <FiCpu size={20} />
             <div>
               <strong>Getting Started:</strong> Begin with our AI readiness assessment to understand your 
               organization's current capabilities and identify the best starting point for AI implementation.

@@ -823,3 +823,25 @@ export const refreshAccessToken = async (
 
 	return response.json();
 };
+
+/**
+ * Check if a JWT token is expired
+ * @param {string} token - The JWT token to check
+ * @returns {boolean} True if the token is expired, false otherwise
+ */
+export const isTokenExpired = (token: string): boolean => {
+	try {
+		// Parse the JWT payload (without verification for expiration check)
+		const payload = parseJwt(token);
+		if (!payload || !payload.exp) {
+			return true; // Consider invalid tokens as expired
+		}
+
+		// Check if the token is expired
+		const currentTime = Math.floor(Date.now() / 1000);
+		return payload.exp < currentTime;
+	} catch (error) {
+		console.error('Error checking token expiration:', error);
+		return true; // Consider parsing errors as expired
+	}
+};
