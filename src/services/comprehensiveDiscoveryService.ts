@@ -181,24 +181,8 @@ export class ComprehensiveDiscoveryService {
 	 * Resolve PingOne Environment ID to issuer URL
 	 */
 	private async resolvePingOneEnvironmentId(envId: string): Promise<string> {
-		// Try different PingOne regions
-		const regions = ['us', 'eu', 'ap', 'ca'];
-		
-		for (const region of regions) {
-			try {
-				const issuerUrl = `https://auth.pingone.com/${envId}/as`;
-				const testUrl = `${issuerUrl}/.well-known/openid_configuration`;
-				
-				const response = await fetch(testUrl, { method: 'HEAD' });
-				if (response.ok) {
-					return issuerUrl;
-				}
-			} catch (error) {
-				// Continue to next region
-			}
-		}
-
-		// If no region works, return default US region
+		// Don't try to validate with HEAD requests - causes CORS errors
+		// Just return the issuer URL and let the backend proxy handle discovery
 		return `https://auth.pingone.com/${envId}/as`;
 	}
 
