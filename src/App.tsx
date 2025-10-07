@@ -423,10 +423,6 @@ const AppRoutes = () => {
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 							<Route
-								path="/flows/oauth-authorization-code-v5"
-								element={<OAuthAuthorizationCodeFlowV5 />}
-							/>
-							<Route
 								path="/flows/oidc-authorization-code-v5"
 								element={<OIDCAuthorizationCodeFlowV5 />}
 							/>
