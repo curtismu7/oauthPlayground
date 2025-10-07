@@ -26,6 +26,18 @@ import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sideba
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 
+// Colored icon wrapper component for sidebar menu
+const ColoredIcon = styled.span<{ $color?: string }>`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: ${props => props.$color || 'currentColor'};
+	
+	svg {
+		color: ${props => props.$color || 'currentColor'} !important;
+	}
+`;
+
 interface SidebarProps {
 	isOpen: boolean;
 	onClose: () => void;
@@ -282,19 +294,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* Core Overview Section */}
 					<SubMenu
 						label="Core Overview"
-						icon={<FiHome />}
+						icon={<ColoredIcon $color="#8b5cf6"><FiHome /></ColoredIcon>}
 						open={openMenus['Core Overview']}
 						onOpenChange={() => toggleMenu('Core Overview')}
 					>
 						<MenuItem
-							icon={<FiHome />}
+							icon={<ColoredIcon $color="#8b5cf6"><FiHome /></ColoredIcon>}
 							active={isActive('/dashboard')}
 							onClick={() => handleNavigation('/dashboard')}
 						>
 							Dashboard
 						</MenuItem>
 						<MenuItem
-							icon={<FiSettings />}
+							icon={<ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>}
 							active={isActive('/configuration')}
 							onClick={() => handleNavigation('/configuration')}
 						>
@@ -305,33 +317,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* OAuth 2.0 Flows */}
 					<SubMenu
 						label="OAuth 2.0 Flows"
-						icon={<FiShield />}
+						icon={<ColoredIcon $color="#ef4444"><FiShield /></ColoredIcon>}
 						open={openMenus['OAuth 2.0 Flows']}
 						onOpenChange={() => toggleMenu('OAuth 2.0 Flows')}
 					>
 						<MenuItem
-							icon={<FiLock />}
+							icon={<ColoredIcon $color="#dc2626"><FiLock /></ColoredIcon>}
 							active={isActive('/flows/oauth-authorization-code-v5')}
 							onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
 						>
 							Authorization Code (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiZap />}
+							icon={<ColoredIcon $color="#f59e0b"><FiZap /></ColoredIcon>}
 							active={isActive('/flows/oauth-implicit-v5')}
 							onClick={() => handleNavigation('/flows/oauth-implicit-v5')}
 						>
 							Implicit Flow (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiSmartphone />}
+							icon={<ColoredIcon $color="#ec4899"><FiSmartphone /></ColoredIcon>}
 							active={isActive('/flows/device-authorization-v5')}
 							onClick={() => handleNavigation('/flows/device-authorization-v5')}
 						>
 							Device Authorization (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiKey />}
+							icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
 							active={isActive('/flows/client-credentials-v5')}
 							onClick={() => handleNavigation('/flows/client-credentials-v5')}
 						>
@@ -342,33 +354,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* OpenID Connect */}
 					<SubMenu
 						label="OpenID Connect"
-						icon={<FiUser />}
+						icon={<ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>}
 						open={openMenus['OpenID Connect']}
 						onOpenChange={() => toggleMenu('OpenID Connect')}
 					>
 						<MenuItem
-							icon={<FiLock />}
+							icon={<ColoredIcon $color="#059669"><FiLock /></ColoredIcon>}
 							active={isActive('/flows/oidc-authorization-code-v5')}
 							onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
 						>
 							Authorization Code (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiZap />}
+							icon={<ColoredIcon $color="#84cc16"><FiZap /></ColoredIcon>}
 							active={isActive('/flows/oidc-implicit-v5')}
-							onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
+			onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
 						>
 							Implicit Flow (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiSmartphone />}
+							icon={<ColoredIcon $color="#14b8a6"><FiSmartphone /></ColoredIcon>}
 							active={isActive('/flows/oidc-device-authorization-v5')}
 							onClick={() => handleNavigation('/flows/oidc-device-authorization-v5')}
 						>
 							Device Authorization (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiGitBranch />}
+							icon={<ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>}
 							active={isActive('/flows/hybrid-v5')}
 							onClick={() => handleNavigation('/flows/hybrid-v5')}
 						>
@@ -386,42 +398,42 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* PingOne */}
 					<SubMenu
 						label="PingOne"
-						icon={<FiKey />}
+						icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
 						open={openMenus['PingOne']}
 						onOpenChange={() => toggleMenu('PingOne')}
 					>
 						<MenuItem
-							icon={<FiKey />}
+							icon={<ColoredIcon $color="#fb923c"><FiKey /></ColoredIcon>}
 							active={isActive('/flows/worker-token-v5')}
 							onClick={() => handleNavigation('/flows/worker-token-v5')}
 						>
 							Worker Token (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiLock />}
+							icon={<ColoredIcon $color="#ea580c"><FiLock /></ColoredIcon>}
 							active={isActive('/flows/pingone-par-v5')}
 							onClick={() => handleNavigation('/flows/pingone-par-v5')}
 						>
 							PAR (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiSmartphone />}
+							icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
 							active={isActive('/flows/redirectless-flow-v5')}
 							onClick={() => handleNavigation('/flows/redirectless-flow-v5')}
 						>
 							Redirectless Flow V5 (Real)
 						</MenuItem>
 						<MenuItem
-							icon={<FiSmartphone />}
+							icon={<ColoredIcon $color="#fbbf24"><FiSmartphone /></ColoredIcon>}
 							active={isActive('/flows/ciba-v5')}
 							onClick={() => handleNavigation('/flows/ciba-v5')}
 						>
 							CBIA (V5)
 						</MenuItem>
 						<MenuItem
-							icon={<FiShield />}
+							icon={<ColoredIcon $color="#f97316"><FiShield /></ColoredIcon>}
 							active={isActive('/flows/pingone-mfa-v5')}
-							onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
+			onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
 						>
 							PingOne MFA
 						</MenuItem>
@@ -430,7 +442,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* Mock & Demo Flows */}
 					<SubMenu
 						label="Mock & Demo Flows"
-						icon={<FiEye />}
+						icon={<ColoredIcon $color="#a78bfa"><FiEye /></ColoredIcon>}
 						open={openMenus['Mock & Demo Flows']}
 						onOpenChange={() => toggleMenu('Mock & Demo Flows')}
 					>
@@ -474,7 +486,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* Artificial Intelligence */}
 					<SubMenu
 						label="Artificial Intelligence"
-						icon={<FiCpu />}
+						icon={<ColoredIcon $color="#06b6d4"><FiCpu /></ColoredIcon>}
 						open={openMenus['Artificial Intelligence']}
 						onOpenChange={() => toggleMenu('Artificial Intelligence')}
 					>
@@ -530,7 +542,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</SubMenu>
 					<SubMenu
 						label="Security & Management"
-						icon={<FiShield />}
+						icon={<ColoredIcon $color="#dc2626"><FiShield /></ColoredIcon>}
 						open={openMenus['Security & Management']}
 						onOpenChange={() => toggleMenu('Security & Management')}
 					>
@@ -567,7 +579,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* Tools & Utilities Section */}
 					<SubMenu
 						label="Tools & Utilities"
-						icon={<FiTool />}
+						icon={<ColoredIcon $color="#8b5cf6"><FiTool /></ColoredIcon>}
 						open={openMenus['Tools & Utilities']}
 						onOpenChange={() => toggleMenu('Tools & Utilities')}
 					>
@@ -604,7 +616,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					{/* Documentation */}
 					<SubMenu
 						label="Documentation"
-						icon={<FiFileText />}
+						icon={<ColoredIcon $color="#3b82f6"><FiFileText /></ColoredIcon>}
 						open={openMenus['Documentation']}
 						onOpenChange={() => toggleMenu('Documentation')}
 					>
