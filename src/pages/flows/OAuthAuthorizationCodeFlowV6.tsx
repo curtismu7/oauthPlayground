@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
 import PageLayoutService from '../../services/pageLayoutService';
 import FlowStepLayoutService from '../../services/flowStepLayoutService'; // V5Stepper service
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -351,9 +352,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		securityBestPractices: false,
 	});
 
-	// Removed statusManager - FlowStatusManagementService not used
 
-	// Removed statusManager initialization - FlowStatusManagementService not used
 
 	const validationRequirements = useMemo(
 		() => FlowValidationService.getStepRequirements(0, 'authorization-code'),
@@ -444,7 +443,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				error: null,
 			});
 			setPkceReady(true);
-			// Removed statusManager calls
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to generate PKCE parameters';
 			setPkceState((prev) => ({ ...prev, isGenerating: false, error: message }));
@@ -466,7 +464,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				setAuthResponse({ code: '', state: '', error: `Authorization error: ${error}`, isValid: false });
 			} else if (code && state) {
 				setAuthResponse({ code, state, error: null, isValid: true });
-				// Removed statusManager calls
 			} else {
 				setAuthResponse({ code: '', state: '', error: 'Missing code or state parameter in callback URL', isValid: false });
 			}
@@ -500,7 +497,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				error: null,
 				isExchanging: false,
 			});
-			// Removed statusManager calls
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Token exchange failed';
 			setTokenState(prev => ({ ...prev, isExchanging: false, error: message }));
@@ -529,7 +525,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			const message = error instanceof Error ? error.message : 'Introspection failed';
 			setIntrospectionState(prev => ({ ...prev, isIntrospecting: false, error: message }));
 		}
-	}, [tokenState.accessToken, credentials, statusManager]);
+	}, [tokenState.accessToken, credentials]);
 
 	const handleUserInfo = useCallback(async () => {
 		if (!tokenState.accessToken || !credentials.userInfoEndpoint) {
@@ -558,14 +554,12 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	useEffect(() => {
 		if (validationReady && !introCompleted) {
-			// Removed statusManager calls
 			setIntroCompleted(true);
 		}
 	}, [introCompleted, validationReady]);
 
 	useEffect(() => {
 		if (!validationReady && introCompleted) {
-			// Removed statusManager calls
 			setIntroCompleted(false);
 		}
 	}, [introCompleted, validationReady]);
