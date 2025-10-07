@@ -788,21 +788,38 @@ export const introspectToken = async (
 };
 
 /**
- * Check if a JWT token is expired
- * @param {string} token - JWT token to check
- * @returns {boolean} True if token is expired, false otherwise
+ * Refresh an access token using a refresh token
+ * @param {string} refreshToken - The refresh token
+ * @param {string} clientId - Client ID
+ * @param {string} [clientSecret] - Client secret (optional for confidential clients)
+ * @param {string} tokenEndpoint - Token endpoint URL
+ * @returns {Promise<Object>} New token response
  */
-export const isTokenExpired = (token: string): boolean => {
-	try {
-		const payload = parseJwt(token);
-		if (!payload || !payload.exp) {
-			return true; // Consider invalid tokens as expired
-		}
-
-		const currentTime = Math.floor(Date.now() / 1000);
-		return payload.exp < currentTime;
-	} catch (error) {
-		console.error('Error checking token expiration:', error);
-		return true; // Consider parsing errors as expired
+export const refreshAccessToken = async (
+	refreshToken: string,
+	clientId: string,
+	clientSecret: string | undefined,
+	tokenEndpoint: string
+) => {
+	const body = new URLSearchParams();
+	body.append('grant_type', 'refresh_token');
+	body.append('refresh_token', refreshToken);
+	body.append('client_id', clientId);
+	if (clientSecret) {
+		body.append('client_secret', clientSecret);
 	}
+
+	const response = await fetch(tokenEndpoint, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+		},
+		body: body.toString(),
+	});
+
+	if (!response.ok) {
+		throw new Error('Token refresh failed');
+	}
+
+	return response.json();
 };
