@@ -558,17 +558,13 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			setIntroCompleted(false);
 		}
 	}, [introCompleted, statusManager, validationReady]);
-	const pageLayout = useMemo(
-		() =>
-			PageLayoutService.createPageLayout({
-				flowType: 'oauth',
-				theme: 'blue',
-				maxWidth: '72rem',
-				showHeader: false,
-				showFooter: false,
-			}),
-		[],
-	);
+	const pageLayout = PageLayoutService.createPageLayout({
+		flowType: 'oauth',
+		theme: 'blue',
+		maxWidth: '72rem',
+		showHeader: false,
+		showFooter: false,
+	});
 
 	const stepLayout = FlowStepLayoutService.createStepLayout({
 		flowType: 'oauth',
