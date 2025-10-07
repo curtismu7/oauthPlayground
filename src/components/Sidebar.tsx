@@ -551,6 +551,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							AI Agent Overview for PingOne
 						</MenuItem>
 						<MenuItem
+							icon={<FiShield />}
+							active={isActive('/competitive-analysis')}
+							onClick={() => handleNavigation('/competitive-analysis')}
+						>
+							Competitive Analysis
+						</MenuItem>
+						<MenuItem
 							icon={<FiBookOpen />}
 							active={isActive('/comprehensive-oauth-education')}
 							onClick={() => handleNavigation('/comprehensive-oauth-education')}
