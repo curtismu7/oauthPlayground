@@ -55,6 +55,7 @@ import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractice
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
+import PingViewOnAI from './pages/docs/PingViewOnAI';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up V2/V3/V4 flows - moved to _backup folder
@@ -397,6 +398,7 @@ const AppRoutes = () => {
 							<Route path="/environment-id-demo" element={<EnvironmentIdInputDemo />} />
 							<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
 							<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
+							<Route path="/docs/ping-view-on-ai" element={<PingViewOnAI />} />
 							<Route
 								path="/docs/oauth2-security-best-practices"
 								element={<OAuth2SecurityBestPractices />}
