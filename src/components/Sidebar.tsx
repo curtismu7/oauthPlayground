@@ -311,7 +311,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							active={isActive('/configuration')}
 							onClick={() => handleNavigation('/configuration')}
 						>
-							Settings
+							Setup & Configuration
 						</MenuItem>
 					</SubMenu>
 
