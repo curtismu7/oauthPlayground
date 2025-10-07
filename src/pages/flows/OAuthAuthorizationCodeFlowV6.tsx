@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PageLayoutService from '../../services/pageLayoutService';
-import FlowStepLayoutService from '../../services/flowStepLayoutService';
+import FlowStepLayoutService from '../../services/flowStepLayoutService'; // V5Stepper service
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 // Removed FlowStatusManagementService - not a service we built
