@@ -609,7 +609,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Flow Status"
 							subtitle="Real-time overview of the V6 rebuild progress"
 							onToggle={() => toggleSection('status')}
-							collapsed={collapsedSections.status}
+							isCollapsed={collapsedSections.status}
 						>
 							{flowState ? <FlowProgress flowState={flowState} /> : <p>Initializing flow status…</p>}
 						</CollapsibleHeader>
@@ -617,7 +617,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Validation Checklist"
 							subtitle="Step requirements before progressing to PKCE"
 							onToggle={() => toggleSection('validation')}
-							collapsed={collapsedSections.validation}
+							isCollapsed={collapsedSections.validation}
 						>
 							<p>Complete the following prerequisites:</p>
 							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
@@ -636,7 +636,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Authorization Code Flow Overview"
 							subtitle="Purpose, security posture, and key benefits"
 							onToggle={() => toggleSection('overview')}
-							collapsed={collapsedSections.overview}
+							isCollapsed={collapsedSections.overview}
 						>
 							<p>
 								Authorization Code Flow is ideal for confidential clients and PKCE-enabled public
@@ -653,7 +653,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="PingOne Requirements"
 							subtitle="Understand the application configuration essentials"
 							onToggle={() => toggleSection('requirements')}
-							collapsed={collapsedSections.requirements}
+							isCollapsed={collapsedSections.requirements}
 						>
 							<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
 						</CollapsibleHeader>
@@ -661,7 +661,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="OIDC Discovery"
 							subtitle="Auto-populate PingOne endpoints via discovery"
 							onToggle={() => toggleSection('discovery')}
-							collapsed={collapsedSections.discovery}
+							isCollapsed={collapsedSections.discovery}
 						>
 							<OIDCDiscoveryInput
 								onDiscoveryComplete={(result) => {
@@ -676,7 +676,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Application Credentials"
 							subtitle="Provide your PingOne configuration details"
 							onToggle={() => toggleSection('credentials')}
-							collapsed={collapsedSections.credentials}
+							isCollapsed={collapsedSections.credentials}
 						>
 							<CredentialsInput
 								environmentId={credentials.environmentId}
@@ -700,7 +700,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Interactive Walkthrough"
 							subtitle="Step-by-step guidance for the Authorization Code Flow"
 							onToggle={() => toggleSection('walkthrough')}
-							collapsed={collapsedSections.walkthrough}
+							isCollapsed={collapsedSections.walkthrough}
 						>
 							<EnhancedFlowWalkthrough flowId="oauth-authorization-code" defaultCollapsed={false} />
 						</CollapsibleHeader>
@@ -715,7 +715,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="PKCE Overview"
 							subtitle="Why Proof Key for Code Exchange protects authorization flows"
 							onToggle={() => toggleSection('pkceOverview')}
-							collapsed={collapsedSections.pkceOverview}
+							isCollapsed={collapsedSections.pkceOverview}
 						>
 							<p>
 								PKCE binds the authorization request and token exchange steps together using a one-time secret.
@@ -732,7 +732,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Code Verifier & Code Challenge"
 							subtitle="Understand the two PKCE parameters and how they interact"
 							onToggle={() => toggleSection('pkceDetails')}
-							collapsed={collapsedSections.pkceDetails}
+							isCollapsed={collapsedSections.pkceDetails}
 						>
 							<div style={{ display: 'grid', gap: '1rem' }}>
 								<section>
@@ -763,7 +763,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Generate PKCE Parameters"
 							subtitle="Produce fresh code verifier and challenge values for this flow"
 							onToggle={() => toggleSection('pkceGeneration')}
-							collapsed={collapsedSections.pkceGeneration}
+							isCollapsed={collapsedSections.pkceGeneration}
 						>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 								<button
@@ -874,7 +874,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Authorization Response Overview"
 							subtitle="Understanding what happens when PingOne redirects back to your application"
 							onToggle={() => toggleSection('authResponseOverview')}
-							collapsed={collapsedSections.authResponseOverview}
+							isCollapsed={collapsedSections.authResponseOverview}
 						>
 							<p>
 								After the user authenticates with PingOne, they are redirected back to your application with an authorization code. This code is short-lived and must be exchanged for tokens immediately.
@@ -890,7 +890,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Authorization Code Details"
 							subtitle="Technical details about the authorization code and its security properties"
 							onToggle={() => toggleSection('authResponseDetails')}
-							collapsed={collapsedSections.authResponseDetails}
+							isCollapsed={collapsedSections.authResponseDetails}
 						>
 							<div style={{ display: 'grid', gap: '1rem' }}>
 								<section>
@@ -914,7 +914,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Parse Authorization Response"
 							subtitle="Extract the authorization code from the callback URL"
 							onToggle={() => toggleSection('authResponseCode')}
-							collapsed={collapsedSections.authResponseCode}
+							isCollapsed={collapsedSections.authResponseCode}
 						>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 								<label>
@@ -1036,7 +1036,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Token Exchange Overview"
 							subtitle="Exchanging the authorization code for tokens"
 							onToggle={() => toggleSection('tokenExchangeOverview')}
-							collapsed={collapsedSections.tokenExchangeOverview}
+							isCollapsed={collapsedSections.tokenExchangeOverview}
 						>
 							<p>
 								After receiving the authorization code, the client exchanges it for access and refresh tokens. This is done securely with the PKCE verifier and client credentials.
@@ -1052,7 +1052,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Token Exchange Details"
 							subtitle="Technical details about the token exchange process"
 							onToggle={() => toggleSection('tokenExchangeDetails')}
-							collapsed={collapsedSections.tokenExchangeDetails}
+							isCollapsed={collapsedSections.tokenExchangeDetails}
 						>
 							<div style={{ display: 'grid', gap: '1rem' }}>
 								<section>
@@ -1080,7 +1080,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							title="Exchange Authorization Code"
 							subtitle="Send the token exchange request"
 							onToggle={() => toggleSection('tokenExchangeApi')}
-							collapsed={collapsedSections.tokenExchangeApi}
+							isCollapsed={collapsedSections.tokenExchangeApi}
 						>
 							<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 								<button
