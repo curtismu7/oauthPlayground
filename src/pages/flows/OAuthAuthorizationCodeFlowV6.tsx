@@ -568,9 +568,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		showFooter: false,
 	});
 
-	const stepLayout = FlowStepLayoutService.createStepLayout({
-		flowType: 'oauth',
+	const stepLayout = V5StepperService.createStepLayout({
 		theme: 'blue',
+		showProgress: true,
 	});
 
 	const {
