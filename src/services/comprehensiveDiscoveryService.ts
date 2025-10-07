@@ -141,27 +141,30 @@ export class ComprehensiveDiscoveryService {
 	 * Resolve input to provider and issuer URL
 	 */
 	private async resolveInput(input: string): Promise<{ provider: ProviderType; issuerUrl: string }> {
+		// Remove leading slash if present
+		const cleanInput = input.startsWith('/') ? input.substring(1) : input;
+		
 		// Check if it's a PingOne Environment ID
-		if (this.isPingOneEnvironmentId(input)) {
+		if (this.isPingOneEnvironmentId(cleanInput)) {
 			return {
 				provider: 'pingone',
-				issuerUrl: await this.resolvePingOneEnvironmentId(input)
+				issuerUrl: await this.resolvePingOneEnvironmentId(cleanInput)
 			};
 		}
 
 		// Check if it's a full issuer URL
-		if (this.isValidIssuerUrl(input)) {
-			const provider = this.detectProvider(input);
-			return { provider, issuerUrl: input };
+		if (this.isValidIssuerUrl(cleanInput)) {
+			const provider = this.detectProvider(cleanInput);
+			return { provider, issuerUrl: cleanInput };
 		}
 
 		// Check if it's a provider name
-		if (this.isProviderName(input)) {
-			const issuerUrl = await this.resolveProviderName(input);
-			return { provider: input as ProviderType, issuerUrl };
+		if (this.isProviderName(cleanInput)) {
+			const issuerUrl = await this.resolveProviderName(cleanInput);
+			return { provider: cleanInput as ProviderType, issuerUrl };
 		}
 
-		throw new Error(`Invalid input: ${input}. Expected Environment ID, issuer URL, or provider name.`);
+		throw new Error(`Invalid input: ${cleanInput}. Expected Environment ID, issuer URL, or provider name.`);
 	}
 
 	/**
@@ -203,13 +206,16 @@ export class ComprehensiveDiscoveryService {
 	 * Check if input is a valid issuer URL
 	 */
 	private isValidIssuerUrl(input: string): boolean {
+		// Remove leading slash if present
+		const cleanInput = input.startsWith('/') ? input.substring(1) : input;
+		
 		try {
-			const url = new URL(input);
+			const url = new URL(cleanInput);
 			return url.protocol === 'https:' && (
-				input.includes('/.well-known/openid_configuration') ||
-				input.includes('/as') ||
-				input.includes('/oauth') ||
-				input.includes('/auth')
+				cleanInput.includes('/.well-known/openid_configuration') ||
+				cleanInput.includes('/as') ||
+				cleanInput.includes('/oauth') ||
+				cleanInput.includes('/auth')
 			);
 		} catch {
 			return false;
@@ -265,6 +271,48 @@ export class ComprehensiveDiscoveryService {
 
 		console.log('[Comprehensive Discovery] Fetching discovery document:', discoveryUrl);
 
+		// For PingOne URLs, use backend proxy to avoid CORS
+		if (issuerUrl.includes('pingone.com')) {
+			// Extract environment ID and use backend proxy
+			const envMatch = issuerUrl.match(/\/([a-f0-9-]+)\/as/i);
+			if (envMatch) {
+				const environmentId = envMatch[1];
+				const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=na`;
+				
+				console.log('[Comprehensive Discovery] Using backend proxy:', proxyUrl);
+				
+				const controller = new AbortController();
+				const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+				try {
+					const response = await fetch(proxyUrl, {
+						method: 'GET',
+						headers: {
+							Accept: 'application/json',
+						},
+						signal: controller.signal,
+					});
+
+					clearTimeout(timeoutId);
+
+					if (!response.ok) {
+						throw new Error(`Discovery request failed: ${response.status} ${response.statusText}`);
+					}
+
+					const result = await response.json();
+					if (!result.success) {
+						throw new Error(result.error_description || 'Discovery failed');
+					}
+
+					return result.configuration || result.document;
+				} catch (error) {
+					clearTimeout(timeoutId);
+					throw error;
+				}
+			}
+		}
+
+		// For non-PingOne URLs, fetch directly
 		const controller = new AbortController();
 		const timeoutId = setTimeout(() => controller.abort(), timeout);
 
