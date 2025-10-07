@@ -999,7 +999,6 @@ const OAuthOIDCTraining: React.FC = () => {
 									</div>
 								</div>
 							</div>
-						)}
 					</div>
 				</CollapsibleHeader>
 
