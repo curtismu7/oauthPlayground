@@ -13,6 +13,9 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { PageLayoutService } from '../../services/pageLayoutService';
+import { FlowUIService } from '../../services/flowUIService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -294,9 +297,22 @@ const BestPracticeContent = styled.div`
 `;
 
 const ScopesBestPractices: React.FC = () => {
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '1200px',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'scopes-best-practices',
+	};
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+		PageLayoutService.createPageLayout(pageConfig);
+
 	return (
-		<Container>
-			<FlowHeader flowType="scopes-best-practices" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
 			<Content>
 				<Section>
@@ -784,7 +800,8 @@ transaction-12345`}</CodeBlock>
 					</InfoBox>
 				</Section>
 			</Content>
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
