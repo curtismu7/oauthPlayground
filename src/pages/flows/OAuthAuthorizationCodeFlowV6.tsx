@@ -11,8 +11,16 @@ import FlowConfigurationRequirements from '../../components/FlowConfigurationReq
 import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { FlowValidationService } from '../../services/flowValidationService';
 import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../../services/oidcDiscoveryService';
+import {
+	buildAuthUrl,
+	generateCodeChallenge,
+	generateCodeVerifier,
+	generateCsrfToken,
+	generateRandomString,
+} from '../../utils/oauth';
 
 const STEP_METADATA = [
 	{
@@ -88,6 +96,26 @@ interface CredentialsState {
 	userInfoEndpoint: string;
 }
 
+type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';
+
+interface AuthRequestState {
+	responseMode: ResponseMode;
+	state: string;
+	nonce: string;
+	authUrl: string;
+	isGenerating: boolean;
+	error: string | null;
+}
+
+const createInitialAuthRequestState = (): AuthRequestState => ({
+	responseMode: 'query',
+	state: generateCsrfToken(),
+	nonce: generateRandomString(32),
+	authUrl: '',
+	isGenerating: false,
+	error: null,
+});
+
 type CollapsibleSectionKey =
 	| 'status'
 	| 'validation'
@@ -95,7 +123,14 @@ type CollapsibleSectionKey =
 	| 'requirements'
 	| 'discovery'
 	| 'credentials'
-	| 'walkthrough';
+	| 'walkthrough'
+	| 'pkceOverview'
+	| 'pkceDetails'
+	| 'pkceGeneration'
+	| 'authRequestOverview'
+	| 'authRequestDetails'
+	| 'authResponseMode'
+	| 'authUrlBuilder';
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
@@ -115,6 +150,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [flowState, setFlowState] = useState<FlowState | null>(null);
 	const [introCompleted, setIntroCompleted] = useState(false);
+	const [pkceReady, setPkceReady] = useState(false);
+	const [pkceState, setPkceState] = useState({
+		codeVerifier: '',
+		codeChallenge: '',
+		method: 'S256',
+		isGenerating: false,
+		error: '' as string | null,
+	});
+	const [authRequest, setAuthRequest] = useState<AuthRequestState>(createInitialAuthRequestState);
 	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
 		status: false,
 		validation: false,
@@ -123,6 +167,13 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		discovery: false,
 		credentials: false,
 		walkthrough: true,
+		pkceOverview: false,
+		pkceDetails: true,
+		pkceGeneration: false,
+		authRequestOverview: false,
+		authRequestDetails: true,
+		authResponseMode: false,
+		authUrlBuilder: false,
 	});
 
 	const statusManager = useMemo(
@@ -227,6 +278,34 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			[key]: !prev[key],
 		}));
 	}, []);
+
+	const handleGeneratePkce = useCallback(async () => {
+		setPkceState((prev) => ({ ...prev, isGenerating: true, error: null }));
+		setPkceReady(false);
+		try {
+			const codeVerifier = generateCodeVerifier();
+			const codeChallenge = await generateCodeChallenge(codeVerifier);
+			setPkceState({
+				codeVerifier,
+				codeChallenge,
+				method: 'S256',
+				isGenerating: false,
+				error: null,
+			});
+			setPkceReady(true);
+			statusManager.completeStep('pkce', {
+				pkceGenerated: true,
+			});
+			const updated = statusManager.getState();
+			if (updated) {
+				setFlowState({ ...updated });
+			}
+		} catch (error) {
+			const message = error instanceof Error ? error.message : 'Failed to generate PKCE parameters';
+			setPkceState((prev) => ({ ...prev, isGenerating: false, error: message }));
+			setPkceReady(false);
+		}
+	}, [statusManager]);
 
 	useEffect(() => {
 		if (validationReady && !introCompleted) {
@@ -396,6 +475,165 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							collapsed={collapsedSections.walkthrough}
 						>
 							<EnhancedFlowWalkthrough flowId="oauth-authorization-code" defaultCollapsed={false} />
+						</CollapsibleHeader>
+					</div>
+				);
+			}
+
+			if (step.id === 'pkce') {
+				return (
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+						<CollapsibleHeader
+							title="PKCE Overview"
+							subtitle="Why Proof Key for Code Exchange protects authorization flows"
+							onToggle={() => toggleSection('pkceOverview')}
+							collapsed={collapsedSections.pkceOverview}
+						>
+							<p>
+								PKCE binds the authorization request and token exchange steps together using a one-time secret.
+								It prevents intercepted authorization codes from being replayed by requiring proof that the
+								same client that initiated the flow is completing it.
+							</p>
+							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+								<li>Required for public clients such as SPAs and native apps.</li>
+								<li>Strongly recommended for confidential clients to mitigate interception attacks.</li>
+								<li>Fully supported by PingOne authorization servers.</li>
+							</ul>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Code Verifier & Code Challenge"
+							subtitle="Understand the two PKCE parameters and how they interact"
+							onToggle={() => toggleSection('pkceDetails')}
+							collapsed={collapsedSections.pkceDetails}
+						>
+							<div style={{ display: 'grid', gap: '1rem' }}>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>Code Verifier</h4>
+									<p style={{ margin: 0 }}>
+										A high-entropy random string (43-128 characters) generated per authorization
+										request. It must remain secret until the token exchange.
+									</p>
+								</section>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>Code Challenge</h4>
+									<p style={{ margin: 0 }}>
+										A base64url-encoded SHA-256 hash of the verifier that is safe to transmit in the
+										authorization request. PingOne verifies it against the presented verifier during token exchange.
+									</p>
+								</section>
+								<section>
+									<h4 style={{ margin: '0 0 0.5rem 0' }}>Security Notes</h4>
+									<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+										<li>Always regenerate PKCE parameters for each authorization attempt.</li>
+										<li>Use the `S256` method for modern security requirements.</li>
+										<li>Store the verifier securely until the token request is sent.</li>
+									</ul>
+								</section>
+							</div>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Generate PKCE Parameters"
+							subtitle="Produce fresh code verifier and challenge values for this flow"
+							onToggle={() => toggleSection('pkceGeneration')}
+							collapsed={collapsedSections.pkceGeneration}
+						>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+								<button
+									type="button"
+									onClick={handleGeneratePkce}
+									disabled={pkceState.isGenerating}
+									style={{
+										alignSelf: 'flex-start',
+										padding: '0.75rem 1.25rem',
+										background: '#2563eb',
+										color: '#ffffff',
+										border: 'none',
+										borderRadius: '0.5rem',
+										cursor: pkceState.isGenerating ? 'not-allowed' : 'pointer',
+									}}
+								>
+									{pkceState.isGenerating ? 'Generating…' : 'Generate PKCE Parameters'}
+								</button>
+								{pkceState.error ? (
+									<p style={{ color: '#dc2626', margin: 0 }}>{pkceState.error}</p>
+								) : null}
+								{pkceState.codeVerifier ? (
+									<div
+										style={{
+											display: 'grid',
+											gap: '1rem',
+											background: '#f1f5f9',
+											border: '1px solid #d1d5db',
+											borderRadius: '0.75rem',
+											padding: '1.25rem',
+										}}
+									>
+										<section>
+											<h4 style={{ margin: '0 0 0.5rem 0' }}>Code Verifier</h4>
+											<pre
+												style={{
+													margin: 0,
+													padding: '0.75rem',
+													background: '#ffffff',
+													borderRadius: '0.5rem',
+													wordBreak: 'break-all',
+												}}
+											>
+												{pkceState.codeVerifier}
+											</pre>
+											<button
+												type="button"
+												onClick={() => handleCopy(pkceState.codeVerifier, 'Code Verifier')}
+												style={{
+													marginTop: '0.5rem',
+													padding: '0.5rem 0.75rem',
+													background: '#0ea5e9',
+													color: '#ffffff',
+													border: 'none',
+													borderRadius: '0.5rem',
+													cursor: 'pointer',
+												}}
+											>
+												Copy Verifier
+											</button>
+										</section>
+										<section>
+											<h4 style={{ margin: '0 0 0.5rem 0' }}>Code Challenge</h4>
+											<pre
+												style={{
+													margin: 0,
+													padding: '0.75rem',
+													background: '#ffffff',
+													borderRadius: '0.5rem',
+													wordBreak: 'break-all',
+												}}
+											>
+												{pkceState.codeChallenge}
+											</pre>
+											<button
+												type="button"
+												onClick={() => handleCopy(pkceState.codeChallenge, 'Code Challenge')}
+												style={{
+													marginTop: '0.5rem',
+													padding: '0.5rem 0.75rem',
+													background: '#0f766e',
+													color: '#ffffff',
+													border: 'none',
+													borderRadius: '0.5rem',
+													cursor: 'pointer',
+												}}
+											>
+												Copy Challenge
+											</button>
+										</section>
+									</div>
+								) : null}
+								{pkceReady ? (
+									<p style={{ color: '#166534', margin: 0 }}>
+										PKCE parameters are ready. Proceed to build your authorization request.
+									</p>
+								) : null}
+							</div>
 						</CollapsibleHeader>
 					</div>
 				);
