@@ -3,14 +3,14 @@ import { FiCpu, FiShield, FiUsers, FiGlobe, FiKey, FiCheckCircle, FiAlertTriangl
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
+import { PageLayoutService } from '../../services/pageLayoutService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 
-const Container = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1.5rem;
-`;
+// Use V6 services for common components
+const Card = FlowUIService.getMainCard();
+const InfoBox = FlowUIService.getInfoBox();
 
+// Keep page-specific custom components
 const Header = styled.div`
   text-align: center;
   margin-bottom: 3rem;
@@ -33,54 +33,6 @@ const Header = styled.div`
     margin: 0 auto;
     line-height: 1.6;
   }
-`;
-
-const Card = styled.div`
-  background: white;
-  border-radius: 1rem;
-  padding: 2rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-  border: 1px solid #e5e7eb;
-`;
-
-const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' | 'danger' }>`
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  border-left: 4px solid;
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  
-  ${({ $type }) => {
-    switch ($type) {
-      case 'warning':
-        return `
-          background-color: #fef3c7;
-          border-left-color: #f59e0b;
-          color: #92400e;
-        `;
-      case 'success':
-        return `
-          background-color: #d1fae5;
-          border-left-color: #10b981;
-          color: #065f46;
-        `;
-      case 'danger':
-        return `
-          background-color: #fee2e2;
-          border-left-color: #ef4444;
-          color: #991b1b;
-        `;
-      default:
-        return `
-          background-color: #dbeafe;
-          border-left-color: #3b82f6;
-          color: #1e40af;
-        `;
-    }
-  }}
 `;
 
 const FeatureGrid = styled.div`
@@ -136,9 +88,23 @@ const ExternalLink = styled.a`
 
 const PingViewOnAI: React.FC = () => {
   usePageScroll({ pageName: 'Ping View on AI', force: true });
+  
+  const pageConfig = {
+    flowType: 'documentation' as const,
+    theme: 'blue' as const,
+    maxWidth: '1200px',
+    showHeader: true,
+    showFooter: false,
+    responsive: true,
+    flowId: 'ping-view-on-ai',
+  };
+  const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+    PageLayoutService.createPageLayout(pageConfig);
 
   return (
-    <Container>
+    <PageContainer>
+      <ContentWrapper>
+        {LayoutFlowHeader && <LayoutFlowHeader />}
       <Header>
         <h1>
           <FiCpu />
@@ -162,7 +128,7 @@ const PingViewOnAI: React.FC = () => {
             user experience, and identity verification.
           </p>
           
-          <InfoBox $type="info">
+          <InfoBox $variant="info">
             <FiCpu size={20} />
             <div>
               <strong>Ping's AI Vision:</strong> We believe AI should enhance security while maintaining user privacy 
@@ -242,7 +208,7 @@ const PingViewOnAI: React.FC = () => {
             </FeatureCard>
           </FeatureGrid>
 
-          <InfoBox $type="success">
+          <InfoBox $variant="success">
             <FiCheckCircle size={20} />
             <div>
               <strong>Enterprise Ready:</strong> All AI capabilities are designed for enterprise environments 
@@ -295,7 +261,7 @@ const PingViewOnAI: React.FC = () => {
             </FeatureCard>
           </FeatureGrid>
 
-          <InfoBox $type="warning">
+          <InfoBox $variant="warning">
             <FiAlertTriangle size={20} />
             <div>
               <strong>Compliance Ready:</strong> All AI features are designed to meet GDPR, CCPA, 
@@ -423,7 +389,7 @@ const PingViewOnAI: React.FC = () => {
             </ExternalLink>
           </div>
 
-          <InfoBox $type="info">
+          <InfoBox $variant="info">
             <FiCpu size={20} />
             <div>
               <strong>Getting Started:</strong> Begin with our AI readiness assessment to understand your 
@@ -432,7 +398,8 @@ const PingViewOnAI: React.FC = () => {
           </InfoBox>
         </Card>
       </CollapsibleHeader>
-    </Container>
+      </ContentWrapper>
+    </PageContainer>
   );
 };
 
