@@ -1,31 +1,31 @@
 // src/services/collapsibleHeaderService.tsx
 // ⭐ V6 SERVICE - Service for consistent collapsible headers with blue background and white arrows
 // Used in: OAuthAuthorizationCodeFlowV6, Configuration page, Dashboard
-// Fixed: 2025-10-07 - Added controlled component support, prevented infinite render loops
 
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import styled from 'styled-components';
 
 export interface CollapsibleHeaderConfig {
-  title: string;
-  subtitle?: string;
-  icon?: React.ReactNode;
-  defaultCollapsed?: boolean;
-  showArrow?: boolean;
-  variant?: 'default' | 'compact' | 'large';
-  theme?: 'blue' | 'green' | 'orange' | 'purple';
+	title: string;
+	subtitle?: string;
+	icon?: React.ReactNode;
+	defaultCollapsed?: boolean;
+	showArrow?: boolean;
+	variant?: 'default' | 'compact' | 'large';
+	theme?: 'blue' | 'green' | 'orange' | 'purple';
 }
 
 export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
-  children: React.ReactNode;
-  className?: string;
-  onToggle?: () => void;
-  collapsed?: boolean;
+	children: React.ReactNode;
+	className?: string;
+	onToggle?: () => void;
+	isCollapsed?: boolean;
 }
 
 // Arrow icon component with the requested styling
 const ArrowIcon = styled.div<{ $collapsed: boolean }>`
   display: inline-flex;
+{{ ... }}
   align-items: center;
   justify-content: center;
   width: 24px;
@@ -210,70 +210,70 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
 
 // Main collapsible header component
 export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
-  title,
-  subtitle,
-  icon,
-  defaultCollapsed = false,
-  showArrow = true,
-  variant = 'default',
-  children,
-  className,
-  onToggle,
-  collapsed: controlledCollapsed
+	title,
+	subtitle,
+	icon,
+	defaultCollapsed = false,
+	showArrow = true,
+	variant = 'default',
+	children,
+	className,
+	onToggle,
+	isCollapsed: controlledCollapsed = undefined
 }) => {
-  // Support both controlled and uncontrolled modes
-  const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
-  
-  // Use controlled value if provided, otherwise use internal state
-  const isControlled = controlledCollapsed !== undefined;
-  const isCollapsed = isControlled ? controlledCollapsed : internalCollapsed;
+	// Support both controlled and uncontrolled modes
+	const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
+	
+	// Use controlled value if provided, otherwise use internal state
+	const isControlled = controlledCollapsed !== undefined;
+	const isCollapsed = isControlled ? controlledCollapsed : internalCollapsed;
 
-  // Sync internal state with defaultCollapsed only on mount or when switching from controlled to uncontrolled
-  useEffect(() => {
-    if (!isControlled) {
-      setInternalCollapsed(defaultCollapsed);
-    }
-  }, [defaultCollapsed, isControlled]);
+	// Sync internal state with defaultCollapsed only on mount or when switching from controlled to uncontrolled
+	useEffect(() => {
+		if (!isControlled) {
+			setInternalCollapsed(defaultCollapsed);
+		}
+	}, [defaultCollapsed, isControlled]);
 
-  const toggleCollapsed = useCallback(() => {
-    if (!isControlled) {
-      setInternalCollapsed(prev => !prev);
-    }
-    // Always call onToggle if provided
-    onToggle?.();
-  }, [isControlled, onToggle]);
+	const toggleCollapsed = useCallback(() => {
+		if (!isControlled) {
+			setInternalCollapsed(prev => !prev);
+		}
+		// Always call onToggle if provided
+		onToggle?.();
+	}, [isControlled, onToggle]);
 
-  return (
-    <CollapsibleHeaderContainer $variant={variant} className={className}>
-      <HeaderButton
-        $variant={variant}
-        onClick={toggleCollapsed}
-        aria-expanded={!isCollapsed}
-        aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-      >
-        <HeaderContent>
-          {icon && <IconContainer>{icon}</IconContainer>}
-          <HeaderText>
-            <HeaderTitle $variant={variant}>{title}</HeaderTitle>
-            {subtitle && <HeaderSubtitle>{subtitle}</HeaderSubtitle>}
-          </HeaderText>
-        </HeaderContent>
-        {showArrow && (
-          <ArrowIcon $collapsed={isCollapsed}>
-            <DefaultArrowIcon collapsed={isCollapsed} />
-          </ArrowIcon>
-        )}
-      </HeaderButton>
-      <ContentArea
-        $collapsed={isCollapsed}
-        $variant={variant}
-        id={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-        aria-labelledby={`header-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-      >
-        {children}
-      </ContentArea>
-    </CollapsibleHeaderContainer>
-  );
+	return (
+		<CollapsibleHeaderContainer $variant={variant} className={className}>
+			<HeaderButton
+				$variant={variant}
+				onClick={toggleCollapsed}
+				aria-expanded={!isCollapsed}
+				aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+			>
+				<HeaderContent>
+					{icon && <IconContainer>{icon}</IconContainer>}
+					<HeaderText>
+						<HeaderTitle $variant={variant}>{title}</HeaderTitle>
+						{subtitle && <HeaderSubtitle>{subtitle}</HeaderSubtitle>}
+					</HeaderText>
+				</HeaderContent>
+				{showArrow && (
+					<ArrowIcon $collapsed={isCollapsed}>
+						<DefaultArrowIcon collapsed={isCollapsed} />
+					</ArrowIcon>
+				)}
+			</HeaderButton>
+			<ContentArea
+				$collapsed={isCollapsed}
+				$variant={variant}
+				id={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+				aria-labelledby={`header-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+			>
+				{children}
+			</ContentArea>
+		</CollapsibleHeaderContainer>
+	);
 };
 
 // Utility function to create themed collapsible headers
