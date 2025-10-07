@@ -7,7 +7,7 @@ const envSchema = z.object({
 	VITE_APP_DESCRIPTION: z
 		.string()
 		.default('Interactive playground for OAuth 2.0 and OpenID Connect with PingOne'),
-	VITE_APP_VERSION: z.string().default('5.8.2'),
+	VITE_APP_VERSION: z.string().default('6.0.0'),
 	VITE_APP_DEFAULT_THEME: z.enum(['light', 'dark']).default('light'),
 
 	// PingOne Configuration
