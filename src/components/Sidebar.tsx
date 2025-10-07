@@ -194,6 +194,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return {
 			'Core Overview': true,
 			'OAuth 2.0 Flows': true,
+			'V6 Flows': true,
 			'OpenID Connect': true,
 			PingOne: false,
 			'Mock & Demo Flows': false,
@@ -348,6 +349,51 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={() => handleNavigation('/flows/client-credentials-v5')}
 						>
 							Client Credentials (V5)
+						</MenuItem>
+					</SubMenu>
+
+					{/* V6 Flows */}
+					<SubMenu
+						label="V6 Flows"
+						icon={<ColoredIcon $color="#8b5cf6"><FiZap /></ColoredIcon>}
+						open={openMenus['V6 Flows']}
+						onOpenChange={() => toggleMenu('V6 Flows')}
+					>
+						{/* Authorization Code V6 removed - was causing 500 errors */}
+						<MenuItem
+							icon={<ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>}
+							active={isActive('/flows/oidc-authorization-code-v5')}
+							onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
+						>
+							OIDC Authorization Code (V6)
+						</MenuItem>
+						<MenuItem
+							icon={<ColoredIcon $color="#f59e0b"><FiKey /></ColoredIcon>}
+							active={isActive('/flows/client-credentials-v5')}
+							onClick={() => handleNavigation('/flows/client-credentials-v5')}
+						>
+							Client Credentials (V6)
+						</MenuItem>
+						<MenuItem
+							icon={<ColoredIcon $color="#ec4899"><FiSmartphone /></ColoredIcon>}
+							active={isActive('/flows/device-authorization-v5')}
+							onClick={() => handleNavigation('/flows/device-authorization-v5')}
+						>
+							Device Authorization (V6)
+						</MenuItem>
+						<MenuItem
+							icon={<ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>}
+							active={isActive('/flows/hybrid-v5')}
+							onClick={() => handleNavigation('/flows/hybrid-v5')}
+						>
+							Hybrid Flow (V6)
+						</MenuItem>
+						<MenuItem
+							icon={<ColoredIcon $color="#f97316"><FiZap /></ColoredIcon>}
+							active={isActive('/flows/jwt-bearer-v5')}
+							onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
+						>
+							JWT Bearer (V6)
 						</MenuItem>
 					</SubMenu>
 
