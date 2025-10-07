@@ -25,7 +25,6 @@ export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
 // Arrow icon component with the requested styling
 const ArrowIcon = styled.div<{ $collapsed: boolean }>`
   display: inline-flex;
-{{ ... }}
   align-items: center;
   justify-content: center;
   width: 24px;

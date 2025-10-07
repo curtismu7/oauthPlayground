@@ -570,14 +570,10 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		[],
 	);
 
-	const stepLayout = useMemo(
-		() =>
-			FlowStepLayoutService.createStepLayout({
-				flowType: 'oauth',
-				theme: 'blue',
-			}),
-		[],
-	);
+	const stepLayout = FlowStepLayoutService.createStepLayout({
+		flowType: 'oauth',
+		theme: 'blue',
+	});
 
 	const {
 		PageContainer,
