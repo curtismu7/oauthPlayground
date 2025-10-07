@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import { FiShield } from 'react-icons/fi';
 import PageLayoutService from '../../services/pageLayoutService';
 import FlowStepLayoutService from '../../services/flowStepLayoutService'; // V5Stepper service
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
@@ -599,111 +600,76 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	const renderStepContent = useCallback(
 		(step: StepMetadata) => {
-			if (step.id === 'introduction') {
-				return (
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-						<CollapsibleHeader
-							title="Flow Status"
-							subtitle="Real-time overview of the V6 rebuild progress"
-							onToggle={() => toggleSection('status')}
-							isCollapsed={collapsedSections.status}
-						>
-							<p>Flow Status: Ready to begin Authorization Code Flow</p>
-						</CollapsibleHeader>
-						<CollapsibleHeader
-							title="Validation Checklist"
-							subtitle="Step requirements before progressing to PKCE"
-							onToggle={() => toggleSection('validation')}
-							isCollapsed={collapsedSections.validation}
-						>
-							<p>Complete the following prerequisites:</p>
-							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
-								{validationRequirements.map((requirement) => (
-									<li key={requirement}>{requirement}</li>
-								))}
-							</ul>
-							<p>
-								<strong>Status:</strong>{' '}
-								{validationReady
-									? 'Ready to proceed once walkthrough is complete.'
-									: 'Provide the required credentials below to unlock the next step.'}
-							</p>
-						</CollapsibleHeader>
-						<CollapsibleHeader
-							title="Authorization Code Flow Overview"
-							subtitle="Purpose, security posture, and key benefits"
-							onToggle={() => toggleSection('overview')}
-							isCollapsed={collapsedSections.overview}
-						>
-							<p>
-								Authorization Code Flow is ideal for confidential clients and PKCE-enabled public
-								applications. It provides refresh token support and aligns with OAuth 2.0 best
-								practices.
-							</p>
-							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
-								<li>Supports secure backend token handling.</li>
-								<li>Recommended for SPAs, native apps, and web apps.</li>
-								<li>Pairs with PKCE to prevent interception attacks.</li>
-							</ul>
-						</CollapsibleHeader>
-						<CollapsibleHeader
-							title="PingOne Requirements"
-							subtitle="Understand the application configuration essentials"
-							onToggle={() => toggleSection('requirements')}
-							isCollapsed={collapsedSections.requirements}
-						>
-							<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
-						</CollapsibleHeader>
-						<CollapsibleHeader
-							title="OIDC Discovery"
-							subtitle="Auto-populate PingOne endpoints via discovery"
-							onToggle={() => toggleSection('discovery')}
-							isCollapsed={collapsedSections.discovery}
-						>
-							<OIDCDiscoveryInput
-								onDiscoveryComplete={(result) => {
-									if (result?.success && result.document) {
-										handleDiscoveryComplete(result.document);
-									}
-								}}
-								initialIssuerUrl={credentials.issuerUrl}
-							/>
-						</CollapsibleHeader>
-						<CollapsibleHeader
-							title="Application Credentials"
-							subtitle="Provide your PingOne configuration details"
-							onToggle={() => toggleSection('credentials')}
-							isCollapsed={collapsedSections.credentials}
-						>
-							<CredentialsInput
-								environmentId={credentials.environmentId}
-								clientId={credentials.clientId}
-								clientSecret={credentials.clientSecret}
-								redirectUri={credentials.redirectUri}
-								scopes={credentials.scopes}
-								loginHint={credentials.loginHint}
-								onEnvironmentIdChange={(value) => handleCredentialChange('environmentId', value)}
-								onClientIdChange={(value) => handleCredentialChange('clientId', value)}
-								onClientSecretChange={(value) => handleCredentialChange('clientSecret', value)}
-								onRedirectUriChange={(value) => handleCredentialChange('redirectUri', value)}
-								onScopesChange={(value) => handleCredentialChange('scopes', value)}
-								onLoginHintChange={(value) => handleCredentialChange('loginHint', value)}
-								onCopy={handleCopy}
-								emptyRequiredFields={emptyRequiredFields}
-								copiedField={copiedField}
-							/>
-						</CollapsibleHeader>
-						<CollapsibleHeader
-							title="Interactive Walkthrough"
-							subtitle="Step-by-step guidance for the Authorization Code Flow"
-							onToggle={() => toggleSection('walkthrough')}
-							isCollapsed={collapsedSections.walkthrough}
-						>
-							<EnhancedFlowWalkthrough flowId="oauth-authorization-code" defaultCollapsed={false} />
-						</CollapsibleHeader>
-					</div>
-				);
-			}
+		if (step.id === 'introduction') {
+			return (
+				<>
+					<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+					<CollapsibleHeader
+						title="Authorization Code Overview"
+						subtitle="Purpose, security posture, and key benefits"
+						onToggle={() => toggleSection('overview')}
+						isCollapsed={collapsedSections.overview}
+					>
+						<InfoBox $variant="info">
+							<FiShield size={20} />
+							<div>
+								<InfoTitle>When to Use Authorization Code</InfoTitle>
+								<InfoText>
+									Authorization Code Flow is perfect when you can securely store a client
+									secret on a backend and need full OIDC context.
+								</InfoText>
+							</div>
+						</InfoBox>
+						<FlowSuitability>
+							<SuitabilityCard $variant="success">
+								<InfoTitle>Great Fit</InfoTitle>
+								<ul>
+									<li>Web apps with backend session storage</li>
+									<li>SPAs or native apps using PKCE</li>
+									<li>Hybrid flows that need refresh tokens</li>
+								</ul>
+							</SuitabilityCard>
+							<SuitabilityCard $variant="warning">
+								<InfoTitle>Consider Alternatives</InfoTitle>
+								<ul>
+									<li>Machine-to-machine workloads (Client Credentials)</li>
+									<li>IoT or low-input devices (Device Authorization)</li>
+								</ul>
+							</SuitabilityCard>
+							<SuitabilityCard $variant="danger">
+								<InfoTitle>Avoid When</InfoTitle>
+								<ul>
+									<li>Secrets cannot be protected at all</li>
+									<li>You just need simple backend API access</li>
+								</ul>
+							</SuitabilityCard>
+						</FlowSuitability>
+
+						<GeneratedContentBox style={{ marginTop: '2rem' }}>
+							<GeneratedLabel>OIDC vs OAuth Comparison</GeneratedLabel>
+							<ParameterGrid>
+								<div>
+									<ParameterLabel>OIDC (OpenID Connect)</ParameterLabel>
+									<ParameterValue>Identity + Authorization</ParameterValue>
+								</div>
+								<div>
+									<ParameterLabel>OAuth 2.0</ParameterLabel>
+									<ParameterValue>Authorization Only</ParameterValue>
+								</div>
+								<div>
+									<ParameterLabel>ID Token</ParameterLabel>
+									<ParameterValue>User identity information</ParameterValue>
+								</div>
+								<div>
+									<ParameterLabel>Access Token</ParameterLabel>
+									<ParameterValue>API access permissions</ParameterValue>
+								</div>
+							</ParameterGrid>
+						</GeneratedContentBox>
+					</CollapsibleHeader>
+				</>
+			);
+		}
 
 			if (step.id === 'pkce') {
 				return (
