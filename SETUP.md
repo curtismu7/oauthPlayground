@@ -77,7 +77,7 @@ VITE_PINGONE_API_URL=https://auth.pingone.com
 
 # Application Configuration
 VITE_APP_TITLE="PingOne OAuth/OIDC Playground"
-VITE_APP_VERSION=5.8.5
+VITE_APP_VERSION=6.0.0
 VITE_APP_DEFAULT_THEME=light
 VITE_DEV_SERVER_PORT=3000
 VITE_DEV_SERVER_HTTPS=true
