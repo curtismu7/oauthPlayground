@@ -3,10 +3,7 @@ import PageLayoutService from '../../services/pageLayoutService';
 import FlowStepLayoutService from '../../services/flowStepLayoutService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import FlowStatusManagementService, {
-	FlowProgress,
-	type FlowState,
-} from '../../services/flowStatusManagementService';
+// Removed FlowStatusManagementService - not a service we built
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
 import { CredentialsInput } from '../../components/CredentialsInput';
@@ -240,7 +237,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		introspectionEndpoint: '',
 	});
 	const [copiedField, setCopiedField] = useState<string | null>(null);
-	const [flowState, setFlowState] = useState<FlowState | null>(null);
+	// Removed flowState - FlowStatusManagementService not used
 	const [introCompleted, setIntroCompleted] = useState(false);
 	const [pkceReady, setPkceReady] = useState(false);
 	const [pkceState, setPkceState] = useState<PkceState>({ codeVerifier: '', codeChallenge: '', method: 'S256', isGenerating: false, error: null });
@@ -292,33 +289,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		securityBestPractices: false,
 	});
 
-	const statusManager = useMemo(
-		() =>
-			FlowStatusManagementService.createStatusManager({
-				flowType: 'oauth',
-				enableProgressTracking: true,
-				enableStepTiming: true,
-				showStepDetails: true,
-			}),
-		[],
-	);
+	// Removed statusManager - FlowStatusManagementService not used
 
-	useEffect(() => {
-		const steps = STEP_METADATA.map((metadata, order) => ({
-			id: metadata.id,
-			name: metadata.title,
-			description: metadata.subtitle,
-			order,
-			required: true,
-		}));
-		const initialState = statusManager.initializeFlow(
-			'oauth-authorization-code-v6',
-			steps,
-		);
-		statusManager.startStep(STEP_METADATA[0].id);
-		const currentState = statusManager.getState() ?? initialState;
-		setFlowState({ ...currentState });
-	}, [statusManager]);
+	// Removed statusManager initialization - FlowStatusManagementService not used
 
 	const validationRequirements = useMemo(
 		() => FlowValidationService.getStepRequirements(0, 'authorization-code'),
@@ -409,13 +382,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				error: null,
 			});
 			setPkceReady(true);
-			statusManager.completeStep('pkce', {
-				pkceGenerated: true,
-			});
-			const updated = statusManager.getState();
-			if (updated) {
-				setFlowState({ ...updated });
-			}
+			// Removed statusManager calls
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Failed to generate PKCE parameters';
 			setPkceState((prev) => ({ ...prev, isGenerating: false, error: message }));
@@ -437,11 +404,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				setAuthResponse({ code: '', state: '', error: `Authorization error: ${error}`, isValid: false });
 			} else if (code && state) {
 				setAuthResponse({ code, state, error: null, isValid: true });
-				statusManager.completeStep('authorization-response', { codeReceived: true });
-				const updated = statusManager.getState();
-				if (updated) {
-					setFlowState({ ...updated });
-				}
+				// Removed statusManager calls
 			} else {
 				setAuthResponse({ code: '', state: '', error: 'Missing code or state parameter in callback URL', isValid: false });
 			}
@@ -475,16 +438,12 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				error: null,
 				isExchanging: false,
 			});
-			statusManager.completeStep('token-exchange', { tokensReceived: true });
-			const updated = statusManager.getState();
-			if (updated) {
-				setFlowState({ ...updated });
-			}
+			// Removed statusManager calls
 		} catch (error) {
 			const message = error instanceof Error ? error.message : 'Token exchange failed';
 			setTokenState(prev => ({ ...prev, isExchanging: false, error: message }));
 		}
-	}, [authResponse.code, pkceState.codeVerifier, credentials, statusManager]);
+	}, [authResponse.code, pkceState.codeVerifier, credentials]);
 
 	const handleIntrospection = useCallback(async () => {
 		if (!tokenState.accessToken || !credentials.introspectionEndpoint) {
@@ -537,27 +496,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	useEffect(() => {
 		if (validationReady && !introCompleted) {
-			statusManager.completeStep('introduction', {
-				credentialsReady: true,
-			});
-			const updated = statusManager.getState();
-			if (updated) {
-				setFlowState({ ...updated });
-			}
+			// Removed statusManager calls
 			setIntroCompleted(true);
 		}
-	}, [introCompleted, statusManager, validationReady]);
+	}, [introCompleted, validationReady]);
 
 	useEffect(() => {
 		if (!validationReady && introCompleted) {
-			statusManager.startStep('introduction');
-			const updated = statusManager.getState();
-			if (updated) {
-				setFlowState({ ...updated });
-			}
+			// Removed statusManager calls
 			setIntroCompleted(false);
 		}
-	}, [introCompleted, statusManager, validationReady]);
+	}, [introCompleted, validationReady]);
 	const pageLayout = PageLayoutService.createPageLayout({
 		flowType: 'oauth',
 		theme: 'blue',
@@ -603,7 +552,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							onToggle={() => toggleSection('status')}
 							isCollapsed={collapsedSections.status}
 						>
-							{flowState ? <FlowProgress flowState={flowState} /> : <p>Initializing flow status…</p>}
+							<p>Flow Status: Ready to begin Authorization Code Flow</p>
 						</CollapsibleHeader>
 						<CollapsibleHeader
 							title="Validation Checklist"
