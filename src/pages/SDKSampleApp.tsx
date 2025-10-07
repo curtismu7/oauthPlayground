@@ -430,8 +430,8 @@ app.get('/callback', async (req, res) => {
 						</SdkCard>
 					))}
 				</SdkGrid>
-					</div>
 				</Card>
+					</div>
 			</CollapsibleHeader>
 
 			<CollapsibleHeader
@@ -505,8 +505,8 @@ app.get('/callback', async (req, res) => {
 						</ActionButton>
 					</div>
 				</div>
-					</div>
 				</Card>
+					</div>
 			</CollapsibleHeader>
 			</ContentWrapper>
 		</PageContainer>
