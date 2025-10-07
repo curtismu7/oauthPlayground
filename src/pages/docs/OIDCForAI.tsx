@@ -80,7 +80,7 @@ const OIDCForAI = () => {
 				</h2>
 				<LinkGrid>
 					<ExternalLink
-						href="https://www.pingidentity.com/en/resources/blog/post/oauth-oidc-ai-applications.html"
+						href="https://www.pingidentity.com/en/resources/identity-fundamentals/agentic-ai.html"
 						target="_blank"
 						rel="noopener noreferrer"
 					>
@@ -118,6 +118,21 @@ const OIDCForAI = () => {
 						<p>
 							Best practices and implementation patterns for securing AI applications with OAuth 2.0
 							and OpenID Connect.
+						</p>
+					</ExternalLink>
+
+					<ExternalLink
+						href="https://learn.microsoft.com/en-us/azure/ai-services/authentication"
+						target="_blank"
+						rel="noopener noreferrer"
+					>
+						<h3>
+							Microsoft Azure AI Services - Authentication
+							<FiExternalLink size={16} />
+						</h3>
+						<p>
+							Microsoft's comprehensive guide to authentication and authorization for AI services,
+							including OAuth 2.0, API keys, and Azure Active Directory integration.
 						</p>
 					</ExternalLink>
 				</LinkGrid>

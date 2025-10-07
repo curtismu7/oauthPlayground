@@ -520,65 +520,67 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						authorization code interception attacks.
 					</p>
 				</div>
-			</Section>
+				</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiHelpCircle /> Common Issues & Troubleshooting
-				</h2>
-				<p>
-					This section covers the most common issues developers encounter when implementing OAuth
-					2.0 and OpenID Connect, along with practical solutions and debugging tips to help you
-					resolve them quickly.
-				</p>
-
-				<div
-					style={{
-						background: '#f0f9ff',
-						border: '1px solid #bae6fd',
-						borderRadius: '0.5rem',
-						padding: '1rem',
-						marginBottom: '1.5rem',
-					}}
+				<CollapsibleHeader
+					title="Common Issues & Troubleshooting"
+					subtitle="Solutions to the most common OAuth 2.0 and OpenID Connect implementation issues"
+					icon={<FiHelpCircle />}
+					defaultCollapsed={false}
 				>
-					<p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
-						<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues.
-						Double-check your client settings, redirect URIs, and scopes before diving into complex
-						debugging.
-					</p>
-				</div>
-
-				<div style={{ marginTop: '1.5rem' }}>
-					<h3>Invalid Redirect URI</h3>
 					<p>
-						<strong>Error:</strong> "The redirect URI in the request does not match the registered
-						redirect URIs"
-						<br />
-						<strong>Solution:</strong> Ensure the redirect URI in your application configuration
-						matches exactly (including trailing slashes) with the one used in the authorization
-						request.
+						This section covers the most common issues developers encounter when implementing OAuth
+						2.0 and OpenID Connect, along with practical solutions and debugging tips to help you
+						resolve them quickly.
 					</p>
 
-					<h3>Invalid Client</h3>
-					<p>
-						<strong>Error:</strong> "Invalid client"
-						<br />
-						<strong>Solution:</strong> Verify that your client ID and client secret are correct and
-						that your application is properly configured in PingOne.
-					</p>
+					<div
+						style={{
+							background: '#f0f9ff',
+							border: '1px solid #bae6fd',
+							borderRadius: '0.5rem',
+							padding: '1rem',
+							marginBottom: '1.5rem',
+						}}
+					>
+						<p style={{ margin: 0, color: '#0369a1', fontWeight: '500' }}>
+							<strong> Pro Tip:</strong> Most OAuth 2.0 errors are related to configuration issues.
+							Double-check your client settings, redirect URIs, and scopes before diving into complex
+							debugging.
+						</p>
+					</div>
 
-					<h3>Invalid Grant</h3>
-					<p>
-						<strong>Error:</strong> "Invalid grant"
-						<br />
-						<strong>Solution:</strong> This can occur for several reasons:
-					</p>
-					<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
-						<li>The authorization code has expired (typically after 10 minutes)</li>
-						<li>The authorization code has already been used</li>
-						<li>The code verifier doesn't match the code challenge</li>
-					</ul>
-				</div>
+					<div style={{ marginTop: '1.5rem' }}>
+						<h3>Invalid Redirect URI</h3>
+						<p>
+							<strong>Error:</strong> "The redirect URI in the request does not match the registered
+							redirect URIs"
+							<br />
+							<strong>Solution:</strong> Ensure the redirect URI in your application configuration
+							matches exactly (including trailing slashes) with the one used in the authorization
+							request.
+						</p>
+
+						<h3>Invalid Client</h3>
+						<p>
+							<strong>Error:</strong> "Invalid client"
+							<br />
+							<strong>Solution:</strong> Verify that your client ID and client secret are correct and
+							that your application is properly configured in PingOne.
+						</p>
+
+						<h3>Invalid Grant</h3>
+						<p>
+							<strong>Error:</strong> "Invalid grant"
+							<br />
+							<strong>Solution:</strong> This can occur for several reasons:
+						</p>
+						<ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+							<li>The authorization code has expired (typically after 10 minutes)</li>
+							<li>The authorization code has already been used</li>
+							<li>The code verifier doesn't match the code challenge</li>
+						</ul>
+					</div>
 				</CollapsibleHeader>
 
 				<CollapsibleHeader
