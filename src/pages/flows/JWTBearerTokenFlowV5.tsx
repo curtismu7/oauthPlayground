@@ -2,7 +2,7 @@
 // V5.0.0 JWT Bearer Token Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useState, useEffect } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiLock } from 'react-icons/fi';
+import { FiCheckCircle, FiInfo, FiRefreshCw, FiLock, FiKey, FiSettings } from 'react-icons/fi';
 import styled, { css } from 'styled-components';
 import type { DefaultTheme } from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -14,6 +14,7 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useJWTBearerFlowController } from '../../hooks/useJWTBearerFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { rsaKeyGenerationService } from '../../services/rsaKeyGenerationService';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
@@ -1111,15 +1112,33 @@ const JWTBearerTokenFlowV5: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="jwt-bearer-token-v5" />
 
-				<EnhancedFlowInfoCard
-					flowType="jwt-bearer-token"
-					showAdditionalInfo={true}
-					showDocumentation={true}
-					showCommonIssues={false}
-					showImplementationNotes={false}
-				/>
+				<CollapsibleHeader
+					title="About JWT Bearer Token Flow"
+					subtitle="Understanding JWT Bearer assertions for service-to-service authentication"
+					icon={<FiInfo />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1rem' }}>
+						<EnhancedFlowInfoCard
+							flowType="jwt-bearer-token"
+							showAdditionalInfo={true}
+							showDocumentation={true}
+							showCommonIssues={false}
+							showImplementationNotes={false}
+						/>
+					</div>
+				</CollapsibleHeader>
 
-				<FlowConfigurationRequirements flowType="jwt-bearer" variant="pingone" />
+				<CollapsibleHeader
+					title="Configuration Requirements"
+					subtitle="PingOne application settings and JWT key requirements"
+					icon={<FiSettings />}
+					defaultCollapsed={false}
+				>
+					<div style={{ padding: '1rem' }}>
+						<FlowConfigurationRequirements flowType="jwt-bearer" variant="pingone" />
+					</div>
+				</CollapsibleHeader>
 
 				<MainCard>
 					<StepHeader>

@@ -7,12 +7,21 @@ import {
 	FiPlay,
 	FiShield,
 	FiTool,
+	FiUsers,
+	FiKey,
+	FiSettings,
+	FiGlobe,
+	FiCheckCircle,
+	FiAlertTriangle,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowUIService } from '../services/flowUIService';
+import PageLayoutService from '../services/pageLayoutService';
 
 const DocumentationContainer = styled.div`
   max-width: 1200px;
@@ -206,85 +215,124 @@ const FeatureButton = styled(Link)`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background-color: ${({ theme }) => theme.colors.gray100};
-  color: ${({ theme }) => theme.colors.gray700};
+  padding: 0.75rem 1.5rem;
+  background-color: #3b82f6;
+  color: white !important;
   text-decoration: none;
-  border-radius: 0.375rem;
+  border: 2px solid white;
+  border-radius: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.2s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.primary};
-    color: white;
+    background-color: #2563eb;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
   }
 `;
 
 const Documentation = () => {
 	// Centralized scroll management
-	usePageScroll({ pageName: 'Documentation', force: true });
+	usePageScroll({ pageName: 'PingOne SSO Documentation', force: true });
 
 	// UI Settings integration
 	const { settings } = useUISettings();
 
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for documentation content
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'pingone-sso-documentation', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	return (
-		<DocumentationContainer>
-			<FlowHeader flowType="documentation" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			<QuickStartBanner>
-				<h2> Ready to Get Started?</h2>
-				<p>
-					Jump into our interactive tutorials and start learning OAuth 2.0 with hands-on examples
-				</p>
-				<QuickStartButton to="/tutorials">
-					<FiPlay size={16} />
-					Start Interactive Tutorials
-				</QuickStartButton>
-			</QuickStartBanner>
-
-			<Section>
-				<h2>
-					<FiBookOpen /> Documentation Overview
-				</h2>
-				<p>
-					This documentation provides comprehensive guidance for implementing OAuth 2.0 and OpenID
-					Connect with PingOne. Whether you're a beginner or an experienced developer, you'll find
-					the resources you need to build secure, standards-compliant authentication systems.
-				</p>
-
-				<div
-					style={{
-						background: '#f8fafc',
-						border: '1px solid #e2e8f0',
-						borderRadius: '0.5rem',
-						padding: '1.5rem',
-						marginTop: '1rem',
-					}}
+				<CollapsibleHeader
+					title="PingOne SSO Documentation"
+					subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
+					icon={<FiUsers />}
+					defaultCollapsed={false}
 				>
-					<h3 style={{ marginTop: 0, color: '#1f2937' }}>What You'll Learn:</h3>
-					<ul style={{ marginBottom: 0, color: '#4b5563' }}>
-						<li>
-							<strong>OAuth 2.0 Fundamentals:</strong> Understanding roles, tokens, and grant types
-						</li>
-						<li>
-							<strong>OpenID Connect:</strong> Authentication layer built on OAuth 2.0
-						</li>
-						<li>
-							<strong>Security Best Practices:</strong> Protecting against common vulnerabilities
-						</li>
-						<li>
-							<strong>PingOne Integration:</strong> Step-by-step setup and configuration
-						</li>
-						<li>
-							<strong>Flow Implementation:</strong> Hands-on examples for each OAuth flow
-						</li>
-						<li>
-							<strong>Troubleshooting:</strong> Common issues and their solutions
-						</li>
-					</ul>
-				</div>
-			</Section>
+					<QuickStartBanner>
+						<h2>Ready to Implement PingOne SSO?</h2>
+						<p>
+							Jump into our interactive tutorials and start learning PingOne SSO implementation with hands-on examples
+						</p>
+						<QuickStartButton to="/tutorials">
+							<FiPlay size={16} />
+							Start PingOne SSO Tutorials
+						</QuickStartButton>
+					</QuickStartBanner>
+				</CollapsibleHeader>
+
+				<CollapsibleHeader
+					title="PingOne SSO Overview"
+					subtitle="Complete guide to implementing Single Sign-On with PingOne Identity Platform"
+					icon={<FiBookOpen />}
+					defaultCollapsed={false}
+				>
+					<p>
+						This documentation provides comprehensive guidance for implementing Single Sign-On (SSO) with PingOne Identity Platform. 
+						Whether you're integrating with web applications, mobile apps, or enterprise systems, you'll find the resources you need 
+						to build secure, standards-compliant SSO solutions.
+					</p>
+
+					<div
+						style={{
+							background: '#f0f9ff',
+							border: '1px solid #bae6fd',
+							borderRadius: '0.5rem',
+							padding: '1.5rem',
+							marginTop: '1rem',
+						}}
+					>
+						<h3 style={{ marginTop: 0, color: '#0c4a6e' }}>PingOne SSO Implementation Guide:</h3>
+						<ul style={{ marginBottom: 0, color: '#0369a1' }}>
+							<li>
+								<strong>PingOne Environment Setup:</strong> Configure your PingOne environment and applications
+							</li>
+							<li>
+								<strong>SSO Flow Implementation:</strong> Authorization Code Flow with PKCE for secure SSO
+							</li>
+							<li>
+								<strong>User Authentication:</strong> PingOne login flows and user management
+							</li>
+							<li>
+								<strong>Session Management:</strong> Token handling and refresh strategies
+							</li>
+							<li>
+								<strong>Multi-Factor Authentication:</strong> PingOne MFA integration and policies
+							</li>
+							<li>
+								<strong>Enterprise Integration:</strong> SAML, LDAP, and directory services
+							</li>
+							<li>
+								<strong>Security Best Practices:</strong> PingOne-specific security recommendations
+							</li>
+							<li>
+								<strong>Troubleshooting:</strong> Common PingOne SSO issues and solutions
+							</li>
+						</ul>
+					</div>
+				</CollapsibleHeader>
 
 			<FeatureHighlight>
 				<FeatureCard>
@@ -324,106 +372,99 @@ const Documentation = () => {
 				</FeatureCard>
 			</FeatureHighlight>
 
-			<Section>
-				<h2>
-					<FiBookOpen /> Getting Started
-				</h2>
-				<p>
-					If you're new to OAuth 2.0 and OpenID Connect, start with these resources to understand
-					the basics and how to use this playground effectively.
-				</p>
+				<CollapsibleHeader
+					title="PingOne SSO Getting Started"
+					subtitle="Essential resources for implementing PingOne Single Sign-On"
+					icon={<FiSettings />}
+					defaultCollapsed={false}
+				>
+					<p>
+						If you're new to PingOne SSO implementation, start with these resources to understand
+						the PingOne platform and how to integrate SSO effectively.
+					</p>
 
-				<CardGrid>
-					<DocCard to="/documentation/oauth-basics">
-						<h3>
-							OAuth 2.0 Basics <FiExternalLink size={16} />
-						</h3>
-						<p>
-							Learn the fundamental concepts of OAuth 2.0, including roles, tokens, and the
-							different grant types.
-						</p>
-					</DocCard>
+					<CardGrid>
+						<DocCard to="/documentation/pingone-basics">
+							<h3>
+								PingOne SSO Basics <FiExternalLink size={16} />
+							</h3>
+							<p>
+								Learn the fundamental concepts of PingOne SSO, including environments, applications, and user management.
+							</p>
+						</DocCard>
 
-					<DocCard to="/documentation/oidc-basics">
-						<h3>
-							OpenID Connect Overview <FiExternalLink size={16} />
-						</h3>
-						<p>
-							Understand how OpenID Connect builds on OAuth 2.0 to provide authentication and single
-							sign-on.
-						</p>
-					</DocCard>
+						<DocCard to="/documentation/pingone-oidc">
+							<h3>
+								PingOne OpenID Connect <FiExternalLink size={16} />
+							</h3>
+							<p>
+								Understand how PingOne implements OpenID Connect for enterprise SSO and user authentication.
+							</p>
+						</DocCard>
 
-					<DocCard to="/documentation/setup-guide">
-						<h3>
-							PingOne Setup Guide <FiExternalLink size={16} />
-						</h3>
-						<p>
-							Step-by-step instructions for configuring your PingOne environment and application.
-						</p>
-					</DocCard>
-				</CardGrid>
-			</Section>
+						<DocCard to="/documentation/pingone-setup">
+							<h3>
+								PingOne Environment Setup <FiExternalLink size={16} />
+							</h3>
+							<p>
+								Step-by-step instructions for configuring your PingOne environment, applications, and SSO policies.
+							</p>
+						</DocCard>
+					</CardGrid>
+				</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiCode /> OAuth 2.0 Flows
-				</h2>
-				<p>
-					OAuth 2.0 defines several grant types (or flows) for different use cases. Each flow is
-					designed for specific scenarios and has different security characteristics.
-				</p>
+				<CollapsibleHeader
+					title="PingOne SSO Flows"
+					subtitle="OAuth 2.0 and OpenID Connect flows optimized for PingOne SSO implementation"
+					icon={<FiCode />}
+					defaultCollapsed={false}
+				>
+					<p>
+						PingOne supports all standard OAuth 2.0 and OpenID Connect flows, each optimized for different SSO scenarios. 
+						Choose the right flow based on your application type and security requirements.
+					</p>
 
-				<CardGrid>
-					<DocCard to="/flows/authorization-code">
-						<h3>Authorization Code Flow</h3>
-						<p>
-							The most secure flow for server-side applications where the client secret can be kept
-							confidential.
-						</p>
-					</DocCard>
+					<CardGrid>
+						<DocCard to="/flows/oauth-authorization-code-v5">
+							<h3>PingOne Authorization Code SSO</h3>
+							<p>
+								The most secure PingOne SSO flow for server-side applications with confidential client credentials.
+							</p>
+						</DocCard>
 
-					<DocCard to="/flows/pkce">
-						<h3>PKCE Flow</h3>
-						<p>
-							An extension of the Authorization Code flow for public clients that cannot store a
-							client secret.
-						</p>
-					</DocCard>
+						<DocCard to="/flows/oidc-authorization-code-v5">
+							<h3>PingOne OIDC SSO Flow</h3>
+							<p>
+								Enhanced PingOne SSO with OpenID Connect for user authentication and identity information.
+							</p>
+						</DocCard>
 
-					<DocCard to="/flows/implicit">
-						<h3>Implicit Flow</h3>
-						<p>
-							A simplified flow for client-side applications (not recommended for new applications).
-						</p>
-					</DocCard>
+						<DocCard to="/flows/client-credentials-v5">
+							<h3>PingOne Service-to-Service</h3>
+							<p>
+								PingOne machine-to-machine authentication for backend services and API access.
+							</p>
+						</DocCard>
 
-					<DocCard to="/flows/client-credentials">
-						<h3>Client Credentials</h3>
-						<p>
-							For machine-to-machine authentication where the client is also the resource owner.
-						</p>
-					</DocCard>
+						<DocCard to="/flows/oidc-device-authorization-v5">
+							<h3>PingOne Device SSO</h3>
+							<p>
+								PingOne SSO for devices with limited input capabilities like smart TVs and IoT devices.
+							</p>
+						</DocCard>
+					</CardGrid>
+				</CollapsibleHeader>
 
-					<DocCard to="/flows/device-code">
-						<h3>Device Code Flow</h3>
-						<p>
-							For input-constrained devices that can display a code and prompt the user to visit a
-							URL.
-						</p>
-					</DocCard>
-				</CardGrid>
-			</Section>
-
-			<Section>
-				<h2>
-					<FiLock /> Security Best Practices
-				</h2>
-				<p>
-					Implementing OAuth 2.0 and OpenID Connect securely requires following best practices to
-					protect against common vulnerabilities. This section covers essential security measures
-					that every developer should implement when working with OAuth 2.0 and OpenID Connect.
-				</p>
+				<CollapsibleHeader
+					title="PingOne SSO Security"
+					subtitle="Security best practices and recommendations for PingOne SSO implementation"
+					icon={<FiLock />}
+					defaultCollapsed={false}
+				>
+					<p>
+						Implementing PingOne SSO securely requires following PingOne-specific best practices to
+						protect against common vulnerabilities and ensure enterprise-grade security.
+					</p>
 
 				<div
 					style={{
@@ -536,57 +577,64 @@ const validateIdToken = (idToken, clientId, issuer) => {
 						<li>The code verifier doesn't match the code challenge</li>
 					</ul>
 				</div>
-			</Section>
+				</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiExternalLink /> Additional Resources
-				</h2>
+				<CollapsibleHeader
+					title="PingOne SSO Resources"
+					subtitle="Additional resources and external links for PingOne SSO implementation"
+					icon={<FiExternalLink />}
+					defaultCollapsed={false}
+				>
 
-				<div style={{ marginTop: '1.5rem' }}>
-					<p>Explore these external resources to learn more about OAuth 2.0 and OpenID Connect:</p>
+					<div style={{ marginTop: '1.5rem' }}>
+						<p>Explore these PingOne-specific resources for SSO implementation:</p>
 
-					<ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0 }}>
-						<li style={{ marginBottom: '0.75rem' }}>
-							<ExternalLink
-								href="https://datatracker.ietf.org/doc/html/rfc6749"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								OAuth 2.0 Authorization Framework (RFC 6749)
-								<FiExternalLink />
-							</ExternalLink>
-						</li>
-						<li style={{ marginBottom: '0.75rem' }}>
-							<ExternalLink
-								href="https://openid.net/connect/"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								OpenID Connect Documentation
-								<FiExternalLink />
-							</ExternalLink>
-						</li>
-						<li style={{ marginBottom: '0.75rem' }}>
-							<ExternalLink
-								href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
-								target="_blank"
-								rel="noopener noreferrer"
-							>
-								PingOne Documentation
-								<FiExternalLink />
-							</ExternalLink>
-						</li>
-						<li style={{ marginBottom: '0.75rem' }}>
-							<ExternalLink href="https://oauth.net/2/" target="_blank" rel="noopener noreferrer">
-								OAuth.net - Community Resource
-								<FiExternalLink />
-							</ExternalLink>
-						</li>
-					</ul>
-				</div>
-			</Section>
-		</DocumentationContainer>
+						<ul style={{ marginTop: '1rem', listStyle: 'none', padding: 0 }}>
+							<li style={{ marginBottom: '0.75rem' }}>
+								<ExternalLink
+									href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									PingOne API Documentation
+									<FiExternalLink />
+								</ExternalLink>
+							</li>
+							<li style={{ marginBottom: '0.75rem' }}>
+								<ExternalLink
+									href="https://docs.pingidentity.com/sdks/latest/sdks/index.html"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									PingOne SDKs
+									<FiExternalLink />
+								</ExternalLink>
+							</li>
+							<li style={{ marginBottom: '0.75rem' }}>
+								<ExternalLink
+									href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									PingOne SSO Configuration Guide
+									<FiExternalLink />
+								</ExternalLink>
+							</li>
+							<li style={{ marginBottom: '0.75rem' }}>
+								<ExternalLink
+									href="https://docs.pingidentity.com/bundle/pingone/page/lyc1469003009660.html"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									PingOne Security Best Practices
+									<FiExternalLink />
+								</ExternalLink>
+							</li>
+						</ul>
+					</div>
+				</CollapsibleHeader>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 

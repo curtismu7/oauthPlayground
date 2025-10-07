@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 
 const PageContainer = styled.main`
 	min-height: 100vh;
@@ -52,74 +53,15 @@ const CategoryList = styled.section`
 	gap: clamp(1.25rem, 3vw, 1.75rem);
 `;
 
-const CategoryCard = styled.article`
-	background: var(--surface-color, #ffffff);
-	border-radius: 1rem;
-	border: 1px solid var(--border-subtle, #e5e7eb);
-	box-shadow: 0 18px 35px rgba(15, 23, 42, 0.08);
-	overflow: hidden;
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-	&:hover {
-		transform: translateY(-2px);
-		box-shadow: 0 25px 50px rgba(15, 23, 42, 0.13);
-	}
-`;
-
-const CategoryHeader = styled.button`
-	width: 100%;
-	padding: clamp(1rem, 2.5vw, 1.3rem) clamp(1.25rem, 3vw, 1.75rem);
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: 1.25rem;
-	cursor: pointer;
-	background: transparent;
-	border: none;
-	text-align: left;
-
-	&:focus-visible {
-		outline: 3px solid rgba(99, 102, 241, 0.35);
-		outline-offset: 4px;
-		border-radius: 14px;
-	}
-`;
-
-const CategoryHeaderLeft = styled.div`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	flex: 1;
-`;
-const CategoryRight = styled.div`
-	display: flex;
-	align-items: center;
-`;
-
-const CollapsibleIcon = styled.div<{ $isExpanded: boolean }>`
-	width: 1.5rem;
-	height: 1.5rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: transform 0.2s ease;
-	transform: ${({ $isExpanded }) => ($isExpanded ? 'rotate(180deg)' : 'rotate(0deg)')};
-
-	&::before {
-		content: '▼';
-		font-size: 0.8rem;
-		color: #6b7280;
-	}
-`;
-
 const TermsList = styled.div`
-	padding: 0 clamp(1.25rem, 3vw, 1.75rem) clamp(1.3rem, 2.8vw, 1.75rem);
+	padding: 0;
 	background: rgba(248, 250, 252, 0.65);
 `;
 
 const TermsGrid = styled.div`
 	display: grid;
 	gap: clamp(1rem, 2.5vw, 1.4rem);
+	padding: clamp(1.25rem, 3vw, 1.75rem);
 `;
 
 const TermItem = styled.div`
@@ -148,33 +90,8 @@ const TermExample = styled.div`
 	}
 `;
 
-const CategoryIcon = styled.div`
-	width: clamp(2.5rem, 6vw, 3rem);
-	height: clamp(2.5rem, 6vw, 3rem);
-	border-radius: 0.85rem;
-	display: grid;
-	place-items: center;
-	font-size: clamp(1.35rem, 3.2vw, 1.6rem);
-	background: rgba(79, 70, 229, 0.08);
-	color: var(--primary-color, #4f46e5);
-`;
-
-const CategoryTitle = styled.div`
-	display: grid;
-	gap: 0.4rem;
-`;
-
-const CategoryBadge = styled.span`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	width: fit-content;
-	padding: 0.25rem 0.75rem;
-	border-radius: 999px;
-	background: rgba(79, 70, 229, 0.12);
-	color: var(--primary-color, #4f46e5);
-	font-size: 0.85rem;
-	font-weight: 500;
+const CategoryIcon = styled.span`
+	font-size: 1.5rem;
 `;
 
 const TermTitle = styled.h3`
@@ -249,7 +166,6 @@ interface GlossaryCategory {
 
 const AIGlossary: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('');
-	const [expandedCategory, setExpandedCategory] = useState<number | null>(0);
 
 	const glossaryData: GlossaryCategory[] = [
 		{
@@ -1066,10 +982,6 @@ const AIGlossary: React.FC = () => {
 		}))
 		.filter((category) => category.terms.length > 0);
 
-	const toggleCategory = (index: number) => {
-		setExpandedCategory((prev) => (prev === index ? null : index));
-	};
-
 	return (
 		<PageContainer>
 			<PageContent>
@@ -1093,46 +1005,38 @@ const AIGlossary: React.FC = () => {
 				) : (
 					<CategoryList>
 						{filteredData.map((category, categoryIndex) => (
-							<CategoryCard key={categoryIndex}>
-								<CategoryHeader onClick={() => toggleCategory(categoryIndex)}>
-									<CategoryHeaderLeft>
-										<CategoryIcon>{category.icon}</CategoryIcon>
-										<CategoryTitle>
-											{category.category}
-											<CategoryBadge>{category.terms.length} terms</CategoryBadge>
-										</CategoryTitle>
-									</CategoryHeaderLeft>
-									<CategoryRight>
-										<CollapsibleIcon $isExpanded={expandedCategory === categoryIndex} />
-									</CategoryRight>
-								</CategoryHeader>
-								{expandedCategory === categoryIndex && (
-									<TermsList>
-										<TermsGrid>
-											{category.terms.map((item, termIndex) => (
-												<TermItem key={termIndex}>
-													<TermTitle>{item.term}</TermTitle>
-													<TermDefinition>{item.definition}</TermDefinition>
-													{item.example && (
-														<TermExample>
-															<strong>Example:</strong>
-															{item.example}
-														</TermExample>
-													)}
-													{item.relatedTerms && item.relatedTerms.length > 0 && (
-														<RelatedTerms>
-															<strong>Related:</strong>{' '}
-															{item.relatedTerms.map((term, idx) => (
-																<span key={idx}>{term}</span>
-															))}
-														</RelatedTerms>
-													)}
-												</TermItem>
-											))}
-										</TermsGrid>
-									</TermsList>
-								)}
-							</CategoryCard>
+							<CollapsibleHeader
+								key={categoryIndex}
+								title={category.category}
+								subtitle={`${category.terms.length} terms`}
+								icon={<CategoryIcon>{category.icon}</CategoryIcon>}
+								defaultCollapsed={categoryIndex !== 0}
+							>
+								<TermsList>
+									<TermsGrid>
+										{category.terms.map((item, termIndex) => (
+											<TermItem key={termIndex}>
+												<TermTitle>{item.term}</TermTitle>
+												<TermDefinition>{item.definition}</TermDefinition>
+												{item.example && (
+													<TermExample>
+														<strong>Example:</strong>
+														{item.example}
+													</TermExample>
+												)}
+												{item.relatedTerms && item.relatedTerms.length > 0 && (
+													<RelatedTerms>
+														<strong>Related:</strong>{' '}
+														{item.relatedTerms.map((term, idx) => (
+															<span key={idx}>{term}</span>
+														))}
+													</RelatedTerms>
+												)}
+											</TermItem>
+										))}
+									</TermsGrid>
+								</TermsList>
+							</CollapsibleHeader>
 						))}
 					</CategoryList>
 				)}
