@@ -3,6 +3,9 @@ import styled from 'styled-components';
 import PageTitle from '../../components/PageTitle';
 import { SpecCard } from '../../components/SpecCard';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { PageLayoutService } from '../../services/pageLayoutService';
+import { FlowUIService } from '../../services/flowUIService';
 
 const DocsContainer = styled.div`
   max-width: 1200px;
@@ -69,15 +72,29 @@ const ExternalLink = styled.a`
 `;
 
 const OIDCSpecs = () => {
-	return (
-		<DocsContainer>
-			<FlowHeader flowType="oidc-specs" />
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '1200px',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'oidc-specs',
+	};
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+		PageLayoutService.createPageLayout(pageConfig);
 
-			<Section>
-				<h2>
-					<FiShield />
-					Core Specifications
-				</h2>
+	return (
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
+
+			<CollapsibleHeader
+				title="Core Specifications"
+				subtitle="Essential OAuth 2.0 and OpenID Connect specifications"
+				icon={<FiShield />}
+				defaultCollapsed={false}
+			>
 				<LinkGrid>
 					<ExternalLink
 						href="https://openid.net/specs/openid-connect-core-1_0.html"
@@ -118,13 +135,14 @@ const OIDCSpecs = () => {
 						<p>Defines how to manage OpenID Connect sessions, including logout functionality.</p>
 					</ExternalLink>
 				</LinkGrid>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiCode />
-					Authentication & Authorization
-				</h2>
+			<CollapsibleHeader
+				title="Authentication & Authorization"
+				subtitle="Authentication and authorization specifications for OAuth 2.0 and OpenID Connect"
+				icon={<FiCode />}
+				defaultCollapsed={false}
+			>
 				<LinkGrid>
 					<ExternalLink
 						href="https://openid.net/specs/openid-connect-basic-client-implemented-1_0.html"
@@ -170,13 +188,14 @@ const OIDCSpecs = () => {
 						</p>
 					</ExternalLink>
 				</LinkGrid>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiUsers />
-					User Information & Identity
-				</h2>
+			<CollapsibleHeader
+				title="User Information & Identity"
+				subtitle="User information and identity management specifications"
+				icon={<FiUsers />}
+				defaultCollapsed={false}
+			>
 				<LinkGrid>
 					<ExternalLink
 						href="https://openid.net/specs/openid-connect-registration-1_0.html"
@@ -219,13 +238,14 @@ const OIDCSpecs = () => {
 						<p>Defines extensions for identity assurance and verification in OpenID Connect.</p>
 					</ExternalLink>
 				</LinkGrid>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<h2>
-					<FiShield />
-					Security & Best Practices
-				</h2>
+			<CollapsibleHeader
+				title="Security & Best Practices"
+				subtitle="Security considerations and best practices for OpenID Connect implementation"
+				icon={<FiShield />}
+				defaultCollapsed={false}
+			>
 				<SpecCard title="Security Considerations">
 					<p>When implementing OpenID Connect, consider these security best practices:</p>
 					<ul>
@@ -237,8 +257,9 @@ const OIDCSpecs = () => {
 						<li>Implement proper session management and logout</li>
 					</ul>
 				</SpecCard>
-			</Section>
-		</DocsContainer>
+			</CollapsibleHeader>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
