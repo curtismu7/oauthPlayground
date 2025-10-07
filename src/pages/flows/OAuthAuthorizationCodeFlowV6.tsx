@@ -19,6 +19,7 @@ import {
 	exchangeCodeForTokens,
 	getUserInfo,
 	introspectToken,
+	refreshAccessToken,
 	generateCodeChallenge,
 	generateCodeVerifier,
 	generateCsrfToken,
@@ -153,6 +154,18 @@ interface UserInfoState {
 	isFetching: boolean;
 }
 
+interface SecurityState {
+	isValidating: boolean;
+	isRefreshing: boolean;
+	isLoggingOut: boolean;
+	validationError: string | null;
+	refreshError: string | null;
+	logoutError: string | null;
+	sessionActive: boolean;
+	lastValidation: number | null;
+	nextRefresh: number | null;
+}
+
 interface PkceState {
 	codeVerifier: string;
 	codeChallenge: string;
@@ -202,7 +215,13 @@ type CollapsibleSectionKey =
 	| 'userInfoOverview'
 	| 'userInfoDetails'
 	| 'userInfoApi'
-	| 'userInfoResponse';
+	| 'userInfoResponse'
+	| 'securityOverview'
+	| 'securityValidation'
+	| 'securityRefresh'
+	| 'securityLogout'
+	| 'sessionMonitoring'
+	| 'securityBestPractices';
 
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
@@ -231,6 +250,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [tokenState, setTokenState] = useState<TokenState>({ accessToken: '', refreshToken: '', idToken: '', tokenType: '', expiresIn: 0, scope: '', error: null, isExchanging: false });
 	const [introspectionState, setIntrospectionState] = useState<IntrospectionState>({ active: false, client_id: '', exp: 0, iat: 0, iss: '', sub: '', error: null, isIntrospecting: false });
 	const [userInfoState, setUserInfoState] = useState<UserInfoState>({ sub: '', name: undefined, email: undefined, email_verified: undefined, given_name: undefined, family_name: undefined, preferred_username: undefined, error: null, isFetching: false });
+	const [securityState, setSecurityState] = useState<SecurityState>({ isValidating: false, isRefreshing: false, isLoggingOut: false, validationError: null, refreshError: null, logoutError: null, sessionActive: false, lastValidation: null, nextRefresh: null });
 	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
 		status: false,
 		validation: false,
@@ -264,6 +284,12 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		userInfoDetails: true,
 		userInfoApi: false,
 		userInfoResponse: false,
+		securityOverview: false,
+		securityValidation: true,
+		securityRefresh: false,
+		securityLogout: false,
+		sessionMonitoring: false,
+		securityBestPractices: false,
 	});
 
 	const statusManager = useMemo(
