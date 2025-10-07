@@ -1,4 +1,4 @@
-import { FiCheck, FiInfo, FiShield, FiX } from 'react-icons/fi';
+import { FiCheck, FiInfo, FiShield, FiX, FiKey, FiRefreshCw, FiAlertTriangle, FiSettings, FiUsers, FiGlobe } from 'react-icons/fi';
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import { SpecCard } from '../components/SpecCard';
@@ -149,35 +149,42 @@ const OAuth21 = () => {
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			<OverviewCard>
-				<CardHeader>
-					<h2>What is OAuth 2.1?</h2>
-				</CardHeader>
-				<CardBody>
-					<p>
-						OAuth 2.1 consolidates the changes published in later specifications to simplify the
-						core document. It represents the evolution of OAuth 2.0 with security improvements and
-						best practices built-in.
-					</p>
-					<p>
-						<strong>Status:</strong> Currently in draft (draft-ietf-oauth-v2-1-13) -
-						<a
-							href="https://oauth.net/2.1/"
-							target="_blank"
-							rel="noopener noreferrer"
-							style={{ color: '#3b82f6', marginLeft: '0.5rem' }}
-						>
-							View on oauth.net
-						</a>
-					</p>
-				</CardBody>
-			</OverviewCard>
+			<CollapsibleHeader
+				title="What is OAuth 2.1?"
+				subtitle="Evolution of OAuth 2.0 with built-in security improvements and best practices"
+				icon={<FiShield />}
+				defaultCollapsed={false}
+			>
+				<OverviewCard>
+					<CardBody>
+						<p>
+							OAuth 2.1 consolidates the changes published in later specifications to simplify the
+							core document. It represents the evolution of OAuth 2.0 with security improvements and
+							best practices built-in.
+						</p>
+						<p>
+							<strong>Status:</strong> Currently in draft (draft-ietf-oauth-v2-1-13) -
+							<a
+								href="https://oauth.net/2.1/"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{ color: '#3b82f6', marginLeft: '0.5rem' }}
+							>
+								View on oauth.net
+							</a>
+						</p>
+					</CardBody>
+				</OverviewCard>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>Key Changes from OAuth 2.0 to OAuth 2.1</h2>
-				</CardHeader>
-				<CardBody>
+			<CollapsibleHeader
+				title="Key Changes from OAuth 2.0 to OAuth 2.1"
+				subtitle="Major security improvements and deprecations in OAuth 2.1"
+				icon={<FiKey />}
+				defaultCollapsed={false}
+			>
+				<Card>
+					<CardBody>
 					<ChangesGrid>
 						{/* PKCE Requirement */}
 						<SpecCard title="PKCE Required for Authorization Code Flow">
@@ -504,14 +511,18 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							</div>
 						</SpecCard>
 					</ChangesGrid>
-				</CardBody>
-			</Card>
+					</CardBody>
+				</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>Migration Guide</h2>
-				</CardHeader>
-				<CardBody>
+			<CollapsibleHeader
+				title="Migration Guide"
+				subtitle="Step-by-step guide for migrating from OAuth 2.0 to OAuth 2.1"
+				icon={<FiRefreshCw />}
+				defaultCollapsed={false}
+			>
+				<Card>
+					<CardBody>
 					<h3>For Existing OAuth 2.0 Applications</h3>
 					<ol style={{ paddingLeft: '1.5rem', lineHeight: '1.6' }}>
 						<li>
@@ -548,14 +559,18 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							flows
 						</li>
 					</ul>
-				</CardBody>
-			</Card>
+					</CardBody>
+				</Card>
+			</CollapsibleHeader>
 
-			<Card>
-				<CardHeader>
-					<h2>PingOne OAuth 2.1 Readiness</h2>
-				</CardHeader>
-				<CardBody>
+			<CollapsibleHeader
+				title="PingOne OAuth 2.1 Readiness"
+				subtitle="PingOne's support for OAuth 2.1 features and recommendations"
+				icon={<FiUsers />}
+				defaultCollapsed={false}
+			>
+				<Card>
+					<CardBody>
 					<p>PingOne is well-positioned for OAuth 2.1 adoption with comprehensive support for:</p>
 					<ul style={{ paddingLeft: '1.5rem', lineHeight: '1.6' }}>
 						<li>
@@ -587,8 +602,9 @@ Authorization: Bearer YOUR_ACCESS_TOKEN`}</pre>
 							</p>
 						</div>
 					</PingOneNote>
-				</CardBody>
-			</Card>
+					</CardBody>
+				</Card>
+			</CollapsibleHeader>
 			</ContentWrapper>
 		</PageContainer>
 	);
