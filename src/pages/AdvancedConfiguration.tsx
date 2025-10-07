@@ -307,7 +307,7 @@ const AdvancedConfiguration = () => {
 		showHeader: true,
 		showFooter: false,
 		responsive: true,
-		flowId: 'advanced-configuration', // Enables FlowHeader integration
+		flowId: 'pingone-defaults', // Enables FlowHeader integration
 	};
 
 	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
@@ -528,34 +528,132 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 			<ContentWrapper>
 				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			<Header>
-				<h1>
-					<FiSettings />
-					Advanced Configuration
-				</h1>
-				<p>
-					Customize OAuth scopes and OpenID Connect claims for your specific use case. Configure
-					exactly what data your application requests and receives.
-				</p>
-			</Header>
+			{/* PingOne Defaults Configuration */}
+			<CollapsibleHeader
+				title="PingOne Default Settings"
+				subtitle="Set default values for Environment ID, Redirect URI, and Scopes that will be used across all flows"
+				icon={<FiSettings />}
+				defaultCollapsed={false}
+			>
+				<div style={{ padding: '1.5rem' }}>
+					<InfoBox $type="info" style={{ marginBottom: '1.5rem' }}>
+						<FiInfo />
+						<div>
+							<strong>About Default Settings</strong>
+							<p>These defaults will be automatically populated in all OAuth and OIDC flows, saving you time during configuration.</p>
+						</div>
+					</InfoBox>
 
-			{/* Credential Status */}
-			<CredentialStatus $status={credentialStatus}>
-				<div
-					style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}
-				>
-					{credentialStatus === 'complete' ? <FiCheckCircle /> : <FiInfo />}
-					<strong>
-						{credentialStatus === 'complete' ? 'Credentials Configured' : 'Credentials Required'}
-					</strong>
+					{/* Environment ID Input */}
+					<div style={{ marginBottom: '1.5rem' }}>
+						<label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>
+							Environment ID
+						</label>
+						<input
+							type="text"
+							value={environmentId}
+							onChange={(e) => setEnvironmentId(e.target.value)}
+							placeholder="e.g., 12345678-1234-1234-1234-123456789012"
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '0.95rem',
+								fontFamily: 'monospace'
+							}}
+						/>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
+							Your PingOne Environment ID (GUID format)
+						</p>
+					</div>
+
+					{/* Redirect URI Input */}
+					<div style={{ marginBottom: '1.5rem' }}>
+						<label style={{ display: 'block', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>
+							Default Redirect URI
+						</label>
+						<input
+							type="text"
+							value={redirectUri}
+							onChange={(e) => setRedirectUri(e.target.value)}
+							placeholder="https://localhost:3000/authz-callback"
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '1px solid #d1d5db',
+								borderRadius: '6px',
+								fontSize: '0.95rem',
+								fontFamily: 'monospace'
+							}}
+						/>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
+							Default callback URL for OAuth flows
+						</p>
+					</div>
+
+					{/* Save Button */}
+					<div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+						<button
+							onClick={() => {
+								// Save defaults
+								const scopes = Array.from(selectedScopes).concat(customScopes.filter(s => s.trim())).join(' ');
+								credentialManager.saveAuthzFlowCredentials({
+									...currentDefaults,
+									environmentId,
+									redirectUri,
+									scope: scopes
+								});
+								setSaved(true);
+								setTimeout(() => setSaved(false), 3000);
+							}}
+							style={{
+								padding: '0.75rem 1.5rem',
+								backgroundColor: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '6px',
+								cursor: 'pointer',
+								fontSize: '1rem',
+								fontWeight: '500',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'background-color 0.2s'
+							}}
+							onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#2563eb')}
+							onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#3b82f6')}
+						>
+							<FiSave />
+							Save Defaults
+						</button>
+						
+						{saved && (
+							<div style={{
+								padding: '0.75rem 1rem',
+								backgroundColor: '#d1fae5',
+								color: '#065f46',
+								borderRadius: '6px',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem'
+							}}>
+								<FiCheckCircle />
+								Defaults saved successfully!
+							</div>
+						)}
+					</div>
 				</div>
-				<p style={{ margin: 0, fontSize: '0.875rem' }}>
-					{credentialStatus === 'complete'
-						? 'Your PingOne credentials are configured. You can now test OAuth flows with your custom scopes and claims.'
-						: 'Configure your PingOne credentials in the main Configuration page before using these advanced settings.'}
-				</p>
-			</CredentialStatus>
+			</CollapsibleHeader>
 
+			{/* Default Scopes Configuration */}
+			<CollapsibleHeader
+				title="Default OAuth Scopes"
+				subtitle="Select the default scopes that will be requested in all OAuth and OIDC flows"
+				icon={<FiShield />}
+				defaultCollapsed={false}
+			>
+				<div style={{ padding: '1.5rem' }}>
 			<ConfigGrid>
 				{/* OAuth Scopes Configuration */}
 				<ConfigSection>
@@ -708,8 +806,17 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 					</CardBody>
 				</ConfigSection>
 			</ConfigGrid>
+				</div>
+			</CollapsibleHeader>
 
 			{/* Configuration Preview */}
+			<CollapsibleHeader
+				title="Configuration Preview"
+				subtitle="Review your default configuration and copy the JSON for use in your applications"
+				icon={<FiSave />}
+				defaultCollapsed={true}
+			>
+				<div style={{ padding: '1.5rem' }}>
 			<PreviewSection>
 				<CardHeader>
 					<h2>
@@ -800,6 +907,8 @@ const authUrl = \`https://auth.pingone.com/\${envId}/as/authorize?\` +
 					</div>
 				</CardBody>
 			</PreviewSection>
+				</div>
+			</CollapsibleHeader>
 			</ContentWrapper>
 		</PageContainer>
 	);
