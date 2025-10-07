@@ -923,19 +923,6 @@ export class FlowUIService {
 			`,
 
 			// Additional components
-			GeneratedContentBox: styled.div`
-				background: #f8fafc;
-				border: 1px solid #e2e8f0;
-				border-radius: 0.5rem;
-				padding: 1rem;
-				margin: 1rem 0;
-			`,
-			GeneratedLabel: styled.div`
-				font-weight: 600;
-				color: #374151;
-				margin-bottom: 0.5rem;
-				font-size: 0.875rem;
-			`,
 			ExplanationSection: styled.div`
 				margin: 1.5rem 0;
 			`,
@@ -1032,41 +1019,6 @@ export class FlowUIService {
 		`;
 	}
 
-	// ============================================================================
-	// PARAMETER DISPLAY COMPONENTS
-	// ============================================================================
-
-	static getParameterGrid() {
-		return styled.div`
-			display: grid;
-			grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-			gap: 1rem;
-			margin: 1rem 0;
-		`;
-	}
-
-	static getParameterLabel() {
-		return styled.div`
-			font-size: 0.75rem;
-			font-weight: 600;
-			color: #16a34a;
-			text-transform: uppercase;
-			letter-spacing: 0.05em;
-		`;
-	}
-
-	static getParameterValue() {
-		return styled.div`
-			font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-			font-size: 0.875rem;
-			color: #064e3b;
-			word-break: break-all;
-			background-color: #f0fdf4;
-			border: 1px solid #bbf7d0;
-			border-radius: 0.375rem;
-			padding: 0.5rem;
-		`;
-	}
 
 	// ============================================================================
 	// GENERATED CONTENT COMPONENTS
