@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer } from 'react-icons/fi';
+import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer, FiZap, FiLink } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
@@ -8,6 +8,7 @@ import { checkSavedCredentials } from '../utils/configurationStatus';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FLOW_CONFIGS, FlowHeader } from '../services/flowHeaderService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;
@@ -118,6 +119,22 @@ const Dashboard = () => {
 		frontend: 'checking' as 'online' | 'offline' | 'checking',
 		backend: 'checking' as 'online' | 'offline' | 'checking',
 	});
+
+	// Collapsible sections state
+	const [collapsedSections, setCollapsedSections] = useState({
+		systemStatus: false,      // Start expanded
+		credentialStatus: false,  // Start expanded
+		apiEndpoints: true,       // Start collapsed
+		quickAccess: false,       // Start expanded
+		recentActivity: false,    // Start expanded
+	});
+
+	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
+		setCollapsedSections(prev => ({
+			...prev,
+			[section]: !prev[section]
+		}));
+	}, []);
 
 	// Check server status
 	const checkServerStatus = useCallback(async () => {
@@ -255,21 +272,26 @@ const Dashboard = () => {
 			<FlowHeader flowType="dashboard" />
 
 			{/* System Status */}
-			<ContentCard>
-				<CardHeader>
-					<CardTitle>System Status</CardTitle>
-					<div style={{ display: 'flex', gap: '0.5rem' }}>
-						<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
-							<FiRefreshCw
-								size={16}
-								style={{
-									animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
-								}}
-							/>
-							Refresh
-						</RefreshButton>
-					</div>
-				</CardHeader>
+			<CollapsibleHeader
+				title="System Status"
+				subtitle="Frontend and backend server health monitoring"
+				icon={<FiServer />}
+				defaultCollapsed={collapsedSections.systemStatus}
+				collapsed={collapsedSections.systemStatus}
+				onToggle={() => toggleSection('systemStatus')}
+			>
+			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
+				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', justifyContent: 'flex-end' }}>
+					<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
+						<FiRefreshCw
+							size={16}
+							style={{
+								animation: isRefreshing ? 'spin 1s linear infinite' : 'none',
+							}}
+						/>
+						Refresh
+					</RefreshButton>
+				</div>
 
 				<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
 					<StatusBadge
@@ -368,12 +390,18 @@ const Dashboard = () => {
 					</div>
 				</div>
 			</ContentCard>
+			</CollapsibleHeader>
 
 			{/* Flow Credential Status */}
-			<ContentCard>
-				<CardHeader>
-					<CardTitle>V5 Flow Credential Status</CardTitle>
-				</CardHeader>
+			<CollapsibleHeader
+				title="V5 Flow Credential Status"
+				subtitle="Configuration status for all OAuth and OIDC flows"
+				icon={<FiKey />}
+				defaultCollapsed={collapsedSections.credentialStatus}
+				collapsed={collapsedSections.credentialStatus}
+				onToggle={() => toggleSection('credentialStatus')}
+			>
+			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
 
 				<div
 					style={{
@@ -467,12 +495,18 @@ const Dashboard = () => {
 					</div>
 				</div>
 			</ContentCard>
+			</CollapsibleHeader>
 
 			{/* API Endpoints */}
-			<ContentCard>
-				<CardHeader>
-					<CardTitle>Available API Endpoints</CardTitle>
-				</CardHeader>
+			<CollapsibleHeader
+				title="Available API Endpoints"
+				subtitle="Backend API endpoints for OAuth/OIDC operations"
+				icon={<FiLink />}
+				defaultCollapsed={collapsedSections.apiEndpoints}
+				collapsed={collapsedSections.apiEndpoints}
+				onToggle={() => toggleSection('apiEndpoints')}
+			>
+			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
 
 				<div
 					style={{
@@ -518,12 +552,18 @@ const Dashboard = () => {
 					))}
 				</div>
 			</ContentCard>
+			</CollapsibleHeader>
 
 			{/* Quick Access Flows */}
-			<ContentCard>
-				<CardHeader>
-					<CardTitle>Quick Access Flows</CardTitle>
-				</CardHeader>
+			<CollapsibleHeader
+				title="Quick Access Flows"
+				subtitle="Explore OAuth 2.0 and OpenID Connect flows"
+				icon={<FiZap />}
+				defaultCollapsed={collapsedSections.quickAccess}
+				collapsed={collapsedSections.quickAccess}
+				onToggle={() => toggleSection('quickAccess')}
+			>
+			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
 
 				<div style={{ marginBottom: '1rem' }}>
 					<p style={{ color: '#666', fontSize: '0.95rem' }}>
@@ -768,18 +808,18 @@ const Dashboard = () => {
 					</div>
 				</div>
 			</ContentCard>
+			</CollapsibleHeader>
 
 			{/* Recent Activity */}
-			<ContentCard>
-				<CardHeader>
-					<div>
-						<CardTitle>Recent Activity</CardTitle>
-						<p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>
-							Latest OAuth flow runs, credential updates, and API interactions performed in this
-							playground.
-						</p>
-					</div>
-				</CardHeader>
+			<CollapsibleHeader
+				title="Recent Activity"
+				subtitle="Latest OAuth flow runs, credential updates, and API interactions"
+				icon={<FiActivity />}
+				defaultCollapsed={collapsedSections.recentActivity}
+				collapsed={collapsedSections.recentActivity}
+				onToggle={() => toggleSection('recentActivity')}
+			>
+			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
 
 				<div style={{ maxHeight: '400px', overflowY: 'auto' }}>
 					<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -830,6 +870,7 @@ const Dashboard = () => {
 					</ul>
 				</div>
 			</ContentCard>
+			</CollapsibleHeader>
 		</DashboardContainer>
 	);
 };
