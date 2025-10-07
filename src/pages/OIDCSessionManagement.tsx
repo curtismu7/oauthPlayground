@@ -520,6 +520,8 @@ const OIDCSessionManagement = () => {
 					</div>
 				</CardBody>
 			</OverviewCard>
+						</div>
+					</CollapsibleHeader>
 
 			<CollapsibleSection title=" Session Management Flows" defaultOpen={true}>
 				<div style={{ marginTop: '1rem' }}>

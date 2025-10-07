@@ -1001,7 +1001,7 @@ const OAuthOIDCTraining: React.FC = () => {
 							</div>
 						)}
 					</div>
-				</div>
+				</CollapsibleHeader>
 
 				{/* Quick Reference Card */}
 				<div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 text-white">
