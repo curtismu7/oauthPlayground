@@ -747,14 +747,62 @@ export const parseJwt = (token) => {
 };
 
 /**
- * Check if token is expired
- * @param {string} token - JWT token
+ * Introspect an access token
+ * @param {string} introspectionEndpoint - Introspection endpoint URL
+ * @param {string} token - Access token to introspect
+ * @param {string} clientId - Client ID
+ * @param {string} [clientSecret] - Client secret (optional for confidential clients)
+ * @returns {Promise<Object>} Introspection response
+ */
+export const introspectToken = async (
+	introspectionEndpoint: string,
+	token: string,
+	clientId: string,
+	clientSecret?: string
+) => {
+	const body = new URLSearchParams();
+	body.append('token', token);
+
+	const headers: Record<string, string> = {
+		'Content-Type': 'application/x-www-form-urlencoded',
+	};
+
+	if (clientSecret) {
+		const credentials = btoa(`${clientId}:${clientSecret}`);
+		headers['Authorization'] = `Basic ${credentials}`;
+	} else {
+		body.append('client_id', clientId);
+	}
+
+	const response = await fetch(introspectionEndpoint, {
+		method: 'POST',
+		headers,
+		body: body.toString(),
+	});
+
+	if (!response.ok) {
+		throw new Error('Introspection request failed');
+	}
+
+	return response.json();
+};
+
+/**
+ * Check if a JWT token is expired
+ * @param {string} token - JWT token to check
  * @returns {boolean} True if token is expired, false otherwise
  */
 export const isTokenExpired = (token: string): boolean => {
-	const decoded = parseJwt(token);
-	if (!decoded?.exp) return true;
+	try {
+		const payload = parseJwt(token);
+		if (!payload || !payload.exp) {
+			return true; // Consider invalid tokens as expired
+		}
 
-	const now = Date.now() / 1000;
-	return decoded.exp < now;
+		const currentTime = Math.floor(Date.now() / 1000);
+		return payload.exp < currentTime;
+	} catch (error) {
+		console.error('Error checking token expiration:', error);
+		return true; // Consider parsing errors as expired
+	}
 };
