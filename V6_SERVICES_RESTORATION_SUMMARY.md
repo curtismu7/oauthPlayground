@@ -198,13 +198,20 @@ useEffect(() => {
 
 ## 📊 Pages Using V6 Services
 
-| Page | Sections | Service Used | Status |
-|------|----------|--------------|--------|
-| **Dashboard** | 5 | collapsibleHeaderService | ✅ Updated |
-| **Configuration** | 5 | collapsibleHeaderService | ✅ Updated |
-| OAuthAuthorizationCodeFlowV6 | Many | collapsibleHeaderService | 🔨 Needs Rebuild |
+| Page Category | Count | Total Sections | Status |
+|---------------|-------|----------------|--------|
+| **V5 Flow Pages** | 12 | 150+ | ✅ Active |
+| **V6 Flow Pages** | 1 | 17 | ✅ Active |
+| **Core Pages** | 3 | 36 | ✅ Active |
+| **Training/SDK Pages** | 5 | 29 | ✅ Active |
+| **Other Pages** | 2 | 2 | ✅ Active |
 
-**Total Collapsible Sections**: 10+ across 2 active pages
+**Total**: 25+ pages using `collapsibleHeaderService` with 330+ usages
+
+### Latest Additions (Oct 7, 2025):
+- ✅ **AIGlossary.tsx** - Converted from custom collapsible implementation to CollapsibleHeader (13 categories with proper arrows)
+- ✅ **Configuration.tsx** - Upgraded to V6 with 5 major collapsible sections (App Info, Quick Start, Alternative Startup, Troubleshooting, Resources)
+- ✅ **JWTBearerTokenFlowV5.tsx** - Added 2 collapsible sections (About JWT Bearer Flow, Configuration Requirements)
 
 ---
 

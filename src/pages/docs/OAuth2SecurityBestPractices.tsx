@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../../services/flowHeaderService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -345,13 +346,12 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				</ReferenceContent>
 			</ReferenceCard>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiLock />
-					</SectionIcon>
-					Client Security
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Client Security"
+				subtitle="Essential security practices for OAuth 2.0 client applications"
+				icon={<FiLock />}
+				defaultCollapsed={false}
+			>
 
 				<Subsection>
 					<SubsectionTitle>
@@ -477,15 +477,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						<CodeComment>// Invalid (fragment)</CodeComment>
 					</CodeBlock>
 				</Subsection>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiRefreshCw />
-					</SectionIcon>
-					Authorization Code Flow Security
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Authorization Code Flow Security"
+				subtitle="Security considerations for the authorization code flow"
+				icon={<FiRefreshCw />}
+				defaultCollapsed={false}
+			>
 
 				<Subsection>
 					<SubsectionTitle>
@@ -575,15 +574,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						</PracticeContent>
 					</BestPracticeCard>
 				</Subsection>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiUsers />
-					</SectionIcon>
-					Token Security
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Token Security"
+				subtitle="Best practices for secure token handling and storage"
+				icon={<FiUsers />}
+				defaultCollapsed={false}
+			>
 
 				<Subsection>
 					<SubsectionTitle>
@@ -676,15 +674,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						</PracticeContent>
 					</BestPracticeCard>
 				</Subsection>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiGlobe />
-					</SectionIcon>
-					Transport Security
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Transport Security"
+				subtitle="Network security requirements for OAuth 2.0"
+				icon={<FiGlobe />}
+				defaultCollapsed={false}
+			>
 
 				<BestPracticeCard $type="critical">
 					<PracticeIcon>
@@ -721,15 +718,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						</PracticeList>
 					</PracticeContent>
 				</BestPracticeCard>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiSettings />
-					</SectionIcon>
-					Scope and Permission Security
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Scope and Permission Security"
+				subtitle="Implementing secure scope and permission management"
+				icon={<FiSettings />}
+				defaultCollapsed={false}
+			>
 
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
@@ -764,15 +760,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						</InfoText>
 					</InfoContent>
 				</InfoBox>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiAlertTriangle />
-					</SectionIcon>
-					Common Security Pitfalls
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Common Security Pitfalls"
+				subtitle="Avoiding common OAuth 2.0 security mistakes"
+				icon={<FiAlertTriangle />}
+				defaultCollapsed={false}
+			>
 
 				<WarningBox>
 					<WarningIcon>
@@ -823,15 +818,14 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						</PracticeList>
 					</PracticeContent>
 				</BestPracticeCard>
-			</Section>
+			</CollapsibleHeader>
 
-			<Section>
-				<SectionTitle>
-					<SectionIcon>
-						<FiCheckCircle />
-					</SectionIcon>
-					Security Checklist
-				</SectionTitle>
+			<CollapsibleHeader
+				title="Security Checklist"
+				subtitle="Comprehensive security checklist for OAuth 2.0 implementations"
+				icon={<FiCheckCircle />}
+				defaultCollapsed={false}
+			>
 
 				<BestPracticeCard $type="recommended">
 					<PracticeIcon>
@@ -856,7 +850,7 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 						</PracticeList>
 					</PracticeContent>
 				</BestPracticeCard>
-			</Section>
+			</CollapsibleHeader>
 
 			<ReferenceCard>
 				<ReferenceIcon>
