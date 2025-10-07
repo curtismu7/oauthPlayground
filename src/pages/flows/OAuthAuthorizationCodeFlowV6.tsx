@@ -227,6 +227,20 @@ type CollapsibleSectionKey =
 type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
 
 const OAuthAuthorizationCodeFlowV6: React.FC = () => {
+	const [currentStep, setCurrentStep] = useState(0);
+
+	const handleNext = useCallback(() => {
+		if (currentStep < STEP_METADATA.length - 1) {
+			setCurrentStep(prev => prev + 1);
+		}
+	}, [currentStep]);
+
+	const handlePrev = useCallback(() => {
+		if (currentStep > 0) {
+			setCurrentStep(prev => prev - 1);
+		}
+	}, [currentStep]);
+
 	const [credentials, setCredentials] = useState<CredentialsState>({
 		environmentId: '',
 		clientId: '',
@@ -1187,54 +1201,74 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		],
 	);
 
+	// V6 Service Components - using FlowUIService for consistent styling
+	const Container = FlowUIService.getContainer();
+	const ContentWrapper = FlowUIService.getContentWrapper();
+	const MainCard = FlowUIService.getMainCard();
+	const StepHeader = FlowUIService.getStepHeader('blue');
+	const StepHeaderLeft = FlowUIService.getStepHeaderLeft();
+	const StepHeaderRight = FlowUIService.getStepHeaderRight();
+	const VersionBadge = FlowUIService.getVersionBadge('blue');
+	const StepHeaderTitle = FlowUIService.getStepHeaderTitle();
+	const StepHeaderSubtitle = FlowUIService.getStepHeaderSubtitle();
+	const StepNumber = FlowUIService.getStepNumber();
+	const StepTotal = FlowUIService.getStepTotal();
+	const StepContentWrapper = FlowUIService.getStepContentWrapper();
+	const StepNavigation = FlowUIService.getStepNavigation();
+	const NavigationButton = FlowUIService.getButton();
+
+	// Flow suitability components
+	const FlowSuitability = FlowUIService.getFlowSuitability();
+	const SuitabilityCard = FlowUIService.getSuitabilityCard();
+
+	// Parameter display components
+	const ParameterGrid = FlowUIService.getParameterGrid();
+	const ParameterLabel = FlowUIService.getParameterLabel();
+	const ParameterValue = FlowUIService.getParameterValue();
+
+	// Generated content components
+	const GeneratedContentBox = FlowUIService.getGeneratedContentBox();
+	const GeneratedLabel = FlowUIService.getGeneratedLabel();
+
+	// Info components
+	const InfoBox = FlowUIService.getInfoBox();
+	const InfoTitle = FlowUIService.getInfoTitle();
+	const InfoText = FlowUIService.getInfoText();
+	const InfoList = FlowUIService.getInfoList();
+
 	return (
-		<PageContainer>
+		<Container>
 			<ContentWrapper>
-				<FlowHeader
-					flowType="oauth"
-					customConfig={{
-						title: 'Authorization Code Flow (V6)',
-						subtitle:
-							'Rebuilt from the ground up with services architecture, resilient UX, and comprehensive OAuth/OIDC coverage.',
-						icon: '🚀',
-						version: 'V6',
-					}}
-				/>
-				<Spacing $size="sm" />
+				<FlowHeader flowId="oauth-authorization-code-v6" />
+				<FlowInfoCard flowInfo={getFlowInfo('authorization-code')!} />
+				<FlowSequenceDisplay flowType="authorization-code" />
+
 				<MainCard>
-					{STEP_METADATA.map((step, index) => {
-					const isFirstStep = index === 0;
-					const isNextEnabled = step.id === 'introduction' ? validationReady : step.id === 'authorization-response' ? authResponse.isValid : step.id === 'token-exchange' ? !!tokenState.accessToken : false;
-					const nextLabel = step.id === 'introduction' ? 'Proceed to PKCE' : step.id === 'authorization-response' ? 'Proceed to Token Exchange' : step.id === 'token-exchange' ? 'Proceed to Introspection' : 'Next';
-					return (
-							<StepSection
-								key={step.id}
-								index={index}
-								step={step}
-								stepCount={STEP_METADATA.length}
-								isFirstStep={isFirstStep}
-								isNextEnabled={isNextEnabled}
-								nextLabel={nextLabel}
-								components={{
-									StepContainer,
-									StepHeader,
-									StepHeaderLeft,
-									VersionBadge,
-									StepHeaderTitle,
-									StepHeaderSubtitle,
-									StepContent,
-									StepNavigation,
-									PrimaryButton,
-									SecondaryButton,
-									StepProgress,
-								}}
-								renderStepContent={renderStepContent}
-							/>
-						);
-					})}
+					<StepHeader>
+						<StepHeaderLeft>
+							<VersionBadge>OAuth Authorization Code Flow · V6</VersionBadge>
+							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+						</StepHeaderLeft>
+						<StepHeaderRight>
+							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
+							<StepTotal>of {STEP_METADATA.length.toString().padStart(2, '0')}</StepTotal>
+						</StepHeaderRight>
+					</StepHeader>
+
+					<StepContentWrapper>{renderStepContent(STEP_METADATA[currentStep])}</StepContentWrapper>
+
+					<StepNavigation>
+						<NavigationButton variant="secondary" disabled={currentStep === 0}>
+							Back
+						</NavigationButton>
+						<NavigationButton variant="primary" disabled={currentStep === STEP_METADATA.length - 1}>
+							Next
+						</NavigationButton>
+					</StepNavigation>
 				</MainCard>
 			</ContentWrapper>
-		</PageContainer>
+		</Container>
 	);
 }
 
