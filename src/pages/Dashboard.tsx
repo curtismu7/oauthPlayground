@@ -7,61 +7,243 @@ import type { ActivityItem } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { FLOW_CONFIGS, FlowHeader } from '../services/flowHeaderService';
+import { FLOW_CONFIGS } from '../services/flowHeaderService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 
-const DashboardContainer = styled.div`
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1rem;
-  background: #f8f9fa;
-  min-height: 100vh;
+// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+const pageConfig = {
+	flowType: 'documentation' as const,
+	theme: 'purple' as const,
+	maxWidth: '72rem', // Wider dashboard (1152px)
+	showHeader: true,
+	showFooter: false,
+	responsive: true,
+	flowId: 'dashboard', // Enables FlowHeader integration
+};
+
+const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+	PageLayoutService.createPageLayout(pageConfig);
+
+// Content card for sections (no border/shadow when inside CollapsibleHeader)
+const ContentCard = styled.div`
+  padding: 1.5rem;
 `;
 
-const Header = styled.div`
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  
-  h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.25rem;
+const ServerStatusGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
   }
+`;
+
+const ServerCard = styled.div`
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+`;
+
+const FlowGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+`;
+
+const FlowCategory = styled.div`
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+`;
+
+const FlowCategoryTitle = styled.h3<{ $color?: string }>`
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: ${props => props.$color || '#1f2937'};
+`;
+
+const FlowItem = styled.div<{ $bgColor?: string; $borderColor?: string }>`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  background-color: ${props => props.$bgColor || '#f8fafc'};
+  border-radius: 0.375rem;
+  border: 1px solid ${props => props.$borderColor || '#e2e8f0'};
   
+  span {
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+`;
+
+const ApiGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+`;
+
+const ApiEndpointCard = styled.div`
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+  }
+`;
+
+const MethodBadge = styled.span<{ $method: string }>`
+  padding: 0.25rem 0.5rem;
+  background-color: ${props => props.$method === 'GET' ? '#dbeafe' : '#dcfce7'};
+  color: ${props => props.$method === 'GET' ? '#1e40af' : '#166534'};
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+`;
+
+const QuickAccessGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+`;
+
+const FlowCard = styled.div`
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  h3 {
+    font-size: 1.2rem;
+    margin: 0;
+    color: #333;
+  }
+
   p {
     color: #666;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    margin: 0;
   }
 `;
 
-const ContentCard = styled.div`
-  background: #ffffff;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e5e7eb;
-  margin-bottom: 1rem;
+const FlowButtonsContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 `;
 
-const CardHeader = styled.div`
+const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+
+  ${props => props.$variant === 'primary' ? `
+    background: #3b82f6;
+    color: white;
+    border: 1px solid #2563eb;
+
+    &:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    }
+  ` : `
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+
+    &:hover {
+      background: #e5e7eb;
+      border-color: #9ca3af;
+    }
+  `}
+`;
+
+const ActivityList = styled.div`
+  max-height: 400px;
+  overflow-y: auto;
+
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+`;
+
+const ActivityItem = styled.li<{ $isLast?: boolean }>`
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: ${props => props.$isLast ? 'none' : '1px solid #e5e7eb'};
 `;
 
-const CardTitle = styled.h2`
-  font-size: 1.5rem;
-  font-weight: 600;
+const ActivityIcon = styled.div<{ $success: boolean }>`
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: ${props => props.$success ? '#dcfce7' : '#fee2e2'};
+  color: ${props => props.$success ? '#166534' : '#dc2626'};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+`;
+
+const ActivityContent = styled.div`
+  flex: 1;
+`;
+
+const ActivityAction = styled.div`
+  font-weight: 500;
   color: #333;
-  margin: 0;
+  margin-bottom: 0.25rem;
+`;
+
+const ActivityTime = styled.div`
+  font-size: 0.875rem;
+  color: #666;
+`;
+
+const EmptyState = styled.li`
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+
+  svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  p {
+    margin: 0.5rem 0;
+  }
 `;
 
 const StatusBadge = styled.span<{ $status: 'active' | 'pending' | 'error' }>`
@@ -85,26 +267,33 @@ const StatusBadge = styled.span<{ $status: 'active' | 'pending' | 'error' }>`
 `;
 
 const RefreshButton = styled.button`
-  background: #f8f9fa;
-  color: #667eea;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background: #ffffff;
+  border: 1px solid #3b82f6;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
   
-  &:hover {
-    background: #e9ecef;
-    border-color: #667eea;
+  &:hover:not(:disabled) {
+    background: #eff6ff;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
   }
   
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.5;
     cursor: not-allowed;
+  }
+
+  svg {
+    transition: transform 0.3s ease;
   }
 `;
 
@@ -267,20 +456,20 @@ const Dashboard = () => {
 	};
 
 	return (
-		<DashboardContainer>
-			{/* Header */}
-			<FlowHeader flowType="dashboard" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			{/* System Status */}
-			<CollapsibleHeader
-				title="System Status"
-				subtitle="Frontend and backend server health monitoring"
-				icon={<FiServer />}
-				defaultCollapsed={collapsedSections.systemStatus}
-				collapsed={collapsedSections.systemStatus}
-				onToggle={() => toggleSection('systemStatus')}
-			>
-			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
+				{/* System Status */}
+				<CollapsibleHeader
+					title="System Status"
+					subtitle="Frontend and backend server health monitoring"
+					icon={<FiServer />}
+					defaultCollapsed={collapsedSections.systemStatus}
+					collapsed={collapsedSections.systemStatus}
+					onToggle={() => toggleSection('systemStatus')}
+				>
+				<ContentCard>
 				<div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', justifyContent: 'flex-end' }}>
 					<RefreshButton onClick={handleRefresh} disabled={isRefreshing}>
 						<FiRefreshCw
@@ -310,15 +499,8 @@ const Dashboard = () => {
 				</div>
 
 				{/* Server Status Details */}
-				<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-					<div
-						style={{
-							padding: '1rem',
-							background: '#f8fafc',
-							borderRadius: '0.5rem',
-							border: '1px solid #e2e8f0',
-						}}
-					>
+				<ServerStatusGrid>
+					<ServerCard>
 						<div
 							style={{
 								display: 'flex',
@@ -348,16 +530,9 @@ const Dashboard = () => {
 							<FiGlobe style={{ marginRight: '0.25rem' }} />
 							<strong>URL:</strong> https://localhost:3000
 						</div>
-					</div>
+					</ServerCard>
 
-					<div
-						style={{
-							padding: '1rem',
-							background: '#f8fafc',
-							borderRadius: '0.5rem',
-							border: '1px solid #e2e8f0',
-						}}
-					>
+					<ServerCard>
 						<div
 							style={{
 								display: 'flex',
@@ -387,8 +562,8 @@ const Dashboard = () => {
 							<FiKey style={{ marginRight: '0.25rem' }} />
 							<strong>URL:</strong> https://localhost:3001
 						</div>
-					</div>
-				</div>
+					</ServerCard>
+				</ServerStatusGrid>
 			</ContentCard>
 			</CollapsibleHeader>
 
@@ -401,99 +576,62 @@ const Dashboard = () => {
 				collapsed={collapsedSections.credentialStatus}
 				onToggle={() => toggleSection('credentialStatus')}
 			>
-			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
-
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-						gap: '1rem',
-					}}
-				>
+			<ContentCard>
+				<FlowGrid>
 					{/* OAuth 2.0 V5 Flows */}
-					<div>
-						<h3
-							style={{
-								fontSize: '1rem',
-								fontWeight: '600',
-								marginBottom: '1rem',
-								color: '#dc2626',
-							}}
-						>
+					<FlowCategory>
+						<FlowCategoryTitle $color="#dc2626">
 							OAuth 2.0 V5 Flows
-						</h3>
-						<div style={{ space: '0.5rem' }}>
+						</FlowCategoryTitle>
+						<div>
 							{Object.entries(FLOW_CONFIGS)
 								.filter(([, config]) => config.flowType === 'oauth')
 								.map(([flowId, config]) => ({ id: flowId, name: config.title }))
 								.map((flow) => {
 									const status = getFlowStatus(flow.id);
 									return (
-										<div
+										<FlowItem
 											key={flow.id}
-											style={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'center',
-												padding: '0.5rem',
-												marginBottom: '0.5rem',
-												backgroundColor: '#fef2f2',
-												borderRadius: '0.375rem',
-												border: '1px solid #fecaca',
-											}}
+											$bgColor="#fef2f2"
+											$borderColor="#fecaca"
 										>
-											<span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{flow.name}</span>
+											<span>{flow.name}</span>
 											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
 												{status?.hasCredentials ? 'Configured' : 'Missing'}
 											</StatusBadge>
-										</div>
+										</FlowItem>
 									);
 								})}
 						</div>
-					</div>
+					</FlowCategory>
 
 					{/* OIDC V5 Flows */}
-					<div>
-						<h3
-							style={{
-								fontSize: '1rem',
-								fontWeight: '600',
-								marginBottom: '1rem',
-								color: '#059669',
-							}}
-						>
+					<FlowCategory>
+						<FlowCategoryTitle $color="#059669">
 							OIDC V5 Flows
-						</h3>
-						<div style={{ space: '0.5rem' }}>
+						</FlowCategoryTitle>
+						<div>
 							{Object.entries(FLOW_CONFIGS)
 								.filter(([, config]) => config.flowType === 'oidc')
 								.map(([flowId, config]) => ({ id: flowId, name: config.title }))
 								.map((flow) => {
 									const status = getFlowStatus(flow.id);
 									return (
-										<div
+										<FlowItem
 											key={flow.id}
-											style={{
-												display: 'flex',
-												justifyContent: 'space-between',
-												alignItems: 'center',
-												padding: '0.5rem',
-												marginBottom: '0.5rem',
-												backgroundColor: '#f0fdf4',
-												borderRadius: '0.375rem',
-												border: '1px solid #bbf7d0',
-											}}
+											$bgColor="#f0fdf4"
+											$borderColor="#bbf7d0"
 										>
-											<span style={{ fontSize: '0.875rem', fontWeight: '500' }}>{flow.name}</span>
+											<span>{flow.name}</span>
 											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
 												{status?.hasCredentials ? 'Configured' : 'Missing'}
 											</StatusBadge>
-										</div>
+										</FlowItem>
 									);
 								})}
 						</div>
-					</div>
-				</div>
+					</FlowCategory>
+				</FlowGrid>
 			</ContentCard>
 			</CollapsibleHeader>
 
@@ -506,25 +644,10 @@ const Dashboard = () => {
 				collapsed={collapsedSections.apiEndpoints}
 				onToggle={() => toggleSection('apiEndpoints')}
 			>
-			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
-
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-						gap: '1rem',
-					}}
-				>
+			<ContentCard>
+				<ApiGrid>
 					{apiEndpoints.map((endpoint, index) => (
-						<div
-							key={index}
-							style={{
-								padding: '1rem',
-								backgroundColor: '#f8fafc',
-								borderRadius: '0.5rem',
-								border: '1px solid #e2e8f0',
-							}}
-						>
+						<ApiEndpointCard key={index}>
 							<div
 								style={{
 									display: 'flex',
@@ -533,24 +656,15 @@ const Dashboard = () => {
 									marginBottom: '0.5rem',
 								}}
 							>
-								<span
-									style={{
-										padding: '0.25rem 0.5rem',
-										backgroundColor: endpoint.method === 'GET' ? '#dbeafe' : '#dcfce7',
-										color: endpoint.method === 'GET' ? '#1e40af' : '#166534',
-										borderRadius: '0.25rem',
-										fontSize: '0.75rem',
-										fontWeight: '600',
-									}}
-								>
+								<MethodBadge $method={endpoint.method}>
 									{endpoint.method}
-								</span>
+								</MethodBadge>
 								<code style={{ fontSize: '0.875rem', fontWeight: '500' }}>{endpoint.path}</code>
 							</div>
 							<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>{endpoint.desc}</p>
-						</div>
+						</ApiEndpointCard>
 					))}
-				</div>
+				</ApiGrid>
 			</ContentCard>
 			</CollapsibleHeader>
 
@@ -563,8 +677,7 @@ const Dashboard = () => {
 				collapsed={collapsedSections.quickAccess}
 				onToggle={() => toggleSection('quickAccess')}
 			>
-			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
-
+			<ContentCard>
 				<div style={{ marginBottom: '1rem' }}>
 					<p style={{ color: '#666', fontSize: '0.95rem' }}>
 						Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code
@@ -572,241 +685,61 @@ const Dashboard = () => {
 					</p>
 				</div>
 
-				<div
-					style={{
-						display: 'grid',
-						gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-						gap: '1rem',
-					}}
-				>
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '8px',
-							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-							padding: '1.25rem',
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '0.75rem',
-							border: '1px solid #e5e7eb',
-						}}
-					>
-						<h3 style={{ fontSize: '1.2rem', margin: 0, color: '#333' }}>OAuth 2.0</h3>
-						<p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
+				<QuickAccessGrid>
+					<FlowCard>
+						<h3>OAuth 2.0</h3>
+						<p>
 							Standards-based authorization flows. Recommended: Authorization Code (with PKCE for
 							public clients).
 						</p>
-						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-							<a
-								href="/flows/oauth-authorization-code-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#3b82f6',
-									color: 'white',
-									fontWeight: '600',
-									border: '1px solid #2563eb',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+						<FlowButtonsContainer>
+							<FlowLink href="/flows/oauth-authorization-code-v5" $variant="primary">
 								Authorization Code V5
-							</a>
-
-							<a
-								href="/flows/client-credentials-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/client-credentials-v5" $variant="secondary">
 								Client Credentials V5
-							</a>
-
-							<a
-								href="/flows/device-authorization-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/device-authorization-v5" $variant="secondary">
 								Device Code V5
-							</a>
-
-							<a
-								href="/flows/oauth-implicit-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/oauth-implicit-v5" $variant="secondary">
 								Implicit V5 (legacy)
-							</a>
-						</div>
-					</div>
+							</FlowLink>
+						</FlowButtonsContainer>
+					</FlowCard>
 
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '8px',
-							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-							padding: '1.25rem',
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '0.75rem',
-							border: '1px solid #e5e7eb',
-						}}
-					>
-						<h3 style={{ fontSize: '1.2rem', margin: 0, color: '#333' }}>OpenID Connect</h3>
-						<p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
-							Identity layer on top of OAuth 2.0.
-						</p>
-						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-							<a
-								href="/flows/oidc-authorization-code-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#10b981',
-									color: 'white',
-									fontWeight: '600',
-									border: '1px solid #059669',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+					<FlowCard>
+						<h3>OpenID Connect</h3>
+						<p>Identity layer on top of OAuth 2.0.</p>
+						<FlowButtonsContainer>
+							<FlowLink href="/flows/oidc-authorization-code-v5" $variant="primary" style={{ background: '#10b981', borderColor: '#059669' }}>
 								OIDC Authorization Code V5
-							</a>
-
-							<a
-								href="/flows/oidc-implicit-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/oidc-implicit-v5" $variant="secondary">
 								OIDC Implicit V5
-							</a>
-
-							<a
-								href="/flows/ciba-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/ciba-v5" $variant="secondary">
 								CIBA Flow V5
-							</a>
-						</div>
-					</div>
+							</FlowLink>
+						</FlowButtonsContainer>
+					</FlowCard>
 
-					<div
-						style={{
-							background: 'white',
-							borderRadius: '8px',
-							boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-							padding: '1.25rem',
-							display: 'flex',
-							flexDirection: 'column',
-							gap: '0.75rem',
-							border: '1px solid #e5e7eb',
-						}}
-					>
-						<h3 style={{ fontSize: '1.2rem', margin: 0, color: '#333' }}>PingOne Flows</h3>
-						<p style={{ color: '#666', fontSize: '0.9rem', margin: 0 }}>
-							PingOne-specific authentication and authorization flows.
-						</p>
-						<div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-							<a
-								href="/flows/worker-token-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f97316',
-									color: 'white',
-									fontWeight: '600',
-									border: '1px solid #ea580c',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+					<FlowCard>
+						<h3>PingOne Flows</h3>
+						<p>PingOne-specific authentication and authorization flows.</p>
+						<FlowButtonsContainer>
+							<FlowLink href="/flows/worker-token-v5" $variant="primary" style={{ background: '#f97316', borderColor: '#ea580c' }}>
 								Worker Token V5
-							</a>
-
-							<a
-								href="/flows/pingone-par-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/pingone-par-v5" $variant="secondary">
 								PingOne PAR V5
-							</a>
-
-							<a
-								href="/flows/redirectless-flow-v5"
-								style={{
-									display: 'inline-block',
-									padding: '0.5rem 0.75rem',
-									borderRadius: '6px',
-									background: '#f3f4f6',
-									color: '#374151',
-									fontWeight: '600',
-									border: '1px solid #d1d5db',
-									textDecoration: 'none',
-									fontSize: '0.875rem',
-								}}
-							>
+							</FlowLink>
+							<FlowLink href="/flows/redirectless-flow-v5" $variant="secondary">
 								Redirectless Flow V5
-							</a>
-						</div>
-					</div>
-				</div>
+							</FlowLink>
+						</FlowButtonsContainer>
+					</FlowCard>
+				</QuickAccessGrid>
 			</ContentCard>
 			</CollapsibleHeader>
 
@@ -819,59 +752,41 @@ const Dashboard = () => {
 				collapsed={collapsedSections.recentActivity}
 				onToggle={() => toggleSection('recentActivity')}
 			>
-			<ContentCard style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
-
-				<div style={{ maxHeight: '400px', overflowY: 'auto' }}>
-					<ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+			<ContentCard>
+				<ActivityList>
+					<ul>
 						{recentActivity.length === 0 ? (
-							<li style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
-								<FiActivity size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+							<EmptyState>
+								<FiActivity size={48} />
 								<p>No recent activity</p>
 								<p style={{ fontSize: '0.875rem' }}>Complete an OAuth flow to see activity here</p>
-							</li>
+							</EmptyState>
 						) : (
 							recentActivity.slice(0, 10).map((activity, index) => (
-								<li
+								<ActivityItem 
 									key={activity.id || index}
-									style={{
-										display: 'flex',
-										alignItems: 'center',
-										gap: '1rem',
-										padding: '1rem',
-										borderBottom: index < recentActivity.length - 1 ? '1px solid #e5e7eb' : 'none',
-									}}
+									$isLast={index >= recentActivity.length - 1}
 								>
-									<div
-										style={{
-											width: '40px',
-											height: '40px',
-											borderRadius: '50%',
-											backgroundColor: activity.success ? '#dcfce7' : '#fee2e2',
-											color: activity.success ? '#166534' : '#dc2626',
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											fontSize: '1.2rem',
-										}}
-									>
+									<ActivityIcon $success={activity.success}>
 										{activity.success ? '✓' : '✗'}
-									</div>
-									<div style={{ flex: 1 }}>
-										<div style={{ fontWeight: '500', color: '#333', marginBottom: '0.25rem' }}>
+									</ActivityIcon>
+									<ActivityContent>
+										<ActivityAction>
 											{formatActivityAction(activity.action)}
-										</div>
-										<div style={{ fontSize: '0.875rem', color: '#666' }}>
+										</ActivityAction>
+										<ActivityTime>
 											{new Date(activity.timestamp).toLocaleString()}
-										</div>
-									</div>
-								</li>
+										</ActivityTime>
+									</ActivityContent>
+								</ActivityItem>
 							))
 						)}
 					</ul>
-				</div>
+				</ActivityList>
 			</ContentCard>
 			</CollapsibleHeader>
-		</DashboardContainer>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
