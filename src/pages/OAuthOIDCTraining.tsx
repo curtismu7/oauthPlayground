@@ -1,5 +1,5 @@
 // src/pages/OAuthOIDCTraining.tsx
-// OAuth 2.0 & OIDC Training Component - V5 Standards
+// ⭐ V6 UPGRADE - OAuth 2.0 & OIDC Training Component with V6 Services
 
 import React, { useState } from 'react';
 import {
@@ -14,6 +14,8 @@ import {
 	AlertCircle,
 	Search,
 } from 'lucide-react';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 
 // Reusable service/data that can be imported elsewhere
 export const OAuthOIDCData = {
@@ -426,6 +428,26 @@ const OAuthOIDCTraining: React.FC = () => {
 	const [activeTab, setActiveTab] = useState<string>('comparison');
 	const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
 	const [searchTerm, setSearchTerm] = useState<string>('');
+	const [collapsedSections, setCollapsedSections] = useState({
+		comparison: false,
+		oauth: false,
+		oidc: false,
+		security: false,
+	});
+
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for training content (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'oauth-oidc-training', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
 
 	const filterContent = (text: string): boolean => {
 		if (!searchTerm) return true;
@@ -446,6 +468,13 @@ const OAuthOIDCTraining: React.FC = () => {
 		);
 	};
 
+	const toggleSection = (section: keyof typeof collapsedSections) => {
+		setCollapsedSections(prev => ({
+			...prev,
+			[section]: !prev[section]
+		}));
+	};
+
 	const renderSupportIcon = (value: any): React.ReactNode => {
 		if (typeof value === 'object' && value.supported !== undefined) {
 			return value.supported ? (
@@ -462,8 +491,9 @@ const OAuthOIDCTraining: React.FC = () => {
 	};
 
 	return (
-		<div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-6">
-			<div className="max-w-7xl mx-auto">
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 				{/* Header */}
 				<div className="bg-white rounded-lg shadow-lg p-8 mb-6">
 					<div className="flex items-center gap-4 mb-4">
@@ -500,58 +530,16 @@ const OAuthOIDCTraining: React.FC = () => {
 					</div>
 				</div>
 
-				{/* Navigation Tabs */}
-				<div className="bg-white rounded-lg shadow-lg mb-6">
-					<div className="flex border-b">
-						<button
-							onClick={() => setActiveTab('comparison')}
-							className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
-								activeTab === 'comparison'
-									? 'border-b-2 border-indigo-600 text-indigo-600'
-									: 'text-gray-600 hover:text-indigo-600'
-							}`}
-						>
-							<BookOpen size={20} />
-							Comparison Table
-						</button>
-						<button
-							onClick={() => setActiveTab('oauth')}
-							className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
-								activeTab === 'oauth'
-									? 'border-b-2 border-indigo-600 text-indigo-600'
-									: 'text-gray-600 hover:text-indigo-600'
-							}`}
-						>
-							<Key size={20} />
-							OAuth 2.0 Deep Dive
-						</button>
-						<button
-							onClick={() => setActiveTab('oidc')}
-							className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
-								activeTab === 'oidc'
-									? 'border-b-2 border-indigo-600 text-indigo-600'
-									: 'text-gray-600 hover:text-indigo-600'
-							}`}
-						>
-							<Users size={20} />
-							OIDC Deep Dive
-						</button>
-						<button
-							onClick={() => setActiveTab('security')}
-							className={`flex items-center gap-2 px-6 py-4 font-medium transition ${
-								activeTab === 'security'
-									? 'border-b-2 border-indigo-600 text-indigo-600'
-									: 'text-gray-600 hover:text-indigo-600'
-							}`}
-						>
-							<Lock size={20} />
-							Security Best Practices
-						</button>
-					</div>
-
-					<div className="p-6">
-						{/* Comparison Table Tab */}
-						{activeTab === 'comparison' && (
+				{/* Comparison Table Section */}
+				<CollapsibleHeader
+					title="OAuth 2.0 vs OIDC Comparison"
+					subtitle="Side-by-side comparison of OAuth 2.0 and OpenID Connect features"
+					icon={<BookOpen />}
+					defaultCollapsed={collapsedSections.comparison}
+					collapsed={collapsedSections.comparison}
+					onToggle={() => toggleSection('comparison')}
+				>
+					<div style={{ padding: '1.5rem' }}>
 							<div className="overflow-x-auto">
 								<table className="w-full border-collapse">
 									<thead>
@@ -621,10 +609,19 @@ const OAuthOIDCTraining: React.FC = () => {
 									</div>
 								</div>
 							</div>
-						)}
+					</div>
+				</CollapsibleHeader>
 
-						{/* OAuth 2.0 Deep Dive Tab */}
-						{activeTab === 'oauth' && (
+				{/* OAuth 2.0 Deep Dive Section */}
+				<CollapsibleHeader
+					title="OAuth 2.0 Deep Dive"
+					subtitle="Complete guide to OAuth 2.0 authorization flows and security practices"
+					icon={<Key />}
+					defaultCollapsed={collapsedSections.oauth}
+					collapsed={collapsedSections.oauth}
+					onToggle={() => toggleSection('oauth')}
+				>
+					<div style={{ padding: '1.5rem' }}>
 							<div>
 								<h2 className="text-2xl font-bold text-gray-800 mb-4">
 									{OAuthOIDCData.trainingContent.oauth.title}
@@ -749,10 +746,19 @@ const OAuthOIDCTraining: React.FC = () => {
 										})}
 								</div>
 							</div>
-						)}
+					</div>
+				</CollapsibleHeader>
 
-						{/* OIDC Deep Dive Tab */}
-						{activeTab === 'oidc' && (
+				{/* OIDC Deep Dive Section */}
+				<CollapsibleHeader
+					title="OpenID Connect Deep Dive"
+					subtitle="Complete guide to OIDC authentication flows, ID tokens, and user management"
+					icon={<Users />}
+					defaultCollapsed={collapsedSections.oidc}
+					collapsed={collapsedSections.oidc}
+					onToggle={() => toggleSection('oidc')}
+				>
+					<div style={{ padding: '1.5rem' }}>
 							<div>
 								<h2 className="text-2xl font-bold text-gray-800 mb-4">
 									{OAuthOIDCData.trainingContent.oidc.title}
@@ -837,10 +843,19 @@ const OAuthOIDCTraining: React.FC = () => {
 									</div>
 								</div>
 							</div>
-						)}
+					</div>
+				</CollapsibleHeader>
 
-						{/* Security Best Practices Tab */}
-						{activeTab === 'security' && (
+				{/* Security Best Practices Section */}
+				<CollapsibleHeader
+					title="Security Best Practices"
+					subtitle="Essential security guidelines for OAuth 2.0 and OpenID Connect implementations"
+					icon={<Lock />}
+					defaultCollapsed={collapsedSections.security}
+					collapsed={collapsedSections.security}
+					onToggle={() => toggleSection('security')}
+				>
+					<div style={{ padding: '1.5rem' }}>
 							<div>
 								<h2 className="text-2xl font-bold text-gray-800 mb-4">
 									{OAuthOIDCData.trainingContent.security.title}
@@ -1016,8 +1031,8 @@ const OAuthOIDCTraining: React.FC = () => {
 						</div>
 					</div>
 				</div>
-			</div>
-		</div>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
