@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
 	FiBookOpen,
 	FiClock,
@@ -24,7 +24,9 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TutorialTextFormatter from '../components/TutorialTextFormatter';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import { FlowHeader } from '../services/flowHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import TutorialDisplayService, { TutorialConfig, TutorialStep } from '../services/tutorialDisplayService';
 
 // Tutorial type definitions
 interface TutorialStep {
@@ -370,6 +372,20 @@ const InteractiveTutorials = () => {
 	// Centralized scroll management
 	usePageScroll({ pageName: 'Interactive Tutorials', force: true });
 
+	// Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '72rem', // Wider for tutorial content (1152px)
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'interactive-tutorials', // Enables FlowHeader integration
+	};
+
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+		PageLayoutService.createPageLayout(pageConfig);
+
 	// UI Settings integration
 	useUISettings();
 	const [selectedTutorial, setSelectedTutorial] = useState<Tutorial | null>(null);
@@ -453,6 +469,41 @@ const InteractiveTutorials = () => {
 	useEffect(() => {
 		console.log(' selectedTutorial state changed:', selectedTutorial?.title || 'null');
 	}, [selectedTutorial]);
+
+	// Convert tutorials to V6 format
+	const convertToV6Tutorials = (tutorials: Tutorial[]): TutorialConfig[] => {
+		return tutorials.map(tutorial => ({
+			id: tutorial.id,
+			title: tutorial.title,
+			description: tutorial.description,
+			steps: tutorial.steps.map((step, index) => ({
+				id: `${tutorial.id}-step-${index}`,
+				title: step.title,
+				content: (
+					<div>
+						<p style={{ marginBottom: '16px', lineHeight: '1.6' }}>{step.content}</p>
+						{step.code && (
+							<pre style={{ 
+								background: '#f8fafc', 
+								padding: '16px', 
+								borderRadius: '8px', 
+								overflow: 'auto',
+								fontSize: '14px',
+								lineHeight: '1.5'
+							}}>
+								{step.code}
+							</pre>
+						)}
+					</div>
+				),
+				target: `[data-tutorial="${tutorial.id}"]`,
+				placement: 'bottom' as const,
+			})),
+			continuous: true,
+			showProgress: true,
+			showSkipButton: true,
+		}));
+	};
 
 	const tutorials = [
 		{
@@ -3678,35 +3729,17 @@ export default App;`,
 	};
 
 	return (
-		<Container>
-			<FlowHeader
-				flowType="documentation"
-				customConfig={{
-					title: 'Interactive Tutorials',
-					subtitle:
-						'Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect. Choose a tutorial and follow along with interactive examples and explanations.',
-					icon: '📚',
-				}}
-			/>
-			<Header>
-				<h1>
-					<FiBookOpen />
-					Interactive Tutorials
-				</h1>
-				<p>
-					Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect. Choose a
-					tutorial and follow along with interactive examples and explanations.
-				</p>
-			</Header>
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 
-			<ConfigurationBox>
-				<ConfigHeader>
-					<h2>
-						<FiKey />
-						PingOne Configuration
-					</h2>
-					<p>Configure your PingOne environment details to see real examples in the tutorials</p>
-				</ConfigHeader>
+			<CollapsibleHeader
+				title="PingOne Configuration"
+				subtitle="Configure your PingOne environment details to see real examples in the tutorials"
+				icon={<FiKey />}
+				defaultCollapsed={true}
+			>
+				<div style={{ padding: '1.5rem' }}>
 
 				<ConfigGrid>
 					<ConfigField>
@@ -3790,8 +3823,35 @@ export default App;`,
 						Clear All
 					</ActionButton>
 				</ConfigActions>
-			</ConfigurationBox>
+				</div>
+			</CollapsibleHeader>
 
+			<CollapsibleHeader
+				title="Interactive Tutorials"
+				subtitle="Step-by-step guided learning paths to master OAuth 2.0 and OpenID Connect"
+				icon={<FiBookOpen />}
+				defaultCollapsed={false}
+			>
+				<div style={{ padding: '1.5rem' }}>
+					{TutorialDisplayService.createTutorialDisplay({
+						theme: 'blue',
+						primaryColor: '#3b82f6'
+					})({
+						tutorials: convertToV6Tutorials(tutorials),
+						onTutorialStart: (tutorial) => {
+							console.log('Starting tutorial:', tutorial.title);
+							v4ToastManager.showSuccess(`Starting ${tutorial.title}`);
+						},
+						onTutorialComplete: (tutorial) => {
+							console.log('Completed tutorial:', tutorial.title);
+							v4ToastManager.showSuccess(`Congratulations! You completed ${tutorial.title}`);
+							setCompletedTutorials(prev => new Set([...prev, tutorial.id]));
+						}
+					})}
+				</div>
+			</CollapsibleHeader>
+
+			{/* Legacy Tutorial Grid - Keep for now */}
 			<TutorialGrid>
 				{tutorials.map((tutorial) => {
 					const progress = completedTutorials.has(tutorial.id)
@@ -3950,7 +4010,8 @@ export default App;`,
 					</ModalContent>
 				</TutorialModal>
 			)}
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
