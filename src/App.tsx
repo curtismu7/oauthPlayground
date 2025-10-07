@@ -48,6 +48,7 @@ import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
+import CompetitiveAnalysis from './pages/CompetitiveAnalysis';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import Dashboard from './pages/Dashboard';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
@@ -410,6 +411,7 @@ const AppRoutes = () => {
 							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
 							<Route path="/ai-glossary" element={<AIGlossary />} />
 							<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
+							<Route path="/competitive-analysis" element={<CompetitiveAnalysis />} />
 							<Route
 								path="/comprehensive-oauth-education"
 								element={<ComprehensiveOAuthEducation />}
