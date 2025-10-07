@@ -12,7 +12,7 @@ import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import { FlowValidationService } from '../../services/flowValidationService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { oidcDiscoveryService, type OIDCDiscoveryDocument } from '../../services/oidcDiscoveryService';
 
 const STEP_METADATA = [
 	{
@@ -75,7 +75,157 @@ const STEP_METADATA = [
 
 type StepMetadata = (typeof STEP_METADATA)[number];
 
+interface CredentialsState {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
+	scopes: string;
+	loginHint: string;
+	issuerUrl: string;
+	authorizationEndpoint: string;
+	tokenEndpoint: string;
+	userInfoEndpoint: string;
+}
+
+type CollapsibleSectionKey =
+	| 'status'
+	| 'validation'
+	| 'overview'
+	| 'requirements'
+	| 'discovery'
+	| 'credentials'
+	| 'walkthrough';
+
+type CollapsedSections = Record<CollapsibleSectionKey, boolean>;
+
 const OAuthAuthorizationCodeFlowV6: React.FC = () => {
+	const [credentials, setCredentials] = useState<CredentialsState>({
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
+		redirectUri: 'http://localhost:3000/callback',
+		scopes: 'openid profile email',
+		loginHint: '',
+		issuerUrl: '',
+		authorizationEndpoint: '',
+		tokenEndpoint: '',
+		userInfoEndpoint: '',
+	});
+	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [flowState, setFlowState] = useState<FlowState | null>(null);
+	const [collapsedSections, setCollapsedSections] = useState<CollapsedSections>({
+		status: false,
+		validation: false,
+		overview: false,
+		requirements: false,
+		discovery: false,
+		credentials: false,
+		walkthrough: true,
+	});
+
+	const statusManager = useMemo(
+		() =>
+			FlowStatusManagementService.createStatusManager({
+				flowType: 'oauth',
+				enableProgressTracking: true,
+				enableStepTiming: true,
+				showStepDetails: true,
+			}),
+		[],
+	);
+
+	useEffect(() => {
+		const steps = STEP_METADATA.map((metadata, order) => ({
+			id: metadata.id,
+			name: metadata.title,
+			description: metadata.subtitle,
+			order,
+			required: true,
+		}));
+		const initialState = statusManager.initializeFlow(
+			'oauth-authorization-code-v6',
+			steps,
+		);
+		statusManager.startStep(STEP_METADATA[0].id);
+		const currentState = statusManager.getState() ?? initialState;
+		setFlowState({ ...currentState });
+	}, [statusManager]);
+
+	const validationRequirements = useMemo(
+		() => FlowValidationService.getStepRequirements(0, 'authorization-code'),
+		[],
+	);
+
+	const requiredFields = useMemo(() => ['environmentId', 'clientId'], []);
+
+	const emptyRequiredFields = useMemo(
+		() =>
+			new Set(
+				requiredFields.filter((field) => !credentials[field as keyof CredentialsState].trim()),
+			),
+		[credentials, requiredFields],
+	);
+
+	const validationReady = useMemo(
+		() =>
+			requiredFields.every((field) =>
+				credentials[field as keyof CredentialsState].trim().length > 0,
+			),
+		[credentials, requiredFields],
+	);
+
+	const handleCredentialChange = useCallback(
+		(field: keyof CredentialsState, value: string) => {
+			setCredentials((prev) => ({
+				...prev,
+				[field]: value,
+			}));
+		},
+		[],
+	);
+
+	const handleCopy = useCallback(async (value: string, label: string) => {
+		if (!value) {
+			return;
+		}
+		try {
+			await navigator.clipboard.writeText(value);
+			setCopiedField(label);
+		} catch (error) {
+			console.warn('[OAuthAuthorizationCodeFlowV6] Clipboard copy failed', error);
+		}
+	}, []);
+
+	useEffect(() => {
+		if (!copiedField) {
+			return;
+		}
+		const timeout = window.setTimeout(() => setCopiedField(null), 2000);
+		return () => window.clearTimeout(timeout);
+	}, [copiedField]);
+
+	const handleDiscoveryComplete = useCallback((document: any) => {
+		if (!document) {
+			return;
+		}
+		const derivedEnvironmentId = oidcDiscoveryService.extractEnvironmentId(document.issuer);
+		setCredentials((prev) => ({
+			...prev,
+			environmentId: derivedEnvironmentId ?? prev.environmentId,
+			issuerUrl: document.issuer,
+			authorizationEndpoint: document.authorization_endpoint,
+			tokenEndpoint: document.token_endpoint,
+			userInfoEndpoint: document.userinfo_endpoint ?? prev.userInfoEndpoint,
+		}));
+	}, []);
+
+	const toggleSection = useCallback((key: CollapsibleSectionKey) => {
+		setCollapsedSections((prev) => ({
+			...prev,
+			[key]: !prev[key],
+		}));
+	}, []);
 	const pageLayout = useMemo(
 		() =>
 			PageLayoutService.createPageLayout({
@@ -118,6 +268,139 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		StepProgress,
 	} = stepLayout;
 
+	const renderStepContent = useCallback(
+		(step: StepMetadata) => {
+			if (step.id === 'introduction') {
+				return (
+					<div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+						<CollapsibleHeader
+							title="Flow Status"
+							subtitle="Real-time overview of the V6 rebuild progress"
+							onToggle={() => toggleSection('status')}
+							collapsed={collapsedSections.status}
+						>
+							{flowState ? <FlowProgress flowState={flowState} /> : <p>Initializing flow status…</p>}
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Validation Checklist"
+							subtitle="Step requirements before progressing to PKCE"
+							onToggle={() => toggleSection('validation')}
+							collapsed={collapsedSections.validation}
+						>
+							<p>Complete the following prerequisites:</p>
+							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+								{validationRequirements.map((requirement) => (
+									<li key={requirement}>{requirement}</li>
+								))}
+							</ul>
+							<p>
+								<strong>Status:</strong>{' '}
+								{validationReady
+									? 'Ready to proceed once walkthrough is complete.'
+									: 'Provide the required credentials below to unlock the next step.'}
+							</p>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Authorization Code Flow Overview"
+							subtitle="Purpose, security posture, and key benefits"
+							onToggle={() => toggleSection('overview')}
+							collapsed={collapsedSections.overview}
+						>
+							<p>
+								Authorization Code Flow is ideal for confidential clients and PKCE-enabled public
+								applications. It provides refresh token support and aligns with OAuth 2.0 best
+								practices.
+							</p>
+							<ul style={{ marginLeft: '1.5rem', lineHeight: 1.6 }}>
+								<li>Supports secure backend token handling.</li>
+								<li>Recommended for SPAs, native apps, and web apps.</li>
+								<li>Pairs with PKCE to prevent interception attacks.</li>
+							</ul>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="PingOne Requirements"
+							subtitle="Understand the application configuration essentials"
+							onToggle={() => toggleSection('requirements')}
+							collapsed={collapsedSections.requirements}
+						>
+							<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="OIDC Discovery"
+							subtitle="Auto-populate PingOne endpoints via discovery"
+							onToggle={() => toggleSection('discovery')}
+							collapsed={collapsedSections.discovery}
+						>
+							<OIDCDiscoveryInput
+								onDiscoveryComplete={(result) => {
+									if (result?.success && result.document) {
+										handleDiscoveryComplete(result.document);
+									}
+								}}
+								initialIssuerUrl={credentials.issuerUrl}
+							/>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Application Credentials"
+							subtitle="Provide your PingOne configuration details"
+							onToggle={() => toggleSection('credentials')}
+							collapsed={collapsedSections.credentials}
+						>
+							<CredentialsInput
+								environmentId={credentials.environmentId}
+								clientId={credentials.clientId}
+								clientSecret={credentials.clientSecret}
+								redirectUri={credentials.redirectUri}
+								scopes={credentials.scopes}
+								loginHint={credentials.loginHint}
+								onEnvironmentIdChange={(value) => handleCredentialChange('environmentId', value)}
+								onClientIdChange={(value) => handleCredentialChange('clientId', value)}
+								onClientSecretChange={(value) => handleCredentialChange('clientSecret', value)}
+								onRedirectUriChange={(value) => handleCredentialChange('redirectUri', value)}
+								onScopesChange={(value) => handleCredentialChange('scopes', value)}
+								onLoginHintChange={(value) => handleCredentialChange('loginHint', value)}
+								onCopy={handleCopy}
+								emptyRequiredFields={emptyRequiredFields}
+								copiedField={copiedField}
+							/>
+						</CollapsibleHeader>
+						<CollapsibleHeader
+							title="Interactive Walkthrough"
+							subtitle="Step-by-step guidance for the Authorization Code Flow"
+							onToggle={() => toggleSection('walkthrough')}
+							collapsed={collapsedSections.walkthrough}
+						>
+							<EnhancedFlowWalkthrough flowId="oauth-authorization-code" defaultCollapsed={false} />
+						</CollapsibleHeader>
+					</div>
+				);
+			}
+
+			return (
+				<CollapsibleHeader
+					title="Service integration in progress"
+					subtitle="Upcoming step services will mount here"
+					defaultCollapsed={false}
+				>
+					<p>{step.description}</p>
+				</CollapsibleHeader>
+			);
+		},
+		[
+			collapsedSections,
+			copiedField,
+			credentials,
+			emptyRequiredFields,
+			flowState,
+			handleCopy,
+			handleCredentialChange,
+			handleDiscoveryComplete,
+			toggleSection,
+			validationReady,
+			validationRequirements,
+		],
+	);
+
 	return (
 		<PageContainer>
 			<ContentWrapper>
@@ -152,13 +435,14 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 								SecondaryButton,
 								StepProgress,
 							}}
+							renderStepContent={renderStepContent}
 						/>
 					))}
 				</MainCard>
 			</ContentWrapper>
 		</PageContainer>
 	);
-};
+}
 
 interface StepSectionProps {
 	index: number;
@@ -177,9 +461,16 @@ interface StepSectionProps {
 		SecondaryButton: ReturnType<typeof FlowStepLayoutService.createStepLayout>['SecondaryButton'];
 		StepProgress: ReturnType<typeof FlowStepLayoutService.createStepLayout>['StepProgress'];
 	};
+	renderStepContent: (step: StepMetadata) => React.ReactNode;
 }
 
-const StepSection: React.FC<StepSectionProps> = ({ index, stepCount, step, components }) => {
+const StepSection: React.FC<StepSectionProps> = ({
+	index,
+	stepCount,
+	step,
+	components,
+	renderStepContent,
+}) => {
 	const {
 		StepContainer,
 		StepHeader,
@@ -207,19 +498,7 @@ const StepSection: React.FC<StepSectionProps> = ({ index, stepCount, step, compo
 				</StepProgress>
 			</StepHeader>
 			<StepContent>
-				<CollapsibleHeader
-					title="Service integration in progress"
-					subtitle="Planned components will mount here as the V6 rebuild proceeds."
-					defaultCollapsed={false}
-				>
-					<p>{step.description}</p>
-					<p>
-						<span role="img" aria-label="roadmap">
-							🛠️
-						</span>{' '}
-						This scaffold ensures layout, collapsible sections, and navigation are ready for service wiring.
-					</p>
-				</CollapsibleHeader>
+				{renderStepContent(step)}
 			</StepContent>
 			<StepNavigation>
 				<SecondaryButton type="button" disabled>
