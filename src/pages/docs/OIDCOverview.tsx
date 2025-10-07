@@ -15,6 +15,9 @@ import { Card, CardBody, CardHeader } from '../../components/Card';
 import InteractiveFlowDiagram from '../../components/InteractiveFlowDiagram';
 import { FlowHeader } from '../../services/flowHeaderService';
 import FlowConfigurationTable from '../../components/FlowConfigurationTable';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { PageLayoutService } from '../../services/pageLayoutService';
+import { FlowUIService } from '../../services/flowUIService';
 
 const Container = styled.div`
   max-width: 1400px;
@@ -222,6 +225,18 @@ const SecurityNote = styled.div`
 
 const OIDCOverview = () => {
 	const [expandedFlow, setExpandedFlow] = useState<string | null>(null);
+	
+	const pageConfig = {
+		flowType: 'documentation' as const,
+		theme: 'blue' as const,
+		maxWidth: '1400px',
+		showHeader: true,
+		showFooter: false,
+		responsive: true,
+		flowId: 'oidc-overview',
+	};
+	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+		PageLayoutService.createPageLayout(pageConfig);
 
 	const oidcFlows = [
 		{
@@ -348,8 +363,9 @@ const OIDCOverview = () => {
 	];
 
 	return (
-		<Container>
-			<FlowHeader flowType="oidc-overview" />
+		<PageContainer>
+			<ContentWrapper>
+				{LayoutFlowHeader && <LayoutFlowHeader />}
 			<div style={{ marginBottom: '2rem' }}>
 				<AIGeneratedBadge>AI-Generated Overview</AIGeneratedBadge>
 			</div>
@@ -708,7 +724,8 @@ const OIDCOverview = () => {
 			<section style={{ marginTop: '3rem' }}>
 				<FlowConfigurationTable />
 			</section>
-		</Container>
+			</ContentWrapper>
+		</PageContainer>
 	);
 };
 
