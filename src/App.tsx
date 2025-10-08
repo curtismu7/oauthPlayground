@@ -87,7 +87,7 @@ import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6';
 import RARFlowV6 from './pages/flows/RARFlowV6';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
-import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
+import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
@@ -357,7 +357,8 @@ const AppRoutes = () => {
 							<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
-							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV5Real />} />
+							<Route path="/flows/redirectless-v6-real" element={<RedirectlessFlowV6Real />} />
+							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV6Real />} /> {/* Redirect V5 to V6 */}
 							{/* V3/V4 routes backed up - use V5 versions instead */}
 							<Route path="/flows/par" element={<PARFlow />} />
 							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
