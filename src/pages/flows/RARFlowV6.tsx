@@ -871,34 +871,36 @@ export const RARFlowV6: React.FC = () => {
 			case 0:
 				return (
 					<>
-						<FlowInfoCard
-							flowInfo={
-								getFlowInfo('rar') || {
-									flowType: 'oauth',
-									flowName: 'Rich Authorization Requests (RAR)',
-									tokensReturned: 'Access Token with RAR Claims',
-									purpose: 'Granular Authorization with Detailed Permissions',
-									specLayer: 'OAuth 2.0 Extension (RFC 9391)',
-									nonceRequirement: 'Not required (but recommended with PKCE)',
-									validation: 'Validate access token and authorization_details claims',
-									securityNotes: [
-										'✅ Enhanced security through granular permissions',
-										'Authorization details specified in token claims',
-										'Enables fine-grained access control',
-										'Reduces over-privileged access tokens',
-										'Requires authorization server RAR support',
-									],
-									useCases: [
-										'Open Banking and Financial APIs',
-										'Healthcare data access with specific permissions',
-										'IoT device authorization with granular controls',
-										'Multi-tenant applications with role-based access',
-									],
-								}
-							}
-						/>
-						<FlowSequenceDisplay flowType="rar" />
+						{/* RAR Educational Callout Box */}
+						<InfoBox $variant="success" style={{ marginBottom: '1.5rem', background: '#dcfce7', borderColor: '#10b981' }}>
+							<FiCheckCircle size={24} style={{ color: '#047857' }} />
+							<div>
+								<InfoTitle style={{ color: '#065f46', fontSize: '1.125rem' }}>RAR = Fine-Grained Authorization with Structured JSON (RFC 9396)</InfoTitle>
+								<InfoText style={{ color: '#064e3b', marginBottom: '0.75rem' }}>
+									{RAR_EDUCATION.overview.description}
+								</InfoText>
+								<InfoText style={{ color: '#064e3b', marginBottom: '0.75rem', fontStyle: 'italic' }}>
+									{RAR_EDUCATION.overview.keyPoint}
+								</InfoText>
+								<InfoList style={{ color: '#064e3b' }}>
+									{RAR_EDUCATION.benefits.map((benefit, index) => (
+										<li key={index}>{benefit}</li>
+									))}
+								</InfoList>
+								<HelperText style={{ color: '#064e3b', fontWeight: 600, marginTop: '0.75rem' }}>
+									📋 <strong>Example:</strong> {RAR_EDUCATION.example.description}
+								</HelperText>
+								<HelperText style={{ color: '#064e3b', fontWeight: 600, marginTop: '0.5rem' }}>
+									<strong>Use Cases:</strong> {RAR_EDUCATION.useCases.join(' | ')}
+								</HelperText>
+								<HelperText style={{ color: '#059669', fontWeight: 700, marginTop: '0.5rem', padding: '0.5rem', background: '#d1fae5', borderRadius: '0.375rem' }}>
+									📚 <strong>Standard:</strong> {RAR_EDUCATION.standard}
+								</HelperText>
+							</div>
+						</InfoBox>
+
 						<FlowConfigurationRequirements flowType="rar" />
+						<FlowSequenceDisplay flowType="rar" />
 					</>
 				);
 
