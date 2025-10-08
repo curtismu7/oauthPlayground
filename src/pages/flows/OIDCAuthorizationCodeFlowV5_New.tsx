@@ -1271,13 +1271,38 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 					<>
 						<FlowConfigurationRequirements flowType="authorization-code" variant="oidc" />
 
+						{/* OIDC = Authentication + Authorization */}
+						<InfoBox $variant="success" style={{ marginBottom: '1.5rem', background: '#d1fae5', borderColor: '#10b981' }}>
+							<FiCheckCircle size={24} style={{ color: '#047857' }} />
+							<div>
+								<InfoTitle style={{ color: '#065f46', fontSize: '1.125rem' }}>OIDC = Authentication + Authorization</InfoTitle>
+								<InfoText style={{ color: '#064e3b', marginBottom: '0.75rem' }}>
+									This flow provides <strong>federated authentication</strong> - it verifies who the user is AND allows 
+									your app to access resources. Built on OAuth 2.0 with an added identity layer.
+								</InfoText>
+								<InfoList style={{ color: '#064e3b' }}>
+									<li>✅ <strong>Returns:</strong> ID Token (user identity) + Access Token (API access)</li>
+									<li>✅ <strong>Provides:</strong> User profile via ID Token claims (name, email, etc.)</li>
+									<li>✅ <strong>Has:</strong> UserInfo endpoint for additional user data</li>
+									<li>✅ <strong>Requires:</strong> 'openid' scope (mandatory for OIDC)</li>
+									<li>✅ <strong>Standard:</strong> Works across all OIDC providers (Google, Microsoft, PingOne)</li>
+								</InfoList>
+								<HelperText style={{ color: '#064e3b', fontWeight: 600, marginTop: '0.75rem' }}>
+									📋 <strong>Use Case Examples:</strong> "Sign in with Google" | Enterprise SSO | User profile management | Identity verification
+								</HelperText>
+								<HelperText style={{ color: '#16a34a', fontWeight: 700, marginTop: '0.5rem', padding: '0.5rem', background: '#dcfce7', borderRadius: '0.375rem' }}>
+									🎯 <strong>Perfect for:</strong> When you need to authenticate users and verify their identity (social login, SSO, user portals)
+								</HelperText>
+							</div>
+						</InfoBox>
+						
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
 								aria-expanded={!collapsedSections.overview}
 							>
 								<CollapsibleTitle>
-									<FiInfo /> Authorization Code Overview
+									<FiInfo /> OIDC Authorization Code Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
 									<FiChevronDown />
@@ -1288,10 +1313,10 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
-											<InfoTitle>When to Use Authorization Code</InfoTitle>
+											<InfoTitle>When to Use OIDC Authorization Code</InfoTitle>
 											<InfoText>
-												Authorization Code Flow is perfect when you can securely store a client
-												secret on a backend and need full OIDC context.
+												OIDC Authorization Code Flow is perfect when you need to authenticate users and verify their 
+												identity while also accessing their resources. Provides full OIDC context with ID tokens.
 											</InfoText>
 										</div>
 									</InfoBox>
