@@ -1535,7 +1535,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										<FiKey /> Request Device Code
 									</Button>
 									{deviceFlow.deviceCodeData && (
-										<Button onClick={handleReset} $variant="danger">
+										<Button onClick={handleReset} variant="danger">
 											<FiRefreshCw /> Start Over
 										</Button>
 									)}
@@ -2074,7 +2074,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 										</ParameterGrid>
 										{/* Token Management Buttons */}
 										<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
-											<Button onClick={navigateToTokenManagement} $variant="primary">
+											<Button onClick={navigateToTokenManagement} variant="primary">
 												<FiExternalLink /> Open Token Management
 											</Button>
 											<Button
@@ -2311,7 +2311,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 						</ExplanationSection>
 
 						<ActionRow style={{ marginTop: '1.5rem' }}>
-							<Button onClick={handleReset} $variant="danger">
+							<Button onClick={handleReset} variant="danger">
 								<FiRefreshCw /> Start New Flow
 							</Button>
 						</ActionRow>
@@ -2403,10 +2403,10 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 						</InfoBox>
 					</ModalBody>
 					<ModalActions>
-						<Button onClick={handleDismissModal} $variant="outline">
+						<Button onClick={handleDismissModal} variant="outline">
 							I'll Start Later
 						</Button>
-						<Button onClick={handleStartPolling} $variant="primary">
+						<Button onClick={handleStartPolling} variant="primary">
 							<FiRefreshCw /> Start Polling Now
 						</Button>
 					</ModalActions>

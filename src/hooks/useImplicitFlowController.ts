@@ -98,7 +98,7 @@ const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
 	clientId: '',
 	clientSecret: '', // Not used in Implicit but kept for consistency
-	redirectUri: 'https://localhost:3000/implicit-callback',
+	redirectUri: 'https://localhost:3000/oauth-implicit-callback',
 	scope: 'openid',
 	scopes: 'openid',
 	responseType: 'id_token token',
@@ -140,7 +140,7 @@ const loadStoredConfig = (storageKey: string, _variant: FlowVariant): FlowConfig
 	return getDefaultConfig();
 };
 
-const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
+const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): StepCredentials => {
 	if (typeof window === 'undefined') {
 		return createEmptyCredentials();
 	}
@@ -164,11 +164,22 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 		(Array.isArray(loaded.scopes) ? loaded.scopes.join(' ') : loaded.scopes) ||
 		'openid';
 
+	// Properly handle redirect URI - only use fallback if truly undefined
+	const fallbackFlowType = flowKey || (variant === 'oidc' ? 'oidc-implicit-v5' : 'oauth-implicit-v5');
+	const redirectUri = urlRedirect || (loaded.redirectUri !== undefined ? loaded.redirectUri : getCallbackUrlForFlow(fallbackFlowType));
+
+	console.log('🔍 [useImplicitFlowController] loadInitialCredentials:', {
+		urlRedirect,
+		loadedRedirectUri: loaded.redirectUri,
+		finalRedirectUri: redirectUri,
+		hasLoadedRedirectUri: loaded.redirectUri !== undefined
+	});
+
 	return {
 		environmentId: urlEnv || loaded.environmentId || '',
 		clientId: urlClient || loaded.clientId || '',
 		clientSecret: '', // Not used in Implicit flow
-		redirectUri: urlRedirect || loaded.redirectUri || getCallbackUrlForFlow('implicit'),
+		redirectUri: redirectUri,
 		scope: mergedScopes,
 		scopes: mergedScopes,
 		responseType: variant === 'oidc' ? 'id_token token' : 'token',
@@ -203,7 +214,7 @@ export const useImplicitFlowController = (
 	const [flowVariant, setFlowVariant] = useState<FlowVariant>(options.defaultFlowVariant ?? 'oidc');
 
 	const [credentials, setCredentials] = useState<StepCredentials>(() =>
-		loadInitialCredentials(options.defaultFlowVariant ?? 'oidc')
+		loadInitialCredentials(options.defaultFlowVariant ?? 'oidc', flowKey)
 	);
 
 	const [flowConfig, setFlowConfig] = useState<FlowConfig>(() =>
@@ -352,6 +363,9 @@ export const useImplicitFlowController = (
 		params.set('scope', credentials.scope || credentials.scopes || 'openid');
 		params.set('state', finalState);
 		params.set('nonce', finalNonce);
+		
+		// Add response_mode parameter (default to fragment for implicit flow)
+		params.set('response_mode', credentials.responseMode || 'fragment');
 
 		// Add optional OIDC parameters
 		if (flowConfig.maxAge && flowConfig.maxAge > 0) {
