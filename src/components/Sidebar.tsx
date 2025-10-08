@@ -494,10 +494,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
-							active={isActive('/flows/redirectless-flow-v5')}
-							onClick={() => handleNavigation('/flows/redirectless-flow-v5')}
+							active={isActive('/flows/redirectless-v6-real') || isActive('/flows/redirectless-flow-v5')}
+							onClick={() => handleNavigation('/flows/redirectless-v6-real')}
 						>
-							Redirectless Flow V5 (Real)
+							<MenuItemContent>
+								<span>Redirectless (V6) ✅</span>
+								<MigrationBadge title="V6: Service Architecture + pi.flow Education">
+									<FiCheckCircle />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#fbbf24"><FiSmartphone /></ColoredIcon>}
