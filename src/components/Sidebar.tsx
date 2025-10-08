@@ -353,12 +353,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
 					>
 						<MenuItemContent>
-							<span>Authorization Code (V5)</span>
-							{isFlowMigrated('/flows/oauth-authorization-code-v5') && (
-								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-									<FiCheckCircle />
-								</MigrationBadge>
-							)}
+							<span>Authorization Code (V6) ✅</span>
+							<MigrationBadge title="V6: Service Architecture + Professional Styling">
+								<FiCheckCircle />
+							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
 					<MenuItem
@@ -418,12 +416,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
 					>
 						<MenuItemContent>
-							<span>Authorization Code (V5)</span>
-							{isFlowMigrated('/flows/oidc-authorization-code-v5') && (
-								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-									<FiCheckCircle />
-								</MigrationBadge>
-							)}
+							<span>Authorization Code (V6) ✅</span>
+							<MigrationBadge title="V6: Service Architecture + Professional Styling">
+								<FiCheckCircle />
+							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
 					<MenuItem
@@ -486,10 +482,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#ea580c"><FiLock /></ColoredIcon>}
-							active={isActive('/flows/pingone-par-v5')}
-							onClick={() => handleNavigation('/flows/pingone-par-v5')}
+							active={isActive('/flows/pingone-par-v6') || isActive('/flows/pingone-par-v5')}
+							onClick={() => handleNavigation('/flows/pingone-par-v6')}
 						>
-							PAR (V5)
+							<MenuItemContent>
+								<span>PAR (V6) ✅</span>
+								<MigrationBadge title="V6: Service Architecture + PAR Education">
+									<FiCheckCircle />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
@@ -537,10 +538,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</MenuItem>
 						<MenuItem
 							icon={<FiEye />}
-							active={isActive('/flows/rar-v5')}
-							onClick={() => handleNavigation('/flows/rar-v5')}
+							active={isActive('/flows/rar-v6') || isActive('/flows/rar-v5')}
+							onClick={() => handleNavigation('/flows/rar-v6')}
 						>
-							RAR (Mock) (V5)
+							<MenuItemContent>
+								<span>RAR (V6) ✅</span>
+								<MigrationBadge title="V6: Service Architecture + RAR Education">
+									<FiCheckCircle />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
 							icon={<FiEye />}
