@@ -1925,11 +1925,10 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 									$priority="primary"
 									disabled={
 										!!controller.authUrl ||
-										!controller.pkceCodes.codeVerifier ||
-										!controller.pkceCodes.codeChallenge
+										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
 									}
 									title={
-										!controller.pkceCodes.codeVerifier || !controller.pkceCodes.codeChallenge
+										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
 											? 'Generate PKCE parameters first'
 											: controller.authUrl
 												? 'Authorization URL already generated'
@@ -1939,7 +1938,7 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
-										: !controller.pkceCodes.codeVerifier || !controller.pkceCodes.codeChallenge
+										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
 											? 'Complete above action'
 											: 'Generate Authorization URL'}
 									<HighlightBadge>1</HighlightBadge>
