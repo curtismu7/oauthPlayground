@@ -276,22 +276,22 @@ const GeneratedLabel = styled.div`
 	margin-bottom: 0.5rem;
 `;
 
-const PingOnePARFlowV5: React.FC = () => {
+const PingOnePARFlowV6: React.FC = () => {
 	// Page scroll management
-	usePageScroll({ pageName: 'PingOne PAR Flow V5', force: true });
+	usePageScroll({ pageName: 'PingOne PAR Flow V6', force: true });
 
 	const controller = useAuthorizationCodeFlowController({
-		flowKey: 'pingone-par-v5',
+		flowKey: 'pingone-par-v6',
 		defaultFlowVariant: 'oidc',
 		enableDebugger: true,
 	});
 
 	// Use service for state initialization
 	const [currentStep, setCurrentStep] = useState(() => 
-		AuthorizationCodeSharedService.StepRestoration.getInitialStep('pingone-par-v5')
+		AuthorizationCodeSharedService.StepRestoration.getInitialStep('pingone-par-v6')
 	);
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(() =>
-		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v5')
+		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v6')
 	);
 
 	// PingOne Application Config
@@ -299,7 +299,7 @@ const PingOnePARFlowV5: React.FC = () => {
 
 	// Scroll to top on step change
 	useEffect(() => {
-		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange(currentStep, 'pingone-par-v5');
+		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange(currentStep, 'pingone-par-v6');
 	}, [currentStep]);
 
 	// PAR (Pushed Authorization Request) state
@@ -579,13 +579,38 @@ const PingOnePARFlowV5: React.FC = () => {
 			case 0:
 				return (
 					<>
+						{/* PAR Educational Callout Box */}
+						<InfoBox $variant="info" style={{ marginBottom: '1.5rem', background: '#dbeafe', borderColor: '#3b82f6' }}>
+							<FiShield size={24} style={{ color: '#1d4ed8' }} />
+							<div>
+								<InfoTitle style={{ color: '#1e40af', fontSize: '1.125rem' }}>PAR = Enhanced Security via Back-Channel (RFC 9126)</InfoTitle>
+								<InfoText style={{ color: '#1e3a8a', marginBottom: '0.75rem' }}>
+									{PAR_EDUCATION.overview.description}
+								</InfoText>
+								<InfoList style={{ color: '#1e3a8a' }}>
+									{PAR_EDUCATION.overview.benefits.map((benefit, index) => (
+										<li key={index}>{benefit}</li>
+									))}
+								</InfoList>
+								<HelperText style={{ color: '#1e3a8a', fontWeight: 600, marginTop: '0.75rem' }}>
+									📋 <strong>How PAR Works:</strong> {PAR_EDUCATION.howItWorks.steps.join(' → ')}
+								</HelperText>
+								<HelperText style={{ color: '#1e3a8a', fontWeight: 600, marginTop: '0.5rem' }}>
+									<strong>Use Cases:</strong> {PAR_EDUCATION.useCases.join(' | ')}
+								</HelperText>
+								<HelperText style={{ color: '#059669', fontWeight: 700, marginTop: '0.5rem', padding: '0.5rem', background: '#d1fae5', borderRadius: '0.375rem' }}>
+									✅ <strong>Recommended:</strong> Always enable PAR for production OIDC clients with sensitive scopes
+								</HelperText>
+							</div>
+						</InfoBox>
+
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
 								aria-expanded={!collapsedSections.overview}
 							>
 								<CollapsibleTitle>
-									<FiInfo /> PAR Flow Overview
+									<FiInfo /> PAR Flow Detailed Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
 									<FiChevronDown />
@@ -596,28 +621,22 @@ const PingOnePARFlowV5: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
-											<InfoTitle>What is PAR?</InfoTitle>
+											<InfoTitle>PAR vs Standard Authorization</InfoTitle>
 											<InfoText>
-												Pushed Authorization Request (PAR) is a security extension to OAuth 2.0 that
-												pushes authorization request parameters to the authorization server before
-												redirecting the user. This enhances security and prevents parameter
-												tampering attacks.
+												Compare Pushed Authorization Requests with standard OAuth 2.0 authorization:
 											</InfoText>
 											<InfoList>
 												<li>
-													<strong>Enhanced Security:</strong> Request parameters are protected from
-													tampering
+													<strong>Parameter Security:</strong> PAR = Server-side storage | Standard = Visible in URL
 												</li>
 												<li>
-													<strong>Better Error Handling:</strong> Server-side validation before
-													redirect
+													<strong>Request Integrity:</strong> PAR = Cannot be modified | Standard = User can modify query params
 												</li>
 												<li>
-													<strong>Shorter URLs:</strong> Authorization URLs use request_uri instead
-													of parameters
+													<strong>URL Length:</strong> PAR = Compact request_uri | Standard = May exceed browser limits
 												</li>
 												<li>
-													<strong>RFC 9126:</strong> Standard OAuth 2.0 security extension
+													<strong>Error Handling:</strong> PAR = Validate before redirect | Standard = Errors after redirect
 												</li>
 											</InfoList>
 										</div>
@@ -627,56 +646,108 @@ const PingOnePARFlowV5: React.FC = () => {
 						</CollapsibleSection>
 
 						<SectionDivider />
-						<ResultsSection>
-				<ResultsHeading>
-					<FiSettings size={18} /> PingOne Configuration
-				</ResultsHeading>
-				<HelperText>
-					Configure your PingOne environment and application credentials to use the PAR flow.
-				</HelperText>
 
-				<div style={{ marginTop: '1.5rem' }}>
-					<EnvironmentIdInput
-						initialEnvironmentId={controller.credentials.environmentId || ''}
-						onEnvironmentIdChange={(newEnvId) => {
-							controller.setCredentials({ ...controller.credentials, environmentId: newEnvId });
-							if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-								controller.saveCredentials();
-								v4ToastManager.showSuccess('Credentials auto-saved');
+						{/* Comprehensive Credentials Service */}
+						<ComprehensiveCredentialsService
+							// Discovery props
+							onDiscoveryComplete={(result) => {
+								console.log('[PAR Flow] Discovery completed:', result);
+								if (result.issuerUrl) {
+									const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
+									if (envIdMatch && envIdMatch[1]) {
+										controller.setCredentials({
+											...controller.credentials,
+											environmentId: envIdMatch[1],
+										});
+										controller.saveCredentials();
+										v4ToastManager.showSuccess('Credentials auto-saved');
+									}
+								}
+							}}
+							discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+							showProviderInfo={true}
+							
+							// Credentials props
+							environmentId={controller.credentials.environmentId || ''}
+							clientId={controller.credentials.clientId || ''}
+							clientSecret={controller.credentials.clientSecret || ''}
+							redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
+							scopes={controller.credentials.scope || 'openid profile email'}
+							loginHint={controller.credentials.loginHint || ''}
+							postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || ''}
+							
+							// Change handlers
+							onEnvironmentIdChange={(newEnvId) => {
+								controller.setCredentials({ ...controller.credentials, environmentId: newEnvId });
+								if (newEnvId && controller.credentials.clientId) {
+									controller.saveCredentials();
+									v4ToastManager.showSuccess('Credentials auto-saved');
+								}
+							}}
+							onClientIdChange={(newClientId) => {
+								controller.setCredentials({ ...controller.credentials, clientId: newClientId });
+								if (controller.credentials.environmentId && newClientId) {
+									controller.saveCredentials();
+									v4ToastManager.showSuccess('Credentials auto-saved');
+								}
+							}}
+							onClientSecretChange={(newClientSecret) =>
+								controller.setCredentials({ ...controller.credentials, clientSecret: newClientSecret })
 							}
-						}}
-						onIssuerUrlChange={() => {}}
-						showSuggestions={true}
-						autoDiscover={false}
-					/>
+							onRedirectUriChange={(newRedirectUri) =>
+								controller.setCredentials({ ...controller.credentials, redirectUri: newRedirectUri })
+							}
+							onScopesChange={(newScopes) =>
+								controller.setCredentials({ ...controller.credentials, scope: newScopes })
+							}
+							onLoginHintChange={(newLoginHint) =>
+								controller.setCredentials({ ...controller.credentials, loginHint: newLoginHint })
+							}
+							onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) =>
+								controller.setCredentials({ ...controller.credentials, postLogoutRedirectUri: newPostLogoutRedirectUri })
+							}
+							
+							// Save handler
+							onSave={() => controller.saveCredentials()}
+							hasUnsavedChanges={false}
+							isSaving={false}
+							requireClientSecret={true}
+							
+							// PingOne Advanced Configuration
+							pingOneAppState={pingOneConfig}
+							onPingOneAppStateChange={setPingOneConfig}
+							onPingOneSave={() => {
+								v4ToastManager.showSuccess('PingOne configuration saved');
+							}}
+							hasUnsavedPingOneChanges={false}
+							isSavingPingOne={false}
+							
+							// UI config
+							title="PAR Flow Configuration"
+							subtitle="Configure your application for Pushed Authorization Requests with enhanced security"
+							showAdvancedConfig={true}
+							defaultCollapsed={false}
+						/>
 
-					<CredentialsInput
-						environmentId={controller.credentials.environmentId || ''}
-						clientId={controller.credentials.clientId || ''}
-						clientSecret={controller.credentials.clientSecret || ''}
-						scopes={controller.credentials.scope || 'openid profile email'}
-						onEnvironmentIdChange={(newEnvId) =>
-							controller.setCredentials({ ...controller.credentials, environmentId: newEnvId })
-						}
-						onClientIdChange={(newClientId) => {
-							controller.setCredentials({ ...controller.credentials, clientId: newClientId });
-							if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-								controller.saveCredentials();
-								v4ToastManager.showSuccess('Credentials auto-saved');
-							}
-						}}
-						onClientSecretChange={(newClientSecret) =>
-							controller.setCredentials({ ...controller.credentials, clientSecret: newClientSecret })
-						}
-						onScopesChange={(newScopes) =>
-							controller.setCredentials({ ...controller.credentials, scope: newScopes })
-						}
-						onCopy={handleCopy}
-						showRedirectUri={true}
-						showLoginHint={false}
-					/>
-				</div>
-			</ResultsSection>
+						{/* Configuration Summary Card */}
+						{controller.credentials.environmentId && controller.credentials.clientId && (
+							<ConfigurationSummaryCard
+								config={ConfigurationSummaryService.generateSummary(controller.credentials, 'par')}
+								onSave={async () => {
+									await controller.saveCredentials();
+									v4ToastManager.showSuccess('Configuration saved');
+								}}
+								onExport={async (config) => {
+									ConfigurationSummaryService.downloadConfig(config, 'par-config.json');
+								}}
+								onImport={async (importedConfig) => {
+									controller.setCredentials(importedConfig);
+									await controller.saveCredentials();
+								}}
+								flowType="par"
+								showAdvancedFields={false}
+							/>
+						)}
 					</>
 				);
 
@@ -1059,7 +1130,7 @@ const PingOnePARFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="pingone-par-v5" />
+				<FlowHeader flowId="pingone-par-v6" />
 
 				<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
 
@@ -1075,7 +1146,7 @@ const PingOnePARFlowV5: React.FC = () => {
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
-							<VersionBadge>V5</VersionBadge>
+							<VersionBadge>V6</VersionBadge>
 							<StepHeaderTitle>{STEP_METADATA[currentStep]?.title}</StepHeaderTitle>
 							<StepHeaderSubtitle>{STEP_METADATA[currentStep]?.subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
@@ -1098,4 +1169,4 @@ const PingOnePARFlowV5: React.FC = () => {
 	);
 };
 
-export default PingOnePARFlowV5;
+export default PingOnePARFlowV6;

@@ -226,6 +226,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔒',
 		version: 'V5',
 	},
+	'pingone-par-v6': {
+		flowType: 'pingone',
+		title: 'PAR (Pushed Authorization Requests) Flow V6 - Enhanced Security',
+		subtitle:
+			'🔒 RFC 9126 - Authorization Code Flow + PAR enhancement. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits. Perfect for production OIDC clients with sensitive scopes.',
+		icon: '🔒',
+		version: 'V6',
+	},
 	'rar-flow-v5': {
 		flowType: 'pingone',
 		title: 'RAR (Rich Authorization Requests) Flow - Fine-Grained Permissions',
@@ -233,6 +241,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'📊 RFC 9396 - Authorization Code Flow + RAR extension. Express complex authorization requirements using structured JSON authorization_details instead of simple scope strings. Example: "authorize $250 payment to ABC Supplies" vs "payments.write". ✅ Benefits: Fine-grained permissions, clear user consent, structured audit logs. Ideal for financial transactions and compliance scenarios.',
 		icon: '📊',
 		version: 'V5',
+	},
+	'rar-v6': {
+		flowType: 'pingone',
+		title: 'RAR (Rich Authorization Requests) Flow V6 - Fine-Grained Permissions',
+		subtitle:
+			'📊 RFC 9396 - Authorization Code Flow + RAR extension. Express complex authorization requirements using structured JSON authorization_details instead of simple scope strings. Example: "authorize $250 payment to ABC Supplies" vs "payments.write". ✅ Benefits: Fine-grained permissions, clear user consent, structured audit logs. Ideal for financial transactions and compliance scenarios.',
+		icon: '📊',
+		version: 'V6',
 	},
 	'redirectless-flow-v5': {
 		flowType: 'pingone',
