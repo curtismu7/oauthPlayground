@@ -135,9 +135,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	// OAuth 2.0 V5 Flows
 	'oauth-authorization-code-v5': {
 		flowType: 'oauth',
-		title: 'Authorization Code Flow - Secure User Authentication',
+		title: 'OAuth 2.0 Authorization Code Flow - Delegated Authorization',
 		subtitle:
-			'The most widely used OAuth 2.0 flow for web and mobile applications. Implements three-legged authorization with PKCE (Proof Key for Code Exchange) for enhanced security against authorization code interception attacks.',
+			'🔐 OAuth 2.0 Authorization Framework (RFC 6749) - Allows your app to access resources on behalf of a user without handling their credentials. Returns Access Token for API calls. ⚠️ Note: OAuth 2.0 provides AUTHORIZATION (resource access) but NOT AUTHENTICATION (user identity). Use OIDC if you need to verify who the user is.',
 		icon: '🔐',
 		version: 'V5',
 	},
@@ -178,9 +178,9 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	// OIDC V5 Flows
 	'oidc-authorization-code-v5': {
 		flowType: 'oidc',
-		title: 'Authorization Code Flow - User Identity & Authentication',
+		title: 'OIDC Authorization Code Flow - Federated Authentication',
 		subtitle:
-			'OpenID Connect authentication flow that extends OAuth 2.0 with ID tokens for user identity verification. Provides both access tokens for API access and ID tokens containing user claims. The recommended flow for secure user authentication.',
+			'🆔 OpenID Connect (Identity Layer on OAuth 2.0) - Verifies user identity AND provides API access. Returns ID Token (user identity) + Access Token (resource access). Built on OAuth 2.0 with added authentication layer. ✅ Use OIDC when you need to know WHO the user is (social login, SSO, identity verification).',
 		icon: '🆔',
 		version: 'V5',
 	},
