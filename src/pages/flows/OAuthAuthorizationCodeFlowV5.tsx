@@ -1365,13 +1365,39 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 				return (
 					<>
 						<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+						
+						{/* OAuth 2.0 = Authorization Only */}
+						<InfoBox $variant="warning" style={{ marginBottom: '1.5rem', background: '#fef3c7', borderColor: '#fbbf24' }}>
+							<FiAlertCircle size={24} style={{ color: '#d97706' }} />
+							<div>
+								<InfoTitle style={{ color: '#92400e', fontSize: '1.125rem' }}>OAuth 2.0 = Authorization Only (NOT Authentication)</InfoTitle>
+								<InfoText style={{ color: '#78350f', marginBottom: '0.75rem' }}>
+									This flow provides <strong>delegated authorization</strong> - it allows your app to access resources 
+									on behalf of the user. It does <strong>NOT authenticate the user</strong> or provide identity information.
+								</InfoText>
+								<InfoList style={{ color: '#78350f' }}>
+									<li>✅ <strong>Returns:</strong> Access Token (for API calls)</li>
+									<li>❌ <strong>Does NOT return:</strong> ID Token (no user identity)</li>
+									<li>❌ <strong>Does NOT provide:</strong> User profile information</li>
+									<li>❌ <strong>Does NOT have:</strong> UserInfo endpoint</li>
+									<li>⚠️ <strong>Scope:</strong> Any scopes (read, write, etc.) - do NOT include 'openid'</li>
+								</InfoList>
+								<HelperText style={{ color: '#78350f', fontWeight: 600, marginTop: '0.75rem' }}>
+									📋 <strong>Use Case Examples:</strong> Calendar app accessing user's events | Photo app uploading to cloud storage | Email client reading messages
+								</HelperText>
+								<HelperText style={{ color: '#dc2626', fontWeight: 700, marginTop: '0.5rem', padding: '0.5rem', background: '#fee2e2', borderRadius: '0.375rem' }}>
+									🔐 <strong>Need user authentication?</strong> Use OIDC Authorization Code Flow instead - it provides user identity via ID Token
+								</HelperText>
+							</div>
+						</InfoBox>
+						
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
 								aria-expanded={!collapsedSections.overview}
 							>
 								<CollapsibleTitle>
-									<FiInfo /> Authorization Code Overview
+									<FiInfo /> OAuth 2.0 Authorization Code Overview
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
 									<FiChevronDown />
@@ -1382,10 +1408,10 @@ const OAuthAuthorizationCodeFlowV5: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
-											<InfoTitle>When to Use Authorization Code</InfoTitle>
+											<InfoTitle>When to Use OAuth 2.0 Authorization Code</InfoTitle>
 											<InfoText>
-												Authorization Code Flow is perfect when you can securely store a client
-												secret on a backend and need full OIDC context.
+												OAuth 2.0 Authorization Code Flow is perfect when you need to access user's resources 
+												on their behalf without needing to authenticate them or know their identity.
 											</InfoText>
 										</div>
 									</InfoBox>
