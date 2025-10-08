@@ -27,6 +27,7 @@ import {
 	buildLogoutUrl,
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
+import { isJWT } from '../utils/jwtDecoder';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string }>`
@@ -529,12 +530,24 @@ const SecurityFeaturesDemo: React.FC<SecurityFeaturesDemoProps> = ({
 				'Are you sure you want to terminate the current session? This will log out the user and invalidate all tokens.',
 			onConfirm: async () => {
 				try {
+					// Validate ID token before using it
+					const idToken = normalizedTokens.id_token;
+					if (idToken && !isJWT(idToken)) {
+						console.warn('[SecurityFeaturesDemo] Invalid ID token detected, skipping logout endpoint call');
+						v4ToastManager.showWarning('Invalid ID token detected. Session will be cleared locally only.');
+						
+						// Clear local storage without calling logout endpoint
+						onTerminateSession?.();
+						setSessionResults('❌ INVALID ID TOKEN\n\nSession cleared locally only.\nID token was malformed and could not be used for server-side logout.');
+						return;
+					}
+
 					const result = await terminateSessionService({
 						issuer: normalizedCredentials.issuer,
 						environmentId: normalizedCredentials.environmentId,
 						clientId: normalizedCredentials.clientId,
 						clientSecret: normalizedCredentials.clientSecret,
-						idToken: normalizedTokens.id_token,
+						idToken: idToken,
 						postLogoutRedirectUri: normalizedCredentials.postLogoutRedirectUri,
 						clearClientStorage: true,
 					});

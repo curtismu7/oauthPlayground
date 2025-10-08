@@ -1,12 +1,11 @@
 // src/components/ColoredUrlDisplay.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiCopy, FiInfo, FiExternalLink } from 'react-icons/fi';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { FiInfo, FiExternalLink } from 'react-icons/fi';
+import { CopyButtonVariants, CopyButtonService } from '../services/copyButtonService';
 
 interface ColoredUrlDisplayProps {
 	url: string;
-	onCopy?: () => void;
 	showCopyButton?: boolean;
 	showInfoButton?: boolean;
 	showOpenButton?: boolean;
@@ -22,13 +21,17 @@ const UrlContainer = styled.div`
 	padding: 1rem;
 	margin: 1rem 0;
 	position: relative;
+	max-width: 100%;
+	width: 100%; /* Ensure full width usage */
+	overflow: visible; /* Changed from hidden to visible to allow horizontal scrolling */
+	box-sizing: border-box;
 `;
 
 const UrlLabel = styled.div`
 	font-size: 0.875rem;
 	font-weight: 600;
 	color: #374151;
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.75rem;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -38,16 +41,20 @@ const UrlContent = styled.div`
 	background: #f8fafc;
 	border: 1px solid #e2e8f0;
 	border-radius: 8px;
-	padding: 1rem;
+	padding: 1rem 5rem 1rem 1rem; /* Increased right padding to accommodate buttons */
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	word-break: break-all;
+	word-break: break-word; /* Changed from break-all to break-word for better readability */
 	white-space: pre-wrap;
 	position: relative;
-	min-height: ${({ height }) => height || '60px'};
-	overflow-x: auto;
+	min-height: ${({ height }) => height || '150px'};
+	overflow-x: auto; /* Allow horizontal scrolling for long URLs */
+	overflow-y: hidden;
+	max-width: 100%;
+	width: 100%; /* Ensure full width usage */
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+	box-sizing: border-box;
 `;
 
 const ColoredUrlText = styled.span<{ $color: string }>`
@@ -290,7 +297,6 @@ const getUrlParameters = (url: string) => {
 
 export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 	url,
-	onCopy,
 	showCopyButton = true,
 	showInfoButton = true,
 	showOpenButton = false,
@@ -301,12 +307,6 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 	const [showInfo, setShowInfo] = useState(false);
 	const coloredParts = parseUrlWithColors(url);
 	const parameters = getUrlParameters(url);
-
-	const handleCopy = () => {
-		navigator.clipboard.writeText(url);
-		v4ToastManager.showSuccess('URL copied to clipboard!');
-		onCopy?.();
-	};
 
 	const handleOpen = () => {
 		window.open(url, '_blank');
@@ -328,10 +328,13 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 			<UrlContent height={height}>
 				<ActionButtons>
 					{showCopyButton && (
-						<ActionButton onClick={handleCopy} $variant="primary">
-							<FiCopy size={14} />
-							Copy
-						</ActionButton>
+						<CopyButtonService
+							text={url}
+							label="Authorization URL"
+							size="sm"
+							variant="primary"
+							showLabel={false}
+						/>
 					)}
 					{showOpenButton && (
 						<ActionButton onClick={handleOpen} $variant="secondary">

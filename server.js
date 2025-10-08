@@ -5,6 +5,7 @@ console.log("🚀 Starting OAuth Playground Backend Server...");// OAuth Playgro
 import { execSync } from 'node:child_process';
 import fs from 'node:fs';
 import https from 'node:https';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import cors from 'cors';
@@ -19,6 +20,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const serverStartTime = new Date();
+const requestStats = {
+	totalRequests: 0,
+	activeConnections: 0,
+	totalResponseTimeMs: 0,
+	errorCount: 0,
+};
 
 // Middleware with enhanced CORS and CSP
 app.use(
@@ -55,15 +63,94 @@ app.use((_req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Request statistics tracking middleware
+app.use((req, res, next) => {
+	const startTime = process.hrtime.bigint();
+	requestStats.totalRequests += 1;
+	requestStats.activeConnections += 1;
+	let finalized = false;
+
+	const finalize = (isError = false) => {
+		if (finalized) {
+			return;
+		}
+		finalized = true;
+		requestStats.activeConnections = Math.max(0, requestStats.activeConnections - 1);
+		const durationNs = process.hrtime.bigint() - startTime;
+		const durationMs = Number(durationNs) / 1_000_000;
+		if (Number.isFinite(durationMs)) {
+			requestStats.totalResponseTimeMs += durationMs;
+		}
+		if (isError || res.statusCode >= 400) {
+			requestStats.errorCount += 1;
+		}
+	};
+
+	res.on('finish', () => finalize());
+	res.on('close', () => finalize(true));
+	res.on('error', () => finalize(true));
+
+	next();
+});
+
 // Serve static files from dist directory
 app.use(express.static(path.join(__dirname, 'dist')));
 
 // Health check endpoint
 app.get('/api/health', (_req, res) => {
+	const now = Date.now();
+	const uptimeSeconds = Math.max(0, Math.floor((now - serverStartTime.getTime()) / 1000));
+	const memoryUsage = process.memoryUsage();
+	const arrayBuffers = typeof memoryUsage.arrayBuffers === 'number' ? memoryUsage.arrayBuffers : 0;
+	const totalSystemMemory = os.totalmem();
+	const freeSystemMemory = os.freemem();
+	const cpuCount = os.cpus().length || 1;
+	const loadAverage = os.loadavg();
+	const cpuUsage = {
+		avg1mPercent: Number(((loadAverage[0] / cpuCount) * 100).toFixed(2)),
+		avg5mPercent: Number(((loadAverage[1] / cpuCount) * 100).toFixed(2)),
+		avg15mPercent: Number(((loadAverage[2] / cpuCount) * 100).toFixed(2)),
+	};
+	const averageResponseTimeMs = requestStats.totalRequests > 0
+		? requestStats.totalResponseTimeMs / requestStats.totalRequests
+		: 0;
+	const errorRatePercent = requestStats.totalRequests > 0
+		? (requestStats.errorCount / requestStats.totalRequests) * 100
+		: 0;
+
 	res.json({
 		status: 'ok',
-		timestamp: new Date().toISOString(),
+		timestamp: new Date(now).toISOString(),
 		version: '6.0.0',
+		pid: process.pid,
+		startTime: serverStartTime.toISOString(),
+		uptimeSeconds,
+		environment: process.env.NODE_ENV || 'development',
+		node: {
+			version: process.version,
+			platform: process.platform,
+			arch: process.arch,
+		},
+		memory: {
+			rss: memoryUsage.rss,
+			heapTotal: memoryUsage.heapTotal,
+			heapUsed: memoryUsage.heapUsed,
+			external: memoryUsage.external,
+			arrayBuffers,
+		},
+		systemMemory: {
+			total: totalSystemMemory,
+			free: freeSystemMemory,
+			used: totalSystemMemory - freeSystemMemory,
+		},
+		loadAverage,
+		cpuUsage,
+		requestStats: {
+			totalRequests: requestStats.totalRequests,
+			activeConnections: requestStats.activeConnections,
+			avgResponseTime: Number(averageResponseTimeMs.toFixed(2)),
+			errorRate: Number(errorRatePercent.toFixed(2)),
+		},
 	});
 });
 

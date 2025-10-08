@@ -16,7 +16,7 @@ export interface FlowHeaderConfig {
 }
 
 const HeaderContainer = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
-  background: ${({ $flowType }) => {
+	background: ${({ $flowType }) => {
 		switch ($flowType) {
 			case 'oauth':
 				return 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
@@ -30,13 +30,22 @@ const HeaderContainer = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
 				return 'linear-gradient(135deg, #6b7280 0%, #374151 100%)';
 		}
 	}};
-  color: white;
-  padding: 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-  position: relative;
-  overflow: hidden;
+	color: white;
+	padding: 2.5rem 4rem;
+	border-radius: 12px;
+	margin-bottom: 2rem;
+	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+	position: relative;
+	overflow: hidden;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 1rem;
+
+	@media (max-width: 768px) {
+		padding: 2rem;
+	}
 
   &::before {
     content: '';
@@ -264,6 +273,13 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Master OAuth 2.0 and OpenID Connect fundamentals, flows, security best practices, and modern standards. From basics to advanced topics including AI agent authentication and machine-to-machine communication.',
 		icon: '📚',
 	},
+	'environment-id-demo': {
+		flowType: 'documentation',
+		title: 'Environment ID Input Demo',
+		subtitle:
+			'Simplified PingOne configuration. Just enter your environment ID, select your region, and we\'ll construct the issuer URL and discover all OIDC endpoints automatically.',
+		icon: '🔧',
+	},
 	'oidc-overview': {
 		flowType: 'oidc',
 		title: 'OIDC Overview',
@@ -342,7 +358,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Client Initiated Backchannel Authentication flow for decoupled authentication scenarios with secondary device approval',
 		version: 'V5',
 	},
-	rar: {
+	'rar': {
 		flowType: 'oauth',
 		title: 'Rich Authorization Requests (RAR) Flow',
 		subtitle:
@@ -358,13 +374,21 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔑',
 		version: 'V5',
 	},
+	'jwt-bearer-token-v5': {
+		flowType: 'oauth',
+		title: 'JWT Bearer Token Flow - Assertion-Based Access',
+		subtitle:
+			'Authenticate machine clients by exchanging signed JWT assertions for access tokens. Demonstrates PingOne-style implementation with mock tokens for education.',
+		icon: '🔐',
+		version: 'V5',
+	},
 
 	// Documentation Pages
 	documentation: {
 		flowType: 'documentation',
-		title: 'Local Documentation',
+		title: 'PingOne Client Generator',
 		subtitle:
-			'Comprehensive documentation hub for OAuth 2.0, OpenID Connect, and PingOne integration. Access guides, examples, specifications, and implementation references.',
+			'Create and configure OAuth 2.0 and OpenID Connect applications in your PingOne environment. Generate clients for web apps, native apps, SPAs, workers, and services.',
 		icon: '📚',
 	},
 };
