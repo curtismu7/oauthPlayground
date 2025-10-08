@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
 	return {
 		plugins: [
 			react(),
-			basicSsl(),
+			basicSsl(), // Re-enable HTTPS for development
 			VitePWA({
 				registerType: 'autoUpdate',
 				workbox: {
@@ -60,7 +60,7 @@ export default defineConfig(({ mode }) => {
 		server: {
 			port: 3000,
 			open: true,
-			https: {}, // Enable HTTPS in development
+			https: {}, // Re-enable HTTPS in development
 			// In production, Vercel will handle HTTPS
 			// In development, basic-ssl plugin provides self-signed certificates
 			hmr: {
@@ -69,13 +69,13 @@ export default defineConfig(({ mode }) => {
 				// Remove protocol to let Vite auto-detect
 				// protocol: 'wss',
 			},
-			proxy: {
-				'/api': {
-					target: 'http://localhost:3001', // Use HTTP instead of HTTPS
-					changeOrigin: true,
-					secure: false,
-					timeout: 10000,
-					proxyTimeout: 10000,
+		proxy: {
+			'/api': {
+				target: 'http://localhost:3001', // Backend HTTP server
+				changeOrigin: true,
+				secure: false,
+				timeout: 3000, // Shorter timeout for health checks
+				proxyTimeout: 3000,
 					rewrite: (path) => {
 						// Map /api/token to /api/token-exchange
 						if (path === '/api/token') {
@@ -88,14 +88,14 @@ export default defineConfig(({ mode }) => {
 						proxy.on('error', (err) => {
 							console.log('Proxy error:', err.message);
 						});
-						
+
 						// Add connection handling
 						proxy.on('proxyReq', (proxyReq) => {
-							proxyReq.setTimeout(10000);
+							proxyReq.setTimeout(3000);
 						});
-						
+
 						proxy.on('proxyRes', (proxyRes) => {
-							proxyRes.setTimeout(10000);
+							proxyRes.setTimeout(3000);
 						});
 					},
 				},

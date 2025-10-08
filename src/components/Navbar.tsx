@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
+import { APP_VERSION } from '../version';
 
 const NavbarContainer = styled.nav`
   position: fixed;
@@ -121,6 +122,9 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 
 			<Logo>
 				<span>PingOne OAuth/OIDC Playground</span>
+				<div className="user-info" aria-live="polite">
+					Version {APP_VERSION}
+				</div>
 				{isAuthenticated && user && (
 					<div className="user-info" aria-live="polite">
 						Welcome, {user.name || user.email}
@@ -136,7 +140,6 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 				<Link
 					to="/configuration"
 					title="Configure OAuth settings"
-					aria-label="Configure OAuth settings"
 				>
 					<FiSettings aria-hidden="true" />
 					<span>Configuration</span>
@@ -148,6 +151,13 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 				>
 					<FiSearch aria-hidden="true" />
 					<span>OIDC Discovery</span>
+				</Link>
+				<Link
+					to="/client-generator"
+					title="Generate PingOne applications"
+				>
+					<FiSettings aria-hidden="true" />
+					<span>App Generator</span>
 				</Link>
 				{isAuthenticated ? (
 					<button
