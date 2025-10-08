@@ -1,5 +1,6 @@
-// src/pages/flows/RedirectlessFlowV5Real.tsx
+// src/pages/flows/RedirectlessFlowV6_Real.tsx
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -18,17 +19,15 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { CredentialsInput } from '../../components/CredentialsInput';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
-import PingOneApplicationConfig, {
-	type PingOneApplicationState,
-} from '../../components/PingOneApplicationConfig';
 import {
 	HelperText,
 	ResultsHeading,
@@ -55,47 +54,20 @@ import {
 	TokenIntrospectionService,
 	IntrospectionApiCallData,
 } from '../../services/tokenIntrospectionService';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-
-const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
-	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
-	{
-		title: 'Step 2: Authorization Request',
-		subtitle: 'Build and launch the PingOne authorization URL',
-	},
-	{ title: 'Step 3: Authorization Response', subtitle: 'Process the returned authorization code' },
-	{ title: 'Step 4: Token Exchange', subtitle: 'Swap the code for tokens using PingOne APIs' },
-	{ title: 'Step 5: Token Introspection', subtitle: 'Introspect access token and review results' },
-	{ title: 'Step 6: Flow Complete', subtitle: 'Review your results and next steps' },
-	{ title: 'Step 7: Security Features', subtitle: 'Demonstrate advanced security implementations' },
-] as const;
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import {
+	STEP_METADATA,
+	type IntroSectionKey,
+	DEFAULT_APP_CONFIG,
+	PIFLOW_EDUCATION,
+} from './config/RedirectlessFlow.config';
 
 type StepCompletionState = Record<number, boolean>;
-type IntroSectionKey =
-	| 'overview'
-	| 'flowDiagram'
-	| 'credentials'
-	| 'results' // Step 0
-	| 'pkceOverview'
-	| 'pkceDetails' // Step 1
-	| 'authRequestOverview'
-	| 'authRequestDetails' // Step 2
-	| 'responseMode' // Response mode selection
-	| 'authResponseOverview'
-	| 'authResponseDetails' // Step 3
-	| 'tokenExchangeOverview'
-	| 'tokenExchangeDetails' // Step 4
-	| 'introspectionOverview'
-	| 'introspectionDetails' // Step 5
-	| 'completionOverview'
-	| 'completionDetails'
-	| 'flowSummary'; // Step X // Step 6
 
-const DEFAULT_APP_CONFIG: PingOneApplicationState = {
+const DEFAULT_APP_CONFIG_OLD: PingOneApplicationState = {
 	clientAuthMethod: 'client_secret_post',
 	allowRedirectUriPatterns: false,
 	pkceEnforcement: 'REQUIRED',
@@ -677,11 +649,11 @@ const EmptyText = styled.p`
 	margin-bottom: 1rem;
 `;
 
-const RedirectlessFlowV5Real: React.FC = () => {
-	// Ensure page starts at top
-	usePageScroll({ pageName: 'Redirectless Flow V5 Real', force: true });
+const RedirectlessFlowV6Real: React.FC = () => {
+	// Page scroll management
+	usePageScroll({ pageName: 'Redirectless Flow V6 Real', force: true });
 
-	console.log('🚀 [RedirectlessFlowV5Real] Component loaded!', {
+	console.log('🚀 [RedirectlessFlowV6Real] Component loaded!', {
 		url: window.location.href,
 		search: window.location.search,
 		timestamp: new Date().toISOString(),
@@ -689,8 +661,8 @@ const RedirectlessFlowV5Real: React.FC = () => {
 
 	const manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
-		flowKey: 'oauth-redirectless-flow-v5',
-		defaultFlowVariant: 'oauth',
+		flowKey: 'redirectless-v6-real',
+		defaultFlowVariant: 'oidc',
 		enableDebugger: true,
 	});
 
@@ -704,47 +676,30 @@ const RedirectlessFlowV5Real: React.FC = () => {
 
 	const { responseMode, setResponseMode } = responseModeIntegration;
 
+	// Use service for state initialization
 	const [currentStep, setCurrentStep] = useState(() => {
 		// Check for restore_step from token management navigation
 		const restoreStep = sessionStorage.getItem('restore_step');
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
-			sessionStorage.removeItem('restore_step'); // Clear after use
-			console.log('🔗 [RedirectlessFlowV5Real] Restoring to step:', step);
+			sessionStorage.removeItem('restore_step');
+			console.log('🔗 [RedirectlessFlowV6Real] Restoring to step:', step);
 			return step;
 		}
-		return 0;
+		return AuthorizationCodeSharedService.StepRestoration.getInitialStep('redirectless-v6-real');
 	});
+	
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
-		// Step 0
-		overview: false,
-		flowDiagram: true, // Collapsed by default
-		credentials: false, // Expanded by default - users need to see credentials first
-		results: false,
-		// Step 1
-		pkceOverview: false,
-		pkceDetails: false,
-		// Step 2
-		authRequestOverview: false,
-		authRequestDetails: false,
-		responseMode: false, // Expanded by default - users need to see response mode options
-		// Step 3
-		authResponseOverview: false,
-		authResponseDetails: false,
-		// Step 4
-		tokenExchangeOverview: false,
-		tokenExchangeDetails: false,
-		// Step 5
-		introspectionOverview: false,
-		introspectionDetails: false,
-		// Step 6
-		completionOverview: false,
-		completionDetails: false,
+	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(() =>
+		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('redirectless-v6-real')
+	);
 	
-		flowSummary: false, // New Flow Completion Service step
-	});
+	// Scroll to top on step change
+	useEffect(() => {
+		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange(currentStep, 'redirectless-v6-real');
+	}, [currentStep]);
+	
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
@@ -2815,4 +2770,4 @@ const renderStepContent = useMemo(() => {
 	);
 };
 
-export default RedirectlessFlowV5Real;
+export default RedirectlessFlowV6Real;
