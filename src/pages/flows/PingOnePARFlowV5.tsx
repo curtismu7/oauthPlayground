@@ -1,5 +1,6 @@
 // src/pages/flows/PingOnePARFlowV5.tsx
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -14,8 +15,9 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -32,28 +34,13 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
-
-const STEP_METADATA = [
-	{
-		title: 'Step 0: Introduction & Setup',
-		subtitle: 'Understand the PAR Flow and configure PingOne',
-	},
-	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
-	{ title: 'Step 2: PAR Request', subtitle: 'Push authorization request to PingOne PAR endpoint' },
-	{ title: 'Step 3: Authorization URL', subtitle: 'Generate authorization URL with request_uri' },
-	{ title: 'Step 4: Complete Flow', subtitle: 'Test the complete PAR flow with PingOne' },
-] as const;
-
-type IntroSectionKey =
-	| 'overview'
-	| 'credentials'
-	| 'results' // Step 0
-	| 'pkceOverview'
-	| 'pkceDetails' // Step 1
-	| 'parOverview'
-	| 'parDetails' // Step 2
-	| 'authRequestOverview'
-	| 'authRequestDetails'; // Step 3
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import {
+	STEP_METADATA,
+	type IntroSectionKey,
+	DEFAULT_APP_CONFIG,
+	PAR_EDUCATION,
+} from './config/PingOnePARFlow.config';
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -290,28 +277,30 @@ const GeneratedLabel = styled.div`
 `;
 
 const PingOnePARFlowV5: React.FC = () => {
+	// Page scroll management
+	usePageScroll({ pageName: 'PingOne PAR Flow V5', force: true });
+
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'pingone-par-v5',
 		defaultFlowVariant: 'oidc',
 		enableDebugger: true,
 	});
 
-	const [currentStep, setCurrentStep] = useState(0);
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
-		// Step 0
-		overview: false,
-		credentials: false, // Expanded by default - users need to see credentials first
-		results: false,
-		// Step 1
-		pkceOverview: false,
-		pkceDetails: false,
-		// Step 2
-		parOverview: false,
-		parDetails: false,
-		// Step 3
-		authRequestOverview: false,
-		authRequestDetails: false,
-	});
+	// Use service for state initialization
+	const [currentStep, setCurrentStep] = useState(() => 
+		AuthorizationCodeSharedService.StepRestoration.getInitialStep('pingone-par-v5')
+	);
+	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(() =>
+		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v5')
+	);
+
+	// PingOne Application Config
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
+
+	// Scroll to top on step change
+	useEffect(() => {
+		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange(currentStep, 'pingone-par-v5');
+	}, [currentStep]);
 
 	// PAR (Pushed Authorization Request) state
 	const [parRequestUri, setParRequestUri] = useState<string | null>(null);
@@ -344,9 +333,8 @@ const PingOnePARFlowV5: React.FC = () => {
 		[controller.pkceCodes, controller.authUrl, parRequestUri]
 	);
 
-	const toggleSection = useCallback((key: IntroSectionKey) => {
-		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
-	}, []);
+	// Use service for toggle handler
+	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const generateRandomString = useCallback((length: number): string => {
 		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
@@ -357,15 +345,9 @@ const PingOnePARFlowV5: React.FC = () => {
 		return result;
 	}, []);
 
+	// Use service for PKCE generation
 	const handleGeneratePkce = useCallback(async () => {
-		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
-			v4ToastManager.showError(
-				'Complete above action: Fill in Client ID and Environment ID first.'
-			);
-			return;
-		}
-		await controller.generatePkceCodes();
-		v4ToastManager.showSuccess('PKCE parameters generated successfully!');
+		await AuthorizationCodeSharedService.PKCE.generatePKCE('oidc', controller.credentials, controller);
 	}, [controller]);
 
 	const handlePushAuthorizationRequest = useCallback(async () => {
