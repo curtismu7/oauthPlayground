@@ -1,6 +1,6 @@
 // src/components/PingOneApplicationConfig.tsx
 import React from 'react';
-import { FiGlobe, FiKey, FiSettings, FiShield } from 'react-icons/fi';
+import { FiGlobe, FiKey, FiSettings, FiShield, FiSave, FiCheck } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
@@ -59,6 +59,9 @@ export interface PingOneApplicationConfigProps {
 	value: PingOneApplicationState;
 	onChange: (next: PingOneApplicationState) => void;
 	initialCollapsed?: boolean;
+	onSave?: () => void;
+	isSaving?: boolean;
+	hasUnsavedChanges?: boolean;
 }
 
 const Section = styled.div`
@@ -252,19 +255,81 @@ const UrlLabel = styled.div`
 	color: #374151;
 `;
 
-const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ value, onChange }) => {
+const SaveButtonContainer = styled.div`
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid #e5e7eb;
+`;
+
+const SaveButton = styled.button<{ $hasChanges?: boolean; $isSaving?: boolean }>`
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.5rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	border-radius: 0.5rem;
+	border: none;
+	cursor: pointer;
+	transition: all 0.2s;
+	
+	${({ $hasChanges, $isSaving }) => {
+		if ($isSaving) {
+			return `
+				background: #9ca3af;
+				color: white;
+				cursor: wait;
+			`;
+		}
+		if ($hasChanges) {
+			return `
+				background: linear-gradient(135deg, #10b981, #059669);
+				color: white;
+				box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+				
+				&:hover {
+					background: linear-gradient(135deg, #059669, #047857);
+					box-shadow: 0 6px 8px rgba(16, 185, 129, 0.3);
+					transform: translateY(-1px);
+				}
+			`;
+		}
+		return `
+			background: #e5e7eb;
+			color: #6b7280;
+			cursor: not-allowed;
+		`;
+	}}
+	
+	&:active:not(:disabled) {
+		transform: translateY(0);
+	}
+`;
+
+const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ 
+	value, 
+	onChange, 
+	onSave, 
+	isSaving = false, 
+	hasUnsavedChanges = false 
+}) => {
 	const update = (updates: Partial<PingOneApplicationState>) => {
 		onChange({ ...value, ...updates });
 	};
 
 	return (
 		<div>
+			<SectionTitle style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: '#1f2937' }}>
+				<FiSettings /> PingOne Advanced Configuration
+			</SectionTitle>
 			<Section>
 				<SectionTitle>
 					<FiShield /> Pushed Authorization Request (PAR)
 				</SectionTitle>
 				<Grid>
-					<Field>
+					<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
 						<CheckboxLabel>
 							<Checkbox
 								type="checkbox"
@@ -277,8 +342,8 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 							Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
 						</Helper>
 						
-						<UrlExampleContainer>
-							<UrlExample>
+						<UrlExampleContainer style={{ width: '100%' }}>
+							<UrlExample style={{ width: '100%' }}>
 								<UrlLabel>Without PAR:</UrlLabel>
 								<ColoredUrlDisplay
 									url="https://auth.pingone.com/env/as/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid&state=..."
@@ -288,7 +353,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 								/>
 							</UrlExample>
 							
-							<UrlExample>
+							<UrlExample style={{ width: '100%' }}>
 								<UrlLabel>With PAR:</UrlLabel>
 								<ColoredUrlDisplay
 									url="https://auth.pingone.com/env/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:..."
@@ -570,6 +635,42 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({ val
 					</Field>
 				</Grid>
 			</Section>
+
+			{/* Save Button */}
+			{onSave && (
+				<SaveButtonContainer>
+					<SaveButton
+						onClick={onSave}
+						disabled={!hasUnsavedChanges || isSaving}
+						$hasChanges={hasUnsavedChanges}
+						$isSaving={isSaving}
+						title={
+							isSaving
+								? 'Saving...'
+								: hasUnsavedChanges
+									? 'Save PingOne configuration'
+									: 'No unsaved changes'
+						}
+					>
+						{isSaving ? (
+							<>
+								<FiSave className="animate-spin" />
+								Saving...
+							</>
+						) : hasUnsavedChanges ? (
+							<>
+								<FiSave />
+								Save Configuration
+							</>
+						) : (
+							<>
+								<FiCheck />
+								Saved
+							</>
+						)}
+					</SaveButton>
+				</SaveButtonContainer>
+			)}
 		</div>
 	);
 };

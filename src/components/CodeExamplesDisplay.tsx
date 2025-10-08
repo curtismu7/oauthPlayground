@@ -185,8 +185,6 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 }) => {
 	const [selectedLanguages, setSelectedLanguages] = useState<SupportedLanguage[]>([
 		'javascript',
-		'typescript',
-		'ping-sdk',
 	]);
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 

@@ -384,17 +384,12 @@ export class ComprehensiveDiscoveryService {
 			{
 				name: 'Google OAuth',
 				type: 'google',
-				description: 'Google OAuth 2.0 and OpenID Connect'
-			},
-			{
-				name: 'Auth0',
-				type: 'auth0',
-				description: 'Auth0 domain (e.g., your-domain.auth0.com)'
+				description: 'Google issuer URL (e.g., https://accounts.google.com)'
 			},
 			{
 				name: 'Microsoft Entra ID',
 				type: 'microsoft',
-				description: 'Microsoft tenant ID or common'
+				description: 'Microsoft tenant ID or common (e.g., https://login.microsoftonline.com/{tenant-id}/v2.0)'
 			},
 			{
 				name: 'Generic OIDC',
