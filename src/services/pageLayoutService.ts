@@ -1,12 +1,8 @@
 // src/services/pageLayoutService.ts
-// ⭐ V6 SERVICE - Service for managing consistent page size, shape, and layout across all flows
-// Used in: Configuration (planned for all pages)
-// Purpose: Provides consistent page dimensions (64rem default), responsive breakpoints, and theme support
-// Includes: FlowHeader integration for automatic header rendering
+// Service for managing consistent page size, shape, and layout across all flows
 
 import React from 'react';
 import styled from 'styled-components';
-import { FlowHeader } from './flowHeaderService';
 
 export interface PageLayoutConfig {
   flowType: 'oauth' | 'oidc' | 'pingone' | 'documentation';
@@ -17,7 +13,6 @@ export interface PageLayoutConfig {
   showHeader?: boolean;
   showFooter?: boolean;
   responsive?: boolean;
-  flowId?: string; // For FlowHeader integration
 }
 
 export interface PageSection {
@@ -227,11 +222,6 @@ export class PageLayoutService {
     const PageHeader = config.showHeader ? this.getPageHeader(config) : null;
     const PageFooter = config.showFooter ? this.getPageFooter() : null;
 
-    // Create FlowHeader component if flowId is provided
-    const FlowHeaderComponent = config.flowId 
-      ? () => React.createElement(FlowHeader, { flowId: config.flowId! })
-      : null;
-
     return {
       PageContainer,
       ContentWrapper,
@@ -241,11 +231,9 @@ export class PageLayoutService {
       SectionContainer: this.getSectionContainer(),
       ContentGrid: this.getContentGrid(),
       ContentFlex: this.getContentFlex(),
-      Spacing: this.getSpacing(),
-      FlowHeader: FlowHeaderComponent,
+      Spacing: this.getSpacing()
     };
   }
 }
 
 export default PageLayoutService;
-

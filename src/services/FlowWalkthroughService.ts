@@ -413,6 +413,76 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 		],
 	},
+
+	// OIDC Device Authorization Flow
+	'oidc-device-authorization': {
+		flowType: 'oidc',
+		flowName: 'OIDC Device Authorization Flow',
+		icon: '📱',
+		steps: [
+			{
+				title: 'Client requests device authorization',
+				description: 'Client initiates the flow by requesting device authorization from PingOne',
+			},
+			{
+				title: 'PingOne returns device code and user code',
+				description: 'PingOne provides a device code and user code for the authentication process',
+			},
+			{
+				title: 'User visits authorization URL and enters user code',
+				description: 'User navigates to the authorization URL and enters the provided user code',
+			},
+			{
+				title: 'User authenticates and approves the request',
+				description: 'User logs in and grants permission for the requested scopes',
+			},
+			{
+				title: 'Client polls for tokens',
+				description: 'Client polls the token endpoint until authentication is complete',
+			},
+			{
+				title: 'PingOne returns access and ID tokens',
+				description: 'PingOne returns the requested tokens to the client',
+			},
+		],
+	},
+
+	// OIDC Authorization Code Flow V6
+	'oidc-authorization-code-v6': {
+		flowType: 'oidc',
+		flowName: 'OIDC Authorization Code Flow (V6)',
+		icon: '🔐',
+		steps: [
+			{
+				title: 'User clicks login to start the OIDC flow',
+				description: 'User initiates authentication by clicking the login button in your application',
+			},
+			{
+				title: 'App redirects to PingOne with OIDC authorization request',
+				description: "Your application redirects the user to PingOne's authorization server with openid scope and required parameters",
+			},
+			{
+				title: 'User authenticates and approves scopes',
+				description: 'User logs in and grants permission for the requested OIDC scopes (openid, profile, email)',
+			},
+			{
+				title: 'PingOne returns an authorization code to the redirect URI',
+				description: 'PingOne redirects back to your application with an authorization code',
+			},
+			{
+				title: 'Backend exchanges the code for access and ID tokens',
+				description: 'Your backend exchanges the authorization code for access token and ID token containing user identity claims',
+			},
+			{
+				title: 'Validate ID token and extract user information',
+				description: 'Validate the ID token signature and extract user identity information from the claims',
+			},
+			{
+				title: 'Use access token for API calls',
+				description: 'Use the access token to make authenticated API calls to protected resources',
+			},
+		],
+	},
 };
 
 // Service class for generating flow walkthrough configurations
