@@ -1,7 +1,8 @@
-// src/pages/flows/RARFlowV5.tsx
-// Rich Authorization Requests (RAR) Flow - V5 Implementation with Service Architecture
+// src/pages/flows/RARFlowV6.tsx
+// Rich Authorization Requests (RAR) Flow - V6 Implementation with Service Architecture
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiCheckCircle,
 	FiCode,
@@ -11,8 +12,15 @@ import {
 	FiZap,
 	FiPlus,
 	FiTrash2,
+	FiInfo,
+	FiShield,
+	FiSettings,
+	FiChevronDown,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -35,36 +43,14 @@ import { trackOAuthFlow } from '../../utils/activityTracker';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-
-const STEP_METADATA = [
-	{
-		title: 'Step 0: Introduction & Setup',
-		subtitle: 'Understand RAR flow and configure credentials',
-	},
-	{
-		title: 'Step 1: Configuration',
-		subtitle: 'Set up client credentials and authorization details',
-	},
-	{
-		title: 'Step 2: Authorization Request',
-		subtitle: 'Generate authorization request with RAR parameters',
-	},
-	{
-		title: 'Step 3: Token Exchange',
-		subtitle: 'Exchange authorization code for access token with RAR claims',
-	},
-	{
-		title: 'Step 4: Token Analysis',
-		subtitle: 'Analyze the received access token and RAR claims',
-	},
-	{
-		title: 'Step 5: Security Features',
-		subtitle: 'Demonstrate advanced security implementations',
-	},
-];
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import {
+	STEP_METADATA,
+	type IntroSectionKey,
+	DEFAULT_APP_CONFIG,
+	RAR_EDUCATION,
+} from './config/RARFlow.config';
 
 // Styled Components
 const Container = styled.div`
@@ -463,21 +449,22 @@ const FormattedExampleDetail = styled.div`
 `;
 
 // RAR Flow Component
-export const RARFlowV5: React.FC = () => {
-	const [currentStep, setCurrentStep] = useState(() => {
-	// Ensure page starts at top
-	usePageScroll({ pageName: 'RARFlowV5', force: true });
+export const RARFlowV6: React.FC = () => {
+	// Page scroll management
+	usePageScroll({ pageName: 'RAR Flow V6', force: true });
 
-		// Check for restore_step from sessionStorage first (higher priority)
-		const restoreStep = sessionStorage.getItem('restore_step');
-		if (restoreStep) {
-			const step = parseInt(restoreStep, 10);
-			sessionStorage.removeItem('restore_step');
-			console.log('🔄 [RAR-V5] Restored step from sessionStorage:', step);
-			return step;
-		}
+	// Use service for state initialization
+	const [currentStep, setCurrentStep] = useState(() => 
+		AuthorizationCodeSharedService.StepRestoration.getInitialStep('rar-v6')
+	);
 
-		// Load current step from localStorage on initialization
+	// Scroll to top on step change
+	useEffect(() => {
+		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange(currentStep, 'rar-v6');
+	}, [currentStep]);
+
+	// Legacy: Load from old localStorage key for migration
+	useEffect(() => {
 		const saved = localStorage.getItem('rar-v5-current-step');
 		if (saved) {
 			try {
@@ -1419,7 +1406,7 @@ export const RARFlowV5: React.FC = () => {
 
 	return (
 		<Container>
-			<FlowHeader flowId="rar" />
+			<FlowHeader flowId="rar-v6" />
 
 			<StepContainer>
 				<StepHeader>
@@ -1450,4 +1437,4 @@ export const RARFlowV5: React.FC = () => {
 	);
 };
 
-export default RARFlowV5;
+export default RARFlowV6;
