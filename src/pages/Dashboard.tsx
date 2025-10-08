@@ -1,15 +1,27 @@
 import { useCallback, useEffect, useState } from 'react';
-import { FiActivity, FiCheckCircle, FiGlobe, FiKey, FiRefreshCw, FiServer, FiZap, FiLink } from 'react-icons/fi';
+import {
+	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiGlobe,
+	FiKey,
+	FiLink,
+	FiRefreshCw,
+	FiServer,
+	FiZap,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
 import { getRecentActivity } from '../utils/activityTracker';
 import type { ActivityItem } from '../utils/activityTracker';
 import { checkSavedCredentials } from '../utils/configurationStatus';
+import { credentialManager } from '../utils/credentialManager';
 import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FLOW_CONFIGS } from '../services/flowHeaderService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
+import { comprehensiveDiscoveryService } from '../services/comprehensiveDiscoveryService';
 
 // Use V6 pageLayoutService for consistent dimensions and FlowHeader integration
 const pageConfig = {

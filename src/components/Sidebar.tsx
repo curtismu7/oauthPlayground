@@ -21,10 +21,12 @@ import {
 	FiUser,
 	FiX,
 	FiZap,
+	FiCheckCircle,
 } from 'react-icons/fi';
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { isFlowMigrated } from '../config/migrationStatus';
 
 // Colored icon wrapper component for sidebar menu
 const ColoredIcon = styled.span<{ $color?: string }>`
@@ -36,6 +38,30 @@ const ColoredIcon = styled.span<{ $color?: string }>`
 	svg {
 		color: ${props => props.$color || 'currentColor'} !important;
 	}
+`;
+
+// Migration status badge for flows that have been migrated
+const MigrationBadge = styled.span`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	margin-left: auto;
+	padding-left: 0.5rem;
+	color: #10b981;
+	font-size: 0.875rem;
+	
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
+// Wrapper for menu item content with badge
+const MenuItemContent = styled.span`
+	display: flex;
+	align-items: center;
+	width: 100%;
+	gap: 0.5rem;
 `;
 
 interface SidebarProps {
@@ -194,7 +220,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return {
 			'Core Overview': true,
 			'OAuth 2.0 Flows': true,
-			'V6 Flows': true,
 			'OpenID Connect': true,
 			PingOne: false,
 			'Mock & Demo Flows': false,
@@ -322,50 +347,62 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						open={openMenus['OAuth 2.0 Flows']}
 						onOpenChange={() => toggleMenu('OAuth 2.0 Flows')}
 					>
-						<MenuItem
-							icon={<ColoredIcon $color="#dc2626"><FiLock /></ColoredIcon>}
-							active={isActive('/flows/oauth-authorization-code-v5')}
-							onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
-						>
-							Authorization Code (V5)
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#f59e0b"><FiZap /></ColoredIcon>}
-							active={isActive('/flows/oauth-implicit-v5')}
-							onClick={() => handleNavigation('/flows/oauth-implicit-v5')}
-						>
-							Implicit Flow (V5)
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#ec4899"><FiSmartphone /></ColoredIcon>}
-							active={isActive('/flows/device-authorization-v5')}
-							onClick={() => handleNavigation('/flows/device-authorization-v5')}
-						>
-							Device Authorization (V5)
-						</MenuItem>
-						<MenuItem
-					icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
-					active={isActive('/flows/client-credentials-v5')}
-					onClick={() => handleNavigation('/flows/client-credentials-v5')}
-				>
-					Client Credentials (V5)
-				</MenuItem>
-				</SubMenu>
-
-				{/* V6 Flows */}
-				<SubMenu
-					label="V6 Flows"
-					icon={<ColoredIcon $color="#8b5cf6"><FiZap /></ColoredIcon>}
-					open={openMenus['V6 Flows']}
-					onOpenChange={() => toggleMenu('V6 Flows')}
-				>
 					<MenuItem
-						icon={<ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>}
-						active={isActive('/flows/oidc-authorization-code-v6')}
-						onClick={() => handleNavigation('/flows/oidc-authorization-code-v6')}
+						icon={<ColoredIcon $color="#dc2626"><FiLock /></ColoredIcon>}
+						active={isActive('/flows/oauth-authorization-code-v5')}
+						onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
 					>
-						OIDC Authorization Code (V6)
+						<MenuItemContent>
+							<span>Authorization Code (V5)</span>
+							{isFlowMigrated('/flows/oauth-authorization-code-v5') && (
+								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+									<FiCheckCircle />
+								</MigrationBadge>
+							)}
+						</MenuItemContent>
 					</MenuItem>
+					<MenuItem
+						icon={<ColoredIcon $color="#f59e0b"><FiZap /></ColoredIcon>}
+						active={isActive('/flows/oauth-implicit-v5')}
+						onClick={() => handleNavigation('/flows/oauth-implicit-v5')}
+					>
+						<MenuItemContent>
+							<span>Implicit Flow (V5)</span>
+							{isFlowMigrated('/flows/oauth-implicit-v5') && (
+								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+									<FiCheckCircle />
+								</MigrationBadge>
+							)}
+						</MenuItemContent>
+					</MenuItem>
+					<MenuItem
+						icon={<ColoredIcon $color="#ec4899"><FiSmartphone /></ColoredIcon>}
+						active={isActive('/flows/device-authorization-v5')}
+						onClick={() => handleNavigation('/flows/device-authorization-v5')}
+					>
+						<MenuItemContent>
+							<span>Device Authorization (V5)</span>
+							{isFlowMigrated('/flows/device-authorization-v5') && (
+								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+									<FiCheckCircle />
+								</MigrationBadge>
+							)}
+						</MenuItemContent>
+					</MenuItem>
+					<MenuItem
+				icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
+				active={isActive('/flows/client-credentials-v5')}
+				onClick={() => handleNavigation('/flows/client-credentials-v5')}
+			>
+				<MenuItemContent>
+					<span>Client Credentials (V5)</span>
+					{isFlowMigrated('/flows/client-credentials-v5') && (
+						<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+							<FiCheckCircle />
+						</MigrationBadge>
+					)}
+				</MenuItemContent>
+			</MenuItem>
 				</SubMenu>
 
 				{/* OpenID Connect */}
@@ -375,27 +412,48 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					open={openMenus['OpenID Connect']}
 					onOpenChange={() => toggleMenu('OpenID Connect')}
 				>
-						<MenuItem
-							icon={<ColoredIcon $color="#059669"><FiLock /></ColoredIcon>}
-							active={isActive('/flows/oidc-authorization-code-v5')}
-							onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
-						>
-							Authorization Code (V5)
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#84cc16"><FiZap /></ColoredIcon>}
-							active={isActive('/flows/oidc-implicit-v5')}
-			onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
-						>
-							Implicit Flow (V5)
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#14b8a6"><FiSmartphone /></ColoredIcon>}
-							active={isActive('/flows/oidc-device-authorization-v5')}
-							onClick={() => handleNavigation('/flows/oidc-device-authorization-v5')}
-						>
-							Device Authorization (V5)
-						</MenuItem>
+					<MenuItem
+						icon={<ColoredIcon $color="#059669"><FiLock /></ColoredIcon>}
+						active={isActive('/flows/oidc-authorization-code-v5')}
+						onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
+					>
+						<MenuItemContent>
+							<span>Authorization Code (V5)</span>
+							{isFlowMigrated('/flows/oidc-authorization-code-v5') && (
+								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+									<FiCheckCircle />
+								</MigrationBadge>
+							)}
+						</MenuItemContent>
+					</MenuItem>
+					<MenuItem
+						icon={<ColoredIcon $color="#84cc16"><FiZap /></ColoredIcon>}
+						active={isActive('/flows/oidc-implicit-v5')}
+		onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
+					>
+						<MenuItemContent>
+							<span>Implicit Flow (V5)</span>
+							{isFlowMigrated('/flows/oidc-implicit-v5') && (
+								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+									<FiCheckCircle />
+								</MigrationBadge>
+							)}
+						</MenuItemContent>
+					</MenuItem>
+					<MenuItem
+						icon={<ColoredIcon $color="#14b8a6"><FiSmartphone /></ColoredIcon>}
+						active={isActive('/flows/oidc-device-authorization-v5')}
+						onClick={() => handleNavigation('/flows/oidc-device-authorization-v5')}
+					>
+						<MenuItemContent>
+							<span>Device Authorization (V5)</span>
+							{isFlowMigrated('/flows/oidc-device-authorization-v5') && (
+								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
+									<FiCheckCircle />
+								</MigrationBadge>
+							)}
+						</MenuItemContent>
+					</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>}
 							active={isActive('/flows/hybrid-v5')}

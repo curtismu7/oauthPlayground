@@ -117,7 +117,7 @@ const AutoDiscover: React.FC = () => {
 			const success = credentialManager.saveConfigCredentials({
 				environmentId: environmentId,
 				clientId: '', // Will be filled in by user
-				redirectUri: `${window.location.origin}/dashboard-callback`,
+				redirectUri: `${window.location.origin}/authz-callback`,
 				scopes: ['openid', 'profile', 'email'],
 				authEndpoint: config.authorization_endpoint,
 				tokenEndpoint: config.token_endpoint,

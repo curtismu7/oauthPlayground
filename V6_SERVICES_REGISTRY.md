@@ -10,18 +10,129 @@
 
 ### Core V6 Services
 
-#### 1. **collapsibleHeaderService.tsx** ⭐ V6 SERVICE
-**Status**: ✅ Restored  
+#### 1. **comprehensiveCredentialsService.tsx** ⭐ NEW V6 SERVICE
+**Status**: ✅ Created  
+**Purpose**: All-in-one configuration service combining OIDC Discovery, Credentials Input, and PingOne Advanced Configuration
+
+**Features**:
+- OIDC Discovery with comprehensive provider support
+- Basic credentials management (Environment ID, Client ID, Client Secret, Scopes)
+- PingOne Advanced Configuration with collapsible sections
+- Unified configuration experience
+- Reusable across all OAuth/OIDC flows
+- Configurable title, subtitle, and advanced settings visibility
+
+**Props**:
+```typescript
+{
+  // Discovery props
+  onDiscoveryComplete?: (result: DiscoveryResult) => void;
+  initialDiscoveryInput?: string;
+  discoveryPlaceholder?: string;
+  showProviderInfo?: boolean;
+
+  // Credentials props
+  environmentId?: string;
+  clientId?: string;
+  clientSecret?: string;
+  scopes?: string;
+  postLogoutRedirectUri?: string;
+  onEnvironmentIdChange?: (newEnvId: string) => void;
+  onClientIdChange?: (newClientId: string) => void;
+  onClientSecretChange?: (newSecret: string) => void;
+  onScopesChange?: (newScopes: string) => void;
+  onPostLogoutRedirectUriChange?: (newUri: string) => void;
+  onSave?: () => void;
+  hasUnsavedChanges?: boolean;
+  isSaving?: boolean;
+  requireClientSecret?: boolean;
+
+  // PingOne Advanced Configuration props
+  pingOneAppState?: PingOneApplicationState;
+  onPingOneAppStateChange?: (newState: PingOneApplicationState) => void;
+
+  // Service configuration
+  title?: string;
+  subtitle?: string;
+  showAdvancedConfig?: boolean;
+  defaultCollapsed?: boolean;
+}
+```
+
+**Used By**:
+- **V6 Flows**: OIDCAuthorizationCodeFlowV6 (1 usage - replaces 3 separate components)
+- **Future**: All OAuth/OIDC flows can use this service
+
+**Benefits**:
+- ✅ Single service for complete configuration
+- ✅ Reduces code duplication across flows
+- ✅ Consistent UX across all flows
+- ✅ Easy to maintain and update
+- ✅ Configurable for different use cases
+
+#### 2. **copyButtonService.tsx** ⭐ NEW V6 SERVICE
+**Status**: ✅ Created  
+**Purpose**: Standardized copy button service with black popup and green checkmark feedback
+
+**Features**:
+- Black tooltip popup that says "Copy item" on hover
+- Green "Copied!" message with checkmark when clicked
+- Multiple size variants (sm, md, lg)
+- Multiple style variants (primary, secondary, outline)
+- Smooth animations and transitions
+- Accessible with ARIA labels
+- Fallback for older browsers without clipboard API
+- Pre-configured variants for common use cases (identifier, url, token)
+
+**Props**:
+```typescript
+{
+  text: string;           // Text to copy
+  label?: string;         // Label for tooltip (default: 'Copy')
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'outline';
+  showLabel?: boolean;    // Show label text on button
+  className?: string;
+}
+```
+
+**Usage Examples**:
+```typescript
+// Basic usage
+<CopyButtonService text="environment-id-123" label="Environment ID" />
+
+// Pre-configured variants
+{CopyButtonVariants.identifier(envId, 'Environment ID')}
+{CopyButtonVariants.url(url, 'Authorization URL')}
+{CopyButtonVariants.token(token, 'Access Token')}
+```
+
+**Used By**:
+- **V6 Flows**: ComprehensiveCredentialsService (Environment ID copy button)
+- **Future**: All flows can use this for copying tokens, URLs, IDs, etc.
+
+**Benefits**:
+- ✅ Consistent copy UX across entire application
+- ✅ Clear visual feedback (black → green)
+- ✅ Accessible and keyboard-friendly
+- ✅ Works on all browsers
+- ✅ Easy to integrate anywhere
+
+#### 3. **collapsibleHeaderService.tsx** ⭐ V6 SERVICE
+**Status**: ✅ Restored & Enhanced  
 **Purpose**: Consistent collapsible headers with blue gradient background and white arrows
 
 **Features**:
 - Blue gradient header with hover effects
 - White arrow indicators (→ right when collapsed, ↓ down when expanded)
+- White circle border around arrows for enhanced visibility on white backgrounds
+- Subtle shadow effects for depth
 - Smooth expand/collapse animations
 - Controlled and uncontrolled component modes
 - Prevents infinite render loops
 - ARIA accessible
 - Icon + title + subtitle layout
+- Fixed arrow rotation (no more pointing up)
 
 **Props**:
 ```typescript
@@ -288,6 +399,126 @@ const toggleSection = useCallback((key: keyof typeof collapsedSections) => {
   {/* Your existing content */}
 </CollapsibleHeader>
 ```
+
+---
+
+## 🔍 **stepValidationService.tsx** (V6)
+
+**Status**: ✅ Active  
+**Purpose**: Reusable step validation service with modal integration
+
+### Features
+- Configurable validation rules for any step
+- Toast notifications for validation errors
+- Modal display with detailed error messages
+- Prevents navigation when validation fails
+- Reusable across different flows and steps
+- Built-in validation rules for common scenarios
+
+### Components
+- `StepValidationModal`: Modal component for displaying validation errors
+- `useStepValidation`: Hook for managing validation state and logic
+- `StepValidationService`: Service with predefined validation rule creators
+
+### Usage Example
+```typescript
+const { validateAndProceed, StepValidationModal } = useStepValidation();
+
+const handleNext = () => {
+  const validationRules = StepValidationService.createStep0ValidationRules(credentials);
+  const config = {
+    stepIndex: 0,
+    stepName: 'Introduction & Setup',
+    rules: validationRules
+  };
+
+  validateAndProceed(config, () => {
+    // Proceed to next step only if validation passes
+    setCurrentStep(prev => prev + 1);
+  });
+};
+
+// In JSX
+return (
+  <>
+    {/* Your component content */}
+    {StepValidationModal}
+  </>
+);
+```
+
+### Predefined Validation Rules
+- `createStep0ValidationRules()`: Environment ID, Client ID, Client Secret, Redirect URI
+- `createPKCEValidationRules()`: Code Verifier, Code Challenge
+- `createAuthorizationValidationRules()`: Authorization URL, Code Verifier
+
+### Benefits
+- ✅ Consistent validation UX across all flows
+- ✅ Reusable across different flows and steps
+- ✅ Prevents invalid navigation
+- ✅ Clear error messaging with toast + modal
+- ✅ Stops user on current step until validation passes
+
+---
+
+## 🔐 **pkceService.tsx** (V6)
+
+**Status**: ✅ Active  
+**Purpose**: Comprehensive PKCE (Proof Key for Code Exchange) parameter generation and management
+
+### Features
+- Secure code verifier and challenge generation
+- Visual PKCE parameter display with show/hide functionality
+- Copy buttons for code verifier and challenge
+- Loading states and error handling
+- Educational information about PKCE security
+- Reusable across all OAuth/OIDC flows requiring PKCE
+- Programmatic PKCE utilities
+
+### Components
+- `PKCEService`: Main component for PKCE parameter management
+- `PKCEServiceUtils`: Utility functions for programmatic PKCE operations
+- `PKCECodes`: TypeScript interface for PKCE data structure
+
+### Usage Example
+```typescript
+import PKCEService from '../services/pkceService';
+
+<PKCEService
+  value={controller.pkceCodes}
+  onChange={(codes) => controller.setPkceCodes(codes)}
+  onGenerate={controller.generatePkceCodes}
+  isGenerating={false}
+  showDetails={true}
+  title="Generate PKCE Codes"
+  subtitle="Create secure code verifier and challenge"
+/>
+```
+
+### Props
+```typescript
+interface PKCEServiceProps {
+  value: PKCECodes;
+  onChange: (codes: PKCECodes) => void;
+  onGenerate?: () => Promise<void>;
+  isGenerating?: boolean;
+  showDetails?: boolean;
+  title?: string;
+  subtitle?: string;
+}
+```
+
+### Utility Functions
+- `PKCEServiceUtils.generatePKCECodes()`: Programmatic generation
+- `PKCEServiceUtils.validatePKCECodes()`: Validation
+- `PKCEServiceUtils.verifyCodeChallenge()`: Challenge verification
+
+### Benefits
+- ✅ Secure PKCE parameter generation using crypto.subtle
+- ✅ User-friendly interface with educational content
+- ✅ Consistent copy functionality with visual feedback
+- ✅ Reusable across all OAuth/OIDC flows
+- ✅ Built-in security best practices and validation
 
 ---
 

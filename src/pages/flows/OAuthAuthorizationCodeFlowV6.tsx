@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV6.tsx
 // V6.0.0 OAuth Authorization Code Flow - Using V6 Service Architecture
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -21,6 +21,8 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { FlowHeader } from '../../services/flowHeaderService';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import ComprehensiveDiscoveryInput from '../../components/ComprehensiveDiscoveryInput';
+import PingOneApplicationConfig, { type PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import PingOneAppConfig, { type PingOneConfig as PingOneAppConfigType } from '../../components/PingOneAppConfig';
 import { IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -99,7 +101,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		return 0;
 	});
 
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
+	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey | 'pingOneAppConfig' | 'pingOneAltConfig', boolean>>({
 		overview: false,
 		credentials: false,
 		responseMode: false,
@@ -119,14 +121,84 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		completionOverview: false,
 		completionDetails: false,
 		flowSummary: false,
+		pingOneAppConfig: true,
+		pingOneAltConfig: true,
 	});
 
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 	const [showLoginModal, setShowLoginModal] = useState(false);
 	const [responseMode, setResponseMode] = useState<ResponseMode>('query');
 
+	// Scroll to top when page loads or step changes
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, [currentStep]);
+
+	// PingOne Configuration States
+	const [pingOneAppState, setPingOneAppState] = useState<PingOneApplicationState>({
+		clientAuthMethod: 'client_secret_post',
+		allowRedirectUriPatterns: false,
+		pkceEnforcement: 'REQUIRED',
+		privateKey: '',
+		keyId: '',
+		responseTypeCode: true,
+		responseTypeToken: false,
+		responseTypeIdToken: false,
+		grantTypeAuthorizationCode: true,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
+		requestParameterSignatureRequirement: 'DEFAULT',
+		enableJWKS: false,
+		jwksMethod: 'JWKS_URL',
+		jwksUrl: '',
+		jwks: '',
+		requirePushedAuthorizationRequest: false,
+		additionalRefreshTokenReplayProtection: false,
+		includeX5tParameter: false,
+		oidcSessionManagement: false,
+		requestScopesForMultipleResources: false,
+		terminateUserSessionByIdToken: false,
+		corsOrigins: [],
+		corsAllowAnyOrigin: false,
+	});
+
+	const [pingOneAppConfig, setPingOneAppConfig] = useState<PingOneAppConfigType>({
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
+		redirectUri: 'https://localhost:3000/authz-callback',
+		authServerId: '',
+		baseUrl: 'https://auth.pingone.com',
+		authUrl: '',
+		authorizationEndpoint: '',
+		tokenEndpoint: '',
+		userInfoEndpoint: '',
+		logoutEndpoint: '',
+		tokenEndpointAuthMethod: 'client_secret_basic',
+		allowRedirectUriPatterns: false,
+		responseTypes: {
+			code: true,
+			token: false,
+			idToken: true,
+		},
+		grantTypes: {
+			authorizationCode: true,
+			implicit: false,
+			clientCredentials: false,
+			deviceAuthorization: false,
+			refreshToken: true,
+		},
+		pkceEnforcement: 'required',
+		refreshTokenDuration: 30,
+		refreshTokenDurationUnit: 'days',
+		refreshTokenRollingDuration: 180,
+		refreshTokenRollingDurationUnit: 'days',
+		refreshTokenRollingGracePeriod: 0,
+	});
+
 	// Toggle section visibility
-	const toggleSection = useCallback((key: IntroSectionKey) => {
+	const toggleSection = useCallback((key: IntroSectionKey | 'pingOneAppConfig' | 'pingOneAltConfig') => {
 		setCollapsedSections((prev) => ({
 			...prev,
 			[key]: !prev[key],
@@ -143,6 +215,18 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			v4ToastManager.showSuccess(`Discovered ${result.provider} endpoints`);
 		}
 	}, [controller]);
+
+	// Handle PingOne Application Config changes
+	const handlePingOneAppStateChange = useCallback((newState: PingOneApplicationState) => {
+		setPingOneAppState(newState);
+		console.log('PingOne Application State updated:', newState);
+	}, []);
+
+	// Handle PingOne App Config changes
+	const handlePingOneAppConfigChange = useCallback((newConfig: PingOneAppConfigType) => {
+		setPingOneAppConfig(newConfig);
+		console.log('PingOne App Config updated:', newConfig);
+	}, []);
 
 	// Step validation
 	const isStepValid = useCallback(
@@ -292,7 +376,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									{/* Comprehensive Discovery Input */}
 									<ComprehensiveDiscoveryInput
 										onDiscoveryComplete={handleDiscoveryComplete}
-										initialInput={credentials.issuerUrl || credentials.environmentId}
+										initialInput={credentials.issuerUrl || credentials.environmentId || ''}
 										placeholder="Enter Environment ID, issuer URL, or provider..."
 										showProviderInfo={true}
 									/>
@@ -334,17 +418,68 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 												postLogoutRedirectUri: newUri,
 											});
 										}}
-										onSave={controller.saveCredentials}
-										hasUnsavedChanges={controller.hasUnsavedCredentialChanges}
 										isSaving={controller.isSavingCredentials}
 										requireClientSecret={true}
+										showLoginHint={true}
+										showPostLogoutRedirectUri={true}
+										onLoginHintChange={(loginHint) => {
+											controller.setCredentials({
+												...credentials,
+												loginHint,
+											});
+										}}
+										loginHint={credentials.loginHint || ''}
+										onDiscoveryComplete={handleDiscoveryComplete}
 									/>
 								</Collapsible.CollapsibleContent>
 							)}
 						</Collapsible.CollapsibleSection>
 
 						{/* Enhanced Flow Walkthrough */}
-						<EnhancedFlowWalkthrough flowType="authorization-code" variant="oauth" />
+						<EnhancedFlowWalkthrough flowId="oauth-authorization-code" />
+
+						{/* PingOne Application Configuration (Recommended) */}
+						<Collapsible.CollapsibleSection>
+							<Collapsible.CollapsibleHeaderButton onClick={() => toggleSection('pingOneAppConfig')}>
+								<Collapsible.CollapsibleTitle>
+									<FiSettings />
+									PingOne Application Configuration (Recommended)
+								</Collapsible.CollapsibleTitle>
+								<Collapsible.CollapsibleToggleIcon $collapsed={collapsedSections.pingOneAppConfig}>
+									<FiChevronDown />
+								</Collapsible.CollapsibleToggleIcon>
+							</Collapsible.CollapsibleHeaderButton>
+							{!collapsedSections.pingOneAppConfig && (
+								<Collapsible.CollapsibleContent>
+									<PingOneApplicationConfig
+										value={pingOneAppState}
+										onChange={handlePingOneAppStateChange}
+									/>
+								</Collapsible.CollapsibleContent>
+							)}
+						</Collapsible.CollapsibleSection>
+
+						{/* PingOne App Configuration (Alternative) */}
+						<Collapsible.CollapsibleSection>
+							<Collapsible.CollapsibleHeaderButton onClick={() => toggleSection('pingOneAltConfig')}>
+								<Collapsible.CollapsibleTitle>
+									<FiSettings />
+									PingOne App Configuration (Alternative)
+								</Collapsible.CollapsibleTitle>
+								<Collapsible.CollapsibleToggleIcon $collapsed={collapsedSections.pingOneAltConfig}>
+									<FiChevronDown />
+								</Collapsible.CollapsibleToggleIcon>
+							</Collapsible.CollapsibleHeaderButton>
+							{!collapsedSections.pingOneAltConfig && (
+								<Collapsible.CollapsibleContent>
+									<PingOneAppConfig
+										onConfigChange={handlePingOneAppConfigChange}
+										initialConfig={pingOneAppConfig}
+										storageKey="pingone-v6-config"
+									/>
+								</Collapsible.CollapsibleContent>
+							)}
+						</Collapsible.CollapsibleSection>
 					</>
 				);
 
@@ -381,6 +516,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	return (
 		<Layout.Container>
 			<FlowHeader
+				flowId="oauth-authorization-code"
 				title="OAuth 2.0 Authorization Code Flow"
 				subtitle="V6 with Comprehensive Discovery Service"
 				icon={<FiShield />}

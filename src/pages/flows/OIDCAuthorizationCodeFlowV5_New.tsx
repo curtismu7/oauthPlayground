@@ -25,9 +25,7 @@ import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
-import PingOneApplicationConfig, {
-	type PingOneApplicationState,
-} from '../../components/PingOneApplicationConfig';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import {
 	HelperText,
 	ResultsHeading,
@@ -43,11 +41,12 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
 
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
@@ -57,87 +56,14 @@ import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
-
-const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Authorization Code Flow' },
-	{ title: 'Step 1: PKCE Parameters', subtitle: 'Generate secure verifier and challenge' },
-	{
-		title: 'Step 2: Authorization Request',
-		subtitle: 'Build and launch the PingOne authorization URL',
-	},
-	{ title: 'Step 3: Authorization Response', subtitle: 'Process the returned authorization code' },
-	{ title: 'Step 4: Token Exchange', subtitle: 'Swap the code for tokens using PingOne APIs' },
-	{ title: 'Step 5: User Information', subtitle: 'Inspect ID token claims and user info' },
-	{ title: 'Step 6: Token Introspection', subtitle: 'Introspect access token and review results' },
-	{ title: 'Step 7: Flow Complete', subtitle: 'Review your results and next steps' },
-	{ title: 'Step 8: Security Features', subtitle: 'Demonstrate advanced security implementations' },
-	{ title: 'Step 9: Flow Summary', subtitle: 'Comprehensive completion overview' },
-] as const;
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import {
+	STEP_METADATA,
+	type IntroSectionKey,
+	DEFAULT_APP_CONFIG,
+} from './config/OIDCAuthzCodeFlow.config';
 
 type StepCompletionState = Record<number, boolean>;
-type IntroSectionKey =
-	| 'overview'
-	| 'credentials'
-	| 'responseMode' // Step 0
-	| 'results' // Step 0
-	| 'pkceOverview'
-	| 'pkceDetails' // Step 1
-	| 'authRequestOverview'
-	| 'authRequestDetails' // Step 2
-	| 'authResponseOverview'
-	| 'authResponseDetails' // Step 3
-	| 'tokenExchangeOverview'
-	| 'tokenExchangeDetails' // Step 4
-	| 'userInfoOverview'
-	| 'userInfoDetails' // Step 5
-	| 'introspectionOverview'
-	| 'introspectionDetails' // Step 6
-	| 'completionOverview'
-	| 'completionDetails' // Step 7
-	| 'flowSummary'; // Step 9
-
-const DEFAULT_APP_CONFIG: PingOneApplicationState = {
-	clientAuthMethod: 'client_secret_post',
-	allowRedirectUriPatterns: false,
-	pkceEnforcement: 'REQUIRED',
-
-	// Response Types (from OIDC Settings)
-	responseTypeCode: true,
-	responseTypeToken: false,
-	responseTypeIdToken: false,
-
-	// Grant Types (from OIDC Settings)
-	grantTypeAuthorizationCode: true,
-
-	// Advanced OIDC Parameters
-	initiateLoginUri: '',
-	targetLinkUri: '',
-	signoffUrls: [],
-
-	// Request Parameter Signature
-	requestParameterSignatureRequirement: 'DEFAULT',
-
-	// JWKS Settings
-	enableJWKS: false,
-	jwksMethod: 'JWKS_URL',
-	jwksUrl: '',
-	jwks: '',
-
-	// Pushed Authorization Request (PAR)
-	requirePushedAuthorizationRequest: false,
-	pushedAuthorizationRequestTimeout: 60,
-
-	// Advanced Security Settings
-	additionalRefreshTokenReplayProtection: false,
-	includeX5tParameter: false,
-	oidcSessionManagement: false,
-	requestScopesForMultipleResources: false,
-	terminateUserSessionByIdToken: false,
-
-	// CORS Settings
-	corsOrigins: [],
-	corsAllowAnyOrigin: false,
-};
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -674,7 +600,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		timestamp: new Date().toISOString(),
 	});
 
-	usePageScroll();
+	// Scroll to top on page load
+	usePageScroll({ pageName: 'OIDC Authorization Code Flow V5', force: true });
 
 	const manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
@@ -683,55 +610,45 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		enableDebugger: true,
 	});
 
-
-
-	const [currentStep, setCurrentStep] = useState(() => {
-		const restoreStep = sessionStorage.getItem('restore_step');
-		if (restoreStep) {
-			const step = parseInt(restoreStep, 10);
-			sessionStorage.removeItem('restore_step');
-			return step;
-		}
-		return 0;
-	});
+	const [currentStep, setCurrentStep] = useState(
+		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
+	);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 
-	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>({
-		// Step 0
-		overview: false,
-		credentials: false, // Expanded by default - users need to see credentials first
-		responseMode: false, // Expanded by default - users need to see response mode options
-		results: false,
-		// Step 1
-		pkceOverview: false,
-		pkceDetails: false,
-		// Step 2
-		authRequestOverview: false,
-		authRequestDetails: false,
-		// Step 3
-		authResponseOverview: false,
-		authResponseDetails: false,
-		// Step 4
-		tokenExchangeOverview: false,
-		tokenExchangeDetails: false,
-		// Step 5
-		userInfoOverview: false,
-		userInfoDetails: false,
-		// Step 6
-		introspectionOverview: false,
-		introspectionDetails: false,
-		// Step 7
-		completionOverview: false,
-		completionDetails: false,
-		// Step 9
-		flowSummary: false, // New Flow Completion Service step
-	});
+	const [collapsedSections, setCollapsedSections] = useState(
+		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
+	);
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
+
+	// Scroll to top on step change
+	useEffect(() => {
+		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
+	}, [currentStep]);
+
+	// Enforce correct response_type for OIDC (should be 'code')
+	useEffect(() => {
+		AuthorizationCodeSharedService.ResponseTypeEnforcer.enforceResponseType(
+			'oidc',
+			controller.credentials,
+			controller.setCredentials
+		);
+	}, [controller.credentials.responseType, controller]);
+
+	// Sync credentials from controller to local state
+	useEffect(() => {
+		if (controller.credentials) {
+			AuthorizationCodeSharedService.CredentialsSync.syncCredentials(
+				'oidc',
+				controller.credentials,
+				controller.setCredentials
+			);
+		}
+	}, [controller]);
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
@@ -783,8 +700,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		const urlStep = urlParams.get('step');
 		const storedStep = sessionStorage.getItem('oidc-authorization-code-v5-current-step');
 
-		// Also check sessionStorage for auth code (from OAuth callback)
-		const sessionAuthCode = sessionStorage.getItem('oauth_auth_code');
+		// Also check sessionStorage for auth code (from OAuth callback) - but only if it's fresh (not stale)
+		const sessionAuthCode = getAuthCodeIfFresh('oidc-authorization-code-v5');
 
 		console.log('🚀 [AuthorizationCodeFlowV5] Initialization check:', {
 			hasCode: !!authCode,
@@ -817,6 +734,11 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			setLocalAuthCode(finalAuthCode);
 			// Also set it in the controller
 			controller.setAuthCodeManually(finalAuthCode);
+			// Store with timestamp for future freshness checks
+			if (authCode) {
+				// Only set timestamp if this is a fresh code from URL (not from stale sessionStorage)
+				setAuthCodeWithTimestamp('oidc-authorization-code-v5', finalAuthCode);
+			}
 			// Show success modal
 			console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
 			setShowLoginSuccessModal(true);
@@ -824,9 +746,8 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 			// Navigate to step 4 and persist it
 			setCurrentStep(4);
 			sessionStorage.setItem('oidc-authorization-code-v5-current-step', '4');
-			// Clear URL parameters and sessionStorage
+			// Clear URL parameters (but keep sessionStorage for now with timestamp)
 			window.history.replaceState({}, '', window.location.pathname);
-			sessionStorage.removeItem('oauth_auth_code');
 			return;
 		}
 
@@ -911,9 +832,9 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 		]
 	);
 
-	const toggleSection = useCallback((key: IntroSectionKey) => {
-		setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
-	}, []);
+	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(
+		setCollapsedSections
+	);
 
 	const handleSaveConfiguration = useCallback(async () => {
 		const required: Array<keyof StepCredentials> = [
@@ -976,47 +897,28 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	);
 
 	const handleGeneratePkce = useCallback(async () => {
-		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
-			v4ToastManager.showError(
-				'Complete above action: Fill in Client ID and Environment ID first.'
-			);
-			return;
-		}
-		await controller.generatePkceCodes();
-		v4ToastManager.showSuccess('PKCE parameters generated successfully!');
+		await AuthorizationCodeSharedService.PKCE.generatePKCE(
+			'oidc',
+			controller.credentials,
+			controller
+		);
 	}, [controller]);
 
 	const handleGenerateAuthUrl = useCallback(async () => {
-		if (!controller.credentials.clientId || !controller.credentials.environmentId) {
-			v4ToastManager.showError(
-				'Complete above action: Fill in Client ID and Environment ID first.'
-			);
-			return;
-		}
-		if (!controller.pkceCodes.codeVerifier || !controller.pkceCodes.codeChallenge) {
-			v4ToastManager.showError('Complete above action: Generate PKCE parameters first.');
-			return;
-		}
-		try {
-			await controller.generateAuthorizationUrl();
-			v4ToastManager.showSuccess('Authorization URL generated successfully!');
-		} catch (error) {
-			console.error('[AuthorizationCodeFlowV5] Failed to generate authorization URL:', error);
-			v4ToastManager.showError(
-				error instanceof Error ? error.message : 'Failed to generate authorization URL'
-			);
-		}
+		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
+			'oidc',
+			controller.credentials,
+			controller
+		);
 	}, [controller]);
 
 	const handleOpenAuthUrl = useCallback(() => {
-		if (!controller.authUrl) {
-			v4ToastManager.showError('Complete above action: Generate the authorization URL first.');
-			return;
+		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
+			console.log('🔧 [AuthorizationCodeFlowV5] About to redirect to PingOne via controller...');
+			controller.handleRedirectAuthorization();
+			setShowRedirectModal(true);
+			setTimeout(() => setShowRedirectModal(false), 2000);
 		}
-		console.log('🔧 [AuthorizationCodeFlowV5] About to redirect to PingOne via controller...');
-		controller.handleRedirectAuthorization();
-		setShowRedirectModal(true);
-		setTimeout(() => setShowRedirectModal(false), 2000);
 	}, [controller]);
 
 	const handleExchangeTokens = useCallback(async () => {
@@ -1111,22 +1013,14 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	}, []);
 
 	const navigateToTokenManagement = useCallback(() => {
-		// Store flow navigation state for back navigation
-		storeFlowNavigationState('oidc-authorization-code-v5', currentStep, 'oidc');
-
-		// Set flow source for Token Management page (legacy support)
-		sessionStorage.setItem('flow_source', 'oidc-authorization-code-v5');
-
-		// Store comprehensive flow context for Token Management page
-		const flowContext = {
-			flow: 'oidc-authorization-code-v5',
-			tokens: controller.tokens,
-			credentials: controller.credentials,
-			timestamp: Date.now(),
-		};
-		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
-
-		// If we have tokens, pass them to Token Management
+		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
+			'oidc',
+			controller.tokens,
+			controller.credentials,
+			currentStep
+		);
+		
+		// Additional component-specific logic for access token
 		if (controller.tokens?.access_token) {
 			// Use localStorage for cross-tab communication
 			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
@@ -1141,19 +1035,14 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 	}, [controller.tokens, controller.credentials, currentStep]);
 
 	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
-		// Set flow source for Token Management page (legacy support)
-		sessionStorage.setItem('flow_source', 'oidc-authorization-code-v5');
-
-		// Store comprehensive flow context for Token Management page
-		const flowContext = {
-			flow: 'oidc-authorization-code-v5',
-			tokens: controller.tokens,
-			credentials: controller.credentials,
-			timestamp: Date.now(),
-		};
-		sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
-
-		// If we have refresh token, pass it to Token Management
+		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
+			'oidc',
+			controller.tokens,
+			controller.credentials,
+			currentStep
+		);
+		
+		// Additional component-specific logic for refresh token
 		if (controller.tokens?.refresh_token) {
 			// Use localStorage for cross-tab communication
 			localStorage.setItem('token_to_analyze', controller.tokens.refresh_token);
@@ -1489,73 +1378,134 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
 									{/* Environment ID Input */}
-									<EnvironmentIdInput
-										initialEnvironmentId={controller.credentials.environmentId || ''}
-										onEnvironmentIdChange={(newEnvId) => {
-											controller.setCredentials({
-												...controller.credentials,
-												environmentId: newEnvId,
-											});
-											// Auto-save if we have both environmentId and clientId
-											if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-												controller.saveCredentials();
-												v4ToastManager.showSuccess('Credentials auto-saved');
+								<ComprehensiveCredentialsService
+									// Discovery props
+									onDiscoveryComplete={(result) => {
+										console.log('[OIDC Authz V5] Discovery completed:', result);
+										// Extract environment ID from issuer URL if available
+										if (result.issuerUrl) {
+											const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
+											if (envIdMatch && envIdMatch[1]) {
+												controller.setCredentials({
+													...controller.credentials,
+													environmentId: envIdMatch[1],
+												});
+												// Auto-save if we have both environmentId and clientId
+												if (envIdMatch[1] && controller.credentials.clientId) {
+													controller.saveCredentials();
+													v4ToastManager.showSuccess('Credentials auto-saved');
+												}
 											}
-										}}
-										onIssuerUrlChange={() => {}}
-										showSuggestions={true}
-										autoDiscover={false}
-									/>
+										}
+									}}
+									discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+									showProviderInfo={true}
+									
+									// Credentials props
+									environmentId={controller.credentials.environmentId || ''}
+									clientId={controller.credentials.clientId || ''}
+									clientSecret={controller.credentials.clientSecret || ''}
+									redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
+									scopes={controller.credentials.scope || 'openid profile email'}
+									loginHint={controller.credentials.loginHint || ''}
+									postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+									
+									// Change handlers
+									onEnvironmentIdChange={(newEnvId) => {
+										controller.setCredentials({
+											...controller.credentials,
+											environmentId: newEnvId,
+										});
+										if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+											controller.saveCredentials();
+											v4ToastManager.showSuccess('Credentials auto-saved');
+										}
+									}}
+									onClientIdChange={(newClientId) => {
+										controller.setCredentials({
+											...controller.credentials,
+											clientId: newClientId,
+										});
+										if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+											controller.saveCredentials();
+											v4ToastManager.showSuccess('Credentials auto-saved');
+										}
+									}}
+									onClientSecretChange={(newClientSecret) => {
+										controller.setCredentials({
+											...controller.credentials,
+											clientSecret: newClientSecret,
+										});
+									}}
+									onScopesChange={(newScopes) => {
+										controller.setCredentials({
+											...controller.credentials,
+											scope: newScopes,
+										});
+									}}
+									onRedirectUriChange={(newRedirectUri) => {
+										controller.setCredentials({
+											...controller.credentials,
+											redirectUri: newRedirectUri,
+										});
+									}}
+									onLoginHintChange={(newLoginHint) => {
+										controller.setCredentials({
+											...controller.credentials,
+											loginHint: newLoginHint,
+										});
+									}}
+									onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
+										controller.setCredentials({
+											...controller.credentials,
+											postLogoutRedirectUri: newPostLogoutRedirectUri,
+										});
+									}}
+									
+									// Save handler
+									onSave={async () => {
+										await controller.saveCredentials();
+										v4ToastManager.showSuccess('Credentials saved');
+									}}
+									hasUnsavedChanges={false}
+									isSaving={false}
+									requireClientSecret={true}
+									
+									// PingOne Advanced Configuration (integrated below)
+									pingOneAppState={pingOneConfig}
+									onPingOneAppStateChange={setPingOneConfig}
+									onPingOneSave={async () => await savePingOneConfig(pingOneConfig)}
+									hasUnsavedPingOneChanges={false}
+									isSavingPingOne={false}
+									
+									// UI config
+									title="OIDC Authorization Code Configuration"
+									subtitle="Configure your application settings and credentials"
+									showAdvancedConfig={true}
+									defaultCollapsed={false}
+								/>
 
-									{/* Credentials Input */}
-									<CredentialsInput
-										environmentId={controller.credentials.environmentId || ''}
-										clientId={controller.credentials.clientId || ''}
-										clientSecret={controller.credentials.clientSecret || ''}
-										scopes={controller.credentials.scope || 'openid profile email'}
-										postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
-										onEnvironmentIdChange={(newEnvId) => {
-											controller.setCredentials({
-												...controller.credentials,
-												environmentId: newEnvId,
-											});
+								{/* Configuration Summary Card - Compact */}
+								{controller.credentials.environmentId && controller.credentials.clientId && (
+									<ConfigurationSummaryCard
+										config={ConfigurationSummaryService.generateSummary(controller.credentials, 'oidc-authz')}
+										onSave={async () => {
+											await controller.saveCredentials();
+											v4ToastManager.showSuccess('Configuration saved');
 										}}
-										onClientIdChange={(newClientId) => {
-											controller.setCredentials({
-												...controller.credentials,
-												clientId: newClientId,
-											});
-											// Auto-save if we have both environmentId and clientId
-											if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-												controller.saveCredentials();
-												v4ToastManager.showSuccess('Credentials auto-saved');
-											}
+										onExport={async (config) => {
+											ConfigurationSummaryService.downloadConfig(config, 'oidc-authz-config.json');
 										}}
-										onClientSecretChange={(newClientSecret) => {
-											controller.setCredentials({
-												...controller.credentials,
-												clientSecret: newClientSecret,
-											});
+										onImport={async (importedConfig) => {
+											controller.setCredentials(importedConfig);
+											await controller.saveCredentials();
 										}}
-										onScopesChange={(newScopes) => {
-											controller.setCredentials({
-												...controller.credentials,
-												scope: newScopes,
-											});
-										}}
-										onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
-											controller.setCredentials({
-												...controller.credentials,
-												postLogoutRedirectUri: newPostLogoutRedirectUri,
-											});
-										}}
-										onCopy={handleCopy}
-										showRedirectUri={true}
-										showLoginHint={false}
-										showPostLogoutRedirectUri={true}
+										flowType="oidc-authz"
+										showAdvancedFields={false}
 									/>
+								)}
 
-									{/* Response Mode Configuration */}
+								{/* Response Mode Configuration */}
 									<CollapsibleSection
 										title="Response Mode Configuration"
 										collapsed={collapsedSections.responseMode}
@@ -1585,29 +1535,6 @@ const OIDCAuthorizationCodeFlowV5: React.FC = () => {
 										/>
 									</CollapsibleSection>
 
-									{/* Separator line */}
-									<div
-										style={{
-											height: '1px',
-											backgroundColor: '#e5e7eb',
-											margin: '1.5rem 0',
-											borderRadius: '0.5px',
-										}}
-									/>
-
-									{/* Client Authentication Configuration */}
-									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
-
-									<InfoBox $variant="warning" style={{ marginTop: '2rem', color: '#92400e' }}>
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle style={{ color: '#92400e' }}>Testing vs Production</InfoTitle>
-											<InfoText style={{ color: '#92400e' }}>
-												This saves credentials locally for demos only. Remove secrets before
-												production.
-											</InfoText>
-										</div>
-									</InfoBox>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>

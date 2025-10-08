@@ -8,6 +8,7 @@ export interface FlowCredentialConfig {
   environmentId: string;
   clientId: string;
   clientSecret?: string;
+  redirectUri?: string;
   scopes: string;
   responseType?: string | 'code id_token' | 'code token' | 'code id_token token';
   responseMode?: string | 'query' | 'fragment' | 'form_post' | 'pi.flow';
@@ -50,6 +51,7 @@ export class FlowCredentialService {
       environmentId: config.environmentId,
       clientId: config.clientId,
       clientSecret: config.clientSecret ?? '',
+      redirectUri: config.redirectUri ?? '',
       scopes: scopesValue,
     });
   }
@@ -223,6 +225,7 @@ export class FlowCredentialService {
         environmentId: savedCreds.environmentId || '',
         clientId: savedCreds.clientId || '',
         clientSecret: savedCreds.clientSecret || '',
+        redirectUri: savedCreds.redirectUri || '',
         scopes: savedCreds.scopes?.join(' ') || 'openid profile email',
       };
     } catch (error) {
@@ -248,7 +251,7 @@ export const authzCodeFlowCredentialService = new FlowCredentialService({
 export const implicitFlowCredentialService = new FlowCredentialService({
   flowName: 'OAuth Implicit Flow',
   logPrefix: '[⚡ OAUTH-IMPLICIT]',
-  requiredFields: ['environmentId', 'clientId', 'scopes'],
+  requiredFields: ['environmentId', 'clientId', 'redirectUri', 'scopes'],
 });
 
 // Factory function to create service for any flow

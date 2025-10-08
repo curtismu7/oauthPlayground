@@ -2,8 +2,9 @@
 // Compact checkbox UI with live URL preview for OAuth/OIDC response modes
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { FiCopy, FiCheckCircle, FiAlertTriangle, FiInfo, FiChevronDown } from 'react-icons/fi';
+import { FiAlertTriangle, FiInfo, FiChevronDown } from 'react-icons/fi';
 import styled from 'styled-components';
+import { CopyButtonService } from '../../services/copyButtonService';
 
 // Types
 type ResponseMode = 'query' | 'fragment' | 'form_post' | 'pi.flow';
@@ -289,43 +290,29 @@ const PreviewLabel = styled.div`
 const PreviewText = styled.code`
   display: block;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   color: #1e293b;
   background: #f8fafc;
-  padding: 0.5rem;
+  padding: 0.375rem;
   border-radius: 0.25rem;
   border: 1px solid #e2e8f0;
   word-break: break-all;
   white-space: pre-wrap;
-  line-height: 1.4;
+  line-height: 1.2;
 `;
 
-const HighlightedParam = styled.span`
-  background: #f59e0b;
-  color: #1e293b;
-  padding: 0.125rem 0.25rem;
-  border-radius: 0.25rem;
-  font-weight: 600;
-`;
-
-const CopyButton = styled.button`
-  background: #374151;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.25rem 0.5rem;
-  font-size: 0.625rem;
-  font-weight: 500;
-  cursor: pointer;
+const PreviewContentRow = styled.div`
   display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 0.5rem;
+  align-items: flex-start;
+  gap: 0.75rem;
   
-  &:hover {
-    background: #1f2937;
+  ${PreviewText} {
+    flex: 1;
+    margin-bottom: 0;
   }
 `;
+
+
 
 const WarningChip = styled.div<{ $level: 'info' | 'warn' | 'error' }>`
   display: inline-flex;
@@ -374,7 +361,6 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 }) => {
 	const [collapsed, setCollapsed] = useState(false);
 	const [selectedMode, setSelectedMode] = useState<ResponseMode>(defaultMode);
-	const [copiedItems, setCopiedItems] = useState<Set<string>>(new Set());
 
 	// Load saved preference from localStorage
 	useEffect(() => {
@@ -404,22 +390,6 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 		[savePreference, onModeChange, selectedMode]
 	);
 
-	// Copy to clipboard
-	const handleCopy = useCallback(async (text: string, label: string) => {
-		try {
-			await navigator.clipboard.writeText(text);
-			setCopiedItems((prev) => new Set([...prev, label]));
-			setTimeout(() => {
-				setCopiedItems((prev) => {
-					const next = new Set(prev);
-					next.delete(label);
-					return next;
-				});
-			}, 2000);
-		} catch (error) {
-			console.error('Failed to copy to clipboard:', error);
-		}
-	}, []);
 
 	// Build authorization URL
 	const buildAuthUrl = useCallback(
@@ -434,13 +404,9 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 				...extraParams,
 			});
 
-			// Add response_mode if not default
-			if (mode !== 'fragment') {
-				params.set('response_mode', mode);
-				console.log(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`);
-			} else {
-				console.log(`[🪪 RESPONSE-MODE] Fragment mode - no response_mode parameter added`);
-			}
+			// Always add response_mode parameter for clarity
+			params.set('response_mode', mode);
+			console.log(`[🪪 RESPONSE-MODE] Added response_mode=${mode} to URL`);
 
 			// Add nonce for OIDC flows with id_token
 			if (responseType.includes('id_token') && nonce) {
@@ -454,24 +420,30 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 		[clientId, redirectUri, responseType, scope, state, nonce, extraParams]
 	);
 
-	// Highlight response_mode parameter in URL
-	const highlightResponseMode = useCallback((url: string, mode: ResponseMode) => {
-		if (mode === 'fragment') {
-			// For fragment mode, highlight the absence of response_mode
-			return url.replace(/(\?[^#]*)/, (match) => {
-				if (match.includes('response_mode')) {
-					return match.replace(/response_mode=[^&]*&?/g, '');
-				}
-				return match;
-			});
-		} else {
-			// For other modes, highlight the response_mode parameter
-			return url.replace(
-				/(response_mode=[^&]*)/g,
-				'<span style="background: #f59e0b; color: #1e293b; padding: 0.125rem 0.25rem; border-radius: 0.25rem; font-weight: 600;">$1</span>'
-			);
-		}
+	// Highlight only response_mode parameter
+	const highlightUrl = useCallback((url: string) => {
+		let highlighted = url;
+		
+		// Only highlight response_mode parameter since that's what we're demonstrating
+		const responseModeRegex = /(response_mode=[^&\s]*)/g;
+		highlighted = highlighted.replace(responseModeRegex, 
+			`<span style="background: linear-gradient(135deg, #f97316, #ea580c); color: white; padding: 0.25rem 0.5rem; border-radius: 0.375rem; font-weight: 600; margin: 0 0.25rem; font-size: 0.8rem; border: 2px solid #ea580c; box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3); text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); display: inline-block; transform: scale(1.05);">$1</span>`
+		);
+		
+		return highlighted;
 	}, []);
+
+	// Highlight response mode specific URLs
+	const highlightResponseMode = useCallback((url: string, mode: ResponseMode) => {
+		let highlighted = highlightUrl(url);
+		
+		// For fragment mode, remove response_mode if present
+		if (mode === 'fragment') {
+			highlighted = highlighted.replace(/response_mode=[^&]*&?/g, '');
+		}
+		
+		return highlighted;
+	}, [highlightUrl]);
 
 	// Build response examples
 	const buildResponseExample = useCallback(
@@ -527,6 +499,7 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 		const authUrl = buildAuthUrl(selectedMode);
 		const highlightedUrl = highlightResponseMode(authUrl, selectedMode);
 		const responseExample = buildResponseExample(selectedMode);
+		const highlightedResponseExample = highlightUrl(responseExample);
 		const warning = getCompatibilityWarning(selectedMode);
 
 		return (
@@ -535,20 +508,30 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 				<PreviewContent>
 					<PreviewBlock>
 						<PreviewLabel>Authorization Request URL</PreviewLabel>
-						<PreviewText dangerouslySetInnerHTML={{ __html: highlightedUrl }} />
-						<CopyButton onClick={() => handleCopy(authUrl, 'auth-url')}>
-							{copiedItems.has('auth-url') ? <FiCheckCircle size={12} /> : <FiCopy size={12} />}
-							{copiedItems.has('auth-url') ? 'Copied!' : 'Copy URL'}
-						</CopyButton>
+						<PreviewContentRow>
+							<PreviewText dangerouslySetInnerHTML={{ __html: highlightedUrl }} />
+							<CopyButtonService
+								text={authUrl}
+								label="Copy URL"
+								size="sm"
+								variant="outline"
+								showLabel={true}
+							/>
+						</PreviewContentRow>
 					</PreviewBlock>
 
 					<PreviewBlock>
 						<PreviewLabel>Response Format</PreviewLabel>
-						<PreviewText>{responseExample}</PreviewText>
-						<CopyButton onClick={() => handleCopy(responseExample, 'response')}>
-							{copiedItems.has('response') ? <FiCheckCircle size={12} /> : <FiCopy size={12} />}
-							{copiedItems.has('response') ? 'Copied!' : 'Copy Response'}
-						</CopyButton>
+						<PreviewContentRow>
+							<PreviewText dangerouslySetInnerHTML={{ __html: highlightedResponseExample }} />
+							<CopyButtonService
+								text={responseExample}
+								label="Copy Response"
+								size="sm"
+								variant="outline"
+								showLabel={true}
+							/>
+						</PreviewContentRow>
 					</PreviewBlock>
 
 					{warning && (
@@ -566,9 +549,8 @@ const ResponseModeSelector: React.FC<ResponseModeSelectorProps> = ({
 		buildAuthUrl,
 		highlightResponseMode,
 		buildResponseExample,
+		highlightUrl,
 		getCompatibilityWarning,
-		copiedItems,
-		handleCopy,
 	]);
 
 	// Get summary text for collapsed state

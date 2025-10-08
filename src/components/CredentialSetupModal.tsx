@@ -237,7 +237,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		environmentId: '',
 		clientId: '',
 		clientSecret: '',
-		redirectUri: `${window.location.origin}/dashboard-callback`,
+		redirectUri: `${window.location.origin}/authz-callback`,
 	});
 
 	const [errors, setErrors] = useState<Record<string, string>>({});
@@ -284,7 +284,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				environmentId: envConfig.environmentId || '',
 				clientId: envConfig.clientId || '',
 				clientSecret: envConfig.clientSecret || '', // Pre-populate client secret from .env
-				redirectUri: envConfig.redirectUri || `${window.location.origin}/dashboard-callback`,
+				redirectUri: envConfig.redirectUri || `${window.location.origin}/authz-callback`,
 			};
 
 			console.log(
@@ -369,7 +369,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						redirectUri:
 							allCredentials.redirectUri ||
 							oldCredentials?.redirectUri ||
-							`${window.location.origin}/dashboard-callback`,
+							`${window.location.origin}/authz-callback`,
 					};
 					console.log(' [CredentialSetupModal] Setting form data to:', newFormData);
 					console.log(' [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);

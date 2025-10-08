@@ -1,10 +1,17 @@
 // src/components/CredentialsInput.tsx
 import { useState } from 'react';
-import { FiCopy, FiEye, FiEyeOff, FiGlobe, FiChevronDown, FiSettings } from 'react-icons/fi';
-import styled from 'styled-components';
+import { FiEye, FiEyeOff, FiGlobe, FiChevronRight, FiChevronDown, FiSettings } from 'react-icons/fi';
+import styled, { keyframes } from 'styled-components';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 import EnvironmentIdInput from './EnvironmentIdInput';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
+import { CopyButtonVariants } from '../services/copyButtonService';
+
+// CSS animation for loading spinner
+const spin = keyframes`
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+`;
 
 export interface CredentialsInputProps {
 	environmentId: string;
@@ -32,9 +39,7 @@ export interface CredentialsInputProps {
 	onLoginHintChange?: (value: string) => void;
 	onPostLogoutRedirectUriChange?: (value: string) => void;
 	onResponseModeChange?: (value: ResponseMode) => void;
-	onCopy: (text: string, label: string) => void;
 	emptyRequiredFields?: Set<string>;
-	copiedField?: string | null;
 	showRedirectUri?: boolean;
 	showLoginHint?: boolean;
 	showPostLogoutRedirectUri?: boolean;
@@ -42,6 +47,9 @@ export interface CredentialsInputProps {
 	showEnvironmentIdInput?: boolean;
 	showResponseModeSelector?: boolean;
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
+	onSave?: () => void;
+	hasUnsavedChanges?: boolean;
+	isSaving?: boolean;
 }
 
 const CollapsibleContainer = styled.div`
@@ -80,14 +88,23 @@ const CollapsibleHeaderLeft = styled.div`
 
 const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
 	display: inline-flex;
-	width: 20px;
-	height: 20px;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
 	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: transform 0.2s ease;
+	border: 2px solid white; /* White circle around arrow for visibility */
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+	transition: all 0.2s ease;
 	
 	&:hover {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg) scale(1.1)' : 'rotate(0deg) scale(1.1)')};
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+		transform: scale(1.1);
+	}
+	
+	svg {
+		width: 16px;
+		height: 16px;
 	}
 `;
 
@@ -180,6 +197,16 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 		pointer-events: auto !important;
 		user-select: text !important;
 	}
+
+	/* Special override for login hint field to ensure it's always editable */
+	&[data-field="login-hint"] {
+		background: #ffffff !important;
+		color: #111827 !important;
+		cursor: text !important;
+		pointer-events: auto !important;
+		user-select: text !important;
+		border-color: #d1d5db !important;
+	}
 `;
 
 const IconButton = styled.button`
@@ -258,9 +285,7 @@ export const CredentialsInput = ({
 	onLoginHintChange,
 	onPostLogoutRedirectUriChange,
 	onResponseModeChange,
-	onCopy,
 	emptyRequiredFields = new Set(),
-	copiedField = null,
 	showRedirectUri = true,
 	showLoginHint = true,
 	showPostLogoutRedirectUri = false,
@@ -268,6 +293,9 @@ export const CredentialsInput = ({
 	showEnvironmentIdInput = false,
 	showResponseModeSelector = false,
 	onDiscoveryComplete,
+	onSave,
+	hasUnsavedChanges = false,
+	isSaving = false,
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
@@ -290,13 +318,13 @@ export const CredentialsInput = ({
 				onClick={() => setIsCollapsed(!isCollapsed)}
 				aria-expanded={!isCollapsed}
 			>
-				<CollapsibleHeaderLeft>
-					<FiSettings size={18} />
-					<span>Application Configuration & Credentials</span>
-				</CollapsibleHeaderLeft>
-				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<FiChevronDown />
-				</CollapsibleToggleIcon>
+			<CollapsibleHeaderLeft>
+				<FiSettings size={18} />
+				<span>Application Configuration & Credentials</span>
+			</CollapsibleHeaderLeft>
+			<CollapsibleToggleIcon $collapsed={isCollapsed}>
+				{isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+			</CollapsibleToggleIcon>
 			</CollapsibleHeader>
 			
 			<CollapsibleContent $collapsed={isCollapsed}>
@@ -327,7 +355,12 @@ export const CredentialsInput = ({
 					<FormLabel>
 						Environment ID <span style={{ color: '#ef4444' }}>*</span>
 					</FormLabel>
-					<div style={{ position: 'relative' }}>
+					<div style={{ 
+						position: 'relative', 
+						display: 'flex', 
+						alignItems: 'stretch', 
+						gap: '0.5rem' 
+					}}>
 						<FormInput
 							type="text"
 							placeholder={
@@ -340,26 +373,17 @@ export const CredentialsInput = ({
 							disabled={false}
 							readOnly={false}
 							$hasError={emptyRequiredFields.has('environmentId')}
-							style={{ paddingRight: '2.5rem' }}
+							style={{ flex: 1 }}
 						/>
-						<IconButton
-							type="button"
-							onClick={() => onCopy(environmentId, 'Environment ID')}
-							style={{
-								right: '0.5rem',
-								top: '50%',
-								transform:
-									copiedField === 'Environment ID'
-										? 'translateY(-50%) scale(1.2)'
-										: 'translateY(-50%) scale(1)',
-								color: copiedField === 'Environment ID' ? '#10b981' : '#6b7280',
-								width: '2rem',
-								height: '2rem',
-							}}
-							title="Copy Environment ID"
-						>
-							<FiCopy size={16} />
-						</IconButton>
+						{environmentId && (
+							<div style={{ 
+								display: 'flex', 
+								alignItems: 'center', 
+								height: '100%' 
+							}}>
+								{CopyButtonVariants.identifier(environmentId, 'Environment ID')}
+							</div>
+						)}
 					</div>
 				</FormField>
 
@@ -367,7 +391,12 @@ export const CredentialsInput = ({
 					<FormLabel>
 						Client ID <span style={{ color: '#ef4444' }}>*</span>
 					</FormLabel>
-					<div style={{ position: 'relative' }}>
+					<div style={{ 
+						position: 'relative', 
+						display: 'flex', 
+						alignItems: 'stretch', 
+						gap: '0.5rem' 
+					}}>
 						<FormInput
 							type="text"
 							placeholder={
@@ -378,28 +407,19 @@ export const CredentialsInput = ({
 							value={clientId}
 							onChange={(e) => onClientIdChange(e.target.value)}
 							$hasError={emptyRequiredFields.has('clientId')}
-							style={{ paddingRight: '2.5rem' }}
+							style={{ flex: 1 }}
 							disabled={false}
 							readOnly={false}
 						/>
-						<IconButton
-							type="button"
-							onClick={() => onCopy(clientId, 'Client ID')}
-							style={{
-								right: '0.5rem',
-								top: '50%',
-								transform:
-									copiedField === 'Client ID'
-										? 'translateY(-50%) scale(1.2)'
-										: 'translateY(-50%) scale(1)',
-								color: copiedField === 'Client ID' ? '#10b981' : '#6b7280',
-								width: '2rem',
-								height: '2rem',
-							}}
-							title="Copy Client ID"
-						>
-							<FiCopy size={16} />
-						</IconButton>
+						{clientId && (
+							<div style={{ 
+								display: 'flex', 
+								alignItems: 'center', 
+								height: '100%' 
+							}}>
+								{CopyButtonVariants.identifier(clientId, 'Client ID')}
+							</div>
+						)}
 					</div>
 				</FormField>
 
@@ -408,7 +428,12 @@ export const CredentialsInput = ({
 						<FormLabel>
 							Client Secret <span style={{ color: '#ef4444' }}>*</span>
 						</FormLabel>
-						<div style={{ position: 'relative' }}>
+						<div style={{ 
+							position: 'relative', 
+							display: 'flex', 
+							alignItems: 'stretch', 
+							gap: '0.5rem' 
+						}}>
 							<FormInput
 								type={showClientSecretValue ? 'text' : 'password'}
 								placeholder={
@@ -419,33 +444,25 @@ export const CredentialsInput = ({
 								value={clientSecret}
 								onChange={(e) => onClientSecretChange(e.target.value)}
 								$hasError={emptyRequiredFields.has('clientSecret')}
-								style={{ paddingRight: '5rem' }}
+								style={{ flex: 1, paddingRight: '2.5rem' }}
 								disabled={false}
 								readOnly={false}
 								autoComplete="current-password"
 							/>
-							<IconButton
-								type="button"
-								onClick={() => onCopy(clientSecret, 'Client Secret')}
-								style={{
-									right: '2.25rem',
-									top: '50%',
-									transform:
-										copiedField === 'Client Secret'
-											? 'translateY(-50%) scale(1.2)'
-											: 'translateY(-50%) scale(1)',
-									color: copiedField === 'Client Secret' ? '#10b981' : '#6b7280',
-									width: '2rem',
-									height: '2rem',
-								}}
-								title="Copy Client Secret"
-							>
-								<FiCopy size={16} />
-							</IconButton>
+							{clientSecret && (
+								<div style={{ 
+									display: 'flex', 
+									alignItems: 'center', 
+									height: '100%' 
+								}}>
+									{CopyButtonVariants.identifier(clientSecret, 'Client Secret')}
+								</div>
+							)}
 							<IconButton
 								type="button"
 								onClick={() => setShowClientSecretValue(!showClientSecretValue)}
 								style={{
+									position: 'absolute',
 									right: '0.5rem',
 									top: '50%',
 									transform: 'translateY(-50%)',
@@ -484,35 +501,31 @@ export const CredentialsInput = ({
 						<FormLabel>
 							Redirect URI <span style={{ color: '#ef4444' }}>*</span>
 						</FormLabel>
-						<div style={{ position: 'relative' }}>
+						<div style={{ 
+							position: 'relative', 
+							display: 'flex', 
+							alignItems: 'stretch', 
+							gap: '0.5rem' 
+						}}>
 							<FormInput
 								type="text"
 								placeholder="https://localhost:3000/authz-callback"
 								value={redirectUri || 'https://localhost:3000/authz-callback'}
 								onChange={(e) => onRedirectUriChange?.(e.target.value)}
 								$hasError={emptyRequiredFields.has('redirectUri')}
-								style={{ paddingRight: '2.5rem' }}
+								style={{ flex: 1 }}
 								disabled={false}
 								readOnly={false}
 							/>
-							<IconButton
-								type="button"
-								onClick={() => onCopy(redirectUri, 'Redirect URI')}
-								style={{
-									right: '0.5rem',
-									top: '50%',
-									transform:
-										copiedField === 'Redirect URI'
-											? 'translateY(-50%) scale(1.2)'
-											: 'translateY(-50%) scale(1)',
-									color: copiedField === 'Redirect URI' ? '#10b981' : '#6b7280',
-									width: '2rem',
-									height: '2rem',
-								}}
-								title="Copy Redirect URI"
-							>
-								<FiCopy size={16} />
-							</IconButton>
+							{redirectUri && (
+								<div style={{ 
+									display: 'flex', 
+									alignItems: 'center', 
+									height: '100%' 
+								}}>
+									{CopyButtonVariants.url(redirectUri, 'Redirect URI')}
+								</div>
+							)}
 						</div>
 					</FormField>
 				)}
@@ -540,7 +553,12 @@ export const CredentialsInput = ({
 					<FormLabel>
 						Scopes <span style={{ color: '#ef4444' }}>*</span>
 					</FormLabel>
-					<div style={{ position: 'relative' }}>
+					<div style={{ 
+						position: 'relative', 
+						display: 'flex', 
+						alignItems: 'stretch', // Changed from 'center' to 'stretch' for perfect alignment
+						gap: '0.5rem' 
+					}}>
 						<FormInput
 							type="text"
 							placeholder="openid profile email"
@@ -554,28 +572,19 @@ export const CredentialsInput = ({
 								}
 							}}
 							$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
-							style={{ paddingRight: '2.5rem' }}
+							style={{ flex: 1 }}
 							disabled={false}
 							readOnly={false}
 						/>
-						<IconButton
-							type="button"
-							onClick={() => onCopy(scopes, 'Scopes')}
-							style={{
-								right: '0.5rem',
-								top: '50%',
-								transform:
-									copiedField === 'Scopes'
-										? 'translateY(-50%) scale(1.2)'
-										: 'translateY(-50%) scale(1)',
-								color: copiedField === 'Scopes' ? '#10b981' : '#6b7280',
-								width: '2rem',
-								height: '2rem',
-							}}
-							title="Copy Scopes"
-						>
-							<FiCopy size={16} />
-						</IconButton>
+						{scopes && (
+							<div style={{ 
+								display: 'flex', 
+								alignItems: 'center', // Center the copy button within its container
+								height: '100%' // Match the input field height
+							}}>
+								{CopyButtonVariants.identifier(scopes, 'Scopes')}
+							</div>
+						)}
 					</div>
 					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
 						Space-separated list of scopes. <strong>openid</strong> is always required and will be
@@ -588,34 +597,31 @@ export const CredentialsInput = ({
 						<FormLabel>
 							Login Hint <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
 						</FormLabel>
-						<div style={{ position: 'relative' }}>
+						<div style={{ 
+							position: 'relative', 
+							display: 'flex', 
+							alignItems: 'stretch', 
+							gap: '0.5rem' 
+						}}>
 							<FormInput
 								type="text"
 								placeholder="user@example.com or username"
 								value={loginHint}
 								onChange={(e) => onLoginHintChange?.(e.target.value)}
-								style={{ paddingRight: '2.5rem' }}
+								style={{ flex: 1 }}
 								disabled={false}
 								readOnly={false}
+								data-field="login-hint"
 							/>
-							<IconButton
-								type="button"
-								onClick={() => onCopy(loginHint, 'Login Hint')}
-								style={{
-									right: '0.5rem',
-									top: '50%',
-									transform:
-										copiedField === 'Login Hint'
-											? 'translateY(-50%) scale(1.2)'
-											: 'translateY(-50%) scale(1)',
-									color: copiedField === 'Login Hint' ? '#10b981' : '#6b7280',
-									width: '2rem',
-									height: '2rem',
-								}}
-								title="Copy Login Hint"
-							>
-								<FiCopy size={16} />
-							</IconButton>
+							{loginHint && (
+								<div style={{ 
+									display: 'flex', 
+									alignItems: 'center', 
+									height: '100%' 
+								}}>
+									{CopyButtonVariants.identifier(loginHint, 'Login Hint')}
+								</div>
+							)}
 						</div>
 						<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
 							Hint about the user identifier (email, username). Helps pre-fill the login form or
@@ -629,34 +635,28 @@ export const CredentialsInput = ({
 						<FormLabel>
 							Post-Logout Redirect URI <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
 						</FormLabel>
-						<div style={{ position: 'relative' }}>
+						<div style={{ 
+							position: 'relative', 
+							display: 'flex', 
+							alignItems: 'stretch', 
+							gap: '0.5rem' 
+						}}>
 							<FormInput
 								type="text"
 								placeholder="https://localhost:3000/logout-callback"
 								value={postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 								onChange={(e) => onPostLogoutRedirectUriChange?.(e.target.value)}
-								style={{ paddingRight: '2.5rem' }}
+								style={{ flex: 1 }}
 								disabled={false}
 								readOnly={false}
 							/>
-							<IconButton
-								type="button"
-								onClick={() => onCopy(postLogoutRedirectUri || 'https://localhost:3000/logout-callback', 'Post-Logout Redirect URI')}
-								style={{
-									right: '0.5rem',
-									top: '50%',
-									transform:
-										copiedField === 'Post-Logout Redirect URI'
-											? 'translateY(-50%) scale(1.2)'
-											: 'translateY(-50%) scale(1)',
-									color: copiedField === 'Post-Logout Redirect URI' ? '#10b981' : '#6b7280',
-									width: '2rem',
-									height: '2rem',
-								}}
-								title="Copy Post-Logout Redirect URI"
-							>
-								<FiCopy size={16} />
-							</IconButton>
+							<div style={{ 
+								display: 'flex', 
+								alignItems: 'center', 
+								height: '100%' 
+							}}>
+								{CopyButtonVariants.url(postLogoutRedirectUri || 'https://localhost:3000/logout-callback', 'Post-Logout Redirect URI')}
+							</div>
 						</div>
 						<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
 							URL to redirect users after logout. Add this to your PingOne application's Post-Logout Redirect URIs.
@@ -681,6 +681,79 @@ export const CredentialsInput = ({
 						onModeChange={onResponseModeChange || (() => {})}
 					/>
 				</>
+			)}
+
+			{/* Save Button */}
+			{onSave && (
+				<div style={{ 
+					marginTop: '1.5rem', 
+					paddingTop: '1rem', 
+					borderTop: '1px solid #e5e7eb',
+					display: 'flex',
+					justifyContent: 'flex-start'
+				}}>
+					<button
+						type="button"
+						onClick={onSave}
+						disabled={isSaving}
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							padding: '0.75rem 1.5rem',
+							backgroundColor: '#10b981',
+							color: 'white',
+							border: '1px solid #10b981',
+							borderRadius: '0.5rem',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							cursor: isSaving ? 'not-allowed' : 'pointer',
+							opacity: isSaving ? 0.7 : 1,
+							transition: 'all 0.2s ease',
+						}}
+						onMouseEnter={(e) => {
+							if (!isSaving) {
+								e.currentTarget.style.backgroundColor = '#059669';
+								e.currentTarget.style.borderColor = '#059669';
+							}
+						}}
+						onMouseLeave={(e) => {
+							if (!isSaving) {
+								e.currentTarget.style.backgroundColor = '#10b981';
+								e.currentTarget.style.borderColor = '#10b981';
+							}
+						}}
+					>
+						{isSaving ? (
+							<>
+								<div style={{
+									width: '16px',
+									height: '16px',
+									border: '2px solid #ffffff',
+									borderTop: '2px solid transparent',
+									borderRadius: '50%',
+									animation: 'spin 1s linear infinite'
+								}} />
+								<style>{`
+									@keyframes spin {
+										0% { transform: rotate(0deg); }
+										100% { transform: rotate(360deg); }
+									}
+								`}</style>
+								Saving...
+							</>
+						) : (
+							<>
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+									<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+									<polyline points="17,21 17,13 7,13 7,21" />
+									<polyline points="7,3 7,8 15,8" />
+								</svg>
+								{hasUnsavedChanges ? 'Save Changes' : 'Save Credentials'}
+							</>
+						)}
+					</button>
+				</div>
 			)}
 				</form>
 			</CollapsibleContent>
