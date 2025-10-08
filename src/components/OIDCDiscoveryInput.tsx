@@ -9,7 +9,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiGlobe, FiCheck, FiAlertCircle, FiLoader, FiInfo, FiRefreshCw } from 'react-icons/fi';
+import { FiGlobe, FiCheck, FiAlertCircle, FiLoader, FiInfo, FiRefreshCw, FiEye, FiEyeOff, FiChevronDown, FiChevronRight } from 'react-icons/fi';
 import {
 	oidcDiscoveryService,
 	type DiscoveryResult,
@@ -300,6 +300,48 @@ const ErrorMessage = styled.div`
   margin-top: 0.5rem;
 `;
 
+const ResultsToggleContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+`;
+
+const ResultsToggleButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #2563eb;
+  }
+
+  &:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+  }
+`;
+
+const ResultsCollapsible = styled.div<{ isOpen: boolean }>`
+  overflow: hidden;
+  transition: all 0.3s ease;
+  max-height: ${props => props.isOpen ? '1000px' : '0'};
+  opacity: ${props => props.isOpen ? '1' : '0'};
+`;
+
 const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 	onDiscoveryComplete,
 	onCredentialsGenerated,
@@ -335,6 +377,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 	const [isDiscovering, setIsDiscovering] = useState(false);
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [error, setError] = useState<string | null>(null);
+	const [showResults, setShowResults] = useState(false);
 
 	// Initialize state from saved settings
 	useEffect(() => {
@@ -367,6 +410,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			setIssuerUrl(initialIssuerUrl);
 			setDiscoveryResult(null);
 			setError(null);
+			setShowResults(false);
 		} catch (error) {
 			console.warn('Failed to clear OIDC Discovery settings:', error);
 		}
@@ -393,6 +437,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		setIsDiscovering(true);
 		setError(null);
 		setDiscoveryResult(null);
+		setShowResults(false);
 
 		try {
 			console.log('[OIDC Discovery Input] Starting discovery for URL:', issuerUrl.trim());
@@ -592,7 +637,24 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			)}
 
 			{renderStatus()}
-			{renderEndpoints()}
+			
+			{/* Results Toggle Button - Only show if we have results */}
+			{discoveryResult?.success && discoveryResult.document && (
+				<ResultsToggleContainer>
+					<ResultsToggleButton onClick={() => setShowResults(!showResults)}>
+						{showResults ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						{showResults ? 'Hide Results' : 'Show Results'}
+					</ResultsToggleButton>
+					<span style={{ fontSize: '0.875rem', color: '#6b7280' }}>
+						Click to {showResults ? 'hide' : 'show'} discovered endpoints
+					</span>
+				</ResultsToggleContainer>
+			)}
+
+			{/* Collapsible Results Section */}
+			<ResultsCollapsible isOpen={showResults}>
+				{renderEndpoints()}
+			</ResultsCollapsible>
 		</Container>
 	);
 };

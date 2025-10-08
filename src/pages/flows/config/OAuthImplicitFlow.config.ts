@@ -6,12 +6,12 @@ export const FLOW_TYPE = 'implicit';
 
 // Step configuration
 export const STEP_CONFIGS = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the Implicit Flow' },
-	{ title: 'Step 1: Authorization Request', subtitle: 'Build and launch the authorization URL' },
-	{ title: 'Step 2: Token Response', subtitle: 'Receive tokens directly from URL fragment' },
-	{ title: 'Step 3: Token Introspection', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 4: Security Features', subtitle: 'Advanced security demonstrations' },
-	{ title: 'Step 5: Flow Summary', subtitle: 'Complete flow overview and next steps' },
+	{ title: 'Step 1: Introduction & Setup', subtitle: 'Understand the Implicit Flow' },
+	{ title: 'Step 2: Authorization Request', subtitle: 'Build and launch the authorization URL' },
+	{ title: 'Step 3: Token Response', subtitle: 'Receive tokens directly from URL fragment' },
+	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and inspect tokens' },
+	{ title: 'Step 5: Security Features', subtitle: 'Advanced security demonstrations' },
+	{ title: 'Step 6: Flow Summary', subtitle: 'Complete flow overview and next steps' },
 ];
 
 // Service-generated metadata
@@ -27,6 +27,7 @@ export type IntroSectionKey =
 	| 'authRequestDetails'
 	| 'tokenResponseOverview'
 	| 'tokenResponseDetails'
+	| 'tokenResponse'
 	| 'introspectionOverview'
 	| 'introspectionDetails'
 	| 'completionOverview'

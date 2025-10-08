@@ -328,6 +328,17 @@ The OAuth Playground provides interactive learning and testing for:
 - **API Testing** - RESTful endpoint testing with authentication
 - **Configuration Tools** - Application setup and environment switching
 
+## 📚 Additional Resources
+
+### Identity Management for AI Agents
+- **[Identity Management for Agentic AI](https://openid.net/wp-content/uploads/2025/10/Identity-Management-for-Agentic-AI.pdf)** - A comprehensive whitepaper from the OpenID Foundation exploring authentication, authorization, and identity management challenges for AI agents and autonomous systems. This document addresses current frameworks, future challenges, and provides strategic guidance for stakeholders working at the intersection of AI agents and access management.
+
+### OAuth & OpenID Connect Documentation
+- [OAuth 2.0 Specification (RFC 6749)](https://tools.ietf.org/html/rfc6749)
+- [OpenID Connect Specification](https://openid.net/connect/)
+- [OAuth 2.1 Draft Specification](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-v2-1-13)
+- [PingOne Documentation](https://docs.pingidentity.com/)
+
 ## 🤝 Contributing
 
 1. Fork the repository

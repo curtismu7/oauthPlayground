@@ -148,15 +148,22 @@ const ImplicitCallback: React.FC = () => {
 						// This is a V5 flow - store tokens in hash and redirect back
 						setStatus('success');
 						setMessage('Tokens received - returning to flow');
+						
+						// Determine which flow this is from (prioritize OAuth if both exist)
+						const isOAuthFlow = v5OAuthContext && !v5OIDCContext;
+						const isOIDCFlow = v5OIDCContext && !v5OAuthContext;
+						
 						logger.auth('ImplicitCallback', 'V5 implicit grant received, returning to flow', {
 							hasAccessToken: !!accessToken,
 							hasIdToken: !!idToken,
-							flow: v5OIDCContext ? 'oidc-v5' : 'oauth-v5',
+							flow: isOIDCFlow ? 'oidc-v5' : 'oauth-v5',
+							oauthContext: !!v5OAuthContext,
+							oidcContext: !!v5OIDCContext,
 						});
 
 						setTimeout(() => {
 							// Reconstruct the hash with tokens and redirect back to flow
-							const targetFlow = v5OIDCContext
+							const targetFlow = isOIDCFlow
 								? '/flows/oidc-implicit-v5'
 								: '/flows/oauth-implicit-v5';
 							const fragment = window.location.hash.substring(1); // Get full hash without #
