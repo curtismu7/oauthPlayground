@@ -240,7 +240,7 @@ async function loadConfiguration(): Promise<AppConfig> {
 				disableLogin: false,
 				clientId: allCredentials.clientId,
 				clientSecret: allCredentials.clientSecret || '',
-				redirectUri: allCredentials.redirectUri || `${window.location.origin}/dashboard-callback`,
+				redirectUri: allCredentials.redirectUri || `${window.location.origin}/authz-callback`,
 				authorizationEndpoint: allCredentials.authEndpoint || '',
 				tokenEndpoint: allCredentials.tokenEndpoint || '',
 				userInfoEndpoint: allCredentials.userInfoEndpoint || '',
@@ -319,7 +319,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				disableLogin: false,
 				clientId: '',
 				clientSecret: '',
-				redirectUri: `${window.location.origin}/dashboard-callback`,
+				redirectUri: `${window.location.origin}/authz-callback`,
 				authorizationEndpoint: '',
 				tokenEndpoint: '',
 				userInfoEndpoint: '',
@@ -717,6 +717,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					return { success: false, error: errorMessage };
 				}
 
+				// Check for V6 flow BEFORE state validation - V6 flows handle their own validation
+				const flowContextRaw = sessionStorage.getItem('flowContext');
+				console.log('🔍 [NewAuthContext] Checking for V6 flow, flowContextRaw:', flowContextRaw);
+				if (flowContextRaw) {
+					try {
+						const parsed = safeJsonParse(flowContextRaw);
+						console.log('🔍 [NewAuthContext] Parsed flow context:', parsed);
+						const isV6Flow =
+							parsed?.flow === 'oidc-authorization-code-v6' ||
+							parsed?.flow === 'oauth-authorization-code-v6';
+						
+						console.log('🔍 [NewAuthContext] Is V6 flow?', isV6Flow, 'Flow:', parsed?.flow);
+						
+						if (isV6Flow) {
+							// For V6 flows, skip state validation and redirect immediately
+							console.log(' [NewAuthContext] V6 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
+							
+							// Store auth code and state for the V6 flow page
+							if (code) {
+								sessionStorage.setItem('oauth_auth_code', code);
+							}
+							if (state) {
+								sessionStorage.setItem('oauth_state', state);
+							}
+							
+							const returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
+							console.log('🚀 [NewAuthContext] V6 FLOW REDIRECT - About to redirect to:', returnPath);
+							logger.info('NewAuthContext', 'V6 flow detected - redirecting to flow page', {
+								flow: parsed?.flow,
+								returnPath,
+							});
+							
+							return { success: true, redirectUrl: returnPath };
+						}
+					} catch (err) {
+						console.warn(' [NewAuthContext] Failed to parse flow context for V6 detection:', err);
+					}
+				}
+
 				// Validate state parameter (more lenient for development)
 				const storedState = sessionStorage.getItem('oauth_state');
 				console.log(' [NewAuthContext] State validation:', {
@@ -1000,18 +1039,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							parsed?.flow === 'authorization-code-v5' ||
 							parsed?.flow === 'oidc-authorization-code-v5' ||
 							parsed?.flow === 'oauth-authorization-code-v5';
+						const isV6Flow =
+							parsed?.flow === 'oidc-authorization-code-v6' ||
+							parsed?.flow === 'oauth-authorization-code-v6';
 
 						console.log(' [NewAuthContext] Flow type detection:', {
 							flowType: parsed?.flow,
 							isEnhancedV2,
 							isEnhancedV3,
+							isV6Flow,
 							hasReturnPath: !!parsed?.returnPath,
 							parsedReturnPath: parsed?.returnPath,
 						});
 
-						console.log(' [NewAuthContext] ENHANCED FLOW DETECTED?', isEnhancedV2 || isEnhancedV3);
+						console.log(' [NewAuthContext] ENHANCED/V6 FLOW DETECTED?', isEnhancedV2 || isEnhancedV3 || isV6Flow);
 
-						if (isEnhancedV2 || isEnhancedV3) {
+						if (isEnhancedV2 || isEnhancedV3 || isV6Flow) {
 							// Persist auth code and state for the flow page
 							if (code) {
 								sessionStorage.setItem('oauth_auth_code', code);
@@ -1030,9 +1073,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 								redirectUri = parsed.redirectUri;
 							}
 
-							// Determine correct return path based on flow version
-							let returnPath;
-							if (isEnhancedV3) {
+						// Determine correct return path based on flow version
+						let returnPath;
+						if (isV6Flow) {
+							// For V6 flows, redirect directly to the flow page (they handle auth code themselves)
+							console.log(' [NewAuthContext] V6 FLOW DETECTED - Redirecting to flow page, it will handle the auth code');
+							logger.info(
+								'NewAuthContext',
+								'V6 flow detected - redirecting to flow page',
+								{ flow: parsed?.flow, returnPath: parsed?.returnPath }
+							);
+							returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
+						} else if (isEnhancedV3) {
 								// Determine the correct V3 flow path based on the flow type
 								if (parsed?.flow === 'oauth-authorization-code-v3') {
 									returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v3?step=4';

@@ -1,25 +1,22 @@
 // src/services/collapsibleHeaderService.tsx
-// ⭐ V6 SERVICE - Service for consistent collapsible headers with blue background and white arrows
-// Used in: OAuthAuthorizationCodeFlowV6, Configuration page, Dashboard
+// Service for consistent collapsible headers with blue background and white arrows
 
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 
 export interface CollapsibleHeaderConfig {
-	title: string;
-	subtitle?: string;
-	icon?: React.ReactNode;
-	defaultCollapsed?: boolean;
-	showArrow?: boolean;
-	variant?: 'default' | 'compact' | 'large';
-	theme?: 'blue' | 'green' | 'orange' | 'purple';
+  title: string;
+  subtitle?: string;
+  icon?: React.ReactNode;
+  defaultCollapsed?: boolean;
+  showArrow?: boolean;
+  variant?: 'default' | 'compact' | 'large';
+  theme?: 'blue' | 'green' | 'orange' | 'purple';
 }
 
 export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
-	children: React.ReactNode;
-	className?: string;
-	onToggle?: () => void;
-	isCollapsed?: boolean;
+  children: React.ReactNode;
+  className?: string;
 }
 
 // Arrow icon component with the requested styling
@@ -188,7 +185,7 @@ const IconContainer = styled.div`
   flex-shrink: 0;
 `;
 
-// Default arrow SVG - Right arrow when collapsed, Down arrow when expanded
+// Default arrow SVG
 const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
   <svg
     width="14"
@@ -198,7 +195,7 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <path
-      d={collapsed ? "M9 6L15 12L9 18" : "M6 9L12 15L18 9"}
+      d={collapsed ? "M6 9L12 15L18 9" : "M18 15L12 9L6 15"}
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -209,70 +206,52 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
 
 // Main collapsible header component
 export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
-	title,
-	subtitle,
-	icon,
-	defaultCollapsed = false,
-	showArrow = true,
-	variant = 'default',
-	children,
-	className,
-	onToggle,
-	isCollapsed: controlledCollapsed = undefined
+  title,
+  subtitle,
+  icon,
+  defaultCollapsed = false,
+  showArrow = true,
+  variant = 'default',
+  children,
+  className
 }) => {
-	// Support both controlled and uncontrolled modes
-	const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
-	
-	// Use controlled value if provided, otherwise use internal state
-	const isControlled = controlledCollapsed !== undefined;
-	const isCollapsed = isControlled ? controlledCollapsed : internalCollapsed;
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
-	// Sync internal state with defaultCollapsed only on mount or when switching from controlled to uncontrolled
-	useEffect(() => {
-		if (!isControlled) {
-			setInternalCollapsed(defaultCollapsed);
-		}
-	}, [defaultCollapsed, isControlled]);
+  const toggleCollapsed = () => {
+    setIsCollapsed(!isCollapsed);
+  };
 
-	const toggleCollapsed = useCallback(() => {
-		if (!isControlled) {
-			setInternalCollapsed(prev => !prev);
-		}
-		// Always call onToggle if provided
-		onToggle?.();
-	}, [isControlled, onToggle]);
-
-	return (
-		<CollapsibleHeaderContainer $variant={variant} className={className}>
-			<HeaderButton
-				$variant={variant}
-				onClick={toggleCollapsed}
-				aria-expanded={!isCollapsed}
-				aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-			>
-				<HeaderContent>
-					{icon && <IconContainer>{icon}</IconContainer>}
-					<HeaderText>
-						<HeaderTitle $variant={variant}>{title}</HeaderTitle>
-						{subtitle && <HeaderSubtitle>{subtitle}</HeaderSubtitle>}
-					</HeaderText>
-				</HeaderContent>
-				{showArrow && (
-					<ArrowIcon $collapsed={isCollapsed}>
-						<DefaultArrowIcon collapsed={isCollapsed} />
-					</ArrowIcon>
-				)}
-			</HeaderButton>
-			<ContentArea
-				$collapsed={isCollapsed}
-				$variant={variant}
-				id={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-				aria-labelledby={`header-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-			>
-				{children}
-			</ContentArea>
-		</CollapsibleHeaderContainer>
-	);
+  return (
+    <CollapsibleHeaderContainer $variant={variant} className={className}>
+      <HeaderButton
+        $variant={variant}
+        onClick={toggleCollapsed}
+        aria-expanded={!isCollapsed}
+        aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+      >
+        <HeaderContent>
+          {icon && <IconContainer>{icon}</IconContainer>}
+          <HeaderText>
+            <HeaderTitle $variant={variant}>{title}</HeaderTitle>
+            {subtitle && <HeaderSubtitle>{subtitle}</HeaderSubtitle>}
+          </HeaderText>
+        </HeaderContent>
+        {showArrow && (
+          <ArrowIcon $collapsed={isCollapsed}>
+            <DefaultArrowIcon collapsed={isCollapsed} />
+          </ArrowIcon>
+        )}
+      </HeaderButton>
+      <ContentArea
+        $collapsed={isCollapsed}
+        $variant={variant}
+        id={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+        aria-labelledby={`header-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+      >
+        {children}
+      </ContentArea>
+    </CollapsibleHeaderContainer>
+  );
 };
 
 // Utility function to create themed collapsible headers
@@ -292,16 +271,16 @@ export const PurpleCollapsibleHeader = createThemedCollapsibleHeader('purple');
 export const useCollapsibleState = (defaultCollapsed = false) => {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
-  const toggle = useCallback(() => setIsCollapsed(!isCollapsed), [isCollapsed]);
-  const expand = useCallback(() => setIsCollapsed(false), []);
-  const collapse = useCallback(() => setIsCollapsed(true), []);
+  const toggle = () => setIsCollapsed(!isCollapsed);
+  const expand = () => setIsCollapsed(false);
+  const collapse = () => setIsCollapsed(true);
 
-  return useMemo(() => ({
+  return {
     isCollapsed,
     toggle,
     expand,
     collapse
-  }), [isCollapsed, toggle, expand, collapse]);
+  };
 };
 
 export default {
@@ -312,4 +291,3 @@ export default {
   PurpleCollapsibleHeader,
   useCollapsibleState
 };
-
