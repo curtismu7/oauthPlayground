@@ -525,6 +525,17 @@ export class FlowUIService {
 
 	static getHighlightedActionButton() {
 		return styled.button<{ $priority: 'primary' | 'success' }>`
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 0.5rem;
+			padding: 0.875rem 3rem 0.875rem 1.5rem;
+			border-radius: 0.5rem;
+			font-size: 0.875rem;
+			font-weight: 600;
+			cursor: pointer;
+			transition: all 0.2s;
+			border: 1px solid transparent;
 			position: relative;
 			background: ${({ $priority }) =>
 				$priority === 'primary'
@@ -535,13 +546,18 @@ export class FlowUIService {
 					? '0 6px 18px rgba(59, 130, 246, 0.35)'
 					: '0 6px 18px rgba(34, 197, 94, 0.35)'};
 			color: #ffffff;
-			padding-right: 2.5rem;
 
-			&:hover {
+			&:hover:not(:disabled) {
 				transform: scale(1.02);
+				box-shadow: ${({ $priority }) =>
+					$priority === 'primary'
+						? '0 8px 22px rgba(59, 130, 246, 0.4)'
+						: '0 8px 22px rgba(34, 197, 94, 0.4)'};
 			}
 
 			&:disabled {
+				cursor: not-allowed;
+				opacity: 0.6;
 				background: ${({ $priority }) =>
 					$priority === 'primary'
 						? 'linear-gradient(135deg, rgba(59,130,246,0.6) 0%, rgba(37,99,235,0.6) 100%)'
@@ -1156,23 +1172,24 @@ export const Button: React.FC<ButtonProps> = ({
 	);
 };
 
+// Pre-create styled components outside render function to avoid dynamic creation warning
+const StyledResultsSection = FlowUIService.getResultsSection();
+const StyledResultsHeading = FlowUIService.getResultsHeading();
+
 export const ResultsSection: React.FC<ResultsSectionProps> = ({
 	title,
 	children,
 	icon,
 	variant = 'default'
 }) => {
-	const Section = FlowUIService.getResultsSection();
-	const Heading = FlowUIService.getResultsHeading();
-
 	return (
-		<Section>
-			<Heading>
+		<StyledResultsSection>
+			<StyledResultsHeading>
 				{icon}
 				{title}
-			</Heading>
+			</StyledResultsHeading>
 			{children}
-		</Section>
+		</StyledResultsSection>
 	);
 };
 

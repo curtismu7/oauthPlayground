@@ -338,7 +338,7 @@ class CredentialManager {
 					environmentId: credentials.environmentId || '',
 					clientId: credentials.clientId || '',
 					clientSecret: credentials.clientSecret || '',
-					redirectUri: credentials.redirectUri || getCallbackUrlForFlow('oidc-implicit-v3'),
+					redirectUri: credentials.redirectUri !== undefined ? credentials.redirectUri : getCallbackUrlForFlow('oidc-implicit-v3'),
 					scopes: credentials.scopes || ['openid', 'profile', 'email'],
 					authEndpoint: credentials.authEndpoint,
 					tokenEndpoint: credentials.tokenEndpoint,
@@ -346,6 +346,12 @@ class CredentialManager {
 					endSessionEndpoint: credentials.endSessionEndpoint,
 					tokenAuthMethod: credentials.tokenAuthMethod,
 				};
+
+				console.log('📥 [CredentialManager] Loaded implicit flow credentials:', {
+					hasRedirectUri: !!credentials.redirectUri,
+					redirectUri: credentials.redirectUri,
+					fullResult: result
+				});
 
 				return result;
 			} else {
