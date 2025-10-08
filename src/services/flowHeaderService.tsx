@@ -258,6 +258,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚡',
 		version: 'V5',
 	},
+	'redirectless-v6-real': {
+		flowType: 'pingone',
+		title: 'Redirectless Flow V6 (response_mode=pi.flow) - Real Implementation',
+		subtitle:
+			'⚡ PingOne Proprietary - Authorization Code Flow with response_mode=pi.flow parameter. Eliminates browser redirects entirely - authentication happens via direct API calls to PingOne Flow API. Returns tokens directly without redirect_uri. ✅ Benefits: Embedded login UX, no browser navigation, seamless mobile/desktop experience. ⚠️ PingOne-specific, not OAuth/OIDC standard.',
+		icon: '⚡',
+		version: 'V6',
+	},
 	redirectless: {
 		flowType: 'pingone',
 		title: 'Redirectless Flow - Educational Demo (Mock)',
