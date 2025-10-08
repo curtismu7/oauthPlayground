@@ -69,14 +69,12 @@ import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
 import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
-// OAuthAuthorizationCodeFlowV5 removed - was causing 500 errors
+// V5 OAuth/OIDC Flows
+import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
-// Import the new V6 flow
-import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
-// V3 OIDC flows backed up
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 // OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
@@ -314,6 +312,8 @@ const AppRoutes = () => {
 							<Route path="/oauth-v3-callback" element={<OAuthV3Callback />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/implicit-callback" element={<ImplicitCallback />} />
+							<Route path="/oauth-implicit-callback" element={<ImplicitCallback />} />
+							<Route path="/oidc-implicit-callback" element={<ImplicitCallback />} />
 							<Route path="/implicit-callback-v3" element={<ImplicitCallbackV3 />} />
 							<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
 							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
@@ -325,14 +325,17 @@ const AppRoutes = () => {
 								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
 								<Route path="mfa" element={<MFAFlow />} />
 							</Route>
-							{/* Tools & Utilities Routes */}
-							<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
-							{/* Backed up V2/V3/V4 routes removed */}
-							{/* OAuthAuthorizationCodeFlowV5 removed - was causing 500 errors */}
-							<Route
-								path="/flows/oidc-authorization-code-v5"
-								element={<OIDCAuthorizationCodeFlowV5 />}
-							/>
+						{/* Tools & Utilities Routes */}
+						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
+						{/* V5 OAuth/OIDC Flow Routes */}
+						<Route
+							path="/flows/oauth-authorization-code-v5"
+							element={<OAuthAuthorizationCodeFlowV5 />}
+						/>
+						<Route
+							path="/flows/oidc-authorization-code-v5"
+							element={<OIDCAuthorizationCodeFlowV5 />}
+						/>
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route
 								path="/flows/oauth-implicit-completion"
@@ -426,16 +429,11 @@ const AppRoutes = () => {
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
-							<Route
-								path="/flows/oidc-authorization-code-v5"
-								element={<OIDCAuthorizationCodeFlowV5 />}
-							/>
-							{/* V6 flow with service architecture */}
-							<Route
-								path="/flows/oidc-authorization-code-v6"
-								element={<OAuthAuthorizationCodeFlowV6 />}
-							/>
-							<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+						<Route
+							path="/flows/oidc-authorization-code-v5"
+							element={<OIDCAuthorizationCodeFlowV5 />}
+						/>
+						<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route
 								path="/flows/oidc-device-authorization-v5"

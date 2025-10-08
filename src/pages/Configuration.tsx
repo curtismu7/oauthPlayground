@@ -603,6 +603,26 @@ cd oauthPlayground`}
 						</div>
 					</div>
 				</div>
+				<div
+					style={{
+						padding: '1.5rem',
+						background: 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+						border: '2px solid #8b5cf6',
+						borderRadius: '0.75rem',
+					}}
+				>
+					<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+						Redirect Server Launcher
+					</h3>
+					<p style={{ color: '#5b21b6', marginBottom: '1rem' }}>
+						Runs both redirect-friendly servers with the project defaults.
+					</p>
+					<CodeBlockWithCopy label="redirect-script">{`./redirect-servers.sh`}</CodeBlockWithCopy>
+					<p style={{ color: '#4c1d95', fontSize: '0.85rem', marginTop: '0.75rem' }}>
+						If the script is not executable, run:
+					</p>
+					<CodeBlockWithCopy label="redirect-chmod">{`chmod +x redirect-servers.sh`}</CodeBlockWithCopy>
+				</div>
 			</Card>
 			</CollapsibleHeader>
 

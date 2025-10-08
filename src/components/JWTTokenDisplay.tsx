@@ -1,8 +1,9 @@
 // src/components/JWTTokenDisplay.tsx
 import React, { useState } from 'react';
-import { FiCopy, FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiKey } from 'react-icons/fi';
 import styled from 'styled-components';
 import { decodeJWT, isJWT, type DecodedJWT } from '../utils/jwtDecoder';
+import { CopyButtonService } from '../services/copyButtonService';
 
 interface JWTTokenDisplayProps {
 	token: string;
@@ -70,24 +71,6 @@ const ToggleButton = styled.button`
 	}
 `;
 
-const CopyButton = styled.button`
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	background: #10b981;
-	color: white;
-	border: none;
-	border-radius: 4px;
-	padding: 0.375rem 0.75rem;
-	font-size: 0.75rem;
-	font-weight: 500;
-	cursor: pointer;
-	transition: background-color 0.2s;
-
-	&:hover {
-		background: #059669;
-	}
-`;
 
 const TokenValue = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
@@ -193,14 +176,6 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 		setIsDecoded(!isDecoded);
 	};
 
-	const handleCopy = () => {
-		const label = copyLabel || displayTokenType;
-		if (onCopy) {
-			onCopy(token, label);
-		} else {
-			navigator.clipboard.writeText(token);
-		}
-	};
 
 	const formatExpiry = (seconds: number) => {
 		const hours = Math.floor(seconds / 3600);
@@ -238,10 +213,13 @@ export const JWTTokenDisplay: React.FC<JWTTokenDisplayProps> = ({
 						{isDecoded ? <FiEyeOff size={12} /> : <FiEye size={12} />}
 						{isDecoded ? 'Hide Decoded' : 'Decode JWT'}
 					</ToggleButton>
-					<CopyButton onClick={handleCopy} title={`Copy ${copyLabel || displayTokenType}`}>
-						<FiCopy size={12} />
-						Copy
-					</CopyButton>
+					<CopyButtonService
+						text={token}
+						label={copyLabel || displayTokenType}
+						size="sm"
+						variant="secondary"
+						showLabel={true}
+					/>
 				</TokenActions>
 			</TokenHeader>
 

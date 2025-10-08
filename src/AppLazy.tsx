@@ -23,6 +23,7 @@ const Configuration = React.lazy(() => import('./pages/Configuration'));
 const Documentation = React.lazy(() => import('./pages/Documentation'));
 const Login = React.lazy(() => import('./pages/Login'));
 const Callback = React.lazy(() => import('./pages/Callback'));
+const AuthorizationCallback = React.lazy(() => import('./pages/AuthorizationCallback'));
 const TokenManagement = React.lazy(() => import('./pages/TokenManagement'));
 const OIDCOverview = React.lazy(() => import('./pages/docs/OIDCOverview'));
 const AIGlossary = React.lazy(() => import('./pages/AIGlossary'));
@@ -44,6 +45,14 @@ const DeviceCodeFlow = React.lazy(() => import('./pages/flows/DeviceCodeFlow'));
 const HybridFlow = React.lazy(() => import('./pages/flows/HybridFlow'));
 const UserInfoFlow = React.lazy(() => import('./pages/flows/UserInfoFlow'));
 const IDTokensFlow = React.lazy(() => import('./pages/flows/IDTokensFlow'));
+
+// V5 Flow Components
+const OAuthAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OAuthAuthorizationCodeFlowV5'));
+const OIDCAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OIDCAuthorizationCodeFlowV5'));
+const OAuthImplicitFlowV5 = React.lazy(() => import('./pages/flows/OAuthImplicitFlowV5'));
+const OIDCImplicitFlowV5 = React.lazy(() => import('./pages/flows/OIDCImplicitFlowV5'));
+const ClientCredentialsFlowV5 = React.lazy(() => import('./pages/flows/ClientCredentialsFlowV5'));
+const DeviceAuthorizationFlowV5 = React.lazy(() => import('./pages/flows/DeviceAuthorizationFlowV5'));
 
 const AppContainer = styled.div`
   display: flex;
@@ -262,6 +271,15 @@ const AppRoutes = () => {
 							}
 						/>
 
+						<Route
+							path="/authz-callback"
+							element={
+								<LazyRouteWrapper fallbackMessage="Processing authorization...">
+									<AuthorizationCallback />
+								</LazyRouteWrapper>
+							}
+						/>
+
 						<Route path="/" element={<Navigate to="/dashboard" replace />} />
 
 						<Route
@@ -436,6 +454,74 @@ const AppRoutes = () => {
 										flowType="OIDC Device Code"
 									>
 										<DeviceCodeFlow />
+									</LazyRouteWrapper>
+								}
+							/>
+
+							{/* V5 Flow Routes */}
+							<Route
+								path="oauth-authorization-code-v5"
+								element={
+									<LazyRouteWrapper
+										fallbackMessage="Loading OAuth Authorization Code V5..."
+										flowType="OAuth Authorization Code V5"
+									>
+										<OAuthAuthorizationCodeFlowV5 />
+									</LazyRouteWrapper>
+								}
+							/>
+							<Route
+								path="oidc-authorization-code-v5"
+								element={
+									<LazyRouteWrapper
+										fallbackMessage="Loading OIDC Authorization Code V5..."
+										flowType="OIDC Authorization Code V5"
+									>
+										<OIDCAuthorizationCodeFlowV5 />
+									</LazyRouteWrapper>
+								}
+							/>
+							<Route
+								path="oauth-implicit-v5"
+								element={
+									<LazyRouteWrapper
+										fallbackMessage="Loading OAuth Implicit V5..."
+										flowType="OAuth Implicit V5"
+									>
+										<OAuthImplicitFlowV5 />
+									</LazyRouteWrapper>
+								}
+							/>
+							<Route
+								path="oidc-implicit-v5"
+								element={
+									<LazyRouteWrapper
+										fallbackMessage="Loading OIDC Implicit V5..."
+										flowType="OIDC Implicit V5"
+									>
+										<OIDCImplicitFlowV5 />
+									</LazyRouteWrapper>
+								}
+							/>
+							<Route
+								path="client-credentials-v5"
+								element={
+									<LazyRouteWrapper
+										fallbackMessage="Loading Client Credentials V5..."
+										flowType="Client Credentials V5"
+									>
+										<ClientCredentialsFlowV5 />
+									</LazyRouteWrapper>
+								}
+							/>
+							<Route
+								path="device-authorization-v5"
+								element={
+									<LazyRouteWrapper
+										fallbackMessage="Loading Device Authorization V5..."
+										flowType="Device Authorization V5"
+									>
+										<DeviceAuthorizationFlowV5 />
 									</LazyRouteWrapper>
 								}
 							/>
