@@ -170,9 +170,9 @@ const ContentArea = styled.div<{ $collapsed: boolean; $variant: string }>`
         return '1.5rem';
     }
   }};
-  max-height: ${({ $collapsed }) => $collapsed ? '0' : '2000px'};
-  overflow: hidden;
-  transition: all 0.3s ease;
+  max-height: ${({ $collapsed }) => $collapsed ? '0' : 'none'};
+  overflow: ${({ $collapsed }) => $collapsed ? 'hidden' : 'visible'};
+  transition: ${({ $collapsed }) => $collapsed ? 'all 0.3s ease' : 'none'};
   background: #ffffff;
   border-top: ${({ $collapsed }) => $collapsed ? 'none' : '1px solid #f1f5f9'};
 `;
