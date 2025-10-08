@@ -220,25 +220,33 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 	},
 	'pingone-par-v5': {
 		flowType: 'pingone',
-		title: 'Pushed Authorization Requests (PAR) Flow',
+		title: 'PAR (Pushed Authorization Requests) Flow - Enhanced Security',
 		subtitle:
-			'Enhanced security flow that pushes authorization parameters directly to the authorization server before redirecting. Prevents parameter tampering and reduces URL size for complex requests.',
+			'🔒 RFC 9126 - Authorization Code Flow + PAR enhancement. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits. Perfect for production OIDC clients with sensitive scopes.',
 		icon: '🔒',
+		version: 'V5',
+	},
+	'rar-flow-v5': {
+		flowType: 'pingone',
+		title: 'RAR (Rich Authorization Requests) Flow - Fine-Grained Permissions',
+		subtitle:
+			'📊 RFC 9396 - Authorization Code Flow + RAR extension. Express complex authorization requirements using structured JSON authorization_details instead of simple scope strings. Example: "authorize $250 payment to ABC Supplies" vs "payments.write". ✅ Benefits: Fine-grained permissions, clear user consent, structured audit logs. Ideal for financial transactions and compliance scenarios.',
+		icon: '📊',
 		version: 'V5',
 	},
 	'redirectless-flow-v5': {
 		flowType: 'pingone',
-		title: 'Redirectless Flow - Seamless Mobile Authentication',
+		title: 'Redirectless Flow (response_mode=pi.flow) - API-Driven Auth',
 		subtitle:
-			'Innovative PingOne flow that eliminates browser redirects for embedded authentication. Perfect for mobile apps and single-page applications requiring seamless user experience without context switching.',
+			'⚡ PingOne Proprietary - Authorization Code Flow with response_mode=pi.flow parameter. Eliminates browser redirects entirely - authentication happens via direct API calls to PingOne Flow API. Returns tokens directly without redirect_uri. ✅ Benefits: Embedded login UX, no browser navigation, seamless mobile/desktop experience. ⚠️ PingOne-specific, not OAuth/OIDC standard.',
 		icon: '⚡',
 		version: 'V5',
 	},
 	redirectless: {
 		flowType: 'pingone',
-		title: 'Redirectless Flow - Educational Demo',
+		title: 'Redirectless Flow - Educational Demo (Mock)',
 		subtitle:
-			'Educational demonstration of PingOne redirectless authentication flow. Learn how to implement seamless authentication without browser redirects in mobile and embedded applications.',
+			'🎓 Educational demonstration of PingOne redirectless authentication (response_mode=pi.flow). Learn how redirectless flows work without needing a real PingOne environment. Simulates Flow API interactions and token responses for learning purposes.',
 		icon: '🎯',
 		version: 'V5',
 		isExperimental: true,
