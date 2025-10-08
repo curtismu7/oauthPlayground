@@ -84,8 +84,8 @@ import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPass
 import PARFlow from './pages/flows/PARFlow';
 import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 // PingOnePARFlow (non-V5) backed up
-import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6';
-import RARFlowV6 from './pages/flows/RARFlowV6';
+import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
+import RARFlowV6 from './pages/flows/RARFlowV6_New';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
 // ResourceOwnerPasswordFlow backed up
