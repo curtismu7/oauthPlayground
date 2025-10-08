@@ -84,8 +84,8 @@ import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPass
 import PARFlow from './pages/flows/PARFlow';
 import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 // PingOnePARFlow (non-V5) backed up
-import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
-import RARFlowV5 from './pages/flows/RARFlowV5';
+import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6';
+import RARFlowV6 from './pages/flows/RARFlowV6';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
 // ResourceOwnerPasswordFlow backed up
@@ -370,10 +370,12 @@ const AppRoutes = () => {
 								path="/oidc/resource-owner-password"
 								element={<OIDCResourceOwnerPasswordFlowV5 />}
 							/>
-							{/* PingOne PAR Flow - V5 only */}
-							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV5 />} />
+							{/* PingOne PAR Flow - V6 (upgraded with services) */}
+							<Route path="/flows/pingone-par-v6" element={<PingOnePARFlowV6 />} />
+							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV6 />} /> {/* Redirect V5 to V6 */}
 							<Route path="/flows/pingone-mfa-v5" element={<PingOneMFAFlowV5 />} />
-							<Route path="/flows/rar-v5" element={<RARFlowV5 />} />
+							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
+							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
 							{/* Legacy route removed - use V5 */}
 							<Route
 								path="/flows/oauth2-resource-owner-password"
