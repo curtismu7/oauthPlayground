@@ -6,21 +6,152 @@ import { toast } from 'react-toastify';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthorizationCodeSharedService } from '../../services/authorizationCodeSharedService';
-import { FlowHeader } from '../../components/FlowHeader';
-import { VersionBadge } from '../../components/VersionBadge';
-import { InfoBox } from '../../components/InfoBox';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowConfigurationRequirements } from '../../components/FlowConfigurationRequirements';
 import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryCard } from '../../services/configurationSummaryService';
 import { CollapsibleSection } from '../../services/collapsibleHeaderService';
-import { HighlightedActionButton } from '../../components/HighlightedActionButton';
-import { HighlightBadge } from '../../components/HighlightBadge';
-import { StepNavigation } from '../../components/StepNavigation';
-import { TokenDisplay } from '../../components/TokenDisplay';
-import { TokenIntrospection } from '../../components/TokenIntrospection';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import TokenIntrospect from '../../components/TokenIntrospect';
+import styled from 'styled-components';
 
 // Import config
 import { STEP_METADATA, IntroSectionKey, DEFAULT_APP_CONFIG, PI_FLOW_EDUCATION } from './config/RedirectlessFlow.config';
+
+// Styled components
+const VersionBadge = styled.span`
+	background: linear-gradient(135deg, #10b981, #059669);
+	color: white;
+	padding: 0.25rem 0.75rem;
+	border-radius: 0.5rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	margin: 1rem 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+	background: ${props => {
+		switch (props.$variant) {
+			case 'warning': return '#fef3c7';
+			case 'success': return '#d1fae5';
+			default: return '#eff6ff';
+		}
+	}};
+	border: 1px solid ${props => {
+		switch (props.$variant) {
+			case 'warning': return '#fbbf24';
+			case 'success': return '#10b981';
+			default: return '#3b82f6';
+		}
+	}};
+	color: ${props => {
+		switch (props.$variant) {
+			case 'warning': return '#92400e';
+			case 'success': return '#065f46';
+			default: return '#1e40af';
+		}
+	}};
+`;
+
+const Button = styled.button<{
+	$priority?: 'primary' | 'secondary' | 'success';
+	$disabled?: boolean;
+}>`
+	padding: 0.75rem 1.5rem;
+	border-radius: 0.5rem;
+	font-weight: 600;
+	font-size: 0.875rem;
+	border: none;
+	cursor: ${props => props.$disabled ? 'not-allowed' : 'pointer'};
+	opacity: ${props => props.$disabled ? 0.5 : 1};
+	transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	
+	${props => {
+		switch (props.$priority) {
+			case 'primary':
+				return `
+					background: #3b82f6;
+					color: white;
+					&:hover:not(:disabled) {
+						background: #2563eb;
+					}
+				`;
+			case 'success':
+				return `
+					background: #10b981;
+					color: white;
+					&:hover:not(:disabled) {
+						background: #059669;
+					}
+				`;
+			default:
+				return `
+					background: #f3f4f6;
+					color: #374151;
+					&:hover:not(:disabled) {
+						background: #e5e7eb;
+					}
+				`;
+		}
+	}}
+`;
+
+const HighlightedActionButton = styled(Button)<{ $priority: 'primary' | 'success' }>`
+	position: relative;
+	overflow: hidden;
+	
+	&::before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+		transition: left 0.5s;
+	}
+	
+	&:hover:not(:disabled)::before {
+		left: 100%;
+	}
+`;
+
+const HighlightBadge = styled.span`
+	background: #f59e0b;
+	color: white;
+	padding: 0.25rem 0.5rem;
+	border-radius: 0.25rem;
+	font-size: 0.75rem;
+	font-weight: 600;
+	margin-left: 0.5rem;
+`;
+
+const TokenDisplay = styled.div`
+	background: #f9fafb;
+	border: 1px solid #e5e7eb;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin: 0.5rem 0;
+	position: relative;
+`;
+
+const CollapsibleContent = styled.div<{ $collapsed?: boolean }>`
+	max-height: ${props => props.$collapsed ? '0' : 'none'};
+	overflow: ${props => props.$collapsed ? 'hidden' : 'visible'};
+	transition: max-height 0.3s ease;
+`;
 
 /**
  * Redirectless Flow V6 Real - PingOne API-driven authentication without browser redirects
@@ -392,7 +523,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                             </HighlightedActionButton>
 
                             {controller.tokens.accessToken && (
-                                <TokenIntrospection
+                                <TokenIntrospect
                                     token={controller.tokens.accessToken}
                                     tokenType="access_token"
                                     onIntrospect={(result) => {
@@ -428,7 +559,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
             
             <VersionBadge version="V6" variant="success" />
 
-            <StepNavigation
+            <StepNavigationButtons
                 steps={STEP_METADATA}
                 currentStep={controller.currentStep}
                 onStepChange={controller.setCurrentStep}
