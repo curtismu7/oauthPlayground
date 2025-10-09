@@ -812,6 +812,11 @@ const RARFlowV6: React.FC = () => {
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
 
+	// Get flow sequence for Step 0 diagram
+	const flowSequence = useMemo(() => {
+		return getFlowSequence('rar');
+	}, []);
+
 	const stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
@@ -1242,6 +1247,8 @@ const RARFlowV6: React.FC = () => {
 	const renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
+			flowName: 'Rich Authorization Requests (RAR) Flow V6',
+			flowDescription: 'You\'ve successfully completed the RAR flow. Fine-grained authorization details were requested and granted using structured JSON authorization_details.',
 			onStartNewFlow: () => {
 				controller.resetFlow();
 				setCurrentStep(0);
@@ -1249,17 +1256,24 @@ const RARFlowV6: React.FC = () => {
 			showUserInfo: Boolean(controller.userInfo),
 			showIntrospection: Boolean(introspectionApiCall),
 			userInfo: controller.userInfo,
-			introspectionResult: introspectionApiCall?.response
+			introspectionResult: introspectionApiCall?.response,
+			nextSteps: [
+				'Store all tokens securely in your application',
+				'Parse authorization_details from the access token',
+				'Enforce fine-grained permissions based on authorization_details',
+				'Note: RAR enables precise, scope-independent authorization',
+				'Implement proper error handling for authorization_details validation'
+			]
 		};
 
 		return (
 			<FlowCompletionService
 				config={completionConfig}
-				collapsed={collapsedSections.flowSummary}
-				onToggleCollapsed={() => toggleSection('flowSummary')}
+				collapsed={completionCollapsed}
+				onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
 			/>
 		);
-	}, [controller, collapsedSections.flowSummary, toggleSection, introspectionApiCall]);
+	}, [controller, completionCollapsed, introspectionApiCall]);
 
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
