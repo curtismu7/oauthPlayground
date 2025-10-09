@@ -87,7 +87,7 @@ import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
 import RARFlowV6 from './pages/flows/RARFlowV6_New';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
-import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
+import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real_New';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
