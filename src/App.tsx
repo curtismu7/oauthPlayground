@@ -436,7 +436,7 @@ const AppRoutes = () => {
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 						<Route
 							path="/flows/oidc-authorization-code-v5"
-							element={<OIDCAuthorizationCodeFlowV5 />}
+							element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
 						/>
 						<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
