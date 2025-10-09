@@ -10,7 +10,6 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowConfigurationRequirements } from '../../components/FlowConfigurationRequirements';
 import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryCard } from '../../services/configurationSummaryService';
-import { CollapsibleSection } from '../../services/collapsibleHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import TokenIntrospect from '../../components/TokenIntrospect';
@@ -151,6 +150,84 @@ const CollapsibleContent = styled.div<{ $collapsed?: boolean }>`
 	max-height: ${props => props.$collapsed ? '0' : 'none'};
 	overflow: ${props => props.$collapsed ? 'hidden' : 'visible'};
 	transition: max-height 0.3s ease;
+`;
+
+const CollapsibleSection = styled.section`
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	background: white;
+	margin-bottom: 1.5rem;
+	overflow: hidden;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const CollapsibleHeader = styled.div<{ $collapsed?: boolean }>`
+	background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+	color: white;
+	padding: 1rem 1.5rem;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-weight: 600;
+	font-size: 1rem;
+	transition: all 0.2s ease;
+	
+	&:hover {
+		background: linear-gradient(135deg, #2563eb, #1e40af);
+	}
+	
+	& > div:first-child {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+	}
+`;
+
+const CollapsibleArrow = styled.div<{ $collapsed?: boolean }>`
+	transform: ${props => props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)'};
+	transition: transform 0.2s ease;
+`;
+
+const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1.25rem 1.5rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
+	border: none;
+	border-radius: 0.75rem;
+	cursor: pointer;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #065f46;
+	transition: all 0.2s ease;
+	
+	&:hover {
+		background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);
+	}
+`;
+
+const CollapsibleTitle = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	display: inline-flex;
+	width: 32px;
+	height: 32px;
+	align-items: center;
+	justify-content: center;
+	background: #10b981;
+	color: white;
+	border-radius: 50%;
+	font-size: 1.2rem;
+	transition: transform 0.2s ease;
+	
+	transform: ${props => props.$collapsed ? 'rotate(0deg)' : 'rotate(180deg)'};
 `;
 
 /**
@@ -318,12 +395,19 @@ const RedirectlessFlowV6Real: React.FC = () => {
             case 1:
                 return (
                     <>
-                        <CollapsibleSection
-                            title="PKCE Parameters"
-                            isCollapsed={collapsedSections.pkce}
-                            onToggle={() => toggleSection('pkce')}
-                            icon="🔐"
-                        >
+                        <CollapsibleSection>
+                            <CollapsibleHeaderButton
+                                onClick={() => toggleSection('pkce')}
+                                aria-expanded={!collapsedSections.pkce}
+                            >
+                                <CollapsibleTitle>
+                                    <CollapsibleToggleIcon $collapsed={collapsedSections.pkce}>🔐</CollapsibleToggleIcon>
+                                    PKCE Parameters
+                                </CollapsibleTitle>
+                                <CollapsibleToggleIcon $collapsed={collapsedSections.pkce}>▼</CollapsibleToggleIcon>
+                            </CollapsibleHeaderButton>
+                            {!collapsedSections.pkce && (
+                                <CollapsibleContent>
                             <div style={{ marginBottom: '1rem' }}>
                                 <p>
                                     <strong>Proof Key for Code Exchange (PKCE)</strong> adds an extra layer of security 
@@ -366,14 +450,23 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                     />
                                 </div>
                             )}
+                                </CollapsibleContent>
+                            )}
                         </CollapsibleSection>
 
-                        <CollapsibleSection
-                            title="Authorization URL Generation"
-                            isCollapsed={collapsedSections.authUrl}
-                            onToggle={() => toggleSection('authUrl')}
-                            icon="🔗"
-                        >
+                        <CollapsibleSection>
+                            <CollapsibleHeaderButton
+                                onClick={() => toggleSection('authUrl')}
+                                aria-expanded={!collapsedSections.authUrl}
+                            >
+                                <CollapsibleTitle>
+                                    <CollapsibleToggleIcon $collapsed={collapsedSections.authUrl}>🔗</CollapsibleToggleIcon>
+                                    Authorization URL Generation
+                                </CollapsibleTitle>
+                                <CollapsibleToggleIcon $collapsed={collapsedSections.authUrl}>▼</CollapsibleToggleIcon>
+                            </CollapsibleHeaderButton>
+                            {!collapsedSections.authUrl && (
+                                <CollapsibleContent>
                             <div style={{ marginBottom: '1rem' }}>
                                 <p>
                                     Generate the authorization URL that will be used to authenticate the user. 
@@ -429,6 +522,8 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                     </div>
                                 </div>
                             )}
+                                </CollapsibleContent>
+                            )}
                         </CollapsibleSection>
                     </>
                 );
@@ -436,12 +531,19 @@ const RedirectlessFlowV6Real: React.FC = () => {
             case 2:
                 return (
                     <>
-                        <CollapsibleSection
-                            title="Token Exchange"
-                            isCollapsed={collapsedSections.tokenExchange}
-                            onToggle={() => toggleSection('tokenExchange')}
-                            icon="🔄"
-                        >
+                        <CollapsibleSection>
+                            <CollapsibleHeaderButton
+                                onClick={() => toggleSection('tokenExchange')}
+                                aria-expanded={!collapsedSections.tokenExchange}
+                            >
+                                <CollapsibleTitle>
+                                    <CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchange}>🔄</CollapsibleToggleIcon>
+                                    Token Exchange
+                                </CollapsibleTitle>
+                                <CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchange}>▼</CollapsibleToggleIcon>
+                            </CollapsibleHeaderButton>
+                            {!collapsedSections.tokenExchange && (
+                                <CollapsibleContent>
                             <div style={{ marginBottom: '1rem' }}>
                                 <p>
                                     For Redirectless flow, tokens are returned directly in the API response 
@@ -493,6 +595,8 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                     <p>Complete the authorization step to receive tokens</p>
                                 </div>
                             )}
+                                </CollapsibleContent>
+                            )}
                         </CollapsibleSection>
                     </>
                 );
@@ -500,12 +604,19 @@ const RedirectlessFlowV6Real: React.FC = () => {
             case 3:
                 return (
                     <>
-                        <CollapsibleSection
-                            title="Token Management"
-                            isCollapsed={collapsedSections.tokenManagement}
-                            onToggle={() => toggleSection('tokenManagement')}
-                            icon="🛠️"
-                        >
+                        <CollapsibleSection>
+                            <CollapsibleHeaderButton
+                                onClick={() => toggleSection('tokenManagement')}
+                                aria-expanded={!collapsedSections.tokenManagement}
+                            >
+                                <CollapsibleTitle>
+                                    <CollapsibleToggleIcon $collapsed={collapsedSections.tokenManagement}>🛠️</CollapsibleToggleIcon>
+                                    Token Management
+                                </CollapsibleTitle>
+                                <CollapsibleToggleIcon $collapsed={collapsedSections.tokenManagement}>▼</CollapsibleToggleIcon>
+                            </CollapsibleHeaderButton>
+                            {!collapsedSections.tokenManagement && (
+                                <CollapsibleContent>
                             <div style={{ marginBottom: '1rem' }}>
                                 <p>
                                     Manage your tokens, including introspection, refresh, and validation.
@@ -530,6 +641,8 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                         console.log('Token introspection result:', result);
                                     }}
                                 />
+                            )}
+                                </CollapsibleContent>
                             )}
                         </CollapsibleSection>
                     </>
