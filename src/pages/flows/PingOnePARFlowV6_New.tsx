@@ -51,6 +51,8 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { getFlowSequence } from '../../services/flowSequenceService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
