@@ -44,6 +44,8 @@ import { decodeJWTHeader } from '../../utils/jwks';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { validateForStep } from '../../services/credentialsValidationService';
 import ImplicitFlowSharedService from '../../services/implicitFlowSharedService';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { getFlowSequence } from '../../services/flowSequenceService';
 
 // Import shared services
 import { FlowConfigurationService } from '../../services/flowConfigurationService';
@@ -222,6 +224,7 @@ const OAuthImplicitFlowV5: React.FC = () => {
 	);
 	const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 	const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
+	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 
 	// All useEffect hooks AFTER state declarations
 	useEffect(() => {
@@ -1475,14 +1478,38 @@ console.log('Scope:', scope);`}
 												be more secure and future-proof.
 											</InfoText>
 										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
-				);
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 
-			default:
+				{/* Professional Flow Completion */}
+				{controller.tokens && (
+					<FlowCompletionService
+						config={{
+							...FlowCompletionConfigs.implicit,
+							flowName: 'OAuth 2.0 Implicit Flow V5',
+							flowDescription: 'You\'ve successfully completed the OAuth 2.0 Implicit Flow. The access token has been received directly from the authorization server.',
+							onStartNewFlow: handleResetFlow,
+							showUserInfo: false,
+							showIntrospection: !!introspectionApiCall,
+							introspectionResult: introspectionApiCall,
+							nextSteps: [
+								'Store the access token securely in your application',
+								'Use the access token to call protected APIs',
+								'Note: Implicit flow returns tokens directly (no refresh token)',
+								'OAuth provides authorization only - use OIDC for user identity',
+								'Consider migrating to Authorization Code + PKCE for better security'
+							]
+						}}
+						collapsed={completionCollapsed}
+						onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
+					/>
+				)}
+			</>
+		);
+
+		default:
 				return null;
 		}
 	}, [
@@ -1498,6 +1525,8 @@ console.log('Scope:', scope);`}
 		savePingOneConfig,
 		showApiCallExamples,
 		toggleSection,
+		completionCollapsed,
+		introspectionApiCall,
 	]);
 
 	return (
