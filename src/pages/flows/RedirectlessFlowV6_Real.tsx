@@ -16,7 +16,7 @@ import TokenIntrospect from '../../components/TokenIntrospect';
 import styled from 'styled-components';
 
 // Import config
-import { STEP_METADATA, IntroSectionKey, DEFAULT_APP_CONFIG, PI_FLOW_EDUCATION } from './config/RedirectlessFlow.config';
+import { STEP_METADATA, IntroSectionKey, DEFAULT_APP_CONFIG, PIFLOW_EDUCATION } from './config/RedirectlessFlow.config';
 
 // Styled components
 const VersionBadge = styled.span`
@@ -346,7 +346,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
 
                         <InfoBox
                             type="info"
-                            title={PI_FLOW_EDUCATION.title}
+                            title={PIFLOW_EDUCATION.title}
                             icon="🚀"
                         >
                             <div style={{ marginBottom: '1rem' }}>
