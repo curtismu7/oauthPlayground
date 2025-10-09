@@ -8,7 +8,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthorizationCodeSharedService } from '../../services/authorizationCodeSharedService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowConfigurationRequirements } from '../../components/FlowConfigurationRequirements';
-import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryCard } from '../../services/configurationSummaryService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
