@@ -627,6 +627,7 @@ const RARFlowV6: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
+	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 
 	// Scroll to top on step change
 	useEffect(() => {
