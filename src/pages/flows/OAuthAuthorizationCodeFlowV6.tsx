@@ -51,6 +51,8 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { getFlowSequence } from '../../services/flowSequenceService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -628,6 +630,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 	
 	// API call tracking for display
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
@@ -813,6 +816,11 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
+
+	// Get flow sequence for Step 0 diagram
+	const flowSequence = useMemo(() => {
+		return getFlowSequence('authorization-code');
+	}, []);
 
 	const stepCompletions = useMemo<StepCompletionState>(
 		() => ({
