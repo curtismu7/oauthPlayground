@@ -57,6 +57,8 @@ import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { getFlowSequence } from '../../services/flowSequenceService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -623,6 +625,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
+	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
 
 	// Scroll to top on step change
@@ -807,6 +810,11 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
+
+	// Get flow sequence for Step 0 diagram
+	const flowSequence = useMemo(() => {
+		return getFlowSequence('authorization-code');
+	}, []);
 
 	const stepCompletions = useMemo<StepCompletionState>(
 		() => ({
@@ -2391,8 +2399,8 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-							flowName="OpenID Connect Authorization Code Flow"
-							flowVersion="V5.1"
+						flowName="OpenID Connect Authorization Code Flow"
+						flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2437,8 +2445,8 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-							flowName="OpenID Connect Authorization Code Flow"
-							flowVersion="V5.1"
+						flowName="OpenID Connect Authorization Code Flow"
+						flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2466,21 +2474,45 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							]}
 						/>
 
-						{/* API Call Display for Token Introspection */}
-						{introspectionApiCall && (
-							<EnhancedApiCallDisplay
-								apiCall={introspectionApiCall}
-								options={{
-									showEducationalNotes: true,
-									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
-								}}
-							/>
-						)}
-					</>
-				);
+					{/* API Call Display for Token Introspection */}
+					{introspectionApiCall && (
+						<EnhancedApiCallDisplay
+							apiCall={introspectionApiCall}
+							options={{
+								showEducationalNotes: true,
+								showFlowContext: true,
+								urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+							}}
+						/>
+					)}
 
-			case 8:
+					{/* Professional Flow Completion */}
+					<FlowCompletionService
+						config={{
+							...FlowCompletionConfigs.authorizationCode,
+							flowName: 'OpenID Connect Authorization Code Flow V6',
+							flowDescription: 'You\'ve successfully completed the OIDC Authorization Code flow with PKCE. You received an ID token (for user identity), access token (for API calls), and optionally a refresh token.',
+							onStartNewFlow: handleResetFlow,
+							showUserInfo: true, // OIDC has UserInfo
+							showIntrospection: !!introspectionApiCall,
+							userInfo: controller.userInfo,
+							introspectionResult: introspectionApiCall,
+							nextSteps: [
+								'Store the ID token, access token, and refresh token securely',
+								'Validate the ID token signature and claims before trusting user identity',
+								'Use the access token to call protected APIs on behalf of the user',
+								'Call the UserInfo endpoint for additional user profile data',
+								'Refresh tokens when they expire using the refresh token',
+								'Implement proper error handling and token expiration logic'
+							]
+						}}
+						collapsed={completionCollapsed}
+						onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
+					/>
+				</>
+			);
+
+		case 8:
 				return (
 					<SecurityFeaturesDemo
 						tokens={controller.tokens as unknown as Record<string, unknown> | null}
@@ -2536,12 +2568,14 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		showSavedSecret,
 		controller.isFetchingUserInfo,
 		controller.setCredentials,
+		completionCollapsed,
+		introspectionApiCall,
 	]);
 
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="oidc-authorization-code-v5" />
+				<FlowHeader flowId="oidc-authorization-code-v6" />
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
 
@@ -2550,7 +2584,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
-							<VersionBadge>OIDC Authorization Code Flow · V5.1</VersionBadge>
+							<VersionBadge>OIDC Authorization Code Flow · V6</VersionBadge>
 							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
 							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
