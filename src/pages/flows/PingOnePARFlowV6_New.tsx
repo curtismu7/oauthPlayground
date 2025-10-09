@@ -818,6 +818,11 @@ const PingOnePARFlowV6: React.FC = () => {
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
 
+	// Get flow sequence for Step 0 diagram
+	const flowSequence = useMemo(() => {
+		return getFlowSequence('authorization-code'); // PAR uses standard authz code sequence
+	}, []);
+
 	const stepCompletions = useMemo<StepCompletionState>(
 		() => ({
 			0: controller.hasStepResult('setup-credentials') || controller.hasCredentialsSaved,
@@ -2572,8 +2577,8 @@ const PingOnePARFlowV6: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-							flowName="OAuth 2.0 Authorization Code Flow"
-							flowVersion="V5"
+						flowName="PingOne PAR Flow"
+						flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2631,8 +2636,8 @@ const PingOnePARFlowV6: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-							flowName="OAuth 2.0 Authorization Code Flow"
-							flowVersion="V5"
+						flowName="PingOne PAR Flow"
+						flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							onResetFlow={handleResetFlow}
@@ -2658,21 +2663,44 @@ const PingOnePARFlowV6: React.FC = () => {
 							]}
 						/>
 
-						{/* API Call Display for Token Introspection */}
-						{introspectionApiCall && (
-							<EnhancedApiCallDisplay
-								apiCall={introspectionApiCall}
-								options={{
-									showEducationalNotes: true,
-									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
-								}}
-							/>
-						)}
-					</>
-				);
+					{/* API Call Display for Token Introspection */}
+					{introspectionApiCall && (
+						<EnhancedApiCallDisplay
+							apiCall={introspectionApiCall}
+							options={{
+								showEducationalNotes: true,
+								showFlowContext: true,
+								urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+							}}
+						/>
+					)}
 
-			case 7:
+					{/* Professional Flow Completion */}
+					<FlowCompletionService
+						config={{
+							...FlowCompletionConfigs.authorizationCode,
+							flowName: 'PingOne PAR (Pushed Authorization Requests) Flow V6',
+							flowDescription: 'You\'ve successfully completed the PAR flow. Authorization request parameters were securely pushed via back-channel for enhanced security before user authorization.',
+							onStartNewFlow: handleResetFlow,
+							showUserInfo: true, // PAR is OIDC-based
+							showIntrospection: !!introspectionApiCall,
+							userInfo: controller.userInfo,
+							introspectionResult: introspectionApiCall,
+							nextSteps: [
+								'Store all tokens securely in your application',
+								'Note: PAR enhances security by pushing parameters server-to-server',
+								'Use PAR in production for sensitive authorization requests',
+								'Implement proper error handling for PAR endpoint failures',
+								'Monitor PAR endpoint response times for optimal UX'
+							]
+						}}
+						collapsed={completionCollapsed}
+						onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
+					/>
+				</>
+			);
+
+		case 7:
 				return (
 					<SecurityFeaturesDemo
 						tokens={controller.tokens as unknown as Record<string, unknown> | null}
@@ -2729,6 +2757,10 @@ const PingOnePARFlowV6: React.FC = () => {
 		showSavedSecret,
 		controller.isFetchingUserInfo,
 		controller.userInfo,
+		completionCollapsed,
+		introspectionApiCall,
+		tokenExchangeApiCall,
+		userInfoApiCall,
 	]);
 
 	return (
@@ -2747,7 +2779,7 @@ const PingOnePARFlowV6: React.FC = () => {
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
-							<VersionBadge>Authorization Code Flow · V5</VersionBadge>
+							<VersionBadge>PAR Flow · V6</VersionBadge>
 							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
 							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
