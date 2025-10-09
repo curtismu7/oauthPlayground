@@ -648,6 +648,33 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                 </CollapsibleContent>
                             )}
                         </CollapsibleSection>
+
+                        {/* Professional Flow Completion */}
+                        {controller.tokens.accessToken && (
+                            <FlowCompletionService
+                                config={{
+                                    ...FlowCompletionConfigs.authorizationCode,
+                                    flowName: 'PingOne Redirectless Flow V6 (response_mode=pi.flow)',
+                                    flowDescription: 'You\'ve successfully completed the Redirectless flow using response_mode=pi.flow. Tokens were received via API without browser redirects.',
+                                    onStartNewFlow: () => {
+                                        controller.resetFlow();
+                                        controller.setCurrentStep(0);
+                                    },
+                                    showUserInfo: true, // Redirectless is OIDC-based
+                                    showIntrospection: false,
+                                    userInfo: controller.userInfo,
+                                    nextSteps: [
+                                        'Store all tokens securely in your application',
+                                        'Note: pi.flow is PingOne proprietary API-driven authentication',
+                                        'Use for embedded authentication scenarios without full-page redirects',
+                                        'No browser redirect required - better UX for mobile/embedded apps',
+                                        'Implement proper error handling for pi.flow API responses'
+                                    ]
+                                }}
+                                collapsed={completionCollapsed}
+                                onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
+                            />
+                        )}
                     </>
                 );
 
@@ -661,7 +688,8 @@ const RedirectlessFlowV6Real: React.FC = () => {
         handleGeneratePkce,
         handleGenerateAuthUrl,
         handleOpenAuthUrl,
-        navigateToTokenManagement
+        navigateToTokenManagement,
+        completionCollapsed
     ]);
 
     return (
