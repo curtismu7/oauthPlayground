@@ -7,7 +7,7 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthorizationCodeSharedService } from '../../services/authorizationCodeSharedService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowConfigurationRequirements } from '../../components/FlowConfigurationRequirements';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryCard } from '../../services/configurationSummaryService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
