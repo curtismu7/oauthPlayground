@@ -2576,8 +2576,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-							flowName="OAuth 2.0 Authorization Code Flow"
-							flowVersion="V5"
+						flowName="OAuth 2.0 Authorization Code Flow"
+						flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2635,8 +2635,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<TokenIntrospect
-							flowName="OAuth 2.0 Authorization Code Flow"
-							flowVersion="V5"
+						flowName="OAuth 2.0 Authorization Code Flow"
+						flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							onResetFlow={handleResetFlow}
@@ -2662,19 +2662,41 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							]}
 						/>
 
-						{/* API Call Display for Token Introspection */}
-						{introspectionApiCall && (
-							<EnhancedApiCallDisplay
-								apiCall={introspectionApiCall}
-								options={{
-									showEducationalNotes: true,
-									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
-								}}
-							/>
-						)}
-					</>
-				);
+					{/* API Call Display for Token Introspection */}
+					{introspectionApiCall && (
+						<EnhancedApiCallDisplay
+							apiCall={introspectionApiCall}
+							options={{
+								showEducationalNotes: true,
+								showFlowContext: true,
+								urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+							}}
+						/>
+					)}
+
+					{/* Professional Flow Completion */}
+					<FlowCompletionService
+						config={{
+							...FlowCompletionConfigs.authorizationCode,
+							flowName: 'OAuth 2.0 Authorization Code Flow V6',
+							flowDescription: 'You\'ve successfully completed the OAuth 2.0 Authorization Code flow with PKCE. The authorization code has been exchanged for an access token (and optionally a refresh token).',
+							onStartNewFlow: handleResetFlow,
+							showUserInfo: false, // OAuth doesn't have UserInfo
+							showIntrospection: !!introspectionApiCall,
+							introspectionResult: introspectionApiCall,
+							nextSteps: [
+								'Store the access token securely in your application',
+								'Use the access token to call protected APIs on behalf of the user',
+								'Refresh the token when it expires (if refresh token provided)',
+								'Note: OAuth provides authorization only - use OIDC for user identity',
+								'Implement proper error handling and token expiration logic'
+							]
+						}}
+						collapsed={completionCollapsed}
+						onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
+					/>
+				</>
+			);
 
 			case 7:
 				return (
@@ -2733,12 +2755,16 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		showSavedSecret,
 		controller.isFetchingUserInfo,
 		controller.userInfo,
+		completionCollapsed,
+		introspectionApiCall,
+		tokenExchangeApiCall,
+		userInfoApiCall,
 	]);
 
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="oauth-authorization-code-v5" />
+				<FlowHeader flowId="oauth-authorization-code-v6" />
 
 				<EnhancedFlowInfoCard
 					flowType="oauth-authorization-code"
@@ -2751,7 +2777,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
-							<VersionBadge>Authorization Code Flow · V5</VersionBadge>
+							<VersionBadge>Authorization Code Flow · V6</VersionBadge>
 							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
 							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
