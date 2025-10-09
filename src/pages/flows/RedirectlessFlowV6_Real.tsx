@@ -241,6 +241,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
     const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
         AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
     );
+    const [completionCollapsed, setCompletionCollapsed] = useState(false);
 
     // Initialize controller with redirectless-specific configuration
     const controller = useAuthorizationCodeFlowController({
