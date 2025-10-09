@@ -57,7 +57,6 @@ import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { getFlowSequence } from '../../services/flowSequenceService';
 import {
 	STEP_METADATA,
