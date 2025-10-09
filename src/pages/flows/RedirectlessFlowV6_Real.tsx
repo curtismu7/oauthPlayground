@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiExternalLink, FiCheckCircle, FiRefreshCw, FiEye, FiEyeOff, FiCopy, FiDownload, FiUpload } from 'react-icons/fi';
-import { toast } from 'react-toastify';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -263,7 +263,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                 if (config.pingOneConfig) {
                                     controller.savePingOneConfig(config.pingOneConfig);
                                 }
-                                toast.success('Configuration imported successfully!');
+                                v4ToastManager.showSuccess('Configuration imported successfully!');
                             }}
                         />
 
@@ -351,7 +351,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                         onToggleVisibility={() => controller.toggleTokenVisibility('pkceVerifier')}
                                         onCopy={() => {
                                             navigator.clipboard.writeText(controller.pkceCodes.codeVerifier);
-                                            toast.success('Code verifier copied to clipboard');
+                                            v4ToastManager.showSuccess('Code verifier copied to clipboard');
                                         }}
                                     />
                                     <TokenDisplay
@@ -361,7 +361,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                         onToggleVisibility={() => controller.toggleTokenVisibility('pkceChallenge')}
                                         onCopy={() => {
                                             navigator.clipboard.writeText(controller.pkceCodes.codeChallenge);
-                                            toast.success('Code challenge copied to clipboard');
+                                            v4ToastManager.showSuccess('Code challenge copied to clipboard');
                                         }}
                                     />
                                 </div>
@@ -414,7 +414,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                         onToggleVisibility={() => controller.toggleTokenVisibility('authUrl')}
                                         onCopy={() => {
                                             navigator.clipboard.writeText(controller.authUrl);
-                                            toast.success('Authorization URL copied to clipboard');
+                                            v4ToastManager.showSuccess('Authorization URL copied to clipboard');
                                         }}
                                     />
                                     
@@ -458,7 +458,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                         onToggleVisibility={() => controller.toggleTokenVisibility('accessToken')}
                                         onCopy={() => {
                                             navigator.clipboard.writeText(controller.tokens.accessToken);
-                                            toast.success('Access token copied to clipboard');
+                                            v4ToastManager.showSuccess('Access token copied to clipboard');
                                         }}
                                     />
                                     
@@ -470,7 +470,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                             onToggleVisibility={() => controller.toggleTokenVisibility('idToken')}
                                             onCopy={() => {
                                                 navigator.clipboard.writeText(controller.tokens.idToken);
-                                                toast.success('ID token copied to clipboard');
+                                                v4ToastManager.showSuccess('ID token copied to clipboard');
                                             }}
                                         />
                                     )}
@@ -483,7 +483,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                             onToggleVisibility={() => controller.toggleTokenVisibility('refreshToken')}
                                             onCopy={() => {
                                                 navigator.clipboard.writeText(controller.tokens.refreshToken);
-                                                toast.success('Refresh token copied to clipboard');
+                                                v4ToastManager.showSuccess('Refresh token copied to clipboard');
                                             }}
                                         />
                                     )}
