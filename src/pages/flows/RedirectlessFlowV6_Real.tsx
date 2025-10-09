@@ -17,6 +17,8 @@ import styled from 'styled-components';
 
 // Import config
 import { STEP_METADATA, IntroSectionKey, DEFAULT_APP_CONFIG, PIFLOW_EDUCATION } from './config/RedirectlessFlow.config';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { getFlowSequence } from '../../services/flowSequenceService';
 
 // Styled components
 const VersionBadge = styled.span`
