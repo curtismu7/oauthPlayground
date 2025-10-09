@@ -44,6 +44,8 @@ import { decodeJWTHeader } from '../../utils/jwks';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { validateForStep } from '../../services/credentialsValidationService';
 import ImplicitFlowSharedService from '../../services/implicitFlowSharedService';
+import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { getFlowSequence } from '../../services/flowSequenceService';
 
 // Import shared services
 import { FlowConfigurationService } from '../../services/flowConfigurationService';
@@ -222,6 +224,7 @@ const OIDCImplicitFlowV5: React.FC = () => {
 	);
 	const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 	const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
+	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 
 	// All useEffect hooks AFTER state declarations
 	useEffect(() => {
@@ -1442,14 +1445,39 @@ console.log('Scope:', scope);`}
 												be more secure and future-proof.
 											</InfoText>
 										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-					</>
-				);
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
 
-			default:
+				{/* Professional Flow Completion */}
+				{controller.tokens && (
+					<FlowCompletionService
+						config={{
+							...FlowCompletionConfigs.implicit,
+							flowName: 'OpenID Connect Implicit Flow V5',
+							flowDescription: 'You\'ve successfully completed the OIDC Implicit Flow. You received both an ID token (for user identity) and access token (for API calls) directly from the authorization server.',
+							onStartNewFlow: handleResetFlow,
+							showUserInfo: true,
+							userInfo: controller.userInfo,
+							showIntrospection: !!introspectionApiCall,
+							introspectionResult: introspectionApiCall,
+							nextSteps: [
+								'Store the ID token and access token securely',
+								'Validate ID token signature and claims before trusting user identity',
+								'Use the access token to call protected APIs',
+								'Note: Implicit flow returns tokens directly (no refresh token)',
+								'Consider migrating to OIDC Authorization Code + PKCE for better security'
+							]
+						}}
+						collapsed={completionCollapsed}
+						onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
+					/>
+				)}
+			</>
+		);
+
+		default:
 				return null;
 		}
 	}, [
@@ -1465,6 +1493,8 @@ console.log('Scope:', scope);`}
 		savePingOneConfig,
 		showApiCallExamples,
 		toggleSection,
+		completionCollapsed,
+		introspectionApiCall,
 	]);
 
 	return (
