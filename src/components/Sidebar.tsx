@@ -349,8 +349,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					>
 					<MenuItem
 						icon={<ColoredIcon $color="#dc2626"><FiLock /></ColoredIcon>}
-						active={isActive('/flows/oauth-authorization-code-v5')}
-						onClick={() => handleNavigation('/flows/oauth-authorization-code-v5')}
+						active={isActive('/flows/oauth-authorization-code-v6')}
+						onClick={() => handleNavigation('/flows/oauth-authorization-code-v6')}
 					>
 						<MenuItemContent>
 							<span>Authorization Code (V6) ✅</span>
@@ -412,8 +412,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				>
 					<MenuItem
 						icon={<ColoredIcon $color="#059669"><FiLock /></ColoredIcon>}
-						active={isActive('/flows/oidc-authorization-code-v5')}
-						onClick={() => handleNavigation('/flows/oidc-authorization-code-v5')}
+						active={isActive('/flows/oidc-authorization-code-v6')}
+						onClick={() => handleNavigation('/flows/oidc-authorization-code-v6')}
 					>
 						<MenuItemContent>
 							<span>Authorization Code (V6) ✅</span>

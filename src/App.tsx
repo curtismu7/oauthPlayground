@@ -70,11 +70,11 @@ import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 // V5 OAuth/OIDC Flows
-import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
+import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
 import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
-import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
+import OIDCAuthorizationCodeFlowV6 from './pages/flows/OIDCAuthorizationCodeFlowV6';
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 // OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
@@ -327,15 +327,17 @@ const AppRoutes = () => {
 							</Route>
 						{/* Tools & Utilities Routes */}
 						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
-						{/* V5 OAuth/OIDC Flow Routes */}
+						{/* V6 OAuth/OIDC Flow Routes */}
 						<Route
-							path="/flows/oauth-authorization-code-v5"
-							element={<OAuthAuthorizationCodeFlowV5 />}
+							path="/flows/oauth-authorization-code-v6"
+							element={<OAuthAuthorizationCodeFlowV6 />}
 						/>
+						<Route path="/flows/oauth-authorization-code-v5" element={<Navigate to="/flows/oauth-authorization-code-v6" replace />} />
 						<Route
-							path="/flows/oidc-authorization-code-v5"
-							element={<OIDCAuthorizationCodeFlowV5 />}
+							path="/flows/oidc-authorization-code-v6"
+							element={<OIDCAuthorizationCodeFlowV6 />}
 						/>
+						<Route path="/flows/oidc-authorization-code-v5" element={<Navigate to="/flows/oidc-authorization-code-v6" replace />} />
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
 							<Route
 								path="/flows/oauth-implicit-completion"
