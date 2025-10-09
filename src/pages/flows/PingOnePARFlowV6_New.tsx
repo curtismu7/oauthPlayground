@@ -631,6 +631,7 @@ const PingOnePARFlowV6: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 	
 	// API call tracking for display
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
