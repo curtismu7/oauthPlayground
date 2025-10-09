@@ -2412,7 +2412,7 @@ const RARFlowV6: React.FC = () => {
 					<>
 						<TokenIntrospect
 							flowName="OpenID Connect Authorization Code Flow"
-							flowVersion="V5.1"
+							flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2458,7 +2458,7 @@ const RARFlowV6: React.FC = () => {
 					<>
 						<TokenIntrospect
 							flowName="OpenID Connect Authorization Code Flow"
-							flowVersion="V5.1"
+							flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -2570,7 +2570,7 @@ const RARFlowV6: React.FC = () => {
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
-							<VersionBadge>OIDC Authorization Code Flow · V5.1</VersionBadge>
+							<VersionBadge>RAR Flow · V6</VersionBadge>
 							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
 							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 						</StepHeaderLeft>
