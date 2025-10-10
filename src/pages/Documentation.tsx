@@ -448,7 +448,7 @@ const Documentation = () => {
 							</p>
 						</DocCard>
 
-						<DocCard to="/flows/oidc-device-authorization-v5">
+						<DocCard to="/flows/oidc-device-authorization-v6">
 							<h3>PingOne Device SSO</h3>
 							<p>
 								PingOne SSO for devices with limited input capabilities like smart TVs and IoT devices.

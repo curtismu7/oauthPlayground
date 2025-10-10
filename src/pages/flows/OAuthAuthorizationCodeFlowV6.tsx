@@ -50,6 +50,9 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
+import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+import ResourceParameterInput from '../../components/ResourceParameterInput';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
@@ -576,6 +579,11 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
 	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	
+	// Advanced OAuth parameters
+	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
+	const [audience, setAudience] = useState<string>('');
+	const [resources, setResources] = useState<string[]>([]);
 
 	// Scroll to top on step change
 	useEffect(() => {
@@ -1457,7 +1465,18 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									onClientIdChange={(value) => handleFieldChange('clientId', value)}
 									onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
 									onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
-									onScopesChange={(value) => handleFieldChange('scopes', value)}
+									onScopesChange={(value) => {
+										// Ensure openid is always included (PingOne requirement)
+										const scopes = value.split(/\s+/).filter(s => s.length > 0);
+										if (!scopes.includes('openid')) {
+											scopes.unshift('openid');
+											const finalScopes = scopes.join(' ');
+											handleFieldChange('scopes', finalScopes);
+											v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
+										} else {
+											handleFieldChange('scopes', value);
+										}
+									}}
 									onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
 									onPostLogoutRedirectUriChange={(value) => handleFieldChange('postLogoutRedirectUri', value)}
 									
@@ -1501,6 +1520,58 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* OAuth Advanced Parameters */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('advancedParams')}
+								aria-expanded={!collapsedSections.advancedParams}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Advanced OAuth Parameters (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.advancedParams}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.advancedParams && (
+								<CollapsibleContent>
+									{/* Audience Parameter */}
+									<AudienceParameterInput
+										value={audience}
+										onChange={setAudience}
+										flowType="oauth"
+									/>
+									
+									<SectionDivider />
+									
+									{/* Claims Request Builder */}
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>OAuth + UserInfo Extension</InfoTitle>
+											<InfoText>
+												While not part of core OAuth 2.0, many OAuth providers support UserInfo-like endpoints.
+												The claims parameter can specify what user data to return. This shows how OAuth evolved into OIDC.
+											</InfoText>
+										</div>
+									</InfoBox>
+									<ClaimsRequestBuilder
+										value={claimsRequest}
+										onChange={setClaimsRequest}
+									/>
+									
+									<SectionDivider />
+									
+									{/* Resource Indicators */}
+									<ResourceParameterInput
+										value={resources}
+										onChange={setResources}
+										flowType="oauth"
+									/>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -2494,7 +2565,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-authorization-code-v6" />
 
-				<UISettingsService.getSettingsPanel />
+				{UISettingsService.getFlowSpecificSettingsPanel('oauth-authorization-code')}
 
 				<EnhancedFlowInfoCard
 					flowType="oauth-authorization-code"

@@ -52,7 +52,7 @@ const OIDCAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OIDCA
 const OAuthImplicitFlowV5 = React.lazy(() => import('./pages/flows/OAuthImplicitFlowV5'));
 const OIDCImplicitFlowV5 = React.lazy(() => import('./pages/flows/OIDCImplicitFlowV5'));
 const ClientCredentialsFlowV5 = React.lazy(() => import('./pages/flows/ClientCredentialsFlowV5'));
-const DeviceAuthorizationFlowV5 = React.lazy(() => import('./pages/flows/DeviceAuthorizationFlowV5'));
+const DeviceAuthorizationFlowV6 = React.lazy(() => import('./pages/flows/DeviceAuthorizationFlowV6'));
 
 const AppContainer = styled.div`
   display: flex;
@@ -515,13 +515,13 @@ const AppRoutes = () => {
 								}
 							/>
 							<Route
-								path="device-authorization-v5"
+								path="device-authorization-v6"
 								element={
 									<LazyRouteWrapper
-										fallbackMessage="Loading Device Authorization V5..."
-										flowType="Device Authorization V5"
+										fallbackMessage="Loading Device Authorization V6..."
+										flowType="Device Authorization V6"
 									>
-										<DeviceAuthorizationFlowV5 />
+										<DeviceAuthorizationFlowV6 />
 									</LazyRouteWrapper>
 								}
 							/>
