@@ -560,7 +560,7 @@ export class ImplicitFlowDefaults {
 			tokenResponseDetails: true,
 			tokenResponse: false, // Expanded by default for Step 2
 			introspectionOverview: true,
-			introspectionDetails: true,
+			introspectionDetails: false, // Expanded by default for introspection
 			apiCallDisplay: true,
 			securityOverview: true,
 			securityBestPractices: true,
@@ -631,14 +631,20 @@ export class ImplicitFlowTokenFragmentProcessor {
 		setShowSuccessModal: (show: boolean) => void
 	): boolean {
 		const hash = window.location.hash;
+		console.log('[TokenFragmentProcessor] Checking for tokens in hash:', hash);
+		
 		if (!hash?.includes('access_token')) {
+			console.log('[TokenFragmentProcessor] No access_token found in hash, returning false');
 			return false;
 		}
+
+		console.log('[TokenFragmentProcessor] Access token found in hash, processing...');
 
 		// Extract and set tokens
 		controller.setTokensFromFragment(hash);
 		
-		// Navigate to token response step
+		// Navigate to token response step (Step 3: Token Response = index 2)
+		console.log('[TokenFragmentProcessor] Setting current step to 2 (Step 3: Token Response)');
 		setCurrentStep(2);
 		
 		// Show success feedback
@@ -648,7 +654,7 @@ export class ImplicitFlowTokenFragmentProcessor {
 		// Clean up URL
 		window.history.replaceState({}, '', window.location.pathname);
 
-		console.log('[TokenFragmentProcessor] Tokens processed from URL fragment');
+		console.log('[TokenFragmentProcessor] Tokens processed from URL fragment, step set to 2 (Token Response)');
 		return true;
 	}
 }
@@ -660,8 +666,17 @@ export class ImplicitFlowTokenFragmentProcessor {
 export class ImplicitFlowStepRestoration {
 	/**
 	 * Get initial step with restoration from session storage
+	 * Priority: Token fragment > Restore step > Default (0)
 	 */
 	static getInitialStep(): number {
+		// Check if we have tokens in the URL fragment first (highest priority)
+		const hash = window.location.hash;
+		if (hash?.includes('access_token')) {
+			console.log('[StepRestoration] Access token found in URL fragment, returning step 2 (Token Response)');
+			return 2; // Step 3: Token Response
+		}
+
+		// Check for restore step (medium priority)
 		const restoreStep = sessionStorage.getItem('restore_step');
 		if (restoreStep) {
 			const step = parseInt(restoreStep, 10);
@@ -669,6 +684,8 @@ export class ImplicitFlowStepRestoration {
 			console.log('[StepRestoration] Restoring to step:', step);
 			return step;
 		}
+		
+		console.log('[StepRestoration] No restore_step found, returning step 0');
 		return 0;
 	}
 
@@ -709,7 +726,7 @@ export class ImplicitFlowCollapsibleSectionsManager {
 			tokenResponseDetails: true,
 			tokenResponse: false, // Expanded by default for Step 2
 			introspectionOverview: true,
-			introspectionDetails: true,
+			introspectionDetails: false, // Expanded by default for introspection
 			apiCallDisplay: true,
 			securityOverview: true,
 			securityBestPractices: true,

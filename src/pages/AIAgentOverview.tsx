@@ -947,7 +947,6 @@ const AIAgentOverview = () => {
 										<FiServer />
 										Ping Identity Product Comparison
 									</h3>
-									<CollapsibleIcon isExpanded={expandedSections.comparisonTable} />
 								</CollapsibleHeader>
 
 								{/* Description - always visible */}
