@@ -21,12 +21,12 @@ const FLOW_FIELD_CONFIG: Record<
 		tokenAuthMethod: string;
 	}
 > = {
-	'device-authorization-v5': {
+	'device-authorization-v6': {
 		clientSecret: 'hidden',
 		redirectUri: 'hidden',
 		tokenAuthMethod: 'none',
 	},
-	'oidc-device-authorization-v5': {
+	'oidc-device-authorization-v6': {
 		clientSecret: 'hidden',
 		redirectUri: 'hidden',
 		tokenAuthMethod: 'none',

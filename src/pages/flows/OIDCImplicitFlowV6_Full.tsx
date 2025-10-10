@@ -40,6 +40,11 @@ import {
 } from '../../services/tokenIntrospectionService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayParameterSelector';
+import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
+import LocalesParameterInput from '../../components/LocalesParameterInput';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+import { UISettingsService } from '../../services/uiSettingsService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { validateForStep } from '../../services/credentialsValidationService';
@@ -225,6 +230,12 @@ const OIDCImplicitFlowV6: React.FC = () => {
 	const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
 	const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
 	const [completionCollapsed, setCompletionCollapsed] = useState(false);
+	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
+	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
+	// Internationalization - SAVED FOR LATER
+	// const [uiLocales, setUiLocales] = useState<string>('');
+	// const [claimsLocales, setClaimsLocales] = useState<string>('');
+	const [audience, setAudience] = useState<string>('');
 
 	// All useEffect hooks AFTER state declarations
 	useEffect(() => {
@@ -569,6 +580,13 @@ const renderStepContent = useMemo(() => {
 					});
 				}}
 				onScopesChange={(value) => {
+					// Ensure openid is always included (required for OIDC & PingOne)
+					const scopes = value.split(/\s+/).filter(s => s.length > 0);
+					if (!scopes.includes('openid')) {
+						scopes.unshift('openid');
+						value = scopes.join(' ');
+						v4ToastManager.showWarning('Added required "openid" scope for OIDC compliance');
+					}
 					const updated = { ...controller.credentials, scope: value, scopes: value };
 					controller.setCredentials(updated);
 					setCredentials(updated);
@@ -684,19 +702,32 @@ const renderStepContent = useMemo(() => {
 										</div>
 									</InfoBox>
 
-									<InfoBox $variant="info">
-										<FiShield size={20} />
+									<InfoBox $variant="warning">
+										<FiShield size={24} />
 										<div>
-											<InfoTitle>Why Nonce is Required in OIDC Implicit</InfoTitle>
-											<InfoText>
-												The nonce parameter binds the ID Token to the client session and prevents
-												replay attacks. The authorization server includes the nonce in the ID Token,
-												and you MUST validate that it matches the nonce you sent in the
-												authorization request.
+											<InfoTitle style={{ fontSize: '1rem', fontWeight: '600', color: '#b45309' }}>
+												🔐 OIDC Security: Nonce Parameter (Replay Attack Protection) - REQUIRED
+											</InfoTitle>
+											<InfoText style={{ marginTop: '0.75rem', color: '#78350f' }}>
+												<strong>What is Nonce?</strong> The nonce (number used once) is a cryptographically random string that binds your client session to the ID token and prevents replay attacks.
 											</InfoText>
-											<InfoText style={{ marginTop: '0.5rem', fontWeight: 'bold', color: '#dc2626' }}>
-												⚠️ Unlike OAuth 2.0 Implicit (which doesn't use nonce), OIDC Implicit REQUIRES
-												nonce validation because it returns an ID Token containing sensitive user identity claims.
+											<InfoText style={{ marginTop: '0.5rem', color: '#78350f' }}>
+												<strong>How it works:</strong>
+											</InfoText>
+											<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#78350f' }}>
+												<li>Your client generates a unique random nonce value for each authorization request</li>
+												<li>The nonce is sent in the authorization request to the identity provider</li>
+												<li>The authorization server includes the nonce claim in the ID token</li>
+												<li>Your client MUST validate that the nonce in the ID token matches the original nonce</li>
+											</ul>
+											<InfoText style={{ marginTop: '0.75rem', color: '#78350f', fontWeight: 'bold' }}>
+												⚠️ <strong>Security Critical:</strong> Without nonce validation, an attacker could intercept an old ID token and replay it to impersonate a user. This playground automatically generates and validates nonce for educational purposes.
+											</InfoText>
+											<InfoText style={{ marginTop: '0.5rem', color: '#dc2626', fontWeight: 'bold' }}>
+												🔴 <strong>OIDC Implicit Requirement:</strong> Unlike OAuth 2.0 Implicit (which doesn't use nonce), OIDC Implicit REQUIRES nonce validation because it returns an ID Token containing sensitive user identity claims directly in the URL fragment.
+											</InfoText>
+											<InfoText style={{ marginTop: '0.5rem', color: '#78350f', fontSize: '0.875rem', fontStyle: 'italic' }}>
+												💡 <strong>Spec Reference:</strong> OIDC Core 1.0 Section 15.5.2 REQUIRES nonce validation for Implicit Flow. This is mandatory, not optional.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -732,6 +763,107 @@ const renderStepContent = useMemo(() => {
 										defaultMode="fragment"
 										readOnlyFlowContext={false}
 										onModeChange={setResponseMode}
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Display Parameter */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setCollapsedSections(prev => ({ ...prev, displayMode: !prev.displayMode }))}
+								aria-expanded={!collapsedSections.displayMode}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Display Mode (OIDC UI Adaptation)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.displayMode}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.displayMode && (
+								<CollapsibleContent>
+									<DisplayParameterSelector
+										value={displayMode}
+										onChange={setDisplayMode}
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Advanced Claims Request */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setCollapsedSections(prev => ({ ...prev, claimsRequest: !prev.claimsRequest }))}
+								aria-expanded={!collapsedSections.claimsRequest}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Advanced Claims Request (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.claimsRequest}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.claimsRequest && (
+								<CollapsibleContent>
+									<ClaimsRequestBuilder
+										value={claimsRequest}
+										onChange={setClaimsRequest}
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Internationalization Parameters - SAVED FOR LATER */}
+						{/* 
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setCollapsedSections(prev => ({ ...prev, i18n: !prev.i18n }))}
+								aria-expanded={!collapsedSections.i18n}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Internationalization (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.i18n}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.i18n && (
+								<CollapsibleContent>
+									<LocalesParameterInput
+										type="ui"
+										value={uiLocales}
+										onChange={setUiLocales}
+									/>
+									<LocalesParameterInput
+										type="claims"
+										value={claimsLocales}
+										onChange={setClaimsLocales}
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+						*/}
+
+						{/* Audience Parameter */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setCollapsedSections(prev => ({ ...prev, audience: !prev.audience }))}
+								aria-expanded={!collapsedSections.audience}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> API Audience (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.audience}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.audience && (
+								<CollapsibleContent>
+									<AudienceParameterInput
+										value={audience}
+										onChange={setAudience}
+										flowType="oidc"
 									/>
 								</CollapsibleContent>
 							)}
@@ -1450,6 +1582,9 @@ console.log('Scope:', scope);`}
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-implicit-v5" />
+				
+				{UISettingsService.getFlowSpecificSettingsPanel('oidc-implicit')}
+				
 				<EnhancedFlowInfoCard flowType="oidc-implicit" />
 				<FlowSequenceDisplay flowType="implicit" />
 
