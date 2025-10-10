@@ -24,8 +24,7 @@ import {
 	log
 } from '../../services/clientCredentialsSharedService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowSequenceService } from '../../services/flowSequenceService';
-import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
@@ -34,6 +33,8 @@ import { UISettingsService } from '../../services/uiSettingsService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { EducationalContentService } from '../../services/educationalContentService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 
 const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
 
@@ -249,6 +250,17 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Authentication method
 	const [selectedAuthMethod, setSelectedAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
 	
+	// PingOne Advanced Configuration
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
+		applicationName: '',
+		applicationType: 'service',
+		redirectUris: [],
+		postLogoutRedirectUris: [],
+		allowedScopes: [],
+		clientAuthMethods: ['client_secret_post'],
+		additionalSettings: {}
+	});
+	
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		ClientCredentialsCollapsibleSections.getDefaultState()
@@ -347,34 +359,55 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	}, [controller, collapsedSections, toggleSection, selectedAuthMethod]);
 
 	// Step 0: Credentials & Configuration
-	const renderCredentialsConfiguration = () => (
-		<div>
-			<EducationalContentService
-				title="OAuth 2.0 Client Credentials Flow"
-				content={ClientCredentialsEducationalContent.overview}
-				collapsed={collapsedSections.overview}
-				onToggleCollapsed={() => toggleSection('overview')}
-			/>
-			
-			<SectionDivider />
-			
-			<ComprehensiveCredentialsService
-				credentials={controller.credentials}
-				onCredentialsChange={controller.setCredentials}
-				onSaveCredentials={controller.saveCredentials}
-				collapsed={collapsedSections.credentials}
-				onToggleCollapsed={() => toggleSection('credentials')}
-				flowType="client-credentials"
-			/>
-			
-			<SectionDivider />
-			
-			<UISettingsService
-				collapsed={collapsedSections.uiSettings}
-				onToggleCollapsed={() => toggleSection('uiSettings')}
-			/>
-		</div>
-	);
+	const renderCredentialsConfiguration = () => {
+		// Wrapper to enforce openid scope (required by PingOne)
+		const handleCredentialsChange = useCallback((newCredentials: typeof controller.credentials) => {
+			// Ensure openid is always included in scopes
+			if (newCredentials.scopes) {
+				const scopes = newCredentials.scopes.split(/\s+/).filter(s => s.length > 0);
+				if (!scopes.includes('openid')) {
+					scopes.unshift('openid');
+					newCredentials.scopes = scopes.join(' ');
+					v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
+				}
+			}
+			controller.setCredentials(newCredentials);
+		}, [controller]);
+
+		return (
+			<div>
+				<EducationalContentService
+					title="OAuth 2.0 Client Credentials Flow"
+					content={ClientCredentialsEducationalContent.overview}
+					collapsed={collapsedSections.overview}
+					onToggleCollapsed={() => toggleSection('overview')}
+				/>
+				
+				<SectionDivider />
+				
+				<ComprehensiveCredentialsService
+					credentials={controller.credentials}
+					onCredentialsChange={handleCredentialsChange}
+					onSaveCredentials={controller.saveCredentials}
+					collapsed={collapsedSections.credentials}
+					onToggleCollapsed={() => toggleSection('credentials')}
+					flowType="client-credentials"
+					
+					// PingOne Advanced Configuration
+					pingOneAppState={pingOneConfig}
+					onPingOneAppStateChange={setPingOneConfig}
+					onPingOneSave={() => {
+						console.log('[Client Creds V6] PingOne config saved:', pingOneConfig);
+						v4ToastManager.showSuccess('PingOne configuration saved successfully!');
+					}}
+					hasUnsavedPingOneChanges={false}
+					isSavingPingOne={false}
+				/>
+				
+				<SectionDivider />
+			</div>
+		);
+	};
 
 	// Step 1: Authentication Method Selection
 	const renderAuthMethodSelection = () => {
@@ -598,6 +631,9 @@ const ClientCredentialsFlowV6: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="client-credentials-v6" />
+				
+				{UISettingsService.getFlowSpecificSettingsPanel('client-credentials')}
+				
 				<FlowSequenceService flowType="client-credentials" />
 				
 				<MainCard>

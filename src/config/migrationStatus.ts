@@ -51,15 +51,15 @@ export const V5_MIGRATION_STATUS: Record<string, MigrationStatus> = {
 		flowName: 'Client Credentials V5',
 		status: 'pending',
 	},
-	'/flows/device-authorization-v5': {
-		flowPath: '/flows/device-authorization-v5',
-		flowName: 'Device Authorization V5',
-		status: 'pending',
+	'/flows/device-authorization-v6': {
+		flowPath: '/flows/device-authorization-v6',
+		flowName: 'Device Authorization V6',
+		status: 'migrated',
 	},
-	'/flows/oidc-device-authorization-v5': {
-		flowPath: '/flows/oidc-device-authorization-v5',
-		flowName: 'OIDC Device Authorization V5',
-		status: 'pending',
+	'/flows/oidc-device-authorization-v6': {
+		flowPath: '/flows/oidc-device-authorization-v6',
+		flowName: 'OIDC Device Authorization V6',
+		status: 'migrated',
 	},
 };
 

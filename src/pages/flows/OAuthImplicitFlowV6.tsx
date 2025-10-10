@@ -40,6 +40,7 @@ import {
 } from '../../services/tokenIntrospectionService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { UISettingsService } from '../../services/uiSettingsService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { validateForStep } from '../../services/credentialsValidationService';
@@ -598,6 +599,13 @@ const renderStepContent = useMemo(() => {
 					});
 				}}
 				onScopesChange={(value) => {
+					// Ensure openid is always included (PingOne requirement)
+					const scopes = value.split(/\s+/).filter(s => s.length > 0);
+					if (!scopes.includes('openid')) {
+						scopes.unshift('openid');
+						value = scopes.join(' ');
+						v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
+					}
 					const updated = { ...controller.credentials, scope: value, scopes: value };
 					controller.setCredentials(updated);
 					setCredentials(updated);
@@ -1482,6 +1490,9 @@ console.log('Scope:', scope);`}
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-implicit-v5" />
+				
+				{UISettingsService.getFlowSpecificSettingsPanel('oauth-implicit')}
+				
 				<EnhancedFlowInfoCard flowType="oauth-implicit" />
 				<FlowSequenceDisplay flowType="implicit" />
 

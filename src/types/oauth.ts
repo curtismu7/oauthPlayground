@@ -36,12 +36,15 @@ export interface AuthorizationRequest {
 	nonce?: string;
 	code_challenge?: string;
 	code_challenge_method?: string;
+	display?: 'page' | 'popup' | 'touch' | 'wap';
 	prompt?: string;
 	max_age?: number;
 	id_token_hint?: string;
 	login_hint?: string;
 	acr_values?: string;
 	claims?: string;
+	ui_locales?: string;
+	claims_locales?: string;
 	request?: string;
 	request_uri?: string;
 }

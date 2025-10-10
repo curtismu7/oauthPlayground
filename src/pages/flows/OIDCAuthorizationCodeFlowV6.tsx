@@ -60,6 +60,13 @@ import { UISettingsService } from '../../services/uiSettingsService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
+import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayParameterSelector';
+import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
+import LocalesParameterInput from '../../components/LocalesParameterInput';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+import ResourceParameterInput from '../../components/ResourceParameterInput';
+import EnhancedPromptSelector, { PromptValue } from '../../components/EnhancedPromptSelector';
+import { AdvancedParametersService } from '../../services/advancedParametersService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import { getFlowSequence } from '../../services/flowSequenceService';
 import {
@@ -630,11 +637,41 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
+	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
+	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
+	// Internationalization - SAVED FOR LATER
+	// const [uiLocales, setUiLocales] = useState<string>('');
+	// const [claimsLocales, setClaimsLocales] = useState<string>('');
+	const [audience, setAudience] = useState<string>('');
+	const [resources, setResources] = useState<string[]>([]);
+	const [promptValues, setPromptValues] = useState<PromptValue[]>([]);
 
 	// Scroll to top on step change
 	useEffect(() => {
 		AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
 	}, [currentStep]);
+
+	// NOTE: Advanced parameters (display, claims, ui_locales, claims_locales, audience) 
+	// are currently for educational/UI purposes. Full integration with auth URL generation
+	// requires controller refactoring. See ROADMAP_TO_100_PERCENT_COMPLIANCE.md for details.
+	
+	// Helper to get enhanced URL (for display/logging purposes)
+	const getEnhancedAuthorizationUrl = useCallback(() => {
+		if (!controller.authUrl) return '';
+		
+		return AdvancedParametersService.enhanceAuthorizationUrl(
+			controller.authUrl,
+			{
+				display: displayMode,
+				claims: claimsRequest,
+				// uiLocales: uiLocales, // SAVED FOR LATER
+				// claimsLocales: claimsLocales, // SAVED FOR LATER
+				audience: audience,
+				resource: resources,
+				prompt: promptValues.length > 0 ? promptValues.join(' ') : undefined,
+			}
+		);
+	}, [controller.authUrl, displayMode, claimsRequest, audience, resources, promptValues]);
 
 	// Enforce correct response_type for OIDC (should be 'code')
 	useEffect(() => {
@@ -1460,10 +1497,22 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 										});
 									}}
 									onScopesChange={(newScopes) => {
-										controller.setCredentials({
-											...controller.credentials,
-											scope: newScopes,
-										});
+										// Ensure openid is always included (required for OIDC & PingOne)
+										const scopes = newScopes.split(/\s+/).filter(s => s.length > 0);
+										if (!scopes.includes('openid')) {
+											scopes.unshift('openid');
+											const finalScopes = scopes.join(' ');
+											controller.setCredentials({
+												...controller.credentials,
+												scope: finalScopes,
+											});
+											v4ToastManager.showWarning('Added required "openid" scope for OIDC compliance');
+										} else {
+											controller.setCredentials({
+												...controller.credentials,
+												scope: newScopes,
+											});
+										}
 									}}
 									onRedirectUriChange={(newRedirectUri) => {
 										controller.setCredentials({
@@ -1507,6 +1556,33 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 									defaultCollapsed={false}
 								/>
 
+								{/* Nonce Security Educational Section */}
+								<InfoBox $variant="warning" style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+									<FiShield size={24} />
+									<div>
+										<InfoTitle style={{ fontSize: '1rem', fontWeight: '600', color: '#b45309' }}>
+											🔐 OIDC Security: Nonce Parameter (Replay Attack Protection)
+										</InfoTitle>
+										<InfoText style={{ marginTop: '0.75rem', color: '#78350f' }}>
+											<strong>What is Nonce?</strong> The nonce (number used once) is a cryptographically random string that binds your client session to the ID token and prevents replay attacks.
+										</InfoText>
+										<InfoText style={{ marginTop: '0.5rem', color: '#78350f' }}>
+											<strong>How it works:</strong>
+										</InfoText>
+										<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#78350f' }}>
+											<li>Your client generates a unique random nonce value for each authorization request</li>
+											<li>The nonce is sent in the authorization request to the identity provider</li>
+											<li>The authorization server includes the nonce claim in the ID token</li>
+											<li>Your client MUST validate that the nonce in the ID token matches the original nonce</li>
+										</ul>
+										<InfoText style={{ marginTop: '0.75rem', color: '#78350f', fontWeight: 'bold' }}>
+											⚠️ <strong>Security Critical:</strong> Without nonce validation, an attacker could intercept an old ID token and replay it to impersonate a user. This playground automatically generates and validates nonce for educational purposes.
+										</InfoText>
+										<InfoText style={{ marginTop: '0.5rem', color: '#78350f', fontSize: '0.875rem', fontStyle: 'italic' }}>
+											💡 <strong>Spec Reference:</strong> OIDC Core 1.0 Section 15.5.2 requires nonce validation for all flows that return ID tokens directly (Implicit and Hybrid). It's also strongly recommended for Authorization Code flow.
+										</InfoText>
+									</div>
+								</InfoBox>
 
 								{/* Response Mode Configuration */}
 									<CollapsibleSection
@@ -1535,6 +1611,88 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 											responseType="code"
 											clientType="confidential"
 											platform="web"
+										/>
+									</CollapsibleSection>
+
+									{/* Display Parameter */}
+									<CollapsibleSection
+										title="Display Mode (OIDC UI Adaptation)"
+										collapsed={collapsedSections.displayMode}
+										onToggle={() => toggleSection('displayMode')}
+									>
+										<DisplayParameterSelector
+											value={displayMode}
+											onChange={setDisplayMode}
+										/>
+									</CollapsibleSection>
+
+									{/* Advanced Claims Request */}
+									<CollapsibleSection
+										title="Advanced Claims Request (Optional)"
+										collapsed={collapsedSections.claimsRequest}
+										onToggle={() => toggleSection('claimsRequest')}
+									>
+										<ClaimsRequestBuilder
+											value={claimsRequest}
+											onChange={setClaimsRequest}
+										/>
+									</CollapsibleSection>
+
+									{/* Internationalization Parameters - SAVED FOR LATER */}
+									{/* 
+									<CollapsibleSection
+										title="Internationalization (Optional)"
+										collapsed={collapsedSections.i18n}
+										onToggle={() => toggleSection('i18n')}
+									>
+										<LocalesParameterInput
+											type="ui"
+											value={uiLocales}
+											onChange={setUiLocales}
+										/>
+										<LocalesParameterInput
+											type="claims"
+											value={claimsLocales}
+											onChange={setClaimsLocales}
+										/>
+									</CollapsibleSection>
+									*/}
+
+									{/* Audience Parameter */}
+									<CollapsibleSection
+										title="API Audience (Optional)"
+										collapsed={collapsedSections.audience}
+										onToggle={() => toggleSection('audience')}
+									>
+										<AudienceParameterInput
+											value={audience}
+											onChange={setAudience}
+											flowType="oidc"
+										/>
+									</CollapsibleSection>
+
+									{/* Resource Indicators */}
+									<CollapsibleSection
+										title="Resource Indicators (Optional)"
+										collapsed={collapsedSections.resources}
+										onToggle={() => toggleSection('resources')}
+									>
+										<ResourceParameterInput
+											value={resources}
+											onChange={setResources}
+											flowType="oidc"
+										/>
+									</CollapsibleSection>
+
+									{/* Enhanced Prompt Parameter */}
+									<CollapsibleSection
+										title="Authentication Behavior (Optional)"
+										collapsed={collapsedSections.prompt}
+										onToggle={() => toggleSection('prompt')}
+									>
+										<EnhancedPromptSelector
+											value={promptValues}
+											onChange={setPromptValues}
 										/>
 									</CollapsibleSection>
 
@@ -2364,7 +2522,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-authorization-code-v6" />
 
-				<UISettingsService.getSettingsPanel />
+				{UISettingsService.getFlowSpecificSettingsPanel('oidc-authorization-code')}
 
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
