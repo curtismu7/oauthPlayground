@@ -100,6 +100,8 @@ export interface UISettings {
 	stateAutoGenerate: boolean;
 	nonceAutoGenerate: boolean;
 	redirectAutoOpen: boolean;
+	devicePollingAutoStart: boolean;
+	devicePollingAutoScroll: boolean;
 }
 
 // Default settings
@@ -110,6 +112,8 @@ const DEFAULT_SETTINGS: UISettings = {
 	stateAutoGenerate: false,
 	nonceAutoGenerate: false,
 	redirectAutoOpen: false,
+	devicePollingAutoStart: false,
+	devicePollingAutoScroll: false,
 };
 
 // Settings storage key
@@ -151,41 +155,89 @@ const SETTINGS_CONFIG = [
 		label: 'PKCE Auto-Generation',
 		description: 'Automatically generate PKCE codes when reaching Step 2',
 		icon: FiKey,
+		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid'], // Only flows that use PKCE
 	},
 	{
 		key: 'authUrlAutoGenerate' as keyof UISettings,
 		label: 'Authorization URL Auto-Generation',
 		description: 'Automatically generate authorization URL when PKCE codes are ready',
 		icon: FiExternalLink,
+		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid', 'oauth-implicit', 'oidc-implicit'], // Flows with authorization URLs
 	},
 	{
 		key: 'tokenAutoExchange' as keyof UISettings,
 		label: 'Token Auto-Exchange',
 		description: 'Automatically exchange authorization code for tokens',
 		icon: FiShield,
+		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid'], // Only flows that exchange codes for tokens
 	},
 	{
 		key: 'stateAutoGenerate' as keyof UISettings,
 		label: 'State Auto-Generation',
 		description: 'Automatically generate state parameter for requests',
 		icon: FiRefreshCw,
+		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid', 'oauth-implicit', 'oidc-implicit'], // All flows with authorization requests
 	},
 	{
 		key: 'nonceAutoGenerate' as keyof UISettings,
 		label: 'Nonce Auto-Generation',
 		description: 'Automatically generate nonce parameter for OIDC flows',
 		icon: FiRefreshCw,
+		flows: ['oidc-authorization-code', 'oidc-hybrid', 'oidc-implicit'], // Only OIDC flows
 	},
 	{
 		key: 'redirectAutoOpen' as keyof UISettings,
 		label: 'Redirect Auto-Open',
 		description: 'Automatically open authentication modal when URL is ready',
 		icon: FiExternalLink,
+		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid', 'oauth-implicit', 'oidc-implicit'], // Flows with authorization URLs
+	},
+	{
+		key: 'devicePollingAutoStart' as keyof UISettings,
+		label: 'Device Polling Auto-Start',
+		description: 'Automatically start polling for device authorization tokens',
+		icon: FiRefreshCw,
+		flows: ['device-authorization'], // Only device authorization flows
+	},
+	{
+		key: 'devicePollingAutoScroll' as keyof UISettings,
+		label: 'Device Polling Auto-Scroll',
+		description: 'Automatically scroll to Smart TV display when polling starts',
+		icon: FiExternalLink,
+		flows: ['device-authorization'], // Only device authorization flows
 	},
 ];
 
+// Flow-specific settings filters
+const getFlowSpecificSettings = (flowType?: string) => {
+	if (!flowType) return SETTINGS_CONFIG;
+	
+	const filteredSettings = SETTINGS_CONFIG.filter(config => 
+		config.flows.some(flow => flowType.includes(flow))
+	);
+	
+	// If no settings match, show a message for device flows
+	if (filteredSettings.length === 0 && flowType.includes('device-authorization')) {
+		return [{
+			key: 'devicePollingAutoStart' as keyof UISettings,
+			label: 'Device Polling Auto-Start',
+			description: 'Automatically start polling for device authorization tokens',
+			icon: FiRefreshCw,
+			flows: ['device-authorization'],
+		}, {
+			key: 'devicePollingAutoScroll' as keyof UISettings,
+			label: 'Device Polling Auto-Scroll',
+			description: 'Automatically scroll to Smart TV display when polling starts',
+			icon: FiExternalLink,
+			flows: ['device-authorization'],
+		}];
+	}
+	
+	return filteredSettings;
+};
+
 // UI Settings Component
-export const UISettingsPanel: React.FC = () => {
+export const UISettingsPanel: React.FC<{ flowType?: string }> = ({ flowType }) => {
 	const { settings, updateSetting, resetSettings } = useUISettings();
 
 	return (
@@ -196,7 +248,7 @@ export const UISettingsPanel: React.FC = () => {
 				icon={<FiSettings size={16} />}
 				defaultCollapsed={true}
 			>
-				{SETTINGS_CONFIG.map((config) => {
+				{getFlowSpecificSettings(flowType).map((config) => {
 					const IconComponent = config.icon;
 					return (
 						<SettingItem key={config.key}>
@@ -273,6 +325,13 @@ export class UISettingsService {
 	 */
 	static getSettingsPanel(): React.ReactElement {
 		return <UISettingsPanel />;
+	}
+
+	/**
+	 * Get flow-specific settings panel component
+	 */
+	static getFlowSpecificSettingsPanel(flowType: string): React.ReactElement {
+		return <UISettingsPanel flowType={flowType} />;
 	}
 }
 
