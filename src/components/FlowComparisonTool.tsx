@@ -465,7 +465,7 @@ const availableFlows: FlowComparison[] = [
 			'No complex UI required',
 		],
 		cons: ['More complex flow', 'Requires polling', 'User must have another device'],
-		route: '/flows/oidc-device-authorization-v5',
+		route: '/flows/oidc-device-authorization-v6',
 		recommended: false,
 	},
 	{
