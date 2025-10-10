@@ -1878,14 +1878,14 @@ const TokenManagement = () => {
 				color: '#16a34a',
 				icon: <FiKey />,
 			};
-		} else if (flowSourceState.includes('device-authorization-v5')) {
+		} else if (flowSourceState.includes('device-authorization-v6') || flowSourceState.includes('device-authorization-v5')) {
 			return {
 				type: 'OAuth Device Authorization Code Flow V5',
 				description: 'Tokens from OAuth Device Authorization Code Flow V5',
 				color: '#8b5cf6',
 				icon: <FiMonitor />,
 			};
-		} else if (flowSourceState.includes('oidc-device-authorization-v5')) {
+		} else if (flowSourceState.includes('oidc-device-authorization-v6') || flowSourceState.includes('oidc-device-authorization-v5')) {
 			return {
 				type: 'OIDC Device Authorization Code Flow V5',
 				description: 'Tokens from OIDC Device Authorization Code Flow V5',

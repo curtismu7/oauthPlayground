@@ -445,16 +445,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 					<MenuItem
 						icon={<ColoredIcon $color="#ec4899"><FiSmartphone /></ColoredIcon>}
-						active={isActive('/flows/device-authorization-v5')}
-						onClick={() => handleNavigation('/flows/device-authorization-v5')}
+						active={isActive('/flows/device-authorization-v6')}
+						onClick={() => handleNavigation('/flows/device-authorization-v6')}
+						className="v6-flow"
 					>
 						<MenuItemContent>
-							<span>Device Authorization (V5)</span>
-							{isFlowMigrated('/flows/device-authorization-v5') && (
-								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-									<FiCheckCircle />
-								</MigrationBadge>
-							)}
+							<span>Device Authorization (V6)</span>
+							<MigrationBadge title="V6: Service Architecture + ComprehensiveCredentialsService">
+								<FiCheckCircle />
+							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
 					<MenuItem
@@ -507,16 +506,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 					<MenuItem
 						icon={<ColoredIcon $color="#14b8a6"><FiSmartphone /></ColoredIcon>}
-						active={isActive('/flows/oidc-device-authorization-v5')}
-						onClick={() => handleNavigation('/flows/oidc-device-authorization-v5')}
+						active={isActive('/flows/oidc-device-authorization-v6')}
+						onClick={() => handleNavigation('/flows/oidc-device-authorization-v6')}
+						className="v6-flow"
 					>
 						<MenuItemContent>
-							<span>Device Authorization (V5)</span>
-							{isFlowMigrated('/flows/oidc-device-authorization-v5') && (
-								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-									<FiCheckCircle />
-								</MigrationBadge>
-							)}
+							<span>Device Authorization (V6)</span>
+							<MigrationBadge title="V6: Service Architecture + ComprehensiveCredentialsService">
+								<FiCheckCircle />
+							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
 						<MenuItem
