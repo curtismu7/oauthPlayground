@@ -841,36 +841,36 @@ export const useAuthorizationCodeFlowController = (
 				body: JSON.stringify(requestBody),
 			});
 
-		if (!response.ok) {
-			const errorText = await response.text();
-			
-			// Parse error details
-			let errorDetails = errorText;
-			let userMessage = 'Token exchange failed';
-			
-			try {
-				const errorJson = JSON.parse(errorText);
-				if (errorJson.error === 'invalid_grant') {
-					if (errorJson.error_description?.includes('expired or invalid')) {
-						userMessage = 'Authorization code expired or already used';
-						errorDetails = 'Authorization codes can only be used once and expire quickly (typically 1-10 minutes). Please restart the authorization flow to get a new code.';
-					} else {
-						userMessage = errorJson.error_description || 'Invalid authorization code';
-						errorDetails = errorJson.error_description || errorText;
+			if (!response.ok) {
+				const errorText = await response.text();
+				
+				// Parse error details
+				let errorDetails = errorText;
+				let userMessage = 'Token exchange failed';
+				
+				try {
+					const errorJson = JSON.parse(errorText);
+					if (errorJson.error === 'invalid_grant') {
+						if (errorJson.error_description?.includes('expired or invalid')) {
+							userMessage = 'Authorization code expired or already used';
+							errorDetails = 'Authorization codes can only be used once and expire quickly (typically 1-10 minutes). Please restart the authorization flow to get a new code.';
+						} else {
+							userMessage = errorJson.error_description || 'Invalid authorization code';
+							errorDetails = errorJson.error_description || errorText;
+						}
 					}
+				} catch (e) {
+					// If not JSON, use the raw error text
 				}
-			} catch (e) {
-				// If not JSON, use the raw error text
+				
+				// Show user-friendly error message
+				showGlobalError(userMessage, {
+					description: errorDetails,
+					meta: { status: response.status, action: 'exchangeTokens' }
+				});
+				
+				throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
 			}
-			
-			// Show user-friendly error message
-			showGlobalError(userMessage, {
-				description: errorDetails,
-				meta: { status: response.status, action: 'exchangeTokens' }
-			});
-			
-			throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
-		}
 
 			const tokenData = await response.json();
 			setTokens(tokenData);
