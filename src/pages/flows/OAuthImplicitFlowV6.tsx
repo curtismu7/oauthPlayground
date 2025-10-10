@@ -1,4 +1,4 @@
-// src/pages/flows/OAuthImplicitFlowV5.tsx
+// src/pages/flows/OAuthImplicitFlowV6.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
@@ -57,10 +57,10 @@ import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../ser
 // Import components
 import TokenIntrospect from '../../components/TokenIntrospect';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 
 // Import extracted styles and config
@@ -146,7 +146,7 @@ const RequirementsIndicator = FlowLayoutService.getRequirementsIndicatorStyles()
 const RequirementsIcon = FlowLayoutService.getRequirementsIconStyles();
 const RequirementsText = FlowLayoutService.getRequirementsTextStyles();
 
-const OAuthImplicitFlowV5: React.FC = () => {
+const OAuthImplicitFlowV6: React.FC = () => {
 	const controller = useImplicitFlowController({
 		flowKey: 'oauth-implicit-v5',
 		defaultFlowVariant: 'oauth',
@@ -967,65 +967,14 @@ console.log('Scope:', scope);`}
 											</ActionRow>
 										</GeneratedContentBox>
 
-										{/* Token Parameters Grid */}
-										<GeneratedContentBox style={{ marginTop: '1rem' }}>
-											<GeneratedLabel>Token Parameters</GeneratedLabel>
-											<ParameterGrid>
-												{tokens.token_type && (
-													<div>
-														<ParameterLabel>Token Type</ParameterLabel>
-														<ParameterValue>{String(tokens.token_type)}</ParameterValue>
-													</div>
-												)}
-												{tokens.scope && (
-													<div>
-														<ParameterLabel>Scope</ParameterLabel>
-														<ParameterValue>{String(tokens.scope)}</ParameterValue>
-													</div>
-												)}
-												{tokens.expires_in && (
-													<div>
-														<ParameterLabel>Expires In</ParameterLabel>
-														<ParameterValue>{String(tokens.expires_in)} seconds</ParameterValue>
-													</div>
-												)}
-												{tokens.state && (
-													<div>
-														<ParameterLabel>State</ParameterLabel>
-														<ParameterValue>{String(tokens.state)}</ParameterValue>
-													</div>
-												)}
-											</ParameterGrid>
-										</GeneratedContentBox>
-
-										{/* JWT Token Display */}
-										{tokens.access_token && (
-											<GeneratedContentBox style={{ marginTop: '1rem' }}>
-												<GeneratedLabel>Access Token (JWT)</GeneratedLabel>
-												<JWTTokenDisplay
-													token={String(tokens.access_token)}
-													tokenType="access_token"
-													copyLabel="Access Token"
-													showTokenType={true}
-													showExpiry={true}
-													{...(tokens.expires_in && { expiresIn: Number(tokens.expires_in) })}
-													{...(tokens.scope && { scope: String(tokens.scope) })}
-												/>
-											</GeneratedContentBox>
-										)}
-
-										{/* ID Token Display (if present) */}
-										{tokens.id_token && (
-											<GeneratedContentBox style={{ marginTop: '1rem' }}>
-												<GeneratedLabel>ID Token (JWT)</GeneratedLabel>
-												<JWTTokenDisplay
-													token={String(tokens.id_token)}
-													tokenType="id_token"
-													copyLabel="ID Token"
-													showTokenType={true}
-													showExpiry={true}
-												/>
-											</GeneratedContentBox>
+										{UnifiedTokenDisplayService.showTokens(
+											tokens,
+											'oauth',
+											'oauth-implicit-v6',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
 										)}
 
 										{/* Security Warnings */}
@@ -1709,4 +1658,4 @@ console.log('Scope:', scope);`}
 	);
 };
 
-export default OAuthImplicitFlowV5;
+export default OAuthImplicitFlowV6;
