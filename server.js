@@ -1145,6 +1145,12 @@ app.get('/api/discovery', async (req, res) => {
 	try {
 		const { environment_id, region = 'us' } = req.query;
 
+		console.log('[Discovery] Request received:', {
+			environment_id,
+			region,
+			query: req.query
+		});
+
 		if (!environment_id) {
 			return res.status(400).json({
 				error: 'invalid_request',
@@ -1152,29 +1158,38 @@ app.get('/api/discovery', async (req, res) => {
 			});
 		}
 
-		// Determine the base URL based on region
-		const regionMap = {
-			us: 'https://auth.pingone.com',
-			eu: 'https://auth.pingone.eu',
-			ca: 'https://auth.pingone.ca',
-			ap: 'https://auth.pingone.asia',
-		};
+	// Determine the base URL based on region
+	const regionMap = {
+		us: 'https://auth.pingone.com',
+		na: 'https://auth.pingone.com', // North America -> US
+		eu: 'https://auth.pingone.eu',
+		ca: 'https://auth.pingone.ca',
+		ap: 'https://auth.pingone.asia',
+		asia: 'https://auth.pingone.asia',
+	};
 
-		const baseUrl = regionMap[region.toLowerCase()] || regionMap['us'];
+	const baseUrl = regionMap[region.toLowerCase()] || regionMap['us'];
 		const discoveryUrl = `${baseUrl}/${environment_id}/.well-known/openid_configuration`;
 
 		console.log(`[Discovery] Fetching configuration from: ${discoveryUrl}`);
 
+		console.log('[Discovery] Fetching from PingOne...');
+		
 		const response = await fetch(discoveryUrl, {
 			method: 'GET',
 			headers: {
-				Accept: 'application/json',
+				'Accept': 'application/json',
 				'User-Agent': 'PingOne-OAuth-Playground/1.0',
 			},
+			timeout: 10000, // 10 second timeout
 		});
+
+		console.log(`[Discovery] PingOne response: ${response.status} ${response.statusText}`);
 
 		if (!response.ok) {
 			console.error(`[Discovery] PingOne error: ${response.status} ${response.statusText}`);
+			const errorBody = await response.text().catch(() => 'Unable to read error');
+			console.error('[Discovery] Error body:', errorBody);
 
 			// Return a fallback configuration based on known PingOne patterns
 			const fallbackConfig = {
@@ -1264,7 +1279,11 @@ app.get('/api/discovery', async (req, res) => {
 			server_timestamp: new Date().toISOString(),
 		});
 	} catch (error) {
-		console.error('[Discovery] Server error:', error);
+		console.error('[Discovery] Server error:', {
+			message: error.message,
+			stack: error.stack,
+			error
+		});
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during discovery',
