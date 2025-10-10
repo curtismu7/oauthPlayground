@@ -11,10 +11,8 @@ export const STEP_CONFIGS = [
 	{ title: 'Step 1: Introduction & Setup', subtitle: 'Understand Redirectless Flow (pi.flow)' },
 	{ title: 'Step 2: PKCE Generation', subtitle: 'Generate secure code verifier and challenge' },
 	{ title: 'Step 3: Authorization Request', subtitle: 'POST to /authorize with response_mode=pi.flow' },
-	{ title: 'Step 4: Flow Interaction', subtitle: 'Handle PingOne Flow API steps' },
-	{ title: 'Step 5: Token Response', subtitle: 'Receive tokens directly (no redirect)' },
-	{ title: 'Step 6: Token Validation', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 7: Flow Summary', subtitle: 'Complete redirectless flow overview' },
+	{ title: 'Step 4: Token Response & Management', subtitle: 'Handle flow interaction and received tokens' },
+	{ title: 'Step 5: Flow Complete', subtitle: 'Summary and next steps for redirectless flow' },
 ];
 
 // Service-generated metadata

@@ -6,7 +6,6 @@ import {
 	FiArrowRight,
 	FiCheckCircle,
 	FiChevronDown,
-	FiCopy,
 	FiExternalLink,
 	FiEye,
 	FiEyeOff,
@@ -28,7 +27,8 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
+import EducationalContentService from '../../services/educationalContentService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,
 	ResultsHeading,
@@ -39,20 +39,20 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import { getFlowSequence } from '../../services/flowSequenceService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -494,19 +494,6 @@ const HighlightBadge = styled.span`
 	font-weight: 700;
 `;
 
-const CodeBlock = styled.pre`
-	background-color: #1e293b;
-	border: 1px solid #334155;
-	border-radius: 0.5rem;
-	padding: 1.25rem;
-	font-size: 0.875rem;
-	color: #e2e8f0;
-	overflow-x: auto;
-	margin: 1rem 0;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	line-height: 1.5;
-	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-`;
 
 const GeneratedUrlDisplay = styled.div`
 	background-color: #ecfdf3;
@@ -520,53 +507,6 @@ const GeneratedUrlDisplay = styled.div`
 	position: relative;
 `;
 
-const Modal = styled.div<{ $show?: boolean }>`
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background-color: rgba(15, 23, 42, 0.45);
-	display: ${({ $show }) => ($show ? 'flex' : 'none')};
-	align-items: center;
-	justify-content: center;
-	z-index: 2000;
-`;
-
-const ModalContent = styled.div`
-	background-color: #ffffff;
-	border-radius: 0.75rem;
-	padding: 2rem;
-	max-width: 400px;
-	text-align: center;
-	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-`;
-
-const ModalIcon = styled.div`
-	width: 4rem;
-	height: 4rem;
-	border-radius: 50%;
-	background-color: #22c55e;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	margin: 0 auto 1rem;
-	font-size: 1.5rem;
-	color: #ffffff;
-`;
-
-const ModalTitle = styled.h3`
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: var(--color-text-primary, #111827);
-	margin-bottom: 0.5rem;
-`;
-
-const ModalText = styled.p`
-	font-size: 0.875rem;
-	color: #6b7280;
-	line-height: 1.5;
-`;
 
 const EmptyState = styled.div`
 	text-align: center;
@@ -692,7 +632,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
 			}
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
@@ -817,10 +756,10 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
 
-	// Get flow sequence for Step 0 diagram
-	const flowSequence = useMemo(() => {
-		return getFlowSequence('authorization-code');
-	}, []);
+	// Get flow sequence for Step 0 diagram (if needed)
+	// const flowSequence = useMemo(() => {
+	// 	return getFlowSequence('authorization-code');
+	// }, []);
 
 	const stepCompletions = useMemo<StepCompletionState>(
 		() => ({
@@ -947,11 +886,26 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	);
 
 	const handleGeneratePkce = useCallback(async () => {
-		await AuthorizationCodeSharedService.PKCE.generatePKCE(
+		console.log('[OAuth AuthZ V6] Generating PKCE codes...', {
+			clientId: controller.credentials.clientId,
+			environmentId: controller.credentials.environmentId,
+			flowKey: 'oauth-authorization-code-v6'
+		});
+		
+		const success = await AuthorizationCodeSharedService.PKCE.generatePKCE(
 			'oauth',
 			controller.credentials,
 			controller
 		);
+		
+		console.log('[OAuth AuthZ V6] PKCE generation result:', success);
+		
+		if (success) {
+			console.log('[OAuth AuthZ V6] PKCE codes after generation:', {
+				codeVerifier: controller.pkceCodes.codeVerifier,
+				codeChallenge: controller.pkceCodes.codeChallenge
+			});
+		}
 	}, [controller]);
 
 	const handleGenerateAuthUrl = useCallback(async () => {
@@ -1249,13 +1203,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	// Step validation functions
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
+			// Enhanced validation - checks both controller state and session storage for PKCE codes
+			const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
+							   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+			
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
 					return true; // Always valid - introduction step
 				case 1: // Step 1: PKCE Parameters
-					return !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge);
+					return hasPkceCodes;
 				case 2: // Step 2: Authorization Request
-					return !!(controller.authUrl && controller.pkceCodes.codeVerifier);
+					return !!(controller.authUrl && hasPkceCodes);
 				case 3: // Step 3: Authorization Response
 					return !!(controller.authCode || localAuthCode);
 				case 4: // Step 4: Token Exchange
@@ -1308,7 +1266,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	}, [currentStep, isStepValid]);
 
 	const handleNext = useCallback(() => {
-		console.log('🔍 [AuthorizationCodeFlowV5] handleNext called:', {
+		console.log('🔍 [OAuth AuthZ V6] handleNext called:', {
 			currentStep,
 			canNavigate: canNavigateNext(),
 			isStepValid: isStepValid(currentStep),
@@ -1320,16 +1278,19 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			authCode: !!(controller.authCode || localAuthCode),
 		});
 
-		if (!canNavigateNext()) {
-			const stepName = STEP_METADATA[currentStep]?.title || `Step ${currentStep + 1}`;
-			console.log('🚫 [AuthorizationCodeFlowV5] Navigation blocked:', stepName);
-			v4ToastManager.showError(`Complete ${stepName} before proceeding to the next step.`);
-			return;
-		}
-
-		console.log('✅ [AuthorizationCodeFlowV5] Navigation allowed, moving to next step');
-		const next = currentStep + 1;
-		setCurrentStep(next);
+		// Use service navigation manager for proper validation
+		AuthorizationCodeSharedService.Navigation.handleNext(
+			currentStep,
+			controller.credentials,
+			'oauth',
+			controller,
+			isStepValid,
+			() => {
+				console.log('✅ [OAuth AuthZ V6] Navigation allowed, moving to next step');
+				const next = currentStep + 1;
+				setCurrentStep(next);
+			}
+		);
 	}, [
 		currentStep,
 		canNavigateNext,
@@ -1338,6 +1299,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		controller.authUrl,
 		controller.authCode,
 		localAuthCode,
+		controller.credentials,
 	]);
 
 	const handlePrev = useCallback(() => {
@@ -1362,7 +1324,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
-		const pkceCodes = controller.pkceCodes;
 		const authCode = controller.authCode;
 		const tokens = controller.tokens;
 		const userInfo = controller.userInfo;
@@ -1374,30 +1335,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					<>
 						<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
 						
-						{/* OAuth 2.0 = Authorization Only */}
-						<InfoBox $variant="warning" style={{ marginBottom: '1.5rem', background: '#fef3c7', borderColor: '#fbbf24' }}>
-							<FiAlertCircle size={24} style={{ color: '#d97706' }} />
-							<div>
-								<InfoTitle style={{ color: '#92400e', fontSize: '1.125rem' }}>OAuth 2.0 = Authorization Only (NOT Authentication)</InfoTitle>
-								<InfoText style={{ color: '#78350f', marginBottom: '0.75rem' }}>
-									This flow provides <strong>delegated authorization</strong> - it allows your app to access resources 
-									on behalf of the user. It does <strong>NOT authenticate the user</strong> or provide identity information.
-								</InfoText>
-								<InfoList style={{ color: '#78350f' }}>
-									<li>✅ <strong>Returns:</strong> Access Token (for API calls)</li>
-									<li>❌ <strong>Does NOT return:</strong> ID Token (no user identity)</li>
-									<li>❌ <strong>Does NOT provide:</strong> User profile information</li>
-									<li>❌ <strong>Does NOT have:</strong> UserInfo endpoint</li>
-									<li>⚠️ <strong>Scope:</strong> Any scopes (read, write, etc.) - do NOT include 'openid'</li>
-								</InfoList>
-								<HelperText style={{ color: '#78350f', fontWeight: 600, marginTop: '0.75rem' }}>
-									📋 <strong>Use Case Examples:</strong> Calendar app accessing user's events | Photo app uploading to cloud storage | Email client reading messages
-								</HelperText>
-								<HelperText style={{ color: '#dc2626', fontWeight: 700, marginTop: '0.5rem', padding: '0.5rem', background: '#fee2e2', borderRadius: '0.375rem' }}>
-									🔐 <strong>Need user authentication?</strong> Use OIDC Authorization Code Flow instead - it provides user identity via ID Token
-								</HelperText>
-							</div>
-						</InfoBox>
+						{/* OAuth 2.0 Educational Content */}
+						<EducationalContentService flowType="oauth" defaultCollapsed={false} />
 						
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1542,24 +1481,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									defaultCollapsed={false}
 								/>
 
-								{/* Configuration Summary Card - Compact */}
-								{credentials.environmentId && credentials.clientId && (
-									<ConfigurationSummaryCard
-										config={ConfigurationSummaryService.generateSummary(credentials, 'oauth-authz')}
-										onSave={async () => {
-											await handleSaveConfiguration();
-										}}
-										onExport={async (config) => {
-											ConfigurationSummaryService.downloadConfig(config, 'oauth-authz-config.json');
-										}}
-										onImport={async (importedConfig) => {
-											setCredentials(importedConfig);
-											await handleSaveConfiguration();
-										}}
-										flowType="oauth-authz"
-										showAdvancedFields={false}
-									/>
-								)}
 
 								<ActionRow>
 									<Button onClick={handleSaveConfiguration} $variant="primary">
@@ -1867,58 +1788,14 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 								Generate fresh PKCE values for this authorization request. These will be used to
 								secure the code exchange and prevent interception attacks.
 							</HelperText>
-							{pkceCodes.codeVerifier ? (
-								<GeneratedContentBox>
-									<GeneratedLabel>Generated</GeneratedLabel>
-									<ParameterGrid>
-										<div>
-											<ParameterLabel>Code Verifier</ParameterLabel>
-											<ParameterValue>{pkceCodes.codeVerifier}</ParameterValue>
-										</div>
-										<div>
-											<ParameterLabel>Code Challenge</ParameterLabel>
-											<ParameterValue>{pkceCodes.codeChallenge}</ParameterValue>
-										</div>
-									</ParameterGrid>
-									<ActionRow>
-										<CopyButtonService
-											text={pkceCodes.codeVerifier}
-											label="Code Verifier"
-											size="sm"
-											variant="secondary"
-											showLabel={true}
-										/>
-										<CopyButtonService
-											text={pkceCodes.codeChallenge}
-											label="Code Challenge"
-											size="sm"
-											variant="secondary"
-											showLabel={true}
-										/>
-										<HighlightedActionButton onClick={handleGeneratePkce} $priority="primary">
-											<FiRefreshCw /> Regenerate
-										</HighlightedActionButton>
-									</ActionRow>
-								</GeneratedContentBox>
-							) : (
-								<HighlightedActionButton
-									onClick={handleGeneratePkce}
-									$priority="primary"
-									disabled={
-										!controller.credentials.clientId || !controller.credentials.environmentId
-									}
-									title={
-										!controller.credentials.clientId || !controller.credentials.environmentId
-											? 'Fill in Client ID and Environment ID first'
-											: 'Generate PKCE parameters'
-									}
-								>
-									<FiRefreshCw />{' '}
-									{!controller.credentials.clientId || !controller.credentials.environmentId
-										? 'Complete above action'
-										: 'Generate PKCE'}
-								</HighlightedActionButton>
-							)}
+							<PKCEGenerationService.showComponent
+								controller={controller}
+								credentials={controller.credentials}
+								flowType="oauth"
+								onPKCEGenerated={() => {
+									console.log('[OAuth AuthZ V6] PKCE codes generated successfully');
+								}}
+							/>
 						</ResultsSection>
 					</>
 				);
@@ -2117,22 +1994,22 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 								<HighlightedActionButton
 									onClick={handleGenerateAuthUrl}
 									$priority="primary"
-									disabled={
-										!!controller.authUrl ||
-										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
-									}
-									title={
-										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
-											? 'Generate PKCE parameters first'
-											: controller.authUrl
-												? 'Authorization URL already generated'
-												: 'Generate authorization URL'
-									}
+								disabled={
+									!!controller.authUrl ||
+									(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+								}
+								title={
+									(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+										? 'Generate PKCE parameters first'
+										: controller.authUrl
+											? 'Authorization URL already generated'
+											: 'Generate authorization URL'
+								}
 								>
 									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
-										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
 											? 'Complete above action'
 											: 'Generate Authorization URL'}
 									<HighlightBadge>1</HighlightBadge>
@@ -2408,163 +2285,14 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										/>
 									)}
 
-									{tokens && (
-										<ResultsSection>
-											<ResultsHeading>
-												<FiCheckCircle size={18} /> Token Response
-											</ResultsHeading>
-											<HelperText>
-												Review the raw token response. Copy the JSON or open the token management
-												tooling to inspect each token.
-											</HelperText>
-											<GeneratedContentBox>
-												<GeneratedLabel>Raw Token Response</GeneratedLabel>
-												<CodeBlock>{JSON.stringify(tokens, null, 2)}</CodeBlock>
-												<ActionRow style={{ marginBottom: '1rem' }}>
-													<Button
-														onClick={() =>
-															handleCopy(JSON.stringify(tokens, null, 2), 'Token Response')
-														}
-														$variant="primary"
-														style={{
-															backgroundColor: '#3b82f6',
-															borderColor: '#3b82f6',
-															color: '#ffffff',
-															fontWeight: '600',
-														}}
-													>
-														<FiCopy /> Copy JSON Response
-													</Button>
-												</ActionRow>
-											</GeneratedContentBox>
-
-											<GeneratedContentBox style={{ marginTop: '1rem' }}>
-												<GeneratedLabel>Tokens Received</GeneratedLabel>
-												
-												{/* Enhanced JWT Token Display */}
-												{tokens.access_token && (
-													<JWTTokenDisplay
-														token={String(tokens.access_token)}
-													tokenType={tokens.token_type || 'Bearer'}
-													{...(tokens.expires_in && { expiresIn: tokens.expires_in })}
-													{...(tokens.scope && { scope: tokens.scope })}
-												/>
-												)}
-												
-												{/* Refresh Token Display */}
-												{tokens.refresh_token && (
-													<div style={{ marginTop: '1rem' }}>
-														<ParameterLabel>Refresh Token</ParameterLabel>
-														<ParameterValue style={{ wordBreak: 'break-all' }}>
-															{String(tokens.refresh_token)}
-														</ParameterValue>
-														<Button
-															onClick={() =>
-																handleCopy(String(tokens.refresh_token), 'Refresh Token')
-															}
-															$variant="primary"
-															style={{
-																marginTop: '0.5rem',
-																fontSize: '0.8rem',
-																fontWeight: '600',
-																padding: '0.5rem 0.75rem',
-																backgroundColor: '#10b981',
-																borderColor: '#10b981',
-																color: '#ffffff',
-															}}
-														>
-															<FiCopy /> Copy Refresh Token
-														</Button>
-													</div>
-												)}
-												
-												{/* Additional Token Information */}
-												<ParameterGrid style={{ marginTop: '1rem' }}>
-													{tokens.token_type && (
-														<div>
-															<ParameterLabel>Token Type</ParameterLabel>
-															<ParameterValue>{String(tokens.token_type)}</ParameterValue>
-														</div>
-													)}
-													{tokens.scope && (
-														<div>
-															<ParameterLabel>Scope</ParameterLabel>
-															<ParameterValue>{String(tokens.scope)}</ParameterValue>
-														</div>
-													)}
-													{tokens.expires_in && (
-														<div>
-															<ParameterLabel>Expires In</ParameterLabel>
-															<ParameterValue>{String(tokens.expires_in)} seconds</ParameterValue>
-														</div>
-													)}
-													{tokens.access_token && getX5tParameter(String(tokens.access_token)) && (
-														<div>
-															<ParameterLabel>x5t (Certificate Thumbprint)</ParameterLabel>
-															<ParameterValue>
-																{getX5tParameter(String(tokens.access_token))}
-															</ParameterValue>
-														</div>
-													)}
-												</ParameterGrid>
-												{/* Token Management Buttons */}
-												<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
-													<Button onClick={navigateToTokenManagement} $variant="primary">
-														<FiExternalLink /> View in Token Management
-													</Button>
-													{tokens.access_token && (
-														<Button
-															onClick={navigateToTokenManagement}
-															$variant="primary"
-															style={{
-																fontSize: '0.9rem',
-																fontWeight: '600',
-																padding: '0.75rem 1rem',
-																backgroundColor: '#3b82f6',
-																borderColor: '#3b82f6',
-																color: '#ffffff',
-															}}
-														>
-															<FiKey /> Decode Access Token
-														</Button>
-													)}
-													{tokens.refresh_token && (
-														<Button
-															onClick={navigateToTokenManagementWithRefreshToken}
-															$variant="primary"
-															style={{
-																fontSize: '0.9rem',
-																fontWeight: '600',
-																padding: '0.75rem 1rem',
-																backgroundColor: '#f59e0b',
-																borderColor: '#f59e0b',
-																color: '#ffffff',
-															}}
-														>
-															<FiRefreshCw /> Decode Refresh Token
-														</Button>
-													)}
-												</ActionRow>
-											</GeneratedContentBox>
-											
-											{/* Code Examples for Token Exchange Step */}
-											{tokens.access_token && (
-												<div style={{ marginTop: '2rem' }}>
-													<CodeExamplesDisplay
-														flowType="authorization-code"
-														stepId="step3"
-														config={{
-															baseUrl: 'https://auth.pingone.com',
-															clientId: credentials?.clientId || '',
-															clientSecret: credentials?.clientSecret || '',
-															redirectUri: credentials?.redirectUri || '',
-															scopes: credentials?.scopes?.split(' ') || ['openid', 'profile', 'email'],
-															environmentId: credentials?.environmentId || '',
-														}}
-													/>
-												</div>
-											)}
-										</ResultsSection>
+									{UnifiedTokenDisplayService.showTokens(
+										tokens,
+										'oauth',
+										'oauth-authorization-code-v6',
+										{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										}
 									)}
 								</CollapsibleContent>
 							)}
@@ -2593,7 +2321,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 								rawJson: false, // Show raw JSON expanded by default
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails') {
+								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2649,7 +2377,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 								rawJson: false,
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails') {
+								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2766,6 +2494,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-authorization-code-v6" />
 
+				<UISettingsService.getSettingsPanel />
+
 				<EnhancedFlowInfoCard
 					flowType="oauth-authorization-code"
 					showAdditionalInfo={true}
@@ -2819,15 +2549,25 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-			<Modal $show={showRedirectModal}>
-				<ModalContent>
-					<ModalIcon>
-						<FiExternalLink />
-					</ModalIcon>
-					<ModalTitle>Redirecting to PingOne</ModalTitle>
-					<ModalText>Launching the PingOne authorization experience in a new tab…</ModalText>
-				</ModalContent>
-			</Modal>
+			{AuthenticationModalService.showModal(
+				showRedirectModal,
+				() => setShowRedirectModal(false),
+				() => {
+					console.log('🔧 [OAuthAuthorizationCodeFlowV6] Continuing to PingOne authentication');
+					setShowRedirectModal(false);
+					// The controller will handle the actual redirect
+					if (controller.authUrl) {
+						window.open(controller.authUrl, 'PingOneAuth', 'width=600,height=700,left=' + (window.screen.width / 2 - 300) + ',top=' + (window.screen.height / 2 - 350) + ',resizable=yes,scrollbars=yes,status=yes');
+					}
+				},
+				controller.authUrl || '',
+				'oauth',
+				'OAuth 2.0 Authorization Code',
+				{
+					description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authorization. This will open in a new popup window for secure authentication.',
+					redirectMode: 'popup'
+				}
+			)}
 
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
