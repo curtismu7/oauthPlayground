@@ -390,7 +390,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 	collapsedSections = {
 		completionOverview: false,
 		completionDetails: false,
-		introspectionDetails: false,
+		introspectionDetails: false, // Default to expanded for introspection
 		rawJson: true, // Default to collapsed for raw JSON
 		userInfo: false, // Default to expanded for user info
 	},
