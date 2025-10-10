@@ -365,9 +365,9 @@ export class FlowConfigService {
 		return {
 			flowType: 'device-authorization',
 			flowName: 'OAuth 2.0 Device Authorization Flow',
-			flowVersion: 'V5',
+			flowVersion: 'V6',
 			flowTheme: 'purple',
-			flowKey: 'device-authorization-v5',
+			flowKey: 'device-authorization-v6',
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
@@ -741,9 +741,9 @@ export class FlowConfigService {
 		return {
 			flowType: 'oidc-device-authorization',
 			flowName: 'OIDC Device Authorization Flow',
-			flowVersion: 'V5',
+			flowVersion: 'V6',
 			flowTheme: 'purple',
-			flowKey: 'oidc-device-authorization-v5',
+			flowKey: 'oidc-device-authorization-v6',
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
