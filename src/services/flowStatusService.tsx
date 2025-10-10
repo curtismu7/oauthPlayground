@@ -28,7 +28,7 @@ export const FLOW_TABLE_CONFIGS: FlowTableConfig[] = [
 			{ id: 'oauth-authorization-code-v5', name: 'OAuth 2.0 Authorization Code V5' },
 			{ id: 'oauth-implicit-v5', name: 'OAuth 2.0 Implicit V5' },
 			{ id: 'client-credentials-v5', name: 'OAuth 2.0 Client Credentials V5' },
-			{ id: 'device-authorization-v5', name: 'OAuth Device Authorization V5' },
+			{ id: 'device-authorization-v6', name: 'OAuth Device Authorization V6' },
 		],
 	},
 	{
@@ -39,7 +39,7 @@ export const FLOW_TABLE_CONFIGS: FlowTableConfig[] = [
 			{ id: 'oidc-authorization-code-v5', name: 'OIDC Authorization Code V5' },
 			{ id: 'oidc-implicit-v5', name: 'OIDC Implicit V5' },
 			{ id: 'hybrid-v5', name: 'OIDC Hybrid V5' },
-			{ id: 'oidc-device-authorization-v5', name: 'OIDC Device Authorization V5' },
+			{ id: 'oidc-device-authorization-v6', name: 'OIDC Device Authorization V6' },
 		],
 	},
 	{

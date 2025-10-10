@@ -181,7 +181,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔑',
 		version: 'V6',
 	},
-	'device-authorization-v5': {
+	'device-authorization-v6': {
 		flowType: 'oauth',
 		title: 'Device Authorization Flow - Input-Constrained Devices',
 		subtitle:
@@ -248,7 +248,7 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔄',
 		version: 'V6',
 	},
-	'oidc-device-authorization-v5': {
+	'oidc-device-authorization-v6': {
 		flowType: 'oidc',
 		title: 'Device Authorization Flow - OIDC for Constrained Devices',
 		subtitle:
