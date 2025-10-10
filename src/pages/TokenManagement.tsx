@@ -45,7 +45,7 @@ import {
 	navigateBackToFlow,
 	getFlowDisplayName,
 } from '../utils/flowNavigation';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 type TokenIntrospectionResult = {
 	active?: boolean;
@@ -620,6 +620,7 @@ const RefreshStatus = styled.div<{
 const TokenManagement = () => {
 	const { tokens } = useAuth();
 	const navigate = useNavigate();
+	const location = useLocation();
 
 	// Token analysis hooks
 	const { getTokenTypeInfo } = useTokenAnalysis();
@@ -886,6 +887,35 @@ const TokenManagement = () => {
 
 	useEffect(() => {
 		const checkForPassedToken = () => {
+			// Check location.state first (from UnifiedTokenDisplayService navigation)
+			const locationState = location.state as any;
+			if (locationState?.token) {
+				console.log('✅ [TokenManagement] Found token from navigation state:', {
+					tokenType: locationState.tokenType,
+					label: locationState.label,
+					source: locationState.source,
+					tokenLength: locationState.token.length,
+				});
+
+				setTokenString(locationState.token);
+				setTokenSource({
+					source: 'Flow Navigation',
+					description: `${locationState.label || 'Token'} from ${locationState.source || 'unknown'}`,
+					timestamp: new Date().toLocaleString(),
+				});
+				setFlowSourceState(locationState.source || 'unknown');
+				lastSelectedTokenType.current = locationState.tokenType || 'access';
+
+				// Auto-decode the passed token
+				setTimeout(() => decodeJWT(locationState.token), 100);
+				setTokenStatus('valid');
+
+				// Clear location state
+				window.history.replaceState({}, document.title);
+
+				return true; // Token was loaded from navigation state
+			}
+
 			// Check both localStorage (for cross-tab) and sessionStorage (for same-tab)
 			const tokenToAnalyze =
 				localStorage.getItem('token_to_analyze') || sessionStorage.getItem('token_to_analyze');
@@ -1098,7 +1128,7 @@ const TokenManagement = () => {
 		}
 
 		return () => clearTimeout(timer);
-	}, [tokens, decodeJWT, tokenString]);
+	}, [tokens, decodeJWT, tokenString, location]);
 
 	const handleTokenInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
 		setTokenString(e.target.value);
