@@ -141,6 +141,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔐',
 		version: 'V5',
 	},
+	'oauth-authorization-code-v6': {
+		flowType: 'oauth',
+		title: 'OAuth 2.0 Authorization Code Flow V6 - Delegated Authorization',
+		subtitle:
+			'🔐 OAuth 2.0 Authorization Framework (RFC 6749) - Allows your app to access resources on behalf of a user without handling their credentials. Returns Access Token for API calls. ⚠️ Note: OAuth 2.0 provides AUTHORIZATION (resource access) but NOT AUTHENTICATION (user identity). Use OIDC if you need to verify who the user is.',
+		icon: '🔐',
+		version: 'V6',
+	},
 	'oauth-implicit-v5': {
 		flowType: 'oauth',
 		title: 'Implicit Flow - Legacy Browser-Based Authentication',
@@ -149,6 +157,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚡',
 		version: 'V5',
 	},
+	'oauth-implicit-v6': {
+		flowType: 'oauth',
+		title: 'Implicit Flow V6 - Legacy Browser-Based Authentication',
+		subtitle:
+			'Deprecated OAuth 2.0 flow that returns access tokens directly in the URL fragment without an authorization code exchange. No longer recommended - use Authorization Code Flow with PKCE instead for better security.',
+		icon: '⚡',
+		version: 'V6',
+	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
 		title: 'Client Credentials Flow - Server-to-Server Authentication',
@@ -156,6 +172,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Secure machine-to-machine authentication for backend services and APIs. Obtain access tokens directly using client ID and secret without user interaction. Perfect for microservices, batch jobs, and automated processes.',
 		icon: '🔑',
 		version: 'V5',
+	},
+	'client-credentials-v6': {
+		flowType: 'oauth',
+		title: 'Client Credentials Flow V6 - Server-to-Server Authentication',
+		subtitle:
+			'🔑 Secure machine-to-machine authentication for backend services and APIs. Obtain access tokens directly using client ID and secret without user interaction. Perfect for microservices, batch jobs, and automated processes. ✅ V6: Service Architecture + Multiple Auth Methods.',
+		icon: '🔑',
+		version: 'V6',
 	},
 	'device-authorization-v5': {
 		flowType: 'oauth',
@@ -184,6 +208,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🆔',
 		version: 'V5',
 	},
+	'oidc-authorization-code-v6': {
+		flowType: 'oidc',
+		title: 'OIDC Authorization Code Flow V6 - Federated Authentication',
+		subtitle:
+			'🆔 OpenID Connect (Identity Layer on OAuth 2.0) - Verifies user identity AND provides API access. Returns ID Token (user identity) + Access Token (resource access). Built on OAuth 2.0 with added authentication layer. ✅ Use OIDC when you need to know WHO the user is (social login, SSO, identity verification).',
+		icon: '🆔',
+		version: 'V6',
+	},
 	'oidc-implicit-v5': {
 		flowType: 'oidc',
 		title: 'Implicit Flow - Legacy Browser Authentication',
@@ -192,6 +224,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🌐',
 		version: 'V5',
 	},
+	'oidc-implicit-v6': {
+		flowType: 'oidc',
+		title: 'Implicit Flow V6 - Legacy Browser Authentication',
+		subtitle:
+			'Deprecated OpenID Connect flow that returns ID tokens and access tokens directly in the URL fragment. No longer recommended - use Authorization Code Flow with PKCE for better security.',
+		icon: '🌐',
+		version: 'V6',
+	},
 	'hybrid-v5': {
 		flowType: 'oidc',
 		title: 'Hybrid Flow - Combined Authorization Approach',
@@ -199,6 +239,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Advanced OpenID Connect flow combining Authorization Code and Implicit patterns. Returns some tokens immediately from the authorization endpoint and others via code exchange for flexible authentication scenarios.',
 		icon: '🔄',
 		version: 'V5',
+	},
+	'oidc-hybrid-v6': {
+		flowType: 'oidc',
+		title: 'Hybrid Flow V6 - Combined Authorization Approach',
+		subtitle:
+			'🔄 Advanced OpenID Connect flow combining Authorization Code and Implicit patterns. Returns some tokens immediately from the authorization endpoint and others via code exchange for flexible authentication scenarios. ✅ V6: Service Architecture + Enhanced Hybrid Flow Education.',
+		icon: '🔄',
+		version: 'V6',
 	},
 	'oidc-device-authorization-v5': {
 		flowType: 'oidc',
