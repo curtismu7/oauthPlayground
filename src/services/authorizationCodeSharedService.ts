@@ -231,15 +231,40 @@ export class AuthzFlowPKCEManager {
 		credentials: StepCredentials,
 		controller: any
 	): Promise<boolean> {
+		console.log('[PKCEManager] Starting PKCE generation...', {
+			variant,
+			clientId: credentials.clientId,
+			environmentId: credentials.environmentId,
+			hasController: !!controller,
+			hasGenerateMethod: !!controller?.generatePkceCodes
+		});
+
 		if (!credentials.clientId || !credentials.environmentId) {
+			console.log('[PKCEManager] Missing credentials:', {
+				clientId: !!credentials.clientId,
+				environmentId: !!credentials.environmentId
+			});
 			AuthzFlowToastManager.showMissingCredentials();
 			return false;
 		}
 
+		if (!controller?.generatePkceCodes) {
+			console.error('[PKCEManager] Controller does not have generatePkceCodes method');
+			AuthzFlowToastManager.showPKCEGenerationFailed(new Error('Controller missing generatePkceCodes method'));
+			return false;
+		}
+
 		try {
+			console.log('[PKCEManager] Calling controller.generatePkceCodes()...');
 			await controller.generatePkceCodes();
+			
+			console.log('[PKCEManager] PKCE generation completed, checking results...', {
+				codeVerifier: controller.pkceCodes?.codeVerifier ? 'present' : 'missing',
+				codeChallenge: controller.pkceCodes?.codeChallenge ? 'present' : 'missing'
+			});
+			
 			AuthzFlowToastManager.showPKCEGenerated();
-			console.log(`[${variant.toUpperCase()} Authz V5] PKCE parameters generated`);
+			console.log(`[${variant.toUpperCase()} Authz V5] PKCE parameters generated successfully`);
 			return true;
 		} catch (error) {
 			console.error('[PKCEManager] Failed to generate PKCE:', error);
@@ -252,7 +277,11 @@ export class AuthzFlowPKCEManager {
 	 * Validate PKCE parameters are present
 	 */
 	static validatePKCE(controller: any): boolean {
-		if (!controller.pkce?.codeVerifier || !controller.pkce?.codeChallenge) {
+		// Enhanced validation - checks both controller state and session storage for PKCE codes
+		const hasPkceCodes = !!(controller.pkceCodes?.codeVerifier && controller.pkceCodes?.codeChallenge) || 
+						   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+		
+		if (!hasPkceCodes) {
 			AuthzFlowToastManager.showMissingPKCE();
 			return false;
 		}
@@ -263,7 +292,9 @@ export class AuthzFlowPKCEManager {
 	 * Check if PKCE is generated
 	 */
 	static hasPKCE(controller: any): boolean {
-		return Boolean(controller.pkce?.codeVerifier && controller.pkce?.codeChallenge);
+		// Enhanced validation - checks both controller state and session storage for PKCE codes
+		return !!(controller.pkceCodes?.codeVerifier && controller.pkceCodes?.codeChallenge) || 
+			   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
 	}
 }
 
@@ -523,10 +554,7 @@ export class AuthzFlowAuthorizationManager {
 			return false;
 		}
 
-		// Generate state if not set
-		if (!controller.state) {
-			controller.generateState();
-		}
+		// State generation is handled internally by the controller
 
 		try {
 			// Set session storage flag for callback routing
@@ -779,9 +807,9 @@ export class AuthzFlowDefaults {
 			authResponseOverview: false, // Expanded by default for Step 3
 			authResponseDetails: true,
 			tokenExchangeOverview: false, // Expanded by default for Step 4
-			tokenExchangeDetails: true,
+			tokenExchangeDetails: false, // Expanded by default for Step 4
 			introspectionOverview: true,
-			introspectionDetails: true,
+			introspectionDetails: false, // Expanded by default for introspection
 			securityOverview: true,
 			securityDetails: true,
 			completionOverview: true,
