@@ -30,8 +30,7 @@ import {
 	log
 } from '../../services/hybridFlowSharedService';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowSequenceService } from '../../services/flowSequenceService';
-import { ComprehensiveCredentialsService } from '../../services/comprehensiveCredentialsService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
@@ -41,27 +40,15 @@ import { UISettingsService } from '../../services/uiSettingsService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { EducationalContentService } from '../../services/educationalContentService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayParameterSelector';
+import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
+import LocalesParameterInput from '../../components/LocalesParameterInput';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
 
-const LOG_PREFIX = '[🔀 OIDC-HYBRID-V6]';
-
-const log = {
-	info: (message: string, ...args: unknown[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [INFO]`, message, ...args);
-	},
-	warn: (message: string, ...args: unknown[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.warn(`${timestamp} ${LOG_PREFIX} [WARN]`, message, ...args);
-	},
-	error: (message: string, ...args: unknown[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.error(`${timestamp} ${LOG_PREFIX} [ERROR]`, message, ...args);
-	},
-	success: (message: string, ...args: unknown[]) => {
-		const timestamp = new Date().toISOString().replace('T', ' ').substring(0, 19);
-		console.log(`${timestamp} ${LOG_PREFIX} [SUCCESS]`, message, ...args);
-	},
-};
+// Note: 'log' is imported from hybridFlowSharedService above
+// No need to redefine it locally
 
 // Styled Components
 const Container = styled.div`
@@ -235,10 +222,27 @@ const OIDCHybridFlowV6: React.FC = () => {
 	// Step management
 	const [currentStep, setCurrentStep] = useState(() => HybridFlowStepRestoration.getInitialStep());
 	
+	// PingOne Advanced Configuration
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
+		applicationName: '',
+		applicationType: 'single_page_application',
+		redirectUris: [],
+		postLogoutRedirectUris: [],
+		allowedScopes: [],
+		clientAuthMethods: ['none'],
+		additionalSettings: {}
+	});
+	
 	// Collapsible sections state
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		HybridFlowCollapsibleSectionsManager.getDefaultState()
 	);
+	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
+	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
+	// Internationalization - SAVED FOR LATER
+	// const [uiLocales, setUiLocales] = useState<string>('');
+	// const [claimsLocales, setClaimsLocales] = useState<string>('');
+	const [audience, setAudience] = useState<string>('');
 
 	// URL parameter handling
 	useEffect(() => {
@@ -340,34 +344,128 @@ const OIDCHybridFlowV6: React.FC = () => {
 	}, [controller, collapsedSections, toggleSection]);
 
 	// Step 0: Credentials & Configuration
-	const renderCredentialsConfiguration = () => (
-		<div>
-			<EducationalContentService
-				title="OIDC Hybrid Flow Overview"
-				content={HybridFlowEducationalContent.overview}
-				collapsed={collapsedSections.overview}
-				onToggleCollapsed={() => toggleSection('overview')}
+	const renderCredentialsConfiguration = () => {
+		// Wrapper to enforce openid scope (required for OIDC & PingOne)
+		const handleCredentialsChange = useCallback((newCredentials: typeof controller.credentials) => {
+			// Ensure openid is always included in scopes
+			if (newCredentials && newCredentials.scopes) {
+				const scopes = newCredentials.scopes.split(/\s+/).filter(s => s.length > 0);
+				if (!scopes.includes('openid')) {
+					scopes.unshift('openid');
+					newCredentials.scopes = scopes.join(' ');
+					v4ToastManager.showWarning('Added required "openid" scope for OIDC compliance');
+				}
+			}
+			controller.setCredentials(newCredentials);
+		}, [controller]);
+
+		return (
+			<div>
+				<EducationalContentService
+					title="OIDC Hybrid Flow Overview"
+					content={HybridFlowEducationalContent.overview}
+					collapsed={collapsedSections.overview}
+					onToggleCollapsed={() => toggleSection('overview')}
+				/>
+				
+				<SectionDivider />
+				
+				<ComprehensiveCredentialsService
+					credentials={controller.credentials}
+					onCredentialsChange={handleCredentialsChange}
+					onSaveCredentials={controller.saveCredentials}
+					collapsed={collapsedSections.credentials}
+					onToggleCollapsed={() => toggleSection('credentials')}
+					flowType="hybrid"
+					
+					// PingOne Advanced Configuration
+					pingOneAppState={pingOneConfig}
+					onPingOneAppStateChange={setPingOneConfig}
+					onPingOneSave={() => {
+						console.log('[OIDC Hybrid V6] PingOne config saved:', pingOneConfig);
+						v4ToastManager.showSuccess('PingOne configuration saved successfully!');
+					}}
+					hasUnsavedPingOneChanges={false}
+					isSavingPingOne={false}
+				/>
+				
+				<SectionDivider />
+				
+				{/* Nonce Security Educational Section */}
+				<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
+					<FiShield size={24} />
+					<div>
+						<InfoTitle style={{ fontSize: '1rem', fontWeight: '600', color: '#b45309' }}>
+							🔐 OIDC Security: Nonce Parameter (Replay Attack Protection) - REQUIRED
+						</InfoTitle>
+						<InfoText style={{ marginTop: '0.75rem', color: '#78350f' }}>
+							<strong>What is Nonce?</strong> The nonce (number used once) is a cryptographically random string that binds your client session to the ID token and prevents replay attacks.
+						</InfoText>
+						<InfoText style={{ marginTop: '0.5rem', color: '#78350f' }}>
+							<strong>How it works:</strong>
+						</InfoText>
+						<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#78350f' }}>
+							<li>Your client generates a unique random nonce value for each authorization request</li>
+							<li>The nonce is sent in the authorization request to the identity provider</li>
+							<li>The authorization server includes the nonce claim in the ID token</li>
+							<li>Your client MUST validate that the nonce in the ID token matches the original nonce</li>
+						</ul>
+						<InfoText style={{ marginTop: '0.75rem', color: '#78350f', fontWeight: 'bold' }}>
+							⚠️ <strong>Security Critical:</strong> Without nonce validation, an attacker could intercept an old ID token and replay it to impersonate a user. This playground automatically generates and validates nonce for educational purposes.
+						</InfoText>
+						<InfoText style={{ marginTop: '0.5rem', color: '#dc2626', fontWeight: 'bold' }}>
+							🔴 <strong>OIDC Hybrid Requirement:</strong> Nonce validation is REQUIRED for all hybrid flows that return ID tokens (code id_token, code id_token token). This protects the ID token received in the URL fragment.
+						</InfoText>
+						<InfoText style={{ marginTop: '0.5rem', color: '#78350f', fontSize: '0.875rem', fontStyle: 'italic' }}>
+						💡 <strong>Spec Reference:</strong> OIDC Core 1.0 Section 15.5.2 REQUIRES nonce validation for Hybrid Flow when ID tokens are returned directly.
+					</InfoText>
+				</div>
+			</InfoBox>
+			
+			<SectionDivider />
+			
+			{/* Display Parameter */}
+			<DisplayParameterSelector
+				value={displayMode}
+				onChange={setDisplayMode}
 			/>
 			
 			<SectionDivider />
 			
-			<ComprehensiveCredentialsService
-				credentials={controller.credentials}
-				onCredentialsChange={controller.setCredentials}
-				onSaveCredentials={controller.saveCredentials}
-				collapsed={collapsedSections.credentials}
-				onToggleCollapsed={() => toggleSection('credentials')}
-				flowType="hybrid"
+			{/* Advanced Claims Request */}
+			<ClaimsRequestBuilder
+				value={claimsRequest}
+				onChange={setClaimsRequest}
 			/>
 			
 			<SectionDivider />
 			
-			<UISettingsService
-				collapsed={collapsedSections.uiSettings}
-				onToggleCollapsed={() => toggleSection('uiSettings')}
+			{/* Internationalization Parameters - SAVED FOR LATER */}
+			{/* 
+			<LocalesParameterInput
+				type="ui"
+				value={uiLocales}
+				onChange={setUiLocales}
 			/>
-		</div>
-	);
+			<LocalesParameterInput
+				type="claims"
+				value={claimsLocales}
+				onChange={setClaimsLocales}
+			/>
+			*/}
+			
+			<SectionDivider />
+			
+			{/* Audience Parameter */}
+			<AudienceParameterInput
+				value={audience}
+				onChange={setAudience}
+				flowType="oidc"
+			/>
+			
+			</div>
+		);
+	};
 
 	// Step 1: Response Type Selection
 	const renderResponseTypeSelection = () => {
@@ -671,6 +769,9 @@ const OIDCHybridFlowV6: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-hybrid-v6" />
+				
+				{UISettingsService.getFlowSpecificSettingsPanel('oidc-hybrid')}
+				
 				<FlowSequenceService flowType="hybrid" />
 				
 				<MainCard>
