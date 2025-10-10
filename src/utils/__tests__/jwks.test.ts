@@ -1,6 +1,6 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
+vi.mock('jose');
 	buildDiscoveryUri,
 	buildJWKSUri,
 	createJWKSSet,
@@ -129,7 +129,7 @@ describe('JWKS Utilities', () => {
 
 	describe('createJWKSSet', () => {
 		it('should create remote JWKS set', () => {
-			const { createRemoteJWKSet } = require('jose');
+			vi.mock('jose', () => ({ createRemoteJWKSet: vi.fn() }));
 			const mockJWKSSet = { mock: 'jwks-set' };
 			createRemoteJWKSet.mockReturnValue(mockJWKSSet);
 

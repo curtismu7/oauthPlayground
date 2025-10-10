@@ -1408,4 +1408,3 @@ if (httpsServer) {
 	});
 }
 
-export default app;

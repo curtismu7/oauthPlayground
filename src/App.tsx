@@ -61,7 +61,7 @@ import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
-import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
+import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
 // Backed up legacy flows
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // Import all the new OAuth and OIDC flow components
@@ -76,7 +76,7 @@ import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompleti
 import OAuthImplicitFlowV6 from './pages/flows/OAuthImplicitFlowV6';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV6 from './pages/flows/OIDCAuthorizationCodeFlowV6';
-import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
+import OIDCDeviceAuthorizationFlowV6 from './pages/flows/OIDCDeviceAuthorizationFlowV6';
 // OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
@@ -349,12 +349,12 @@ const AppRoutes = () => {
 							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
 							<Route
-								path="/flows/device-authorization-v5"
-								element={<DeviceAuthorizationFlowV5 />}
+								path="/flows/device-authorization-v6"
+								element={<DeviceAuthorizationFlowV6 />}
 							/>
 							<Route
-								path="/flows/oidc-device-authorization-v5"
-								element={<OIDCDeviceAuthorizationFlowV5 />}
+								path="/flows/oidc-device-authorization-v6"
+								element={<OIDCDeviceAuthorizationFlowV6 />}
 							/>
 							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 							<Route path="/flows/client-credentials-v6" element={<ClientCredentialsFlowV6 />} />
@@ -449,8 +449,8 @@ const AppRoutes = () => {
 						/>
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route
-								path="/flows/oidc-device-authorization-v5"
-								element={<OIDCDeviceAuthorizationFlowV5 />}
+								path="/flows/oidc-device-authorization-v6"
+								element={<OIDCDeviceAuthorizationFlowV6 />}
 							/>
 							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 							<Route path="*" element={<Navigate to="/dashboard" replace />} />

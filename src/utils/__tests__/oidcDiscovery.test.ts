@@ -515,10 +515,10 @@ describe('OIDC Discovery Utilities', () => {
 
 			expect(features.pkce).toBe(false);
 			expect(features.par).toBe(false);
-			expect(features.deviceCode).toBe(false);
+			expect(features.deviceCode).toBe(true);
 			expect(features.backchannelAuth).toBe(false);
-			expect(features.introspection).toBe(false);
-			expect(features.revocation).toBe(false);
+			expect(features.introspection).toBe(true);
+			expect(features.revocation).toBe(true);
 		});
 	});
 });

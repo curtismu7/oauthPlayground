@@ -711,7 +711,7 @@ const Dashboard = () => {
 							<FlowLink href="/flows/client-credentials-v5" $variant="secondary">
 								Client Credentials V5
 							</FlowLink>
-							<FlowLink href="/flows/device-authorization-v5" $variant="secondary">
+							<FlowLink href="/flows/device-authorization-v6" $variant="secondary">
 								Device Code V5
 							</FlowLink>
 							<FlowLink href="/flows/oauth-implicit-v5" $variant="secondary">

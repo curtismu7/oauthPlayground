@@ -60,8 +60,8 @@ export const checkFlowCredentials = (
 				credentials = credentialManager.loadAuthzFlowCredentials();
 				break;
 			case 'device-code-oidc':
-			case 'device-authorization-v5':
-			case 'oidc-device-authorization-v5':
+			case 'device-authorization-v6':
+			case 'oidc-device-authorization-v6':
 				credentials = credentialManager.loadConfigCredentials();
 				break;
 			case 'oauth-resource-owner-password':
@@ -278,7 +278,7 @@ export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 			flowName: 'Client Credentials Flow - Server-to-Server Authentication',
 		},
 		{
-			flowType: 'device-authorization-v5',
+			flowType: 'device-authorization-v6',
 			flowName: 'Device Authorization Flow - Input-Constrained Devices',
 		},
 		{
@@ -296,7 +296,7 @@ export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 		{ flowType: 'oidc-implicit-v5', flowName: 'Implicit Flow - Legacy Browser Authentication' },
 		{ flowType: 'hybrid-v5', flowName: 'Hybrid Flow - Combined Authorization Approach' },
 		{
-			flowType: 'oidc-device-authorization-v5',
+			flowType: 'oidc-device-authorization-v6',
 			flowName: 'Device Authorization Flow - OIDC for Constrained Devices',
 		},
 		{ flowType: 'ciba-v5', flowName: 'OIDC CIBA Flow (V5)' },
