@@ -60,6 +60,7 @@ import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
+import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
 import DeviceAuthorizationFlowV5 from './pages/flows/DeviceAuthorizationFlowV5';
 // Backed up legacy flows
 import IDTokensFlow from './pages/flows/IDTokensFlow';
@@ -72,14 +73,15 @@ import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPa
 // V5 OAuth/OIDC Flows
 import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
-import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
+import OAuthImplicitFlowV6 from './pages/flows/OAuthImplicitFlowV6';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV6 from './pages/flows/OIDCAuthorizationCodeFlowV6';
 import OIDCDeviceAuthorizationFlowV5 from './pages/flows/OIDCDeviceAuthorizationFlowV5';
 // OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
+import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
 // OIDCImplicitFlowV3 backed up
-import OIDCImplicitFlowV5 from './pages/flows/OIDCImplicitFlowV5';
+import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
 import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
@@ -338,12 +340,14 @@ const AppRoutes = () => {
 							element={<OIDCAuthorizationCodeFlowV6 />}
 						/>
 						<Route path="/flows/oidc-authorization-code-v5" element={<Navigate to="/flows/oidc-authorization-code-v6" replace />} />
-							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
+							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
+							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
 							<Route
 								path="/flows/oauth-implicit-completion"
 								element={<OAuthImplicitFlowCompletion />}
 							/>
-							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
+							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
 							<Route
 								path="/flows/device-authorization-v5"
 								element={<DeviceAuthorizationFlowV5 />}
@@ -353,9 +357,12 @@ const AppRoutes = () => {
 								element={<OIDCDeviceAuthorizationFlowV5 />}
 							/>
 							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
-							<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
+							<Route path="/flows/client-credentials-v6" element={<ClientCredentialsFlowV6 />} />
+							<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v6" replace />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
-							<Route path="/flows/hybrid-v5" element={<OIDCHybridFlowV5 />} />
+							<Route path="/flows/oidc-hybrid-v6" element={<OIDCHybridFlowV6 />} />
+							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
+							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
 							<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
@@ -432,19 +439,19 @@ const AppRoutes = () => {
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
-							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
+							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
+							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
+							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
+							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
 						<Route
 							path="/flows/oidc-authorization-code-v5"
 							element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
 						/>
-						<Route path="/flows/client-credentials-v5" element={<ClientCredentialsFlowV5 />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route
 								path="/flows/oidc-device-authorization-v5"
 								element={<OIDCDeviceAuthorizationFlowV5 />}
 							/>
-							<Route path="/flows/oidc-hybrid-v5" element={<OIDCHybridFlowV5 />} />
 							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
 							<Route path="*" element={<Navigate to="/dashboard" replace />} />
 						</Routes>

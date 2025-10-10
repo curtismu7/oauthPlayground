@@ -9,9 +9,9 @@ import { AuthorizationCodeSharedService } from '../../services/authorizationCode
 import { FlowHeader } from '../../services/flowHeaderService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard } from '../../services/configurationSummaryService';
+import EducationalContentService from '../../services/educationalContentService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import styled from 'styled-components';
 
@@ -238,11 +238,7 @@ const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
  */
 const RedirectlessFlowV6Real: React.FC = () => {
     const navigate = useNavigate();
-    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
-        AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
-    );
-    const [completionCollapsed, setCompletionCollapsed] = useState(false);
-
+    
     // Initialize controller with redirectless-specific configuration
     const controller = useAuthorizationCodeFlowController({
         flowKey: 'redirectless-v6-real',
@@ -257,16 +253,59 @@ const RedirectlessFlowV6Real: React.FC = () => {
     // Page scroll management
     usePageScroll({ pageName: 'Redirectless Flow V6 Real', force: true });
 
+    // Local state management (V6 pattern)
+    const [currentStep, setCurrentStep] = useState(
+        AuthorizationCodeSharedService.StepRestoration.getInitialStep()
+    );
+    const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
+        AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
+    );
+    const [completionCollapsed, setCompletionCollapsed] = useState(false);
+
     // Scroll to top on step change
     useEffect(() => {
         AuthorizationCodeSharedService.StepRestoration.scrollToTopOnStepChange();
-    }, [controller.currentStep]);
+    }, [currentStep]);
 
     // Toggle section handler
     const toggleSection = useCallback(
         AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections),
         []
     );
+
+    // Custom navigation handler with validation (V6 pattern)
+    const handleStepChange = useCallback((newStep: number) => {
+        console.log('🔍 [Redirectless V6] handleStepChange called:', {
+            currentStep,
+            newStep,
+            credentials: controller.credentials,
+        });
+
+        // Use service navigation manager for proper validation
+        AuthorizationCodeSharedService.Navigation.handleNext(
+            currentStep,
+            controller.credentials,
+            'oauth', // Redirectless is based on OAuth
+            controller,
+            (step: number) => {
+                // Enhanced step validation - checks both controller state and session storage
+                const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
+                                   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+                
+                switch (step) {
+                    case 0: return true; // Introduction step
+                    case 1: return hasPkceCodes;
+                    case 2: return !!(controller.authUrl && hasPkceCodes);
+                    case 3: return !!(controller.authCode || controller.authCode);
+                    default: return true;
+                }
+            },
+            () => {
+                console.log('✅ [Redirectless V6] Navigation allowed, moving to step:', newStep);
+                setCurrentStep(newStep);
+            }
+        );
+    }, [currentStep, controller]);
 
     // PKCE generation handler
     const handleGeneratePkce = useCallback(() => {
@@ -305,88 +344,48 @@ const RedirectlessFlowV6Real: React.FC = () => {
 
     // Response type enforcement
     useEffect(() => {
-        AuthorizationCodeSharedService.ResponseTypeEnforcer.enforceResponseType();
-    }, []);
+        if (!controller.credentials) {
+            return;
+        }
+
+        AuthorizationCodeSharedService.ResponseTypeEnforcer.enforceResponseType(
+            'oidc',
+            controller.credentials,
+            controller.setCredentials
+        );
+    }, [controller.credentials, controller.setCredentials]);
 
     // Credentials sync
     useEffect(() => {
-        AuthorizationCodeSharedService.CredentialsSync.syncCredentials();
-    }, []);
+        if (!controller.credentials) {
+            return;
+        }
 
-    // Render step content
+        AuthorizationCodeSharedService.CredentialsSync.syncCredentials(
+            'oidc',
+            controller.credentials,
+            controller.setCredentials
+        );
+    }, [controller.credentials, controller.setCredentials]);
+
+    // Render step content (V6 pattern)
     const renderStepContent = useCallback(() => {
-        switch (controller.currentStep) {
+        switch (currentStep) {
             case 0:
                 return (
                     <>
                         <ComprehensiveCredentialsService
-                            flowKey={controller.flowKey}
+                            flowKey="redirectless-v6-real"
                             credentials={controller.credentials}
                             onCredentialsChange={controller.setCredentials}
-                            onPingOneSave={controller.savePingOneConfig}
                             onDiscoveryComplete={controller.handleDiscoveryComplete}
                             discoveryResult={controller.discoveryResult}
                             isDiscoveryLoading={controller.isDiscoveryLoading}
                         />
                         
-                        <ConfigurationSummaryCard
-                            flowKey={controller.flowKey}
-                            credentials={controller.credentials}
-                            authUrl={controller.authUrl}
-                            tokens={controller.tokens}
-                            onExport={(config) => {
-                                const filename = 'redirectless-v6-real-config.json';
-                                AuthorizationCodeSharedService.Export.downloadConfig(config, filename);
-                            }}
-                            onImport={(config) => {
-                                controller.setCredentials(config.credentials || {});
-                                if (config.pingOneConfig) {
-                                    controller.savePingOneConfig(config.pingOneConfig);
-                                }
-                                v4ToastManager.showSuccess('Configuration imported successfully!');
-                            }}
-                        />
 
-                        <InfoBox
-                            type="info"
-                            title={PIFLOW_EDUCATION.title}
-                            icon="🚀"
-                        >
-                            <div style={{ marginBottom: '1rem' }}>
-                                <strong>PingOne Redirectless Flow (response_mode=pi.flow)</strong> is a proprietary 
-                                PingOne authentication method that enables API-driven authentication without browser redirects.
-                            </div>
-                            
-                            <div style={{ marginBottom: '1rem' }}>
-                                <strong>Key Features:</strong>
-                                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                                    <li><strong>No Browser Redirects:</strong> Tokens are returned directly to your application</li>
-                                    <li><strong>Server-to-Server:</strong> Ideal for backend applications and API integrations</li>
-                                    <li><strong>Enhanced Security:</strong> Reduces attack surface by eliminating redirect-based attacks</li>
-                                    <li><strong>Simplified Integration:</strong> Single API call returns all required tokens</li>
-                                </ul>
-                            </div>
-
-                            <div style={{ marginBottom: '1rem' }}>
-                                <strong>How it Works:</strong>
-                                <ol style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                                    <li>Your application makes an authorization request with <code>response_mode=pi.flow</code></li>
-                                    <li>PingOne processes the authentication server-side</li>
-                                    <li>Tokens are returned directly in the API response (no redirect)</li>
-                                    <li>Your application receives access token, ID token, and refresh token</li>
-                                </ol>
-                            </div>
-
-                            <div>
-                                <strong>Use Cases:</strong>
-                                <ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem' }}>
-                                    <li>Backend applications requiring user authentication</li>
-                                    <li>API integrations with PingOne</li>
-                                    <li>Server-side authentication flows</li>
-                                    <li>Mobile applications using server-side authentication</li>
-                                </ul>
-                            </div>
-                        </InfoBox>
+                        {/* Redirectless Educational Content */}
+                        <EducationalContentService flowType="redirectless" defaultCollapsed={false} />
 
                         <FlowConfigurationRequirements
                             requiredFields={['environmentId', 'clientId', 'redirectUri']}
@@ -482,10 +481,10 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                 $priority="primary"
                                 disabled={
                                     !!controller.authUrl ||
-                                    (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+                                    (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
                                 }
                                 title={
-                                    (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+                                    (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
                                         ? 'Generate PKCE parameters first'
                                         : controller.authUrl
                                             ? 'Authorization URL already generated'
@@ -495,7 +494,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                 {controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
                                 {controller.authUrl
                                     ? 'Authorization URL Generated'
-                                    : (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+                                    : (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
                                         ? 'Complete above action'
                                         : 'Generate Authorization URL'}
                                 <HighlightBadge>1</HighlightBadge>
@@ -592,6 +591,20 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                             }}
                                         />
                                     )}
+                                    
+                                    {UnifiedTokenDisplayService.showTokens(
+                                        controller.tokens.accessToken ? {
+                                            access_token: controller.tokens.accessToken,
+                                            id_token: controller.tokens.idToken,
+                                            refresh_token: controller.tokens.refreshToken,
+                                        } : null,
+                                        'redirectless',
+                                        'redirectless-v6',
+                                        {
+                                            showCopyButtons: true,
+                                            showDecodeButtons: true,
+                                        }
+                                    )}
                                 </div>
                             ) : (
                                 <div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
@@ -649,39 +662,14 @@ const RedirectlessFlowV6Real: React.FC = () => {
                             )}
                         </CollapsibleSection>
 
-                        {/* Professional Flow Completion */}
-                        {controller.tokens.accessToken && (
-                            <FlowCompletionService
-                                config={{
-                                    ...FlowCompletionConfigs.authorizationCode,
-                                    flowName: 'PingOne Redirectless Flow V6 (response_mode=pi.flow)',
-                                    flowDescription: 'You\'ve successfully completed the Redirectless flow using response_mode=pi.flow. Tokens were received via API without browser redirects.',
-                                    onStartNewFlow: () => {
-                                        controller.resetFlow();
-                                        controller.setCurrentStep(0);
-                                    },
-                                    showUserInfo: true, // Redirectless is OIDC-based
-                                    showIntrospection: false,
-                                    userInfo: controller.userInfo,
-                                    nextSteps: [
-                                        'Store all tokens securely in your application',
-                                        'Note: pi.flow is PingOne proprietary API-driven authentication',
-                                        'Use for embedded authentication scenarios without full-page redirects',
-                                        'No browser redirect required - better UX for mobile/embedded apps',
-                                        'Implement proper error handling for pi.flow API responses'
-                                    ]
-                                }}
-                                collapsed={completionCollapsed}
-                                onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
-                            />
-                        )}
                     </>
                 );
 
             default:
-                return <div>Step {controller.currentStep}</div>;
+                return <div>Step {currentStep}</div>;
         }
     }, [
+        currentStep,
         controller,
         collapsedSections,
         toggleSection,
@@ -701,13 +689,13 @@ const RedirectlessFlowV6Real: React.FC = () => {
                 version="V6"
             />
             
-            <VersionBadge version="V6" variant="success" />
+            <VersionBadge version="V6" $variant="success" />
 
             <StepNavigationButtons
                 steps={STEP_METADATA}
-                currentStep={controller.currentStep}
-                onStepChange={controller.setCurrentStep}
-                flowKey={controller.flowKey}
+                currentStep={currentStep}
+                onStepChange={handleStepChange}
+                flowKey="redirectless-v6-real"
             />
 
             <div style={{ marginTop: '2rem' }}>

@@ -14,7 +14,10 @@
  * - Multiple provider support
  * - Caching and error handling
  * - RFC 8414 compliant
+ * - Bulletproof discovery with retries and fallbacks
  */
+
+import { bulletproofDiscovery } from './bulletproofDiscoveryService';
 
 export interface OIDCDiscoveryDocument {
 	issuer: string;
@@ -56,15 +59,17 @@ export type ProviderType = 'pingone' | 'google' | 'auth0' | 'microsoft' | 'gener
 
 export class ComprehensiveDiscoveryService {
 	private cache = new Map<string, { document: OIDCDiscoveryDocument; timestamp: number }>();
-	private readonly DEFAULT_TIMEOUT = 10000; // 10 seconds
+	private readonly DEFAULT_TIMEOUT = 15000; // 15 seconds (increased)
 	private readonly DEFAULT_CACHE_TIMEOUT = 3600000; // 1 hour
+	private readonly MAX_RETRIES = 3; // Maximum retry attempts
+	private readonly RETRY_DELAY = 1000; // Initial retry delay in ms
 
 	// Provider configurations
 	private readonly PROVIDERS = {
 		pingone: {
 			name: 'PingOne',
 			baseUrl: 'https://auth.pingone.com',
-			regions: ['us', 'eu', 'ap', 'ca'],
+			regions: ['us', 'eu', 'ap', 'ca', 'na'],
 			discoveryPath: '/.well-known/openid_configuration'
 		},
 		google: {
@@ -255,45 +260,23 @@ export class ComprehensiveDiscoveryService {
 
 		console.log('[Comprehensive Discovery] Fetching discovery document:', discoveryUrl);
 
-		// For PingOne URLs, use backend proxy to avoid CORS
+		// For PingOne URLs, use bulletproof discovery service
 		if (issuerUrl.includes('pingone.com')) {
 			// Extract environment ID - match both with and without /as
 			const envMatch = issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
 			if (envMatch) {
 				const environmentId = envMatch[1];
-				const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=na`;
 				
-				console.log('[Comprehensive Discovery] Using backend proxy:', proxyUrl);
-				console.log('[Comprehensive Discovery] Extracted environment ID:', environmentId);
+				console.log('[Comprehensive Discovery] Using bulletproof discovery for PingOne');
+				console.log('[Comprehensive Discovery] Environment ID:', environmentId);
 				
-				const controller = new AbortController();
-				const timeoutId = setTimeout(() => controller.abort(), timeout);
-
-				try {
-					const response = await fetch(proxyUrl, {
-						method: 'GET',
-						headers: {
-							Accept: 'application/json',
-						},
-						signal: controller.signal,
-					});
-
-					clearTimeout(timeoutId);
-
-					if (!response.ok) {
-						throw new Error(`Discovery request failed: ${response.status} ${response.statusText}`);
-					}
-
-					const result = await response.json();
-					if (!result.success) {
-						throw new Error(result.error_description || 'Discovery failed');
-					}
-
-					return result.configuration || result.document;
-				} catch (error) {
-					clearTimeout(timeoutId);
-					throw error;
+				const result = await bulletproofDiscovery.discover(environmentId, 'na');
+				
+				if (!result.success || !result.document) {
+					throw new Error(result.error || 'Bulletproof discovery failed');
 				}
+				
+				return result.document;
 			}
 		}
 

@@ -46,7 +46,7 @@ export class TokenIntrospectionService {
 	static createIntrospectionApiCall(
 		request: IntrospectionRequest,
 		flowType: IntrospectionApiCallData['flowType'],
-		baseUrl: string = '/api/introspect'
+		baseUrl: string = '/api/introspect-token'
 	): IntrospectionApiCallData {
 		return {
 			flowType,
@@ -74,7 +74,7 @@ export class TokenIntrospectionService {
 	static async introspectToken(
 		request: IntrospectionRequest,
 		flowType: IntrospectionApiCallData['flowType'],
-		baseUrl: string = '/api/introspect',
+		baseUrl: string = '/api/introspect-token',
 		introspectionEndpoint?: string
 	): Promise<{
 		apiCall: IntrospectionApiCallData;
@@ -147,7 +147,7 @@ export class TokenIntrospectionService {
 		request: IntrospectionRequest,
 		flowType: IntrospectionApiCallData['flowType'],
 		response: IntrospectionResponse,
-		baseUrl: string = '/api/introspect'
+		baseUrl: string = '/api/introspect-token'
 	): IntrospectionApiCallData {
 		const apiCall = this.createIntrospectionApiCall(request, flowType, baseUrl);
 

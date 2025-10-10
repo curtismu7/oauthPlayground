@@ -28,7 +28,8 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
+import EducationalContentService from '../../services/educationalContentService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,
 	ResultsHeading,
@@ -39,13 +40,13 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
@@ -1250,13 +1251,17 @@ const PingOnePARFlowV6: React.FC = () => {
 	// Step validation functions
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
+			// Enhanced validation - checks both controller state and session storage for PKCE codes
+			const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
+							   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+			
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
 					return true; // Always valid - introduction step
 				case 1: // Step 1: PKCE Parameters
-					return !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge);
+					return hasPkceCodes;
 				case 2: // Step 2: Authorization Request
-					return !!(controller.authUrl && controller.pkceCodes.codeVerifier);
+					return !!(controller.authUrl && hasPkceCodes);
 				case 3: // Step 3: Authorization Response
 					return !!(controller.authCode || localAuthCode);
 				case 4: // Step 4: Token Exchange
@@ -1309,7 +1314,7 @@ const PingOnePARFlowV6: React.FC = () => {
 	}, [currentStep, isStepValid]);
 
 	const handleNext = useCallback(() => {
-		console.log('🔍 [AuthorizationCodeFlowV5] handleNext called:', {
+		console.log('🔍 [PAR V6] handleNext called:', {
 			currentStep,
 			canNavigate: canNavigateNext(),
 			isStepValid: isStepValid(currentStep),
@@ -1321,16 +1326,19 @@ const PingOnePARFlowV6: React.FC = () => {
 			authCode: !!(controller.authCode || localAuthCode),
 		});
 
-		if (!canNavigateNext()) {
-			const stepName = STEP_METADATA[currentStep]?.title || `Step ${currentStep + 1}`;
-			console.log('🚫 [AuthorizationCodeFlowV5] Navigation blocked:', stepName);
-			v4ToastManager.showError(`Complete ${stepName} before proceeding to the next step.`);
-			return;
-		}
-
-		console.log('✅ [AuthorizationCodeFlowV5] Navigation allowed, moving to next step');
-		const next = currentStep + 1;
-		setCurrentStep(next);
+		// Use service navigation manager for proper validation
+		AuthorizationCodeSharedService.Navigation.handleNext(
+			currentStep,
+			controller.credentials,
+			'oauth', // PAR is based on OAuth
+			controller,
+			isStepValid,
+			() => {
+				console.log('✅ [PAR V6] Navigation allowed, moving to next step');
+				const next = currentStep + 1;
+				setCurrentStep(next);
+			}
+		);
 	}, [
 		currentStep,
 		canNavigateNext,
@@ -1339,6 +1347,7 @@ const PingOnePARFlowV6: React.FC = () => {
 		controller.authUrl,
 		controller.authCode,
 		localAuthCode,
+		controller.credentials,
 	]);
 
 	const handlePrev = useCallback(() => {
@@ -1375,30 +1384,8 @@ const PingOnePARFlowV6: React.FC = () => {
 					<>
 						<FlowConfigurationRequirements flowType="authorization-code" variant="oidc" />
 						
-						{/* PAR Educational Callout Box */}
-						<InfoBox $variant="info" style={{ marginBottom: '1.5rem', background: '#dbeafe', borderColor: '#3b82f6' }}>
-							<FiShield size={24} style={{ color: '#1d4ed8' }} />
-							<div>
-								<InfoTitle style={{ color: '#1e40af', fontSize: '1.125rem' }}>PAR = Enhanced Security via Back-Channel (RFC 9126)</InfoTitle>
-								<InfoText style={{ color: '#1e3a8a', marginBottom: '0.75rem' }}>
-									{PAR_EDUCATION.overview.description}
-								</InfoText>
-								<InfoList style={{ color: '#1e3a8a' }}>
-									{PAR_EDUCATION.overview.benefits.map((benefit, index) => (
-										<li key={index}>{benefit}</li>
-									))}
-								</InfoList>
-								<HelperText style={{ color: '#1e3a8a', fontWeight: 600, marginTop: '0.75rem' }}>
-									📋 <strong>How PAR Works:</strong> {PAR_EDUCATION.howItWorks.steps.join(' → ')}
-								</HelperText>
-								<HelperText style={{ color: '#1e3a8a', fontWeight: 600, marginTop: '0.5rem' }}>
-									<strong>Use Cases:</strong> {PAR_EDUCATION.useCases.join(' | ')}
-								</HelperText>
-								<HelperText style={{ color: '#059669', fontWeight: 700, marginTop: '0.5rem', padding: '0.5rem', background: '#d1fae5', borderRadius: '0.375rem' }}>
-									✅ <strong>Recommended:</strong> Always enable PAR for production OIDC clients with sensitive scopes
-								</HelperText>
-							</div>
-						</InfoBox>
+						{/* PAR Educational Content */}
+						<EducationalContentService flowType="par" defaultCollapsed={false} />
 						
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -1543,24 +1530,6 @@ const PingOnePARFlowV6: React.FC = () => {
 									defaultCollapsed={false}
 								/>
 
-								{/* Configuration Summary Card - Compact */}
-								{credentials.environmentId && credentials.clientId && (
-									<ConfigurationSummaryCard
-										config={ConfigurationSummaryService.generateSummary(credentials, 'oauth-authz')}
-										onSave={async () => {
-											await handleSaveConfiguration();
-										}}
-										onExport={async (config) => {
-											ConfigurationSummaryService.downloadConfig(config, 'oauth-authz-config.json');
-										}}
-										onImport={async (importedConfig) => {
-											setCredentials(importedConfig);
-											await handleSaveConfiguration();
-										}}
-										flowType="oauth-authz"
-										showAdvancedFields={false}
-									/>
-								)}
 
 								<ActionRow>
 									<Button onClick={handleSaveConfiguration} $variant="primary">
@@ -2120,10 +2089,10 @@ const PingOnePARFlowV6: React.FC = () => {
 									$priority="primary"
 									disabled={
 										!!controller.authUrl ||
-										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
 									}
 									title={
-										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
 											? 'Generate PKCE parameters first'
 											: controller.authUrl
 												? 'Authorization URL already generated'
@@ -2133,7 +2102,7 @@ const PingOnePARFlowV6: React.FC = () => {
 									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
-										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.flowKey}-pkce-codes`))
+										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
 											? 'Complete above action'
 											: 'Generate Authorization URL'}
 									<HighlightBadge>1</HighlightBadge>
@@ -2409,163 +2378,14 @@ const PingOnePARFlowV6: React.FC = () => {
 										/>
 									)}
 
-									{tokens && (
-										<ResultsSection>
-											<ResultsHeading>
-												<FiCheckCircle size={18} /> Token Response
-											</ResultsHeading>
-											<HelperText>
-												Review the raw token response. Copy the JSON or open the token management
-												tooling to inspect each token.
-											</HelperText>
-											<GeneratedContentBox>
-												<GeneratedLabel>Raw Token Response</GeneratedLabel>
-												<CodeBlock>{JSON.stringify(tokens, null, 2)}</CodeBlock>
-												<ActionRow style={{ marginBottom: '1rem' }}>
-													<Button
-														onClick={() =>
-															handleCopy(JSON.stringify(tokens, null, 2), 'Token Response')
-														}
-														$variant="primary"
-														style={{
-															backgroundColor: '#3b82f6',
-															borderColor: '#3b82f6',
-															color: '#ffffff',
-															fontWeight: '600',
-														}}
-													>
-														<FiCopy /> Copy JSON Response
-													</Button>
-												</ActionRow>
-											</GeneratedContentBox>
-
-											<GeneratedContentBox style={{ marginTop: '1rem' }}>
-												<GeneratedLabel>Tokens Received</GeneratedLabel>
-												
-												{/* Enhanced JWT Token Display */}
-												{tokens.access_token && (
-													<JWTTokenDisplay
-														token={String(tokens.access_token)}
-													tokenType={tokens.token_type || 'Bearer'}
-													{...(tokens.expires_in && { expiresIn: tokens.expires_in })}
-													{...(tokens.scope && { scope: tokens.scope })}
-												/>
-												)}
-												
-												{/* Refresh Token Display */}
-												{tokens.refresh_token && (
-													<div style={{ marginTop: '1rem' }}>
-														<ParameterLabel>Refresh Token</ParameterLabel>
-														<ParameterValue style={{ wordBreak: 'break-all' }}>
-															{String(tokens.refresh_token)}
-														</ParameterValue>
-														<Button
-															onClick={() =>
-																handleCopy(String(tokens.refresh_token), 'Refresh Token')
-															}
-															$variant="primary"
-															style={{
-																marginTop: '0.5rem',
-																fontSize: '0.8rem',
-																fontWeight: '600',
-																padding: '0.5rem 0.75rem',
-																backgroundColor: '#10b981',
-																borderColor: '#10b981',
-																color: '#ffffff',
-															}}
-														>
-															<FiCopy /> Copy Refresh Token
-														</Button>
-													</div>
-												)}
-												
-												{/* Additional Token Information */}
-												<ParameterGrid style={{ marginTop: '1rem' }}>
-													{tokens.token_type && (
-														<div>
-															<ParameterLabel>Token Type</ParameterLabel>
-															<ParameterValue>{String(tokens.token_type)}</ParameterValue>
-														</div>
-													)}
-													{tokens.scope && (
-														<div>
-															<ParameterLabel>Scope</ParameterLabel>
-															<ParameterValue>{String(tokens.scope)}</ParameterValue>
-														</div>
-													)}
-													{tokens.expires_in && (
-														<div>
-															<ParameterLabel>Expires In</ParameterLabel>
-															<ParameterValue>{String(tokens.expires_in)} seconds</ParameterValue>
-														</div>
-													)}
-													{tokens.access_token && getX5tParameter(String(tokens.access_token)) && (
-														<div>
-															<ParameterLabel>x5t (Certificate Thumbprint)</ParameterLabel>
-															<ParameterValue>
-																{getX5tParameter(String(tokens.access_token))}
-															</ParameterValue>
-														</div>
-													)}
-												</ParameterGrid>
-												{/* Token Management Buttons */}
-												<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
-													<Button onClick={navigateToTokenManagement} $variant="primary">
-														<FiExternalLink /> View in Token Management
-													</Button>
-													{tokens.access_token && (
-														<Button
-															onClick={navigateToTokenManagement}
-															$variant="primary"
-															style={{
-																fontSize: '0.9rem',
-																fontWeight: '600',
-																padding: '0.75rem 1rem',
-																backgroundColor: '#3b82f6',
-																borderColor: '#3b82f6',
-																color: '#ffffff',
-															}}
-														>
-															<FiKey /> Decode Access Token
-														</Button>
-													)}
-													{tokens.refresh_token && (
-														<Button
-															onClick={navigateToTokenManagementWithRefreshToken}
-															$variant="primary"
-															style={{
-																fontSize: '0.9rem',
-																fontWeight: '600',
-																padding: '0.75rem 1rem',
-																backgroundColor: '#f59e0b',
-																borderColor: '#f59e0b',
-																color: '#ffffff',
-															}}
-														>
-															<FiRefreshCw /> Decode Refresh Token
-														</Button>
-													)}
-												</ActionRow>
-											</GeneratedContentBox>
-											
-											{/* Code Examples for Token Exchange Step */}
-											{tokens.access_token && (
-												<div style={{ marginTop: '2rem' }}>
-													<CodeExamplesDisplay
-														flowType="authorization-code"
-														stepId="step3"
-														config={{
-															baseUrl: 'https://auth.pingone.com',
-															clientId: credentials?.clientId || '',
-															clientSecret: credentials?.clientSecret || '',
-															redirectUri: credentials?.redirectUri || '',
-															scopes: credentials?.scopes?.split(' ') || ['openid', 'profile', 'email'],
-															environmentId: credentials?.environmentId || '',
-														}}
-													/>
-												</div>
-											)}
-										</ResultsSection>
+									{UnifiedTokenDisplayService.showTokens(
+										tokens,
+										'par',
+										'par-v6',
+										{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										}
 									)}
 								</CollapsibleContent>
 							)}
@@ -2594,7 +2414,7 @@ const PingOnePARFlowV6: React.FC = () => {
 								rawJson: false, // Show raw JSON expanded by default
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails') {
+								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2650,7 +2470,7 @@ const PingOnePARFlowV6: React.FC = () => {
 								rawJson: false,
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails') {
+								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2821,15 +2641,25 @@ const PingOnePARFlowV6: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-			<Modal $show={showRedirectModal}>
-				<ModalContent>
-					<ModalIcon>
-						<FiExternalLink />
-					</ModalIcon>
-					<ModalTitle>Redirecting to PingOne</ModalTitle>
-					<ModalText>Launching the PingOne authorization experience in a new tab…</ModalText>
-				</ModalContent>
-			</Modal>
+			{AuthenticationModalService.showModal(
+				showRedirectModal,
+				() => setShowRedirectModal(false),
+				() => {
+					console.log('🔧 [PingOnePARFlowV6] Continuing to PingOne authentication');
+					setShowRedirectModal(false);
+					// The controller will handle the actual redirect
+					if (controller.authUrl) {
+						window.open(controller.authUrl, 'PingOneAuth', 'width=600,height=700,left=' + (window.screen.width / 2 - 300) + ',top=' + (window.screen.height / 2 - 350) + ',resizable=yes,scrollbars=yes,status=yes');
+					}
+				},
+				controller.authUrl || '',
+				'par',
+				'PingOne PAR Flow',
+				{
+					description: 'You\'re about to be redirected to PingOne for Pushed Authorization Request (PAR) authentication. This enhanced security flow pushes authorization parameters via a back-channel.',
+					redirectMode: 'popup'
+				}
+			)}
 
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
