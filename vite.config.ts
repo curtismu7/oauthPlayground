@@ -63,12 +63,12 @@ export default defineConfig(({ mode }) => {
 			https: {}, // Re-enable HTTPS in development
 			// In production, Vercel will handle HTTPS
 			// In development, basic-ssl plugin provides self-signed certificates
-			hmr: {
-				port: 3000,
-				host: 'localhost',
-				// Remove protocol to let Vite auto-detect
-				// protocol: 'wss',
-			},
+		hmr: {
+			port: 3000,
+			host: 'localhost',
+			// Remove protocol to let Vite auto-detect
+			// protocol: 'wss',
+		},
 		proxy: {
 			'/api': {
 				target: 'http://localhost:3001', // Backend HTTP server
@@ -76,31 +76,31 @@ export default defineConfig(({ mode }) => {
 				secure: false,
 				timeout: 3000, // Shorter timeout for health checks
 				proxyTimeout: 3000,
-					rewrite: (path) => {
-						// Map /api/token to /api/token-exchange
-						if (path === '/api/token') {
-							return '/api/token-exchange';
-						}
-						return path;
-					},
-					configure: (proxy) => {
-						// Add error handling
-						proxy.on('error', (err) => {
-							console.log('Proxy error:', err.message);
-						});
+				rewrite: (path) => {
+					// Map /api/token to /api/token-exchange
+					if (path === '/api/token') {
+						return '/api/token-exchange';
+					}
+					return path;
+				},
+				configure: (proxy) => {
+					// Add error handling
+					proxy.on('error', (err) => {
+						console.log('Proxy error:', err.message);
+					});
 
-						// Add connection handling
-						proxy.on('proxyReq', (proxyReq) => {
-							proxyReq.setTimeout(3000);
-						});
+					// Add connection handling
+					proxy.on('proxyReq', (proxyReq) => {
+						proxyReq.setTimeout(3000);
+					});
 
-						proxy.on('proxyRes', (proxyRes) => {
-							proxyRes.setTimeout(3000);
-						});
-					},
+					proxy.on('proxyRes', (proxyRes) => {
+						proxyRes.setTimeout(3000);
+					});
 				},
 			},
 		},
+	},
 		build: {
 			outDir: 'dist',
 			sourcemap: true,

@@ -156,14 +156,14 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	}
 `;
 
-const ImportModal = styled.div<{ isOpen: boolean }>`
+const ImportModal = styled.div<{ $isOpen: boolean }>`
 	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
 	background: rgba(0, 0, 0, 0.5);
-	display: ${({ isOpen }) => (isOpen ? 'flex' : 'none')};
+	display: ${({ $isOpen }) => ($isOpen ? 'flex' : 'none')};
 	align-items: center;
 	justify-content: center;
 	z-index: 1000;
@@ -450,7 +450,7 @@ export const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> =
 				</CollapsibleSection>
 			</SummaryContainer>
 
-			<ImportModal isOpen={showImportModal}>
+			<ImportModal $isOpen={showImportModal}>
 				<ModalContent>
 					<ModalTitle>Import Configuration</ModalTitle>
 					<ModalTextArea

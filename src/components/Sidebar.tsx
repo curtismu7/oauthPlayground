@@ -104,10 +104,59 @@ const SidebarContainer = styled.div<{ $isOpen: boolean; $width: number }>`
 		}
 	}
 
+	/* Light green background for V6 flows - maximum specificity */
+	.ps-sidebar .ps-menu-button.v6-flow,
+	.ps-sidebar .ps-menu-button.v6-flow[style],
+	.ps-sidebar .ps-menu-button.v6-flow[style*="background"] {
+		background: #dcfce7 !important;
+		border-left: 3px solid #22c55e !important;
+		color: #166534 !important;
+		position: relative !important;
+		font-weight: 500 !important;
+	}
+
+	.ps-sidebar .ps-menu-button.v6-flow:hover,
+	.ps-sidebar .ps-menu-button.v6-flow:hover[style] {
+		background: #bbf7d0 !important;
+		color: #14532d !important;
+		transform: translateX(2px) !important;
+		box-shadow: 0 2px 8px rgba(34, 197, 94, 0.2) !important;
+	}
+
+	.ps-sidebar .ps-menu-button.v6-flow.ps-active,
+	.ps-sidebar .ps-menu-button.v6-flow.ps-active[style],
+	.ps-sidebar .ps-menu-button.v6-flow.ps-active[style*="background"] {
+		background: #bbf7d0 !important;
+		color: #14532d !important;
+		border-right: 3px solid #22c55e !important;
+		border-left: 3px solid #22c55e !important;
+		font-weight: 700 !important;
+		transform: translateX(4px) !important;
+		box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3) !important;
+	}
+
+	/* Override any inline styles for V6 flows */
+	.ps-sidebar .ps-menu-button.v6-flow[style*="background"] {
+		background: #dcfce7 !important;
+	}
+
+	.ps-sidebar .ps-menu-button.v6-flow.ps-active[style*="background"] {
+		background: #bbf7d0 !important;
+	}
+
 	.ps-menu-button.ps-active {
-		background: #fef2f2;
-		color: #dc2626;
-		border-right: 3px solid #dc2626;
+		background: #fef2f2 !important;
+		color: #dc2626 !important;
+		border-right: 3px solid #dc2626 !important;
+		font-weight: 700 !important;
+		transform: translateX(4px) !important;
+		box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+		position: relative !important;
+	}
+
+	.ps-menu-button:hover {
+		transform: translateX(2px) !important;
+		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 	}
 
 	.ps-submenu-content {
@@ -296,16 +345,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 				<Menu
 					menuItemStyles={{
-						button: ({ active }) => ({
-							backgroundColor: active ? '#fef2f2' : undefined,
-							color: active ? '#dc2626' : '#4b5563',
-							borderRight: active ? '3px solid #dc2626' : undefined,
-							fontSize: '0.875rem',
-							padding: '10px 16px',
-							'&:hover': {
-								backgroundColor: '#f3f4f6',
-							},
-						}),
+						button: ({ active, className }) => {
+							const isV6 = className?.includes('v6-flow');
+							if (isV6) {
+								// Debug: Log V6 flow detection
+								console.log('🎯 [Sidebar] V6 Flow detected:', {
+									className,
+									active,
+									path: window.location.pathname
+								});
+								// V6 flows - minimal inline styles, let CSS handle the rest
+								return {
+									fontSize: '0.875rem',
+									padding: '10px 16px',
+									// Don't override background, color, or borders - let CSS handle it
+								};
+							}
+							// V5 flows - use inline styles for non-V6 flows
+							return {
+								backgroundColor: active ? '#dbeafe' : undefined,
+								color: active ? '#1e40af' : '#4b5563',
+								borderRight: active ? '3px solid #3b82f6' : undefined,
+								fontSize: '0.875rem',
+								padding: '10px 16px',
+								fontWeight: active ? '700' : '500',
+								transition: 'all 0.2s ease',
+								'&:hover': {
+									backgroundColor: '#f3f4f6',
+									transform: 'translateX(2px)',
+								},
+							};
+						},
 						subMenuContent: {
 							backgroundColor: '#f9fafb',
 						},
@@ -351,9 +421,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						icon={<ColoredIcon $color="#dc2626"><FiLock /></ColoredIcon>}
 						active={isActive('/flows/oauth-authorization-code-v6')}
 						onClick={() => handleNavigation('/flows/oauth-authorization-code-v6')}
+						className="v6-flow"
 					>
 						<MenuItemContent>
-							<span>Authorization Code (V6) ✅</span>
+							<span>Authorization Code (V6)</span>
 							<MigrationBadge title="V6: Service Architecture + Professional Styling">
 								<FiCheckCircle />
 							</MigrationBadge>
@@ -361,16 +432,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 					<MenuItem
 						icon={<ColoredIcon $color="#f59e0b"><FiZap /></ColoredIcon>}
-						active={isActive('/flows/oauth-implicit-v5')}
-						onClick={() => handleNavigation('/flows/oauth-implicit-v5')}
+						active={isActive('/flows/oauth-implicit-v6')}
+						onClick={() => handleNavigation('/flows/oauth-implicit-v6')}
+						className="v6-flow"
 					>
 						<MenuItemContent>
-							<span>Implicit Flow (V5)</span>
-							{isFlowMigrated('/flows/oauth-implicit-v5') && (
-								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-									<FiCheckCircle />
-								</MigrationBadge>
-							)}
+							<span>Implicit Flow (V6)</span>
+							<MigrationBadge title="V6 - Enhanced Token Display">
+								<FiCheckCircle />
+							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
 					<MenuItem
@@ -389,16 +459,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 					<MenuItem
 				icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
-				active={isActive('/flows/client-credentials-v5')}
-				onClick={() => handleNavigation('/flows/client-credentials-v5')}
+				active={isActive('/flows/client-credentials-v6')}
+				onClick={() => handleNavigation('/flows/client-credentials-v6')}
+				className="v6-flow"
 			>
 				<MenuItemContent>
-					<span>Client Credentials (V5)</span>
-					{isFlowMigrated('/flows/client-credentials-v5') && (
-						<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-							<FiCheckCircle />
-						</MigrationBadge>
-					)}
+					<span>Client Credentials (V6)</span>
+					<MigrationBadge title="V6: Service Architecture + Multiple Auth Methods">
+						<FiCheckCircle />
+					</MigrationBadge>
 				</MenuItemContent>
 			</MenuItem>
 				</SubMenu>
@@ -414,9 +483,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						icon={<ColoredIcon $color="#059669"><FiLock /></ColoredIcon>}
 						active={isActive('/flows/oidc-authorization-code-v6')}
 						onClick={() => handleNavigation('/flows/oidc-authorization-code-v6')}
+						className="v6-flow"
 					>
 						<MenuItemContent>
-							<span>Authorization Code (V6) ✅</span>
+							<span>Authorization Code (V6)</span>
 							<MigrationBadge title="V6: Service Architecture + Professional Styling">
 								<FiCheckCircle />
 							</MigrationBadge>
@@ -424,16 +494,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 					<MenuItem
 						icon={<ColoredIcon $color="#84cc16"><FiZap /></ColoredIcon>}
-						active={isActive('/flows/oidc-implicit-v5')}
-		onClick={() => handleNavigation('/flows/oidc-implicit-v5')}
+						active={isActive('/flows/oidc-implicit-v6')}
+						onClick={() => handleNavigation('/flows/oidc-implicit-v6')}
+						className="v6-flow"
 					>
 						<MenuItemContent>
-							<span>Implicit Flow (V5)</span>
-							{isFlowMigrated('/flows/oidc-implicit-v5') && (
-								<MigrationBadge title="Migrated to ComprehensiveCredentialsService">
-									<FiCheckCircle />
-								</MigrationBadge>
-							)}
+							<span>Implicit Flow (V6)</span>
+							<MigrationBadge title="V6 - Enhanced Token Display">
+								<FiCheckCircle />
+							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
 					<MenuItem
@@ -452,10 +521,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>}
-							active={isActive('/flows/hybrid-v5')}
-							onClick={() => handleNavigation('/flows/hybrid-v5')}
+							active={isActive('/flows/oidc-hybrid-v6')}
+							onClick={() => handleNavigation('/flows/oidc-hybrid-v6')}
+							className="v6-flow"
 						>
-							Hybrid Flow (V5)
+							<MenuItemContent>
+								<span>Hybrid Flow (V6)</span>
+								<MigrationBadge title="V6: Service Architecture + Enhanced Hybrid Flow Education">
+									<FiCheckCircle />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 						{/* V3 Hybrid Flow - Hidden, use V5 instead */}
 						{/* <MenuItem
@@ -484,9 +559,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							icon={<ColoredIcon $color="#ea580c"><FiLock /></ColoredIcon>}
 							active={isActive('/flows/pingone-par-v6') || isActive('/flows/pingone-par-v5')}
 							onClick={() => handleNavigation('/flows/pingone-par-v6')}
+							className="v6-flow"
 						>
 							<MenuItemContent>
-								<span>PAR (V6) ✅</span>
+								<span>PAR (V6)</span>
 								<MigrationBadge title="V6: Service Architecture + PAR Education">
 									<FiCheckCircle />
 								</MigrationBadge>
@@ -496,9 +572,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
 							active={isActive('/flows/redirectless-v6-real') || isActive('/flows/redirectless-flow-v5')}
 							onClick={() => handleNavigation('/flows/redirectless-v6-real')}
+							className="v6-flow"
 						>
 							<MenuItemContent>
-								<span>Redirectless (V6) ✅</span>
+								<span>Redirectless (V6)</span>
 								<MigrationBadge title="V6: Service Architecture + pi.flow Education">
 									<FiCheckCircle />
 								</MigrationBadge>
@@ -545,9 +622,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							icon={<FiEye />}
 							active={isActive('/flows/rar-v6') || isActive('/flows/rar-v5')}
 							onClick={() => handleNavigation('/flows/rar-v6')}
+							className="v6-flow"
 						>
 							<MenuItemContent>
-								<span>RAR (V6) ✅</span>
+								<span>RAR (V6)</span>
 								<MigrationBadge title="V6: Service Architecture + RAR Education">
 									<FiCheckCircle />
 								</MigrationBadge>
