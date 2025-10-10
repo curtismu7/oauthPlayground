@@ -52,6 +52,11 @@ export interface ComprehensiveCredentialsProps {
 	subtitle?: string;
 	showAdvancedConfig?: boolean;
 	defaultCollapsed?: boolean;
+	
+	// Field visibility controls
+	showRedirectUri?: boolean;
+	showPostLogoutRedirectUri?: boolean;
+	showLoginHint?: boolean;
 }
 
 const ServiceContainer = styled.div`
@@ -104,6 +109,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	subtitle = "Complete configuration for OAuth/OIDC flows with discovery and advanced settings",
 	showAdvancedConfig = true,
 	defaultCollapsed = false,
+	
+	// Field visibility controls
+	showRedirectUri = true,
+	showPostLogoutRedirectUri = true,
+	showLoginHint = true,
 }) => {
 	const [isAdvancedConfigCollapsed, setIsAdvancedConfigCollapsed] = useState(true);
 
@@ -201,16 +211,16 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				onClientSecretChange={onClientSecretChange || (() => {})}
 				onRedirectUriChange={onRedirectUriChange || (() => {})}
 				onScopesChange={onScopesChange || (() => {})}
-				onLoginHintChange={onLoginHintChange || (() => {})}
-				onPostLogoutRedirectUriChange={onPostLogoutRedirectUriChange || (() => {})}
-				showClientSecret={requireClientSecret}
-				showRedirectUri={true}
-				showPostLogoutRedirectUri={true}
-				showLoginHint={true}
-				onSave={onSave || (() => {})}
-				hasUnsavedChanges={hasUnsavedChanges}
-				isSaving={isSaving}
-			/>
+			onLoginHintChange={onLoginHintChange || (() => {})}
+			onPostLogoutRedirectUriChange={onPostLogoutRedirectUriChange || (() => {})}
+			showClientSecret={requireClientSecret}
+			showRedirectUri={showRedirectUri}
+			showPostLogoutRedirectUri={showPostLogoutRedirectUri}
+			showLoginHint={showLoginHint}
+			onSave={onSave || (() => {})}
+			hasUnsavedChanges={hasUnsavedChanges}
+			isSaving={isSaving}
+		/>
 
 				{/* PingOne Advanced Configuration */}
 				{showAdvancedConfig && pingOneAppState && onPingOneAppStateChange && (

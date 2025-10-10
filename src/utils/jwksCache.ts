@@ -142,7 +142,14 @@ export class JWKSCache {
 		};
 
 		this.cache.set(key, entry);
-		this.stats.sets++;
+        // Evict oldest entries if cache size exceeds maxSize
+        if (this.cache.size > this.config.maxSize) {
+            const firstKey = this.cache.keys().next().value;
+            if (firstKey) {
+                this.cache.delete(firstKey);
+                this.stats.evictions++;
+            }
+        }		this.stats.sets++;
 		this.stats.size = this.cache.size;
 
 		logger.debug('JWKSCache', 'Cache set', {
@@ -191,7 +198,14 @@ export class JWKSCache {
 		};
 
 		this.cache.set(key, entry);
-		this.stats.sets++;
+        // Evict oldest entries if cache size exceeds maxSize
+        if (this.cache.size > this.config.maxSize) {
+            const firstKey = this.cache.keys().next().value;
+            if (firstKey) {
+                this.cache.delete(firstKey);
+                this.stats.evictions++;
+            }
+        }		this.stats.sets++;
 		this.stats.size = this.cache.size;
 
 		logger.info('JWKSCache', 'JWKS cached', {
