@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unified Token Display Service Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .demo-section {
+            margin-bottom: 3rem;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            background: #f8fafc;
+        }
+
+        .demo-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-description {
+            color: #6b7280;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        /* Token Display Styles */
+        .token-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .token-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .token-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 0.875rem;
+        }
+
+        .token-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge-access {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-id {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-refresh {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .token-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .token-content {
+            padding: 1.5rem;
+        }
+
+        .token-value {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.875rem;
+            color: #374151;
+            word-break: break-all;
+            white-space: pre-wrap;
+            margin-bottom: 1rem;
+        }
+
+        .decoded-content {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.75rem;
+            color: #1f2937;
+            overflow: auto;
+            max-height: 300px;
+            margin-top: 0.5rem;
+        }
+
+        .opaque-message {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            color: #92400e;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .flow-info {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .flow-info h3 {
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+        }
+
+        .flow-info p {
+            color: #0c4a6e;
+            font-size: 0.875rem;
+        }
+
+        .code-example {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .highlight {
+            background: #fef3c7;
+            padding: 0.125rem 0.25rem;
+            border-radius: 0.25rem;
+            font-weight: 600;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Unified Token Display Service</h1>
+            <p>A modern, consistent token display service that unifies all OAuth/OIDC token presentations across the application</p>
+        </div>
+
+        <div class="content">
+            <!-- Service Overview -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    📋 Service Overview
+                </div>
+                <div class="demo-description">
+                    The UnifiedTokenDisplayService consolidates multiple token display approaches into one consistent, professional service. 
+                    It automatically handles different flow types and shows the appropriate tokens for each.
+                </div>
+                
+                <div class="code-example">
+{UnifiedTokenDisplayService.showTokens(
+    tokens,
+    'oauth',  // Flow type: oauth | oidc | par | rar | redirectless
+    'oauth-authorization-code-v6',  // Flow key
+    {
+        showCopyButtons: true,
+        showDecodeButtons: true,
+    }
+)}
+                </div>
+            </div>
+
+            <!-- OAuth Flow Demo -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    🔑 OAuth 2.0 Authorization Code Flow
+                </div>
+                <div class="demo-description">
+                    OAuth flows show Access and Refresh tokens. ID tokens are not displayed for pure OAuth flows.
+                </div>
+                
+                <div class="flow-info">
+                    <h3>OAuth Flow Configuration</h3>
+                    <p>Shows: Access Token + Refresh Token | Hides: ID Token (OAuth-only)</p>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            Access Token
+                            <span class="token-badge badge-access">ACCESS</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQ1In0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjJ9.EkN-DOsnsuRjRO6BxXemmJDm3HbxrbRzXglbN2S4sOkopdU4IsDxTI8jO19W_A4K8ZPJijNLis4EZsHeY559a4DFOd50_OqgH58ERTqYZyhtFJh3w9HxGPBXPW6F7YyET7aM1MV5CQT8ZTOLL4MebmfD2WfuBak3eH8lq6Rzq2k8jQ</div>
+                    </div>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            Refresh Token
+                            <span class="token-badge badge-refresh">REFRESH</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">rt_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2z3</div>
+                        <div class="opaque-message">
+                            ℹ️ Refresh Token is opaque and cannot be decoded as JWT.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OIDC Flow Demo -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    🆔 OpenID Connect Authorization Code Flow
+                </div>
+                <div class="demo-description">
+                    OIDC flows show Access, ID, and Refresh tokens. ID tokens contain user identity information.
+                </div>
+                
+                <div class="flow-info">
+                    <h3>OIDC Flow Configuration</h3>
+                    <p>Shows: Access Token + ID Token (OIDC) + Refresh Token</p>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            Access Token
+                            <span class="token-badge badge-access">ACCESS</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQ1In0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjJ9.EkN-DOsnsuRjRO6BxXemmJDm3HbxrbRzXglbN2S4sOkopdU4IsDxTI8jO19W_A4K8ZPJijNLis4EZsHeY559a4DFOd50_OqgH58ERTqYZyhtFJh3w9HxGPBXPW6F7YyET7aM1MV5CQT8ZTOLL4MebmfD2WfuBak3eH8lq6Rzq2k8jQ</div>
+                    </div>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            ID Token (OIDC)
+                            <span class="token-badge badge-id">ID (OIDC)</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQ1In0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjIsImF1ZCI6WyJjbGllbnQtaWQiXX0.k5k8jQ2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2z3a4b5c6d7e8f9g0h1i2j3k4l5m6n7o8p9q0r1s2t3u4v5w6x7y8z9</div>
+                        <div class="decoded-content">{
+  "header": {
+    "alg": "RS256",
+    "typ": "JWT",
+    "kid": "12345"
+  },
+  "payload": {
+    "sub": "1234567890",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "iat": 1516239022,
+    "exp": 1516242622,
+    "aud": ["client-id"]
+  }
+}</div>
+                    </div>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            Refresh Token
+                            <span class="token-badge badge-refresh">REFRESH</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">rt_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2z3</div>
+                        <div class="opaque-message">
+                            ℹ️ Refresh Token is opaque and cannot be decoded as JWT.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAR Flow Demo -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    🚀 PingOne PAR Flow
+                </div>
+                <div class="demo-description">
+                    PAR (Pushed Authorization Request) flows show Access and Refresh tokens with enhanced security.
+                </div>
+                
+                <div class="flow-info">
+                    <h3>PAR Flow Configuration</h3>
+                    <p>Shows: Access Token + Refresh Token | Hides: ID Token (OAuth-based)</p>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            Access Token
+                            <span class="token-badge badge-access">ACCESS</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IjEyMzQ1In0.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwicGFyX3JlcXVlc3RfdXJpIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tL2FzL3BhciJ9.example-signature</div>
+                    </div>
+                </div>
+
+                <div class="token-container">
+                    <div class="token-header">
+                        <div class="token-label">
+                            Refresh Token
+                            <span class="token-badge badge-refresh">REFRESH</span>
+                        </div>
+                        <div class="token-actions">
+                            <button class="action-btn btn-secondary">
+                                🔑 Decode
+                            </button>
+                            <button class="action-btn btn-primary">
+                                📋 Copy
+                            </button>
+                        </div>
+                    </div>
+                    <div class="token-content">
+                        <div class="token-value">rt_par_1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5s6t7u8v9w0x1y2z3</div>
+                        <div class="opaque-message">
+                            ℹ️ Refresh Token is opaque and cannot be decoded as JWT.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    ✨ Key Features
+                </div>
+                <div class="demo-description">
+                    The UnifiedTokenDisplayService provides these powerful features:
+                </div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="padding: 1rem; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 0.5rem;">
+                        <h4 style="color: #0c4a6e; margin-bottom: 0.5rem;">🎯 Flow-Aware Display</h4>
+                        <p style="color: #0c4a6e; font-size: 0.875rem;">Automatically shows the correct tokens for each flow type (OAuth, OIDC, PAR, RAR, Redirectless)</p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: #f0fdf4; border: 1px solid #22c55e; border-radius: 0.5rem;">
+                        <h4 style="color: #15803d; margin-bottom: 0.5rem;">📋 Copy & Decode</h4>
+                        <p style="color: #15803d; font-size: 0.875rem;">Built-in copy to clipboard and JWT decode functionality with proper error handling</p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 0.5rem;">
+                        <h4 style="color: #92400e; margin-bottom: 0.5rem;">🔒 JWT Detection</h4>
+                        <p style="color: #92400e; font-size: 0.875rem;">Automatically detects JWT vs opaque tokens and handles each appropriately</p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: #fdf2f8; border: 1px solid #ec4899; border-radius: 0.5rem;">
+                        <h4 style="color: #be185d; margin-bottom: 0.5rem;">🎨 Consistent Styling</h4>
+                        <p style="color: #be185d; font-size: 0.875rem;">Professional, modern UI that looks consistent across all flows</p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: #f3f4f6; border: 1px solid #6b7280; border-radius: 0.5rem;">
+                        <h4 style="color: #374151; margin-bottom: 0.5rem;">⚡ Simple Integration</h4>
+                        <p style="color: #374151; font-size: 0.875rem;">One line of code replaces complex token display implementations</p>
+                    </div>
+                    
+                    <div style="padding: 1rem; background: #f0f9ff; border: 1px solid #3b82f6; border-radius: 0.5rem;">
+                        <h4 style="color: #1e40af; margin-bottom: 0.5rem;">🛡️ Security First</h4>
+                        <p style="color: #1e40af; font-size: 0.875rem;">Never logs token values, only type/length/flow information for security</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Section -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    🛠️ Implementation Examples
+                </div>
+                <div class="demo-description">
+                    Here's how to use the service in different flow types:
+                </div>
+                
+                <div class="code-example">
+// OAuth Authorization Code Flow
+{UnifiedTokenDisplayService.showTokens(
+    tokens,
+    'oauth',
+    'oauth-authorization-code-v6'
+)}
+
+// OIDC Authorization Code Flow  
+{UnifiedTokenDisplayService.showTokens(
+    tokens,
+    'oidc', 
+    'oidc-authorization-code-v6'
+)}
+
+// PAR Flow
+{UnifiedTokenDisplayService.showTokens(
+    tokens,
+    'par',
+    'par-flow-v6'
+)}
+
+// RAR Flow
+{UnifiedTokenDisplayService.showTokens(
+    tokens,
+    'rar',
+    'rar-flow-v6'
+)}
+
+// Redirectless Flow
+{UnifiedTokenDisplayService.showTokens(
+    tokens,
+    'redirectless',
+    'redirectless-flow-v6'
+)}
+                </div>
+            </div>
+
+            <!-- Benefits Section -->
+            <div class="demo-section">
+                <div class="demo-title">
+                    🎉 Benefits
+                </div>
+                <div class="demo-description">
+                    The UnifiedTokenDisplayService provides these key benefits:
+                </div>
+                
+                <div style="margin-top: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                        <div style="font-size: 2rem;">✅</div>
+                        <div>
+                            <h4 style="color: #1f2937; margin-bottom: 0.25rem;">Unified Experience</h4>
+                            <p style="color: #6b7280; font-size: 0.875rem;">All flows now use the same professional token display</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                        <div style="font-size: 2rem;">🧹</div>
+                        <div>
+                            <h4 style="color: #1f2937; margin-bottom: 0.25rem;">Code Simplification</h4>
+                            <p style="color: #6b7280; font-size: 0.875rem;">Replaced complex token display code with one simple service call</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                        <div style="font-size: 2rem;">🔧</div>
+                        <div>
+                            <h4 style="color: #1f2937; margin-bottom: 0.25rem;">Maintainability</h4>
+                            <p style="color: #6b7280; font-size: 0.875rem;">One service to maintain instead of multiple token display implementations</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: #f8fafc; border-radius: 0.5rem;">
+                        <div style="font-size: 2rem;">🎯</div>
+                        <div>
+                            <h4 style="color: #1f2937; margin-bottom: 0.25rem;">Flow-Aware</h4>
+                            <p style="color: #6b7280; font-size: 0.875rem;">Automatically shows the right tokens for each flow type</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click handlers for demo buttons
+            const copyButtons = document.querySelectorAll('.btn-primary');
+            const decodeButtons = document.querySelectorAll('.btn-secondary');
+            
+            copyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Simulate copy action
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '✅ Copied!';
+                    button.style.background = '#10b981';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.background = '#3b82f6';
+                    }, 1500);
+                });
+            });
+            
+            decodeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Toggle decode content visibility
+                    const tokenContainer = button.closest('.token-container');
+                    const decodedContent = tokenContainer.querySelector('.decoded-content');
+                    
+                    if (decodedContent) {
+                        decodedContent.style.display = decodedContent.style.display === 'none' ? 'block' : 'none';
+                        
+                        const originalText = button.innerHTML;
+                        button.innerHTML = decodedContent.style.display === 'none' ? '🔑 Decode' : '🔍 Hide';
+                        
+                        setTimeout(() => {
+                            if (decodedContent.style.display === 'block') {
+                                button.innerHTML = '🔍 Hide';
+                            } else {
+                                button.innerHTML = originalText;
+                            }
+                        }, 100);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -357,7 +357,10 @@ const PingOnePARFlowV6: React.FC = () => {
 			);
 			return;
 		}
-		if (!controller.pkceCodes.codeVerifier || !controller.pkceCodes.codeChallenge) {
+		const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
+						   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+		
+		if (!hasPkceCodes) {
 			v4ToastManager.showError('Complete above action: Generate PKCE parameters first.');
 			return;
 		}
@@ -870,9 +873,9 @@ const PingOnePARFlowV6: React.FC = () => {
 								<HighlightedActionButton
 									onClick={handlePushAuthorizationRequest}
 									$priority="primary"
-									disabled={!!parRequestUri || !controller.pkceCodes.codeVerifier || isParLoading}
+									disabled={!!parRequestUri || (!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)) || isParLoading}
 									title={
-										!controller.pkceCodes.codeVerifier
+										(!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
 											? 'Generate PKCE parameters first'
 											: parRequestUri
 												? 'PAR request already pushed'
