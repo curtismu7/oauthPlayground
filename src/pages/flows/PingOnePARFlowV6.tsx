@@ -221,6 +221,17 @@ const GeneratedUrlDisplay = styled.div`
 	border-radius: 0.5rem;
 	padding: 1.5rem;
 	margin: 1rem 0;
+	
+	/* Ensure URLs wrap properly */
+	div {
+		word-break: break-all;
+		overflow-wrap: break-word;
+		white-space: pre-wrap;
+		font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+		font-size: 0.875rem;
+		line-height: 1.6;
+		color: #1f2937;
+	}
 `;
 
 const GeneratedLabel = styled.div`
