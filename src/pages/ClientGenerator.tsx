@@ -22,9 +22,7 @@ import {
 } from '../services/pingOneAppCreationService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { credentialManager } from '../utils/credentialManager';
 import { CredentialsInput } from '../components/CredentialsInput';
-import { useClientCredentialsFlowController } from '../hooks/useClientCredentialsFlowController';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -574,23 +572,21 @@ const ClientGenerator: React.FC = () => {
 		setCreationResult(null);
 
 		try {
-			// Get credentials for API access
-			const credentials = credentialManager.loadConfigCredentials();
-			if (!credentials.environmentId || !credentials.clientId) {
+			// Use the Worker token we obtained earlier
+			if (!workerToken) {
 				throw new Error(
-					'No valid credentials found. Please configure your PingOne credentials first.'
+					'No worker token available. Please obtain a worker token first by clicking "Save & Get Worker Token".'
 				);
 			}
 
-			// For now, we'll use the existing client credentials to create apps
-			// In a real implementation, you'd have a separate management token
-			const accessToken = localStorage.getItem('pingone_access_token');
-			if (!accessToken) {
-				throw new Error('No access token available. Please authenticate first.');
+			if (!workerCredentials.environmentId) {
+				throw new Error('Environment ID is required.');
 			}
 
-			// Initialize the service
-			pingOneAppCreationService.initialize(accessToken, credentials.environmentId);
+			console.log('[App Generator] Creating app with worker token in environment:', workerCredentials.environmentId);
+
+			// Initialize the service with the worker token
+			pingOneAppCreationService.initialize(workerToken, workerCredentials.environmentId);
 
 			// Create the app based on type
 			let result: AppCreationResult;
