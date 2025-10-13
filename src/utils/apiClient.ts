@@ -84,8 +84,27 @@ export async function makeApiRequest<T = any>(
 
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
+			
+			// Log full error details for debugging
+			console.error('[API-CLIENT] Full error response:', {
+				status: response.status,
+				statusText: response.statusText,
+				errorData: errorData,
+			});
+			
+			// Extract detailed error message
+			let errorMessage = errorData.detail || errorData.message || 'Unknown error';
+			
+			// If there are validation details, include them
+			if (errorData.details && Array.isArray(errorData.details)) {
+				const validationErrors = errorData.details
+					.map((d: any) => `${d.target || 'field'}: ${d.message || d.code}`)
+					.join(', ');
+				errorMessage += ` | Validation errors: ${validationErrors}`;
+			}
+			
 			throw new Error(
-				`API request failed: ${response.status} ${response.statusText}. ${errorData.detail || errorData.message || 'Unknown error'}`
+				`API request failed: ${response.status} ${response.statusText}. ${errorMessage}`
 			);
 		}
 
