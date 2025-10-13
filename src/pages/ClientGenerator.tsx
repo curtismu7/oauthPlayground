@@ -1,5 +1,5 @@
 // src/pages/ClientGenerator.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
 	FiCheckCircle,
 	FiX,
@@ -9,6 +9,7 @@ import {
 	FiGlobe,
 	FiCode,
 	FiServer,
+	FiKey,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -22,6 +23,8 @@ import {
 import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { credentialManager } from '../utils/credentialManager';
+import { CredentialsInput } from '../components/CredentialsInput';
+import { useClientCredentialsFlowController } from '../hooks/useClientCredentialsFlowController';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -239,6 +242,35 @@ const Button = styled.button<{ variant: 'primary' | 'secondary' }>`
 	}
 `;
 
+const ActionButton = styled.button`
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1.25rem;
+	font-size: 0.875rem;
+	font-weight: 500;
+	border-radius: 0.375rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	border: 1px solid transparent;
+	background-color: #3b82f6;
+	color: white;
+
+	&:hover:not(:disabled) {
+		background-color: #2563eb;
+	}
+
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
 const ResultCard = styled.div<{ type: 'success' | 'error' }>`
 	background: ${(props) => (props.type === 'success' ? '#f0fdf4' : '#fef2f2')};
 	border: 1px solid ${(props) => (props.type === 'success' ? '#bbf7d0' : '#fecaca')};
@@ -288,8 +320,37 @@ const LoadingSpinner = styled.div`
 	}
 `;
 
+const SuccessMessage = styled.div`
+	background: #d1fae5;
+	border: 1px solid #6ee7b7;
+	border-radius: 8px;
+	padding: 1rem 1.5rem;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	color: #065f46;
+	font-weight: 500;
+	margin-bottom: 2rem;
+	
+	svg {
+		color: #10b981;
+		font-size: 1.25rem;
+	}
+`;
+
 const ClientGenerator: React.FC = () => {
 	usePageScroll({ pageName: 'Client Generator', force: true });
+
+	// Worker token state
+	const [workerToken, setWorkerToken] = useState<string | null>(null);
+	const [workerCredentials, setWorkerCredentials] = useState({
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
+		scopes: 'openid p1:create:application p1:read:application p1:update:application',
+	});
+	const [isGettingToken, setIsGettingToken] = useState(false);
+	const [tokenError, setTokenError] = useState<string | null>(null);
 
 	const [selectedAppType, setSelectedAppType] = useState<AppType | null>(null);
 	const [isCreating, setIsCreating] = useState(false);
@@ -310,22 +371,86 @@ const ClientGenerator: React.FC = () => {
 		idTokenValiditySeconds: 3600,
 	});
 
-	// Load credentials on mount
+	// Load saved worker credentials and silently get token on mount
 	useEffect(() => {
-		const loadCredentials = () => {
+		const loadAndGetToken = async () => {
 			try {
-				const configCredentials = credentialManager.loadConfigCredentials();
-				if (configCredentials.environmentId && configCredentials.clientId) {
-					// Service is initialized with worker token for API access
-					// We'll handle this when creating apps
+				// Try to load saved worker credentials
+				const saved = localStorage.getItem('app-generator-worker-credentials');
+				if (saved) {
+					const credentials = JSON.parse(saved);
+					setWorkerCredentials(credentials);
+					
+					// Silently get token if we have credentials
+					if (credentials.clientId && credentials.clientSecret && credentials.environmentId) {
+						console.log('[App Generator] Silently requesting worker token...');
+						await getWorkerTokenSilently(credentials);
+					}
 				}
 			} catch (error) {
-				console.error('Failed to load credentials:', error);
+				console.error('[App Generator] Failed to load credentials:', error);
 			}
 		};
 
-		loadCredentials();
+		loadAndGetToken();
 	}, []);
+
+	// Silently get worker token
+	const getWorkerTokenSilently = async (credentials: typeof workerCredentials) => {
+		try {
+			setIsGettingToken(true);
+			setTokenError(null);
+
+			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			
+			const response = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: credentials.clientId,
+					client_secret: credentials.clientSecret,
+					scope: credentials.scopes,
+				}),
+			});
+
+			if (!response.ok) {
+				throw new Error(`Token request failed: ${response.status}`);
+			}
+
+			const tokenData = await response.json();
+			setWorkerToken(tokenData.access_token);
+			console.log('[App Generator] Worker token obtained successfully');
+		} catch (error) {
+			console.error('[App Generator] Failed to get worker token:', error);
+			setTokenError(error instanceof Error ? error.message : 'Failed to get token');
+		} finally {
+			setIsGettingToken(false);
+		}
+	};
+
+	// Handle worker credential changes
+	const handleWorkerCredentialChange = useCallback((field: string, value: string) => {
+		setWorkerCredentials(prev => ({ ...prev, [field]: value }));
+	}, []);
+
+	// Save credentials and get token
+	const handleSaveAndGetToken = useCallback(async () => {
+		try {
+			// Save credentials to localStorage
+			localStorage.setItem('app-generator-worker-credentials', JSON.stringify(workerCredentials));
+			v4ToastManager.showSuccess('Worker credentials saved');
+			
+			// Get token
+			await getWorkerTokenSilently(workerCredentials);
+			v4ToastManager.showSuccess('Worker token obtained!');
+		} catch (error) {
+			console.error('[App Generator] Failed to save and get token:', error);
+			v4ToastManager.showError('Failed to obtain worker token');
+		}
+	}, [workerCredentials]);
 
 	const appTypes = [
 		{
@@ -576,19 +701,85 @@ const ClientGenerator: React.FC = () => {
 				</Subtitle>
 			</Header>
 
-			<CardGrid>
-				{appTypes.map((appType) => (
-					<AppTypeCard
-						key={appType.type}
-						selected={selectedAppType === appType.type}
-						onClick={() => handleAppTypeSelect(appType.type)}
-					>
-						<div className="icon">{appType.icon}</div>
-						<div className="title">{appType.title}</div>
-						<div className="description">{appType.description}</div>
-					</AppTypeCard>
-				))}
-			</CardGrid>
+			{/* Worker Credentials Section */}
+			{!workerToken && (
+				<FormContainer>
+					<FormTitle>
+						<FiKey style={{ marginRight: '0.5rem' }} />
+						Worker Application Credentials
+					</FormTitle>
+					<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						Enter your Worker application credentials to manage PingOne applications.
+					</p>
+
+					<CredentialsInput
+						environmentId={workerCredentials.environmentId}
+						clientId={workerCredentials.clientId}
+						clientSecret={workerCredentials.clientSecret}
+						scopes={workerCredentials.scopes}
+						onEnvironmentIdChange={(value) => handleWorkerCredentialChange('environmentId', value)}
+						onClientIdChange={(value) => handleWorkerCredentialChange('clientId', value)}
+						onClientSecretChange={(value) => handleWorkerCredentialChange('clientSecret', value)}
+						onScopesChange={(value) => handleWorkerCredentialChange('scopes', value)}
+						showRedirectUri={false}
+						showPostLogoutRedirectUri={false}
+						showLoginHint={false}
+						showClientSecret={true}
+					/>
+
+					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+						<ActionButton
+							onClick={handleSaveAndGetToken}
+							disabled={
+								!workerCredentials.environmentId ||
+								!workerCredentials.clientId ||
+								!workerCredentials.clientSecret ||
+								isGettingToken
+							}
+						>
+							{isGettingToken ? (
+								<>
+									<LoadingSpinner /> Getting Token...
+								</>
+							) : (
+								<>
+									<FiKey /> Save & Get Worker Token
+								</>
+							)}
+						</ActionButton>
+						
+						{tokenError && (
+							<span style={{ color: '#ef4444', fontSize: '0.9rem' }}>
+								{tokenError}
+							</span>
+						)}
+					</div>
+				</FormContainer>
+			)}
+
+			{/* Success indicator when we have a token */}
+			{workerToken && (
+				<SuccessMessage>
+					<FiCheckCircle /> Worker token active - Ready to create applications
+				</SuccessMessage>
+			)}
+
+			{/* Only show app creation if we have a worker token */}
+			{workerToken && (
+				<CardGrid>
+					{appTypes.map((appType) => (
+						<AppTypeCard
+							key={appType.type}
+							selected={selectedAppType === appType.type}
+							onClick={() => handleAppTypeSelect(appType.type)}
+						>
+							<div className="icon">{appType.icon}</div>
+							<div className="title">{appType.title}</div>
+							<div className="description">{appType.description}</div>
+						</AppTypeCard>
+					))}
+				</CardGrid>
+			)}
 
 			{selectedAppType && (
 				<FormContainer>
