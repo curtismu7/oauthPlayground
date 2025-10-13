@@ -222,6 +222,9 @@ export class PingOneAppCreationService {
 				type: appData.type,
 			});
 
+			// Log the full request payload for debugging
+			console.log('[APP-CREATION] Request payload:', JSON.stringify(appData, null, 2));
+
 			const createdApp = await makeApiRequest<CreatedApp>(this.client, '/applications', {
 				method: 'POST',
 				body: JSON.stringify(appData),
