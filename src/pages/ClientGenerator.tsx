@@ -401,7 +401,21 @@ const ClientGenerator: React.FC = () => {
 			setIsGettingToken(true);
 			setTokenError(null);
 
-			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			// Validate environment ID format (should be UUID format, not a long client ID)
+			const envId = credentials.environmentId?.trim();
+			if (!envId) {
+				throw new Error('Environment ID is required');
+			}
+			
+			// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
+			// Client IDs are much longer base64-like strings
+			if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
+				console.warn('[App Generator] Environment ID looks suspicious:', envId);
+				throw new Error('Invalid Environment ID format. Please check your credentials.');
+			}
+
+			const tokenEndpoint = `https://auth.pingone.com/${envId}/as/token`;
+			console.log('[App Generator] Requesting token from:', tokenEndpoint);
 			
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
@@ -417,7 +431,9 @@ const ClientGenerator: React.FC = () => {
 			});
 
 			if (!response.ok) {
-				throw new Error(`Token request failed: ${response.status}`);
+				const errorText = await response.text();
+				console.error('[App Generator] Token request failed:', response.status, errorText);
+				throw new Error(`Token request failed: ${response.status} - ${errorText.substring(0, 100)}`);
 			}
 
 			const tokenData = await response.json();
@@ -708,8 +724,12 @@ const ClientGenerator: React.FC = () => {
 						<FiKey style={{ marginRight: '0.5rem' }} />
 						Worker Application Credentials
 					</FormTitle>
-					<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+					<p style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
 						Enter your Worker application credentials to manage PingOne applications.
+					</p>
+					<p style={{ color: '#f59e0b', fontSize: '0.875rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<FiSettings /> 
+						<strong>Note:</strong> Environment ID should be a UUID format (e.g., "12345678-1234-1234-1234-123456789abc"), not a Client ID.
 					</p>
 
 					<CredentialsInput
@@ -727,7 +747,7 @@ const ClientGenerator: React.FC = () => {
 						showClientSecret={true}
 					/>
 
-					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
 						<ActionButton
 							onClick={handleSaveAndGetToken}
 							disabled={
@@ -748,9 +768,27 @@ const ClientGenerator: React.FC = () => {
 							)}
 						</ActionButton>
 						
+						<Button
+							variant="secondary"
+							onClick={() => {
+								localStorage.removeItem('app-generator-worker-credentials');
+								setWorkerCredentials({
+									environmentId: '',
+									clientId: '',
+									clientSecret: '',
+									scopes: 'openid p1:create:application p1:read:application p1:update:application',
+								});
+								setTokenError(null);
+								v4ToastManager.showSuccess('Credentials cleared');
+							}}
+							style={{ padding: '0.75rem 1.25rem' }}
+						>
+							<FiX /> Clear
+						</Button>
+						
 						{tokenError && (
-							<span style={{ color: '#ef4444', fontSize: '0.9rem' }}>
-								{tokenError}
+							<span style={{ color: '#ef4444', fontSize: '0.9rem', width: '100%', marginTop: '0.5rem' }}>
+								⚠️ {tokenError}
 							</span>
 						)}
 					</div>
