@@ -1,7 +1,7 @@
 // src/components/ColoredUrlDisplay.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiInfo, FiExternalLink } from 'react-icons/fi';
+import { FiInfo, FiExternalLink, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import { CopyButtonVariants, CopyButtonService } from '../services/copyButtonService';
 
 interface ColoredUrlDisplayProps {
@@ -15,8 +15,8 @@ interface ColoredUrlDisplayProps {
 }
 
 const UrlContainer = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 8px;
 	padding: 1rem;
 	margin: 1rem 0;
@@ -38,8 +38,8 @@ const UrlLabel = styled.div`
 `;
 
 const UrlContent = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 8px;
 	padding: 1rem 5rem 1rem 1rem; /* Increased right padding to accommodate buttons */
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
