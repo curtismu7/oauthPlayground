@@ -170,20 +170,46 @@ const DeleteButton = styled.button`
 const AddButton = styled.button`
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 0.5rem;
-	padding: 0.75rem 1rem;
+	padding: 0.875rem 1.25rem;
 	font-size: 0.875rem;
-	font-weight: 500;
-	color: #0284c7;
-	background: #ffffff;
-	border: 2px dashed #bae6fd;
+	font-weight: 600;
+	color: #ffffff;
+	background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+	border: none;
 	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s;
+	box-shadow: 0 2px 8px rgba(2, 132, 199, 0.2);
 
 	&:hover {
-		background: #f0f9ff;
-		border-color: #0284c7;
+		background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+`;
+
+const AddClaimHelper = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.75rem 1rem;
+	margin-bottom: 0.75rem;
+	background: #f0f9ff;
+	border: 1px solid #bae6fd;
+	border-radius: 0.5rem;
+	font-size: 0.8125rem;
+	color: #0c4a6e;
+	line-height: 1.5;
+	
+	svg {
+		flex-shrink: 0;
+		color: #0284c7;
 	}
 `;
 
@@ -192,10 +218,36 @@ const JSONPreview = styled.pre`
 	background: #1e293b;
 	color: #e2e8f0;
 	border-radius: 0.5rem;
-	font-size: 0.75rem;
-	line-height: 1.5;
+	font-size: 0.875rem;
+	line-height: 1.6;
 	overflow-x: auto;
 	margin-top: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	
+	/* JSON Syntax Highlighting */
+	.json-key {
+		color: #7dd3fc; /* Light blue for keys */
+	}
+	
+	.json-string {
+		color: #86efac; /* Light green for string values */
+	}
+	
+	.json-number {
+		color: #fbbf24; /* Amber for numbers */
+	}
+	
+	.json-boolean {
+		color: #c084fc; /* Purple for booleans */
+	}
+	
+	.json-null {
+		color: #f87171; /* Red for null */
+	}
+	
+	.json-punctuation {
+		color: #94a3b8; /* Gray for punctuation */
+	}
 `;
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
@@ -293,6 +345,24 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 	}, [value, onChange]);
 
 	const jsonString = value ? JSON.stringify(value, null, 2) : '{}';
+	
+	// Syntax highlight JSON
+	const highlightJSON = (json: string) => {
+		return json
+			.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, (match) => {
+				let cls = 'json-string';
+				if (/:$/.test(match)) {
+					cls = 'json-key';
+					match = match.slice(0, -1); // Remove the colon
+					return `<span class="${cls}">${match}</span><span class="json-punctuation">:</span>`;
+				}
+				return `<span class="${cls}">${match}</span>`;
+			})
+			.replace(/\b(true|false)\b/g, '<span class="json-boolean">$1</span>')
+			.replace(/\b(null)\b/g, '<span class="json-null">$1</span>')
+			.replace(/\b(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\b/g, '<span class="json-number">$1</span>')
+			.replace(/([{}[\],])/g, '<span class="json-punctuation">$1</span>');
+	};
 
 	if (collapsed) {
 		return (
@@ -348,7 +418,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 					{getClaims(activeTab).map(([name, claim], index) => {
 						const isEssential = claim?.essential === true;
 						return (
-							<ClaimRow key={`${activeTab}-${index}-${claim?.name || name}`}>
+							<ClaimRow key={`${activeTab}-${index}`}>
 								<ClaimInput
 									type="text"
 									value={name}
@@ -369,6 +439,13 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 						);
 					})}
 				</ClaimsList>
+
+				<AddClaimHelper>
+					<FiInfo />
+					<div>
+						<strong>Click the button below</strong> to add custom claims. Common OIDC claims: {commonClaims.slice(0, 5).map(c => c.name).join(', ')}, and more...
+					</div>
+				</AddClaimHelper>
 
 				<AddButton onClick={() => addClaim(activeTab)}>
 					<FiPlus /> Add Claim
@@ -391,7 +468,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 						</AddButton>
 
 						{showPreview && (
-							<JSONPreview>{jsonString}</JSONPreview>
+							<JSONPreview dangerouslySetInnerHTML={{ __html: highlightJSON(jsonString) }} />
 						)}
 					</>
 				)}
