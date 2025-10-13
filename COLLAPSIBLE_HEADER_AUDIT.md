@@ -6,7 +6,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 
 - 🟠 **Orange** + ⚙️ `FiSettings` = Configuration
 - 🔵 **Blue** + 🚀 `FiSend` = Flow Execution
-- 🟣 **Purple** + 📚 `FiBook` = Educational (Odd)
+- 🟡 **Yellow** + 📚 `FiBook` = Educational (Odd)
 - 🟢 **Green** + ✅ `FiCheckCircle` = Educational (Even) / Success
 - 💙 **Default** + 📦 `FiPackage` = Results/Received
 
@@ -22,7 +22,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="OAuth 2.0 Authorization Code Overview"
   icon={<FiBook />}           // 📚 Change from FiInfo
-  theme="purple"              // 🟣 ADD
+  theme="yellow"              // 🟡 ADD
   defaultCollapsed={false}
 >
 
@@ -49,7 +49,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="What is PKCE?"
   icon={<FiBook />}           // 📚 Change from FiShield
-  theme="purple"              // 🟣 ADD
+  theme="yellow"              // 🟡 ADD
   defaultCollapsed={false}
 >
 
@@ -68,7 +68,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="Understanding Authorization Requests"
   icon={<FiBook />}           // 📚 Change from FiGlobe
-  theme="purple"              // 🟣 ADD
+  theme="yellow"              // 🟡 ADD
   defaultCollapsed={false}
 >
 
@@ -87,7 +87,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="Authorization Response Overview"
   icon={<FiBook />}           // 📚 Change from FiCheckCircle
-  theme="purple"              // 🟣 ADD
+  theme="yellow"              // 🟡 ADD
   defaultCollapsed={false}
 >
 
@@ -106,7 +106,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="Token Exchange Overview"
   icon={<FiBook />}           // 📚 Change from FiKey
-  theme="purple"              // 🟣 ADD
+  theme="yellow"              // 🟡 ADD
   defaultCollapsed={false}
 >
 
@@ -134,7 +134,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="OIDC Authorization Code Overview"
   icon={<FiBook />}
-  theme="purple"
+  theme="yellow"
 >
 
 // Configuration
@@ -175,14 +175,14 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="Device Authorization Flow Overview"
   icon={<FiBook />}
-  theme="purple"
+  theme="yellow"
 >
 
 // Step 0 - Educational (2nd) - BUT user wants yellow/purple for "How It Works"
 <CollapsibleHeader
   title="How It Works"
   icon={<FiBook />}           // 📚 Keep as educational
-  theme="purple"              // 🟣 User wants this yellow/purple
+  theme="yellow"              // 🟣 User wants this yellow/purple
 >
 
 // Step 0 - Configuration
@@ -261,7 +261,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="Client Credentials Flow Overview"
   icon={<FiBook />}
-  theme="purple"
+  theme="yellow"
 >
 
 // Configuration
@@ -297,7 +297,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="JWT Bearer Token Flow Overview"
   icon={<FiBook />}
-  theme="purple"
+  theme="yellow"
 >
 
 // Configuration
@@ -390,7 +390,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="PAR Flow Detailed Overview"
   icon={<FiBook />}           // 📚 Change from FiInfo
-  theme="purple"
+  theme="yellow"
 >
 
 // Educational (2nd)
@@ -404,7 +404,7 @@ This document lists every CollapsibleHeader instance across all V6 flows with th
 <CollapsibleHeader
   title="PAR Request Overview"
   icon={<FiBook />}           // 📚 Change from FiShield
-  theme="purple"
+  theme="yellow"
 >
 
 // Educational (4th)
