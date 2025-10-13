@@ -135,12 +135,12 @@ const HeaderButton = styled.button<{ $variant: string; $theme: string }>`
         `;
       case 'yellow':
         return `
-          background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+          background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
           &:hover {
-            background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%);
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
           }
           &:focus {
-            outline: 2px solid #fef9c3;
+            outline: 2px solid #fef3c7;
             outline-offset: 2px;
           }
         `;
