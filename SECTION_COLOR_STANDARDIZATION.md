@@ -6,7 +6,7 @@
 |-------|-------------|------|---------|-------------|
 | 🟠 **Orange** | `theme="orange"` | `<FiSettings />` ⚙️ | Credentials & Configuration | Input forms, settings, app config |
 | 🔵 **Blue** | `theme="blue"` | `<FiSend />` 🚀 | Flow Execution & Actions | API calls, token exchange, authorization |
-| 🟣 **Purple** | `theme="purple"` | `<FiBook />` 📚 | Educational (Odd) | 1st, 3rd, 5th... educational sections |
+| 🟡 **Yellow** | `theme="yellow"` | `<FiBook />` 📚 | Educational (Odd) | 1st, 3rd, 5th... educational sections |
 | 🟢 **Green** | `theme="green"` | `<FiCheckCircle />` ✅ | Educational (Even) + Success | 2nd, 4th, 6th... educational + completions |
 | 💙 **Light Blue** | `theme="default"` | `<FiPackage />` 📦 | Results & Received Data | Displaying received codes, tokens, responses |
 
@@ -14,7 +14,7 @@
 ```
 🟠 Orange  + ⚙️  FiSettings     = Configuration
 🔵 Blue    + 🚀 FiSend         = Flow Execution
-🟣 Purple  + 📚 FiBook         = Educational (Odd)
+🟡 Yellow  + 📚 FiBook         = Educational (Odd)
 🟢 Green   + ✅ FiCheckCircle  = Educational (Even) / Success
 💙 Default + 📦 FiPackage      = Results/Received
 ```
