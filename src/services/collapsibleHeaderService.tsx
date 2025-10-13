@@ -11,7 +11,7 @@ export interface CollapsibleHeaderConfig {
   defaultCollapsed?: boolean;
   showArrow?: boolean;
   variant?: 'default' | 'compact' | 'large';
-  theme?: 'blue' | 'green' | 'orange' | 'purple';
+  theme?: 'blue' | 'green' | 'orange' | 'purple' | 'yellow' | 'highlight';
 }
 
 export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
@@ -69,11 +69,94 @@ const CollapsibleHeaderContainer = styled.div<{ $variant: string }>`
   }}
 `;
 
-// Header button with blue styling
-const HeaderButton = styled.button<{ $variant: string }>`
+// Header button with theme-based styling
+const HeaderButton = styled.button<{ $variant: string; $theme: string }>`
   width: 100%;
   padding: 1.25rem 1.5rem;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  ${({ $theme }) => {
+    switch ($theme) {
+      case 'highlight':
+        return `
+          background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
+          box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+          animation: pulse-glow 2s ease-in-out infinite;
+          
+          @keyframes pulse-glow {
+            0%, 100% {
+              box-shadow: 0 4px 20px rgba(249, 115, 22, 0.4);
+            }
+            50% {
+              box-shadow: 0 8px 30px rgba(249, 115, 22, 0.6);
+            }
+          }
+          
+          &:hover {
+            background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+            box-shadow: 0 6px 25px rgba(249, 115, 22, 0.5);
+          }
+          
+          &:focus {
+            outline: 2px solid #fed7aa;
+            outline-offset: 2px;
+          }
+        `;
+      case 'green':
+        return `
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          &:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          }
+          &:focus {
+            outline: 2px solid #d1fae5;
+            outline-offset: 2px;
+          }
+        `;
+      case 'orange':
+        return `
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          &:hover {
+            background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+          }
+          &:focus {
+            outline: 2px solid #fef3c7;
+            outline-offset: 2px;
+          }
+        `;
+      case 'purple':
+        return `
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+          &:hover {
+            background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+          }
+          &:focus {
+            outline: 2px solid #ede9fe;
+            outline-offset: 2px;
+          }
+        `;
+      case 'yellow':
+        return `
+          background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+          &:hover {
+            background: linear-gradient(135deg, #ca8a04 0%, #a16207 100%);
+          }
+          &:focus {
+            outline: 2px solid #fef9c3;
+            outline-offset: 2px;
+          }
+        `;
+      default: // blue
+        return `
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          &:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+          }
+          &:focus {
+            outline: 2px solid #dbeafe;
+            outline-offset: 2px;
+          }
+        `;
+    }
+  }}
   color: white;
   border: none;
   cursor: pointer;
@@ -82,17 +165,8 @@ const HeaderButton = styled.button<{ $variant: string }>`
   justify-content: space-between;
   font-size: 1.1rem;
   font-weight: 600;
-  transition: background 0.2s ease;
+  transition: all 0.3s ease;
   text-align: left;
-
-  &:hover {
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
-  }
-
-  &:focus {
-    outline: 2px solid #dbeafe;
-    outline-offset: 2px;
-  }
 
   ${({ $variant }) => {
     switch ($variant) {
@@ -172,9 +246,17 @@ const ContentArea = styled.div<{ $collapsed: boolean; $variant: string }>`
   }};
   max-height: ${({ $collapsed }) => $collapsed ? '0' : 'none'};
   overflow: ${({ $collapsed }) => $collapsed ? 'hidden' : 'visible'};
-  transition: ${({ $collapsed }) => $collapsed ? 'all 0.3s ease' : 'none'};
+  transition: ${({ $collapsed}) => $collapsed ? 'all 0.3s ease' : 'none'};
   background: #ffffff;
   border-top: ${({ $collapsed }) => $collapsed ? 'none' : '1px solid #f1f5f9'};
+  pointer-events: ${({ $collapsed }) => $collapsed ? 'none' : 'auto'};
+  position: relative;
+  z-index: 1;
+  
+  /* Ensure all child elements can receive pointer events when not collapsed */
+  * {
+    pointer-events: ${({ $collapsed }) => $collapsed ? 'none' : 'auto'};
+  }
 `;
 
 // Icon container
@@ -212,6 +294,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
   defaultCollapsed = false,
   showArrow = true,
   variant = 'default',
+  theme = 'blue',
   children,
   className
 }) => {
@@ -225,6 +308,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
     <CollapsibleHeaderContainer $variant={variant} className={className}>
       <HeaderButton
         $variant={variant}
+        $theme={theme}
         onClick={toggleCollapsed}
         aria-expanded={!isCollapsed}
         aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
@@ -266,6 +350,7 @@ export const BlueCollapsibleHeader = createThemedCollapsibleHeader('blue');
 export const GreenCollapsibleHeader = createThemedCollapsibleHeader('green');
 export const OrangeCollapsibleHeader = createThemedCollapsibleHeader('orange');
 export const PurpleCollapsibleHeader = createThemedCollapsibleHeader('purple');
+export const HighlightCollapsibleHeader = createThemedCollapsibleHeader('highlight');
 
 // Hook for managing collapsible state externally
 export const useCollapsibleState = (defaultCollapsed = false) => {
@@ -289,5 +374,6 @@ export default {
   GreenCollapsibleHeader,
   OrangeCollapsibleHeader,
   PurpleCollapsibleHeader,
+  HighlightCollapsibleHeader,
   useCollapsibleState
 };
