@@ -3,8 +3,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
+	FiBook,
 	FiCheckCircle,
-	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
 	FiInfo,
@@ -13,10 +13,10 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
+import { themeService } from '../../services/themeService'
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import styled from 'styled-components';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -106,27 +106,8 @@ const StepContent = styled.div`
 	padding: 2rem;
 `;
 
-const CollapsibleSection = styled.div`
-	margin-bottom: 1.5rem;
-`;
-
-const CollapsibleHeaderButton = styled.button`
-	width: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 1rem;
-	background-color: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	cursor: pointer;
-	transition: all 0.2s;
-
-	&:hover {
-		background-color: #f1f5f9;
-		border-color: #cbd5e1;
-	}
-`;
+// [REMOVED] Unused CollapsibleSection - migrated to CollapsibleHeader service
+// [REMOVED] Local collapsible styled component
 
 const CollapsibleTitle = styled.h3`
 	font-size: 1rem;
@@ -138,34 +119,9 @@ const CollapsibleTitle = styled.h3`
 	gap: 0.5rem;
 `;
 
-const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
-	${() => themeService.getCollapseIconStyles()}
-	width: 32px;
-	height: 32px;
-	border-radius: 50%;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
-	transition: transform 0.2s ease;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+// [REMOVED] Local collapsible styled component
 
-	svg {
-		width: 16px;
-		height: 16px;
-	}
-
-	&:hover {
-		transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg) scale(1.1)' : 'rotate(180deg) scale(1.1)')};
-	}
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	background-color: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-top: none;
-	border-radius: 0 0 0.5rem 0.5rem;
-`;
+// [REMOVED] Local collapsible styled component
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	display: flex;
@@ -290,6 +246,10 @@ const PingOnePARFlowV6: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(() => 
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep('pingone-par-v6')
 	);
+	
+	// Collapse all sections by default for cleaner UI
+	const shouldCollapseAll = true;
+	
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(() =>
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v6')
 	);
@@ -577,6 +537,29 @@ const PingOnePARFlowV6: React.FC = () => {
 		v4ToastManager.showSuccess('PAR flow reset successfully. Credentials preserved.');
 	}, [controller]);
 
+	const handleStartOver = useCallback(() => {
+		const flowKey = 'pingone-par-v6';
+		sessionStorage.removeItem(`${flowKey}-tokens`);
+		sessionStorage.removeItem(`${flowKey}-authCode`);
+		sessionStorage.removeItem(`${flowKey}-pkce`);
+		sessionStorage.removeItem('oauth_state');
+		sessionStorage.removeItem('restore_step');
+		sessionStorage.removeItem(`redirect_uri_${flowKey}`);
+		
+		setCurrentStep(0);
+		setParRequestUri(null);
+		setParExpiresIn(null);
+		setParError(null);
+		setParApiCall(null);
+		setAuthUrlApiCall(null);
+		controller.clearStepResults();
+		
+		console.log('🔄 [PingOnePARFlowV6] Starting over: cleared tokens/codes, keeping credentials');
+		v4ToastManager.showSuccess('Flow restarted', {
+			description: 'Tokens and codes cleared. Credentials preserved.',
+		});
+	}, [controller]);
+
 	const renderStepContent = useMemo(() => {
 		switch (currentStep) {
 			case 0:
@@ -607,21 +590,13 @@ const PingOnePARFlowV6: React.FC = () => {
 							</div>
 						</InfoBox>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> PAR Flow Detailed Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="PAR Flow Detailed Overview"
+					icon={<FiBook />}
+					theme="yellow"
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
 											<InfoTitle>PAR vs Standard Authorization</InfoTitle>
@@ -644,9 +619,7 @@ const PingOnePARFlowV6: React.FC = () => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 
@@ -729,49 +702,22 @@ const PingOnePARFlowV6: React.FC = () => {
 							title="PAR Flow Configuration"
 							subtitle="Configure your application for Pushed Authorization Requests with enhanced security"
 							showAdvancedConfig={true}
-							defaultCollapsed={false}
+							defaultCollapsed={shouldCollapseAll}
 						/>
 
-						{/* Configuration Summary Card */}
-						{controller.credentials.environmentId && controller.credentials.clientId && (
-							<ConfigurationSummaryCard
-								config={ConfigurationSummaryService.generateSummary(controller.credentials, 'par')}
-								onSave={async () => {
-									await controller.saveCredentials();
-									v4ToastManager.showSuccess('Configuration saved');
-								}}
-								onExport={async (config) => {
-									ConfigurationSummaryService.downloadConfig(config, 'par-config.json');
-								}}
-								onImport={async (importedConfig) => {
-									controller.setCredentials(importedConfig);
-									await controller.saveCredentials();
-								}}
-								flowType="par"
-								showAdvancedFields={false}
-							/>
-						)}
 					</>
 				);
 
 			case 1:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceOverview')}
-								aria-expanded={!collapsedSections.pkceOverview}
-							>
-								<CollapsibleTitle>
-									<FiKey /> PKCE Parameters Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.pkceOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+				title="PKCE Parameters Overview"
+				icon={<FiCheckCircle />}
+				theme="green"
+				defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiKey size={20} />
 										<div>
 											<InfoTitle>PKCE for PAR</InfoTitle>
@@ -782,9 +728,7 @@ const PingOnePARFlowV6: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -831,21 +775,13 @@ const PingOnePARFlowV6: React.FC = () => {
 			case 2:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('parOverview')}
-								aria-expanded={!collapsedSections.parOverview}
-							>
-								<CollapsibleTitle>
-									<FiShield /> PAR Request Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.parOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.parOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+				title="PAR Request Overview"
+				icon={<FiBook />}
+				theme="yellow"
+				defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
 											<InfoTitle>PAR Request Process</InfoTitle>
@@ -856,9 +792,7 @@ const PingOnePARFlowV6: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -947,21 +881,13 @@ const PingOnePARFlowV6: React.FC = () => {
 			case 3:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authRequestOverview')}
-								aria-expanded={!collapsedSections.authRequestOverview}
-							>
-								<CollapsibleTitle>
-									<FiExternalLink /> Authorization URL Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authRequestOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+				title="Authorization URL Overview"
+				icon={<FiCheckCircle />}
+				theme="green"
+				defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiExternalLink size={20} />
 										<div>
 											<InfoTitle>PAR Authorization URL</InfoTitle>
@@ -971,9 +897,7 @@ const PingOnePARFlowV6: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1042,21 +966,13 @@ const PingOnePARFlowV6: React.FC = () => {
 			case 4:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('results')}
-								aria-expanded={!collapsedSections.results}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> PAR Flow Complete
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.results}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.results && (
-								<CollapsibleContent>
-									<InfoBox $variant="success">
+						<CollapsibleHeader
+				title="PAR Flow Complete"
+				icon={<FiCheckCircle />}
+				theme="green"
+				defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="success">
 										<FiCheckCircle size={20} />
 										<div>
 											<InfoTitle>PAR Flow Complete!</InfoTitle>
@@ -1080,9 +996,7 @@ const PingOnePARFlowV6: React.FC = () => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1163,6 +1077,7 @@ const PingOnePARFlowV6: React.FC = () => {
 						onNext={handleNext}
 						onPrevious={handlePrevious}
 						onReset={handleReset}
+						onStartOver={handleStartOver}
 						canNavigateNext={canNavigateNext()}
 						isFirstStep={currentStep === 0}
 					/>
