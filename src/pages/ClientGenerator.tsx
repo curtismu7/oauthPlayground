@@ -541,7 +541,7 @@ const ClientGenerator: React.FC = () => {
 					...formData,
 					grantTypes: ['client_credentials'],
 					responseTypes: [],
-					tokenEndpointAuthMethod: 'client_secret_basic',
+					tokenEndpointAuthMethod: 'client_secret_post',
 					redirectUris: [],
 					postLogoutRedirectUris: [],
 				});
@@ -930,11 +930,21 @@ const ClientGenerator: React.FC = () => {
 								value={formData.tokenEndpointAuthMethod}
 								onChange={(e) => handleInputChange('tokenEndpointAuthMethod', e.target.value)}
 							>
-								<option value="client_secret_basic">Client Secret Basic</option>
-								<option value="client_secret_post">Client Secret Post</option>
-								<option value="client_secret_jwt">Client Secret JWT</option>
-								<option value="private_key_jwt">Private Key JWT</option>
-								<option value="none">None</option>
+								{selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP' ? (
+									<>
+										<option value="none">None (Public Client)</option>
+										<option value="client_secret_basic">Client Secret Basic</option>
+										<option value="client_secret_post">Client Secret Post</option>
+									</>
+								) : (
+									<>
+										<option value="none">None</option>
+										<option value="client_secret_basic">Client Secret Basic</option>
+										<option value="client_secret_post">Client Secret Post</option>
+										<option value="client_secret_jwt">Client Secret JWT</option>
+										<option value="private_key_jwt">Private Key JWT</option>
+									</>
+								)}
 							</Select>
 						</FormGroup>
 
