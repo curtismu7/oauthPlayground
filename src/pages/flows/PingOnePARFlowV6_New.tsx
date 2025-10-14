@@ -19,7 +19,6 @@ import {
 } from 'react-icons/fi';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import { default as LegacyConfigurationSummaryCard } from '../../components/ConfigurationSummaryCard';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -42,6 +41,7 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import FlowStorageService from '../../services/flowStorageService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
@@ -52,8 +52,10 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { getFlowSequence } from '../../services/flowSequenceService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -622,6 +624,10 @@ const PingOnePARFlowV6: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
+	
+	// Collapse all sections by default for cleaner UI
+	const shouldCollapseAll = true;
+	
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [emptyRequiredFields, setEmptyRequiredFields] = useState<Set<string>>(new Set());
 	const [collapsedSections, setCollapsedSections] = useState(
@@ -666,7 +672,7 @@ const PingOnePARFlowV6: React.FC = () => {
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
-		const stored = sessionStorage.getItem('oauth-authorization-code-v5-app-config');
+		const stored = FlowStorageService.FlowState.getCurrentStep('par-v6')?.toString();
 		if (stored) {
 			try {
 				const config = JSON.parse(stored);
@@ -691,14 +697,14 @@ const PingOnePARFlowV6: React.FC = () => {
 				};
 				controller.setCredentials(updatedCredentials);
 			} catch (error) {
-				console.warn('[AuthorizationCodeFlowV5] Failed to parse stored PingOne config:', error);
+				console.warn('[AuthorizationCodeFlowV6] Failed to parse stored PingOne config:', error);
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []); // Only run once on mount
 
 	// Debug: Always log the current authorization code state
-	console.log('🔍 [AuthorizationCodeFlowV5] Current controller.authCode:', {
+	console.log('🔍 [AuthorizationCodeFlowV6] Current controller.authCode:', {
 		hasAuthCode: !!controller.authCode,
 		authCodeLength: controller.authCode?.length || 0,
 		authCodePreview: controller.authCode ? `${controller.authCode.substring(0, 10)}...` : 'Not set',
@@ -713,12 +719,12 @@ const PingOnePARFlowV6: React.FC = () => {
 		const authCode = urlParams.get('code');
 		const error = urlParams.get('error');
 		const urlStep = urlParams.get('step');
-		const storedStep = sessionStorage.getItem('oauth-authorization-code-v5-current-step');
+		const storedStep = FlowStorageService.FlowState.getCurrentStep('par-v6')?.toString();
 
 		// Also check sessionStorage for auth code (from OAuth callback)
-		const sessionAuthCode = sessionStorage.getItem('oauth_auth_code');
+		const sessionAuthCode = FlowStorageService.AuthCode.get('par-v6');
 
-		console.log('🚀 [AuthorizationCodeFlowV5] Initialization check:', {
+		console.log('🚀 [AuthorizationCodeFlowV6] Initialization check:', {
 			hasCode: !!authCode,
 			hasError: !!error,
 			hasUrlStep: !!urlStep,
@@ -730,19 +736,19 @@ const PingOnePARFlowV6: React.FC = () => {
 
 		// Handle OAuth errors first
 		if (error) {
-			console.error('[AuthorizationCodeFlowV5] OAuth error in URL:', error);
+			console.error('[AuthorizationCodeFlowV6] OAuth error in URL:', error);
 			v4ToastManager.showError(`OAuth Error: ${error}`);
 			// Clear URL parameters and reset to step 0
 			window.history.replaceState({}, '', window.location.pathname);
 			setCurrentStep(0);
-			sessionStorage.setItem('oauth-authorization-code-v5-current-step', '0');
+			FlowStorageService.FlowState.setCurrentStep('par-v6', 0);
 			return;
 		}
 
 		// Handle OAuth callback with authorization code - PRIORITY 1
 		const finalAuthCode = authCode || sessionAuthCode;
 		if (finalAuthCode) {
-			console.log('🎉 [AuthorizationCodeFlowV5] Authorization code found!', {
+			console.log('🎉 [AuthorizationCodeFlowV6] Authorization code found!', {
 				source: authCode ? 'URL' : 'sessionStorage',
 				code: `${finalAuthCode.substring(0, 10)}...`,
 			});
@@ -750,15 +756,15 @@ const PingOnePARFlowV6: React.FC = () => {
 			// Also set it in the controller
 			controller.setAuthCodeManually(finalAuthCode);
 			// Show success modal
-			console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
+			console.log('🟢 [AuthorizationCodeFlowV6] Opening LoginSuccessModal');
 			setShowLoginSuccessModal(true);
 			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
 			// Navigate to step 4 and persist it
 			setCurrentStep(4);
-			sessionStorage.setItem('oauth-authorization-code-v5-current-step', '4');
+			FlowStorageService.FlowState.setCurrentStep('par-v6', 4);
 			// Clear URL parameters and sessionStorage
 			window.history.replaceState({}, '', window.location.pathname);
-			sessionStorage.removeItem('oauth_auth_code');
+			FlowStorageService.AuthCode.remove('par-v6');
 			return;
 		}
 
@@ -766,9 +772,9 @@ const PingOnePARFlowV6: React.FC = () => {
 		if (urlStep) {
 			const stepIndex = parseInt(urlStep, 10);
 			if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
-				console.log('🎯 [AuthorizationCodeFlowV5] Using URL step parameter:', stepIndex);
+				console.log('🎯 [AuthorizationCodeFlowV6] Using URL step parameter:', stepIndex);
 				setCurrentStep(stepIndex);
-				sessionStorage.setItem('oauth-authorization-code-v5-current-step', stepIndex.toString());
+				FlowStorageService.FlowState.setCurrentStep('par-v6', stepIndex);
 				return;
 			}
 		}
@@ -777,16 +783,16 @@ const PingOnePARFlowV6: React.FC = () => {
 		if (storedStep) {
 			const stepIndex = parseInt(storedStep, 10);
 			if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
-				console.log('🎯 [AuthorizationCodeFlowV5] Using stored step:', stepIndex);
+				console.log('🎯 [AuthorizationCodeFlowV6] Using stored step:', stepIndex);
 				setCurrentStep(stepIndex);
 				return;
 			}
 		}
 
 		// Default to step 0 for fresh start - PRIORITY 4
-		console.log('🔄 [AuthorizationCodeFlowV5] Fresh start - going to step 0');
+		console.log('🔄 [AuthorizationCodeFlowV6] Fresh start - going to step 0');
 		setCurrentStep(0);
-		sessionStorage.setItem('oauth-authorization-code-v5-current-step', '0');
+		FlowStorageService.FlowState.setCurrentStep('par-v6', 0);
 	}, [
 		// Also set it in the controller
 		controller.setAuthCodeManually,
@@ -794,27 +800,30 @@ const PingOnePARFlowV6: React.FC = () => {
 
 	// Persist current step to session storage
 	useEffect(() => {
-		sessionStorage.setItem('oauth-authorization-code-v5-current-step', currentStep.toString());
+		sessionStorage.setItem('oauth-authorization-code-v6-current-step', currentStep.toString());
 	}, [currentStep]);
 
-	// Additional auth code detection for controller updates (backup)
+	// Show success modal when auth code is received from popup
 	useEffect(() => {
-		// If we just received an auth code from the controller and haven't shown the modal yet
-		if (controller.authCode && !showLoginSuccessModal && !localAuthCode) {
+		// If we just received an auth code from the controller
+		if (controller.authCode && controller.authCode !== localAuthCode) {
 			console.log(
-				'[AuthorizationCodeFlowV5] Auth code detected from controller:',
+				'✅ [PingOnePARFlowV6] Auth code received from popup, showing success modal:',
 				`${controller.authCode.substring(0, 10)}...`
 			);
 
+			// Update local state
+			setLocalAuthCode(controller.authCode);
+			
 			// Show success modal and toast
 			setShowLoginSuccessModal(true);
 			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
 
 			// Navigate to the next step (Token Exchange) and persist it
 			setCurrentStep(4); // Step 4 is Token Exchange
-			sessionStorage.setItem('oauth-authorization-code-v5-current-step', '4');
+			sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
 		}
-	}, [controller.authCode, showLoginSuccessModal, localAuthCode]);
+	}, [controller.authCode, localAuthCode]);
 
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
@@ -906,14 +915,14 @@ const PingOnePARFlowV6: React.FC = () => {
 			clientAuthMethod: 'client_secret_post',
 		});
 		setEmptyRequiredFields(new Set(['environmentId', 'clientId', 'clientSecret', 'redirectUri']));
-		sessionStorage.removeItem('oauth-authorization-code-v5-app-config');
+		sessionStorage.removeItem('oauth-authorization-code-v6-app-config');
 		v4ToastManager.showSuccess('Configuration cleared. Enter PingOne credentials to continue.');
 	}, [controller]);
 
 	const savePingOneConfig = useCallback(
 		(config: PingOneApplicationState) => {
 			setPingOneConfig(config);
-			sessionStorage.setItem('oauth-authorization-code-v5-app-config', JSON.stringify(config));
+			sessionStorage.setItem('oauth-authorization-code-v6-app-config', JSON.stringify(config));
 
 			// Update controller credentials with PingOne configuration
 			const updatedCredentials = {
@@ -966,10 +975,9 @@ const PingOnePARFlowV6: React.FC = () => {
 
 	const handleOpenAuthUrl = useCallback(() => {
 		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
-			console.log('🔧 [AuthorizationCodeFlowV5] About to redirect to PingOne via controller...');
-			controller.handleRedirectAuthorization();
+			console.log('🔧 [PingOnePARFlowV6] User clicked redirect button');
 			setShowRedirectModal(true);
-			setTimeout(() => setShowRedirectModal(false), 2000);
+			// Modal will wait for user to click Continue button
 		}
 	}, [controller]);
 
@@ -1029,7 +1037,7 @@ const PingOnePARFlowV6: React.FC = () => {
 			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
 		} catch (error) {
-			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
+			console.error('[AuthorizationCodeFlowV6] Token exchange failed:', error);
 
 			// Update API call with error response
 			const errorApiCall: EnhancedApiCallData = {
@@ -1137,7 +1145,7 @@ const PingOnePARFlowV6: React.FC = () => {
 			const header = decodeJWTHeader(token);
 			return header.x5t || header['x5t#S256'] || null;
 		} catch (error) {
-			console.warn('[AuthorizationCodeFlowV5] Failed to decode JWT header for x5t:', error);
+			console.warn('[AuthorizationCodeFlowV6] Failed to decode JWT header for x5t:', error);
 			return null;
 		}
 	}, []);
@@ -1155,9 +1163,9 @@ const PingOnePARFlowV6: React.FC = () => {
 			// Use localStorage for cross-tab communication
 			localStorage.setItem('token_to_analyze', controller.tokens.access_token);
 			localStorage.setItem('token_type', 'access');
-			localStorage.setItem('flow_source', 'oauth-authorization-code-v5');
+			localStorage.setItem('flow_source', 'oauth-authorization-code-v6');
 			console.log(
-				'🔍 [AuthorizationCodeFlowV5] Passing access token to Token Management via localStorage'
+				'🔍 [AuthorizationCodeFlowV6] Passing access token to Token Management via localStorage'
 			);
 		}
 
@@ -1180,9 +1188,9 @@ const PingOnePARFlowV6: React.FC = () => {
 			// Use localStorage for cross-tab communication
 			localStorage.setItem('token_to_analyze', controller.tokens.refresh_token);
 			localStorage.setItem('token_type', 'refresh');
-			localStorage.setItem('flow_source', 'oauth-authorization-code-v5');
+			localStorage.setItem('flow_source', 'oauth-authorization-code-v6');
 			console.log(
-				'🔍 [AuthorizationCodeFlowV5] Passing refresh token to Token Management via localStorage'
+				'🔍 [AuthorizationCodeFlowV6] Passing refresh token to Token Management via localStorage'
 			);
 		}
 
@@ -1197,40 +1205,67 @@ const PingOnePARFlowV6: React.FC = () => {
 		setCurrentStep(0);
 	}, [controller]);
 
+	const handleStartOver = useCallback(() => {
+		const flowKey = 'pingone-par-v6';
+		sessionStorage.removeItem(`${flowKey}-tokens`);
+		sessionStorage.removeItem(`${flowKey}-authCode`);
+		sessionStorage.removeItem(`${flowKey}-pkce`);
+		sessionStorage.removeItem('oauth_state');
+		sessionStorage.removeItem('restore_step');
+		sessionStorage.removeItem(`redirect_uri_${flowKey}`);
+		controller.clearStepResults();
+		setCurrentStep(0);
+		console.log('🔄 [PingOnePARFlowV6] Starting over: cleared tokens/codes, keeping credentials');
+		v4ToastManager.showSuccess('Flow restarted', {
+			description: 'Tokens and codes cleared. Credentials preserved.',
+		});
+	}, [controller]);
+
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
+			// Enhanced token introspection with 500ms delay and client secret check
+			// Wait 500ms for PingOne to register token
+			await new Promise(resolve => setTimeout(resolve, 500));
+
 			// Use credentials from the controller (same as the flow uses for token exchange)
 			const credentials = controller.credentials;
 
-			console.log('🔍 [V5 Flow] Using flow credentials for introspection:', {
+			console.log('🔍 [V6 Flow] Using flow credentials for introspection:', {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasClientSecret: !!credentials.clientSecret,
 			});
 
-			if (!credentials.environmentId || !credentials.clientId) {
-				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
+			// Check for required client secret for introspection
+			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+				throw new Error('Client secret required for token introspection. Please configure your credentials first.');
 			}
 
-			const request = {
-				token: token,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
-			};
+		const request = {
+			token: token,
+			clientId: credentials.clientId,
+			clientSecret: credentials.clientSecret,
+			tokenTypeHint: 'access_token' as const
+		};
 
-			try {
-				// Use the reusable service to create API call data and execute introspection
-				const result = await TokenIntrospectionService.introspectToken(
-					request,
-					'authorization-code',
-					'/api/introspect-token'
-				);
-				
-				// Set the API call data for display
-				setIntrospectionApiCall(result.apiCall);
-				
-				return result.response;
+		// Build introspection endpoint from credentials
+		const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+
+		try {
+			// Use the reusable service to create API call data and execute introspection
+			// Use proxy endpoint and pass introspection endpoint as 4th parameter
+			const result = await TokenIntrospectionService.introspectToken(
+				request,
+				'authorization-code',
+				'/api/introspect-token',  // Use proxy endpoint
+				introspectionEndpoint,      // Pass PingOne URL as introspection endpoint
+				'client_secret_post'        // Token auth method
+			);
+			
+			// Set the API call data for display
+			setIntrospectionApiCall(result.apiCall);
+			
+			return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
 				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
@@ -1360,7 +1395,7 @@ const PingOnePARFlowV6: React.FC = () => {
 
 	// Handle next button click with feedback even when disabled
 	const handleNextClick = useCallback(() => {
-		console.log('🔍 [AuthorizationCodeFlowV5] Next button clicked');
+		console.log('🔍 [AuthorizationCodeFlowV6] Next button clicked');
 
 		if (!canNavigateNext()) {
 			v4ToastManager.showError(`Complete the action above to continue.`);
@@ -1387,100 +1422,76 @@ const PingOnePARFlowV6: React.FC = () => {
 						{/* PAR Educational Content */}
 						<EducationalContentService flowType="par" defaultCollapsed={false} />
 						
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> OAuth 2.0 Authorization Code Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiShield size={20} />
-										<div>
-											<InfoTitle>When to Use OAuth 2.0 Authorization Code</InfoTitle>
-											<InfoText>
-												OAuth 2.0 Authorization Code Flow is perfect when you need to access user's resources 
-												on their behalf without needing to authenticate them or know their identity.
-											</InfoText>
-										</div>
-									</InfoBox>
-									<FlowSuitability>
-										<SuitabilityCard $variant="success">
-											<InfoTitle>Great Fit</InfoTitle>
-											<ul>
-												<li>Web apps with backend session storage</li>
-												<li>SPAs or native apps using PKCE</li>
-												<li>Hybrid flows that need refresh tokens</li>
-											</ul>
-										</SuitabilityCard>
-										<SuitabilityCard $variant="warning">
-											<InfoTitle>Consider Alternatives</InfoTitle>
-											<ul>
-												<li>Machine-to-machine workloads (Client Credentials)</li>
-												<li>IoT or low-input devices (Device Authorization)</li>
-											</ul>
-										</SuitabilityCard>
-										<SuitabilityCard $variant="danger">
-											<InfoTitle>Avoid When</InfoTitle>
-											<ul>
-												<li>Secrets cannot be protected at all</li>
-												<li>You just need simple backend API access</li>
-											</ul>
-										</SuitabilityCard>
-									</FlowSuitability>
+						<CollapsibleHeader
+							title="OAuth 2.0 Authorization Code Overview"
+							icon={<FiInfo />}
+							defaultCollapsed={shouldCollapseAll}
+							showArrow={true}
+						>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>When to Use OAuth 2.0 Authorization Code</InfoTitle>
+									<InfoText>
+										OAuth 2.0 Authorization Code Flow is perfect when you need to access user's resources 
+										on their behalf without needing to authenticate them or know their identity.
+									</InfoText>
+								</div>
+							</InfoBox>
+							<FlowSuitability>
+								<SuitabilityCard $variant="success">
+									<InfoTitle>Great Fit</InfoTitle>
+									<ul>
+										<li>Web apps with backend session storage</li>
+										<li>SPAs or native apps using PKCE</li>
+										<li>Hybrid flows that need refresh tokens</li>
+									</ul>
+								</SuitabilityCard>
+								<SuitabilityCard $variant="warning">
+									<InfoTitle>Consider Alternatives</InfoTitle>
+									<ul>
+										<li>Machine-to-machine workloads (Client Credentials)</li>
+										<li>IoT or low-input devices (Device Authorization)</li>
+									</ul>
+								</SuitabilityCard>
+								<SuitabilityCard $variant="danger">
+									<InfoTitle>Avoid When</InfoTitle>
+									<ul>
+										<li>Secrets cannot be protected at all</li>
+										<li>You just need simple backend API access</li>
+									</ul>
+								</SuitabilityCard>
+							</FlowSuitability>
 
-									<GeneratedContentBox style={{ marginTop: '2rem' }}>
-										<GeneratedLabel>OAuth vs OIDC Authorization Code</GeneratedLabel>
-										<ParameterGrid>
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Tokens Returned</ParameterLabel>
-												<ParameterValue>Access Token + Refresh Token (no ID Token)</ParameterValue>
-											</div>
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Purpose</ParameterLabel>
-												<ParameterValue>Authorization (API access)</ParameterValue>
-											</div>
-											<div>
-												<ParameterLabel>Spec Layer</ParameterLabel>
-												<ParameterValue>Defined in OAuth 2.0</ParameterValue>
-											</div>
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Use Case</ParameterLabel>
-												<ParameterValue>
-													API authorization without user identity requirements
-												</ParameterValue>
-											</div>
-										</ParameterGrid>
-									</GeneratedContentBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+							<GeneratedContentBox style={{ marginTop: '2rem' }}>
+								<GeneratedLabel>OAuth vs OIDC Authorization Code</GeneratedLabel>
+								<ParameterGrid>
+									<div style={{ gridColumn: '1 / -1' }}>
+										<ParameterLabel>Tokens Returned</ParameterLabel>
+										<ParameterValue>Access Token + Refresh Token (no ID Token)</ParameterValue>
+									</div>
+									<div style={{ gridColumn: '1 / -1' }}>
+										<ParameterLabel>Purpose</ParameterLabel>
+										<ParameterValue>Authorization (API access)</ParameterValue>
+									</div>
+									<div>
+										<ParameterLabel>Spec Layer</ParameterLabel>
+										<ParameterValue>Defined in OAuth 2.0</ParameterValue>
+									</div>
+									<div style={{ gridColumn: '1 / -1' }}>
+										<ParameterLabel>Use Case</ParameterLabel>
+										<ParameterValue>
+											API authorization without user identity requirements
+										</ParameterValue>
+									</div>
+								</ParameterGrid>
+							</GeneratedContentBox>
+					</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('credentials')}
-								aria-expanded={!collapsedSections.credentials}
-							>
-								<CollapsibleTitle>
-									<FiSettings /> Application Configuration & Credentials
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.credentials && (
-								<CollapsibleContent>
-								<ComprehensiveCredentialsService
+						<ComprehensiveCredentialsService
 									// Discovery props
 									onDiscoveryComplete={(result) => {
-										console.log('[OAuth Authz V5] Discovery completed:', result);
+										console.log('[OAuth Authz V6] Discovery completed:', result);
 										// Extract environment ID from issuer URL if available
 										if (result.issuerUrl) {
 											const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
@@ -1499,7 +1510,7 @@ const PingOnePARFlowV6: React.FC = () => {
 									redirectUri={credentials.redirectUri || 'https://localhost:3000/authz-callback'}
 									scopes={credentials.scopes || credentials.scope || ''}
 									loginHint={credentials.loginHint || ''}
-									postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
+									postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 									
 									// Change handlers
 									onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
@@ -1526,227 +1537,52 @@ const PingOnePARFlowV6: React.FC = () => {
 									// UI config
 									title="OAuth Authorization Code Configuration"
 									subtitle="Configure your application settings and credentials"
-									showAdvancedConfig={true}
-									defaultCollapsed={false}
-								/>
-
-
-								<ActionRow>
-									<Button onClick={handleSaveConfiguration} $variant="primary">
-										<FiSettings /> Save Configuration
-									</Button>
-									<Button onClick={handleClearConfiguration} $variant="danger">
-										<FiRefreshCw /> Clear Configuration
-									</Button>
-								</ActionRow>
-
-									<InfoBox $variant="warning" style={{ marginTop: '2rem', color: '#92400e' }}>
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle style={{ color: '#92400e' }}>Testing vs Production</InfoTitle>
-											<InfoText style={{ color: '#92400e' }}>
-												This saves credentials locally for demos only. Remove secrets before
-												production.
-											</InfoText>
-										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+								showAdvancedConfig={true} // ✅ PAR is the PRIMARY feature of this flow
+								defaultCollapsed={shouldCollapseAll}
+							/>
 
 						<EnhancedFlowWalkthrough flowId="oauth-authorization-code" />
 
 						<FlowSequenceDisplay flowType="authorization-code" />
 
-						{/* Legacy Configuration Summary Card */}
-						<LegacyConfigurationSummaryCard
-							configuration={credentials}
-							onSaveConfiguration={handleSaveConfiguration}
-							onLoadConfiguration={(config) => {
-								if (config) {
-									controller.setCredentials(config);
-								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
-							}}
-							primaryColor="#3b82f6"
-							flowType="authorization-code"
-						/>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('results')}
-								aria-expanded={!collapsedSections.results}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Saved Configuration Summary
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.results}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.results && (
-								<CollapsibleContent>
-									<SectionDivider />
-									<ResultsSection>
-										<ResultsHeading>
-											<FiCheckCircle size={18} /> Configuration Status
-										</ResultsHeading>
-										<HelperText>
-											Save your PingOne credentials so they auto-populate in subsequent steps.
-										</HelperText>
-										{stepCompletions[0] ? (
-											<GeneratedContentBox>
-												<GeneratedLabel>Saved</GeneratedLabel>
-												<ParameterGrid style={{ gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-													<div>
-														<ParameterLabel>ENVIRONMENT ID</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.environmentId || 'Not provided'}
-														</ParameterValue>
-													</div>
-													<div>
-														<ParameterLabel>CLIENT ID</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.clientId || 'Not provided'}
-														</ParameterValue>
-													</div>
-													<div>
-														<ParameterLabel>CLIENT SECRET</ParameterLabel>
-														<div style={{ position: 'relative' }}>
-															<ParameterValue
-																style={{
-																	fontFamily: 'monospace',
-																	wordBreak: 'break-all',
-																	padding: '0.75rem',
-																	paddingRight: '2.5rem',
-																	background: '#f8fafc',
-																	border: '1px solid #e2e8f0',
-																	borderRadius: '0.375rem',
-																}}
-															>
-																{credentials.clientSecret
-																	? showSavedSecret
-																		? credentials.clientSecret
-																		: '•'.repeat(credentials.clientSecret.length)
-																	: 'Not provided'}
-															</ParameterValue>
-															{credentials.clientSecret && (
-																<button
-																	type="button"
-																	onClick={() => setShowSavedSecret(!showSavedSecret)}
-																	style={{
-																		position: 'absolute',
-																		right: '0.75rem',
-																		top: '50%',
-																		transform: 'translateY(-50%)',
-																		background: 'none',
-																		border: 'none',
-																		cursor: 'pointer',
-																		color: '#6b7280',
-																		display: 'flex',
-																		alignItems: 'center',
-																		justifyContent: 'center',
-																	}}
-																	title={
-																		showSavedSecret ? 'Hide client secret' : 'Show client secret'
-																	}
-																>
-																	{showSavedSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-																</button>
-															)}
-														</div>
-													</div>
-													<div>
-														<ParameterLabel>REDIRECT URI</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.redirectUri || 'Not provided'}
-														</ParameterValue>
-													</div>
-												</ParameterGrid>
-											</GeneratedContentBox>
-										) : (
-											<HelperText>
-												Save your configuration above to persist it for future sessions.
-											</HelperText>
-										)}
-									</ResultsSection>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 					</>
 				);
 
 			case 1:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceOverview')}
-								aria-expanded={!collapsedSections.pkceOverview}
-							>
-								<CollapsibleTitle>
-									<FiShield /> What is PKCE?
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.pkceOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
-										<FiShield size={20} />
-										<div>
-											<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
-											<InfoText>
-												PKCE is a security extension for OAuth 2.0 that prevents authorization code
-												interception attacks. It's required for public clients (like mobile apps)
-												and highly recommended for all OAuth flows.
-											</InfoText>
-										</div>
-									</InfoBox>
+						<CollapsibleHeader
+							title="What is PKCE?"
+							icon={<FiShield />}
+							defaultCollapsed={shouldCollapseAll}
+							showArrow={true}
+						>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
+									<InfoText>
+										PKCE is a security extension for OAuth 2.0 that prevents authorization code
+										interception attacks. It's required for public clients (like mobile apps)
+										and highly recommended for all OAuth flows.
+									</InfoText>
+								</div>
+							</InfoBox>
 
-									<InfoBox $variant="warning">
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
-											<InfoText>
-												Without PKCE, if an attacker intercepts your authorization code (through app
-												redirects, network sniffing, or malicious apps), they could exchange it for
-												tokens. PKCE prevents this by requiring proof that the same client that
-												started the flow is finishing it.
-											</InfoText>
-										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
+									<InfoText>
+										Without PKCE, if an attacker intercepts your authorization code (through app
+										redirects, network sniffing, or malicious apps), they could exchange it for
+										tokens. PKCE prevents this by requiring proof that the same client that
+										started the flow is finishing it.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleHeader>
 
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
@@ -2586,9 +2422,11 @@ const PingOnePARFlowV6: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="pingone-par-v6" />
+		<FlowHeader flowId="pingone-par-v6" />
 
-				<EnhancedFlowInfoCard
+		{currentStep === 0 && AdvancedParametersSectionService.getSimpleSection('oauth-authorization-code')}
+
+		<EnhancedFlowInfoCard
 					flowType="oauth-authorization-code"
 					showAdditionalInfo={true}
 					showDocumentation={true}
@@ -2634,6 +2472,7 @@ const PingOnePARFlowV6: React.FC = () => {
 				totalSteps={STEP_METADATA.length}
 				onPrevious={handlePrev}
 				onReset={handleResetFlow}
+				onStartOver={handleStartOver}
 				onNext={handleNextClick}
 				canNavigateNext={canNavigateNext()}
 				isFirstStep={currentStep === 0}
@@ -2641,45 +2480,43 @@ const PingOnePARFlowV6: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-			{AuthenticationModalService.showModal(
-				showRedirectModal,
-				() => setShowRedirectModal(false),
-				() => {
-					console.log('🔧 [PingOnePARFlowV6] Continuing to PingOne authentication');
-					setShowRedirectModal(false);
-					// The controller will handle the actual redirect
-					if (controller.authUrl) {
-						window.open(controller.authUrl, 'PingOneAuth', 'width=600,height=700,left=' + (window.screen.width / 2 - 300) + ',top=' + (window.screen.height / 2 - 350) + ',resizable=yes,scrollbars=yes,status=yes');
-					}
-				},
+		{AuthenticationModalService.showModal(
+			showRedirectModal,
+			() => setShowRedirectModal(false),
+			() => {
+				console.log('🔧 [PingOnePARFlowV6] User clicked Continue - modal service will handle popup opening');
+				setShowRedirectModal(false);
+				// Modal service handles the popup opening - DO NOT call controller.handleRedirectAuthorization()
+				// The modal service will call window.open() in popup mode
+			},
 				controller.authUrl || '',
 				'par',
 				'PingOne PAR Flow',
-				{
-					description: 'You\'re about to be redirected to PingOne for Pushed Authorization Request (PAR) authentication. This enhanced security flow pushes authorization parameters via a back-channel.',
-					redirectMode: 'popup'
-				}
+			{
+				description: 'You\'re about to be redirected to PingOne for Pushed Authorization Request (PAR) authentication. This enhanced security flow pushes authorization parameters via a back-channel.',
+				redirectMode: 'redirect'
+			}
 			)}
 
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
 				onClose={() => {
-					console.log('🔴 [AuthorizationCodeFlowV5] Closing LoginSuccessModal', {
+					console.log('🔴 [AuthorizationCodeFlowV6] Closing LoginSuccessModal', {
 						currentStep,
 						hasAuthCode: !!(controller.authCode || localAuthCode),
-						storedStep: sessionStorage.getItem('oauth-authorization-code-v5-current-step'),
+						storedStep: sessionStorage.getItem('oauth-authorization-code-v6-current-step'),
 					});
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
-						console.log('🔧 [AuthorizationCodeFlowV5] Correcting step to 4 after modal close');
+						console.log('🔧 [AuthorizationCodeFlowV6] Correcting step to 4 after modal close');
 						setCurrentStep(4);
-						sessionStorage.setItem('oauth-authorization-code-v5-current-step', '4');
+						sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
 					}
 				}}
 				title="Login Successful!"
-				message="You have been successfully authenticated with PingOne. Your authorization code has been received and you can now proceed to exchange it for tokens."
-				autoCloseDelay={5000}
+				message="You have been successfully authenticated with PingOne. Your authorization code has been received. Click 'Continue' below to proceed to the token exchange step."
+				autoCloseDelay={0}
 			/>
 		</Container>
 	);

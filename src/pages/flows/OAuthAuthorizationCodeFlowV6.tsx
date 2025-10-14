@@ -1347,6 +1347,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
+			// Wait 500ms for PingOne to register token
+			await new Promise(resolve => setTimeout(resolve, 500));
+			
 			// Use credentials from the controller (same as the flow uses for token exchange)
 			const credentials = controller.credentials;
 
@@ -1356,8 +1359,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				hasClientSecret: !!credentials.clientSecret,
 			});
 
-			if (!credentials.environmentId || !credentials.clientId) {
-				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
+			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+				throw new Error('Client secret required for token introspection. Please configure your credentials first.');
 			}
 
 			const request = {
@@ -1372,7 +1375,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				const result = await TokenIntrospectionService.introspectToken(
 					request,
 					'authorization-code',
-					'/api/introspect-token'
+					'/api/introspect-token',
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`,
+					'client_secret_post'
 				);
 				
 				// Set the API call data for display
@@ -1650,7 +1655,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									redirectUri={credentials.redirectUri || 'https://localhost:3000/authz-callback'}
 									scopes={credentials.scopes || credentials.scope || ''}
 									loginHint={credentials.loginHint || ''}
-									postLogoutRedirectUri={credentials.postLogoutRedirectUri || ''}
+									postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 									
 									// Change handlers
 									onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
@@ -1688,7 +1693,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 								// UI config
 								title="Application Configuration & Credentials"
 								subtitle="Configure your application settings and credentials"
-								showAdvancedConfig={true}
+								showAdvancedConfig={true} // ✅ PAR, PKCE enforcement, response types applicable
 								defaultCollapsed={false}
 							/>
 

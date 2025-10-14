@@ -1,0 +1,832 @@
+/* UI Settings Theme System */
+
+/* Base CSS Variables */
+:root {
+	/* Font Size Variables */
+	--font-size-xs: 0.75rem;
+	--font-size-sm: 0.875rem;
+	--font-size-base: 1rem;
+	--font-size-lg: 1.125rem;
+	--font-size-xl: 1.25rem;
+	--font-size-2xl: 1.5rem;
+	--font-size-3xl: 1.875rem;
+
+	/* Color Scheme Variables - Blue (Default) */
+	--color-primary: #3b82f6;
+	--color-primary-dark: #2563eb;
+	--color-primary-light: #60a5fa;
+	--color-primary-bg: #dbeafe;
+	--color-primary-text: #1e40af;
+
+	/* Light Mode Colors */
+	--color-background: #ffffff;
+	--color-surface: #f8fafc;
+	--color-border: #e2e8f0;
+	--color-text-primary: #1e293b;
+	--color-text-secondary: #64748b;
+	--color-text-muted: #94a3b8;
+}
+
+/* Font Size Classes */
+.font-small {
+	--font-size-xs: 0.6875rem;
+	--font-size-sm: 0.75rem;
+	--font-size-base: 0.875rem;
+	--font-size-lg: 1rem;
+	--font-size-xl: 1.125rem;
+	--font-size-2xl: 1.25rem;
+	--font-size-3xl: 1.5rem;
+}
+
+.font-medium {
+	/* Default sizes - already defined in :root */
+	font-size: var(--font-size-base);
+}
+
+.font-large {
+	--font-size-xs: 0.875rem;
+	--font-size-sm: 1rem;
+	--font-size-base: 1.125rem;
+	--font-size-lg: 1.25rem;
+	--font-size-xl: 1.5rem;
+	--font-size-2xl: 1.875rem;
+	--font-size-3xl: 2.25rem;
+}
+
+/* Dark Mode */
+.dark-mode {
+	--color-background: #0f172a;
+	--color-surface: #1e293b;
+	--color-border: #334155;
+	--color-text-primary: #f1f5f9;
+	--color-text-secondary: #cbd5e1;
+	--color-text-muted: #94a3b8;
+}
+
+/* Color Schemes */
+.color-blue {
+	--color-primary: #3b82f6;
+	--color-primary-dark: #2563eb;
+	--color-primary-light: #60a5fa;
+	--color-primary-bg: #dbeafe;
+	--color-primary-text: #1e40af;
+}
+
+.color-green {
+	--color-primary: #22c55e;
+	--color-primary-dark: #16a34a;
+	--color-primary-light: #4ade80;
+	--color-primary-bg: #dcfce7;
+	--color-primary-text: #166534;
+}
+
+.color-purple {
+	--color-primary: #8b5cf6;
+	--color-primary-dark: #7c3aed;
+	--color-primary-light: #a78bfa;
+	--color-primary-bg: #ede9fe;
+	--color-primary-text: #5b21b6;
+}
+
+.color-orange {
+	--color-primary: #f97316;
+	--color-primary-dark: #ea580c;
+	--color-primary-light: #fb923c;
+	--color-primary-bg: #fed7aa;
+	--color-primary-text: #c2410c;
+}
+
+.color-red {
+	--color-primary: #ef4444;
+	--color-primary-dark: #dc2626;
+	--color-primary-light: #f87171;
+	--color-primary-bg: #fee2e2;
+	--color-primary-text: #b91c1c;
+}
+
+/* Apply theme variables to common elements */
+body {
+	background-color: var(--color-background);
+	color: var(--color-text-primary);
+	font-size: var(--font-size-base);
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease;
+}
+
+/* Button theming */
+button[data-theme="primary"] {
+	background-color: var(--color-primary);
+	border-color: var(--color-primary);
+	color: white;
+}
+
+button[data-theme="primary"]:hover {
+	background-color: var(--color-primary-dark);
+	border-color: var(--color-primary-dark);
+}
+
+/* Input theming */
+input:focus,
+select:focus,
+textarea:focus {
+	border-color: var(--color-primary);
+	box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+/* Card theming */
+.ui-card {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	color: var(--color-text-primary);
+}
+
+/* Text size utilities */
+.text-xs {
+	font-size: var(--font-size-xs);
+}
+.text-sm {
+	font-size: var(--font-size-sm);
+}
+.text-base {
+	font-size: var(--font-size-base);
+}
+.text-lg {
+	font-size: var(--font-size-lg);
+}
+.text-xl {
+	font-size: var(--font-size-xl);
+}
+.text-2xl {
+	font-size: var(--font-size-2xl);
+}
+.text-3xl {
+	font-size: var(--font-size-3xl);
+}
+
+/* Color utilities */
+.text-primary {
+	color: var(--color-primary);
+}
+.text-primary-dark {
+	color: var(--color-primary-dark);
+}
+.text-muted {
+	color: var(--color-text-muted);
+}
+.text-secondary {
+	color: var(--color-text-secondary);
+}
+
+.bg-primary {
+	background-color: var(--color-primary);
+}
+.bg-primary-light {
+	background-color: var(--color-primary-bg);
+}
+.bg-surface {
+	background-color: var(--color-surface);
+}
+
+.border-primary {
+	border-color: var(--color-primary);
+}
+.border-default {
+	border-color: var(--color-border);
+}
+
+/* Dark mode specific adjustments */
+.dark-mode .ui-card {
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode button[data-theme="primary"] {
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Smooth transitions for theme changes */
+* {
+	transition:
+		background-color 0.3s ease,
+		border-color 0.3s ease,
+		color 0.3s ease;
+}
+
+/* Collapsible sections theming */
+.collapsible-section {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+}
+
+.collapsible-header {
+	background-color: var(--color-background);
+	border-bottom: 1px solid var(--color-border);
+}
+
+.collapsible-content {
+	background-color: var(--color-surface);
+}
+
+/* Code and pre elements */
+pre,
+code {
+	background-color: var(--color-surface);
+	border: 1px solid var(--color-border);
+	color: var(--color-text-primary);
+}
+
+.dark-mode pre,
+.dark-mode code {
+	background-color: #1a202c;
+	border-color: #2d3748;
+}
+
+/* Toast/notification theming */
+.toast-success {
+	background-color: var(--color-primary-bg);
+	border-color: var(--color-primary);
+	color: var(--color-primary-text);
+}
+
+/* Modal theming */
+.modal-overlay {
+	background-color: rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .modal-overlay {
+	background-color: rgba(0, 0, 0, 0.7);
+}
+
+.modal-content {
+	background-color: var(--color-background);
+	border: 1px solid var(--color-border);
+	color: var(--color-text-primary);
+}
+
+/* Focus indicators */
+.focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+/* Loading states */
+.loading-spinner {
+	border-color: var(--color-border);
+	border-top-color: var(--color-primary);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+	:root {
+		--color-border: #000000;
+		--color-text-primary: #000000;
+	}
+
+	.dark-mode {
+		--color-border: #ffffff;
+		--color-text-primary: #ffffff;
+	}
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+	* {
+		transition: none !important;
+		animation: none !important;
+	}
+}
+
+/* Header and Navigation Color Scheme Support */
+/* Apply primary color to main headers and navigation */
+header,
+nav,
+.header,
+.navigation {
+	background: linear-gradient(
+		135deg,
+		var(--color-primary) 0%,
+		var(--color-primary-dark) 100%
+	) !important;
+}
+
+/* Exception: Buttons inside headers should remain visible - SOLID STYLE */
+header button,
+header a,
+nav button,
+nav a,
+.header button,
+.header a,
+.navigation button,
+.navigation a,
+header [class*="Button"],
+nav [class*="Button"],
+header [class*="button"],
+nav [class*="button"],
+[class*="header"] button,
+[class*="Header"] button,
+[class*="nav"] button,
+[class*="Nav"] button {
+	background: white !important;
+	color: var(--color-primary) !important;
+	border: 2px solid white !important;
+	text-decoration: none !important;
+	font-weight: 700 !important;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+header button:hover,
+header a:hover,
+nav button:hover,
+nav a:hover,
+.header button:hover,
+.header a:hover,
+.navigation button:hover,
+.navigation a:hover,
+[class*="header"] button:hover,
+[class*="Header"] button:hover,
+[class*="nav"] button:hover,
+[class*="Nav"] button:hover {
+	background: #f8f9fa !important;
+	color: var(--color-primary-dark) !important;
+	border-color: #f8f9fa !important;
+	transform: translateY(-2px) !important;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Dashboard header gradient */
+.dashboard-header h1,
+h1[style*="gradient"] {
+	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)) !important;
+	-webkit-background-clip: text !important;
+	-webkit-text-fill-color: transparent !important;
+	background-clip: text !important;
+}
+
+/* Buttons with primary variant */
+button[class*="primary"],
+.btn-primary,
+[class*="Button"][class*="primary"] {
+	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)) !important;
+	border-color: var(--color-primary) !important;
+}
+
+button[class*="primary"]:hover,
+.btn-primary:hover {
+	background: linear-gradient(135deg, var(--color-primary-dark), var(--color-primary)) !important;
+	transform: translateY(-1px);
+}
+
+/* Collapsible Icon - use primary color */
+[class*="CollapsibleIcon"],
+.collapsible-icon {
+	background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark)) !important;
+}
+
+/* Links and accents */
+a:not([class*="nav"]) {
+	color: var(--color-primary) !important;
+}
+
+a:hover {
+	color: var(--color-primary-dark) !important;
+}
+
+/* Status badges */
+[class*="StatusBadge"],
+.status-badge {
+	border-color: var(--color-primary) !important;
+}
+
+/* Progress indicators */
+[class*="progress"],
+.progress-bar {
+	background-color: var(--color-primary) !important;
+}
+
+/* Active/selected states */
+[class*="active"],
+.active,
+[aria-selected="true"] {
+	border-color: var(--color-primary) !important;
+	background-color: var(--color-primary-bg) !important;
+	color: var(--color-primary-text) !important;
+}
+
+/* Focus states */
+*:focus-visible {
+	outline-color: var(--color-primary) !important;
+	box-shadow: 0 0 0 3px var(--color-primary-bg) !important;
+}
+
+/* Font Size Application - Apply to all content areas */
+/* Main content containers */
+main,
+article,
+section,
+.content,
+[class*="Content"],
+[class*="Wrapper"] {
+	font-size: var(--font-size-base) !important;
+}
+
+/* Headings with responsive font sizes */
+h1,
+[class*="Title"]:not([class*="Card"]):not([class*="Info"]) {
+	font-size: var(--font-size-3xl) !important;
+}
+
+h2,
+[class*="Heading"] {
+	font-size: var(--font-size-2xl) !important;
+}
+
+h3,
+[class*="Subtitle"] {
+	font-size: var(--font-size-xl) !important;
+}
+
+h4 {
+	font-size: var(--font-size-lg) !important;
+}
+
+h5,
+h6 {
+	font-size: var(--font-size-base) !important;
+}
+
+/* Paragraphs and text content */
+p,
+li,
+td,
+th,
+label,
+span:not([class*="Icon"]) {
+	font-size: var(--font-size-base) !important;
+}
+
+/* Small text elements */
+small,
+.text-small,
+[class*="Helper"],
+[class*="Caption"] {
+	font-size: var(--font-size-sm) !important;
+}
+
+/* Buttons */
+button,
+.button,
+[class*="Button"] {
+	font-size: var(--font-size-sm) !important;
+}
+
+/* Input fields */
+input,
+select,
+textarea {
+	font-size: var(--font-size-base) !important;
+}
+
+/* Code blocks - slightly smaller */
+code,
+pre,
+[class*="Code"] {
+	font-size: var(--font-size-sm) !important;
+}
+
+/* Info boxes and cards */
+[class*="InfoText"],
+[class*="InfoTitle"],
+[class*="CardText"] {
+	font-size: var(--font-size-base) !important;
+}
+
+/* Parameter labels and values */
+[class*="ParameterLabel"],
+[class*="Label"] {
+	font-size: var(--font-size-xs) !important;
+}
+
+[class*="ParameterValue"],
+[class*="Value"] {
+	font-size: var(--font-size-sm) !important;
+}
+
+/* Modal content */
+[class*="Modal"] p,
+[class*="Modal"] span {
+	font-size: var(--font-size-base) !important;
+}
+
+[class*="ModalTitle"] {
+	font-size: var(--font-size-xl) !important;
+}
+
+/* Navigation and sidebar */
+nav a,
+nav button,
+[class*="NavItem"],
+[class*="MenuItem"] {
+	font-size: var(--font-size-sm) !important;
+}
+
+/* Badges and tags */
+[class*="Badge"],
+[class*="Tag"],
+[class*="Chip"] {
+	font-size: var(--font-size-xs) !important;
+}
+
+/* Toast messages */
+[class*="Toast"],
+[class*="Notification"] {
+	font-size: var(--font-size-sm) !important;
+}
+
+/* ========================================
+   DARK MODE COMPREHENSIVE SUPPORT
+   ======================================== */
+
+/* Main backgrounds and surfaces */
+.dark-mode body,
+.dark-mode main,
+.dark-mode [class*="Container"],
+.dark-mode [class*="Wrapper"] {
+	background-color: var(--color-background) !important;
+	color: var(--color-text-primary) !important;
+}
+
+/* Cards and panels */
+.dark-mode [class*="Card"],
+.dark-mode [class*="Panel"],
+.dark-mode [class*="Section"],
+.dark-mode [class*="Box"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+/* Headers and titles */
+.dark-mode h1,
+.dark-mode h2,
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode h5,
+.dark-mode h6,
+.dark-mode [class*="Title"],
+.dark-mode [class*="Heading"] {
+	color: var(--color-text-primary) !important;
+}
+
+/* Text content */
+.dark-mode p,
+.dark-mode span,
+.dark-mode li,
+.dark-mode td,
+.dark-mode th,
+.dark-mode label,
+.dark-mode [class*="Text"] {
+	color: var(--color-text-primary) !important;
+}
+
+/* Muted/secondary text */
+.dark-mode [class*="Helper"],
+.dark-mode [class*="Caption"],
+.dark-mode [class*="Subtitle"],
+.dark-mode small {
+	color: var(--color-text-secondary) !important;
+}
+
+/* Input fields */
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+.dark-mode input::placeholder,
+.dark-mode textarea::placeholder {
+	color: var(--color-text-muted) !important;
+}
+
+/* Buttons - preserve primary color but adjust others */
+.dark-mode button:not([class*="primary"]),
+.dark-mode [class*="Button"]:not([class*="primary"]) {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+.dark-mode button:not([class*="primary"]):hover,
+.dark-mode [class*="Button"]:not([class*="primary"]):hover {
+	background-color: var(--color-border) !important;
+}
+
+/* Code blocks */
+.dark-mode pre,
+.dark-mode code,
+.dark-mode [class*="Code"] {
+	background-color: #1a202c !important;
+	border-color: var(--color-border) !important;
+	color: #e2e8f0 !important;
+}
+
+/* Tables */
+.dark-mode table {
+	border-color: var(--color-border) !important;
+}
+
+.dark-mode th {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+}
+
+.dark-mode td {
+	border-color: var(--color-border) !important;
+}
+
+.dark-mode tr:hover {
+	background-color: var(--color-surface) !important;
+}
+
+/* Modals and overlays */
+.dark-mode [class*="Modal"],
+.dark-mode [class*="Dialog"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+.dark-mode [class*="Overlay"] {
+	background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Collapsible sections */
+.dark-mode [class*="Collapsible"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+}
+
+.dark-mode [class*="CollapsibleHeader"] {
+	background-color: var(--color-background) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+.dark-mode [class*="CollapsibleContent"] {
+	background-color: var(--color-surface) !important;
+}
+
+/* Info boxes - adjust for dark mode */
+.dark-mode [class*="InfoBox"],
+.dark-mode [class*="Alert"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-primary) !important;
+	color: var(--color-text-primary) !important;
+}
+
+/* Generated content boxes */
+.dark-mode [class*="Generated"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-primary) !important;
+}
+
+/* Parameter displays */
+.dark-mode [class*="ParameterValue"],
+.dark-mode [class*="Value"] {
+	background-color: var(--color-background) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+/* Links */
+.dark-mode a {
+	color: var(--color-primary-light) !important;
+}
+
+.dark-mode a:hover {
+	color: var(--color-primary) !important;
+}
+
+/* Badges and status indicators */
+.dark-mode [class*="Badge"],
+.dark-mode [class*="Tag"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+/* Sidebar and navigation - CRITICAL FIX */
+.dark-mode aside,
+.dark-mode nav,
+.dark-mode [class*="Sidebar"],
+.dark-mode [class*="Navigation"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+}
+
+/* Sidebar container specific */
+.dark-mode aside[class*="Sidebar"] {
+	background-color: #1e293b !important;
+}
+
+/* Navigation section titles */
+.dark-mode [class*="NavSection"] h3,
+.dark-mode [class*="SectionTitle"] {
+	color: var(--color-text-secondary) !important;
+}
+
+/* Navigation items - not active */
+.dark-mode [class*="NavItem"]:not([class*="active"]),
+.dark-mode [class*="MenuItem"]:not([class*="active"]),
+.dark-mode a[class*="NavItem"]:not([class*="active"]) {
+	color: var(--color-text-primary) !important;
+	background-color: transparent !important;
+}
+
+/* Navigation items - hover state */
+.dark-mode [class*="NavItem"]:not([class*="active"]):hover,
+.dark-mode [class*="MenuItem"]:not([class*="active"]):hover,
+.dark-mode a[class*="NavItem"]:not([class*="active"]):hover {
+	background-color: var(--color-border) !important;
+	color: var(--color-primary-light) !important;
+}
+
+/* Navigation items - active state (preserve primary color) */
+.dark-mode [class*="NavItem"][class*="active"],
+.dark-mode [class*="MenuItem"][class*="active"],
+.dark-mode a[class*="NavItem"][class*="active"] {
+	background-color: var(--color-primary) !important;
+	color: white !important;
+}
+
+/* Navigation item icons */
+.dark-mode [class*="NavItem"] svg,
+.dark-mode [class*="MenuItem"] svg {
+	color: inherit !important;
+}
+
+/* Submenu items */
+.dark-mode [class*="Submenu"],
+.dark-mode [class*="SubNav"] {
+	background-color: var(--color-background) !important;
+}
+
+.dark-mode [class*="Submenu"] [class*="NavItem"],
+.dark-mode [class*="SubNav"] [class*="NavItem"] {
+	color: var(--color-text-secondary) !important;
+}
+
+/* Dividers and separators */
+.dark-mode hr,
+.dark-mode [class*="Divider"],
+.dark-mode [class*="Separator"] {
+	border-color: var(--color-border) !important;
+}
+
+/* Empty states */
+.dark-mode [class*="Empty"] {
+	color: var(--color-text-secondary) !important;
+}
+
+/* Step headers and flow components */
+.dark-mode [class*="StepHeader"] {
+	background: linear-gradient(
+		135deg,
+		var(--color-primary) 0%,
+		var(--color-primary-dark) 100%
+	) !important;
+	color: white !important;
+}
+
+.dark-mode [class*="StepContent"] {
+	background-color: var(--color-surface) !important;
+}
+
+/* Toast notifications */
+.dark-mode [class*="Toast"] {
+	background-color: var(--color-surface) !important;
+	border-color: var(--color-border) !important;
+	color: var(--color-text-primary) !important;
+}
+
+/* Scrollbars for dark mode */
+.dark-mode ::-webkit-scrollbar {
+	background-color: var(--color-background);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+	background-color: var(--color-border);
+	border-radius: 4px;
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+	background-color: var(--color-text-muted);
+}
+
+/* Selection highlight */
+.dark-mode ::selection {
+	background-color: var(--color-primary);
+	color: white;
+}
