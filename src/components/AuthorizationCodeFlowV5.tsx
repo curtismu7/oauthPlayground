@@ -281,7 +281,8 @@ const ParameterValue = styled.div`
 	font-size: 0.875rem;
 	color: ${({ theme }) => theme.colors.gray900};
 	word-break: break-all;
-	background: ${({ theme }) => theme.colors.gray50};
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	padding: 0.5rem;
 	border-radius: 0.375rem;
 `;

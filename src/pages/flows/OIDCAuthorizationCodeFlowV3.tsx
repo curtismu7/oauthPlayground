@@ -20,6 +20,7 @@ import {
 	createUserAuthorizationStep,
 } from '../../components/steps/CommonSteps';
 import { showGlobalError, showGlobalSuccess } from '../../hooks/useNotifications';
+import { useUISettings } from '../../contexts/UISettingsContext';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
 import { credentialManager } from '../../utils/credentialManager';
 import { enhancedDebugger } from '../../utils/enhancedDebug';
@@ -364,6 +365,9 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 		window.location.href = authUrl;
 	}, []);
 
+	// Get UI settings
+	const { settings: uiSettings } = useUISettings();
+
 	// Handle authorization redirect with modal option
 	const handleAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) {
@@ -371,9 +375,8 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			return;
 		}
 
-		const flowConfigKey = 'enhanced-flow-authorization-code';
-		const flowConfig = JSON.parse(localStorage.getItem(flowConfigKey) || '{}');
-		const shouldShowModal = flowConfig.showAuthRequestModal === true;
+		// Use UISettings context instead of reading localStorage directly
+		const shouldShowModal = uiSettings.showAuthRequestModal;
 
 		if (shouldShowModal) {
 			console.log('[OIDC-AUTHZ-V3] Showing authorization request modal');
@@ -382,7 +385,7 @@ const OIDCAuthorizationCodeFlowV3: React.FC = () => {
 			console.log('[OIDC-AUTHZ-V3] Skipping authorization modal');
 			handleAuthorizationDirect();
 		}
-	}, [handleAuthorizationDirect]);
+	}, [authUrl, handleAuthorizationDirect, uiSettings.showAuthRequestModal]);
 
 	// Navigate to Token Management with token
 	const navigateToTokenManagement = useCallback(

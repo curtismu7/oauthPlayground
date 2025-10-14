@@ -2,6 +2,7 @@
 // Device Authorization Flow state management and logic
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { safeLocalStorageParse } from '../utils/secureJson';
 
 export interface DeviceCodeResponse {
 	device_code: string;
@@ -36,6 +37,8 @@ export interface DeviceAuthCredentials {
 	clientId: string;
 	clientSecret?: string;
 	scopes: string;
+	loginHint?: string;
+	postLogoutRedirectUri?: string;
 }
 
 interface UseDeviceAuthorizationFlowReturn {
@@ -76,19 +79,29 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	const [timeRemaining, setTimeRemaining] = useState<number>(0);
 	const [credentials, setCredentialsState] = useState<DeviceAuthCredentials | null>(null);
 
-	// Wrapper to persist credentials to localStorage
-	const setCredentials = useCallback((creds: DeviceAuthCredentials) => {
-		setCredentialsState(creds);
-		try {
-			localStorage.setItem('device_flow_credentials', JSON.stringify(creds));
-			console.log(`${LOG_PREFIX} [INFO] Credentials saved to localStorage`);
-		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to save credentials to localStorage:`, e);
-		}
-	}, []);
-
 	const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 	const pollingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	const saveDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Wrapper to persist credentials to localStorage with debouncing
+	const setCredentials = useCallback((creds: DeviceAuthCredentials) => {
+		// Update state immediately for UI responsiveness
+		setCredentialsState(creds);
+		
+		// Debounce localStorage save to prevent excessive writes
+		if (saveDebounceRef.current) {
+			clearTimeout(saveDebounceRef.current);
+		}
+		
+		saveDebounceRef.current = setTimeout(() => {
+			try {
+				localStorage.setItem('device_flow_credentials', JSON.stringify(creds));
+				console.log(`${LOG_PREFIX} [INFO] Credentials saved to localStorage`);
+			} catch (e) {
+				console.warn(`${LOG_PREFIX} [WARN] Failed to save credentials to localStorage:`, e);
+			}
+		}, 500); // Wait 500ms after last keystroke before saving
+	}, []);
 
 	// Stop polling - defined early to avoid hoisting issues
 	const stopPolling = useCallback(() => {
@@ -112,15 +125,13 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 	// Load credentials from localStorage on mount
 	useEffect(() => {
-		try {
-			const savedCreds = localStorage.getItem('device_flow_credentials');
-			if (savedCreds) {
-				const creds = JSON.parse(savedCreds);
-				setCredentialsState(creds);
-				console.log(`${LOG_PREFIX} [INFO] Loaded credentials from localStorage`);
-			}
-		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to load credentials from localStorage:`, e);
+		const creds = safeLocalStorageParse<DeviceAuthCredentials>(
+			'device_flow_credentials',
+			null
+		);
+		if (creds) {
+			setCredentialsState(creds);
+			console.log(`${LOG_PREFIX} [INFO] Loaded credentials from localStorage`);
 		}
 	}, []);
 

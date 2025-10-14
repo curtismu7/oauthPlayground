@@ -494,8 +494,8 @@ const SuccessTitle = styled.h3`
 `;
 
 const CodeDisplay = styled.div`
-  background: white;
-  border: 1px solid #22c55e;
+  background: #f0fdf4; /* Light green for generated content */
+  border: 1px solid #16a34a;
   border-radius: 0.25rem;
   padding: 0.75rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;

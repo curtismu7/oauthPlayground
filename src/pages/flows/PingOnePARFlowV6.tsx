@@ -1,6 +1,8 @@
 // src/pages/flows/PingOnePARFlowV5.tsx
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import type { DisplayMode } from '../../components/DisplayParameterSelector';
+import type { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
 import {
 	FiAlertCircle,
 	FiBook,
@@ -35,6 +37,7 @@ import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay'
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { FlowStorageService } from '../../services/flowStorageService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -264,6 +267,51 @@ const PingOnePARFlowV6: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<IntroSectionKey, boolean>>(() =>
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState('pingone-par-v6')
 	);
+
+	// PAR-specific advanced parameters
+	const [audience, setAudience] = useState<string>('');
+	const [resources, setResources] = useState<string[]>([]);
+	const [promptValues, setPromptValues] = useState<string[]>([]);
+	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
+	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
+	const [isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
+
+	// Load saved PAR advanced parameters on mount
+	useEffect(() => {
+		const saved = FlowStorageService.AdvancedParameters.get('par-v6');
+		if (saved) {
+			console.log('[PAR V6] Loading saved advanced parameters:', saved);
+			setAudience(saved.audience || '');
+			setResources(saved.resources || []);
+			setPromptValues(saved.promptValues || []);
+			setDisplayMode((saved.displayMode || 'page') as DisplayMode);
+			setClaimsRequest(saved.claimsRequest || null);
+		}
+	}, []);
+
+	// Save PAR advanced parameters
+	const handleSaveAdvancedParams = useCallback(async () => {
+		console.log('💾 [PAR V6] Saving advanced parameters:', {
+			audience,
+			resources,
+			promptValues,
+			displayMode,
+			claimsRequest,
+		});
+
+		FlowStorageService.AdvancedParameters.set('par-v6', {
+			audience,
+			resources,
+			promptValues,
+			displayMode,
+			claimsRequest,
+		});
+
+		setIsSavedAdvancedParams(true);
+		setTimeout(() => setIsSavedAdvancedParams(false), 3000);
+
+		v4ToastManager.showSuccess('Advanced parameters saved successfully!');
+	}, [audience, resources, promptValues, displayMode, claimsRequest]);
 
 	// PingOne Application Config
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
@@ -661,7 +709,7 @@ const PingOnePARFlowV6: React.FC = () => {
 							redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
 							scopes={controller.credentials.scope || 'openid profile email'}
 							loginHint={controller.credentials.loginHint || ''}
-							postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || ''}
+							postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 							
 							// Change handlers
 							onEnvironmentIdChange={(newEnvId) => {
@@ -712,7 +760,7 @@ const PingOnePARFlowV6: React.FC = () => {
 							// UI config
 							title="PAR Flow Configuration"
 							subtitle="Configure your application for Pushed Authorization Requests with enhanced security"
-							showAdvancedConfig={true}
+							showAdvancedConfig={true} // ✅ PAR is the PRIMARY feature of this flow
 							defaultCollapsed={shouldCollapseAll}
 						/>
 

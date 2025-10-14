@@ -57,12 +57,12 @@ export default defineConfig(({ mode }) => {
 				},
 			}),
 		],
-		server: {
-			port: 3000,
-			open: true,
-			https: {}, // Re-enable HTTPS in development
-			// In production, Vercel will handle HTTPS
-			// In development, basic-ssl plugin provides self-signed certificates
+	server: {
+		port: 3000,
+		open: true,
+		https: {}, // Re-enable HTTPS in development
+		// In production, Vercel will handle HTTPS
+		// In development, basic-ssl plugin provides self-signed certificates
 		hmr: {
 			port: 3000,
 			host: 'localhost',
@@ -101,7 +101,7 @@ export default defineConfig(({ mode }) => {
 			},
 		},
 	},
-		build: {
+	build: {
 			outDir: 'dist',
 			sourcemap: true,
 			rollupOptions: {
