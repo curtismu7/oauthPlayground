@@ -1168,14 +1168,13 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 													header: decoded.header,
 													payload: {
 														...decoded.payload,
-														// Mask sensitive fields in payload for security
-														client_id: decoded.payload.client_id ? '[REDACTED]' : undefined,
+														// Mask sensitive fields in payload for security (excluding client_id as requested)
 														sub: decoded.payload.sub ? TokenDisplayService.maskToken(decoded.payload.sub, 4) : undefined,
 														email: decoded.payload.email ? '[REDACTED]' : undefined,
 														username: decoded.payload.username ? '[REDACTED]' : undefined,
 														...Object.fromEntries(
 															Object.entries(decoded.payload).filter(([key]) => 
-																!['client_id', 'sub', 'email', 'username'].includes(key)
+																!['sub', 'email', 'username'].includes(key)
 															)
 														)
 													}
