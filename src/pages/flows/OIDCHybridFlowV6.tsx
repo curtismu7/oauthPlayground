@@ -186,13 +186,31 @@ const OIDCHybridFlowV6: React.FC = () => {
 	
 	// PingOne Advanced Configuration
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
-		applicationName: '',
-		applicationType: 'single_page_application',
-		redirectUris: [],
-		postLogoutRedirectUris: [],
-		allowedScopes: [],
-		clientAuthMethods: ['none'],
-		additionalSettings: {}
+		clientAuthMethod: 'client_secret_post', // Hybrid flow can be confidential
+		allowRedirectUriPatterns: false,
+		pkceEnforcement: 'REQUIRED',
+		responseTypeCode: true,
+		responseTypeToken: true,
+		responseTypeIdToken: true, // Hybrid flow returns all tokens
+		grantTypeAuthorizationCode: true,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
+		requestParameterSignatureRequirement: 'DEFAULT',
+		enableJWKS: false,
+		jwksMethod: 'JWKS_URL',
+		jwksUrl: '',
+		jwks: '',
+		requirePushedAuthorizationRequest: false,
+		enableDPoP: false,
+		dpopAlgorithm: 'ES256',
+		additionalRefreshTokenReplayProtection: false,
+		includeX5tParameter: false,
+		oidcSessionManagement: false,
+		requestScopesForMultipleResources: false,
+		terminateUserSessionByIdToken: false,
+		corsOrigins: [],
+		corsAllowAnyOrigin: false,
 	});
 	
 	// Collapsible sections state

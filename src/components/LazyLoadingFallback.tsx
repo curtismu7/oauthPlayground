@@ -1,6 +1,6 @@
 import React from 'react';
 import { FiLoader, FiShield, FiUsers, FiZap } from 'react-icons/fi';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 
 // Loading animation
 const spin = keyframes`
@@ -48,7 +48,7 @@ const LoadingSpinner = styled.div`
 const SpinnerIcon = styled(FiLoader)`
   color: white;
   font-size: 24px;
-  animation: ${pulse} 2s ease-in-out infinite;
+  animation: ${css`${pulse} 2s ease-in-out infinite`};
 `;
 
 const LoadingTitle = styled.h3`
@@ -85,7 +85,7 @@ const LoadingStep = styled.div<{ completed?: boolean; active?: boolean }>`
   border: 1px solid ${(props) => (props.active ? '#93c5fd' : props.completed ? '#86efac' : '#e2e8f0')};
   border-radius: 8px;
   transition: all 0.3s ease;
-  animation: ${(props) => (props.active ? pulse : 'none')} 1.5s ease-in-out infinite;
+  animation: ${(props) => (props.active ? css`${pulse} 1.5s ease-in-out infinite` : 'none')};
 `;
 
 const StepIcon = styled.div<{ completed?: boolean; active?: boolean }>`
@@ -124,7 +124,7 @@ const ProgressBar = styled.div<{ progress: number }>`
   border-radius: 2px;
   width: ${(props) => props.progress}%;
   transition: width 0.3s ease;
-  animation: ${pulse} 2s ease-in-out infinite;
+  animation: ${css`${pulse} 2s ease-in-out infinite`};
 `;
 
 // Loading step interface
