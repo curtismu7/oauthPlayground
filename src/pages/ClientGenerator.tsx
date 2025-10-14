@@ -1,19 +1,8 @@
 // src/pages/ClientGenerator.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-	FiKey,
-	FiCheckCircle,
-	FiSettings,
-	FiX,
-	FiCode,
-	FiArrowRight,
-	FiGlobe,
-	FiServer,
-	FiSmartphone,
-	FiLoader,
-} from 'react-icons/fi';
+import { FiKey, FiCheckCircle, FiSettings, FiX, FiCode, FiArrowRight, FiEyeOff, FiEye, FiGlobe, FiServer, FiSmartphone, FiLoader } from 'react-icons/fi';
 import styled from 'styled-components';
-import { pingOneAppCreationService, AppType } from '../services/pingOneAppCreationService';
+import { pingOneAppCreationService, AppType, AppCreationResult } from '../services/pingOneAppCreationService';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -361,7 +350,7 @@ const ClientGenerator: React.FC = () => {
 		body: string;
 		authMethod: string;
 	} | null>(null);
-	const [showAppGenerator, setShowAppGenerator] = useState(false);
+const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, boolean>>({});
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -595,6 +584,11 @@ const ClientGenerator: React.FC = () => {
 
 	const handleArrayChange = (field: string, values: string[]) => {
 		setFormData((prev) => ({ ...prev, [field]: values }));
+	};
+
+	const handleTokenDecode = (tokenKey: string) => {
+		const isDecoded = tokenDecodeStates[tokenKey] || false;
+		setTokenDecodeStates(prev => ({ ...prev, [tokenKey]: !isDecoded }));
 	};
 
 	// Form validation
@@ -952,42 +946,135 @@ const ClientGenerator: React.FC = () => {
 							{/* Token Response */}
 							<div style={{ marginBottom: '1rem' }}>
 								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Token Response:</div>
-								<pre style={{ 
-									background: '#1e293b', 
-									color: '#e2e8f0', 
-									padding: '1rem', 
-									borderRadius: '0.5rem', 
-									overflowX: 'auto',
-									fontSize: '0.875rem',
-									lineHeight: '1.6',
-									fontFamily: 'Monaco, Menlo, monospace'
-								}}>
-									{JSON.stringify({
-										access_token: TokenDisplayService.maskToken(workerToken, 20),
-										token_type: 'Bearer',
-										expires_in: 3600,
-										scope: 'openid p1:create:application p1:read:application p1:update:application'
-									}, null, 2)}
-								</pre>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+									<pre style={{ 
+										background: '#1e293b', 
+										color: '#e2e8f0', 
+										padding: '1rem', 
+										borderRadius: '0.5rem', 
+										overflowX: 'auto',
+										fontSize: '0.875rem',
+										lineHeight: '1.6',
+										fontFamily: 'Monaco, Menlo, monospace',
+										flex: 1,
+										margin: 0
+									}}>
+										{JSON.stringify({
+											access_token: TokenDisplayService.maskToken(workerToken, 4),
+											token_type: 'Bearer',
+											expires_in: 3600,
+											scope: 'openid p1:create:application p1:read:application p1:update:application'
+										}, null, 2)}
+									</pre>
+									<button
+										onClick={() => handleTokenDecode('worker-token-response')}
+										style={{
+											padding: '0.5rem',
+											borderRadius: '0.375rem',
+											border: '1px solid #d1d5db',
+											background: 'white',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center'
+										}}
+										title={tokenDecodeStates['worker-token-response'] ? 'Hide full token' : 'Show full token (not recommended)'}
+									>
+										{tokenDecodeStates['worker-token-response'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									</button>
+								</div>
+								{tokenDecodeStates['worker-token-response'] && (
+									<div style={{ 
+										background: '#fef3c7', 
+										border: '1px solid #f59e0b', 
+										borderRadius: '0.5rem', 
+										padding: '1rem',
+										marginTop: '0.5rem'
+									}}>
+										<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>⚠️ Full Token Revealed:</div>
+										<pre style={{ 
+											background: '#1e293b', 
+											color: '#e2e8f0', 
+											padding: '1rem', 
+											borderRadius: '0.5rem', 
+											fontSize: '0.875rem',
+											lineHeight: '1.6',
+											fontFamily: 'Monaco, Menlo, monospace',
+											margin: 0,
+											overflowX: 'auto'
+										}}>
+											{JSON.stringify({
+												access_token: workerToken,
+												token_type: 'Bearer',
+												expires_in: 3600,
+												scope: 'openid p1:create:application p1:read:application p1:update:application'
+											}, null, 2)}
+										</pre>
+									</div>
+								)}
 								<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
-									<strong>Note:</strong> The token is masked for security. Only the first 20 characters are shown, followed by masking. The full token is securely stored and will be used for authentication.
+									<strong>Security:</strong> Token is masked by default. Only click decode for debugging purposes. The full token is securely stored for API authentication.
 								</div>
 							</div>
 
 							{/* Authentication Header */}
 							<div>
 								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Authentication Header:</div>
-								<pre style={{ 
-									background: '#1e293b', 
-									color: '#e2e8f0', 
-									padding: '1rem', 
-									borderRadius: '0.5rem',
-									fontSize: '0.875rem',
-									lineHeight: '1.6',
-									fontFamily: 'Monaco, Menlo, monospace'
-								}}>
-									{`Authorization: Bearer ${TokenDisplayService.maskToken(workerToken, 20)}`}
-								</pre>
+								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+									<pre style={{ 
+										background: '#1e293b', 
+										color: '#e2e8f0', 
+										padding: '1rem', 
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										lineHeight: '1.6',
+										fontFamily: 'Monaco, Menlo, monospace',
+										flex: 1,
+										margin: 0
+									}}>
+										{`Authorization: Bearer ${TokenDisplayService.maskToken(workerToken, 4)}`}
+									</pre>
+									<button
+										onClick={() => handleTokenDecode('auth-header')}
+										style={{
+											padding: '0.5rem',
+											borderRadius: '0.375rem',
+											border: '1px solid #d1d5db',
+											background: 'white',
+											cursor: 'pointer',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center'
+										}}
+										title={tokenDecodeStates['auth-header'] ? 'Hide full header' : 'Show full header (not recommended)'}
+									>
+										{tokenDecodeStates['auth-header'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									</button>
+								</div>
+								{tokenDecodeStates['auth-header'] && (
+									<div style={{ 
+										background: '#fef3c7', 
+										border: '1px solid #f59e0b', 
+										borderRadius: '0.5rem', 
+										padding: '1rem',
+										marginTop: '0.5rem'
+									}}>
+										<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>⚠️ Full Header Revealed:</div>
+										<pre style={{ 
+											background: '#1e293b', 
+											color: '#e2e8f0', 
+											padding: '1rem', 
+											borderRadius: '0.5rem',
+											fontSize: '0.875rem',
+											lineHeight: '1.6',
+											fontFamily: 'Monaco, Menlo, monospace',
+											margin: 0,
+											overflowX: 'auto'
+										}}>
+											{`Authorization: Bearer ${workerToken}`}
+										</pre>
+									</div>
+								)}
 								<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
 									This header will be included in all API requests to PingOne.
 								</div>
