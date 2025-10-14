@@ -140,7 +140,7 @@ const TokenPreview = styled.div`
 	line-height: 1.5;
 	color: #374151;
 	word-break: break-all;
-	background: #f8fafc;
+	background: #f0fdf4; /* Light green for generated content */
 	padding: 1rem;
 	border-radius: 8px;
 	border: 1px solid #e2e8f0;
@@ -203,7 +203,7 @@ const DecodeContent = styled.div`
 	font-size: 0.875rem;
 	line-height: 1.5;
 	color: #374151;
-	background: #f8fafc;
+	background: #f0fdf4; /* Light green for generated content */
 	padding: 1rem;
 	border-radius: 8px;
 	border: 1px solid #e2e8f0;

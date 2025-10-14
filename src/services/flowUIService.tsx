@@ -7,6 +7,16 @@ import styled from 'styled-components';
 import { FiInfo, FiAlertCircle, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 
 import { CollapsibleIcon } from '../components/CollapsibleIcon';
+import {
+	CollapsibleHeader as V6CollapsibleHeader,
+	CollapsibleHeaderProps,
+} from './collapsibleHeaderService';
+
+export interface CollapsibleHeaderAdapterProps
+	extends Omit<CollapsibleHeaderProps, 'theme'> {
+	theme?: CollapsibleHeaderProps['theme'];
+	children: CollapsibleHeaderProps['children'];
+}
 
 export interface FlowUIConfig {
 	flowType: string;
@@ -74,6 +84,39 @@ export class FlowUIService {
 			background-color: #f9fafb;
 			padding: 2rem 0 6rem;
 		`;
+	}
+
+	static getCollapsibleHeaderAdapter(themeOverride?: CollapsibleHeaderProps['theme']) {
+		const Adapter: React.FC<CollapsibleHeaderAdapterProps> = ({
+			title,
+			subtitle,
+			icon,
+			defaultCollapsed,
+			children,
+			className,
+			theme,
+		}) => {
+			return (
+				<V6CollapsibleHeader
+					title={title}
+					{...(subtitle ? { subtitle } : {})}
+					{...(icon ? { icon } : {})}
+					{...(typeof defaultCollapsed === 'boolean' ? { defaultCollapsed } : {})}
+					theme={themeOverride ?? theme ?? 'blue'}
+					{...(className ? { className } : {})}
+				>
+					{children}
+				</V6CollapsibleHeader>
+			);
+		};
+
+		Adapter.displayName = 'CollapsibleHeaderAdapter';
+
+		return Adapter;
+	}
+
+	static getThemedCollapsibleHeaderAdapter(theme: CollapsibleHeaderProps['theme']) {
+		return this.getCollapsibleHeaderAdapter(theme);
 	}
 
 	static getContentWrapper() {
@@ -859,6 +902,8 @@ export class FlowUIService {
 			CollapsibleTitle: this.getCollapsibleTitle(),
 			CollapsibleToggleIcon: this.getCollapsibleToggleIcon('blue'), // Default theme
 			CollapsibleContent: this.getCollapsibleContent(),
+			CollapsibleHeaderV6: this.getCollapsibleHeaderAdapter(),
+			getThemedCollapsibleHeader: this.getThemedCollapsibleHeaderAdapter.bind(this),
 
 			// Info boxes
 			InfoBox: this.getInfoBox(),

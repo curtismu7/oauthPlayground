@@ -206,6 +206,9 @@ const CodeBlock = styled.pre<{ $isVisible?: boolean }>`
 	overflow-x: auto;
 	margin: 1rem 0;
 	display: ${(props) => (props.$isVisible ? 'block' : 'none')};
+	white-space: pre-wrap;
+	word-break: break-all;
+	min-height: 60px;
 `;
 
 const ParameterGrid = styled.div`

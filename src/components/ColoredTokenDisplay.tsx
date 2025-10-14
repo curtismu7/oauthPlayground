@@ -38,8 +38,8 @@ const TokenLabel = styled.div`
 `;
 
 const TokenContent = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 8px;
 	padding: 1rem 5rem 1rem 1rem;
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
