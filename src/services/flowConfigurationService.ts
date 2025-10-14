@@ -1,6 +1,7 @@
 // src/services/flowConfigurationService.ts
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { FlowRedirectUriService } from './flowRedirectUriService';
 
 export interface FlowConfigurationServiceOptions {
 	flowKey: string;
@@ -155,7 +156,7 @@ export class FlowConfigurationService {
 				environmentId: '',
 				clientId: '',
 				clientSecret: '',
-				redirectUri: 'https://localhost:3000/implicit-callback',
+				redirectUri: FlowRedirectUriService.getDefaultRedirectUri('implicit-v3'),
 				scope: 'openid',
 				scopes: 'openid',
 				responseType: 'token',
@@ -173,7 +174,7 @@ export class FlowConfigurationService {
 				environmentId: '',
 				clientId: '',
 				clientSecret: '',
-				redirectUri: 'https://localhost:3000/authz-callback',
+				redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-authorization-code-v5'),
 				scope: 'openid',
 				responseType: 'code',
 				grantType: 'authorization_code',

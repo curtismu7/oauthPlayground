@@ -44,6 +44,8 @@ import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import RARService, { type AuthorizationDetail } from '../../services/rarService';
+import { FlowStorageService } from '../../services/flowStorageService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -508,18 +510,26 @@ export const RARFlowV6: React.FC = () => {
 		};
 	});
 
-	const [authorizationDetails, setAuthorizationDetails] = useState(() => {
-		// Load authorization details from localStorage on initialization
-		const saved = localStorage.getItem('rar-v5-authorization-details');
-		if (saved) {
+	const [authorizationDetails, setAuthorizationDetails] = useState<AuthorizationDetail[]>(() => {
+		// Load authorization details from FlowStorageService first (preferred)
+		const saved = FlowStorageService.AdvancedParameters.get('rar-v5');
+		if (saved && saved.authorizationDetails) {
+			console.log('💾 [RAR-V5] Loaded authorization details from FlowStorageService:', saved.authorizationDetails);
+			return saved.authorizationDetails;
+		}
+
+		// Fallback to localStorage for backward compatibility
+		const localSaved = localStorage.getItem('rar-v5-authorization-details');
+		if (localSaved) {
 			try {
-				const parsed = JSON.parse(saved);
-				console.log('🔄 [RAR-V5] Loaded authorization details from localStorage:', parsed);
-				return parsed;
+				const parsed = JSON.parse(localSaved);
+				console.log('💾 [RAR-V5] Loaded authorization details from localStorage (legacy):', parsed);
+				return Array.isArray(parsed) ? parsed : [];
 			} catch (error) {
 				console.warn('[RAR-V5] Failed to parse saved authorization details:', error);
 			}
 		}
+
 		// Use the example structure provided by user
 		return [
 			{
@@ -601,13 +611,20 @@ export const RARFlowV6: React.FC = () => {
 		return () => clearTimeout(debounceTimer);
 	}, [credentials]);
 
-	// Save authorization details to localStorage whenever they change
+	// Save authorization details to FlowStorageService (and localStorage for backward compatibility)
 	useEffect(() => {
 		try {
+			// Save to FlowStorageService (preferred)
+			FlowStorageService.AdvancedParameters.set('rar-v5', {
+				authorizationDetails
+			});
+			console.log('💾 [RAR-V5] Authorization details saved to FlowStorageService:', authorizationDetails);
+
+			// Also save to localStorage for backward compatibility
 			localStorage.setItem('rar-v5-authorization-details', JSON.stringify(authorizationDetails));
-			console.log('💾 [RAR-V5] Authorization details saved to localStorage:', authorizationDetails);
+			console.log('💾 [RAR-V5] Authorization details saved to localStorage (legacy):', authorizationDetails);
 		} catch (error) {
-			console.warn('[RAR-V5] Failed to save authorization details to localStorage:', error);
+			console.warn('[RAR-V5] Failed to save authorization details:', error);
 		}
 	}, [authorizationDetails]);
 
@@ -812,19 +829,21 @@ export const RARFlowV6: React.FC = () => {
 				state: 'rar-flow-state-' + Math.random().toString(36).substr(2, 9),
 			});
 
-			// Add RAR authorization details
-			const rarDetails = {
-				type: 'oauth_authorization_details',
-				authorization_details: authorizationDetails.filter(
-					(detail: any) =>
-						detail.type &&
-						detail.instructedAmount &&
-						detail.creditorName &&
-						detail.creditorAccount?.iban
-				),
-			};
+			// Validate and add RAR authorization details using RARService
+			const validation = RARService.validateAuthorizationDetails(authorizationDetails);
+			if (!validation.valid) {
+				throw new Error(`Invalid authorization details: ${validation.errors.join(', ')}`);
+			}
 
-			params.append('authorization_details', JSON.stringify(rarDetails));
+			const validAuthorizationDetails = authorizationDetails.filter(
+				(detail: any) =>
+					detail.type &&
+					detail.instructedAmount &&
+					detail.creditorName &&
+					detail.creditorAccount?.iban
+			);
+
+			params.append('authorization_details', JSON.stringify(validAuthorizationDetails));
 
 			const url = `${baseUrl}?${params.toString()}`;
 			setAuthUrl(url);
@@ -1306,8 +1325,13 @@ export const RARFlowV6: React.FC = () => {
 										onResetFlow={handleReset}
 										onNavigateToTokenManagement={navigateToTokenManagement}
 										onIntrospectToken={async (token: string) => {
-											if (!credentials.environmentId || !credentials.clientId) {
-												throw new Error('Missing credentials for introspection');
+											// Enhanced token introspection with 500ms delay and client secret check
+											// Wait 500ms for PingOne to register token
+											await new Promise(resolve => setTimeout(resolve, 500));
+
+											// Check for required client secret for introspection
+											if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+												throw new Error('Client secret required for token introspection. Please configure your credentials first.');
 											}
 
 											const request = {
@@ -1322,7 +1346,9 @@ export const RARFlowV6: React.FC = () => {
 												const result = await TokenIntrospectionService.introspectToken(
 													request,
 													'rar',
-													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+													'/api/introspect-token',
+													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`,
+													'client_secret_post'
 												);
 
 												// Set the API call data for display

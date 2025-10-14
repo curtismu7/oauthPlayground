@@ -1,7 +1,7 @@
 // src/services/authenticationModalService.tsx
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiShield, FiExternalLink, FiX, FiInfo, FiCheckCircle } from 'react-icons/fi';
+import { FiShield, FiExternalLink, FiX, FiInfo, FiCheckCircle, FiClock } from 'react-icons/fi';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -53,7 +53,8 @@ const ModalContainer = styled.div`
 	max-width: 700px;
 	width: 100%;
 	max-height: 90vh;
-	overflow: hidden;
+	display: flex;
+	flex-direction: column;
 	position: relative;
 `;
 
@@ -123,6 +124,8 @@ const CloseButton = styled.button`
 
 const ModalContent = styled.div`
 	padding: 2rem;
+	overflow-y: auto;
+	flex: 1;
 `;
 
 const DescriptionSection = styled.div`
@@ -318,7 +321,9 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 	description,
 	redirectMode = 'popup',
 }) => {
-	const [isRedirecting, setIsRedirecting] = useState(false);
+	// Auto-redirect countdown timer (20 seconds)
+	const [countdown, setCountdown] = React.useState<number>(20);
+	const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 
 	// Validate URL to prevent ColoredUrlDisplay errors
 	const isValidUrl = (url: string): boolean => {
@@ -332,14 +337,20 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 
 	const safeAuthUrl = isValidUrl(authUrl) ? authUrl : 'https://auth.pingone.com/placeholder/as/authorize?client_id=placeholder&redirect_uri=placeholder&response_type=code&scope=openid';
 
-	const handleContinue = async () => {
+	const handleContinue = React.useCallback(() => {
+		console.log('🚀 [AuthModal] handleContinue called');
+		
+		// Clear any running countdown
+		if (countdownIntervalRef.current) {
+			clearInterval(countdownIntervalRef.current);
+			countdownIntervalRef.current = null;
+		}
+		
 		// Validate URL before proceeding
 		if (!isValidUrl(authUrl)) {
 			v4ToastManager.showError('Invalid authorization URL. Please generate the authorization URL first.');
 			return;
 		}
-
-		setIsRedirecting(true);
 		
 		try {
 			if (redirectMode === 'popup') {
@@ -349,29 +360,117 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				const left = window.screen.width / 2 - width / 2;
 				const top = window.screen.height / 2 - height / 2;
 				
-				window.open(
+				console.log('🔧 [AuthModal] Opening popup window...');
+				console.log('🔧 [AuthModal] Auth URL:', authUrl);
+				console.log('🔧 [AuthModal] Popup name: PingOneAuth');
+				
+				const popup = window.open(
 					authUrl,
 					'PingOneAuth',
 					`width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes`
 				);
 				
-				v4ToastManager.showSuccess('Authentication popup opened successfully!');
+				if (popup) {
+					console.log('✅ [AuthModal] Popup opened successfully');
+					console.log('✅ [AuthModal] Popup reference:', popup);
+					console.log('✅ [AuthModal] Popup closed?', popup.closed);
+					
+					// Monitor popup to detect if it closes unexpectedly
+					const monitorPopup = setInterval(() => {
+						if (popup.closed) {
+							console.log('❌ [AuthModal] Popup was closed!');
+							clearInterval(monitorPopup);
+						} else {
+							console.log('✅ [AuthModal] Popup still open...');
+						}
+					}, 1000);
+					
+					// Stop monitoring after 30 seconds
+					setTimeout(() => {
+						clearInterval(monitorPopup);
+						console.log('🔌 [AuthModal] Stopped monitoring popup');
+					}, 30000);
+					
+					v4ToastManager.showSuccess('Authentication popup opened successfully!');
+					
+					// Close modal immediately
+					onClose();
+					
+					// Call the onContinue callback if provided (but popup should stay open!)
+					console.log('🔧 [AuthModal] Calling onContinue callback...');
+					onContinue?.();
+					console.log('🔧 [AuthModal] onContinue callback completed');
+					console.log('🔧 [AuthModal] Popup still open after callback?', !popup.closed);
+				} else {
+					console.error('❌ [AuthModal] Popup blocked by browser');
+					v4ToastManager.showError('Popup blocked! Please allow popups for this site.');
+				}
 			} else {
 				// Redirect current tab
+				console.log('🔧 [AuthModal] Redirecting to:', authUrl);
 				window.location.href = authUrl;
 			}
-			
-			onClose();
 		} catch (error) {
-			console.error('Failed to open authentication:', error);
+			console.error('❌ [AuthModal] Failed to open authentication:', error);
 			v4ToastManager.showError('Failed to open authentication. Please try again.');
-			setIsRedirecting(false);
 		}
-	};
+		
+		// Close modal after redirect
+		if (redirectMode !== 'popup') {
+			onClose();
+		}
+	}, [authUrl, redirectMode, onContinue, onClose]);
 
 	const handleCancel = () => {
+		// Clear countdown when canceling
+		if (countdownIntervalRef.current) {
+			clearInterval(countdownIntervalRef.current);
+			countdownIntervalRef.current = null;
+		}
 		onClose();
 	};
+
+	// Auto-redirect countdown effect
+	React.useEffect(() => {
+		console.log('⏰ [AuthModal] Countdown effect triggered', { isOpen, isValidUrl: isValidUrl(authUrl), countdown });
+		
+		if (!isOpen || !isValidUrl(authUrl)) {
+			// Reset countdown when modal closes or URL is invalid
+			if (countdownIntervalRef.current) {
+				clearInterval(countdownIntervalRef.current);
+				countdownIntervalRef.current = null;
+			}
+			setCountdown(20);
+			return;
+		}
+
+		// Start countdown when modal opens
+		console.log('⏰ [AuthModal] Starting 20-second countdown...');
+		countdownIntervalRef.current = setInterval(() => {
+			setCountdown((prev) => {
+				console.log(`⏰ [AuthModal] Countdown: ${prev}`);
+				if (prev <= 1) {
+					// Countdown finished - trigger redirect
+					console.log('⏰ [AuthModal] Countdown complete - triggering redirect');
+					if (countdownIntervalRef.current) {
+						clearInterval(countdownIntervalRef.current);
+						countdownIntervalRef.current = null;
+					}
+					handleContinue();
+					return 0;
+				}
+				return prev - 1;
+			});
+		}, 1000);
+
+		return () => {
+			console.log('⏰ [AuthModal] Cleaning up countdown effect');
+			if (countdownIntervalRef.current) {
+				clearInterval(countdownIntervalRef.current);
+				countdownIntervalRef.current = null;
+			}
+		};
+	}, [isOpen, authUrl, handleContinue]);
 
 	// Get flow-specific information
 	const getFlowInfo = () => {
@@ -504,18 +603,41 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						/>
 					</UrlSection>
 
+					{/* Auto-redirect countdown */}
+					{isValidUrl(authUrl) && (
+						<div style={{
+							padding: '1rem',
+							background: '#eff6ff',
+							border: '1px solid #bfdbfe',
+							borderRadius: '8px',
+							marginTop: '1rem',
+							textAlign: 'center',
+							color: '#1e40af',
+							fontSize: '0.875rem',
+							fontWeight: '500'
+						}}>
+							<FiClock size={14} style={{ display: 'inline', marginRight: '0.5rem' }} />
+							Auto-redirecting in {countdown} seconds...
+						</div>
+					)}
+
 					<ModalActions>
-						<ActionButton $variant="secondary" onClick={handleCancel}>
-							Cancel
-						</ActionButton>
-						<ActionButton 
-							$variant="primary" 
-							onClick={handleContinue}
-							disabled={isRedirecting || !isValidUrl(authUrl)}
-						>
-							<FiExternalLink size={16} />
-							{isRedirecting ? 'Opening...' : 'Continue to PingOne'}
-						</ActionButton>
+					<ActionButton 
+						type="button"
+						$variant="secondary" 
+						onClick={handleCancel}
+					>
+						Cancel
+					</ActionButton>
+					<ActionButton 
+						type="button"
+						$variant="primary" 
+						onClick={handleContinue}
+						disabled={!isValidUrl(authUrl)}
+					>
+						<FiExternalLink size={16} />
+						Continue Now
+					</ActionButton>
 					</ModalActions>
 				</ModalContent>
 			</ModalContainer>
