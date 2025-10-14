@@ -1,8 +1,9 @@
 // src/pages/flows/PingOneMFAFlowV5.tsx
 // V5.1 PingOne MFA Flow with standard V5 structure
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
+	FiBook,
 	FiInfo,
 	FiKey,
 	FiShield,
@@ -11,15 +12,16 @@ import {
 	FiMail,
 	FiLock,
 	FiPhone,
-	FiChevronDown,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService'
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import FlowInfoCard from '../../components/FlowInfoCard';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -127,52 +129,15 @@ const StepContentWrapper = styled.div`
 	background: #ffffff;
 `;
 
-const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-	overflow: hidden;
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1rem 1.5rem;
-	background: #f8fafc;
-	border: none;
-	cursor: pointer;
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: #374151;
-	transition: background-color 0.2s ease;
+// [REMOVED] Local collapsible styled component
 
-	&:hover {
-		background: #f1f5f9;
-	}
+// [REMOVED] Local collapsible styled component
 
-	&:focus {
-		outline: none;
-		background: #f1f5f9;
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-`;
-
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	transition: transform 0.2s ease;
-	transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-`;
+// [REMOVED] Local collapsible styled component
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	border-radius: 0.75rem;
@@ -365,6 +330,10 @@ const PingOneMFAFlowV5: React.FC = () => {
 	usePageScroll({ pageName: 'PingOne MFA Flow V5', force: true });
 
 	const [currentStep, setCurrentStep] = useState(0);
+	
+	// Collapse all sections by default for cleaner UI
+	const shouldCollapseAll = true;
+	
 	const [deviceRegistered, setDeviceRegistered] = useState(false);
 	const [selectedMfaMethod, setSelectedMfaMethod] = useState('sms');
 	const [mfaVerified, setMfaVerified] = useState(false);
@@ -445,6 +414,26 @@ const PingOneMFAFlowV5: React.FC = () => {
 		}));
 	};
 
+	const handleReset = useCallback(() => {
+		setCurrentStep(0);
+		setDeviceRegistered(false);
+		setMfaVerified(false);
+		setTokens(null);
+	}, []);
+
+	const handleStartOver = useCallback(() => {
+		const flowKey = 'pingone-mfa-v5';
+		sessionStorage.removeItem(`${flowKey}-tokens`);
+		sessionStorage.removeItem('restore_step');
+		setCurrentStep(0);
+		setMfaVerified(false);
+		setTokens(null);
+		console.log('🔄 [PingOneMFAFlowV5] Starting over: cleared tokens/MFA state, keeping device registration');
+		v4ToastManager.showSuccess('Flow restarted', {
+			description: 'Tokens cleared. Device registration preserved.',
+		});
+	}, []);
+
 	const renderStepContent = () => {
 		switch (currentStep) {
 			case 0:
@@ -462,21 +451,13 @@ const PingOneMFAFlowV5: React.FC = () => {
 							</div>
 						</InfoBox>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('mfaOverview')}
-								aria-expanded={!collapsedSections.mfaOverview}
-							>
-								<CollapsibleTitle>
-									<FiShield /> MFA Methods Supported
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.mfaOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.mfaOverview && (
-								<CollapsibleContent>
-									<MfaMethodGrid>
+						<CollapsibleHeader
+			title="MFA Methods Supported"
+			icon={<FiBook />}
+			theme="yellow"
+			defaultCollapsed={shouldCollapseAll}
+			>
+					<MfaMethodGrid>
 										{mfaMethods.map((method) => (
 											<MfaMethodCard key={method.id}>
 												<MfaMethodIcon>{method.icon}</MfaMethodIcon>
@@ -485,9 +466,7 @@ const PingOneMFAFlowV5: React.FC = () => {
 											</MfaMethodCard>
 										))}
 									</MfaMethodGrid>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<ActionRow>
 							<Button $variant="primary" onClick={() => setCurrentStep(1)}>
@@ -766,7 +745,10 @@ const PingOneMFAFlowV5: React.FC = () => {
 				totalSteps={STEP_METADATA.length}
 				onPrevious={() => setCurrentStep(Math.max(0, currentStep - 1))}
 				onNext={() => setCurrentStep(Math.min(STEP_METADATA.length - 1, currentStep + 1))}
-				onReset={() => setCurrentStep(0)}
+				onReset={handleReset}
+				onStartOver={handleStartOver}
+				canNavigateNext={true}
+				isFirstStep={currentStep === 0}
 			/>
 		</Container>
 	);

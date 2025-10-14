@@ -1,0 +1,252 @@
+// src/utils/flowInfoConfig.ts - Predefined flow information for all OAuth/OIDC flows
+
+import { FlowInfo } from '../components/FlowInfoCard';
+
+export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
+	'oauth-implicit': {
+		flowType: 'oauth',
+		flowName: 'Implicit Flow',
+		tokensReturned: 'Access Token only',
+		purpose: 'Authorization (API access)',
+		specLayer: 'Defined in OAuth 2.0',
+		nonceRequirement: 'Not required',
+		validation: 'Validate access token with resource server',
+		securityNotes: [
+			'⚠️ DEPRECATED - Not recommended for new applications',
+			'Tokens exposed in URL fragment',
+			'No refresh tokens available',
+			'Consider using Authorization Code Flow with PKCE instead',
+		],
+		useCases: ['Legacy browser-based applications (migration only)'],
+	},
+	'oidc-implicit': {
+		flowType: 'oidc',
+		flowName: 'Implicit Flow',
+		tokensReturned: 'Access Token + ID Token',
+		purpose: 'Authentication + Authorization',
+		specLayer: 'Defined in OIDC (OpenID Connect)',
+		nonceRequirement: 'Required for security',
+		validation: 'Validate ID Token signature, issuer, audience, nonce, and expiry',
+		securityNotes: [
+			'⚠️ DEPRECATED - Not recommended for new applications',
+			'Tokens exposed in URL fragment',
+			'Nonce parameter is mandatory to prevent replay attacks',
+			'Consider using Authorization Code Flow with PKCE instead',
+		],
+		useCases: ['Legacy single-page applications (migration only)'],
+	},
+	'oauth-authorization-code': {
+		flowType: 'oauth',
+		flowName: 'Authorization Code Flow',
+		tokensReturned: 'Access Token + Refresh Token',
+		purpose: 'Authorization (API access)',
+		specLayer: 'Defined in OAuth 2.0',
+		nonceRequirement: 'Not required (but recommended with PKCE)',
+		validation: 'Validate access token with resource server, exchange code for tokens',
+		securityNotes: [
+			'✅ Most secure OAuth 2.0 flow',
+			'Use PKCE for public clients',
+			'Requires secure backend for confidential clients',
+			'Always validate state parameter (CSRF protection)',
+		],
+		useCases: [
+			'Web applications with secure backend',
+			'Mobile apps with PKCE',
+			'Server-side applications',
+			'Any application needing refresh tokens',
+		],
+	},
+	'oidc-authorization-code': {
+		flowType: 'oidc',
+		flowName: 'Authorization Code Flow',
+		tokensReturned: 'Access Token + ID Token + Refresh Token',
+		purpose: 'Authentication + Authorization',
+		specLayer: 'Defined in OIDC (OpenID Connect)',
+		nonceRequirement: 'Recommended for additional security',
+		validation:
+			'Validate ID Token (signature, issuer, audience, nonce if provided, at_hash), exchange code for tokens',
+		securityNotes: [
+			'✅ Most secure OIDC flow',
+			'Use PKCE for public clients',
+			'ID Token provides verified user identity',
+			'Always validate state and optionally nonce parameters',
+		],
+		useCases: [
+			'Single sign-on (SSO) applications',
+			'Web applications needing user identity',
+			'Mobile apps with authentication',
+			'Any application requiring both authentication and API access',
+		],
+	},
+	'client-credentials': {
+		flowType: 'oauth',
+		flowName: 'Client Credentials Flow',
+		tokensReturned: 'Access Token only',
+		purpose: 'Machine-to-machine authorization',
+		specLayer: 'Defined in OAuth 2.0',
+		nonceRequirement: 'Not applicable (no user interaction)',
+		validation: 'Validate access token with resource server',
+		securityNotes: [
+			'✅ Ideal for server-to-server authentication',
+			'No user context - application acts on its own behalf',
+			'Secure storage of client credentials required',
+			'Use appropriate scopes to limit access',
+		],
+		useCases: [
+			'Backend services accessing APIs',
+			'Microservice authentication',
+			'Scheduled jobs and automation',
+			'System-to-system integration',
+		],
+	},
+	'device-code': {
+		flowType: 'oauth',
+		flowName: 'Device Authorization Flow',
+		tokensReturned: 'Access Token + Refresh Token + (optional ID Token)',
+		purpose: 'Authorization for input-constrained devices',
+		specLayer: 'Defined in OAuth 2.0 (RFC 8628)',
+		nonceRequirement: 'Not typically used',
+		validation: 'Poll token endpoint until user authorizes on separate device',
+		securityNotes: [
+			'✅ Perfect for devices with limited input capabilities',
+			'User completes authentication on a separate device',
+			'Polling mechanism to check authorization status',
+			'Device code and user code have short expiration times',
+		],
+		useCases: [
+			'Smart TVs and streaming devices',
+			'IoT devices with no keyboard',
+			'Gaming consoles',
+			'Command-line tools and CLI applications',
+		],
+	},
+	hybrid: {
+		flowType: 'oidc',
+		flowName: 'Hybrid Flow',
+		tokensReturned: 'Access Token + ID Token + Authorization Code',
+		purpose: 'Combined authentication with immediate token access',
+		specLayer: 'Defined in OIDC (OpenID Connect)',
+		nonceRequirement: 'Required when ID Token returned',
+		validation:
+			'Validate ID Token immediately, exchange code for additional tokens, validate at_hash and c_hash',
+		securityNotes: [
+			'⚠️ Complex flow - use only when specifically needed',
+			'Combines benefits of implicit and authorization code flows',
+			'Frontend gets immediate access to ID Token',
+			'Backend can securely exchange code for refresh token',
+		],
+		useCases: [
+			'Applications needing immediate user identity verification',
+			'Scenarios requiring both frontend and backend token access',
+			'Advanced SSO implementations',
+		],
+	},
+	'worker-token': {
+		flowType: 'oauth',
+		flowName: 'Worker Token Flow (PingOne)',
+		tokensReturned: 'Worker Access Token',
+		purpose: 'Admin-level PingOne API access',
+		specLayer: 'PingOne-specific extension',
+		nonceRequirement: 'Not applicable',
+		validation: 'Validate with PingOne Management APIs',
+		securityNotes: [
+			'⚠️ HIGHLY PRIVILEGED - Admin-level access',
+			'Use only for administrative operations',
+			'Secure storage of worker app credentials required',
+			'Monitor and log all worker token usage',
+		],
+		useCases: [
+			'PingOne environment management',
+			'Administrative automation',
+			'User provisioning systems',
+			'Configuration management tools',
+		],
+	},
+	par: {
+		flowType: 'oauth',
+		flowName: 'Pushed Authorization Request (PAR)',
+		tokensReturned: 'Same as Authorization Code Flow',
+		purpose: 'Secure authorization with server-side request initiation',
+		specLayer: 'Defined in OAuth 2.0 (RFC 9126)',
+		nonceRequirement: 'Recommended for OIDC',
+		validation: 'Push request to server first, then redirect with request_uri',
+		securityNotes: [
+			'✅ Enhanced security - Authorization request not exposed in browser',
+			'Prevents request tampering and leakage',
+			'Requires additional server endpoint',
+			'Ideal for high-security applications',
+		],
+		useCases: [
+			'Financial applications',
+			'Healthcare systems',
+			'High-security enterprise applications',
+			'Applications handling sensitive data',
+		],
+	},
+	'resource-owner-password': {
+		flowType: 'oauth',
+		flowName: 'Resource Owner Password Credentials',
+		tokensReturned: 'Access Token + Refresh Token',
+		purpose: 'Direct authentication with username/password',
+		specLayer: 'Defined in OAuth 2.0',
+		nonceRequirement: 'Not applicable',
+		validation: 'Direct exchange of credentials for tokens',
+		securityNotes: [
+			'⚠️ DISCOURAGED - Only for legacy migration',
+			'Application has access to user credentials',
+			'No interactive consent flow',
+			'Migrate to Authorization Code Flow when possible',
+		],
+		useCases: [
+			'Legacy application migration only',
+			'Trusted first-party applications',
+			'Internal enterprise applications (temporary use)',
+		],
+	},
+	redirectless: {
+		flowType: 'oauth',
+		flowName: 'Redirectless Flow',
+		tokensReturned: 'Access Token + ID Token',
+		purpose: 'Authentication without browser redirects',
+		specLayer: 'Experimental/Custom implementation',
+		nonceRequirement: 'Recommended',
+		validation: 'Validate using embedded flow mechanism',
+		securityNotes: [
+			'⚠️ EXPERIMENTAL - Not a standard OAuth flow',
+			'Custom implementation for specific use cases',
+			'Requires careful security review',
+			'May not be supported by all providers',
+		],
+		useCases: [
+			'Embedded authentication experiences',
+			'Mobile app in-app browsers',
+			'Custom authentication flows',
+		],
+	},
+};
+
+// Helper function to get flow info by flow type
+export const getFlowInfo = (flowType: string): FlowInfo | null => {
+	return FLOW_INFO_CONFIG[flowType] || null;
+};
+
+// Preset configurations for common flow scenarios
+export const PRESET_FLOW_CONFIGS = {
+	'oidc-implicit': FLOW_INFO_CONFIG['oidc-implicit'],
+	'oauth-implicit': FLOW_INFO_CONFIG['oauth-implicit'],
+	'oidc-authorization-code': FLOW_INFO_CONFIG['oidc-authorization-code'],
+	'oauth-authorization-code': FLOW_INFO_CONFIG['oauth-authorization-code'],
+	'client-credentials': FLOW_INFO_CONFIG['client-credentials'],
+	'device-code': FLOW_INFO_CONFIG['device-code'],
+	hybrid: FLOW_INFO_CONFIG['hybrid'],
+	'worker-token': FLOW_INFO_CONFIG['worker-token'],
+	par: FLOW_INFO_CONFIG['par'],
+	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
+	redirectless: FLOW_INFO_CONFIG['redirectless'],
+};
+
+export default {
+	FLOW_INFO_CONFIG,
+	getFlowInfo,
+	PRESET_FLOW_CONFIGS,
+};

@@ -102,7 +102,13 @@ export async function makeApiRequest<T = any>(
 					.join(', ');
 				errorMessage += ` | Validation errors: ${validationErrors}`;
 			}
-			
+
+			// Attach raw enum values if provided
+			const enumValues = errorData?.details?.[0]?.enumValues || errorData.enumValues;
+			if (enumValues) {
+				errorMessage += ` | Allowed values: ${JSON.stringify(enumValues)}`;
+			}
+
 			throw new Error(
 				`API request failed: ${response.status} ${response.statusText}. ${errorMessage}`
 			);
@@ -173,7 +179,10 @@ export async function discoverWorkerApp(
 
 		return appDetails;
 	} catch (error) {
-		logger.error('API-CLIENT', 'Failed to discover worker app', error);
+		logger.error('API-CLIENT', 'Failed to discover worker app', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		return null;
 	}
 }
@@ -210,7 +219,10 @@ export async function getEnvironmentInfo(client: PingOneClient): Promise<Environ
 
 		return envInfo;
 	} catch (error) {
-		logger.error('API-CLIENT', 'Failed to get environment info', error);
+		logger.error('API-CLIENT', 'Failed to get environment info', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		return null;
 	}
 }
@@ -277,7 +289,10 @@ export async function getUsers(client: PingOneClient, limit: number = 10): Promi
 		const response = await makeApiRequest<any>(client, `/users?limit=${limit}`);
 		return response._embedded?.users || response.users || [];
 	} catch (error) {
-		logger.error('API-CLIENT', 'Failed to get users', error);
+		logger.error('API-CLIENT', 'Failed to get users', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		throw error;
 	}
 }
@@ -290,7 +305,10 @@ export async function getApplications(client: PingOneClient, limit: number = 10)
 		const response = await makeApiRequest<any>(client, `/applications?limit=${limit}`);
 		return response._embedded?.applications || response.applications || [];
 	} catch (error) {
-		logger.error('API-CLIENT', 'Failed to get applications', error);
+		logger.error('API-CLIENT', 'Failed to get applications', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		throw error;
 	}
 }
@@ -303,7 +321,10 @@ export async function getUserGroups(client: PingOneClient, limit: number = 10): 
 		const response = await makeApiRequest<any>(client, `/userGroups?limit=${limit}`);
 		return response._embedded?.userGroups || response.userGroups || [];
 	} catch (error) {
-		logger.error('API-CLIENT', 'Failed to get user groups', error);
+		logger.error('API-CLIENT', 'Failed to get user groups', {
+			error: error instanceof Error ? error.message : String(error),
+			stack: error instanceof Error ? error.stack : undefined,
+		});
 		throw error;
 	}
 }

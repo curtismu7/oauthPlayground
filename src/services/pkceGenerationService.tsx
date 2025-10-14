@@ -139,8 +139,8 @@ const PKCELabel = styled.div`
 const PKCEValue = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 0.375rem;
 	padding: 0.75rem;
 	color: #374151;
@@ -259,7 +259,7 @@ export const PKCEGenerationComponent: React.FC<PKCEGenerationProps> = ({
 		console.log('[PKCEGenerationService] Starting PKCE generation...');
 		setStatus('generating');
 		setStatusMessage('Generating PKCE codes...');
-		v4ToastManager.showInfo('Generating PKCE codes...');
+		v4ToastManager.showSuccess('Generating PKCE codes...');
 
 		try {
 			console.log('[PKCEGenerationService] Calling controller.generatePkceCodes()...');

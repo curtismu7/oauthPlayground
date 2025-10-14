@@ -117,12 +117,12 @@ const ParameterLabel = styled.div`
 const ParameterValue = styled.div`
 	font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
 	font-size: 0.875rem;
-	color: #1f2937;
+	color: #064e3b;
 	word-break: break-all;
-	background: #f9fafb;
+	background: #f0fdf4; /* Light green for generated content */
 	padding: 0.5rem;
 	border-radius: 0.375rem;
-	border: 1px solid #e5e7eb;
+	border: 1px solid #16a34a;
 `;
 
 const ActionRow = styled.div`

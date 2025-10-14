@@ -199,7 +199,7 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
   font-size: 0.8rem;
   line-height: 1.6;
   color: var(--color-text-primary, #000000);
-  background: rgba(255, 255, 255, 0.95);
+  background: #f0fdf4; /* Light green for generated content */
   border: 2px solid ${({ $type }) => {
 		switch ($type) {
 			case 'access':

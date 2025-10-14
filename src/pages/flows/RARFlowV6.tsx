@@ -18,8 +18,6 @@ import {
 	FiChevronDown,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -29,8 +27,8 @@ import { ResultsHeading, ResultsSection, SectionDivider } from '../../components
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
@@ -45,6 +43,8 @@ import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import RARService, { type AuthorizationDetail } from '../../services/rarService';
+import { FlowStorageService } from '../../services/flowStorageService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -465,14 +465,14 @@ export const RARFlowV6: React.FC = () => {
 
 	// Legacy: Load from old localStorage key for migration
 	useEffect(() => {
-		const saved = localStorage.getItem('rar-v5-current-step');
+		const saved = localStorage.getItem('rar-v6-current-step');
 		if (saved) {
 			try {
 				const step = parseInt(saved, 10);
-				console.log('🔄 [RAR-V5] Loaded current step from localStorage:', step);
+				console.log('🔄 [RAR-V6] Loaded current step from localStorage:', step);
 				return step;
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to parse saved current step:', error);
+				console.warn('[RAR-V6] Failed to parse saved current step:', error);
 			}
 		}
 		return 0;
@@ -484,11 +484,11 @@ export const RARFlowV6: React.FC = () => {
 
 	const [credentials, setCredentials] = useState(() => {
 		// Load credentials from localStorage on initialization
-		const saved = localStorage.getItem('rar-v5-credentials');
+		const saved = localStorage.getItem('rar-v6-credentials');
 		if (saved) {
 			try {
 				const parsed = JSON.parse(saved);
-				console.log('🔄 [RAR-V5] Loaded credentials from localStorage:', parsed);
+				console.log('🔄 [RAR-V6] Loaded credentials from localStorage:', parsed);
 				return {
 					environmentId: parsed.environmentId || '',
 					clientId: parsed.clientId || '',
@@ -497,7 +497,7 @@ export const RARFlowV6: React.FC = () => {
 					scopes: parsed.scopes || 'openid profile email',
 				};
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to parse saved credentials:', error);
+				console.warn('[RAR-V6] Failed to parse saved credentials:', error);
 			}
 		}
 		return {
@@ -509,18 +509,26 @@ export const RARFlowV6: React.FC = () => {
 		};
 	});
 
-	const [authorizationDetails, setAuthorizationDetails] = useState(() => {
-		// Load authorization details from localStorage on initialization
-		const saved = localStorage.getItem('rar-v5-authorization-details');
-		if (saved) {
+	const [authorizationDetails, setAuthorizationDetails] = useState<AuthorizationDetail[]>(() => {
+		// Load authorization details from FlowStorageService first (preferred)
+		const saved = FlowStorageService.AdvancedParameters.get('rar-v6');
+		if (saved && saved.authorizationDetails) {
+			console.log('💾 [RAR-V6] Loaded authorization details from FlowStorageService:', saved.authorizationDetails);
+			return saved.authorizationDetails;
+		}
+
+		// Fallback to localStorage for backward compatibility
+		const localSaved = localStorage.getItem('rar-v6-authorization-details');
+		if (localSaved) {
 			try {
-				const parsed = JSON.parse(saved);
-				console.log('🔄 [RAR-V5] Loaded authorization details from localStorage:', parsed);
-				return parsed;
+				const parsed = JSON.parse(localSaved);
+				console.log('💾 [RAR-V6] Loaded authorization details from localStorage (legacy):', parsed);
+				return Array.isArray(parsed) ? parsed : [];
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to parse saved authorization details:', error);
+				console.warn('[RAR-V6] Failed to parse saved authorization details:', error);
 			}
 		}
+
 		// Use the example structure provided by user
 		return [
 			{
@@ -539,12 +547,12 @@ export const RARFlowV6: React.FC = () => {
 
 	const [authUrl, setAuthUrl] = useState(() => {
 		// Load authUrl from localStorage on initialization
-		const saved = localStorage.getItem('rar-v5-auth-url');
+		const saved = localStorage.getItem('rar-v6-auth-url');
 		return saved || '';
 	});
 	const [authCode, setAuthCode] = useState(() => {
 		// Load authCode from localStorage on initialization
-		const saved = localStorage.getItem('rar-v5-auth-code');
+		const saved = localStorage.getItem('rar-v6-auth-code');
 		return saved || '';
 	});
 	const [tokens, setTokens] = useState<{
@@ -560,14 +568,14 @@ export const RARFlowV6: React.FC = () => {
 		}>;
 	} | null>(() => {
 		// Load tokens from localStorage on initialization
-		const saved = localStorage.getItem('rar-v5-tokens');
+		const saved = localStorage.getItem('rar-v6-tokens');
 		if (saved) {
 			try {
 				const parsed = JSON.parse(saved);
-				console.log('🔄 [RAR-V5] Loaded tokens from localStorage:', parsed);
+				console.log('🔄 [RAR-V6] Loaded tokens from localStorage:', parsed);
 				return parsed;
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to parse saved tokens:', error);
+				console.warn('[RAR-V6] Failed to parse saved tokens:', error);
 			}
 		}
 		return null;
@@ -580,41 +588,52 @@ export const RARFlowV6: React.FC = () => {
 		trackOAuthFlow('rar-v5', true, 'started');
 	}, []);
 
-	// Save credentials to localStorage whenever they change
+	// Save credentials to localStorage whenever they change (debounced)
 	useEffect(() => {
-		try {
-			localStorage.setItem('rar-v5-credentials', JSON.stringify(credentials));
-			console.log('💾 [RAR-V5] Credentials saved to localStorage:', {
-				environmentId: credentials.environmentId
-					? `${credentials.environmentId.substring(0, 8)}...`
-					: 'none',
-				clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+		const debounceTimer = setTimeout(() => {
+			try {
+				localStorage.setItem('rar-v6-credentials', JSON.stringify(credentials));
+				console.log('💾 [RAR-V6] Credentials saved to localStorage:', {
+					environmentId: credentials.environmentId
+						? `${credentials.environmentId.substring(0, 8)}...`
+						: 'none',
+					clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
 				hasClientSecret: !!credentials.clientSecret,
 				redirectUri: credentials.redirectUri,
 				scopes: credentials.scopes,
 			});
 		} catch (error) {
-			console.warn('[RAR-V5] Failed to save credentials to localStorage:', error);
+			console.warn('[RAR-V6] Failed to save credentials to localStorage:', error);
 		}
+		}, 500); // Debounce by 500ms
+		
+		return () => clearTimeout(debounceTimer);
 	}, [credentials]);
 
-	// Save authorization details to localStorage whenever they change
+	// Save authorization details to FlowStorageService (and localStorage for backward compatibility)
 	useEffect(() => {
 		try {
-			localStorage.setItem('rar-v5-authorization-details', JSON.stringify(authorizationDetails));
-			console.log('💾 [RAR-V5] Authorization details saved to localStorage:', authorizationDetails);
+			// Save to FlowStorageService (preferred)
+			FlowStorageService.AdvancedParameters.set('rar-v6', {
+				authorizationDetails
+			});
+			console.log('💾 [RAR-V6] Authorization details saved to FlowStorageService:', authorizationDetails);
+
+			// Also save to localStorage for backward compatibility
+			localStorage.setItem('rar-v6-authorization-details', JSON.stringify(authorizationDetails));
+			console.log('💾 [RAR-V6] Authorization details saved to localStorage (legacy):', authorizationDetails);
 		} catch (error) {
-			console.warn('[RAR-V5] Failed to save authorization details to localStorage:', error);
+			console.warn('[RAR-V6] Failed to save authorization details:', error);
 		}
 	}, [authorizationDetails]);
 
 	// Save current step to localStorage whenever it changes
 	useEffect(() => {
 		try {
-			localStorage.setItem('rar-v5-current-step', currentStep.toString());
-			console.log('💾 [RAR-V5] Current step saved to localStorage:', currentStep);
+			localStorage.setItem('rar-v6-current-step', currentStep.toString());
+			console.log('💾 [RAR-V6] Current step saved to localStorage:', currentStep);
 		} catch (error) {
-			console.warn('[RAR-V5] Failed to save current step to localStorage:', error);
+			console.warn('[RAR-V6] Failed to save current step to localStorage:', error);
 		}
 	}, [currentStep]);
 
@@ -622,10 +641,10 @@ export const RARFlowV6: React.FC = () => {
 	useEffect(() => {
 		if (authUrl) {
 			try {
-				localStorage.setItem('rar-v5-auth-url', authUrl);
-				console.log('💾 [RAR-V5] Auth URL saved to localStorage');
+				localStorage.setItem('rar-v6-auth-url', authUrl);
+				console.log('💾 [RAR-V6] Auth URL saved to localStorage');
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to save auth URL to localStorage:', error);
+				console.warn('[RAR-V6] Failed to save auth URL to localStorage:', error);
 			}
 		}
 	}, [authUrl]);
@@ -634,10 +653,10 @@ export const RARFlowV6: React.FC = () => {
 	useEffect(() => {
 		if (authCode) {
 			try {
-				localStorage.setItem('rar-v5-auth-code', authCode);
-				console.log('💾 [RAR-V5] Auth code saved to localStorage');
+				localStorage.setItem('rar-v6-auth-code', authCode);
+				console.log('💾 [RAR-V6] Auth code saved to localStorage');
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to save auth code to localStorage:', error);
+				console.warn('[RAR-V6] Failed to save auth code to localStorage:', error);
 			}
 		}
 	}, [authCode]);
@@ -646,10 +665,10 @@ export const RARFlowV6: React.FC = () => {
 	useEffect(() => {
 		if (tokens) {
 			try {
-				localStorage.setItem('rar-v5-tokens', JSON.stringify(tokens));
-				console.log('💾 [RAR-V5] Tokens saved to localStorage');
+				localStorage.setItem('rar-v6-tokens', JSON.stringify(tokens));
+				console.log('💾 [RAR-V6] Tokens saved to localStorage');
 			} catch (error) {
-				console.warn('[RAR-V5] Failed to save tokens to localStorage:', error);
+				console.warn('[RAR-V6] Failed to save tokens to localStorage:', error);
 			}
 		}
 	}, [tokens]);
@@ -719,14 +738,14 @@ export const RARFlowV6: React.FC = () => {
 
 		// Clear flow-specific localStorage data (but keep credentials)
 		try {
-			localStorage.removeItem('rar-v5-current-step');
-			localStorage.removeItem('rar-v5-authorization-details');
-			localStorage.removeItem('rar-v5-auth-url');
-			localStorage.removeItem('rar-v5-auth-code');
-			localStorage.removeItem('rar-v5-tokens');
-			console.log('🗑️ [RAR-V5] Cleared flow state (credentials preserved)');
+			localStorage.removeItem('rar-v6-current-step');
+			localStorage.removeItem('rar-v6-authorization-details');
+			localStorage.removeItem('rar-v6-auth-url');
+			localStorage.removeItem('rar-v6-auth-code');
+			localStorage.removeItem('rar-v6-tokens');
+			console.log('🗑️ [RAR-V6] Cleared flow state (credentials preserved)');
 		} catch (error) {
-			console.warn('[RAR-V5] Failed to clear localStorage data:', error);
+			console.warn('[RAR-V6] Failed to clear localStorage data:', error);
 		}
 
 		v4ToastManager.showSuccess('RAR flow reset successfully. Credentials preserved.');
@@ -743,14 +762,14 @@ export const RARFlowV6: React.FC = () => {
 
 	const navigateToTokenManagement = useCallback(() => {
 		// Store flow navigation state for back navigation
-		storeFlowNavigationState('rar-v5', currentStep, 'oauth');
+		storeFlowNavigationState('rar-v6', currentStep, 'oauth');
 
 		// Set flow source for Token Management page (legacy support)
-		sessionStorage.setItem('flow_source', 'rar-v5');
+		sessionStorage.setItem('flow_source', 'rar-v6');
 
 		// Store comprehensive flow context for Token Management page
 		const flowContext = {
-			flow: 'rar-v5',
+			flow: 'rar-v6',
 			tokens: tokens,
 			credentials: credentials,
 			timestamp: Date.now(),
@@ -762,8 +781,8 @@ export const RARFlowV6: React.FC = () => {
 			// Use localStorage for cross-tab communication
 			localStorage.setItem('token_to_analyze', tokens.access_token);
 			localStorage.setItem('token_type', 'access');
-			localStorage.setItem('flow_source', 'rar-v5');
-			console.log('🔍 [RARFlowV5] Passing access token to Token Management via localStorage');
+			localStorage.setItem('flow_source', 'rar-v6');
+			console.log('🔍 [RARFlowV6] Passing access token to Token Management via localStorage');
 		}
 
 		window.open('/token-management', '_blank');
@@ -809,19 +828,21 @@ export const RARFlowV6: React.FC = () => {
 				state: 'rar-flow-state-' + Math.random().toString(36).substr(2, 9),
 			});
 
-			// Add RAR authorization details
-			const rarDetails = {
-				type: 'oauth_authorization_details',
-				authorization_details: authorizationDetails.filter(
-					(detail: any) =>
-						detail.type &&
-						detail.instructedAmount &&
-						detail.creditorName &&
-						detail.creditorAccount?.iban
-				),
-			};
+			// Validate and add RAR authorization details using RARService
+			const validation = RARService.validateAuthorizationDetails(authorizationDetails);
+			if (!validation.valid) {
+				throw new Error(`Invalid authorization details: ${validation.errors.join(', ')}`);
+			}
 
-			params.append('authorization_details', JSON.stringify(rarDetails));
+			const validAuthorizationDetails = authorizationDetails.filter(
+				(detail: any) =>
+					detail.type &&
+					detail.instructedAmount &&
+					detail.creditorName &&
+					detail.creditorAccount?.iban
+			);
+
+			params.append('authorization_details', JSON.stringify(validAuthorizationDetails));
 
 			const url = `${baseUrl}?${params.toString()}`;
 			setAuthUrl(url);
@@ -1282,7 +1303,16 @@ export const RARFlowV6: React.FC = () => {
 
 						{tokens && (
 							<>
-								<JWTTokenDisplay token={tokens.access_token} tokenType="access" />
+								{/* Display tokens using UnifiedTokenDisplayService with decode buttons */}
+								{UnifiedTokenDisplayService.showTokens(
+									tokens,
+									'oauth',
+									'rar-v6',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+									}
+								)}
 
 								<SectionDivider />
 
@@ -1309,6 +1339,15 @@ export const RARFlowV6: React.FC = () => {
 												throw new Error('Missing credentials for introspection');
 											}
 
+											// Enhanced token introspection with 500ms delay and client secret check
+											// Wait 500ms for PingOne to register token
+											await new Promise(resolve => setTimeout(resolve, 500));
+
+											// Check for required client secret for introspection
+											if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+												throw new Error('Client secret required for token introspection. Please configure your credentials first.');
+											}
+
 											const request = {
 												token: token,
 												clientId: credentials.clientId,
@@ -1321,7 +1360,9 @@ export const RARFlowV6: React.FC = () => {
 												const result = await TokenIntrospectionService.introspectToken(
 													request,
 													'rar',
-													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+													'/api/introspect-token',
+													`https://auth.pingone.com/${credentials.environmentId}/as/introspect`,
+													'client_secret_post'
 												);
 
 												// Set the API call data for display

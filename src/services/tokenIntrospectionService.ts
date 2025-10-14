@@ -75,7 +75,8 @@ export class TokenIntrospectionService {
 		request: IntrospectionRequest,
 		flowType: IntrospectionApiCallData['flowType'],
 		baseUrl: string = '/api/introspect-token',
-		introspectionEndpoint?: string
+		introspectionEndpoint?: string,
+		tokenAuthMethod: string = 'client_secret_post'
 	): Promise<{
 		apiCall: IntrospectionApiCallData;
 		response: IntrospectionResponse;
@@ -94,6 +95,8 @@ export class TokenIntrospectionService {
 			if (introspectionEndpoint) {
 				formData.append('introspection_endpoint', introspectionEndpoint);
 			}
+			// Add authentication method
+			formData.append('token_auth_method', tokenAuthMethod);
 
 			const response = await fetch(baseUrl, {
 				method: 'POST',

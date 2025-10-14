@@ -1,6 +1,7 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { FiAlertTriangle, FiHome, FiRefreshCw } from 'react-icons/fi';
+import { FiAlertTriangle, FiHome, FiRefreshCw, FiMail, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
+import { ErrorHandlingService, ErrorResponse, RecoveryOption } from '../services/errorHandlingService';
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -106,12 +107,13 @@ const ActionButton = styled.button`
 interface Props {
 	children: ReactNode;
 	fallback?: ReactNode;
+	onError?: (error: Error, errorInfo: ErrorInfo) => void;
 }
 
 interface State {
 	hasError: boolean;
-	error: Error | null;
-	errorInfo: ErrorInfo | null;
+	errorResponse: ErrorResponse | null;
+	showDetails: boolean;
 }
 
 class ErrorBoundary extends Component<Props, State> {
@@ -119,40 +121,110 @@ class ErrorBoundary extends Component<Props, State> {
 		super(props);
 		this.state = {
 			hasError: false,
-			error: null,
-			errorInfo: null,
+			errorResponse: null,
+			showDetails: false,
 		};
 	}
 
-	static getDerivedStateFromError(error: Error): State {
+	static getDerivedStateFromError(error: Error): Partial<State> {
+		// Create error response using the ErrorHandlingService
+		const errorResponse = ErrorHandlingService.handleFlowError(error, {
+			flowId: 'error-boundary',
+			metadata: {
+				componentStack: error.stack,
+				userAgent: navigator.userAgent,
+				url: window.location.href,
+				timestamp: new Date().toISOString()
+			}
+		});
+
 		return {
 			hasError: true,
-			error,
-			errorInfo: null,
+			errorResponse
 		};
 	}
 
-	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-		console.error('ErrorBoundary caught an error:', error, errorInfo);
-		this.setState({
+	override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+		// Log additional error context
+		console.error('[ErrorBoundary] Caught error:', {
 			error,
 			errorInfo,
+			componentStack: errorInfo.componentStack
+		});
+
+		// Call optional onError callback
+		if (this.props.onError) {
+			this.props.onError(error, errorInfo);
+		}
+
+		// Report to error tracking service with enhanced context
+		this.reportError(error, errorInfo);
+	}
+
+	private reportError(error: Error, errorInfo: ErrorInfo) {
+		// Enhanced error reporting with component stack
+		const enhancedError = {
+			...error,
+			componentStack: errorInfo.componentStack,
+			errorBoundary: true
+		};
+
+		// Use ErrorHandlingService to report with additional context
+		ErrorHandlingService.handleFlowError(enhancedError, {
+			flowId: 'error-boundary',
+			metadata: {
+				componentStack: errorInfo.componentStack,
+				errorBoundary: true,
+				errorBoundaryStack: errorInfo.componentStack
+			}
 		});
 	}
 
-	handleReload = () => {
-		window.location.reload();
+	private handleRecovery = (option: RecoveryOption) => {
+		try {
+			// Execute the recovery action
+			const result = option.action();
+
+			// If it's a promise, handle it
+			if (result instanceof Promise) {
+				result.then(() => {
+					this.resetError();
+				}).catch((recoveryError) => {
+					console.error('[ErrorBoundary] Recovery action failed:', recoveryError);
+					// Could show additional error message here
+				});
+			} else {
+				// Synchronous action completed
+				this.resetError();
+			}
+		} catch (error) {
+			console.error('[ErrorBoundary] Recovery action threw error:', error);
+			// Could show additional error message here
+		}
 	};
 
-	handleGoHome = () => {
-		window.location.href = '/dashboard';
+	private resetError = () => {
+		this.setState({
+			hasError: false,
+			errorResponse: null,
+			showDetails: false
+		});
 	};
 
-	render() {
-		if (this.state.hasError) {
+	private toggleDetails = () => {
+		this.setState(prevState => ({
+			showDetails: !prevState.showDetails
+		}));
+	};
+
+	override render() {
+		if (this.state.hasError && this.state.errorResponse) {
+			// Use custom fallback if provided
 			if (this.props.fallback) {
 				return this.props.fallback;
 			}
+
+			const { errorResponse } = this.state;
 
 			return (
 				<ErrorContainer>
@@ -160,38 +232,52 @@ class ErrorBoundary extends Component<Props, State> {
 						<ErrorIcon>
 							<FiAlertTriangle />
 						</ErrorIcon>
-						<ErrorTitle>Something went wrong</ErrorTitle>
+
+						<ErrorTitle>
+							{errorResponse.severity === 'critical' ? 'Critical Error' :
+							 errorResponse.severity === 'high' ? 'Error Occurred' :
+							 'Something went wrong'}
+						</ErrorTitle>
+
 						<ErrorMessage>
-							An unexpected error occurred. This might be due to a server connectivity issue or a
-							problem with the application.
+							{errorResponse.userMessage}
 						</ErrorMessage>
 
-						<ErrorDetails>
-							<ErrorSummary>Error Details</ErrorSummary>
-							<div>
-								<p>
-									<strong>Error:</strong> {this.state.error?.message}
-								</p>
-								{this.state.errorInfo && (
-									<ErrorStack>
-										{this.state.error?.stack}
-										{'\n\nComponent Stack:'}
-										{this.state.errorInfo.componentStack}
-									</ErrorStack>
-								)}
-							</div>
-						</ErrorDetails>
+						{errorResponse.recoveryOptions.length > 0 && (
+							<ActionButtons>
+								{errorResponse.recoveryOptions.map((option) => (
+									<ActionButton
+										key={option.id}
+										onClick={() => this.handleRecovery(option)}
+										style={{
+											background: option.primary ? '#dc2626' : '#6b7280',
+											marginRight: '0.5rem',
+											marginBottom: '0.5rem'
+										}}
+									>
+										{option.id === 'retry' && <FiRefreshCw />}
+										{option.id === 'contact-support' && <FiMail />}
+										{option.id === 'check-connection' && <FiSettings />}
+										{option.label}
+									</ActionButton>
+								))}
+							</ActionButtons>
+						)}
 
-						<ActionButtons>
-							<ActionButton onClick={this.handleReload}>
-								<FiRefreshCw />
-								Reload Page
-							</ActionButton>
-							<ActionButton onClick={this.handleGoHome}>
-								<FiHome />
-								Go to Dashboard
-							</ActionButton>
-						</ActionButtons>
+						<ErrorDetails>
+							<ErrorSummary onClick={this.toggleDetails}>
+								{this.state.showDetails ? 'Hide' : 'Show'} Technical Details
+							</ErrorSummary>
+
+							{this.state.showDetails && (
+								<ErrorStack>
+									<strong>Error Type:</strong> {errorResponse.type}<br/>
+									<strong>Severity:</strong> {errorResponse.severity}<br/>
+									<strong>Message:</strong> {errorResponse.technicalMessage}<br/>
+									<strong>Correlation ID:</strong> {errorResponse.correlationId}
+								</ErrorStack>
+							)}
+						</ErrorDetails>
 					</ErrorCard>
 				</ErrorContainer>
 			);
