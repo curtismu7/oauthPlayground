@@ -767,7 +767,7 @@ const RARFlowV6: React.FC = () => {
 
 			// Navigate to the next step (Token Exchange) and persist it
 			setCurrentStep(4); // Step 4 is Token Exchange
-			sessionStorage.setItem('oidc-authorization-code-v5-current-step', '4');
+			sessionStorage.setItem('rar-v6-current-step', '4');
 		}
 	}, [controller.authCode, localAuthCode]);
 
@@ -2187,14 +2187,14 @@ const RARFlowV6: React.FC = () => {
 					console.log('🔴 [AuthorizationCodeFlowV5] Closing LoginSuccessModal', {
 						currentStep,
 						hasAuthCode: !!(controller.authCode || localAuthCode),
-						storedStep: sessionStorage.getItem('oidc-authorization-code-v5-current-step'),
+						storedStep: sessionStorage.getItem('rar-v6-current-step'),
 					});
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
 						console.log('🔧 [AuthorizationCodeFlowV5] Correcting step to 4 after modal close');
 						setCurrentStep(4);
-						sessionStorage.setItem('oidc-authorization-code-v5-current-step', '4');
+						sessionStorage.setItem('rar-v6-current-step', '4');
 					}
 				}}
 				title="Login Successful!"
