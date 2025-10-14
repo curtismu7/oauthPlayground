@@ -357,6 +357,7 @@ const ClientGenerator: React.FC = () => {
 	const [isCreating, setIsCreating] = useState(false);
 	const [creationResult, setCreationResult] = useState<AppCreationResult | null>(null);
 	const [lastApiUrl, setLastApiUrl] = useState<string>('');
+	const [lastRequestBody, setLastRequestBody] = useState<string>('');
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -592,7 +593,7 @@ const ClientGenerator: React.FC = () => {
 			// Initialize the service with the worker token
 			pingOneAppCreationService.initialize(workerToken, workerCredentials.environmentId);
 
-			// Capture API URL for display
+			// Capture API URL and request body for display
 			const apiUrl = `https://api.pingone.com/v1/environments/${workerCredentials.environmentId}/applications`;
 			setLastApiUrl(apiUrl);
 
@@ -606,8 +607,8 @@ const ClientGenerator: React.FC = () => {
 			};
 
 			switch (selectedAppType) {
-				case 'OIDC_WEB_APP':
-					result = await pingOneAppCreationService.createOIDCWebApp({
+				case 'OIDC_WEB_APP': {
+					const payload = {
 						...baseConfig,
 						type: 'OIDC_WEB_APP',
 						redirectUris: formData.redirectUris,
@@ -617,13 +618,15 @@ const ClientGenerator: React.FC = () => {
 						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as any,
 						pkceEnforcement: formData.pkceEnforcement as any,
 						scopes: formData.scopes,
-						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
-						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-						idTokenValiditySeconds: formData.idTokenValiditySeconds,
-					});
+						accessTokenValiditySeconds: 3600,
+						refreshTokenValiditySeconds: 2592000,
+						idTokenValiditySeconds: 3600,
+					};
+					setLastRequestBody(JSON.stringify(payload, null, 2));
+					result = await pingOneAppCreationService.createOIDCWebApp(payload);
 					break;
-				case 'OIDC_NATIVE_APP':
-					result = await pingOneAppCreationService.createOIDCNativeApp({
+				case 'OIDC_NATIVE_APP': {
+					const nativePayload = {
 						...baseConfig,
 						type: 'OIDC_NATIVE_APP',
 						redirectUris: formData.redirectUris,
@@ -635,10 +638,12 @@ const ClientGenerator: React.FC = () => {
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
 						idTokenValiditySeconds: formData.idTokenValiditySeconds,
-					});
+					};
+					setLastRequestBody(JSON.stringify(nativePayload, null, 2));
+					result = await pingOneAppCreationService.createOIDCNativeApp(nativePayload);
 					break;
 				case 'SINGLE_PAGE_APP':
-					result = await pingOneAppCreationService.createSinglePageApp({
+					const spaPayload = {
 						...baseConfig,
 						type: 'SINGLE_PAGE_APP',
 						redirectUris: formData.redirectUris,
@@ -650,10 +655,12 @@ const ClientGenerator: React.FC = () => {
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
 						idTokenValiditySeconds: formData.idTokenValiditySeconds,
-					});
+					};
+					setLastRequestBody(JSON.stringify(spaPayload, null, 2));
+					result = await pingOneAppCreationService.createSinglePageApp(spaPayload);
 					break;
 				case 'WORKER':
-					result = await pingOneAppCreationService.createWorkerApp({
+					const workerPayload = {
 						...baseConfig,
 						type: 'WORKER',
 						grantTypes: formData.grantTypes as any,
@@ -661,10 +668,12 @@ const ClientGenerator: React.FC = () => {
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-					});
+					};
+					setLastRequestBody(JSON.stringify(workerPayload, null, 2));
+					result = await pingOneAppCreationService.createWorkerApp(workerPayload);
 					break;
 				case 'SERVICE':
-					result = await pingOneAppCreationService.createServiceApp({
+					const servicePayload = {
 						...baseConfig,
 						type: 'SERVICE',
 						grantTypes: formData.grantTypes as any,
@@ -672,7 +681,9 @@ const ClientGenerator: React.FC = () => {
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
-					});
+					};
+					setLastRequestBody(JSON.stringify(servicePayload, null, 2));
+					result = await pingOneAppCreationService.createServiceApp(servicePayload);
 					break;
 				default:
 					throw new Error('Unsupported application type');
@@ -1076,18 +1087,60 @@ const ClientGenerator: React.FC = () => {
 							fontWeight: 600
 						}}>
 							<FiCode size={20} />
-							PingOne Management API Endpoint
+							PingOne Management API Call Details
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#1e40af', marginBottom: '1rem' }}>
-							This is the API endpoint used to create applications in your PingOne environment. 
-							Learn how to use the PingOne Management API to automate application creation.
+							Learn how the API call is made. This shows the endpoint, authentication method, and request body.
 						</div>
-						<ColoredUrlDisplay
-							url={lastApiUrl}
-							label="POST"
-							showCopyButton={true}
-							showInfoButton={false}
-						/>
+
+						{/* API Endpoint */}
+						<div style={{ marginBottom: '1rem' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#1e40af' }}>API Endpoint:</div>
+							<ColoredUrlDisplay
+								url={lastApiUrl}
+								label="POST"
+								showCopyButton={true}
+							/>
+						</div>
+
+						{/* Authentication */}
+						<div style={{ marginBottom: '1rem', padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '0.5rem' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<FiKey size={16} />
+								Authentication Method
+							</div>
+							<div style={{ fontSize: '0.875rem', color: '#78350f', marginBottom: '0.5rem' }}>
+								<strong>Type:</strong> Bearer Token (OAuth 2.0 Client Credentials)
+							</div>
+							<div style={{ fontSize: '0.875rem', color: '#78350f', marginBottom: '0.5rem' }}>
+								<strong>Header:</strong> <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>Authorization: Bearer [worker_token]</code>
+							</div>
+							<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
+								<strong>Worker Token Auth Method:</strong> <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>client_secret_post</code>
+							</div>
+							<div style={{ fontSize: '0.75rem', color: '#92400e', marginTop: '0.5rem', fontStyle: 'italic' }}>
+								💡 The worker token was obtained using client_credentials grant with client_secret_post authentication
+							</div>
+						</div>
+
+						{/* Request Body */}
+						{lastRequestBody && (
+							<div>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#1e40af' }}>Request Body (JSON):</div>
+								<pre style={{ 
+									background: '#1e293b', 
+									color: '#e2e8f0', 
+									padding: '1rem', 
+									borderRadius: '0.5rem', 
+									overflowX: 'auto',
+									fontSize: '0.875rem',
+									lineHeight: '1.6',
+									fontFamily: 'Monaco, Menlo, monospace'
+								}}>
+									{lastRequestBody}
+								</pre>
+							</div>
+						)}
 					</div>
 				</div>
 			)}
