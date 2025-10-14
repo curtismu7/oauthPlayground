@@ -1,25 +1,20 @@
 // src/pages/ClientGenerator.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-	FiCheckCircle,
-	FiX,
-	FiLoader,
-	FiSettings,
-	FiSmartphone,
-	FiGlobe,
-	FiCode,
-	FiServer,
 	FiKey,
+	FiCheckCircle,
+	FiSettings,
+	FiX,
+	FiCode,
+	FiArrowRight,
+	FiGlobe,
+	FiServer,
+	FiSmartphone,
+	FiLoader,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
-import {
-	pingOneAppCreationService,
-	AppType,
-	AppConfig,
-	CreatedApp,
-	AppCreationResult,
-} from '../services/pingOneAppCreationService';
+import { pingOneAppCreationService, AppType } from '../services/pingOneAppCreationService';
+import TokenDisplayService from '../services/tokenDisplayService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialsInput } from '../components/CredentialsInput';
@@ -366,6 +361,7 @@ const ClientGenerator: React.FC = () => {
 		body: string;
 		authMethod: string;
 	} | null>(null);
+	const [showAppGenerator, setShowAppGenerator] = useState(false);
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -601,8 +597,40 @@ const ClientGenerator: React.FC = () => {
 		setFormData((prev) => ({ ...prev, [field]: values }));
 	};
 
+	// Form validation
+	const validateForm = () => {
+		const errors: string[] = [];
+		
+		if (!formData.name.trim()) {
+			errors.push('Application name is required');
+		}
+		
+		if (!formData.description.trim()) {
+			errors.push('Description is required');
+		}
+		
+		// Validate grant types - convert to uppercase for PingOne
+		if (formData.grantTypes.length === 0) {
+			errors.push('At least one grant type is required');
+		}
+		
+		// Validate response types if applicable
+		if ((selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && formData.responseTypes.length === 0) {
+			errors.push('At least one response type is required for this app type');
+		}
+		
+		return errors;
+	};
+
 	const handleCreateApp = async () => {
 		if (!selectedAppType) return;
+
+		// Validate form
+		const validationErrors = validateForm();
+		if (validationErrors.length > 0) {
+			v4ToastManager.showError(validationErrors.join(', '));
+			return;
+		}
 
 		setIsCreating(true);
 		setCreationResult(null);
@@ -641,13 +669,13 @@ const ClientGenerator: React.FC = () => {
 				case 'OIDC_WEB_APP': {
 					const payload = {
 						...baseConfig,
-						type: 'OIDC_WEB_APP',
+						type: 'WEB_APP',
 						redirectUris: formData.redirectUris,
 						postLogoutRedirectUris: formData.postLogoutRedirectUris,
-						grantTypes: formData.grantTypes as any,
-						responseTypes: formData.responseTypes as any,
-						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as any,
-						pkceEnforcement: formData.pkceEnforcement as any,
+						grantTypes: formData.grantTypes.map(gt => gt.toUpperCase().replace('_', '_')),
+						responseTypes: formData.responseTypes.map(rt => rt.toUpperCase()),
+						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod,
+						pkceEnforcement: formData.pkceEnforcement,
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: 7200,
 						refreshTokenValiditySeconds: 2592000,
@@ -660,12 +688,12 @@ const ClientGenerator: React.FC = () => {
 				case 'OIDC_NATIVE_APP': {
 					const nativePayload = {
 						...baseConfig,
-						type: 'OIDC_NATIVE_APP',
+						type: 'NATIVE_APP',
 						redirectUris: formData.redirectUris,
-						grantTypes: formData.grantTypes as any,
-						responseTypes: formData.responseTypes as any,
-						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as any,
-						pkceEnforcement: formData.pkceEnforcement as any,
+						grantTypes: formData.grantTypes.map(gt => gt.toUpperCase().replace('_', '_')),
+						responseTypes: formData.responseTypes.map(rt => rt.toUpperCase()),
+						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod,
+						pkceEnforcement: formData.pkceEnforcement,
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
@@ -680,10 +708,10 @@ const ClientGenerator: React.FC = () => {
 						...baseConfig,
 						type: 'SINGLE_PAGE_APP',
 						redirectUris: formData.redirectUris,
-						grantTypes: formData.grantTypes as any,
-						responseTypes: formData.responseTypes as any,
+						grantTypes: formData.grantTypes.map(gt => gt.toUpperCase().replace('_', '_')),
+						responseTypes: formData.responseTypes.map(rt => rt.toUpperCase()),
 						tokenEndpointAuthMethod: 'none',
-						pkceEnforcement: formData.pkceEnforcement as any,
+						pkceEnforcement: formData.pkceEnforcement,
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
@@ -697,8 +725,8 @@ const ClientGenerator: React.FC = () => {
 					const workerPayload = {
 						...baseConfig,
 						type: 'WORKER',
-						grantTypes: formData.grantTypes as any,
-						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as any,
+						grantTypes: formData.grantTypes.map(gt => gt.toUpperCase().replace('_', '_')),
+						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod,
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
@@ -711,8 +739,8 @@ const ClientGenerator: React.FC = () => {
 					const servicePayload = {
 						...baseConfig,
 						type: 'SERVICE',
-						grantTypes: formData.grantTypes as any,
-						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as any,
+						grantTypes: formData.grantTypes.map(gt => gt.toUpperCase().replace('_', '_')),
+						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod,
 						scopes: formData.scopes,
 						accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
 						refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
@@ -871,21 +899,102 @@ const ClientGenerator: React.FC = () => {
 
 			{/* Success indicator when we have a token */}
 			{workerToken && (
-				<SuccessMessage>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiCheckCircle /> Worker token active - Ready to create applications
+				<div>
+					<SuccessMessage>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<FiCheckCircle /> Worker token obtained successfully!
+						</div>
+						<div style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+							<Button
+								variant="primary"
+								onClick={() => setShowAppGenerator(true)}
+								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+							>
+								<FiArrowRight /> Next: Create Applications
+							</Button>
+							<Button
+								variant="secondary"
+								onClick={() => {
+									setWorkerToken(null);
+									setTokenError(null);
+									setWorkerTokenRequest(null);
+								}}
+								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+							>
+								<FiSettings /> Change Credentials
+							</Button>
+						</div>
+					</SuccessMessage>
+
+					{/* Worker Token Response */}
+					<div style={{ marginTop: '2rem' }}>
+						<div style={{ 
+							background: '#f0fdf4', 
+							border: '1px solid #22c55e', 
+							borderRadius: '0.75rem', 
+							padding: '1.25rem'
+						}}>
+							<div style={{ 
+								display: 'flex', 
+								alignItems: 'center', 
+								gap: '0.5rem', 
+								marginBottom: '0.75rem',
+								color: '#166534',
+								fontWeight: 600
+							}}>
+								<FiKey size={20} />
+								Worker Token Response (OAuth 2.0 Token)
+							</div>
+							<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>
+								This is the access token that will be used to authenticate API calls to PingOne's Management API.
+							</div>
+
+							{/* Token Response */}
+							<div style={{ marginBottom: '1rem' }}>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Token Response:</div>
+								<pre style={{ 
+									background: '#1e293b', 
+									color: '#e2e8f0', 
+									padding: '1rem', 
+									borderRadius: '0.5rem', 
+									overflowX: 'auto',
+									fontSize: '0.875rem',
+									lineHeight: '1.6',
+									fontFamily: 'Monaco, Menlo, monospace'
+								}}>
+									{JSON.stringify({
+										access_token: TokenDisplayService.maskToken(workerToken, 20),
+										token_type: 'Bearer',
+										expires_in: 3600,
+										scope: 'openid p1:create:application p1:read:application p1:update:application'
+									}, null, 2)}
+								</pre>
+								<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
+									<strong>Note:</strong> The token is masked for security. Only the first 20 characters are shown, followed by masking. The full token is securely stored and will be used for authentication.
+								</div>
+							</div>
+
+							{/* Authentication Header */}
+							<div>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Authentication Header:</div>
+								<pre style={{ 
+									background: '#1e293b', 
+									color: '#e2e8f0', 
+									padding: '1rem', 
+									borderRadius: '0.5rem',
+									fontSize: '0.875rem',
+									lineHeight: '1.6',
+									fontFamily: 'Monaco, Menlo, monospace'
+								}}>
+									{`Authorization: Bearer ${TokenDisplayService.maskToken(workerToken, 20)}`}
+								</pre>
+								<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
+									This header will be included in all API requests to PingOne.
+								</div>
+							</div>
+						</div>
 					</div>
-					<Button
-						variant="secondary"
-						onClick={() => {
-							setWorkerToken(null);
-							setTokenError(null);
-						}}
-						style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
-					>
-						<FiSettings /> Change Credentials
-					</Button>
-				</SuccessMessage>
+				</div>
 			)}
 
 			{/* Display Worker Token Request Details */}
@@ -990,8 +1099,8 @@ const ClientGenerator: React.FC = () => {
 				</div>
 			)}
 
-			{/* Only show app creation if we have a worker token */}
-			{workerToken && (
+			{/* Only show app creation if we have a worker token AND user clicked Next */}
+			{workerToken && showAppGenerator && (
 				<CardGrid>
 					{appTypes.map((appType) => (
 						<AppTypeCard
@@ -1022,7 +1131,7 @@ const ClientGenerator: React.FC = () => {
 						</FormGroup>
 
 						<FormGroup>
-							<Label>Description</Label>
+							<Label>Description *</Label>
 							<Input
 								value={formData.description}
 								onChange={(e) => handleInputChange('description', e.target.value)}
@@ -1184,7 +1293,7 @@ const ClientGenerator: React.FC = () => {
 						<Button
 							variant="primary"
 							onClick={handleCreateApp}
-							disabled={isCreating || !formData.name.trim()}
+							disabled={isCreating || !formData.name.trim() || !formData.description.trim()}
 						>
 							{isCreating ? <LoadingSpinner /> : <FiCheckCircle />}
 							Create Application
