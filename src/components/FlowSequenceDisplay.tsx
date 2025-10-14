@@ -204,6 +204,8 @@ const BenefitItem = styled.li`
 	}
 `;
 
+
+
 interface FlowSequenceDisplayProps {
 	flowType:
 		| 'device-authorization'

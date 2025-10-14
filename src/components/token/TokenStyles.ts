@@ -20,7 +20,8 @@ export const PageHeader = styled.div`
 `;
 
 export const TokenDisplay = styled.pre`
-  background-color: ${({ theme }: { theme: ThemeType }) => theme.colors.gray100};
+  background-color: #f0fdf4; /* Light green for generated content */
+  border: 1px solid #16a34a;
   padding: ${({ theme }: { theme: ThemeType }) => theme.spacing.md};
   border-radius: ${({ theme }: { theme: ThemeType }) => theme.borderRadius.md};
   overflow-x: auto;

@@ -1,260 +1,311 @@
 // src/services/flowCredentialService.ts
-// Service for managing flow credentials and ensuring consistency between component state and flow hooks
+// Unified Credential Service for OAuth/OIDC Flows
+// Provides consistent credential loading, saving, and synchronization across all flows
 
+import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialManager } from '../utils/credentialManager';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { safeJsonParse } from '../utils/secureJson';
+import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 
 export interface FlowCredentialConfig {
-  environmentId: string;
-  clientId: string;
-  clientSecret?: string;
-  redirectUri?: string;
-  scopes: string;
-  responseType?: string | 'code id_token' | 'code token' | 'code id_token token';
-  responseMode?: string | 'query' | 'fragment' | 'form_post' | 'pi.flow';
-  [key: string]: unknown; // Allow additional flow-specific properties
+	flowKey: string; // Unique key for this flow (e.g., 'client-credentials-v6', 'oidc-hybrid-v6')
+	flowType?: string; // Flow type for logging/tracking
+	defaultCredentials?: Partial<StepCredentials>; // Default credentials for this flow
 }
 
-export interface FlowCredentialServiceOptions {
-  flowName: string;
-  logPrefix: string;
-  requiredFields: string[];
+export interface FlowPersistentState<T = unknown> {
+	credentials: StepCredentials;
+	flowConfig?: T; // Flow-specific configuration
+	tokens?: unknown; // Flow-specific tokens
+	flowVariant?: string; // OAuth vs OIDC variant
+	timestamp?: number; // When this was saved
 }
 
-export interface PartialCredentialUpdateOptions {
-  validate?: boolean;
-  persist?: boolean;
-  showSuccessMessage?: boolean;
-  successMessage?: string;
-  logDetails?: boolean;
-}
-
-export class FlowCredentialService {
-  private flowName: string;
-  private logPrefix: string;
-  private requiredFields: string[];
-
-  constructor(options: FlowCredentialServiceOptions) {
-    this.flowName = options.flowName;
-    this.logPrefix = options.logPrefix;
-    this.requiredFields = options.requiredFields;
-  }
-
-  private persistCredentials(config: FlowCredentialConfig) {
-    const scopesValue = Array.isArray(config.scopes)
-      ? config.scopes
-      : typeof config.scopes === 'string'
-        ? config.scopes.split(' ').filter(Boolean)
-        : [];
-
-    credentialManager.saveAllCredentials({
-      environmentId: config.environmentId,
-      clientId: config.clientId,
-      clientSecret: config.clientSecret ?? '',
-      redirectUri: config.redirectUri ?? '',
-      scopes: scopesValue,
-    });
-  }
-
-  /**
-   * Validates that all required fields are present
-   */
-  validateCredentials(config: FlowCredentialConfig): { isValid: boolean; missingFields: string[] } {
-    const missingFields: string[] = [];
-    
-    this.requiredFields.forEach(field => {
-      const value = config[field];
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
-        missingFields.push(field);
-      }
-    });
-
-    return {
-      isValid: missingFields.length === 0,
-      missingFields
-    };
-  }
-
-  /**
-   * Updates flow credentials and ensures consistency
-   */
-  updateFlowCredentials(
-    config: FlowCredentialConfig,
-    setCredentials: (creds: FlowCredentialConfig) => void,
-    options?: {
-      showSuccessMessage?: boolean;
-      logDetails?: boolean;
-    }
-  ): { success: boolean; error?: string } {
-    try {
-      // Validate credentials
-      const validation = this.validateCredentials(config);
-      if (!validation.isValid) {
-        const errorMsg = `Missing required fields: ${validation.missingFields.join(', ')}`;
-        v4ToastManager.showError(errorMsg);
-        return { success: false, error: errorMsg };
-      }
-
-      // Update flow credentials
-      setCredentials(config);
-
-      // Save to credential manager for persistence
-      this.persistCredentials(config);
-
-      // Show success message if requested
-      if (options?.showSuccessMessage !== false) {
-        v4ToastManager.showSuccess('Credentials saved successfully!');
-      }
-
-      // Log details if requested
-      if (options?.logDetails) {
-        console.log(`${this.logPrefix} [INFO] Credentials updated`, {
-          flowName: this.flowName,
-          environmentId: config.environmentId,
-          clientId: `${config.clientId.substring(0, 8)}...`,
-          responseMode: config.responseMode,
-          responseType: config.responseType,
-        });
-      }
-
-      return { success: true };
-    } catch (error) {
-      const errorMsg = `Failed to update credentials: ${error}`;
-      console.error(`${this.logPrefix} [ERROR]`, errorMsg, error);
-      v4ToastManager.showError(errorMsg);
-      return { success: false, error: errorMsg };
-    }
-  }
-
-  /**
-   * Ensures credentials are up-to-date before performing flow actions
-   */
-  ensureCredentialsUpToDate(
-    currentConfig: FlowCredentialConfig,
-    setCredentials: (creds: FlowCredentialConfig) => void,
-    actionName: string
-  ): { success: boolean; error?: string } {
-    console.log(`${this.logPrefix} [INFO] Ensuring credentials up-to-date for ${actionName}`, {
-      responseMode: currentConfig.responseMode,
-      responseType: currentConfig.responseType,
-    });
-
-    return this.updateFlowCredentials(currentConfig, setCredentials, {
-      showSuccessMessage: false, // Don't show success message for background updates
-      logDetails: true,
-    });
-  }
-
-  /**
-   * Partially update credentials without requiring all required fields.
-   */
-  partialUpdateFlowCredentials(
-    currentConfig: FlowCredentialConfig,
-    updates: Partial<FlowCredentialConfig>,
-    setCredentials: (creds: FlowCredentialConfig) => void,
-    options: PartialCredentialUpdateOptions = {}
-  ): { success: boolean; updated?: FlowCredentialConfig; error?: string } {
-    try {
-      const mergedConfig = {
-        ...currentConfig,
-        ...updates,
-      } as FlowCredentialConfig;
-
-      if (options.validate) {
-        const validation = this.validateCredentials(mergedConfig);
-        if (!validation.isValid) {
-          const errorMsg = `Missing required fields: ${validation.missingFields.join(', ')}`;
-          v4ToastManager.showError(errorMsg);
-          return { success: false, error: errorMsg };
-        }
-      }
-
-      setCredentials(mergedConfig);
-
-      if (options.persist !== false) {
-        this.persistCredentials(mergedConfig);
-      }
-
-      if (options.showSuccessMessage) {
-        v4ToastManager.showSuccess(options.successMessage ?? 'Credentials updated successfully.');
-      }
-
-      if (options.logDetails) {
-        console.log(`${this.logPrefix} [INFO] Credentials patched`, {
-          flowName: this.flowName,
-          updates,
-        });
-      }
-
-      return { success: true, updated: mergedConfig };
-    } catch (error) {
-      const errorMsg = `Failed to patch credentials: ${error}`;
-      console.error(`${this.logPrefix} [ERROR]`, errorMsg, error);
-      v4ToastManager.showError(errorMsg);
-      return { success: false, error: errorMsg };
-    }
-  }
-
-  /**
-   * Update an individual credential field.
-   */
-  updateCredentialField<
-    TKey extends keyof FlowCredentialConfig
-  >(
-    currentConfig: FlowCredentialConfig,
-    field: TKey,
-    value: FlowCredentialConfig[TKey],
-    setCredentials: (creds: FlowCredentialConfig) => void,
-    options: PartialCredentialUpdateOptions = {}
-  ) {
-    return this.partialUpdateFlowCredentials(
-      currentConfig,
-      { [field]: value } as Partial<FlowCredentialConfig>,
-      setCredentials,
-      options
-    );
-  }
-
-  /**
-   * Loads saved credentials from credential manager
-   */
-  loadSavedCredentials(): Partial<FlowCredentialConfig> {
-    try {
-      const savedCreds = credentialManager.getAllCredentials();
-      return {
-        environmentId: savedCreds.environmentId || '',
-        clientId: savedCreds.clientId || '',
-        clientSecret: savedCreds.clientSecret || '',
-        redirectUri: savedCreds.redirectUri || '',
-        scopes: savedCreds.scopes?.join(' ') || 'openid profile email',
-      };
-    } catch (error) {
-      console.error(`${this.logPrefix} [ERROR] Failed to load saved credentials:`, error);
-      return {};
-    }
-  }
-}
-
-// Pre-configured service instances for different flows
-export const hybridFlowCredentialService = new FlowCredentialService({
-  flowName: 'OIDC Hybrid Flow',
-  logPrefix: '[🔀 OIDC-HYBRID]',
-  requiredFields: ['environmentId', 'clientId', 'scopes'],
-});
-
-export const authzCodeFlowCredentialService = new FlowCredentialService({
-  flowName: 'OIDC Authorization Code Flow',
-  logPrefix: '[🔐 OIDC-AUTHZ]',
-  requiredFields: ['environmentId', 'clientId', 'scopes'],
-});
-
-export const implicitFlowCredentialService = new FlowCredentialService({
-  flowName: 'OAuth Implicit Flow',
-  logPrefix: '[⚡ OAUTH-IMPLICIT]',
-  requiredFields: ['environmentId', 'clientId', 'redirectUri', 'scopes'],
-});
-
-// Factory function to create service for any flow
-export const createFlowCredentialService = (options: FlowCredentialServiceOptions) => {
-  return new FlowCredentialService(options);
+/**
+ * Load credentials from credentialManager (shared across all flows)
+ * This is the primary source of truth for credentials
+ */
+export const loadSharedCredentials = async (
+	flowKey: string,
+	defaultCredentials?: Partial<StepCredentials>
+): Promise<StepCredentials | null> => {
+	try {
+		const savedCreds = credentialManager.getAllCredentials();
+		
+		if (savedCreds.environmentId && savedCreds.clientId) {
+			const mergedCreds: StepCredentials = {
+				...defaultCredentials,
+				...savedCreds,
+			};
+			
+			console.log(`[FlowCredentialService:${flowKey}] Loaded shared credentials from credentialManager:`, {
+				environmentId: savedCreds.environmentId,
+				clientId: savedCreds.clientId,
+				hasClientSecret: !!savedCreds.clientSecret,
+			});
+			
+			return mergedCreds;
+		}
+		
+		console.log(`[FlowCredentialService:${flowKey}] No shared credentials found in credentialManager`);
+		return null;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to load shared credentials:`, error);
+		return null;
+	}
 };
+
+/**
+ * Load flow-specific state from localStorage
+ * This includes flow-specific config, tokens, and other state
+ */
+export const loadFlowState = <T = unknown>(
+	flowKey: string
+): FlowPersistentState<T> | null => {
+	try {
+		const savedState = localStorage.getItem(flowKey);
+		if (!savedState) {
+			console.log(`[FlowCredentialService:${flowKey}] No flow-specific state found`);
+			return null;
+		}
+		
+		const parsed = safeJsonParse(savedState) as FlowPersistentState<T>;
+		if (parsed) {
+			console.log(`[FlowCredentialService:${flowKey}] Loaded flow-specific state from localStorage`);
+			return parsed;
+		}
+		
+		return null;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to load flow state:`, error);
+		return null;
+	}
+};
+
+/**
+ * Save credentials to credentialManager (shared across all flows)
+ * This is the primary source of truth for credentials
+ */
+export const saveSharedCredentials = async (
+	flowKey: string,
+	credentials: StepCredentials,
+	options: { showToast?: boolean } = { showToast: true }
+): Promise<boolean> => {
+	try {
+		// Use saveAllCredentials to save to all credential stores
+		const success = credentialManager.saveAllCredentials(credentials);
+		
+		if (!success) {
+			throw new Error('Failed to save credentials to credentialManager');
+		}
+		
+		console.log(`[FlowCredentialService:${flowKey}] Saved shared credentials to credentialManager:`, {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+			hasClientSecret: !!credentials.clientSecret,
+		});
+		
+		if (options.showToast) {
+			showGlobalSuccess('Credentials saved successfully!');
+		}
+		
+		return true;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to save shared credentials:`, error);
+		if (options.showToast) {
+			showGlobalError('Failed to save credentials');
+		}
+		return false;
+	}
+};
+
+/**
+ * Save flow-specific state to localStorage
+ * This includes flow-specific config, tokens, and other state
+ */
+export const saveFlowState = <T = unknown>(
+	flowKey: string,
+	state: FlowPersistentState<T>
+): boolean => {
+	try {
+		const stateWithTimestamp: FlowPersistentState<T> = {
+			...state,
+			timestamp: Date.now(),
+		};
+		
+		localStorage.setItem(flowKey, JSON.stringify(stateWithTimestamp));
+		
+		console.log(`[FlowCredentialService:${flowKey}] Saved flow-specific state to localStorage`);
+		return true;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to save flow state:`, error);
+		return false;
+	}
+};
+
+/**
+ * Save both shared credentials and flow-specific state
+ * This is the recommended method for saving all flow data
+ */
+export const saveFlowCredentials = async <T = unknown>(
+	flowKey: string,
+	credentials: StepCredentials,
+	flowConfig?: T,
+	additionalState?: Partial<FlowPersistentState<T>>,
+	options: { showToast?: boolean } = { showToast: true }
+): Promise<boolean> => {
+	try {
+		// Save to credentialManager (shared across flows)
+		const sharedSaved = await saveSharedCredentials(flowKey, credentials, { showToast: false });
+		
+		// Save flow-specific state to localStorage
+		const flowState: FlowPersistentState<T> = {
+			credentials,
+			flowConfig,
+			...additionalState,
+		};
+		const flowStateSaved = saveFlowState(flowKey, flowState);
+		
+		const success = sharedSaved && flowStateSaved;
+		
+		if (success && options.showToast) {
+			showGlobalSuccess('Credentials and configuration saved successfully!');
+		} else if (!success && options.showToast) {
+			showGlobalError('Failed to save credentials and configuration');
+		}
+		
+		return success;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to save flow credentials:`, error);
+		if (options.showToast) {
+			showGlobalError('Failed to save credentials');
+		}
+		return false;
+	}
+};
+
+/**
+ * Load all credentials and flow state
+ * This is the recommended method for loading all flow data on mount
+ */
+export const loadFlowCredentials = async <T = unknown>(
+	config: FlowCredentialConfig
+): Promise<{
+	credentials: StepCredentials | null;
+	flowState: FlowPersistentState<T> | null;
+	hasSharedCredentials: boolean;
+	hasFlowState: boolean;
+}> => {
+	const { flowKey, defaultCredentials } = config;
+	
+	// Load flow-specific state from localStorage - PRIMARY SOURCE
+	const flowState = loadFlowState<T>(flowKey);
+	
+	// Load from credentialManager (shared across flows) - FALLBACK ONLY
+	const sharedCredentials = await loadSharedCredentials(flowKey, defaultCredentials);
+	
+	// Priority: flow-specific credentials take precedence over shared credentials
+	// This ensures each flow maintains its own credentials on refresh
+	let finalCredentials: StepCredentials | null = null;
+	
+	if (flowState?.credentials && (flowState.credentials.environmentId || flowState.credentials.clientId)) {
+		// Use flow-specific credentials if they exist and have data
+		finalCredentials = flowState.credentials;
+		console.log(`[FlowCredentialService:${flowKey}] Using flow-specific credentials from localStorage`);
+	} else if (sharedCredentials) {
+		// Fall back to shared credentials only if no flow-specific credentials exist
+		finalCredentials = sharedCredentials;
+		console.log(`[FlowCredentialService:${flowKey}] Using shared credentials (no flow-specific credentials found)`);
+	}
+	
+	return {
+		credentials: finalCredentials,
+		flowState,
+		hasSharedCredentials: !!sharedCredentials,
+		hasFlowState: !!flowState,
+	};
+};
+
+/**
+ * Clear flow-specific state (but preserve shared credentials)
+ */
+export const clearFlowState = (flowKey: string): boolean => {
+	try {
+		localStorage.removeItem(flowKey);
+		console.log(`[FlowCredentialService:${flowKey}] Cleared flow-specific state`);
+		return true;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to clear flow state:`, error);
+		return false;
+	}
+};
+
+/**
+ * Clear shared credentials (affects all flows)
+ */
+export const clearSharedCredentials = async (flowKey: string): Promise<boolean> => {
+	try {
+		await credentialManager.clearAllCredentials();
+		console.log(`[FlowCredentialService:${flowKey}] Cleared shared credentials`);
+		return true;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to clear shared credentials:`, error);
+		return false;
+	}
+};
+
+/**
+ * Clear both flow state and shared credentials
+ */
+export const clearAllFlowData = async (flowKey: string): Promise<boolean> => {
+	try {
+		clearFlowState(flowKey);
+		await clearSharedCredentials(flowKey);
+		console.log(`[FlowCredentialService:${flowKey}] Cleared all flow data`);
+		return true;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to clear all flow data:`, error);
+		return false;
+	}
+};
+
+/**
+ * Check if credentials are valid (have required fields)
+ */
+export const validateCredentials = (
+	credentials: StepCredentials | null,
+	requireClientSecret = false
+): boolean => {
+	if (!credentials) return false;
+	
+	const hasEnvironmentId = !!credentials.environmentId?.trim();
+	const hasClientId = !!credentials.clientId?.trim();
+	const hasClientSecret = requireClientSecret ? !!credentials.clientSecret?.trim() : true;
+	
+	return hasEnvironmentId && hasClientId && hasClientSecret;
+};
+
+/**
+ * Unified Flow Credential Service
+ */
+export const FlowCredentialService = {
+	// Load methods
+	loadSharedCredentials,
+	loadFlowState,
+	loadFlowCredentials,
+	
+	// Save methods
+	saveSharedCredentials,
+	saveFlowState,
+	saveFlowCredentials,
+	
+	// Clear methods
+	clearFlowState,
+	clearSharedCredentials,
+	clearAllFlowData,
+	
+	// Validation
+	validateCredentials,
+};
+
+export default FlowCredentialService;

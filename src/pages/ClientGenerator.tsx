@@ -1,3 +1,33 @@
+const WorkerActions: React.FC<{
+	onNext: () => void;
+	onClearToken: () => void;
+	onClearAll: () => void;
+}> = ({ onNext, onClearToken, onClearAll }) => (
+	<div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+		<Button
+			variant="primary"
+			onClick={onNext}
+			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+		>
+			<FiArrowRight /> Next: Create Applications
+		</Button>
+		<Button
+			variant="danger"
+			onClick={onClearToken}
+			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+		>
+			<FiSettings /> Clear Token Only
+		</Button>
+		<Button
+			variant="danger"
+			onClick={onClearAll}
+			style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+		>
+			<FiX /> Clear All Credentials
+		</Button>
+	</div>
+);
+
 // src/pages/ClientGenerator.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -196,7 +226,9 @@ const ButtonGroup = styled.div`
 	margin-top: 2rem;
 `;
 
-const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const Button = styled.button.withConfig({
+	shouldForwardProp: (prop) => prop !== 'variant',
+})<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
@@ -214,6 +246,16 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 			background: ${theme.colors.primaryDark};
 		}
 	`
+			: variant === 'danger'
+			? `
+		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+		color: white;
+		box-shadow: 0 12px 28px -18px rgba(220, 38, 38, 0.55);
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 16px 35px -20px rgba(220, 38, 38, 0.65);
+		}
+	`
 			: `
 		background: white;
 		color: ${theme.colors.gray700};
@@ -223,6 +265,10 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' }>`
 			border-color: #9ca3af;
 		}
 	`}
+	&:disabled {
+		opacity: 0.5;
+		cursor: not-allowed;
+	}
 `;
 
 const ActionButton = styled.button`
@@ -561,7 +607,7 @@ const ClientGenerator: React.FC = () => {
 						</ActionButton>
 						
 						<Button
-							variant="secondary"
+							variant="danger"
 							onClick={() => {
 								localStorage.removeItem('app-generator-worker-credentials');
 								setWorkerCredentials({
@@ -595,37 +641,24 @@ const ClientGenerator: React.FC = () => {
 						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
 							<FiCheckCircle /> Worker token obtained successfully!
 						</div>
-						<div style={{ marginTop: '0.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-							<Button
-								variant="primary"
-								onClick={() => {
-									navigate('/application-generator', { 
-										state: { 
-											workerToken, 
-											environmentId: workerCredentials.environmentId 
-										} 
+						<div style={{ marginTop: '0.5rem' }}>
+							<WorkerActions
+								onNext={() => {
+									navigate('/application-generator', {
+										state: {
+											workerToken,
+											environmentId: workerCredentials.environmentId,
+										},
 									});
 								}}
-								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
-							>
-								<FiArrowRight /> Next: Create Applications
-							</Button>
-							<Button
-								variant="secondary"
-								onClick={() => {
+								onClearToken={() => {
 									setWorkerToken(null);
 									setTokenError(null);
 									setWorkerTokenRequest(null);
 									setTokenDecodeStates({});
 									v4ToastManager.showSuccess('Token cleared - credentials preserved');
 								}}
-								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
-							>
-								<FiSettings /> Clear Token Only
-							</Button>
-							<Button
-								variant="secondary"
-								onClick={() => {
+								onClearAll={() => {
 									localStorage.removeItem('app-generator-worker-credentials');
 									setWorkerToken(null);
 									setTokenError(null);
@@ -640,10 +673,7 @@ const ClientGenerator: React.FC = () => {
 									});
 									v4ToastManager.showSuccess('All credentials and data cleared');
 								}}
-								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
-							>
-								<FiX /> Clear All Credentials
-							</Button>
+							/>
 						</div>
 					</SuccessMessage>
 				</div>
@@ -1019,6 +1049,43 @@ const ClientGenerator: React.FC = () => {
 					</div>
 				</div>
 			)}
+
+		{workerToken && (
+			<div style={{ marginTop: '3rem', paddingBottom: '2rem' }}>
+				<WorkerActions
+					onNext={() => {
+						navigate('/application-generator', {
+							state: {
+								workerToken,
+								environmentId: workerCredentials.environmentId,
+							},
+						});
+					}}
+					onClearToken={() => {
+						setWorkerToken(null);
+						setTokenError(null);
+						setWorkerTokenRequest(null);
+						setTokenDecodeStates({});
+						v4ToastManager.showSuccess('Token cleared - credentials preserved');
+					}}
+					onClearAll={() => {
+						localStorage.removeItem('app-generator-worker-credentials');
+						setWorkerToken(null);
+						setTokenError(null);
+						setWorkerTokenRequest(null);
+						setTokenDecodeStates({});
+						setWorkerCredentials({
+							environmentId: '',
+							clientId: '',
+							clientSecret: '',
+							scopes: 'openid p1:create:application p1:read:application p1:update:application',
+							tokenEndpointAuthMethod: 'client_secret_post',
+						});
+						v4ToastManager.showSuccess('All credentials and data cleared');
+					}}
+				/>
+			</div>
+		)}
 
 		</Container>
 	);
