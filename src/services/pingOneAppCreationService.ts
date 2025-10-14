@@ -128,14 +128,17 @@ export class PingOneAppCreationService {
 	 */
 	async createOIDCWebApp(config: OIDCWebAppConfig): Promise<AppCreationResult> {
 		return this.createApp({
-			...config,
-			supportedGrantTypes: config.grantTypes,
-			supportedResponseTypes: config.responseTypes,
+			name: config.name,
+			description: config.description,
+			enabled: config.enabled !== undefined ? config.enabled : true,
+			type: config.type,
+			grantTypes: config.grantTypes,
+			responseTypes: config.responseTypes,
 			redirectUris: config.redirectUris,
 			postLogoutRedirectUris: config.postLogoutRedirectUris,
 			tokenEndpointAuthMethod: config.tokenEndpointAuthMethod,
 			pkceEnforcement: config.pkceEnforcement || 'OPTIONAL',
-			scopeNames: config.scopes,
+			scopes: config.scopes,
 			accessTokenValiditySeconds: config.accessTokenValiditySeconds || 3600,
 			refreshTokenValiditySeconds: config.refreshTokenValiditySeconds || 2592000,
 			idTokenValiditySeconds: config.idTokenValiditySeconds || 3600,
@@ -147,13 +150,16 @@ export class PingOneAppCreationService {
 	 */
 	async createOIDCNativeApp(config: OIDCNativeAppConfig): Promise<AppCreationResult> {
 		return this.createApp({
-			...config,
-			supportedGrantTypes: config.grantTypes,
-			supportedResponseTypes: config.responseTypes,
+			name: config.name,
+			description: config.description,
+			enabled: config.enabled !== undefined ? config.enabled : true,
+			type: config.type,
+			grantTypes: config.grantTypes,
+			responseTypes: config.responseTypes,
 			redirectUris: config.redirectUris,
 			tokenEndpointAuthMethod: config.tokenEndpointAuthMethod,
 			pkceEnforcement: config.pkceEnforcement || 'REQUIRED',
-			scopeNames: config.scopes,
+			scopes: config.scopes,
 			accessTokenValiditySeconds: config.accessTokenValiditySeconds || 3600,
 			refreshTokenValiditySeconds: config.refreshTokenValiditySeconds || 2592000,
 			idTokenValiditySeconds: config.idTokenValiditySeconds || 3600,
@@ -165,10 +171,13 @@ export class PingOneAppCreationService {
 	 */
 	async createWorkerApp(config: WorkerAppConfig): Promise<AppCreationResult> {
 		return this.createApp({
-			...config,
-			supportedGrantTypes: config.grantTypes,
+			name: config.name,
+			description: config.description,
+			enabled: config.enabled !== undefined ? config.enabled : true,
+			type: config.type,
+			grantTypes: config.grantTypes,
 			tokenEndpointAuthMethod: config.tokenEndpointAuthMethod,
-			scopeNames: config.scopes,
+			scopes: config.scopes,
 			accessTokenValiditySeconds: config.accessTokenValiditySeconds || 3600,
 			refreshTokenValiditySeconds: config.refreshTokenValiditySeconds || 2592000,
 		});
@@ -179,13 +188,16 @@ export class PingOneAppCreationService {
 	 */
 	async createSinglePageApp(config: SinglePageAppConfig): Promise<AppCreationResult> {
 		return this.createApp({
-			...config,
-			supportedGrantTypes: config.grantTypes,
-			supportedResponseTypes: config.responseTypes,
+			name: config.name,
+			description: config.description,
+			enabled: config.enabled !== undefined ? config.enabled : true,
+			type: config.type,
+			grantTypes: config.grantTypes,
+			responseTypes: config.responseTypes,
 			redirectUris: config.redirectUris,
 			tokenEndpointAuthMethod: 'none',
 			pkceEnforcement: config.pkceEnforcement || 'REQUIRED',
-			scopeNames: config.scopes,
+			scopes: config.scopes,
 			accessTokenValiditySeconds: config.accessTokenValiditySeconds || 3600,
 			refreshTokenValiditySeconds: config.refreshTokenValiditySeconds || 2592000,
 			idTokenValiditySeconds: config.idTokenValiditySeconds || 3600,
@@ -197,10 +209,13 @@ export class PingOneAppCreationService {
 	 */
 	async createServiceApp(config: ServiceAppConfig): Promise<AppCreationResult> {
 		return this.createApp({
-			...config,
-			supportedGrantTypes: config.grantTypes,
+			name: config.name,
+			description: config.description,
+			enabled: config.enabled !== undefined ? config.enabled : true,
+			type: config.type,
+			grantTypes: config.grantTypes,
 			tokenEndpointAuthMethod: config.tokenEndpointAuthMethod,
-			scopeNames: config.scopes,
+			scopes: config.scopes,
 			accessTokenValiditySeconds: config.accessTokenValiditySeconds || 3600,
 			refreshTokenValiditySeconds: config.refreshTokenValiditySeconds || 2592000,
 		});
