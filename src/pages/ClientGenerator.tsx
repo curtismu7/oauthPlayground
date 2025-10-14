@@ -231,22 +231,24 @@ const ActionButton = styled.button`
 	gap: 0.5rem;
 	padding: 0.75rem 1.25rem;
 	font-size: 0.875rem;
-	font-weight: 500;
-	border-radius: 0.375rem;
+	font-weight: 600;
+	border-radius: 0.5rem;
 	cursor: pointer;
 	transition: all 0.2s;
-	border: 1px solid #d1d5db;
-	background: white;
-	color: #374151;
+	border: none;
+	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+	box-shadow: 0 12px 30px -15px rgba(22, 163, 74, 0.6);
+	color: white;
 
 	&:hover:not(:disabled) {
-		background: #f9fafb;
-		border-color: #9ca3af;
+		transform: translateY(-1px);
+		box-shadow: 0 16px 35px -18px rgba(22, 163, 74, 0.7);
 	}
 
 	&:disabled {
-		opacity: 0.5;
+		opacity: 0.6;
 		cursor: not-allowed;
+		box-shadow: none;
 	}
 
 	svg {
