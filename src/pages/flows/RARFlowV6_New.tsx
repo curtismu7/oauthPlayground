@@ -6,7 +6,6 @@ import {
 	FiAlertCircle,
 	FiArrowRight,
 	FiCheckCircle,
-	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
 	FiEye,
@@ -38,7 +37,9 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
+import FlowStorageService from '../../services/flowStorageService';
+import { FlowHeader } from '../../services/flowHeaderService'
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
@@ -50,6 +51,7 @@ import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDis
 import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
+import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -189,63 +191,15 @@ const StepContentWrapper = styled.div`
 	background: #ffffff;
 `;
 
-const CollapsibleSection = styled.section`
-	border: 1px solid #e2e8f0;
-	border-radius: 0.75rem;
-	margin-bottom: 1.5rem;
-	background-color: #ffffff;
-	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 1.25rem 1.5rem;
-	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
-	border: none;
-	border-radius: 0.75rem;
-	cursor: pointer;
-	font-size: 1.1rem;
-	font-weight: 600;
-	color: #14532d;
-	transition: background 0.2s ease;
+// [REMOVED] Local collapsible styled component
 
-	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
-	color: #15803d;
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-	animation: fadeIn 0.2s ease;
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-		}
-		to {
-			opacity: 1;
-		}
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	border-radius: 0.75rem;
@@ -617,6 +571,10 @@ const RARFlowV6: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
+	
+	// Collapse all sections by default for cleaner UI
+	const shouldCollapseAll = true;
+	
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 
@@ -657,7 +615,7 @@ const RARFlowV6: React.FC = () => {
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
-		const stored = sessionStorage.getItem('oidc-authorization-code-v5-app-config');
+		const stored = FlowStorageService.FlowState.getCurrentStep('rar-v6')?.toString();
 		if (stored) {
 			try {
 				const config = JSON.parse(stored);
@@ -703,7 +661,7 @@ const RARFlowV6: React.FC = () => {
 		const authCode = urlParams.get('code');
 		const error = urlParams.get('error');
 		const urlStep = urlParams.get('step');
-		const storedStep = sessionStorage.getItem('oidc-authorization-code-v5-current-step');
+		const storedStep = FlowStorageService.FlowState.getCurrentStep('rar-v6')?.toString();
 
 		// Also check sessionStorage for auth code (from OAuth callback) - but only if it's fresh (not stale)
 		const sessionAuthCode = getAuthCodeIfFresh('oidc-authorization-code-v5');
@@ -725,7 +683,7 @@ const RARFlowV6: React.FC = () => {
 			// Clear URL parameters and reset to step 0
 			window.history.replaceState({}, '', window.location.pathname);
 			setCurrentStep(0);
-			sessionStorage.setItem('oidc-authorization-code-v5-current-step', '0');
+			FlowStorageService.FlowState.setCurrentStep('rar-v6', 0);
 			return;
 		}
 
@@ -750,7 +708,7 @@ const RARFlowV6: React.FC = () => {
 			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
 			// Navigate to step 4 and persist it
 			setCurrentStep(4);
-			sessionStorage.setItem('oidc-authorization-code-v5-current-step', '4');
+			FlowStorageService.FlowState.setCurrentStep('rar-v6', 4);
 			// Clear URL parameters (but keep sessionStorage for now with timestamp)
 			window.history.replaceState({}, '', window.location.pathname);
 			return;
@@ -762,7 +720,7 @@ const RARFlowV6: React.FC = () => {
 			if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
 				console.log('🎯 [AuthorizationCodeFlowV5] Using URL step parameter:', stepIndex);
 				setCurrentStep(stepIndex);
-				sessionStorage.setItem('oidc-authorization-code-v5-current-step', stepIndex.toString());
+				FlowStorageService.FlowState.setCurrentStep('rar-v6', stepIndex);
 				return;
 			}
 		}
@@ -780,7 +738,7 @@ const RARFlowV6: React.FC = () => {
 		// Default to step 0 for fresh start - PRIORITY 4
 		console.log('🔄 [AuthorizationCodeFlowV5] Fresh start - going to step 0');
 		setCurrentStep(0);
-		sessionStorage.setItem('oidc-authorization-code-v5-current-step', '0');
+		FlowStorageService.FlowState.setCurrentStep('rar-v6', 0);
 	}, [
 		// Also set it in the controller
 		controller.setAuthCodeManually,
@@ -788,18 +746,21 @@ const RARFlowV6: React.FC = () => {
 
 	// Persist current step to session storage
 	useEffect(() => {
-		sessionStorage.setItem('oidc-authorization-code-v5-current-step', currentStep.toString());
+		FlowStorageService.FlowState.setCurrentStep('rar-v6', currentStep);
 	}, [currentStep]);
 
-	// Additional auth code detection for controller updates (backup)
+	// Show success modal when auth code is received from popup
 	useEffect(() => {
-		// If we just received an auth code from the controller and haven't shown the modal yet
-		if (controller.authCode && !showLoginSuccessModal && !localAuthCode) {
+		// If we just received an auth code from the controller
+		if (controller.authCode && controller.authCode !== localAuthCode) {
 			console.log(
-				'[AuthorizationCodeFlowV5] Auth code detected from controller:',
+				'✅ [RARFlowV6] Auth code received from popup, showing success modal:',
 				`${controller.authCode.substring(0, 10)}...`
 			);
 
+			// Update local state
+			setLocalAuthCode(controller.authCode);
+			
 			// Show success modal and toast
 			setShowLoginSuccessModal(true);
 			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
@@ -808,7 +769,7 @@ const RARFlowV6: React.FC = () => {
 			setCurrentStep(4); // Step 4 is Token Exchange
 			sessionStorage.setItem('oidc-authorization-code-v5-current-step', '4');
 		}
-	}, [controller.authCode, showLoginSuccessModal, localAuthCode]);
+	}, [controller.authCode, localAuthCode]);
 
 	// This effect is redundant - removing to prevent conflicts
 	// The auth code detection is already handled in the other useEffect
@@ -924,10 +885,9 @@ const RARFlowV6: React.FC = () => {
 
 	const handleOpenAuthUrl = useCallback(() => {
 		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
-			console.log('🔧 [AuthorizationCodeFlowV5] About to redirect to PingOne via controller...');
-			controller.handleRedirectAuthorization();
+			console.log('🔧 [RARFlowV6] User clicked redirect button');
 			setShowRedirectModal(true);
-			setTimeout(() => setShowRedirectModal(false), 2000);
+			// Modal will wait for user to click Continue button
 		}
 	}, [controller]);
 
@@ -1071,6 +1031,22 @@ const RARFlowV6: React.FC = () => {
 		setCurrentStep(0);
 	}, [controller]);
 
+	const handleStartOver = useCallback(() => {
+		const flowKey = 'rar-v6';
+		sessionStorage.removeItem(`${flowKey}-tokens`);
+		sessionStorage.removeItem(`${flowKey}-authCode`);
+		sessionStorage.removeItem(`${flowKey}-pkce`);
+		sessionStorage.removeItem('oauth_state');
+		sessionStorage.removeItem('restore_step');
+		sessionStorage.removeItem(`redirect_uri_${flowKey}`);
+		controller.clearStepResults();
+		setCurrentStep(0);
+		console.log('🔄 [RARFlowV6] Starting over: cleared tokens/codes, keeping credentials');
+		v4ToastManager.showSuccess('Flow restarted', {
+			description: 'Tokens and codes cleared. Credentials preserved.',
+		});
+	}, [controller]);
+
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
 			// Use credentials from the controller (same as the flow uses for token exchange)
@@ -1086,25 +1062,30 @@ const RARFlowV6: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-			const request = {
-				token: token,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
-			};
+		const request = {
+			token: token,
+			clientId: credentials.clientId,
+			clientSecret: credentials.clientSecret,
+			tokenTypeHint: 'access_token' as const
+		};
 
-			try {
-				// Use the reusable service to create API call data and execute introspection
-				const result = await TokenIntrospectionService.introspectToken(
-					request,
-					'authorization-code',
-					'/api/introspect-token'
-				);
-				
-				// Set the API call data for display
-				setIntrospectionApiCall(result.apiCall);
-				
-				return result.response;
+		// Build introspection endpoint from credentials
+		const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
+
+		try {
+			// Use the reusable service to create API call data and execute introspection
+			const result = await TokenIntrospectionService.introspectToken(
+				request,
+				'authorization-code',
+				'/api/introspect-token',  // Use proxy endpoint
+				introspectionEndpoint,      // Pass PingOne URL as introspection endpoint
+				'client_secret_post'        // Token auth method
+			);
+			
+			// Set the API call data for display
+			setIntrospectionApiCall(result.apiCall);
+			
+			return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
 				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
@@ -1301,21 +1282,12 @@ const RARFlowV6: React.FC = () => {
 						{/* RAR Educational Content */}
 						<EducationalContentService flowType="rar" defaultCollapsed={false} />
 						
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> OIDC Authorization Code Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="OIDC Authorization Code Overview"
+					icon={<FiInfo />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
 											<InfoTitle>When to Use OIDC Authorization Code</InfoTitle>
@@ -1389,170 +1361,10 @@ const RARFlowV6: React.FC = () => {
 											</div>
 										</ParameterGrid>
 									</GeneratedContentBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('credentials')}
-								aria-expanded={!collapsedSections.credentials}
-							>
-								<CollapsibleTitle>
-									<FiSettings /> Application Configuration & Credentials
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.credentials && (
-								<CollapsibleContent>
-									{/* Environment ID Input */}
-								<ComprehensiveCredentialsService
-									// Discovery props
-									onDiscoveryComplete={(result) => {
-										console.log('[OIDC Authz V5] Discovery completed:', result);
-										// Extract environment ID from issuer URL if available
-										if (result.issuerUrl) {
-											const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-											if (envIdMatch && envIdMatch[1]) {
-												controller.setCredentials({
-													...controller.credentials,
-													environmentId: envIdMatch[1],
-												});
-												// Auto-save if we have both environmentId and clientId
-												if (envIdMatch[1] && controller.credentials.clientId) {
-													controller.saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved');
-												}
-											}
-										}
-									}}
-									discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
-									showProviderInfo={true}
-									
-									// Credentials props
-									environmentId={controller.credentials.environmentId || ''}
-									clientId={controller.credentials.clientId || ''}
-									clientSecret={controller.credentials.clientSecret || ''}
-									redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
-									scopes={controller.credentials.scope || 'openid profile email'}
-									loginHint={controller.credentials.loginHint || ''}
-									postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
-									
-									// Change handlers
-									onEnvironmentIdChange={(newEnvId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											environmentId: newEnvId,
-										});
-										if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
-										}
-									}}
-									onClientIdChange={(newClientId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientId: newClientId,
-										});
-										if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
-										}
-									}}
-									onClientSecretChange={(newClientSecret) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientSecret: newClientSecret,
-										});
-									}}
-									onScopesChange={(newScopes) => {
-										controller.setCredentials({
-											...controller.credentials,
-											scope: newScopes,
-										});
-									}}
-									onRedirectUriChange={(newRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											redirectUri: newRedirectUri,
-										});
-									}}
-									onLoginHintChange={(newLoginHint) => {
-										controller.setCredentials({
-											...controller.credentials,
-											loginHint: newLoginHint,
-										});
-									}}
-									onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											postLogoutRedirectUri: newPostLogoutRedirectUri,
-										});
-									}}
-									
-									// Save handler
-									onSave={async () => {
-										await controller.saveCredentials();
-										v4ToastManager.showSuccess('Credentials saved');
-									}}
-									hasUnsavedChanges={false}
-									isSaving={false}
-									requireClientSecret={true}
-									
-									// PingOne Advanced Configuration (integrated below)
-									pingOneAppState={pingOneConfig}
-									onPingOneAppStateChange={setPingOneConfig}
-									onPingOneSave={async () => await savePingOneConfig(pingOneConfig)}
-									hasUnsavedPingOneChanges={false}
-									isSavingPingOne={false}
-									
-									// UI config
-									title="OIDC Authorization Code Configuration"
-									subtitle="Configure your application settings and credentials"
-									showAdvancedConfig={true}
-									defaultCollapsed={false}
-								/>
-
-
-								{/* Response Mode Configuration */}
-									<CollapsibleSection
-										title="Response Mode Configuration"
-										collapsed={collapsedSections.responseMode}
-										onToggle={() => toggleSection('responseMode')}
-									>
-										<InfoBox $variant="info">
-											<FiInfo size={20} />
-											<div>
-												<InfoTitle>Response Mode Selection</InfoTitle>
-												<div style={{ marginTop: '0.5rem', color: '#6b7280' }}>
-													Choose how the authorization response should be returned to your application.
-													This affects how the authorization code and other parameters are delivered.
-												</div>
-											</div>
-										</InfoBox>
-										<ResponseModeSelector
-											selectedMode={(controller.credentials.responseMode as ResponseMode) || 'query'}
-											onModeChange={(mode) => {
-												controller.setCredentials({
-													...controller.credentials,
-													responseMode: mode,
-												});
-											}}
-											responseType="code"
-											clientType="confidential"
-											platform="web"
-										/>
-									</CollapsibleSection>
-
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
-
-						<EnhancedFlowWalkthrough flowId="oidc-authorization-code" />
-						<FlowSequenceDisplay flowType="authorization-code" />
-
+					<EnhancedFlowWalkthrough flowId="oidc-authorization-code" />
+					<FlowSequenceDisplay flowType="authorization-code" />
 
 					</>
 				);
@@ -1560,21 +1372,12 @@ const RARFlowV6: React.FC = () => {
 			case 1:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceOverview')}
-								aria-expanded={!collapsedSections.pkceOverview}
-							>
-								<CollapsibleTitle>
-									<FiShield /> What is PKCE?
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.pkceOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="What is PKCE?"
+					icon={<FiShield />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
 											<InfoTitle>PKCE (Proof Key for Code Exchange)</InfoTitle>
@@ -1598,25 +1401,14 @@ const RARFlowV6: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceDetails')}
-								aria-expanded={!collapsedSections.pkceDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Understanding Code Verifier & Code Challenge
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.pkceDetails && (
-								<CollapsibleContent>
-									<ParameterGrid>
+						<CollapsibleHeader
+					title="Understanding Code Verifier & Code Challenge"
+					icon={<FiKey />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<ParameterGrid>
 										<InfoBox $variant="success">
 											<FiKey size={20} />
 											<div>
@@ -1678,9 +1470,7 @@ const RARFlowV6: React.FC = () => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1748,21 +1538,12 @@ const RARFlowV6: React.FC = () => {
 			case 2:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authRequestOverview')}
-								aria-expanded={!collapsedSections.authRequestOverview}
-							>
-								<CollapsibleTitle>
-									<FiGlobe /> Understanding Authorization Requests
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authRequestOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="Understanding Authorization Requests"
+					icon={<FiGlobe />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="info">
 										<FiGlobe size={20} />
 										<div>
 											<InfoTitle>What is an Authorization Request?</InfoTitle>
@@ -1798,25 +1579,14 @@ const RARFlowV6: React.FC = () => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authRequestDetails')}
-								aria-expanded={!collapsedSections.authRequestDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Authorization URL Parameters Deep Dive
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authRequestDetails && (
-								<CollapsibleContent>
-									<ParameterGrid>
+						<CollapsibleHeader
+					title="Authorization URL Parameters Deep Dive"
+					icon={<FiKey />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<ParameterGrid>
 										<InfoBox $variant="info">
 											<FiKey size={20} />
 											<div>
@@ -1891,9 +1661,7 @@ const RARFlowV6: React.FC = () => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1963,21 +1731,12 @@ const RARFlowV6: React.FC = () => {
 			case 3:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authResponseOverview')}
-								aria-expanded={!collapsedSections.authResponseOverview}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Authorization Response Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authResponseOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="success">
+						<CollapsibleHeader
+					title="Authorization Response Overview"
+					icon={<FiCheckCircle />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<InfoBox $variant="success">
 										<FiCheckCircle size={20} />
 										<div>
 											<InfoTitle>Authorization Response</InfoTitle>
@@ -1987,25 +1746,14 @@ const RARFlowV6: React.FC = () => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authResponseDetails')}
-								aria-expanded={!collapsedSections.authResponseDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Authorization Code Details
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authResponseDetails && (
-								<CollapsibleContent>
-									<ResultsSection>
+						<CollapsibleHeader
+					title="Authorization Code Details"
+					icon={<FiKey />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<ResultsSection>
 										<ResultsHeading>
 											<FiCheckCircle size={18} /> Authorization Code
 										</ResultsHeading>
@@ -2093,30 +1841,19 @@ const RARFlowV6: React.FC = () => {
 											</EmptyState>
 										)}
 									</ResultsSection>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 					</>
 				);
 
 			case 4:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenExchangeOverview')}
-								aria-expanded={!collapsedSections.tokenExchangeOverview}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Token Exchange Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenExchangeOverview && (
-								<CollapsibleContent>
-									<ExplanationSection>
+						<CollapsibleHeader
+					title="Token Exchange Overview"
+					icon={<FiKey />}
+					defaultCollapsed={shouldCollapseAll}
+				>
+					<ExplanationSection>
 										<ExplanationHeading>
 											<FiKey /> Exchange Authorization Code for Tokens
 										</ExplanationHeading>
@@ -2125,25 +1862,14 @@ const RARFlowV6: React.FC = () => {
 											access and ID tokens.
 										</InfoText>
 									</ExplanationSection>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenExchangeDetails')}
-								aria-expanded={!collapsedSections.tokenExchangeDetails}
-							>
-								<CollapsibleTitle>
-									<FiRefreshCw /> Token Exchange Details
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenExchangeDetails && (
-								<CollapsibleContent>
-									{/* Display Authorization Code if available */}
+					<CollapsibleHeader
+				title="Token Exchange Details"
+				icon={<FiRefreshCw />}
+				defaultCollapsed={false}
+			>
+					{/* Display Authorization Code if available */}
 									{(controller.authCode || localAuthCode) && (
 										<ResultsSection>
 											<ResultsHeading>
@@ -2213,9 +1939,7 @@ const RARFlowV6: React.FC = () => {
 											showDecodeButtons: true,
 										}
 									)}
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 					</>
 				);
 
@@ -2386,11 +2110,12 @@ const RARFlowV6: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="rar-v6" />
-				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
+		<FlowHeader flowId="rar-v6" />
+
+		{currentStep === 0 && AdvancedParametersSectionService.getSimpleSection('oauth-authorization-code')}
+
+		<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
-
-
 
 				<MainCard>
 					<StepHeader>
@@ -2430,6 +2155,7 @@ const RARFlowV6: React.FC = () => {
 				totalSteps={STEP_METADATA.length}
 				onPrevious={handlePrev}
 				onReset={handleResetFlow}
+				onStartOver={handleStartOver}
 				onNext={handleNextClick}
 				canNavigateNext={canNavigateNext()}
 				isFirstStep={currentStep === 0}
@@ -2437,24 +2163,22 @@ const RARFlowV6: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-			{AuthenticationModalService.showModal(
-				showRedirectModal,
-				() => setShowRedirectModal(false),
-				() => {
-					console.log('🔧 [RARFlowV6] Continuing to PingOne authentication');
-					setShowRedirectModal(false);
-					// The controller will handle the actual redirect
-					if (controller.authUrl) {
-						window.open(controller.authUrl, 'PingOneAuth', 'width=600,height=700,left=' + (window.screen.width / 2 - 300) + ',top=' + (window.screen.height / 2 - 350) + ',resizable=yes,scrollbars=yes,status=yes');
-					}
-				},
+		{AuthenticationModalService.showModal(
+			showRedirectModal,
+			() => setShowRedirectModal(false),
+			() => {
+				console.log('🔧 [RARFlowV6] User clicked Continue - modal service will handle popup opening');
+				setShowRedirectModal(false);
+				// Modal service handles the popup opening - DO NOT call controller.handleRedirectAuthorization()
+				// The modal service will call window.open() in popup mode
+			},
 				controller.authUrl || '',
 				'rar',
 				'Rich Authorization Request',
-				{
-					description: 'You\'re about to be redirected to PingOne for Rich Authorization Request (RAR) authentication. This flow provides fine-grained authorization with structured permissions.',
-					redirectMode: 'popup'
-				}
+			{
+				description: 'You\'re about to be redirected to PingOne for Rich Authorization Request (RAR) authentication. This flow provides fine-grained authorization with structured permissions.',
+				redirectMode: 'redirect'
+			}
 			)}
 
 			<LoginSuccessModal
@@ -2474,8 +2198,8 @@ const RARFlowV6: React.FC = () => {
 					}
 				}}
 				title="Login Successful!"
-				message="You have been successfully authenticated with PingOne. Your authorization code has been received and you can now proceed to exchange it for tokens."
-				autoCloseDelay={5000}
+				message="You have been successfully authenticated with PingOne. Your authorization code has been received. Click 'Continue' below to proceed to the token exchange step."
+				autoCloseDelay={0}
 			/>
 		</Container>
 	);

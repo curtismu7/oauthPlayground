@@ -2,6 +2,7 @@
 // Resource Owner Password Credentials Flow state management and logic
 
 import { useCallback, useState } from 'react';
+import { safeSessionStorageParse } from '../utils/secureJson';
 
 export interface ResourceOwnerPasswordConfig {
 	environmentId: string;
@@ -41,18 +42,16 @@ const LOG_PREFIX = '[👤 RESOURCE-OWNER-PASSWORD]';
 
 export const useResourceOwnerPasswordFlowController =
 	(): UseResourceOwnerPasswordFlowControllerReturn => {
-		const [credentials, setCredentials] = useState<ResourceOwnerPasswordConfig>(() => {
-			// Try to load saved credentials from sessionStorage
-			try {
-				const saved = sessionStorage.getItem('resource-owner-password-v5-credentials');
-				if (saved) {
-					const parsed = JSON.parse(saved);
-					console.log(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
-					return parsed;
-				}
-			} catch (error) {
-				console.warn(`${LOG_PREFIX} [WARN] Failed to load saved credentials:`, error);
-			}
+	const [credentials, setCredentials] = useState<ResourceOwnerPasswordConfig>(() => {
+		// Try to load saved credentials from sessionStorage
+		const parsed = safeSessionStorageParse<ResourceOwnerPasswordConfig>(
+			'resource-owner-password-v5-credentials',
+			null
+		);
+		if (parsed) {
+			console.log(`${LOG_PREFIX} [LOAD] Loaded saved credentials:`, parsed);
+			return parsed;
+		}
 
 			// Return default credentials if no saved credentials found
 			return {

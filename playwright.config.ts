@@ -22,7 +22,10 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://localhost:3000',
+    baseURL: 'https://localhost:3000',
+
+    /* Ignore HTTPS errors for self-signed certificates */
+    ignoreHTTPSErrors: true,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -76,7 +79,7 @@ export default defineConfig({
   webServer: [
     // Start backend server first (frontend depends on it)
     {
-      command: 'BACKEND_PORT=3001 node server.js',
+      command: 'npm run start:backend',
       port: 3001,
       timeout: 60 * 1000, // 60 seconds
       reuseExistingServer: true, // Always try to reuse existing server
@@ -84,7 +87,7 @@ export default defineConfig({
     },
     // Start frontend server after backend is ready
     {
-      command: 'PORT=3000 npm run dev',
+      command: 'npm run start:frontend',
       port: 3000,
       timeout: 60 * 1000, // 60 seconds
       reuseExistingServer: true, // Always try to reuse existing server

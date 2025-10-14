@@ -822,7 +822,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	}, [
 		// Also set it in the controller
 		controller.setAuthCodeManually,
-	]); // Run only once on mount
+	]);
 
 	// Persist current step to session storage
 	useEffect(() => {

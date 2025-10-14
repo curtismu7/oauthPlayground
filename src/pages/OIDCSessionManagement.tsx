@@ -17,6 +17,7 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../components/Card';
 import PageLayoutService from '../services/pageLayoutService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import CollapsibleSection from '../components/CollapsibleSection';
 
 // White background container with better spacing
 const WhiteContainer = styled.div`
@@ -354,7 +355,7 @@ const OIDCSessionManagement = () => {
 		flowId: 'oidc-session-management', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+	const { PageContainer, ContentWrapper, PageHeader } =
 		PageLayoutService.createPageLayout(pageConfig);
 
 	const [activeDemo, setActiveDemo] = useState<string | null>(null);
@@ -406,8 +407,18 @@ const OIDCSessionManagement = () => {
 	return (
 		<WhiteContainer>
 			<PageContainer>
-				<ContentWrapper>
-					{LayoutFlowHeader && <LayoutFlowHeader />}
+			{PageHeader ? (
+				<PageHeader>
+					<h1>OpenID Connect Session Management</h1>
+					<p>Comprehensive guide to monitoring and maintaining user sessions across applications.</p>
+				</PageHeader>
+			) : (
+				<header style={{ padding: '2rem', background: '#1d4ed8', color: 'white', borderRadius: '1rem 1rem 0 0' }}>
+					<h1>OpenID Connect Session Management</h1>
+					<p>Comprehensive guide to monitoring and maintaining user sessions across applications.</p>
+				</header>
+			)}
+			<ContentWrapper>
 
 					<CollapsibleHeader
 						title="What is OpenID Connect Session Management?"
@@ -523,7 +534,7 @@ const OIDCSessionManagement = () => {
 						</div>
 					</CollapsibleHeader>
 
-			<CollapsibleSection title=" Session Management Flows" defaultOpen={true}>
+			<CollapsibleSection title=" Session Management Flows" defaultCollapsed={false}>
 				<div style={{ marginTop: '1rem' }}>
 					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
 						Explore the different session management flows available in OpenID Connect. Each flow
@@ -1464,7 +1475,7 @@ if (sessionState !== expectedSessionState) {
 				</div>
 			</CollapsibleSection>
 
-			<CollapsibleSection title=" Implementation Considerations" defaultOpen={false}>
+			<CollapsibleSection title=" Implementation Considerations" defaultCollapsed>
 				<div style={{ marginTop: '1rem' }}>
 					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
 						Understanding the technical details and best practices for implementing OIDC session
@@ -1766,7 +1777,7 @@ sessionMonitor.startPolling();`,
 				</div>
 			</CollapsibleSection>
 
-			<CollapsibleSection title=" PingOne Session Management Features" defaultOpen={true}>
+			<CollapsibleSection title=" PingOne Session Management Features" defaultCollapsed={false}>
 				<div style={{ marginTop: '1rem' }}>
 					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
 						PingOne provides comprehensive session management capabilities aligned with OpenID
@@ -1952,7 +1963,7 @@ sessionMonitor.startPolling();`,
 				</div>
 			</CollapsibleSection>
 
-			<CollapsibleSection title=" Security Best Practices" defaultOpen={false}>
+			<CollapsibleSection title=" Security Best Practices" defaultCollapsed>
 				<div style={{ marginTop: '1rem' }}>
 					<p style={{ marginBottom: '2rem', color: '#64748b', lineHeight: '1.6' }}>
 						Essential security considerations and best practices for implementing OIDC session

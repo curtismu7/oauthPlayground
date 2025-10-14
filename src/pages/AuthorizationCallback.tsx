@@ -71,8 +71,8 @@ const Message = styled.p`
 `;
 
 const CodeDisplay = styled.div`
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
+  background: #f0fdf4; /* Light green for generated content */
+  border: 2px solid #16a34a;
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
@@ -105,12 +105,39 @@ const AuthorizationCallback: React.FC = () => {
   const [redirecting, setRedirecting] = useState(false);
 
 	useEffect(() => {
+		// Set a flag IMMEDIATELY when this page loads (before any other logic)
+		try {
+			const testFlag = {
+				loaded: true,
+				timestamp: new Date().toISOString(),
+				url: window.location.href,
+				isOpener: !!window.opener
+			};
+			
+			// Try to save to BOTH locations
+			localStorage.setItem('callback_page_loaded', JSON.stringify(testFlag));
+			if (window.opener && !window.opener.closed) {
+				window.opener.localStorage.setItem('callback_page_loaded', JSON.stringify(testFlag));
+			}
+		} catch (err) {
+			console.error('Failed to set callback_page_loaded flag:', err);
+		}
+		
 		const handleCallback = () => {
+			// Save debug info to localStorage IMMEDIATELY so we can check it from main window
+			const debugInfo: Record<string, unknown> = {
+				timestamp: new Date().toISOString(),
+				url: window.location.href,
+				search: window.location.search,
+				hash: window.location.hash,
+				isPopup: !!(window.opener && !window.opener.closed),
+				openerExists: !!window.opener,
+				openerClosed: window.opener ? window.opener.closed : 'N/A',
+			};
+			
 			console.log('🔄 [AuthCallback] ===== STARTING CALLBACK PROCESSING =====');
 			console.log('🔄 [AuthCallback] Current URL:', window.location.href);
-			console.log('🔄 [AuthCallback] Current timestamp:', new Date().toISOString());
-			console.log('🔄 [AuthCallback] User agent:', navigator.userAgent);
-			console.log('🔄 [AuthCallback] Document ready state:', document.readyState);
+			console.log('🔄 [AuthCallback] Is popup?', debugInfo.isPopup);
 			
 			// Get URL parameters
 			const urlParams = new URLSearchParams(window.location.search);
@@ -118,6 +145,21 @@ const AuthorizationCallback: React.FC = () => {
 			const state = urlParams.get('state');
 			const errorParam = urlParams.get('error');
 			const errorDescription = urlParams.get('error_description');
+			
+			debugInfo.hasCode = !!code;
+			debugInfo.codeLength = code ? code.length : 0;
+			debugInfo.state = state || 'NULL';
+			debugInfo.error = errorParam || 'NULL';
+			debugInfo.errorDescription = errorDescription || 'NULL';
+			
+			// Save to localStorage immediately
+			try {
+				const storageToUse = debugInfo.isPopup ? window.opener.localStorage : localStorage;
+				storageToUse.setItem('callback_debug_info', JSON.stringify(debugInfo));
+				console.log('✅ [AuthCallback] Debug info saved to localStorage');
+			} catch (err) {
+				console.error('❌ [AuthCallback] Failed to save debug info:', err);
+			}
 			
 			console.log('🔄 [AuthCallback] ===== URL PARAMETER ANALYSIS =====');
 			console.log('🔄 [AuthCallback] URL search params:', window.location.search);
@@ -155,44 +197,109 @@ const AuthorizationCallback: React.FC = () => {
 				const isPopup = window.opener && !window.opener.closed;
 				console.log('✅ [AuthCallback] Is popup window?', isPopup);
 				
+				// Detect flow type from sessionStorage to know where to redirect
+				const storageToCheck = isPopup ? window.opener.sessionStorage : sessionStorage;
+				const activeFlow = storageToCheck.getItem('active_oauth_flow') || 'oidc-authorization-code-v6';
+				console.log('✅ [AuthCallback] Active flow type:', activeFlow);
+				
 				// Store authorization code in sessionStorage
 				console.log('✅ [AuthCallback] ===== STORING IN SESSION STORAGE =====');
 				
+				// Determine flow-specific keys
+				const isOAuthFlow = activeFlow.includes('oauth-authorization-code');
+				const isOIDCFlow = activeFlow.includes('oidc-authorization-code') || activeFlow.includes('oidc-v');
+				const isPARFlow = activeFlow.includes('par');
+				const isRARFlow = activeFlow.includes('rar');
+				
+				// Store with both generic and flow-specific keys for compatibility
 				if (isPopup) {
 					// If popup, store in the parent window's sessionStorage
 					console.log('✅ [AuthCallback] Storing in parent window sessionStorage...');
+					
+					// Generic keys (for compatibility)
 					window.opener.sessionStorage.setItem('oidc_auth_code', code);
+					window.opener.sessionStorage.setItem('auth_code', code);
+					
+					// Flow-specific keys
+					if (isOAuthFlow) {
+						window.opener.sessionStorage.setItem('oauth-authorization-code-v6-authCode', code);
+						console.log('✅ [AuthCallback] Stored OAuth-specific code');
+					}
+					if (isOIDCFlow) {
+						window.opener.sessionStorage.setItem('oidc-authorization-code-v6-authCode', code);
+						console.log('✅ [AuthCallback] Stored OIDC-specific code');
+					}
+					if (isPARFlow) {
+						window.opener.sessionStorage.setItem('par-flow-authCode', code);
+						console.log('✅ [AuthCallback] Stored PAR-specific code');
+					}
+					if (isRARFlow) {
+						window.opener.sessionStorage.setItem('rar-flow-authCode', code);
+						console.log('✅ [AuthCallback] Stored RAR-specific code');
+					}
+					
 					if (state) {
 						window.opener.sessionStorage.setItem('oidc_state', state);
+						window.opener.sessionStorage.setItem('oauth_state', state);
 					}
 					window.opener.sessionStorage.setItem('oidc_auth_code_timestamp', Date.now().toString());
 					window.opener.sessionStorage.setItem('oidc_callback_timestamp', new Date().toISOString());
 					window.opener.sessionStorage.setItem('oidc_callback_url', window.location.href);
+					window.opener.sessionStorage.setItem('restore_step', '3'); // Go to token exchange step
 					console.log('✅ [AuthCallback] Stored in parent window sessionStorage');
 					
-					// Trigger a storage event in the parent window to notify about the new code
-					console.log('✅ [AuthCallback] Triggering custom event in parent window...');
-					window.opener.dispatchEvent(new CustomEvent('oidc-auth-code-received', {
-						detail: { code, state, timestamp: Date.now() }
-					}));
-					
-					// For debugging - don't close automatically, let user close manually
-					console.log('✅ [AuthCallback] DEBUG MODE - Popup will NOT close automatically. Close it manually when done debugging.');
-					// Commented out auto-close for debugging
-					// setTimeout(() => {
-					// 	window.close();
-					// }, 60000);
+				// Trigger a storage event in the parent window to notify about the new code
+				console.log('✅ [AuthCallback] Triggering custom event in parent window...');
+				window.opener.dispatchEvent(new CustomEvent('auth-code-received', {
+					detail: { code, state, timestamp: Date.now(), flowType: activeFlow }
+				}));
+				console.log('✅ [AuthCallback] Custom event dispatched!');
+				
+				// Set a callback completion flag as backup communication method
+				window.opener.sessionStorage.setItem('callback_processed', Date.now().toString());
+				window.opener.sessionStorage.setItem('callback_flow_type', activeFlow);
+				console.log('✅ [AuthCallback] Set callback_processed flag for polling fallback');
+				
+				// DEBUG MODE: Don't auto-close so we can see logs
+				console.log('🐛 [AuthCallback] DEBUG MODE: Popup will NOT auto-close');
+				console.log('🐛 [AuthCallback] Please close this popup manually after reviewing logs');
+				// Auto-close popup after 2 seconds
+				// console.log('✅ [AuthCallback] Auto-closing popup in 2 seconds...');
+				// setTimeout(() => {
+				// 	console.log('✅ [AuthCallback] Closing popup now');
+				// 	window.close();
+				// }, 2000);
 				} else {
 					// If not popup, store in this window's sessionStorage (original behavior)
 					console.log('✅ [AuthCallback] Storing in current window sessionStorage...');
+					
+					// Generic keys
 					sessionStorage.setItem('oidc_auth_code', code);
+					sessionStorage.setItem('auth_code', code);
+					
+					// Flow-specific keys
+					if (isOAuthFlow) {
+						sessionStorage.setItem('oauth-authorization-code-v6-authCode', code);
+					}
+					if (isOIDCFlow) {
+						sessionStorage.setItem('oidc-authorization-code-v6-authCode', code);
+					}
+					if (isPARFlow) {
+						sessionStorage.setItem('par-flow-authCode', code);
+					}
+					if (isRARFlow) {
+						sessionStorage.setItem('rar-flow-authCode', code);
+					}
+					
 					if (state) {
 						sessionStorage.setItem('oidc_state', state);
+						sessionStorage.setItem('oauth_state', state);
 					}
 					sessionStorage.setItem('oidc_auth_code_timestamp', Date.now().toString());
 					sessionStorage.setItem('oidc_callback_timestamp', new Date().toISOString());
 					sessionStorage.setItem('oidc_callback_url', window.location.href);
-					console.log('✅ [AuthCallback] Stored oidc_auth_code in sessionStorage');
+					sessionStorage.setItem('restore_step', '3'); // Go to token exchange step
+					console.log('✅ [AuthCallback] Stored auth codes with flow-specific keys');
 				}
 				
 				// Verify storage worked
@@ -218,19 +325,31 @@ const AuthorizationCallback: React.FC = () => {
 				setStatus('success');
 				
 				if (isPopup) {
-					// If popup, show success message and close it after delay
-					console.log('✅ [AuthCallback] Popup mode - will close automatically in 60 seconds');
-					// The popup will close from the earlier setTimeout
+					// If popup, show success message - auto-close is handled above
+					console.log('✅ [AuthCallback] Popup mode - will auto-close in 2 seconds');
 				} else {
-					// If not popup, redirect back to the OIDC flow after a short delay
+					// If not popup, redirect back to the flow after a short delay
 					console.log('✅ [AuthCallback] ===== SCHEDULING REDIRECT =====');
-					console.log('✅ [AuthCallback] Scheduling redirect to V6 flow in 3 seconds...');
+					
+					// Determine redirect path based on active flow
+					let redirectPath = '/flows/oidc-authorization-code-v6'; // Default
+					if (activeFlow.includes('oauth-authorization-code')) {
+						redirectPath = '/flows/oauth-authorization-code-v6';
+					} else if (activeFlow.includes('oidc-authorization-code')) {
+						redirectPath = '/flows/oidc-authorization-code-v6';
+					} else if (activeFlow.includes('par')) {
+						redirectPath = '/flows/par-flow';
+					} else if (activeFlow.includes('rar')) {
+						redirectPath = '/flows/rar-flow';
+					}
+					
+					console.log('✅ [AuthCallback] Scheduling redirect to', redirectPath, 'in 3 seconds...');
 					setTimeout(() => {
 						setRedirecting(true);
-						console.log('✅ [AuthCallback] Redirecting now to /flows/oidc-authorization-code-v6');
+						console.log('✅ [AuthCallback] Redirecting now to', redirectPath);
 						setTimeout(() => {
 							console.log('✅ [AuthCallback] Executing window.location.href redirect...');
-							window.location.href = '/flows/oidc-authorization-code-v6';
+							window.location.href = redirectPath;
 						}, 1000);
 					}, 3000);
 				}
@@ -284,9 +403,9 @@ const AuthorizationCallback: React.FC = () => {
               </RedirectingMessage>
             )}
             
-            {status === 'success' && !redirecting && (
+            {!redirecting && (
               <RedirectingMessage>
-                ✅ DEBUG MODE: Authorization code received and saved! Check console for details. Popup will NOT close automatically - close manually when done debugging.
+                🐛 DEBUG MODE: Popup will stay open so you can review the console logs. Close this window manually when done.
               </RedirectingMessage>
             )}
           </>

@@ -1,6 +1,6 @@
 // src/components/StepNavigationButtons.tsx
 
-import { FiArrowLeft, FiArrowRight, FiRefreshCw, FiMove } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiTrash2, FiSkipBack, FiMove, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -9,6 +9,7 @@ export interface StepNavigationButtonsProps {
 	totalSteps: number;
 	onPrevious: () => void;
 	onReset: () => void;
+	onStartOver?: () => void; // Optional: go back to step 0, clear tokens but keep credentials
 	onNext: () => void;
 	canNavigateNext: boolean;
 	isFirstStep: boolean;
@@ -16,28 +17,28 @@ export interface StepNavigationButtonsProps {
 	disabledMessage?: string;
 }
 
-const StepNavigation = styled.div<{ $position: { x: number; y: number }; $isDragging?: boolean }>`
+const StepNavigation = styled.div<{ $position: { x: number; y: number }; $isDragging?: boolean; $compact?: boolean }>`
 	position: fixed !important;
 	left: ${({ $position }) => $position.x}px !important;
 	top: ${({ $position }) => $position.y}px !important;
 	background: rgba(255, 255, 255, 0.98) !important;
 	backdrop-filter: blur(10px) !important;
-	padding: 1.25rem 2rem !important;
-	border-radius: 1rem !important;
+	padding: ${({ $compact }) => ($compact ? '0.75rem 1rem' : '1.25rem 2rem')} !important;
+	border-radius: ${({ $compact }) => ($compact ? '0.75rem' : '1rem')} !important;
 	box-shadow: ${({ $isDragging }) =>
 		$isDragging ? '0 12px 40px rgba(0, 0, 0, 0.25)' : '0 8px 32px rgba(0, 0, 0, 0.12)'} !important;
 	border: 1px solid rgba(0, 0, 0, 0.08) !important;
 	z-index: 1000 !important;
 	display: flex !important;
 	align-items: center !important;
-	gap: 2rem !important;
+	gap: ${({ $compact }) => ($compact ? '0.75rem' : '2rem')} !important;
 	max-width: 90vw !important;
 	visibility: visible !important;
 	opacity: 1 !important;
 	pointer-events: auto !important;
 	user-select: ${({ $isDragging }) => ($isDragging ? 'none' : 'auto')} !important;
 	cursor: ${({ $isDragging }) => ($isDragging ? 'grabbing' : 'move')} !important;
-	transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'box-shadow 0.2s ease')} !important;
+	transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'all 0.2s ease')} !important;
 
 	@media (max-width: 768px) {
 		bottom: 1rem;
@@ -46,8 +47,8 @@ const StepNavigation = styled.div<{ $position: { x: number; y: number }; $isDrag
 	}
 `;
 
-const StepIndicator = styled.div`
-	display: flex;
+const StepIndicator = styled.div<{ $compact?: boolean }>`
+	display: ${({ $compact }) => ($compact ? 'none' : 'flex')};
 	align-items: center;
 	gap: 0.75rem;
 	padding-right: 2rem;
@@ -92,18 +93,18 @@ const DragHandle = styled.div`
 	}
 `;
 
-const NavigationButtons = styled.div`
+const NavigationButtons = styled.div<{ $compact?: boolean }>`
 	display: flex;
-	gap: 1rem;
+	gap: ${({ $compact }) => ($compact ? '0.5rem' : '1rem')};
 `;
 
-const NavButton = styled.button<{ $variant?: 'primary' | 'success' | 'outline' | 'danger' }>`
+const NavButton = styled.button<{ $variant?: 'primary' | 'success' | 'outline' | 'danger' | 'warning'; $compact?: boolean }>`
 	display: inline-flex;
 	align-items: center;
-	gap: 0.5rem;
-	padding: 0.75rem 1.5rem;
+	gap: ${({ $compact }) => ($compact ? '0.25rem' : '0.5rem')};
+	padding: ${({ $compact }) => ($compact ? '0.5rem 0.75rem' : '0.75rem 1.5rem')};
 	border-radius: 0.625rem;
-	font-size: 0.9375rem;
+	font-size: ${({ $compact }) => ($compact ? '0.8125rem' : '0.9375rem')};
 	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -159,6 +160,18 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'success' | 'outline' |
 		}
 	`}
 
+	${({ $variant }) =>
+		$variant === 'warning' &&
+		`
+		background-color: #f59e0b;
+		box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+		&:hover:not(:disabled) {
+			background-color: #d97706;
+			box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+			transform: translateY(-1px);
+		}
+	`}
+
 	&:disabled {
 		opacity: 0.5;
 		cursor: not-allowed;
@@ -169,11 +182,43 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'success' | 'outline' |
 	}
 `;
 
+const CompactToggle = styled.button`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	background: #3b82f6;
+	border: none;
+	border-radius: 0.5rem;
+	color: white;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	flex-shrink: 0;
+	box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+
+	&:hover {
+		background: #2563eb;
+		transform: scale(1.05);
+		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
 export const StepNavigationButtons = ({
 	currentStep,
 	totalSteps,
 	onPrevious,
 	onReset,
+	onStartOver,
 	onNext,
 	canNavigateNext,
 	isFirstStep,
@@ -187,7 +232,27 @@ export const StepNavigationButtons = ({
 	});
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+	// Load compact mode from localStorage on mount - persists across refreshes
+	const [isCompact, setIsCompact] = useState(() => {
+		try {
+			const saved = localStorage.getItem('stepper-compact-mode');
+			return saved === 'true';
+		} catch (e) {
+			console.warn('[StepNavigationButtons] Failed to load compact mode from localStorage:', e);
+			return false;
+		}
+	});
 	const stepperRef = useRef<HTMLDivElement>(null);
+
+	// Save compact mode to localStorage whenever it changes
+	useEffect(() => {
+		try {
+			localStorage.setItem('stepper-compact-mode', isCompact.toString());
+			console.log('[StepNavigationButtons] Saved compact mode to localStorage:', isCompact);
+		} catch (e) {
+			console.warn('[StepNavigationButtons] Failed to save compact mode to localStorage:', e);
+		}
+	}, [isCompact]);
 
 	// Handle drag start
 	const handleDragStart = useCallback((e: React.MouseEvent) => {
@@ -251,35 +316,61 @@ export const StepNavigationButtons = ({
 			ref={stepperRef} 
 			$position={position} 
 			$isDragging={isDragging}
+			$compact={isCompact}
 			onMouseDown={handleDragStart}
 		>
 			<DragHandle>
 				<FiMove size={16} />
 			</DragHandle>
-			<StepIndicator>
+			<CompactToggle
+				onClick={(e) => {
+					e.stopPropagation();
+					setIsCompact(!isCompact);
+				}}
+				title={isCompact ? 'Expand stepper' : 'Compact stepper'}
+			>
+				{isCompact ? <FiMaximize2 /> : <FiMinimize2 />}
+			</CompactToggle>
+			<StepIndicator $compact={isCompact}>
 				{Array.from({ length: totalSteps }, (_, i) => (
 					<StepDot key={i} $active={i <= currentStep} />
 				))}
 			</StepIndicator>
-			<NavigationButtons>
+			<NavigationButtons $compact={isCompact}>
 				<NavButton 
 					onClick={(e) => {
 						e.stopPropagation();
 						onPrevious();
 					}} 
 					$variant="outline" 
+					$compact={isCompact}
 					disabled={isFirstStep}
 				>
-					<FiArrowLeft /> Previous
+					<FiArrowLeft /> {!isCompact && 'Previous'}
 				</NavButton>
+				{onStartOver && !isFirstStep && (
+					<NavButton 
+						onClick={(e) => {
+							e.stopPropagation();
+							onStartOver();
+						}} 
+						$variant="warning"
+						$compact={isCompact}
+						title="Go back to Step 1, clear tokens/codes but keep credentials"
+					>
+						<FiSkipBack /> {!isCompact && 'Start Over'}
+					</NavButton>
+				)}
 				<NavButton 
 					onClick={(e) => {
 						e.stopPropagation();
 						onReset();
 					}} 
 					$variant="danger"
+					$compact={isCompact}
+					title="Complete reset: clear everything and expand all sections"
 				>
-					<FiRefreshCw /> Reset Flow
+					<FiTrash2 /> {!isCompact && 'Reset Flow'}
 				</NavButton>
 				<NavButton
 					onClick={(e) => {
@@ -287,6 +378,7 @@ export const StepNavigationButtons = ({
 						onNext();
 					}}
 					$variant="success"
+					$compact={isCompact}
 					disabled={!canNavigateNext}
 					title={
 						!canNavigateNext
@@ -294,7 +386,11 @@ export const StepNavigationButtons = ({
 							: 'Proceed to next step'
 					}
 				>
-					{nextButtonText || (canNavigateNext ? 'Next' : 'Complete above action')} <FiArrowRight />
+					{isCompact ? <FiArrowRight /> : (
+						<>
+							{nextButtonText || (canNavigateNext ? 'Next' : 'Complete above action')} <FiArrowRight />
+						</>
+					)}
 				</NavButton>
 			</NavigationButtons>
 		</StepNavigation>

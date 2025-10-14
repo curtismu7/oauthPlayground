@@ -28,7 +28,7 @@ const DEFAULT_UI_SETTINGS: UISettings = {
 	// Existing settings
 	showCredentialsModal: false,
 	showSuccessModal: true,
-	showAuthRequestModal: false,
+	showAuthRequestModal: true, // ✅ Changed to true - show modal by default for better UX
 	showFlowDebugConsole: true,
 
 	// New UI Settings

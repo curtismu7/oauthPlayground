@@ -99,6 +99,7 @@ const createEmptyCredentials = (): StepCredentials => ({
 	clientId: '',
 	clientSecret: '', // Not used in Implicit but kept for consistency
 	redirectUri: 'https://localhost:3000/oauth-implicit-callback',
+	postLogoutRedirectUri: 'https://localhost:3000/implicit-logout-callback',
 	scope: 'openid',
 	scopes: 'openid',
 	responseType: 'id_token token',
@@ -439,6 +440,15 @@ export const useImplicitFlowController = (
 				timestamp: Date.now(),
 			})
 		);
+		
+		// Set flow-specific flag for ImplicitCallback to recognize V6 flows
+		if (flowKey.includes('implicit-v6')) {
+			const flowFlag = flowVariant === 'oidc' 
+				? 'oidc-implicit-v6-flow-active'
+				: 'oauth-implicit-v6-flow-active';
+			sessionStorage.setItem(flowFlag, 'true');
+			console.log(`🔄 [useImplicitFlowController] Set ${flowFlag} flag for callback detection`);
+		}
 
 		saveStepResult('user-authorization', {
 			method: 'redirect',
@@ -447,7 +457,7 @@ export const useImplicitFlowController = (
 
 		console.log('🔄 [useImplicitFlowController] Redirecting to authorization URL');
 		window.location.href = authUrl;
-	}, [authUrl, flowKey, saveStepResult]);
+	}, [authUrl, flowKey, flowVariant, saveStepResult]);
 
 	// Parse tokens from URL fragment
 	const setTokensFromFragment = useCallback(
@@ -573,6 +583,20 @@ export const useImplicitFlowController = (
 			};
 			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
 			await credentialManager.saveImplicitFlowCredentials(credsToSave as any);
+			
+			// CRITICAL: Also save to authz flow credentials for callback page to load
+			credentialManager.saveAuthzFlowCredentials({
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri,
+				scopes: credentials.scopes,
+				authEndpoint: credentials.authEndpoint,
+				tokenEndpoint: credentials.tokenEndpoint,
+				userInfoEndpoint: credentials.userInfoEndpoint,
+			});
+			console.log('✅ [useImplicitFlowController] Credentials saved to authz flow storage for callback');
+			
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
 			originalCredentialsRef.current = { ...credentials };

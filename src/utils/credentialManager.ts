@@ -618,11 +618,15 @@ class CredentialManager {
 			case 'oidc-authorization-code-v3':
 			case 'enhanced-authorization-code-v3':
 			case 'unified-authorization-code-v3':
+			case 'oauth-authorization-code-v6':
+			case 'oidc-authorization-code-v6':
 				return this.loadAuthzFlowCredentials();
 			case 'implicit':
 			case 'implicit-grant':
 			case 'oidc-implicit-v3':
 			case 'oauth2-implicit-v3':
+			case 'oauth-implicit-v6':
+			case 'oidc-implicit-v6':
 				return this.loadImplicitFlowCredentials();
 			case 'hybrid':
 			case 'oidc-hybrid-v3':
@@ -634,7 +638,17 @@ class CredentialManager {
 			case 'device-code':
 			case 'device':
 			case 'oidc-device-code-v3':
+			case 'device-authorization-v6':
+			case 'oidc-device-authorization-v6':
 				return this.loadDeviceFlowCredentials();
+			case 'jwt-bearer':
+			case 'assertion':
+			case 'jwt-bearer-token-v6':
+			case 'saml-bearer-assertion-v6':
+				return this.loadConfigCredentials(); // JWT Bearer flows don't need special credential storage
+			case 'client-credentials':
+			case 'client-credentials-v6':
+				return this.loadConfigCredentials(); // Client credentials flows use config credentials
 			default:
 				return this.loadConfigCredentials();
 		}
@@ -658,11 +672,15 @@ class CredentialManager {
 			case 'oidc-authorization-code-v3':
 			case 'enhanced-authorization-code-v3':
 			case 'unified-authorization-code-v3':
+			case 'oauth-authorization-code-v6':
+			case 'oidc-authorization-code-v6':
 				return this.saveAuthzFlowCredentials(credentials);
 			case 'implicit':
 			case 'implicit-grant':
 			case 'oidc-implicit-v3':
 			case 'oauth2-implicit-v3':
+			case 'oauth-implicit-v6':
+			case 'oidc-implicit-v6':
 				return this.saveImplicitFlowCredentials(credentials);
 			case 'hybrid':
 			case 'oidc-hybrid-v3':
@@ -675,7 +693,17 @@ class CredentialManager {
 			case 'device-code':
 			case 'device':
 			case 'oidc-device-code-v3':
+			case 'device-authorization-v6':
+			case 'oidc-device-authorization-v6':
 				return this.saveDeviceFlowCredentials(credentials);
+			case 'jwt-bearer':
+			case 'assertion':
+			case 'jwt-bearer-token-v6':
+			case 'saml-bearer-assertion-v6':
+				return this.saveConfigCredentials(credentials); // JWT Bearer flows don't need special credential storage
+			case 'client-credentials':
+			case 'client-credentials-v6':
+				return this.saveConfigCredentials(credentials); // Client credentials flows use config credentials
 			default:
 				return this.saveConfigCredentials(credentials);
 		}

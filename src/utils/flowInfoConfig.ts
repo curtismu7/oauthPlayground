@@ -306,6 +306,7 @@ export const PRESET_FLOW_CONFIGS = {
 	'device-code': FLOW_INFO_CONFIG['device-code'],
 	hybrid: FLOW_INFO_CONFIG['hybrid'],
 	'worker-token': FLOW_INFO_CONFIG['worker-token'],
+	'worker-token-v6': FLOW_INFO_CONFIG['worker-token'],
 	par: FLOW_INFO_CONFIG['par'],
 	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
 	redirectless: FLOW_INFO_CONFIG['redirectless'],

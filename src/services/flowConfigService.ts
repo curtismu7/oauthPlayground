@@ -948,9 +948,9 @@ export class FlowConfigService {
 		return {
 			flowType: 'redirectless',
 			flowName: 'PingOne Redirectless Flow',
-			flowVersion: 'V5',
+			flowVersion: 'V6',
 			flowTheme: 'blue',
-			flowKey: 'redirectless-flow-v5',
+			flowKey: 'redirectless-v6',
 			flowVariant: 'pingone',
 			category: 'pingone',
 			stepConfigs: [

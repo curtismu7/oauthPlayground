@@ -316,7 +316,11 @@ const OIDCHybridFlowV6: React.FC = () => {
 	const handleIntrospectToken = useCallback(async (token: string) => {
 		try {
 			const introspectionEndpoint = `https://auth.pingone.com/${controller.credentials?.environmentId || ''}/as/introspect`;
-			
+
+			// Determine the appropriate authentication method for hybrid flow
+			// Hybrid flows can be public (no client secret) or confidential (with client secret)
+			const authMethod = controller.credentials?.clientSecret ? 'client_secret_post' : 'none';
+
 			const { apiCall } = await TokenIntrospectionService.introspectToken(
 				{
 					token: token,
@@ -327,7 +331,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 				'hybrid',
 				'/api/introspect-token',  // Use proxy endpoint
 				introspectionEndpoint,      // Pass PingOne URL as introspection endpoint
-				'client_secret_post'        // Token auth method
+				authMethod        // Token auth method
 			);
 			setIntrospectionApiCall(apiCall);
 		} catch (error) {
@@ -412,6 +416,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 							onCredentialsChange={handleCredentialsChange}
 							onSaveCredentials={controller.saveCredentials}
 							flowType="hybrid"
+							showAdvancedConfig={true} // ✅ Hybrid flow uses authorization endpoint, PAR applicable
 
 							// Individual field change handlers for editable fields
 							environmentId={controller.credentials?.environmentId || ''}
@@ -420,7 +425,7 @@ const OIDCHybridFlowV6: React.FC = () => {
 							redirectUri={controller.credentials?.redirectUri || ''}
 							scopes={controller.credentials?.scopes || ''}
 							loginHint={controller.credentials?.loginHint || ''}
-							postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri || ''}
+							postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 							onEnvironmentIdChange={(value) => {
 								const updated = { ...(controller.credentials || {}), environmentId: value };
 								controller.setCredentials(updated);

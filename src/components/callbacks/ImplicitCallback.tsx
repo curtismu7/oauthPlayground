@@ -3,6 +3,7 @@ import { FiAlertTriangle, FiCheckCircle, FiLoader, FiXCircle } from 'react-icons
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { logger } from '../../utils/logger';
+import { FlowErrorService, FlowErrorConfig } from '../../services/flowErrorService';
 
 const CallbackContainer = styled.div`
   display: flex;
@@ -138,13 +139,37 @@ const ImplicitCallback: React.FC = () => {
 
 				if (accessToken || idToken) {
 					// Check which flow this is from by looking for flow context
+					const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
+					const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
 					const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
 					const v5OIDCContext = sessionStorage.getItem('oidc-implicit-v5-flow-active');
 					const v3FlowContext =
 						sessionStorage.getItem('oidc_implicit_v3_flow_context') ||
 						sessionStorage.getItem('oauth2_implicit_v3_flow_context');
 
-					if (v5OAuthContext || v5OIDCContext) {
+					if (v6OAuthContext || v6OIDCContext) {
+						// This is a V6 flow - store tokens in hash and redirect back
+						setStatus('success');
+						setMessage('Tokens received - returning to flow');
+						
+						// Determine which flow this is from
+						const isOIDCFlow = v6OIDCContext;
+						
+						logger.auth('ImplicitCallback', 'V6 implicit grant received, returning to flow', {
+							hasAccessToken: !!accessToken,
+							hasIdToken: !!idToken,
+							flow: isOIDCFlow ? 'oidc-v6' : 'oauth-v6',
+						});
+
+						setTimeout(() => {
+							// Reconstruct the hash with tokens and redirect back to flow
+							const targetFlow = isOIDCFlow
+								? '/flows/oidc-implicit-v6'
+								: '/flows/oauth-implicit-v6';
+							const fragment = window.location.hash.substring(1); // Get full hash without #
+							navigate(`${targetFlow}#${fragment}`);
+						}, 1500);
+					} else if (v5OAuthContext || v5OIDCContext) {
 						// This is a V5 flow - store tokens in hash and redirect back
 						setStatus('success');
 						setMessage('Tokens received - returning to flow');
@@ -163,9 +188,10 @@ const ImplicitCallback: React.FC = () => {
 
 						setTimeout(() => {
 							// Reconstruct the hash with tokens and redirect back to flow
+							// V5 flows now redirect to V6 flows
 							const targetFlow = isOIDCFlow
-								? '/flows/oidc-implicit-v5'
-								: '/flows/oauth-implicit-v5';
+								? '/flows/oidc-implicit-v6'
+								: '/flows/oauth-implicit-v6';
 							const fragment = window.location.hash.substring(1); // Get full hash without #
 							navigate(`${targetFlow}#${fragment}`);
 						}, 1500);
@@ -233,6 +259,46 @@ const ImplicitCallback: React.FC = () => {
 				return <FiLoader className="animate-spin" />;
 		}
 	};
+
+	// If error status, use standardized error display
+	if (status === 'error' && error) {
+		// Extract OAuth error details from URL if present
+		const queryParams = new URLSearchParams(location.search);
+		const hashParams = new URLSearchParams(window.location.hash.substring(1));
+		const oauthError = queryParams.get('error') || hashParams.get('error');
+		const oauthErrorDescription = queryParams.get('error_description') || hashParams.get('error_description');
+		
+		// Determine flow type from session storage
+		let flowKey = 'oauth-implicit-v6';
+		const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
+		const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
+		const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
+		const v5OIDCContext = sessionStorage.getItem('oidc-implicit-v5-flow-active');
+		
+		if (v6OIDCContext || v5OIDCContext) {
+			flowKey = 'oidc-implicit-v6';
+		} else if (v6OAuthContext || v5OAuthContext) {
+			flowKey = 'oauth-implicit-v6';
+		}
+		
+		const config: FlowErrorConfig = {
+			flowType: 'implicit' as const,
+			flowKey,
+			title: 'Implicit Grant Failed',
+			description: message,
+			oauthError: oauthError || error,
+			...(oauthErrorDescription && { oauthErrorDescription }),
+			correlationId: FlowErrorService.generateCorrelationId(),
+			onStartOver: () => {
+				sessionStorage.removeItem('processed_auth_code');
+				sessionStorage.removeItem('callback_processed');
+				navigate(`/flows/${flowKey}`);
+			},
+			onRetry: () => window.location.reload(),
+		};
+		
+		return FlowErrorService.getFullPageError(config);
+	}
 
 	return (
 		<CallbackContainer>

@@ -26,7 +26,6 @@ import {
 } from 'react-icons/fi';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import EducationalContentService from '../../services/educationalContentService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
@@ -960,9 +959,6 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 						</InfoText>
 					</div>
 				</InfoBox>
-
-				{/* UI Settings */}
-				{UISettingsService.getFlowSpecificSettingsPanel('saml-bearer')}
 
 				<SectionDivider />
 

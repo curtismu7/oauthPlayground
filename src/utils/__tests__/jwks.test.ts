@@ -1,6 +1,7 @@
 // src/utils/__tests__/jwks.test.ts - Tests for JWKS utilities
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('jose');
+import {
 	buildDiscoveryUri,
 	buildJWKSUri,
 	createJWKSSet,
@@ -14,13 +15,11 @@ vi.mock('jose');
 	getKeyStatistics,
 	getSigningKey,
 	isJWKS,
-	JWKS,
-	JWKSConfig,
 	normalizeIssuer,
-	TokenValidationOptions,
 	validateJWKSStructure,
 	validateJWT,
 } from '../jwks';
+import type { JWKS, JWKSConfig, TokenValidationOptions } from '../jwks';
 
 // Mock jose library
 vi.mock('jose', () => ({
@@ -129,9 +128,9 @@ describe('JWKS Utilities', () => {
 
 	describe('createJWKSSet', () => {
 		it('should create remote JWKS set', () => {
-			vi.mock('jose', () => ({ createRemoteJWKSet: vi.fn() }));
+			vi.mock('jose');
 			const mockJWKSSet = { mock: 'jwks-set' };
-			createRemoteJWKSet.mockReturnValue(mockJWKSSet);
+			vi.mocked(createRemoteJWKSet).mockReturnValue(mockJWKSSet);
 
 			const result = createJWKSSet('https://auth.pingone.com/test/as/jwks');
 
@@ -238,7 +237,7 @@ describe('JWKS Utilities', () => {
 		};
 
 		it('should validate JWT successfully', async () => {
-			const { jwtVerify } = require('jose');
+			import { jwtVerify } from 'jose';
 			const mockPayload = {
 				iss: 'https://auth.pingone.com/test/as',
 				aud: 'test_client',
@@ -260,7 +259,7 @@ describe('JWKS Utilities', () => {
 		});
 
 		it('should fail validation with nonce mismatch', async () => {
-			const { jwtVerify } = require('jose');
+			import { jwtVerify } from 'jose';
 			const mockPayload = {
 				iss: 'https://auth.pingone.com/test/as',
 				aud: 'test_client',
@@ -285,7 +284,7 @@ describe('JWKS Utilities', () => {
 		});
 
 		it('should fail validation with expired auth_time', async () => {
-			const { jwtVerify } = require('jose');
+			import { jwtVerify } from 'jose';
 			const mockPayload = {
 				iss: 'https://auth.pingone.com/test/as',
 				aud: 'test_client',
@@ -307,7 +306,7 @@ describe('JWKS Utilities', () => {
 		});
 
 		it('should handle JWT verification errors', async () => {
-			const { jwtVerify } = require('jose');
+			import { jwtVerify } from 'jose';
 			jwtVerify.mockRejectedValue(new Error('Invalid signature'));
 
 			const result = await validateJWT(mockJWT, mockConfig, mockOptions);

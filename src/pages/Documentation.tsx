@@ -634,6 +634,16 @@ const validateIdToken = (idToken, clientId, issuer) => {
 									<FiExternalLink />
 								</ExternalLink>
 							</li>
+							<li style={{ marginBottom: '0.75rem' }}>
+								<ExternalLink
+									href="https://developer.pingidentity.com/identity-for-ai/index.html"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Identity for AI - PingOne Advanced Identity Cloud
+									<FiExternalLink />
+								</ExternalLink>
+							</li>
 						</ul>
 					</div>
 				</CollapsibleHeader>

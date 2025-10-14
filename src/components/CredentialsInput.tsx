@@ -134,6 +134,9 @@ const FormField = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 0.375rem;
+	position: relative;
+	z-index: 5;
+	pointer-events: auto;
 `;
 
 const FormLabel = styled.label`
@@ -154,12 +157,14 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	font-size: 0.875rem;
 	transition: all 0.2s ease;
 	font-family: inherit;
-	background: #ffffff;
+	background: #ffffff !important;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-	cursor: text;
-	pointer-events: auto;
+	cursor: text !important;
+	pointer-events: auto !important;
 	position: relative;
-	z-index: 5;
+	z-index: 10 !important;
+	user-select: text !important;
+	-webkit-user-select: text !important;
 
 	&:hover {
 		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#9ca3af')};
@@ -168,7 +173,8 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	&:focus {
 		outline: none;
 		border-color: ${({ $hasError }) => ($hasError ? '#ef4444' : '#2563eb')};
-		box-shadow: 0 0 0 3px ${({ $hasError }) => ($hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)')};
+		box-shadow: 0 0 0 3px ${({ $hasError }) => ($hasError ? 'rgba(239, 68, 68, 0.1)' : 'rgba(37, 99, 235, 0.1)')} !important;
+		z-index: 20 !important;
 	}
 
 	&::placeholder {
@@ -176,36 +182,17 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	}
 
 	&:disabled {
-		background: #f9fafb;
+		background: #f9fafb !important;
 		color: #6b7280;
-		cursor: not-allowed;
-		pointer-events: none;
+		cursor: not-allowed !important;
+		pointer-events: none !important;
 	}
 
 	&[readonly] {
-		background: #f9fafb;
+		background: #f9fafb !important;
 		color: #6b7280;
-		cursor: not-allowed;
-		pointer-events: none;
-	}
-
-	/* Ensure inputs are always interactive when not disabled/readonly */
-	&:not(:disabled):not([readonly]) {
-		background: #ffffff !important;
-		color: #111827 !important;
-		cursor: text !important;
-		pointer-events: auto !important;
-		user-select: text !important;
-	}
-
-	/* Special override for login hint field to ensure it's always editable */
-	&[data-field="login-hint"] {
-		background: #ffffff !important;
-		color: #111827 !important;
-		cursor: text !important;
-		pointer-events: auto !important;
-		user-select: text !important;
-		border-color: #d1d5db !important;
+		cursor: not-allowed !important;
+		pointer-events: none !important;
 	}
 `;
 
@@ -450,10 +437,11 @@ export const CredentialsInput = ({
 								autoComplete="current-password"
 							/>
 							{clientSecret && (
-								<div style={{ 
-									display: 'flex', 
-									alignItems: 'center', 
-									height: '100%' 
+								<div style={{
+									display: 'flex',
+									alignItems: 'center',
+									height: '100%',
+									marginRight: '3rem' // Add space for the show/hide button
 								}}>
 									{CopyButtonVariants.identifier(clientSecret, 'Client Secret')}
 								</div>
@@ -468,6 +456,7 @@ export const CredentialsInput = ({
 									transform: 'translateY(-50%)',
 									width: '2rem',
 									height: '2rem',
+									zIndex: 10, // Ensure it's above other elements
 								}}
 								title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
 							>

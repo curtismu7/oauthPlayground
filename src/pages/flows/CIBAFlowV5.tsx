@@ -721,7 +721,9 @@ const CIBAFlowV5: React.FC = () => {
 													const result = await TokenIntrospectionService.introspectToken(
 														request,
 														'ciba',
-														`https://auth.pingone.com/${effectiveConfig.environmentId}/as/introspect`
+														'/api/introspect-token',
+														`https://auth.pingone.com/${effectiveConfig.environmentId}/as/introspect`,
+														'client_secret_post'
 													);
 
 													// Set the API call data for display
