@@ -1,6 +1,6 @@
 // src/pages/ClientGenerator.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { FiKey, FiCheckCircle, FiSettings, FiX, FiCode, FiArrowRight, FiEyeOff, FiEye, FiGlobe, FiServer, FiSmartphone, FiLoader, FiRotateCcw } from 'react-icons/fi';
+import { FiKey, FiCheckCircle, FiSettings, FiX, FiCode, FiArrowRight, FiEyeOff, FiEye, FiGlobe, FiServer, FiSmartphone, FiLoader, FiRotateCcw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import { pingOneAppCreationService, AppType, AppCreationResult } from '../services/pingOneAppCreationService';
 import TokenDisplayService from '../services/tokenDisplayService';
@@ -1078,6 +1078,136 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 							)}
 							<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
 								This header will be included in all API requests to PingOne.
+							</div>
+						</div>
+					</div>
+
+					{/* Token Analysis Section - Using TokenDisplayService */}
+					<div style={{ marginTop: '1.5rem' }}>
+						<div style={{ 
+							background: '#f8fafc', 
+							border: '1px solid #e2e8f0', 
+							borderRadius: '0.75rem', 
+							padding: '1.25rem'
+						}}>
+							<div style={{ 
+								display: 'flex', 
+								alignItems: 'center', 
+								gap: '0.5rem', 
+								marginBottom: '0.75rem',
+								color: '#374151',
+								fontWeight: 600
+							}}>
+								<FiShield size={20} />
+								Token Analysis (TokenDisplayService)
+							</div>
+							<div style={{ fontSize: '0.875rem', color: '#374151', marginBottom: '1rem' }}>
+								Detailed token analysis using our secure TokenDisplayService.
+							</div>
+
+							{/* Token Metadata */}
+							<div style={{ marginBottom: '1rem' }}>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>Token Metadata:</div>
+								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
+									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Token Type</div>
+										<div style={{ fontWeight: 600, color: '#374151' }}>
+											{TokenDisplayService.getTokenLabel('access', false)}
+										</div>
+									</div>
+									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Length</div>
+										<div style={{ fontWeight: 600, color: '#374151' }}>
+											{workerToken.length} characters
+										</div>
+									</div>
+									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Format</div>
+										<div style={{ fontWeight: 600, color: '#374151' }}>
+											{TokenDisplayService.isJWT(workerToken) ? (
+												<span style={{ color: '#059669' }}>JWT ✓</span>
+											) : (
+												<span style={{ color: '#dc2626' }}>Opaque ✗</span>
+											)}
+										</div>
+									</div>
+									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Flow Context</div>
+										<div style={{ fontWeight: 600, color: '#374151' }}>
+											Client Credentials
+										</div>
+									</div>
+								</div>
+							</div>
+
+							{/* JWT Decode Section */}
+							{TokenDisplayService.isJWT(workerToken) && (
+								<div style={{ marginBottom: '1rem' }}>
+									<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>JWT Structure:</div>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+										<pre style={{ 
+											background: '#1e293b', 
+											color: '#e2e8f0', 
+											padding: '1rem', 
+											borderRadius: '0.5rem', 
+											overflowX: 'auto',
+											fontSize: '0.875rem',
+											lineHeight: '1.6',
+											fontFamily: 'Monaco, Menlo, monospace',
+											flex: 1,
+											margin: 0
+										}}>
+											{(() => {
+												const decoded = TokenDisplayService.decodeJWT(workerToken);
+												if (!decoded) return 'Unable to decode JWT';
+												
+												return JSON.stringify({
+													header: decoded.header,
+													payload: {
+														...decoded.payload,
+														// Mask sensitive fields in payload for security
+														client_id: decoded.payload.client_id ? '[REDACTED]' : undefined,
+														sub: decoded.payload.sub ? TokenDisplayService.maskToken(decoded.payload.sub, 4) : undefined,
+														email: decoded.payload.email ? '[REDACTED]' : undefined,
+														username: decoded.payload.username ? '[REDACTED]' : undefined,
+														...Object.fromEntries(
+															Object.entries(decoded.payload).filter(([key]) => 
+																!['client_id', 'sub', 'email', 'username'].includes(key)
+															)
+														)
+													}
+												}, null, 2);
+											})()}
+										</pre>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', maxWidth: '200px' }}>
+											<strong>JWT Decoded:</strong> Header and payload shown with sensitive data masked for security.
+										</div>
+									</div>
+								</div>
+							)}
+
+							{/* Opaque Token Notice */}
+							{!TokenDisplayService.isJWT(workerToken) && (
+								<div style={{ marginBottom: '1rem', padding: '1rem', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '0.5rem' }}>
+									<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>Opaque Token</div>
+									<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
+										{TokenDisplayService.getOpaqueTokenMessage('access')}
+									</div>
+									<div style={{ fontSize: '0.75rem', color: '#92400e', marginTop: '0.5rem' }}>
+										This is normal for access tokens in many OAuth implementations for security reasons.
+									</div>
+								</div>
+							)}
+
+							{/* Security Features */}
+							<div style={{ padding: '1rem', background: '#f0fdf4', border: '1px solid #22c55e', borderRadius: '0.5rem' }}>
+								<div style={{ fontWeight: 600, color: '#166534', marginBottom: '0.5rem' }}>Security Features</div>
+								<div style={{ fontSize: '0.875rem', color: '#166534' }}>
+									• Token values are never logged or stored insecurely<br/>
+									• Sensitive JWT claims are automatically masked<br/>
+									• All operations use secure TokenDisplayService methods<br/>
+									• Manual user action required to reveal full token values
+								</div>
 							</div>
 						</div>
 					</div>
