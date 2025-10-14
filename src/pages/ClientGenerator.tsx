@@ -618,9 +618,9 @@ const ClientGenerator: React.FC = () => {
 						tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as any,
 						pkceEnforcement: formData.pkceEnforcement as any,
 						scopes: formData.scopes,
-						accessTokenValiditySeconds: 3600,
+						accessTokenValiditySeconds: 7200,
 						refreshTokenValiditySeconds: 2592000,
-						idTokenValiditySeconds: 3600,
+						idTokenValiditySeconds: 7200,
 					};
 					setLastRequestBody(JSON.stringify(payload, null, 2));
 					result = await pingOneAppCreationService.createOIDCWebApp(payload);
@@ -642,7 +642,8 @@ const ClientGenerator: React.FC = () => {
 					setLastRequestBody(JSON.stringify(nativePayload, null, 2));
 					result = await pingOneAppCreationService.createOIDCNativeApp(nativePayload);
 					break;
-				case 'SINGLE_PAGE_APP':
+				}
+				case 'SINGLE_PAGE_APP': {
 					const spaPayload = {
 						...baseConfig,
 						type: 'SINGLE_PAGE_APP',
@@ -659,7 +660,8 @@ const ClientGenerator: React.FC = () => {
 					setLastRequestBody(JSON.stringify(spaPayload, null, 2));
 					result = await pingOneAppCreationService.createSinglePageApp(spaPayload);
 					break;
-				case 'WORKER':
+				}
+				case 'WORKER': {
 					const workerPayload = {
 						...baseConfig,
 						type: 'WORKER',
@@ -672,7 +674,8 @@ const ClientGenerator: React.FC = () => {
 					setLastRequestBody(JSON.stringify(workerPayload, null, 2));
 					result = await pingOneAppCreationService.createWorkerApp(workerPayload);
 					break;
-				case 'SERVICE':
+				}
+				case 'SERVICE': {
 					const servicePayload = {
 						...baseConfig,
 						type: 'SERVICE',
@@ -685,6 +688,7 @@ const ClientGenerator: React.FC = () => {
 					setLastRequestBody(JSON.stringify(servicePayload, null, 2));
 					result = await pingOneAppCreationService.createServiceApp(servicePayload);
 					break;
+				}
 				default:
 					throw new Error('Unsupported application type');
 			}
