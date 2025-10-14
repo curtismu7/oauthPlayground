@@ -693,7 +693,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
 	
 	// Advanced OAuth parameters
-	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
 	const [promptValues, setPromptValues] = useState<string[]>([]);
@@ -724,7 +723,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				prompt: promptValues.join(' ')
 			});
 		}
-	}, [audience, promptValues, controller]);
+	}, [audience, promptValues]);
 
 	// Save advanced parameters
 	const handleSaveAdvancedParams = useCallback(async () => {
@@ -732,7 +731,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			audience,
 			resources,
 			promptValues,
-			claimsRequest,
 		});
 		
 		FlowStorageService.AdvancedParameters.set('oauth-authz-v6', {
@@ -774,7 +772,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		setTimeout(() => {
 			setIsSavedAdvancedParams(false);
 		}, 3000);
-	}, [audience, resources, promptValues, claimsRequest, controller]);
+	}, [audience, resources, promptValues, controller]);
 
 	// Scroll to top on step change
 	useEffect(() => {
@@ -1757,22 +1755,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									
 									<SectionDivider />
 									
-									{/* Claims Request Builder */}
-									<InfoBox $variant="info">
-										<FiInfo size={20} />
-										<div>
-											<InfoTitle>OAuth + UserInfo Extension</InfoTitle>
-											<InfoText>
-												While not part of core OAuth 2.0, many OAuth providers support UserInfo-like endpoints.
-												The claims parameter can specify what user data to return. This shows how OAuth evolved into OIDC.
-											</InfoText>
-										</div>
-									</InfoBox>
-									<ClaimsRequestBuilder
-										value={claimsRequest}
-										onChange={setClaimsRequest}
-									/>
-
 									{/* Save Button */}
 									<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2rem' }}>
 										{isSavedAdvancedParams && (
