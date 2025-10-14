@@ -625,6 +625,7 @@ const ClientGenerator: React.FC = () => {
 					setLastRequestBody(JSON.stringify(payload, null, 2));
 					result = await pingOneAppCreationService.createOIDCWebApp(payload);
 					break;
+				}
 				case 'OIDC_NATIVE_APP': {
 					const nativePayload = {
 						...baseConfig,
