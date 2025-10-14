@@ -607,6 +607,35 @@ export const useAuthorizationCodeFlowController = (
 			return;
 		}
 
+		// Enhanced redirect URI debugging and validation
+		const currentOrigin = window.location.origin;
+		const suggestedRedirectUri = `${currentOrigin}/authz-callback`;
+		const redirectUriMismatch = credentials.redirectUri !== suggestedRedirectUri;
+		
+		console.log('🔍 [REDIRECT URI DEBUG] Detailed Analysis:', {
+			configuredRedirectUri: credentials.redirectUri,
+			suggestedRedirectUri: suggestedRedirectUri,
+			currentOrigin: currentOrigin,
+			currentHref: window.location.href,
+			protocol: window.location.protocol,
+			hostname: window.location.hostname,
+			port: window.location.port,
+			isLocalhost: ['localhost', '127.0.0.1'].includes(window.location.hostname),
+			isHttps: window.location.protocol === 'https:',
+			redirectUriProtocol: credentials.redirectUri.split(':')[0],
+			redirectUriHost: credentials.redirectUri.split('/')[2],
+			mismatch: redirectUriMismatch,
+		});
+
+		// Warn about potential redirect URI mismatches
+		if (redirectUriMismatch) {
+			console.warn('⚠️ [REDIRECT URI WARNING] Potential mismatch detected:', {
+				configured: credentials.redirectUri,
+				suggested: suggestedRedirectUri,
+				recommendation: `Consider updating redirect URI to: ${suggestedRedirectUri}`
+			});
+		}
+
 		console.log('🔧 [useAuthorizationCodeFlowController] ===== AUTHORIZATION URL GENERATION =====');
 		console.log('🔧 [useAuthorizationCodeFlowController] Using redirect URI:', credentials.redirectUri);
 		console.log('🔧 [useAuthorizationCodeFlowController] Full credentials:', {
@@ -1124,6 +1153,23 @@ export const useAuthorizationCodeFlowController = (
 							userMessage = errorJson.error_description || 'Invalid authorization code';
 							errorDetails = errorJson.error_description || errorText;
 						}
+					} else if (errorJson.error === 'invalid_request' && errorJson.error_description?.toLowerCase().includes('redirect')) {
+						userMessage = 'Invalid Redirect URI';
+						errorDetails = `${errorJson.error_description}\n\nDebugging Info:\n- Configured: ${credentials.redirectUri}\n- Used in token exchange: ${actualRedirectUri}\n- Current origin: ${window.location.origin}\n\nEnsure the redirect URI in PingOne exactly matches: ${actualRedirectUri}`;
+						
+						// Additional redirect URI debugging
+						console.error('🚨 [REDIRECT URI ERROR] Detailed debugging:', {
+							error: errorJson,
+							configuredRedirectUri: credentials.redirectUri,
+							actualRedirectUriUsed: actualRedirectUri,
+							currentOrigin: window.location.origin,
+							currentUrl: window.location.href,
+							mismatch: actualRedirectUri !== credentials.redirectUri,
+							pingOneErrorDescription: errorJson.error_description
+						});
+					} else {
+						userMessage = errorJson.error_description || errorJson.error || 'Token exchange failed';
+						errorDetails = errorJson.error_description || errorText;
 					}
 				} catch (e) {
 					// If not JSON, use the raw error text

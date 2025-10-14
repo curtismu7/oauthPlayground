@@ -115,6 +115,7 @@ import SDKSampleApp from './pages/SDKSampleApp';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
 import URLDecoder from './pages/URLDecoder';
+import PingOneMockFeatures from './pages/PingOneMockFeatures';
 
 const AppContainer = styled.div`
   display: flex;
@@ -464,6 +465,7 @@ const AppRoutes = () => {
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
+							<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
 							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
 							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
 							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />

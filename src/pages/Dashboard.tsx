@@ -705,17 +705,17 @@ const Dashboard = () => {
 							public clients).
 						</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/oauth-authorization-code-v5" $variant="primary">
-								Authorization Code V5
+							<FlowLink href="/flows/oauth-authorization-code-v6" $variant="primary">
+								Authorization Code V6
 							</FlowLink>
-							<FlowLink href="/flows/client-credentials-v5" $variant="secondary">
-								Client Credentials V5
+							<FlowLink href="/flows/client-credentials-v6" $variant="secondary">
+								Client Credentials V6
 							</FlowLink>
 							<FlowLink href="/flows/device-authorization-v6" $variant="secondary">
-								Device Code V5
+								Device Authorization V6
 							</FlowLink>
-							<FlowLink href="/flows/oauth-implicit-v5" $variant="secondary">
-								Implicit V5 (legacy)
+							<FlowLink href="/flows/oauth-implicit-v6" $variant="secondary">
+								Implicit V6
 							</FlowLink>
 						</FlowButtonsContainer>
 					</FlowCard>
@@ -724,14 +724,14 @@ const Dashboard = () => {
 						<h3>OpenID Connect</h3>
 						<p>Identity layer on top of OAuth 2.0.</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/oidc-authorization-code-v5" $variant="primary" style={{ background: '#10b981', borderColor: '#059669' }}>
-								OIDC Authorization Code V5
+							<FlowLink href="/flows/oidc-authorization-code-v6" $variant="primary">
+								OIDC Authorization Code V6
 							</FlowLink>
-							<FlowLink href="/flows/oidc-implicit-v5" $variant="secondary">
-								OIDC Implicit V5
+							<FlowLink href="/flows/oidc-implicit-v6" $variant="secondary">
+								OIDC Implicit V6
 							</FlowLink>
-							<FlowLink href="/flows/ciba-v5" $variant="secondary">
-								CIBA Flow V5
+							<FlowLink href="/flows/oidc-hybrid-v6" $variant="secondary">
+								OIDC Hybrid V6
 							</FlowLink>
 						</FlowButtonsContainer>
 					</FlowCard>
@@ -740,14 +740,14 @@ const Dashboard = () => {
 						<h3>PingOne Flows</h3>
 						<p>PingOne-specific authentication and authorization flows.</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/worker-token-v5" $variant="primary" style={{ background: '#f97316', borderColor: '#ea580c' }}>
-								Worker Token V5
+							<FlowLink href="/flows/worker-token-v6" $variant="primary">
+								Worker Token V6
 							</FlowLink>
-							<FlowLink href="/flows/pingone-par-v5" $variant="secondary">
-								PingOne PAR V5
+							<FlowLink href="/flows/pingone-par-v6" $variant="secondary">
+								PingOne PAR V6
 							</FlowLink>
-							<FlowLink href="/flows/redirectless-flow-v5" $variant="secondary">
-								Redirectless Flow V5
+							<FlowLink href="/flows/redirectless-flow-v6" $variant="secondary">
+								Redirectless Flow V6
 							</FlowLink>
 						</FlowButtonsContainer>
 					</FlowCard>
