@@ -359,6 +359,13 @@ const ClientGenerator: React.FC = () => {
 	const [creationResult, setCreationResult] = useState<AppCreationResult | null>(null);
 	const [lastApiUrl, setLastApiUrl] = useState<string>('');
 	const [lastRequestBody, setLastRequestBody] = useState<string>('');
+	const [workerTokenRequest, setWorkerTokenRequest] = useState<{
+		url: string;
+		method: string;
+		headers: Record<string, string>;
+		body: string;
+		authMethod: string;
+	} | null>(null);
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -441,6 +448,15 @@ const ClientGenerator: React.FC = () => {
 				bodyParams.client_id = credentials.clientId;
 				bodyParams.client_secret = credentials.clientSecret;
 			}
+			
+			// Capture request details for display
+			setWorkerTokenRequest({
+				url: tokenEndpoint,
+				method: 'POST',
+				headers,
+				body: new URLSearchParams(bodyParams).toString(),
+				authMethod: credentials.tokenEndpointAuthMethod,
+			});
 			
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
@@ -870,6 +886,99 @@ const ClientGenerator: React.FC = () => {
 						<FiSettings /> Change Credentials
 					</Button>
 				</SuccessMessage>
+			)}
+
+			{/* Display Worker Token Request Details */}
+			{workerTokenRequest && (
+				<div style={{ marginBottom: '2rem' }}>
+					<div style={{ 
+						background: '#f0fdf4', 
+						border: '1px solid #22c55e', 
+						borderRadius: '0.75rem', 
+						padding: '1.25rem'
+					}}>
+						<div style={{ 
+							display: 'flex', 
+							alignItems: 'center', 
+							gap: '0.5rem', 
+							marginBottom: '0.75rem',
+							color: '#166534',
+							fontWeight: 600
+						}}>
+							<FiKey size={20} />
+							Worker Token Request (OAuth 2.0 Client Credentials)
+						</div>
+						<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>
+							This shows how to obtain an access token using the Client Credentials grant type.
+						</div>
+
+						{/* Token Endpoint */}
+						<div style={{ marginBottom: '1rem' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Token Endpoint:</div>
+							<ColoredUrlDisplay
+								url={workerTokenRequest.url}
+								label="POST"
+								showCopyButton={true}
+							/>
+						</div>
+
+						{/* Authentication Method */}
+						<div style={{ marginBottom: '1rem', padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '0.5rem' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+								<FiKey size={16} />
+								Authentication Method: {workerTokenRequest.authMethod === 'client_secret_basic' ? 'Client Secret Basic' : 'Client Secret Post'}
+							</div>
+							{workerTokenRequest.authMethod === 'client_secret_basic' ? (
+								<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
+									Credentials sent in <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>Authorization</code> header as Base64 encoded string
+								</div>
+							) : (
+								<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
+									Credentials sent in request body as <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>client_id</code> and <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>client_secret</code> parameters
+								</div>
+							)}
+						</div>
+
+						{/* Headers */}
+						<div style={{ marginBottom: '1rem' }}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Headers:</div>
+							<pre style={{ 
+								background: '#1e293b', 
+								color: '#e2e8f0', 
+								padding: '1rem', 
+								borderRadius: '0.5rem', 
+								overflowX: 'auto',
+								fontSize: '0.875rem',
+								lineHeight: '1.6',
+								fontFamily: 'Monaco, Menlo, monospace'
+							}}>
+								{Object.entries(workerTokenRequest.headers).map(([key, value]) => 
+									`${key}: ${key === 'Authorization' && value.startsWith('Basic') ? 'Basic [base64_encoded_credentials]' : value}`
+								).join('\n')}
+							</pre>
+						</div>
+
+						{/* Request Body */}
+						<div>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Request Body (URL-encoded):</div>
+							<pre style={{ 
+								background: '#1e293b', 
+								color: '#e2e8f0', 
+								padding: '1rem', 
+								borderRadius: '0.5rem', 
+								overflowX: 'auto',
+								fontSize: '0.875rem',
+								lineHeight: '1.6',
+								fontFamily: 'Monaco, Menlo, monospace'
+							}}>
+								{workerTokenRequest.body.split('&').map(param => {
+									const [key, value] = param.split('=');
+									return `${key}=${key.includes('secret') ? '[REDACTED]' : decodeURIComponent(value)}`;
+								}).join('\n')}
+							</pre>
+						</div>
+					</div>
+				</div>
 			)}
 
 			{/* Only show app creation if we have a worker token */}
