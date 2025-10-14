@@ -445,13 +445,31 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	
 	// PingOne Advanced Configuration
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
-		applicationName: '',
-		applicationType: 'service',
-		redirectUris: [],
-		postLogoutRedirectUris: [],
-		allowedScopes: [],
-		clientAuthMethods: ['client_secret_post'],
-		additionalSettings: {}
+		clientAuthMethod: 'client_secret_post',
+		allowRedirectUriPatterns: false,
+		pkceEnforcement: 'OPTIONAL',
+		responseTypeCode: false,
+		responseTypeToken: false,
+		responseTypeIdToken: false,
+		grantTypeAuthorizationCode: false,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
+		requestParameterSignatureRequirement: 'DEFAULT',
+		enableJWKS: false,
+		jwksMethod: 'JWKS_URL',
+		jwksUrl: '',
+		jwks: '',
+		requirePushedAuthorizationRequest: false,
+		enableDPoP: false,
+		dpopAlgorithm: 'ES256',
+		additionalRefreshTokenReplayProtection: false,
+		includeX5tParameter: false,
+		oidcSessionManagement: false,
+		requestScopesForMultipleResources: false,
+		terminateUserSessionByIdToken: false,
+		corsOrigins: [],
+		corsAllowAnyOrigin: false,
 	});
 	
 	// Collapsible sections state

@@ -100,49 +100,7 @@ const SidebarContainer = styled.div<{ $isOpen: boolean; $width: number }>`
 		transition: all 0.2s;
 	}
 
-	/* RFC Compliant Flows Section Styling */
-	.rfc-compliant-section {
-		/* Override the default blue submenu header with green */
-		> .ps-menu-button {
-			background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
-			color: #15803d !important;
-			border: 1px solid #22c55e !important;
-			border-radius: 8px !important;
-			margin: 4px 8px !important;
-			font-weight: 600 !important;
-		}
 
-		> .ps-menu-button:hover {
-			background: linear-gradient(135deg, #bbf7d0 0%, #86efac 100%) !important;
-			color: #14532d !important;
-		}
-
-		/* Style the submenu content area */
-		.ps-submenu-content {
-			background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
-			border-left: 2px solid #22c55e !important;
-		}
-
-		/* Override chevron color for this section */
-		.ps-submenu-expand-icon {
-			color: #15803d !important;
-		}
-	}
-
-	/* Compliant Flow Items */
-	.compliant-flow {
-		.ps-menu-button {
-			background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
-			border: 1px solid #22c55e !important;
-			border-radius: 6px !important;
-			margin: 4px 8px !important;
-			font-weight: 600 !important;
-		}
-
-		&.ps-active .ps-menu-button,
-		.ps-menu-button:hover {
-			background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
-		}
 		border-bottom: 1px solid #e5e7eb;
 		font-size: 0.875rem;
 
@@ -446,14 +404,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/pingone-par-v6': 'PingOne PAR',
 			'/flows/rar-v6': 'Rich Authorization Request',
 			'/flows/resource-owner-password-v6': 'Resource Owner Password',
+			'/pingone-mock-features': 'PingOne Mock Features',
 		};
 		return flowNames[path] || 'Flow';
 	};
 
 	const handleNavigation = (path: string) => {
+		console.log('Navigating to:', path);
+		
 		// Don't show toast if navigating to same page
 		if (location.pathname !== path) {
 			const flowName = getFlowName(path);
+			console.log('Flow name:', flowName);
 			// Show brief toast notification using showSuccess (no showInfo method exists)
 			v4ToastManager.showSuccess(`Switched to ${flowName}`, {}, { duration: 1500 });
 		}
@@ -755,92 +717,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 				</SubMenu>
 
-				{/* RFC Compliant Flows */}
-				<SubMenu
-					label="RFC Compliant Flows"
-					icon={<ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>}
-					open={openMenus['RFC Compliant Flows']}
-					onOpenChange={() => toggleMenu('RFC Compliant Flows')}
-					className="rfc-compliant-section"
-				>
-					<MenuItem
-						icon={<ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>}
-						active={isActive('/flows/oauth2-compliant-authorization-code')}
-						onClick={() => handleNavigation('/flows/oauth2-compliant-authorization-code')}
-						className="compliant-flow"
-						style={{
-							background: isActive('/flows/oauth2-compliant-authorization-code') 
-								? 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)' 
-								: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-							border: '1px solid #22c55e',
-							borderRadius: '6px',
-							margin: '4px 8px',
-							fontWeight: '600',
-						}}
-					>
-						<MenuItemContent>
-							<span>OAuth 2.0 Authorization Code</span>
-							<MigrationBadge title="100% RFC 6749 Compliant - Enhanced Security">
-								<ColoredIcon $color="#16a34a"><FiCheckCircle /></ColoredIcon>
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-					<MenuItem
-						icon={<ColoredIcon $color="#3b82f6"><FiShield /></ColoredIcon>}
-						active={isActive('/flows/oidc-compliant-authorization-code')}
-						onClick={() => handleNavigation('/flows/oidc-compliant-authorization-code')}
-						className="compliant-flow"
-						style={{
-							background: isActive('/flows/oidc-compliant-authorization-code') 
-								? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' 
-								: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-							border: '1px solid #3b82f6',
-							borderRadius: '6px',
-							margin: '4px 8px',
-							fontWeight: '600',
-						}}
-					>
-						<MenuItemContent>
-							<span>OIDC Authorization Code</span>
-							<MigrationBadge title="100% OIDC Core 1.0 Compliant - ID Token Validation">
-								<ColoredIcon $color="#3b82f6"><FiCheckCircle /></ColoredIcon>
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-					<MenuItem
-						icon={<ColoredIcon $color="#94a3b8"><FiShield /></ColoredIcon>}
-						disabled
-						style={{
-							opacity: 0.5,
-							fontStyle: 'italic',
-							margin: '2px 8px',
-						}}
-					>
-						<MenuItemContent>
-							<span>OAuth 2.0 Implicit Flow</span>
-							<MigrationBadge title="Coming Soon - RFC 6749 Compliant">
-								<ColoredIcon $color="#94a3b8"><FiClock /></ColoredIcon>
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-					<MenuItem
-						icon={<ColoredIcon $color="#94a3b8"><FiShield /></ColoredIcon>}
-						disabled
-						style={{
-							opacity: 0.5,
-							fontStyle: 'italic',
-							margin: '2px 8px',
-						}}
-					>
-						<MenuItemContent>
-							<span>Device Authorization Flow</span>
-							<MigrationBadge title="Coming Soon - RFC 8628 Compliant">
-								<ColoredIcon $color="#94a3b8"><FiClock /></ColoredIcon>
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-				</SubMenu>
-
 				{/* OpenID Connect */}
 				<SubMenu
 					label="OpenID Connect"
@@ -978,6 +854,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
 						>
 							PingOne MFA
+						</MenuItem>
+						<MenuItem
+							icon={<ColoredIcon $color="#f59e0b"><FiBookOpen /></ColoredIcon>}
+							active={isActive('/pingone-mock-features')}
+							onClick={() => handleNavigation('/pingone-mock-features')}
+						>
+							Mock & Educational Features
 						</MenuItem>
 					</SubMenu>
 

@@ -227,7 +227,8 @@ const OAuthImplicitFlowV5_1: React.FC = () => {
 		jwksUrl: '',
 		jwks: '',
 		requirePushedAuthorizationRequest: false,
-		pushedAuthorizationRequestTimeout: 60,
+		enableDPoP: false,
+		dpopAlgorithm: 'ES256',
 		additionalRefreshTokenReplayProtection: false,
 		includeX5tParameter: false,
 		oidcSessionManagement: false,
@@ -528,7 +529,11 @@ const renderStepContent = useMemo(() => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.pingOneConfig && (
 								<CollapsibleContent>
-									<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
+									<PingOneApplicationConfig 
+										value={pingOneConfig} 
+										onChange={savePingOneConfig}
+										flowType="oauth-implicit-v5"
+									/>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
