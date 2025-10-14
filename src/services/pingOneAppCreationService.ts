@@ -2,7 +2,10 @@
 import { logger } from '../utils/logger';
 import { createPingOneClient, makeApiRequest, PingOneClient } from '../utils/apiClient';
 
-export type AppType = 'OIDC_WEB_APP' | 'OIDC_NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
+export type AppType = 'WEB_APP' | 'NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
+
+// Internal type mapping for UI display
+export type AppTypeDisplay = 'OIDC_WEB_APP' | 'OIDC_NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
 
 export interface BaseAppConfig {
 	name: string;
@@ -132,7 +135,7 @@ export class PingOneAppCreationService {
 			description: config.description,
 			enabled: config.enabled !== undefined ? config.enabled : true,
 			protocol: 'OPENID_CONNECT',
-			type: config.type,
+			type: 'WEB_APP',
 			grantTypes: config.grantTypes,
 			responseTypes: config.responseTypes,
 			redirectUris: config.redirectUris,
@@ -155,7 +158,7 @@ export class PingOneAppCreationService {
 			description: config.description,
 			enabled: config.enabled !== undefined ? config.enabled : true,
 			protocol: 'OPENID_CONNECT',
-			type: config.type,
+			type: 'NATIVE_APP',
 			grantTypes: config.grantTypes,
 			responseTypes: config.responseTypes,
 			redirectUris: config.redirectUris,
