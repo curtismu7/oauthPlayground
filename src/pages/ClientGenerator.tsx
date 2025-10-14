@@ -926,6 +926,32 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 									setCreationResult(null);
 									setLastApiUrl('');
 									setLastRequestBody('');
+									v4ToastManager.showSuccess('Token cleared - credentials preserved');
+								}}
+								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+							>
+								<FiSettings /> Clear Token Only
+							</Button>
+							<Button
+								variant="secondary"
+								onClick={() => {
+									localStorage.removeItem('app-generator-worker-credentials');
+									setWorkerToken(null);
+									setTokenError(null);
+									setWorkerTokenRequest(null);
+									setTokenDecodeStates({});
+									setWorkerCredentials({
+										environmentId: '',
+										clientId: '',
+										clientSecret: '',
+										scopes: 'openid p1:create:application p1:read:application p1:update:application',
+										tokenEndpointAuthMethod: 'client_secret_post',
+									});
+									setShowAppGenerator(false);
+									setSelectedAppType(null);
+									setCreationResult(null);
+									setLastApiUrl('');
+									setLastRequestBody('');
 									v4ToastManager.showSuccess('Started over - enter new credentials');
 								}}
 								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
@@ -935,15 +961,28 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 							<Button
 								variant="secondary"
 								onClick={() => {
+									localStorage.removeItem('app-generator-worker-credentials');
 									setWorkerToken(null);
 									setTokenError(null);
 									setWorkerTokenRequest(null);
 									setTokenDecodeStates({});
+									setWorkerCredentials({
+										environmentId: '',
+										clientId: '',
+										clientSecret: '',
+										scopes: 'openid p1:create:application p1:read:application p1:update:application',
+										tokenEndpointAuthMethod: 'client_secret_post',
+									});
 									setShowAppGenerator(false);
+									setSelectedAppType(null);
+									setCreationResult(null);
+									setLastApiUrl('');
+									setLastRequestBody('');
+									v4ToastManager.showSuccess('All credentials and data cleared');
 								}}
 								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 							>
-								<FiSettings /> Change Credentials
+								<FiX /> Clear All Credentials
 							</Button>
 						</div>
 					</SuccessMessage>
