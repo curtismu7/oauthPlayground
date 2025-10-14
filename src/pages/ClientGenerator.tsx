@@ -349,6 +349,7 @@ const ClientGenerator: React.FC = () => {
 		clientId: '',
 		clientSecret: '',
 		scopes: 'openid p1:create:application p1:read:application p1:update:application',
+		tokenEndpointAuthMethod: 'client_secret_post' as 'client_secret_basic' | 'client_secret_post',
 	});
 	const [isGettingToken, setIsGettingToken] = useState(false);
 	const [tokenError, setTokenError] = useState<string | null>(null);
@@ -419,18 +420,32 @@ const ClientGenerator: React.FC = () => {
 
 			const tokenEndpoint = `https://auth.pingone.com/${envId}/as/token`;
 			console.log('[App Generator] Requesting token from:', tokenEndpoint);
+			console.log('[App Generator] Using auth method:', credentials.tokenEndpointAuthMethod);
+			
+			// Prepare headers and body based on auth method
+			const headers: Record<string, string> = {
+				'Content-Type': 'application/x-www-form-urlencoded',
+			};
+			
+			const bodyParams: Record<string, string> = {
+				grant_type: 'client_credentials',
+				scope: credentials.scopes,
+			};
+			
+			if (credentials.tokenEndpointAuthMethod === 'client_secret_basic') {
+				// Client Secret Basic: credentials in Authorization header
+				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
+				headers['Authorization'] = `Basic ${basicAuth}`;
+			} else {
+				// Client Secret Post: credentials in request body
+				bodyParams.client_id = credentials.clientId;
+				bodyParams.client_secret = credentials.clientSecret;
+			}
 			
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: new URLSearchParams({
-					grant_type: 'client_credentials',
-					client_id: credentials.clientId,
-					client_secret: credentials.clientSecret,
-					scope: credentials.scopes,
-				}),
+				headers,
+				body: new URLSearchParams(bodyParams),
 			});
 
 			if (!response.ok) {
@@ -767,6 +782,28 @@ const ClientGenerator: React.FC = () => {
 						showClientSecret={true}
 					/>
 
+					{/* Token Endpoint Auth Method */}
+					<FormGroup style={{ marginTop: '1rem' }}>
+						<Label>
+							Token Endpoint Authentication Method
+							<span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>
+						</Label>
+						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
+							This must match the authentication method configured in your PingOne worker application.
+						</p>
+						<Select
+							value={workerCredentials.tokenEndpointAuthMethod}
+							onChange={(e) => handleWorkerCredentialChange('tokenEndpointAuthMethod', e.target.value as 'client_secret_basic' | 'client_secret_post')}
+						>
+							<option value="client_secret_post">Client Secret Post (credentials in request body)</option>
+							<option value="client_secret_basic">Client Secret Basic (credentials in Authorization header)</option>
+						</Select>
+						<p style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+							<FiSettings size={12} />
+							<strong>Important:</strong> Check your worker app settings in PingOne to ensure this matches.
+						</p>
+					</FormGroup>
+
 					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
 						<ActionButton
 							onClick={handleSaveAndGetToken}
@@ -797,6 +834,7 @@ const ClientGenerator: React.FC = () => {
 									clientId: '',
 									clientSecret: '',
 									scopes: 'openid p1:create:application p1:read:application p1:update:application',
+									tokenEndpointAuthMethod: 'client_secret_post',
 								});
 								setTokenError(null);
 								v4ToastManager.showSuccess('Credentials cleared');
