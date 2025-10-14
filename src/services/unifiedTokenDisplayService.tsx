@@ -132,8 +132,8 @@ const TokenValue = styled.div`
 `;
 
 const DecodedContent = styled.pre`
-	background: #f3f4f6;
-	border: 1px solid #d1d5db;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 0.5rem;
 	padding: 1rem;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
@@ -185,7 +185,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 
 	const handleDecode = (token: string, label: string) => {
 		if (!TokenDisplayService.isJWT(token)) {
-			v4ToastManager.showInfo(`${label} is opaque and cannot be decoded as JWT.`);
+			v4ToastManager.showSuccess(`${label} is opaque and cannot be decoded as JWT.`);
 			return null;
 		}
 
@@ -196,35 +196,43 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 		return null;
 	};
 
+	// Move state to component level
+	const [decodedStates, setDecodedStates] = React.useState<Record<string, any>>({});
+	const [isDecodedStates, setIsDecodedStates] = React.useState<Record<string, boolean>>({});
+
+	const handleDecodeClick = (token: string, label: string) => {
+		const tokenKey = `${label}-${token.substring(0, 20)}`;
+		const isDecoded = isDecodedStates[tokenKey] || false;
+		
+		if (isDecoded) {
+			// Encode: hide decoded content
+			setDecodedStates(prev => ({ ...prev, [tokenKey]: null }));
+			setIsDecodedStates(prev => ({ ...prev, [tokenKey]: false }));
+		} else {
+			// Decode: show decoded content
+			const result = handleDecode(token, label);
+			setDecodedStates(prev => ({ ...prev, [tokenKey]: result }));
+			setIsDecodedStates(prev => ({ ...prev, [tokenKey]: true }));
+		}
+	};
+
+	const handleSendToTokenManagement = (token: string, tokenType: 'access' | 'id' | 'refresh', label: string, navigate: any) => {
+		// Navigate to Token Management page with token in state
+		navigate('/token-management', {
+			state: {
+				token,
+				tokenType,
+				label,
+				source: flowKey || 'unknown',
+			},
+		});
+		v4ToastManager.showSuccess(`${label} sent to Token Management`);
+	};
+
 	const renderToken = (token: string, label: string, tokenType: 'access' | 'id' | 'refresh', navigate: any) => {
-		const [decoded, setDecoded] = React.useState<any>(null);
-		const [isDecoded, setIsDecoded] = React.useState(false);
-
-		const handleDecodeClick = () => {
-			if (isDecoded) {
-				// Encode: hide decoded content
-				setDecoded(null);
-				setIsDecoded(false);
-			} else {
-				// Decode: show decoded content
-				const result = handleDecode(token, label);
-				setDecoded(result);
-				setIsDecoded(true);
-			}
-		};
-
-		const handleSendToTokenManagement = () => {
-			// Navigate to Token Management page with token in state
-			navigate('/token-management', {
-				state: {
-					token,
-					tokenType,
-					label,
-					source: flowKey || 'unknown',
-				},
-			});
-			v4ToastManager.showSuccess(`${label} sent to Token Management`);
-		};
+		const tokenKey = `${label}-${token.substring(0, 20)}`;
+		const decoded = decodedStates[tokenKey];
+		const isDecoded = isDecodedStates[tokenKey] || false;
 
 		return (
 			<TokenContainer key={tokenType} className={className}>
@@ -237,7 +245,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 					</TokenLabel>
 					<TokenActions>
 						{showDecodeButtons && (
-							<ActionButton $variant="secondary" onClick={handleDecodeClick}>
+							<ActionButton $variant="secondary" onClick={() => handleDecodeClick(token, label)}>
 								{isDecoded ? <FiEyeOff size={14} /> : <FiKey size={14} />}
 								{isDecoded ? 'Encode' : 'Decode'}
 							</ActionButton>
@@ -248,7 +256,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 								Copy
 							</ActionButton>
 						)}
-						<ActionButton $variant="management" onClick={handleSendToTokenManagement}>
+						<ActionButton $variant="management" onClick={() => handleSendToTokenManagement(token, tokenType, label, navigate)}>
 							<FiExternalLink size={14} />
 							Token Management
 						</ActionButton>

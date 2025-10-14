@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
-	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
 	FiInfo,
@@ -38,7 +37,8 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService'
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import {
@@ -152,63 +152,15 @@ const StepContent = styled.div`
 	border-top: none;
 `;
 
-const CollapsibleSection = styled.section`
-	margin-bottom: 1.5rem;
-	border: 1px solid ${({ theme }) => theme.colors.gray200};
-	border-radius: 0.75rem;
-	overflow: hidden;
-	background: ${({ theme }) => theme.colors.gray100};
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleHeaderButton = styled.button`
-	width: 100%;
-	padding: 1.25rem 1.5rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-	border: none;
-	cursor: pointer;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	transition: all 0.2s ease;
+// [REMOVED] Local collapsible styled component
 
-	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleToggleIcon = styled.div<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.5rem;
-	height: 1.5rem;
-	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	color: ${({ theme }) => theme.colors.gray600};
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-	animation: fadeIn 0.2s ease;
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' }>`
 	display: flex;
@@ -463,25 +415,30 @@ const ClientCredentialsFlowV5: React.FC = () => {
 				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
 			}
 
-			const request = {
-				token: token,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const,
-			};
+		const request = {
+			token: token,
+			clientId: credentials.clientId,
+			clientSecret: credentials.clientSecret,
+			tokenTypeHint: 'access_token' as const,
+		};
 
-			try {
-				// Use the reusable service to create API call data and execute introspection
-				const result = await TokenIntrospectionService.introspectToken(
-					request,
-					'client-credentials',
-					'/api/introspect-token'
-				);
+		// Build introspection endpoint from credentials
+		const introspectionEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/introspect`;
 
-				// Set the API call data for display
-				setIntrospectionApiCall(result.apiCall);
+		try {
+			// Use the reusable service to create API call data and execute introspection
+			const result = await TokenIntrospectionService.introspectToken(
+				request,
+				'client-credentials',
+				'/api/introspect-token',
+				introspectionEndpoint,  // Pass PingOne URL as introspection endpoint
+				'client_secret_post'
+			);
 
-				return result.response;
+			// Set the API call data for display
+			setIntrospectionApiCall(result.apiCall);
+
+			return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
 				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
@@ -588,21 +545,12 @@ const ClientCredentialsFlowV5: React.FC = () => {
 				case 0:
 					return (
 						<>
-							<CollapsibleSection>
-								<CollapsibleHeaderButton
-									onClick={() => toggleSection('overview')}
-									aria-expanded={!collapsedSections.overview}
-								>
-									<CollapsibleTitle>
-										<FiInfo /> Flow Overview
-									</CollapsibleTitle>
-									<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-										<FiChevronDown />
-									</CollapsibleToggleIcon>
-								</CollapsibleHeaderButton>
-								{!collapsedSections.overview && (
-									<CollapsibleContent>
-										<InfoBox $variant="info">
+							<CollapsibleHeader
+					title="Flow Overview"
+					icon={<FiInfo />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="info">
 											<FiInfo size={20} />
 											<div>
 												<InfoTitle>What is the Client Credentials Flow?</InfoTitle>
@@ -628,25 +576,14 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												</InfoText>
 											</div>
 										</InfoBox>
-									</CollapsibleContent>
-								)}
-							</CollapsibleSection>
+				</CollapsibleHeader>
 
-							<CollapsibleSection>
-								<CollapsibleHeaderButton
-									onClick={() => toggleSection('credentials')}
-									aria-expanded={!collapsedSections.credentials}
-								>
-									<CollapsibleTitle>
-										<FiKey /> Configure Credentials
-									</CollapsibleTitle>
-									<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-										<FiChevronDown />
-									</CollapsibleToggleIcon>
-								</CollapsibleHeaderButton>
-								{!collapsedSections.credentials && (
-									<CollapsibleContent>
-										<EnvironmentIdInput
+							<CollapsibleHeader
+					title="Configure Credentials"
+					icon={<FiKey />}
+					defaultCollapsed={false}
+				>
+					<EnvironmentIdInput
 											initialEnvironmentId={credentials.environmentId || ''}
 											onDiscoveryComplete={async (result) => {
 												if (result.success && result.document) {
@@ -740,25 +677,14 @@ const ClientCredentialsFlowV5: React.FC = () => {
 										<FlowConfigurationRequirements flowType="client-credentials" />
 
 										<SectionDivider />
-									</CollapsibleContent>
-								)}
-							</CollapsibleSection>
+				</CollapsibleHeader>
 
-							<CollapsibleSection>
-								<CollapsibleHeaderButton
-									onClick={() => toggleSection('flowDiagram')}
-									aria-expanded={!collapsedSections.flowDiagram}
-								>
-									<CollapsibleTitle>
-										<FiZap /> Client Credentials Flow Walkthrough
-									</CollapsibleTitle>
-									<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-										<FiChevronDown />
-									</CollapsibleToggleIcon>
-								</CollapsibleHeaderButton>
-								{!collapsedSections.flowDiagram && (
-									<CollapsibleContent>
-										<FlowDiagram>
+							<CollapsibleHeader
+					title="Client Credentials Flow Walkthrough"
+					icon={<FiZap />}
+					defaultCollapsed={true}
+				>
+					<FlowDiagram>
 											{[
 												'Client sends credentials to token endpoint',
 												'Authorization server validates client credentials',
@@ -773,25 +699,14 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												</FlowStep>
 											))}
 										</FlowDiagram>
-									</CollapsibleContent>
-								)}
-							</CollapsibleSection>
+				</CollapsibleHeader>
 
-							<CollapsibleSection>
-								<CollapsibleHeaderButton
-									onClick={() => toggleSection('authMethods')}
-									aria-expanded={!collapsedSections.authMethods}
-								>
-									<CollapsibleTitle>
-										<FiShield /> Authentication Methods
-									</CollapsibleTitle>
-									<CollapsibleToggleIcon $collapsed={collapsedSections.authMethods}>
-										<FiChevronDown />
-									</CollapsibleToggleIcon>
-								</CollapsibleHeaderButton>
-								{!collapsedSections.authMethods && (
-									<CollapsibleContent>
-										<InfoBox $variant="info">
+							<CollapsibleHeader
+					title="Authentication Methods"
+					icon={<FiShield />}
+					defaultCollapsed={true}
+				>
+					<InfoBox $variant="info">
 											<FiShield size={20} />
 											<div>
 												<InfoTitle>Client Authentication Methods</InfoTitle>
@@ -869,9 +784,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 												</InfoList>
 											</div>
 										</InfoBox>
-									</CollapsibleContent>
-								)}
-							</CollapsibleSection>
+				</CollapsibleHeader>
 
 							{/* Token Request Section - Merged from Step 1 */}
 							<SectionDivider />
@@ -1027,21 +940,12 @@ const ClientCredentialsFlowV5: React.FC = () => {
 										/>
 									)}
 
-									<CollapsibleSection>
-										<CollapsibleHeaderButton
-											onClick={() => toggleSection('tokenAnalysis')}
-											aria-expanded={!collapsedSections.tokenAnalysis}
-										>
-											<CollapsibleTitle>
-												<FiShield /> Token Analysis
-											</CollapsibleTitle>
-											<CollapsibleToggleIcon $collapsed={collapsedSections.tokenAnalysis}>
-												<FiChevronDown />
-											</CollapsibleToggleIcon>
-										</CollapsibleHeaderButton>
-										{!collapsedSections.tokenAnalysis && (
-											<CollapsibleContent>
-												<ResultsSection>
+									<CollapsibleHeader
+					title="Token Analysis"
+					icon={<FiShield />}
+					defaultCollapsed={true}
+				>
+					<ResultsSection>
 													<ResultsHeading>
 														<FiCheckCircle />
 														Token Analysis Complete
@@ -1101,9 +1005,7 @@ const ClientCredentialsFlowV5: React.FC = () => {
 														</InfoBox>
 													)}
 												</ResultsSection>
-											</CollapsibleContent>
-										)}
-									</CollapsibleSection>
+				</CollapsibleHeader>
 								</>
 							)}
 						</>

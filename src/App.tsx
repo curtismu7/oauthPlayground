@@ -8,6 +8,7 @@ import { PageFooter } from './services/footerService';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
+import './styles/sidebar-v6-forces.css';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import FlowComparisonTool from './components/FlowComparisonTool';
@@ -15,16 +16,17 @@ import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
+import SidebarTest from './components/SidebarTest';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import Callback from './pages/Callback';
 import ClientGenerator from './pages/ClientGenerator';
+import ApplicationGenerator from './pages/ApplicationGenerator';
 import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
 import Login from './pages/Login';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import { credentialManager } from './utils/credentialManager';
-import { scrollToTop } from './utils/scrollManager';
 
 // Removed useScrollToBottom - using centralized scroll management per page
 
@@ -37,6 +39,7 @@ import DeviceCodeStatus from './components/callbacks/DeviceCodeStatus';
 import HybridCallback from './components/callbacks/HybridCallback';
 import ImplicitCallback from './components/callbacks/ImplicitCallback';
 import ImplicitCallbackV3 from './components/callbacks/ImplicitCallbackV3';
+import LogoutCallback from './components/LogoutCallback';
 import OAuthV3Callback from './components/callbacks/OAuthV3Callback';
 import WorkerTokenCallback from './components/callbacks/WorkerTokenCallback';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -62,6 +65,10 @@ import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
 import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
+import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
+import SAMLBearerAssertionFlowV6 from './pages/flows/SAMLBearerAssertionFlowV6';
+import AdvancedParametersV6 from './pages/flows/AdvancedParametersV6';
+import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 // Backed up legacy flows
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // Import all the new OAuth and OIDC flow components
@@ -92,8 +99,11 @@ import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
-// WorkerToken legacy flows backed up
-import WorkerTokenFlowV5 from './pages/flows/WorkerTokenFlowV5';
+import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
+import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
+// WorkerToken flows
+// WorkerTokenFlowV5 backed up - use V6
+import WorkerTokenFlowV6 from './pages/flows/WorkerTokenFlowV6';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
@@ -127,6 +137,18 @@ const MainContent = styled.main`
   padding-bottom: 2rem;
   overflow: visible;
   transition: margin 0.3s ease;
+  animation: fadeInPage 0.3s ease-in-out;
+
+  @keyframes fadeInPage {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   @media (max-width: ${({ theme }) => theme.breakpoints.lg}) {
     padding: 1rem;
@@ -182,18 +204,9 @@ const DARK_MODE_OVERRIDES: Partial<DefaultTheme['colors']> = {
 	gray900: '#f9fafb',
 };
 
-const ScrollToTop = () => {
-	useEffect(() => {
-		// Small delay to ensure the page has rendered before scrolling
-		const timer = setTimeout(() => {
-			window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-		}, 0);
-
-		return () => clearTimeout(timer);
-	}, []);
-
-	return null;
-};
+// Removed ScrollToTop component - it was scrolling the entire window
+// including the sidebar, causing menu jumps. Now we only scroll the
+// main content area in the useEffect below.
 
 const AppRoutes = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -202,42 +215,22 @@ const AppRoutes = () => {
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 	const location = useLocation();
 
-	// Global scroll to top on route change - FOOLPROOF
+	// Scroll to top on route change - scroll main content only, not entire window
 	useEffect(() => {
 		console.log('🌍 [GlobalScroll] Route changed to:', location.pathname);
 		
-		// Immediate scroll - multiple methods for maximum compatibility
-		window.scrollTo(0, 0);
-		document.documentElement.scrollTop = 0;
-		document.body.scrollTop = 0;
+		// Scroll the main content area only, not the entire window
+		// This prevents the sidebar/menu from jumping
+		const mainContent = document.querySelector('main');
+		if (mainContent) {
+			mainContent.scrollTop = 0;
+		}
 		
-		// Additional scroll attempts with delays to catch late-loading content
-		setTimeout(() => {
-			window.scrollTo(0, 0);
-			document.documentElement.scrollTop = 0;
-			document.body.scrollTop = 0;
-		}, 0);
-		
-		setTimeout(() => {
-			window.scrollTo(0, 0);
-			document.documentElement.scrollTop = 0;
-			document.body.scrollTop = 0;
-		}, 50);
-		
-		setTimeout(() => {
-			window.scrollTo(0, 0);
-			document.documentElement.scrollTop = 0;
-			document.body.scrollTop = 0;
-		}, 100);
-		
-		setTimeout(() => {
-			window.scrollTo(0, 0);
-			document.documentElement.scrollTop = 0;
-			document.body.scrollTop = 0;
-		}, 200);
-		
-		// Also use the scroll manager for additional reliability
-		scrollToTop({ force: true, smooth: false });
+		// Also scroll the content column if it exists
+		const contentColumn = document.querySelector('[data-content-column]');
+		if (contentColumn) {
+			contentColumn.scrollTop = 0;
+		}
 	}, [location.pathname]);
 
 	// Close sidebar on mount
@@ -299,7 +292,6 @@ const AppRoutes = () => {
 
 	return (
 		<>
-			<ScrollToTop />
 			<GlobalErrorDisplay />
 			<AppContainer>
 				<Navbar toggleSidebar={toggleSidebar} />
@@ -319,9 +311,11 @@ const AppRoutes = () => {
 							<Route path="/implicit-callback-v3" element={<ImplicitCallbackV3 />} />
 							<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
 							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
+							<Route path="/logout-callback" element={<LogoutCallback />} />
 							<Route path="/dashboard-callback" element={<DashboardCallback />} />
 							<Route path="/" element={<Navigate to="/dashboard" replace />} />
 							<Route path="/dashboard" element={<Dashboard />} />
+							<Route path="/sidebar-test" element={<SidebarTest />} />
 							<Route path="/flows" element={<OAuthFlowsNew />}>
 								<Route path="compare" element={<FlowComparisonTool />} />
 								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
@@ -333,6 +327,16 @@ const AppRoutes = () => {
 						<Route
 							path="/flows/oauth-authorization-code-v6"
 							element={<OAuthAuthorizationCodeFlowV6 />}
+						/>
+						{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
+						<Route
+							path="/flows/oauth2-compliant-authorization-code"
+							element={<OAuth2CompliantAuthorizationCodeFlow />}
+						/>
+						{/* OIDC Core 1.0 Compliant Authorization Code Flow */}
+						<Route
+							path="/flows/oidc-compliant-authorization-code"
+							element={<OIDCCompliantAuthorizationCodeFlow />}
 						/>
 						<Route path="/flows/oauth-authorization-code-v5" element={<Navigate to="/flows/oauth-authorization-code-v6" replace />} />
 						<Route
@@ -356,7 +360,16 @@ const AppRoutes = () => {
 								path="/flows/oidc-device-authorization-v6"
 								element={<OIDCDeviceAuthorizationFlowV6 />}
 							/>
-							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+							<Route
+								path="/flows/jwt-bearer-token-v6"
+								element={<JWTBearerTokenFlowV6 />}
+							/>
+							<Route
+								path="/flows/saml-bearer-assertion-v6"
+								element={<SAMLBearerAssertionFlowV6 />}
+							/>
+							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
+							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
 							<Route path="/flows/client-credentials-v6" element={<ClientCredentialsFlowV6 />} />
 							<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v6" replace />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
@@ -364,8 +377,19 @@ const AppRoutes = () => {
 							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
 							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
 							<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
+							{/* Advanced Parameters Route */}
+							<Route
+								path="/flows/advanced-parameters-v6/:flowType"
+								element={<AdvancedParametersV6 />}
+							/>
+							{/* Advanced OAuth Parameters Demo (Mock Flow) */}
+							<Route
+								path="/flows/advanced-oauth-params-demo"
+								element={<AdvancedOAuthParametersDemoFlow />}
+							/>
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
+							<Route path="/flows/redirectless-v6" element={<RedirectlessFlowV6Real />} />
 							<Route path="/flows/redirectless-v6-real" element={<RedirectlessFlowV6Real />} />
 							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV6Real />} /> {/* Redirect V5 to V6 */}
 							{/* V3/V4 routes backed up - use V5 versions instead */}
@@ -407,6 +431,7 @@ const AppRoutes = () => {
 							{/* Backward-compatible redirect for older links */}
 							<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
 							<Route path="/client-generator" element={<ClientGenerator />} />{' '}
+							<Route path="/application-generator" element={<ApplicationGenerator />} />
 							<Route path="/configuration" element={<Configuration />} />
 							<Route path="/documentation" element={<Documentation />} />
 							<Route path="/about" element={<About />} />
@@ -452,7 +477,8 @@ const AppRoutes = () => {
 								path="/flows/oidc-device-authorization-v6"
 								element={<OIDCDeviceAuthorizationFlowV6 />}
 							/>
-							<Route path="/flows/worker-token-v5" element={<WorkerTokenFlowV5 />} />
+							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
+							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
 							<Route path="*" element={<Navigate to="/dashboard" replace />} />
 						</Routes>
 					</MainContent>

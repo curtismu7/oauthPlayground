@@ -79,7 +79,7 @@ import type { ReactNode } from 'react';
 
 // Scroll to top component
 const ScrollToTop: React.FC = () => {
-	const _location = useLocation();
+	const { pathname } = useLocation();
 
 	useEffect(() => {
 		// Scroll to top immediately
@@ -100,7 +100,7 @@ const ScrollToTop: React.FC = () => {
 		}, 100);
 
 		return () => clearTimeout(timer);
-	}, []);
+	}, [pathname]);
 
 	return null;
 };
@@ -130,7 +130,6 @@ const AppRoutes = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
-	const _location = useLocation();
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
 
 	// Preload common components for better performance

@@ -204,15 +204,26 @@ export const useClientCredentialsFlow = (): UseClientCredentialsFlowReturn => {
 		}
 	}, []);
 
-	// Wrapper to persist config to localStorage
+	const saveDebounceRef = useRef<NodeJS.Timeout | null>(null);
+
+	// Wrapper to persist config to localStorage with debouncing
 	const setConfig = useCallback((newConfig: ClientCredentialsConfig) => {
+		// Update state immediately for UI responsiveness
 		setConfigState(newConfig);
-		try {
-			localStorage.setItem('client_credentials_config', JSON.stringify(newConfig));
-			console.log(`${LOG_PREFIX} [INFO] Config saved to localStorage`);
-		} catch (e) {
-			console.warn(`${LOG_PREFIX} [WARN] Failed to save config to localStorage:`, e);
+		
+		// Debounce localStorage save to prevent excessive writes
+		if (saveDebounceRef.current) {
+			clearTimeout(saveDebounceRef.current);
 		}
+		
+		saveDebounceRef.current = setTimeout(() => {
+			try {
+				localStorage.setItem('client_credentials_config', JSON.stringify(newConfig));
+				console.log(`${LOG_PREFIX} [INFO] Config saved to localStorage`);
+			} catch (e) {
+				console.warn(`${LOG_PREFIX} [WARN] Failed to save config to localStorage:`, e);
+			}
+		}, 500); // Wait 500ms after last keystroke before saving
 	}, []);
 
 	// Request access token using client credentials

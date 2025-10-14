@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiInfo, FiCheck, FiX, FiAlertTriangle, FiLock } from 'react-icons/fi';
+import { FiInfo, FiCheck, FiX, FiAlertTriangle, FiLock, FiBook } from 'react-icons/fi';
 import { CollapsibleHeader, type CollapsibleHeaderConfig } from './collapsibleHeaderService';
 
 // Educational content types
@@ -417,7 +417,7 @@ export const EducationalContentService: React.FC<EducationalContentServiceProps>
 	title,
 	defaultCollapsed = false,
 	theme = 'yellow',
-	icon = <FiInfo />
+	icon = <FiBook />
 }) => {
 	const content = EDUCATIONAL_CONTENT[flowType];
 

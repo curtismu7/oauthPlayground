@@ -8,6 +8,7 @@ import { getBackendUrl } from '../utils/protocolUtils';
 import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
+import FlowStorageService from '../services/flowStorageService';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -730,20 +731,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						
 						console.log('🔍 [NewAuthContext] Is V6 flow?', isV6Flow, 'Flow:', parsed?.flow);
 						
-						if (isV6Flow) {
-							// For V6 flows, skip state validation and redirect immediately
-							console.log(' [NewAuthContext] V6 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
-							
-							// Store auth code and state for the V6 flow page
-							if (code) {
-								sessionStorage.setItem('oauth_auth_code', code);
-							}
-							if (state) {
-								sessionStorage.setItem('oauth_state', state);
-							}
-							
-							const returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
-							console.log('🚀 [NewAuthContext] V6 FLOW REDIRECT - About to redirect to:', returnPath);
+					if (isV6Flow) {
+						// For V6 flows, skip state validation and redirect immediately
+						console.log(' [NewAuthContext] V6 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
+						
+						// Store auth code and state for the V6 flow page
+						// Use flow-specific key (oauth_auth_code or oidc_auth_code)
+						if (code) {
+							const isOIDCFlow = parsed?.flow === 'oidc-authorization-code-v6';
+							const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
+							sessionStorage.setItem(authCodeKey, code);
+							console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
+						}
+						if (state) {
+							sessionStorage.setItem('oauth_state', state);
+						}
+						
+						const returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
+						console.log('🚀 [NewAuthContext] V6 FLOW REDIRECT - About to redirect to:', returnPath);
 							logger.info('NewAuthContext', 'V6 flow detected - redirecting to flow page', {
 								flow: parsed?.flow,
 								returnPath,
@@ -822,11 +827,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					const flowContextRawEarly = sessionStorage.getItem('flowContext');
 					if (flowContextRawEarly) {
 						const parsedEarly = safeJsonParse(flowContextRawEarly);
-						const isEnhancedV2Early = parsedEarly?.flow === 'enhanced-authorization-code-v2';
-						if (isEnhancedV2Early) {
-							// Persist auth code and state for the flow page to handle later
-							sessionStorage.setItem('oauth_auth_code', code);
-							if (state) sessionStorage.setItem('oauth_state', state);
+					const isEnhancedV2Early = parsedEarly?.flow === 'enhanced-authorization-code-v2';
+					if (isEnhancedV2Early) {
+						// Persist auth code and state for the flow page to handle later
+						// Note: Enhanced V2 is OAuth-based, so use oauth_auth_code
+						sessionStorage.setItem('oauth_auth_code', code);
+						if (state) sessionStorage.setItem('oauth_state', state);
 							const returnPathEarly =
 								parsedEarly?.returnPath || '/flows/enhanced-authorization-code-v2?step=4';
 							logger.auth(
@@ -1026,6 +1032,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 				try {
 					const flowContextRaw = sessionStorage.getItem('flowContext');
 					console.log(' [NewAuthContext] Flow context raw from sessionStorage:', flowContextRaw);
+					
+					// FALLBACK: Check active_oauth_flow if flowContext is not set (V6 flows use this)
+					const activeOAuthFlow = sessionStorage.getItem('active_oauth_flow');
+					console.log(' [NewAuthContext] Active OAuth flow:', activeOAuthFlow);
 
 					if (flowContextRaw) {
 						const parsed = safeJsonParse(flowContextRaw);
@@ -1056,8 +1066,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 						if (isEnhancedV2 || isEnhancedV3 || isV6Flow) {
 							// Persist auth code and state for the flow page
+							// Use flow-specific key (oauth_auth_code or oidc_auth_code)
 							if (code) {
-								sessionStorage.setItem('oauth_auth_code', code);
+								const isOIDCFlow = parsed?.flow === 'oidc-authorization-code-v6';
+								const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
+								sessionStorage.setItem(authCodeKey, code);
+								console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for flow: ${parsed?.flow}`);
 							}
 							if (state) {
 								sessionStorage.setItem('oauth_state', state);
@@ -1126,11 +1140,45 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						e as unknown as string
 					);
 				}
+				
+				// FALLBACK: Check for V6 flows using active_oauth_flow (when flowContext is not set)
+				const activeOAuthFlow = sessionStorage.getItem('active_oauth_flow');
+				if (activeOAuthFlow) {
+					console.log(' [NewAuthContext] V6 FLOW DETECTED via active_oauth_flow:', activeOAuthFlow);
+					
+					// Persist auth code for the flow page
+					// Use flow-specific key (oauth_auth_code or oidc_auth_code)
+					if (code) {
+						const isOIDCFlow = activeOAuthFlow.includes('oidc-authorization-code');
+						const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
+						sessionStorage.setItem(authCodeKey, code);
+						sessionStorage.setItem(`${activeOAuthFlow}-authCode`, code);
+						console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey} for active flow: ${activeOAuthFlow}`);
+					}
+					if (state) {
+						sessionStorage.setItem('oauth_state', state);
+					}
+					
+					// Determine redirect path based on active flow
+					let returnPath = '/flows/oauth-authorization-code-v6';
+					if (activeOAuthFlow.includes('oidc-authorization-code')) {
+						returnPath = '/flows/oidc-authorization-code-v6';
+					} else if (activeOAuthFlow.includes('oauth-authorization-code')) {
+						returnPath = '/flows/oauth-authorization-code-v6';
+					} else if (activeOAuthFlow.includes('par')) {
+						returnPath = '/flows/par-flow';
+					} else if (activeOAuthFlow.includes('rar')) {
+						returnPath = '/flows/rar-flow';
+					}
+					
+					console.log(' [NewAuthContext] Deferring to V6 flow page:', returnPath);
+					return { success: true, redirectUrl: returnPath };
+				}
 
-				// Exchange code for tokens - This should NOT happen for Enhanced V3 flows
+				// Exchange code for tokens - This should NOT happen for Enhanced V3 or V6 flows
 				console.log(' [NewAuthContext] CRITICAL: About to do immediate token exchange!');
-				console.log(' [NewAuthContext] If this is V3, the flow context detection FAILED!');
-				console.log(' [NewAuthContext] Flow context should have deferred this to V3 page!');
+				console.log(' [NewAuthContext] If this is V3 or V6, the flow context detection FAILED!');
+				console.log(' [NewAuthContext] Flow context should have deferred this to flow page!');
 
 				const requestBody = {
 					grant_type: 'authorization_code',
@@ -1166,6 +1214,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						'CRITICAL ERROR: Request body contains empty client_id. This should never happen.'
 					);
 				}
+				
+				// Additional validation for required fields
+				if (!requestBody.redirect_uri || requestBody.redirect_uri.trim() === '') {
+					console.error(' [NewAuthContext] Missing redirect_uri in token exchange request');
+					throw new Error('Missing redirect URI. Please configure your OAuth settings.');
+				}
+				
+				if (!requestBody.environment_id || requestBody.environment_id.trim() === '') {
+					console.error(' [NewAuthContext] Missing environment_id in token exchange request');
+					throw new Error('Missing environment ID. Please configure your PingOne environment.');
+				}
+				
+				// Check if we have PKCE codes when needed
+				if (requestBody.code_verifier && requestBody.code_verifier.trim() === '') {
+					console.warn(' [NewAuthContext] Empty code_verifier provided - this may cause PKCE mismatch');
+				}
 
 				// Use backend proxy to avoid CORS issues
 				const backendUrl = getBackendUrl();
@@ -1195,16 +1259,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 				if (!tokenResponse.ok) {
 					const errorText = await tokenResponse.text();
-					const errorMessage = `Token exchange failed: ${errorText}`;
+					let errorMessage = `Token exchange failed: ${errorText}`;
+					
+					// Parse error response for better user guidance
+					let parsedError;
+					try {
+						parsedError = JSON.parse(errorText);
+					} catch (e) {
+						parsedError = { error: 'unknown', error_description: errorText };
+					}
+					
 					console.error(' [NewAuthContext] Token exchange failed:', {
 						status: tokenResponse.status,
 						statusText: tokenResponse.statusText,
 						errorText,
+						parsedError,
 						requestBody,
 					});
+					
+					// Provide specific guidance based on error type
+					if (parsedError.error === 'invalid_client') {
+						errorMessage = `Token exchange failed: Invalid client credentials. Please check your PingOne application configuration. If you're using a specific OAuth flow, try using the dedicated flow pages instead of the global callback.`;
+					} else if (parsedError.error === 'invalid_grant') {
+						errorMessage = `Token exchange failed: Invalid authorization code or PKCE mismatch. This usually means the authorization code has expired or the PKCE codes don't match. Try using the specific OAuth flow pages for better PKCE handling.`;
+					} else if (parsedError.error === 'invalid_request') {
+						errorMessage = `Token exchange failed: Invalid request parameters. Please check your configuration. For OAuth flows, consider using the dedicated flow pages at /flows/ for better error handling.`;
+					}
+					
 					logger.error('NewAuthContext', 'Token exchange failed', {
 						status: tokenResponse.status,
-						error: errorText,
+						error: parsedError,
+						guidance: 'Check PingOne application configuration and ensure credentials are correct',
 					});
 					updateState({ error: errorMessage, isLoading: false });
 					return { success: false, error: errorMessage };

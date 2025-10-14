@@ -492,8 +492,9 @@ export class ImplicitFlowDefaults {
 	 * Get default credentials for OAuth Implicit
 	 */
 	static getOAuthDefaults(): Partial<StepCredentials> {
+		const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
 		return {
-			redirectUri: 'https://localhost:3000/oauth-implicit-callback',
+			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6'),
 			scope: '',  // OAuth doesn't require openid scope
 			scopes: '',
 			responseType: 'token',
@@ -505,8 +506,9 @@ export class ImplicitFlowDefaults {
 	 * Get default credentials for OIDC Implicit
 	 */
 	static getOIDCDefaults(): Partial<StepCredentials> {
+		const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
 		return {
-			redirectUri: 'https://localhost:3000/oidc-implicit-callback',
+			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oidc-implicit-v6'),
 			scope: 'openid profile email',
 			scopes: 'openid profile email',
 			responseType: 'id_token token',
