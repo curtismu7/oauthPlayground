@@ -325,10 +325,12 @@ const SuccessMessage = styled.div`
 	padding: 1rem 1.5rem;
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
+	justify-content: space-between;
+	gap: 1rem;
 	color: #065f46;
 	font-weight: 500;
 	margin-bottom: 2rem;
+	flex-wrap: wrap;
 	
 	svg {
 		color: #10b981;
@@ -794,7 +796,19 @@ const ClientGenerator: React.FC = () => {
 			{/* Success indicator when we have a token */}
 			{workerToken && (
 				<SuccessMessage>
-					<FiCheckCircle /> Worker token active - Ready to create applications
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<FiCheckCircle /> Worker token active - Ready to create applications
+					</div>
+					<Button
+						variant="secondary"
+						onClick={() => {
+							setWorkerToken(null);
+							setTokenError(null);
+						}}
+						style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+					>
+						<FiSettings /> Change Credentials
+					</Button>
 				</SuccessMessage>
 			)}
 
