@@ -1,4 +1,5 @@
-// Jest setup file - CommonJS
+// Jest setup file - ESM
+import { jest } from '@jest/globals';
 
 // Mock environment variables
 process.env.NODE_ENV = 'test';

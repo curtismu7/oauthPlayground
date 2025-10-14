@@ -4,7 +4,11 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+	FiAlertCircle,
+	FiAlertTriangle,
 	FiCheckCircle,
+	FiChevronDown,
+	FiEye,
 	FiInfo,
 	FiKey,
 	FiServer,
@@ -28,13 +32,16 @@ import ComprehensiveCredentialsService from '../../services/comprehensiveCredent
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import { TokenIntrospectionService } from '../../services/tokenIntrospectionService';
-import { UISettingsService } from '../../services/uiSettingsService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import { EducationalContentService } from '../../services/educationalContentService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { ErrorHandlingService } from '../../services/errorHandlingService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import ModalPresentationService from '../../services/modalPresentationService';
+import { CredentialGuardService } from '../../services/credentialGuardService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 
 const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
 
@@ -199,6 +206,189 @@ function getAuthMethodColor(method: ClientAuthMethod): string {
 	return colors[method];
 }
 
+// Additional styled components for educational content
+const CollapsibleSection = styled.section`
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	margin-bottom: 1.5rem;
+	background-color: #ffffff;
+	box-shadow: 0 10px 20px rgba(15, 23, 42, 0.05);
+`;
+
+const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	padding: 1.25rem 1.5rem;
+	background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf3 100%);
+	border: none;
+	border-radius: 0.75rem;
+	cursor: pointer;
+	font-size: 1.1rem;
+	font-weight: 600;
+	color: #14532d;
+	transition: background 0.2s ease;
+
+	&:hover {
+		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+	}
+`;
+
+const CollapsibleTitle = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	display: inline-flex;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
+const CollapsibleContent = styled.div`
+	padding: 1.5rem;
+	padding-top: 0;
+	animation: fadeIn 0.2s ease;
+
+	@keyframes fadeIn {
+		from {
+			opacity: 0;
+		}
+		to {
+			opacity: 1;
+		}
+	}
+`;
+
+const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' | 'error' }>`
+	background: ${({ $variant }) => {
+		switch ($variant) {
+			case 'success':
+				return '#f0fdf4';
+			case 'warning':
+				return '#fffbeb';
+			case 'error':
+				return '#fef2f2';
+			default:
+				return '#eff6ff';
+		}
+	}};
+	border: 1px solid ${({ $variant }) => {
+		switch ($variant) {
+			case 'success':
+				return '#bbf7d0';
+			case 'warning':
+				return '#fed7aa';
+			case 'error':
+				return '#fecaca';
+			default:
+				return '#dbeafe';
+		}
+	}};
+	border-radius: 0.5rem;
+	padding: 1rem;
+	margin-bottom: 1rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+
+	svg {
+		flex-shrink: 0;
+		margin-top: 0.1rem;
+		color: ${({ $variant }) => {
+			switch ($variant) {
+				case 'success':
+					return '#22c55e';
+				case 'warning':
+					return '#f59e0b';
+				case 'error':
+					return '#ef4444';
+				default:
+					return '#3b82f6';
+			}
+		}};
+	}
+`;
+
+const InfoTitle = styled.h4`
+	margin: 0 0 0.5rem 0;
+	font-size: 1rem;
+	font-weight: 600;
+	color: ${({ $variant }) => {
+		switch ($variant) {
+			case 'success':
+				return '#14532d';
+			case 'warning':
+				return '#92400e';
+			case 'error':
+				return '#dc2626';
+			default:
+				return '#1e40af';
+		}
+	}};
+`;
+
+const InfoText = styled.p`
+	margin: 0;
+	color: ${({ $variant }) => {
+		switch ($variant) {
+			case 'success':
+				return '#166534';
+			case 'warning':
+				return '#92400e';
+			case 'error':
+				return '#dc2626';
+			default:
+				return '#1e40af';
+		}
+	}};
+	line-height: 1.6;
+`;
+
+const StrongText = styled.span`
+	font-weight: 600;
+`;
+
+const FlowDiagram = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	margin: 1.5rem 0;
+`;
+
+const FlowStep = styled.div`
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+`;
+
+const FlowStepNumber = styled.div`
+	background: #3b82f6;
+	color: white;
+	border-radius: 50%;
+	width: 2rem;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 600;
+	font-size: 0.875rem;
+	flex-shrink: 0;
+`;
+
+const FlowStepContent = styled.div`
+	flex: 1;
+`;
+
 // Step Metadata
 const STEP_METADATA = [
 	{
@@ -247,6 +437,9 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Step management
 	const [currentStep, setCurrentStep] = useState(0);
 	
+	// Collapse all sections by default for cleaner UI
+	const shouldCollapseAll = true;
+	
 	// Authentication method
 	const [selectedAuthMethod, setSelectedAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
 	
@@ -265,6 +458,8 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
 		ClientCredentialsCollapsibleSections.getDefaultState()
 	);
+	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
+	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 
 	// Toggle section handler
 	const toggleSection = useCallback(
@@ -276,7 +471,11 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	const isStepValid = useCallback((step: number): boolean => {
 		switch (step) {
 			case 0: // Credentials & Configuration
-				return controller.hasValidCredentials;
+				return !!(
+					controller.credentials.environmentId &&
+					controller.credentials.clientId &&
+					controller.credentials.clientSecret
+				);
 			case 1: // Authentication Method Selection
 				return !!selectedAuthMethod;
 			case 2: // Token Request
@@ -290,15 +489,33 @@ const ClientCredentialsFlowV6: React.FC = () => {
 			default:
 				return false;
 		}
-	}, [controller, selectedAuthMethod]);
+	}, [controller.credentials, controller.tokens, selectedAuthMethod]);
 
 	// Navigation handlers
 	const handleNext = useCallback(() => {
+		if (currentStep === 0) {
+			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(controller.credentials as any, {
+				requiredFields: ['environmentId', 'clientId', 'clientSecret'],
+				fieldLabels: {
+					environmentId: 'Environment ID',
+					clientId: 'Client ID',
+					clientSecret: 'Client Secret',
+				},
+			});
+
+			if (!canProceed) {
+				setMissingCredentialFields(missingFields);
+				setShowMissingCredentialsModal(true);
+				log.warn('Blocked navigation due to missing required credentials', { missingFields });
+				return;
+			}
+		}
+
 		if (currentStep < STEP_METADATA.length - 1) {
 			setCurrentStep(currentStep + 1);
 			window.scrollTo({ top: 0, behavior: 'smooth' });
 		}
-	}, [currentStep]);
+	}, [currentStep, controller.credentials]);
 
 	const handlePrevious = useCallback(() => {
 		if (currentStep > 0) {
@@ -313,6 +530,18 @@ const ClientCredentialsFlowV6: React.FC = () => {
 		setSelectedAuthMethod('client_secret_post');
 		setCollapsedSections(ClientCredentialsCollapsibleSections.getDefaultState());
 		log.info('Flow reset');
+	}, [controller]);
+
+	const handleStartOver = useCallback(() => {
+		const flowKey = 'client-credentials-v6';
+		sessionStorage.removeItem(`${flowKey}-tokens`);
+		sessionStorage.removeItem('restore_step');
+		controller.clearStepResults?.();
+		setCurrentStep(0);
+		console.log('🔄 [ClientCredentialsFlowV6] Starting over: cleared tokens, keeping credentials');
+		v4ToastManager.showSuccess('Flow restarted', {
+			description: 'Tokens cleared. Credentials preserved.',
+		});
 	}, [controller]);
 
 	// Token request handler
@@ -330,13 +559,47 @@ const ClientCredentialsFlowV6: React.FC = () => {
 			controller.setTokens(tokens);
 			log.success('Token request successful', tokens);
 		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to request tokens';
-			controller.setError(errorMsg);
+			// Use ErrorHandlingService for comprehensive error handling
+			const errorResponse = ErrorHandlingService.handleFlowError(error, {
+				flowId: 'client-credentials-v6',
+				stepId: 'token-request',
+				metadata: {
+					authMethod: selectedAuthMethod,
+					hasCredentials: !!controller.credentials,
+					environmentId: controller.credentials?.environmentId
+				}
+			});
+
+			// Show user-friendly error message
+			v4ToastManager.showError(errorResponse.userMessage);
+
+			// Log technical details for debugging
+			console.error('[ClientCredentialsFlowV6] Token request failed:', {
+				error: errorResponse.technicalMessage,
+				correlationId: errorResponse.correlationId,
+				recoveryOptions: errorResponse.recoveryOptions.length
+			});
+
+			// The ErrorHandlingService already handled logging and reporting
 			log.error('Token request failed', error);
 		} finally {
 			controller.setIsLoading(false);
 		}
 	}, [controller, selectedAuthMethod]);
+
+	// Wrapper to enforce openid scope (required by PingOne)
+	const handleCredentialsChange = useCallback((newCredentials: typeof controller.credentials) => {
+		// Ensure openid is always included in scopes
+		if (newCredentials.scopes) {
+			const scopes = newCredentials.scopes.split(/\s+/).filter(s => s.length > 0);
+			if (!scopes.includes('openid')) {
+				scopes.unshift('openid');
+				newCredentials.scopes = scopes.join(' ');
+				v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
+			}
+		}
+		controller.setCredentials(newCredentials);
+	}, [controller]);
 
 	// Render step content
 	const renderStepContent = useCallback((step: number) => {
@@ -360,49 +623,159 @@ const ClientCredentialsFlowV6: React.FC = () => {
 
 	// Step 0: Credentials & Configuration
 	const renderCredentialsConfiguration = () => {
-		// Wrapper to enforce openid scope (required by PingOne)
-		const handleCredentialsChange = useCallback((newCredentials: typeof controller.credentials) => {
-			// Ensure openid is always included in scopes
-			if (newCredentials.scopes) {
-				const scopes = newCredentials.scopes.split(/\s+/).filter(s => s.length > 0);
-				if (!scopes.includes('openid')) {
-					scopes.unshift('openid');
-					newCredentials.scopes = scopes.join(' ');
-					v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
-				}
-			}
-			controller.setCredentials(newCredentials);
-		}, [controller]);
-
 		return (
 			<div>
-				<EducationalContentService
-					title="OAuth 2.0 Client Credentials Flow"
-					content={ClientCredentialsEducationalContent.overview}
-					collapsed={collapsedSections.overview}
-					onToggleCollapsed={() => toggleSection('overview')}
-				/>
-				
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => toggleSection('overview')}
+						aria-expanded={!collapsedSections.overview}
+					>
+						<CollapsibleTitle>
+							<FiInfo /> Client Credentials Flow Overview
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!collapsedSections.overview && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiServer size={20} />
+								<div>
+									<InfoTitle>What is the Client Credentials Flow?</InfoTitle>
+									<InfoText>
+										The Client Credentials flow is used for server-to-server authentication
+										where the client application acts on its own behalf rather than on behalf
+										of a user. This is ideal for background processes, API integrations, and
+										service-to-service communication.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="success">
+								<FiCheckCircle size={20} />
+								<div>
+									<InfoTitle>Perfect for Machine-to-Machine</InfoTitle>
+									<InfoText>
+										Unlike user-facing flows that require user interaction and consent,
+										Client Credentials flow is designed for trusted applications that need
+										to authenticate directly with the authorization server.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<FlowDiagram>
+								{[
+									'Client application requests access token using its credentials',
+									'Authorization server validates client credentials',
+									'Access token issued for API access',
+									'Client uses token to call protected APIs',
+								].map((description, index) => (
+									<FlowStep key={description}>
+										<FlowStepNumber>{index + 1}</FlowStepNumber>
+										<FlowStepContent>
+											<StrongText>{description}</StrongText>
+										</FlowStepContent>
+									</FlowStep>
+								))}
+							</FlowDiagram>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Security Considerations</InfoTitle>
+									<InfoText>
+										Client credentials must be stored securely and never exposed in client-side
+										code. Use environment variables, secure vaults, or managed identity systems.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
 				<SectionDivider />
+
+			<ComprehensiveCredentialsService
+				flowType="client-credentials-v6"
 				
-				<ComprehensiveCredentialsService
-					credentials={controller.credentials}
-					onCredentialsChange={handleCredentialsChange}
-					onSaveCredentials={controller.saveCredentials}
-					collapsed={collapsedSections.credentials}
-					onToggleCollapsed={() => toggleSection('credentials')}
-					flowType="client-credentials"
-					
-					// PingOne Advanced Configuration
-					pingOneAppState={pingOneConfig}
-					onPingOneAppStateChange={setPingOneConfig}
-					onPingOneSave={() => {
-						console.log('[Client Creds V6] PingOne config saved:', pingOneConfig);
-						v4ToastManager.showSuccess('PingOne configuration saved successfully!');
-					}}
-					hasUnsavedPingOneChanges={false}
-					isSavingPingOne={false}
-				/>
+				// Discovery props
+				onDiscoveryComplete={(result) => {
+					console.log('[Client Creds V6] Discovery completed:', result);
+					// Extract environment ID from issuer URL if available
+					if (result.issuerUrl) {
+						const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
+						if (envIdMatch && envIdMatch[1]) {
+							controller.setCredentials({
+								...controller.credentials,
+								environmentId: envIdMatch[1],
+							});
+							v4ToastManager.showSuccess('Environment ID extracted from discovery');
+						}
+					}
+				}}
+				discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+				showProviderInfo={true}
+				
+				// Credentials props
+				environmentId={controller.credentials.environmentId || ''}
+				clientId={controller.credentials.clientId || ''}
+				clientSecret={controller.credentials.clientSecret || ''}
+				scopes={controller.credentials.scopes || controller.credentials.scope || 'openid'}
+				
+				// Change handlers
+				onEnvironmentIdChange={(value) => {
+					controller.setCredentials({
+						...controller.credentials,
+						environmentId: value,
+					});
+				}}
+				onClientIdChange={(value) => {
+					controller.setCredentials({
+						...controller.credentials,
+						clientId: value,
+					});
+				}}
+				onClientSecretChange={(value) => {
+					controller.setCredentials({
+						...controller.credentials,
+						clientSecret: value,
+					});
+				}}
+				onScopesChange={(value) => {
+					controller.setCredentials({
+						...controller.credentials,
+						scopes: value,
+						scope: value,
+					});
+				}}
+				
+				// Save handlers
+				onSave={controller.saveCredentials}
+				hasUnsavedChanges={controller.hasUnsavedCredentialChanges}
+				isSaving={controller.isSavingCredentials}
+				
+				// Field visibility
+				requireClientSecret={true}
+				showRedirectUri={false}
+				showPostLogoutRedirectUri={false}
+				showLoginHint={false}
+				
+				// Display config
+				title="Client Credentials Configuration"
+				subtitle="Configure environment, client ID, client secret, and scopes"
+				defaultCollapsed={shouldCollapseAll}
+				
+				// PingOne Advanced Configuration
+				pingOneAppState={pingOneConfig}
+				onPingOneAppStateChange={setPingOneConfig}
+				onPingOneSave={() => {
+					console.log('[Client Creds V6] PingOne config saved:', pingOneConfig);
+					v4ToastManager.showSuccess('PingOne configuration saved successfully!');
+				}}
+				hasUnsavedPingOneChanges={false}
+				isSavingPingOne={false}
+			/>
 				
 				<SectionDivider />
 			</div>
@@ -415,22 +788,56 @@ const ClientCredentialsFlowV6: React.FC = () => {
 		
 		return (
 			<div>
-				<EducationalContentService
-					title="Client Authentication Methods"
-					content={{
-						title: 'Choose Your Authentication Method',
-						description: 'Select the authentication method that best fits your security requirements and implementation constraints',
-						useCases: [
-							'client_secret_basic: Industry standard, highest security',
-							'client_secret_post: Simpler implementation, widely supported',
-							'private_key_jwt: Enhanced security with PKI',
-							'none: Public clients, development only'
-						]
-					}}
-					collapsed={collapsedSections.authMethods}
-					onToggleCollapsed={() => toggleSection('authMethods')}
-				/>
-				
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => toggleSection('authMethods')}
+						aria-expanded={!collapsedSections.authMethods}
+					>
+						<CollapsibleTitle>
+							<FiKey /> Client Authentication Methods
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={collapsedSections.authMethods}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!collapsedSections.authMethods && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiShield size={20} />
+								<div>
+									<InfoTitle>Choose Your Authentication Method</InfoTitle>
+									<InfoText>
+										Select the authentication method that best fits your security requirements and
+										infrastructure capabilities.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="success">
+								<FiCheckCircle size={20} />
+								<div>
+									<InfoTitle>Security & Compatibility</InfoTitle>
+									<InfoText>
+										All methods are secure and fully compatible with PingOne. Choose based on your
+										security requirements and implementation constraints.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<InfoBox $variant="warning">
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle>Security Considerations</InfoTitle>
+									<InfoText>
+										Store client secrets securely and never expose them in client-side code.
+										Use environment variables, secure vaults, or managed identity systems.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
 				<div style={{ marginTop: '2rem', display: 'grid', gap: '1rem' }}>
 					{supportedMethods.map((method) => {
 						const config = ClientCredentialsDefaults.getAuthMethodConfig(method);
@@ -476,24 +883,53 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Step 2: Token Request
 	const renderTokenRequest = () => {
 		const config = ClientCredentialsDefaults.getAuthMethodConfig(selectedAuthMethod);
-		
+
 		return (
 			<div>
-				<EducationalContentService
-					title="Token Request"
-					content={{
-						title: 'Request an Access Token',
-						description: `Using ${config.authMethod.replace(/_/g, ' ')} authentication to obtain an access token`,
-						useCases: [
-							'POST request to token endpoint',
-							'Client authentication via selected method',
-							'Receive access token for API calls'
-						]
-					}}
-					collapsed={collapsedSections.tokenRequest}
-					onToggleCollapsed={() => toggleSection('tokenRequest')}
-				/>
-				
+				<CollapsibleSection>
+					<CollapsibleHeaderButton
+						onClick={() => toggleSection('tokenRequest')}
+						aria-expanded={!collapsedSections.tokenRequest}
+					>
+						<CollapsibleTitle>
+							<FiZap /> Token Request
+						</CollapsibleTitle>
+						<CollapsibleToggleIcon $collapsed={collapsedSections.tokenRequest}>
+							<FiChevronDown />
+						</CollapsibleToggleIcon>
+					</CollapsibleHeaderButton>
+					{!collapsedSections.tokenRequest && (
+						<CollapsibleContent>
+							<InfoBox $variant="info">
+								<FiZap size={20} />
+								<div>
+									<InfoTitle>Request an Access Token</InfoTitle>
+									<InfoText>
+										Execute a token request using {config.authMethod.replace(/_/g, ' ')} authentication
+										to obtain an access token for API access.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							<FlowDiagram>
+								{[
+									'Send POST request to token endpoint',
+									'Include client authentication credentials',
+									'Specify grant_type=client_credentials',
+									'Receive access token in response',
+								].map((description, index) => (
+									<FlowStep key={description}>
+										<FlowStepNumber>{index + 1}</FlowStepNumber>
+										<FlowStepContent>
+											<StrongText>{description}</StrongText>
+										</FlowStepContent>
+									</FlowStep>
+								))}
+							</FlowDiagram>
+						</CollapsibleContent>
+					)}
+				</CollapsibleSection>
+
 				<div style={{ marginTop: '2rem' }}>
 					<ActionButton
 						onClick={handleTokenRequest}
@@ -527,21 +963,45 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Step 3: Token Analysis
 	const renderTokenAnalysis = () => (
 		<div>
-			<EducationalContentService
-				title="Token Analysis"
-				content={{
-					title: 'Analyze Your Access Token',
-					description: 'View, decode, and validate the received access token',
-					useCases: [
-						'Inspect token claims and metadata',
-						'Verify token expiration',
-						'Validate token scope and audience'
-					]
-				}}
-				collapsed={collapsedSections.tokenAnalysis}
-				onToggleCollapsed={() => toggleSection('tokenAnalysis')}
-			/>
-			
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('tokenAnalysis')}
+					aria-expanded={!collapsedSections.tokenAnalysis}
+				>
+					<CollapsibleTitle>
+						<FiEye /> Token Analysis
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.tokenAnalysis}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.tokenAnalysis && (
+					<CollapsibleContent>
+						<InfoBox $variant="info">
+							<FiEye size={20} />
+							<div>
+								<InfoTitle>Analyze Your Access Token</InfoTitle>
+								<InfoText>
+									View, decode, and validate the received access token to understand its contents
+									and ensure it meets your requirements.
+								</InfoText>
+							</div>
+						</InfoBox>
+
+						<InfoBox $variant="success">
+							<FiCheckCircle size={20} />
+							<div>
+								<InfoTitle>Token Validation</InfoTitle>
+								<InfoText>
+									Verify token expiration, scope, audience, and other claims to ensure the token
+									is valid and appropriate for your use case.
+								</InfoText>
+							</div>
+						</InfoBox>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
+
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
 					<UnifiedTokenDisplayService
@@ -557,21 +1017,45 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	// Step 4: Token Management
 	const renderTokenManagement = () => (
 		<div>
-			<EducationalContentService
-				title="Token Management"
-				content={{
-					title: 'Advanced Token Operations',
-					description: 'Introspect, manage, and monitor your access tokens',
-					useCases: [
-						'Token introspection for validation',
-						'Token revocation when needed',
-						'Token lifecycle management'
-					]
-				}}
-				collapsed={collapsedSections.tokenIntrospection}
-				onToggleCollapsed={() => toggleSection('tokenIntrospection')}
-			/>
-			
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('tokenIntrospection')}
+					aria-expanded={!collapsedSections.tokenIntrospection}
+				>
+					<CollapsibleTitle>
+						<FiShield /> Token Management
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.tokenIntrospection}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.tokenIntrospection && (
+					<CollapsibleContent>
+						<InfoBox $variant="info">
+							<FiShield size={20} />
+							<div>
+								<InfoTitle>Advanced Token Operations</InfoTitle>
+								<InfoText>
+									Introspect, manage, and monitor your access tokens to ensure proper security
+									and lifecycle management.
+								</InfoText>
+							</div>
+						</InfoBox>
+
+						<InfoBox $variant="success">
+							<FiCheckCircle size={20} />
+							<div>
+								<InfoTitle>Token Security</InfoTitle>
+								<InfoText>
+									Monitor token usage, validate claims, and revoke tokens when necessary to
+									maintain security and compliance.
+								</InfoText>
+							</div>
+						</InfoBox>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
+
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
 					<UnifiedTokenDisplayService
@@ -631,10 +1115,8 @@ const ClientCredentialsFlowV6: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="client-credentials-v6" />
-				
-				{UISettingsService.getFlowSpecificSettingsPanel('client-credentials')}
-				
-				<FlowSequenceService flowType="client-credentials" />
+			
+			<FlowSequenceDisplay flowType="client-credentials" />
 				
 				<MainCard>
 					<StepContent>{renderStepContent(currentStep)}</StepContent>
@@ -647,9 +1129,36 @@ const ClientCredentialsFlowV6: React.FC = () => {
 				onPrevious={handlePrevious}
 				onNext={handleNext}
 				onReset={handleReset}
+				onStartOver={handleStartOver}
 				canNavigateNext={canNavigateNext()}
 				isFirstStep={currentStep === 0}
 			/>
+
+			<ModalPresentationService
+				isOpen={showMissingCredentialsModal}
+				onClose={() => setShowMissingCredentialsModal(false)}
+				title="Credentials required"
+				description={
+					missingCredentialFields.length > 0
+						? `Please provide the following required credential${missingCredentialFields.length > 1 ? 's' : ''} before continuing:`
+						: 'Environment ID, Client ID, and Client Secret are required before moving to the next step.'
+				}
+				actions={[
+					{
+						label: 'Back to credentials',
+						onClick: () => setShowMissingCredentialsModal(false),
+						variant: 'primary',
+					},
+				]}
+			>
+				{missingCredentialFields.length > 0 && (
+					<ul style={{ marginTop: '1rem', marginBottom: '1rem', paddingLeft: '1.5rem' }}>
+						{missingCredentialFields.map((field) => (
+							<li key={field} style={{ marginBottom: '0.5rem', fontWeight: 600 }}>{field}</li>
+						))}
+					</ul>
+				)}
+			</ModalPresentationService>
 		</Container>
 	);
 };

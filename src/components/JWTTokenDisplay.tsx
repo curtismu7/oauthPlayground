@@ -76,8 +76,8 @@ const TokenValue = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
 	font-size: 0.75rem;
 	word-break: break-all;
-	background: #ffffff;
-	border: 1px solid #d1d5db;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 4px;
 	padding: 0.75rem;
 	margin-bottom: 0.5rem;
@@ -124,8 +124,8 @@ const DecodedTitle = styled.h5`
 `;
 
 const DecodedContent = styled.div`
-	background: #f1f5f9;
-	border: 1px solid #cbd5e1;
+	background: #f0fdf4; /* Light green for generated content */
+	border: 1px solid #16a34a;
 	border-radius: 4px;
 	padding: 0.75rem;
 	font-family: 'Monaco', 'Menlo', 'Consolas', monospace;

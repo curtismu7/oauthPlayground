@@ -6,10 +6,11 @@ import type { StepCredentials } from '../components/steps/CommonSteps';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
-import { safeJsonParse } from '../utils/secureJson';
+import { safeJsonParse, safeLocalStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
+import { FlowCredentialService } from '../services/flowCredentialService';
 
 export type FlowVariant = 'oauth' | 'oidc';
 
@@ -129,8 +130,8 @@ const createEmptyCredentials = (): StepCredentials => ({
 	clientId: '',
 	clientSecret: '',
 	redirectUri: '', // Not used in Client Credentials
-	scope: 'api:read api:write',
-	scopes: 'api:read api:write',
+	scope: 'openid',
+	scopes: 'openid',
 	responseType: '', // Not used in Client Credentials
 	grantType: 'client_credentials',
 	authorizationEndpoint: '', // Not used in Client Credentials
@@ -143,7 +144,7 @@ const createEmptyConfig = (): ClientCredentialsConfig => ({
 	clientId: '',
 	clientSecret: '',
 	authMethod: 'client_secret_post',
-	scopes: 'api:read api:write',
+	scopes: 'openid',
 	audience: '',
 	resource: '',
 	tokenEndpoint: '',
@@ -262,34 +263,59 @@ export const useClientCredentialsFlowController = (
 		defaultStep: 0,
 	});
 
-	// Load saved state on mount
+	// Load credentials and flow state on mount using FlowCredentialService
 	useEffect(() => {
-		const savedState = localStorage.getItem(persistKey);
-		if (savedState) {
+		const loadData = async () => {
 			try {
-				const parsed = safeJsonParse(savedState) as Record<string, unknown>;
-				if (parsed) {
-					if (parsed.credentials) setCredentials(parsed.credentials as StepCredentials);
-					if (parsed.flowConfig) setFlowConfig(parsed.flowConfig as ClientCredentialsConfig);
-					if (parsed.tokens) setTokens(parsed.tokens as ClientCredentialsTokens);
-					if (parsed.flowVariant) setFlowVariant(parsed.flowVariant as FlowVariant);
+				const { credentials: loadedCreds, flowState, hasSharedCredentials } = 
+					await FlowCredentialService.loadFlowCredentials<ClientCredentialsConfig>({
+						flowKey: persistKey,
+						defaultCredentials: {
+							...createEmptyCredentials(),
+							grantType: 'client_credentials',
+						},
+					});
+
+				// Load credentials
+				if (loadedCreds) {
+					setCredentials(loadedCreds);
 					setHasCredentialsSaved(true);
 				}
+
+				// Load flow-specific state
+				if (flowState) {
+					if (flowState.flowConfig) setFlowConfig(flowState.flowConfig);
+					if (flowState.tokens) setTokens(flowState.tokens as ClientCredentialsTokens);
+					if (flowState.flowVariant) setFlowVariant(flowState.flowVariant as FlowVariant);
+				}
+				
+				console.log('[ClientCredsController] Loaded data:', {
+					hasSharedCredentials,
+					hasFlowState: !!flowState,
+					environmentId: loadedCreds?.environmentId,
+					clientId: loadedCreds?.clientId,
+				});
 			} catch (error) {
-				console.error('Failed to load saved state:', error);
+				console.error('[ClientCredsController] Failed to load data:', error);
 			}
-		}
+		};
+
+		loadData();
 	}, [persistKey]);
 
-	// Save state when it changes
+	// Save state when it changes (debounced)
 	useEffect(() => {
-		const state = {
-			credentials,
-			flowConfig,
-			tokens,
-			flowVariant,
-		};
-		localStorage.setItem(persistKey, JSON.stringify(state));
+		const debounceTimer = setTimeout(() => {
+			const state = {
+				credentials,
+				flowConfig,
+				tokens,
+				flowVariant,
+			};
+			localStorage.setItem(persistKey, JSON.stringify(state));
+		}, 500); // Debounce by 500ms
+		
+		return () => clearTimeout(debounceTimer);
 	}, [credentials, flowConfig, tokens, flowVariant, persistKey]);
 
 	// Track credential changes
@@ -430,27 +456,31 @@ export const useClientCredentialsFlowController = (
 		}
 	}, [tokens, decodedToken]);
 
-	// Save credentials
+	// Save credentials using FlowCredentialService
 	const saveCredentials = useCallback(async () => {
 		setIsSavingCredentials(true);
 
 		try {
-			await credentialManager.saveAllCredentials({
-				[persistKey]: {
-					credentials,
-					flowConfig,
-				},
-			});
+			const success = await FlowCredentialService.saveFlowCredentials(
+				persistKey,
+				credentials,
+				flowConfig,
+				{
+					flowVariant,
+					tokens,
+				}
+			);
 
-			setHasCredentialsSaved(true);
-			showGlobalSuccess('Credentials saved successfully!');
+			if (success) {
+				setHasCredentialsSaved(true);
+			}
 		} catch (error) {
 			showGlobalError('Failed to save credentials');
-			console.error('Save credentials error:', error);
+			console.error('[ClientCredsController] Save credentials error:', error);
 		} finally {
 			setIsSavingCredentials(false);
 		}
-	}, [credentials, flowConfig, persistKey]);
+	}, [credentials, flowConfig, flowVariant, tokens, persistKey]);
 
 	// Reset flow
 	const resetFlow = useCallback(() => {
@@ -495,7 +525,10 @@ export const useClientCredentialsFlowController = (
 	const saveStepResult = useCallback(
 		(stepId: string, result: unknown) => {
 			// Store step result in localStorage for persistence
-			const stepResults = JSON.parse(localStorage.getItem(`${persistKey}-step-results`) || '{}');
+			const stepResults = safeLocalStorageParse<Record<string, unknown>>(
+				`${persistKey}-step-results`,
+				{}
+			);
 			stepResults[stepId] = result;
 			localStorage.setItem(`${persistKey}-step-results`, JSON.stringify(stepResults));
 		},
@@ -504,7 +537,10 @@ export const useClientCredentialsFlowController = (
 
 	const hasStepResult = useCallback(
 		(stepId: string): boolean => {
-			const stepResults = JSON.parse(localStorage.getItem(`${persistKey}-step-results`) || '{}');
+			const stepResults = safeLocalStorageParse<Record<string, unknown>>(
+				`${persistKey}-step-results`,
+				{}
+			);
 			return stepResults[stepId] !== undefined;
 		},
 		[persistKey]

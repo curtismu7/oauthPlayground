@@ -229,18 +229,6 @@ const GeneratedLabel = styled.div`
 	font-weight: 600;
 `;
 
-const _GeneratedUrlDisplay = styled.div`
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	color: #1e40af;
-	word-break: break-all;
-	background-color: #eff6ff;
-	padding: 1rem;
-	border-radius: 0.5rem;
-	border: 1px solid #93c5fd;
-	margin: 1rem 0;
-`;
-
 const ParameterGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -388,62 +376,6 @@ type SectionKey =
 	| 'uiSettings';
 
 // Styled Components
-const _UserCodeDisplay = styled.div`
-	font-size: 2.5rem;
-	font-weight: 700;
-	font-family: 'Courier New', monospace;
-	letter-spacing: 0.75rem;
-	color: #ffffff;
-	text-align: center;
-	padding: 2rem;
-	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-	border-radius: 0.75rem;
-	margin: 1.5rem 0;
-	box-shadow: 0 10px 25px rgba(22, 163, 74, 0.3);
-	user-select: all;
-	cursor: pointer;
-	transition: transform 0.2s ease;
-
-	&:hover {
-		transform: scale(1.02);
-	}
-
-	&:active {
-		transform: scale(0.98);
-	}
-`;
-
-const _PollingIndicator = styled.div<{ $isActive: boolean }>`
-	display: flex;
-	align-items: center;
-	gap: 1rem;
-	padding: 1.5rem;
-	background-color: ${(props) => (props.$isActive ? '#dbeafe' : '#f1f5f9')};
-	border: 2px solid ${(props) => (props.$isActive ? '#3b82f6' : '#cbd5e1')};
-	border-radius: 0.5rem;
-	margin: 1rem 0;
-
-	@keyframes pulse {
-		0%, 100% { opacity: 1; }
-		50% { opacity: 0.6; }
-	}
-
-	@keyframes spin {
-		from { transform: rotate(0deg); }
-		to { transform: rotate(360deg); }
-	}
-
-	${(props) =>
-		props.$isActive &&
-		`
-		animation: pulse 2s ease-in-out infinite;
-		
-		svg {
-			animation: spin 2s linear infinite;
-		}
-	`}
-`;
-
 const CountdownTimer = styled.div`
 	font-size: 2rem;
 	font-weight: 700;
@@ -455,19 +387,6 @@ const CountdownTimer = styled.div`
 	border-radius: 0.5rem;
 	border: 2px solid #3b82f6;
 	margin: 1rem 0;
-`;
-
-const _QRCodeContainer = styled.div`
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	padding: 2rem;
-	background-color: #ffffff;
-	border: 2px solid #e2e8f0;
-	border-radius: 0.75rem;
-	margin: 1.5rem 0;
-	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
 `;
 
 const SmartTVContainer = styled.div`
