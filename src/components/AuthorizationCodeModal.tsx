@@ -1,6 +1,6 @@
 // src/components/AuthorizationCodeModal.tsx
 import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
 
 // Animation for success checkmark
@@ -110,7 +110,7 @@ const SuccessIcon = styled.div`
 	align-items: center;
 	justify-content: center;
 	margin: 0 auto 1rem;
-	animation: ${checkmarkAnimation} 0.6s ease-out;
+	animation: ${css`${checkmarkAnimation} 0.6s ease-out`};
 `;
 
 const SuccessTitle = styled.h3`
@@ -152,7 +152,7 @@ const CodeContainer = styled.div`
 	font-size: 0.875rem;
 	word-break: break-all;
 	position: relative;
-	animation: ${pulseAnimation} 2s infinite;
+	animation: ${css`${pulseAnimation} 2s infinite`};
 `;
 
 const CopyButton = styled.button<{ $copied: boolean }>`

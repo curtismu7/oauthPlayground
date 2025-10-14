@@ -516,6 +516,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									{...(onPingOneSave && { onSave: onPingOneSave })}
 									isSaving={isSavingPingOne}
 									hasUnsavedChanges={hasUnsavedPingOneChanges}
+									flowType={flowType}
 								/>
 							</div>
 						</CollapsibleHeader>

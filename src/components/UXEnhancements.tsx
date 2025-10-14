@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiLoader } from 'react-icons/fi';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 // Animations
@@ -95,7 +95,7 @@ const ProgressFill = styled.div<{ $progress: number; $animated?: boolean }>`
   background: linear-gradient(90deg, ${({ theme }) => theme.colors.primary} 0%, ${({ theme }) => theme.colors.primaryDark} 100%);
   border-radius: 4px;
   transition: width 0.3s ease;
-  ${({ $animated }) => $animated && `animation: ${progressFill} 2s ease-in-out;`}
+  ${({ $animated }) => $animated && css`animation: ${progressFill} 2s ease-in-out;`}
 `;
 
 const ProgressText = styled.div`
@@ -157,7 +157,7 @@ const StatusIcon = styled.div<{ $status: 'loading' | 'success' | 'error' | 'warn
   
   ${({ $status }) =>
 		$status === 'loading' &&
-		`
+		css`
     animation: ${spin} 1s linear infinite;
   `}
 `;
@@ -220,7 +220,7 @@ const Step = styled.div<{ $status: 'pending' | 'active' | 'completed' | 'error' 
   
   ${({ $status }) =>
 		$status === 'active' &&
-		`
+		css`
     animation: ${pulse} 2s infinite;
   `}
 `;
