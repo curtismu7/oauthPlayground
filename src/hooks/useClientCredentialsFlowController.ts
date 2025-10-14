@@ -95,15 +95,20 @@ export interface ClientCredentialsFlowController {
 	tokens: ClientCredentialsTokens | null;
 	decodedToken: DecodedJWT | null;
 	isRequesting: boolean;
+	isLoading: boolean;
+	setIsLoading: (value: boolean) => void;
 	requestToken: () => Promise<void>;
 	introspectToken: () => Promise<void>;
+	setTokens: (tokens: ClientCredentialsTokens | null) => void;
 
 	// Flow control
 	resetFlow: () => void;
+	reset: () => void;
 	isSavingCredentials: boolean;
 	hasCredentialsSaved: boolean;
 	hasUnsavedCredentialChanges: boolean;
 	saveCredentials: () => Promise<void>;
+	hasValidCredentials: boolean;
 
 	// Utilities
 	handleCopy: (text: string, label: string) => void;
@@ -255,6 +260,8 @@ export const useClientCredentialsFlowController = (
 	const [hasCredentialsSaved, setHasCredentialsSaved] = useState(false);
 	const [hasUnsavedCredentialChanges, setHasUnsavedCredentialChanges] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [hasValidCredentials, setHasValidCredentials] = useState(false);
+	const [isLoading, setIsLoading] = useState(false);
 
 	// Step management
 	const stepManager = useFlowStepManager({
@@ -550,6 +557,39 @@ export const useClientCredentialsFlowController = (
 		localStorage.removeItem(`${persistKey}-step-results`);
 	}, [persistKey]);
 
+	useEffect(() => {
+		const trimmedEnv = credentials.environmentId?.trim();
+		const trimmedClientId = credentials.clientId?.trim();
+		const trimmedClientSecret = credentials.clientSecret?.trim();
+		const trimmedConfigSecret = flowConfig.clientSecret?.trim();
+		const trimmedPrivateKey = flowConfig.jwtPrivateKey?.trim();
+		const trimmedMtlsCert = flowConfig.mtlsCert?.trim();
+		const trimmedMtlsKey = flowConfig.mtlsKey?.trim();
+		const authMethod = (credentials.clientAuthMethod || flowConfig.authMethod || 'client_secret_post') as ClientAuthMethod;
+
+		const baseRequirementsMet = Boolean(trimmedEnv && trimmedClientId);
+
+		let authRequirementsMet = false;
+		switch (authMethod) {
+			case 'client_secret_post':
+			case 'client_secret_basic':
+			case 'client_secret_jwt':
+				authRequirementsMet = Boolean(trimmedClientSecret || trimmedConfigSecret);
+				break;
+			case 'private_key_jwt':
+				authRequirementsMet = Boolean(trimmedPrivateKey);
+				break;
+			case 'tls_client_auth':
+				authRequirementsMet = Boolean(trimmedMtlsCert && trimmedMtlsKey);
+				break;
+			case 'none':
+			default:
+				authRequirementsMet = true;
+		}
+
+		setHasValidCredentials(baseRequirementsMet && authRequirementsMet);
+	}, [credentials, flowConfig]);
+
 	return {
 		flowVariant,
 		setFlowVariant,
@@ -564,11 +604,16 @@ export const useClientCredentialsFlowController = (
 		isRequesting,
 		requestToken,
 		introspectToken,
+		setTokens,
+		isLoading,
+		setIsLoading,
 		resetFlow,
+		reset: resetFlow,
 		isSavingCredentials,
 		hasCredentialsSaved,
 		hasUnsavedCredentialChanges,
 		saveCredentials,
+		hasValidCredentials,
 		handleCopy,
 		copiedField,
 		formatExpiry,

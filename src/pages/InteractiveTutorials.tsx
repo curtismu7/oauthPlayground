@@ -46,6 +46,14 @@ interface Tutorial {
 	steps: TutorialStep[];
 }
 
+type TutorialPingOneConfig = {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	pingoneAuthUrl: string;
+	redirectUri: string;
+};
+
 const Container = styled.div`
   max-width: 1200px;
   margin: 0 auto;
@@ -398,55 +406,115 @@ const InteractiveTutorials = () => {
 	const [clientSecret, setClientSecret] = useState('');
 	const [pingoneAuthUrl, setPingoneAuthUrl] = useState('https://auth.pingone.com');
 	const [redirectUri, setRedirectUri] = useState('');
+	const [configCollapsed, setConfigCollapsed] = useState(true);
+
+	const buildConfig = useCallback(
+		(overrides: Partial<TutorialPingOneConfig> = {}): TutorialPingOneConfig => ({
+			environmentId: overrides.environmentId ?? environmentId,
+			clientId: overrides.clientId ?? clientId,
+			clientSecret: overrides.clientSecret ?? clientSecret,
+			pingoneAuthUrl: overrides.pingoneAuthUrl ?? pingoneAuthUrl,
+			redirectUri: overrides.redirectUri ?? redirectUri,
+		}),
+		[environmentId, clientId, clientSecret, pingoneAuthUrl, redirectUri]
+	);
+
+	const persistConfiguration = useCallback(
+		(config: TutorialPingOneConfig, options: { showToast?: boolean } = {}) => {
+			try {
+				localStorage.setItem('pingone-tutorial-config', JSON.stringify(config));
+				localStorage.setItem('pingone_config', JSON.stringify(config));
+				window.dispatchEvent(
+					new CustomEvent('pingone_config_changed', {
+						detail: { config },
+					})
+				);
+				if (options.showToast) {
+					v4ToastManager.showSuccess(
+						'Configuration saved successfully! Your settings will persist across sessions.'
+					);
+				}
+			} catch (error) {
+				console.error('Failed to save configuration:', error);
+				if (options.showToast) {
+					v4ToastManager.showError('Failed to save configuration. Please try again.');
+				}
+			}
+		},
+		[]
+	);
 
 	// Load saved configuration on component mount
 	useEffect(() => {
-		const savedConfig = localStorage.getItem('pingone-tutorial-config');
-		if (savedConfig) {
-			try {
-				const config = JSON.parse(savedConfig);
-				setEnvironmentId(config.environmentId || '');
-				setClientId(config.clientId || '');
-				setClientSecret(config.clientSecret || '');
+		const applyConfig = (config?: Partial<TutorialPingOneConfig>) => {
+			if (!config) return;
+			if (config.environmentId !== undefined) setEnvironmentId(config.environmentId);
+			if (config.clientId !== undefined) setClientId(config.clientId);
+			if (config.clientSecret !== undefined) setClientSecret(config.clientSecret);
+			if (config.pingoneAuthUrl !== undefined)
 				setPingoneAuthUrl(config.pingoneAuthUrl || 'https://auth.pingone.com');
-				setRedirectUri(config.redirectUri || '');
-				v4ToastManager.showSuccess('Configuration loaded from saved settings');
-			} catch (error) {
-				console.warn('Failed to load saved configuration:', error);
-				v4ToastManager.showError('Failed to load saved configuration');
+			if (config.redirectUri !== undefined) setRedirectUri(config.redirectUri);
+			setConfigCollapsed(false);
+		};
+
+		const loadInitialConfig = () => {
+			const localConfigRaw = localStorage.getItem('pingone-tutorial-config');
+			if (localConfigRaw) {
+				try {
+					applyConfig(JSON.parse(localConfigRaw));
+					return;
+				} catch (error) {
+					console.warn('Failed to parse pingone-tutorial-config:', error);
+				}
 			}
-		}
+
+			const globalConfigRaw = localStorage.getItem('pingone_config');
+			if (globalConfigRaw) {
+				try {
+					applyConfig(JSON.parse(globalConfigRaw));
+				} catch (error) {
+					console.warn('Failed to parse pingone_config:', error);
+				}
+			}
+		};
+
+		const handleConfigChanged = (event: Event) => {
+			const customEvent = event as CustomEvent<{ config?: Partial<TutorialPingOneConfig> }>;
+			if (customEvent.detail?.config) {
+				applyConfig(customEvent.detail.config);
+			}
+		};
+
+		loadInitialConfig();
+		window.addEventListener('pingone_config_changed', handleConfigChanged);
+
+		return () => {
+			window.removeEventListener('pingone_config_changed', handleConfigChanged);
+		};
 	}, []);
 
 	// Save configuration to localStorage
 	const saveConfiguration = () => {
-		try {
-			const config = {
-				environmentId,
-				clientId,
-				clientSecret,
-				pingoneAuthUrl,
-				redirectUri,
-			};
-			localStorage.setItem('pingone-tutorial-config', JSON.stringify(config));
-			v4ToastManager.showSuccess(
-				'Configuration saved successfully! Your settings will persist across sessions.'
-			);
-		} catch (error) {
-			console.error('Failed to save configuration:', error);
-			v4ToastManager.showError('Failed to save configuration. Please try again.');
-		}
+		persistConfiguration(buildConfig(), { showToast: true });
 	};
 
 	// Clear configuration from localStorage
 	const clearConfiguration = () => {
 		try {
-			localStorage.removeItem('pingone-tutorial-config');
+			const clearedConfig: TutorialPingOneConfig = {
+				environmentId: '',
+				clientId: '',
+				clientSecret: '',
+				pingoneAuthUrl: 'https://auth.pingone.com',
+				redirectUri: '',
+			};
 			setEnvironmentId('');
 			setClientId('');
 			setClientSecret('');
 			setPingoneAuthUrl('https://auth.pingone.com');
 			setRedirectUri('');
+			setConfigCollapsed(false);
+			persistConfiguration(clearedConfig);
 			v4ToastManager.showSuccess('Configuration cleared successfully!');
 		} catch (error) {
 			console.error('Failed to clear configuration:', error);
@@ -456,14 +524,40 @@ const InteractiveTutorials = () => {
 
 	// Check if all required fields are filled
 	const isConfigurationComplete = () => {
+		const config = buildConfig();
 		return (
-			environmentId.trim() &&
-			clientId.trim() &&
-			clientSecret.trim() &&
-			pingoneAuthUrl.trim() &&
-			redirectUri.trim()
+			config.environmentId.trim() &&
+			config.clientId.trim() &&
+			config.clientSecret.trim() &&
+			config.pingoneAuthUrl.trim() &&
+			config.redirectUri.trim()
 		);
 	};
+
+	const handleFieldChange = useCallback(
+		(field: keyof TutorialPingOneConfig, value: string) => {
+			setConfigCollapsed(false);
+			switch (field) {
+				case 'environmentId':
+					setEnvironmentId(value);
+					break;
+				case 'clientId':
+					setClientId(value);
+					break;
+				case 'clientSecret':
+					setClientSecret(value);
+					break;
+				case 'pingoneAuthUrl':
+					setPingoneAuthUrl(value);
+					break;
+				case 'redirectUri':
+					setRedirectUri(value);
+					break;
+			}
+			persistConfiguration(buildConfig({ [field]: value }));
+		},
+		[buildConfig, persistConfiguration]
+	);
 
 	// Debug selectedTutorial state changes
 	useEffect(() => {

@@ -661,13 +661,31 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 	
 	// PingOne Advanced Configuration
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
-		applicationName: '',
-		applicationType: 'single_page_application',
-		redirectUris: [],
-		postLogoutRedirectUris: [],
-		allowedScopes: [],
-		clientAuthMethods: ['none'],
-		additionalSettings: {}
+		clientAuthMethod: 'none', // Device flow is public client
+		allowRedirectUriPatterns: false,
+		pkceEnforcement: 'OPTIONAL',
+		responseTypeCode: false,
+		responseTypeToken: false,
+		responseTypeIdToken: false,
+		grantTypeAuthorizationCode: false,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
+		requestParameterSignatureRequirement: 'DEFAULT',
+		enableJWKS: false,
+		jwksMethod: 'JWKS_URL',
+		jwksUrl: '',
+		jwks: '',
+		requirePushedAuthorizationRequest: false,
+		enableDPoP: false,
+		dpopAlgorithm: 'ES256',
+		additionalRefreshTokenReplayProtection: false,
+		includeX5tParameter: false,
+		oidcSessionManagement: false,
+		requestScopesForMultipleResources: false,
+		terminateUserSessionByIdToken: false,
+		corsOrigins: [],
+		corsAllowAnyOrigin: false,
 	});
 	
 	const [currentStep, setCurrentStep] = useState(() => {
@@ -1150,6 +1168,7 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 
 			{/* V6 Comprehensive Credentials Service */}
 			<ComprehensiveCredentialsService
+				flowType="device-authorization-v6"
 				// Discovery props
 				onDiscoveryComplete={(result) => {
 					console.log('[Device Authz V6] Discovery completed:', result);
