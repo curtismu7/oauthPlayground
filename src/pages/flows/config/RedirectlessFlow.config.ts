@@ -55,6 +55,8 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: false, // pi.flow doesn't require PAR
+	enableDPoP: false,
+	dpopAlgorithm: 'ES256',
 	additionalRefreshTokenReplayProtection: false,
 	includeX5tParameter: false,
 	oidcSessionManagement: false,

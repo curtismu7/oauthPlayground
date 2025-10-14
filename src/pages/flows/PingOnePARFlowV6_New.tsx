@@ -800,7 +800,7 @@ const PingOnePARFlowV6: React.FC = () => {
 
 	// Persist current step to session storage
 	useEffect(() => {
-		sessionStorage.setItem('oauth-authorization-code-v6-current-step', currentStep.toString());
+		sessionStorage.setItem('pingone-par-v6-current-step', currentStep.toString());
 	}, [currentStep]);
 
 	// Show success modal when auth code is received from popup
@@ -821,7 +821,7 @@ const PingOnePARFlowV6: React.FC = () => {
 
 			// Navigate to the next step (Token Exchange) and persist it
 			setCurrentStep(4); // Step 4 is Token Exchange
-			sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
+			sessionStorage.setItem('pingone-par-v6-current-step', '4');
 		}
 	}, [controller.authCode, localAuthCode]);
 
@@ -2504,14 +2504,14 @@ const PingOnePARFlowV6: React.FC = () => {
 					console.log('🔴 [AuthorizationCodeFlowV6] Closing LoginSuccessModal', {
 						currentStep,
 						hasAuthCode: !!(controller.authCode || localAuthCode),
-						storedStep: sessionStorage.getItem('oauth-authorization-code-v6-current-step'),
+						storedStep: sessionStorage.getItem('pingone-par-v6-current-step'),
 					});
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
 						console.log('🔧 [AuthorizationCodeFlowV6] Correcting step to 4 after modal close');
 						setCurrentStep(4);
-						sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
+						sessionStorage.setItem('pingone-par-v6-current-step', '4');
 					}
 				}}
 				title="Login Successful!"
