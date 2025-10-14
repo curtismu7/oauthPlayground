@@ -4,6 +4,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
 	FiArrowRight,
+	FiBook,
 	FiCheckCircle,
 	FiChevronDown,
 	FiExternalLink,
@@ -12,13 +13,15 @@ import {
 	FiGlobe,
 	FiInfo,
 	FiKey,
+	FiPackage,
 	FiRefreshCw,
+	FiSave,
+	FiSend,
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import { default as LegacyConfigurationSummaryCard } from '../../components/ConfigurationSummaryCard';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -52,10 +55,10 @@ import { UISettingsService } from '../../services/uiSettingsService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
-import ResourceParameterInput from '../../components/ResourceParameterInput';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { FlowStorageService } from '../../services/flowStorageService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -209,6 +212,54 @@ const CollapsibleHeaderButton = styled.button<{ $collapsed?: boolean }>`
 
 	&:hover {
 		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
+	}
+`;
+
+// Theme-specific header variants
+const OrangeHeaderButton = styled(CollapsibleHeaderButton)`
+	background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
+	color: #7c2d12;
+	
+	&:hover {
+		background: linear-gradient(135deg, #fb923c 0%, #f97316 100%);
+	}
+`;
+
+const BlueHeaderButton = styled(CollapsibleHeaderButton)`
+	background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
+	color: #1e3a8a;
+	
+	&:hover {
+		background: linear-gradient(135deg, #93c5fd 0%, #3b82f6 100%);
+	}
+`;
+
+const YellowHeaderButton = styled(CollapsibleHeaderButton)`
+	background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%);
+	color: #78350f;
+	
+	&:hover {
+		background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+	}
+`;
+
+const GreenHeaderButton = styled(CollapsibleHeaderButton)`
+	background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
+	color: #065f46;
+	
+	&:hover {
+		background: linear-gradient(135deg, #a7f3d0 0%, #34d399 100%);
+	}
+`;
+
+const HighlightHeaderButton = styled(CollapsibleHeaderButton)`
+	background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%);
+	color: #1e40af;
+	box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+	
+	&:hover {
+		background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
+		box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
 	}
 `;
 
@@ -381,6 +432,67 @@ const ActionRow = styled.div`
 	gap: 1rem;
 	align-items: center;
 	margin-top: 1.5rem;
+`;
+
+const SaveAdvancedParamsButton = styled.button`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.75rem;
+	padding: 1rem 2rem;
+	font-size: 1rem;
+	font-weight: 600;
+	color: #ffffff;
+	background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+	border: none;
+	border-radius: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+	margin-top: 2rem;
+
+	&:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+
+	svg {
+		font-size: 1.25rem;
+	}
+`;
+
+const SavedAdvancedParamsIndicator = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 1rem;
+	background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+	border: 2px solid #34d399;
+	border-radius: 0.75rem;
+	color: #065f46;
+	font-weight: 600;
+	margin-top: 1rem;
+	animation: slideIn 0.3s ease-out;
+
+	svg {
+		font-size: 1.25rem;
+	}
+
+	@keyframes slideIn {
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
 `;
 
 const Button = styled.button<{
@@ -584,6 +696,85 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
+	const [promptValues, setPromptValues] = useState<string[]>([]);
+	const [isSavedAdvancedParams, setIsSavedAdvancedParams] = useState(false);
+
+	// Load saved advanced parameters on mount
+	useEffect(() => {
+		const saved = FlowStorageService.AdvancedParameters.get('oauth-authz-v6');
+		if (saved) {
+			console.log('[OAuth AuthZ V6] Loading saved advanced parameters:', saved);
+			setAudience(saved.audience || '');
+			setResources(saved.resources || []);
+			setPromptValues(saved.promptValues || []);
+		}
+	}, []); // Only run once on mount
+
+	// Update flow config when advanced parameters change
+	useEffect(() => {
+		if (audience || promptValues.length > 0) {
+			console.log('[OAuth AuthZ V6] Updating flow config with advanced parameters:', {
+				audience,
+				promptValues
+			});
+			// Note: Resources are not sent for PingOne flows as they're not reliably supported
+			controller.setFlowConfig({
+				...controller.flowConfig,
+				audience,
+				prompt: promptValues.join(' ')
+			});
+		}
+	}, [audience, promptValues]);
+
+	// Save advanced parameters
+	const handleSaveAdvancedParams = useCallback(async () => {
+		console.log('💾 [OAuth AuthZ V6] Saving advanced parameters:', {
+			audience,
+			resources,
+			promptValues,
+			claimsRequest,
+		});
+		
+		FlowStorageService.AdvancedParameters.set('oauth-authz-v6', {
+			audience,
+			resources,
+			promptValues,
+		});
+		setIsSavedAdvancedParams(true);
+		v4ToastManager.showSuccess('Advanced parameters saved! Regenerating authorization URL...');
+		
+		// Regenerate authorization URL with new parameters
+		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
+			'oauth',
+			controller.credentials,
+			controller
+		);
+		
+		// Log what will actually be sent to PingOne
+		if (controller.authUrl) {
+			const urlParams = new URLSearchParams(controller.authUrl.split('?')[1] || '');
+			const claimsParam = urlParams.get('claims');
+			console.log('🌐 [OAuth AuthZ V6] ===== URL THAT WILL BE SENT TO PINGONE =====');
+			console.log('🌐 Full URL:', controller.authUrl);
+			console.log('🌐 Audience:', urlParams.get('audience') || 'Not included');
+			console.log('🌐 Prompt:', urlParams.get('prompt') || 'Not included');
+			console.log('🌐 Claims (raw):', claimsParam || 'Not included');
+			if (claimsParam) {
+				try {
+					console.log('🌐 Claims (decoded):', JSON.parse(claimsParam));
+				} catch (e) {
+					console.log('🌐 Claims (decode failed):', e);
+				}
+			}
+			console.log('🌐 Resources:', 'Not included (PingOne does not support RFC 8707)');
+			console.log('🌐 =============================================');
+		}
+		
+		// Hide the saved indicator after 3 seconds
+		setTimeout(() => {
+			setIsSavedAdvancedParams(false);
+		}, 3000);
+	}, [audience, resources, promptValues, claimsRequest, controller]);
 
 	// Scroll to top on step change
 	useEffect(() => {
@@ -926,10 +1117,9 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	const handleOpenAuthUrl = useCallback(() => {
 		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
-			console.log('🔧 [AuthorizationCodeFlowV5] About to redirect to PingOne via controller...');
-			controller.handleRedirectAuthorization();
+			console.log('🔧 [AuthorizationCodeFlowV5] Opening authentication modal...');
 			setShowRedirectModal(true);
-			setTimeout(() => setShowRedirectModal(false), 2000);
+			// Modal will handle its own countdown and closing
 		}
 	}, [controller]);
 
@@ -1330,10 +1520,28 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		handleNext();
 	}, [canNavigateNext, handleNext]);
 
+	// Determine if tokens should be displayed (only show if they were exchanged for the current auth code)
+	const shouldDisplayTokens = useMemo(() => {
+		// Don't show tokens if we don't have any
+		if (!controller.tokens?.access_token) {
+			return false;
+		}
+		
+		// Don't show tokens if we have an auth code but haven't exchanged it yet
+		// (This prevents showing stale tokens from a previous run)
+		if (controller.authCode || localAuthCode) {
+			// Check if the token exchange step result exists for this session
+			const hasExchangedThisSession = controller.hasStepResult('exchange-tokens');
+			return hasExchangedThisSession;
+		}
+		
+		// If no auth code, we can show tokens (user might be on a later step)
+		return true;
+	}, [controller.tokens, controller.authCode, localAuthCode, controller.hasStepResult]);
+
 	const renderStepContent = useMemo(() => {
 		const credentials = controller.credentials;
 		const authCode = controller.authCode;
-		const tokens = controller.tokens;
 		const userInfo = controller.userInfo;
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
@@ -1346,18 +1554,18 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						{/* OAuth 2.0 Educational Content */}
 						<EducationalContentService flowType="oauth" defaultCollapsed={false} />
 						
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> OAuth 2.0 Authorization Code Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+				<CollapsibleSection>
+				<GreenHeaderButton
+					onClick={() => toggleSection('overview')}
+					aria-expanded={!collapsedSections.overview}
+				>
+					<CollapsibleTitle>
+						<FiBook /> OAuth 2.0 Authorization Code Overview
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</GreenHeaderButton>
 							{!collapsedSections.overview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -1422,21 +1630,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('credentials')}
-								aria-expanded={!collapsedSections.credentials}
-							>
-								<CollapsibleTitle>
-									<FiSettings /> Application Configuration & Credentials
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.credentials && (
-								<CollapsibleContent>
-								<ComprehensiveCredentialsService
+					<ComprehensiveCredentialsService
 									// Discovery props
 									onDiscoveryComplete={(result) => {
 										console.log('[OAuth Authz V5] Discovery completed:', result);
@@ -1493,58 +1687,57 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									hasUnsavedPingOneChanges={false}
 									isSavingPingOne={false}
 									
-									// UI config
-									title="OAuth Authorization Code Configuration"
-									subtitle="Configure your application settings and credentials"
-									showAdvancedConfig={true}
-									defaultCollapsed={false}
-								/>
+								// UI config
+								title="Application Configuration & Credentials"
+								subtitle="Configure your application settings and credentials"
+								showAdvancedConfig={true}
+								defaultCollapsed={false}
+							/>
 
+							<ActionRow>
+								<Button onClick={handleSaveConfiguration} $variant="primary">
+									<FiSettings /> Save Configuration
+								</Button>
+								<Button onClick={handleClearConfiguration} $variant="danger">
+									<FiRefreshCw /> Clear Configuration
+								</Button>
+							</ActionRow>
 
-								<ActionRow>
-									<Button onClick={handleSaveConfiguration} $variant="primary">
-										<FiSettings /> Save Configuration
-									</Button>
-									<Button onClick={handleClearConfiguration} $variant="danger">
-										<FiRefreshCw /> Clear Configuration
-									</Button>
-								</ActionRow>
-
-									<InfoBox $variant="warning" style={{ marginTop: '2rem', color: '#92400e' }}>
-										<FiAlertCircle size={20} />
-										<div>
-											<InfoTitle style={{ color: '#92400e' }}>Testing vs Production</InfoTitle>
-											<InfoText style={{ color: '#92400e' }}>
-												This saves credentials locally for demos only. Remove secrets before
-												production.
-											</InfoText>
-										</div>
-									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+							<InfoBox $variant="warning" style={{ marginTop: '2rem', color: '#92400e' }}>
+								<FiAlertCircle size={20} />
+								<div>
+									<InfoTitle style={{ color: '#92400e' }}>Testing vs Production</InfoTitle>
+									<InfoText style={{ color: '#92400e' }}>
+										This saves credentials locally for demos only. Remove secrets before
+										production.
+									</InfoText>
+								</div>
+							</InfoBox>
 
 						{/* OAuth Advanced Parameters */}
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('advancedParams')}
-								aria-expanded={!collapsedSections.advancedParams}
-							>
-								<CollapsibleTitle>
-									<FiSettings /> Advanced OAuth Parameters (Optional)
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.advancedParams}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+					<CollapsibleSection>
+						<OrangeHeaderButton
+							onClick={() => toggleSection('advancedParams')}
+							aria-expanded={!collapsedSections.advancedParams}
+						>
+							<CollapsibleTitle>
+								<FiSettings /> Advanced OAuth Parameters (Optional)
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.advancedParams}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</OrangeHeaderButton>
 							{!collapsedSections.advancedParams && (
 								<CollapsibleContent>
-									{/* Audience Parameter */}
-									<AudienceParameterInput
-										value={audience}
-										onChange={setAudience}
-										flowType="oauth"
-									/>
+								{/* Audience Parameter */}
+								<AudienceParameterInput
+									value={audience}
+									onChange={setAudience}
+									flowType="oauth"
+									tokenEndpoint={credentials.tokenEndpoint}
+									issuer={credentials.issuerUrl}
+									autoFillFromDiscovery={false}
+								/>
 									
 									<SectionDivider />
 									
@@ -1563,15 +1756,24 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										value={claimsRequest}
 										onChange={setClaimsRequest}
 									/>
-									
-									<SectionDivider />
-									
-									{/* Resource Indicators */}
-									<ResourceParameterInput
-										value={resources}
-										onChange={setResources}
-										flowType="oauth"
-									/>
+
+									{/* Save Button */}
+									<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2rem' }}>
+										{isSavedAdvancedParams && (
+											<SavedAdvancedParamsIndicator>
+												<FiCheckCircle />
+												Parameters saved successfully!
+											</SavedAdvancedParamsIndicator>
+										)}
+										<SaveAdvancedParamsButton onClick={handleSaveAdvancedParams}>
+											<FiSave />
+											Save Advanced Parameters
+										</SaveAdvancedParamsButton>
+										<InfoBox style={{ maxWidth: '600px', marginTop: '1rem' }}>
+											<strong>💡 Tip:</strong> Save your advanced parameters to persist them across browser refreshes. 
+											Your saved settings will automatically load next time you visit this flow.
+										</InfoBox>
+									</div>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -1580,166 +1782,24 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 						<FlowSequenceDisplay flowType="authorization-code" />
 
-						{/* Legacy Configuration Summary Card */}
-						<LegacyConfigurationSummaryCard
-							configuration={credentials}
-							onSaveConfiguration={handleSaveConfiguration}
-							onLoadConfiguration={(config) => {
-								if (config) {
-									controller.setCredentials(config);
-								}
-								v4ToastManager.showSuccess('Configuration loaded from saved settings.');
-							}}
-							primaryColor="#3b82f6"
-							flowType="authorization-code"
-						/>
-
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('results')}
-								aria-expanded={!collapsedSections.results}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Saved Configuration Summary
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.results}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.results && (
-								<CollapsibleContent>
-									<SectionDivider />
-									<ResultsSection>
-										<ResultsHeading>
-											<FiCheckCircle size={18} /> Configuration Status
-										</ResultsHeading>
-										<HelperText>
-											Save your PingOne credentials so they auto-populate in subsequent steps.
-										</HelperText>
-										{stepCompletions[0] ? (
-											<GeneratedContentBox>
-												<GeneratedLabel>Saved</GeneratedLabel>
-												<ParameterGrid style={{ gridTemplateColumns: '1fr', gap: '0.75rem' }}>
-													<div>
-														<ParameterLabel>ENVIRONMENT ID</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.environmentId || 'Not provided'}
-														</ParameterValue>
-													</div>
-													<div>
-														<ParameterLabel>CLIENT ID</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.clientId || 'Not provided'}
-														</ParameterValue>
-													</div>
-													<div>
-														<ParameterLabel>CLIENT SECRET</ParameterLabel>
-														<div style={{ position: 'relative' }}>
-															<ParameterValue
-																style={{
-																	fontFamily: 'monospace',
-																	wordBreak: 'break-all',
-																	padding: '0.75rem',
-																	paddingRight: '2.5rem',
-																	background: '#f8fafc',
-																	border: '1px solid #e2e8f0',
-																	borderRadius: '0.375rem',
-																}}
-															>
-																{credentials.clientSecret
-																	? showSavedSecret
-																		? credentials.clientSecret
-																		: '•'.repeat(credentials.clientSecret.length)
-																	: 'Not provided'}
-															</ParameterValue>
-															{credentials.clientSecret && (
-																<button
-																	type="button"
-																	onClick={() => setShowSavedSecret(!showSavedSecret)}
-																	style={{
-																		position: 'absolute',
-																		right: '0.75rem',
-																		top: '50%',
-																		transform: 'translateY(-50%)',
-																		background: 'none',
-																		border: 'none',
-																		cursor: 'pointer',
-																		color: '#6b7280',
-																		display: 'flex',
-																		alignItems: 'center',
-																		justifyContent: 'center',
-																	}}
-																	title={
-																		showSavedSecret ? 'Hide client secret' : 'Show client secret'
-																	}
-																>
-																	{showSavedSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-																</button>
-															)}
-														</div>
-													</div>
-													<div>
-														<ParameterLabel>REDIRECT URI</ParameterLabel>
-														<ParameterValue
-															style={{
-																fontFamily: 'monospace',
-																wordBreak: 'break-all',
-																padding: '0.75rem',
-																background: '#f8fafc',
-																border: '1px solid #e2e8f0',
-																borderRadius: '0.375rem',
-															}}
-														>
-															{credentials.redirectUri || 'Not provided'}
-														</ParameterValue>
-													</div>
-												</ParameterGrid>
-											</GeneratedContentBox>
-										) : (
-											<HelperText>
-												Save your configuration above to persist it for future sessions.
-											</HelperText>
-										)}
-									</ResultsSection>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+					<EnhancedFlowInfoCard flowId="oauth-authorization-code" />
 					</>
 				);
-
 			case 1:
 				return (
 					<>
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceOverview')}
-								aria-expanded={!collapsedSections.pkceOverview}
-							>
-								<CollapsibleTitle>
-									<FiShield /> What is PKCE?
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<GreenHeaderButton
+							onClick={() => toggleSection('pkceOverview')}
+							aria-expanded={!collapsedSections.pkceOverview}
+						>
+							<CollapsibleTitle>
+								<FiBook /> What is PKCE?
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</GreenHeaderButton>
 							{!collapsedSections.pkceOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -1771,17 +1831,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceDetails')}
-								aria-expanded={!collapsedSections.pkceDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Understanding Code Verifier & Code Challenge
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<YellowHeaderButton
+							onClick={() => toggleSection('pkceDetails')}
+							aria-expanded={!collapsedSections.pkceDetails}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Understanding Code Verifier & Code Challenge
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</YellowHeaderButton>
 							{!collapsedSections.pkceDetails && (
 								<CollapsibleContent>
 									<ParameterGrid>
@@ -1875,17 +1935,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authRequestOverview')}
-								aria-expanded={!collapsedSections.authRequestOverview}
-							>
-								<CollapsibleTitle>
-									<FiGlobe /> Understanding Authorization Requests
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<GreenHeaderButton
+							onClick={() => toggleSection('authRequestOverview')}
+							aria-expanded={!collapsedSections.authRequestOverview}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Understanding Authorization Requests
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</GreenHeaderButton>
 							{!collapsedSections.authRequestOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -1929,17 +1989,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authRequestDetails')}
-								aria-expanded={!collapsedSections.authRequestDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Authorization URL Parameters Deep Dive
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<YellowHeaderButton
+							onClick={() => toggleSection('authRequestDetails')}
+							aria-expanded={!collapsedSections.authRequestDetails}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Authorization URL Parameters Deep Dive
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</YellowHeaderButton>
 							{!collapsedSections.authRequestDetails && (
 								<CollapsibleContent>
 									<ParameterGrid>
@@ -2122,17 +2182,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authResponseOverview')}
-								aria-expanded={!collapsedSections.authResponseOverview}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Authorization Response Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<GreenHeaderButton
+							onClick={() => toggleSection('authResponseOverview')}
+							aria-expanded={!collapsedSections.authResponseOverview}
+						>
+							<CollapsibleTitle>
+								<FiCheckCircle /> Authorization Response Overview
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</GreenHeaderButton>
 							{!collapsedSections.authResponseOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
@@ -2150,17 +2210,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authResponseDetails')}
-								aria-expanded={!collapsedSections.authResponseDetails}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Authorization Code Details
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<HighlightHeaderButton
+							onClick={() => toggleSection('authResponseDetails')}
+							aria-expanded={!collapsedSections.authResponseDetails}
+						>
+							<CollapsibleTitle>
+								<FiPackage /> Authorization Code Details
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</HighlightHeaderButton>
 							{!collapsedSections.authResponseDetails && (
 								<CollapsibleContent>
 									<ResultsSection>
@@ -2262,17 +2322,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenExchangeOverview')}
-								aria-expanded={!collapsedSections.tokenExchangeOverview}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Token Exchange Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<GreenHeaderButton
+							onClick={() => toggleSection('tokenExchangeOverview')}
+							aria-expanded={!collapsedSections.tokenExchangeOverview}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Token Exchange Overview
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</GreenHeaderButton>
 							{!collapsedSections.tokenExchangeOverview && (
 								<CollapsibleContent>
 									<ExplanationSection>
@@ -2289,17 +2349,17 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenExchangeDetails')}
-								aria-expanded={!collapsedSections.tokenExchangeDetails}
-							>
-								<CollapsibleTitle>
-									<FiRefreshCw /> Token Exchange Details
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
+						<BlueHeaderButton
+							onClick={() => toggleSection('tokenExchangeDetails')}
+							aria-expanded={!collapsedSections.tokenExchangeDetails}
+						>
+							<CollapsibleTitle>
+								<FiSend /> Token Exchange Details
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</BlueHeaderButton>
 							{!collapsedSections.tokenExchangeDetails && (
 								<CollapsibleContent>
 									{/* Display Authorization Code if available */}
@@ -2356,15 +2416,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										/>
 									)}
 
-									{UnifiedTokenDisplayService.showTokens(
-										tokens,
-										'oauth',
-										'oauth-authorization-code-v6',
-										{
-											showCopyButtons: true,
-											showDecodeButtons: true,
-										}
-									)}
+								{UnifiedTokenDisplayService.showTokens(
+									controller.tokens,
+									'oauth',
+									'oauth-authorization-code-v6',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+									}
+								)}
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -2430,49 +2490,25 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					</>
 				);
 
-			case 6:
-				return (
-					<>
-						<TokenIntrospect
-						flowName="OAuth 2.0 Authorization Code Flow"
-						flowVersion="V6"
-							tokens={controller.tokens as unknown as Record<string, unknown>}
-							credentials={controller.credentials as unknown as Record<string, unknown>}
-							onResetFlow={handleResetFlow}
-							onNavigateToTokenManagement={navigateToTokenManagement}
-							onIntrospectToken={handleIntrospectToken}
-							collapsedSections={{
-								completionOverview: collapsedSections.completionOverview,
-								completionDetails: collapsedSections.completionDetails,
-								introspectionDetails: collapsedSections.introspectionDetails,
-								rawJson: false,
-							}}
-							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
-									toggleSection(section as IntroSectionKey);
-								}
-							}}
-							completionMessage="Nice work! You successfully completed the OAuth 2.0 Authorization Code Flow with PKCE using reusable V5 components."
-							nextSteps={[
-								'Inspect or decode tokens using the Token Management tools.',
-								'Note: No UserInfo endpoint in OAuth (use OIDC for user identity).',
-								'Repeat the flow with different scopes or redirect URIs.',
-								'Explore refresh tokens and introspection flows.',
-							]}
-						/>
+		case 6:
+			return (
+				<SecurityFeaturesDemo
+					tokens={controller.tokens as unknown as Record<string, unknown> | null}
+					credentials={controller.credentials as unknown as Record<string, unknown>}
+					onTerminateSession={() => {
+						console.log('🚪 Session terminated via SecurityFeaturesDemo');
+						v4ToastManager.showSuccess('Session termination completed.');
+					}}
+					onRevokeTokens={() => {
+						console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+						v4ToastManager.showSuccess('Token revocation completed.');
+					}}
+				/>
+			);
 
-					{/* API Call Display for Token Introspection */}
-					{introspectionApiCall && (
-						<EnhancedApiCallDisplay
-							apiCall={introspectionApiCall}
-							options={{
-								showEducationalNotes: true,
-								showFlowContext: true,
-								urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
-							}}
-						/>
-					)}
-
+		case 7:
+			return (
+				<>
 					{/* Professional Flow Completion */}
 					<FlowCompletionService
 						config={{
@@ -2496,22 +2532,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					/>
 				</>
 			);
-
-			case 7:
-				return (
-					<SecurityFeaturesDemo
-						tokens={controller.tokens as unknown as Record<string, unknown> | null}
-						credentials={controller.credentials as unknown as Record<string, unknown>}
-						onTerminateSession={() => {
-							console.log('🚪 Session terminated via SecurityFeaturesDemo');
-							v4ToastManager.showSuccess('Session termination completed.');
-						}}
-						onRevokeTokens={() => {
-							console.log('❌ Tokens revoked via SecurityFeaturesDemo');
-							v4ToastManager.showSuccess('Token revocation completed.');
-						}}
-					/>
-				);
 
 			default:
 				return null;
@@ -2558,6 +2578,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		introspectionApiCall,
 		tokenExchangeApiCall,
 		userInfoApiCall,
+		shouldDisplayTokens,
 	]);
 
 	return (
@@ -2620,25 +2641,29 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-			{AuthenticationModalService.showModal(
-				showRedirectModal,
-				() => setShowRedirectModal(false),
-				() => {
-					console.log('🔧 [OAuthAuthorizationCodeFlowV6] Continuing to PingOne authentication');
-					setShowRedirectModal(false);
-					// The controller will handle the actual redirect
-					if (controller.authUrl) {
-						window.open(controller.authUrl, 'PingOneAuth', 'width=600,height=700,left=' + (window.screen.width / 2 - 300) + ',top=' + (window.screen.height / 2 - 350) + ',resizable=yes,scrollbars=yes,status=yes');
-					}
-				},
-				controller.authUrl || '',
-				'oauth',
-				'OAuth 2.0 Authorization Code',
-				{
-					description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authorization. This will open in a new popup window for secure authentication.',
-					redirectMode: 'popup'
+		{AuthenticationModalService.showModal(
+			showRedirectModal,
+			() => {
+				console.log('🔧 [OAuthAuthorizationCodeFlowV6] Modal cancelled by user');
+				setShowRedirectModal(false);
+			},
+			() => {
+				console.log('🔧 [OAuthAuthorizationCodeFlowV6] User confirmed - continuing to PingOne authentication');
+				setShowRedirectModal(false);
+				controller.handleRedirectAuthorization();
+				// Open in new window (redirect mode)
+				if (controller.authUrl) {
+					window.location.href = controller.authUrl;
 				}
-			)}
+			},
+			controller.authUrl || '',
+			'oauth',
+			'OAuth 2.0 Authorization Code',
+			{
+				description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authorization. The page will redirect to PingOne for secure authentication.',
+				redirectMode: 'redirect'
+			}
+		)}
 
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
