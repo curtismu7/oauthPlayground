@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
 	FiCheckCircle,
 	FiChevronDown,
@@ -7,9 +7,21 @@ import {
 	FiEye,
 	FiUser,
 } from 'react-icons/fi';
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+
+// Keyframes for animations
+const pulse = keyframes`
+	0%, 100% {
+		opacity: 1;
+		transform: scale(1);
+	}
+	50% {
+		opacity: 0.8;
+		transform: scale(1.05);
+	}
+`;
 
 // Styled Components
 const CollapsibleSection = styled.div`
@@ -211,9 +223,11 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 }) => {
 	const { primaryColor, secondaryColor } = useUISettings();
 	const [collapsedSections, setCollapsedSections] = useState({
-		userInfoOverview: false,
-		userInfoDetails: false,
+		userInfoOverview: true, // Start collapsed
+		userInfoDetails: false, // Keep expanded for visibility
 	});
+	const [isLoading, setIsLoading] = useState(false);
+	const [justFetched, setJustFetched] = useState(false);
 
 	const toggleSection = useCallback((section: keyof typeof collapsedSections) => {
 		setCollapsedSections((prev) => ({
@@ -279,6 +293,32 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 
 	const flowText = getFlowSpecificText();
 
+	// Watch for userInfo changes to show success feedback
+	useEffect(() => {
+		if (userInfo) {
+			setJustFetched(true);
+			const timer = setTimeout(() => setJustFetched(false), 5000);
+			return () => clearTimeout(timer);
+		}
+	}, [userInfo]);
+
+	const handleFetchUserInfo = useCallback(async () => {
+		setIsLoading(true);
+		setJustFetched(false);
+		try {
+			await onFetchUserInfo();
+			v4ToastManager.showSuccess('✓ User information fetched successfully!', {
+				description: 'Check the UserInfo Response section below'
+			});
+			// Auto-collapse overview to focus on results
+			setCollapsedSections(prev => ({ ...prev, userInfoOverview: true }));
+		} catch (error) {
+			v4ToastManager.showError('Failed to fetch user information');
+		} finally {
+			setIsLoading(false);
+		}
+	}, [onFetchUserInfo]);
+
 	return (
 		<>
 			<CollapsibleSection>
@@ -321,31 +361,58 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 					<CollapsibleContent>
 						<ActionRow style={{ justifyContent: 'center' }}>
 							<HighlightedActionButton
-								onClick={onFetchUserInfo}
+								onClick={handleFetchUserInfo}
 								$priority="primary"
-								disabled={!hasAccessToken}
+								disabled={!hasAccessToken || isLoading}
 								style={{
 									backgroundColor: primaryColor,
 									borderColor: primaryColor,
 								}}
 							>
-								<FiEye /> {flowText.buttonText}
+								<FiEye /> {isLoading ? 'Fetching...' : flowText.buttonText}
 							</HighlightedActionButton>
 						</ActionRow>
 
 						<SectionDivider />
 
 						<ResultsSection>
-							<ResultsHeading>
-								<FiCheckCircle size={18} /> UserInfo Response
+							<ResultsHeading style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+								<span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+									<FiCheckCircle size={18} /> UserInfo Response
+								</span>
+								{justFetched && (
+									<span style={{
+										marginLeft: '0.75rem',
+										padding: '0.375rem 1rem',
+										background: '#10b981',
+										color: 'white',
+										fontSize: '0.75rem',
+										borderRadius: '9999px',
+										fontWeight: '700',
+										animation: `${pulse} 2s ease-in-out infinite`,
+										boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
+									}}>
+										✓ JUST FETCHED!
+									</span>
+								)}
 							</ResultsHeading>
 							<HelperText>
-								Copy the claims or open the token management tools for deeper inspection.
+								{userInfo ? 
+									'User information successfully retrieved. Copy the claims or open token management tools for deeper inspection.' :
+									'Click "Fetch User Info" above to retrieve user information from PingOne.'
+								}
 							</HelperText>
 							{userInfo ? (
-								<GeneratedContentBox>
-									<GeneratedLabel style={{ backgroundColor: primaryColor }}>
-										User Info
+								<GeneratedContentBox style={{
+									border: justFetched ? '2px solid #10b981' : undefined,
+									boxShadow: justFetched ? '0 0 0 3px rgba(16, 185, 129, 0.1)' : undefined,
+									transition: 'all 0.3s ease'
+								}}>
+									<GeneratedLabel style={{ 
+										backgroundColor: justFetched ? '#10b981' : primaryColor,
+										transition: 'background-color 0.3s ease'
+									}}>
+										✓ User Info Successfully Fetched
 									</GeneratedLabel>
 									<CodeBlock>{JSON.stringify(userInfo, null, 2)}</CodeBlock>
 									<ActionRow>

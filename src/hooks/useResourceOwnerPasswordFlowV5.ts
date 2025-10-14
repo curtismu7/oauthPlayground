@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { credentialManager } from '../utils/credentialManager';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { safeSessionStorageParse } from '../utils/secureJson';
 
 export interface ResourceOwnerPasswordCredentials {
 	environmentId: string;
@@ -425,23 +426,23 @@ export const useResourceOwnerPasswordFlowV5 = ({
 	useEffect(() => {
 		const loadCredentials = async () => {
 			try {
-				// First try to load from sessionStorage (Resource Owner Password specific)
-				const sessionCredentials = sessionStorage.getItem('resource-owner-password-v5-credentials');
-				if (sessionCredentials) {
-					const parsed = JSON.parse(sessionCredentials);
-					if (parsed.environmentId && parsed.clientId) {
-						setCredentials(parsed);
-						setHasCredentialsSaved(true);
-						if (enableDebugger) {
-							console.log(
-								'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage'
-							);
-						}
-						return;
-					}
+			// First try to load from sessionStorage (Resource Owner Password specific)
+			const parsed = safeSessionStorageParse<ResourceOwnerPasswordCredentials>(
+				'resource-owner-password-v5-credentials',
+				null
+			);
+			if (parsed?.environmentId && parsed.clientId) {
+				setCredentials(parsed);
+				setHasCredentialsSaved(true);
+				if (enableDebugger) {
+					console.log(
+						'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from sessionStorage'
+					);
 				}
+				return;
+			}
 
-				// Fallback to loading from credentialManager
+			// Fallback to loading from credentialManager
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
 				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
 					// Safely handle scopes - check if it's an array before calling join
