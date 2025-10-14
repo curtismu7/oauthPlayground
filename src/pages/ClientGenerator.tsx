@@ -8,6 +8,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialsInput } from '../components/CredentialsInput';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -337,6 +338,7 @@ const ClientGenerator: React.FC = () => {
 	});
 	const [isGettingToken, setIsGettingToken] = useState(false);
 	const [tokenError, setTokenError] = useState<string | null>(null);
+	const [showAppGenerator, setShowAppGenerator] = useState(false);
 
 	const [selectedAppType, setSelectedAppType] = useState<AppType | null>(null);
 	const [isCreating, setIsCreating] = useState(false);
@@ -781,7 +783,7 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 
 	return (
 		<Container>
-			<FlowHeader flowId="client-generator" />
+			<FlowHeader flowId="configuration" />
 
 			<Header>
 				<Title>PingOne Client Generator</Title>
