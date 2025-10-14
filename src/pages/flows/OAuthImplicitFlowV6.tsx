@@ -1,5 +1,5 @@
 // src/pages/flows/OAuthImplicitFlowV6.tsx
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
 	FiAlertCircle,
@@ -234,9 +234,42 @@ const OAuthImplicitFlowV6: React.FC = () => {
 	const { showApiCallExamples } = settings;
 
 	// State declarations FIRST (before any useEffect that uses them)
-	const [currentStep, setCurrentStep] = useState(
-		implicitFlowState.currentStep || ImplicitFlowSharedService.StepRestoration.getInitialStep
-	);
+	const [currentStep, setCurrentStep] = useState(0);
+	const initialStepAppliedRef = useRef(false);
+	const initialStepRef = useRef(0);
+
+	useEffect(() => {
+		if (initialStepAppliedRef.current) {
+			return;
+		}
+
+		const stateStep = implicitFlowState.currentStep;
+		const initialStep =
+			typeof stateStep === 'number' && stateStep > 0
+				? stateStep
+				: ImplicitFlowSharedService.StepRestoration.getInitialStep();
+
+		initialStepRef.current = initialStep;
+		setCurrentStep(initialStep);
+		initialStepAppliedRef.current = true;
+	}, [implicitFlowState.currentStep]);
+
+	useEffect(() => {
+		if (initialStepRef.current < 2) {
+			return;
+		}
+
+		const hasTokenFragment = typeof window !== 'undefined' && window.location.hash?.includes('access_token');
+		if (!implicitFlowState.tokens && !hasTokenFragment) {
+			initialStepRef.current = 0;
+			setCurrentStep(0);
+			try {
+				sessionStorage.removeItem('restore_step');
+			} catch (error) {
+				console.warn('[OAuthImplicitFlowV6] Failed to clear restore_step from sessionStorage', error);
+			}
+		}
+	}, [implicitFlowState.tokens]);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
 		null
@@ -257,8 +290,11 @@ const OAuthImplicitFlowV6: React.FC = () => {
 
 	// All useEffect hooks AFTER state declarations
 	useEffect(() => {
-		// Sync current step with compliant flow state
-		if (implicitFlowState.currentStep !== currentStep) {
+		// Sync current step with compliant flow state when provided
+		if (
+			typeof implicitFlowState.currentStep === 'number' &&
+			implicitFlowState.currentStep !== currentStep
+		) {
 			setCurrentStep(implicitFlowState.currentStep);
 		}
 	}, [implicitFlowState.currentStep, currentStep]);
@@ -489,7 +525,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 
 	const handleResetFlow = useCallback(() => {
 		implicitFlowActions.resetFlow();
-		setCurrentStep(1);
+		setCurrentStep(0);
 	}, [implicitFlowActions]);
 
 	// Centralized error handler for consistent error processing
@@ -552,7 +588,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 			case 'auth':
 				// Clear authorization state and retry
 				implicitFlowActions.resetFlow();
-				setCurrentStep(1);
+				setCurrentStep(0);
 				v4ToastManager.showInfo('Authorization state cleared. You can try generating a new authorization URL.');
 				break;
 			case 'token':
@@ -561,7 +597,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 					handleProcessTokens();
 				} else {
 					v4ToastManager.showWarning('No tokens found in URL fragment. Please complete the authorization flow again.');
-					setCurrentStep(1);
+					setCurrentStep(0);
 				}
 				break;
 			case 'network':

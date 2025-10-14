@@ -4,7 +4,7 @@
 // Purpose: Provides better organized, step-by-step tutorial experiences
 
 import React, { useState, useCallback } from 'react';
-import Joyride, { CallBackProps, STATUS, EVENTS, Step } from 'react-joyride';
+import Joyride, { CallBackProps, STATUS, Step as JoyrideStep, ACTIONS, EVENTS } from 'react-joyride';
 import styled from 'styled-components';
 
 export interface TutorialStep {

@@ -60,6 +60,8 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	jwksUrl: '',
 	jwks: '',
 	requirePushedAuthorizationRequest: true, // PAR is REQUIRED for this flow
+	enableDPoP: false,
+	dpopAlgorithm: 'ES256',
 	additionalRefreshTokenReplayProtection: false,
 	includeX5tParameter: false,
 	oidcSessionManagement: false,

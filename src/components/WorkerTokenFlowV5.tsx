@@ -817,7 +817,11 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								showEnvironmentIdInput={false}
 							/>
 
-							<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
+							<PingOneApplicationConfig 
+								value={pingOneConfig} 
+								onChange={savePingOneConfig}
+								flowType="worker-token-v5"
+							/>
 						</ResultsSection>
 					</>
 				);
