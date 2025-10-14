@@ -958,9 +958,9 @@ const ClientGenerator: React.FC = () => {
 							</pre>
 						</div>
 
-						{/* Request Body */}
+						{/* Request Body - JSON Format */}
 						<div>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Request Body (URL-encoded):</div>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Request Body (as JSON for readability):</div>
 							<pre style={{ 
 								background: '#1e293b', 
 								color: '#e2e8f0', 
@@ -971,11 +971,20 @@ const ClientGenerator: React.FC = () => {
 								lineHeight: '1.6',
 								fontFamily: 'Monaco, Menlo, monospace'
 							}}>
-								{workerTokenRequest.body.split('&').map(param => {
-									const [key, value] = param.split('=');
-									return `${key}=${key.includes('secret') ? '[REDACTED]' : decodeURIComponent(value)}`;
-								}).join('\n')}
+								{JSON.stringify(
+									Object.fromEntries(
+										workerTokenRequest.body.split('&').map(param => {
+											const [key, value] = param.split('=');
+											return [key, key.includes('secret') ? '[REDACTED]' : decodeURIComponent(value)];
+										})
+									),
+									null,
+									2
+								)}
 							</pre>
+							<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
+								Note: Actual request uses <code style={{ background: 'white', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>application/x-www-form-urlencoded</code> format, but JSON is shown for clarity.
+							</div>
 						</div>
 					</div>
 				</div>
