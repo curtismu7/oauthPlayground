@@ -52,6 +52,7 @@ import { AuthenticationModalService } from '../../services/authenticationModalSe
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
@@ -847,7 +848,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		const authCode = urlParams.get('code');
 		const error = urlParams.get('error');
 		const urlStep = urlParams.get('step');
-		const storedStep = sessionStorage.getItem('oauth-authorization-code-v5-current-step');
+		const storedStep = sessionStorage.getItem('oauth-authorization-code-v6-current-step');
 
 		// Also check sessionStorage for auth code (from OAuth callback)
 		const sessionAuthCode = sessionStorage.getItem('oauth_auth_code');
@@ -869,7 +870,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			// Clear URL parameters and reset to step 0
 			window.history.replaceState({}, '', window.location.pathname);
 			setCurrentStep(0);
-			sessionStorage.setItem('oauth-authorization-code-v5-current-step', '0');
+			sessionStorage.setItem('oauth-authorization-code-v6-current-step', '0');
 			return;
 		}
 
@@ -889,7 +890,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
 			// Navigate to step 4 and persist it
 			setCurrentStep(4);
-			sessionStorage.setItem('oauth-authorization-code-v5-current-step', '4');
+			sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
 			// Clear URL parameters and sessionStorage
 			window.history.replaceState({}, '', window.location.pathname);
 			sessionStorage.removeItem('oauth_auth_code');
@@ -902,7 +903,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
 				console.log('🎯 [AuthorizationCodeFlowV5] Using URL step parameter:', stepIndex);
 				setCurrentStep(stepIndex);
-				sessionStorage.setItem('oauth-authorization-code-v5-current-step', stepIndex.toString());
+				sessionStorage.setItem('oauth-authorization-code-v6-current-step', stepIndex.toString());
 				return;
 			}
 		}
@@ -920,7 +921,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		// Default to step 0 for fresh start - PRIORITY 4
 		console.log('🔄 [AuthorizationCodeFlowV5] Fresh start - going to step 0');
 		setCurrentStep(0);
-		sessionStorage.setItem('oauth-authorization-code-v5-current-step', '0');
+		sessionStorage.setItem('oauth-authorization-code-v6-current-step', '0');
 	}, [
 		// Also set it in the controller
 		controller.setAuthCodeManually,
@@ -928,7 +929,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 	// Persist current step to session storage
 	useEffect(() => {
-		sessionStorage.setItem('oauth-authorization-code-v5-current-step', currentStep.toString());
+		sessionStorage.setItem('oauth-authorization-code-v6-current-step', currentStep.toString());
 	}, [currentStep]);
 
 	// Additional auth code detection for controller updates (backup)
@@ -946,7 +947,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 			// Navigate to the next step (Token Exchange) and persist it
 			setCurrentStep(4); // Step 4 is Token Exchange
-			sessionStorage.setItem('oauth-authorization-code-v5-current-step', '4');
+			sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
 		}
 	}, [controller.authCode, showLoginSuccessModal, localAuthCode]);
 
@@ -1636,12 +1637,13 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					<ComprehensiveCredentialsService
 									// Discovery props
 									onDiscoveryComplete={(result) => {
-										console.log('[OAuth Authz V5] Discovery completed:', result);
-										// Extract environment ID from issuer URL if available
+										console.log('[OAuth Authz V6] Discovery completed:', result);
+										// Extract environment ID from issuer URL using the standard service
 										if (result.issuerUrl) {
-											const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-											if (envIdMatch && envIdMatch[1]) {
-												handleFieldChange('environmentId', envIdMatch[1]);
+											const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
+											if (extractedEnvId) {
+												handleFieldChange('environmentId', extractedEnvId);
+												console.log('[OAuth Authz V6] Auto-extracted Environment ID:', extractedEnvId);
 											}
 										}
 									}}
@@ -2675,14 +2677,14 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					console.log('🔴 [AuthorizationCodeFlowV5] Closing LoginSuccessModal', {
 						currentStep,
 						hasAuthCode: !!(controller.authCode || localAuthCode),
-						storedStep: sessionStorage.getItem('oauth-authorization-code-v5-current-step'),
+						storedStep: sessionStorage.getItem('oauth-authorization-code-v6-current-step'),
 					});
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
 						console.log('🔧 [AuthorizationCodeFlowV5] Correcting step to 4 after modal close');
 						setCurrentStep(4);
-						sessionStorage.setItem('oauth-authorization-code-v5-current-step', '4');
+						sessionStorage.setItem('oauth-authorization-code-v6-current-step', '4');
 					}
 				}}
 				title="Login Successful!"

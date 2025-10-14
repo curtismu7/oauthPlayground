@@ -1,5 +1,5 @@
 // src/pages/flows/OIDCImplicitFlowV5_Full.tsx
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import {
 	FiAlertCircle,
@@ -218,10 +218,36 @@ const OIDCImplicitFlowV6: React.FC = () => {
 	const { settings } = useUISettings();
 	const { showApiCallExamples } = settings;
 
-	// State declarations FIRST (before any useEffect that uses them)
-	const [currentStep, setCurrentStep] = useState(
-		ImplicitFlowSharedService.StepRestoration.getInitialStep
-	);
+	// Step navigation via FlowStateService
+	const [currentStep, setCurrentStep] = useState(0);
+	const initialStepAppliedRef = useRef(false);
+	const initialStepRef = useRef(0);
+
+	useEffect(() => {
+		if (initialStepAppliedRef.current) {
+			return;
+		}
+		const initialStep = ImplicitFlowSharedService.StepRestoration.getInitialStep();
+		initialStepRef.current = initialStep;
+		setCurrentStep(initialStep);
+		initialStepAppliedRef.current = true;
+	}, []);
+
+	useEffect(() => {
+		if (initialStepRef.current < 2) {
+			return;
+		}
+		const hasTokenFragment = typeof window !== 'undefined' && window.location.hash?.includes('access_token');
+		if (!controller.tokens && !hasTokenFragment) {
+			initialStepRef.current = 0;
+			setCurrentStep(0);
+			try {
+				sessionStorage.removeItem('restore_step');
+			} catch (error) {
+				console.warn('[OIDCImplicitFlowV6] Failed to clear restore_step from sessionStorage', error);
+			}
+		}
+	}, [controller.tokens]);
 	
 	// Collapse all sections by default for cleaner UI
 	const shouldCollapseAll = true;

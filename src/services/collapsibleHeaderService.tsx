@@ -1,7 +1,7 @@
 // src/services/collapsibleHeaderService.tsx
 // Service for consistent collapsible headers with blue background and white arrows
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 export interface CollapsibleHeaderConfig {
@@ -17,6 +17,8 @@ export interface CollapsibleHeaderConfig {
 export interface CollapsibleHeaderProps extends CollapsibleHeaderConfig {
   children: React.ReactNode;
   className?: string;
+  collapsed?: boolean;
+  onToggle?: (collapsed: boolean) => void;
 }
 
 // Arrow icon component with the requested styling
@@ -296,12 +298,27 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
   variant = 'default',
   theme = 'blue',
   children,
-  className
+  className,
+  collapsed,
+  onToggle
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+  const isControlled = typeof collapsed === 'boolean';
+  const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
+
+  useEffect(() => {
+    if (!isControlled) {
+      setInternalCollapsed(defaultCollapsed);
+    }
+  }, [defaultCollapsed, isControlled]);
+
+  const resolvedCollapsed = isControlled ? collapsed : internalCollapsed;
 
   const toggleCollapsed = () => {
-    setIsCollapsed(!isCollapsed);
+    const next = !resolvedCollapsed;
+    if (!isControlled) {
+      setInternalCollapsed(next);
+    }
+    onToggle?.(next);
   };
 
   return (
@@ -310,7 +327,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
         $variant={variant}
         $theme={theme}
         onClick={toggleCollapsed}
-        aria-expanded={!isCollapsed}
+        aria-expanded={!resolvedCollapsed}
         aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
       >
         <HeaderContent>
@@ -321,13 +338,13 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
           </HeaderText>
         </HeaderContent>
         {showArrow && (
-          <ArrowIcon $collapsed={isCollapsed}>
-            <DefaultArrowIcon collapsed={isCollapsed} />
+          <ArrowIcon $collapsed={resolvedCollapsed}>
+            <DefaultArrowIcon collapsed={resolvedCollapsed} />
           </ArrowIcon>
         )}
       </HeaderButton>
       <ContentArea
-        $collapsed={isCollapsed}
+        $collapsed={resolvedCollapsed}
         $variant={variant}
         id={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
         aria-labelledby={`header-${title?.replace(/\s+/g, '-').toLowerCase()}`}

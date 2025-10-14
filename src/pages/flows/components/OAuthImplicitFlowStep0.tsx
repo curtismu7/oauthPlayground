@@ -192,7 +192,11 @@ export const OAuthImplicitFlowStep0: React.FC<Step0Props> = ({
 							showClientSecret={false}
 						/>
 
-						<PingOneApplicationConfig value={pingOneConfig} onChange={savePingOneConfig} />
+						<PingOneApplicationConfig 
+							value={pingOneConfig} 
+							onChange={savePingOneConfig}
+							flowType="oauth-implicit"
+						/>
 
 						<ActionRow>
 							<Button onClick={handleSaveConfiguration} $variant="primary">
