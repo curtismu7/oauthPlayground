@@ -1,6 +1,6 @@
 // src/pages/ClientGenerator.tsx
 import React, { useState, useEffect, useCallback } from 'react';
-import { FiKey, FiCheckCircle, FiSettings, FiX, FiCode, FiArrowRight, FiEyeOff, FiEye, FiGlobe, FiServer, FiSmartphone, FiLoader } from 'react-icons/fi';
+import { FiKey, FiCheckCircle, FiSettings, FiX, FiCode, FiArrowRight, FiEyeOff, FiEye, FiGlobe, FiServer, FiSmartphone, FiLoader, FiRotateCcw } from 'react-icons/fi';
 import styled from 'styled-components';
 import { pingOneAppCreationService, AppType, AppCreationResult } from '../services/pingOneAppCreationService';
 import TokenDisplayService from '../services/tokenDisplayService';
@@ -914,10 +914,17 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 									setWorkerToken(null);
 									setTokenError(null);
 									setWorkerTokenRequest(null);
+									setTokenDecodeStates({});
+									setShowAppGenerator(false);
+									setSelectedAppType(null);
+									setCreationResult(null);
+									setLastApiUrl('');
+									setLastRequestBody('');
+									v4ToastManager.showSuccess('Started over - enter new credentials');
 								}}
 								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 							>
-								<FiSettings /> Change Credentials
+								<FiRotateCcw /> Start Over
 							</Button>
 						</div>
 					</SuccessMessage>
