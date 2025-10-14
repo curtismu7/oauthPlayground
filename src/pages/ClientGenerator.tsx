@@ -1,7 +1,7 @@
 // src/pages/ClientGenerator.tsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiKey, FiCheckCircle, FiSettings, FiX, FiArrowRight, FiEyeOff, FiEye, FiRotateCcw } from 'react-icons/fi';
+import { FiKey, FiCheckCircle, FiSettings, FiX, FiArrowRight, FiEyeOff, FiEye, FiRotateCcw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import TokenDisplayService from '../services/tokenDisplayService';
 import { usePageScroll } from '../hooks/usePageScroll';
