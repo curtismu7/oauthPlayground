@@ -1,13 +1,13 @@
 {
 	"name": "pingone-oauth-playground",
-	"version": "6.1.1",
+	"version": "6.1.2",
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
 	"main": "src/main.tsx",
 	"type": "module",
 	"scripts": {
 		"start": "./start-full-stack.sh",
 		"start:frontend": "vite",
-		"start:backend": "BACKEND_PORT=3001 node --input-type=module server.js",
+		"start:backend": "BACKEND_PORT=3001 node server.js",
 		"start:interactive": "./start-interactive.sh",
 		"start:dev": "./start-dev.sh",
 		"test:all": "npm run test:backend && npm run test && npm run test:e2e",
@@ -27,12 +27,14 @@
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",
+		"test:puppeteer": "node tests/puppeteer/sidebar-menu.test.js",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:report": "playwright show-report",
-		"test:backend": "node --experimental-vm-modules ./node_modules/.bin/jest --config jest.config.mjs --coverage --coverageDirectory=coverage/backend"
+		"service-discovery": "node src/services/serviceDiscoveryCLI.js",
+		"config": "node src/services/configurationManagerDemo.js"
 	},
 	"keywords": [
 		"oauth",
