@@ -230,6 +230,10 @@ export class PingOneAppCreationService {
 	 * Generic app creation method
 	 */
 	private async createApp(appData: any): Promise<AppCreationResult> {
+		// Ensure protocol is always set
+		if (!appData.protocol) {
+			appData.protocol = 'OPENID_CONNECT';
+		}
 		if (!this.client) {
 			const error = 'Service not initialized. Call initialize() first.';
 			logger.error('APP-CREATION', error);
@@ -240,10 +244,12 @@ export class PingOneAppCreationService {
 			logger.info('APP-CREATION', 'Creating application', {
 				name: appData.name,
 				type: appData.type,
+				protocol: appData.protocol,
 			});
 
 			// Log the full request payload for debugging
 			console.log('[APP-CREATION] Request payload:', JSON.stringify(appData, null, 2));
+			console.log('[APP-CREATION] Protocol field:', appData.protocol);
 
 			const createdApp = await makeApiRequest<CreatedApp>(this.client, '/applications', {
 				method: 'POST',
