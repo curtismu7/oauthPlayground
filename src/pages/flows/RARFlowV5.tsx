@@ -19,7 +19,6 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -580,22 +579,26 @@ export const RARFlowV6: React.FC = () => {
 		trackOAuthFlow('rar-v5', true, 'started');
 	}, []);
 
-	// Save credentials to localStorage whenever they change
+	// Save credentials to localStorage whenever they change (debounced)
 	useEffect(() => {
-		try {
-			localStorage.setItem('rar-v5-credentials', JSON.stringify(credentials));
-			console.log('💾 [RAR-V5] Credentials saved to localStorage:', {
-				environmentId: credentials.environmentId
-					? `${credentials.environmentId.substring(0, 8)}...`
-					: 'none',
-				clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
-				hasClientSecret: !!credentials.clientSecret,
-				redirectUri: credentials.redirectUri,
-				scopes: credentials.scopes,
-			});
-		} catch (error) {
-			console.warn('[RAR-V5] Failed to save credentials to localStorage:', error);
-		}
+		const debounceTimer = setTimeout(() => {
+			try {
+				localStorage.setItem('rar-v5-credentials', JSON.stringify(credentials));
+				console.log('💾 [RAR-V5] Credentials saved to localStorage:', {
+					environmentId: credentials.environmentId
+						? `${credentials.environmentId.substring(0, 8)}...`
+						: 'none',
+					clientId: credentials.clientId ? `${credentials.clientId.substring(0, 8)}...` : 'none',
+					hasClientSecret: !!credentials.clientSecret,
+					redirectUri: credentials.redirectUri,
+					scopes: credentials.scopes,
+				});
+			} catch (error) {
+				console.warn('[RAR-V5] Failed to save credentials to localStorage:', error);
+			}
+		}, 500); // Debounce by 500ms
+		
+		return () => clearTimeout(debounceTimer);
 	}, [credentials]);
 
 	// Save authorization details to localStorage whenever they change
