@@ -28,6 +28,7 @@ import {
 	type StepCredentials,
 } from '../../components/steps/CommonSteps';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { useUISettings } from '../../contexts/UISettingsContext';
 import { showGlobalError, showGlobalSuccess } from '../../hooks/useNotifications';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
@@ -1380,19 +1381,19 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 		}, 300000); // 5 minutes timeout
 	}, [authUrl, credentials.redirectUri, stepManager, flowType]);
 
+	// Get UI settings
+	const { settings: uiSettings } = useUISettings();
+
 	// Handle popup authorization (with optional modal)
 	const handlePopupAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) return;
 
-		// Check configuration setting for showing auth request modal (same key as Configuration screen)
-		const globalFlowConfigKey = 'enhanced-flow-authorization-code';
-		const globalFlowConfig = JSON.parse(localStorage.getItem(globalFlowConfigKey) || '{}');
-		const shouldShowModal = globalFlowConfig.showAuthRequestModal === true;
+		// Use UISettings context instead of reading localStorage directly
+		const shouldShowModal = uiSettings.showAuthRequestModal;
 
 		console.log(` [${flowType.toUpperCase()}-V3] Modal setting check:`, {
 			shouldShowModal,
-			globalFlowConfig,
-			localFlowConfig: flowConfig,
+			uiSettings: uiSettings.showAuthRequestModal,
 		});
 
 		// Show modal first if enabled in configuration
@@ -1409,7 +1410,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 		);
 		// Otherwise proceed directly
 		handlePopupAuthorizationDirect();
-	}, [authUrl, flowConfig, flowType, handlePopupAuthorizationDirect]);
+	}, [authUrl, flowType, handlePopupAuthorizationDirect, uiSettings.showAuthRequestModal]);
 
 	// Handle full redirect authorization (with optional modal)
 	const handleFullRedirectAuthorizationDirect = useCallback(() => {
@@ -1440,15 +1441,12 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 	const handleFullRedirectAuthorizationWithModal = useCallback(() => {
 		if (!authUrl) return;
 
-		// Check configuration setting for showing auth request modal (same key as Configuration screen)
-		const globalFlowConfigKey = 'enhanced-flow-authorization-code';
-		const globalFlowConfig = JSON.parse(localStorage.getItem(globalFlowConfigKey) || '{}');
-		const shouldShowModal = globalFlowConfig.showAuthRequestModal === true;
+		// Use UISettings context instead of reading localStorage directly
+		const shouldShowModal = uiSettings.showAuthRequestModal;
 
 		console.log(` [${flowType.toUpperCase()}-V3] Full redirect modal setting check:`, {
 			shouldShowModal,
-			globalFlowConfig,
-			localFlowConfig: flowConfig,
+			uiSettings: uiSettings.showAuthRequestModal,
 		});
 
 		// Show modal first if enabled in configuration
@@ -1465,7 +1463,7 @@ const UnifiedAuthorizationCodeFlowV3: React.FC<UnifiedFlowProps> = ({ flowType }
 		);
 		// Otherwise proceed directly
 		handleFullRedirectAuthorizationDirect();
-	}, [authUrl, flowConfig, flowType, handleFullRedirectAuthorizationDirect]);
+	}, [authUrl, flowType, handleFullRedirectAuthorizationDirect, uiSettings.showAuthRequestModal]);
 
 	// Exchange tokens
 	const exchangeTokens = useCallback(async () => {

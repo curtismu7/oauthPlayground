@@ -327,6 +327,7 @@ export interface FlowConfig {
 
 	// Advanced settings
 	audience: string;
+	resources?: string[]; // RFC 8707 resource indicators
 	maxAge: number;
 	prompt: string;
 	loginHint: string;

@@ -4,6 +4,7 @@ import React, { useCallback, useState } from 'react';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateMockTokens, generateMockUserInfo } from '../utils/mockOAuth';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { safeLocalStorageParse } from '../utils/secureJson';
 
 export interface MockCredentials {
 	environmentId: string;
@@ -281,15 +282,13 @@ export const useMockOIDCResourceOwnerPasswordController = ({
 
 	// Load saved credentials on mount
 	React.useEffect(() => {
-		const savedCredentials = localStorage.getItem(`${persistKey}-credentials`);
-		if (savedCredentials) {
-			try {
-				const parsed = JSON.parse(savedCredentials);
-				setCredentials(parsed);
-				setHasCredentialsSaved(true);
-			} catch (error) {
-				console.error('Failed to load saved credentials:', error);
-			}
+		const parsed = safeLocalStorageParse<MockCredentials>(
+			`${persistKey}-credentials`,
+			null
+		);
+		if (parsed) {
+			setCredentials(parsed);
+			setHasCredentialsSaved(true);
 		}
 	}, [persistKey]);
 

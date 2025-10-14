@@ -31,9 +31,9 @@ const HeaderContainer = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
 		}
 	}};
 	color: white;
-	padding: 2.5rem 4rem;
+	padding: 0.75rem 1.5rem;
 	border-radius: 12px;
-	margin-bottom: 2rem;
+	margin-bottom: 1.5rem;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 	position: relative;
 	overflow: hidden;
@@ -41,10 +41,10 @@ const HeaderContainer = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
 	flex-direction: column;
 	align-items: center;
 	text-align: center;
-	gap: 1rem;
+	gap: 0.5rem;
 
 	@media (max-width: 768px) {
-		padding: 2rem;
+		padding: 0.5rem 1rem;
 	}
 
   &::before {
@@ -71,7 +71,7 @@ const HeaderBadge = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem;
   border: 1px solid rgba(255, 255, 255, 0.3);
 `;
 
@@ -93,35 +93,35 @@ const StatusBadge = styled.span<{ $type: 'experimental' | 'deprecated' }>`
 `;
 
 const HeaderTitle = styled.h1`
-  font-size: 1.75rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin: 0 0 1rem 0;
+  margin: 0;
   line-height: 1.2;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
 `;
 
 const HeaderSubtitle = styled.p`
-  font-size: 1rem;
+  font-size: 0.9rem;
   margin: 0;
   opacity: 0.9;
-  line-height: 1.6;
+  line-height: 1.5;
   max-width: 800px;
 
   @media (max-width: 768px) {
-    font-size: 0.875rem;
+    font-size: 0.8rem;
   }
 `;
 
 const VersionDisplay = styled.div`
   text-align: center;
-  margin-top: 1.5rem;
-  padding-top: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 0.875rem;
+  font-size: 0.8rem;
   opacity: 0.8;
   font-weight: 500;
 `;
@@ -266,6 +266,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚙️',
 		version: 'V5',
 	},
+	'worker-token-v6': {
+		flowType: 'pingone',
+		title: 'Worker Token Flow V6 - Administrative API Access',
+		subtitle:
+			'🔑 PingOne Worker Application Token Flow - Service-based architecture for obtaining administrative access tokens. Designed for backend automation, management API access, and server-to-server authentication without user interaction. ✅ V6: Enhanced service architecture, comprehensive toast notifications, and improved error handling.',
+		icon: '🔑',
+		version: 'V6',
+	},
 	'pingone-par-v5': {
 		flowType: 'pingone',
 		title: 'PAR (Pushed Authorization Requests) Flow - Enhanced Security',
@@ -314,12 +322,21 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚡',
 		version: 'V6',
 	},
-	redirectless: {
+	'redirectless-v6': {
 		flowType: 'pingone',
-		title: 'Redirectless Flow - Educational Demo (Mock)',
+		title: 'Redirectless Flow V6 - PingOne Pi.Flow Authentication',
+		subtitle:
+			'🎯 PingOne proprietary response_mode=pi.flow for seamless authentication without browser redirects. Host PingOne authentication UI within your application and receive tokens via JSON response. Perfect for embedded authentication experiences.',
+		icon: '🎯',
+		version: 'V6',
+		isExperimental: false,
+	},
+	'redirectless-flow-mock': {
+		flowType: 'pingone',
+		title: 'Redirectless Flow V5 - Educational Demo (Mock)',
 		subtitle:
 			'🎓 Educational demonstration of PingOne redirectless authentication (response_mode=pi.flow). Learn how redirectless flows work without needing a real PingOne environment. Simulates Flow API interactions and token responses for learning purposes.',
-		icon: '🎯',
+		icon: '🎓',
 		version: 'V5',
 		isExperimental: true,
 	},
@@ -483,7 +500,8 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 	// Support both flowId (existing) and flowType (new page types)
 	const configKey = flowId || flowType;
 	const baseConfig = configKey ? FLOW_CONFIGS[configKey] : null;
-	const config = baseConfig ? { ...baseConfig, ...customConfig } : null;
+	// Always use customConfig if baseConfig doesn't exist, don't throw it away!
+	const config = baseConfig ? { ...baseConfig, ...customConfig } : customConfig || null;
 
 	if (!config) {
 		console.warn(`No configuration found for flow ID/type: ${configKey}`);
