@@ -947,7 +947,7 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 
 							{/* Token Response */}
 							<div style={{ marginBottom: '1rem' }}>
-								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Token Response:</div>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>OAuth 2.0 Token Response:</div>
 								<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
 									<pre style={{ 
 										background: '#1e293b', 
@@ -961,8 +961,13 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 										flex: 1,
 										margin: 0
 									}}>
-										{JSON.stringify({
-											access_token: TokenDisplayService.maskToken(workerToken, 4),
+										{tokenDecodeStates['worker-token-response'] ? JSON.stringify({
+											access_token: workerToken,
+											token_type: 'Bearer',
+											expires_in: 3600,
+											scope: 'openid p1:create:application p1:read:application p1:update:application'
+										}, null, 2) : JSON.stringify({
+											access_token: '[MASKED - Click decode to reveal]',
 											token_type: 'Bearer',
 											expires_in: 3600,
 											scope: 'openid p1:create:application p1:read:application p1:update:application'
@@ -980,42 +985,13 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 											alignItems: 'center',
 											justifyContent: 'center'
 										}}
-										title={tokenDecodeStates['worker-token-response'] ? 'Hide full token' : 'Show full token (not recommended)'}
+										title={tokenDecodeStates['worker-token-response'] ? 'Mask token' : 'Reveal full token'}
 									>
 										{tokenDecodeStates['worker-token-response'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
 									</button>
 								</div>
-								{tokenDecodeStates['worker-token-response'] && (
-									<div style={{ 
-										background: '#fef3c7', 
-										border: '1px solid #f59e0b', 
-										borderRadius: '0.5rem', 
-										padding: '1rem',
-										marginTop: '0.5rem'
-									}}>
-										<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>⚠️ Full Token Revealed:</div>
-										<pre style={{ 
-											background: '#1e293b', 
-											color: '#e2e8f0', 
-											padding: '1rem', 
-											borderRadius: '0.5rem', 
-											fontSize: '0.875rem',
-											lineHeight: '1.6',
-											fontFamily: 'Monaco, Menlo, monospace',
-											margin: 0,
-											overflowX: 'auto'
-										}}>
-											{JSON.stringify({
-												access_token: workerToken,
-												token_type: 'Bearer',
-												expires_in: 3600,
-												scope: 'openid p1:create:application p1:read:application p1:update:application'
-											}, null, 2)}
-										</pre>
-									</div>
-								)}
 								<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
-									<strong>Security:</strong> Token is masked by default. Only click decode for debugging purposes. The full token is securely stored for API authentication.
+									<strong>Security Note:</strong> Token is masked by default. Click the eye icon to reveal the full token value for debugging purposes.
 								</div>
 							</div>
 
