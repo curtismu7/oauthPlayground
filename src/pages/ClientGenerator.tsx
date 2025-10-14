@@ -1234,10 +1234,10 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 							fontWeight: 600
 						}}>
 							<FiKey size={20} />
-							Worker Token Request (OAuth 2.0 Client Credentials)
+							Worker Token Request (OAuth 2.0 Client Credentials) - Client Secret Post
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>
-							This shows how to obtain an access token using the Client Credentials grant type.
+							This shows how to obtain an access token using the Client Credentials grant type with Client Secret Post authentication (credentials sent in request body).
 						</div>
 
 						{/* Token Endpoint */}
