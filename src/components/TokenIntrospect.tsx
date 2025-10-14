@@ -548,7 +548,11 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 															fontWeight: 'bold',
 														}}
 													>
-														{introspectionResults.active ? '✅ Active' : '❌ Inactive'}
+														{introspectionResults.active 
+															? '✅ Active' 
+															: introspectionResults.exp && Date.now() >= introspectionResults.exp * 1000
+																? '❌ Expired'
+																: '❌ Inactive'}
 													</ParameterValue>
 												</div>
 												{introspectionResults.scope && (

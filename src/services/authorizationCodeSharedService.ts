@@ -737,7 +737,7 @@ export class AuthzFlowDefaults {
 	 */
 	static getOAuthDefaults(): Partial<StepCredentials> {
 		return {
-			redirectUri: 'https://localhost:3000/authz-callback',
+			redirectUri: require('../services/flowRedirectUriService').FlowRedirectUriService.getDefaultRedirectUri('authorization-code'),
 			scope: '',  // OAuth doesn't require openid scope
 			scopes: '',
 			responseType: 'code',
@@ -751,7 +751,7 @@ export class AuthzFlowDefaults {
 	 */
 	static getOIDCDefaults(): Partial<StepCredentials> {
 		return {
-			redirectUri: 'https://localhost:3000/authz-callback',
+			redirectUri: require('../services/flowRedirectUriService').FlowRedirectUriService.getDefaultRedirectUri('authorization-code'),
 			scope: 'openid profile email',
 			scopes: 'openid profile email',
 			responseType: 'code',

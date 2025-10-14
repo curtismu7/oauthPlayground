@@ -336,8 +336,8 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 						</SettingRow>
 					</Section>
 
-					{/* Behavior Settings */}
-					<Section>
+					{/* Behavior Settings - TEMPORARILY HIDDEN */}
+					{/* <Section>
 						<SectionTitle>
 							<FiEye />
 							Behavior
@@ -385,7 +385,7 @@ export const UISettingsModal: React.FC<UISettingsModalProps> = ({ isOpen, onClos
 								onClick={() => updateSetting('showApiCallExamples', !settings.showApiCallExamples)}
 							/>
 						</SettingRow>
-					</Section>
+					</Section> */}
 
 					{/* Developer Settings */}
 					<Section>

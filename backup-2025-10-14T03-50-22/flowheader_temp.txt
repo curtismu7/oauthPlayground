@@ -1,0 +1,6 @@
+'client-generator': {
+		flowType: 'tool',
+		title: 'PingOne Client Generator',
+		subtitle: 'Create and configure OAuth 2.0 and OpenID Connect applications in your PingOne environment. Generate clients for web apps, native apps, SPAs, workers, and services.',
+		icon: '🔧',
+	},

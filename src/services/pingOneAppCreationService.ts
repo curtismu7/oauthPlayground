@@ -250,13 +250,30 @@ export class PingOneAppCreationService {
 				protocol: appData.protocol,
 			});
 
+			const normalizeArray = (values?: string[]) =>
+				Array.isArray(values)
+					? values
+						.map((value) => value?.toString().trim())
+						.filter((value): value is string => !!value)
+						.map((value) => value.toUpperCase())
+					: undefined;
+
+			const payload = {
+				...appData,
+				grantTypes: normalizeArray(appData.grantTypes),
+				responseTypes: normalizeArray(appData.responseTypes),
+				tokenEndpointAuthMethod: appData.tokenEndpointAuthMethod
+					? appData.tokenEndpointAuthMethod.toUpperCase()
+					: undefined,
+			};
+
 			// Log the full request payload for debugging
-			console.log('[APP-CREATION] Request payload:', JSON.stringify(appData, null, 2));
-			console.log('[APP-CREATION] Protocol field:', appData.protocol);
+			console.log('[APP-CREATION] Request payload:', JSON.stringify(payload, null, 2));
+			console.log('[APP-CREATION] Protocol field:', payload.protocol);
 
 			const createdApp = await makeApiRequest<CreatedApp>(this.client, '/applications', {
 				method: 'POST',
-				body: JSON.stringify(appData),
+				body: JSON.stringify(payload),
 			});
 
 			logger.success('APP-CREATION', 'Application created successfully', {
