@@ -904,8 +904,11 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 							<Button
 								variant="primary"
 								onClick={() => {
-									console.log('[ClientGenerator] Next: Create Applications clicked, setting showAppGenerator to true');
 									setShowAppGenerator(true);
+									// Scroll to show the new content
+									setTimeout(() => {
+										window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+									}, 100);
 								}}
 								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
 							>
@@ -1319,10 +1322,7 @@ const [tokenDecodeStates, setTokenDecodeStates] = React.useState<Record<string, 
 			)}
 
 			{/* Only show app creation if we have a worker token AND user clicked Next */}
-			{(() => {
-				console.log('[ClientGenerator] Checking app creation render: workerToken=', !!workerToken, 'showAppGenerator=', showAppGenerator);
-				return workerToken && showAppGenerator;
-			})() && (
+			{workerToken && showAppGenerator && (
 				<CardGrid>
 					{appTypes.map((appType) => (
 						<AppTypeCard
