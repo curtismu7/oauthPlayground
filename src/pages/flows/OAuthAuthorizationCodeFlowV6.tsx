@@ -25,6 +25,7 @@ import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import ConfigurationBackup from '../../components/ConfigurationBackup';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
@@ -1702,6 +1703,22 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									<FiRefreshCw /> Clear Configuration
 								</Button>
 							</ActionRow>
+
+							<ConfigurationBackup
+								flowType="oauth-authorization-code"
+								credentials={credentials}
+								onImport={(importedCredentials) => {
+									// Import all credentials from the backup file
+									Object.keys(importedCredentials).forEach((key) => {
+										handleFieldChange(key, importedCredentials[key]);
+									});
+									v4ToastManager.showSuccess('Configuration imported successfully!');
+								}}
+								metadata={{
+									appName: 'OAuth 2.0 Authorization Code Flow',
+									description: 'Configuration backup for OAuth 2.0 Authorization Code Flow',
+								}}
+							/>
 
 							<InfoBox $variant="warning" style={{ marginTop: '2rem', color: '#92400e' }}>
 								<FiAlertCircle size={20} />
