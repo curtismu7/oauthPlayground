@@ -610,6 +610,21 @@ const ClientGenerator: React.FC = () => {
 							</Button>
 							<Button
 								variant="secondary"
+								onClick={() => {
+									setWorkerToken(null);
+									setTokenError(null);
+									setWorkerTokenRequest(null);
+									setTokenDecodeStates({});
+									v4ToastManager.showSuccess('Token cleared - credentials preserved');
+								}}
+								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
+							>
+								<FiSettings /> Clear Token Only
+							</Button>
+							<Button
+								variant="secondary"
+								onClick={() => {
+									localStorage.removeItem('app-generator-worker-credentials');
 									setWorkerToken(null);
 									setTokenError(null);
 									setWorkerTokenRequest(null);
@@ -621,11 +636,6 @@ const ClientGenerator: React.FC = () => {
 										scopes: 'openid p1:create:application p1:read:application p1:update:application',
 										tokenEndpointAuthMethod: 'client_secret_post',
 									});
-									setShowAppGenerator(false);
-									setSelectedAppType(null);
-									setCreationResult(null);
-									setLastApiUrl('');
-									setLastRequestBody('');
 									v4ToastManager.showSuccess('All credentials and data cleared');
 								}}
 								style={{ padding: '0.5rem 1rem', fontSize: '0.875rem' }}
