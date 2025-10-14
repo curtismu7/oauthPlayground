@@ -7,7 +7,7 @@ import {
 	FiEye,
 	FiUser,
 } from 'react-icons/fi';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, css } from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -140,6 +140,18 @@ const ResultsHeading = styled.h3`
 	color: ${({ theme }) => theme.colors.text};
 	font-size: 1.1rem;
 	font-weight: 600;
+`;
+
+const AnimatedBadge = styled.span`
+	margin-left: 0.75rem;
+	padding: 0.375rem 1rem;
+	background: #10b981;
+	color: white;
+	font-size: 0.75rem;
+	border-radius: 9999px;
+	font-weight: 700;
+	animation: ${pulse} 2s ease-in-out infinite;
+	box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
 `;
 
 const HelperText = styled.p`
@@ -381,19 +393,9 @@ const UserInformationStep: React.FC<UserInformationStepProps> = ({
 									<FiCheckCircle size={18} /> UserInfo Response
 								</span>
 								{justFetched && (
-									<span style={{
-										marginLeft: '0.75rem',
-										padding: '0.375rem 1rem',
-										background: '#10b981',
-										color: 'white',
-										fontSize: '0.75rem',
-										borderRadius: '9999px',
-										fontWeight: '700',
-										animation: `${pulse} 2s ease-in-out infinite`,
-										boxShadow: '0 2px 8px rgba(16, 185, 129, 0.3)'
-									}}>
+									<AnimatedBadge>
 										✓ JUST FETCHED!
-									</span>
+									</AnimatedBadge>
 								)}
 							</ResultsHeading>
 							<HelperText>

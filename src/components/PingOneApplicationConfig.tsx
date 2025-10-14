@@ -1,8 +1,9 @@
 // src/components/PingOneApplicationConfig.tsx
-import React from 'react';
-import { FiGlobe, FiKey, FiSettings, FiShield, FiSave, FiCheck } from 'react-icons/fi';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import { FiGlobe, FiKey, FiSettings, FiShield, FiSave, FiCheck, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
+import { DPoPStatus } from '../services/dpopService';
 
 export interface PingOneApplicationState {
 	clientAuthMethod:
@@ -43,6 +44,10 @@ export interface PingOneApplicationState {
 	// Pushed Authorization Request (PAR)
 	requirePushedAuthorizationRequest: boolean;
 
+	// DPoP (Demonstration of Proof of Possession)
+	enableDPoP: boolean;
+	dpopAlgorithm: 'ES256' | 'RS256';
+
 	// Advanced Security Settings
 	additionalRefreshTokenReplayProtection: boolean;
 	includeX5tParameter: boolean;
@@ -62,6 +67,7 @@ export interface PingOneApplicationConfigProps {
 	onSave?: () => void;
 	isSaving?: boolean;
 	hasUnsavedChanges?: boolean;
+	flowType?: string; // To conditionally hide features that don't make sense for certain flows
 }
 
 const Section = styled.div`
@@ -313,8 +319,33 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 	onChange, 
 	onSave, 
 	isSaving = false, 
-	hasUnsavedChanges = false 
+	hasUnsavedChanges = false,
+	flowType
 }) => {
+	// Track initial values to detect changes
+	const [initialValues, setInitialValues] = useState(value);
+	
+	// Reset initial values when save is successful (when isSaving goes from true to false)
+	const [wasSaving, setWasSaving] = useState(false);
+	useEffect(() => {
+		if (wasSaving && !isSaving) {
+			// Save just completed, reset initial values
+			setInitialValues(value);
+		}
+		setWasSaving(isSaving);
+	}, [isSaving, value, wasSaving]);
+	
+	// Calculate if there are unsaved changes
+	const hasActualUnsavedChanges = useMemo(() => {
+		// If parent explicitly provides hasUnsavedChanges, use that
+		if (hasUnsavedChanges !== false) {
+			return hasUnsavedChanges;
+		}
+		
+		// Otherwise, compare current values with initial values
+		return JSON.stringify(value) !== JSON.stringify(initialValues);
+	}, [value, initialValues, hasUnsavedChanges]);
+
 	const update = (updates: Partial<PingOneApplicationState>) => {
 		onChange({ ...value, ...updates });
 	};
@@ -324,49 +355,144 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 			<SectionTitle style={{ fontSize: '1.125rem', marginBottom: '1.5rem', color: '#1f2937' }}>
 				<FiSettings /> PingOne Advanced Configuration
 			</SectionTitle>
-			<Section>
-				<SectionTitle>
-					<FiShield /> Pushed Authorization Request (PAR)
-				</SectionTitle>
-				<Grid>
-					<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
-						<CheckboxLabel>
-							<Checkbox
-								type="checkbox"
-								checked={value.requirePushedAuthorizationRequest}
-								onChange={(e) => onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })}
-							/>
-							Require Pushed Authorization Request
-						</CheckboxLabel>
-						<Helper>
-							Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
-						</Helper>
-						
-						<UrlExampleContainer style={{ width: '100%' }}>
-							<UrlExample style={{ width: '100%' }}>
-								<UrlLabel>Without PAR:</UrlLabel>
-								<ColoredUrlDisplay
-									url="https://auth.pingone.com/env/as/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid&state=..."
-									title="Authorization URL without PAR"
-									showCopyButton={true}
-									showExplanationButton={true}
+			{/* Hide PAR for flows that don't use authorization endpoints */}
+			{!flowType?.includes('client-credentials') && 
+			 !flowType?.includes('jwt-bearer') && 
+			 !flowType?.includes('worker-token') && 
+			 !flowType?.includes('device-authorization') && (
+				<Section>
+					<SectionTitle>
+						<FiShield /> Pushed Authorization Request (PAR)
+					</SectionTitle>
+					<Grid>
+						<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
+							<CheckboxLabel>
+								<Checkbox
+									type="checkbox"
+									checked={value.requirePushedAuthorizationRequest}
+									onChange={(e) => onChange({ ...value, requirePushedAuthorizationRequest: e.target.checked })}
 								/>
-							</UrlExample>
+								Require Pushed Authorization Request
+							</CheckboxLabel>
+							<Helper>
+								Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
+							</Helper>
 							
-							<UrlExample style={{ width: '100%' }}>
-								<UrlLabel>With PAR:</UrlLabel>
-								<ColoredUrlDisplay
-									url="https://auth.pingone.com/env/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:..."
-									title="Authorization URL with PAR"
-									showCopyButton={true}
-									showExplanationButton={true}
-								/>
-							</UrlExample>
-						</UrlExampleContainer>
-					</Field>
+							<UrlExampleContainer style={{ width: '100%' }}>
+								<UrlExample style={{ width: '100%' }}>
+									<UrlLabel>Without PAR:</UrlLabel>
+									<ColoredUrlDisplay
+										url="https://auth.pingone.com/env/as/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid&state=..."
+										title="Authorization URL without PAR"
+										showCopyButton={true}
+										showExplanationButton={true}
+									/>
+								</UrlExample>
+								
+								<UrlExample style={{ width: '100%' }}>
+									<UrlLabel>With PAR:</UrlLabel>
+									<ColoredUrlDisplay
+										url="https://auth.pingone.com/env/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:..."
+										title="Authorization URL with PAR"
+										showCopyButton={true}
+										showExplanationButton={true}
+									/>
+								</UrlExample>
+							</UrlExampleContainer>
+						</Field>
 
-				</Grid>
-			</Section>
+					</Grid>
+				</Section>
+			)}
+
+			{/* DPoP Section - Only show for mock/demo flows since PingOne doesn't support DPoP yet */}
+			{DPoPStatus.isSupported() && (
+				flowType?.includes('mock') || 
+				flowType?.includes('demo') || 
+				flowType?.includes('jwt-bearer') // JWT Bearer flows are mock implementations
+			) && (
+				<Section>
+					<SectionTitle>
+						<FiShield /> DPoP (Demonstration of Proof of Possession)
+					</SectionTitle>
+					<Grid>
+						<Field style={{ gridColumn: '1 / -1', width: '100%' }}>
+							<CheckboxLabel>
+								<Checkbox
+									type="checkbox"
+									checked={value.enableDPoP}
+									onChange={(e) => onChange({ ...value, enableDPoP: e.target.checked })}
+								/>
+								Enable DPoP for enhanced token security
+							</CheckboxLabel>
+							<Helper>
+								<strong>Demo Feature:</strong> Demonstrates DPoP (RFC 9449) implementation for educational purposes. PingOne does not currently support DPoP validation, so this provides client-side proof generation only.
+							</Helper>
+
+							{value.enableDPoP && (
+								<div style={{ marginTop: '1rem' }}>
+									<Field>
+										<Label htmlFor="dpop-algorithm">Signature Algorithm</Label>
+										<Select
+											id="dpop-algorithm"
+											value={value.dpopAlgorithm}
+											onChange={(e) => onChange({ ...value, dpopAlgorithm: e.target.value as 'ES256' | 'RS256' })}
+										>
+											<option value="ES256">ES256 (Elliptic Curve - Recommended)</option>
+											<option value="RS256">RS256 (RSA)</option>
+										</Select>
+										<Helper>Cryptographic algorithm used for DPoP proof signatures</Helper>
+									</Field>
+
+									<div style={{ 
+										marginTop: '1rem', 
+										padding: '1rem', 
+										background: '#f8fafc', 
+										border: '1px solid #e2e8f0', 
+										borderRadius: '6px' 
+									}}>
+										<div style={{ marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+											DPoP Status
+										</div>
+										<div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', fontSize: '0.875rem' }}>
+											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+												<span style={{ fontWeight: '500' }}>Browser Support:</span>
+												<span style={{ color: '#10b981' }}>✓ Supported</span>
+											</div>
+											<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+												<span style={{ fontWeight: '500' }}>Algorithm:</span>
+												<span style={{ color: '#6b7280' }}>{value.dpopAlgorithm}</span>
+											</div>
+										</div>
+									</div>
+
+									<div style={{ 
+										marginTop: '1rem',
+										display: 'flex',
+										gap: '0.75rem',
+										padding: '1rem',
+										background: '#eff6ff',
+										border: '1px solid #bfdbfe',
+										borderRadius: '6px'
+									}}>
+										<FiInfo color="#1e40af" size={20} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
+										<div>
+											<div style={{ fontWeight: '600', color: '#1e40af', marginBottom: '0.25rem' }}>
+												How DPoP Works
+											</div>
+											<div style={{ color: '#1e40af', fontSize: '0.875rem', lineHeight: '1.4' }}>
+												DPoP creates a cryptographic proof for each HTTP request using a private key.
+												The authorization server can verify this proof to ensure the request comes from
+												the legitimate client, preventing token theft and replay attacks.
+											</div>
+										</div>
+									</div>
+								</div>
+							)}
+						</Field>
+					</Grid>
+				</Section>
+			)}
 			
 			<Section>
 				<SectionTitle>
@@ -641,13 +767,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 				<SaveButtonContainer>
 					<SaveButton
 						onClick={onSave}
-						disabled={!hasUnsavedChanges || isSaving}
-						$hasChanges={hasUnsavedChanges}
+						disabled={!hasActualUnsavedChanges || isSaving}
+						$hasChanges={hasActualUnsavedChanges}
 						$isSaving={isSaving}
 						title={
 							isSaving
 								? 'Saving...'
-								: hasUnsavedChanges
+								: hasActualUnsavedChanges
 									? 'Save PingOne configuration'
 									: 'No unsaved changes'
 						}
@@ -657,7 +783,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 								<FiSave className="animate-spin" />
 								Saving...
 							</>
-						) : hasUnsavedChanges ? (
+						) : hasActualUnsavedChanges ? (
 							<>
 								<FiSave />
 								Save Configuration
@@ -674,5 +800,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 		</div>
 	);
 };
+
+
+
+// Default DPoP configuration
+export const getDefaultDPoPConfig = () => ({
+	enableDPoP: false,
+	dpopAlgorithm: 'ES256' as const
+});
 
 export default PingOneApplicationConfig;
