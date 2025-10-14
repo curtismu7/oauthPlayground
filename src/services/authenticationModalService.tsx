@@ -430,9 +430,9 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 		onClose();
 	};
 
-	// Auto-redirect countdown effect
+	// Auto-redirect countdown effect - DISABLED to wait for user action
 	React.useEffect(() => {
-		console.log('⏰ [AuthModal] Countdown effect triggered', { isOpen, isValidUrl: isValidUrl(authUrl), countdown });
+		console.log('⏰ [AuthModal] Modal opened - waiting for user action (auto-redirect disabled)');
 		
 		if (!isOpen || !isValidUrl(authUrl)) {
 			// Reset countdown when modal closes or URL is invalid
@@ -444,24 +444,26 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 			return;
 		}
 
-		// Start countdown when modal opens
-		console.log('⏰ [AuthModal] Starting 20-second countdown...');
-		countdownIntervalRef.current = setInterval(() => {
-			setCountdown((prev) => {
-				console.log(`⏰ [AuthModal] Countdown: ${prev}`);
-				if (prev <= 1) {
-					// Countdown finished - trigger redirect
-					console.log('⏰ [AuthModal] Countdown complete - triggering redirect');
-					if (countdownIntervalRef.current) {
-						clearInterval(countdownIntervalRef.current);
-						countdownIntervalRef.current = null;
-					}
-					handleContinue();
-					return 0;
-				}
-				return prev - 1;
-			});
-		}, 1000);
+		// Auto-redirect disabled - user must click the button
+		console.log('⏰ [AuthModal] Auto-redirect disabled - user must click Continue button');
+		
+		// Optional: Still show a countdown for reference, but don't auto-redirect
+		// countdownIntervalRef.current = setInterval(() => {
+		// 	setCountdown((prev) => {
+		// 		console.log(`⏰ [AuthModal] Countdown: ${prev}`);
+		// 		if (prev <= 1) {
+		// 			// Countdown finished - trigger redirect
+		// 			console.log('⏰ [AuthModal] Countdown complete - triggering redirect');
+		// 			if (countdownIntervalRef.current) {
+		// 				clearInterval(countdownIntervalRef.current);
+		// 				countdownIntervalRef.current = null;
+		// 			}
+		// 			handleContinue();
+		// 			return 0;
+		// 		}
+		// 		return prev - 1;
+		// 	});
+		// }, 1000);
 
 		return () => {
 			console.log('⏰ [AuthModal] Cleaning up countdown effect');
@@ -603,21 +605,21 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						/>
 					</UrlSection>
 
-					{/* Auto-redirect countdown */}
+					{/* User action required notice */}
 					{isValidUrl(authUrl) && (
 						<div style={{
 							padding: '1rem',
-							background: '#eff6ff',
-							border: '1px solid #bfdbfe',
+							background: '#f0fdf4',
+							border: '1px solid #86efac',
 							borderRadius: '8px',
 							marginTop: '1rem',
 							textAlign: 'center',
-							color: '#1e40af',
+							color: '#15803d',
 							fontSize: '0.875rem',
 							fontWeight: '500'
 						}}>
-							<FiClock size={14} style={{ display: 'inline', marginRight: '0.5rem' }} />
-							Auto-redirecting in {countdown} seconds...
+							<FiInfo size={14} style={{ display: 'inline', marginRight: '0.5rem' }} />
+							Click "Continue to PingOne" when you're ready to authenticate
 						</div>
 					)}
 
