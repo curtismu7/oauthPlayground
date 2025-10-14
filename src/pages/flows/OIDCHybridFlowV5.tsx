@@ -6,7 +6,6 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
-	FiChevronDown,
 	FiCopy,
 	FiExternalLink,
 	FiInfo,
@@ -29,7 +28,8 @@ import { credentialManager } from '../../utils/credentialManager';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService'
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { FlowHeader } from '../../services/flowHeaderService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
@@ -125,7 +125,6 @@ const MainCard = styled.div`
 	margin-bottom: 2rem;
 `;
 
-
 const StepContent = styled.div`
 	padding: 2rem;
 	background-color: #ffffff;
@@ -135,63 +134,15 @@ const StepContent = styled.div`
 	border-top: none;
 `;
 
-const CollapsibleSection = styled.section`
-	margin-bottom: 1.5rem;
-	border: 1px solid ${({ theme }) => theme.colors.gray200};
-	border-radius: 0.75rem;
-	overflow: hidden;
-	background: #ffffff;
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleHeaderButton = styled.button`
-	width: 100%;
-	padding: 1.25rem 1.5rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-	border: none;
-	cursor: pointer;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	transition: all 0.2s ease;
+// [REMOVED] Local collapsible styled component
 
-	&:hover {
-		background: linear-gradient(135deg, #dcfce7 0%, #ecfdf3 100%);
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleTitle = styled.span`
-	display: flex;
-	align-items: center;
-	gap: 0.75rem;
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleToggleIcon = styled.div<{ $collapsed?: boolean }>`
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 1.5rem;
-	height: 1.5rem;
-	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	color: ${({ theme }) => theme.colors.gray600};
-`;
-
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	padding-top: 0;
-	animation: fadeIn 0.2s ease;
-
-	@keyframes fadeIn {
-		from {
-			opacity: 0;
-			transform: translateY(-10px);
-		}
-		to {
-			opacity: 1;
-			transform: translateY(0);
-		}
-	}
-`;
+// [REMOVED] Local collapsible styled component
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'warning' | 'success' | 'error' }>`
 	display: flex;
@@ -339,7 +290,6 @@ const ParameterValue = styled.div`
 	border-radius: 0.375rem;
 `;
 
-
 const SectionDivider = styled.div`
 	height: 1px;
 	background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 50%, #e2e8f0 100%);
@@ -407,8 +357,6 @@ const OIDCHybridFlowV5: React.FC = () => {
 		},
 		requirements: [],
 	}));
-
-
 
 	usePageScroll();
 
@@ -506,7 +454,6 @@ const OIDCHybridFlowV5: React.FC = () => {
 			});
 		}
 	}, [responseMode, hybridFlow]);
-
 
 	// Load credentials on mount
 	useEffect(() => {
@@ -696,21 +643,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 	const renderIntroduction = () => (
 		<>
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('overview')}
-					aria-expanded={!collapsedSections.overview}
+			<CollapsibleHeader
+					title="OIDC Hybrid Flow Overview"
+					icon={<FiInfo />}
+					defaultCollapsed={false}
 				>
-					<CollapsibleTitle>
-						<FiInfo /> OIDC Hybrid Flow Overview
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.overview && (
-					<CollapsibleContent>
-						<InfoBox $variant="info">
+					<InfoBox $variant="info">
 							<FiShield size={20} />
 							<div>
 								<InfoTitle>What is OIDC Hybrid Flow?</InfoTitle>
@@ -754,25 +692,14 @@ const OIDCHybridFlowV5: React.FC = () => {
 								</InfoList>
 							</div>
 						</InfoBox>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
+				</CollapsibleHeader>
 
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('credentials')}
-					aria-expanded={!collapsedSections.credentials}
+			<CollapsibleHeader
+					title="Configure Credentials"
+					icon={<FiKey />}
+					defaultCollapsed={false}
 				>
-					<CollapsibleTitle>
-						<FiKey /> Configure Credentials
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.credentials}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.credentials && (
-					<CollapsibleContent>
-						<EnvironmentIdInput
+					<EnvironmentIdInput
 							initialEnvironmentId={environmentId}
 							onEnvironmentIdChange={(newEnvId) => {
 								setEnvironmentId(newEnvId);
@@ -851,25 +778,14 @@ const OIDCHybridFlowV5: React.FC = () => {
 						<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
 
 						<SectionDivider />
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
+				</CollapsibleHeader>
 
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('flowDiagram')}
-					aria-expanded={!collapsedSections.flowDiagram}
+			<CollapsibleHeader
+					title="Hybrid Flow Sequence"
+					icon={<FiZap />}
+					defaultCollapsed={true}
 				>
-					<CollapsibleTitle>
-						<FiZap /> Hybrid Flow Sequence
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.flowDiagram}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.flowDiagram && (
-					<CollapsibleContent>
-						<InfoBox>
+					<InfoBox>
 							<FiInfo size={20} />
 							<div>
 								<InfoTitle>Flow Steps:</InfoTitle>
@@ -883,9 +799,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 								</InfoList>
 							</div>
 						</InfoBox>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
+				</CollapsibleHeader>
 		</>
 	);
 
@@ -900,21 +814,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 				</StepDescription>
 			</StepHeader>
 
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('responseMode')}
-					aria-expanded={!collapsedSections.responseMode}
+			<CollapsibleHeader
+					title="Response Mode Configuration"
+					icon={<FiSettings />}
+					defaultCollapsed={true}
 				>
-					<CollapsibleTitle>
-						<FiSettings /> Response Mode Configuration
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.responseMode}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.responseMode && (
-					<CollapsibleContent>
-						<InfoBox>
+					<InfoBox>
 							<FiInfo size={20} />
 							<div>
 								<InfoText>
@@ -933,25 +838,14 @@ const OIDCHybridFlowV5: React.FC = () => {
 							showUrlExamples={true}
 							baseUrl="https://auth.pingone.com/{envID}/as/authorize"
 						/>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
+				</CollapsibleHeader>
 
-			<CollapsibleSection>
-				<CollapsibleHeaderButton
-					onClick={() => toggleSection('authRequest')}
-					aria-expanded={!collapsedSections.authRequest}
+			<CollapsibleHeader
+					title="Authorization Request"
+					icon={<FiExternalLink />}
+					defaultCollapsed={true}
 				>
-					<CollapsibleTitle>
-						<FiExternalLink /> Authorization Request
-					</CollapsibleTitle>
-					<CollapsibleToggleIcon $collapsed={collapsedSections.authRequest}>
-						<FiChevronDown />
-					</CollapsibleToggleIcon>
-				</CollapsibleHeaderButton>
-				{!collapsedSections.authRequest && (
-					<CollapsibleContent>
-						<InfoBox>
+					<InfoBox>
 							<FiInfo size={20} />
 							<div>
 								<InfoText>
@@ -998,27 +892,16 @@ const OIDCHybridFlowV5: React.FC = () => {
 								<FiExternalLink /> Start Authorization
 							</Button>
 						</ActionRow>
-					</CollapsibleContent>
-				)}
-			</CollapsibleSection>
+				</CollapsibleHeader>
 		</>
 	);
 
 	const renderProcessResponse = () => (
-		<CollapsibleSection>
-			<CollapsibleHeaderButton
-				onClick={() => toggleSection('response')}
-				aria-expanded={!collapsedSections.response}
-			>
-				<CollapsibleTitle>
-					<FiCheckCircle /> Process Response
-				</CollapsibleTitle>
-				<CollapsibleToggleIcon $collapsed={collapsedSections.response}>
-					<FiChevronDown />
-				</CollapsibleToggleIcon>
-			</CollapsibleHeaderButton>
-			{!collapsedSections.response && (
-				<CollapsibleContent>
+		<CollapsibleHeader
+					title="Process Response"
+					icon={<FiCheckCircle />}
+					defaultCollapsed={true}
+				>
 					{hybridFlow.tokens ? (
 						<>
 							<InfoBox $variant="success">
@@ -1100,26 +983,15 @@ const OIDCHybridFlowV5: React.FC = () => {
 							</div>
 						</InfoBox>
 					)}
-				</CollapsibleContent>
-			)}
-		</CollapsibleSection>
+				</CollapsibleHeader>
 	);
 
 	const renderTokenExchange = () => (
-		<CollapsibleSection>
-			<CollapsibleHeaderButton
-				onClick={() => toggleSection('exchange')}
-				aria-expanded={!collapsedSections.exchange}
-			>
-				<CollapsibleTitle>
-					<FiRefreshCw /> Token Exchange
-				</CollapsibleTitle>
-				<CollapsibleToggleIcon $collapsed={collapsedSections.exchange}>
-					<FiChevronDown />
-				</CollapsibleToggleIcon>
-			</CollapsibleHeaderButton>
-			{!collapsedSections.exchange && (
-				<CollapsibleContent>
+		<CollapsibleHeader
+					title="Token Exchange"
+					icon={<FiRefreshCw />}
+					defaultCollapsed={true}
+				>
 					<InfoBox>
 						<FiInfo size={20} />
 						<div>
@@ -1149,26 +1021,15 @@ const OIDCHybridFlowV5: React.FC = () => {
 							)}
 						</Button>
 					</ActionRow>
-				</CollapsibleContent>
-			)}
-		</CollapsibleSection>
+				</CollapsibleHeader>
 	);
 
 	const renderTokensReceived = () => (
-		<CollapsibleSection>
-			<CollapsibleHeaderButton
-				onClick={() => toggleSection('tokens')}
-				aria-expanded={!collapsedSections.tokens}
-			>
-				<CollapsibleTitle>
-					<FiKey /> Tokens Received
-				</CollapsibleTitle>
-				<CollapsibleToggleIcon $collapsed={collapsedSections.tokens}>
-					<FiChevronDown />
-				</CollapsibleToggleIcon>
-			</CollapsibleHeaderButton>
-			{!collapsedSections.tokens && (
-				<CollapsibleContent>
+		<CollapsibleHeader
+					title="Tokens Received"
+					icon={<FiKey />}
+					defaultCollapsed={true}
+				>
 					<InfoBox $variant="success">
 						<FiCheckCircle size={20} />
 						<div>
@@ -1244,9 +1105,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 							</Button>
 						</div>
 					)}
-				</CollapsibleContent>
-			)}
-		</CollapsibleSection>
+				</CollapsibleHeader>
 	);
 
 	const renderCompletion = () => {

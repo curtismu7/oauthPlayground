@@ -363,7 +363,7 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 			persistAuthRequest(requestPayload);
 			setStage('awaiting-approval');
 			setIsPolling(false);
-			v4ToastManager.showInfo('CIBA request sent. Awaiting end-user confirmation.');
+			v4ToastManager.showSuccess('CIBA request sent. Awaiting end-user confirmation.');
 			scheduleNextPoll(requestPayload.interval ?? 5);
 		} catch (initError) {
 			console.error(`${LOG_PREFIX} Initiation error:`, initError);
@@ -379,7 +379,7 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		persistAuthRequest(null);
 		setStage('idle');
 		setError(null);
-		v4ToastManager.showInfo('Polling cancelled. You can restart the flow when ready.');
+		v4ToastManager.showSuccess('Polling cancelled. You can restart the flow when ready.');
 	}, [clearPollingTimer, persistAuthRequest]);
 
 	const reset = useCallback(() => {

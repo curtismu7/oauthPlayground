@@ -44,6 +44,8 @@ import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayP
 import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
 import LocalesParameterInput from '../../components/LocalesParameterInput';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
+import ResourceParameterInput from '../../components/ResourceParameterInput';
+import EnhancedPromptSelector, { PromptValue } from '../../components/EnhancedPromptSelector';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { useUISettings } from '../../contexts/UISettingsContext';
@@ -57,7 +59,6 @@ import { FlowConfigurationService } from '../../services/flowConfigurationServic
 import { FlowUIService } from '../../services/flowUIService';
 import { CopyButtonService } from '../../services/copyButtonService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
 
 // Import components
 import TokenIntrospect from '../../components/TokenIntrospect';
@@ -66,6 +67,7 @@ import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import AuthenticationModalService from '../../services/authenticationModalService';
 
 
 // Import extracted styles and config
@@ -172,7 +174,7 @@ const OIDCImplicitFlowV6: React.FC = () => {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
-			redirectUri: 'https://localhost:3000/oidc-implicit-callback',
+			redirectUri: require('../../services/flowRedirectUriService').FlowRedirectUriService.getDefaultRedirectUri('oidc-implicit-v6'),
 			scope: 'openid profile email',
 			scopes: 'openid profile email',
 			responseType: 'id_token token',
@@ -220,6 +222,10 @@ const OIDCImplicitFlowV6: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(
 		ImplicitFlowSharedService.StepRestoration.getInitialStep
 	);
+	
+	// Collapse all sections by default for cleaner UI
+	const shouldCollapseAll = true;
+	
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
 		null
@@ -236,6 +242,8 @@ const OIDCImplicitFlowV6: React.FC = () => {
 	// const [uiLocales, setUiLocales] = useState<string>('');
 	// const [claimsLocales, setClaimsLocales] = useState<string>('');
 	const [audience, setAudience] = useState<string>('');
+	const [resources, setResources] = useState<string[]>([]);
+	const [promptValues, setPromptValues] = useState<PromptValue[]>([]);
 
 	// All useEffect hooks AFTER state declarations
 	useEffect(() => {
@@ -244,7 +252,7 @@ const OIDCImplicitFlowV6: React.FC = () => {
 			setCurrentStep,
 			setShowSuccessModal
 		);
-	}, [controller]);
+	}, []); // Only run once on mount, not when controller changes
 
 	useEffect(() => {
 		ImplicitFlowSharedService.CredentialsSync.syncCredentials(
@@ -317,6 +325,19 @@ const OIDCImplicitFlowV6: React.FC = () => {
 		setCurrentStep(0);
 	}, [controller]);
 
+	const handleStartOver = useCallback(() => {
+		const flowKey = 'oidc-implicit-v5';
+		sessionStorage.removeItem(`${flowKey}-tokens`);
+		sessionStorage.removeItem('restore_step');
+		sessionStorage.removeItem(`redirect_uri_${flowKey}`);
+		controller.clearStepResults?.();
+		setCurrentStep(0);
+		console.log('🔄 [OIDCImplicitFlowV6] Starting over: cleared tokens, keeping credentials');
+		v4ToastManager.showSuccess('Flow restarted', {
+			description: 'Tokens cleared. Credentials preserved.',
+		});
+	}, [controller]);
+
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
 			if (!credentials.environmentId || !credentials.clientId) {
@@ -331,11 +352,17 @@ const OIDCImplicitFlowV6: React.FC = () => {
 			};
 
 			try {
+				// Determine the appropriate authentication method for implicit flow
+				// Implicit flows are public clients and typically don't use client secrets
+				const authMethod = 'none'; // Implicit flows don't use client authentication for introspection
+
 				// Use the reusable service to create API call data and execute introspection
 				const result = await TokenIntrospectionService.introspectToken(
 					request,
 					'implicit',
-					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+					'/api/introspect-token',  // Use proxy endpoint
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`, // Pass PingOne URL as introspection endpoint
+					authMethod        // Token auth method
 				);
 
 				// Set the API call data for display
@@ -539,14 +566,17 @@ const renderStepContent = useMemo(() => {
 
 			{/* Comprehensive Credentials Service - replaces all credential configuration components */}
 			<ComprehensiveCredentialsService
+				// Flow identification
+				flowType="oidc-implicit-v6"
+				
 				// Pass individual credential props
 				environmentId={controller.credentials?.environmentId || ''}
 				clientId={controller.credentials?.clientId || ''}
 				clientSecret={controller.credentials?.clientSecret || ''}
-				redirectUri={controller.credentials?.redirectUri || 'https://localhost:3000/oidc-implicit-callback'}
+				redirectUri={controller.credentials?.redirectUri}
 				scopes={controller.credentials?.scope || controller.credentials?.scopes || 'openid profile email'}
 				loginHint={controller.credentials?.loginHint || ''}
-				postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri || ''}
+				postLogoutRedirectUri={controller.credentials?.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 				
 			// Individual change handlers
 			onEnvironmentIdChange={(value) => {
@@ -591,13 +621,19 @@ const renderStepContent = useMemo(() => {
 					controller.setCredentials(updated);
 					setCredentials(updated);
 				}}
-				onLoginHintChange={(value) => {
-					const updated = { ...controller.credentials, loginHint: value };
-					controller.setCredentials(updated);
-					setCredentials(updated);
-				}}
-				
-				// Save handler for credentials
+			onLoginHintChange={(value) => {
+				const updated = { ...controller.credentials, loginHint: value };
+				controller.setCredentials(updated);
+				setCredentials(updated);
+			}}
+			onPostLogoutRedirectUriChange={(value) => {
+				const updated = { ...controller.credentials, postLogoutRedirectUri: value };
+				controller.setCredentials(updated);
+				setCredentials(updated);
+				console.log('[OIDC Implicit V6] Post-Logout Redirect URI updated:', value);
+			}}
+			
+			// Save handler for credentials
 				onSave={async () => {
 					try {
 						await controller.saveCredentials();
@@ -620,30 +656,10 @@ const renderStepContent = useMemo(() => {
 				
 				// Configuration
 				requireClientSecret={false}
-				showAdvancedConfig={true}
-				defaultCollapsed={false}
+				showAdvancedConfig={false} // ❌ Implicit flow deprecated, no token endpoint for client auth
+				defaultCollapsed={shouldCollapseAll}
 						/>
 
-						{/* Configuration Summary Card - Compact */}
-						{credentials.environmentId && credentials.clientId && (
-							<ConfigurationSummaryCard
-								config={ConfigurationSummaryService.generateSummary(credentials, 'oidc-implicit')}
-								onSave={async () => {
-									await controller.saveCredentials();
-									v4ToastManager.showSuccess('Configuration saved');
-								}}
-								onExport={async (config) => {
-									ConfigurationSummaryService.downloadConfig(config, 'oidc-implicit-config.json');
-								}}
-								onImport={async (importedConfig) => {
-									controller.setCredentials(importedConfig);
-									setCredentials(importedConfig);
-									await controller.saveCredentials();
-								}}
-								flowType="oidc-implicit"
-								showAdvancedFields={false}
-							/>
-						)}
 					</>
 				);
 
@@ -702,35 +718,55 @@ const renderStepContent = useMemo(() => {
 										</div>
 									</InfoBox>
 
-									<InfoBox $variant="warning">
-										<FiShield size={24} />
-										<div>
-											<InfoTitle style={{ fontSize: '1rem', fontWeight: '600', color: '#b45309' }}>
-												🔐 OIDC Security: Nonce Parameter (Replay Attack Protection) - REQUIRED
-											</InfoTitle>
-											<InfoText style={{ marginTop: '0.75rem', color: '#78350f' }}>
-												<strong>What is Nonce?</strong> The nonce (number used once) is a cryptographically random string that binds your client session to the ID token and prevents replay attacks.
-											</InfoText>
-											<InfoText style={{ marginTop: '0.5rem', color: '#78350f' }}>
-												<strong>How it works:</strong>
-											</InfoText>
-											<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#78350f' }}>
-												<li>Your client generates a unique random nonce value for each authorization request</li>
-												<li>The nonce is sent in the authorization request to the identity provider</li>
-												<li>The authorization server includes the nonce claim in the ID token</li>
-												<li>Your client MUST validate that the nonce in the ID token matches the original nonce</li>
-											</ul>
-											<InfoText style={{ marginTop: '0.75rem', color: '#78350f', fontWeight: 'bold' }}>
-												⚠️ <strong>Security Critical:</strong> Without nonce validation, an attacker could intercept an old ID token and replay it to impersonate a user. This playground automatically generates and validates nonce for educational purposes.
-											</InfoText>
-											<InfoText style={{ marginTop: '0.5rem', color: '#dc2626', fontWeight: 'bold' }}>
-												🔴 <strong>OIDC Implicit Requirement:</strong> Unlike OAuth 2.0 Implicit (which doesn't use nonce), OIDC Implicit REQUIRES nonce validation because it returns an ID Token containing sensitive user identity claims directly in the URL fragment.
-											</InfoText>
-											<InfoText style={{ marginTop: '0.5rem', color: '#78350f', fontSize: '0.875rem', fontStyle: 'italic' }}>
-												💡 <strong>Spec Reference:</strong> OIDC Core 1.0 Section 15.5.2 REQUIRES nonce validation for Implicit Flow. This is mandatory, not optional.
-											</InfoText>
-										</div>
-									</InfoBox>
+									{/* Nonce Security Educational Section */}
+									<CollapsibleSection>
+										<CollapsibleHeaderButton
+											onClick={() => setCollapsedSections(prev => ({ ...prev, nonceEducation: !prev.nonceEducation }))}
+											aria-expanded={!collapsedSections.nonceEducation}
+										>
+											<CollapsibleTitle>
+												<FiShield /> 🔐 OIDC Security: Nonce Parameter (Replay Attack Protection) - REQUIRED
+											</CollapsibleTitle>
+											<CollapsibleToggleIcon $collapsed={collapsedSections.nonceEducation}>
+												<FiChevronDown />
+											</CollapsibleToggleIcon>
+										</CollapsibleHeaderButton>
+										{!collapsedSections.nonceEducation && (
+											<CollapsibleContent>
+												<InfoBox $variant="warning">
+													<FiShield size={24} />
+													<div>
+														<InfoTitle style={{ fontSize: '1rem', fontWeight: '600', color: '#b45309' }}>
+															What is Nonce?
+														</InfoTitle>
+														<InfoText style={{ marginTop: '0.75rem', color: '#78350f' }}>
+															The nonce (number used once) is a cryptographically random string that binds 
+															your client session to the ID token and prevents replay attacks.
+														</InfoText>
+														<InfoText style={{ marginTop: '0.5rem', color: '#78350f' }}>
+															<strong>How it works:</strong>
+														</InfoText>
+														<ul style={{ marginTop: '0.5rem', paddingLeft: '1.5rem', color: '#78350f' }}>
+															<li>Your client generates a unique random nonce value for each authorization request</li>
+															<li>The nonce is sent in the authorization request to the identity provider</li>
+															<li>The authorization server includes the nonce claim in the ID token</li>
+															<li>Your client MUST validate that the nonce in the ID token matches the original nonce</li>
+														</ul>
+														<InfoText style={{ marginTop: '0.75rem', color: '#78350f', fontWeight: 'bold' }}>
+															⚠️ <strong>Security Critical:</strong> Without nonce validation, an attacker could intercept an old ID token 
+															and replay it to impersonate a user. This playground automatically generates and validates nonce for educational purposes.
+														</InfoText>
+														<InfoText style={{ marginTop: '0.5rem', color: '#dc2626', fontWeight: 'bold' }}>
+															🔴 <strong>OIDC Implicit Requirement:</strong> Unlike OAuth 2.0 Implicit (which doesn't use nonce), OIDC Implicit REQUIRES nonce validation because it returns an ID Token containing sensitive user identity claims directly in the URL fragment.
+														</InfoText>
+														<InfoText style={{ marginTop: '0.5rem', color: '#78350f', fontSize: '0.875rem', fontStyle: 'italic' }}>
+															💡 <strong>Spec Reference:</strong> OIDC Core 1.0 Section 15.5.2 REQUIRES nonce validation for Implicit Flow. This is mandatory, not optional.
+														</InfoText>
+													</div>
+												</InfoBox>
+											</CollapsibleContent>
+										)}
+									</CollapsibleSection>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -864,6 +900,53 @@ const renderStepContent = useMemo(() => {
 										value={audience}
 										onChange={setAudience}
 										flowType="oidc"
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Resource Indicators */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setCollapsedSections(prev => ({ ...prev, resources: !prev.resources }))}
+								aria-expanded={!collapsedSections.resources}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Resource Indicators (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.resources}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.resources && (
+								<CollapsibleContent>
+									<ResourceParameterInput
+										value={resources}
+										onChange={setResources}
+										flowType="oidc"
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Enhanced Prompt Parameter */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => setCollapsedSections(prev => ({ ...prev, prompt: !prev.prompt }))}
+								aria-expanded={!collapsedSections.prompt}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Authentication Behavior (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.prompt}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.prompt && (
+								<CollapsibleContent>
+									<EnhancedPromptSelector
+										value={promptValues}
+										onChange={setPromptValues}
 									/>
 								</CollapsibleContent>
 							)}
@@ -1625,6 +1708,7 @@ console.log('Scope:', scope);`}
 				totalSteps={STEP_METADATA.length}
 				onPrevious={handlePrev}
 				onReset={handleResetFlow}
+				onStartOver={handleStartOver}
 				onNext={validatedHandleNext}
 				canNavigateNext={validatedCanNavigateNext()}
 				isFirstStep={currentStep === 0}
@@ -1640,123 +1724,16 @@ console.log('Scope:', scope);`}
 				autoCloseDelay={5000}
 			/>
 
-			{/* Redirect Confirmation Modal */}
-			{showRedirectModal && (
-				<div style={{
-					position: 'fixed',
-					top: 0,
-					left: 0,
-					right: 0,
-					bottom: 0,
-					backgroundColor: 'rgba(0, 0, 0, 0.5)',
-					display: 'flex',
-					alignItems: 'center',
-					justifyContent: 'center',
-					zIndex: 10000
-				}}>
-					<div style={{
-						backgroundColor: 'white',
-						borderRadius: '0.75rem',
-						padding: '2rem',
-						maxWidth: '600px',
-						width: '90%',
-						boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-					}}>
-						<div style={{ marginBottom: '1.5rem' }}>
-							<h2 style={{ 
-								fontSize: '1.5rem', 
-								fontWeight: '600', 
-								color: '#111827',
-								marginBottom: '0.5rem'
-							}}>
-								🔐 Ready to Authenticate?
-							</h2>
-							<p style={{ 
-								fontSize: '1rem', 
-								color: '#6b7280',
-								lineHeight: '1.5'
-							}}>
-								You're about to be redirected to PingOne for authentication. This will open in a new window or redirect your current tab.
-							</p>
-						</div>
-
-						<div style={{ 
-							backgroundColor: '#f8fafc',
-							border: '1px solid #e2e8f0',
-							borderRadius: '0.5rem',
-							padding: '1rem',
-							marginBottom: '1.5rem'
-						}}>
-							<h3 style={{ 
-								fontSize: '0.875rem',
-								fontWeight: '600',
-								color: '#374151',
-								marginBottom: '0.5rem'
-							}}>
-								Authorization URL:
-							</h3>
-							<ColoredUrlDisplay
-								url={controller.authUrl}
-								title="Authorization URL"
-								showExplainButton={true}
-								showCopyButton={true}
-								showOpenButton={false}
-							/>
-						</div>
-
-						<div style={{ 
-							display: 'flex', 
-							gap: '0.75rem', 
-							justifyContent: 'flex-end' 
-						}}>
-							<button
-								onClick={handleCancelRedirect}
-								style={{
-									padding: '0.75rem 1.5rem',
-									border: '1px solid #d1d5db',
-									borderRadius: '0.5rem',
-									backgroundColor: 'white',
-									color: '#374151',
-									fontSize: '0.875rem',
-									fontWeight: '500',
-									cursor: 'pointer',
-									transition: 'all 0.2s ease'
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = '#f9fafb';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = 'white';
-								}}
-							>
-								Cancel
-							</button>
-							<button
-								onClick={handleConfirmRedirect}
-								style={{
-									padding: '0.75rem 1.5rem',
-									border: '1px solid #10b981',
-									borderRadius: '0.5rem',
-									backgroundColor: '#10b981',
-									color: 'white',
-									fontSize: '0.875rem',
-									fontWeight: '500',
-									cursor: 'pointer',
-									transition: 'all 0.2s ease'
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.backgroundColor = '#059669';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.backgroundColor = '#10b981';
-								}}
-							>
-								Continue to PingOne
-							</button>
-						</div>
-					</div>
-				</div>
-			)}
+		{/* Authentication Modal */}
+		{AuthenticationModalService.showModal(
+			showRedirectModal,
+			() => setShowRedirectModal(false),
+			handleConfirmRedirect,
+			controller.authUrl,
+			'oidc',
+			'OIDC Implicit Flow',
+			{ redirectMode: 'redirect' }
+		)}
 		</Container>
 	);
 };

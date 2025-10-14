@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
-	FiChevronDown,
 	FiCode,
 	FiCopy,
 	FiExternalLink,
@@ -30,7 +29,8 @@ import {
 } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService'
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
@@ -153,27 +153,8 @@ const StepContent = styled.div`
 	padding: 2rem;
 `;
 
-const CollapsibleSection = styled.div`
-	margin-bottom: 1.5rem;
-`;
-
-const CollapsibleHeaderButton = styled.button`
-	width: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 1rem;
-	background-color: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	cursor: pointer;
-	transition: all 0.2s;
-
-	&:hover {
-		background-color: #f1f5f9;
-		border-color: #cbd5e1;
-	}
-`;
+// [REMOVED] Unused CollapsibleSection - migrated to CollapsibleHeader service
+// [REMOVED] Local collapsible styled component
 
 const CollapsibleTitle = styled.h3`
 	font-size: 1rem;
@@ -185,19 +166,9 @@ const CollapsibleTitle = styled.h3`
 	gap: 0.5rem;
 `;
 
-const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: transform 0.2s;
-	color: #8b5cf6;
-`;
+// [REMOVED] Local collapsible styled component
 
-const CollapsibleContent = styled.div`
-	padding: 1.5rem;
-	background-color: #ffffff;
-	border: 1px solid #e2e8f0;
-	border-top: none;
-	border-radius: 0 0 0.5rem 0.5rem;
-`;
+// [REMOVED] Local collapsible styled component
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' | 'danger' }>`
 	display: flex;
@@ -697,21 +668,12 @@ const renderStepContent = useMemo(() => {
 			case 0:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('overview')}
-								aria-expanded={!collapsedSections.overview}
-							>
-								<CollapsibleTitle>
-									<FiInfo /> What is Redirectless Flow (pi.flow)?
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.overview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="What is Redirectless Flow (pi.flow)?"
+					icon={<FiInfo />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
 											<InfoTitle>PingOne Proprietary Response Mode</InfoTitle>
@@ -742,25 +704,14 @@ const renderStepContent = useMemo(() => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('useCases')}
-								aria-expanded={!collapsedSections.useCases}
-							>
-								<CollapsibleTitle>
-									<FiMonitor /> Use Cases
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.useCases}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.useCases && (
-								<CollapsibleContent>
-									<UseCaseGrid>
+						<CollapsibleHeader
+					title="Use Cases"
+					icon={<FiMonitor />}
+					defaultCollapsed={true}
+				>
+					<UseCaseGrid>
 										<UseCaseCard>
 											<UseCaseIcon>
 												<FiSmartphone />
@@ -804,9 +755,7 @@ const renderStepContent = useMemo(() => {
 											</UseCaseDescription>
 										</UseCaseCard>
 									</UseCaseGrid>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -942,21 +891,12 @@ const renderStepContent = useMemo(() => {
 			case 1:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('pkceOverview')}
-								aria-expanded={!collapsedSections.pkceOverview}
-							>
-								<CollapsibleTitle>
-									<FiKey /> PKCE Parameters Overview
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.pkceOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="PKCE Parameters Overview"
+					icon={<FiKey />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="info">
 										<FiKey size={20} />
 										<div>
 											<InfoTitle>PKCE for Redirectless Flow</InfoTitle>
@@ -967,9 +907,7 @@ const renderStepContent = useMemo(() => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1096,21 +1034,12 @@ const renderStepContent = useMemo(() => {
 			case 2:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('authRequestOverview')}
-								aria-expanded={!collapsedSections.authRequestOverview}
-							>
-								<CollapsibleTitle>
-									<FiCode /> Authorization Request with pi.flow
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.authRequestOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="Authorization Request with pi.flow"
+					icon={<FiCode />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="info">
 										<FiCode size={20} />
 										<div>
 											<InfoTitle>Key Parameter: response_mode=pi.flow</InfoTitle>
@@ -1131,9 +1060,7 @@ const renderStepContent = useMemo(() => {
   &code_challenge_method=S256`}</CodeBlock>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1240,21 +1167,12 @@ const renderStepContent = useMemo(() => {
 			case 3:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('flowResponseOverview')}
-								aria-expanded={!collapsedSections.flowResponseOverview}
-							>
-								<CollapsibleTitle>
-									<FiZap /> Flow Response (No Redirect)
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.flowResponseOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.flowResponseOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="Flow Response (No Redirect)"
+					icon={<FiZap />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="info">
 										<FiZap size={20} />
 										<div>
 											<InfoTitle>Flow Object Response</InfoTitle>
@@ -1265,9 +1183,7 @@ const renderStepContent = useMemo(() => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1314,21 +1230,12 @@ const renderStepContent = useMemo(() => {
 			case 4:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('tokenResponseOverview')}
-								aria-expanded={!collapsedSections.tokenResponseOverview}
-							>
-								<CollapsibleTitle>
-									<FiKey /> Token Response (JSON Format)
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponseOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.tokenResponseOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="info">
+						<CollapsibleHeader
+					title="Token Response (JSON Format)"
+					icon={<FiKey />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="info">
 										<FiKey size={20} />
 										<div>
 											<InfoTitle>Tokens in JSON Format</InfoTitle>
@@ -1339,9 +1246,7 @@ const renderStepContent = useMemo(() => {
 											</InfoText>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>
@@ -1386,21 +1291,12 @@ const renderStepContent = useMemo(() => {
 			case 5:
 				return (
 					<>
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('completionOverview')}
-								aria-expanded={!collapsedSections.completionOverview}
-							>
-								<CollapsibleTitle>
-									<FiCheckCircle /> Redirectless Flow Complete
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.completionOverview}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.completionOverview && (
-								<CollapsibleContent>
-									<InfoBox $variant="success">
+						<CollapsibleHeader
+					title="Redirectless Flow Complete"
+					icon={<FiCheckCircle />}
+					defaultCollapsed={false}
+				>
+					<InfoBox $variant="success">
 										<FiCheckCircle size={20} />
 										<div>
 											<InfoTitle>Flow Complete!</InfoTitle>
@@ -1427,9 +1323,7 @@ const renderStepContent = useMemo(() => {
 											</InfoList>
 										</div>
 									</InfoBox>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
+				</CollapsibleHeader>
 
 						<SectionDivider />
 						<ResultsSection>

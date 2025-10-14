@@ -7,7 +7,8 @@
  */
 
 import React from 'react';
-import { StepCredentials } from '../types/flowTypes';
+import type { StepCredentials } from '../components/steps/CommonSteps';
+import { FlowRedirectUriService } from './flowRedirectUriService';
 
 // Unified logging format: [🔀 HYBRID-V6]
 const LOG_PREFIX = '[🔀 HYBRID-V6]';
@@ -79,7 +80,7 @@ export class HybridFlowDefaults {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
-			redirectUri: 'https://localhost:3000/hybrid-callback',
+			redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oidc-hybrid-v6'),
 			scope: 'openid profile email',
 			responseMode: 'fragment' as const,
 		};
@@ -186,10 +187,12 @@ export class HybridFlowDefaults {
 			credentials: false, // Always expanded - users need to see credentials first
 			configuration: false,
 			responseType: false, // Response type selection
+			authorizationUrl: false,
 			authRequest: false,
 			response: false,
 			exchange: false,
 			tokens: false,
+			tokenManagement: false,
 			complete: false,
 			flowSummary: false,
 			introspectionOverview: true,

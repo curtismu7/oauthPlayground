@@ -263,22 +263,98 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
 	margin-bottom: 1rem;
 `;
 
+const CommonClaimsContainer = styled.div`
+	margin-bottom: 1.5rem;
+	padding: 1rem;
+	background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+	border: 2px solid #fbbf24;
+	border-radius: 0.75rem;
+`;
+
+const CommonClaimsTitle = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-size: 0.875rem;
+	font-weight: 600;
+	color: #92400e;
+	margin-bottom: 0.75rem;
+`;
+
+const CommonClaimsGrid = styled.div`
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	gap: 0.5rem;
+`;
+
+const DraggableClaim = styled.div<{ $isDragging?: boolean }>`
+	display: flex;
+	flex-direction: column;
+	padding: 0.75rem;
+	background: white;
+	border: 2px solid ${props => props.$isDragging ? '#3b82f6' : '#e5e7eb'};
+	border-radius: 0.5rem;
+	cursor: grab;
+	transition: all 0.2s;
+	opacity: ${props => props.$isDragging ? 0.5 : 1};
+
+	&:hover {
+		border-color: #3b82f6;
+		background: #f0f9ff;
+		transform: translateY(-2px);
+		box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+	}
+
+	&:active {
+		cursor: grabbing;
+	}
+`;
+
+const ClaimName = styled.div`
+	font-family: 'Monaco', 'Menlo', monospace;
+	font-size: 0.8125rem;
+	font-weight: 600;
+	color: #1f2937;
+	margin-bottom: 0.25rem;
+`;
+
+const ClaimDescription = styled.div`
+	font-size: 0.75rem;
+	color: #6b7280;
+	line-height: 1.4;
+`;
+
+const ClaimCategory = styled.div`
+	font-size: 0.6875rem;
+	color: #9ca3af;
+	text-transform: uppercase;
+	letter-spacing: 0.025em;
+	margin-top: 0.25rem;
+	font-weight: 500;
+`;
+
+// Common OIDC/PingOne claims (alphabetically sorted)
 const commonClaims = [
-	{ name: 'email', description: 'Email address' },
-	{ name: 'email_verified', description: 'Email verification status' },
-	{ name: 'given_name', description: 'First name' },
-	{ name: 'family_name', description: 'Last name' },
-	{ name: 'name', description: 'Full name' },
-	{ name: 'nickname', description: 'Nickname' },
-	{ name: 'picture', description: 'Profile picture URL' },
-	{ name: 'phone_number', description: 'Phone number' },
-	{ name: 'phone_number_verified', description: 'Phone verification status' },
-	{ name: 'address', description: 'Postal address' },
-	{ name: 'birthdate', description: 'Date of birth' },
-	{ name: 'gender', description: 'Gender' },
-	{ name: 'locale', description: 'Locale preference' },
-	{ name: 'zoneinfo', description: 'Timezone' },
-	{ name: 'updated_at', description: 'Last profile update time' },
+	{ name: 'address', description: 'Postal address (JSON object)', category: 'Address' },
+	{ name: 'birthdate', description: 'Date of birth (YYYY-MM-DD)', category: 'Profile' },
+	{ name: 'email', description: 'Email address', category: 'Contact' },
+	{ name: 'email_verified', description: 'Email verification status', category: 'Contact' },
+	{ name: 'family_name', description: 'Last name', category: 'Profile' },
+	{ name: 'gender', description: 'Gender', category: 'Profile' },
+	{ name: 'given_name', description: 'First name', category: 'Profile' },
+	{ name: 'locale', description: 'Locale preference (e.g. en-US)', category: 'Locale' },
+	{ name: 'middle_name', description: 'Middle name', category: 'Profile' },
+	{ name: 'name', description: 'Full name', category: 'Profile' },
+	{ name: 'nickname', description: 'Nickname', category: 'Profile' },
+	{ name: 'phone_number', description: 'Phone number', category: 'Contact' },
+	{ name: 'phone_number_verified', description: 'Phone verification status', category: 'Contact' },
+	{ name: 'picture', description: 'Profile picture URL', category: 'Profile' },
+	{ name: 'preferred_username', description: 'Preferred username', category: 'Profile' },
+	{ name: 'profile', description: 'Profile page URL', category: 'Profile' },
+	{ name: 'sub', description: 'Subject identifier (User ID)', category: 'Identity' },
+	{ name: 'updated_at', description: 'Last profile update timestamp', category: 'Metadata' },
+	{ name: 'website', description: 'Website URL', category: 'Profile' },
+	{ name: 'zoneinfo', description: 'Timezone (e.g. America/New_York)', category: 'Locale' },
 ];
 
 export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
@@ -289,6 +365,27 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 }) => {
 	const [activeTab, setActiveTab] = useState<'userinfo' | 'id_token'>('userinfo');
 	const [showPreview, setShowPreview] = useState(false);
+	const [draggedClaim, setDraggedClaim] = useState<string | null>(null);
+
+	// Ensure at least one empty claim field exists by default
+	React.useEffect(() => {
+		if (!value || Object.keys(value).length === 0) {
+			// Add one empty claim to the active tab
+			onChange({
+				[activeTab]: {
+					'': null
+				}
+			});
+		} else if (value && !value[activeTab]) {
+			// If switching to a tab with no claims, add one empty claim
+			onChange({
+				...value,
+				[activeTab]: {
+					'': null
+				}
+			});
+		}
+	}, [activeTab]); // Run when tab changes
 
 	const getClaims = useCallback((location: 'userinfo' | 'id_token'): Array<[string, ClaimRequest | null]> => {
 		if (!value || !value[location]) return [];
@@ -344,6 +441,34 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 		}
 	}, [value, onChange]);
 
+	// Drag and drop handlers
+	const handleDragStart = useCallback((claimName: string) => (e: React.DragEvent) => {
+		e.dataTransfer.effectAllowed = 'copy';
+		e.dataTransfer.setData('text/plain', claimName);
+		setDraggedClaim(claimName);
+	}, []);
+
+	const handleDragEnd = useCallback(() => {
+		setDraggedClaim(null);
+	}, []);
+
+	const handleDragOver = useCallback((e: React.DragEvent) => {
+		e.preventDefault();
+		e.dataTransfer.dropEffect = 'copy';
+	}, []);
+
+	const handleDrop = useCallback((location: 'userinfo' | 'id_token', currentName: string) => (e: React.DragEvent) => {
+		e.preventDefault();
+		const claimName = e.dataTransfer.getData('text/plain');
+		if (claimName && claimName !== currentName) {
+			// If dropping on an empty field, replace it
+			if (currentName === '') {
+				updateClaim(location, currentName, claimName, false);
+			}
+		}
+		setDraggedClaim(null);
+	}, [updateClaim]);
+
 	const jsonString = value ? JSON.stringify(value, null, 2) : '{}';
 	
 	// Syntax highlight JSON
@@ -397,10 +522,25 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 					<HeaderIcon><FiInfo /></HeaderIcon>
 					<div>
 						<strong>About Claims Requests:</strong> The <code>claims</code> parameter lets you request 
-						specific user information beyond what's included by default in scopes. Mark claims as 
-						<strong> essential</strong> (required) or leave them <strong>voluntary</strong> (optional).
-						<div style={{ marginTop: '0.5rem' }}>
-							Claims can be returned in the <strong>ID Token</strong> or fetched from the <strong>UserInfo endpoint</strong>.
+						specific user information beyond what's included by default in scopes. 
+						<div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f0f9ff', borderRadius: '0.5rem', border: '1px solid #bae6fd' }}>
+							<strong>Understanding Claim Values:</strong>
+							<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem', lineHeight: '1.6' }}>
+								<li><code>null</code> = <strong>Voluntary</strong> (optional) - Authorization server will try to return this claim if available, but won't fail if it's missing</li>
+								<li><code>{`{"essential": true}`}</code> = <strong>Essential</strong> (required) - Authorization server MUST return this claim or the request will fail</li>
+							</ul>
+						</div>
+						<div style={{ marginTop: '0.75rem' }}>
+							<strong>💡 Example JSON:</strong>
+							<pre style={{ background: '#1e293b', color: '#e2e8f0', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', overflowX: 'auto' }}>{`{
+  "id_token": {
+    "email": null,           ← Voluntary
+    "name": {"essential": true}  ← Required
+  }
+}`}</pre>
+						</div>
+						<div style={{ marginTop: '0.75rem' }}>
+							Claims can be returned in the <strong>ID Token</strong> (immediately with authentication) or fetched from the <strong>UserInfo endpoint</strong> (separate API call).
 						</div>
 					</div>
 				</InfoBox>
@@ -423,11 +563,17 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 									type="text"
 									value={name}
 									onChange={(e) => updateClaim(activeTab, name, e.target.value, isEssential)}
-									placeholder="claim_name"
+									onDragOver={handleDragOver}
+									onDrop={handleDrop(activeTab, name)}
+									placeholder="Type claim name (e.g. custom_attribute) or drag from below"
+									title="Type a custom claim name (like PingOne custom attributes) or drag from the Common Claims list"
 								/>
 								<EssentialToggle
 									$essential={isEssential}
 									onClick={() => updateClaim(activeTab, name, name, !isEssential)}
+									title={isEssential 
+										? 'Essential (required) - JSON: {"essential": true} - Auth server MUST return this claim or fail'
+										: 'Voluntary (optional) - JSON: null - Auth server will try to return this claim but won\'t fail if missing'}
 								>
 									{isEssential ? <FiAlertCircle /> : <FiCheckCircle />}
 									{isEssential ? 'Essential' : 'Voluntary'}
@@ -443,20 +589,78 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 				<AddClaimHelper>
 					<FiInfo />
 					<div>
-						<strong>Click the button below</strong> to add custom claims. Common OIDC claims: {commonClaims.slice(0, 5).map(c => c.name).join(', ')}, and more...
+						<strong>Type custom claim names</strong> (like PingOne custom attributes) in the input field above, or <strong>drag claims from below</strong>. 
+						Click "Add Claim" to add additional fields.
 					</div>
 				</AddClaimHelper>
 
+				{/* Common Claims - Draggable Grid */}
+				<CommonClaimsContainer>
+					<CommonClaimsTitle>
+						<FiInfo />
+						Common OIDC/PingOne Claims (Drag to Use)
+					</CommonClaimsTitle>
+					<CommonClaimsGrid>
+						{commonClaims.map((claim) => (
+							<DraggableClaim
+								key={claim.name}
+								draggable="true"
+								onDragStart={handleDragStart(claim.name)}
+								onDragEnd={handleDragEnd}
+								$isDragging={draggedClaim === claim.name}
+								title={`Drag "${claim.name}" to a claim input field above`}
+							>
+								<ClaimName>{claim.name}</ClaimName>
+								<ClaimDescription>{claim.description}</ClaimDescription>
+								<ClaimCategory>{claim.category}</ClaimCategory>
+							</DraggableClaim>
+						))}
+					</CommonClaimsGrid>
+				</CommonClaimsContainer>
+
 				<AddButton onClick={() => addClaim(activeTab)}>
-					<FiPlus /> Add Claim
+					<FiPlus /> Add Another Claim
 				</AddButton>
 
-				<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
-					<HeaderIcon><FiInfo /></HeaderIcon>
-					<div>
-						<strong>Common Claims:</strong> {commonClaims.map(c => c.name).join(', ')}
+				<div style={{ 
+					marginTop: '1.5rem', 
+					padding: '1rem', 
+					background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', 
+					border: '2px solid #fbbf24',
+					borderRadius: '0.75rem',
+					fontSize: '0.85rem'
+				}}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+						<FiInfo style={{ color: '#92400e', fontSize: '1.25rem' }} />
+						<strong style={{ color: '#92400e' }}>JSON Format Guide:</strong>
 					</div>
-				</InfoBox>
+					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem' }}>
+						<div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #fbbf24' }}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+								<FiCheckCircle style={{ color: '#059669' }} />
+								<strong>Voluntary (Optional)</strong>
+							</div>
+							<code style={{ background: '#f3f4f6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', display: 'block' }}>
+								"email": null
+							</code>
+							<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+								Server tries to return this claim but won't fail if missing
+							</div>
+						</div>
+						<div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #fbbf24' }}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+								<FiAlertCircle style={{ color: '#dc2626' }} />
+								<strong>Essential (Required)</strong>
+							</div>
+							<code style={{ background: '#f3f4f6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', display: 'block', fontSize: '0.75rem' }}>
+								{`"email": {"essential": true}`}
+							</code>
+							<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+								Server MUST return this claim or request fails
+							</div>
+						</div>
+					</div>
+				</div>
 
 				{Object.keys(value || {}).length > 0 && (
 					<>

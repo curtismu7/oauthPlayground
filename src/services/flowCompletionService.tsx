@@ -336,6 +336,24 @@ export const FlowCompletionConfigs = {
 		]
 	},
 	
+	jwtBearer: {
+		flowName: 'JWT Bearer Token Flow',
+		flowDescription: 'You\'ve successfully completed the OAuth 2.0 JWT Bearer Token flow (RFC 7523). A JWT assertion has been exchanged for an access token.',
+		completedSteps: [
+			{ completed: true, description: 'JWT claims configured' },
+			{ completed: true, description: 'JWT signed with private key' },
+			{ completed: true, description: 'JWT assertion generated' },
+			{ completed: true, description: 'JWT exchanged for access token' }
+		],
+		nextSteps: [
+			'Store the access token securely',
+			'Use the access token to call protected APIs',
+			'Refresh the token when it expires (if supported)',
+			'Implement proper JWT generation and signing',
+			'Implement proper error handling and retry logic'
+		]
+	},
+	
 	clientCredentials: {
 		flowName: 'Client Credentials Flow',
 		flowDescription: 'You\'ve successfully completed the OAuth 2.0 Client Credentials flow. The client has been authenticated and access token received.',
@@ -369,6 +387,24 @@ export const FlowCompletionConfigs = {
 			'Refresh the token when it expires (if refresh token provided)',
 			'Handle token expiration and re-authorization',
 			'Implement proper error handling and retry logic'
+		]
+	},
+	
+	workerToken: {
+		flowName: 'PingOne Worker Token Flow',
+		flowDescription: 'You\'ve successfully obtained a Worker app access token using OAuth 2.0 Client Credentials flow. This token provides administrative access to PingOne APIs.',
+		completedSteps: [
+			{ completed: true, description: 'Worker app credentials validated' },
+			{ completed: true, description: 'Token request sent to PingOne' },
+			{ completed: true, description: 'Worker access token received' }
+		],
+		nextSteps: [
+			'Store the Worker access token securely in a vault',
+			'Use the token to call PingOne Management APIs',
+			'Monitor token expiration (1 hour validity)',
+			'Implement automated token refresh before expiry',
+			'Log all Worker app API calls for audit purposes',
+			'Rotate Worker app client secrets regularly (every 90 days)'
 		]
 	}
 };
