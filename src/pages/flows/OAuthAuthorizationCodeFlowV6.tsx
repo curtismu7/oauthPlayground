@@ -54,7 +54,6 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { PKCEGenerationService } from '../../services/pkceGenerationService';
-import ClaimsRequestBuilder, { ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
@@ -725,7 +724,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				prompt: promptValues.join(' ')
 			});
 		}
-	}, [audience, promptValues]);
+	}, [audience, promptValues, controller]);
 
 	// Save advanced parameters
 	const handleSaveAdvancedParams = useCallback(async () => {
@@ -2433,7 +2432,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 										/>
 									)}
 
-								{UnifiedTokenDisplayService.showTokens(
+								{/* Only show tokens if they were exchanged in this session */}
+								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
 									controller.tokens,
 									'oauth',
 									'oauth-authorization-code-v6',
