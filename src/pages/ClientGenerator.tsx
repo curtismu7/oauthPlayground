@@ -23,6 +23,7 @@ import {
 import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialsInput } from '../components/CredentialsInput';
+import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -355,6 +356,7 @@ const ClientGenerator: React.FC = () => {
 	const [selectedAppType, setSelectedAppType] = useState<AppType | null>(null);
 	const [isCreating, setIsCreating] = useState(false);
 	const [creationResult, setCreationResult] = useState<AppCreationResult | null>(null);
+	const [lastApiUrl, setLastApiUrl] = useState<string>('');
 	const [formData, setFormData] = useState({
 		name: '',
 		description: '',
@@ -589,6 +591,10 @@ const ClientGenerator: React.FC = () => {
 
 			// Initialize the service with the worker token
 			pingOneAppCreationService.initialize(workerToken, workerCredentials.environmentId);
+
+			// Capture API URL for display
+			const apiUrl = `https://api.pingone.com/v1/environments/${workerCredentials.environmentId}/applications`;
+			setLastApiUrl(apiUrl);
 
 			// Create the app based on type
 			let result: AppCreationResult;
@@ -1050,6 +1056,40 @@ const ClientGenerator: React.FC = () => {
 						)}
 					</ResultContent>
 				</ResultCard>
+			)}
+
+			{lastApiUrl && (
+				<div style={{ marginTop: '2rem' }}>
+					<div style={{ 
+						background: '#eff6ff', 
+						border: '1px solid #3b82f6', 
+						borderRadius: '0.75rem', 
+						padding: '1.25rem',
+						marginBottom: '1rem'
+					}}>
+						<div style={{ 
+							display: 'flex', 
+							alignItems: 'center', 
+							gap: '0.5rem', 
+							marginBottom: '0.75rem',
+							color: '#1e40af',
+							fontWeight: 600
+						}}>
+							<FiCode size={20} />
+							PingOne Management API Endpoint
+						</div>
+						<div style={{ fontSize: '0.875rem', color: '#1e40af', marginBottom: '1rem' }}>
+							This is the API endpoint used to create applications in your PingOne environment. 
+							Learn how to use the PingOne Management API to automate application creation.
+						</div>
+						<ColoredUrlDisplay
+							url={lastApiUrl}
+							label="POST"
+							showCopyButton={true}
+							showInfoButton={false}
+						/>
+					</div>
+				</div>
 			)}
 		</Container>
 	);
