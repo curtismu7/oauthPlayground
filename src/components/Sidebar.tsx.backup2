@@ -403,9 +403,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/oidc-device-authorization-v6': 'OIDC Device Authorization',
 			'/flows/worker-token-v6': 'Worker Token',
 			'/flows/jwt-bearer-token-v6': 'JWT Bearer Token',
-			'/flows/jwt-bearer-token-v7': 'JWT Bearer Token V7',
 			'/flows/saml-bearer-assertion-v6': 'SAML Bearer Assertion',
-			'/flows/saml-bearer-assertion-v7': 'SAML Bearer Assertion V7',
 			'/flows/advanced-oauth-params-demo': 'Advanced OAuth Parameters Demo',
 			'/flows/pingone-par-v6': 'PingOne PAR',
 			'/flows/rar-v6': 'Rich Authorization Request',
@@ -732,26 +730,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					onOpenChange={() => toggleMenu('V7 New Flows')}
 				>
 					<MenuItem
-						icon={<ColoredIcon $color="#10b981"><FiLock /></ColoredIcon>}
-						active={isActive('/flows/client-credentials-v7')}
-						onClick={() => handleNavigation('/flows/client-credentials-v7')}
-					>
-						<MenuItemContent>
-							<span>Client Credentials (V7)</span>
-							<MigrationBadge 
-								title="V7: Enhanced with new AuthMethodService and improved UI"
-								style={{
-									backgroundColor: '#10b981',
-									color: 'white',
-									border: 'none',
-									fontWeight: 'normal',
-								}}
-							>
-								V7
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-					<MenuItem
 						icon={<ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>}
 						active={isActive('/flows/oauth-authorization-code-v7')}
 						onClick={() => handleNavigation('/flows/oauth-authorization-code-v7')}
@@ -820,36 +798,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						<MenuItemContent>
 							<span>Device Authorization (V7 Unified)</span>
 							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					<MenuItem
-						icon={<ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>}
-						active={isActive('/flows/jwt-bearer-token-v7')}
-						onClick={() => handleNavigation('/flows/jwt-bearer-token-v7')}
-						className="v6-flow"
-						style={getV6FlowStyles(isActive('/flows/jwt-bearer-token-v7'))}
-					>
-						<MenuItemContent>
-							<span>JWT Bearer Token (V7)</span>
-							<MigrationBadge title="V7: JWT Bearer with PingFederate/PingOne AIS examples">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					<MenuItem
-						icon={<ColoredIcon $color="#06b6d4"><FiUsers /></ColoredIcon>}
-						active={isActive('/flows/saml-bearer-assertion-v7')}
-						onClick={() => handleNavigation('/flows/saml-bearer-assertion-v7')}
-						className="v6-flow"
-						style={getV6FlowStyles(isActive('/flows/saml-bearer-assertion-v7'))}
-					>
-						<MenuItemContent>
-							<span>SAML Bearer Assertion (V7)</span>
-							<MigrationBadge title="V7: SAML Bearer with PingFederate/PingOne AIS examples">
 								<FiCheckCircle />
 							</MigrationBadge>
 						</MenuItemContent>
