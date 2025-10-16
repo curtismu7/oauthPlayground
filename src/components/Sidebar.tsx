@@ -1242,13 +1242,8 @@ onOpenChange={() => toggleMenu('Developers')}
 >
 <MenuItem
 icon={<FiPackage />}
-active={isActive('/sdk-sample-app')}
-onClick={() => handleNavigation('/sdk-sample-app')}
->
-window.open(
-'https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2',
-'_blank',
-);
+onClick={() => {
+window.open('https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2', '_blank');
 onClose();
 }}
 >
