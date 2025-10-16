@@ -1777,13 +1777,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-			case 0:
-				return (
-					<>
-						{/* V7 Variant Selector */}
-						{renderVariantSelector()}
-						
-						{/* CONDENSED V7: Quick Start & Overview - Always Expanded */}
+		case 0:
+			return (
+				<>
+					{/* CONDENSED V7: Quick Start & Overview - Always Expanded */}
 						
 				{/* 1. QUICK START & OVERVIEW - Always Expanded */}
 				<Section style={{ border: '2px solid #10b981', borderRadius: '0.75rem', marginBottom: '1.5rem' }}>
@@ -2810,6 +2807,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							<StepTotal>of 07</StepTotal>
 						</StepHeaderRight>
 					</StepHeader>
+
+					{/* V7 Variant Selector - Now inside MainCard below Step Header */}
+					{renderVariantSelector()}
 
 					{/* Step Requirements Indicator */}
 					{!isStepValid(currentStep) && currentStep !== 0 && (
