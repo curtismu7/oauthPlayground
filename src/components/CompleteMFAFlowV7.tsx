@@ -30,6 +30,7 @@ import {
   FiBook,
   FiPackage,
   FiZap,
+  FiLogIn,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
