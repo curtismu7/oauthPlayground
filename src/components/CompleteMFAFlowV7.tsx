@@ -413,7 +413,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       if (result.document.issuer) {
         const issuerUrl = result.document.issuer;
         console.log('[CompleteMFAFlowV7] Extracting environment ID from issuer:', issuerUrl);
-        const envIdMatch = issuerUrl.match(/\/environments\/([^\/]+)/);
+        // Try multiple patterns for environment ID extraction
+        let envIdMatch = issuerUrl.match(/\/environments\/([^\/]+)/);
+        if (!envIdMatch) {
+          // Try PingOne format: https://auth.pingone.com/{env-id}
+          envIdMatch = issuerUrl.match(/\/pingone\.com\/([^\/]+)/);
+        }
+        if (!envIdMatch) {
+          // Try direct UUID pattern at end of URL
+          envIdMatch = issuerUrl.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+        }
         if (envIdMatch && envIdMatch[1]) {
           const extractedEnvId = envIdMatch[1];
           console.log('[CompleteMFAFlowV7] Extracted environment ID:', extractedEnvId);
@@ -447,13 +456,17 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       console.log('[CompleteMFAFlowV7] Saving credentials:', credentials);
       
       // Save to credential manager
-      await credentialManager.saveCredentials({
+      const saveSuccess = credentialManager.saveCustomData(MFA_CREDENTIALS_STORAGE_KEY, {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
         clientSecret: credentials.clientSecret,
         redirectUri: credentials.redirectUri,
         scopes: ['openid', 'profile', 'email']
       });
+      
+      if (!saveSuccess) {
+        throw new Error('Failed to save credentials to credential manager');
+      }
       
       setHasUnsavedChanges(false);
       v4ToastManager.showSuccess('Credentials saved successfully');
