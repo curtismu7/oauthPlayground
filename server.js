@@ -261,6 +261,9 @@ app.post('/api/token-exchange', async (req, res) => {
 					error_description: 'Missing required parameter: code',
 				});
 			}
+		} else if (grant_type === 'client_credentials') {
+			// Client credentials grant only needs client_id and client_secret (handled by auth method)
+			console.log('🔑 [Server] Validating client_credentials grant type');
 		}
 
 		// Get environment ID from request or environment (skip env fallback in test)
@@ -298,6 +301,14 @@ app.post('/api/token-exchange', async (req, res) => {
 				client_id: client_id,
 				refresh_token: refresh_token,
 				scope: scope || 'openid profile email',
+			});
+		} else if (grant_type === 'client_credentials') {
+			// Client credentials grant - only include grant_type, client_id, and scope
+			console.log('🔑 [Server] Building client credentials request body');
+			tokenRequestBody = new URLSearchParams({
+				grant_type: 'client_credentials',
+				client_id: client_id,
+				scope: scope || 'p1:read:user p1:update:user p1:read:device p1:update:device',
 			});
 		} else {
 			// Authorization code grant - include code, redirect_uri, code_verifier (only if PKCE is used)
