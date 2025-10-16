@@ -44,6 +44,8 @@ import credentialManager from '../utils/credentialManager';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { CredentialsInput } from '../components/CredentialsInput';
 import { oidcDiscoveryService, type DiscoveryResult } from '../services/oidcDiscoveryService';
+import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
+import { EnhancedApiCallDisplayService, type EnhancedApiCallData } from '../services/enhancedApiCallDisplayService';
 
 export interface CompleteMFAFlowProps {
   requireMFA?: boolean;
@@ -338,6 +340,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   const [retryCount, setRetryCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  
+  // API Call tracking for educational display
+  const [apiCalls, setApiCalls] = useState<{
+    workerToken?: EnhancedApiCallData;
+    authentication?: EnhancedApiCallData;
+    deviceRegistration?: EnhancedApiCallData;
+    mfaChallenge?: EnhancedApiCallData;
+    mfaValidation?: EnhancedApiCallData;
+    tokenExchange?: EnhancedApiCallData;
+  }>({});
   const [flowContext, setFlowContext] = useState<FlowContext>({
     flowId: '',
     userDevices: [],
@@ -456,6 +468,147 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   }, []);
 
   // Handle saving credentials
+  // Create API call data for educational display
+  const createApiCallData = useCallback((
+    type: keyof typeof apiCalls,
+    method: string,
+    url: string,
+    headers: Record<string, string>,
+    body: any,
+    response?: any,
+    educationalNotes?: string[]
+  ): EnhancedApiCallData => {
+    const baseUrl = `https://auth.pingone.com/${credentials.environmentId}`;
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    
+    return {
+      method,
+      url: fullUrl,
+      headers,
+      body,
+      response,
+      flowType: 'mfa',
+      stepName: type,
+      educationalNotes: educationalNotes || [],
+      timestamp: new Date().toISOString(),
+      duration: Math.floor(Math.random() * 500) + 200, // Mock duration
+    };
+  }, [credentials.environmentId]);
+
+  // Simulate API calls for educational purposes
+  const simulateApiCalls = useCallback(() => {
+    // Worker Token API Call
+    const workerTokenCall = createApiCallData(
+      'workerToken',
+      'POST',
+      '/as/token',
+      {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`
+      },
+      {
+        grant_type: 'client_credentials',
+        scope: 'p1:read:user p1:update:user p1:read:device p1:update:device'
+      },
+      {
+        status: 200,
+        statusText: 'OK',
+        data: {
+          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          scope: 'p1:read:user p1:update:user p1:read:device p1:update:device'
+        }
+      },
+      [
+        'Worker tokens are used for server-to-server authentication',
+        'This token has permissions to manage MFA devices and challenges',
+        'The scope includes device management permissions: p1:read:device, p1:update:device',
+        'Worker tokens typically have longer expiration times than user tokens'
+      ]
+    );
+
+    // Authentication API Call
+    const authCall = createApiCallData(
+      'authentication',
+      'POST',
+      '/as/token',
+      {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`
+      },
+      {
+        grant_type: 'password',
+        username: 'user@example.com',
+        password: '••••••••',
+        scope: 'openid profile email'
+      },
+      {
+        status: 200,
+        statusText: 'OK',
+        data: {
+          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+          refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+          token_type: 'Bearer',
+          expires_in: 3600,
+          scope: 'openid profile email'
+        }
+      },
+      [
+        'This uses the Resource Owner Password Credentials grant type',
+        'The username and password are sent in the request body',
+        'Response includes access_token, refresh_token, and id_token',
+        'The id_token contains user identity information'
+      ]
+    );
+
+    // MFA Device Registration API Call
+    const deviceRegistrationCall = createApiCallData(
+      'deviceRegistration',
+      'POST',
+      `/users/${credentials.userId || 'user-id'}/devices`,
+      {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer [worker-token]'
+      },
+      {
+        type: 'TOTP',
+        name: 'My Authenticator App',
+        nickname: 'Primary Device'
+      },
+      {
+        status: 201,
+        statusText: 'Created',
+        data: {
+          id: 'device-12345',
+          type: 'TOTP',
+          status: 'ACTIVATION_REQUIRED',
+          name: 'My Authenticator App',
+          nickname: 'Primary Device',
+          qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
+          secret: 'JBSWY3DPEHPK3PXP',
+          totpUri: 'otpauth://totp/PingOne:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=PingOne',
+          createdAt: new Date().toISOString()
+        }
+      },
+      [
+        'This creates a new MFA device for the user',
+        'The device type can be TOTP, SMS, EMAIL, VOICE, or FIDO2',
+        'Response includes QR code data for TOTP setup',
+        'The device starts in ACTIVATION_REQUIRED status',
+        'The secret key is used to generate TOTP codes'
+      ]
+    );
+
+    setApiCalls(prev => ({
+      ...prev,
+      workerToken: workerTokenCall,
+      authentication: authCall,
+      deviceRegistration: deviceRegistrationCall
+    }));
+  }, [createApiCallData, credentials]);
+
   const handleSaveCredentials = useCallback(async () => {
     setIsSaving(true);
     try {
@@ -620,6 +773,58 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               />
             </CollapsibleHeaderService.CollapsibleHeader>
 
+            {/* Worker Token API Call Display */}
+            <CollapsibleHeaderService.CollapsibleHeader
+              title="Step 1: Get Worker Token"
+              subtitle="Obtain a worker token for MFA operations"
+              icon={<FiKey />}
+              theme="blue"
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                  Before performing MFA operations, we need to obtain a worker token that has the necessary permissions to manage MFA devices and challenges.
+                </p>
+                
+                {apiCalls.workerToken ? (
+                  <EnhancedApiCallDisplay
+                    apiCall={apiCalls.workerToken}
+                    options={{
+                      showEducationalNotes: true,
+                      showFlowContext: true,
+                      urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('client-credentials')
+                    }}
+                  />
+                ) : (
+                  <div style={{ 
+                    padding: '1rem', 
+                    background: '#f8fafc', 
+                    border: '1px solid #e2e8f0', 
+                    borderRadius: '8px',
+                    textAlign: 'center',
+                    color: '#6b7280'
+                  }}>
+                    <FiKey size={24} style={{ marginBottom: '0.5rem' }} />
+                    <p style={{ marginBottom: '1rem' }}>Worker token API call will be displayed here after authentication</p>
+                    <button
+                      onClick={simulateApiCalls}
+                      style={{
+                        background: '#7c3aed',
+                        color: 'white',
+                        border: 'none',
+                        padding: '0.5rem 1rem',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '0.875rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      Simulate API Calls
+                    </button>
+                  </div>
+                )}
+              </div>
+            </CollapsibleHeaderService.CollapsibleHeader>
+
             <CollapsibleHeaderService.CollapsibleHeader
               title="User Authentication"
               subtitle="Enter your username and password to authenticate"
@@ -724,6 +929,36 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 </InfoText>
               </InfoContent>
             </InfoBox>
+
+            {/* MFA Device Registration API Call Display */}
+            <div style={{ marginTop: '1.5rem' }}>
+              <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: '600', color: '#374151' }}>
+                🔧 MFA Device Registration API
+              </h4>
+              
+              {apiCalls.deviceRegistration ? (
+                <EnhancedApiCallDisplay
+                  apiCall={apiCalls.deviceRegistration}
+                  options={{
+                    showEducationalNotes: true,
+                    showFlowContext: true,
+                    urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('mfa')
+                  }}
+                />
+              ) : (
+                <div style={{ 
+                  padding: '1rem', 
+                  background: '#f8fafc', 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#6b7280'
+                }}>
+                  <FiSmartphone size={24} style={{ marginBottom: '0.5rem' }} />
+                  <p>MFA device registration API call will be displayed here</p>
+                </div>
+              )}
+            </div>
 
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
               <NavigationButton
