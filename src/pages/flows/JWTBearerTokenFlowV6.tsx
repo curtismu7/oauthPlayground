@@ -250,8 +250,18 @@ const JWTBearerTokenFlowV6: React.FC = () => {
 			console.log('🔍 [JWT Bearer] Discovering audience for environment:', environmentId);
 			
 			// Construct issuer URL from environment ID
-			const issuerUrl = `https://auth.pingone.com/${environmentId.trim()}/as`;
+			const trimmedEnvId = environmentId.trim();
+			if (!trimmedEnvId) {
+				throw new Error('Environment ID is empty after trimming');
+			}
+			
+			const issuerUrl = `https://auth.pingone.com/${trimmedEnvId}/as`;
 			console.log('🔍 [JWT Bearer] Constructed issuer URL:', issuerUrl);
+			
+			// Validate issuer URL before calling discovery
+			if (!issuerUrl || typeof issuerUrl !== 'string') {
+				throw new Error('Invalid issuer URL constructed');
+			}
 			
 			// Perform OIDC discovery
 			const result = await oidcDiscoveryService.discover(issuerUrl);
@@ -1080,7 +1090,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 												}}
 											>
 												<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-													🟣 PingOne Advanced Identity Service
+													🟣 PingOne Advanced Identity Cloud
 												</div>
 												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
 													https://{pingone-ais-domain}/as/token
