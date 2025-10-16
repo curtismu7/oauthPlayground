@@ -31,7 +31,7 @@ export class FlowCopyService {
 	 */
 	static createModernCopyHandler() {
 		return async (text: string, label: string) => {
-			await this.copyToClipboard(text, label);
+			await FlowCopyService.copyToClipboard(text, label);
 		};
 	}
 }

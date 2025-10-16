@@ -66,12 +66,12 @@ export const safeJsonParse = <T = unknown>(
 		if (parsed && typeof parsed === 'object') {
 			// Check for prototype pollution attempts - only block if these are OWN properties
 			// Use hasOwnProperty to avoid false positives from inherited properties
-			if (parsed.hasOwnProperty('__proto__') || parsed.hasOwnProperty('prototype')) {
+			if (Object.hasOwn(parsed, '__proto__') || Object.hasOwn(parsed, 'prototype')) {
 				console.warn('🚨 [Security] Blocked prototype pollution attempt in parsed JSON');
 				return null;
 			}
 			// Only block constructor if it's an own property and not a flowContext object
-			if (parsed.hasOwnProperty('constructor') && !parsed.flow) {
+			if (Object.hasOwn(parsed, 'constructor') && !parsed.flow) {
 				console.warn(
 					'🚨 [Security] Blocked prototype pollution attempt in parsed JSON (constructor)'
 				);

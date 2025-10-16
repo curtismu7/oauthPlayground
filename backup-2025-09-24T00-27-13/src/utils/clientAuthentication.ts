@@ -49,7 +49,7 @@ export const applyClientAuthentication = async (
 			}
 			break;
 
-		case 'client_secret_basic':
+		case 'client_secret_basic': {
 			// Method 2: HTTP Basic Authentication
 			if (!config.clientSecret) {
 				throw new Error('Client secret is required for client_secret_basic authentication');
@@ -58,8 +58,9 @@ export const applyClientAuthentication = async (
 			headers['Authorization'] = `Basic ${credentials}`;
 			// Don't add client_id/client_secret to body for Basic auth
 			break;
+		}
 
-		case 'client_secret_jwt':
+		case 'client_secret_jwt': {
 			// Method 3: JWT signed with client secret (HS256)
 			if (!config.clientSecret) {
 				throw new Error('Client secret is required for client_secret_jwt authentication');
@@ -76,8 +77,9 @@ export const applyClientAuthentication = async (
 			);
 			body.append('client_assertion', secretJWT);
 			break;
+		}
 
-		case 'private_key_jwt':
+		case 'private_key_jwt': {
 			// Method 4: JWT signed with private key (RS256)
 			if (!config.privateKey) {
 				throw new Error('Private key is required for private_key_jwt authentication');
@@ -94,6 +96,7 @@ export const applyClientAuthentication = async (
 			);
 			body.append('client_assertion', privateKeyJWT);
 			break;
+		}
 
 		case 'none':
 			// Method 5: No client authentication (public clients)

@@ -36,7 +36,7 @@ import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flo
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import TokenDisplayService from '../../services/tokenDisplayService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';

@@ -128,6 +128,20 @@ export class V4ToastManager {
 	}
 
 	/**
+	 * Show info toast with message interpolation or custom message
+	 */
+	showInfo(
+		keyOrMessage: keyof ButtonToastScenarios | string,
+		variables: Record<string, string> = {}
+	): void {
+		const message = this.isPresetKey(keyOrMessage)
+			? this.interpolateMessage(this.messages[keyOrMessage], variables)
+			: keyOrMessage;
+		// Use showGlobalSuccess for info messages since there's no specific info toast
+		showGlobalSuccess(message);
+	}
+
+	/**
 	 * Check if the input is a preset key or custom message
 	 */
 	private isPresetKey(keyOrMessage: string): keyOrMessage is keyof ButtonToastScenarios {

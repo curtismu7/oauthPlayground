@@ -139,6 +139,7 @@ const ImplicitCallback: React.FC = () => {
 
 				if (accessToken || idToken) {
 					// Check which flow this is from by looking for flow context
+					const v7Context = sessionStorage.getItem('implicit-flow-v7-oauth-active') || sessionStorage.getItem('implicit-flow-v7-oidc-active');
 					const v6OAuthContext = sessionStorage.getItem('oauth-implicit-v6-flow-active');
 					const v6OIDCContext = sessionStorage.getItem('oidc-implicit-v6-flow-active');
 					const v5OAuthContext = sessionStorage.getItem('oauth-implicit-v5-flow-active');
@@ -147,7 +148,25 @@ const ImplicitCallback: React.FC = () => {
 						sessionStorage.getItem('oidc_implicit_v3_flow_context') ||
 						sessionStorage.getItem('oauth2_implicit_v3_flow_context');
 
-					if (v6OAuthContext || v6OIDCContext) {
+					if (v7Context) {
+						// This is a V7 flow - determine variant and redirect back
+						setStatus('success');
+						setMessage('Tokens received - returning to unified flow');
+						
+						const isOIDCFlow = v7Context === 'implicit-flow-v7-oidc-active';
+						
+						logger.auth('ImplicitCallback', 'V7 implicit grant received, returning to unified flow', {
+							hasAccessToken: !!accessToken,
+							hasIdToken: !!idToken,
+							variant: isOIDCFlow ? 'oidc' : 'oauth',
+						});
+
+						setTimeout(() => {
+							// Redirect to the unified V7 flow with fragment
+							const fragment = window.location.hash.substring(1);
+							navigate(`/flows/implicit-v7#${fragment}`);
+						}, 1500);
+					} else if (v6OAuthContext || v6OIDCContext) {
 						// This is a V6 flow - store tokens in hash and redirect back
 						setStatus('success');
 						setMessage('Tokens received - returning to flow');

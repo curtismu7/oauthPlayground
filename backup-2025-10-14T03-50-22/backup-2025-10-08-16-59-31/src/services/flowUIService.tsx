@@ -838,66 +838,66 @@ export class FlowUIService {
 	static getFlowUIComponents() {
 		return {
 			// Layout components
-			Container: this.getContainer(),
-			ContentWrapper: this.getContentWrapper(),
-			MainCard: this.getMainCard(),
+			Container: FlowUIService.getContainer(),
+			ContentWrapper: FlowUIService.getContentWrapper(),
+			MainCard: FlowUIService.getMainCard(),
 
 			// Step header components
-			StepHeader: this.getStepHeader('blue'), // Default theme
-			StepHeaderLeft: this.getStepHeaderLeft(),
-			StepHeaderRight: this.getStepHeaderRight(),
-			VersionBadge: this.getVersionBadge('blue'), // Default theme
-			StepHeaderTitle: this.getStepHeaderTitle(),
-			StepHeaderSubtitle: this.getStepHeaderSubtitle(),
-			StepNumber: this.getStepNumber(),
-			StepTotal: this.getStepTotal(),
-			StepContentWrapper: this.getStepContentWrapper(),
+			StepHeader: FlowUIService.getStepHeader('blue'), // Default theme
+			StepHeaderLeft: FlowUIService.getStepHeaderLeft(),
+			StepHeaderRight: FlowUIService.getStepHeaderRight(),
+			VersionBadge: FlowUIService.getVersionBadge('blue'), // Default theme
+			StepHeaderTitle: FlowUIService.getStepHeaderTitle(),
+			StepHeaderSubtitle: FlowUIService.getStepHeaderSubtitle(),
+			StepNumber: FlowUIService.getStepNumber(),
+			StepTotal: FlowUIService.getStepTotal(),
+			StepContentWrapper: FlowUIService.getStepContentWrapper(),
 
 			// Collapsible sections
-			CollapsibleSection: this.getCollapsibleSection(),
-			CollapsibleHeaderButton: this.getCollapsibleHeaderButton('blue'), // Default theme
-			CollapsibleTitle: this.getCollapsibleTitle(),
-			CollapsibleToggleIcon: this.getCollapsibleToggleIcon('blue'), // Default theme
-			CollapsibleContent: this.getCollapsibleContent(),
+			CollapsibleSection: FlowUIService.getCollapsibleSection(),
+			CollapsibleHeaderButton: FlowUIService.getCollapsibleHeaderButton('blue'), // Default theme
+			CollapsibleTitle: FlowUIService.getCollapsibleTitle(),
+			CollapsibleToggleIcon: FlowUIService.getCollapsibleToggleIcon('blue'), // Default theme
+			CollapsibleContent: FlowUIService.getCollapsibleContent(),
 
 			// Info boxes
-			InfoBox: this.getInfoBox(),
-			InfoTitle: this.getInfoTitle(),
-			InfoText: this.getInfoText(),
+			InfoBox: FlowUIService.getInfoBox(),
+			InfoTitle: FlowUIService.getInfoTitle(),
+			InfoText: FlowUIService.getInfoText(),
 
 			// Flow suitability components
-			FlowSuitability: this.getFlowSuitability(),
-			SuitabilityCard: this.getSuitabilityCard(),
+			FlowSuitability: FlowUIService.getFlowSuitability(),
+			SuitabilityCard: FlowUIService.getSuitabilityCard(),
 
 			// Parameter display components
-			ParameterGrid: this.getParameterGrid(),
-			ParameterLabel: this.getParameterLabel(),
-			ParameterValue: this.getParameterValue(),
+			ParameterGrid: FlowUIService.getParameterGrid(),
+			ParameterLabel: FlowUIService.getParameterLabel(),
+			ParameterValue: FlowUIService.getParameterValue(),
 
 			// Generated content components
-			GeneratedContentBox: this.getGeneratedContentBox(),
-			GeneratedLabel: this.getGeneratedLabel(),
-			InfoList: this.getInfoList(),
+			GeneratedContentBox: FlowUIService.getGeneratedContentBox(),
+			GeneratedLabel: FlowUIService.getGeneratedLabel(),
+			InfoList: FlowUIService.getInfoList(),
 
 			// Action components
-			ActionRow: this.getActionRow(),
-			Button: this.getButton(),
-			HighlightedActionButton: this.getHighlightedActionButton(),
+			ActionRow: FlowUIService.getActionRow(),
+			Button: FlowUIService.getButton(),
+			HighlightedActionButton: FlowUIService.getHighlightedActionButton(),
 
 			// Results components
-			ResultsSection: this.getResultsSection(),
-			ResultsHeading: this.getResultsHeading(),
-			CodeBlock: this.getCodeBlock(),
+			ResultsSection: FlowUIService.getResultsSection(),
+			ResultsHeading: FlowUIService.getResultsHeading(),
+			CodeBlock: FlowUIService.getCodeBlock(),
 
 			// Form components
-			FormGroup: this.getFormGroup(),
-			Label: this.getLabel(),
-			Input: this.getInput(),
-			TextArea: this.getTextArea(),
+			FormGroup: FlowUIService.getFormGroup(),
+			Label: FlowUIService.getLabel(),
+			Input: FlowUIService.getInput(),
+			TextArea: FlowUIService.getTextArea(),
 
 			// Utility components
-			SectionDivider: this.getSectionDivider(),
-			HelperText: this.getHelperText(),
+			SectionDivider: FlowUIService.getSectionDivider(),
+			HelperText: FlowUIService.getHelperText(),
 
 			// Typography
 			StrongText: styled.span`

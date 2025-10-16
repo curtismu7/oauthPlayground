@@ -328,11 +328,11 @@ class OAuthClient
     }
     
     query_string = URI.encode_www_form(params)
-    "\#{@base_url}/\#{@environment_id}/as/authorize?\#{query_string}"
+    "#{@base_url}/#{@environment_id}/as/authorize?#{query_string}"
   end
 
   def exchange_code_for_token(code)
-    uri = URI("\#{@base_url}/\#{@environment_id}/as/token")
+    uri = URI("#{@base_url}/#{@environment_id}/as/token")
     
     request = Net::HTTP::Post.new(uri)
     request.set_form_data({
@@ -369,7 +369,7 @@ config = {
 
 oauth_client = OAuthClient.new(config)
 auth_url = oauth_client.generate_auth_url
-puts "Visit this URL: \#{auth_url}"`,
+puts "Visit this URL: #{auth_url}"`,
 		dependencies: ['net-http'],
 	},
 ];
