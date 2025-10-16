@@ -2433,8 +2433,9 @@ const TokenManagement = () => {
 								: 'Get ID Token from current session'
 						}
 						style={{
-							backgroundColor: isOAuthFlow ? '#6b7280' : '#3b82f6',
-							borderColor: isOAuthFlow ? '#6b7280' : '#3b82f6',
+							backgroundColor: '#3b82f6',
+							borderColor: '#3b82f6',
+							opacity: isOAuthFlow ? 0.6 : 1,
 						}}
 					>
 						<FiShield />
