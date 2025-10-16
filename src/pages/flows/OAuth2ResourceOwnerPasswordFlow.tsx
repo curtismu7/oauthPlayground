@@ -4,7 +4,6 @@ import {
 	FiAlertTriangle,
 	FiInfo,
 	FiLock,
-	FiShield,
 	FiUser,
 	FiKey,
 	FiCheckCircle,
@@ -21,121 +20,50 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const PageContainer = styled.div`
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
-`;
-
-const PageHeader = styled.div`
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  color: white;
-  padding: 2rem;
-  border-radius: 0.75rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-`;
-
-const PageTitle = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const PageSubtitle = styled.p`
-  font-size: 1.25rem;
-  margin: 0;
-  opacity: 0.9;
+	max-width: 1200px;
+	margin: 0 auto;
+	padding: 2rem;
 `;
 
 const WarningCard = styled.div`
-  background: #fef2f2;
-  border: 2px solid #fecaca;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	background: #fef2f2;
+	border: 2px solid #fecaca;
+	border-radius: 0.75rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const InfoCard = styled.div`
-  background: #f0f9ff;
-  border: 2px solid #bae6fd;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+	background: #f0f9ff;
+	border: 2px solid #bae6fd;
+	border-radius: 0.75rem;
+	padding: 2rem;
+	margin-bottom: 2rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
 `;
 
 const CardContent = styled.div`
-  flex: 1;
-`;
-
-const CardTitle = styled.h3`
-  margin: 0 0 1rem 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+	flex: 1;
 `;
 
 const CardText = styled.p`
-  margin: 0 0 1rem 0;
-  line-height: 1.6;
+	margin: 0 0 1rem 0;
+	line-height: 1.6;
 `;
 
 const CardList = styled.ul`
-  margin: 0;
-  padding-left: 1.5rem;
-  line-height: 1.6;
+	margin: 0;
+	padding-left: 1.5rem;
+	line-height: 1.6;
 `;
 
 const CardListItem = styled.li`
-  margin-bottom: 0.5rem;
-`;
-
-const CodeBlock = styled.pre`
-  background: #1f2937;
-  color: #f9fafb;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  overflow-x: auto;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
-  line-height: 1.5;
-  margin: 1rem 0;
-`;
-
-const SecurityNotice = styled.div`
-  background: #fef3c7;
-  border: 2px solid #f59e0b;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin: 2rem 0;
-`;
-
-const SecurityTitle = styled.h4`
-  margin: 0 0 1rem 0;
-  color: #92400e;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const SecurityList = styled.ul`
-  margin: 0;
-  padding-left: 1.5rem;
-  color: #92400e;
-`;
-
-const SecurityListItem = styled.li`
-  margin-bottom: 0.5rem;
+	margin-bottom: 0.5rem;
 `;
 
 const FormContainer = styled.div`

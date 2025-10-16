@@ -1,7 +1,7 @@
 // src/pages/flows/config/RedirectlessFlow.config.ts
 // PingOne Redirectless Flow (pi.flow) Configuration
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
-import { FlowStateService } from '../../../services/flowStateService';
+import FlowStateService from '../../../services/flowStateService';
 
 // Flow configuration
 export const FLOW_TYPE = 'redirectless';

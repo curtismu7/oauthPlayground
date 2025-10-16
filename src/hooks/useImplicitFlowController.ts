@@ -2,17 +2,19 @@
 // Reusable controller hook for Implicit Flow (OAuth and OIDC variants)
 // Based on useAuthorizationCodeFlowController but simplified for Implicit flow
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { credentialManager } from '../utils/credentialManager';
+import type { PermanentCredentials } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
+import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService';
 
 // FlowConfig type (simplified for Implicit flow)
 interface FlowConfig {
@@ -92,13 +94,13 @@ export interface ImplicitFlowControllerOptions {
 	enableDebugger?: boolean;
 }
 
-const DEFAULT_FLOW_KEY = 'implicit-flow-v5';
+const DEFAULT_FLOW_KEY = 'implicit-v7';
 
 const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
 	clientId: '',
 	clientSecret: '', // Not used in Implicit but kept for consistency
-	redirectUri: 'https://localhost:3000/oauth-implicit-callback',
+	redirectUri: 'https://localhost:3000/implicit-callback',
 	postLogoutRedirectUri: 'https://localhost:3000/implicit-logout-callback',
 	scope: 'openid',
 	scopes: 'openid',
@@ -141,7 +143,7 @@ const loadStoredConfig = (storageKey: string, _variant: FlowVariant): FlowConfig
 	return getDefaultConfig();
 };
 
-const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): StepCredentials => {
+export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): StepCredentials => {
 	if (typeof window === 'undefined') {
 		return createEmptyCredentials();
 	}
@@ -152,12 +154,24 @@ const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): StepCre
 	const urlScope = urlParams.get('scope');
 	const urlRedirect = urlParams.get('redirect');
 
-	let loaded = credentialManager.loadImplicitFlowCredentials();
+	const primaryImplicitCredentials = credentialManager.loadImplicitFlowCredentials(variant);
+	const preservedImplicitRedirect = primaryImplicitCredentials.redirectUri ?? '';
+
+	let loaded = primaryImplicitCredentials;
 	if (!loaded.environmentId || !loaded.clientId) {
-		loaded = credentialManager.loadConfigCredentials();
+		const configCredentials = credentialManager.loadConfigCredentials();
+		loaded = {
+			...configCredentials,
+			// Preserve implicit redirect if it existed, otherwise use config redirect
+			redirectUri: preservedImplicitRedirect || configCredentials.redirectUri,
+		};
 	}
 	if (!loaded.environmentId || !loaded.clientId) {
-		loaded = credentialManager.loadPermanentCredentials();
+		const permanentCredentials = credentialManager.loadPermanentCredentials();
+		loaded = {
+			...permanentCredentials,
+			redirectUri: preservedImplicitRedirect || permanentCredentials.redirectUri,
+		};
 	}
 
 	const mergedScopes =
@@ -166,11 +180,18 @@ const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): StepCre
 		'openid';
 
 	// Properly handle redirect URI - only use fallback if truly undefined
-	const fallbackFlowType = flowKey || (variant === 'oidc' ? 'oidc-implicit-v5' : 'oauth-implicit-v5');
-	const redirectUri = urlRedirect || (loaded.redirectUri !== undefined ? loaded.redirectUri : getCallbackUrlForFlow(fallbackFlowType));
+	const fallbackFlowType = flowKey || 'implicit';
+	const redirectUri = urlRedirect || (
+		preservedImplicitRedirect
+			? preservedImplicitRedirect
+			: loaded.redirectUri !== undefined
+				? loaded.redirectUri
+				: getCallbackUrlForFlow(fallbackFlowType)
+	);
 
 	console.log('🔍 [useImplicitFlowController] loadInitialCredentials:', {
 		urlRedirect,
+		preservedImplicitRedirect,
 		loadedRedirectUri: loaded.redirectUri,
 		finalRedirectUri: redirectUri,
 		hasLoadedRedirectUri: loaded.redirectUri !== undefined
@@ -214,7 +235,7 @@ export const useImplicitFlowController = (
 
 	const [flowVariant, setFlowVariant] = useState<FlowVariant>(options.defaultFlowVariant ?? 'oidc');
 
-	const [credentials, setCredentials] = useState<StepCredentials>(() =>
+	const [credentials, setCredentialsState] = useState<StepCredentials>(() =>
 		loadInitialCredentials(options.defaultFlowVariant ?? 'oidc', flowKey)
 	);
 
@@ -310,6 +331,7 @@ export const useImplicitFlowController = (
 				enhancedDebugger.endSession();
 			};
 		}
+		return undefined;
 	}, [options.enableDebugger]);
 
 	// Generate nonce
@@ -342,6 +364,9 @@ export const useImplicitFlowController = (
 			);
 			return;
 		}
+
+		// Debug: Log the redirect URI being used
+		console.log('[useImplicitFlowController] Generating auth URL with redirectUri:', credentials.redirectUri);
 
 		// Generate nonce and state if not already set
 		const finalNonce =
@@ -441,8 +466,11 @@ export const useImplicitFlowController = (
 			})
 		);
 		
-		// Set flow-specific flag for ImplicitCallback to recognize V6 flows
-		if (flowKey.includes('implicit-v6')) {
+		// Set flow-specific flag for ImplicitCallback to recognize V7 flows
+		if (flowKey.includes('implicit-v7')) {
+			ImplicitFlowSharedService.SessionStorage.setActiveFlow(flowVariant, 'v7');
+			console.log(`🔄 [useImplicitFlowController] Set V7 ${flowVariant.toUpperCase()} flag for callback detection`);
+		} else if (flowKey.includes('implicit-v6')) {
 			const flowFlag = flowVariant === 'oidc' 
 				? 'oidc-implicit-v6-flow-active'
 				: 'oauth-implicit-v6-flow-active';
@@ -468,17 +496,21 @@ export const useImplicitFlowController = (
 					access_token: params.get('access_token') || '',
 				};
 
-				if (params.get('id_token')) {
-					tokenData.id_token = params.get('id_token') || undefined;
+				const idToken = params.get('id_token');
+				if (idToken !== null) {
+					tokenData.id_token = idToken;
 				}
-				if (params.get('token_type')) {
-					tokenData.token_type = params.get('token_type') || undefined;
+				const tokenType = params.get('token_type');
+				if (tokenType !== null) {
+					tokenData.token_type = tokenType;
 				}
-				if (params.get('expires_in')) {
-					tokenData.expires_in = parseInt(params.get('expires_in') || '0', 10);
+				const expiresIn = params.get('expires_in');
+				if (expiresIn !== null) {
+					tokenData.expires_in = parseInt(expiresIn, 10);
 				}
-				if (params.get('scope')) {
-					tokenData.scope = params.get('scope') || undefined;
+				const scopeParam = params.get('scope');
+				if (scopeParam !== null) {
+					tokenData.scope = scopeParam;
 				}
 
 				setTokens(tokenData);
@@ -503,10 +535,9 @@ export const useImplicitFlowController = (
 				console.log('✅ [useImplicitFlowController] Tokens parsed from fragment');
 			} catch (error) {
 				console.error('[useImplicitFlowController] Failed to parse tokens from fragment:', error);
-				showGlobalError(
-					'Failed to parse tokens from URL',
-					error instanceof Error ? error.message : 'Unknown error'
-				);
+				showGlobalError('Failed to parse tokens from URL', {
+					description: error instanceof Error ? error.message : 'Unknown error',
+				});
 			}
 		},
 		[flowVariant, saveStepResult]
@@ -555,7 +586,7 @@ export const useImplicitFlowController = (
 
 			const errorMessage =
 				error instanceof Error ? error.message : 'Failed to fetch user information';
-			showGlobalError(`UserInfo request failed: ${errorMessage}`);
+			showGlobalError('UserInfo request failed', { description: errorMessage });
 
 			trackTokenOperation('UserInfo', false, errorMessage);
 		} finally {
@@ -573,28 +604,45 @@ export const useImplicitFlowController = (
 		setIsSavingCredentials(true);
 
 		try {
-			// Convert credentials to format expected by credentialManager
+			const normalizedScopes = (() => {
+				if (typeof credentials.scopes === 'string' && credentials.scopes.trim()) {
+					return credentials.scopes.split(' ').filter(Boolean);
+				}
+				if (Array.isArray(credentials.scopes) && credentials.scopes.length > 0) {
+					return credentials.scopes;
+				}
+				if (typeof credentials.scope === 'string' && credentials.scope.trim()) {
+					return credentials.scope.split(' ').filter(Boolean);
+				}
+				return ['openid'];
+			})();
 			const credsToSave = {
 				...credentials,
-				scopes:
-					typeof credentials.scopes === 'string'
-						? credentials.scopes.split(' ').filter(Boolean)
-						: credentials.scopes || ['openid'],
+				scopes: normalizedScopes,
+				scope: credentials.scope || normalizedScopes.join(' '),
 			};
 			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
-			await credentialManager.saveImplicitFlowCredentials(credsToSave as any);
+			await credentialManager.saveImplicitFlowCredentials(credsToSave as any, flowVariant);
 			
-			// CRITICAL: Also save to authz flow credentials for callback page to load
-			credentialManager.saveAuthzFlowCredentials({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
+			const authzPayload: Partial<PermanentCredentials> = {
+				environmentId: credentials.environmentId || '',
+				clientId: credentials.clientId || '',
 				redirectUri: credentials.redirectUri,
-				scopes: credentials.scopes,
-				authEndpoint: credentials.authEndpoint,
-				tokenEndpoint: credentials.tokenEndpoint,
-				userInfoEndpoint: credentials.userInfoEndpoint,
-			});
+				scopes: normalizedScopes,
+			};
+			if (credentials.clientSecret) {
+				authzPayload.clientSecret = credentials.clientSecret;
+			}
+			if (credentials.authorizationEndpoint) {
+				authzPayload.authEndpoint = credentials.authorizationEndpoint;
+			}
+			if (credentials.tokenEndpoint) {
+				authzPayload.tokenEndpoint = credentials.tokenEndpoint;
+			}
+			if (credentials.userInfoEndpoint) {
+				authzPayload.userInfoEndpoint = credentials.userInfoEndpoint;
+			}
+			credentialManager.saveAuthzFlowCredentials(authzPayload);
 			console.log('✅ [useImplicitFlowController] Credentials saved to authz flow storage for callback');
 			
 			setHasCredentialsSaved(true);
@@ -661,16 +709,20 @@ export const useImplicitFlowController = (
 	// Load saved credentials on mount
 	useEffect(() => {
 		try {
-			const saved = credentialManager.loadImplicitFlowCredentials();
+			const saved = credentialManager.loadImplicitFlowCredentials(flowVariant);
 			if (saved.environmentId && saved.clientId) {
 				setHasCredentialsSaved(true);
 			}
 		} catch (_error) {
 			setHasCredentialsSaved(false);
 		}
+	}, [flowVariant]);
+
+	const setCredentials = useCallback((newCredentials: StepCredentials) => {
+		setCredentialsState(newCredentials);
 	}, []);
 
-	return {
+	return useMemo(() => ({
 		flowVariant,
 		setFlowVariant,
 		persistKey,
@@ -706,5 +758,41 @@ export const useImplicitFlowController = (
 		saveStepResult,
 		hasStepResult,
 		clearStepResults,
-	};
+	}), [
+		flowVariant,
+		setFlowVariant,
+		persistKey,
+		credentials,
+		setCredentials,
+		setFlowConfig,
+		flowConfig,
+		handleFlowConfigChange,
+		nonce,
+		state,
+		generateNonce,
+		generateState,
+		authUrl,
+		generateAuthorizationUrl,
+		showUrlExplainer,
+		setShowUrlExplainer,
+		isAuthorizing,
+		handlePopupAuthorization,
+		handleRedirectAuthorization,
+		resetFlow,
+		tokens,
+		setTokensFromFragment,
+		userInfo,
+		isFetchingUserInfo,
+		fetchUserInfo,
+		isSavingCredentials,
+		hasCredentialsSaved,
+		hasUnsavedCredentialChanges,
+		saveCredentials,
+		handleCopy,
+		copiedField,
+		stepManager,
+		saveStepResult,
+		hasStepResult,
+		clearStepResults,
+	]);
 };

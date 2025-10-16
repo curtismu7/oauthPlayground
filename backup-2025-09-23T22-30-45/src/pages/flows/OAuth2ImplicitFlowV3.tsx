@@ -309,7 +309,7 @@ const SecurityWarning = styled.div`
   color: #92400e;
 `;
 
-interface OAuth2ImplicitFlowV3Props {}
+type OAuth2ImplicitFlowV3Props = {}
 
 const OAuth2ImplicitFlowV3: React.FC<OAuth2ImplicitFlowV3Props> = () => {
 	const authContext = useAuth();

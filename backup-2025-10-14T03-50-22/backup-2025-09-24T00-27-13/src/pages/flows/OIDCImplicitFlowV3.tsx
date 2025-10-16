@@ -332,7 +332,7 @@ const SecurityWarning = styled.div`
   color: #92400e;
 `;
 
-interface OIDCImplicitFlowV3Props {}
+type OIDCImplicitFlowV3Props = {}
 
 const OIDCImplicitFlowV3: React.FC<OIDCImplicitFlowV3Props> = () => {
 	const authContext = useAuth();

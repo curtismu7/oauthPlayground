@@ -219,11 +219,12 @@ export class ClientCredentialsTokenRequest {
 
 		// Handle authentication method
 		switch (authMethod) {
-			case 'client_secret_basic':
+			case 'client_secret_basic': {
 				// Basic authentication in header
 				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 				headers['Authorization'] = `Basic ${basicAuth}`;
 				break;
+			}
 
 			case 'client_secret_post':
 				// Credentials in request body
@@ -262,7 +263,7 @@ export class ClientCredentialsTokenRequest {
 		credentials: StepCredentials,
 		authMethod: ClientAuthMethod = 'client_secret_post'
 	): Promise<ClientCredentialsTokens> {
-		const { url, headers, body } = this.buildTokenRequest(credentials, authMethod);
+		const { url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(credentials, authMethod);
 
 		try {
 			const response = await fetch('/api/token-exchange', {

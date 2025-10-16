@@ -280,7 +280,7 @@ export class FlowInfoService {
 					solution: 'Request new device code and restart the flow',
 				},
 			],
-			relatedFlows: ['oauth-authorization-code', 'oidc-ciba-v5'],
+			relatedFlows: ['oauth-authorization-code', 'oidc-ciba-v6'],
 			documentationLinks: [
 				{
 					title: 'OAuth 2.0 Device Authorization Grant',
@@ -956,9 +956,9 @@ export class FlowInfoService {
 				},
 			],
 		},
-		'oidc-ciba-v5': {
+		'oidc-ciba-v6': {
 			flowType: 'oidc',
-			flowName: 'OIDC CIBA Flow',
+			flowName: 'OIDC CIBA Flow (Mock)',
 			flowVersion: 'V5',
 			flowCategory: 'standard',
 			complexity: 'complex',
@@ -1134,22 +1134,22 @@ export class FlowInfoService {
 	 * Get detailed flow information for a specific flow type
 	 */
 	static getFlowInfo(flowType: string): DetailedFlowInfo | null {
-		return this.flowConfigs[flowType] || null;
+		return FlowInfoService.flowConfigs[flowType] || null;
 	}
 
 	/**
 	 * Generate flow information card data for display
 	 */
 	static generateFlowInfoCard(flowType: string): FlowInfoCardData | null {
-		const flowInfo = this.getFlowInfo(flowType);
+		const flowInfo = FlowInfoService.getFlowInfo(flowType);
 		if (!flowInfo) return null;
 
 		return {
 			header: {
 				title: `${flowInfo.flowType === 'oauth' ? 'OAuth 2.0' : 'OIDC'} ${flowInfo.flowName}`,
 				subtitle: flowInfo.flowVersion,
-				badge: this.getCategoryBadge(flowInfo.flowCategory),
-				icon: this.getFlowIcon(flowInfo.flowName),
+				badge: FlowInfoService.getCategoryBadge(flowInfo.flowCategory),
+				icon: FlowInfoService.getFlowIcon(flowInfo.flowName),
 			},
 			keyDetails: {
 				tokensReturned: flowInfo.tokensReturned,
@@ -1161,9 +1161,9 @@ export class FlowInfoService {
 			securityNotes: flowInfo.securityNotes ?? [],
 			useCases: flowInfo.useCases ?? [],
 			additionalInfo: {
-				complexity: this.getComplexityLabel(flowInfo.complexity),
-				securityLevel: this.getSecurityLevelLabel(flowInfo.securityLevel),
-				userInteraction: this.getUserInteractionLabel(flowInfo.userInteraction),
+				complexity: FlowInfoService.getComplexityLabel(flowInfo.complexity),
+				securityLevel: FlowInfoService.getSecurityLevelLabel(flowInfo.securityLevel),
+				userInteraction: FlowInfoService.getUserInteractionLabel(flowInfo.userInteraction),
 				backendRequired: flowInfo.backendRequired,
 			},
 		};
@@ -1173,14 +1173,14 @@ export class FlowInfoService {
 	 * Get all available flow types
 	 */
 	static getAvailableFlowTypes(): string[] {
-		return Object.keys(this.flowConfigs);
+		return Object.keys(FlowInfoService.flowConfigs);
 	}
 
 	/**
 	 * Get flows by category
 	 */
 	static getFlowsByCategory(category: DetailedFlowInfo['flowCategory']): string[] {
-		return Object.entries(this.flowConfigs)
+		return Object.entries(FlowInfoService.flowConfigs)
 			.filter(([, config]) => config.flowCategory === category)
 			.map(([flowType]) => flowType);
 	}
@@ -1189,7 +1189,7 @@ export class FlowInfoService {
 	 * Get flows by complexity level
 	 */
 	static getFlowsByComplexity(complexity: DetailedFlowInfo['complexity']): string[] {
-		return Object.entries(this.flowConfigs)
+		return Object.entries(FlowInfoService.flowConfigs)
 			.filter(([, config]) => config.complexity === complexity)
 			.map(([flowType]) => flowType);
 	}
@@ -1198,7 +1198,7 @@ export class FlowInfoService {
 	 * Get flows by security level
 	 */
 	static getFlowsBySecurityLevel(securityLevel: DetailedFlowInfo['securityLevel']): string[] {
-		return Object.entries(this.flowConfigs)
+		return Object.entries(FlowInfoService.flowConfigs)
 			.filter(([, config]) => config.securityLevel === securityLevel)
 			.map(([flowType]) => flowType);
 	}
@@ -1215,7 +1215,7 @@ export class FlowInfoService {
 		refreshTokenSupport?: boolean;
 		idTokenSupport?: boolean;
 	}): string[] {
-		return Object.entries(this.flowConfigs)
+		return Object.entries(FlowInfoService.flowConfigs)
 			.filter(([, config]) => {
 				return Object.entries(criteria).every(([key, value]) => {
 					if (value === undefined) return true;
@@ -1229,7 +1229,7 @@ export class FlowInfoService {
 	 * Get related flows for a given flow type
 	 */
 	static getRelatedFlows(flowType: string): string[] {
-		const flowInfo = this.getFlowInfo(flowType);
+		const flowInfo = FlowInfoService.getFlowInfo(flowType);
 		return flowInfo?.relatedFlows || [];
 	}
 
@@ -1237,7 +1237,7 @@ export class FlowInfoService {
 	 * Get common issues and solutions for a flow
 	 */
 	static getCommonIssues(flowType: string): Array<{ issue: string; solution: string }> {
-		const flowInfo = this.getFlowInfo(flowType);
+		const flowInfo = FlowInfoService.getFlowInfo(flowType);
 		return flowInfo?.commonIssues || [];
 	}
 
@@ -1245,7 +1245,7 @@ export class FlowInfoService {
 	 * Get implementation notes for a flow
 	 */
 	static getImplementationNotes(flowType: string): string[] {
-		const flowInfo = this.getFlowInfo(flowType);
+		const flowInfo = FlowInfoService.getFlowInfo(flowType);
 		return flowInfo?.implementationNotes || [];
 	}
 
@@ -1253,7 +1253,7 @@ export class FlowInfoService {
 	 * Get documentation links for a flow
 	 */
 	static getDocumentationLinks(flowType: string): Array<{ title: string; url: string }> {
-		const flowInfo = this.getFlowInfo(flowType);
+		const flowInfo = FlowInfoService.getFlowInfo(flowType);
 		return flowInfo?.documentationLinks || [];
 	}
 
