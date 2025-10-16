@@ -18,6 +18,9 @@ import {
   FiMail,
   FiPhone,
   FiLock,
+  FiExternalLink,
+  FiSend,
+  FiHash,
   FiInfo,
   FiEye,
   FiEyeOff,
@@ -632,6 +635,84 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     }
   }, [createApiCallData, credentials]);
 
+  // Handle PingOne MFA response options
+  const handlePingOneMfaResponse = useCallback(async (responseType: string) => {
+    if (!credentials.environmentId || !credentials.clientId) {
+      v4ToastManager.showError('Please enter Environment ID and Client ID');
+      return;
+    }
+
+    // Store current scroll position to prevent jumping to top
+    const currentScrollY = window.scrollY;
+    
+    setIsLoading(true);
+    try {
+      console.log(`🔧 [MFA Flow V7] Making PingOne MFA API call with response=${responseType}`);
+      
+      // Build the PingOne MFA API URL based on response type
+      let mfaUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?`;
+      const params = new URLSearchParams({
+        client_id: credentials.clientId,
+        response_type: 'code',
+        scope: 'openid profile email p1:read:user p1:update:user',
+        redirect_uri: credentials.redirectUri || 'https://localhost:3000/authz-callback',
+        state: `mfa-${responseType}-${Date.now()}`,
+        response_mode: responseType === 'pi.flow' ? 'pi.flow' : responseType,
+        prompt: 'login',
+        acr_values: 'mfa'
+      });
+      
+      mfaUrl += params.toString();
+
+      // Create API call data for display
+      const mfaApiCall = createApiCallData(
+        'mfaResponse',
+        'GET',
+        `/as/authorize?${params.toString()}`,
+        {
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'User-Agent': 'Mozilla/5.0 (compatible; OAuth-Playground/1.0)'
+        },
+        null, // No body for GET request
+        {
+          status: 200,
+          statusText: 'OK',
+          data: {
+            response_type: responseType,
+            message: `PingOne MFA flow initiated with response=${responseType}`,
+            redirect_url: mfaUrl,
+            flow_type: 'pingone_mfa'
+          }
+        },
+        [
+          `PingOne MFA with response=${responseType}`,
+          responseType === 'pi.flow' ? 'Uses PingOne proprietary flow format' : `Uses standard ${responseType} response mode`,
+          'Includes MFA authentication context (acr_values=mfa)',
+          'Requires user interaction for MFA challenge',
+          'Returns authorization code for token exchange'
+        ]
+      );
+
+      setApiCalls(prev => ({
+        ...prev,
+        deviceRegistration: mfaApiCall
+      }));
+
+      v4ToastManager.showSuccess(`✅ PingOne MFA API call initiated with response=${responseType}`);
+      
+    } catch (error: any) {
+      console.error(`❌ [MFA Flow V7] Failed to make PingOne MFA API call:`, error);
+      v4ToastManager.showError(`Failed to make PingOne MFA API call: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+      
+      // Restore scroll position to prevent jumping to top
+      setTimeout(() => {
+        window.scrollTo(0, currentScrollY);
+      }, 100);
+    }
+  }, [createApiCallData, credentials]);
+
   const handleSaveCredentials = useCallback(async () => {
     setIsSaving(true);
     try {
@@ -1023,12 +1104,116 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               </InfoContent>
             </InfoBox>
 
-            {/* MFA Device Registration API Call Display */}
+            {/* PingOne MFA Response Options */}
             <div style={{ marginTop: '1.5rem' }}>
               <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: '600', color: '#374151' }}>
-                🔧 MFA Device Registration API
+                🔧 PingOne MFA Response Options
               </h4>
               
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+                gap: '1rem',
+                marginBottom: '1.5rem'
+              }}>
+                <button
+                  onClick={() => handlePingOneMfaResponse('pi.flow')}
+                  disabled={isLoading}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    background: '#3b82f6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    opacity: isLoading ? 0.6 : 1,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <FiArrowRight size={16} />
+                  response=pi.flow
+                </button>
+
+                <button
+                  onClick={() => handlePingOneMfaResponse('redirect')}
+                  disabled={isLoading}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    background: '#10b981',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    opacity: isLoading ? 0.6 : 1,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <FiExternalLink size={16} />
+                  redirect
+                </button>
+
+                <button
+                  onClick={() => handlePingOneMfaResponse('form_post')}
+                  disabled={isLoading}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    background: '#f59e0b',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    opacity: isLoading ? 0.6 : 1,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <FiSend size={16} />
+                  form_post
+                </button>
+
+                <button
+                  onClick={() => handlePingOneMfaResponse('fragment')}
+                  disabled={isLoading}
+                  style={{
+                    padding: '0.75rem 1rem',
+                    background: '#8b5cf6',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '0.875rem',
+                    fontWeight: '600',
+                    cursor: isLoading ? 'not-allowed' : 'pointer',
+                    opacity: isLoading ? 0.6 : 1,
+                    transition: 'all 0.2s ease',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <FiHash size={16} />
+                  fragment
+                </button>
+              </div>
+
+              {/* MFA Device Registration API Call Display */}
               {apiCalls.deviceRegistration ? (
                 <EnhancedApiCallDisplay
                   apiCall={apiCalls.deviceRegistration}
@@ -1048,7 +1233,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   color: '#6b7280'
                 }}>
                   <FiSmartphone size={24} style={{ marginBottom: '0.5rem' }} />
-                  <p>MFA device registration API call will be displayed here</p>
+                  <p>Click a response option above to see the PingOne MFA API call</p>
                 </div>
               )}
             </div>
