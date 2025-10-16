@@ -1,22 +1,15 @@
 // src/services/flowStateService.ts
 // Comprehensive Flow State Management Service
 
-import { logger } from '../utils/logger';
+export type FlowStatus = 'not_started' | 'in_progress' | 'completed' | 'failed' | 'abandoned';
 
 export interface FlowStep {
 	stepId: string;
 	stepName: string;
-	stepType:
-		| 'authentication'
-		| 'device_selection'
-		| 'device_registration'
-		| 'challenge'
-		| 'verification'
-		| 'completion';
+	stepType: 'authentication' | 'device_selection' | 'device_registration' | 'challenge' | 'verification' | 'completion' | 'generic';
 	status: 'not_started' | 'in_progress' | 'completed' | 'failed' | 'skipped';
 	startedAt?: Date;
 	completedAt?: Date;
-	duration?: number;
 	data?: Record<string, any>;
 	error?: string;
 	retryCount?: number;
@@ -26,35 +19,23 @@ export interface FlowState {
 	flowId: string;
 	userId: string;
 	flowType: string;
-	status: 'not_started' | 'in_progress' | 'completed' | 'failed' | 'abandoned';
+	status: FlowStatus;
 	currentStepId?: string;
 	steps: FlowStep[];
 	startedAt: Date;
 	completedAt?: Date;
-	totalDuration?: number;
 	metadata: Record<string, any>;
 	configuration: Record<string, any>;
 	results: Record<string, any>;
 }
 
-export interface FlowTransition {
-	fromStepId: string;
-	toStepId: string;
-	timestamp: Date;
-	reason: string;
-	data?: Record<string, any>;
-}
-
 class FlowStateService {
 	private static flows = new Map<string, FlowState>();
-	private static transitions = new Map<string, FlowTransition[]>();
 
-	/**
-	 * Generate structured metadata for flow steps from config definitions
-	 */
-	static createStepMetadata(
-		stepConfigs: Array<{ title: string; subtitle?: string; description?: string }>
-	) {
+	// ---------------------------------------------------------------------
+	// Metadata helpers used by various flow configs (retained from V6 work)
+	// ---------------------------------------------------------------------
+	static createStepMetadata(stepConfigs: Array<{ title: string; subtitle?: string; description?: string }>) {
 		return stepConfigs.map((config, index) => ({
 			stepNumber: index,
 			title: config.title,
@@ -63,59 +44,37 @@ class FlowStateService {
 		}));
 	}
 
-	/**
-	 * Create a consistent set of intro section keys for flow summary panels
-	 */
 	static createIntroSectionKeys(flowType: string): string[] {
-		const baseKeys = [
-			'overview',
-			'flowDiagram',
-			'credentials',
-			'results',
-			'flowSummary',
-		];
-
-		const flowSpecificKeys: Record<string, string[]> = {
+		const baseKeys = ['overview', 'flowDiagram', 'credentials', 'results', 'flowSummary'];
+		const flowSpecific: Record<string, string[]> = {
 			authorization: ['pkceOverview', 'authRequestOverview', 'authResponseOverview'],
 			oauth: ['tokenExchangeOverview', 'introspectionOverview'],
 			oidc: ['tokenExchangeOverview', 'introspectionOverview', 'securityOverview'],
 			default: ['securityOverview'],
 		};
 
-		const normalizedType = flowType.toLowerCase();
-		const additionalKeys =
-			flowSpecificKeys[normalizedType as keyof typeof flowSpecificKeys] ?? flowSpecificKeys.default;
-
-		return Array.from(new Set([...baseKeys, ...additionalKeys]));
+		const normalized = flowType.toLowerCase();
+		const extra = flowSpecific[normalized as keyof typeof flowSpecific] ?? flowSpecific.default;
+		return Array.from(new Set([...baseKeys, ...extra]));
 	}
 
-	/**
-	 * Initialize a new flow with default configuration
-	 */
-	static initializeFlow(
-		userId: string,
-		flowType: string,
-		configuration: Partial<FlowState['configuration']> = {}
-	): FlowState {
-		const flowId = this.generateFlowId();
-
+	// ---------------------------------------------------------------------
+	// Legacy-compatible Flow State API (used heavily by MFA flow)
+	// ---------------------------------------------------------------------
+	static initializeFlow(userId: string, flowType: string, configuration: Record<string, any> = {}): FlowState {
 		const flow: FlowState = {
-			flowId,
+			flowId: this.generateFlowId(),
 			userId,
 			flowType,
 			status: 'not_started',
 			steps: [],
 			startedAt: new Date(),
-			metadata: {
-				sessionId: this.generateSessionId(),
-			},
+			metadata: { sessionId: this.generateSessionId() },
 			configuration: { ...configuration },
 			results: {},
 		};
 
-		this.flows.set(flowId, flow);
-		this.transitions.set(flowId, []);
-		logger.info('FlowStateService', 'Flow initialized', { flowId, flowType });
+		this.flows.set(flow.flowId, flow);
 		return flow;
 	}
 
@@ -123,51 +82,123 @@ class FlowStateService {
 		return this.flows.get(flowId);
 	}
 
+	static getFlowState(flowId: string): FlowState | undefined {
+		return this.getFlow(flowId);
+	}
+
+	static startStep(flowId: string, stepId: string, stepName?: string): void {
+		const flow = this.flows.get(flowId);
+		if (!flow) {
+			return;
+		}
+
+		const step = this.ensureStep(flow, stepId, stepName);
+		step.status = 'in_progress';
+		step.startedAt = new Date();
+		if ('completedAt' in step) {
+			delete step.completedAt;
+		}
+		flow.currentStepId = stepId;
+		flow.status = 'in_progress';
+	}
+
+	static completeStep(flowId: string, stepId: string, data?: Record<string, any>): void {
+		const flow = this.flows.get(flowId);
+		if (!flow) {
+			return;
+		}
+
+		const step = this.ensureStep(flow, stepId);
+		step.status = 'completed';
+		step.completedAt = new Date();
+		if (data) {
+			step.data = { ...(step.data ?? {}), ...data };
+		}
+		flow.currentStepId = stepId;
+	}
+
+	static failStep(flowId: string, stepId: string, errorMessage: string): void {
+		const flow = this.flows.get(flowId);
+		if (!flow) {
+			return;
+		}
+
+		const step = this.ensureStep(flow, stepId);
+		step.status = 'failed';
+		step.completedAt = new Date();
+		step.error = errorMessage;
+		flow.status = 'failed';
+		flow.currentStepId = stepId;
+	}
+
+	static completeFlow(flowId: string): void {
+		const flow = this.flows.get(flowId);
+		if (!flow) {
+			return;
+		}
+
+		flow.status = 'completed';
+		flow.completedAt = new Date();
+	}
+
 	static updateFlow(flowId: string, updates: Partial<FlowState>): FlowState | undefined {
-		const existing = this.flows.get(flowId);
-		if (!existing) {
+		const flow = this.flows.get(flowId);
+		if (!flow) {
 			return undefined;
 		}
 
-		const updated: FlowState = {
-			...existing,
+		const merged: FlowState = {
+			...flow,
 			...updates,
-			metadata: {
-				...existing.metadata,
-				...(updates.metadata ?? {}),
-			},
-			configuration: {
-				...existing.configuration,
-				...(updates.configuration ?? {}),
-			},
-			results: {
-				...existing.results,
-				...(updates.results ?? {}),
-			},
+			metadata: { ...flow.metadata, ...(updates.metadata ?? {}) },
+			configuration: { ...flow.configuration, ...(updates.configuration ?? {}) },
+			results: { ...flow.results, ...(updates.results ?? {}) },
 		};
 
-		this.flows.set(flowId, updated);
-		return updated;
+		this.flows.set(flowId, merged);
+		return merged;
 	}
 
-	static recordTransition(
-		flowId: string,
-		fromStepId: string,
-		toStepId: string,
-		reason: string,
-		data?: Record<string, any>
-	) {
-		const transition: FlowTransition = {
-			fromStepId,
-			toStepId,
-			timestamp: new Date(),
-			reason,
-			data: data ?? {},
-		};
+	// ---------------------------------------------------------------------
+	// Internal helpers
+	// ---------------------------------------------------------------------
+	private static ensureStep(flow: FlowState, stepId: string, stepName?: string): FlowStep {
+		let step = flow.steps.find((s) => s.stepId === stepId);
+		if (!step) {
+			step = {
+				stepId,
+				stepName: stepName ?? this.formatStepName(stepId),
+				stepType: this.inferStepType(stepId),
+				status: 'not_started',
+			};
+			flow.steps.push(step);
+		}
 
-		const existing = this.transitions.get(flowId) ?? [];
-		existing.push(transition);
-		this.transitions.set(flowId, existing);
+		if (stepName) {
+			step.stepName = stepName;
+		}
+
+		return step;
+	}
+
+	private static inferStepType(stepId: string): FlowStep['stepType'] {
+		const normalized = stepId.toLowerCase();
+		if (normalized.includes('auth') || normalized.includes('login')) return 'authentication';
+		if (normalized.includes('device') && normalized.includes('registration')) return 'device_registration';
+		if (normalized.includes('device')) return 'device_selection';
+		if (normalized.includes('challenge')) return 'challenge';
+		if (normalized.includes('verify') || normalized.includes('verification')) return 'verification';
+		if (normalized.includes('success') || normalized.includes('complete')) return 'completion';
+		return 'generic';
+	}
+
+	private static formatStepName(stepId: string): string {
+		return stepId
+			.replace(/_/g, ' ')
+			.replace(/-/g, ' ')
+			.replace(/\s+/g, ' ')
+			.trim()
+			.replace(/\b\w/g, (letter) => letter.toUpperCase());
 	}
 
 	private static generateFlowId(): string {
