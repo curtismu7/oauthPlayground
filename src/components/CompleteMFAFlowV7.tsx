@@ -28,6 +28,7 @@ import {
   FiSettings,
   FiBook,
   FiPackage,
+  FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -732,21 +733,24 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     setHasUnsavedChanges(true);
   }, []);
 
-  const handleUsernameLogin = useCallback(async () => {
+  const handleUsernameLogin = useCallback(async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
     if (!credentials.username || !credentials.password) {
       v4ToastManager.showError('Please enter username and password');
       return;
     }
 
-    // Generate a mock authorization URL for demonstration with response_mode=pi.flow
+    // Generate authorization URL based on mode
+    const responseMode = mode === 'redirectless' ? 'pi.flow' : 'query';
     const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
       `client_id=${credentials.clientId}&` +
       `response_type=code&` +
-      `response_mode=pi.flow&` +
+      `response_mode=${responseMode}&` +
       `scope=openid+profile+email&` +
       `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
       `state=mfa-flow-${Date.now()}`;
 
+    console.log(`🔐 [MFA Flow V7] Starting ${mode} authentication with URL:`, mockAuthUrl);
+    
     setAuthUrl(mockAuthUrl);
     setShowRedirectModal(true);
   }, [credentials]);
@@ -941,6 +945,96 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                     </button>
                   </div>
                 )}
+              </div>
+            </CollapsibleHeaderService.CollapsibleHeader>
+
+            {/* User Authentication Section */}
+            <CollapsibleHeaderService.CollapsibleHeader
+              title="Step 2: User Authentication"
+              subtitle="Authenticate with PingOne using redirect or redirectless flow"
+              icon={<FiUser />}
+              theme="blue"
+            >
+              <div style={{ marginBottom: '1rem' }}>
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
+                  Choose your preferred authentication method. Redirect authentication opens a new window, while redirectless authentication uses response_mode=pi.flow for seamless integration.
+                </p>
+                
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+                  gap: '1rem',
+                  marginBottom: '1.5rem'
+                }}>
+                  <button
+                    onClick={() => handleUsernameLogin('redirect')}
+                    disabled={isLoading}
+                    style={{
+                      padding: '1rem',
+                      background: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      opacity: isLoading ? 0.6 : 1,
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      flexDirection: 'column',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <FiExternalLink size={24} />
+                    <div>
+                      <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>Redirect Authentication</div>
+                      <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>Opens new window for authentication</div>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => handleUsernameLogin('redirectless')}
+                    disabled={isLoading}
+                    style={{
+                      padding: '1rem',
+                      background: '#8b5cf6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      cursor: isLoading ? 'not-allowed' : 'pointer',
+                      opacity: isLoading ? 0.6 : 1,
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      flexDirection: 'column',
+                      textAlign: 'center'
+                    }}
+                  >
+                    <FiZap size={24} />
+                    <div>
+                      <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>Redirectless Authentication</div>
+                      <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>Uses response_mode=pi.flow</div>
+                    </div>
+                  </button>
+                </div>
+
+                <InfoBox $variant="info">
+                  <FiInfo size={20} style={{ flexShrink: 0 }} />
+                  <InfoContent>
+                    <InfoTitle>🔐 Authentication Methods</InfoTitle>
+                    <InfoText>
+                      <strong>Redirect:</strong> Traditional OAuth flow that opens a new window for user authentication.<br/>
+                      <strong>Redirectless:</strong> Modern PingOne flow using response_mode=pi.flow for seamless authentication without redirects.
+                    </InfoText>
+                  </InfoContent>
+                </InfoBox>
               </div>
             </CollapsibleHeaderService.CollapsibleHeader>
 
