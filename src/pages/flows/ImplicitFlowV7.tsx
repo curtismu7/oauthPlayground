@@ -1009,9 +1009,6 @@ const ImplicitFlowV7: React.FC = () => {
 					showImplementationNotes={true}
 				/>
 
-				{/* V7 Variant Selector */}
-				{renderVariantSelector()}
-
 				<MainCard>
 					<DynamicStepHeader $variant={selectedVariant}>
 						<StepHeaderLeft>
@@ -1026,6 +1023,9 @@ const ImplicitFlowV7: React.FC = () => {
 							<StepTotal>of {STEP_METADATA.length}</StepTotal>
 						</StepHeaderRight>
 					</DynamicStepHeader>
+
+					{/* V7 Variant Selector - Now inside MainCard below Step Header */}
+					{renderVariantSelector()}
 
 					<StepContentWrapper>
 						{renderStepContent}
