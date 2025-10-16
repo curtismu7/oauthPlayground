@@ -336,10 +336,11 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
       return;
     }
 
-    // Generate a mock authorization URL for demonstration
+    // Generate a mock authorization URL for demonstration with response_mode=pi.flow
     const mockAuthUrl = `https://auth.pingone.com/${finalEnvironmentId}/as/authorize?` +
       `client_id=your-client-id&` +
       `response_type=code&` +
+      `response_mode=pi.flow&` +
       `scope=openid+profile+email&` +
       `redirect_uri=${encodeURIComponent('https://localhost:3000/authz-callback')}&` +
       `state=pingone-auth-${Date.now()}`;
