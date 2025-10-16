@@ -46,6 +46,8 @@ import { CredentialsInput } from '../components/CredentialsInput';
 import { oidcDiscoveryService, type DiscoveryResult } from '../services/oidcDiscoveryService';
 import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, type EnhancedApiCallData } from '../services/enhancedApiCallDisplayService';
+import { AuthenticationModalService } from '../services/authenticationModalService';
+import LoginSuccessModal from '../components/LoginSuccessModal';
 
 export interface CompleteMFAFlowProps {
   requireMFA?: boolean;
@@ -366,6 +368,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [authUrl, setAuthUrl] = useState<string>('');
 
   // Modern V7 Step Metadata Configuration
   const STEP_METADATA = [
@@ -683,6 +688,25 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   }, []);
 
   const handleUsernameLogin = useCallback(async () => {
+    if (!credentials.username || !credentials.password) {
+      v4ToastManager.showError('Please enter username and password');
+      return;
+    }
+
+    // Generate a mock authorization URL for demonstration
+    const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
+      `client_id=${credentials.clientId}&` +
+      `response_type=code&` +
+      `scope=openid+profile+email&` +
+      `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
+      `state=mfa-flow-${Date.now()}`;
+
+    setAuthUrl(mockAuthUrl);
+    setShowRedirectModal(true);
+  }, [credentials]);
+
+  const handleConfirmRedirect = useCallback(async () => {
+    setShowRedirectModal(false);
     setIsLoading(true);
     setError(null);
 
@@ -692,8 +716,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       // Simulate authentication process
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      setCurrentStep('mfa_enrollment');
-      onStepChange?.('mfa_enrollment');
+      // Show success modal
+      setShowSuccessModal(true);
       v4ToastManager.showSuccess('✅ User authenticated successfully!');
       
     } catch (error: any) {
@@ -703,6 +727,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     } finally {
       setIsLoading(false);
     }
+  }, []);
+
+  const handleSuccessModalClose = useCallback(() => {
+    setShowSuccessModal(false);
+    setCurrentStep('mfa_enrollment');
+    onStepChange?.('mfa_enrollment');
   }, [onStepChange]);
 
 
@@ -1241,6 +1271,29 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           </StepContentWrapper>
         </MainCard>
       </ContentWrapper>
+
+      {/* Authentication Modal - Before redirect */}
+      {AuthenticationModalService.showModal(
+        showRedirectModal,
+        () => setShowRedirectModal(false),
+        handleConfirmRedirect,
+        authUrl,
+        'pingone',
+        'PingOne MFA Authentication',
+        {
+          description: 'You\'re about to be redirected to PingOne for authentication. This will open in a new window for secure authentication before proceeding to MFA setup.',
+          redirectMode: 'popup'
+        }
+      )}
+
+      {/* Success Modal - After authentication */}
+      <LoginSuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        title="🎉 Authentication Successful!"
+        message="You have been successfully authenticated with PingOne. You can now proceed to set up your multi-factor authentication devices."
+        autoCloseDelay={5000}
+      />
     </Container>
   );
 };
