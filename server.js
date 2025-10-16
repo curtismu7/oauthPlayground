@@ -264,6 +264,17 @@ app.post('/api/token-exchange', async (req, res) => {
 		} else if (grant_type === 'client_credentials') {
 			// Client credentials grant only needs client_id and client_secret (handled by auth method)
 			console.log('🔑 [Server] Validating client_credentials grant type');
+		} else if (grant_type === 'password') {
+			// Resource Owner Password Credentials grant needs username and password
+			const { username, password } = req.body;
+			if (!username || username.trim() === '' || !password || password.trim() === '') {
+				console.error('❌ [Server] Missing username or password for password grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameters: username and password',
+				});
+			}
+			console.log('🔑 [Server] Validating password grant type');
 		}
 
 		// Get environment ID from request or environment (skip env fallback in test)
@@ -309,6 +320,17 @@ app.post('/api/token-exchange', async (req, res) => {
 				grant_type: 'client_credentials',
 				client_id: client_id,
 				scope: scope || 'p1:read:user p1:update:user p1:read:device p1:update:device',
+			});
+		} else if (grant_type === 'password') {
+			// Resource Owner Password Credentials grant - include username and password
+			const { username, password } = req.body;
+			console.log('🔑 [Server] Building password grant request body');
+			tokenRequestBody = new URLSearchParams({
+				grant_type: 'password',
+				client_id: client_id,
+				username: username,
+				password: password,
+				scope: scope || 'openid profile email',
 			});
 		} else {
 			// Authorization code grant - include code, redirect_uri, code_verifier (only if PKCE is used)
