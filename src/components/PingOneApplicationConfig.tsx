@@ -378,11 +378,60 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 								Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
 							</Helper>
 							
+							<div style={{ 
+								marginTop: '1rem', 
+								padding: '1rem', 
+								background: '#f0f9ff', 
+								border: '1px solid #0ea5e9', 
+								borderRadius: '6px',
+								fontSize: '0.85rem'
+							}}>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e', fontSize: '0.9rem', fontWeight: '600' }}>
+									🔄 PAR Flow Process
+								</h4>
+								<ol style={{ margin: 0, paddingLeft: '1.5rem', color: '#0c4a6e', lineHeight: '1.5' }}>
+									<li><strong>Step 1:</strong> Client sends POST request to <code>/as/par</code> with all authorization parameters</li>
+									<li><strong>Step 2:</strong> PingOne validates the request and returns a <code>request_uri</code></li>
+									<li><strong>Step 3:</strong> Client redirects user to <code>/as/authorize</code> with only the <code>request_uri</code></li>
+									<li><strong>Step 4:</strong> PingOne retrieves the original parameters using the <code>request_uri</code></li>
+									<li><strong>Step 5:</strong> Normal OAuth flow continues with user authentication</li>
+								</ol>
+								<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#0369a1' }}>
+									<strong>Benefits:</strong> Keeps sensitive parameters off the browser URL, prevents tampering, and provides better security for SPAs.
+								</div>
+							</div>
+							
+							{/* PingOne PAR Compatibility */}
+							<div style={{ 
+								marginTop: '1rem', 
+								padding: '1rem', 
+								background: '#f0fdf4', 
+								border: '1px solid #16a34a', 
+								borderRadius: '6px',
+								fontSize: '0.85rem'
+							}}>
+								<h4 style={{ margin: '0 0 0.5rem 0', color: '#15803d', fontSize: '0.9rem', fontWeight: '600' }}>
+									✅ PingOne PAR Compatibility
+								</h4>
+								<div style={{ color: '#15803d', lineHeight: '1.5', marginBottom: '0.5rem' }}>
+									<strong>Supported Application Types:</strong>
+								</div>
+								<ul style={{ margin: '0 0 0.5rem 0', paddingLeft: '1.5rem', color: '#15803d', lineHeight: '1.5' }}>
+									<li><strong>OIDC Web App:</strong> Authorization Code grant type ✅</li>
+									<li><strong>Native App:</strong> Authorization Code or Implicit grant types ✅</li>
+									<li><strong>Single-page App:</strong> Implicit grant type ✅</li>
+									<li><strong>Worker App:</strong> Only if configured for user-based grant types ✅</li>
+								</ul>
+								<div style={{ fontSize: '0.8rem', color: '#16a34a' }}>
+									<strong>PingOne Limits:</strong> Max 1MB request size, 60-second default lifetime, HTTP POST only, request_uri can only be used once.
+								</div>
+							</div>
+							
 							<UrlExampleContainer style={{ width: '100%' }}>
 								<UrlExample style={{ width: '100%' }}>
-									<UrlLabel>Without PAR:</UrlLabel>
+									<UrlLabel>Without PAR (Traditional Flow):</UrlLabel>
 									<ColoredUrlDisplay
-										url="https://auth.pingone.com/env/as/authorize?response_type=code&client_id=...&redirect_uri=...&scope=openid&state=..."
+										url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?response_type=code&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback&scope=openid%20profile%20email&state=af0ifjsldkj&code_challenge=4Ey6Qpryp0Z_5BEDPVQf&code_challenge_method=S256&nonce=n-0S6_WzA2Mj"
 										title="Authorization URL without PAR"
 										showCopyButton={true}
 										showExplanationButton={true}
@@ -390,13 +439,58 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 								</UrlExample>
 								
 								<UrlExample style={{ width: '100%' }}>
-									<UrlLabel>With PAR:</UrlLabel>
+									<UrlLabel>With PAR (Step 1 - PAR Request):</UrlLabel>
 									<ColoredUrlDisplay
-										url="https://auth.pingone.com/env/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:..."
+										url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/par"
+										title="PAR Endpoint URL"
+										showCopyButton={true}
+										showExplanationButton={true}
+									/>
+									<details style={{ marginTop: '0.5rem' }}>
+										<summary style={{ fontSize: '0.8rem', color: '#374151', cursor: 'pointer', fontWeight: '600' }}>
+											📋 Show Complete PAR Request Body
+										</summary>
+										<div style={{ 
+											marginTop: '0.5rem', 
+											padding: '0.75rem', 
+											background: '#f8fafc', 
+											border: '1px solid #e2e8f0', 
+											borderRadius: '4px',
+											fontSize: '0.75rem',
+											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace'
+										}}>
+											<strong>POST /as/par</strong><br/>
+											<strong>Content-Type:</strong> application/x-www-form-urlencoded<br/><br/>
+											<strong>Request Body:</strong><br/>
+											client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f<br/>
+											client_secret=0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a<br/>
+											response_type=code<br/>
+											redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback<br/>
+											scope=openid%20profile%20email<br/>
+											state=af0ifjsldkj<br/>
+											code_challenge=4Ey6Qpryp0Z_5BEDPVQf<br/>
+											code_challenge_method=S256<br/>
+											nonce=n-0S6_WzA2Mj<br/><br/>
+											<strong>Response:</strong><br/>
+											{'{'}<br/>
+											&nbsp;&nbsp;"request_uri": "urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz",<br/>
+											&nbsp;&nbsp;"expires_in": 600<br/>
+											{'}'}
+										</div>
+									</details>
+								</UrlExample>
+								
+								<UrlExample style={{ width: '100%' }}>
+									<UrlLabel>With PAR (Step 2 - Authorization URL):</UrlLabel>
+									<ColoredUrlDisplay
+										url="https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f"
 										title="Authorization URL with PAR"
 										showCopyButton={true}
 										showExplanationButton={true}
 									/>
+									<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
+										<strong>Response from Step 1:</strong> request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+									</div>
 								</UrlExample>
 							</UrlExampleContainer>
 						</Field>
