@@ -1014,38 +1014,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             </CollapsibleHeaderService.CollapsibleHeader>
 
             {/* Worker Token Configuration */}
-            <div style={{ 
-              margin: '1.5rem 0 0.5rem 0', 
-              padding: '1rem', 
-              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', 
-              borderRadius: '0.75rem', 
-              border: '2px solid #ea580c',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.75rem',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '1.125rem'
-              }}>
-                <FiSettings size={24} />
-                <span>🔑 WORKER TOKEN CONFIGURATION</span>
-              </div>
-              <div style={{ 
-                color: 'rgba(255, 255, 255, 0.9)', 
-                fontSize: '0.875rem', 
-                marginTop: '0.25rem',
-                fontWeight: '500'
-              }}>
-                Client Credentials Grant • Machine-to-Machine Authentication • No Redirect URI Required
-              </div>
-            </div>
-
             <CollapsibleHeaderService.CollapsibleHeader
-              title="Worker Token Configuration"
-              subtitle="Configure PingOne application for MFA operations (Client Credentials)"
+              title="🔑 WORKER TOKEN CONFIGURATION"
+              subtitle="Client Credentials Grant • Machine-to-Machine Authentication • No Redirect URI Required"
               icon={<FiSettings />}
               theme="orange"
               defaultCollapsed={false}
@@ -1095,38 +1066,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             </CollapsibleHeaderService.CollapsibleHeader>
 
             {/* Authorization Code Flow Configuration */}
-            <div style={{ 
-              margin: '1.5rem 0 0.5rem 0', 
-              padding: '1rem', 
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', 
-              borderRadius: '0.75rem', 
-              border: '2px solid #1d4ed8',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.75rem',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '1.125rem'
-              }}>
-                <FiUser size={24} />
-                <span>👤 AUTHORIZATION CODE CONFIGURATION</span>
-              </div>
-              <div style={{ 
-                color: 'rgba(255, 255, 255, 0.9)', 
-                fontSize: '0.875rem', 
-                marginTop: '0.25rem',
-                fontWeight: '500'
-              }}>
-                Authorization Code Grant • User Authentication • Redirect URI Required
-              </div>
-            </div>
-
             <CollapsibleHeaderService.CollapsibleHeader
-              title="User Authentication Configuration"
-              subtitle="Configure PingOne application for user authentication (Authorization Code Flow)"
+              title="👤 AUTHORIZATION CODE CONFIGURATION"
+              subtitle="Authorization Code Grant • User Authentication • Redirect URI Required"
               icon={<FiUser />}
               theme="blue"
               defaultCollapsed={false}
@@ -1245,40 +1187,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             </CollapsibleHeaderService.CollapsibleHeader>
 
             {/* User Authentication Section */}
-            <div style={{ 
-              margin: '1.5rem 0 0.5rem 0', 
-              padding: '1rem', 
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-              borderRadius: '0.75rem', 
-              border: '2px solid #059669',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
-            }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.75rem',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '1.125rem'
-              }}>
-                <FiLogIn size={24} />
-                <span>🔐 USER AUTHENTICATION</span>
-              </div>
-              <div style={{ 
-                color: 'rgba(255, 255, 255, 0.9)', 
-                fontSize: '0.875rem', 
-                marginTop: '0.25rem',
-                fontWeight: '500'
-              }}>
-                Choose between Redirect or Redirectless Authentication • Uses Authorization Code Configuration Above
-              </div>
-            </div>
-
             <CollapsibleHeaderService.CollapsibleHeader
-              title="Step 2: User Authentication"
-              subtitle="Authenticate with PingOne using redirect or redirectless flow"
-              icon={<FiUser />}
-              theme="blue"
+              title="🔐 USER AUTHENTICATION"
+              subtitle="Choose between Redirect or Redirectless Authentication • Uses Authorization Code Configuration Above"
+              icon={<FiLogIn />}
+              theme="green"
+              defaultCollapsed={false}
             >
               <div style={{ marginBottom: '1rem' }}>
                 <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
