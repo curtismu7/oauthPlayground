@@ -334,6 +334,30 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     networkStatus: { online: true, lastChecked: Date.now() }
   });
 
+  // Separate credentials for different authentication flows
+  const [workerTokenCredentials, setWorkerTokenCredentials] = useState<CompleteMfaCredentials>({
+    environmentId: '',
+    clientId: '',
+    clientSecret: '',
+    workerToken: '',
+    userId: '',
+    redirectUri: 'https://localhost:3000/authz-callback',
+    username: '',
+    password: ''
+  });
+
+  const [authCodeCredentials, setAuthCodeCredentials] = useState<CompleteMfaCredentials>({
+    environmentId: '',
+    clientId: '',
+    clientSecret: '',
+    workerToken: '',
+    userId: '',
+    redirectUri: 'https://localhost:3000/authz-callback',
+    username: '',
+    password: ''
+  });
+
+  // Legacy credentials state for backward compatibility (will be removed)
   const [credentials, setCredentials] = useState<CompleteMfaCredentials>({
     environmentId: '',
     clientId: '',
@@ -494,14 +518,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
   // Get worker token with real API call
   const getWorkerToken = useCallback(async () => {
-    if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-      v4ToastManager.showError('Please enter Environment ID, Client ID, and Client Secret');
+    if (!workerTokenCredentials.environmentId || !workerTokenCredentials.clientId || !workerTokenCredentials.clientSecret) {
+      v4ToastManager.showError('Please enter Environment ID, Client ID, and Client Secret in the Worker Token Configuration section');
       return;
     }
 
     // Check if clientId is accidentally the same as environmentId (common mistake)
-    if (credentials.clientId === credentials.environmentId) {
-      v4ToastManager.showError('Client ID cannot be the same as Environment ID. Please check your credentials.');
+    if (workerTokenCredentials.clientId === workerTokenCredentials.environmentId) {
+      v4ToastManager.showError('Client ID cannot be the same as Environment ID. Please check your Worker Token credentials.');
       return;
     }
 
@@ -522,21 +546,21 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     setIsLoading(true);
     try {
       console.log('🔑 [MFA Flow V7] Requesting worker token...');
-      console.log('🔍 [MFA Flow V7] Credentials being used:', {
-        environmentId: credentials.environmentId,
-        clientId: credentials.clientId,
-        hasClientSecret: !!credentials.clientSecret,
-        clientSecretLength: credentials.clientSecret?.length || 0,
-        allCredentials: credentials
+      console.log('🔍 [MFA Flow V7] Worker Token Credentials being used:', {
+        environmentId: workerTokenCredentials.environmentId,
+        clientId: workerTokenCredentials.clientId,
+        hasClientSecret: !!workerTokenCredentials.clientSecret,
+        clientSecretLength: workerTokenCredentials.clientSecret?.length || 0,
+        allCredentials: workerTokenCredentials
       });
       
       // Prepare credentials for worker token request
       const workerCredentials = {
-        environmentId: credentials.environmentId,
-        clientId: credentials.clientId,
-        clientSecret: credentials.clientSecret,
+        environmentId: workerTokenCredentials.environmentId,
+        clientId: workerTokenCredentials.clientId,
+        clientSecret: workerTokenCredentials.clientSecret,
         scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
-        tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`
+        tokenEndpoint: `https://auth.pingone.com/${workerTokenCredentials.environmentId}/as/token`
       };
 
       console.log('🔍 [MFA Flow V7] Worker credentials prepared:', {
@@ -731,6 +755,44 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   }, [credentials]);
 
   // Handle credential changes and track unsaved changes
+  // Worker Token Credentials Handlers
+  const handleWorkerTokenEnvironmentIdChange = useCallback((value: string) => {
+    setWorkerTokenCredentials(prev => ({ ...prev, environmentId: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleWorkerTokenClientIdChange = useCallback((value: string) => {
+    setWorkerTokenCredentials(prev => ({ ...prev, clientId: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleWorkerTokenClientSecretChange = useCallback((value: string) => {
+    setWorkerTokenCredentials(prev => ({ ...prev, clientSecret: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  // Authorization Code Credentials Handlers
+  const handleAuthCodeEnvironmentIdChange = useCallback((value: string) => {
+    setAuthCodeCredentials(prev => ({ ...prev, environmentId: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleAuthCodeClientIdChange = useCallback((value: string) => {
+    setAuthCodeCredentials(prev => ({ ...prev, clientId: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleAuthCodeClientSecretChange = useCallback((value: string) => {
+    setAuthCodeCredentials(prev => ({ ...prev, clientSecret: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleAuthCodeRedirectUriChange = useCallback((value: string) => {
+    setAuthCodeCredentials(prev => ({ ...prev, redirectUri: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  // Legacy handlers for backward compatibility (will be removed)
   const handleEnvironmentIdChange = useCallback((value: string) => {
     setCredentials(prev => ({ ...prev, environmentId: value }));
     setHasUnsavedChanges(true);
@@ -762,12 +824,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       console.log(`🔐 [MFA Flow V7] Starting redirectless authentication with response_mode=pi.flow`);
       
       // Generate authorization URL with response_mode=pi.flow for redirectless authentication
-      const redirectlessAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
-        `client_id=${credentials.clientId}&` +
+      const redirectlessAuthUrl = `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize?` +
+        `client_id=${authCodeCredentials.clientId}&` +
         `response_type=code&` +
         `response_mode=pi.flow&` +
         `scope=openid+profile+email&` +
-        `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
+        `redirect_uri=${encodeURIComponent(authCodeCredentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
         `state=mfa-flow-${Date.now()}&` +
         `username=${encodeURIComponent(credentials.username)}&` +
         `password=${encodeURIComponent(credentials.password)}`;
@@ -779,12 +841,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
     } else {
       // For redirect, just open the authorization URL (PingOne provides the UI)
-      const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
-        `client_id=${credentials.clientId}&` +
+      const mockAuthUrl = `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize?` +
+        `client_id=${authCodeCredentials.clientId}&` +
         `response_type=code&` +
         `response_mode=query&` +
         `scope=openid+profile+email&` +
-        `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
+        `redirect_uri=${encodeURIComponent(authCodeCredentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
         `state=mfa-flow-${Date.now()}`;
 
       console.log(`🔐 [MFA Flow V7] Starting redirect authentication with URL:`, mockAuthUrl);
@@ -792,7 +854,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       setAuthUrl(mockAuthUrl);
       setShowRedirectModal(true);
     }
-  }, [credentials]);
+  }, [credentials, authCodeCredentials]);
 
   const handleConfirmRedirect = useCallback(async () => {
     setShowRedirectModal(false);
@@ -1009,13 +1071,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               </div>
 
               <CredentialsInput
-                environmentId={credentials.environmentId}
-                clientId={credentials.clientId}
-                clientSecret={credentials.clientSecret}
+                environmentId={workerTokenCredentials.environmentId}
+                clientId={workerTokenCredentials.clientId}
+                clientSecret={workerTokenCredentials.clientSecret}
                 scopes="p1:read:user p1:update:user p1:read:device p1:update:device"
-                onEnvironmentIdChange={handleEnvironmentIdChange}
-                onClientIdChange={handleClientIdChange}
-                onClientSecretChange={handleClientSecretChange}
+                onEnvironmentIdChange={handleWorkerTokenEnvironmentIdChange}
+                onClientIdChange={handleWorkerTokenClientIdChange}
+                onClientSecretChange={handleWorkerTokenClientSecretChange}
                 onScopesChange={() => {}}
                 onDiscoveryComplete={handleDiscoveryComplete}
                 onSave={handleSaveCredentials}
@@ -1090,15 +1152,15 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               </div>
 
               <CredentialsInput
-                environmentId={credentials.environmentId}
-                clientId={credentials.clientId}
-                clientSecret={credentials.clientSecret}
+                environmentId={authCodeCredentials.environmentId}
+                clientId={authCodeCredentials.clientId}
+                clientSecret={authCodeCredentials.clientSecret}
                 scopes="openid profile email"
-                redirectUri={credentials.redirectUri}
-                onEnvironmentIdChange={handleEnvironmentIdChange}
-                onClientIdChange={handleClientIdChange}
-                onClientSecretChange={handleClientSecretChange}
-                onRedirectUriChange={(uri) => setCredentials(prev => ({ ...prev, redirectUri: uri }))}
+                redirectUri={authCodeCredentials.redirectUri}
+                onEnvironmentIdChange={handleAuthCodeEnvironmentIdChange}
+                onClientIdChange={handleAuthCodeClientIdChange}
+                onClientSecretChange={handleAuthCodeClientSecretChange}
+                onRedirectUriChange={handleAuthCodeRedirectUriChange}
                 onScopesChange={() => {}}
                 onDiscoveryComplete={handleDiscoveryComplete}
                 onSave={handleSaveCredentials}
