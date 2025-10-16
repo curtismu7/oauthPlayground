@@ -103,7 +103,7 @@ const FlowInfoExample: React.FC = () => {
 		showImplementationNotes: false,
 	});
 
-	const ciba = useFlowInfo('oidc-ciba-v5', {
+	const ciba = useFlowInfo('oidc-ciba-v6', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: false,
@@ -138,7 +138,7 @@ const FlowInfoExample: React.FC = () => {
 			name: 'Device Authorization',
 			description: 'For input-constrained devices',
 		},
-		{ type: 'oidc-ciba-v5', name: 'OIDC CIBA', description: 'Decoupled authentication' },
+		{ type: 'oidc-ciba-v6', name: 'OIDC CIBA (Mock)', description: 'Decoupled authentication' },
 		{ type: 'par', name: 'Pushed Authorization Request', description: 'Enhanced security flow' },
 	];
 
@@ -209,7 +209,7 @@ const FlowInfoExample: React.FC = () => {
 			<FlowSection>
 				<SectionTitle>OIDC CIBA Flow</SectionTitle>
 				<EnhancedFlowInfoCard
-					flowType="oidc-ciba-v5"
+					flowType="oidc-ciba-v6"
 					showAdditionalInfo={true}
 					showDocumentation={true}
 					showCommonIssues={false}

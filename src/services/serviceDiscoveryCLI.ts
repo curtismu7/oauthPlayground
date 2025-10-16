@@ -69,7 +69,7 @@ class ServiceDiscoveryCLI {
 
         case '--help':
         case '-h':
-          this.showHelp();
+          ServiceDiscoveryCLI.showHelp();
           process.exit(0);
           break;
       }
@@ -224,10 +224,10 @@ EXAMPLES:
 
   static run(): void {
     try {
-      const options = this.parseArgs();
+      const options = ServiceDiscoveryCLI.parseArgs();
 
       // Show statistics
-      this.displayStatistics();
+      ServiceDiscoveryCLI.displayStatistics();
 
       let services: any[] = [];
       let title = 'Available Services';
@@ -269,7 +269,7 @@ EXAMPLES:
       }
 
       services.forEach(service => {
-        this.displayService(service, options);
+        ServiceDiscoveryCLI.displayService(service, options);
       });
 
       console.log(`\n💡 Tip: Use --details for more information or --examples to see usage code.`);

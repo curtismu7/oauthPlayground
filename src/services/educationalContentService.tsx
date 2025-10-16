@@ -400,6 +400,98 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			'Release checklists',
 			'Training materials for enablement teams'
 		]
+	},
+	'saml-bearer': {
+		title: 'SAML Bearer Assertion = Enterprise SSO Token Exchange',
+		description: 'This flow enables **enterprise SSO integration** by exchanging SAML assertions from identity providers for OAuth access tokens. It bridges SAML-based authentication with OAuth-based authorization.',
+		characteristics: {
+			positive: [
+				{ icon: <FiCheck />, text: 'Enterprise Integration: Works with existing SAML SSO infrastructure' },
+				{ icon: <FiCheck />, text: 'Token Exchange: Converts SAML assertions to OAuth access tokens' },
+				{ icon: <FiCheck />, text: 'Secure: Uses XML digital signatures and established trust relationships' }
+			],
+			negative: [
+				{ icon: <FiX />, text: 'Complex Setup: Requires SAML IdP configuration and trust relationships' },
+				{ icon: <FiX />, text: 'Limited Support: Not supported by all OAuth servers (including PingOne)' }
+			],
+			warning: [
+				{ icon: <FiAlertTriangle />, text: 'Mock Implementation: This is educational only - PingOne does not support SAML Bearer assertions' }
+			]
+		},
+		useCases: [
+			'Enterprise applications with existing SAML SSO',
+			'Legacy system integration with modern OAuth APIs',
+			'Cross-domain authentication scenarios',
+			'Service-to-service authentication using SAML assertions'
+		],
+		alternative: {
+			icon: <FiInfo />,
+			text: '**For PingOne: Use Authorization Code Flow or Client Credentials Flow for production scenarios**'
+		}
+	},
+	'resource-owner-password': {
+		title: 'Resource Owner Password Credentials = Direct Username/Password Exchange',
+		description: 'This flow allows applications to **directly exchange a user\'s username and password for access tokens**. It\'s the most straightforward OAuth flow but comes with significant security considerations.',
+		characteristics: {
+			positive: [
+				{ icon: <FiCheck />, text: 'Simple Implementation: Direct credential exchange without redirects' },
+				{ icon: <FiCheck />, text: 'Legacy Integration: Works with existing username/password systems' },
+				{ icon: <FiCheck />, text: 'No Browser Required: Suitable for headless or CLI applications' }
+			],
+			negative: [
+				{ icon: <FiX />, text: 'Security Risk: Application handles raw user passwords' },
+				{ icon: <FiX />, text: 'Trust Required: Users must fully trust the application with credentials' },
+				{ icon: <FiX />, text: 'Limited Scope: Cannot delegate permissions or use fine-grained access' }
+			],
+			warning: [
+				{ icon: <FiAlertTriangle />, text: 'Mock Implementation: Uses realistic demo credentials for educational purposes' },
+				{ icon: <FiAlertTriangle />, text: 'Security Warning: Only use ROPC when other flows are not feasible' }
+			]
+		},
+		useCases: [
+			'Legacy applications migrating to OAuth',
+			'Trusted first-party mobile applications',
+			'Command-line tools and scripts',
+			'IoT devices with limited input capabilities',
+			'Migration scenarios from basic auth to OAuth'
+		],
+		alternative: {
+			icon: <FiInfo />,
+			text: '**Recommended: Use Authorization Code Flow with PKCE for better security in most scenarios**'
+		}
+	},
+	'mfa': {
+		title: 'Multi-Factor Authentication = Enhanced Security Through Multiple Verification Methods',
+		description: 'MFA adds **additional layers of security** beyond just username and password by requiring users to verify their identity through multiple independent factors before granting access.',
+		characteristics: {
+			positive: [
+				{ icon: <FiCheck />, text: 'Enhanced Security: Multiple verification factors prevent unauthorized access' },
+				{ icon: <FiCheck />, text: 'Flexible Methods: SMS, Email, TOTP, Push notifications, Biometrics' },
+				{ icon: <FiCheck />, text: 'Compliance Ready: Meets regulatory requirements for secure authentication' },
+				{ icon: <FiCheck />, text: 'User-Friendly: Modern MFA methods are convenient and fast' }
+			],
+			negative: [
+				{ icon: <FiX />, text: 'Additional Step: Requires extra verification step in login process' },
+				{ icon: <FiX />, text: 'Device Dependency: Users need access to registered devices' },
+				{ icon: <FiX />, text: 'Setup Complexity: Initial device registration and configuration required' }
+			],
+			warning: [
+				{ icon: <FiAlertTriangle />, text: 'Backup Methods: Always provide alternative verification methods for device loss' },
+				{ icon: <FiAlertTriangle />, text: 'User Education: Train users on MFA setup and usage for smooth adoption' }
+			]
+		},
+		useCases: [
+			'Financial services and banking applications',
+			'Healthcare systems with sensitive patient data',
+			'Enterprise applications with privileged access',
+			'E-commerce platforms handling payment information',
+			'Government and compliance-regulated systems',
+			'Remote work and VPN access scenarios'
+		],
+		alternative: {
+			icon: <FiInfo />,
+			text: '**Best Practice: Combine MFA with risk-based authentication for optimal security and user experience**'
+		}
 	}
 };
 

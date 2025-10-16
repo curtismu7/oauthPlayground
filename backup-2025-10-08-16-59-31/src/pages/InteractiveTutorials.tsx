@@ -2710,8 +2710,8 @@ class OAuthService {
     const codeVerifier = this.generateRandomString(64);
     const codeChallenge = CryptoJS.SHA256(codeVerifier)
       .toString(CryptoJS.enc.Base64)
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
+      .replace(/+/g, '-')
+      .replace(///g, '_')
       .replace(/=/g, '');
     
     return { codeVerifier, codeChallenge };

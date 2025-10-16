@@ -1,7 +1,7 @@
 // src/pages/flows/config/PingOnePARFlow.config.ts
 // PAR (Pushed Authorization Request) Flow Configuration
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
-import { FlowStateService } from '../../../services/flowStateService';
+import FlowStateService from '../../../services/flowStateService';
 
 // Flow configuration
 export const FLOW_TYPE = 'par';

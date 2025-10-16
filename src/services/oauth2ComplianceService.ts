@@ -190,7 +190,7 @@ export class OAuth2ComplianceService {
     // Validate client_id (REQUIRED)
     if (!params.client_id) {
       errors.push('invalid_request: client_id parameter is required');
-    } else if (!/^[a-zA-Z0-9\-_\.~]+$/.test(params.client_id)) {
+    } else if (!/^[a-zA-Z0-9\-_.~]+$/.test(params.client_id)) {
       errors.push('invalid_request: client_id contains invalid characters');
     }
 
@@ -308,7 +308,7 @@ export class OAuth2ComplianceService {
     // Check scope format (space-separated tokens)
     const scopeTokens = scope.split(' ');
     for (const token of scopeTokens) {
-      if (!/^[a-zA-Z0-9\-_\.~:\/\?#\[\]@!\$&'\(\)\*\+,;=]+$/.test(token)) {
+      if (!/^[a-zA-Z0-9\-_.~:/?#[\]@!$&'()*+,;=]+$/.test(token)) {
         errors.push(`invalid_scope: scope token "${token}" contains invalid characters`);
       }
     }

@@ -69,7 +69,7 @@ export const checkFlowCredentials = (
 			case 'oidc-resource-owner-password':
 				credentials = credentialManager.loadConfigCredentials();
 				break;
-			case 'ciba-v5':
+			case 'ciba-v6':
 				credentials = credentialManager.loadConfigCredentials();
 				break;
 			case 'jwt-bearer-token-v5':
@@ -127,7 +127,7 @@ export const checkFlowCredentials = (
 				'oauth-resource-owner-password',
 				'oauth-resource-owner-password-v5',
 				'oidc-resource-owner-password',
-				'ciba-v5',
+				'ciba-v6',
 				'rar-v5',
 			].includes(flowType)
 		) {
@@ -299,7 +299,7 @@ export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 			flowType: 'oidc-device-authorization-v6',
 			flowName: 'Device Authorization Flow - OIDC for Constrained Devices',
 		},
-		{ flowType: 'ciba-v5', flowName: 'OIDC CIBA Flow (V5)' },
+		{ flowType: 'ciba-v6', flowName: 'OIDC CIBA Flow (Mock) (V6)' },
 
 		// Additional flows
 		{

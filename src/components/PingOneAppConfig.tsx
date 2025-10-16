@@ -590,7 +590,7 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 					<Button variant="secondary" onClick={() => setConfig(defaultConfig)}>
 						Reset to Defaults
 					</Button>
-					<Button variant="primary" onClick={handleSaveConfiguration}>
+					<Button variant="success" onClick={handleSaveConfiguration}>
 						Save Configuration
 					</Button>
 				</div>
