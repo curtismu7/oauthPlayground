@@ -52,6 +52,7 @@ import { EnhancedApiCallDisplayService, type EnhancedApiCallData } from '../serv
 import { AuthenticationModalService } from '../services/authenticationModalService';
 import LoginSuccessModal from '../components/LoginSuccessModal';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
+import { V5StepperService } from '../services/v5StepperService';
 
 export interface CompleteMFAFlowProps {
   requireMFA?: boolean;
@@ -97,6 +98,31 @@ interface FlowContext {
 }
 
 const MFA_CREDENTIALS_STORAGE_KEY = 'pingone_complete_mfa_v7_credentials';
+
+// V5Stepper components for consistent navigation
+const { 
+  StepContainer, 
+  StepHeader, 
+  StepHeaderLeft, 
+  StepHeaderRight, 
+  StepHeaderTitle, 
+  StepHeaderSubtitle, 
+  StepNumber, 
+  StepTotal, 
+  StepContent, 
+  StepProgress,
+  NavigationButton 
+} = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+
+// Step metadata for V5Stepper
+const stepMetadata = [
+  { id: 'username_login', title: 'User Authentication', subtitle: 'Enter your credentials to authenticate with PingOne' },
+  { id: 'mfa_enrollment', title: 'MFA Device Enrollment', subtitle: 'Set up your multi-factor authentication device' },
+  { id: 'device_pairing', title: 'Device Pairing', subtitle: 'Pair your device for secure authentication' },
+  { id: 'mfa_challenge', title: 'MFA Challenge', subtitle: 'Complete the multi-factor authentication challenge' },
+  { id: 'token_retrieval', title: 'Token Retrieval', subtitle: 'Obtain your access tokens' },
+  { id: 'success', title: 'Authentication Complete', subtitle: 'You have successfully completed the MFA flow' }
+];
 
 // Modern V7 Layout Components
 const Container = styled.div`
@@ -184,30 +210,6 @@ const StepContentWrapper = styled.div`
   padding: 2rem;
 `;
 
-const NavigationButton = styled.button`
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: #7c3aed;
-  color: white;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-
-  &:hover:not(:disabled) {
-    background: #6d28d9;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-`;
 
 const NetworkStatusBar = styled.div<{ $online: boolean }>`
   position: fixed;
@@ -341,7 +343,28 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   showNetworkStatus = true,
 }) => {
   const [currentStep, setCurrentStep] = useState<FlowStep>('username_login');
+  const [currentStepNumber, setCurrentStepNumber] = useState(1); // For V5Stepper
   const [isLoading, setIsLoading] = useState(false);
+
+  // Map FlowStep to step number for V5Stepper
+  const getStepNumber = useCallback((step: FlowStep): number => {
+    const stepMap: Record<FlowStep, number> = {
+      'username_login': 1,
+      'password_auth': 1,
+      'mfa_enrollment': 2,
+      'device_pairing': 3,
+      'mfa_challenge': 4,
+      'token_retrieval': 5,
+      'success': 6,
+      'error': 6
+    };
+    return stepMap[step] || 1;
+  }, []);
+
+  // Update step number when current step changes
+  useEffect(() => {
+    setCurrentStepNumber(getStepNumber(currentStep));
+  }, [currentStep, getStepNumber]);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
@@ -376,21 +399,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [authUrl, setAuthUrl] = useState<string>('');
 
-  // Modern V7 Step Metadata Configuration
-  const STEP_METADATA = [
-    { title: 'Step 1: User Authentication', subtitle: 'Enter credentials and authenticate with PingOne' },
-    { title: 'Step 2: MFA Enrollment', subtitle: 'Set up multi-factor authentication devices' },
-    { title: 'Step 3: Device Pairing', subtitle: 'Pair and activate your MFA device' },
-    { title: 'Step 4: MFA Challenge', subtitle: 'Complete multi-factor authentication' },
-    { title: 'Step 5: Token Retrieval', subtitle: 'Retrieve access tokens and complete session' },
-    { title: 'Step 6: Authentication Complete', subtitle: 'MFA authentication successful' },
-  ];
-
-  // Get current step index for metadata
-  const currentStepIndex = useMemo(() => {
-    const stepOrder: FlowStep[] = ['username_login', 'password_auth', 'mfa_enrollment', 'device_pairing', 'mfa_challenge', 'token_retrieval', 'success'];
-    return stepOrder.indexOf(currentStep);
-  }, [currentStep]);
 
   // Initialize flow
   useEffect(() => {
@@ -1359,25 +1367,24 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           showImplementationNotes={true}
         />
 
-        <MainCard>
+        <StepContainer>
           <StepHeader>
             <StepHeaderLeft>
-              <VersionBadge>MFA V7</VersionBadge>
-              <div>
-                <StepHeaderTitle>{STEP_METADATA[currentStepIndex]?.title || 'MFA Authentication'}</StepHeaderTitle>
-                <StepHeaderSubtitle>{STEP_METADATA[currentStepIndex]?.subtitle || 'Complete multi-factor authentication'}</StepHeaderSubtitle>
-              </div>
+              <StepHeaderTitle>{stepMetadata[currentStepNumber - 1]?.title || 'MFA Authentication'}</StepHeaderTitle>
+              <StepHeaderSubtitle>{stepMetadata[currentStepNumber - 1]?.subtitle || 'Complete multi-factor authentication'}</StepHeaderSubtitle>
             </StepHeaderLeft>
             <StepHeaderRight>
-              <StepNumber>{String(currentStepIndex + 1).padStart(2, '0')}</StepNumber>
-              <StepTotal>of {STEP_METADATA.length}</StepTotal>
+              <StepProgress>
+                <StepNumber>{currentStepNumber}</StepNumber>
+                <StepTotal>of {stepMetadata.length}</StepTotal>
+              </StepProgress>
             </StepHeaderRight>
           </StepHeader>
 
-          <StepContentWrapper>
+          <StepContent>
             {renderCurrentStep()}
-          </StepContentWrapper>
-        </MainCard>
+          </StepContent>
+        </StepContainer>
       </ContentWrapper>
 
       {/* Authentication Modal - Before redirect */}
