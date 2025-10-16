@@ -106,10 +106,10 @@ export class ServiceDiscoveryService {
    * Initialize the service registry with all available services
    */
   static initializeRegistry(): void {
-    if (this.initialized) return;
+    if (ServiceDiscoveryService.initialized) return;
 
     // Core Credential Services
-    this.registerService({
+    ServiceDiscoveryService.registerService({
       name: 'ComprehensiveCredentialsService',
       fileName: 'comprehensiveCredentialsService.tsx',
       description: 'Unified credential management with validation, discovery, and persistence',
@@ -183,7 +183,7 @@ export class ServiceDiscoveryService {
     });
 
     // Token Display Services
-    this.registerService({
+    ServiceDiscoveryService.registerService({
       name: 'UnifiedTokenDisplayService',
       fileName: 'unifiedTokenDisplayService.tsx',
       description: 'Consistent token visualization with decoding, introspection, and management',
@@ -252,7 +252,7 @@ export class ServiceDiscoveryService {
     });
 
     // Error Handling Service
-    this.registerService({
+    ServiceDiscoveryService.registerService({
       name: 'ErrorHandlingService',
       fileName: 'errorHandlingService.ts',
       description: 'Comprehensive error classification, user-friendly messages, and recovery strategies',
@@ -321,7 +321,7 @@ errorResponse.recoveryOptions.forEach(option => {
     });
 
     // API Call Display Service
-    this.registerService({
+    ServiceDiscoveryService.registerService({
       name: 'EnhancedApiCallDisplayService',
       fileName: 'enhancedApiCallDisplayService.ts',
       description: 'Visual API call display with request/response details and debugging',
@@ -378,21 +378,21 @@ errorResponse.recoveryOptions.forEach(option => {
       maturity: ServiceMaturity.STABLE
     });
 
-    this.initialized = true;
+    ServiceDiscoveryService.initialized = true;
   }
 
   /**
    * Register a new service in the discovery system
    */
   static registerService(service: ServiceDefinition): void {
-    this.serviceRegistry.set(service.name, service);
+    ServiceDiscoveryService.serviceRegistry.set(service.name, service);
   }
 
   /**
    * Find services that match the given criteria
    */
   static findServices(query: ServiceSearchQuery): ServiceDefinition[] {
-    const services = Array.from(this.serviceRegistry.values());
+    const services = Array.from(ServiceDiscoveryService.serviceRegistry.values());
 
     return services.filter(service => {
       // Flow type match
@@ -456,18 +456,18 @@ errorResponse.recoveryOptions.forEach(option => {
    * Get service recommendations for a specific flow type
    */
   static getServiceRecommendations(flowType: FlowType): ServiceRecommendation[] {
-    const relevantServices = this.findServices({ flowType });
-    const allServices = Array.from(this.serviceRegistry.values());
+    const relevantServices = ServiceDiscoveryService.findServices({ flowType });
+    const allServices = Array.from(ServiceDiscoveryService.serviceRegistry.values());
 
     return relevantServices.map(service => {
-      const relevance = this.calculateRelevance(service, flowType);
-      const alternatives = this.findAlternatives(service, flowType, allServices);
+      const relevance = ServiceDiscoveryService.calculateRelevance(service, flowType);
+      const alternatives = ServiceDiscoveryService.findAlternatives(service, flowType, allServices);
 
       return {
         service,
         relevance,
         confidence: Math.min(relevance / 100, 1),
-        rationale: this.generateRationale(service, flowType),
+        rationale: ServiceDiscoveryService.generateRationale(service, flowType),
         exampleUsage: service.usageExamples.find(ex => ex.flowType === flowType),
         alternatives
       };
@@ -478,7 +478,7 @@ errorResponse.recoveryOptions.forEach(option => {
    * Get detailed information about a specific service
    */
   static getServiceDetails(serviceName: string): ServiceDefinition | null {
-    return this.serviceRegistry.get(serviceName) || null;
+    return ServiceDiscoveryService.serviceRegistry.get(serviceName) || null;
   }
 
   /**
@@ -487,11 +487,11 @@ errorResponse.recoveryOptions.forEach(option => {
   static getServiceCompatibility(): Map<string, string[]> {
     const compatibility = new Map<string, string[]>();
 
-    this.serviceRegistry.forEach((service, name) => {
-      const compatibleServices = Array.from(this.serviceRegistry.keys())
+    ServiceDiscoveryService.serviceRegistry.forEach((service, name) => {
+      const compatibleServices = Array.from(ServiceDiscoveryService.serviceRegistry.keys())
         .filter(otherName => {
           if (otherName === name) return false;
-          const otherService = this.serviceRegistry.get(otherName)!;
+          const otherService = ServiceDiscoveryService.serviceRegistry.get(otherName)!;
 
           // Check if they share flow types
           const sharedFlows = service.supportedFlowTypes.filter(flow =>
@@ -512,7 +512,7 @@ errorResponse.recoveryOptions.forEach(option => {
    */
   static getServiceDependencies(): Map<string, ServiceDependency[]> {
     const dependencies = new Map<string, ServiceDependency[]>();
-    this.serviceRegistry.forEach((service, name) => {
+    ServiceDiscoveryService.serviceRegistry.forEach((service, name) => {
       dependencies.set(name, service.dependencies);
     });
     return dependencies;
@@ -522,14 +522,14 @@ errorResponse.recoveryOptions.forEach(option => {
    * Get all available services
    */
   static getAllServices(): ServiceDefinition[] {
-    return Array.from(this.serviceRegistry.values());
+    return Array.from(ServiceDiscoveryService.serviceRegistry.values());
   }
 
   /**
    * Get services by category
    */
   static getServicesByCategory(category: ServiceCategory): ServiceDefinition[] {
-    return this.findServices({ category });
+    return ServiceDiscoveryService.findServices({ category });
   }
 
   /**
@@ -541,7 +541,7 @@ errorResponse.recoveryOptions.forEach(option => {
     servicesByMaturity: Record<ServiceMaturity, number>;
     servicesByComplexity: Record<ServiceComplexity, number>;
   } {
-    const services = this.getAllServices();
+    const services = ServiceDiscoveryService.getAllServices();
     const stats = {
       totalServices: services.length,
       servicesByCategory: {} as Record<ServiceCategory, number>,

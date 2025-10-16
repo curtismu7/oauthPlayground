@@ -242,7 +242,7 @@ export class UISettingsService {
 	 * Update a specific setting
 	 */
 	static updateSetting(key: keyof UISettings, value: boolean): void {
-		const current = this.getSettings();
+		const current = UISettingsService.getSettings();
 		const updated = { ...current, [key]: value };
 		localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updated));
 	}
@@ -258,7 +258,7 @@ export class UISettingsService {
 	 * Check if a specific setting is enabled
 	 */
 	static isEnabled(setting: keyof UISettings): boolean {
-		const settings = this.getSettings();
+		const settings = UISettingsService.getSettings();
 		const isEnabled = settings[setting];
 		console.log(`[UISettingsService] isEnabled('${setting}'):`, {
 			setting,

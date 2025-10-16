@@ -224,10 +224,10 @@ const UserInfoPostFlow: React.FC<UserInfoPostFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || '',
-		clientSecret: credentials?.clientSecret || '',
-		environmentId: credentials?.environmentId || '',
-		accessToken: '',
+		clientId: credentials?.clientId || 'mock_userinfo_client_id_demo_12345',
+		clientSecret: credentials?.clientSecret || 'mock_userinfo_client_secret_demo_67890',
+		environmentId: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+		accessToken: 'mock_access_token_for_userinfo_demo_abcdef123456',
 		scope: 'openid profile email',
 		claims: '{"userinfo": {"email": null, "phone_number": null, "address": null}}',
 		uiLocales: 'en',

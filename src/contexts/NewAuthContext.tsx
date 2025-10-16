@@ -9,6 +9,7 @@ import { safeJsonParse } from '../utils/secureJson';
 import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import FlowStorageService from '../services/flowStorageService';
+import FlowContextUtils from '../services/flowContextUtils';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -685,6 +686,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			sessionStorage.removeItem('oauth_state');
 			sessionStorage.removeItem('oauth_nonce');
 			sessionStorage.removeItem('oauth_redirect_after_login');
+
+			// Clear flow context using FlowContextService
+			try {
+				FlowContextUtils.emergencyCleanup();
+				console.log(' [NewAuthContext] Flow context cleaned up during logout');
+			} catch (flowCleanupError) {
+				console.warn(' [NewAuthContext] Failed to cleanup flow context during logout:', flowCleanupError);
+			}
 
 			// Update state
 			updateState({
@@ -1384,61 +1393,80 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					)
 				);
 
-				if (flowContext) {
-					try {
-						// SECURITY: Validate JSON input before parsing to prevent XSS
-						if (typeof flowContext !== 'string' || flowContext.length > 10000) {
-							console.warn(' [Security] Invalid flow context format or size');
-							return { success: true, redirectUrl: '/dashboard' };
-						}
+				// Enhanced redirect handling using FlowContextService
+				try {
+					console.log(' [NewAuthContext] Using enhanced FlowContextService for redirect handling');
+					
+					// Prepare callback data for FlowContextService
+					const callbackData = {
+						code,
+						state,
+						error,
+						error_description: errorDescription,
+						session_state: params.get('session_state'),
+						iss: params.get('iss')
+					};
 
-						// Additional XSS protection - check for script tags or dangerous content
-						if (
-							flowContext.includes('<script') ||
-							flowContext.includes('javascript:') ||
-							flowContext.includes('data:')
-						) {
-							console.warn(' [Security] Blocked potentially dangerous flow context content');
-							return { success: true, redirectUrl: '/dashboard' };
-						}
-
-						const parsedContext = safeJsonParse(flowContext);
-						console.log(' [NewAuthContext] Safely parsed flow context:', parsedContext);
-
-						// Validate the parsed context structure
-						if (parsedContext && typeof parsedContext === 'object' && parsedContext.returnPath) {
-							// For Enhanced flows (V2/V3), trust the return path from flow context
-							const returnPath = String(parsedContext.returnPath);
-							if (returnPath.includes('/flows/enhanced-authorization-code')) {
-								redirectUrl = returnPath;
-								console.log(' [NewAuthContext] Using Enhanced flow return path:', redirectUrl);
+					// Use FlowContextUtils to handle the OAuth callback
+					const redirectResult = FlowContextUtils.handleOAuthCallback(callbackData);
+					
+					if (redirectResult.success) {
+						redirectUrl = redirectResult.redirectUrl;
+						console.log(' [NewAuthContext] FlowContextService redirect successful:', {
+							redirectUrl,
+							hasFlowState: !!redirectResult.flowState
+						});
+					} else {
+						console.warn(' [NewAuthContext] FlowContextService redirect failed:', redirectResult.error);
+						redirectUrl = '/dashboard'; // Safe fallback
+					}
+				} catch (flowContextError) {
+					console.error(' [NewAuthContext] FlowContextService error, falling back to legacy logic:', flowContextError);
+					
+					// Fallback to legacy flow context handling for backward compatibility
+					if (flowContext) {
+						try {
+							// SECURITY: Validate JSON input before parsing to prevent XSS
+							if (typeof flowContext !== 'string' || flowContext.length > 10000) {
+								console.warn(' [Security] Invalid flow context format or size');
+								redirectUrl = '/dashboard';
+							} else if (
+								flowContext.includes('<script') ||
+								flowContext.includes('javascript:') ||
+								flowContext.includes('data:')
+							) {
+								console.warn(' [Security] Blocked potentially dangerous flow context content');
+								redirectUrl = '/dashboard';
 							} else {
-								// For other flows, use basic path validation
-								redirectUrl = returnPath.startsWith('/') ? returnPath : '/dashboard';
-								console.log(
-									' [NewAuthContext] Using validated flow context return path:',
-									redirectUrl
-								);
+								const parsedContext = safeJsonParse(flowContext);
+								console.log(' [NewAuthContext] Safely parsed flow context (fallback):', parsedContext);
+
+								// Validate the parsed context structure
+								if (parsedContext && typeof parsedContext === 'object' && parsedContext.returnPath) {
+									const returnPath = String(parsedContext.returnPath);
+									if (returnPath.includes('/flows/enhanced-authorization-code')) {
+										redirectUrl = returnPath;
+									} else {
+										redirectUrl = returnPath.startsWith('/') ? returnPath : '/dashboard';
+									}
+								} else {
+									redirectUrl = '/dashboard';
+								}
 							}
-						} else {
-							console.log(' [NewAuthContext] No valid returnPath in flow context, using default');
+
+							// Clean up flow context
+							sessionStorage.removeItem('flowContext');
+						} catch (error) {
+							console.warn('Failed to parse flow context (fallback):', error);
 							redirectUrl = '/dashboard';
 						}
-					} catch (error) {
-						console.warn('Failed to parse flow context:', error);
-						// Use safe default on parse error
+					} else {
+						console.log(' [NewAuthContext] No flow context found, using dashboard');
 						redirectUrl = '/dashboard';
+						
+						// Clear nonce for non-Enhanced flows
+						sessionStorage.removeItem('oauth_nonce');
 					}
-
-					// Clean up flow context AFTER determining redirect URL
-					console.log(' [NewAuthContext] Cleaning up flow context after determining redirect URL');
-					sessionStorage.removeItem('flowContext');
-				} else {
-					console.log(' [NewAuthContext] No flow context found in sessionStorage');
-
-					// Clear nonce for non-Enhanced flows (Enhanced flows preserve nonce for validation)
-					console.log(' [NewAuthContext] Clearing nonce for non-Enhanced flow');
-					sessionStorage.removeItem('oauth_nonce');
 				}
 
 				logger.auth('NewAuthContext', 'Authentication successful', { redirectUrl });
@@ -1491,6 +1519,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		updateState({ error: null });
 	}, [updateState]);
 
+	// Flow context helper functions
+	const initializeFlowContext = useCallback((
+		flowType: string,
+		currentStep: number,
+		flowState: any,
+		additionalParams?: Record<string, string>
+	): string => {
+		try {
+			return FlowContextUtils.initializeOAuthFlow(flowType, currentStep, flowState, additionalParams);
+		} catch (error) {
+			console.error(' [NewAuthContext] Failed to initialize flow context:', error);
+			throw error;
+		}
+	}, []);
+
+	const updateFlowStep = useCallback((
+		flowId: string,
+		newStep: number,
+		flowState?: any
+	): boolean => {
+		try {
+			return FlowContextUtils.updateFlowStep(flowId, newStep, flowState);
+		} catch (error) {
+			console.error(' [NewAuthContext] Failed to update flow step:', error);
+			return false;
+		}
+	}, []);
+
+	const completeFlow = useCallback((flowId: string): void => {
+		try {
+			FlowContextUtils.completeFlow(flowId);
+		} catch (error) {
+			console.error(' [NewAuthContext] Failed to complete flow:', error);
+		}
+	}, []);
+
+	const getCurrentFlow = useCallback(() => {
+		try {
+			return FlowContextUtils.getCurrentFlow();
+		} catch (error) {
+			console.error(' [NewAuthContext] Failed to get current flow:', error);
+			return null;
+		}
+	}, []);
+
 	// Context value
 	const contextValue = useMemo(() => {
 		// Handle both config structures: config.pingone.* and config.*
@@ -1542,6 +1615,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			closeAuthModal,
 			updateTokens, // Add the updateTokens function
 			dismissError, // Add the dismissError function
+			// Flow context helper functions
+			initializeFlowContext,
+			updateFlowStep,
+			completeFlow,
+			getCurrentFlow
 		};
 		// Reduced debug logging to prevent console spam
 		// logger.debug('NewAuthContext', 'Creating context value', value);
@@ -1559,6 +1637,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		closeAuthModal,
 		updateTokens,
 		dismissError,
+		initializeFlowContext,
+		updateFlowStep,
+		completeFlow,
+		getCurrentFlow,
 	]);
 
 	// Reduced debug logging to prevent console spam

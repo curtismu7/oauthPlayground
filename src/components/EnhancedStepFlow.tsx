@@ -95,7 +95,7 @@ const FlowControls = styled.div`
   align-items: center;
 `;
 
-const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
+const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'success' }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -114,6 +114,12 @@ const ControlButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'dang
           background-color: ${theme.colors.primary};
           color: white;
           &:hover { background-color: ${theme.colors.primaryDark}; }
+        `;
+			case 'success':
+				return `
+          background-color: #10b981;
+          color: white;
+          &:hover { background-color: #059669; }
         `;
 			case 'danger':
 				return `
@@ -662,7 +668,7 @@ const EnhancedStepFlow: React.FC<EnhancedStepFlowProps> = ({
 						<FiRefreshCw />
 						Reset
 					</ControlButton>
-					<ControlButton onClick={saveState}>
+					<ControlButton $variant="success" onClick={saveState}>
 						<FiSave />
 						Save
 					</ControlButton>

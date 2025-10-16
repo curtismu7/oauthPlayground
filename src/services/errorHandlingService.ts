@@ -129,23 +129,23 @@ export class ErrorHandlingService {
    * Main error handling method - processes any error and returns standardized response
    */
   static handleFlowError(error: Error | any, context: ErrorContext): ErrorResponse {
-    const flowError = this.createFlowError(error, context);
-    const errorResponse = this.generateErrorResponse(flowError);
-    const recoveryOptions = this.generateRecoveryOptions(flowError);
+    const flowError = ErrorHandlingService.createFlowError(error, context);
+    const errorResponse = ErrorHandlingService.generateErrorResponse(flowError);
+    const recoveryOptions = ErrorHandlingService.generateRecoveryOptions(flowError);
 
     // Store error for analytics
-    this.storeError(flowError);
+    ErrorHandlingService.storeError(flowError);
 
     // Log error for monitoring
-    this.logError(flowError);
+    ErrorHandlingService.logError(flowError);
 
     // Report to error tracking service
-    this.reportError(flowError);
+    ErrorHandlingService.reportError(flowError);
 
     return {
       ...errorResponse,
       recoveryOptions,
-      correlationId: this.generateCorrelationId()
+      correlationId: ErrorHandlingService.generateCorrelationId()
     };
   }
 
@@ -153,7 +153,7 @@ export class ErrorHandlingService {
    * Classify error based on message, code, and other properties
    */
   static classifyError(error: Error | any): ErrorType {
-    const errorMessage = this.extractErrorMessage(error).toLowerCase();
+    const errorMessage = ErrorHandlingService.extractErrorMessage(error).toLowerCase();
 
     // Check against known patterns
     for (const [errorType, patterns] of Object.entries(ERROR_PATTERNS)) {
@@ -165,12 +165,12 @@ export class ErrorHandlingService {
     // Check error codes
     if (error.code || error.status || error.statusCode) {
       const code = error.code || error.status || error.statusCode;
-      return this.classifyByCode(code);
+      return ErrorHandlingService.classifyByCode(code);
     }
 
     // Check error name
     if (error.name) {
-      return this.classifyByName(error.name);
+      return ErrorHandlingService.classifyByName(error.name);
     }
 
     return ErrorType.UNKNOWN;
@@ -362,8 +362,8 @@ export class ErrorHandlingService {
    * Create standardized FlowError object
    */
   private static createFlowError(error: Error | any, context: ErrorContext): FlowError {
-    const errorType = this.classifyError(error);
-    const severity = this.determineSeverity(errorType, context);
+    const errorType = ErrorHandlingService.classifyError(error);
+    const severity = ErrorHandlingService.determineSeverity(errorType, context);
 
     return {
       type: errorType,
@@ -371,8 +371,8 @@ export class ErrorHandlingService {
       originalError: error,
       flowId: context.flowId,
       stepId: context.stepId,
-      userMessage: this.getUserFriendlyMessage(errorType, context),
-      technicalMessage: this.extractErrorMessage(error),
+      userMessage: ErrorHandlingService.getUserFriendlyMessage(errorType, context),
+      technicalMessage: ErrorHandlingService.extractErrorMessage(error),
       timestamp: new Date(),
       context: context.metadata,
       userId: context.userId,
@@ -389,8 +389,8 @@ export class ErrorHandlingService {
       severity: flowError.severity,
       userMessage: flowError.userMessage,
       technicalMessage: flowError.technicalMessage,
-      shouldRetry: this.shouldRetry(flowError.type),
-      contactSupport: this.shouldContactSupport(flowError.type)
+      shouldRetry: ErrorHandlingService.shouldRetry(flowError.type),
+      contactSupport: ErrorHandlingService.shouldContactSupport(flowError.type)
     };
   }
 
@@ -410,10 +410,10 @@ export class ErrorHandlingService {
    */
   private static storeError(flowError: FlowError): void {
     const key = `${flowError.flowId}-${flowError.type}-${Date.now()}`;
-    this.errorStore.set(key, flowError);
+    ErrorHandlingService.errorStore.set(key, flowError);
 
     // Update analytics
-    const analytics = this.analyticsStore.get(flowError.type) || {
+    const analytics = ErrorHandlingService.analyticsStore.get(flowError.type) || {
       errorType: flowError.type,
       frequency: 0,
       averageResolutionTime: 0,
@@ -422,14 +422,14 @@ export class ErrorHandlingService {
     };
 
     analytics.frequency++;
-    this.analyticsStore.set(flowError.type, analytics);
+    ErrorHandlingService.analyticsStore.set(flowError.type, analytics);
   }
 
   /**
    * Log error for monitoring
    */
   private static logError(flowError: FlowError): void {
-    const logLevel = this.getLogLevel(flowError.severity);
+    const logLevel = ErrorHandlingService.getLogLevel(flowError.severity);
 
     const logData = {
       timestamp: flowError.timestamp.toISOString(),
@@ -503,24 +503,24 @@ export class ErrorHandlingService {
    */
   static getErrorAnalytics(errorType?: ErrorType): ErrorAnalytics[] {
     if (errorType) {
-      return this.analyticsStore.has(errorType) ? [this.analyticsStore.get(errorType)!] : [];
+      return ErrorHandlingService.analyticsStore.has(errorType) ? [ErrorHandlingService.analyticsStore.get(errorType)!] : [];
     }
-    return Array.from(this.analyticsStore.values());
+    return Array.from(ErrorHandlingService.analyticsStore.values());
   }
 
   /**
    * Clear error store (for testing or cleanup)
    */
   static clearErrorStore(): void {
-    this.errorStore.clear();
-    this.analyticsStore.clear();
+    ErrorHandlingService.errorStore.clear();
+    ErrorHandlingService.analyticsStore.clear();
   }
 
   /**
    * Get recent errors for debugging
    */
   static getRecentErrors(limit: number = 10): FlowError[] {
-    return Array.from(this.errorStore.values())
+    return Array.from(ErrorHandlingService.errorStore.values())
       .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
       .slice(0, limit);
   }

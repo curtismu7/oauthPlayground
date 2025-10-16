@@ -949,7 +949,7 @@ export class AuthzFlowResponseTypeEnforcer {
 		credentials: StepCredentials,
 		setCredentials: (creds: StepCredentials) => void
 	): void {
-		const expectedType = this.getExpectedResponseType(variant);
+		const expectedType = AuthzFlowResponseTypeEnforcer.getExpectedResponseType(variant);
 		
 		if (credentials.responseType !== expectedType) {
 			console.log(`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`);

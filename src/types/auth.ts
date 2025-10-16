@@ -54,6 +54,21 @@ export interface AuthContextType extends AuthState {
 	closeAuthModal: () => void;
 	updateTokens: (tokens: OAuthTokenResponse | null) => void;
 	dismissError: () => void;
+	// Flow context helper functions
+	initializeFlowContext: (
+		flowType: string,
+		currentStep: number,
+		flowState: any,
+		additionalParams?: Record<string, string>
+	) => string;
+	updateFlowStep: (flowId: string, newStep: number, flowState?: any) => boolean;
+	completeFlow: (flowId: string) => void;
+	getCurrentFlow: () => {
+		flowType?: string;
+		currentStep?: number;
+		returnPath?: string;
+		age?: number;
+	} | null;
 }
 
 export interface AuthProviderProps {

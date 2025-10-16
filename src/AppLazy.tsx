@@ -27,8 +27,10 @@ const AuthorizationCallback = React.lazy(() => import('./pages/AuthorizationCall
 const TokenManagement = React.lazy(() => import('./pages/TokenManagement'));
 const OIDCOverview = React.lazy(() => import('./pages/docs/OIDCOverview'));
 const AIGlossary = React.lazy(() => import('./pages/AIGlossary'));
+const EmergingAIStandards = React.lazy(() => import('./pages/EmergingAIStandards'));
 const ComprehensiveOAuthEducation = React.lazy(() => import('./pages/ComprehensiveOAuthEducation'));
 const AIAgentOverview = React.lazy(() => import('./pages/AIAgentOverview'));
+const AIPersonalAgentOAuth = React.lazy(() => import('./pages/AIPersonalAgentOAuth'));
 const AdvancedConfiguration = React.lazy(() => import('./pages/AdvancedConfiguration'));
 const InteractiveTutorials = React.lazy(() => import('./pages/InteractiveTutorials'));
 const OAuth21 = React.lazy(() => import('./pages/OAuth21'));
@@ -82,6 +84,25 @@ const ScrollToTop: React.FC = () => {
 	const { pathname } = useLocation();
 
 	useEffect(() => {
+		// Skip auto-scroll for certain flows to prevent menu jumping
+		const skipAutoScroll = [
+			'/flows/pingone-mfa-v6',
+			'/flows/ciba-v6',
+			// Add other flows that should preserve scroll position
+		];
+		
+		if (skipAutoScroll.some(path => pathname.includes(path))) {
+			console.log('🌍 [ScrollToTop] Skipping auto-scroll for:', pathname);
+			return;
+		}
+
+		// Also check for data attribute on the page
+		const noScrollElement = document.querySelector('[data-no-auto-scroll="true"]');
+		if (noScrollElement) {
+			console.log('🌍 [ScrollToTop] Found no-auto-scroll element, skipping scroll');
+			return;
+		}
+
 		// Scroll to top immediately
 		window.scrollTo(0, 0);
 
@@ -93,6 +114,13 @@ const ScrollToTop: React.FC = () => {
 
 		// Additional scroll to top after a small delay to ensure it works
 		const timer = setTimeout(() => {
+			// Double-check the no-scroll attribute before delayed scroll
+			const noScrollElementDelayed = document.querySelector('[data-no-auto-scroll="true"]');
+			if (noScrollElementDelayed) {
+				console.log('🌍 [ScrollToTop] Found no-auto-scroll element during delayed scroll, aborting');
+				return;
+			}
+			
 			window.scrollTo(0, 0);
 			if (mainContent) {
 				mainContent.scrollTo(0, 0);
@@ -575,6 +603,15 @@ const AppRoutes = () => {
 						/>
 
 						<Route
+							path="/emerging-ai-standards"
+							element={
+								<LazyRouteWrapper fallbackMessage="Loading Emerging AI Standards...">
+									<EmergingAIStandards />
+								</LazyRouteWrapper>
+							}
+						/>
+
+						<Route
 							path="/ai-agent-overview"
 							element={
 								<LazyRouteWrapper fallbackMessage="Loading AI Agents OAuth...">
@@ -613,8 +650,17 @@ const AppRoutes = () => {
 						<Route
 							path="/oauth-oidc-training"
 							element={
-								<LazyRouteWrapper fallbackMessage="Loading OAuth/OIDC Training...">
+								<LazyRouteWrapper fallbackMessage="Loading OAuth and OIDC training...">
 									<OAuthOIDCTraining />
+								</LazyRouteWrapper>
+							}
+						/>
+
+						<Route
+							path="/ai-personal-agent-oauth"
+							element={
+								<LazyRouteWrapper fallbackMessage="Loading AI personal agent OAuth guidance...">
+									<AIPersonalAgentOAuth />
 								</LazyRouteWrapper>
 							}
 						/>

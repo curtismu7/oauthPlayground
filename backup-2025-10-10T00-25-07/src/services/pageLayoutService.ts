@@ -216,11 +216,11 @@ export class PageLayoutService {
 
   // Method to create a complete page layout
   static createPageLayout(config: PageLayoutConfig) {
-    const PageContainer = this.getPageContainer(config);
-    const ContentWrapper = this.getContentWrapper(config);
-    const MainCard = this.getMainCard();
-    const PageHeader = config.showHeader ? this.getPageHeader(config) : null;
-    const PageFooter = config.showFooter ? this.getPageFooter() : null;
+    const PageContainer = PageLayoutService.getPageContainer(config);
+    const ContentWrapper = PageLayoutService.getContentWrapper(config);
+    const MainCard = PageLayoutService.getMainCard();
+    const PageHeader = config.showHeader ? PageLayoutService.getPageHeader(config) : null;
+    const PageFooter = config.showFooter ? PageLayoutService.getPageFooter() : null;
 
     return {
       PageContainer,
@@ -228,10 +228,10 @@ export class PageLayoutService {
       MainCard,
       PageHeader,
       PageFooter,
-      SectionContainer: this.getSectionContainer(),
-      ContentGrid: this.getContentGrid(),
-      ContentFlex: this.getContentFlex(),
-      Spacing: this.getSpacing()
+      SectionContainer: PageLayoutService.getSectionContainer(),
+      ContentGrid: PageLayoutService.getContentGrid(),
+      ContentFlex: PageLayoutService.getContentFlex(),
+      Spacing: PageLayoutService.getSpacing()
     };
   }
 }

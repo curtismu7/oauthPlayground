@@ -14,47 +14,39 @@ export class FlowStepNavigationService {
 	static createStepNavigationHandlers(options: StepNavigationOptions) {
 		const { currentStep, totalSteps, isStepValid } = options;
 
-		const canNavigateNext = (): boolean => {
-			return isStepValid(currentStep) && currentStep < totalSteps - 1;
-		};
+		const canNavigateNext = () => isStepValid(currentStep) && currentStep < totalSteps - 1;
 
-		const handleNext = (setCurrentStep: (step: number) => void) => {
+		const createHandleNext = () => (setCurrentStep: (step: number) => void) => {
 			if (!canNavigateNext()) {
 				const stepName = `Step ${currentStep + 1}`;
 				console.log('🚫 Navigation blocked:', stepName);
 				v4ToastManager.showError(`Complete ${stepName} before proceeding to the next step.`);
 				return;
 			}
-
 			console.log('✅ Navigation allowed, moving to next step');
-			const next = currentStep + 1;
-			setCurrentStep(next);
+			setCurrentStep(currentStep + 1);
 		};
 
-		const handlePrev = (setCurrentStep: (step: number) => void) => {
-			if (currentStep <= 0) {
-				return;
+		const createHandlePrev = () => (setCurrentStep: (step: number) => void) => {
+			if (currentStep > 0) {
+				setCurrentStep(currentStep - 1);
 			}
-			const previous = currentStep - 1;
-			setCurrentStep(previous);
 		};
 
-		const handleNextClick = (setCurrentStep: (step: number) => void) => {
+		const createHandleNextClick = () => (setCurrentStep: (step: number) => void) => {
 			console.log('🔍 Next button clicked');
-
 			if (!canNavigateNext()) {
-				v4ToastManager.showError(`Complete the action above to continue.`);
+				v4ToastManager.showError('Complete the action above to continue.');
 				return;
 			}
-
-			handleNext(setCurrentStep);
+			createHandleNext()(setCurrentStep);
 		};
 
 		return {
 			canNavigateNext,
-			handleNext: () => handleNext,
-			handlePrev: () => handlePrev,
-			handleNextClick: () => handleNextClick,
+			handleNext: createHandleNext(),
+			handlePrev: createHandlePrev(),
+			handleNextClick: createHandleNextClick(),
 		};
 	}
 

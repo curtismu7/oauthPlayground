@@ -1,6 +1,6 @@
 // src/components/StepNavigationButtons.tsx
 
-import { FiArrowLeft, FiArrowRight, FiTrash2, FiSkipBack, FiMove, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
+import { FiArrowLeft, FiArrowRight, FiTrash2, FiSkipBack, FiMove, FiMaximize2, FiMinimize2, FiCheckCircle } from 'react-icons/fi';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
@@ -15,6 +15,9 @@ export interface StepNavigationButtonsProps {
 	isFirstStep: boolean;
 	nextButtonText?: string;
 	disabledMessage?: string;
+	stepRequirements?: string[];
+	onCompleteAction?: () => void;
+	showCompleteActionButton?: boolean;
 }
 
 const StepNavigation = styled.div<{ $position: { x: number; y: number }; $isDragging?: boolean; $compact?: boolean }>`
@@ -224,6 +227,9 @@ export const StepNavigationButtons = ({
 	isFirstStep,
 	nextButtonText,
 	disabledMessage,
+	stepRequirements,
+	onCompleteAction,
+	showCompleteActionButton,
 }: StepNavigationButtonsProps) => {
 	// Drag state management
 	const [position, setPosition] = useState({
@@ -311,6 +317,13 @@ export const StepNavigationButtons = ({
 		};
 	}, [isDragging, handleDragMove, handleDragEnd]);
 
+	const activeRequirement = stepRequirements?.[currentStep];
+	const nextButtonTitle = !canNavigateNext
+		? [disabledMessage || 'Complete the action above to continue', activeRequirement ? `Requirement: ${activeRequirement}` : undefined]
+			.filter(Boolean)
+			.join(' • ')
+		: 'Proceed to next step';
+
 	return (
 		<StepNavigation 
 			ref={stepperRef} 
@@ -372,6 +385,19 @@ export const StepNavigationButtons = ({
 				>
 					<FiTrash2 /> {!isCompact && 'Reset Flow'}
 				</NavButton>
+				{showCompleteActionButton && onCompleteAction && (
+					<NavButton
+						onClick={(e) => {
+							e.stopPropagation();
+							onCompleteAction();
+						}}
+						$variant="primary"
+						$compact={isCompact}
+						title="Complete the current action"
+					>
+						{isCompact ? <FiCheckCircle /> : (<><FiCheckCircle /> Complete Action</>)}
+					</NavButton>
+				)}
 				<NavButton
 					onClick={(e) => {
 						e.stopPropagation();
@@ -380,11 +406,7 @@ export const StepNavigationButtons = ({
 					$variant="success"
 					$compact={isCompact}
 					disabled={!canNavigateNext}
-					title={
-						!canNavigateNext
-							? disabledMessage || 'Complete the action above to continue'
-							: 'Proceed to next step'
-					}
+					title={nextButtonTitle}
 				>
 					{isCompact ? <FiArrowRight /> : (
 						<>

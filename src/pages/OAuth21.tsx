@@ -178,6 +178,88 @@ const OAuth21 = () => {
 			</CollapsibleHeader>
 
 			<CollapsibleHeader
+				title="Flows and Features Removed from OAuth 2.1"
+				subtitle="Deprecated patterns that no longer appear in the consolidated specification"
+				icon={<FiAlertTriangle />}
+				defaultCollapsed={false}
+			>
+				<Card>
+					<CardBody>
+						<ChangesGrid>
+							<SpecCard title="Implicit Grant (response_type=token)">
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '1rem',
+									}}
+								>
+									<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
+									<span style={{ fontWeight: 600, color: '#f59e0b' }}>REMOVED</span>
+								</div>
+								<p>
+									`response_type=token` no longer appears in OAuth 2.1. Browsers should use Authorization Code + PKCE, which prevents token leakage through URL fragments and enables sender-constrained access tokens.
+								</p>
+								<p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+									Reference: draft-ietf-oauth-v2-1 §4 (Implicit grant omitted).
+								</p>
+							</SpecCard>
+
+							<SpecCard title="Resource Owner Password Credentials (ROPC)">
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '1rem',
+									}}
+								>
+									<FiX style={{ color: '#f59e0b', fontSize: '1.25rem' }} />
+									<span style={{ fontWeight: 600, color: '#f59e0b' }}>REMOVED</span>
+								</div>
+								<p>
+									The password grant encouraged first-party apps to collect user credentials. OAuth 2.1 removes it entirely. Modern replacements include Authorization Code + PKCE or token exchange patterns for highly trusted backends.
+								</p>
+								<p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+									Reference: draft-ietf-oauth-v2-1 §4.3 (ROPC omitted).
+								</p>
+							</SpecCard>
+
+							<SpecCard title="Redirects without HTTPS or Strict Validation">
+								<div
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										marginBottom: '1rem',
+									}}
+								>
+									<FiShield style={{ color: '#0ea5e9', fontSize: '1.25rem' }} />
+									<span style={{ fontWeight: 600, color: '#0ea5e9' }}>ENFORCED</span>
+								</div>
+								<p>
+									Native and browser-based apps must use `https` URIs (with loopback exceptions) and exact matching. Lenient schemes tolerated in early OAuth 2.0 deployments are no longer acceptable.
+								</p>
+								<p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+									Reference: draft-ietf-oauth-v2-1 §6.1 (redirect URI requirements).
+								</p>
+							</SpecCard>
+						</ChangesGrid>
+						<PingOneNote>
+							<FiInfo />
+							<div>
+								<h4>PingOne guidance</h4>
+								<p>
+									Existing PingOne tenants should migrate any legacy implicit or password integrations to Authorization Code + PKCE. The platform already enforces strict redirect URI validation, so review client registrations for lingering insecure URLs.
+								</p>
+							</div>
+						</PingOneNote>
+					</CardBody>
+				</Card>
+			</CollapsibleHeader>
+
+			<CollapsibleHeader
 				title="Key Changes from OAuth 2.0 to OAuth 2.1"
 				subtitle="Major security improvements and deprecations in OAuth 2.1"
 				icon={<FiKey />}

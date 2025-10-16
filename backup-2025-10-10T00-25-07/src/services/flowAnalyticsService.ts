@@ -67,11 +67,11 @@ export class FlowAnalyticsService {
 			errors: [],
 			success: false,
 			userId,
-			sessionId: this.sessionId,
+			sessionId: FlowAnalyticsService.sessionId,
 		};
 
-		this.currentFlow = flowAnalytics;
-		this.analytics.push(flowAnalytics);
+		FlowAnalyticsService.currentFlow = flowAnalytics;
+		FlowAnalyticsService.analytics.push(flowAnalytics);
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
@@ -79,7 +79,7 @@ export class FlowAnalyticsService {
 				flowType,
 				flowKey,
 				userId,
-				sessionId: this.sessionId,
+				sessionId: FlowAnalyticsService.sessionId,
 				timestamp: new Date().toISOString(),
 			});
 		}
@@ -91,7 +91,7 @@ export class FlowAnalyticsService {
 	 * Track step start
 	 */
 	static trackStepStart(stepIndex: number, stepName: string): void {
-		if (!this.currentFlow) return;
+		if (!FlowAnalyticsService.currentFlow) return;
 
 		const stepAnalytics: StepAnalytics = {
 			stepIndex,
@@ -102,12 +102,12 @@ export class FlowAnalyticsService {
 			interactions: [],
 		};
 
-		this.currentFlow.steps[stepIndex] = stepAnalytics;
+		FlowAnalyticsService.currentFlow.steps[stepIndex] = stepAnalytics;
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
 			console.log('📊 [FlowAnalytics] Step started:', {
-				flowType: this.currentFlow.flowType,
+				flowType: FlowAnalyticsService.currentFlow.flowType,
 				stepIndex,
 				stepName,
 				timestamp: new Date().toISOString(),
@@ -119,9 +119,9 @@ export class FlowAnalyticsService {
 	 * Track step completion
 	 */
 	static trackStepComplete(stepIndex: number, duration?: number): void {
-		if (!this.currentFlow || !this.currentFlow.steps[stepIndex]) return;
+		if (!FlowAnalyticsService.currentFlow || !FlowAnalyticsService.currentFlow.steps[stepIndex]) return;
 
-		const step = this.currentFlow.steps[stepIndex];
+		const step = FlowAnalyticsService.currentFlow.steps[stepIndex];
 		step.endTime = Date.now();
 		step.duration = duration || step.endTime - step.startTime;
 		step.completed = true;
@@ -129,7 +129,7 @@ export class FlowAnalyticsService {
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
 			console.log('✅ [FlowAnalytics] Step completed:', {
-				flowType: this.currentFlow.flowType,
+				flowType: FlowAnalyticsService.currentFlow.flowType,
 				stepIndex,
 				stepName: step.stepName,
 				duration: step.duration,
@@ -147,7 +147,7 @@ export class FlowAnalyticsService {
 		element: string,
 		data?: Record<string, any>
 	): void {
-		if (!this.currentFlow || !this.currentFlow.steps[stepIndex]) return;
+		if (!FlowAnalyticsService.currentFlow || !FlowAnalyticsService.currentFlow.steps[stepIndex]) return;
 
 		const interaction: InteractionAnalytics = {
 			type,
@@ -156,12 +156,12 @@ export class FlowAnalyticsService {
 			data,
 		};
 
-		this.currentFlow.steps[stepIndex].interactions.push(interaction);
+		FlowAnalyticsService.currentFlow.steps[stepIndex].interactions.push(interaction);
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
 			console.log('🖱️ [FlowAnalytics] Interaction tracked:', {
-				flowType: this.currentFlow.flowType,
+				flowType: FlowAnalyticsService.currentFlow.flowType,
 				stepIndex,
 				type,
 				element,
@@ -180,7 +180,7 @@ export class FlowAnalyticsService {
 		errorMessage: string,
 		context?: Record<string, any>
 	): void {
-		if (!this.currentFlow) return;
+		if (!FlowAnalyticsService.currentFlow) return;
 
 		const error: ErrorAnalytics = {
 			stepIndex,
@@ -190,17 +190,17 @@ export class FlowAnalyticsService {
 			context,
 		};
 
-		this.currentFlow.errors.push(error);
+		FlowAnalyticsService.currentFlow.errors.push(error);
 
 		// Increment error count for the step
-		if (this.currentFlow.steps[stepIndex]) {
-			this.currentFlow.steps[stepIndex].errorCount++;
+		if (FlowAnalyticsService.currentFlow.steps[stepIndex]) {
+			FlowAnalyticsService.currentFlow.steps[stepIndex].errorCount++;
 		}
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
 			console.error('❌ [FlowAnalytics] Error tracked:', {
-				flowType: this.currentFlow.flowType,
+				flowType: FlowAnalyticsService.currentFlow.flowType,
 				stepIndex,
 				errorType,
 				errorMessage,
@@ -214,11 +214,11 @@ export class FlowAnalyticsService {
 	 * Track flow completion
 	 */
 	static trackFlowComplete(success: boolean, duration?: number): void {
-		if (!this.currentFlow) return;
+		if (!FlowAnalyticsService.currentFlow) return;
 
-		this.currentFlow.endTime = Date.now();
-		this.currentFlow.duration = duration || this.currentFlow.endTime - this.currentFlow.startTime;
-		this.currentFlow.success = success;
+		FlowAnalyticsService.currentFlow.endTime = Date.now();
+		FlowAnalyticsService.currentFlow.duration = duration || FlowAnalyticsService.currentFlow.endTime - FlowAnalyticsService.currentFlow.startTime;
+		FlowAnalyticsService.currentFlow.success = success;
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
@@ -227,58 +227,58 @@ export class FlowAnalyticsService {
 					? '🎉 [FlowAnalytics] Flow completed successfully:'
 					: '💥 [FlowAnalytics] Flow failed:',
 				{
-					flowType: this.currentFlow.flowType,
-					flowKey: this.currentFlow.flowKey,
-					duration: this.currentFlow.duration,
+					flowType: FlowAnalyticsService.currentFlow.flowType,
+					flowKey: FlowAnalyticsService.currentFlow.flowKey,
+					duration: FlowAnalyticsService.currentFlow.duration,
 					success,
-					errorCount: this.currentFlow.errors.length,
+					errorCount: FlowAnalyticsService.currentFlow.errors.length,
 					timestamp: new Date().toISOString(),
 				}
 			);
 		}
 
 		// Reset current flow
-		this.currentFlow = null;
+		FlowAnalyticsService.currentFlow = null;
 	}
 
 	/**
 	 * Track flow reset
 	 */
 	static trackFlowReset(): void {
-		if (!this.currentFlow) return;
+		if (!FlowAnalyticsService.currentFlow) return;
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
 			console.log('🔄 [FlowAnalytics] Flow reset:', {
-				flowType: this.currentFlow.flowType,
-				flowKey: this.currentFlow.flowKey,
+				flowType: FlowAnalyticsService.currentFlow.flowType,
+				flowKey: FlowAnalyticsService.currentFlow.flowKey,
 				timestamp: new Date().toISOString(),
 			});
 		}
 
 		// Reset current flow
-		this.currentFlow = null;
+		FlowAnalyticsService.currentFlow = null;
 	}
 
 	/**
 	 * Get flow analytics for a specific flow type
 	 */
 	static getFlowAnalytics(flowType: string): FlowAnalytics[] {
-		return this.analytics.filter((flow) => flow.flowType === flowType);
+		return FlowAnalyticsService.analytics.filter((flow) => flow.flowType === flowType);
 	}
 
 	/**
 	 * Get flow metrics
 	 */
 	static getFlowMetrics(): FlowMetrics {
-		const totalFlows = this.analytics.length;
-		const successfulFlows = this.analytics.filter((flow) => flow.success).length;
+		const totalFlows = FlowAnalyticsService.analytics.length;
+		const successfulFlows = FlowAnalyticsService.analytics.filter((flow) => flow.success).length;
 		const failedFlows = totalFlows - successfulFlows;
 		const averageDuration =
-			this.analytics.reduce((sum, flow) => sum + (flow.duration || 0), 0) / totalFlows;
+			FlowAnalyticsService.analytics.reduce((sum, flow) => sum + (flow.duration || 0), 0) / totalFlows;
 
 		// Most used flows
-		const flowCounts = this.analytics.reduce(
+		const flowCounts = FlowAnalyticsService.analytics.reduce(
 			(counts, flow) => {
 				counts[flow.flowType] = (counts[flow.flowType] || 0) + 1;
 				return counts;
@@ -291,7 +291,7 @@ export class FlowAnalyticsService {
 			.sort((a, b) => b.count - a.count);
 
 		// Common errors
-		const errorCounts = this.analytics.reduce(
+		const errorCounts = FlowAnalyticsService.analytics.reduce(
 			(counts, flow) => {
 				flow.errors.forEach((error) => {
 					counts[error.errorType] = (counts[error.errorType] || 0) + 1;
@@ -306,7 +306,7 @@ export class FlowAnalyticsService {
 			.sort((a, b) => b.count - a.count);
 
 		// Step completion rates
-		const stepCompletionRates = this.analytics.reduce(
+		const stepCompletionRates = FlowAnalyticsService.analytics.reduce(
 			(rates, flow) => {
 				flow.steps.forEach((step) => {
 					if (!rates[step.stepIndex]) {
@@ -344,7 +344,7 @@ export class FlowAnalyticsService {
 	 * Get analytics for a specific time range
 	 */
 	static getAnalyticsInRange(startTime: number, endTime: number): FlowAnalytics[] {
-		return this.analytics.filter(
+		return FlowAnalyticsService.analytics.filter(
 			(flow) => flow.startTime >= startTime && flow.startTime <= endTime
 		);
 	}
@@ -353,23 +353,23 @@ export class FlowAnalyticsService {
 	 * Get analytics for a specific user
 	 */
 	static getUserAnalytics(userId: string): FlowAnalytics[] {
-		return this.analytics.filter((flow) => flow.userId === userId);
+		return FlowAnalyticsService.analytics.filter((flow) => flow.userId === userId);
 	}
 
 	/**
 	 * Get analytics for a specific session
 	 */
 	static getSessionAnalytics(sessionId: string): FlowAnalytics[] {
-		return this.analytics.filter((flow) => flow.sessionId === sessionId);
+		return FlowAnalyticsService.analytics.filter((flow) => flow.sessionId === sessionId);
 	}
 
 	/**
 	 * Clear all analytics data
 	 */
 	static clearAnalytics(): void {
-		this.analytics = [];
-		this.currentFlow = null;
-		this.sessionId = this.generateSessionId();
+		FlowAnalyticsService.analytics = [];
+		FlowAnalyticsService.currentFlow = null;
+		FlowAnalyticsService.sessionId = FlowAnalyticsService.generateSessionId();
 
 		// Log to console in development
 		if (process.env.NODE_ENV === 'development') {
@@ -383,8 +383,8 @@ export class FlowAnalyticsService {
 	static exportAnalytics(): string {
 		return JSON.stringify(
 			{
-				analytics: this.analytics,
-				metrics: this.getFlowMetrics(),
+				analytics: FlowAnalyticsService.analytics,
+				metrics: FlowAnalyticsService.getFlowMetrics(),
 				exportTime: new Date().toISOString(),
 			},
 			null,
@@ -399,12 +399,12 @@ export class FlowAnalyticsService {
 		try {
 			const parsed = JSON.parse(data);
 			if (parsed.analytics && Array.isArray(parsed.analytics)) {
-				this.analytics = parsed.analytics;
+				FlowAnalyticsService.analytics = parsed.analytics;
 
 				// Log to console in development
 				if (process.env.NODE_ENV === 'development') {
 					console.log('📥 [FlowAnalytics] Analytics imported:', {
-						count: this.analytics.length,
+						count: FlowAnalyticsService.analytics.length,
 						timestamp: new Date().toISOString(),
 					});
 				}
@@ -425,14 +425,14 @@ export class FlowAnalyticsService {
 	 * Get current flow analytics
 	 */
 	static getCurrentFlow(): FlowAnalytics | null {
-		return this.currentFlow;
+		return FlowAnalyticsService.currentFlow;
 	}
 
 	/**
 	 * Check if a flow is currently active
 	 */
 	static isFlowActive(): boolean {
-		return this.currentFlow !== null;
+		return FlowAnalyticsService.currentFlow !== null;
 	}
 
 	/**
@@ -445,10 +445,10 @@ export class FlowAnalyticsService {
 		sessionId: string;
 	} {
 		return {
-			totalFlows: this.analytics.length,
-			activeFlows: this.analytics.filter((flow) => !flow.endTime).length,
-			currentFlow: this.currentFlow?.flowType || null,
-			sessionId: this.sessionId,
+			totalFlows: FlowAnalyticsService.analytics.length,
+			activeFlows: FlowAnalyticsService.analytics.filter((flow) => !flow.endTime).length,
+			currentFlow: FlowAnalyticsService.currentFlow?.flowType || null,
+			sessionId: FlowAnalyticsService.sessionId,
 		};
 	}
 }

@@ -101,11 +101,11 @@ export class V6CollapsibleSectionService {
 	 */
 	static createCollapsibleComponents(theme: ThemeColor = 'blue') {
 		return {
-			CollapsibleSection: this.createCollapsibleSection(),
-			CollapsibleHeaderButton: this.createCollapsibleHeaderButton(theme),
-			CollapsibleTitle: this.createCollapsibleTitle(),
-			CollapsibleToggleIcon: this.createCollapsibleToggleIcon(theme),
-			CollapsibleContent: this.createCollapsibleContent(),
+			CollapsibleSection: V6CollapsibleSectionService.createCollapsibleSection(),
+			CollapsibleHeaderButton: V6CollapsibleSectionService.createCollapsibleHeaderButton(theme),
+			CollapsibleTitle: V6CollapsibleSectionService.createCollapsibleTitle(),
+			CollapsibleToggleIcon: V6CollapsibleSectionService.createCollapsibleToggleIcon(theme),
+			CollapsibleContent: V6CollapsibleSectionService.createCollapsibleContent(),
 		};
 	}
 }

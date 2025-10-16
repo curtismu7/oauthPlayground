@@ -60,7 +60,7 @@ import OIDCOverview from './pages/docs/OIDCOverview';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
 import PingViewOnAI from './pages/docs/PingViewOnAI';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
-import CIBAFlowV5 from './pages/flows/CIBAFlowV5';
+import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
@@ -77,6 +77,7 @@ import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
 import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
+import OAuth2ResourceOwnerPasswordFlowV6 from './pages/flows/OAuth2ResourceOwnerPasswordFlowV6';
 // V5 OAuth/OIDC Flows
 import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
@@ -89,9 +90,14 @@ import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
 // OIDCImplicitFlowV3 backed up
 import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
+import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
+import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
+import TokenExchangeFlowV7 from './pages/flows/TokenExchangeFlowV7';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
 import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
+import PingOneMFAFlowV6 from './pages/flows/PingOneMFAFlowV6';
+import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
 import RARFlowV6 from './pages/flows/RARFlowV6_New';
@@ -220,6 +226,18 @@ const AppRoutes = () => {
 	useEffect(() => {
 		console.log('🌍 [GlobalScroll] Route changed to:', location.pathname);
 		
+		// Skip auto-scroll for certain flows to prevent menu jumping
+		const skipAutoScroll = [
+			'/flows/pingone-mfa-v6',
+			'/flows/ciba-v6',
+			// Add other flows that should preserve scroll position
+		];
+		
+		if (skipAutoScroll.some(path => location.pathname.includes(path))) {
+			console.log('🌍 [GlobalScroll] Skipping auto-scroll for:', location.pathname);
+			return;
+		}
+		
 		// Scroll the main content area only, not the entire window
 		// This prevents the sidebar/menu from jumping
 		const mainContent = document.querySelector('main');
@@ -329,6 +347,10 @@ const AppRoutes = () => {
 							path="/flows/oauth-authorization-code-v6"
 							element={<OAuthAuthorizationCodeFlowV6 />}
 						/>
+						<Route
+							path="/flows/oauth-authorization-code-v7"
+							element={<OAuthAuthorizationCodeFlowV6 />}
+						/>
 						{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
 						<Route
 							path="/flows/oauth2-compliant-authorization-code"
@@ -377,7 +399,8 @@ const AppRoutes = () => {
 							<Route path="/flows/oidc-hybrid-v6" element={<OIDCHybridFlowV6 />} />
 							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
 							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
-							<Route path="/flows/ciba-v5" element={<CIBAFlowV5 />} />
+							<Route path="/flows/ciba-v5" element={<Navigate to="/flows/ciba-v6" replace />} />
+							<Route path="/flows/ciba-v6" element={<CIBAFlowV6 />} />
 							{/* Advanced Parameters Route */}
 							<Route
 								path="/flows/advanced-parameters-v6/:flowType"
@@ -408,13 +431,19 @@ const AppRoutes = () => {
 							{/* PingOne PAR Flow - V6 (upgraded with services) */}
 							<Route path="/flows/pingone-par-v6" element={<PingOnePARFlowV6 />} />
 							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV6 />} /> {/* Redirect V5 to V6 */}
-							<Route path="/flows/pingone-mfa-v5" element={<PingOneMFAFlowV5 />} />
+							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-mfa-v6" replace />} />
+							<Route path="/flows/pingone-mfa-v6" element={<PingOneMFAFlowV6 />} />
+							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
 							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
 							{/* Legacy route removed - use V5 */}
 							<Route
 								path="/flows/oauth2-resource-owner-password"
 								element={<OAuth2ResourceOwnerPasswordFlow />}
+							/>
+							<Route
+								path="/flows/oauth2-resource-owner-password-v6"
+								element={<OAuth2ResourceOwnerPasswordFlowV6 />}
 							/>
 							{/* Test MFA Flow */}
 							<Route path="/mfa-test" element={<MFAFlow />} />
@@ -470,6 +499,8 @@ const AppRoutes = () => {
 							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
 							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
 							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
+							<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
+							<Route path="/flows/token-exchange-v7" element={<TokenExchangeFlowV7 />} />
 						<Route
 							path="/flows/oidc-authorization-code-v5"
 							element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}

@@ -13,6 +13,7 @@ import {
 	FiLayers,
 	FiLock,
 	FiPackage,
+	FiRefreshCw,
 	FiSearch,
 	FiSettings,
 	FiShield,
@@ -370,6 +371,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return {
 			'Core Overview': true,
 			'OAuth 2.0 Flows': true,
+			'New V7 Flow': true,
 			'OpenID Connect': true,
 			PingOne: false,
 			'Mock & Demo Flows': false,
@@ -394,6 +396,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/oidc-authorization-code-v6': 'OIDC Authorization Code',
 			'/flows/oidc-implicit-v6': 'OIDC Implicit Flow',
 			'/flows/oidc-hybrid-v6': 'OIDC Hybrid Flow',
+			'/flows/implicit-v7': 'Unified Implicit Flow V7',
 			'/flows/client-credentials-v6': 'Client Credentials',
 			'/flows/device-authorization-v6': 'Device Authorization',
 			'/flows/oidc-device-authorization-v6': 'OIDC Device Authorization',
@@ -404,6 +407,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/pingone-par-v6': 'PingOne PAR',
 			'/flows/rar-v6': 'Rich Authorization Request',
 			'/flows/resource-owner-password-v6': 'Resource Owner Password',
+			'/flows/pingone-complete-mfa-v7': 'PingOne Complete MFA Flow V7',
 			'/pingone-mock-features': 'PingOne Mock Features',
 		};
 		return flowNames[path] || 'Flow';
@@ -717,6 +721,73 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 				</SubMenu>
 
+				{/* New V7 Flow - Unified implementations */}
+				<SubMenu
+					label="New V7 Flow"
+					icon={<ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>}
+					open={openMenus['New V7 Flow']}
+					onOpenChange={() => toggleMenu('New V7 Flow')}
+				>
+					<MenuItem
+						icon={<ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>}
+						active={isActive('/flows/oauth-authorization-code-v7')}
+						onClick={() => handleNavigation('/flows/oauth-authorization-code-v7')}
+						{...createV6MenuItemProps('/flows/oauth-authorization-code-v7')}
+					>
+						<MenuItemContent>
+							<span>Authorization Code (V7 Unified)</span>
+							<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+
+					<MenuItem
+						icon={<ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>}
+						active={isActive('/flows/implicit-v7')}
+						onClick={() => handleNavigation('/flows/implicit-v7')}
+						className="v6-flow"
+						style={getV6FlowStyles(isActive('/flows/implicit-v7'))}
+					>
+						<MenuItemContent>
+							<span>Unified Implicit Flow (V7)</span>
+							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+
+					<MenuItem
+						icon={<ColoredIcon $color="#7c3aed"><FiRefreshCw /></ColoredIcon>}
+						active={isActive('/flows/token-exchange-v7')}
+						onClick={() => handleNavigation('/flows/token-exchange-v7')}
+						className="v6-flow"
+						style={getV6FlowStyles(isActive('/flows/token-exchange-v7'))}
+					>
+						<MenuItemContent>
+							<span>Token Exchange (V7)</span>
+							<MigrationBadge title="V7: RFC 8693 Token Exchange for A2A Security">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+
+					<MenuItem
+						icon={<ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>}
+						active={isActive('/flows/pingone-complete-mfa-v7')}
+						onClick={() => handleNavigation('/flows/pingone-complete-mfa-v7')}
+						className="v6-flow"
+						style={getV6FlowStyles(isActive('/flows/pingone-complete-mfa-v7'))}
+					>
+						<MenuItemContent>
+							<span>PingOne Complete MFA Flow (V7)</span>
+							<MigrationBadge title="V7: Complete MFA authentication flow with V6 architecture, comprehensive device management, security monitoring, and accessibility features">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+				</SubMenu>
+
 				{/* OpenID Connect */}
 				<SubMenu
 					label="OpenID Connect"
@@ -841,19 +912,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 								</MigrationBadge>
 							</MenuItemContent>
 							</MenuItem>
+
 						<MenuItem
-							icon={<ColoredIcon $color="#fbbf24"><FiSmartphone /></ColoredIcon>}
-							active={isActive('/flows/ciba-v5')}
-							onClick={() => handleNavigation('/flows/ciba-v5')}
+							icon={<ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>}
+							active={isActive('/flows/pingone-mfa-v6')}
+							onClick={() => handleNavigation('/flows/pingone-mfa-v6')}
+							className="v6-flow"
+							style={getV6FlowStyles(isActive('/flows/pingone-mfa-v6'))}
 						>
-							CBIA (V5)
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#f97316"><FiShield /></ColoredIcon>}
-							active={isActive('/flows/pingone-mfa-v5')}
-			onClick={() => handleNavigation('/flows/pingone-mfa-v5')}
-						>
-							PingOne MFA
+							<MenuItemContent>
+								<span>PingOne MFA (V6)</span>
+								<MigrationBadge title="V6: Modern MFA flow with enhanced UX and comprehensive educational content">
+									<FiCheckCircle />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
 							icon={<ColoredIcon $color="#f59e0b"><FiBookOpen /></ColoredIcon>}
@@ -886,18 +958,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
-							icon={<FiEye />}
-							active={isActive('/flows/jwt-bearer-v5')}
-							onClick={() => handleNavigation('/flows/jwt-bearer-v5')}
+							icon={<ColoredIcon $color="#dc2626"><FiKey /></ColoredIcon>}
+							active={isActive('/flows/oauth2-resource-owner-password-v6')}
+							onClick={() => handleNavigation('/flows/oauth2-resource-owner-password-v6')}
+							className="v6-flow"
+							style={getV6FlowStyles(isActive('/flows/oauth2-resource-owner-password-v6'))}
 						>
-							JWT Bearer Token (Mock) (V5)
+							<MenuItemContent>
+								<span>ROPC (Mock) (V6)</span>
+								<MigrationBadge title="V6: Hybrid implementation - V5 controller with V6 layout and styling">
+									<FiCheckCircle />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
-							icon={<FiEye />}
-							active={isActive('/flows/oauth2-resource-owner-password')}
-							onClick={() => handleNavigation('/flows/oauth2-resource-owner-password')}
+							icon={<ColoredIcon $color="#fbbf24"><FiSmartphone /></ColoredIcon>}
+							active={isActive('/flows/ciba-v6')}
+							onClick={() => handleNavigation('/flows/ciba-v6')}
+							className="v6-flow"
+							style={getV6FlowStyles(isActive('/flows/ciba-v6'))}
 						>
-							ROPC (Mock) (V5)
+							<MenuItemContent>
+								<span>CIBA Flow (Mock) (V6)</span>
+								<MigrationBadge title="V6: Educational CIBA implementation - PingOne does not support CIBA">
+									<FiBookOpen />
+								</MigrationBadge>
+							</MenuItemContent>
 						</MenuItem>
 							<MenuItem
 								icon={<FiEye />}
@@ -942,6 +1028,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={() => handleNavigation('/ai-glossary')}
 						>
 							AI Glossary
+						</MenuItem>
+						<MenuItem
+							icon={<FiGitBranch />}
+							active={isActive('/emerging-ai-standards')}
+							onClick={() => handleNavigation('/emerging-ai-standards')}
+						>
+							Emerging AI Standards
 						</MenuItem>
 						<MenuItem
 							icon={<FiCpu />}

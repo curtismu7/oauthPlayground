@@ -1,7 +1,7 @@
 // src/pages/flows/config/RARFlow.config.ts
 // RAR (Rich Authorization Requests) Flow Configuration
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
-import { FlowStateService } from '../../../services/flowStateService';
+import FlowStateService from '../../../services/flowStateService';
 
 // Flow configuration
 export const FLOW_TYPE = 'rar';

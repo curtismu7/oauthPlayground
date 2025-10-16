@@ -182,10 +182,10 @@ async function loadConfiguration(): Promise<AppConfig> {
 		// Otherwise, try to get from credential manager
 		console.log('🔧 [NewAuthContext] Loading from credential manager...');
 		// Try to load from config credentials first, then fall back to authz flow credentials
-		let configCredentials = credentialManager.loadConfigCredentials();
+		const configCredentials = credentialManager.loadConfigCredentials();
 		console.log('🔧 [NewAuthContext] Config credentials result:', configCredentials);
 
-		let authzCredentials = credentialManager.loadAuthzFlowCredentials();
+		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
 		console.log('🔧 [NewAuthContext] Authz credentials result:', authzCredentials);
 
 		// Use config credentials if available, otherwise use authz credentials
@@ -1439,7 +1439,7 @@ async function getUserInfo(userInfoEndpoint: string, accessToken: string): Promi
 			: 'http://localhost:3001';
 
 	// Extract environment ID from userInfoEndpoint
-	const environmentId = userInfoEndpoint.match(/\/\/([^\/]+)\/([^\/]+)\/as\/userinfo/)?.[2];
+	const environmentId = userInfoEndpoint.match(/\/\/([^/]+)\/([^/]+)\/as\/userinfo/)?.[2];
 
 	const response = await fetch(
 		`${backendUrl}/api/userinfo?access_token=${accessToken}&environment_id=${environmentId}`,

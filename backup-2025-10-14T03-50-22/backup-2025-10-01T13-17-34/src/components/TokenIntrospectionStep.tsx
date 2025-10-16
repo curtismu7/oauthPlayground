@@ -398,11 +398,11 @@ const TokenIntrospectionStep: React.FC<TokenIntrospectionStepProps> = ({
 												<ParameterLabel>Token Status</ParameterLabel>
 												<ParameterValue
 													style={{
-														color: Boolean(introspectionResults.active) ? '#16a34a' : '#dc2626',
+														color: introspectionResults.active ? '#16a34a' : '#dc2626',
 														fontWeight: 'bold',
 													}}
 												>
-													{Boolean(introspectionResults.active) ? '✅ Active' : '❌ Inactive'}
+													{introspectionResults.active ? '✅ Active' : '❌ Inactive'}
 												</ParameterValue>
 											</div>
 											{introspectionResults.scope && (

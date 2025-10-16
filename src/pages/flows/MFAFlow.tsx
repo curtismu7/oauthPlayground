@@ -214,10 +214,10 @@ const MFAFlow: React.FC<MFAFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || '',
-		clientSecret: credentials?.clientSecret || '',
+		clientId: credentials?.clientId || 'mock_mfa_client_id_demo_12345',
+		clientSecret: credentials?.clientSecret || 'mock_mfa_client_secret_demo_67890',
 		redirectUri: credentials?.redirectUri || 'http://localhost:3000/callback',
-		environmentId: credentials?.environmentId || '',
+		environmentId: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
 		scope: 'openid profile email',
 		acrValues: 'urn:mace:pingidentity.com:loc:1',
 		prompt: 'consent',
