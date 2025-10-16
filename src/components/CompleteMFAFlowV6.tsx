@@ -35,6 +35,7 @@ import NetworkStatusService, { type NetworkStatus } from '../services/networkSta
 import AuthErrorRecoveryService from '../services/authErrorRecoveryService';
 
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import credentialManager from '../utils/credentialManager';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { CredentialsInput } from '../components/CredentialsInput';
 
@@ -68,7 +69,6 @@ export interface CompleteMFAFlowProps {
 }
 
 type FlowStep =
-  | 'create_user'
   | 'username_login'
   | 'password_auth'
   | 'mfa_enrollment'
@@ -92,6 +92,8 @@ interface FlowContext {
   workerToken?: string;
   userId?: string;
 }
+
+const MFA_CREDENTIALS_STORAGE_KEY = 'pingone_complete_mfa_v7_credentials';
 
 // V5Stepper components for consistent UI
 const { StepContainer, StepHeader, StepContent, NavigationButton } = V5StepperService.createStepLayout({ theme: 'purple', showProgress: true });
@@ -265,6 +267,76 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
   }
 `;
 
+const ModalOverlay = styled.div`
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+`;
+
+const ModalCard = styled.div`
+  width: min(520px, 100%);
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 35px 70px rgba(15, 23, 42, 0.35);
+  overflow: hidden;
+  border: 1px solid rgba(148, 163, 184, 0.15);
+`;
+
+const ModalHeader = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(76, 201, 240, 0.12));
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+`;
+
+const ModalHeaderIcon = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.9rem;
+  background: rgba(79, 70, 229, 0.1);
+  color: #4f46e5;
+`;
+
+const ModalTitle = styled.h2`
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111827;
+`;
+
+const ModalSubtitle = styled.p`
+  margin: 0.25rem 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+`;
+
+const ModalBody = styled.div`
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+`;
+
+const ModalActions = styled.div`
+  margin-top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+`;
+
 const { Collapsible } = V6FlowService.createFlowComponents('purple');
 
 export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
@@ -284,7 +356,7 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
   const { collapsedSections, toggleSection } = useV6CollapsibleSections();
 
   // Flow state
-  const [currentStep, setCurrentStep] = useState<FlowStep>('create_user');
+  const [currentStep, setCurrentStep] = useState<FlowStep>('username_login');
   const [flowContext, setFlowContext] = useState<FlowContext>({
     flowId: '',
     userDevices: [],
@@ -309,10 +381,10 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [isSavingCredentials, setIsSavingCredentials] = useState(false);
 
   // Flow steps configuration based on specification
   const flowSteps: Array<{ id: FlowStep; title: string; subtitle: string; icon: React.ReactNode }> = [
-    { id: 'create_user', title: 'Create User', subtitle: 'Set up new user account', icon: <FiUser size={12} /> },
     { id: 'username_login', title: 'Sign In', subtitle: 'Enter username/email', icon: <FiUser size={12} /> },
     { id: 'password_auth', title: 'Password Auth', subtitle: 'Authenticate with password', icon: <FiShield size={12} /> },
     { id: 'mfa_enrollment', title: 'MFA Enrollment', subtitle: 'Set up multi-factor authentication', icon: <FiSmartphone size={12} /> },
@@ -337,8 +409,14 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
     NetworkStatusService.initialize();
     SecurityMonitoringService.initialize();
 
-    setCurrentStep('create_user');
-    onStepChange?.('create_user');
+    setCurrentStep('username_login');
+    onStepChange?.('username_login');
+    if (typeof window !== 'undefined') {
+      const savedCreds = credentialManager.loadCustomData<typeof credentials>(MFA_CREDENTIALS_STORAGE_KEY, null);
+      if (savedCreds) {
+        setCredentials(prev => ({ ...prev, ...savedCreds }));
+      }
+    }
   }, []);
 
   // Monitor network status
@@ -510,6 +588,38 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
       v4ToastManager.showError(`Failed to get worker token: ${error.message}`);
     } finally {
       setIsLoading(false);
+    }
+  }, [credentials]);
+
+  const handleSaveCredentials = useCallback(async () => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    setIsSavingCredentials(true);
+
+    try {
+      const payload = {
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        region: credentials.region,
+        authMethod: credentials.authMethod,
+        username: credentials.username,
+        password: credentials.password
+      };
+
+      const saved = credentialManager.saveCustomData(MFA_CREDENTIALS_STORAGE_KEY, payload);
+
+      if (saved) {
+        v4ToastManager.showSuccess('PingOne MFA credentials saved for this browser.');
+      } else {
+        v4ToastManager.showError('Unable to save credentials. Please try again.');
+      }
+    } catch (saveError) {
+      v4ToastManager.showError(saveError instanceof Error ? saveError.message : 'Unable to save credentials.');
+    } finally {
+      setIsSavingCredentials(false);
     }
   }, [credentials]);
 
@@ -773,7 +883,7 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
   }, []);
 
   const renderCurrentStep = () => {
-    if (isLoading && currentStep === 'create_user') {
+    if (isLoading && currentStep === 'username_login') {
       return (
         <FlowContainer>
           <div style={{ textAlign: 'center', padding: '3rem' }}>
@@ -791,33 +901,6 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
     }
 
     switch (currentStep) {
-      case 'create_user':
-        return (
-          <StepContainer>
-            <StepHeader>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'white' }}>
-                <FiUser size={24} />
-                <div>
-                  <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Create User Account</h2>
-                  <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9 }}>Set up your new PingOne user account</p>
-                </div>
-              </div>
-            </StepHeader>
-            <StepContent>
-              <Collapsible.CollapsibleSection>
-                <Collapsible.CollapsibleHeaderButton
-                  onClick={() => toggleSection('userCreation')}
-                  aria-expanded={!collapsedSections.userCreation}
-                >
-                  <Collapsible.CollapsibleTitle>
-                    <FiUser /> User Account Creation
-                  </Collapsible.CollapsibleTitle>
-                  <Collapsible.CollapsibleToggleIcon $collapsed={collapsedSections.userCreation}>
-                    <FiChevronDown />
-                  </Collapsible.CollapsibleToggleIcon>
-                </Collapsible.CollapsibleHeaderButton>
-                {!collapsedSections.userCreation && (
-                  <Collapsible.CollapsibleContent>
                     <InfoBox $variant="info">
                       <FiInfo size={20} style={{ flexShrink: 0 }} />
                       <InfoContent>
@@ -874,138 +957,134 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
 
       case 'username_login':
         return (
-          <StepContainer>
-            <StepHeader>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'white' }}>
-                <FiUser size={24} />
+          <ModalOverlay>
+            <ModalCard>
+              <ModalHeader>
+                <ModalHeaderIcon>
+                  <FiKey size={20} />
+                </ModalHeaderIcon>
                 <div>
-                  <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Sign In</h2>
-                  <p style={{ margin: '0.25rem 0 0 0', opacity: 0.9 }}>Enter your username and password</p>
+                  <ModalTitle>{currentStepMeta.title}</ModalTitle>
+                  <ModalSubtitle>{currentStepMeta.subtitle}</ModalSubtitle>
                 </div>
-              </div>
-            </StepHeader>
-            <StepContent>
-              <Collapsible.CollapsibleSection>
-                <Collapsible.CollapsibleHeaderButton
-                  onClick={() => toggleSection('authentication')}
-                  aria-expanded={!collapsedSections.authentication}
-                >
-                  <Collapsible.CollapsibleTitle>
-                    <FiKey /> Primary Authentication
-                  </Collapsible.CollapsibleTitle>
-                  <Collapsible.CollapsibleToggleIcon $collapsed={collapsedSections.authentication}>
-                    <FiChevronDown />
-                  </Collapsible.CollapsibleToggleIcon>
-                </Collapsible.CollapsibleHeaderButton>
-                {!collapsedSections.authentication && (
-                  <Collapsible.CollapsibleContent>
-                    <InfoBox $variant="info">
-                      <FiInfo size={20} style={{ flexShrink: 0 }} />
-                      <InfoContent>
-                        <InfoTitle>🔐 Primary Authentication</InfoTitle>
-                        <InfoText>
-                          This step performs primary authentication using username/password against PingOne's authentication service. Upon successful authentication, the user receives access tokens and their MFA device status is evaluated.
-                        </InfoText>
-                      </InfoContent>
-                    </InfoBox>
+              </ModalHeader>
+              <ModalBody>
+                <InfoBox $variant="info">
+                  <FiInfo size={20} style={{ flexShrink: 0 }} />
+                  <InfoContent>
+                    <InfoTitle>🔐 Primary Authentication</InfoTitle>
+                    <InfoText>
+                      Authenticate against PingOne using your application credentials. Successful sign-in seeds the MFA flow with real access tokens and device profile data.
+                    </InfoText>
+                  </InfoContent>
+                </InfoBox>
 
-                    <div style={{ margin: '1rem 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
-                        🔗 PingOne Authentication API:
-                      </h4>
-                      <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.5' }}>
-                        <div><strong>Endpoint:</strong> POST /environments/{'{environmentId}'}/as/token</div>
-                        <div><strong>Grant Type:</strong> password (Resource Owner Password Credentials)</div>
-                        <div><strong>Response:</strong> access_token, refresh_token, id_token (if requested)</div>
-                      </div>
-                    </div>
+                <div style={{ margin: '0.5rem 0 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+                    🔗 PingOne Authentication API
+                  </h4>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.6 }}>
+                    <div><strong>Endpoint:</strong> POST /environments/{'{environmentId}'}/as/token</div>
+                    <div><strong>Grant Type:</strong> password (Resource Owner Password Credentials)</div>
+                    <div><strong>Response:</strong> access_token, refresh_token, id_token (if requested)</div>
+                  </div>
+                </div>
 
-                    <CredentialsInput
-                      environmentId={credentials.environmentId}
-                      clientId={credentials.clientId}
-                      clientSecret={credentials.clientSecret}
-                      scopes="openid profile email"
-                      onEnvironmentIdChange={(value) => setCredentials(prev => ({ ...prev, environmentId: value }))}
-                      onClientIdChange={(value) => setCredentials(prev => ({ ...prev, clientId: value }))}
-                      onClientSecretChange={(value) => setCredentials(prev => ({ ...prev, clientSecret: value }))}
-                      onScopesChange={() => {}}
-                      showClientSecret={true}
-                      showEnvironmentIdInput={true}
-                      showRedirectUri={false}
-                      showPostLogoutRedirectUri={false}
-                      showLoginHint={false}
-                      flowKey="password"
+                <CredentialsInput
+                  environmentId={credentials.environmentId}
+                  clientId={credentials.clientId}
+                  clientSecret={credentials.clientSecret}
+                  scopes="openid profile email"
+                  onEnvironmentIdChange={(value) => setCredentials(prev => ({ ...prev, environmentId: value }))}
+                  onClientIdChange={(value) => setCredentials(prev => ({ ...prev, clientId: value }))}
+                  onClientSecretChange={(value) => setCredentials(prev => ({ ...prev, clientSecret: value }))}
+                  onScopesChange={() => {}}
+                  showClientSecret={true}
+                  showEnvironmentIdInput={true}
+                  showRedirectUri={false}
+                  showPostLogoutRedirectUri={false}
+                  showLoginHint={false}
+                  flowKey="password"
+                />
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                    Username *
+                  </label>
+                  <input
+                    type="text"
+                    value={credentials.username}
+                    onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
+                    placeholder="Enter your username"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                    Password *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={credentials.password}
+                      onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="Enter your password"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem 2.75rem 0.75rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.875rem'
+                      }}
                     />
-
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                        Username *
-                      </label>
-                      <input
-                        type="text"
-                        value={credentials.username}
-                        onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                        placeholder="Enter your username"
-                        style={{
-                          width: '100%',
-                          padding: '0.75rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.875rem'
-                        }}
-                      />
-                    </div>
-
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                        Password *
-                      </label>
-                      <div style={{ position: 'relative' }}>
-                        <input
-                          type={showPassword ? 'text' : 'password'}
-                          value={credentials.password}
-                          onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-                          placeholder="Enter your password"
-                          style={{
-                            width: '100%',
-                            padding: '0.75rem 2.75rem 0.75rem 0.75rem',
-                            border: '1px solid #d1d5db',
-                            borderRadius: '0.5rem',
-                            fontSize: '0.875rem'
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(prev => !prev)}
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
-                          style={{
-                            position: 'absolute',
-                            top: '50%',
-                            right: '0.75rem',
-                            transform: 'translateY(-50%)',
-                            background: 'none',
-                            border: 'none',
-                            cursor: 'pointer',
-                            color: '#6b7280'
-                          }}
-                        >
-                          {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
-                        </button>
-                      </div>
-                    </div>
-
-                    <NavigationButton
-                      onClick={handleAuthentication}
-                      disabled={isLoading || !credentials.username || !credentials.password || !credentials.environmentId}
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        right: '0.75rem',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#6b7280'
+                      }}
                     >
-                      {isLoading ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiArrowRight />}
-                      Authenticate
-                    </NavigationButton>
-                  </Collapsible.CollapsibleContent>
-                )}
-              </Collapsible.CollapsibleSection>
-            </StepContent>
-          </StepContainer>
+                      {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <ModalActions>
+                  <Button
+                    $variant="secondary"
+                    onClick={handleSaveCredentials}
+                    disabled={isSavingCredentials}
+                  >
+                    {isSavingCredentials ? <SpinningIcon><FiRefreshCw size={16} /></SpinningIcon> : <FiCheckCircle size={16} />}
+                    {isSavingCredentials ? 'Saving…' : 'Save Credentials'}
+                  </Button>
+
+                  <NavigationButton
+                    onClick={handleAuthentication}
+                    disabled={isLoading || !credentials.username || !credentials.password || !credentials.environmentId}
+                  >
+                    {isLoading ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiArrowRight />}
+                    Authenticate
+                  </NavigationButton>
+                </ModalActions>
+              </ModalBody>
+            </ModalCard>
+          </ModalOverlay>
         );
 
       case 'password_auth':

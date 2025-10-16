@@ -54,6 +54,9 @@ class CredentialManager {
 	private readonly WORKER_FLOW_CREDENTIALS_KEY = 'pingone_worker_flow_credentials';
 	private readonly DEVICE_FLOW_CREDENTIALS_KEY = 'pingone_device_flow_credentials';
 	private readonly DISCOVERY_PREFERENCES_KEY = 'pingone_discovery_preferences';
+	private getCustomStorageKey(key: string): string {
+		return `pingone_custom_${key}`;
+	}
 	private cache: {
 		permanent?: PermanentCredentials;
 		session?: SessionCredentials;
@@ -1359,7 +1362,54 @@ class CredentialManager {
 		this.cache = {};
 		console.log(' [CredentialManager] Cache cleared');
 	}
+
+	/**
+	 * Save arbitrary custom credentials scoped by a unique key
+	 */
+	saveCustomData<T = any>(key: string, data: T): boolean {
+		try {
+			const storageKey = this.getCustomStorageKey(key);
+			localStorage.setItem(storageKey, JSON.stringify(data));
+			logger.info('CredentialManager', 'Saved custom credential data', { storageKey });
+			return true;
+		} catch (error) {
+			logger.error('CredentialManager', 'Failed to save custom credential data', String(error));
+			return false;
+		}
+	}
+
+	/**
+	 * Load previously saved custom credentials
+	 */
+	loadCustomData<T = any>(key: string, defaultValue: T | null = null): T | null {
+		try {
+			const storageKey = this.getCustomStorageKey(key);
+			const stored = localStorage.getItem(storageKey);
+			if (!stored) {
+				return defaultValue;
+			}
+			return JSON.parse(stored) as T;
+		} catch (error) {
+			logger.error('CredentialManager', 'Failed to load custom credential data', String(error));
+			return defaultValue;
+		}
+	}
+
+	/**
+	 * Remove custom credential data for a given key
+	 */
+	removeCustomData(key: string): void {
+		try {
+			const storageKey = this.getCustomStorageKey(key);
+			localStorage.removeItem(storageKey);
+			logger.info('CredentialManager', 'Removed custom credential data', { storageKey });
+		} catch (error) {
+			logger.error('CredentialManager', 'Failed to remove custom credential data', String(error));
+		}
+	}
 }
 
 // Export singleton instance
 export const credentialManager = new CredentialManager();
+
+export default credentialManager;
