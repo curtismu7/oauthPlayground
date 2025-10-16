@@ -742,6 +742,12 @@ class CredentialManager {
 	 */
 	savePermanentCredentials(credentials: Partial<PermanentCredentials>): boolean {
 		try {
+			// Test localStorage availability
+			if (typeof localStorage === 'undefined') {
+				console.error(' [CredentialManager] localStorage is not available');
+				return false;
+			}
+			
 			const existing = this.loadPermanentCredentials();
 			const updated = {
 				...existing,
@@ -938,6 +944,12 @@ class CredentialManager {
 	 */
 	saveSessionCredentials(credentials: Partial<SessionCredentials>): boolean {
 		try {
+			// Test sessionStorage availability
+			if (typeof sessionStorage === 'undefined') {
+				console.error(' [CredentialManager] sessionStorage is not available');
+				return false;
+			}
+			
 			const existing = this.loadSessionCredentials();
 			const updated = {
 				...existing,

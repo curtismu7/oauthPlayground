@@ -92,8 +92,18 @@ export const saveSharedCredentials = async (
 	options: { showToast?: boolean } = { showToast: true }
 ): Promise<boolean> => {
 	try {
+		console.log(`[FlowCredentialService:${flowKey}] Starting saveSharedCredentials...`);
+		console.log(`[FlowCredentialService:${flowKey}] Credentials to save:`, {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+			hasClientSecret: !!credentials.clientSecret,
+			redirectUri: credentials.redirectUri,
+		});
+		
 		// Use saveAllCredentials to save to all credential stores
 		const success = credentialManager.saveAllCredentials(credentials);
+		
+		console.log(`[FlowCredentialService:${flowKey}] credentialManager.saveAllCredentials result:`, success);
 		
 		if (!success) {
 			throw new Error('Failed to save credentials to credentialManager');
