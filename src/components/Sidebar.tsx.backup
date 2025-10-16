@@ -24,7 +24,6 @@ import {
 	FiX,
 	FiZap,
 	FiCheckCircle,
-FiCode,
 	FiCode,
 } from 'react-icons/fi';
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
@@ -380,7 +379,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'Artificial Intelligence': false,
 			'Security & Management': false,
 			'Tools & Utilities': false,
-			Documentation: false,'Developers': false,			'Developers': false,
+			Documentation: false,			'Developers': false,
 		};
 	});
 
@@ -1166,15 +1165,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={() => handleNavigation('/flows/diagrams')}
 						>
 							Interactive Diagrams
-</MenuItem>
-<MenuItem
-icon={<FiSettings />}
-active={isActive('/advanced-config')}
-onClick={() => handleNavigation('/advanced-config')}
->
-Advanced Configuration
-</MenuItem>
-</SubMenu>						</MenuItem>
+						</MenuItem>
+						<MenuItem
+							icon={<FiPackage />}
+							active={isActive('/sdk-sample-app')}
+							onClick={() => handleNavigation('/sdk-sample-app')}
+						>
+							SDK Sample App
+						</MenuItem>
+						<MenuItem
+							icon={<FiSettings />}
+							active={isActive('/advanced-config')}
+							onClick={() => handleNavigation('/advanced-config')}
+						>
+							Advanced Configuration
+						</MenuItem>
 					</SubMenu>
 
 					{/* Documentation */}
@@ -1234,45 +1239,6 @@ Advanced Configuration
 							PingOne SDKs
 						</MenuItem>
 					</SubMenu>
-
-{/* Developers */}
-<SubMenu
-label="Developers"
-icon={<ColoredIcon $color="#06b6d4"><FiCode /></ColoredIcon>}
-open={openMenus['Developers']}
-onOpenChange={() => toggleMenu('Developers')}
->
-<MenuItem
-icon={<FiPackage />}
-active={isActive('/sdk-sample-app')}
-onClick={() => handleNavigation('/sdk-sample-app')}
->
-window.open(
-'https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2',
-'_blank',
-);
-onClose();
-}}
->
-PingOne API Docs
-</MenuItem>
-<MenuItem
-icon={<FiExternalLink />}
-onClick={() => {
-window.open('https://docs.pingidentity.com/sdks/latest/sdks/index.html', '_blank');
-onClose();
-}}
->
-PingOne SDKs
-</MenuItem>
-<MenuItem
-icon={<FiEye />}
-active={isActive('/code-examples-demo')}
-onClick={() => handleNavigation('/code-examples-demo')}
->
-Code Examples
-</MenuItem>
-</SubMenu>
 				</Menu>
 			</ProSidebar>
 		</SidebarContainer>
