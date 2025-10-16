@@ -22,10 +22,8 @@ import {
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import ConfigurationBackup from '../../components/ConfigurationBackup';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
@@ -48,6 +46,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import CollapsibleHeaderService from '../../services/collapsibleHeaderService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -1209,6 +1208,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	);
 
 	const handleSaveConfiguration = useCallback(async () => {
+		console.log('🔧 [handleSaveConfiguration] Starting save process...');
+		console.log('🔧 [handleSaveConfiguration] Current credentials:', controller.credentials);
+		
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
 			'clientId',
@@ -1219,6 +1221,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			const value = controller.credentials[field];
 			return !value || (typeof value === 'string' && !value.trim());
 		});
+		
+		console.log('🔧 [handleSaveConfiguration] Missing fields:', missing);
+		
 		if (missing.length > 0) {
 			setEmptyRequiredFields(new Set(missing.map((field) => field as string)));
 			v4ToastManager.showError(
@@ -1226,8 +1231,16 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			);
 			return;
 		}
-		await controller.saveCredentials();
-		v4ToastManager.showSuccess('Configuration saved successfully!');
+		
+		try {
+			console.log('🔧 [handleSaveConfiguration] Calling controller.saveCredentials()...');
+			await controller.saveCredentials();
+			console.log('🔧 [handleSaveConfiguration] Save completed successfully');
+			v4ToastManager.showSuccess('Configuration saved successfully!');
+		} catch (error) {
+			console.error('🔧 [handleSaveConfiguration] Save failed:', error);
+			v4ToastManager.showError('Failed to save configuration. Please try again.');
+		}
 	}, [controller]);
 
 	const handleClearConfiguration = useCallback(() => {
@@ -1913,15 +1926,22 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
 								onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
 								onScopesChange={(value) => {
+									// Convert comma-separated to space-separated if needed
+									let normalizedValue = value;
+									if (value.includes(',') && !value.includes(' ')) {
+										// Convert comma-separated to space-separated
+										normalizedValue = value.split(',').map(s => s.trim()).join(' ');
+									}
+									
 									// Ensure openid is always included (PingOne requirement)
-									const scopes = value.split(/\s+/).filter(s => s.length > 0);
+									const scopes = normalizedValue.split(/\s+/).filter(s => s.length > 0);
 									if (!scopes.includes('openid')) {
 										scopes.unshift('openid');
 										const finalScopes = scopes.join(' ');
 										handleFieldChange('scopes', finalScopes);
 										v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
 									} else {
-										handleFieldChange('scopes', value);
+										handleFieldChange('scopes', normalizedValue);
 									}
 								}}
 								onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
@@ -1969,25 +1989,6 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				</CollapsibleSection>
 
 						{/* Condensed Educational Footer */}
-						<div style={{ 
-							marginTop: '2rem', 
-							padding: '1rem', 
-							background: '#f8fafc', 
-							borderRadius: '0.5rem',
-							fontSize: '0.875rem',
-							color: '#6b7280'
-						}}>
-							<div style={{ display: 'flex', gap: 'clamp(1rem, 4vw, 2rem)', alignItems: 'center', flexWrap: 'wrap' }}>
-								<div>
-									<strong>📖 Flow Guide:</strong>
-									<EnhancedFlowWalkthrough flowId={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
-								</div>
-								<div>
-									<strong>📊 Sequence:</strong>
-									<FlowSequenceDisplay flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
-								</div>
-							</div>
-						</div>
 
 					<EnhancedFlowInfoCard flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
 					</>

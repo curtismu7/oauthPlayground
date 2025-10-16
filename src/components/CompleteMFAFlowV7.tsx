@@ -44,6 +44,7 @@ interface CompleteMfaCredentials extends MfaCredentials {
   clientId: string;
   clientSecret: string;
   redirectUri?: string;
+  region?: 'us' | 'eu' | 'ap' | 'ca';
   username?: string;
   password?: string;
   accessToken?: string;
@@ -131,6 +132,7 @@ const {
 // Step metadata for V5Stepper
 const stepMetadata = [
   { id: 'username_login', title: 'User Authentication', subtitle: 'Enter your credentials to authenticate with PingOne' },
+  { id: 'password_auth', title: 'Password Authentication', subtitle: 'Verify your password with PingOne' },
   { id: 'mfa_enrollment', title: 'MFA Device Enrollment', subtitle: 'Set up your multi-factor authentication device' },
   { id: 'device_pairing', title: 'Device Pairing', subtitle: 'Pair your device for secure authentication' },
   { id: 'mfa_challenge', title: 'MFA Challenge', subtitle: 'Complete the multi-factor authentication challenge' },
@@ -629,10 +631,64 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     }
   }, [createApiCallData, credentials]);
 
+  // Save Worker Token credentials using the specialized service
+  const handleSaveWorkerTokenCredentials = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      console.log('[CompleteMFAFlowV7] Saving worker token credentials:', workerTokenCredentials);
+      
+      const saveSuccess = workerTokenCredentialsService.saveCredentials(workerTokenCredentials);
+      
+      if (!saveSuccess) {
+        throw new Error('Failed to save worker token credentials');
+      }
+      
+      setHasUnsavedChanges(false);
+      v4ToastManager.showSuccess('Worker Token credentials saved successfully');
+      console.log('[CompleteMFAFlowV7] Worker Token credentials saved successfully');
+    } catch (error) {
+      console.error('[CompleteMFAFlowV7] Failed to save worker token credentials:', error);
+      v4ToastManager.showError('Failed to save worker token credentials');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [workerTokenCredentials]);
+
+  // Save Authorization Code credentials using credential manager
+  const handleSaveAuthCodeCredentials = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      console.log('[CompleteMFAFlowV7] Saving authorization code credentials:', authCodeCredentials);
+      
+      // Save to credential manager with a specific key for auth code credentials
+      const saveSuccess = credentialManager.saveCustomData('pingone_auth_code_credentials', {
+        environmentId: authCodeCredentials.environmentId,
+        clientId: authCodeCredentials.clientId,
+        clientSecret: authCodeCredentials.clientSecret,
+        redirectUri: authCodeCredentials.redirectUri,
+        scopes: ['openid', 'profile', 'email']
+      });
+      
+      if (!saveSuccess) {
+        throw new Error('Failed to save authorization code credentials');
+      }
+      
+      setHasUnsavedChanges(false);
+      v4ToastManager.showSuccess('Authorization Code credentials saved successfully');
+      console.log('[CompleteMFAFlowV7] Authorization Code credentials saved successfully');
+    } catch (error) {
+      console.error('[CompleteMFAFlowV7] Failed to save authorization code credentials:', error);
+      v4ToastManager.showError('Failed to save authorization code credentials');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [authCodeCredentials]);
+
+  // Legacy save function for backward compatibility (username/password)
   const handleSaveCredentials = useCallback(async () => {
     setIsSaving(true);
     try {
-      console.log('[CompleteMFAFlowV7] Saving credentials:', credentials);
+      console.log('[CompleteMFAFlowV7] Saving legacy credentials:', credentials);
       
       // Save to credential manager
       const saveSuccess = credentialManager.saveCustomData(MFA_CREDENTIALS_STORAGE_KEY, {
@@ -678,6 +734,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
   const handleAuthCodeClientSecretChange = useCallback((value: string) => {
     setAuthCodeCredentials(prev => ({ ...prev, clientSecret: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleAuthCodeRegionChange = useCallback((value: 'us' | 'eu' | 'ap' | 'ca') => {
+    setAuthCodeCredentials(prev => ({ ...prev, region: value }));
     setHasUnsavedChanges(true);
   }, []);
 
@@ -938,7 +999,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               <WorkerTokenCredentialsInput
                 credentials={workerTokenCredentials}
                 onCredentialsChange={handleWorkerTokenCredentialsChange}
-                onSave={handleSaveCredentials}
+                onSave={handleSaveWorkerTokenCredentials}
                 hasUnsavedChanges={hasUnsavedChanges}
                 isSaving={isSaving}
                 showAdvancedOptions={true}
@@ -981,12 +1042,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 clientSecret={authCodeCredentials.clientSecret}
                 scopes="openid profile email"
                 redirectUri={authCodeCredentials.redirectUri}
+                region={authCodeCredentials.region || 'us'}
                 onEnvironmentIdChange={handleAuthCodeEnvironmentIdChange}
                 onClientIdChange={handleAuthCodeClientIdChange}
                 onClientSecretChange={handleAuthCodeClientSecretChange}
+                onRegionChange={handleAuthCodeRegionChange}
                 onRedirectUriChange={handleAuthCodeRedirectUriChange}
                 onScopesChange={() => {}}
-                onSave={handleSaveCredentials}
+                onSave={handleSaveAuthCodeCredentials}
                 hasUnsavedChanges={hasUnsavedChanges}
                 isSaving={isSaving}
                 showClientSecret={true}
@@ -1211,7 +1274,67 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               </div>
             </CollapsibleHeaderService.CollapsibleHeader>
 
+            {/* Navigation to next step */}
+            <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <NavigationButton
+                onClick={() => {
+                  setCurrentStep('password_auth');
+                  onStepChange?.('password_auth');
+                }}
+              >
+                <FiArrowRight />
+                Continue to Password Verification
+              </NavigationButton>
+            </div>
+
           </>
+        );
+
+      case 'password_auth':
+        return (
+          <CollapsibleHeaderService.CollapsibleHeader
+            title="Password Authentication"
+            subtitle="Verify your password with PingOne"
+            icon={<FiLock />}
+            theme="blue"
+            defaultCollapsed={false}
+          >
+            <InfoBox $variant="info">
+              <FiInfo size={20} style={{ flexShrink: 0 }} />
+              <InfoContent>
+                <InfoTitle>🔐 Password Verification</InfoTitle>
+                <InfoText>
+                  Your username has been accepted. Now please verify your password to continue with the authentication process.
+                </InfoText>
+              </InfoContent>
+            </InfoBox>
+
+            <div style={{ margin: '1rem 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+                🔗 Authentication Process:
+              </h4>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.6 }}>
+                <div><strong>Step 1:</strong> Username verification ✅</div>
+                <div><strong>Step 2:</strong> Password verification (current step)</div>
+                <div><strong>Step 3:</strong> MFA device enrollment</div>
+                <div><strong>Step 4:</strong> Device pairing and activation</div>
+                <div><strong>Step 5:</strong> MFA challenge completion</div>
+                <div><strong>Step 6:</strong> Token retrieval</div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+              <NavigationButton
+                onClick={() => {
+                  setCurrentStep('mfa_enrollment');
+                  onStepChange?.('mfa_enrollment');
+                }}
+              >
+                <FiArrowRight />
+                Verify Password & Continue
+              </NavigationButton>
+            </div>
+          </CollapsibleHeaderService.CollapsibleHeader>
         );
 
       case 'mfa_enrollment':
@@ -1387,18 +1510,46 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             title="Device Pairing"
             subtitle="Pair and activate your MFA device"
             icon={<FiSmartphone />}
-            theme="green"
+            theme="yellow"
             defaultCollapsed={false}
           >
-            <InfoBox $variant="success">
-              <FiCheckCircle size={20} style={{ flexShrink: 0 }} />
+            <InfoBox $variant="info">
+              <FiInfo size={20} style={{ flexShrink: 0 }} />
               <InfoContent>
-                <InfoTitle>✅ Device Paired Successfully</InfoTitle>
+                <InfoTitle>📱 MFA Device Pairing Required</InfoTitle>
                 <InfoText>
-                  Your MFA device has been paired and activated. You can now proceed to the authentication challenge.
+                  To complete the MFA flow, you need to pair a device for multi-factor authentication. This step requires actual device registration with PingOne.
                 </InfoText>
               </InfoContent>
             </InfoBox>
+
+            <div style={{ margin: '1rem 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+                🔗 Device Pairing Options:
+              </h4>
+              <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.6 }}>
+                <div><strong>SMS:</strong> Pair your phone number for SMS-based MFA</div>
+                <div><strong>Email:</strong> Pair your email address for email-based MFA</div>
+                <div><strong>TOTP:</strong> Pair an authenticator app (Google Authenticator, Authy, etc.)</div>
+                <div><strong>FIDO2:</strong> Pair a hardware security key (YubiKey, etc.)</div>
+                <div><strong>Push:</strong> Pair a mobile device for push notifications</div>
+              </div>
+            </div>
+
+            <div style={{ margin: '1rem 0', padding: '1rem', background: '#fef3c7', borderRadius: '0.75rem', border: '1px solid #f59e0b' }}>
+              <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#92400e' }}>
+                ⚠️ Demo Limitation:
+              </h4>
+              <div style={{ fontSize: '0.75rem', color: '#92400e', lineHeight: 1.6 }}>
+                This is a demonstration flow. In a real implementation, you would need to:
+                <ul style={{ margin: '0.5rem 0 0 1rem', paddingLeft: '0' }}>
+                  <li>Provide actual contact information (phone/email)</li>
+                  <li>Complete device registration with PingOne</li>
+                  <li>Verify device ownership through codes or QR codes</li>
+                  <li>Activate the device for MFA use</li>
+                </ul>
+              </div>
+            </div>
 
             <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
               <NavigationButton
@@ -1406,9 +1557,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   setCurrentStep('mfa_challenge');
                   onStepChange?.('mfa_challenge');
                 }}
+                style={{ background: '#f59e0b', color: 'white' }}
               >
                 <FiArrowRight />
-                Start MFA Challenge
+                Skip to MFA Challenge (Demo)
               </NavigationButton>
             </div>
           </CollapsibleHeaderService.CollapsibleHeader>
