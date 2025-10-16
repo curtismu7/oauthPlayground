@@ -42,6 +42,13 @@ export interface AccountInformationDetail extends AuthorizationDetail {
 	};
 }
 
+export interface CustomerInformationDetail extends AuthorizationDetail {
+	type: 'customer_information';
+	actions: string[];              // Required: read, write, etc.
+	datatypes: string[];            // Required: contacts, photos, etc.
+	locations: string[];            // Required: API endpoints
+}
+
 export interface RARValidationResult {
 	valid: boolean;
 	errors: string[];
@@ -73,12 +80,32 @@ export class RARService {
 			client_id: credentials.clientId,
 			redirect_uri: credentials.redirectUri,
 			scope: credentials.scope || '',
-			state: this.generateState(),
+			state: RARService.generateState(),
 			// CORRECT: Direct authorization_details parameter per RFC 9396
 			authorization_details: JSON.stringify(authorizationDetails)
 		});
 
 		return `${credentials.authorizationEndpoint}?${params.toString()}`;
+	}
+
+	/**
+	 * Build authorization request with enhanced validation
+	 */
+	static buildAuthorizationRequest(config: {
+		credentials: StepCredentials;
+		authorizationDetails: AuthorizationDetail[];
+	}): { url: string; validation: RARValidationResult } {
+		const validation = RARService.validateAuthorizationDetails(config.authorizationDetails);
+		
+		if (!validation.valid) {
+			return {
+				url: '',
+				validation
+			};
+		}
+
+		const url = RARService.generateAuthorizationRequest(config.credentials, config.authorizationDetails);
+		return { url, validation };
 	}
 
 	/**
@@ -94,7 +121,7 @@ export class RARService {
 
 		for (let i = 0; i < details.length; i++) {
 			const detail = details[i];
-			const detailErrors = this.validateSingleAuthorizationDetail(detail, i);
+			const detailErrors = RARService.validateSingleAuthorizationDetail(detail, i);
 			errors.push(...detailErrors);
 		}
 
@@ -113,7 +140,7 @@ export class RARService {
 		}
 
 		// Validate type-specific fields
-		const typeErrors = this.validateAuthorizationDetailType(detail, index);
+		const typeErrors = RARService.validateAuthorizationDetailType(detail, index);
 		errors.push(...typeErrors);
 
 		return errors;
@@ -142,6 +169,36 @@ export class RARService {
 				// Account information is more flexible, but should have at least one access type
 				if (!detail.balances && !detail.transactions) {
 					errors.push(`authorization_details[${index}]: account_information should specify balances, transactions, or both`);
+				}
+				break;
+
+			case 'customer_information':
+				if (!detail.actions || !Array.isArray(detail.actions) || detail.actions.length === 0) {
+					errors.push(`authorization_details[${index}]: actions array is required for customer_information`);
+				}
+				if (!detail.datatypes || !Array.isArray(detail.datatypes) || detail.datatypes.length === 0) {
+					errors.push(`authorization_details[${index}]: datatypes array is required for customer_information`);
+				}
+				if (!detail.locations || !Array.isArray(detail.locations) || detail.locations.length === 0) {
+					errors.push(`authorization_details[${index}]: locations array is required for customer_information`);
+				}
+				// Validate actions contain valid values
+				if (detail.actions && Array.isArray(detail.actions)) {
+					const validActions = ['read', 'write', 'delete', 'update'];
+					const invalidActions = detail.actions.filter(action => !validActions.includes(action));
+					if (invalidActions.length > 0) {
+						errors.push(`authorization_details[${index}]: invalid actions [${invalidActions.join(', ')}]. Valid actions: ${validActions.join(', ')}`);
+					}
+				}
+				// Validate locations are valid URLs
+				if (detail.locations && Array.isArray(detail.locations)) {
+					detail.locations.forEach((location, locIndex) => {
+						try {
+							new URL(location);
+						} catch {
+							errors.push(`authorization_details[${index}]: locations[${locIndex}] must be a valid URL`);
+						}
+					});
 				}
 				break;
 
@@ -180,8 +237,101 @@ export class RARService {
 					fromBookingDateTime: new Date().toISOString(),
 					toBookingDateTime: new Date().toISOString()
 				}
+			},
+			customerInformation: {
+				type: 'customer_information',
+				actions: ['read', 'write'],
+				datatypes: ['contacts', 'photos'],
+				locations: ['https://api.example.com/customers']
 			}
 		};
+	}
+
+	/**
+	 * Get example authorization details for different use cases
+	 */
+	static getExampleAuthorizationDetails(): AuthorizationDetail[] {
+		return [
+			{
+				type: 'customer_information',
+				actions: ['read', 'write'],
+				datatypes: ['contacts', 'photos'],
+				locations: ['https://api.example.com/customers']
+			},
+			{
+				type: 'payment_initiation',
+				instructedAmount: { currency: 'USD', amount: '250.00' },
+				creditorName: 'ABC Supplies',
+				creditorAccount: { iban: 'DE89370400440532013000' }
+			},
+			{
+				type: 'account_information',
+				accounts: ['account1', 'account2'],
+				balances: true,
+				transactions: {
+					fromBookingDateTime: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+					toBookingDateTime: new Date().toISOString()
+				}
+			}
+		];
+	}
+
+	/**
+	 * Parse authorization response and extract authorization_details
+	 */
+	static parseAuthorizationResponse(tokenResponse: any): {
+		tokens: any;
+		authorizationDetails?: AuthorizationDetail[];
+	} {
+		let authorizationDetails: AuthorizationDetail[] | undefined;
+
+		// Check if authorization_details are present in the token response
+		if (tokenResponse.authorization_details) {
+			try {
+				if (typeof tokenResponse.authorization_details === 'string') {
+					authorizationDetails = JSON.parse(tokenResponse.authorization_details);
+				} else if (Array.isArray(tokenResponse.authorization_details)) {
+					authorizationDetails = tokenResponse.authorization_details;
+				}
+			} catch (error) {
+				console.warn('Failed to parse authorization_details from token response:', error);
+			}
+		}
+
+		return {
+			tokens: tokenResponse,
+			authorizationDetails
+		};
+	}
+
+	/**
+	 * Validate that authorization details don't exceed granted scopes
+	 */
+	static validateScopeCompliance(
+		authorizationDetails: AuthorizationDetail[],
+		grantedScopes: string[]
+	): RARValidationResult {
+		const errors: string[] = [];
+
+		// Basic scope validation - ensure authorization details are within scope bounds
+		for (let i = 0; i < authorizationDetails.length; i++) {
+			const detail = authorizationDetails[i];
+			
+			// For customer_information type, ensure appropriate scopes are granted
+			if (detail.type === 'customer_information') {
+				const hasReadScope = grantedScopes.includes('profile') || grantedScopes.includes('openid');
+				const hasWriteScope = grantedScopes.includes('profile') || detail.actions?.includes('read');
+				
+				if (detail.actions?.includes('write') && !hasWriteScope) {
+					errors.push(`authorization_details[${i}]: write action requires appropriate scope`);
+				}
+				if (detail.actions?.includes('read') && !hasReadScope) {
+					errors.push(`authorization_details[${i}]: read action requires appropriate scope`);
+				}
+			}
+		}
+
+		return { valid: errors.length === 0, errors };
 	}
 
 	/**

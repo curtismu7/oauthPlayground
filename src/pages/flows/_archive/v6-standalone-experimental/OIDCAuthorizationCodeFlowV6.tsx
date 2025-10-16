@@ -498,7 +498,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							onCredentialsChange={(creds) => controller.setCredentials(creds)}
 							onDiscoveryComplete={(result) => {
 								// Extract environment ID from issuer URL
-								const envIdMatch = result.issuerUrl.match(/environments\/([^\/]+)/);
+								const envIdMatch = result.issuerUrl.match(/environments\/([^/]+)/);
 								if (envIdMatch) {
 									const newCredentials = { ...controller.credentials, environmentId: envIdMatch[1] };
 									controller.setCredentials(newCredentials);

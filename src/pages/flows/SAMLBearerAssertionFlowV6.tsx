@@ -28,7 +28,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import EducationalContentService from '../../services/educationalContentService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import TokenDisplayService from '../../services/tokenDisplayService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -39,6 +39,8 @@ import SAMLAssertionService from '../../services/samlAssertionService';
 import SAMLIssuerService from '../../services/samlIssuerService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { credentialManager } from '../../utils/credentialManager';
 
 const LOG_PREFIX = '[🏢 SAML-BEARER-V6]';
 
@@ -466,16 +468,42 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 				setIdentityProvider(config.identityProvider || '');
 				setScopes(config.scopes || '');
 				setSamlAssertion(config.samlAssertion || SAMLAssertionService.getDefaultSAMLAssertion());
-				v4ToastManager.showInfo('SAML configuration loaded from saved settings');
+				v4ToastManager.showSuccess('SAML configuration loaded from saved settings');
 			}
 		} catch (error) {
 			console.error('[SAML Bearer] Error loading configuration:', error);
 		}
 	}, []);
 
-	// Load configuration on mount
+	// Load comprehensive credentials on mount
 	useEffect(() => {
-		loadSAMLConfiguration();
+		const loadCredentials = () => {
+			try {
+				// Load from comprehensive credential system first
+				const comprehensiveCredentials = credentialManager.getAllCredentials();
+				
+				if (comprehensiveCredentials?.environmentId) {
+					console.log('[SAML Bearer] Loading credentials from comprehensive system:', comprehensiveCredentials);
+					setEnvironmentId(comprehensiveCredentials.environmentId);
+					setClientId(comprehensiveCredentials.clientId || '');
+					setScopes(comprehensiveCredentials.scopes || 'openid profile email');
+					
+					// Auto-populate token endpoint from environment ID
+					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
+					setTokenEndpoint(tokenEndpointUrl);
+					console.log('[SAML Bearer] Token endpoint auto-populated from credentials:', tokenEndpointUrl);
+				}
+				
+				// Then load SAML-specific configuration (will override if exists)
+				loadSAMLConfiguration();
+			} catch (error) {
+				console.error('[SAML Bearer] Error loading credentials:', error);
+				// Fallback to SAML-specific configuration only
+				loadSAMLConfiguration();
+			}
+		};
+		
+		loadCredentials();
 	}, [loadSAMLConfiguration]);
 
 	// Make token request
@@ -662,24 +690,52 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 							/>
 						</FormGroup>
 
-						<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-							<Button onClick={saveSAMLConfiguration} $variant="secondary">
-								<FiSettings /> Save Configuration
-							</Button>
-							<Button 
-								onClick={generateSAMLAssertion} 
-								$variant="primary"
-								disabled={!canGenerateSAML()}
-							>
-								<FiUsers /> Generate SAML Assertion
-							</Button>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+							<div style={{ display: 'flex', gap: '1rem' }}>
+								<Button onClick={saveSAMLConfiguration} $variant="success">
+									<FiSettings /> Save Configuration
+								</Button>
+								<Button 
+									onClick={generateSAMLAssertion} 
+									$variant="primary"
+									disabled={!canGenerateSAML()}
+									style={{ 
+										opacity: !canGenerateSAML() ? 0.5 : 1,
+										cursor: !canGenerateSAML() ? 'not-allowed' : 'pointer'
+									}}
+								>
+									<FiUsers /> Generate SAML Assertion
+								</Button>
+							</div>
+							{!canGenerateSAML() && (
+								<div style={{ 
+									fontSize: '0.875rem', 
+									color: '#f59e0b', 
+									display: 'flex', 
+									flexDirection: 'column',
+									gap: '0.5rem' 
+								}}>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+										<FiAlertTriangle size={16} />
+										Missing required fields:
+									</div>
+									<ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
+										{!clientId.trim() && <li>Client ID (in Credentials section above)</li>}
+										{!tokenEndpoint.trim() && <li>Token Endpoint (in Credentials section above)</li>}
+										{!samlAssertion.issuer.trim() && <li>Issuer (Identity Provider)</li>}
+										{!samlAssertion.subject.trim() && <li>Subject (User Identity)</li>}
+										{!samlAssertion.audience.trim() && <li>Audience (Token Endpoint)</li>}
+									</ul>
+								</div>
+							)}
 						</div>
 			</CollapsibleHeader>
 
 			{generatedSAML && (
 				<CollapsibleHeader
-					title="Generated SAML Assertion"
-					icon={<FiPackage />}
+					title="✅ Generated SAML Assertion"
+					icon={<FiCheckCircle />}
+					theme="green"
 					defaultCollapsed={collapsedSections.generatedSAML}
 					showArrow={true}
 				>
@@ -778,7 +834,7 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 										onClick={() => {
 											const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
 											console.log('[SAML Bearer] Formatted SAML:', formatted);
-											v4ToastManager.showInfo('SAML assertion formatted for display');
+											v4ToastManager.showSuccess('SAML assertion formatted for display');
 										}} 
 										$variant="secondary"
 									>
@@ -840,14 +896,32 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 							</ParameterGrid>
 						</GeneratedContentBox>
 
-						<Button 
-							onClick={makeTokenRequest} 
-							$variant="primary" 
-							disabled={!generatedSAML || isLoading}
-						>
-						{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiGlobe />}
-						{isLoading ? 'Requesting Token...' : 'Make Token Request'}
-					</Button>
+						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+							<Button 
+								onClick={makeTokenRequest} 
+								$variant="primary" 
+								disabled={!generatedSAML || isLoading}
+								style={{ 
+									opacity: !generatedSAML ? 0.5 : 1,
+									cursor: !generatedSAML ? 'not-allowed' : 'pointer'
+								}}
+							>
+								{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiGlobe />}
+								{isLoading ? 'Requesting Token...' : 'Make Token Request'}
+							</Button>
+							{!generatedSAML && (
+								<div style={{ 
+									fontSize: '0.875rem', 
+									color: '#f59e0b', 
+									display: 'flex', 
+									alignItems: 'center', 
+									gap: '0.25rem' 
+								}}>
+									<FiAlertTriangle size={16} />
+									Generate a SAML assertion first to enable token request
+								</div>
+							)}
+						</div>
 			</CollapsibleHeader>
 		</>
 	);
@@ -929,6 +1003,84 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 			/>
 
 			<ContentWrapper>
+				{/* Process Guide */}
+				<div style={{
+					background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+					border: '1px solid #0ea5e9',
+					borderRadius: '0.75rem',
+					padding: '1.5rem',
+					marginBottom: '2rem'
+				}}>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+						<FiInfo size={24} style={{ color: '#0ea5e9' }} />
+						<h3 style={{ margin: 0, color: '#0c4a6e', fontSize: '1.125rem', fontWeight: '600' }}>
+							SAML Bearer Flow Process
+						</h3>
+					</div>
+					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<div style={{ 
+								width: '24px', 
+								height: '24px', 
+								borderRadius: '50%', 
+								background: clientId && tokenEndpoint ? '#10b981' : '#e5e7eb',
+								color: 'white',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontSize: '0.75rem',
+								fontWeight: 'bold'
+							}}>1</div>
+							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Configure Credentials</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<div style={{ 
+								width: '24px', 
+								height: '24px', 
+								borderRadius: '50%', 
+								background: canGenerateSAML() ? '#10b981' : '#e5e7eb',
+								color: 'white',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontSize: '0.75rem',
+								fontWeight: 'bold'
+							}}>2</div>
+							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Build SAML Assertion</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<div style={{ 
+								width: '24px', 
+								height: '24px', 
+								borderRadius: '50%', 
+								background: generatedSAML ? '#10b981' : '#e5e7eb',
+								color: 'white',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontSize: '0.75rem',
+								fontWeight: 'bold'
+							}}>3</div>
+							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Generate SAML</span>
+						</div>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+							<div style={{ 
+								width: '24px', 
+								height: '24px', 
+								borderRadius: '50%', 
+								background: tokenResponse ? '#10b981' : '#e5e7eb',
+								color: 'white',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								fontSize: '0.75rem',
+								fontWeight: 'bold'
+							}}>4</div>
+							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Request Token</span>
+						</div>
+					</div>
+				</div>
+
 				{/* Flow Sequence Diagram */}
 				<FlowSequenceDisplay flowType="saml-bearer" />
 				

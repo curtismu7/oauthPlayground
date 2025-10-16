@@ -673,7 +673,7 @@ export const validateIdToken = async (
 		// 10. SECURITY: Check for explicitly set suspicious claims (not inherited)
 		const suspiciousClaims = ['__proto__', 'constructor', 'prototype'];
 		for (const claim of suspiciousClaims) {
-			if (payload.hasOwnProperty(claim)) {
+			if (Object.hasOwn(payload, claim)) {
 				console.error('❌ [Security] Suspicious claim explicitly set in ID token:', claim);
 				throw new Error(`Potentially malicious claim detected in ID token: ${claim}`);
 			}

@@ -58,7 +58,7 @@ export class FlowRedirectUriService {
 		}
 
 		// Otherwise, use the default for this flow type
-		return this.getDefaultRedirectUri(flowType, baseUrl);
+		return FlowRedirectUriService.getDefaultRedirectUri(flowType, baseUrl);
 	}
 
 	/**
@@ -73,7 +73,7 @@ export class FlowRedirectUriService {
 		redirectUri: string, 
 		baseUrl?: string
 	): boolean {
-		const config = this.getFlowConfig(flowType);
+		const config = FlowRedirectUriService.getFlowConfig(flowType);
 		
 		// If flow doesn't require redirect URI, any URI is valid
 		if (!config || !config.requiresRedirectUri) {
@@ -81,7 +81,7 @@ export class FlowRedirectUriService {
 		}
 
 		// Get expected redirect URI
-		const expectedUri = this.getDefaultRedirectUri(flowType, baseUrl);
+		const expectedUri = FlowRedirectUriService.getDefaultRedirectUri(flowType, baseUrl);
 		
 		// If we can't determine expected URI, consider it valid
 		if (!expectedUri) {
@@ -108,7 +108,7 @@ export class FlowRedirectUriService {
 		credentials: { redirectUri?: string },
 		baseUrl?: string
 	): string | null {
-		return this.getRedirectUri(flowType, credentials.redirectUri, baseUrl);
+		return FlowRedirectUriService.getRedirectUri(flowType, credentials.redirectUri, baseUrl);
 	}
 
 	/**
@@ -124,7 +124,7 @@ export class FlowRedirectUriService {
 		baseUrl?: string
 	): string | null {
 		// For token exchange, we need the exact same URI used in authorization
-		return this.getAuthorizationRedirectUri(flowType, credentials, baseUrl);
+		return FlowRedirectUriService.getAuthorizationRedirectUri(flowType, credentials, baseUrl);
 	}
 
 	/**
@@ -138,9 +138,9 @@ export class FlowRedirectUriService {
 		credentials: { redirectUri?: string },
 		baseUrl?: string
 	): void {
-		const config = this.getFlowConfig(flowType);
-		const defaultUri = this.getDefaultRedirectUri(flowType, baseUrl);
-		const finalUri = this.getRedirectUri(flowType, credentials.redirectUri, baseUrl);
+		const config = FlowRedirectUriService.getFlowConfig(flowType);
+		const defaultUri = FlowRedirectUriService.getDefaultRedirectUri(flowType, baseUrl);
+		const finalUri = FlowRedirectUriService.getRedirectUri(flowType, credentials.redirectUri, baseUrl);
 
 		console.log(`[FlowRedirectUriService] Flow: ${flowType}`, {
 			flowConfig: config,

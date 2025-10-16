@@ -61,7 +61,7 @@ test.describe('PingOne Specific Flows', () => {
   });
 
   test('PingOne CIBA Flow', async ({ page }) => {
-    await OAuthTestUtils.startOAuthFlow(page, 'ciba-v5');
+    await OAuthTestUtils.startOAuthFlow(page, 'ciba-v6');
 
     // Enter user identifier for CIBA
     await page.fill('[name*="identifier"], [placeholder*="identifier"]', 'testuser@example.com');

@@ -230,6 +230,43 @@ export function useV6StepManagement<T>(config: {
 	};
 }
 
+/**
+ * Simple hook for collapsible sections management
+ * Used by V6 components that only need collapsible section state
+ */
+export function useV6CollapsibleSections(initialState: CollapsibleSectionState = {}) {
+	const [collapsedSections, setCollapsedSections] = useState<CollapsibleSectionState>(initialState);
+
+	const toggleSection = useCallback((sectionKey: string) => {
+		setCollapsedSections(prev => ({
+			...prev,
+			[sectionKey]: !prev[sectionKey]
+		}));
+	}, []);
+
+	const collapseSection = useCallback((sectionKey: string) => {
+		setCollapsedSections(prev => ({
+			...prev,
+			[sectionKey]: true
+		}));
+	}, []);
+
+	const expandSection = useCallback((sectionKey: string) => {
+		setCollapsedSections(prev => ({
+			...prev,
+			[sectionKey]: false
+		}));
+	}, []);
+
+	return {
+		collapsedSections,
+		toggleSection,
+		collapseSection,
+		expandSection,
+		setCollapsedSections
+	};
+}
+
 export default V6StepManagementService;
 
 

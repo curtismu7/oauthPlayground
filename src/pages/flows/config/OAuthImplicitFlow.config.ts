@@ -67,4 +67,4 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 };
 
 // Import FlowStateService for metadata generation
-import { FlowStateService } from '../../../services/flowStateService';
+import FlowStateService from '../../../services/flowStateService';

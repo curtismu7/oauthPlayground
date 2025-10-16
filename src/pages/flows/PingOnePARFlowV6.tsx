@@ -44,6 +44,9 @@ import {
 	DEFAULT_APP_CONFIG,
 	PAR_EDUCATION,
 } from './config/PingOnePARFlow.config';
+import { Button } from '../../components/Button';
+import { useUISettings } from '../../hooks/useUISettings';
+import { useStepValidation, StepValidationService } from '../../services/stepValidationService';
 
 const Container = styled.div`
 	min-height: 100vh;
@@ -315,6 +318,12 @@ const PingOnePARFlowV6: React.FC = () => {
 
 	// PingOne Application Config
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
+	const [localCredentials, setLocalCredentials] = useState(controller.credentials);
+	const { settings } = useUISettings();
+const {
+	validateAndProceed,
+	StepValidationModal,
+} = useStepValidation();
 
 	// Scroll to top on step change
 	useEffect(() => {
@@ -690,12 +699,14 @@ const PingOnePARFlowV6: React.FC = () => {
 								if (result.issuerUrl) {
 									const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
 									if (envIdMatch && envIdMatch[1]) {
-										controller.setCredentials({
-											...controller.credentials,
+										const updated = {
+											...localCredentials,
 											environmentId: envIdMatch[1],
-										});
-										controller.saveCredentials();
-										v4ToastManager.showSuccess('Credentials auto-saved');
+										};
+										controller.setCredentials(updated);
+										setLocalCredentials(updated);
+										void controller.saveCredentials();
+										v4ToastManager.showSuccess('Environment ID loaded via discovery');
 									}
 								}
 							}}
@@ -703,43 +714,47 @@ const PingOnePARFlowV6: React.FC = () => {
 							showProviderInfo={true}
 							
 							// Credentials props
-							environmentId={controller.credentials.environmentId || ''}
-							clientId={controller.credentials.clientId || ''}
-							clientSecret={controller.credentials.clientSecret || ''}
-							redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
-							scopes={controller.credentials.scope || 'openid profile email'}
-							loginHint={controller.credentials.loginHint || ''}
-							postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+							environmentId={localCredentials.environmentId || ''}
+							clientId={localCredentials.clientId || ''}
+							clientSecret={localCredentials.clientSecret || ''}
+							redirectUri={localCredentials.redirectUri || 'https://localhost:3000/authz-callback'}
+							scopes={localCredentials.scope || 'openid profile email'}
+							loginHint={localCredentials.loginHint || ''}
+							postLogoutRedirectUri={localCredentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 							
 							// Change handlers
 							onEnvironmentIdChange={(newEnvId) => {
-								controller.setCredentials({ ...controller.credentials, environmentId: newEnvId });
+								const updated = { ...localCredentials, environmentId: newEnvId };
+								controller.setCredentials(updated);
+								setLocalCredentials(updated);
 								if (newEnvId && controller.credentials.clientId) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}
 							}}
 							onClientIdChange={(newClientId) => {
-								controller.setCredentials({ ...controller.credentials, clientId: newClientId });
+								const updated = { ...localCredentials, clientId: newClientId };
+								controller.setCredentials(updated);
+								setLocalCredentials(updated);
 								if (controller.credentials.environmentId && newClientId) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}
 							}}
 							onClientSecretChange={(newClientSecret) =>
-								controller.setCredentials({ ...controller.credentials, clientSecret: newClientSecret })
+								controller.setCredentials({ ...localCredentials, clientSecret: newClientSecret })
 							}
 							onRedirectUriChange={(newRedirectUri) =>
-								controller.setCredentials({ ...controller.credentials, redirectUri: newRedirectUri })
+								controller.setCredentials({ ...localCredentials, redirectUri: newRedirectUri })
 							}
 							onScopesChange={(newScopes) =>
-								controller.setCredentials({ ...controller.credentials, scope: newScopes })
+								controller.setCredentials({ ...localCredentials, scope: newScopes })
 							}
 							onLoginHintChange={(newLoginHint) =>
-								controller.setCredentials({ ...controller.credentials, loginHint: newLoginHint })
+								controller.setCredentials({ ...localCredentials, loginHint: newLoginHint })
 							}
 							onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) =>
-								controller.setCredentials({ ...controller.credentials, postLogoutRedirectUri: newPostLogoutRedirectUri })
+								controller.setCredentials({ ...localCredentials, postLogoutRedirectUri: newPostLogoutRedirectUri })
 							}
 							
 							// Save handler
@@ -1019,6 +1034,31 @@ const PingOnePARFlowV6: React.FC = () => {
 								/>
 							)}
 						</ResultsSection>
+						{currentStep === 3 && (
+							<ResultsSection>
+								<ResultsHeading>
+									<FiShield size={18} /> Exchange Authorization Code for Tokens
+								</ResultsHeading>
+								{settings.tokenAutoExchange ? (
+									<HelperText>
+										Tokens will exchange automatically once the redirect completes because Token Auto-Exchange is enabled in UI settings.
+									</HelperText>
+								) : (
+									<>
+										<HelperText>
+											Token Auto-Exchange is disabled. Click the button below after obtaining an authorization code.
+										</HelperText>
+										<Button
+											$variant="primary"
+											onClick={controller.exchangeTokens}
+											disabled={controller.isExchangingTokens}
+										>
+											{controller.isExchangingTokens ? 'Exchanging…' : 'Exchange Authorization Code'}
+										</Button>
+									</>
+								)}
+							</ResultsSection>
+						)}
 					</>
 				);
 
@@ -1101,6 +1141,10 @@ const PingOnePARFlowV6: React.FC = () => {
 		handleOpenAuthUrl,
 		parApiCall,
 		authUrlApiCall,
+		localCredentials,
+		settings.tokenAutoExchange,
+		controller.exchangeTokens,
+		controller.isExchangingTokens,
 	]);
 
 	return (

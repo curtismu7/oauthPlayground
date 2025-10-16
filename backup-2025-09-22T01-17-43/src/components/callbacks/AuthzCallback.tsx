@@ -440,7 +440,7 @@ Check your PingOne application configuration and ensure all parameters match exa
 						const code = urlParams.get('code');
 						const state = urlParams.get('state');
 
-						let redirectUrl = result.redirectUrl || '/';
+						const redirectUrl = result.redirectUrl || '/';
 
 						console.log('🔍 [AuthzCallback] Debug redirect info:', {
 							code: code ? `${code.substring(0, 10)}...` : 'none',

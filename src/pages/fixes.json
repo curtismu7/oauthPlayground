@@ -1,0 +1,16 @@
+
+
+1) reset button not working on IMplcit flow, check all flows
+2) OIDC authz - after oidc discvoery its not filling in environment id. Can make sure this is standard everywhere, I have had to fix it sseveral times
+3) OIDC authz - auto redirecting on Authz urls modal. Thsi should be waiting 20 seconds and have a button the user can hit.  This was fixed before, its a regrssion
+
+4) OIDC AuthZ, should not allow you to go to nezt step with environment, or clieintid, or clientsecret or redirectUIR is blank (or better way to say it, any required field)
+
+
+App Generator
+
+1) not really saving app settings
+2) make sure its using all the values set by user when creating the app
+3) its clearing the app config fields after app is created. They should stay on screen
+4) Make sure we highlight required fields when a button is hit that it need to be filled in
+5) make sure this page is uisng toast Service for messaging

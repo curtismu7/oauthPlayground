@@ -276,21 +276,21 @@ export class V5StepperService {
 			enableAutoAdvance = false
 		} = config;
 
-		const StepContainer = this.getStepContainer();
-		const StepHeader = this.getStepHeader(theme);
-		const StepHeaderLeft = this.getStepHeaderLeft();
-		const StepHeaderRight = this.getStepHeaderRight();
-		const VersionBadge = this.getVersionBadge();
-		const StepHeaderTitle = this.getStepHeaderTitle();
-		const StepHeaderSubtitle = this.getStepHeaderSubtitle();
-		const StepNumber = this.getStepNumber();
-		const StepTotal = this.getStepTotal();
-		const StepContent = this.getStepContent();
-		const StepNavigation = this.getStepNavigation();
-		const NavigationButton = this.getNavigationButton();
-		const StepProgress = this.getStepProgress();
-		const ProgressBar = this.getProgressBar();
-		const ProgressText = this.getProgressText();
+		const StepContainer = V5StepperService.getStepContainer();
+		const StepHeader = V5StepperService.getStepHeader(theme);
+		const StepHeaderLeft = V5StepperService.getStepHeaderLeft();
+		const StepHeaderRight = V5StepperService.getStepHeaderRight();
+		const VersionBadge = V5StepperService.getVersionBadge();
+		const StepHeaderTitle = V5StepperService.getStepHeaderTitle();
+		const StepHeaderSubtitle = V5StepperService.getStepHeaderSubtitle();
+		const StepNumber = V5StepperService.getStepNumber();
+		const StepTotal = V5StepperService.getStepTotal();
+		const StepContent = V5StepperService.getStepContent();
+		const StepNavigation = V5StepperService.getStepNavigation();
+		const NavigationButton = V5StepperService.getNavigationButton();
+		const StepProgress = V5StepperService.getStepProgress();
+		const ProgressBar = V5StepperService.getProgressBar();
+		const ProgressText = V5StepperService.getProgressText();
 
 		return {
 			StepContainer,

@@ -15,7 +15,7 @@ export interface StepNavigationButtonsProps {
 	disabledMessage?: string;
 }
 
-const StepNavigation = styled.div<{ $position: { x: number; y: number } }><{ $position: { x: number; y: number } }>`
+const StepNavigation = styled.div<{ $position: { x: number; y: number } }><{ x: number; y: number }>`
 	position: fixed !important;
         cursor: move !important;
         left: ${({ $position }) => $position.x}px !important;

@@ -2475,7 +2475,7 @@ const AuthorizationCodeFlow: React.FC = () => {
 								disabled={
 									isSavingCredentials || !credentials.environmentId || !credentials.clientId
 								}
-								$variant="primary"
+								$variant="success"
 							>
 								{isSavingCredentials ? <FiLoader className="animate-spin" /> : <FiSave />}
 								{isSavingCredentials ? 'Saving...' : 'Save Credentials'}

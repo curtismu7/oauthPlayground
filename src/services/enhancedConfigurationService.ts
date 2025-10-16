@@ -106,10 +106,10 @@ export class EnhancedConfigurationService {
    * Initialize base configurations for all flow types
    */
   static initializeBaseConfigs(): void {
-    if (this.baseConfigs.size > 0) return;
+    if (EnhancedConfigurationService.baseConfigs.size > 0) return;
 
     // OAuth Authorization Code Flow - Base Config
-    this.baseConfigs.set(FlowType.OAUTH_AUTHORIZATION_CODE, {
+    EnhancedConfigurationService.baseConfigs.set(FlowType.OAUTH_AUTHORIZATION_CODE, {
       responseTypes: ['code'],
       grantTypes: ['authorization_code'],
       scopes: ['openid', 'profile', 'email'],
@@ -134,7 +134,7 @@ export class EnhancedConfigurationService {
     });
 
     // OAuth Implicit Flow - Base Config
-    this.baseConfigs.set(FlowType.OAUTH_IMPLICIT, {
+    EnhancedConfigurationService.baseConfigs.set(FlowType.OAUTH_IMPLICIT, {
       responseTypes: ['token', 'id_token'],
       grantTypes: ['implicit'],
       scopes: ['openid', 'profile'],
@@ -159,7 +159,7 @@ export class EnhancedConfigurationService {
     });
 
     // OAuth Client Credentials Flow - Base Config
-    this.baseConfigs.set(FlowType.OAUTH_CLIENT_CREDENTIALS, {
+    EnhancedConfigurationService.baseConfigs.set(FlowType.OAUTH_CLIENT_CREDENTIALS, {
       responseTypes: [],
       grantTypes: ['client_credentials'],
       scopes: ['api:read', 'api:write'],
@@ -184,7 +184,7 @@ export class EnhancedConfigurationService {
     });
 
     // OIDC Authorization Code Flow - Base Config
-    this.baseConfigs.set(FlowType.OIDC_AUTHORIZATION_CODE, {
+    EnhancedConfigurationService.baseConfigs.set(FlowType.OIDC_AUTHORIZATION_CODE, {
       responseTypes: ['code'],
       grantTypes: ['authorization_code'],
       scopes: ['openid', 'profile', 'email', 'address', 'phone'],
@@ -209,7 +209,7 @@ export class EnhancedConfigurationService {
     });
 
     // OIDC Hybrid Flow - Base Config
-    this.baseConfigs.set(FlowType.OIDC_HYBRID, {
+    EnhancedConfigurationService.baseConfigs.set(FlowType.OIDC_HYBRID, {
       responseTypes: ['code id_token', 'code token', 'code id_token token'],
       grantTypes: ['authorization_code', 'implicit'],
       scopes: ['openid', 'profile', 'email', 'offline_access'],
@@ -234,7 +234,7 @@ export class EnhancedConfigurationService {
     });
 
     // Initialize environment overrides
-    this.initializeEnvironmentOverrides();
+    EnhancedConfigurationService.initializeEnvironmentOverrides();
   }
 
   /**
@@ -242,7 +242,7 @@ export class EnhancedConfigurationService {
    */
   private static initializeEnvironmentOverrides(): void {
     // Development environment
-    this.environmentOverrides.set(Environment.DEVELOPMENT, {
+    EnhancedConfigurationService.environmentOverrides.set(Environment.DEVELOPMENT, {
       enableDebugLogging: true,
       allowInsecureRedirects: true,
       featureFlags: {
@@ -252,7 +252,7 @@ export class EnhancedConfigurationService {
     });
 
     // Staging environment
-    this.environmentOverrides.set(Environment.STAGING, {
+    EnhancedConfigurationService.environmentOverrides.set(Environment.STAGING, {
       enableDebugLogging: false,
       allowInsecureRedirects: false,
       featureFlags: {
@@ -262,7 +262,7 @@ export class EnhancedConfigurationService {
     });
 
     // Production environment
-    this.environmentOverrides.set(Environment.PRODUCTION, {
+    EnhancedConfigurationService.environmentOverrides.set(Environment.PRODUCTION, {
       enableDebugLogging: false,
       allowInsecureRedirects: false,
       featureFlags: {
@@ -273,7 +273,7 @@ export class EnhancedConfigurationService {
     });
 
     // Test environment
-    this.environmentOverrides.set(Environment.TEST, {
+    EnhancedConfigurationService.environmentOverrides.set(Environment.TEST, {
       enableDebugLogging: true,
       allowInsecureRedirects: true,
       featureFlags: {
@@ -287,17 +287,17 @@ export class EnhancedConfigurationService {
    * Get complete configuration for a flow type and environment
    */
   static getFlowConfig(flowType: FlowType, environment: Environment = Environment.DEVELOPMENT): FlowSpecificConfig {
-    this.initializeBaseConfigs();
+    EnhancedConfigurationService.initializeBaseConfigs();
 
-    const baseConfig = this.baseConfigs.get(flowType);
+    const baseConfig = EnhancedConfigurationService.baseConfigs.get(flowType);
     if (!baseConfig) {
       throw new Error(`No base configuration found for flow type: ${flowType}`);
     }
 
-    const envOverrides = this.environmentOverrides.get(environment) || {};
+    const envOverrides = EnhancedConfigurationService.environmentOverrides.get(environment) || {};
 
     // Merge configurations
-    const mergedConfig = this.mergeConfigurations(baseConfig, envOverrides);
+    const mergedConfig = EnhancedConfigurationService.mergeConfigurations(baseConfig, envOverrides);
 
     return {
       ...mergedConfig,
@@ -313,7 +313,7 @@ export class EnhancedConfigurationService {
     customOverrides: Partial<BaseFlowConfig>,
     environment: Environment = Environment.DEVELOPMENT
   ): FlowSpecificConfig {
-    const baseConfig = this.getFlowConfig(flowType, environment);
+    const baseConfig = EnhancedConfigurationService.getFlowConfig(flowType, environment);
 
     // Apply custom overrides
     const finalConfig = {
@@ -322,7 +322,7 @@ export class EnhancedConfigurationService {
     };
 
     // Validate the final configuration
-    const validation = this.validateConfiguration(finalConfig);
+    const validation = EnhancedConfigurationService.validateConfiguration(finalConfig);
     if (!validation.isValid) {
       console.warn('[EnhancedConfigurationService] Configuration validation failed:', validation.errors);
     }
@@ -515,7 +515,7 @@ export class EnhancedConfigurationService {
    */
   static saveConfigurationSnapshot(flowType: FlowType, config: FlowSpecificConfig, author: string, description: string): void {
     const key = flowType;
-    const snapshots = this.configurationHistory.get(key) || [];
+    const snapshots = EnhancedConfigurationService.configurationHistory.get(key) || [];
 
     snapshots.push({
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -526,21 +526,21 @@ export class EnhancedConfigurationService {
       version: snapshots.length + 1
     });
 
-    this.configurationHistory.set(key, snapshots);
+    EnhancedConfigurationService.configurationHistory.set(key, snapshots);
   }
 
   /**
    * Get configuration history
    */
   static getConfigurationHistory(flowType: FlowType): ConfigurationSnapshot[] {
-    return this.configurationHistory.get(flowType) || [];
+    return EnhancedConfigurationService.configurationHistory.get(flowType) || [];
   }
 
   /**
    * Get configuration diff between versions
    */
   static getConfigurationDiff(flowType: FlowType, version1: number, version2: number): ConfigurationDiff {
-    const snapshots = this.getConfigurationHistory(flowType);
+    const snapshots = EnhancedConfigurationService.getConfigurationHistory(flowType);
     const snapshot1 = snapshots.find(s => s.version === version1);
     const snapshot2 = snapshots.find(s => s.version === version2);
 
@@ -548,14 +548,14 @@ export class EnhancedConfigurationService {
       throw new Error('Configuration version not found');
     }
 
-    return this.computeDiff(snapshot1.config, snapshot2.config);
+    return EnhancedConfigurationService.computeDiff(snapshot1.config, snapshot2.config);
   }
 
   /**
    * Export configuration for backup/sharing
    */
   static exportConfiguration(flowType: FlowType, environment?: Environment): string {
-    const config = this.getFlowConfig(flowType, environment || Environment.DEVELOPMENT);
+    const config = EnhancedConfigurationService.getFlowConfig(flowType, environment || Environment.DEVELOPMENT);
     const exportData = {
       flowType,
       environment: environment || Environment.DEVELOPMENT,
@@ -578,7 +578,7 @@ export class EnhancedConfigurationService {
     }
 
     // Validate imported configuration
-    const validation = this.validateConfiguration(importData.config);
+    const validation = EnhancedConfigurationService.validateConfiguration(importData.config);
     if (!validation.isValid) {
       throw new Error(`Invalid configuration: ${validation.errors.map(e => e.message).join(', ')}`);
     }
@@ -608,7 +608,7 @@ export class EnhancedConfigurationService {
           field: key,
           oldValue: value1,
           newValue: value2,
-          type: this.getChangeType(value1, value2)
+          type: EnhancedConfigurationService.getChangeType(value1, value2)
         });
       }
     }

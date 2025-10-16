@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { FiAlertCircle, FiCopy, FiInfo, FiRefreshCw, FiSmartphone, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
@@ -25,7 +25,7 @@ import {
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import useCibaFlow, { CibaConfig } from '../../hooks/useCibaFlow';
+import useCibaFlow, { CibaConfig, CibaAuthRequest } from '../../hooks/useCibaFlow';
 import { credentialManager } from '../../utils/credentialManager';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
@@ -195,6 +195,39 @@ const ConfigGrid = styled.div`
 const FormField = styled.div`
 	display: grid;
 	gap: 0.5rem;
+
+	label {
+		font-size: 0.95rem;
+		font-weight: 600;
+		color: #0f172a;
+	}
+
+	select,
+	input,
+	textarea {
+		border-radius: 0.65rem;
+		border: 1px solid rgba(148, 163, 184, 0.45);
+		padding: 0.75rem 0.85rem;
+		font-size: 0.95rem;
+		color: #0f172a;
+		background: rgba(255, 255, 255, 0.9);
+		box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+		transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+	}
+
+	select:focus,
+	input:focus,
+	textarea:focus {
+		outline: none;
+		border-color: #0d9488;
+		box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
+	}
+
+	textarea {
+		min-height: 120px;
+		resize: vertical;
+		font-family: 'JetBrains Mono', 'Fira Code', 'Menlo', monospace;
+	}
 `;
 
 const StepStatus = styled.div`
@@ -225,19 +258,16 @@ const STEP_METADATA: Array<{ title: string; subtitle: string }> = [
 
 const LAST_STEP: StepIndex = 3;
 
-const buildInitialConfig = (): CibaConfig => {
-	const stored = credentialManager.loadConfigCredentials();
-	return {
-		environmentId: stored.environmentId || '',
-		clientId: stored.clientId || '',
-		clientSecret: stored.clientSecret || '',
-		scope: 'openid profile',
-		loginHint: stored.loginHint || '',
-		bindingMessage: 'Approve OAuth Playground',
-		authMethod: 'client_secret_post',
-		requestContext: '',
-	};
-};
+const buildInitialConfig = (): CibaConfig => ({
+	environmentId: 'mock-ciba-env-id',
+	clientId: 'mock_ciba_client_id_demo_12345',
+	clientSecret: 'mock_ciba_client_secret_demo_67890',
+	scope: 'openid profile',
+	loginHint: 'demo.ciba.user@example.com',
+	bindingMessage: 'Approve OAuth Playground CIBA Demo',
+	authMethod: 'client_secret_post',
+	requestContext: `mock-ciba-session-${Math.random().toString(36).slice(2, 10)}`,
+});
 
 const REQUIRED_FIELDS: Array<keyof CibaConfig> = [
 	'environmentId',
@@ -246,9 +276,9 @@ const REQUIRED_FIELDS: Array<keyof CibaConfig> = [
 	'loginHint',
 ];
 
-const CIBAFlowV5: React.FC = () => {
+const CIBAFlowV6: React.FC = () => {
 	// Ensure page starts at top
-	usePageScroll({ pageName: 'CIBAFlowV5', force: true });
+	usePageScroll({ pageName: 'CIBAFlowV6', force: true });
 
 	const {
 		config,
@@ -261,6 +291,7 @@ const CIBAFlowV5: React.FC = () => {
 		initiateAuthentication,
 		cancelPolling,
 		reset,
+		simulateDecision,
 	} = useCibaFlow();
 
 	const [currentStep, setCurrentStep] = useState<StepIndex>(() => {
@@ -279,7 +310,8 @@ const CIBAFlowV5: React.FC = () => {
 		null
 	);
 
-	const effectiveConfig = useMemo(() => config ?? buildInitialConfig(), [config]);
+	const [localConfig, setLocalConfig] = useState<CibaConfig>(() => config ?? buildInitialConfig());
+	const effectiveConfig = useMemo(() => localConfig, [localConfig]);
 
 	const missingRequiredFields = useMemo(() => {
 		const missing = new Set<string>();
@@ -330,14 +362,14 @@ const CIBAFlowV5: React.FC = () => {
 
 	const navigateToTokenManagement = useCallback(() => {
 		// Store flow navigation state for back navigation
-		storeFlowNavigationState('ciba-v5', currentStep, 'oidc');
+		storeFlowNavigationState('ciba-v6', currentStep, 'oidc');
 
 		// Set flow source for Token Management page (legacy support)
-		sessionStorage.setItem('flow_source', 'ciba-v5');
+		sessionStorage.setItem('flow_source', 'ciba-v6');
 
 		// Store comprehensive flow context for Token Management page
 		const flowContext = {
-			flow: 'ciba-v5',
+			flow: 'ciba-v6',
 			tokens: tokens,
 			credentials: effectiveConfig,
 			timestamp: Date.now(),
@@ -349,19 +381,35 @@ const CIBAFlowV5: React.FC = () => {
 			// Use localStorage for cross-tab communication
 			localStorage.setItem('token_to_analyze', tokens.access_token);
 			localStorage.setItem('token_type', 'access');
-			localStorage.setItem('flow_source', 'ciba-v5');
-			console.log('🔍 [CIBAFlowV5] Passing access token to Token Management via localStorage');
+			localStorage.setItem('flow_source', 'ciba-v6');
+			console.log('🔍 [CIBAFlowV6] Passing access token to Token Management via localStorage');
 		}
 
 		window.open('/token-management', '_blank');
 	}, [tokens, effectiveConfig, currentStep]);
 
+	useEffect(() => {
+		if (config) {
+			setLocalConfig(config);
+		}
+	}, [config]);
+
 	const updateConfig = useCallback(
 		(patch: Partial<CibaConfig>) => {
-			const nextConfig: CibaConfig = { ...effectiveConfig, ...patch };
-			setConfig(nextConfig);
+			setLocalConfig((prev) => {
+				const next = { ...prev, ...patch };
+				setConfig(next);
+				return next;
+			});
 		},
-		[effectiveConfig, setConfig]
+		[setConfig]
+	);
+
+	const handleMockDecision = useCallback(
+		(decision: 'approved' | 'denied') => {
+			simulateDecision(decision);
+		},
+		[simulateDecision]
 	);
 
 	const handleInitiate = useCallback(async () => {
@@ -440,10 +488,10 @@ const CIBAFlowV5: React.FC = () => {
 	return (
 		<Container>
 			<Content>
-				<FlowHeader flowId="oidc-ciba-v5" />
+		<FlowHeader flowId="oidc-ciba-v6" />
 
 				<EnhancedFlowInfoCard
-					flowType="oidc-ciba-v5"
+				flowType="oidc-ciba-v6"
 					showAdditionalInfo={true}
 					showDocumentation={true}
 					showCommonIssues={false}
@@ -514,11 +562,11 @@ const CIBAFlowV5: React.FC = () => {
 							<>
 								<FlowConfigurationRequirements flowType="ciba" variant="oidc" />
 
-								<EnhancedFlowWalkthrough flowId="oidc-ciba" />
+								<EnhancedFlowWalkthrough flowId="oidc-ciba-v6" />
 								<FlowSequenceDisplay flowType="ciba" />
 
 								<EnhancedFlowInfoCard
-									flowType="oidc-ciba-v5"
+									flowType="oidc-ciba-v6"
 									showAdditionalInfo={true}
 									showDocumentation={true}
 									showCommonIssues={false}
@@ -544,10 +592,10 @@ const CIBAFlowV5: React.FC = () => {
 								<EnvironmentIdInput
 									initialEnvironmentId={effectiveConfig.environmentId || ''}
 									onEnvironmentIdChange={(newEnvId) => {
-										setEffectiveConfig(prev => ({
-											...prev,
-											environmentId: newEnvId,
-										}));
+				setLocalConfig(prev => ({
+					...prev,
+					environmentId: newEnvId,
+				}));
 										// Auto-save if we have both environmentId and clientId
 										if (newEnvId && effectiveConfig.clientId && newEnvId.trim() && effectiveConfig.clientId.trim()) {
 											// Auto-save logic can be added here if needed
@@ -630,33 +678,30 @@ const CIBAFlowV5: React.FC = () => {
 						{currentStep === 2 && (
 							<>
 								<InlineNotice>
-									<FiAlertCircle size={18} />
+									<FiInfo size={18} />
 									<div>
-										<strong>Polling etiquette</strong>
+										<strong>Simulation controls</strong>
 										<p style={{ margin: '0.35rem 0 0' }}>
-											Respect the interval returned by PingOne. The playground automatically backs
-											off when <code>slow_down</code> responses are received.
+											PingOne does not support CIBA; use the controls below to simulate an end-user approving or denying the request.
 										</p>
 									</div>
 								</InlineNotice>
 								<PollingStatus $variant={pollStatusVariant}>
 									<StepStatus>
-										{stage === 'initiating' && 'Sending CIBA request to PingOne…'}
-										{stage === 'awaiting-approval' &&
-											'Waiting for the end user to approve the request.'}
-										{stage === 'polling' && 'Polling token endpoint for approval…'}
-										{stage === 'success' && 'Tokens received! Continue to analysis below.'}
-										{stage === 'error' && (error || 'An error occurred during the CIBA flow.')}
-										{stage === 'idle' && 'Ready to initiate a new CIBA request.'}
+										{stage === 'initiating' && 'Queues a mock backchannel request…'}
+										{stage === 'awaiting-approval' && 'Waiting for simulated end-user response.'}
+										{stage === 'success' && 'Tokens received from the simulated authorization server.'}
+										{stage === 'error' && (error || 'The simulated request was denied or expired.')}
+										{stage === 'idle' && 'Ready to initiate a mock CIBA request.'}
 									</StepStatus>
 									{authRequest && (
 										<div style={{ fontSize: '0.85rem', color: '#475569' }}>
 											<p style={{ margin: 0 }}>
-												<strong>Auth request ID:</strong> {authRequest.auth_req_id}
+												<strong>Mock Auth State:</strong> {authRequest.stateId}
 											</p>
 											<p style={{ margin: '0.35rem 0 0' }}>
-												<strong>Polling interval:</strong> {authRequest.interval ?? 5}s •{' '}
-												<strong>Expires in:</strong> {authRequest.expires_in}s
+												<strong>Expires in:</strong> {Math.max(0, Math.round((authRequest.expiresAt - Date.now()) / 1000))}s •{' '}
+												<strong>Binding message:</strong> {authRequest.bindingMessage}
 											</p>
 										</div>
 									)}
@@ -665,25 +710,29 @@ const CIBAFlowV5: React.FC = () => {
 									<ControlButton
 										$variant="primary"
 										onClick={handleInitiate}
-										disabled={isPolling || stage === 'awaiting-approval' || stage === 'initiating'}
+										disabled={stage === 'initiating' || stage === 'awaiting-approval'}
 									>
-										<FiZap /> Initiate CIBA request
+										<FiZap /> Initiate mock CIBA request
 									</ControlButton>
 									<ControlButton
-										$variant="secondary"
-										onClick={cancelPolling}
-										disabled={
-											!authRequest ||
-											pollStatusVariant === 'success' ||
-											pollStatusVariant === 'idle'
-										}
+										onClick={() => handleMockDecision('approved')}
+										disabled={!authRequest || stage === 'success'}
 									>
-										<FiRefreshCw /> Cancel polling
+										<FiSmartphone /> Simulate approval
 									</ControlButton>
 									<ControlButton
-										$variant="secondary"
-										onClick={() => handleCopy(curlExample, 'CIBA curl snippet')}
+										$variant="danger"
+										onClick={() => handleMockDecision('denied')}
+										disabled={!authRequest || stage === 'success'}
 									>
+										<FiAlertCircle /> Simulate denial
+									</ControlButton>
+									<ControlButton
+										onClick={handleReset}
+									>
+										<FiRefreshCw /> Reset simulation
+									</ControlButton>
+									<ControlButton onClick={() => handleCopy(curlExample, 'CIBA curl snippet')}>
 										<FiCopy /> Copy curl example
 									</ControlButton>
 								</PollingActions>
@@ -696,8 +745,8 @@ const CIBAFlowV5: React.FC = () => {
 								{tokens ? (
 									<>
 										<TokenIntrospect
-											flowName="OIDC CIBA V5"
-											flowVersion="V5"
+											flowName="OIDC CIBA V6 (Mock)"
+											flowVersion="V6"
 											tokens={tokens as unknown as Record<string, unknown>}
 											credentials={effectiveConfig as unknown as Record<string, unknown>}
 											onResetFlow={handleReset}
@@ -798,4 +847,4 @@ const CIBAFlowV5: React.FC = () => {
 	);
 };
 
-export default CIBAFlowV5;
+export default CIBAFlowV6;

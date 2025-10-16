@@ -225,15 +225,15 @@ export class V6FlowCardsService {
 	 */
 	static createFlowCards(theme: ThemeColor = 'blue') {
 		return {
-			FlowSuitability: this.createFlowSuitability(),
-			SuitabilityCard: this.createSuitabilityCard(),
-			ParameterGrid: this.createParameterGrid(),
-			ParameterLabel: this.createParameterLabel(theme),
-			ParameterValue: this.createParameterValue(theme),
-			GeneratedContentBox: this.createGeneratedContentBox(theme),
-			GeneratedLabel: this.createGeneratedLabel(theme),
-			ComparisonCard: this.createComparisonCard(theme),
-			CodeSnippetBox: this.createCodeSnippetBox(theme),
+			FlowSuitability: V6FlowCardsService.createFlowSuitability(),
+			SuitabilityCard: V6FlowCardsService.createSuitabilityCard(),
+			ParameterGrid: V6FlowCardsService.createParameterGrid(),
+			ParameterLabel: V6FlowCardsService.createParameterLabel(theme),
+			ParameterValue: V6FlowCardsService.createParameterValue(theme),
+			GeneratedContentBox: V6FlowCardsService.createGeneratedContentBox(theme),
+			GeneratedLabel: V6FlowCardsService.createGeneratedLabel(theme),
+			ComparisonCard: V6FlowCardsService.createComparisonCard(theme),
+			CodeSnippetBox: V6FlowCardsService.createCodeSnippetBox(theme),
 		};
 	}
 }

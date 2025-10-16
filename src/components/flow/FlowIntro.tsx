@@ -45,6 +45,8 @@ const IllustrationWrapper = styled.div`
 const IllustrationImage = styled.img`
   max-width: 260px;
   width: 100%;
+  padding: 1rem;
+  border-radius: 0.5rem;
 `;
 
 const WarningCard = styled.div`

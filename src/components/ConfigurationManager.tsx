@@ -543,7 +543,7 @@ const ConfigurationManager: React.FC<ConfigurationManagerProps> = ({
         </ControlsGrid>
 
         <ActionButtons>
-          <ActionButton variant="primary" onClick={handleSaveConfiguration} disabled={!hasUnsavedChanges}>
+          <ActionButton variant="success" onClick={handleSaveConfiguration} disabled={!hasUnsavedChanges}>
             <FiSave />
             {isLoading ? 'Saving...' : 'Save Configuration'}
           </ActionButton>

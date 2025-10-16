@@ -49,7 +49,7 @@ export class AdvancedParametersService {
 			}
 
 			// Claims parameter (OIDC/OAuth)
-			if (parameters.claims && this.isValidClaims(parameters.claims)) {
+			if (parameters.claims && AdvancedParametersService.isValidClaims(parameters.claims)) {
 				params.set('claims', JSON.stringify(parameters.claims));
 			}
 
@@ -128,7 +128,7 @@ export class AdvancedParametersService {
 
 			// Display
 			const display = params.get('display');
-			if (display && this.isValidDisplayMode(display)) {
+			if (display && AdvancedParametersService.isValidDisplayMode(display)) {
 				extracted.display = display;
 			}
 
@@ -137,7 +137,7 @@ export class AdvancedParametersService {
 			if (claims) {
 				try {
 					const parsed = JSON.parse(claims);
-					if (this.isValidClaims(parsed)) {
+					if (AdvancedParametersService.isValidClaims(parsed)) {
 						extracted.claims = parsed;
 					}
 				} catch {
@@ -197,7 +197,7 @@ export class AdvancedParametersService {
 			summary.push(`Display: ${parameters.display}`);
 		}
 
-		if (parameters.claims && this.isValidClaims(parameters.claims)) {
+		if (parameters.claims && AdvancedParametersService.isValidClaims(parameters.claims)) {
 			const locations = [];
 			if (parameters.claims.userinfo) locations.push('UserInfo');
 			if (parameters.claims.id_token) locations.push('ID Token');
@@ -237,7 +237,7 @@ export class AdvancedParametersService {
 	static hasAnyParameters(parameters: AdvancedOAuthParameters): boolean {
 		return (
 			(parameters.display !== undefined && parameters.display !== 'page') ||
-			(parameters.claims !== null && this.isValidClaims(parameters.claims)) ||
+			(parameters.claims !== null && AdvancedParametersService.isValidClaims(parameters.claims)) ||
 			(parameters.uiLocales !== undefined && parameters.uiLocales.trim() !== '') ||
 			(parameters.claimsLocales !== undefined && parameters.claimsLocales.trim() !== '') ||
 			(parameters.audience !== undefined && parameters.audience.trim() !== '') ||

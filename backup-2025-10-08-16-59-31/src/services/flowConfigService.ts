@@ -58,72 +58,72 @@ export class FlowConfigService {
 	 */
 	static initializeDefaultConfigs(): void {
 		// OAuth 2.0 Flows
-		this.registerFlow('implicit', this.createImplicitConfig());
-		this.registerFlow('authorization-code', this.createAuthorizationCodeConfig());
-		this.registerFlow('client-credentials', this.createClientCredentialsConfig());
-		this.registerFlow('device-authorization', this.createDeviceAuthorizationConfig());
-		this.registerFlow('resource-owner-password', this.createResourceOwnerPasswordConfig());
-		this.registerFlow('jwt-bearer', this.createJWTBearerConfig());
+		FlowConfigService.registerFlow('implicit', FlowConfigService.createImplicitConfig());
+		FlowConfigService.registerFlow('authorization-code', FlowConfigService.createAuthorizationCodeConfig());
+		FlowConfigService.registerFlow('client-credentials', FlowConfigService.createClientCredentialsConfig());
+		FlowConfigService.registerFlow('device-authorization', FlowConfigService.createDeviceAuthorizationConfig());
+		FlowConfigService.registerFlow('resource-owner-password', FlowConfigService.createResourceOwnerPasswordConfig());
+		FlowConfigService.registerFlow('jwt-bearer', FlowConfigService.createJWTBearerConfig());
 
 		// OIDC Flows
-		this.registerFlow('oidc-authorization-code', this.createOIDCAuthorizationCodeConfig());
-		this.registerFlow('oidc-implicit', this.createOIDCImplicitConfig());
-		this.registerFlow('oidc-hybrid', this.createOIDCHybridConfig());
-		this.registerFlow('oidc-client-credentials', this.createOIDCClientCredentialsConfig());
-		this.registerFlow('oidc-device-authorization', this.createOIDCDeviceAuthorizationConfig());
-		this.registerFlow('oidc-ciba', this.createOIDCCIBAConfig());
+		FlowConfigService.registerFlow('oidc-authorization-code', FlowConfigService.createOIDCAuthorizationCodeConfig());
+		FlowConfigService.registerFlow('oidc-implicit', FlowConfigService.createOIDCImplicitConfig());
+		FlowConfigService.registerFlow('oidc-hybrid', FlowConfigService.createOIDCHybridConfig());
+		FlowConfigService.registerFlow('oidc-client-credentials', FlowConfigService.createOIDCClientCredentialsConfig());
+		FlowConfigService.registerFlow('oidc-device-authorization', FlowConfigService.createOIDCDeviceAuthorizationConfig());
+		FlowConfigService.registerFlow('oidc-ciba', FlowConfigService.createOIDCCIBAConfig());
 
 		// PingOne Flows
-		this.registerFlow('worker-token', this.createWorkerTokenConfig());
-		this.registerFlow('pingone-par', this.createPingOnePARConfig());
-		this.registerFlow('redirectless', this.createRedirectlessConfig());
+		FlowConfigService.registerFlow('worker-token', FlowConfigService.createWorkerTokenConfig());
+		FlowConfigService.registerFlow('pingone-par', FlowConfigService.createPingOnePARConfig());
+		FlowConfigService.registerFlow('redirectless', FlowConfigService.createRedirectlessConfig());
 
 		// Token Management Flows
-		this.registerFlow('token-introspection', this.createTokenIntrospectionConfig());
-		this.registerFlow('token-revocation', this.createTokenRevocationConfig());
-		this.registerFlow('user-info', this.createUserInfoConfig());
+		FlowConfigService.registerFlow('token-introspection', FlowConfigService.createTokenIntrospectionConfig());
+		FlowConfigService.registerFlow('token-revocation', FlowConfigService.createTokenRevocationConfig());
+		FlowConfigService.registerFlow('user-info', FlowConfigService.createUserInfoConfig());
 	}
 
 	/**
 	 * Register a flow configuration
 	 */
 	static registerFlow(flowType: string, config: FlowConfig): void {
-		this.flowConfigs.set(flowType, config);
+		FlowConfigService.flowConfigs.set(flowType, config);
 	}
 
 	/**
 	 * Get a flow configuration
 	 */
 	static getFlowConfig(flowType: string): FlowConfig | undefined {
-		return this.flowConfigs.get(flowType);
+		return FlowConfigService.flowConfigs.get(flowType);
 	}
 
 	/**
 	 * Get all flow configurations
 	 */
 	static getAllFlowConfigs(): FlowConfig[] {
-		return Array.from(this.flowConfigs.values());
+		return Array.from(FlowConfigService.flowConfigs.values());
 	}
 
 	/**
 	 * Get flows by category
 	 */
 	static getFlowsByCategory(category: string): FlowConfig[] {
-		return Array.from(this.flowConfigs.values()).filter((flow) => flow.category === category);
+		return Array.from(FlowConfigService.flowConfigs.values()).filter((flow) => flow.category === category);
 	}
 
 	/**
 	 * Get flows by variant
 	 */
 	static getFlowsByVariant(variant: 'oauth' | 'oidc' | 'pingone'): FlowConfig[] {
-		return Array.from(this.flowConfigs.values()).filter((flow) => flow.flowVariant === variant);
+		return Array.from(FlowConfigService.flowConfigs.values()).filter((flow) => flow.flowVariant === variant);
 	}
 
 	/**
 	 * Create a custom flow configuration
 	 */
 	static createCustomFlowConfig(flowType: string, customConfig: Partial<FlowConfig>): FlowConfig {
-		const baseConfig = this.getFlowConfig(flowType) || this.createDefaultConfig(flowType);
+		const baseConfig = FlowConfigService.getFlowConfig(flowType) || FlowConfigService.createDefaultConfig(flowType);
 		return { ...baseConfig, ...customConfig };
 	}
 
@@ -199,31 +199,31 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'deprecated',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Implicit Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Authorization Request',
 					'Build and launch the authorization URL',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Response',
 					'Receive tokens directly from URL fragment',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Introspection',
 					'Validate and inspect tokens',
 					'validation'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Security Features',
 					'Advanced security demonstrations',
@@ -232,10 +232,10 @@ export class FlowConfigService {
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'authUrl', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'authUrl', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['authorizationEndpoint'],
 				['openid', 'profile', 'email'],
@@ -256,31 +256,31 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Authorization Code Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Authorization Request',
 					'Build and launch the authorization URL',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Code Exchange',
 					'Exchange authorization code for tokens',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Introspection',
 					'Validate and inspect tokens',
 					'validation'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Security Features',
 					'Advanced security demonstrations',
@@ -289,10 +289,10 @@ export class FlowConfigService {
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'authUrl', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'authUrl', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['authorizationEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -313,31 +313,31 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Client Credentials Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Client Authentication',
 					'Configure client credentials',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Request',
 					'Request access token using client credentials',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Response',
 					'Review the received access token',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Security Features',
 					'Advanced security demonstrations',
@@ -346,11 +346,11 @@ export class FlowConfigService {
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'clientId', true),
-				this.createValidationRule(1, 'clientSecret', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'clientId', true),
+				FlowConfigService.createValidationRule(1, 'clientSecret', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['tokenEndpoint'],
 				['api:read', 'api:write'],
@@ -371,39 +371,39 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Device Authorization Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Device Code Request',
 					'Request device code from authorization server',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: User Authorization',
 					'Complete authorization on device',
 					'response'
 				),
-				this.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Review the received tokens',
 					'response'
 				),
-				this.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'deviceCodeData', true),
-				this.createValidationRule(3, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'deviceCodeData', true),
+				FlowConfigService.createValidationRule(3, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId'],
 				['deviceAuthorizationEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -424,31 +424,31 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'deprecated',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Resource Owner Password Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Credentials Configuration',
 					'Configure client and user credentials',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Request',
 					'Request access token using user credentials',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Response',
 					'Review the received access token',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Security Features',
 					'Advanced security demonstrations',
@@ -457,12 +457,12 @@ export class FlowConfigService {
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'clientId', true),
-				this.createValidationRule(1, 'username', true),
-				this.createValidationRule(1, 'password', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'clientId', true),
+				FlowConfigService.createValidationRule(1, 'username', true),
+				FlowConfigService.createValidationRule(1, 'password', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret', 'username', 'password'],
 				['tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -483,38 +483,38 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the JWT Bearer Token Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: JWT Configuration',
 					'Configure JWT signing key',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Request',
 					'Request access token using JWT assertion',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Response',
 					'Review the received access token',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'privateKey', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'privateKey', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'privateKey'],
 				['tokenEndpoint'],
 				['api:read', 'api:write'],
@@ -535,39 +535,39 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the OIDC Authorization Code Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Authorization Request',
 					'Build and launch the authorization URL',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Code Exchange',
 					'Exchange authorization code for tokens',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: User Info Request',
 					'Request user information',
 					'validation'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'authUrl', true),
-				this.createValidationRule(2, 'tokens', true),
-				this.createValidationRule(3, 'userInfo', true),
+				FlowConfigService.createValidationRule(1, 'authUrl', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(3, 'userInfo', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['authorizationEndpoint', 'tokenEndpoint', 'userInfoEndpoint'],
 				['openid', 'profile', 'email'],
@@ -588,39 +588,39 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'deprecated',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the OIDC Implicit Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Authorization Request',
 					'Build and launch the authorization URL',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Response',
 					'Receive tokens directly from URL fragment',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: User Info Request',
 					'Request user information',
 					'validation'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'authUrl', true),
-				this.createValidationRule(2, 'tokens', true),
-				this.createValidationRule(3, 'userInfo', true),
+				FlowConfigService.createValidationRule(1, 'authUrl', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(3, 'userInfo', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId'],
 				['authorizationEndpoint', 'userInfoEndpoint'],
 				['openid', 'profile', 'email'],
@@ -641,39 +641,39 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the OIDC Hybrid Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Authorization Request',
 					'Build and launch the authorization URL',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Response',
 					'Receive tokens and authorization code',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Code Exchange',
 					'Exchange authorization code for additional tokens',
 					'validation'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'authUrl', true),
-				this.createValidationRule(2, 'tokens', true),
-				this.createValidationRule(3, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'authUrl', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(3, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['authorizationEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -694,39 +694,39 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the OIDC Client Credentials Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Client Authentication',
 					'Configure client credentials',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Token Request',
 					'Request access token using client credentials',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Response',
 					'Review the received access token',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'clientId', true),
-				this.createValidationRule(1, 'clientSecret', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'clientId', true),
+				FlowConfigService.createValidationRule(1, 'clientSecret', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['tokenEndpoint'],
 				['api:read', 'api:write'],
@@ -747,39 +747,39 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the OIDC Device Authorization Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Device Code Request',
 					'Request device code from authorization server',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: User Authorization',
 					'Complete authorization on device',
 					'response'
 				),
-				this.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Review the received tokens',
 					'response'
 				),
-				this.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'deviceCodeData', true),
-				this.createValidationRule(3, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'deviceCodeData', true),
+				FlowConfigService.createValidationRule(3, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId'],
 				['deviceAuthorizationEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -800,39 +800,39 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the OIDC CIBA Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: CIBA Request',
 					'Initiate CIBA authentication request',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: User Authorization',
 					'Complete CIBA authentication',
 					'response'
 				),
-				this.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(3, 'Step 3: Token Polling', 'Poll for tokens', 'validation'),
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Review the received tokens',
 					'response'
 				),
-				this.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'authRequestId', true),
-				this.createValidationRule(3, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'authRequestId', true),
+				FlowConfigService.createValidationRule(3, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['cibaEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -853,34 +853,34 @@ export class FlowConfigService {
 			flowVariant: 'pingone',
 			category: 'pingone',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Worker Token Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Worker Configuration',
 					'Configure worker credentials',
 					'credentials'
 				),
-				this.createStepConfig(2, 'Step 2: Token Request', 'Request worker token', 'request'),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(2, 'Step 2: Token Request', 'Request worker token', 'request'),
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Token Response',
 					'Review the received worker token',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'workerId', true),
-				this.createValidationRule(1, 'workerSecret', true),
-				this.createValidationRule(2, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'workerId', true),
+				FlowConfigService.createValidationRule(1, 'workerSecret', true),
+				FlowConfigService.createValidationRule(2, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['workerId', 'workerSecret'],
 				['workerTokenEndpoint'],
 				['worker:read', 'worker:write'],
@@ -901,39 +901,39 @@ export class FlowConfigService {
 			flowVariant: 'pingone',
 			category: 'pingone',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the PingOne PAR Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: PAR Request',
 					'Create Pushed Authorization Request',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Authorization Request',
 					'Build authorization URL with request_uri',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Code Exchange',
 					'Exchange authorization code for tokens',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'parRequest', true),
-				this.createValidationRule(2, 'authUrl', true),
-				this.createValidationRule(3, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'parRequest', true),
+				FlowConfigService.createValidationRule(2, 'authUrl', true),
+				FlowConfigService.createValidationRule(3, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['parEndpoint', 'authorizationEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -954,46 +954,46 @@ export class FlowConfigService {
 			flowVariant: 'pingone',
 			category: 'pingone',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand the Redirectless Flow',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: PKCE Parameters',
 					'Generate secure PKCE codes',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Authorization Request',
 					'Build authorization URL with response_mode=pi.flow',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Flow Response',
 					'Receive and process flow object',
 					'response'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					4,
 					'Step 4: Token Response',
 					'Receive tokens in JSON format',
 					'response'
 				),
-				this.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(5, 'Step 5: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'pkceCodes', true),
-				this.createValidationRule(2, 'authUrl', true),
-				this.createValidationRule(3, 'flowResponse', true),
-				this.createValidationRule(4, 'tokens', true),
+				FlowConfigService.createValidationRule(1, 'pkceCodes', true),
+				FlowConfigService.createValidationRule(2, 'authUrl', true),
+				FlowConfigService.createValidationRule(3, 'flowResponse', true),
+				FlowConfigService.createValidationRule(4, 'tokens', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['authorizationEndpoint', 'tokenEndpoint'],
 				['openid', 'profile', 'email'],
@@ -1014,39 +1014,39 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand Token Introspection',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Configuration',
 					'Configure credentials and access token',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Introspection Request',
 					'Introspect the access token',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Introspection Response',
 					'Review the introspection results',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'clientId', true),
-				this.createValidationRule(1, 'accessToken', true),
-				this.createValidationRule(2, 'introspectionResult', true),
+				FlowConfigService.createValidationRule(1, 'clientId', true),
+				FlowConfigService.createValidationRule(1, 'accessToken', true),
+				FlowConfigService.createValidationRule(2, 'introspectionResult', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['introspectionEndpoint'],
 				[],
@@ -1067,39 +1067,39 @@ export class FlowConfigService {
 			flowVariant: 'oauth',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand Token Revocation',
 					'introduction'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					1,
 					'Step 1: Configuration',
 					'Configure credentials and access token',
 					'credentials'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: Revocation Request',
 					'Revoke the access token',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: Revocation Response',
 					'Review the revocation results',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'clientId', true),
-				this.createValidationRule(1, 'accessToken', true),
-				this.createValidationRule(2, 'revocationResult', true),
+				FlowConfigService.createValidationRule(1, 'clientId', true),
+				FlowConfigService.createValidationRule(1, 'accessToken', true),
+				FlowConfigService.createValidationRule(2, 'revocationResult', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['clientId', 'clientSecret'],
 				['revocationEndpoint'],
 				[],
@@ -1120,33 +1120,33 @@ export class FlowConfigService {
 			flowVariant: 'oidc',
 			category: 'standard',
 			stepConfigs: [
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					0,
 					'Step 0: Introduction & Setup',
 					'Understand User Info Flow',
 					'introduction'
 				),
-				this.createStepConfig(1, 'Step 1: Configuration', 'Configure access token', 'credentials'),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(1, 'Step 1: Configuration', 'Configure access token', 'credentials'),
+				FlowConfigService.createStepConfig(
 					2,
 					'Step 2: User Info Request',
 					'Request user information',
 					'request'
 				),
-				this.createStepConfig(
+				FlowConfigService.createStepConfig(
 					3,
 					'Step 3: User Info Response',
 					'Review the received user information',
 					'response'
 				),
-				this.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
+				FlowConfigService.createStepConfig(4, 'Step 4: Complete', 'Review results and next steps', 'completion'),
 			],
 			introSectionKeys: ['overview', 'flowDiagram', 'credentials', 'results'],
 			validationRules: [
-				this.createValidationRule(1, 'accessToken', true),
-				this.createValidationRule(2, 'userInfo', true),
+				FlowConfigService.createValidationRule(1, 'accessToken', true),
+				FlowConfigService.createValidationRule(2, 'userInfo', true),
 			],
-			requirements: this.createFlowRequirements(
+			requirements: FlowConfigService.createFlowRequirements(
 				['accessToken'],
 				['userInfoEndpoint'],
 				['openid', 'profile', 'email'],
@@ -1169,7 +1169,7 @@ export class FlowConfigService {
 			stepConfigs: [],
 			introSectionKeys: [],
 			validationRules: [],
-			requirements: this.createFlowRequirements(),
+			requirements: FlowConfigService.createFlowRequirements(),
 			enableDebugger: false,
 		};
 	}

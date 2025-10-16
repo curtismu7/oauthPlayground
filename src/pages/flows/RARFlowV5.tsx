@@ -46,6 +46,9 @@ import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import RARService, { type AuthorizationDetail } from '../../services/rarService';
 import { FlowStorageService } from '../../services/flowStorageService';
+import AuthorizationDetailsEditor from '../../components/AuthorizationDetailsEditor';
+import RARExampleSelector from '../../components/RARExampleSelector';
+import RARValidationDisplay from '../../components/RARValidationDisplay';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
@@ -530,20 +533,8 @@ export const RARFlowV6: React.FC = () => {
 			}
 		}
 
-		// Use the example structure provided by user
-		return [
-			{
-				type: 'payment_initiation',
-				instructedAmount: {
-					currency: 'USD',
-					amount: '250.00',
-				},
-				creditorName: 'Acme Inc.',
-				creditorAccount: {
-					iban: 'DE02100100109307118603',
-				},
-			},
-		];
+		// Default to enhanced examples from RARService including customer_information
+		return RARService.getExampleAuthorizationDetails();
 	});
 
 	const [authUrl, setAuthUrl] = useState(() => {
@@ -582,7 +573,6 @@ export const RARFlowV6: React.FC = () => {
 		return null;
 	});
 	const [isRequesting, setIsRequesting] = useState(false);
-	const [exampleViewMode, setExampleViewMode] = useState<'json' | 'formatted'>('formatted');
 
 	// Track flow usage
 	useEffect(() => {
@@ -717,21 +707,8 @@ export const RARFlowV6: React.FC = () => {
 
 	const handleReset = useCallback(() => {
 		setCurrentStep(0);
-		// Reset authorization details to default
-		setAuthorizationDetails([
-			{
-				type: 'payment_initiation',
-				locations: ['https://api.example.com/payments'],
-				actions: ['initiate', 'status'],
-				datatypes: ['account', 'payment'],
-			},
-			{
-				type: 'account_information',
-				locations: ['https://api.example.com/accounts'],
-				actions: ['read'],
-				datatypes: ['account', 'balance'],
-			},
-		]);
+		// Reset authorization details to enhanced examples including customer_information
+		setAuthorizationDetails(RARService.getExampleAuthorizationDetails());
 		setAuthUrl('');
 		setAuthCode('');
 		setTokens(null);
@@ -789,28 +766,7 @@ export const RARFlowV6: React.FC = () => {
 		window.open('/token-management', '_blank');
 	}, [tokens, credentials, currentStep]);
 
-	// Handle authorization details update
-	const updateAuthorizationDetail = useCallback((index: number, field: string, value: any) => {
-		setAuthorizationDetails((prev: any[]) =>
-			prev.map((detail: any, i: number) => (i === index ? { ...detail, [field]: value } : detail))
-		);
-	}, []);
 
-	const addAuthorizationDetail = useCallback(() => {
-		setAuthorizationDetails((prev: any[]) => [
-			...prev,
-			{
-				type: 'payment_initiation',
-				instructedAmount: { currency: 'USD', amount: '0.00' },
-				creditorName: '',
-				creditorAccount: { iban: '' },
-			},
-		]);
-	}, []);
-
-	const removeAuthorizationDetail = useCallback((index: number) => {
-		setAuthorizationDetails((prev: any[]) => prev.filter((_: any, i: number) => i !== index));
-	}, []);
 
 	// Generate authorization URL
 	const handleGenerateAuthUrl = useCallback(() => {
@@ -989,173 +945,23 @@ export const RARFlowV6: React.FC = () => {
 							/>
 						</FormGroup>
 
-						{/* RAR Example Display */}
-						<ExampleSection>
-							<ExampleHeader>
-								<FiExternalLink />
-								RAR Authorization Example
-							</ExampleHeader>
-							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-								Here's an example of RAR authorization_details structure. You can use this as a
-								starting point or create your own.
-							</p>
+						{/* Enhanced RAR Example Selector */}
+						<RARExampleSelector onSelectExample={setAuthorizationDetails} />
 
-							<ExampleContainer>
-								<ExampleTabs>
-									<ExampleTab
-										active={exampleViewMode === 'json'}
-										onClick={() => setExampleViewMode('json')}
-									>
-										<FiCode size={14} />
-										JSON Structure
-									</ExampleTab>
-									<ExampleTab
-										active={exampleViewMode === 'formatted'}
-										onClick={() => setExampleViewMode('formatted')}
-									>
-										<FiEye size={14} />
-										Formatted View
-									</ExampleTab>
-								</ExampleTabs>
+						{/* Enhanced Authorization Details Editor */}
+						<AuthorizationDetailsEditor
+							authorizationDetails={authorizationDetails}
+							onUpdate={setAuthorizationDetails}
+						/>
 
-								{exampleViewMode === 'json' ? (
-									<JsonExampleContainer>
-										<JsonExampleTitle>Raw JSON Example</JsonExampleTitle>
-										<JsonExampleDisplay>
-											{JSON.stringify(exampleAuthorizationDetails, null, 2)}
-										</JsonExampleDisplay>
-										<JsonExampleActions>
-											<JsonExampleButton
-												onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}
-											>
-												<FiCheckCircle size={14} />
-												Use This Example
-											</JsonExampleButton>
-											<JsonExampleButton
-												onClick={() =>
-													navigator.clipboard.writeText(
-														JSON.stringify(exampleAuthorizationDetails, null, 2)
-													)
-												}
-											>
-												<FiExternalLink size={14} />
-												Copy JSON
-											</JsonExampleButton>
-										</JsonExampleActions>
-									</JsonExampleContainer>
-								) : (
-									<FormattedExampleContainer>
-										<FormattedExampleTitle>Formatted Example</FormattedExampleTitle>
-										<FormattedExampleList>
-											{exampleAuthorizationDetails.map((detail, index) => (
-												<FormattedExampleItem key={index}>
-													<FormattedExampleItemHeader>
-														<strong>Type:</strong> {detail.type}
-													</FormattedExampleItemHeader>
-													<FormattedExampleDetails>
-														<FormattedExampleDetail>
-															<strong>instructedAmount:</strong>{' '}
-															{detail.instructedAmount
-																? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}`
-																: 'Not set'}
-														</FormattedExampleDetail>
-														<FormattedExampleDetail>
-															<strong>creditorName:</strong> {detail.creditorName || 'Not set'}
-														</FormattedExampleDetail>
-														<FormattedExampleDetail>
-															<strong>creditorAccount.iban:</strong>{' '}
-															{detail.creditorAccount?.iban || 'Not set'}
-														</FormattedExampleDetail>
-													</FormattedExampleDetails>
-												</FormattedExampleItem>
-											))}
-										</FormattedExampleList>
-										<JsonExampleActions>
-											<JsonExampleButton
-												onClick={() => setAuthorizationDetails(exampleAuthorizationDetails)}
-											>
-												<FiCheckCircle size={14} />
-												Use This Example
-											</JsonExampleButton>
-										</JsonExampleActions>
-									</FormattedExampleContainer>
-								)}
-							</ExampleContainer>
-						</ExampleSection>
+						{/* RAR Validation Display */}
+						<RARValidationDisplay
+							authorizationDetails={authorizationDetails}
+							grantedScopes={credentials.scopes?.split(' ').filter(Boolean) || []}
+							showScopeValidation={true}
+						/>
 
-						<AuthorizationDetailsContainer>
-							<Label>Authorization Details (RAR)</Label>
-							<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '1rem' }}>
-								Define the specific authorization details that will be requested using RAR. Use the
-								example above or create your own.
-							</p>
-
-							{authorizationDetails.map((detail: any, index: number) => (
-								<AuthorizationDetailItem key={index}>
-									<div style={{ minWidth: '120px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>Type</Label>
-										<DetailInput
-											value={detail.type}
-											onChange={(e) => updateAuthorizationDetail(index, 'type', e.target.value)}
-											placeholder="e.g., payment_initiation"
-										/>
-									</div>
-									<div style={{ minWidth: '200px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-											Instructed Amount
-										</Label>
-										<DetailInput
-											value={
-												detail.instructedAmount
-													? `${detail.instructedAmount.currency} ${detail.instructedAmount.amount}`
-													: ''
-											}
-											onChange={(e) => {
-												const [currency, amount] = e.target.value.split(' ');
-												updateAuthorizationDetail(index, 'instructedAmount', { currency, amount });
-											}}
-											placeholder="USD 250.00"
-										/>
-									</div>
-									<div style={{ minWidth: '150px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-											Creditor Name
-										</Label>
-										<DetailInput
-											value={detail.creditorName || ''}
-											onChange={(e) =>
-												updateAuthorizationDetail(index, 'creditorName', e.target.value)
-											}
-											placeholder="Acme Inc."
-										/>
-									</div>
-									<div style={{ minWidth: '200px' }}>
-										<Label style={{ fontSize: '0.75rem', marginBottom: '0.25rem' }}>
-											Creditor Account
-										</Label>
-										<DetailInput
-											value={detail.creditorAccount?.iban || ''}
-											onChange={(e) =>
-												updateAuthorizationDetail(index, 'creditorAccount', {
-													iban: e.target.value,
-												})
-											}
-											placeholder="DE02100100109307118603"
-										/>
-									</div>
-									<RemoveButton onClick={() => removeAuthorizationDetail(index)}>
-										<FiTrash2 size={16} />
-									</RemoveButton>
-								</AuthorizationDetailItem>
-							))}
-
-							<AddButton onClick={addAuthorizationDetail}>
-								<FiPlus size={16} />
-								Add Authorization Detail
-							</AddButton>
-						</AuthorizationDetailsContainer>
-
-						<Button onClick={handleSaveCredentials}>
+						<Button onClick={handleSaveCredentials} $variant="success">
 							<FiCheckCircle />
 							Save Configuration
 						</Button>
@@ -1308,7 +1114,33 @@ export const RARFlowV6: React.FC = () => {
 
 								<FormGroup>
 									<Label>Authorization Details Claims</Label>
-									<CodeBlock>{JSON.stringify(tokens.authorization_details, null, 2)}</CodeBlock>
+									{tokens.authorization_details ? (
+										<>
+											<CodeBlock>{JSON.stringify(tokens.authorization_details, null, 2)}</CodeBlock>
+											<div style={{ marginTop: '1rem' }}>
+												<RARValidationDisplay
+													authorizationDetails={Array.isArray(tokens.authorization_details) 
+														? tokens.authorization_details 
+														: typeof tokens.authorization_details === 'string' 
+															? JSON.parse(tokens.authorization_details)
+															: []
+													}
+													showScopeValidation={false}
+												/>
+											</div>
+										</>
+									) : (
+										<div style={{ 
+											padding: '1rem', 
+											background: '#f9fafb', 
+											border: '1px solid #e5e7eb', 
+											borderRadius: '6px',
+											color: '#6b7280',
+											fontSize: '0.875rem'
+										}}>
+											No authorization details found in token response
+										</div>
+									)}
 								</FormGroup>
 
 								<FormGroup>

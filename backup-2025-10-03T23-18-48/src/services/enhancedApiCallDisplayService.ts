@@ -268,7 +268,7 @@ export class EnhancedApiCallDisplayService {
 			backgroundColor?: string | undefined;
 		}> = [];
 
-		let remainingUrl = url;
+		const remainingUrl = url;
 		let lastIndex = 0;
 
 		// Find all matches for all rules
@@ -530,10 +530,10 @@ export class EnhancedApiCallDisplayService {
 	 * Create a complete display string with all API call information
 	 */
 	static createFullDisplay(apiCall: EnhancedApiCallData, options: ApiCallDisplayOptions = {}): string {
-		const curlCommand = this.generateEnhancedCurlCommand(apiCall, options);
-		const formattedCall = this.formatApiCallText(apiCall, options.prettyPrint);
-		const responseSummary = this.formatResponseSummary(apiCall);
-		const timingInfo = apiCall.duration ? this.formatTimingInfo(apiCall.duration) : undefined;
+		const curlCommand = EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
+		const formattedCall = EnhancedApiCallDisplayService.formatApiCallText(apiCall, options.prettyPrint);
+		const responseSummary = EnhancedApiCallDisplayService.formatResponseSummary(apiCall);
+		const timingInfo = apiCall.duration ? EnhancedApiCallDisplayService.formatTimingInfo(apiCall.duration) : undefined;
 
 		let display = '🚀 API Call Details\n';
 		display += '='.repeat(50) + '\n\n';
