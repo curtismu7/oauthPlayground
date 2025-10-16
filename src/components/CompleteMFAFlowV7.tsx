@@ -870,7 +870,115 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       case 'username_login':
         return (
           <>
+            {/* Configuration Explanation */}
+            <CollapsibleHeaderService.CollapsibleHeader
+              title="⚠️ Important: PingOne Configuration Requirements"
+              subtitle="Understanding the two different authentication flows and their requirements"
+              icon={<FiAlertTriangle />}
+              theme="red"
+              defaultCollapsed={false}
+            >
+              <InfoBox $variant="warning">
+                <FiAlertTriangle size={20} style={{ flexShrink: 0 }} />
+                <InfoContent>
+                  <InfoTitle>🚨 Common Configuration Issues</InfoTitle>
+                  <InfoText>
+                    <strong>Error: "Redirect URI mismatch"</strong> - Your PingOne application must have the redirect URI configured.<br/>
+                    <strong>Error: "unsupported_grant_type: password"</strong> - PingOne does not support Resource Owner Password Credentials flow.
+                  </InfoText>
+                </InfoContent>
+              </InfoBox>
+
+              <div style={{ margin: '1rem 0', padding: '1rem', background: '#fef3c7', borderRadius: '0.75rem', border: '1px solid #f59e0b' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#92400e' }}>
+                  📋 PingOne Application Setup Checklist
+                </h4>
+                <div style={{ fontSize: '0.75rem', color: '#92400e', lineHeight: 1.6 }}>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong>1. Create/Configure Your PingOne Application:</strong>
+                    <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
+                      <li>Go to PingOne Admin Console → Applications</li>
+                      <li>Create a new application or edit existing one</li>
+                      <li>Set <strong>Grant Types</strong>: ✅ Authorization Code, ✅ Client Credentials</li>
+                      <li>Set <strong>Response Types</strong>: ✅ Code</li>
+                    </ul>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong>2. Configure Redirect URIs:</strong>
+                    <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
+                      <li>Add: <code>https://localhost:3000/authz-callback</code></li>
+                      <li>Add: <code>https://localhost:3000</code> (for redirectless)</li>
+                      <li>These must match exactly what you enter below</li>
+                    </ul>
+                  </div>
+                  <div style={{ marginBottom: '0.5rem' }}>
+                    <strong>3. Get Your Credentials:</strong>
+                    <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
+                      <li>Copy <strong>Client ID</strong> and <strong>Client Secret</strong></li>
+                      <li>Copy <strong>Environment ID</strong> from your environment</li>
+                      <li>These will be used for both configurations below</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ margin: '1rem 0', padding: '1rem', background: '#f0f9ff', borderRadius: '0.75rem', border: '1px solid #0ea5e9' }}>
+                <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#0c4a6e' }}>
+                  🔄 Two Authentication Flows Explained
+                </h4>
+                <div style={{ fontSize: '0.75rem', color: '#0c4a6e', lineHeight: 1.6 }}>
+                  <div style={{ marginBottom: '0.75rem' }}>
+                    <strong>🔑 Worker Token (Client Credentials):</strong>
+                    <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
+                      <li>Machine-to-machine authentication</li>
+                      <li>No user interaction required</li>
+                      <li>Used for MFA operations and API calls</li>
+                      <li>No redirect URI needed</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <strong>👤 User Authentication (Authorization Code):</strong>
+                    <ul style={{ margin: '0.25rem 0 0 1rem', padding: 0 }}>
+                      <li>User login with username/password</li>
+                      <li>Requires redirect URI configuration</li>
+                      <li>Used for user authentication flows</li>
+                      <li>Supports both redirect and redirectless modes</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </CollapsibleHeaderService.CollapsibleHeader>
+
             {/* Worker Token Configuration */}
+            <div style={{ 
+              margin: '1.5rem 0 0.5rem 0', 
+              padding: '1rem', 
+              background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)', 
+              borderRadius: '0.75rem', 
+              border: '2px solid #ea580c',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.75rem',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '1.125rem'
+              }}>
+                <FiSettings size={24} />
+                <span>🔑 WORKER TOKEN CONFIGURATION</span>
+              </div>
+              <div style={{ 
+                color: 'rgba(255, 255, 255, 0.9)', 
+                fontSize: '0.875rem', 
+                marginTop: '0.25rem',
+                fontWeight: '500'
+              }}>
+                Client Credentials Grant • Machine-to-Machine Authentication • No Redirect URI Required
+              </div>
+            </div>
+
             <CollapsibleHeaderService.CollapsibleHeader
               title="Worker Token Configuration"
               subtitle="Configure PingOne application for MFA operations (Client Credentials)"
@@ -923,6 +1031,35 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             </CollapsibleHeaderService.CollapsibleHeader>
 
             {/* Authorization Code Flow Configuration */}
+            <div style={{ 
+              margin: '1.5rem 0 0.5rem 0', 
+              padding: '1rem', 
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)', 
+              borderRadius: '0.75rem', 
+              border: '2px solid #1d4ed8',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.75rem',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '1.125rem'
+              }}>
+                <FiUser size={24} />
+                <span>👤 AUTHORIZATION CODE CONFIGURATION</span>
+              </div>
+              <div style={{ 
+                color: 'rgba(255, 255, 255, 0.9)', 
+                fontSize: '0.875rem', 
+                marginTop: '0.25rem',
+                fontWeight: '500'
+              }}>
+                Authorization Code Grant • User Authentication • Redirect URI Required
+              </div>
+            </div>
+
             <CollapsibleHeaderService.CollapsibleHeader
               title="User Authentication Configuration"
               subtitle="Configure PingOne application for user authentication (Authorization Code Flow)"
@@ -1044,6 +1181,35 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             </CollapsibleHeaderService.CollapsibleHeader>
 
             {/* User Authentication Section */}
+            <div style={{ 
+              margin: '1.5rem 0 0.5rem 0', 
+              padding: '1rem', 
+              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
+              borderRadius: '0.75rem', 
+              border: '2px solid #059669',
+              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+            }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.75rem',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '1.125rem'
+              }}>
+                <FiLogIn size={24} />
+                <span>🔐 USER AUTHENTICATION</span>
+              </div>
+              <div style={{ 
+                color: 'rgba(255, 255, 255, 0.9)', 
+                fontSize: '0.875rem', 
+                marginTop: '0.25rem',
+                fontWeight: '500'
+              }}>
+                Choose between Redirect or Redirectless Authentication • Uses Authorization Code Configuration Above
+              </div>
+            </div>
+
             <CollapsibleHeaderService.CollapsibleHeader
               title="Step 2: User Authentication"
               subtitle="Authenticate with PingOne using redirect or redirectless flow"
