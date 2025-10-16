@@ -403,7 +403,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     onStepChange?.('username_login');
     if (typeof window !== 'undefined') {
       const savedCreds = credentialManager.loadCustomData<typeof credentials>(MFA_CREDENTIALS_STORAGE_KEY, null);
+      console.log('🔍 [MFA Flow V7] Loading saved credentials:', savedCreds);
       if (savedCreds) {
+        console.log('🔍 [MFA Flow V7] Setting credentials from saved data:', savedCreds);
         setCredentials(prev => ({ ...prev, ...savedCreds }));
       }
     }
@@ -536,9 +538,22 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       return;
     }
 
+    // Check if clientId is accidentally the same as environmentId (common mistake)
+    if (credentials.clientId === credentials.environmentId) {
+      v4ToastManager.showError('Client ID cannot be the same as Environment ID. Please check your credentials.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       console.log('🔑 [MFA Flow V7] Requesting worker token...');
+      console.log('🔍 [MFA Flow V7] Credentials being used:', {
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        hasClientSecret: !!credentials.clientSecret,
+        clientSecretLength: credentials.clientSecret?.length || 0,
+        allCredentials: credentials
+      });
       
       // Prepare credentials for worker token request
       const workerCredentials = {
@@ -548,6 +563,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
         tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`
       };
+
+      console.log('🔍 [MFA Flow V7] Worker credentials prepared:', {
+        ...workerCredentials,
+        clientSecret: workerCredentials.clientSecret ? '[REDACTED]' : 'MISSING'
+      });
 
       // Make real API call to get worker token
       const tokenData = await ClientCredentialsTokenRequest.executeTokenRequest(
