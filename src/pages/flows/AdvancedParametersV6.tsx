@@ -371,9 +371,6 @@ export const AdvancedParametersV6: React.FC<AdvancedParametersV6Props> = ({
 					</InfoBox>
 				)}
 
-				{/* UI Settings */}
-				{UISettingsService.getFlowSpecificSettingsPanel(actualFlowType)}
-
 				{/* Educational Content */}
 				<EducationalContentService 
 					flowType={actualFlowType} 

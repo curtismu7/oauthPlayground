@@ -13,21 +13,65 @@ export interface FlowHeaderConfig {
 	version?: string;
 	isDeprecated?: boolean;
 	isExperimental?: boolean;
+	// Security features status for dynamic colors
+	securityFeatures?: {
+		jwksEnabled?: boolean;
+		parEnabled?: boolean;
+		jarEnabled?: boolean;
+		dpopEnabled?: boolean;
+		highSecurityMode?: boolean;
+	};
 }
 
-const HeaderContainer = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
-	background: ${({ $flowType }) => {
-		switch ($flowType) {
-			case 'oauth':
-				return 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)';
-			case 'oidc':
-				return 'linear-gradient(135deg, #10b981 0%, #047857 100%)';
-			case 'pingone':
-				return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-			case 'documentation':
-				return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
-			default:
-				return 'linear-gradient(135deg, #6b7280 0%, #374151 100%)';
+const HeaderContainer = styled.div<{ 
+	$flowType: FlowHeaderConfig['flowType'];
+	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
+}>`
+	background: ${({ $flowType, $securityFeatures }) => {
+		// Check if high security features are enabled
+		const hasHighSecurity = $securityFeatures?.highSecurityMode || 
+			($securityFeatures?.jwksEnabled && $securityFeatures?.parEnabled);
+		
+		// Check if any security features are enabled
+		const hasSecurityFeatures = $securityFeatures?.jwksEnabled || 
+			$securityFeatures?.parEnabled || 
+			$securityFeatures?.jarEnabled || 
+			$securityFeatures?.dpopEnabled;
+
+		// Base colors by flow type
+		const baseColors = {
+			oauth: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+			oidc: 'linear-gradient(135deg, #10b981 0%, #047857 100%)',
+			pingone: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+			documentation: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+			default: 'linear-gradient(135deg, #6b7280 0%, #374151 100%)'
+		};
+
+		// Security-enhanced colors (darker, more professional)
+		const securityColors = {
+			oauth: 'linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%)',
+			oidc: 'linear-gradient(135deg, #047857 0%, #065f46 100%)',
+			pingone: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
+			documentation: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+			default: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)'
+		};
+
+		// High security colors (premium, gold accents)
+		const highSecurityColors = {
+			oauth: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+			oidc: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
+			pingone: 'linear-gradient(135deg, #92400e 0%, #78350f 100%)',
+			documentation: 'linear-gradient(135deg, #581c87 0%, #4c1d95 100%)',
+			default: 'linear-gradient(135deg, #1f2937 0%, #111827 100%)'
+		};
+
+		// Return appropriate color based on security level
+		if (hasHighSecurity) {
+			return highSecurityColors[$flowType] || highSecurityColors.default;
+		} else if (hasSecurityFeatures) {
+			return securityColors[$flowType] || securityColors.default;
+		} else {
+			return baseColors[$flowType] || baseColors.default;
 		}
 	}};
 	color: white;
@@ -59,11 +103,29 @@ const HeaderContainer = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
   }
 `;
 
-const HeaderBadge = styled.div<{ $flowType: FlowHeaderConfig['flowType'] }>`
+const HeaderBadge = styled.div<{ 
+	$flowType: FlowHeaderConfig['flowType'];
+	$securityFeatures?: FlowHeaderConfig['securityFeatures'];
+}>`
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.2);
+  background: ${({ $securityFeatures }) => {
+		const hasHighSecurity = $securityFeatures?.highSecurityMode || 
+			($securityFeatures?.jwksEnabled && $securityFeatures?.parEnabled);
+		const hasSecurityFeatures = $securityFeatures?.jwksEnabled || 
+			$securityFeatures?.parEnabled || 
+			$securityFeatures?.jarEnabled || 
+			$securityFeatures?.dpopEnabled;
+
+		if (hasHighSecurity) {
+			return 'rgba(255, 215, 0, 0.3)'; // Gold for high security
+		} else if (hasSecurityFeatures) {
+			return 'rgba(34, 197, 94, 0.3)'; // Green for security features
+		} else {
+			return 'rgba(255, 255, 255, 0.2)'; // Default white
+		}
+	}};
   backdrop-filter: blur(10px);
   padding: 0.5rem 1rem;
   border-radius: 50px;
@@ -333,6 +395,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '📊',
 		version: 'V6',
 	},
+	'pingone-complete-mfa-v7': {
+		flowType: 'pingone',
+		title: 'PingOne Complete MFA Flow V7',
+		subtitle:
+			'🔐 Complete multi-factor authentication implementation with modern V7 UI. Demonstrates user authentication, MFA enrollment, device pairing, challenge verification, and token retrieval with PingOne integration.',
+		icon: '🔐',
+		version: 'V7',
+	},
 	'redirectless-flow-v5': {
 		flowType: 'pingone',
 		title: 'Redirectless Flow (response_mode=pi.flow) - API-Driven Auth',
@@ -582,8 +652,8 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({ flowId, flowType, custom
 	};
 
 	return (
-		<HeaderContainer $flowType={config.flowType}>
-			<HeaderBadge $flowType={config.flowType}>
+		<HeaderContainer $flowType={config.flowType} $securityFeatures={config.securityFeatures}>
+			<HeaderBadge $flowType={config.flowType} $securityFeatures={config.securityFeatures}>
 				{config.icon && <HeaderIcon>{config.icon}</HeaderIcon>}
 				{getBadgeText()}
 				{config.isExperimental && <StatusBadge $type="experimental">Experimental</StatusBadge>}
@@ -614,9 +684,42 @@ export const getFlowConfigsByType = (
 	return result;
 };
 
+// Utility function to create security features config from PingOne application state
+export const createSecurityFeaturesConfig = (pingOneConfig: any): FlowHeaderConfig['securityFeatures'] => {
+	if (!pingOneConfig) return undefined;
+
+	return {
+		jwksEnabled: pingOneConfig.enableJWKS || false,
+		parEnabled: pingOneConfig.requirePushedAuthorizationRequest || false,
+		jarEnabled: pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED' || false,
+		dpopEnabled: pingOneConfig.enableDPoP || false,
+		highSecurityMode: (
+			pingOneConfig.enableJWKS && 
+			pingOneConfig.requirePushedAuthorizationRequest &&
+			pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'
+		) || false
+	};
+};
+
+// Utility function to create a flow header with security features
+export const createFlowHeaderWithSecurity = (
+	flowId: string, 
+	pingOneConfig?: any
+): React.ReactElement => {
+	const securityFeatures = createSecurityFeaturesConfig(pingOneConfig);
+	return (
+		<FlowHeader 
+			flowId={flowId} 
+			customConfig={{ securityFeatures }}
+		/>
+	);
+};
+
 export default {
 	FlowHeader,
 	FLOW_CONFIGS,
 	getFlowConfig,
 	getFlowConfigsByType,
+	createSecurityFeaturesConfig,
+	createFlowHeaderWithSecurity,
 };
