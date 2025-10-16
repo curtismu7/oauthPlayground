@@ -734,26 +734,78 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   }, []);
 
   const handleUsernameLogin = useCallback(async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
-    if (!credentials.username || !credentials.password) {
-      v4ToastManager.showError('Please enter username and password');
-      return;
+    if (mode === 'redirectless') {
+      // For redirectless, we need username/password and make API call
+      if (!credentials.username || !credentials.password) {
+        v4ToastManager.showError('Please enter username and password for redirectless authentication');
+        return;
+      }
+
+      console.log(`🔐 [MFA Flow V7] Starting redirectless authentication with credentials`);
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        // Make API call for redirectless authentication
+        const response = await fetch('/api/token-exchange', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            grant_type: 'password',
+            client_id: credentials.clientId,
+            client_secret: credentials.clientSecret,
+            username: credentials.username,
+            password: credentials.password,
+            scope: 'openid profile email',
+            environment_id: credentials.environmentId
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Authentication failed: ${response.statusText}`);
+        }
+
+        const tokenData = await response.json();
+        console.log('✅ [MFA Flow V7] Redirectless authentication successful:', tokenData);
+        
+        // Store the tokens
+        setCredentials(prev => ({
+          ...prev,
+          accessToken: tokenData.access_token,
+          refreshToken: tokenData.refresh_token,
+          idToken: tokenData.id_token
+        }));
+
+        v4ToastManager.showSuccess('✅ Redirectless authentication successful!');
+        setCurrentStep('mfa_enrollment');
+        onStepChange?.('mfa_enrollment');
+
+      } catch (error: any) {
+        console.error('❌ [MFA Flow V7] Redirectless authentication failed:', error);
+        setError(error.message || 'Redirectless authentication failed');
+        v4ToastManager.showError(`Redirectless authentication failed: ${error.message}`);
+      } finally {
+        setIsLoading(false);
+      }
+
+    } else {
+      // For redirect, just open the authorization URL (PingOne provides the UI)
+      const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
+        `client_id=${credentials.clientId}&` +
+        `response_type=code&` +
+        `response_mode=query&` +
+        `scope=openid+profile+email&` +
+        `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
+        `state=mfa-flow-${Date.now()}`;
+
+      console.log(`🔐 [MFA Flow V7] Starting redirect authentication with URL:`, mockAuthUrl);
+      
+      setAuthUrl(mockAuthUrl);
+      setShowRedirectModal(true);
     }
-
-    // Generate authorization URL based on mode
-    const responseMode = mode === 'redirectless' ? 'pi.flow' : 'query';
-    const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
-      `client_id=${credentials.clientId}&` +
-      `response_type=code&` +
-      `response_mode=${responseMode}&` +
-      `scope=openid+profile+email&` +
-      `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
-      `state=mfa-flow-${Date.now()}`;
-
-    console.log(`🔐 [MFA Flow V7] Starting ${mode} authentication with URL:`, mockAuthUrl);
-    
-    setAuthUrl(mockAuthUrl);
-    setShowRedirectModal(true);
-  }, [credentials]);
+  }, [credentials, onStepChange]);
 
   const handleConfirmRedirect = useCallback(async () => {
     setShowRedirectModal(false);
@@ -959,6 +1011,60 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
                   Choose your preferred authentication method. Redirect authentication opens a new window, while redirectless authentication uses response_mode=pi.flow for seamless integration.
                 </p>
+
+                {/* Username and Password Input for Redirectless Authentication */}
+                <div style={{ 
+                  marginBottom: '1.5rem', 
+                  padding: '1rem', 
+                  background: '#f8fafc', 
+                  border: '1px solid #e2e8f0', 
+                  borderRadius: '8px' 
+                }}>
+                  <h4 style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
+                    👤 User Credentials (Required for Redirectless Authentication)
+                  </h4>
+                  
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+                        Username
+                      </label>
+                      <input
+                        type="text"
+                        value={credentials.username || ''}
+                        onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
+                        placeholder="Enter your username"
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '0.875rem',
+                          background: '#ffffff'
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: '500', color: '#374151', marginBottom: '0.25rem' }}>
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        value={credentials.password || ''}
+                        onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
+                        placeholder="Enter your password"
+                        style={{
+                          width: '100%',
+                          padding: '0.5rem',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '4px',
+                          fontSize: '0.875rem',
+                          background: '#ffffff'
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
                 
                 <div style={{ 
                   display: 'grid', 
@@ -991,23 +1097,23 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                     <FiExternalLink size={24} />
                     <div>
                       <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>Redirect Authentication</div>
-                      <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>Opens new window for authentication</div>
+                      <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>PingOne provides the UI</div>
                     </div>
                   </button>
 
                   <button
                     onClick={() => handleUsernameLogin('redirectless')}
-                    disabled={isLoading}
+                    disabled={isLoading || !credentials.username || !credentials.password}
                     style={{
                       padding: '1rem',
-                      background: '#8b5cf6',
+                      background: (!credentials.username || !credentials.password) ? '#9ca3af' : '#8b5cf6',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '0.875rem',
                       fontWeight: '600',
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      opacity: isLoading ? 0.6 : 1,
+                      cursor: (isLoading || !credentials.username || !credentials.password) ? 'not-allowed' : 'pointer',
+                      opacity: (isLoading || !credentials.username || !credentials.password) ? 0.6 : 1,
                       transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
@@ -1030,8 +1136,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   <InfoContent>
                     <InfoTitle>🔐 Authentication Methods</InfoTitle>
                     <InfoText>
-                      <strong>Redirect:</strong> Traditional OAuth flow that opens a new window for user authentication.<br/>
-                      <strong>Redirectless:</strong> Modern PingOne flow using response_mode=pi.flow for seamless authentication without redirects.
+                      <strong>Redirect:</strong> Traditional OAuth flow where PingOne provides the authentication UI in a new window.<br/>
+                      <strong>Redirectless:</strong> Modern PingOne flow using response_mode=pi.flow. You must provide username/password above as our app handles the authentication directly.
                     </InfoText>
                   </InfoContent>
                 </InfoBox>
