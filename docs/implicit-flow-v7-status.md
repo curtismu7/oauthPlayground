@@ -34,3 +34,4 @@ Planning for the unified OAuth/OIDC implicit “V7” flow is complete. Implemen
 5. Manual testing; optionally migrate V6 entries to a "Legacy" group.
 
 This document should be the starting point for the next development session—once the steps above are completed, the V6 pages can be retired or archived.
+

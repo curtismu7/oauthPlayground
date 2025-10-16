@@ -28,6 +28,7 @@ import { useResponseModeIntegration } from '../../services/responseModeIntegrati
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { FlowLayoutService } from '../../services/flowLayoutService';
 import FlowStateService from '../../services/flowStateService';
+import { FlowStepNavigationService } from '../../services/flowStepNavigationService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import {
@@ -700,11 +701,18 @@ const OAuthImplicitFlowV6: React.FC = () => {
 		}
 	}, []);
 
-	const { handleNext, handlePrev, canNavigateNext } = FlowStateService.createStepNavigationHandlers(
+	const { handleNext, handlePrev, canNavigateNext } = FlowStepNavigationService.createStepNavigationHandlers({
 		currentStep,
-		setCurrentStep,
-		STEP_METADATA.length
-	);
+		totalSteps: STEP_METADATA.length,
+		isStepValid: (stepIndex: number) => {
+			// Add step validation logic here if needed
+			return true;
+		}
+	});
+
+	// Create the actual handlers that use setCurrentStep
+	const handleNextStep = useCallback(() => handleNext(setCurrentStep), [handleNext, setCurrentStep]);
+	const handlePrevStep = useCallback(() => handlePrev(setCurrentStep), [handlePrev, setCurrentStep]);
 
 	// Override canNavigateNext to include step validation
 	const validatedCanNavigateNext = useCallback(() => {
@@ -2270,8 +2278,6 @@ const tokenResponse = await fetch('https://auth.pingone.com/ENV_ID/as/token', {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-implicit-v6" />
 				
-				{UISettingsService.getFlowSpecificSettingsPanel('oauth-implicit')}
-				
 				{/* Configuration Requirements */}
 				<FlowConfigurationRequirements flowType="oauth-implicit" variant="oauth" />
 
@@ -2315,7 +2321,7 @@ const tokenResponse = await fetch('https://auth.pingone.com/ENV_ID/as/token', {
 			<StepNavigationButtons
 				currentStep={currentStep}
 				totalSteps={STEP_METADATA.length}
-				onPrevious={handlePrev}
+				onPrevious={handlePrevStep}
 				onReset={handleResetFlow}
 				onNext={validatedHandleNext}
 				canNavigateNext={validatedCanNavigateNext()}
