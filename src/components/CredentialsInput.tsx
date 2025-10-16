@@ -50,6 +50,7 @@ export interface CredentialsInputProps {
 	onSave?: () => void;
 	hasUnsavedChanges?: boolean;
 	isSaving?: boolean;
+	autoDiscover?: boolean;
 }
 
 const CollapsibleContainer = styled.div`
@@ -283,6 +284,7 @@ export const CredentialsInput = ({
 	onSave,
 	hasUnsavedChanges = false,
 	isSaving = false,
+	autoDiscover = true,
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
@@ -329,7 +331,7 @@ export const CredentialsInput = ({
 									onEnvironmentIdChange={onEnvironmentIdChange}
 									onIssuerUrlChange={() => {}}
 									showSuggestions={true}
-									autoDiscover={true}
+									autoDiscover={autoDiscover}
 								/>
 							</EnvironmentSection>
 
