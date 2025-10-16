@@ -768,6 +768,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const handleFlowVariantChange = useCallback(
 		(nextVariant: 'oauth' | 'oidc') => {
+			// Preserve current PKCE codes and auth state
+			const currentPkceCodes = controller.pkceCodes;
+			const currentAuthUrl = controller.authUrl;
+			const currentAuthCode = controller.authCode;
+			
 			setFlowVariant(nextVariant);
 			controller.setFlowVariant(nextVariant);
 
@@ -797,6 +802,12 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					...controller.flowConfig,
 					enableOIDC: false,
 				});
+			}
+			
+			// Restore PKCE codes and auth state to prevent mismatch errors
+			if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge) {
+				console.log(`[V7 AuthZ] Preserving PKCE codes during variant switch`);
+				controller.setPkceCodes(currentPkceCodes);
 			}
 			
 			// Show success message
@@ -840,12 +851,29 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	useEffect(() => {
 		const saved = FlowStorageService.AdvancedParameters.get('oauth-authz-v7');
 		if (saved) {
-			console.log('[OAuth AuthZ V6] Loading saved advanced parameters:', saved);
+			console.log('[OAuth AuthZ V7] Loading saved advanced parameters:', saved);
 			setAudience(saved.audience || '');
 			setResources(saved.resources || []);
 			setPromptValues(saved.promptValues || []);
 		}
 	}, []); // Only run once on mount
+
+	// Ensure PKCE codes are properly restored on mount to prevent mismatch errors
+	useEffect(() => {
+		const pkceKey = `${controller.persistKey}-pkce-codes`;
+		const storedPkce = sessionStorage.getItem(pkceKey);
+		if (storedPkce && (!controller.pkceCodes.codeVerifier || !controller.pkceCodes.codeChallenge)) {
+			try {
+				const parsedPkce = JSON.parse(storedPkce);
+				if (parsedPkce.codeVerifier && parsedPkce.codeChallenge) {
+					console.log('[V7 AuthZ] Restoring PKCE codes from session storage');
+					controller.setPkceCodes(parsedPkce);
+				}
+			} catch (error) {
+				console.warn('[V7 AuthZ] Failed to parse stored PKCE codes:', error);
+			}
+		}
+	}, [controller.persistKey, controller.pkceCodes, controller.setPkceCodes]);
 
 	// Update flow config when advanced parameters change
 	useEffect(() => {
@@ -1229,9 +1257,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		console.log('[OAuth AuthZ V6] PKCE generation result:', success);
 		
 		if (success) {
-			console.log('[OAuth AuthZ V6] PKCE codes after generation:', {
-				codeVerifier: controller.pkceCodes.codeVerifier,
-				codeChallenge: controller.pkceCodes.codeChallenge
+			console.log('[OAuth AuthZ V7] PKCE codes after generation:', {
+				codeVerifier: controller.pkceCodes.codeVerifier ? `${controller.pkceCodes.codeVerifier.substring(0, 10)}...` : 'none',
+				codeChallenge: controller.pkceCodes.codeChallenge ? `${controller.pkceCodes.codeChallenge.substring(0, 10)}...` : 'none',
+				persistKey: controller.persistKey,
+				flowVariant: flowVariant
 			});
 		}
 	}, [controller]);
