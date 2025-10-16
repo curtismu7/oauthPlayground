@@ -550,6 +550,17 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     // Store current scroll position to prevent jumping to top
     const currentScrollY = window.scrollY;
     
+    // Prevent scrolling during API call
+    const preventScroll = (e: Event) => {
+      e.preventDefault();
+      window.scrollTo(0, currentScrollY);
+    };
+    
+    // Add scroll prevention listeners
+    window.addEventListener('scroll', preventScroll, { passive: false });
+    window.addEventListener('wheel', preventScroll, { passive: false });
+    window.addEventListener('touchmove', preventScroll, { passive: false });
+    
     setIsLoading(true);
     try {
       console.log('🔑 [MFA Flow V7] Requesting worker token...');
@@ -628,10 +639,22 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     } finally {
       setIsLoading(false);
       
+      // Remove scroll prevention listeners
+      window.removeEventListener('scroll', preventScroll);
+      window.removeEventListener('wheel', preventScroll);
+      window.removeEventListener('touchmove', preventScroll);
+      
       // Restore scroll position to prevent jumping to top
-      setTimeout(() => {
-        window.scrollTo(0, currentScrollY);
-      }, 100);
+      // Use requestAnimationFrame to ensure DOM updates are complete
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          window.scrollTo({
+            top: currentScrollY,
+            left: 0,
+            behavior: 'instant'
+          });
+        }, 50);
+      });
     }
   }, [createApiCallData, credentials]);
 
@@ -707,9 +730,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       setIsLoading(false);
       
       // Restore scroll position to prevent jumping to top
-      setTimeout(() => {
-        window.scrollTo(0, currentScrollY);
-      }, 100);
+      // Use requestAnimationFrame to ensure DOM updates are complete
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          window.scrollTo({
+            top: currentScrollY,
+            left: 0,
+            behavior: 'instant'
+          });
+        }, 50);
+      });
     }
   }, [createApiCallData, credentials]);
 
