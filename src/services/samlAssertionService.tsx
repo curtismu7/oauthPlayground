@@ -106,7 +106,7 @@ export class SAMLAssertionService {
 					...config,
 					timestamp: new Date().toISOString()
 				};
-				localStorage.setItem(this.STORAGE_KEY, JSON.stringify(configWithTimestamp));
+				localStorage.setItem(SAMLAssertionService.STORAGE_KEY, JSON.stringify(configWithTimestamp));
 				v4ToastManager.showSuccess('SAML configuration saved successfully!');
 				resolve();
 			} catch (error) {
@@ -122,7 +122,7 @@ export class SAMLAssertionService {
 	 */
 	static loadConfiguration(): SAMLAssertionConfig | null {
 		try {
-			const saved = localStorage.getItem(this.STORAGE_KEY);
+			const saved = localStorage.getItem(SAMLAssertionService.STORAGE_KEY);
 			if (saved) {
 				const config = JSON.parse(saved);
 				// Return config without timestamp
@@ -140,7 +140,7 @@ export class SAMLAssertionService {
 	 */
 	static clearConfiguration(): void {
 		try {
-			localStorage.removeItem(this.STORAGE_KEY);
+			localStorage.removeItem(SAMLAssertionService.STORAGE_KEY);
 			v4ToastManager.showInfo('SAML configuration cleared');
 		} catch (error) {
 			console.error('[SAML Assertion Service] Error clearing configuration:', error);

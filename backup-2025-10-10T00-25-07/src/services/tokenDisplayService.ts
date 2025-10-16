@@ -40,7 +40,7 @@ class TokenDisplayService {
 	 * Returns null if token is not a valid JWT
 	 */
 	public static decodeJWT(token: string): DecodedJWT | null {
-		if (!this.isJWT(token)) {
+		if (!TokenDisplayService.isJWT(token)) {
 			return null;
 		}
 
@@ -116,7 +116,7 @@ class TokenDisplayService {
 		return {
 			type,
 			length: token?.length || 0,
-			isJWT: this.isJWT(token || ''),
+			isJWT: TokenDisplayService.isJWT(token || ''),
 			flow
 		};
 	}

@@ -107,8 +107,8 @@ export class FlowInfoGenerator {
 			header: {
 				title: `${flowInfo.flowType === 'oauth' ? 'OAuth 2.0' : 'OIDC'} ${flowInfo.flowName}`,
 				subtitle: flowInfo.flowVersion,
-				badge: this.getCategoryBadge(flowInfo.flowCategory),
-				icon: this.getFlowIcon(flowInfo.flowName),
+				badge: FlowInfoGenerator.getCategoryBadge(flowInfo.flowCategory),
+				icon: FlowInfoGenerator.getFlowIcon(flowInfo.flowName),
 			},
 			keyDetails: {
 				tokensReturned: flowInfo.tokensReturned,
@@ -120,9 +120,9 @@ export class FlowInfoGenerator {
 			securityNotes: flowInfo.securityNotes ?? [],
 			useCases: flowInfo.useCases ?? [],
 			additionalInfo: {
-				complexity: this.getComplexityLabel(flowInfo.complexity),
-				securityLevel: this.getSecurityLevelLabel(flowInfo.securityLevel),
-				userInteraction: this.getUserInteractionLabel(flowInfo.userInteraction),
+				complexity: FlowInfoGenerator.getComplexityLabel(flowInfo.complexity),
+				securityLevel: FlowInfoGenerator.getSecurityLevelLabel(flowInfo.securityLevel),
+				userInteraction: FlowInfoGenerator.getUserInteractionLabel(flowInfo.userInteraction),
 				backendRequired: flowInfo.backendRequired,
 			},
 		};

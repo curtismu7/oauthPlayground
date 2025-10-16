@@ -39,7 +39,7 @@ export interface ValidationRule {
 export class FlowValidationService {
 	// Step validation based on flow type and step index
 	static validateStep(stepIndex: number, flowType: string, controller: FlowController): boolean {
-		const validationRules = this.getValidationRules(flowType);
+		const validationRules = FlowValidationService.getValidationRules(flowType);
 		const rule = validationRules.find((r) => r.stepIndex === stepIndex);
 
 		if (!rule) {
@@ -51,7 +51,7 @@ export class FlowValidationService {
 
 	// Get step requirements for user guidance
 	static getStepRequirements(stepIndex: number, flowType: string): string[] {
-		const validationRules = this.getValidationRules(flowType);
+		const validationRules = FlowValidationService.getValidationRules(flowType);
 		const rule = validationRules.find((r) => r.stepIndex === stepIndex);
 
 		return rule ? rule.requirements : [];
@@ -64,8 +64,8 @@ export class FlowValidationService {
 		controller: FlowController
 	): boolean {
 		return (
-			this.validateStep(currentStep, flowType, controller) &&
-			currentStep < this.getMaxStepIndex(flowType)
+			FlowValidationService.validateStep(currentStep, flowType, controller) &&
+			currentStep < FlowValidationService.getMaxStepIndex(flowType)
 		);
 	}
 
@@ -314,19 +314,19 @@ export class FlowValidationService {
 
 	// Create validation error message
 	static createValidationErrorMessage(stepIndex: number, flowType: string): string {
-		const rule = this.getValidationRules(flowType).find((r) => r.stepIndex === stepIndex);
+		const rule = FlowValidationService.getValidationRules(flowType).find((r) => r.stepIndex === stepIndex);
 		return rule ? rule.errorMessage : 'Complete the required actions before proceeding';
 	}
 
 	// Check if step is completion step
 	static isCompletionStep(stepIndex: number, flowType: string): boolean {
-		const maxStep = this.getMaxStepIndex(flowType);
+		const maxStep = FlowValidationService.getMaxStepIndex(flowType);
 		return stepIndex === maxStep;
 	}
 
 	// Check if step is security features step
 	static isSecurityFeaturesStep(stepIndex: number, flowType: string): boolean {
-		const maxStep = this.getMaxStepIndex(flowType);
+		const maxStep = FlowValidationService.getMaxStepIndex(flowType);
 		return stepIndex === maxStep;
 	}
 
@@ -345,7 +345,7 @@ export class FlowValidationService {
 		if (stepIndex === 0) return 'introduction';
 		if (stepIndex === 1) return 'configuration';
 
-		const maxStep = this.getMaxStepIndex(flowType);
+		const maxStep = FlowValidationService.getMaxStepIndex(flowType);
 		if (stepIndex === maxStep) return 'security';
 		if (stepIndex === maxStep - 1) return 'completion';
 
@@ -377,7 +377,7 @@ export class FlowValidationService {
 
 	// Get step priority for UI highlighting
 	static getStepPriority(stepIndex: number, flowType: string): 'high' | 'medium' | 'low' {
-		const stepType = this.getStepType(stepIndex, flowType);
+		const stepType = FlowValidationService.getStepType(stepIndex, flowType);
 
 		if (stepType === 'introduction' || stepType === 'security') return 'low';
 		if (stepType === 'configuration' || stepType === 'token-exchange') return 'high';
@@ -390,7 +390,7 @@ export class FlowValidationService {
 	static hasPrerequisites(stepIndex: number, flowType: string): boolean {
 		if (stepIndex === 0) return false;
 
-		const rules = this.getValidationRules(flowType);
+		const rules = FlowValidationService.getValidationRules(flowType);
 		const rule = rules.find((r) => r.stepIndex === stepIndex);
 
 		return rule ? rule.requirements.length > 0 : false;

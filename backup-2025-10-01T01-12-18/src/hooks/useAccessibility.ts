@@ -171,7 +171,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 						event.preventDefault();
 						announcer.announce('Help: Use Tab to navigate, Enter to activate, Escape to close');
 						break;
-					case 'f':
+					case 'f': {
 						event.preventDefault();
 						const searchInput = document.querySelector(
 							'input[type="search"], input[placeholder*="search" i]'
@@ -180,6 +180,7 @@ export const useAccessibility = (config: UseAccessibilityConfig = {}): UseAccess
 							focusManager.focus(searchInput);
 						}
 						break;
+					}
 				}
 			}
 		},

@@ -110,7 +110,7 @@ export class OIDCIdTokenServiceClass {
 		token: string,
 		options: IdTokenValidationOptions = {}
 	): Promise<IdTokenClaims> {
-		const claims = this.decodeToken(token);
+		const claims = OIDCIdTokenServiceClass.decodeToken(token);
 		if (!claims) {
 			throw new Error('Invalid ID token format');
 		}

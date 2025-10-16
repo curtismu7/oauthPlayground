@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiCheckCircle, FiX, FiSettings } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle, FiX, FiSettings, FiChevronLeft, FiChevronRight, FiGlobe, FiSmartphone, FiCode, FiServer, FiCloud, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
   pingOneAppCreationService,
@@ -17,6 +17,16 @@ import {
 import { usePageScroll } from '../hooks/usePageScroll';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowHeader } from '../services/flowHeaderService';
+import { PresetSelector } from '../components/PresetSelector';
+import { ExportImportPanel } from '../components/ExportImportPanel';
+import { presetManagerService } from '../services/presetManagerService';
+import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import V5StepperService, { type StepMetadata } from '../services/v5StepperService';
+import { clearAllTokens } from '../utils/tokenCleaner';
+import '../utils/testPresets'; // Auto-run preset tests in development
+import '../utils/testExportImport'; // Auto-run export/import tests in development
+import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
 
 const Container = styled.div`
   max-width: 1200px;
@@ -27,6 +37,16 @@ const Container = styled.div`
   border-radius: 1.75rem;
   box-shadow: 0 28px 80px -40px rgba(15, 23, 42, 0.38);
   position: relative;
+  
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    border-radius: 1rem;
+  }
+  
+  @media (max-width: 480px) {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
 `;
 
 const Header = styled.div`
@@ -58,20 +78,20 @@ const BackButton = styled.button`
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
   border-radius: 0.75rem;
-  color: #1f2937;
-  font-weight: 500;
+  color: white;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.25s ease;
   margin-bottom: 2.5rem;
-  box-shadow: 0 15px 35px -25px rgba(15, 23, 42, 0.4);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 
   &:hover {
-    background: rgba(255, 255, 255, 0.95);
-    border-color: rgba(99, 102, 241, 0.55);
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
     transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
   }
 `;
 
@@ -144,6 +164,11 @@ const FormGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
   margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
 `;
 
 const FormGroup = styled.div`
@@ -159,31 +184,34 @@ const Label = styled.label`
   margin-bottom: 0.5rem;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid ${({ $hasError }) => $hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)'};
   border-radius: 0.75rem;
   font-size: 0.875rem;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: rgba(255, 255, 255, 0.92);
+  background: ${({ $hasError }) => $hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)'};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
   &:focus {
     outline: none;
-    border-color: ${({ theme }) => theme.colors.primary};
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18), 0 20px 30px -30px rgba(79, 70, 229, 0.6);
+    border-color: ${({ theme, $hasError }) => $hasError ? '#ef4444' : theme.colors.primary};
+    box-shadow: ${({ $hasError }) => $hasError 
+      ? '0 0 0 3px rgba(239, 68, 68, 0.18), 0 20px 30px -30px rgba(239, 68, 68, 0.6)'
+      : '0 0 0 3px rgba(79, 70, 229, 0.18), 0 20px 30px -30px rgba(79, 70, 229, 0.6)'
+    };
   }
 `;
 
-const TextArea = styled.textarea`
+const TextArea = styled.textarea<{ $hasError?: boolean }>`
   padding: 0.75rem;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  border: 1px solid ${({ $hasError }) => $hasError ? '#ef4444' : 'rgba(148, 163, 184, 0.4)'};
   border-radius: 0.75rem;
   font-size: 0.875rem;
-  min-height: 100px;
+  min-height: 150px;
   resize: vertical;
   transition: border-color 0.2s, box-shadow 0.2s;
-  background: rgba(255, 255, 255, 0.92);
+  background: ${({ $hasError }) => $hasError ? '#fef2f2' : 'rgba(255, 255, 255, 0.92)'};
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 12px 30px -22px rgba(15, 23, 42, 0.45);
 
   &:focus {
@@ -343,12 +371,15 @@ const ResultDetails = styled.div`
   word-break: break-word;
 `;
 
+
+
 type BuilderAppType = 'OIDC_WEB_APP' | 'OIDC_NATIVE_APP' | 'SINGLE_PAGE_APP' | 'WORKER' | 'SERVICE';
 
 type TokenEndpointMethod = 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none';
 type PkceOption = 'OPTIONAL' | 'REQUIRED';
 
 type FormDataState = {
+  // Basic Settings
   name: string;
   description: string;
   enabled: boolean;
@@ -362,6 +393,18 @@ type FormDataState = {
   accessTokenValiditySeconds: number;
   refreshTokenValiditySeconds: number;
   idTokenValiditySeconds: number;
+  
+  // Advanced Settings
+  refreshTokenDuration: number; // in days
+  refreshTokenRollingDuration: number; // in days
+  refreshTokenRollingGracePeriod: number; // in seconds
+  allowRedirectUriPatterns: boolean;
+  jwksUrl: string;
+  pushedAuthorizationRequestStatus: 'OPTIONAL' | 'REQUIRED';
+  parReferenceTimeout: number; // in seconds
+  initiateLoginUri: string;
+  targetLinkUri: string;
+  signoffUrls: string[];
 };
 
 type SavedAppConfiguration = FormDataState & {
@@ -371,6 +414,7 @@ type SavedAppConfiguration = FormDataState & {
 const APP_GENERATOR_STORAGE_KEY = 'app-generator-configuration';
 
 const createDefaultFormData = (): FormDataState => ({
+  // Basic Settings
   name: '',
   description: '',
   enabled: true,
@@ -384,6 +428,18 @@ const createDefaultFormData = (): FormDataState => ({
   accessTokenValiditySeconds: 3600,
   refreshTokenValiditySeconds: 2592000,
   idTokenValiditySeconds: 3600,
+  
+  // Advanced Settings - Default values from PingOne
+  refreshTokenDuration: 30, // 30 days
+  refreshTokenRollingDuration: 180, // 180 days
+  refreshTokenRollingGracePeriod: 0, // 0 seconds
+  allowRedirectUriPatterns: false,
+  jwksUrl: '',
+  pushedAuthorizationRequestStatus: 'OPTIONAL',
+  parReferenceTimeout: 60, // 60 seconds
+  initiateLoginUri: '',
+  targetLinkUri: '',
+  signoffUrls: [],
 });
 
 const WEB_APP_GRANT_OPTIONS = ['authorization_code', 'implicit', 'refresh_token', 'client_credentials'] as const;
@@ -444,14 +500,112 @@ const ApplicationGenerator: React.FC = () => {
   const workerToken = location.state?.workerToken;
   const environmentId = location.state?.environmentId;
 
-  usePageScroll({ pageName: 'Application Generator', force: true });
+  // usePageScroll({ pageName: 'Application Generator' }); // Disabled to prevent jumping
+
+  // Prevent scroll restoration
+  useEffect(() => {
+    if ('scrollRestoration' in history) {
+      history.scrollRestoration = 'manual';
+    }
+    return () => {
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'auto';
+      }
+    };
+  }, []);
+
+
 
   const [selectedAppType, setSelectedAppType] = useState<BuilderAppType | null>(null);
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [creationResult, setCreationResult] = useState<AppCreationResult | null>(null);
   const [isSavedIndicator, setIsSavedIndicator] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Set<string>>(new Set());
+
+  const [currentStep, setCurrentStep] = useState(() => {
+    try {
+      const saved = localStorage.getItem('app-generator-current-step');
+      return saved ? parseInt(saved, 10) : 1;
+    } catch {
+      return 1;
+    }
+  });
+
+  // Save currentStep to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('app-generator-current-step', currentStep.toString());
+    } catch (error) {
+      console.warn('Failed to save current step:', error);
+    }
+  }, [currentStep]);
 
   const [formData, setFormData] = useState<FormDataState>(() => createDefaultFormData());
+
+  // Define stepper steps
+  const stepMetadata: StepMetadata[] = [
+    {
+      id: 'app-type',
+      title: 'Select Application Type',
+      subtitle: 'Choose the type of application you want to create'
+    },
+    {
+      id: 'configuration',
+      title: 'Configure Application',
+      subtitle: 'Set up your application settings and choose presets'
+    },
+    {
+      id: 'review',
+      title: 'Review & Create',
+      subtitle: 'Review your configuration and create the application'
+    },
+    {
+      id: 'results',
+      title: 'Application Created',
+      subtitle: 'View your new application details and next steps'
+    }
+  ];
+
+  // Clear all tokens when the page loads
+  useEffect(() => {
+    console.log('[ApplicationGenerator] Starting comprehensive token cleanup on page load...');
+    
+    // Force clear tokens immediately
+    const result = clearAllTokens();
+    
+    console.log('[ApplicationGenerator] Token clearing result:', result);
+    
+    if (result.success) {
+      console.log(`[ApplicationGenerator] Successfully cleared ${result.clearedCount} token items`);
+      if (result.clearedCount > 0) {
+        v4ToastManager.showSuccess(`🧹 Cleared ${result.clearedCount} tokens for fresh start`);
+      } else {
+        console.log('[ApplicationGenerator] No tokens found to clear');
+      }
+    } else {
+      console.error('[ApplicationGenerator] Token clearing completed with errors:', result.errors);
+      v4ToastManager.showError('⚠️ Some tokens could not be cleared');
+    }
+
+    // Additional cleanup - clear any remaining token-related items
+    try {
+      // Clear any flow-specific storage
+      sessionStorage.removeItem('oauth-authorization-code-v6-tokens');
+      sessionStorage.removeItem('oidc-authorization-code-v6-tokens');
+      sessionStorage.removeItem('current-flow-tokens');
+      sessionStorage.removeItem('flow-tokens');
+      
+      // Clear localStorage token items
+      localStorage.removeItem('oauth_tokens');
+      localStorage.removeItem('auth_tokens');
+      localStorage.removeItem('pingone_tokens');
+      
+      console.log('[ApplicationGenerator] Additional token cleanup completed');
+    } catch (error) {
+      console.warn('[ApplicationGenerator] Additional cleanup warning:', error);
+    }
+  }, []);
 
   // Load saved configuration on mount
   useEffect(() => {
@@ -505,10 +659,12 @@ const ApplicationGenerator: React.FC = () => {
   const handleClearSavedConfiguration = useCallback(() => {
     try {
       localStorage.removeItem(APP_GENERATOR_STORAGE_KEY);
+      localStorage.removeItem('app-generator-current-step');
       setFormData(createDefaultFormData());
       setSelectedAppType(null);
       setCreationResult(null);
       setIsSavedIndicator(false);
+      setCurrentStep(1);
       v4ToastManager.showSuccess('Saved configuration cleared');
     } catch (error) {
       console.error('[ApplicationGenerator] Failed to clear saved configuration:', error);
@@ -519,34 +675,40 @@ const ApplicationGenerator: React.FC = () => {
   const appTypes: { type: BuilderAppType; icon: React.ReactNode; title: string; description: string }[] = [
     {
       type: 'OIDC_WEB_APP',
-      icon: <FiSettings />,
+      icon: <FiGlobe />,
       title: 'OIDC Web App',
       description:
         'Traditional web applications using authorization code flow with server-side processing.',
     },
     {
       type: 'OIDC_NATIVE_APP',
-      icon: <FiSettings />,
+      icon: <FiSmartphone />,
       title: 'OIDC Native App',
       description: 'Mobile and desktop applications using OAuth 2.0 and OpenID Connect.',
     },
     {
       type: 'SINGLE_PAGE_APP',
-      icon: <FiSettings />,
+      icon: <FiCode />,
       title: 'Single Page App',
       description: 'JavaScript-based applications running entirely in the browser.',
     },
     {
       type: 'WORKER',
-      icon: <FiSettings />,
+      icon: <FiServer />,
       title: 'Worker App',
       description: 'Server-to-server applications using client credentials flow.',
     },
     {
       type: 'SERVICE',
-      icon: <FiSettings />,
+      icon: <FiCloud />,
       title: 'Service App',
       description: 'Machine-to-machine applications with automated authentication.',
+    },
+    {
+      type: 'SAML_APP',
+      icon: <FiShield />,
+      title: 'SAML App',
+      description: 'SAML-based applications for enterprise SSO and federated authentication.',
     },
   ];
 
@@ -557,9 +719,28 @@ const ApplicationGenerator: React.FC = () => {
     }
   }, [workerToken, navigate]);
 
+  // Step navigation functions
+  const handleNextStep = () => {
+    if (currentStep < stepMetadata.length) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   const handleAppTypeSelect = (type: BuilderAppType) => {
     setSelectedAppType(type);
+    setSelectedPreset(null); // Clear preset when app type changes
     setCreationResult(null);
+    
+    // Auto-advance to next step when app type is selected
+    if (currentStep === 1) {
+      setTimeout(() => handleNextStep(), 300);
+    }
 
     // Set default values based on app type
     switch (type) {
@@ -611,39 +792,165 @@ const ApplicationGenerator: React.FC = () => {
           postLogoutRedirectUris: [],
         });
         break;
+      case 'SAML_APP':
+        setFormData({
+          ...formData,
+          grantTypes: ['authorization_code'],
+          responseTypes: ['code'],
+          tokenEndpointAuthMethod: 'client_secret_basic',
+          pkceEnforcement: 'OPTIONAL',
+          redirectUris: ['https://app.company.com/saml/acs'],
+          postLogoutRedirectUris: ['https://app.company.com/saml/sls'],
+          signoffUrls: ['https://app.company.com/saml/sls'],
+        });
+        break;
     }
   };
 
-  const handleInputChange = (field: string, value: any) => {
+  const handleInputChange = useCallback((field: string, value: any, event?: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    if (event) {
+      event.stopPropagation();
+    }
+    console.log('[ApplicationGenerator] handleInputChange called:', { field, value, currentStep });
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+    // Clear validation error when user starts typing (only if it exists)
+    setValidationErrors(prev => {
+      if (prev.has(field)) {
+        const newErrors = new Set(prev);
+        newErrors.delete(field);
+        return newErrors;
+      }
+      return prev;
+    });
+  }, [currentStep]);
 
-  const handleArrayChange = (field: string, values: string[]) => {
+  const handleArrayChange = useCallback((field: string, values: string[]) => {
     setFormData((prev) => ({ ...prev, [field]: values }));
+    // Clear validation error when user starts typing
+    setValidationErrors(prev => {
+      if (prev.has(field)) {
+        const newErrors = new Set(prev);
+        newErrors.delete(field);
+        return newErrors;
+      }
+      return prev;
+    });
+  }, []);
+
+  // Preset handling functions
+  const handlePresetSelect = (presetId: string | null) => {
+    setSelectedPreset(presetId);
   };
 
-  // Form validation
+  const handlePresetApply = (presetId: string) => {
+    try {
+      const appliedFormData = presetManagerService.applyPreset(presetId);
+      if (appliedFormData) {
+        setFormData(appliedFormData);
+        setValidationErrors(new Set()); // Clear validation errors
+        v4ToastManager.showSuccess('Preset applied successfully!');
+      } else {
+        v4ToastManager.showError('Failed to apply preset');
+      }
+    } catch (error) {
+      console.error('[ApplicationGenerator] Failed to apply preset:', error);
+      v4ToastManager.showError('Failed to apply preset');
+    }
+  };
+
+  const handleSaveAsPreset = () => {
+    if (!selectedAppType) {
+      v4ToastManager.showError('Please select an application type first');
+      return;
+    }
+
+    const presetName = prompt('Enter a name for this preset:');
+    if (!presetName?.trim()) return;
+
+    // Check if preset with this name already exists
+    const existingPresets = presetManagerService.getCustomPresets();
+    const existingPreset = existingPresets.find(
+      p => p.name.toLowerCase() === presetName.trim().toLowerCase() && 
+           p.appType === selectedAppType
+    );
+
+    if (existingPreset) {
+      const shouldUpdate = confirm(`A preset named "${presetName.trim()}" already exists for ${selectedAppType.replace(/_/g, ' ')}. Do you want to update it?`);
+      if (!shouldUpdate) return;
+    }
+
+    const presetDescription = prompt('Enter a description for this preset (optional):') || '';
+
+    try {
+      const savedPreset = presetManagerService.saveCustomPreset({
+        name: presetName.trim(),
+        description: presetDescription.trim(),
+        appType: selectedAppType,
+        configuration: formData
+      });
+
+      if (existingPreset) {
+        v4ToastManager.showSuccess(`Preset "${savedPreset.name}" updated successfully!`);
+      } else {
+        v4ToastManager.showSuccess(`Preset "${savedPreset.name}" created successfully!`);
+      }
+    } catch (error) {
+      console.error('[ApplicationGenerator] Failed to save preset:', error);
+      v4ToastManager.showError('Failed to save preset');
+    }
+  };
+
+  const handleImportConfiguration = (importedConfig: FormDataState, metadata: any) => {
+    try {
+      setFormData(importedConfig);
+      setValidationErrors(new Set()); // Clear validation errors
+      
+      // If the imported config has a different app type, update it
+      if (metadata?.appType && metadata.appType !== selectedAppType) {
+        setSelectedAppType(metadata.appType);
+      }
+      
+      v4ToastManager.showSuccess(`Configuration "${metadata?.name || 'imported'}" applied successfully!`);
+    } catch (error) {
+      console.error('[ApplicationGenerator] Failed to apply imported configuration:', error);
+      v4ToastManager.showError('Failed to apply imported configuration');
+    }
+  };
+
+  // Form validation with field highlighting
   const validateForm = () => {
     const errors: string[] = [];
+    const fieldErrors = new Set<string>();
 
     if (!formData.name.trim()) {
       errors.push('Application name is required');
+      fieldErrors.add('name');
     }
 
     if (!formData.description.trim()) {
       errors.push('Description is required');
+      fieldErrors.add('description');
     }
 
     // Validate grant types - convert to uppercase for PingOne
     if (formData.grantTypes.length === 0) {
       errors.push('At least one grant type is required');
+      fieldErrors.add('grantTypes');
     }
 
     // Validate response types if applicable
     if ((selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && formData.responseTypes.length === 0) {
       errors.push('At least one response type is required for this app type');
+      fieldErrors.add('responseTypes');
     }
 
+    // Validate redirect URIs for apps that need them
+    if ((selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && formData.redirectUris.length === 0) {
+      errors.push('At least one redirect URI is required for this app type');
+      fieldErrors.add('redirectUris');
+    }
+
+    setValidationErrors(fieldErrors);
     return errors;
   };
 
@@ -763,6 +1070,25 @@ const ApplicationGenerator: React.FC = () => {
           result = await pingOneAppCreationService.createServiceApp(servicePayload);
           break;
         }
+        case 'SAML_APP': {
+          // For SAML apps, we'll use OIDC Web App as the base and configure SAML-specific settings
+          const samlPayload: OIDCWebAppConfig = {
+            ...baseConfig,
+            type: 'OIDC_WEB_APP', // PingOne API uses OIDC_WEB_APP as base for SAML
+            redirectUris: formData.redirectUris,
+            postLogoutRedirectUris: formData.postLogoutRedirectUris,
+            grantTypes: ['authorization_code'],
+            responseTypes: ['code'],
+            tokenEndpointAuthMethod: 'client_secret_basic',
+            pkceEnforcement: formData.pkceEnforcement,
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+            refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+            idTokenValiditySeconds: formData.idTokenValiditySeconds,
+          };
+          result = await pingOneAppCreationService.createOIDCWebApp(samlPayload);
+          break;
+        }
         default:
           throw new Error('Unsupported application type');
       }
@@ -771,17 +1097,639 @@ const ApplicationGenerator: React.FC = () => {
 
       if (result.success) {
         v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
-        // Reset form
-        setFormData(createDefaultFormData());
+        // Advance to results step
+        setCurrentStep(4);
+        // DON'T reset form - keep fields on screen for user reference
+        // setFormData(createDefaultFormData()); // REMOVED - Issue #3 fix
+      } else {
+        // Check if it's a name conflict error and provide helpful message
+        const errorMsg = result.error || '';
+        if (errorMsg.includes('name already exists') || errorMsg.includes('already exists')) {
+          v4ToastManager.showError(`Application name "${formData.name}" already exists. Please try a different name.`);
+        } else {
+          v4ToastManager.showError(`Failed to create application: ${result.error}`);
+        }
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      
+      // Check if it's a name conflict error in the exception
+      if (errorMessage.includes('name already exists') || errorMessage.includes('already exists')) {
+        const betterMessage = `Application name "${formData.name}" already exists. Please try a different name.`;
+        setCreationResult({ success: false, error: betterMessage });
+        v4ToastManager.showError(betterMessage);
+      } else {
+        setCreationResult({ success: false, error: errorMessage });
+        v4ToastManager.showError(errorMessage);
+      }
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleCreateApplication = async () => {
+    if (!selectedAppType) return;
+
+    // Validate form
+    const validationErrors = validateForm();
+    if (validationErrors.length > 0) {
+      v4ToastManager.showError(validationErrors.join(', '));
+      return;
+    }
+
+    setIsCreating(true);
+    
+    try {
+      // Initialize the service with the worker token
+      pingOneAppCreationService.initialize(workerToken, environmentId);
+
+      // Create the app based on type
+      let result: AppCreationResult;
+
+      // Make application name unique by adding timestamp if it's a common test name
+      const uniqueName = formData.name.toLowerCase().includes('test') || 
+                         formData.name.toLowerCase().includes('template') || 
+                         formData.name.toLowerCase().includes('sample') || 
+                         formData.name.toLowerCase().includes('demo')
+        ? `${formData.name}-${Date.now()}`
+        : formData.name;
+
+      const baseConfig = {
+        name: uniqueName,
+        description: formData.description,
+        enabled: formData.enabled,
+      };
+
+      switch (selectedAppType) {
+        case 'OIDC_WEB_APP': {
+          const payload: OIDCWebAppConfig = {
+            ...baseConfig,
+            type: 'OIDC_WEB_APP',
+            redirectUris: formData.redirectUris,
+            postLogoutRedirectUris: formData.postLogoutRedirectUris,
+            grantTypes: filterAllowedValues(formData.grantTypes, WEB_APP_GRANT_OPTIONS, 'authorization_code'),
+            responseTypes: filterAllowedValues(formData.responseTypes, RESPONSE_TYPE_OPTIONS, 'code'),
+            tokenEndpointAuthMethod: normalizeWebAppTokenMethod(formData.tokenEndpointAuthMethod),
+            pkceEnforcement: formData.pkceEnforcement,
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: 7200,
+            refreshTokenValiditySeconds: 2592000,
+            idTokenValiditySeconds: 7200,
+          };
+          result = await pingOneAppCreationService.createOIDCWebApp(payload);
+          break;
+        }
+        case 'OIDC_NATIVE_APP': {
+          const nativePayload: OIDCNativeAppConfig = {
+            ...baseConfig,
+            type: 'OIDC_NATIVE_APP',
+            redirectUris: formData.redirectUris,
+            grantTypes: filterAllowedValues(formData.grantTypes, NATIVE_APP_GRANT_OPTIONS, 'authorization_code'),
+            responseTypes: filterAllowedValues(formData.responseTypes, RESPONSE_TYPE_OPTIONS, 'code'),
+            tokenEndpointAuthMethod: normalizeNativeTokenMethod(formData.tokenEndpointAuthMethod),
+            pkceEnforcement: formData.pkceEnforcement,
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+            refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+            idTokenValiditySeconds: formData.idTokenValiditySeconds,
+          };
+          result = await pingOneAppCreationService.createOIDCNativeApp(nativePayload);
+          break;
+        }
+        case 'SINGLE_PAGE_APP': {
+          const spaPayload: SinglePageAppConfig = {
+            ...baseConfig,
+            type: 'SINGLE_PAGE_APP',
+            redirectUris: formData.redirectUris,
+            grantTypes: filterAllowedValues(formData.grantTypes, SPA_GRANT_OPTIONS, 'authorization_code'),
+            responseTypes: filterAllowedValues(formData.responseTypes, RESPONSE_TYPE_OPTIONS, 'code'),
+            tokenEndpointAuthMethod: 'none',
+            pkceEnforcement: 'REQUIRED',
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+            refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+            idTokenValiditySeconds: formData.idTokenValiditySeconds,
+          };
+          result = await pingOneAppCreationService.createSinglePageApp(spaPayload);
+          break;
+        }
+        case 'WORKER': {
+          const workerPayload: WorkerAppConfig = {
+            ...baseConfig,
+            type: 'WORKER',
+            grantTypes: filterAllowedValues(formData.grantTypes, WORKER_GRANT_OPTIONS, 'client_credentials'),
+            tokenEndpointAuthMethod: normalizeWorkerTokenMethod(formData.tokenEndpointAuthMethod),
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+            refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+          };
+          result = await pingOneAppCreationService.createWorkerApp(workerPayload);
+          break;
+        }
+        case 'SERVICE': {
+          const servicePayload: ServiceAppConfig = {
+            ...baseConfig,
+            type: 'SERVICE',
+            grantTypes: filterAllowedValues(formData.grantTypes, SERVICE_GRANT_OPTIONS, 'client_credentials'),
+            tokenEndpointAuthMethod: normalizeServiceTokenMethod(formData.tokenEndpointAuthMethod),
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+            refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+          };
+          result = await pingOneAppCreationService.createServiceApp(servicePayload);
+          break;
+        }
+        case 'SAML_APP': {
+          // For SAML apps, we'll use OIDC Web App as the base and configure SAML-specific settings
+          const samlPayload: OIDCWebAppConfig = {
+            ...baseConfig,
+            type: 'OIDC_WEB_APP', // PingOne API uses OIDC_WEB_APP as base for SAML
+            redirectUris: formData.redirectUris,
+            postLogoutRedirectUris: formData.postLogoutRedirectUris,
+            grantTypes: ['authorization_code'],
+            responseTypes: ['code'],
+            tokenEndpointAuthMethod: 'client_secret_basic',
+            pkceEnforcement: formData.pkceEnforcement,
+            scopes: formData.scopes,
+            accessTokenValiditySeconds: formData.accessTokenValiditySeconds,
+            refreshTokenValiditySeconds: formData.refreshTokenValiditySeconds,
+            idTokenValiditySeconds: formData.idTokenValiditySeconds,
+          };
+          result = await pingOneAppCreationService.createOIDCWebApp(samlPayload);
+          break;
+        }
+        default:
+          throw new Error('Unsupported application type');
+      }
+
+      setCreationResult(result);
+
+      if (result.success) {
+        v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
+        // Advance to results step
+        setCurrentStep(4);
+        // DON'T reset form - keep fields on screen for user reference
       } else {
         v4ToastManager.showError(`Failed to create application: ${result.error}`);
       }
     } catch (error) {
+      console.error('[ApplicationGenerator] Application creation failed:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
-      setCreationResult({ success: false, error: errorMessage });
-      v4ToastManager.showError(errorMessage);
+      setCreationResult({
+        success: false,
+        error: errorMessage,
+        details: error,
+      });
+      v4ToastManager.showError(`Application creation failed: ${errorMessage}`);
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  // Render step content based on current step
+  const renderStepContent = () => {
+    switch (currentStep) {
+      case 1:
+        return (
+          <div>
+            <CardGrid>
+              {appTypes.map((appType) => (
+                <AppTypeCard
+                  key={appType.type}
+                  selected={selectedAppType === appType.type}
+                  onClick={() => handleAppTypeSelect(appType.type)}
+                >
+                  <div className="icon">{appType.icon}</div>
+                  <div className="title">{appType.title}</div>
+                  <div className="description">{appType.description}</div>
+                </AppTypeCard>
+              ))}
+            </CardGrid>
+          </div>
+        );
+
+      case 2:
+        return selectedAppType ? (
+          <div>
+            {/* Configuration Presets */}
+            <PresetSelector
+              selectedAppType={selectedAppType}
+              selectedPreset={selectedPreset}
+              onPresetSelect={handlePresetSelect}
+              onPresetApply={handlePresetApply}
+            />
+
+            {/* Export/Import Configuration */}
+            <ExportImportPanel
+              formData={formData}
+              appType={selectedAppType}
+              onImport={handleImportConfiguration}
+              disabled={isCreating}
+            />
+
+            <div onScroll={(e) => e.preventDefault()} style={{ overflow: 'visible' }}>
+              <FormContainer key={`form-${selectedAppType}`}>
+                <FormTitle>Configure {appTypes.find((t) => t.type === selectedAppType)?.title}</FormTitle>
+                <FormGrid>
+                {/* Basic Settings */}
+                <FormGroup key="app-name">
+                  <Label>Application Name *</Label>
+                  <Input
+                    key="name-input"
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => handleInputChange('name', e.target.value, e)}
+                    placeholder="My Application"
+                    $hasError={validationErrors.has('name')}
+                    autoComplete="off"
+                  />
+                  {validationErrors.has('name') && (
+                    <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                      Application name is required
+                    </div>
+                  )}
+                </FormGroup>
+
+                <FormGroup key="app-description">
+                  <Label>Description</Label>
+                  <TextArea
+                    key="description-input"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange('description', e.target.value, e)}
+                    placeholder="Brief description of your application"
+                  />
+                </FormGroup>
+
+                {/* Grant Types */}
+                <FormGroup>
+                  <Label>Grant Types *</Label>
+                  <CheckboxGroup>
+                    {(() => {
+                      let allowedGrants: readonly string[] = [];
+                      switch (selectedAppType) {
+                        case 'OIDC_WEB_APP':
+                          allowedGrants = WEB_APP_GRANT_OPTIONS;
+                          break;
+                        case 'OIDC_NATIVE_APP':
+                          allowedGrants = NATIVE_APP_GRANT_OPTIONS;
+                          break;
+                        case 'SINGLE_PAGE_APP':
+                          allowedGrants = SPA_GRANT_OPTIONS;
+                          break;
+                        case 'WORKER':
+                          allowedGrants = WORKER_GRANT_OPTIONS;
+                          break;
+                        case 'SERVICE':
+                          allowedGrants = SERVICE_GRANT_OPTIONS;
+                          break;
+                        default:
+                          allowedGrants = WEB_APP_GRANT_OPTIONS;
+                      }
+                      return allowedGrants.map((grant) => (
+                        <CheckboxLabel key={grant}>
+                          <Checkbox
+                            type="checkbox"
+                            checked={formData.grantTypes.includes(grant)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                handleArrayChange('grantTypes', [...formData.grantTypes, grant]);
+                              } else {
+                                handleArrayChange('grantTypes', formData.grantTypes.filter(g => g !== grant));
+                              }
+                            }}
+                          />
+                          {grant.replace(/_/g, ' ')}
+                        </CheckboxLabel>
+                      ));
+                    })()}
+                  </CheckboxGroup>
+                  {validationErrors.has('grantTypes') && (
+                    <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                      At least one grant type is required
+                    </div>
+                  )}
+                </FormGroup>
+
+                {/* Response Types */}
+                {(selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && (
+                  <FormGroup>
+                    <Label>Response Types *</Label>
+                    <CheckboxGroup>
+                      {RESPONSE_TYPE_OPTIONS.map((responseType) => (
+                        <CheckboxLabel key={responseType}>
+                          <Checkbox
+                            type="checkbox"
+                            checked={formData.responseTypes.includes(responseType)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                handleArrayChange('responseTypes', [...formData.responseTypes, responseType]);
+                              } else {
+                                handleArrayChange('responseTypes', formData.responseTypes.filter(r => r !== responseType));
+                              }
+                            }}
+                          />
+                          {responseType}
+                        </CheckboxLabel>
+                      ))}
+                    </CheckboxGroup>
+                    {validationErrors.has('responseTypes') && (
+                      <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                        At least one response type is required for this app type
+                      </div>
+                    )}
+                  </FormGroup>
+                )}
+
+                {/* Token Endpoint Auth Method */}
+                <FormGroup>
+                  <Label>Token Endpoint Auth Method</Label>
+                  <Select
+                    value={formData.tokenEndpointAuthMethod}
+                    onChange={(e) => handleInputChange('tokenEndpointAuthMethod', e.target.value as TokenEndpointMethod)}
+                  >
+                    <option value="client_secret_basic">Client Secret Basic</option>
+                    <option value="client_secret_post">Client Secret Post</option>
+                    {(selectedAppType === 'WORKER' || selectedAppType === 'SERVICE') && (
+                      <>
+                        <option value="client_secret_jwt">Client Secret JWT</option>
+                        <option value="private_key_jwt">Private Key JWT</option>
+                      </>
+                    )}
+                    {(selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && (
+                      <option value="none">None (Public Client)</option>
+                    )}
+                  </Select>
+                </FormGroup>
+
+                {/* PKCE Enforcement */}
+                {(selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && (
+                  <FormGroup>
+                    <Label>PKCE Enforcement</Label>
+                    <Select
+                      value={formData.pkceEnforcement}
+                      onChange={(e) => handleInputChange('pkceEnforcement', e.target.value as PkceOption)}
+                    >
+                      <option value="OPTIONAL">Optional</option>
+                      <option value="REQUIRED">Required</option>
+                    </Select>
+                  </FormGroup>
+                )}
+
+                {/* Redirect URIs */}
+                {(selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP' || selectedAppType === 'SAML_APP') && (
+                  <FormGroup>
+                    <Label>Redirect URIs *</Label>
+                    <TextArea
+                      value={formData.redirectUris.join('\n')}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          'redirectUris',
+                          e.target.value.split('\n').filter((uri) => uri.trim())
+                        )
+                      }
+                      placeholder="http://localhost:3000/callback&#10;https://myapp.com/callback"
+                      $hasError={validationErrors.has('redirectUris')}
+                    />
+                    {validationErrors.has('redirectUris') && (
+                      <div style={{ color: '#ef4444', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+                        At least one redirect URI is required for this app type
+                      </div>
+                    )}
+                  </FormGroup>
+                )}
+
+                {/* Post Logout Redirect URIs */}
+                {(selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && (
+                  <FormGroup>
+                    <Label>Post Logout Redirect URIs</Label>
+                    <TextArea
+                      value={formData.postLogoutRedirectUris.join('\n')}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          'postLogoutRedirectUris',
+                          e.target.value.split('\n').filter((uri) => uri.trim())
+                        )
+                      }
+                      placeholder="http://localhost:3000&#10;https://myapp.com"
+                    />
+                  </FormGroup>
+                )}
+
+                {/* Scopes */}
+                <FormGroup>
+                  <Label>Scopes</Label>
+                  <TextArea
+                    value={formData.scopes.join('\n')}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        'scopes',
+                        e.target.value.split('\n').filter((scope) => scope.trim())
+                      )
+                    }
+                    placeholder="openid&#10;profile&#10;email"
+                  />
+                </FormGroup>
+
+                {/* Token Validity Settings */}
+                <FormGroup>
+                  <Label>Access Token Validity (seconds)</Label>
+                  <Input
+                    type="number"
+                    value={formData.accessTokenValiditySeconds}
+                    onChange={(e) => handleInputChange('accessTokenValiditySeconds', parseInt(e.target.value) || 3600)}
+                    min="60"
+                    max="86400"
+                  />
+                </FormGroup>
+
+                {formData.grantTypes.includes('refresh_token') && (
+                  <FormGroup>
+                    <Label>Refresh Token Validity (seconds)</Label>
+                    <Input
+                      type="number"
+                      value={formData.refreshTokenValiditySeconds}
+                      onChange={(e) => handleInputChange('refreshTokenValiditySeconds', parseInt(e.target.value) || 2592000)}
+                      min="3600"
+                      max="31536000"
+                    />
+                  </FormGroup>
+                )}
+
+                {(selectedAppType === 'OIDC_WEB_APP' || selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && (
+                  <FormGroup>
+                    <Label>ID Token Validity (seconds)</Label>
+                    <Input
+                      type="number"
+                      value={formData.idTokenValiditySeconds}
+                      onChange={(e) => handleInputChange('idTokenValiditySeconds', parseInt(e.target.value) || 3600)}
+                      min="60"
+                      max="86400"
+                    />
+                  </FormGroup>
+                )}
+
+                {/* Advanced Settings - Always Visible */}
+                <FormGroup style={{ gridColumn: '1 / -1', marginTop: '2rem' }}>
+                  <Label style={{ fontSize: '1.125rem', fontWeight: '600', color: '#374151', marginBottom: '1rem' }}>
+                    Advanced Settings
+                  </Label>
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>JWKS URL</Label>
+                  <Input
+                    type="url"
+                    value={formData.jwksUrl}
+                    onChange={(e) => handleInputChange('jwksUrl', e.target.value)}
+                    placeholder="https://example.com/.well-known/jwks.json"
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>Initiate Login URI</Label>
+                  <Input
+                    type="url"
+                    value={formData.initiateLoginUri}
+                    onChange={(e) => handleInputChange('initiateLoginUri', e.target.value)}
+                    placeholder="https://example.com/login"
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>Target Link URI</Label>
+                  <Input
+                    type="url"
+                    value={formData.targetLinkUri}
+                    onChange={(e) => handleInputChange('targetLinkUri', e.target.value)}
+                    placeholder="https://example.com/target"
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>Refresh Token Duration (days)</Label>
+                  <Input
+                    type="number"
+                    value={formData.refreshTokenDuration}
+                    onChange={(e) => handleInputChange('refreshTokenDuration', parseInt(e.target.value) || 30)}
+                    min="1"
+                    max="365"
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>Refresh Token Rolling Duration (days)</Label>
+                  <Input
+                    type="number"
+                    value={formData.refreshTokenRollingDuration}
+                    onChange={(e) => handleInputChange('refreshTokenRollingDuration', parseInt(e.target.value) || 180)}
+                    min="1"
+                    max="365"
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>PAR Reference Timeout (seconds)</Label>
+                  <Input
+                    type="number"
+                    value={formData.parReferenceTimeout}
+                    onChange={(e) => handleInputChange('parReferenceTimeout', parseInt(e.target.value) || 60)}
+                    min="10"
+                    max="600"
+                  />
+                </FormGroup>
+              </FormGrid>
+              </FormContainer>
+            </div>
+          </div>
+        ) : null;
+
+      case 3:
+        return (
+          <div>
+            <FormContainer>
+              <FormTitle>Review Your Configuration</FormTitle>
+              <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '0.75rem', marginBottom: '2rem' }}>
+                <h4>Application Details</h4>
+                <p><strong>Type:</strong> {appTypes.find(t => t.type === selectedAppType)?.title}</p>
+                <p><strong>Name:</strong> {formData.name || 'Not specified'}</p>
+                <p><strong>Description:</strong> {formData.description || 'No description'}</p>
+                {formData.redirectUris.length > 0 && (
+                  <p><strong>Redirect URIs:</strong> {formData.redirectUris.join(', ')}</p>
+                )}
+                {formData.scopes.length > 0 && (
+                  <p><strong>Scopes:</strong> {formData.scopes.join(', ')}</p>
+                )}
+              </div>
+              
+              <Button
+                onClick={handleCreateApplication}
+                disabled={isCreating || !selectedAppType || !formData.name.trim()}
+                variant="primary"
+                style={{ 
+                  padding: '0.75rem 2rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  borderRadius: '8px',
+                  margin: '0 auto',
+                  display: 'block'
+                }}
+              >
+                {isCreating ? 'Creating Application...' : 'Create Application'}
+              </Button>
+            </FormContainer>
+          </div>
+        );
+
+      case 4:
+        return creationResult ? (
+          <div>
+            <FormContainer>
+              <FormTitle>
+                {creationResult.success ? (
+                  <span style={{ color: '#16a34a' }}>✅ Application Created Successfully!</span>
+                ) : (
+                  <span style={{ color: '#ef4444' }}>❌ Application Creation Failed</span>
+                )}
+              </FormTitle>
+              
+              {creationResult.success ? (
+                <div style={{ background: '#f0fdf4', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #16a34a' }}>
+                  <h4>Your New Application</h4>
+                  <p><strong>Application ID:</strong> {creationResult.applicationId}</p>
+                  <p><strong>Client ID:</strong> {creationResult.clientId}</p>
+                  {creationResult.clientSecret && (
+                    <p><strong>Client Secret:</strong> {creationResult.clientSecret}</p>
+                  )}
+                  <p><strong>Environment:</strong> {creationResult.environmentId}</p>
+                </div>
+              ) : (
+                <div style={{ background: '#fef2f2', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #ef4444' }}>
+                  <h4>Error Details</h4>
+                  <p>{creationResult.error}</p>
+                  {creationResult.details && (
+                    <pre style={{ background: '#fff', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
+                      {JSON.stringify(creationResult.details, null, 2)}
+                    </pre>
+                  )}
+                </div>
+              )}
+              
+              <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem' }}>
+                <Button onClick={() => setCurrentStep(1)} variant="secondary">
+                  Create Another Application
+                </Button>
+                {creationResult.success && (
+                  <Button onClick={() => window.open(`https://console.pingone.com/${creationResult.environmentId}/applications/${creationResult.applicationId}`, '_blank')}>
+                    View in PingOne Console
+                  </Button>
+                )}
+              </div>
+            </FormContainer>
+          </div>
+        ) : null;
+
+      default:
+        return null;
     }
   };
 
@@ -789,267 +1737,99 @@ const ApplicationGenerator: React.FC = () => {
     return null; // Will redirect in useEffect
   }
 
+  // Get V5 stepper components
+  const {
+    StepContainer,
+    StepHeader,
+    StepHeaderLeft,
+    StepHeaderRight,
+    StepHeaderTitle,
+    StepHeaderSubtitle,
+    StepNumber,
+    StepTotal,
+    StepContent,
+    StepNavigation,
+    NavigationButton,
+    StepProgress,
+    ProgressBar,
+    ProgressText
+  } = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+
+  console.log('[ApplicationGenerator] V5 Stepper Components:', { StepContainer, StepHeader, StepContent });
+  console.log('[ApplicationGenerator] Rendering - currentStep:', currentStep, 'selectedAppType:', selectedAppType);
+
   return (
-    <Container>
+    <Container style={{ scrollBehavior: 'auto' }}>
       <FlowHeader flowId="configuration" />
 
       <BackButton onClick={() => navigate('/client-generator', { state: { workerToken, environmentId } })}>
-        <FiArrowLeft /> Back to Worker Token
+        <FiArrowLeft /> Back to Credentials
       </BackButton>
 
-      <Header>
-        <h1>PingOne Application Generator</h1>
-        <p>Create OAuth 2.0 and OpenID Connect applications using your worker token</p>
-      </Header>
-
-      {/* App Type Selection */}
-      <CardGrid>
-        {appTypes.map((appType) => (
-          <AppTypeCard
-            key={appType.type}
-            selected={selectedAppType === appType.type}
-            onClick={() => handleAppTypeSelect(appType.type)}
+      {/* Worker Token Display */}
+      {workerToken && (
+        <div style={{ marginBottom: '2rem' }}>
+          <CollapsibleHeader
+            title="Worker Token"
+            subtitle="Authentication token for PingOne API operations"
+            theme="blue"
+            defaultCollapsed={true}
+            icon={<FiSettings />}
           >
-            <div className="icon">{appType.icon}</div>
-            <div className="title">{appType.title}</div>
-            <div className="description">{appType.description}</div>
-          </AppTypeCard>
-        ))}
-      </CardGrid>
-
-      {selectedAppType && (
-        <FormContainer>
-          <FormTitle>Configure {appTypes.find((t) => t.type === selectedAppType)?.title}</FormTitle>
-
-          <FormGrid>
-            <FormGroup>
-              <Label>Application Name *</Label>
-              <Input
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                placeholder="My Awesome App"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Description *</Label>
-              <Input
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                placeholder="Optional description"
-              />
-            </FormGroup>
-
-            {(selectedAppType === 'OIDC_WEB_APP' ||
-              selectedAppType === 'OIDC_NATIVE_APP' ||
-              selectedAppType === 'SINGLE_PAGE_APP') && (
-              <>
-                <FormGroup>
-                  <Label>Redirect URIs</Label>
-                  <TextArea
-                    value={formData.redirectUris.join('\n')}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        'redirectUris',
-                        e.target.value.split('\n').filter((uri) => uri.trim())
-                      )
-                    }
-                    placeholder="http://localhost:3000/callback&#10;https://myapp.com/callback"
-                  />
-                </FormGroup>
-
-                <FormGroup>
-                  <Label>Post-Logout Redirect URIs</Label>
-                  <TextArea
-                    value={formData.postLogoutRedirectUris.join('\n')}
-                    onChange={(e) =>
-                      handleArrayChange(
-                        'postLogoutRedirectUris',
-                        e.target.value.split('\n').filter((uri) => uri.trim())
-                      )
-                    }
-                    placeholder="http://localhost:3000&#10;https://myapp.com"
-                  />
-                </FormGroup>
-              </>
+            {UnifiedTokenDisplayService.showTokens(
+              { access_token: workerToken },
+              'oauth',
+              'app-generator-worker-token',
+              {
+                showCopyButtons: true,
+                showDecodeButtons: true,
+              }
             )}
-
-            <FormGroup>
-              <Label>Grant Types</Label>
-              <CheckboxGroup>
-                {['authorization_code', 'implicit', 'refresh_token', 'client_credentials'].map(
-                  (grantType) => (
-                    <CheckboxLabel key={grantType}>
-                      <Checkbox
-                        type="checkbox"
-                        checked={formData.grantTypes.includes(grantType)}
-                        onChange={(e) => {
-                          const newGrants = e.target.checked
-                            ? [...formData.grantTypes, grantType]
-                            : formData.grantTypes.filter((g) => g !== grantType);
-                          handleArrayChange('grantTypes', newGrants);
-                        }}
-                      />
-                      {grantType.replace('_', ' ')}
-                    </CheckboxLabel>
-                  )
-                )}
-              </CheckboxGroup>
-            </FormGroup>
-
-            {(selectedAppType === 'OIDC_WEB_APP' ||
-              selectedAppType === 'OIDC_NATIVE_APP' ||
-              selectedAppType === 'SINGLE_PAGE_APP') && (
-              <FormGroup>
-                <Label>Response Types</Label>
-                <CheckboxGroup>
-                  {['code', 'token', 'id_token'].map((responseType) => (
-                    <CheckboxLabel key={responseType}>
-                      <Checkbox
-                        type="checkbox"
-                        checked={formData.responseTypes.includes(responseType)}
-                        onChange={(e) => {
-                          const newTypes = e.target.checked
-                            ? [...formData.responseTypes, responseType]
-                            : formData.responseTypes.filter((t) => t !== responseType);
-                          handleArrayChange('responseTypes', newTypes);
-                        }}
-                      />
-                      {responseType}
-                    </CheckboxLabel>
-                  ))}
-                </CheckboxGroup>
-              </FormGroup>
-            )}
-
-            <FormGroup>
-              <Label>Token Endpoint Auth Method</Label>
-              <Select
-                value={formData.tokenEndpointAuthMethod}
-                onChange={(e) => handleInputChange('tokenEndpointAuthMethod', e.target.value)}
-              >
-                {selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP' ? (
-                  <>
-                    <option value="none">None (Public Client)</option>
-                    <option value="client_secret_basic">Client Secret Basic</option>
-                    <option value="client_secret_post">Client Secret Post</option>
-                  </>
-                ) : (
-                  <>
-                    <option value="none">None</option>
-                    <option value="client_secret_basic">Client Secret Basic</option>
-                    <option value="client_secret_post">Client Secret Post</option>
-                    <option value="client_secret_jwt">Client Secret JWT</option>
-                    <option value="private_key_jwt">Private Key JWT</option>
-                  </>
-                )}
-              </Select>
-            </FormGroup>
-
-            {(selectedAppType === 'OIDC_WEB_APP' ||
-              selectedAppType === 'OIDC_NATIVE_APP' ||
-              selectedAppType === 'SINGLE_PAGE_APP') && (
-              <FormGroup>
-                <Label>PKCE Enforcement</Label>
-                <Select
-                  value={formData.pkceEnforcement}
-                  onChange={(e) => handleInputChange('pkceEnforcement', e.target.value)}
-                >
-                  <option value="OPTIONAL">Optional</option>
-                  <option value="REQUIRED">Required</option>
-                </Select>
-              </FormGroup>
-            )}
-
-            <FormGroup>
-              <Label>Scopes</Label>
-              <TextArea
-                value={formData.scopes.join(' ')}
-                onChange={(e) =>
-                  handleArrayChange(
-                    'scopes',
-                    e.target.value.split(' ').filter((scope) => scope.trim())
-                  )
-                }
-                placeholder="openid profile email"
-              />
-            </FormGroup>
-
-            <FormGroup>
-              <Label>Access Token Validity (seconds)</Label>
-              <Input
-                type="number"
-                value={formData.accessTokenValiditySeconds}
-                onChange={(e) =>
-                  handleInputChange('accessTokenValiditySeconds', parseInt(e.target.value))
-                }
-              />
-            </FormGroup>
-          </FormGrid>
-
-          <ButtonGroup>
-            {isSavedIndicator && (
-              <span style={{ alignSelf: 'center', color: '#16a34a', fontWeight: 500 }}>
-                Saved!
-              </span>
-            )}
-            <Button variant="success" onClick={handleSaveConfiguration}>
-              Save Configuration
-            </Button>
-            <Button variant="danger" onClick={handleClearSavedConfiguration}>
-              Clear Saved Configuration
-            </Button>
-            <Button variant="secondary" onClick={() => setSelectedAppType(null)}>
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={handleCreateApp}
-              disabled={isCreating || !formData.name.trim() || !formData.description.trim()}
-            >
-              {isCreating ? <LoadingSpinner /> : <FiCheckCircle />}
-              Create Application
-            </Button>
-          </ButtonGroup>
-        </FormContainer>
+          </CollapsibleHeader>
+        </div>
       )}
 
-      {creationResult && (
-        <ResultCard type={creationResult.success ? 'success' : 'error'}>
-          <ResultTitle $type={creationResult.success ? 'success' : 'error'}>
-            {creationResult.success ? <FiCheckCircle /> : <FiX />}
-            {creationResult.success
-              ? 'Application Created Successfully!'
-              : 'Application Creation Failed'}
-          </ResultTitle>
-          <div>
-            {creationResult.success ? (
-              <div>
-                <p>Your application has been created in PingOne with the following details:</p>
-                {creationResult.app && (
-                  <ResultDetails>
-                    <strong>Application ID:</strong> {creationResult.app.id}
-                    <br />
-                    <strong>Client ID:</strong> {creationResult.app.clientId}
-                    <br />
-                    <strong>Name:</strong> {creationResult.app.name}
-                    <br />
-                    <strong>Type:</strong> {creationResult.app.type}
-                    <br />
-                    <strong>Created:</strong>{' '}
-                    {new Date(creationResult.app.createdAt).toLocaleString()}
-                  </ResultDetails>
-                )}
-              </div>
-            ) : (
-              <div>
-                <p>Failed to create the application:</p>
-                <ResultDetails>{creationResult.error}</ResultDetails>
-              </div>
-            )}
-          </div>
-        </ResultCard>
-      )}
+      {/* V5 Stepper */}
+      <StepContainer>
+        <StepHeader>
+          <StepHeaderLeft>
+            <StepHeaderTitle>{stepMetadata[currentStep - 1]?.title}</StepHeaderTitle>
+            <StepHeaderSubtitle>{stepMetadata[currentStep - 1]?.subtitle}</StepHeaderSubtitle>
+          </StepHeaderLeft>
+          <StepHeaderRight>
+            <StepProgress>
+              <StepNumber>{currentStep}</StepNumber>
+              <StepTotal>of {stepMetadata.length}</StepTotal>
+            </StepProgress>
+          </StepHeaderRight>
+        </StepHeader>
+
+        <StepContent>
+          {renderStepContent()}
+        </StepContent>
+
+        <StepNavigation>
+          <NavigationButton
+            onClick={handlePrevStep}
+            disabled={currentStep === 1}
+            style={{ opacity: currentStep === 1 ? 0.5 : 1 }}
+          >
+            <FiChevronLeft /> Previous
+          </NavigationButton>
+          
+          <div style={{ flex: 1 }} />
+          
+          <NavigationButton
+            onClick={handleNextStep}
+            disabled={currentStep === stepMetadata.length || (currentStep === 1 && !selectedAppType) || (currentStep === 2 && !formData.name.trim())}
+            style={{ 
+              opacity: (currentStep === stepMetadata.length || (currentStep === 1 && !selectedAppType) || (currentStep === 2 && !formData.name.trim())) ? 0.5 : 1 
+            }}
+          >
+            Next <FiChevronRight />
+          </NavigationButton>
+        </StepNavigation>
+      </StepContainer>
     </Container>
   );
 };

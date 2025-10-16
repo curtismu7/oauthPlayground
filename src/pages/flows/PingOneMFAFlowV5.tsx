@@ -383,7 +383,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 	};
 
 	const handleMfaSelection = () => {
-		setCurrentStep(2);
+		console.log('[PingOne MFA] MFA method selected:', selectedMfaMethod);
+		v4ToastManager.showSuccess(`Selected MFA method: ${mfaMethods.find(m => m.id === selectedMfaMethod)?.label}`);
+		setCurrentStep(3);
 	};
 
 	const handleMfaVerification = () => {
@@ -552,7 +554,11 @@ const PingOneMFAFlowV5: React.FC = () => {
 								<MfaMethodCard
 									key={method.id}
 									$selected={selectedMfaMethod === method.id}
-									onClick={() => setSelectedMfaMethod(method.id)}
+									onClick={() => {
+										console.log('[PingOne MFA] Method card clicked:', method.id);
+										setSelectedMfaMethod(method.id);
+										v4ToastManager.showInfo(`Selected: ${method.label}`);
+									}}
 								>
 									<MfaMethodIcon>{method.icon}</MfaMethodIcon>
 									<MfaMethodTitle>{method.label}</MfaMethodTitle>

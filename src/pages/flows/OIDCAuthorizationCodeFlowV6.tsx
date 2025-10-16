@@ -40,6 +40,8 @@ import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { useStepValidation, StepValidationService } from '../../services/stepValidationService';
+import FlowCredentialService from '../../services/flowCredentialService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
@@ -616,32 +618,47 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	usePageScroll({ pageName: 'OIDC Authorization Code Flow V6', force: true });
 
 	const manualAuthCodeId = useId();
-	const controller = useAuthorizationCodeFlowController({
-		flowKey: 'oidc-authorization-code-v6',
-		defaultFlowVariant: 'oidc',
-		enableDebugger: true,
-	});
+const controller = useAuthorizationCodeFlowController({
+	flowKey: 'oidc-authorization-code-v6',
+	defaultFlowVariant: 'oidc',
+	enableDebugger: true,
+});
 
-	const [currentStep, setCurrentStep] = useState(
-		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
-	);
-	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
-
-	const [collapsedSections, setCollapsedSections] = useState(
-		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
-	);
-	const [showRedirectModal, setShowRedirectModal] = useState(false);
+const [currentStep, setCurrentStep] = useState(
+	AuthorizationCodeSharedService.StepRestoration.getInitialStep()
+);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [imageLoaded, setImageLoaded] = useState(false);
+	const [localCredentials, setLocalCredentials] = useState(controller.credentials);
+	const { validateAndProceed, StepValidationModal } = useStepValidation();
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
+
+	const [collapsedSections, setCollapsedSections] = useState(() => {
+		return {
+			overview: false,
+			credentials: false,
+			pkceOverview: false,
+			pkceDetails: false,
+			authRequestOverview: false,
+			authRequestDetails: false,
+			authResponseOverview: false,
+			authResponseDetails: false,
+			tokenExchangeOverview: false,
+			tokenExchangeDetails: false,
+			completionOverview: false,
+			completionDetails: false,
+			introspectionDetails: false,
+			rawJson: false,
+		};
+	});
+	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [completionCollapsed, setCompletionCollapsed] = useState(false);
 	const [, setIsFetchingUserInfo] = useState(false);
 	const [displayMode, setDisplayMode] = useState<DisplayMode>('page');
 	const [claimsRequest, setClaimsRequest] = useState<ClaimsRequestStructure | null>(null);
-	// Internationalization - SAVED FOR LATER
-	// const [uiLocales, setUiLocales] = useState<string>('');
-	// const [claimsLocales, setClaimsLocales] = useState<string>('');
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
 	const [promptValues, setPromptValues] = useState<PromptValue[]>([]);
@@ -664,8 +681,6 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 			{
 				display: displayMode,
 				claims: claimsRequest,
-				// uiLocales: uiLocales, // SAVED FOR LATER
-				// claimsLocales: claimsLocales, // SAVED FOR LATER
 				audience: audience,
 				resource: resources,
 				prompt: promptValues.length > 0 ? promptValues.join(' ') : undefined,
@@ -908,40 +923,36 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 	const savePingOneConfig = useCallback(
 		async (config: PingOneApplicationState) => {
 			setPingOneConfig(config);
-			sessionStorage.setItem('oidc-authorization-code-v5-app-config', JSON.stringify(config));
+			sessionStorage.setItem('oidc-authorization-code-v6-app-config', JSON.stringify(config));
 
-			// Update controller credentials with PingOne configuration
 			const updatedCredentials = {
-				...controller.credentials,
-				// Response Types
+				...localCredentials,
 				responseTypeCode: config.responseTypeCode,
 				responseTypeToken: config.responseTypeToken,
 				responseTypeIdToken: config.responseTypeIdToken,
-				// Advanced OIDC Parameters
 				initiateLoginUri: config.initiateLoginUri,
 				targetLinkUri: config.targetLinkUri,
 				signoffUrls: config.signoffUrls,
-				// Request Parameter Signature
 				requestParameterSignatureRequirement: config.requestParameterSignatureRequirement,
-				// Advanced Security Settings
 				additionalRefreshTokenReplayProtection: config.additionalRefreshTokenReplayProtection,
 				includeX5tParameter: config.includeX5tParameter,
 				oidcSessionManagement: config.oidcSessionManagement,
 				requestScopesForMultipleResources: config.requestScopesForMultipleResources,
 				terminateUserSessionByIdToken: config.terminateUserSessionByIdToken,
-				// CORS Settings
 				corsOrigins: config.corsOrigins,
 				corsAllowAnyOrigin: config.corsAllowAnyOrigin,
 			};
-			controller.setCredentials(updatedCredentials);
 
-			// Auto-save if we have essential credentials
+			setLocalCredentials(updatedCredentials);
+			controller.setCredentials(updatedCredentials);
+			FlowCredentialService.saveSharedCredentials('oidc-authorization-code-v6', updatedCredentials);
+
 			if (updatedCredentials.environmentId?.trim() && updatedCredentials.clientId?.trim()) {
 				await controller.saveCredentials();
 				v4ToastManager.showSuccess('Configuration auto-saved after PingOne settings update');
 			}
 		},
-		[controller]
+		[controller, localCredentials]
 	);
 
 	const handleGeneratePkce = useCallback(async () => {
@@ -1044,9 +1055,21 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 		}
 	}, [controller]);
 
-	const handleCopy = useCallback((text: string, label: string) => {
-		v4ToastManager.handleCopyOperation(text, label);
+	const handleCopy = useCallback(async (value: string, label: string) => {
+		v4ToastManager.handleCopyOperation(value, label);
 	}, []);
+
+	const handleFieldChange = useCallback(
+		(field: keyof StepCredentials, value: string) => {
+			setLocalCredentials((prev) => {
+				const updated = { ...prev, [field]: value };
+				controller.setCredentials(updated);
+				FlowCredentialService.saveSharedCredentials('oidc-authorization-code-v6', updated);
+				return updated;
+			});
+		},
+		[controller]
+	);
 
 	// Extract x5t parameter from JWT header
 	const getX5tParameter = useCallback((token: string) => {
@@ -1439,21 +1462,12 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 								<ComprehensiveCredentialsService
 									// Discovery props
 									onDiscoveryComplete={(result) => {
-										console.log('[OIDC Authz V6] Discovery completed:', result);
-										// Extract environment ID from issuer URL using the standard service
+										console.log('[OIDC V6] Discovery completed:', result);
 										if (result.issuerUrl) {
-											const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
-											if (extractedEnvId) {
-												controller.setCredentials({
-													...controller.credentials,
-													environmentId: extractedEnvId,
-												});
-												console.log('[OIDC Authz V6] Auto-extracted Environment ID:', extractedEnvId);
-												// Auto-save if we have both environmentId and clientId
-												if (extractedEnvId && controller.credentials.clientId) {
-													controller.saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved with discovered Environment ID');
-												}
+											const envId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
+											if (envId) {
+												handleFieldChange('environmentId', envId);
+												v4ToastManager.showSuccess('Environment ID loaded from discovery');
 											}
 										}
 									}}
@@ -1470,68 +1484,13 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 									postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
 									
 									// Change handlers
-									onEnvironmentIdChange={(newEnvId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											environmentId: newEnvId,
-										});
-										if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
-										}
-									}}
-									onClientIdChange={(newClientId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientId: newClientId,
-										});
-										if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
-										}
-									}}
-									onClientSecretChange={(newClientSecret) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientSecret: newClientSecret,
-										});
-									}}
-									onScopesChange={(newScopes) => {
-										// Ensure openid is always included (required for OIDC & PingOne)
-										const scopes = newScopes.split(/\s+/).filter(s => s.length > 0);
-										if (!scopes.includes('openid')) {
-											scopes.unshift('openid');
-											const finalScopes = scopes.join(' ');
-											controller.setCredentials({
-												...controller.credentials,
-												scope: finalScopes,
-											});
-											v4ToastManager.showWarning('Added required "openid" scope for OIDC compliance');
-										} else {
-											controller.setCredentials({
-												...controller.credentials,
-												scope: newScopes,
-											});
-										}
-									}}
-									onRedirectUriChange={(newRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											redirectUri: newRedirectUri,
-										});
-									}}
-									onLoginHintChange={(newLoginHint) => {
-										controller.setCredentials({
-											...controller.credentials,
-											loginHint: newLoginHint,
-										});
-									}}
-									onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											postLogoutRedirectUri: newPostLogoutRedirectUri,
-										});
-									}}
+									onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
+									onClientIdChange={(value) => handleFieldChange('clientId', value)}
+									onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
+									onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
+									onScopesChange={(value) => handleFieldChange('scope', value)}
+									onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
+									onPostLogoutRedirectUriChange={(value) => handleFieldChange('postLogoutRedirectUri', value)}
 									
 									// Save handler
 									onSave={async () => {
@@ -2077,7 +2036,7 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 								aria-expanded={!collapsedSections.authResponseOverview}
 							>
 								<CollapsibleTitle>
-									<FiCheckCircle /> Authorization Response Overview
+									<FiCheckCircle /> Authorization Code Response
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
 									<FiChevronDown />
@@ -2085,16 +2044,49 @@ const OIDCAuthorizationCodeFlowV6: React.FC = () => {
 							</CollapsibleHeaderButton>
 							{!collapsedSections.authResponseOverview && (
 								<CollapsibleContent>
-									<InfoBox $variant="success">
+									<InfoBox $variant="info">
 										<FiCheckCircle size={20} />
 										<div>
-											<InfoTitle>Authorization Response</InfoTitle>
+											<InfoTitle>Authorization Code Received</InfoTitle>
 											<InfoText>
-												After authentication, PingOne returns you to the redirect URI with an
-												authorization code or error message.
+												After redirect, PingOne returns an authorization code. Paste it below if it didn't auto-populate.
 											</InfoText>
 										</div>
 									</InfoBox>
+									<form
+										onSubmit={(event) => {
+											event.preventDefault();
+											if (!localAuthCode || !localAuthCode.trim()) {
+												v4ToastManager.showError('Enter an authorization code first.');
+												return;
+											}
+											controller.setAuthCodeManually(localAuthCode.trim());
+											setCurrentStep((prev) => prev + 1);
+										}}
+									>
+										<label htmlFor={manualAuthCodeId} style={{ fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>
+											Enter Authorization Code
+										</label>
+										<div style={{ display: 'flex', gap: '0.75rem' }}>
+											<input
+												id={manualAuthCodeId}
+												type="text"
+												value={localAuthCode ?? ''}
+												onChange={(event) => setLocalAuthCode(event.target.value)}
+												placeholder="Paste authorization code"
+												style={{
+													flex: 1,
+													border: '1px solid #d1d5db',
+													borderRadius: '0.5rem',
+													padding: '0.75rem 1rem',
+													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
+												}}
+											/>
+											<Button $variant="primary" type="submit">
+												<FiArrowRight /> Submit Code
+											</Button>
+										</div>
+									</form>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>

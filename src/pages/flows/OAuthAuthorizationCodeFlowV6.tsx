@@ -8,8 +8,6 @@ import {
 	FiCheckCircle,
 	FiChevronDown,
 	FiExternalLink,
-	FiEye,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
 	FiKey,
@@ -58,13 +56,13 @@ import { PKCEGenerationService } from '../../services/pkceGenerationService';
 import AudienceParameterInput from '../../components/AudienceParameterInput';
 import { CopyButtonService } from '../../services/copyButtonService';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { FlowStorageService } from '../../services/flowStorageService';
 import {
 	STEP_METADATA,
 	type IntroSectionKey,
 	DEFAULT_APP_CONFIG,
 } from './config/OAuthAuthzCodeFlowV6.config';
+import FlowCredentialService from '../../services/flowCredentialService';
 
 type StepCompletionState = Record<number, boolean>;
 
@@ -656,6 +654,33 @@ const EmptyText = styled.p`
 	margin-bottom: 1rem;
 `;
 
+const VariantToggleContainer = styled.div`
+	display: inline-flex;
+	border-radius: 9999px;
+	border: 1px solid #d1d5db;
+	background: #f8fafc;
+	overflow: hidden;
+	margin: 1.5rem 0;
+`;
+
+const VariantToggleButton = styled.button<{ $active: boolean }>`
+	appearance: none;
+	border: none;
+	padding: 0.65rem 1.4rem;
+	font-weight: 600;
+	font-size: 0.9rem;
+	cursor: pointer;
+	background: ${({ $active }) => ($active ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : 'transparent')};
+	color: ${({ $active }) => ($active ? '#ffffff' : '#1f2937')};
+	transition: background 0.2s ease, color 0.2s ease;
+	min-width: 140px;
+	outline: none;
+
+	&:hover {
+		background: ${({ $active }) => ($active ? 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)' : '#e5e7eb')};
+	}
+`;
+
 const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	console.log('🚀 [OAuthAuthorizationCodeFlowV6] Component loaded!', {
 		url: window.location.href,
@@ -684,9 +709,49 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 	const [showRedirectModal, setShowRedirectModal] = useState(false);
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
-	const [showSavedSecret, setShowSavedSecret] = useState(false);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
-	const [completionCollapsed, setCompletionCollapsed] = useState(false);
+	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
+
+	useEffect(() => {
+		setFlowVariant(controller.flowVariant);
+	}, [controller.flowVariant]);
+
+	const ensureOidcScopes = useCallback((scopeValue: string | undefined) => {
+		const base = scopeValue?.split(' ').filter(Boolean) ?? [];
+		const required = ['openid'];
+		required.forEach((scope) => {
+			if (!base.includes(scope)) {
+				base.push(scope);
+			}
+		});
+		return base.join(' ');
+	}, []);
+
+	const handleFlowVariantChange = useCallback(
+		(nextVariant: 'oauth' | 'oidc') => {
+			setFlowVariant(nextVariant);
+			controller.setFlowVariant(nextVariant);
+
+			if (nextVariant === 'oidc') {
+				const updatedScope = ensureOidcScopes(controller.credentials.scope || controller.credentials.scopes);
+				controller.setCredentials({
+					...controller.credentials,
+					scope: updatedScope,
+					scopes: updatedScope,
+				});
+				controller.setFlowConfig({
+					...controller.flowConfig,
+					enableOIDC: true,
+				});
+			} else {
+				controller.setFlowConfig({
+					...controller.flowConfig,
+					enableOIDC: false,
+				});
+			}
+		},
+		[controller, ensureOidcScopes]
+	);
 	
 	// API call tracking for display
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
@@ -788,17 +853,6 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 			controller.setCredentials
 		);
 	}, [controller.credentials.responseType, controller]);
-
-	// Sync credentials from controller to local state
-	useEffect(() => {
-		if (controller.credentials) {
-			AuthorizationCodeSharedService.CredentialsSync.syncCredentials(
-				'oauth',
-				controller.credentials,
-				controller.setCredentials
-			);
-		}
-	}, [controller]);
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
@@ -994,14 +1048,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 				[field]: value,
 			};
 			controller.setCredentials(updatedCredentials);
-			if (value.trim()) {
-				setEmptyRequiredFields((prev) => {
-					const next = new Set(prev);
+			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v6', updatedCredentials);
+			if (typeof value === 'string' && value.trim()) {
+				setEmptyRequiredFields((prevMissing) => {
+					const next = new Set(prevMissing);
 					next.delete(field as string);
 					return next;
 				});
 			} else {
-				setEmptyRequiredFields((prev) => new Set(prev).add(field as string));
+				setEmptyRequiredFields((prevMissing) => new Set(prevMissing).add(field as string));
 			}
 		},
 		[controller]
@@ -1700,7 +1755,7 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 							/>
 
 							<ActionRow>
-								<Button onClick={handleSaveConfiguration} $variant="primary">
+								<Button onClick={handleSaveConfiguration} $variant="success">
 									<FiSettings /> Save Configuration
 								</Button>
 								<Button onClick={handleClearConfiguration} $variant="danger">
@@ -1790,6 +1845,185 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 					<EnhancedFlowInfoCard flowId="oauth-authorization-code" />
 					</>
 				);
+			case 0:
+			return (
+				<>
+					<div style={{ display: 'flex', justifyContent: 'center' }}>
+						<VariantToggleContainer role="radiogroup" aria-label="Flow variant">
+							<VariantToggleButton
+								type="button"
+								$active={flowVariant === 'oauth'}
+								onClick={() => handleFlowVariantChange('oauth')}
+								aria-pressed={flowVariant === 'oauth'}
+							>
+								OAuth 2.0
+							</VariantToggleButton>
+							<VariantToggleButton
+								type="button"
+								$active={flowVariant === 'oidc'}
+								onClick={() => handleFlowVariantChange('oidc')}
+								aria-pressed={flowVariant === 'oidc'}
+							>
+								OIDC
+							</VariantToggleButton>
+						</VariantToggleContainer>
+					</div>
+					{flowVariant === 'oidc' && (
+						<InfoBox $variant="info" style={{ marginBottom: '1.5rem' }}>
+							<FiShield size={20} />
+							<div>
+								<InfoTitle>OIDC Enhancements Enabled</InfoTitle>
+								<InfoText>
+									The flow will now request an ID token, include the `openid` scope automatically, and expose
+									additional OpenID Connect configuration options.
+								</InfoText>
+							</div>
+						</InfoBox>
+					)}
+
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('overview')}
+							aria-expanded={!collapsedSections.overview}
+						>
+							<CollapsibleTitle>
+								<FiBook /> What is PKCE?
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+							{!collapsedSections.overview && (
+								<CollapsibleContent>
+									<InfoBox $variant="info">
+										<FiGlobe size={20} />
+										<div>
+											<InfoTitle>What is PKCE?</InfoTitle>
+											<InfoText>
+												PKCE (Proof Key for Code Exchange) is a security extension for OAuth 2.0 that prevents authorization code
+												interception attacks. It's required for public clients (like mobile apps)
+												and highly recommended for all OAuth flows.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>The Security Problem PKCE Solves</InfoTitle>
+											<InfoText>
+												Without PKCE, if an attacker intercepts your authorization code (through app
+												redirects, network sniffing, or malicious apps), they could exchange it for
+												tokens. PKCE prevents this by requiring proof that the same client that
+												started the flow is finishing it.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<CollapsibleSection>
+						<YellowHeaderButton
+							onClick={() => toggleSection('pkceDetails')}
+							aria-expanded={!collapsedSections.pkceDetails}
+						>
+							<CollapsibleTitle>
+								<FiBook /> Understanding Code Verifier & Code Challenge
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</YellowHeaderButton>
+							{!collapsedSections.pkceDetails && (
+								<CollapsibleContent>
+									<ParameterGrid>
+										<InfoBox $variant="success">
+											<FiKey size={20} />
+											<div>
+												<InfoTitle>Code Verifier</InfoTitle>
+												<InfoText>
+													A high-entropy cryptographic random string (43-128 chars) that stays
+													secret in your app. Think of it as a temporary password that proves you're
+													the same client that started the OAuth flow.
+												</InfoText>
+												<InfoList>
+													<li>Generated fresh for each OAuth request</li>
+													<li>Uses characters: A-Z, a-z, 0-9, -, ., _, ~</li>
+													<li>Never sent in the authorization request</li>
+													<li>Only revealed during token exchange</li>
+												</InfoList>
+											</div>
+										</InfoBox>
+
+										<InfoBox $variant="info">
+											<FiShield size={20} />
+											<div>
+												<InfoTitle>Code Challenge</InfoTitle>
+												<InfoText>
+													A SHA256 hash of the code verifier, encoded in base64url format. This is
+													sent publicly in the authorization URL but can't be reversed to get the
+													original verifier.
+												</InfoText>
+												<InfoList>
+													<li>Derived from: SHA256(code_verifier)</li>
+													<li>Encoded in base64url (URL-safe)</li>
+													<li>Safe to include in authorization URLs</li>
+													<li>Used by PingOne to verify the verifier later</li>
+												</InfoList>
+											</div>
+										</InfoBox>
+									</ParameterGrid>
+
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Security Best Practices</InfoTitle>
+											<InfoList>
+												<li>
+													<strong>Generate Fresh Values:</strong> Create new PKCE parameters for
+													every authorization request
+												</li>
+												<li>
+													<strong>Secure Storage:</strong> Keep the code verifier in memory or
+													secure storage, never log it
+												</li>
+												<li>
+													<strong>Use S256 Method:</strong> Always use SHA256 hashing
+													(code_challenge_method=S256)
+												</li>
+												<li>
+													<strong>Sufficient Entropy:</strong> Use at least 43 characters of
+													high-entropy randomness
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiCheckCircle size={18} /> Generate PKCE Parameters
+							</ResultsHeading>
+							<HelperText>
+								Generate fresh PKCE values for this authorization request. These will be used to
+								secure the code exchange and prevent interception attacks.
+							</HelperText>
+							<PKCEGenerationService.showComponent
+								controller={controller}
+								credentials={controller.credentials}
+								flowType="oauth"
+								onPKCEGenerated={() => {
+									console.log('[OAuth AuthZ V6] PKCE codes generated successfully');
+								}}
+							/>
+						</ResultsSection>
+					</>
+				);
+
 			case 1:
 				return (
 					<>
@@ -2514,29 +2748,15 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 
 		case 7:
 			return (
-				<>
-					{/* Professional Flow Completion */}
-					<FlowCompletionService
-						config={{
-							...FlowCompletionConfigs.authorizationCode,
-							flowName: 'OAuth 2.0 Authorization Code Flow V6',
-							flowDescription: 'You\'ve successfully completed the OAuth 2.0 Authorization Code flow with PKCE. The authorization code has been exchanged for an access token (and optionally a refresh token).',
-							onStartNewFlow: handleResetFlow,
-							showUserInfo: false, // OAuth doesn't have UserInfo
-							showIntrospection: !!introspectionApiCall,
-							introspectionResult: introspectionApiCall,
-							nextSteps: [
-								'Store the access token securely in your application',
-								'Use the access token to call protected APIs on behalf of the user',
-								'Refresh the token when it expires (if refresh token provided)',
-								'Note: OAuth provides authorization only - use OIDC for user identity',
-								'Implement proper error handling and token expiration logic'
-							]
-						}}
-						collapsed={completionCollapsed}
-						onToggleCollapsed={() => setCompletionCollapsed(!completionCollapsed)}
-					/>
-				</>
+				<InfoBox $variant="success">
+					<FiCheckCircle size={20} />
+					<div>
+						<InfoTitle>Flow Complete</InfoTitle>
+						<InfoText>
+							You've completed the Authorization Code flow. Tokens are available above and you can restart the flow anytime.
+						</InfoText>
+					</div>
+				</InfoBox>
 			);
 
 			default:
@@ -2577,10 +2797,8 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 		getX5tParameter,
 		emptyRequiredFields,
 		copiedField,
-		showSavedSecret,
 		controller.isFetchingUserInfo,
 		controller.userInfo,
-		completionCollapsed,
 		introspectionApiCall,
 		tokenExchangeApiCall,
 		userInfoApiCall,

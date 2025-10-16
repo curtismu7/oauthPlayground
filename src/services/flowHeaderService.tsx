@@ -232,6 +232,33 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🌐',
 		version: 'V6',
 	},
+
+	// V7 Unified Flows
+	'implicit-v7': {
+		flowType: 'oauth',
+		title: 'Unified Implicit Flow V7 - OAuth/OIDC Selector',
+		subtitle:
+			'🆕 Unified implementation supporting both OAuth 2.0 and OpenID Connect Implicit flows. Select your variant to see tailored educational content, parameters, and token responses. Legacy flow for educational purposes - use Authorization Code + PKCE for production.',
+		icon: '🆕',
+		version: 'V7',
+	},
+	'oauth-authorization-code-v7': {
+		flowType: 'oauth',
+		title: 'Unified Authorization Code Flow V7 - OAuth/OIDC Selector',
+		subtitle:
+			'🆕 Unified implementation supporting both OAuth 2.0 and OpenID Connect Authorization Code flows. Select your variant to see tailored educational content, parameters, and token responses. Recommended for production applications.',
+		icon: '🆕',
+		version: 'V7',
+	},
+	'token-exchange-v7': {
+		flowType: 'oauth',
+		title: 'OAuth 2.0 Token Exchange V7 - RFC 8693',
+		subtitle:
+			'🔄 Secure Application-to-Application (A2A) communication using OAuth 2.0 Token Exchange. Demonstrates scope reduction, audience restriction, and user delegation patterns for enterprise security architectures.',
+		icon: '🔄',
+		version: 'V7',
+	},
+
 	'hybrid-v5': {
 		flowType: 'oidc',
 		title: 'Hybrid Flow - Combined Authorization Approach',
@@ -391,6 +418,13 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Comprehensive glossary of AI, machine learning, OAuth 2.0, and OpenID Connect terminology. Search and explore definitions for technical terms used throughout the playground.',
 		icon: '📚',
 	},
+	'emerging-ai-standards': {
+		flowType: 'documentation',
+		title: 'Emerging AI Standards',
+		subtitle:
+			'Explore new OAuth extensions and industry proposals that enable autonomous agents to authenticate, authorize, and collaborate securely across domains.',
+		icon: '🤖',
+	},
 	'token-management': {
 		flowType: 'pingone',
 		title: 'Token Management',
@@ -448,12 +482,37 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'Comprehensive guide to designing, implementing, and managing OAuth 2.0 scopes at scale. Learn how to create effective scope strategies for API security.',
 		icon: '🎯',
 	},
-	'oidc-ciba-v5': {
+	'oidc-ciba-v6': {
 		flowType: 'oidc',
-		title: 'OIDC CIBA Flow (V5)',
+		title: 'OIDC CIBA Flow (Mock) (V6)',
 		subtitle:
-			'Client Initiated Backchannel Authentication flow for decoupled authentication scenarios with secondary device approval',
+			'🎓 Educational CIBA implementation - PingOne does not support CIBA. Mock flow demonstrates Client Initiated Backchannel Authentication for decoupled authentication scenarios.',
+		version: 'V6',
+		icon: '🎓',
+	},
+	'oauth2-resource-owner-password-v6': {
+		flowType: 'oauth',
+		title: 'OAuth 2.0 Resource Owner Password Credentials (V6)',
+		subtitle:
+			'🎭 Hybrid V6 implementation: Proven V5 controller with modern V6 layout and styling. Direct username/password exchange for access tokens with comprehensive educational content.',
+		version: 'V6',
+		icon: '🔑',
+	},
+	'pingone-mfa-v5': {
+		flowType: 'oidc',
+		title: 'PingOne MFA Flow (V5)',
+		subtitle:
+			'Multi-factor authentication flow with PingOne MFA services. Demonstrates device registration, MFA method selection, and token exchange with MFA context.',
 		version: 'V5',
+		icon: '🛡️',
+	},
+	'pingone-mfa-v6': {
+		flowType: 'oidc',
+		title: 'PingOne MFA Flow (V6)',
+		subtitle:
+			'🛡️ Modern V6 implementation: Multi-factor authentication with enhanced UX. Demonstrates device registration, MFA method selection, and secure token exchange with comprehensive MFA context.',
+		version: 'V6',
+		icon: '🛡️',
 	},
 	'rar': {
 		flowType: 'oauth',
@@ -487,6 +546,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		subtitle:
 			'Create and configure OAuth 2.0 and OpenID Connect applications in your PingOne environment. Generate clients for web apps, native apps, SPAs, workers, and services.',
 		icon: '📚',
+	},
+
+	// SAML Bearer Assertion Flow
+	'saml-bearer': {
+		flowType: 'pingone',
+		title: 'SAML Bearer Assertion Flow (Mock)',
+		subtitle: 'Educational implementation of RFC 7522 SAML Bearer Assertion for OAuth token exchange. Mock implementation since PingOne does not support SAML Bearer assertions.',
+		icon: '🛡️',
 	},
 };
 
