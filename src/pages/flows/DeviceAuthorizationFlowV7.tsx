@@ -2346,6 +2346,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 	};
 
+	const renderDeviceDisplay = (tokens: any) => {
+		if (tokens) {
+			return renderGenericSuccessContent();
+		}
+		return renderGenericPreAuthContent();
+	};
+
 	const renderDevicePendingContent = () => {
 		const isPolling = deviceFlow.pollingStatus.isPolling;
 		switch (selectedDevice) {
