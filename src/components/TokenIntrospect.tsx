@@ -784,16 +784,7 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 				</CollapsibleSection>
 			)}
 
-			<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '2rem' }}>
-				<Button onClick={onResetFlow} $variant="danger">
-					<FiRefreshCw /> Start New Flow
-				</Button>
-				{onNavigateToTokenManagement && (
-					<Button onClick={onNavigateToTokenManagement} $variant="primary">
-						<FiKey /> Manage Tokens
-					</Button>
-				)}
-			</div>
+
 		</>
 	);
 };
