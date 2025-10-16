@@ -26,10 +26,16 @@
 export type FlowId = 
   | 'oauth-authz-v6'
   | 'oidc-authz-v6'
+  | 'oauth-authz-v7'
+  | 'oidc-authz-v7'
   | 'oauth-implicit-v6'
   | 'oidc-implicit-v6'
+  | 'oauth-implicit-v7'
+  | 'oidc-implicit-v7'
   | 'oauth-device-auth-v6'
   | 'oidc-device-auth-v6'
+  | 'oauth-device-auth-v7'
+  | 'oidc-device-auth-v7'
   | 'client-credentials-v6'
   | 'jwt-bearer-v6'
   | 'saml-bearer-v6'
@@ -856,10 +862,16 @@ export const FlowStorageService = {
     const mapping: Record<string, FlowId> = {
       'oauth-authorization-code-v6': 'oauth-authz-v6',
       'oidc-authorization-code-v6': 'oidc-authz-v6',
+      'oauth-authorization-code-v7': 'oauth-authz-v7',
+      'oidc-authorization-code-v7': 'oidc-authz-v7',
       'oauth-implicit-v6': 'oauth-implicit-v6',
       'oidc-implicit-v6': 'oidc-implicit-v6',
+      'oauth-implicit-v7': 'oauth-implicit-v7',
+      'oidc-implicit-v7': 'oidc-implicit-v7',
       'device-authorization-flow-v6': 'oauth-device-auth-v6',
       'oidc-device-authorization-flow-v6': 'oidc-device-auth-v6',
+      'device-authorization-flow-v7': 'oauth-device-auth-v7',
+      'oidc-device-authorization-flow-v7': 'oidc-device-auth-v7',
       'client-credentials-v6': 'client-credentials-v6',
       'jwt-bearer-token-v6': 'jwt-bearer-v6',
       'saml-bearer-assertion-v6': 'saml-bearer-v6',
