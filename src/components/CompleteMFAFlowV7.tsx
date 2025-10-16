@@ -61,7 +61,6 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import credentialManager from '../utils/credentialManager';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { CredentialsInput } from '../components/CredentialsInput';
-import { oidcDiscoveryService, type DiscoveryResult } from '../services/oidcDiscoveryService';
 import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, type EnhancedApiCallData } from '../services/enhancedApiCallDisplayService';
 import { AuthenticationModalService } from '../services/authenticationModalService';
