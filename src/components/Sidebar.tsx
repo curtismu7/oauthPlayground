@@ -1165,15 +1165,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={() => handleNavigation('/flows/diagrams')}
 						>
 							Interactive Diagrams
-</MenuItem>
-<MenuItem
-icon={<FiSettings />}
-active={isActive('/advanced-config')}
-onClick={() => handleNavigation('/advanced-config')}
->
-Advanced Configuration
-</MenuItem>
-</SubMenu>						</MenuItem>
+						</MenuItem>
+						<MenuItem
+							icon={<FiSettings />}
+							active={isActive('/advanced-config')}
+							onClick={() => handleNavigation('/advanced-config')}
+						>
+							Advanced Configuration
+						</MenuItem>
 					</SubMenu>
 
 					{/* Documentation */}
