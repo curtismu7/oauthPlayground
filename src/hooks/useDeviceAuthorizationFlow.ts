@@ -105,7 +105,10 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 	// Stop polling - defined early to avoid hoisting issues
 	const stopPolling = useCallback(() => {
-		console.log(`${LOG_PREFIX} [INFO] Stopping polling`);
+		// Only log and clear if actually polling to prevent spam
+		if (pollingIntervalRef.current || pollingTimeoutRef.current) {
+			console.log(`${LOG_PREFIX} [INFO] Stopping polling`);
+		}
 
 		if (pollingIntervalRef.current) {
 			clearInterval(pollingIntervalRef.current);
@@ -142,11 +145,14 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			return;
 		}
 
+		let hasExpired = false; // Flag to prevent multiple expiration calls
+
 		const interval = setInterval(() => {
 			const remaining = Math.max(0, expiresAt - Date.now());
 			setTimeRemaining(remaining);
 
-			if (remaining === 0) {
+			if (remaining === 0 && !hasExpired) {
+				hasExpired = true; // Set flag to prevent multiple calls
 				console.log(`${LOG_PREFIX} [WARN] Device code expired`);
 				setPollingStatus((prev) => ({
 					...prev,
@@ -179,6 +185,12 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			const error = 'Missing credentials: environmentId and clientId are required';
 			console.error(`${LOG_PREFIX} [ERROR] ${error}`);
 			v4ToastManager.showError('Please configure PingOne credentials first.');
+			return;
+		}
+
+		// Prevent multiple simultaneous requests
+		if (deviceCodeData && pollingStatus.status === 'polling') {
+			console.warn(`${LOG_PREFIX} [WARN] Device code request already in progress`);
 			return;
 		}
 
@@ -368,6 +380,16 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				}));
 				v4ToastManager.showError('Device code expired. Please start over.');
 				return true; // Stop polling
+			} else if (data.error === 'invalid_grant') {
+				console.log(`${LOG_PREFIX} [ERROR] Invalid grant - device code may be expired or invalid`);
+				setPollingStatus((prev) => ({
+					...prev,
+					isPolling: false,
+					error: 'Device code expired or invalid',
+					status: 'expired',
+				}));
+				v4ToastManager.showError('Device code expired or invalid. Please start over.');
+				return true; // Stop polling
 			} else {
 				console.error(`${LOG_PREFIX} [ERROR] Unknown error during polling:`, data.error);
 				setPollingStatus((prev) => ({
@@ -400,9 +422,19 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			return;
 		}
 
-		if (pollingStatus.isPolling) {
+		if (pollingStatus.isPolling || pollingIntervalRef.current) {
 			console.warn(`${LOG_PREFIX} [WARN] Polling already in progress`);
 			return;
+		}
+
+		// Clear any existing intervals before starting new ones
+		if (pollingIntervalRef.current) {
+			clearInterval(pollingIntervalRef.current);
+			pollingIntervalRef.current = null;
+		}
+		if (pollingTimeoutRef.current) {
+			clearTimeout(pollingTimeoutRef.current);
+			pollingTimeoutRef.current = null;
 		}
 
 		console.log(`${LOG_PREFIX} [INFO] Starting token polling...`);
@@ -448,7 +480,20 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	const reset = useCallback(() => {
 		console.log(`${LOG_PREFIX} [INFO] Resetting device authorization flow`);
 
-		stopPolling();
+		// Force stop all polling and clear intervals
+		if (pollingIntervalRef.current) {
+			clearInterval(pollingIntervalRef.current);
+			pollingIntervalRef.current = null;
+		}
+		if (pollingTimeoutRef.current) {
+			clearTimeout(pollingTimeoutRef.current);
+			pollingTimeoutRef.current = null;
+		}
+		if (saveDebounceRef.current) {
+			clearTimeout(saveDebounceRef.current);
+			saveDebounceRef.current = null;
+		}
+
 		setDeviceCodeData(null);
 		setTokens(null);
 		setPollingStatus({
@@ -469,16 +514,23 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		} catch (e) {
 			console.warn(`${LOG_PREFIX} [WARN] Failed to clear tokens from localStorage:`, e);
 		}
-	}, [stopPolling]);
+	}, []);
 
 	// Cleanup on unmount
 	useEffect(() => {
 		return () => {
+			// Clear all timers and intervals on unmount
 			if (pollingIntervalRef.current) {
 				clearInterval(pollingIntervalRef.current);
+				pollingIntervalRef.current = null;
 			}
 			if (pollingTimeoutRef.current) {
 				clearTimeout(pollingTimeoutRef.current);
+				pollingTimeoutRef.current = null;
+			}
+			if (saveDebounceRef.current) {
+				clearTimeout(saveDebounceRef.current);
+				saveDebounceRef.current = null;
 			}
 		};
 	}, []);

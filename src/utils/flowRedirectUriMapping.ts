@@ -83,6 +83,15 @@ export const FLOW_REDIRECT_URI_MAPPING: FlowRedirectUriConfig[] = [
 		specification: 'OIDC Core 1.0, Section 3.2.2'
 	},
 
+	// Unified OAuth/OIDC Implicit Flow V7
+	{
+		flowType: 'implicit-v7',
+		requiresRedirectUri: true,
+		callbackPath: 'implicit-callback',
+		description: 'Unified OAuth/OIDC Implicit Flow V7',
+		specification: 'RFC 6749, Section 4.2 / OIDC Core 1.0, Section 3.2.2'
+	},
+
 	// OpenID Connect Hybrid Flows
 	{
 		flowType: 'oidc-hybrid-v6',

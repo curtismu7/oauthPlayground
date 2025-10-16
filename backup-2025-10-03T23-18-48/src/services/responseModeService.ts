@@ -132,7 +132,7 @@ export class ResponseModeService {
 	 * Get response modes compatible with specific response type
 	 */
 	static getCompatibleModes(responseType: string): ResponseModeInfo[] {
-		return this.getAllModes().filter(mode => 
+		return ResponseModeService.getAllModes().filter(mode => 
 			mode.compatibility.responseTypes.includes(responseType)
 		);
 	}
@@ -141,7 +141,7 @@ export class ResponseModeService {
 	 * Get response modes compatible with specific client type
 	 */
 	static getModesForClientType(clientType: 'confidential' | 'public'): ResponseModeInfo[] {
-		return this.getAllModes().filter(mode => 
+		return ResponseModeService.getAllModes().filter(mode => 
 			mode.compatibility.clientTypes.includes(clientType)
 		);
 	}
@@ -150,7 +150,7 @@ export class ResponseModeService {
 	 * Get response modes compatible with specific platform
 	 */
 	static getModesForPlatform(platform: 'web' | 'mobile' | 'desktop' | 'iot'): ResponseModeInfo[] {
-		return this.getAllModes().filter(mode => 
+		return ResponseModeService.getAllModes().filter(mode => 
 			mode.compatibility.platforms.includes(platform)
 		);
 	}
@@ -219,7 +219,7 @@ export class ResponseModeService {
 		responseType: string, 
 		clientType: 'confidential' | 'public'
 	): { valid: boolean; issues: string[] } {
-		const modeInfo = this.getModeInfo(responseMode);
+		const modeInfo = ResponseModeService.getModeInfo(responseMode);
 		if (!modeInfo) {
 			return { valid: false, issues: ['Unknown response mode'] };
 		}
@@ -246,7 +246,7 @@ export class ResponseModeService {
 	 * Get response mode display name with icon
 	 */
 	static getDisplayInfo(mode: ResponseMode): { name: string; icon: string; color: string } {
-		const modeInfo = this.getModeInfo(mode);
+		const modeInfo = ResponseModeService.getModeInfo(mode);
 		if (!modeInfo) {
 			return { name: 'Unknown', icon: '❓', color: '#6b7280' };
 		}

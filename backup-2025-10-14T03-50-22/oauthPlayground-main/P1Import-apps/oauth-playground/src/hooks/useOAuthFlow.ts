@@ -47,7 +47,7 @@ const useOAuthFlow = (flowType = 'authorization_code') => {
 			const state = generateRandomString(32);
 			const nonce = generateRandomString(32);
 
-			let authUrl = new URL(config.authEndpoint);
+			const authUrl = new URL(config.authEndpoint);
 			const params = new URLSearchParams({
 				response_type: flowType === 'authorization_code' ? 'code' : 'token',
 				client_id: config.clientId,

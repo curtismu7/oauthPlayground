@@ -311,7 +311,7 @@ export class AuthCodeStorage {
    * @returns True if code exists and is fresh
    */
   static isFresh(flowId: FlowId, maxAgeMs: number = 5 * 60 * 1000): boolean {
-    const data = this.getData(flowId);
+    const data = AuthCodeStorage.getData(flowId);
     if (!data) return false;
 
     const age = Date.now() - data.timestamp;
@@ -373,7 +373,7 @@ export class DeviceCodeStorage {
    * @returns True if expired
    */
   static isExpired(flowId: FlowId): boolean {
-    const data = this.get(flowId);
+    const data = DeviceCodeStorage.get(flowId);
     if (!data) return true;
 
     const age = Date.now() - data.timestamp;
@@ -613,7 +613,7 @@ export class TokenStorage {
    * @returns True if expired
    */
   static isExpired(): boolean {
-    const tokens = this.get();
+    const tokens = TokenStorage.get();
     if (!tokens) return true;
 
     // Tokens don't have a stored timestamp, so we can't determine expiry
@@ -723,7 +723,7 @@ export class StorageCleanup {
   static clearFlowCompletely(flowId: FlowId): void {
     console.log(`🧹 [FlowStorage] Completely clearing ${flowId}`);
     
-    this.clearFlow(flowId);
+    StorageCleanup.clearFlow(flowId);
     CredentialsStorage.remove(flowId);
     
     console.log(`✅ [FlowStorage] Completely cleared ${flowId}`);
@@ -802,9 +802,9 @@ export class AdvancedParametersStorage {
    * @param updates - Partial parameters to update
    */
   static update(flowId: FlowId, updates: Partial<AdvancedParametersData>): void {
-    const existing = this.get(flowId) || {};
+    const existing = AdvancedParametersStorage.get(flowId) || {};
     const merged = { ...existing, ...updates };
-    this.set(flowId, merged);
+    AdvancedParametersStorage.set(flowId, merged);
   }
 
   /**

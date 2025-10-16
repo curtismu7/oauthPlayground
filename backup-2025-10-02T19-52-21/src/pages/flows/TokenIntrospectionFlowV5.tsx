@@ -390,7 +390,7 @@ const TokenIntrospectionFlowV5: React.FC = () => {
 									<TokenInfoRow>
 										<TokenInfoLabel>Token Active:</TokenInfoLabel>
 										<TokenInfoValue $valid={Boolean(safeIntrospectionResult?.active)}>
-											{Boolean(safeIntrospectionResult?.active) ? 'Yes' : 'No'}
+											{safeIntrospectionResult?.active ? 'Yes' : 'No'}
 										</TokenInfoValue>
 									</TokenInfoRow>
 									{safeIntrospectionResult?.exp &&

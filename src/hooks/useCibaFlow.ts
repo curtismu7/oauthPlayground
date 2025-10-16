@@ -1,7 +1,6 @@
 // src/hooks/useCibaFlow.ts
 // OIDC Client Initiated Backchannel Authentication (CIBA) V5 flow logic
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { safeJsonParse } from '../utils/secureJson';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export type CibaAuthMethod = 'client_secret_post' | 'client_secret_basic';
@@ -18,14 +17,15 @@ export interface CibaConfig {
 }
 
 export interface CibaAuthRequest {
-	auth_req_id: string;
-	expires_in: number;
-	interval?: number;
-	launch_mode?: string;
-	binding_message?: string;
-	user_code?: string;
-	client_notification_token?: string;
-	server_timestamp?: string;
+	stateId: string;
+	status: 'pending' | 'approved' | 'denied';
+	interval: number;
+	expiresIn: number;
+	launchMode: 'poll';
+	bindingMessage: string;
+	userCode: string;
+	expiresAt: number;
+	requestContext?: string;
 }
 
 export interface CibaTokens {
@@ -34,14 +34,18 @@ export interface CibaTokens {
 	token_type?: string;
 	expires_in?: number;
 	scope?: string;
-	id_token?: string;
+	client_id?: string;
+	sub?: string;
+	aud?: string | string[];
+	iss?: string;
+	iat?: number;
+	exp?: number;
 	issued_at?: number;
 	server_timestamp?: string;
 }
 
 type CibaStage =
 	| 'idle'
-	| 'saving-config'
 	| 'initiating'
 	| 'awaiting-approval'
 	| 'polling'
@@ -59,12 +63,71 @@ interface UseCibaFlowReturn {
 	initiateAuthentication: () => Promise<void>;
 	cancelPolling: () => void;
 	reset: () => void;
+	simulateDecision: (decision: 'approved' | 'denied') => void;
 }
 
-const LOG_PREFIX = '[📲 CIBA]';
-const CONFIG_STORAGE_KEY = 'oidc_ciba_v5_config';
-const TOKENS_STORAGE_KEY = 'oidc_ciba_v5_tokens';
-const AUTH_REQUEST_STORAGE_KEY = 'oidc_ciba_v5_auth_request';
+const LOG_PREFIX = '[📲 CIBA MOCK]';
+const CONFIG_STORAGE_KEY = 'oidc_ciba_v6_mock_config';
+const TOKENS_STORAGE_KEY = 'oidc_ciba_v6_mock_tokens';
+const AUTH_REQUEST_STORAGE_KEY = 'oidc_ciba_v6_mock_auth_request';
+const MOCK_TOKENS = [
+	'eyMockAccessToken_A1B2C3D4',
+	'eyMockAccessToken_XYZ987654',
+	'eyMockAccessToken_12345ABCDE',
+];
+
+const createMockTokens = (config: CibaConfig): CibaTokens => {
+	const issued = Date.now();
+	return {
+		access_token: MOCK_TOKENS[Math.floor(Math.random() * MOCK_TOKENS.length)],
+		token_type: 'Bearer',
+		expires_in: 3600,
+		scope: config.scope,
+		client_id: config.clientId,
+		sub: config.loginHint,
+		aud: `https://mock.api/${config.environmentId}`,
+		iss: `https://mock.auth/${config.environmentId}`,
+		iat: Math.floor(issued / 1000),
+		exp: Math.floor(issued / 1000) + 3600,
+		issued_at: issued,
+		server_timestamp: new Date(issued).toISOString(),
+	};
+};
+
+const createMockAuthRequest = (config: CibaConfig): CibaAuthRequest => {
+	const stateId = `mock-ciba-${Math.random().toString(36).slice(2, 10)}`;
+	return {
+		stateId,
+		status: 'pending',
+		interval: 3,
+		expiresIn: 90,
+		launchMode: 'poll',
+		bindingMessage: config.bindingMessage || 'Approve OAuth Playground CIBA Demo',
+		userCode: Math.random().toString(36).slice(2, 6).toUpperCase(),
+		expiresAt: Date.now() + 90 * 1000,
+		requestContext: config.requestContext,
+	};
+};
+
+const advanceMockAuthRequest = (request: CibaAuthRequest | null): CibaAuthRequest | null => {
+	if (!request) {
+		return null;
+	}
+
+	if (Date.now() > request.expiresAt) {
+		return { ...request, status: 'denied' };
+	}
+
+	if (request.status === 'pending') {
+		const shouldApprove = Math.random() > 0.25;
+		return {
+			...request,
+			status: shouldApprove ? 'approved' : 'denied',
+		};
+	}
+
+	return request;
+};
 
 export const useCibaFlow = (): UseCibaFlowReturn => {
 	const [config, setConfigState] = useState<CibaConfig | null>(null);
@@ -75,40 +138,26 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 	const [isPolling, setIsPolling] = useState(false);
 
 	const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
-	const expiresAtRef = useRef<number | null>(null);
 
-	// Load persisted config and state on mount
 	useEffect(() => {
 		try {
 			const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
-			if (savedConfig) {
-				const parsed = safeJsonParse<CibaConfig>(savedConfig);
-				if (parsed) {
-					setConfigState(parsed);
-					console.log(`${LOG_PREFIX} Loaded config from localStorage`);
-				}
-			}
-
-			const savedAuthRequest = sessionStorage.getItem(AUTH_REQUEST_STORAGE_KEY);
-			if (savedAuthRequest) {
-				const parsedAuth = safeJsonParse<CibaAuthRequest>(savedAuthRequest);
-				if (parsedAuth) {
-					setAuthRequest(parsedAuth);
-					expiresAtRef.current = Date.now() + parsedAuth.expires_in * 1000;
-					setStage('awaiting-approval');
-				}
-			}
-
+			const savedRequest = sessionStorage.getItem(AUTH_REQUEST_STORAGE_KEY);
 			const savedTokens = localStorage.getItem(TOKENS_STORAGE_KEY);
+
+			if (savedConfig) {
+				setConfigState(JSON.parse(savedConfig));
+			}
+			if (savedRequest) {
+				setAuthRequest(JSON.parse(savedRequest));
+				setStage('awaiting-approval');
+			}
 			if (savedTokens) {
-				const parsedTokens = safeJsonParse<CibaTokens>(savedTokens);
-				if (parsedTokens) {
-					setTokens(parsedTokens);
-					setStage('success');
-				}
+				setTokens(JSON.parse(savedTokens));
+				setStage('success');
 			}
 		} catch (loadError) {
-			console.warn(`${LOG_PREFIX} Failed to restore state:`, loadError);
+			console.warn(`${LOG_PREFIX} Failed to restore mock state:`, loadError);
 		}
 
 		return () => {
@@ -118,47 +167,29 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		};
 	}, []);
 
-	const persistConfig = useCallback((newConfig: CibaConfig) => {
-		setConfigState(newConfig);
-		try {
-			localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
-			console.log(`${LOG_PREFIX} Saved config to localStorage`);
-		} catch (storageError) {
-			console.warn(`${LOG_PREFIX} Failed to persist config:`, storageError);
-		}
-	}, []);
+	const persistMockState = useCallback(
+		(newConfig: CibaConfig | null, newRequest: CibaAuthRequest | null, newTokens: CibaTokens | null) => {
+			if (newConfig) {
+				setConfigState(newConfig);
+				localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(newConfig));
+			}
 
-	const persistAuthRequest = useCallback((request: CibaAuthRequest | null) => {
-		setAuthRequest(request);
-		if (!request) {
-			sessionStorage.removeItem(AUTH_REQUEST_STORAGE_KEY);
-			expiresAtRef.current = null;
-			return;
-		}
+			setAuthRequest(newRequest);
+			if (newRequest) {
+				sessionStorage.setItem(AUTH_REQUEST_STORAGE_KEY, JSON.stringify(newRequest));
+			} else {
+				sessionStorage.removeItem(AUTH_REQUEST_STORAGE_KEY);
+			}
 
-		try {
-			sessionStorage.setItem(AUTH_REQUEST_STORAGE_KEY, JSON.stringify(request));
-			expiresAtRef.current = Date.now() + request.expires_in * 1000;
-			console.log(`${LOG_PREFIX} Auth request cached for polling`);
-		} catch (storageError) {
-			console.warn(`${LOG_PREFIX} Failed to persist auth request:`, storageError);
-		}
-	}, []);
-
-	const persistTokens = useCallback((tokenSet: CibaTokens | null) => {
-		setTokens(tokenSet);
-		if (!tokenSet) {
-			localStorage.removeItem(TOKENS_STORAGE_KEY);
-			return;
-		}
-
-		try {
-			localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(tokenSet));
-			console.log(`${LOG_PREFIX} Tokens stored to localStorage`);
-		} catch (storageError) {
-			console.warn(`${LOG_PREFIX} Failed to persist tokens:`, storageError);
-		}
-	}, []);
+			setTokens(newTokens);
+			if (newTokens) {
+				localStorage.setItem(TOKENS_STORAGE_KEY, JSON.stringify(newTokens));
+			} else {
+				localStorage.removeItem(TOKENS_STORAGE_KEY);
+			}
+		},
+		[]
+	);
 
 	const clearPollingTimer = useCallback(() => {
 		if (pollingTimerRef.current) {
@@ -167,230 +198,142 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		}
 	}, []);
 
-	const scheduleNextPoll = useCallback(
-		(intervalSeconds: number) => {
+	const completeWithTokens = useCallback(
+		(issuedTokens: CibaTokens) => {
+			persistMockState(config || buildInitialConfig(), null, issuedTokens);
+			setStage('success');
+			setIsPolling(false);
+			setError(null);
+			v4ToastManager.showSuccess('CIBA request approved. Tokens issued successfully.');
 			clearPollingTimer();
-			pollingTimerRef.current = setTimeout(async () => {
-				await pollForTokens();
-			}, Math.max(intervalSeconds, 1) * 1000);
 		},
-		[clearPollingTimer]
+		[clearPollingTimer, config, persistMockState]
 	);
 
-	const pollForTokens = useCallback(async () => {
-		if (!authRequest || !config) {
-			console.warn(`${LOG_PREFIX} Polling skipped — missing auth request or config`);
-			return;
-		}
-
-		if (expiresAtRef.current && Date.now() > expiresAtRef.current) {
+	const failSimulation = useCallback(
+		(message: string) => {
+			persistMockState(config || buildInitialConfig(), null, null);
 			setStage('error');
-			setError('Authentication request expired. Please try again.');
-			clearPollingTimer();
-			persistAuthRequest(null);
 			setIsPolling(false);
-			v4ToastManager.showError('CIBA request expired. Please initiate again.');
-			return;
-		}
-
-		setStage('polling');
-		setIsPolling(true);
-
-		try {
-			const response = await fetch('/api/ciba-token', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environment_id: config.environmentId,
-					client_id: config.clientId,
-					client_secret: config.clientSecret,
-					auth_method: config.authMethod,
-					auth_req_id: authRequest.auth_req_id,
-				}),
-			});
-
-			const data = await response.json();
-
-			if (response.status === 400 || response.status === 401) {
-				const errorCode = data.error as string | undefined;
-				if (errorCode === 'authorization_pending') {
-					scheduleNextPoll((data.interval as number | undefined) ?? authRequest.interval ?? 5);
-					return;
-				}
-
-				if (errorCode === 'slow_down') {
-					const nextInterval =
-						((data.interval as number | undefined) ?? authRequest.interval ?? 5) + 5;
-					scheduleNextPoll(nextInterval);
-					return;
-				}
-
-				if (errorCode === 'expired_token' || errorCode === 'access_denied') {
-					setStage('error');
-					setError(data.error_description || 'Authentication failed or expired.');
-					v4ToastManager.showError(data.error_description || 'Backchannel authentication failed.');
-					clearPollingTimer();
-					persistAuthRequest(null);
-					setIsPolling(false);
-					return;
-				}
-			}
-
-			if (!response.ok) {
-				const errorMsg = data.error_description || data.error || `HTTP ${response.status}`;
-				console.error(`${LOG_PREFIX} Token polling failed:`, errorMsg);
-				setStage('error');
-				setError(errorMsg);
-				clearPollingTimer();
-				persistAuthRequest(null);
-				setIsPolling(false);
-				v4ToastManager.showError(`Token polling failed: ${errorMsg}`);
-				return;
-			}
-
-			const issuedTokens: CibaTokens = {
-				...data,
-				issued_at: Date.now(),
-			};
-
-			persistTokens(issuedTokens);
-			persistAuthRequest(null);
+			setError(message);
+			v4ToastManager.showError(message);
 			clearPollingTimer();
-			setIsPolling(false);
-			setStage('success');
-			setError(null);
+		},
+		[clearPollingTimer, config, persistMockState]
+	);
 
-			try {
-				localStorage.setItem('oauth_tokens', JSON.stringify(issuedTokens));
-				localStorage.setItem('flow_source', 'oidc-ciba-v5');
-				sessionStorage.setItem('flow_source', 'oidc-ciba-v5');
+	const scheduleMockPoll = useCallback(
+		(intervalSeconds: number) => {
+			clearPollingTimer();
+			pollingTimerRef.current = setTimeout(() => {
+				setIsPolling(true);
+				setStage('polling');
+				setAuthRequest((current) => {
+					const next = advanceMockAuthRequest(current);
+					if (!next) {
+						return null;
+					}
 
-				const flowContext = {
-					flow: 'oidc-ciba-v5',
-					tokens: issuedTokens,
-					credentials: config,
-					timestamp: Date.now(),
+					if (next.status === 'pending') {
+						scheduleMockPoll(intervalSeconds);
+					} else if (next.status === 'approved') {
+						const issuedTokens = createMockTokens(config || buildInitialConfig());
+						completeWithTokens(issuedTokens);
+					} else {
+						failSimulation('CIBA request denied by simulated user.');
+					}
+
+					return next;
+				});
+			}, Math.max(intervalSeconds, 1) * 1000);
+		},
+		[clearPollingTimer, completeWithTokens, config, failSimulation]
+	);
+
+	const simulateDecision = useCallback(
+		(decision: 'approved' | 'denied') => {
+			setAuthRequest((current) => {
+				if (!current) {
+					return current;
+				}
+
+				const next: CibaAuthRequest = {
+					...current,
+					status: decision,
 				};
-				sessionStorage.setItem('tokenManagementFlowContext', JSON.stringify(flowContext));
 
-				// Dispatch events to notify dashboard and other components
-				window.dispatchEvent(new CustomEvent('pingone-config-changed'));
-				window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
-				console.log(`${LOG_PREFIX} Configuration change events dispatched`);
-			} catch (storageError) {
-				console.warn(`${LOG_PREFIX} Failed to persist flow context:`, storageError);
-			}
+				if (decision === 'approved') {
+					const issuedTokens = createMockTokens(config || buildInitialConfig());
+					completeWithTokens(issuedTokens);
+				} else {
+					failSimulation('CIBA request denied by simulated user.');
+				}
 
-			v4ToastManager.showSuccess('Tokens received successfully!');
-		} catch (pollError) {
-			console.error(`${LOG_PREFIX} Polling request error:`, pollError);
-			setStage('error');
-			setError(pollError instanceof Error ? pollError.message : 'Polling failed');
-			clearPollingTimer();
-			persistAuthRequest(null);
-			setIsPolling(false);
-			v4ToastManager.showError('Polling error. Please try again.');
-		}
-	}, [authRequest, clearPollingTimer, config, persistAuthRequest, persistTokens, scheduleNextPoll]);
+				return next;
+			});
+		},
+		[completeWithTokens, config, failSimulation]
+	);
 
 	const initiateAuthentication = useCallback(async () => {
-		if (!config) {
-			const errorMsg = 'Configuration is required before initiating CIBA.';
-			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
-			return;
-		}
+		const activeConfig = config || buildInitialConfig();
 
-		if (!config.environmentId || !config.clientId || !config.scope) {
+		if (!activeConfig.environmentId || !activeConfig.clientId || !activeConfig.scope) {
 			const errorMsg = 'Environment ID, Client ID, and Scope are required.';
 			setError(errorMsg);
 			v4ToastManager.showError(errorMsg);
 			return;
 		}
 
-		if (config.authMethod === 'client_secret_post' || config.authMethod === 'client_secret_basic') {
-			if (!config.clientSecret) {
-				const errorMsg = 'Client secret is required for the selected authentication method.';
-				setError(errorMsg);
-				v4ToastManager.showError(errorMsg);
-				return;
-			}
+		if (
+			(activeConfig.authMethod === 'client_secret_post' || activeConfig.authMethod === 'client_secret_basic') &&
+			!activeConfig.clientSecret
+		) {
+			const errorMsg = 'Client secret is required for the selected authentication method.';
+			setError(errorMsg);
+			v4ToastManager.showError(errorMsg);
+			return;
 		}
 
 		setStage('initiating');
 		setError(null);
 		setTokens(null);
-		persistTokens(null);
-		persistAuthRequest(null);
-		clearPollingTimer();
+		persistMockState(activeConfig, null, null);
 
-		try {
-			const response = await fetch('/api/ciba-initiate', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environment_id: config.environmentId,
-					client_id: config.clientId,
-					client_secret: config.clientSecret,
-					auth_method: config.authMethod,
-					scope: config.scope,
-					login_hint: config.loginHint,
-					binding_message: config.bindingMessage,
-					request_context: config.requestContext,
-				}),
-			});
+		const mockRequest = createMockAuthRequest(activeConfig);
+		persistMockState(activeConfig, mockRequest, null);
 
-			const data = await response.json();
-
-			if (!response.ok) {
-				const errorMsg = data.error_description || data.error || `HTTP ${response.status}`;
-				console.error(`${LOG_PREFIX} Initiation failed:`, errorMsg);
-				setStage('error');
-				setError(errorMsg);
-				v4ToastManager.showError(`CIBA initiation failed: ${errorMsg}`);
-				return;
-			}
-
-			const requestPayload: CibaAuthRequest = {
-				...data,
-				interval: data.interval ?? 5,
-			};
-
-			persistAuthRequest(requestPayload);
-			setStage('awaiting-approval');
-			setIsPolling(false);
-			v4ToastManager.showSuccess('CIBA request sent. Awaiting end-user confirmation.');
-			scheduleNextPoll(requestPayload.interval ?? 5);
-		} catch (initError) {
-			console.error(`${LOG_PREFIX} Initiation error:`, initError);
-			setStage('error');
-			setError(initError instanceof Error ? initError.message : 'Failed to initiate CIBA flow');
-			v4ToastManager.showError('Failed to initiate CIBA flow. See console for details.');
-		}
-	}, [clearPollingTimer, config, persistAuthRequest, persistTokens, scheduleNextPoll]);
+		setStage('awaiting-approval');
+		setIsPolling(true);
+		v4ToastManager.showSuccess('Mock CIBA request sent. Awaiting simulated approval.');
+		scheduleMockPoll(mockRequest.interval);
+	}, [config, persistMockState, scheduleMockPoll]);
 
 	const cancelPolling = useCallback(() => {
 		clearPollingTimer();
 		setIsPolling(false);
-		persistAuthRequest(null);
 		setStage('idle');
 		setError(null);
-		v4ToastManager.showSuccess('Polling cancelled. You can restart the flow when ready.');
-	}, [clearPollingTimer, persistAuthRequest]);
+		persistMockState(config || buildInitialConfig(), null, tokens);
+		v4ToastManager.showSuccess('Mock polling cancelled. You can restart the flow when ready.');
+	}, [clearPollingTimer, config, persistMockState, tokens]);
 
 	const reset = useCallback(() => {
 		clearPollingTimer();
-		persistAuthRequest(null);
-		persistTokens(null);
-		setError(null);
-		setStage('idle');
 		setIsPolling(false);
+		setStage('idle');
+		setError(null);
+		persistMockState(buildInitialConfig(), null, null);
 		setAuthRequest(null);
-	}, [clearPollingTimer, persistAuthRequest, persistTokens]);
+		setTokens(null);
+	}, [clearPollingTimer, persistMockState]);
+
+	const updateConfig = useCallback(
+		(newConfig: CibaConfig) => {
+			persistMockState(newConfig, authRequest, tokens);
+		},
+		[authRequest, persistMockState, tokens]
+	);
 
 	return {
 		config,
@@ -399,11 +342,23 @@ export const useCibaFlow = (): UseCibaFlowReturn => {
 		stage,
 		isPolling,
 		error,
-		setConfig: persistConfig,
+		setConfig: updateConfig,
 		initiateAuthentication,
 		cancelPolling,
 		reset,
+		simulateDecision,
 	};
 };
+
+const buildInitialConfig = (): CibaConfig => ({
+	environmentId: 'mock-ciba-env-id',
+	clientId: 'mock_ciba_client_id_demo_12345',
+	clientSecret: 'mock_ciba_client_secret_demo_67890',
+	scope: 'openid profile',
+	loginHint: 'demo.ciba.user@example.com',
+	bindingMessage: 'Approve OAuth Playground CIBA Demo',
+	authMethod: 'client_secret_post',
+	requestContext: `mock-ciba-session-${Math.random().toString(36).slice(2, 10)}`,
+});
 
 export default useCibaFlow;

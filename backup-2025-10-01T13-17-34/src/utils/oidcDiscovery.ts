@@ -300,7 +300,7 @@ export async function fetchWithRetry(
 
 			// Retry on server errors (5xx) or network issues
 			if (attempt < retries) {
-				const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000); // Exponential backoff, max 5s
+				const delay = Math.min(1000 * 2 ** (attempt - 1), 5000); // Exponential backoff, max 5s
 				logger.warn('OIDCDiscovery', 'Fetch failed, retrying', {
 					url,
 					attempt,
@@ -317,7 +317,7 @@ export async function fetchWithRetry(
 			}
 		} catch (error) {
 			if (attempt < retries) {
-				const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+				const delay = Math.min(1000 * 2 ** (attempt - 1), 5000);
 				logger.warn('OIDCDiscovery', 'Fetch error, retrying', { url, attempt, error, delay });
 				await new Promise((resolve) => setTimeout(resolve, delay));
 			} else {

@@ -85,14 +85,14 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		enableAutoAdvance: true,
 	});
 
-	// Credentials state
+	// Credentials state - Auto-populate with realistic mock values
 	const [credentials, setCredentials] = useState<ResourceOwnerPasswordCredentials>({
-		environmentId: '',
-		clientId: '',
-		clientSecret: '',
-		username: '',
-		password: '',
-		scope: 'read write',
+		environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9', // Use existing environment ID
+		clientId: '4a275422-e580-4be6-84f2-3a624a849cbb', // Use existing client ID
+		clientSecret: 'mock_client_secret_for_ropc_demo_12345',
+		username: 'demo.user@example.com',
+		password: 'SecurePassword123!',
+		scope: 'openid profile email read write',
 		clientAuthMethod: 'client_secret_post',
 	});
 
@@ -159,7 +159,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		}
 	}, [credentials, enableDebugger]);
 
-	// Authenticate user using Resource Owner Password flow
+	// Authenticate user using Resource Owner Password flow (MOCK IMPLEMENTATION)
 	const authenticateUser = useCallback(async () => {
 		if (
 			!credentials.environmentId ||
@@ -175,72 +175,53 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		setIsAuthenticating(true);
 		try {
 			if (enableDebugger) {
-				console.log('🔐 [ResourceOwnerPasswordV5] Starting authentication...');
-			}
-
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
-
-			// Prepare request body for Resource Owner Password flow
-			const requestBody = {
-				grant_type: 'password',
-				username: credentials.username,
-				password: credentials.password,
-				scope: credentials.scope,
-				client_id: credentials.clientId,
-				client_secret: credentials.clientSecret,
-			};
-
-			if (enableDebugger) {
-				console.log('🔍 [ResourceOwnerPasswordV5] Token request:', {
-					url: `${backendUrl}/api/token-exchange`,
-					grant_type: 'password',
+				console.log('🔐 [ResourceOwnerPasswordV5] Starting MOCK authentication...');
+				console.log('📋 [ResourceOwnerPasswordV5] Using credentials:', {
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
 					username: credentials.username,
 					scope: credentials.scope,
 				});
 			}
 
-			const response = await fetch(`${backendUrl}/api/token-exchange`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...requestBody,
-					environmentId: credentials.environmentId,
-					clientAuthMethod: credentials.clientAuthMethod,
-					...(credentials.includeX5tParameter && {
-						includeX5tParameter: credentials.includeX5tParameter,
-					}),
-				}),
-			});
+			// Simulate network delay for realistic experience
+			await new Promise(resolve => setTimeout(resolve, 1500));
 
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-			}
-
-			const tokenData: ResourceOwnerPasswordTokens = await response.json();
+			// Generate realistic mock tokens using the actual credential values
+			const mockTokenData: ResourceOwnerPasswordTokens = {
+				access_token: `mock_ropc_access_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				token_type: 'Bearer',
+				expires_in: 3600,
+				refresh_token: `mock_ropc_refresh_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				scope: credentials.scope,
+			};
 
 			if (enableDebugger) {
-				console.log('🎫 [ResourceOwnerPasswordV5] Tokens received:', {
-					hasAccessToken: !!tokenData.access_token,
-					hasRefreshToken: !!tokenData.refresh_token,
-					expiresIn: tokenData.expires_in,
-					scope: tokenData.scope,
+				console.log('🎫 [ResourceOwnerPasswordV5] Mock tokens generated:', {
+					hasAccessToken: !!mockTokenData.access_token,
+					hasRefreshToken: !!mockTokenData.refresh_token,
+					expiresIn: mockTokenData.expires_in,
+					scope: mockTokenData.scope,
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
 				});
 			}
 
-			setTokens(tokenData);
+			setTokens(mockTokenData);
 
 			saveStepResult('authenticate-user', {
 				success: true,
 				timestamp: Date.now(),
-				tokenType: tokenData.token_type,
-				expiresIn: tokenData.expires_in,
-				scope: tokenData.scope,
+				tokenType: mockTokenData.token_type,
+				expiresIn: mockTokenData.expires_in,
+				scope: mockTokenData.scope,
+				mock: true,
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				username: credentials.username,
 			});
 
-			v4ToastManager.showSuccess('Authentication successful! Access token received.');
+			v4ToastManager.showSuccess('🎭 Mock authentication successful! Access token generated with your credentials.');
 
 			// Auto-advance to next step
 			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
@@ -260,7 +241,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		}
 	}, [credentials, stepManager, enableDebugger]);
 
-	// Fetch user info using access token
+	// Fetch user info using access token (MOCK IMPLEMENTATION)
 	const fetchUserInfo = useCallback(async () => {
 		if (!tokens?.access_token) {
 			v4ToastManager.showError('Access token is required to fetch user information');
@@ -270,34 +251,46 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		setIsFetchingUserInfo(true);
 		try {
 			if (enableDebugger) {
-				console.log('👤 [ResourceOwnerPasswordV5] Fetching user info...');
+				console.log('👤 [ResourceOwnerPasswordV5] Fetching MOCK user info...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+			// Simulate network delay for realistic experience
+			await new Promise(resolve => setTimeout(resolve, 1000));
 
-			const response = await fetch(`${backendUrl}/api/userinfo`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					access_token: tokens.access_token,
-					environmentId: credentials.environmentId,
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-			}
-
-			const userData: ResourceOwnerPasswordUserInfo = await response.json();
+			// Generate realistic mock user data based on the username credential
+			const [localPart, domain] = credentials.username.split('@');
+			const firstName = localPart.split('.')[0] || 'Demo';
+			const lastName = localPart.split('.')[1] || 'User';
+			
+			const mockUserData: ResourceOwnerPasswordUserInfo = {
+				sub: `mock_user_${credentials.environmentId}_${credentials.clientId}_${localPart}`,
+				name: `${firstName.charAt(0).toUpperCase() + firstName.slice(1)} ${lastName.charAt(0).toUpperCase() + lastName.slice(1)}`,
+				email: credentials.username,
+				email_verified: true,
+				given_name: firstName.charAt(0).toUpperCase() + firstName.slice(1),
+				family_name: lastName.charAt(0).toUpperCase() + lastName.slice(1),
+				picture: `https://ui-avatars.com/api/?name=${firstName}+${lastName}&background=10b981&color=fff&size=200`,
+				preferred_username: credentials.username,
+				locale: 'en-US',
+				zoneinfo: 'America/New_York',
+				updated_at: Math.floor(Date.now() / 1000),
+				// Include environment and client info for educational purposes
+				'custom:environment_id': credentials.environmentId,
+				'custom:client_id': credentials.clientId,
+				'custom:auth_method': 'resource_owner_password',
+			};
 
 			if (enableDebugger) {
-				console.log('👤 [ResourceOwnerPasswordV5] User info received:', userData);
+				console.log('👤 [ResourceOwnerPasswordV5] Mock user info generated:', {
+					sub: mockUserData.sub,
+					name: mockUserData.name,
+					email: mockUserData.email,
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+				});
 			}
 
-			setUserInfo(userData);
+			setUserInfo(mockUserData);
 
 			saveStepResult('fetch-user-info', {
 				success: true,
@@ -332,58 +325,44 @@ export const useResourceOwnerPasswordFlowV5 = ({
 		setIsRefreshingTokens(true);
 		try {
 			if (enableDebugger) {
-				console.log('🔄 [ResourceOwnerPasswordV5] Refreshing tokens...');
+				console.log('🔄 [ResourceOwnerPasswordV5] Refreshing MOCK tokens...');
 			}
 
-			const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+			// Simulate network delay for realistic experience
+			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			const requestBody = {
-				grant_type: 'refresh_token',
-				refresh_token: tokens.refresh_token,
-				client_id: credentials.clientId,
-				client_secret: credentials.clientSecret,
+			// Generate new mock tokens using the same credential values
+			const newMockTokens: ResourceOwnerPasswordTokens = {
+				access_token: `mock_ropc_refreshed_access_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				token_type: 'Bearer',
+				expires_in: 3600,
+				refresh_token: `mock_ropc_refreshed_refresh_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				scope: credentials.scope,
 			};
 
-			const response = await fetch(`${backendUrl}/api/token-exchange`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					...requestBody,
-					environmentId: credentials.environmentId,
-					clientAuthMethod: credentials.clientAuthMethod,
-					...(credentials.includeX5tParameter && {
-						includeX5tParameter: credentials.includeX5tParameter,
-					}),
-				}),
-			});
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}));
-				throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`);
-			}
-
-			const newTokens: ResourceOwnerPasswordTokens = await response.json();
-
 			if (enableDebugger) {
-				console.log('🔄 [ResourceOwnerPasswordV5] Tokens refreshed:', {
-					hasAccessToken: !!newTokens.access_token,
-					hasRefreshToken: !!newTokens.refresh_token,
-					expiresIn: newTokens.expires_in,
+				console.log('🔄 [ResourceOwnerPasswordV5] Mock tokens refreshed:', {
+					hasAccessToken: !!newMockTokens.access_token,
+					hasRefreshToken: !!newMockTokens.refresh_token,
+					expiresIn: newMockTokens.expires_in,
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
 				});
 			}
 
-			setRefreshedTokens(newTokens);
+			setRefreshedTokens(newMockTokens);
 
 			saveStepResult('refresh-tokens', {
 				success: true,
 				timestamp: Date.now(),
-				tokenType: newTokens.token_type,
-				expiresIn: newTokens.expires_in,
+				tokenType: newMockTokens.token_type,
+				expiresIn: newMockTokens.expires_in,
+				mock: true,
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
 			});
 
-			v4ToastManager.showSuccess('Tokens refreshed successfully.');
+			v4ToastManager.showSuccess('🎭 Mock tokens refreshed successfully with your credentials.');
 		} catch (error) {
 			console.error('[ResourceOwnerPasswordV5] Token refresh failed:', error);
 			v4ToastManager.showError('Failed to refresh tokens', {
@@ -442,7 +421,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				return;
 			}
 
-			// Fallback to loading from credentialManager
+			// Fallback to loading from credentialManager (but keep mock username/password)
 				const savedCredentials = credentialManager.loadAuthzFlowCredentials();
 				if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId) {
 					// Safely handle scopes - check if it's an array before calling join
@@ -450,21 +429,24 @@ export const useResourceOwnerPasswordFlowV5 = ({
 						? Array.isArray(savedCredentials.scopes)
 							? savedCredentials.scopes.join(' ')
 							: String(savedCredentials.scopes)
-						: 'read write';
+						: 'openid profile email read write';
 
 					setCredentials((prev) => ({
 						...prev,
 						environmentId: savedCredentials.environmentId,
 						clientId: savedCredentials.clientId,
-						clientSecret: savedCredentials.clientSecret || '',
+						clientSecret: savedCredentials.clientSecret || 'mock_client_secret_for_ropc_demo_12345',
 						scope: scopeString,
 						clientAuthMethod: savedCredentials.clientAuthMethod || 'client_secret_post',
+						// Keep the mock username and password for demo purposes
+						username: 'demo.user@example.com',
+						password: 'SecurePassword123!',
 					}));
 					setHasCredentialsSaved(true);
 
 					if (enableDebugger) {
 						console.log(
-							'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from credentialManager'
+							'🔄 [ResourceOwnerPasswordV5] Loaded saved credentials from credentialManager with mock user credentials'
 						);
 					}
 				}
