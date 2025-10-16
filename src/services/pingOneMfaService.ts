@@ -237,7 +237,7 @@ export class PingOneMfaService {
     /**
      * Activate a device with validation code
      */
-    static async activateDevice(
+    static async activateDeviceWithCode(
         credentials: MfaCredentials,
         deviceId: string,
         activationData: { otp?: string; totpCode?: string }

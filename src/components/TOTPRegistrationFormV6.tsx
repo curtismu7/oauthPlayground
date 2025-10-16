@@ -392,7 +392,7 @@ export const TOTPRegistrationFormV6: React.FC<TOTPRegistrationFormProps> = ({
     setErrors({});
 
     try {
-      const validation = await PingOneMfaService.activateDevice(
+      const validation = await PingOneMfaService.activateDeviceWithCode(
         credentials,
         registrationResult.device.id,
         { totpCode }
