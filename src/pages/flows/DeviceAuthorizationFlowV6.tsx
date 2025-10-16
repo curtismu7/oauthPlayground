@@ -2708,8 +2708,6 @@ const DeviceAuthorizationFlowV6: React.FC = () => {
 			<FlowContent>
 				<StandardFlowHeader flowId="device-authorization-v6" />
 				
-				{UISettingsService.getFlowSpecificSettingsPanel('device-authorization')}
-				
 				<EnhancedFlowInfoCard
 					flowType="device-code"
 					showAdditionalInfo={true}
