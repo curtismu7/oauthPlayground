@@ -721,12 +721,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 				</SubMenu>
 
-				{/* New V7 Flow - Unified implementations */}
+				{/* V7 New Flows - Unified implementations */}
 				<SubMenu
-					label="New V7 Flow"
+					label="V7 New Flows"
 					icon={<ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>}
-					open={openMenus['New V7 Flow']}
-					onOpenChange={() => toggleMenu('New V7 Flow')}
+					open={openMenus['V7 New Flows']}
+					onOpenChange={() => toggleMenu('V7 New Flows')}
 				>
 					<MenuItem
 						icon={<ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>}
