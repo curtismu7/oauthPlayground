@@ -404,13 +404,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/worker-token-v6': 'Worker Token',
 			'/flows/jwt-bearer-token-v6': 'JWT Bearer Token',
 			'/flows/jwt-bearer-token-v7': 'JWT Bearer Token V7',
-			'/flows/saml-bearer-assertion-v6': 'SAML Bearer Assertion',
 			'/flows/saml-bearer-assertion-v7': 'SAML Bearer Assertion V7',
 			'/flows/advanced-oauth-params-demo': 'Advanced OAuth Parameters Demo',
 			'/flows/pingone-par-v6': 'PingOne PAR',
 			'/flows/rar-v6': 'Rich Authorization Request',
 			'/flows/resource-owner-password-v6': 'Resource Owner Password',
 			'/flows/pingone-complete-mfa-v7': 'PingOne Complete MFA Flow V7',
+			'/pingone-authentication': 'PingOne Authentication',
 			'/pingone-mock-features': 'PingOne Mock Features',
 		};
 		return flowNames[path] || 'Flow';
@@ -708,20 +708,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#06b6d4"><FiUsers /></ColoredIcon>}
-							active={isActive('/flows/saml-bearer-assertion-v6')}
-							onClick={() => handleNavigation('/flows/saml-bearer-assertion-v6')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/saml-bearer-assertion-v6'))}
-						>
-						<MenuItemContent>
-							<span>SAML Bearer Assertion (Mock)</span>
-							<MigrationBadge title="Mock/Educational - RFC 7522 (PingOne not supported)">
-								<FiBookOpen />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
 				</SubMenu>
 
 				{/* V7 New Flows - Unified implementations */}
@@ -811,6 +797,36 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</MenuItem>
 
 					<MenuItem
+						icon={<ColoredIcon $color="#f59e0b"><FiUser /></ColoredIcon>}
+						active={isActive('/pingone-authentication')}
+						onClick={() => handleNavigation('/pingone-authentication')}
+						className="v6-flow"
+						style={getV6FlowStyles(isActive('/pingone-authentication'))}
+					>
+						<MenuItemContent>
+							<span>PingOne Authentication</span>
+							<MigrationBadge title="V7: Dedicated authentication page with inline and popup modes">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+
+					<MenuItem
+						icon={<ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>}
+						active={isActive('/flows/saml-bearer-assertion-v7')}
+						onClick={() => handleNavigation('/flows/saml-bearer-assertion-v7')}
+						className="v6-flow"
+						style={getV6FlowStyles(isActive('/flows/saml-bearer-assertion-v7'))}
+					>
+						<MenuItemContent>
+							<span>SAML Bearer Assertion (V7)</span>
+							<MigrationBadge title="V7: SAML Bearer with PingFederate/PingOne AIS examples">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+
+					<MenuItem
 						icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
 						active={isActive('/flows/device-authorization-v7')}
 						onClick={() => handleNavigation('/flows/device-authorization-v7')}
@@ -835,21 +851,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						<MenuItemContent>
 							<span>JWT Bearer Token (V7)</span>
 							<MigrationBadge title="V7: JWT Bearer with PingFederate/PingOne AIS examples">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					<MenuItem
-						icon={<ColoredIcon $color="#06b6d4"><FiUsers /></ColoredIcon>}
-						active={isActive('/flows/saml-bearer-assertion-v7')}
-						onClick={() => handleNavigation('/flows/saml-bearer-assertion-v7')}
-						className="v6-flow"
-						style={getV6FlowStyles(isActive('/flows/saml-bearer-assertion-v7'))}
-					>
-						<MenuItemContent>
-							<span>SAML Bearer Assertion (V7)</span>
-							<MigrationBadge title="V7: SAML Bearer with PingFederate/PingOne AIS examples">
 								<FiCheckCircle />
 							</MigrationBadge>
 						</MenuItemContent>
