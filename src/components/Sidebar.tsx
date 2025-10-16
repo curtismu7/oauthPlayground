@@ -24,7 +24,6 @@ import {
 	FiX,
 	FiZap,
 	FiCheckCircle,
-FiCode,
 	FiCode,
 } from 'react-icons/fi';
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
