@@ -21,13 +21,16 @@ export interface V5StepperConfig {
 
 export class V5StepperService {
 	// Main step container
-	static getStepContainer() {
+	static getStepContainer({ maxWidth = '960px', fullWidth = false }: { maxWidth?: string; fullWidth?: boolean } = {}) {
 		return styled.div`
 			background: white;
 			border-radius: 12px;
 			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 			border: 1px solid #e5e7eb;
 			overflow: hidden;
+			width: ${fullWidth ? '100%' : 'auto'};
+			max-width: ${maxWidth};
+			min-width: min(100%, 720px);
 		`;
 	}
 
@@ -276,7 +279,7 @@ export class V5StepperService {
 			enableAutoAdvance = false
 		} = config;
 
-		const StepContainer = V5StepperService.getStepContainer();
+		const StepContainer = V5StepperService.getStepContainer({ maxWidth: '1100px', fullWidth: true });
 		const StepHeader = V5StepperService.getStepHeader(theme);
 		const StepHeaderLeft = V5StepperService.getStepHeaderLeft();
 		const StepHeaderRight = V5StepperService.getStepHeaderRight();

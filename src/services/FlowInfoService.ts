@@ -26,6 +26,7 @@ export interface DetailedFlowInfo extends FlowInfo {
 	}>;
 }
 
+
 export interface FlowInfoCardData {
 	header: {
 		title: string;
@@ -1070,59 +1071,6 @@ export class FlowInfoService {
 			relatedFlows: ['oauth-authorization-code', 'oidc-authorization-code'],
 			documentationLinks: [
 				{
-					title: 'OAuth 2.0 Pushed Authorization Requests',
-					url: 'https://tools.ietf.org/html/rfc9126',
-				},
-			],
-		},
-		redirectless: {
-			flowType: 'oauth',
-			flowName: 'Redirectless Flow',
-			flowVersion: 'V5',
-			flowCategory: 'experimental',
-			complexity: 'moderate',
-			securityLevel: 'medium',
-			userInteraction: 'required',
-			backendRequired: false,
-			refreshTokenSupport: false,
-			idTokenSupport: true,
-			tokensReturned: 'Access Token + ID Token',
-			purpose: 'Authentication without browser redirects',
-			specLayer: 'Experimental/Custom implementation',
-			nonceRequirement: 'Recommended',
-			validation: 'Validate using embedded flow mechanism',
-			securityNotes: [
-				'⚠️ EXPERIMENTAL - Not a standard OAuth flow',
-				'Custom implementation for specific use cases',
-				'Requires careful security review',
-				'May not be supported by all providers',
-			],
-			useCases: [
-				'Embedded authentication experiences',
-				'Mobile app in-app browsers',
-				'Custom authentication flows',
-			],
-			recommendedFor: ['Experimental implementations', 'Custom authentication scenarios'],
-			notRecommendedFor: ['Production applications', 'Standard OAuth implementations'],
-			implementationNotes: [
-				'Implement custom flow handling',
-				'Ensure proper security measures',
-				'Test thoroughly before production use',
-				'Consider migration to standard flows',
-			],
-			commonIssues: [
-				{
-					issue: 'Flow not supported',
-					solution: 'Verify provider supports custom flow implementation',
-				},
-				{
-					issue: 'Security concerns',
-					solution: 'Implement proper validation and security measures',
-				},
-			],
-			relatedFlows: ['oauth-authorization-code', 'oidc-authorization-code'],
-			documentationLinks: [
-				{
 					title: 'Custom Flow Implementation',
 					url: '#',
 				},
@@ -1130,24 +1078,47 @@ export class FlowInfoService {
 		},
 	};
 
+	private static normalizeFlowKey(flowType: string): string {
+		if (FlowInfoService.flowConfigs[flowType]) {
+			return flowType;
+		}
+
+		const normalizedMap: Record<string, string> = {
+			'oauth-authorization-code-v7': 'oauth-authorization-code',
+			'oidc-authorization-code-v7': 'oidc-authorization-code',
+			'oauth-device-authorization': 'device-code',
+			'oidc-device-authorization': 'device-code',
+		};
+
+		if (normalizedMap[flowType]) {
+			return normalizedMap[flowType];
+		}
+
+		const trimmed = flowType.replace(/-v\d+$/i, '');
+		return FlowInfoService.flowConfigs[trimmed] ? trimmed : flowType;
+	}
+
 	/**
 	 * Get detailed flow information for a specific flow type
 	 */
 	static getFlowInfo(flowType: string): DetailedFlowInfo | null {
-		return FlowInfoService.flowConfigs[flowType] || null;
+		const key = FlowInfoService.normalizeFlowKey(flowType);
+		return FlowInfoService.flowConfigs[key] || null;
 	}
 
 	/**
-	 * Generate flow information card data for display
+	 * Generate flow info card data for a specific flow type
 	 */
 	static generateFlowInfoCard(flowType: string): FlowInfoCardData | null {
 		const flowInfo = FlowInfoService.getFlowInfo(flowType);
-		if (!flowInfo) return null;
+		if (!flowInfo) {
+			return null;
+		}
 
 		return {
 			header: {
-				title: `${flowInfo.flowType === 'oauth' ? 'OAuth 2.0' : 'OIDC'} ${flowInfo.flowName}`,
-				subtitle: flowInfo.flowVersion,
+				title: flowInfo.flowName,
+				subtitle: flowInfo.purpose,
 				badge: FlowInfoService.getCategoryBadge(flowInfo.flowCategory),
 				icon: FlowInfoService.getFlowIcon(flowInfo.flowName),
 			},
@@ -1167,78 +1138,6 @@ export class FlowInfoService {
 				backendRequired: flowInfo.backendRequired,
 			},
 		};
-	}
-
-	/**
-	 * Get all available flow types
-	 */
-	static getAvailableFlowTypes(): string[] {
-		return Object.keys(FlowInfoService.flowConfigs);
-	}
-
-	/**
-	 * Get flows by category
-	 */
-	static getFlowsByCategory(category: DetailedFlowInfo['flowCategory']): string[] {
-		return Object.entries(FlowInfoService.flowConfigs)
-			.filter(([, config]) => config.flowCategory === category)
-			.map(([flowType]) => flowType);
-	}
-
-	/**
-	 * Get flows by complexity level
-	 */
-	static getFlowsByComplexity(complexity: DetailedFlowInfo['complexity']): string[] {
-		return Object.entries(FlowInfoService.flowConfigs)
-			.filter(([, config]) => config.complexity === complexity)
-			.map(([flowType]) => flowType);
-	}
-
-	/**
-	 * Get flows by security level
-	 */
-	static getFlowsBySecurityLevel(securityLevel: DetailedFlowInfo['securityLevel']): string[] {
-		return Object.entries(FlowInfoService.flowConfigs)
-			.filter(([, config]) => config.securityLevel === securityLevel)
-			.map(([flowType]) => flowType);
-	}
-
-	/**
-	 * Search flows by criteria
-	 */
-	static searchFlows(criteria: {
-		category?: DetailedFlowInfo['flowCategory'];
-		complexity?: DetailedFlowInfo['complexity'];
-		securityLevel?: DetailedFlowInfo['securityLevel'];
-		userInteraction?: DetailedFlowInfo['userInteraction'];
-		backendRequired?: boolean;
-		refreshTokenSupport?: boolean;
-		idTokenSupport?: boolean;
-	}): string[] {
-		return Object.entries(FlowInfoService.flowConfigs)
-			.filter(([, config]) => {
-				return Object.entries(criteria).every(([key, value]) => {
-					if (value === undefined) return true;
-					return config[key as keyof DetailedFlowInfo] === value;
-				});
-			})
-			.map(([flowType]) => flowType);
-	}
-
-	/**
-	 * Get related flows for a given flow type
-	 */
-	static getRelatedFlows(flowType: string): string[] {
-		const flowInfo = FlowInfoService.getFlowInfo(flowType);
-		return flowInfo?.relatedFlows || [];
-	}
-
-	/**
-	 * Get common issues and solutions for a flow
-	 */
-	static getCommonIssues(flowType: string): Array<{ issue: string; solution: string }> {
-		const flowInfo = FlowInfoService.getFlowInfo(flowType);
-		return flowInfo?.commonIssues || [];
 	}
 
 	/**
