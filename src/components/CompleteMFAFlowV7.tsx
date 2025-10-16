@@ -905,7 +905,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                       transition: 'all 0.2s ease',
                       background: '#f9fafb'
                     }}
-                    onClick={() => window.open('/pingone-authentication?mode=inline', '_blank')}
+                    onClick={() => window.open(`/pingone-authentication?mode=inline&environmentId=${encodeURIComponent(credentials.environmentId)}`, '_blank')}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = '#3b82f6';
                       e.currentTarget.style.background = '#eff6ff';
@@ -935,7 +935,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                       transition: 'all 0.2s ease',
                       background: '#f9fafb'
                     }}
-                    onClick={() => window.open('/pingone-authentication?mode=popup', '_blank')}
+                    onClick={() => window.open(`/pingone-authentication?mode=popup&environmentId=${encodeURIComponent(credentials.environmentId)}`, '_blank')}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.borderColor = '#8b5cf6';
                       e.currentTarget.style.background = '#faf5ff';
