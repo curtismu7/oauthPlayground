@@ -240,7 +240,8 @@ const ScopeLabel = styled.label`
 const ActionsContainer = styled.div`
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
+  gap: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #e5e7eb;
 `;
@@ -250,17 +251,17 @@ const SaveButton = styled.button<{ $isSaving?: boolean; $hasChanges?: boolean }>
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
-  background: ${({ $hasChanges }) => ($hasChanges ? '#10b981' : '#6b7280')};
+  background: #10b981;
   color: white;
   border: none;
   border-radius: 0.5rem;
   font-weight: 500;
-  cursor: ${({ $isSaving, $hasChanges }) => ($isSaving || !$hasChanges ? 'not-allowed' : 'pointer')};
-  opacity: ${({ $isSaving, $hasChanges }) => ($isSaving || !$hasChanges ? 0.6 : 1)};
+  cursor: ${({ $isSaving }) => ($isSaving ? 'not-allowed' : 'pointer')};
+  opacity: ${({ $isSaving }) => ($isSaving ? 0.6 : 1)};
   transition: all 0.2s ease;
 
   &:hover:not(:disabled) {
-    background: ${({ $hasChanges }) => ($hasChanges ? '#059669' : '#6b7280')};
+    background: #059669;
     transform: translateY(-1px);
   }
 
@@ -525,7 +526,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
             </div>
             <SaveButton
               onClick={handleSave}
-              disabled={!validation?.isValid || isSaving || !hasUnsavedChanges}
+              disabled={isSaving}
               $isSaving={isSaving}
               $hasChanges={hasUnsavedChanges}
             >
