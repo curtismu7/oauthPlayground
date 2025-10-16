@@ -68,7 +68,9 @@ import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
 import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
 import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
 import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
+import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import SAMLBearerAssertionFlowV6 from './pages/flows/SAMLBearerAssertionFlowV6';
+import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import AdvancedParametersV6 from './pages/flows/AdvancedParametersV6';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 // Backed up legacy flows
@@ -410,8 +412,16 @@ const AppRoutes = () => {
 								element={<JWTBearerTokenFlowV6 />}
 							/>
 							<Route
+								path="/flows/jwt-bearer-token-v7"
+								element={<JWTBearerTokenFlowV7 />}
+							/>
+							<Route
 								path="/flows/saml-bearer-assertion-v6"
 								element={<SAMLBearerAssertionFlowV6 />}
+							/>
+							<Route
+								path="/flows/saml-bearer-assertion-v7"
+								element={<SAMLBearerAssertionFlowV7 />}
 							/>
 							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
 							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
