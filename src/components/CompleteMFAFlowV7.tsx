@@ -855,66 +855,96 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
             <CollapsibleHeaderService.CollapsibleHeader
               title="User Authentication"
-              subtitle="Enter your username and password to authenticate"
+              subtitle="Choose your authentication method"
               icon={<FiUser />}
               theme="blue"
               defaultCollapsed={false}
             >
-              <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                  Username *
-                </label>
-                <input
-                  type="text"
-                  value={credentials.username}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                  placeholder="Enter your username"
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.5rem',
-                    fontSize: '0.875rem'
-                  }}
-                />
-              </div>
-
-              <div style={{ marginTop: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                  Password *
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    value={credentials.password}
-                    onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-                    placeholder="Enter your password"
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem 2.75rem 0.75rem 0.75rem',
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.5rem',
-                      fontSize: '0.875rem'
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(prev => !prev)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      right: '0.75rem',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
+              <div style={{ marginBottom: '1.5rem' }}>
+                <h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: '600', color: '#374151' }}>
+                  🔐 Authentication Options
+                </h4>
+                <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
+                  Choose how you want to authenticate with PingOne. You can use the dedicated authentication page or authenticate inline.
+                </p>
+                
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  <div 
+                    style={{ 
+                      padding: '1rem', 
+                      border: '2px solid #e5e7eb', 
+                      borderRadius: '8px',
                       cursor: 'pointer',
-                      color: '#6b7280'
+                      transition: 'all 0.2s ease',
+                      background: '#f9fafb'
+                    }}
+                    onClick={() => window.open('/pingone-authentication?mode=inline', '_blank')}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#3b82f6';
+                      e.currentTarget.style.background = '#eff6ff';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                      e.currentTarget.style.background = '#f9fafb';
                     }}
                   >
-                    {showPassword ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                  </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <FiUser size={20} color="#3b82f6" />
+                      <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
+                        Dedicated Authentication Page
+                      </h5>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280' }}>
+                      Open a dedicated authentication page with inline or popup modes. Better for complex authentication flows.
+                    </p>
+                  </div>
+
+                  <div 
+                    style={{ 
+                      padding: '1rem', 
+                      border: '2px solid #e5e7eb', 
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      background: '#f9fafb'
+                    }}
+                    onClick={() => window.open('/pingone-authentication?mode=popup', '_blank')}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.borderColor = '#8b5cf6';
+                      e.currentTarget.style.background = '#faf5ff';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.borderColor = '#e5e7eb';
+                      e.currentTarget.style.background = '#f9fafb';
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <FiSettings size={20} color="#8b5cf6" />
+                      <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
+                        Popup Authentication
+                      </h5>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280' }}>
+                      Open authentication in a popup window. Ideal for seamless user experience without leaving the current page.
+                    </p>
+                  </div>
                 </div>
+              </div>
+
+              <div style={{ 
+                padding: '1rem', 
+                background: '#fef3c7', 
+                border: '1px solid #f59e0b', 
+                borderRadius: '8px',
+                marginBottom: '1rem'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <FiInfo size={16} color="#92400e" />
+                  <strong style={{ fontSize: '0.875rem', color: '#92400e' }}>Quick Access</strong>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.75rem', color: '#92400e' }}>
+                  Click on either option above to open the authentication page. After successful authentication, you'll be redirected back to continue the MFA flow.
+                </p>
               </div>
 
               <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
@@ -932,7 +962,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   disabled={isLoading || !credentials.username || !credentials.password || !credentials.environmentId}
                 >
                   {isLoading ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiArrowRight />}
-                  Authenticate
+                  Continue with Inline Auth
                 </NavigationButton>
               </div>
             </CollapsibleHeaderService.CollapsibleHeader>
