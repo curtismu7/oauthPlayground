@@ -3,7 +3,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import CompleteMFAFlowV6 from '../../components/CompleteMFAFlowV6';
+import CompleteMFAFlowV7 from '../../components/CompleteMFAFlowV7';
 import { useAuth } from '../../contexts/NewAuthContext';
 
 const PageContainer = styled.div`
@@ -38,26 +38,13 @@ const PingOneCompleteMFAFlowV7: React.FC = () => {
 
   return (
     <PageContainer>
-      <CompleteMFAFlowV6
-        environmentId={credentials?.environmentId}
-        clientId={credentials?.clientId}
-        redirectUri={window.location.origin}
-        theme="blue"
-        allowDeviceRegistration={true}
+      <CompleteMFAFlowV7
         requireMFA={true}
-        allowedMethods={['SMS', 'EMAIL', 'TOTP', 'FIDO2']}
         maxRetries={3}
-        sessionTimeout={30 * 60 * 1000} // 30 minutes
         onFlowComplete={handleFlowComplete}
         onFlowError={handleFlowError}
         onStepChange={handleStepChange}
-        showProgress={true}
         showNetworkStatus={true}
-        enableOfflineMode={false}
-        customBranding={{
-          companyName: 'PingOne OAuth Playground',
-          primaryColor: '#3b82f6'
-        }}
       />
     </PageContainer>
   );
