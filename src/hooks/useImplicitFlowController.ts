@@ -95,12 +95,13 @@ export interface ImplicitFlowControllerOptions {
 }
 
 const DEFAULT_FLOW_KEY = 'implicit-v7';
+const DEFAULT_IMPLICIT_V7_REDIRECT_URI = 'https://localhost:3000/implicit-callback';
 
 const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
 	clientId: '',
 	clientSecret: '', // Not used in Implicit but kept for consistency
-	redirectUri: 'https://localhost:3000/implicit-callback',
+	redirectUri: DEFAULT_IMPLICIT_V7_REDIRECT_URI,
 	postLogoutRedirectUri: 'https://localhost:3000/implicit-logout-callback',
 	scope: 'openid',
 	scopes: 'openid',
@@ -181,13 +182,38 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 
 	// Properly handle redirect URI - only use fallback if truly undefined
 	const fallbackFlowType = flowKey || 'implicit';
-	const redirectUri = urlRedirect || (
-		preservedImplicitRedirect
-			? preservedImplicitRedirect
-			: loaded.redirectUri !== undefined
-				? loaded.redirectUri
-				: getCallbackUrlForFlow(fallbackFlowType)
-	);
+	const defaultRedirectForFlow =
+		flowKey === 'implicit-v7'
+			? DEFAULT_IMPLICIT_V7_REDIRECT_URI
+			: getCallbackUrlForFlow(fallbackFlowType);
+
+	const normalizeRedirect = (value?: string): string | undefined => {
+		if (typeof value !== 'string') {
+			return undefined;
+		}
+		const trimmed = value.trim();
+		return trimmed.length > 0 ? trimmed : undefined;
+	};
+
+	const storedRedirect = normalizeRedirect(preservedImplicitRedirect) ??
+		normalizeRedirect(loaded.redirectUri);
+
+	let redirectUri = urlRedirect || storedRedirect || defaultRedirectForFlow;
+
+	if (flowKey === 'implicit-v7' && !urlRedirect) {
+		const storageKeyRedirect = redirectUri;
+		if (storageKeyRedirect !== DEFAULT_IMPLICIT_V7_REDIRECT_URI) {
+			const saveResult = credentialManager.saveImplicitFlowCredentials(
+				{ redirectUri: storageKeyRedirect },
+				variant
+			);
+			console.log('💾 [useImplicitFlowController] Persisted implicit redirect URI override:', {
+				storageKeyRedirect,
+				saveResult
+			});
+		}
+		redirectUri = DEFAULT_IMPLICIT_V7_REDIRECT_URI;
+	}
 
 	console.log('🔍 [useImplicitFlowController] loadInitialCredentials:', {
 		urlRedirect,
