@@ -1,5 +1,5 @@
-// src/pages/flows/DeviceAuthorizationFlowV7_New.tsx
-// V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
+// src/pages/flows/DeviceAuthorizationFlowV7.tsx
+// Unified OAuth & OIDC Device Authorization Grant (RFC 8628) - V7 Implementation
 
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useMemo, useState } from 'react';
@@ -894,49 +894,9 @@ const QRSection = styled.div`
 	text-align: center;
 `;
 
-// V7 Variant Selector Components (matching authorization flow V7)
-const VariantSelector = styled.div`
-	display: flex;
-	gap: 1rem;
-	margin-bottom: 2rem;
-	padding: 1.5rem;
-	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-	border-radius: 0.75rem;
-	border: 1px solid #cbd5e1;
-`;
-
-const VariantButton = styled.button<{ $selected: boolean }>`
-	flex: 1;
-	padding: 1rem;
-	border-radius: 0.5rem;
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
-	background: ${props => props.$selected ? '#dbeafe' : 'white'};
-	color: ${props => props.$selected ? '#1e40af' : '#475569'};
-	font-weight: ${props => props.$selected ? '600' : '500'};
-	transition: all 0.2s ease;
-	cursor: pointer;
-
-	&:hover {
-		border-color: #3b82f6;
-		background: #dbeafe;
-	}
-`;
-
-const VariantTitle = styled.div`
-	font-size: 1.1rem;
-	margin-bottom: 0.25rem;
-`;
-
-const VariantDescription = styled.div`
-	font-size: 0.875rem;
-	opacity: 0.8;
-`;
-
 const DeviceAuthorizationFlowV7: React.FC = () => {
-	// V7 Variant State
-	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
-	
 	const deviceFlow = useDeviceAuthorizationFlow();
+	const [flowMode, setFlowMode] = useState<'oauth' | 'oidc'>('oauth');
 
 	const ensureCredentials = useCallback(
 		(updates: Partial<DeviceAuthCredentials>) => {
@@ -971,44 +931,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			deviceFlow.setCredentials(next);
 		},
 		[deviceFlow]
-	);
-
-	// V7 Variant Change Handler
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		
-		// Update scopes based on variant
-		const currentCredentials = deviceFlow.credentials || { environmentId: '', clientId: '', scopes: '' };
-		const updatedScopes = variant === 'oidc' 
-			? 'openid profile email' 
-			: 'read write'; // Default OAuth scopes
-			
-		ensureCredentials({
-			...currentCredentials,
-			scopes: updatedScopes
-		});
-		
-		v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Device Authorization variant`);
-	}, [deviceFlow.credentials, ensureCredentials]);
-
-	// V7 Variant Selector Component
-	const renderVariantSelector = () => (
-		<VariantSelector>
-			<VariantButton
-				$selected={selectedVariant === 'oauth'}
-				onClick={() => handleVariantChange('oauth')}
-			>
-				<VariantTitle>OAuth 2.0 Device Authorization</VariantTitle>
-				<VariantDescription>Access token only - API authorization for devices</VariantDescription>
-			</VariantButton>
-			<VariantButton
-				$selected={selectedVariant === 'oidc'}
-				onClick={() => handleVariantChange('oidc')}
-			>
-				<VariantTitle>OpenID Connect Device Authorization</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
-			</VariantButton>
-		</VariantSelector>
 	);
 
 	// PingOne Advanced Configuration
@@ -1114,7 +1036,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		[deviceConfig.color, deviceConfig.secondaryColor]
 	);
 
-	usePageScroll({ pageName: 'Device Authorization Flow V7 - Unified', force: true });
+	usePageScroll();
 
 	// Explicit scroll to top for step 2 (User Authorization)
 	React.useEffect(() => {
@@ -1690,7 +1612,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			<FlowConfigurationRequirements flowType="device-authorization" variant="oauth" />
 
 			{/* Flow Walkthrough */}
-			<EnhancedFlowWalkthrough flowId={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
+			<EnhancedFlowWalkthrough flowId="oauth-device-authorization" />
 			<FlowSequenceDisplay flowType="device-authorization" />
 
 			{/* V6 Comprehensive Credentials Service */}
@@ -2668,8 +2590,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	const renderIntrospection = () => (
 		<>
 			<TokenIntrospect
-				flowName={`${selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Device Authorization Flow`}
-				flowVersion="V7"
+				flowName="OAuth Device Authorization Code Flow"
+				flowVersion="V5"
 				tokens={deviceFlow.tokens as unknown as Record<string, unknown>}
 				credentials={deviceFlow.credentials as unknown as Record<string, unknown>}
 				onResetFlow={handleReset}
@@ -2785,43 +2707,19 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	return (
 		<FlowContainer>
 			<FlowContent>
-				<StandardFlowHeader flowId="device-authorization-v7" />
+				<StandardFlowHeader flowId="device-authorization-v6" />
 				
 				{UISettingsService.getFlowSpecificSettingsPanel('device-authorization')}
 				
 				<EnhancedFlowInfoCard
-					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
+					flowType="device-code"
 					showAdditionalInfo={true}
 					showDocumentation={true}
 					showCommonIssues={false}
 					showImplementationNotes={false}
 				/>
 
-				{/* V7 Variant Selector */}
-				{renderVariantSelector()}
-
-				<FlowHeader>
-					<div>
-						<StepBadge>
-							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION • V7 UNIFIED
-						</StepBadge>
-						<FlowTitle>
-							{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
-						</FlowTitle>
-						<FlowSubtitle>
-							{selectedVariant === 'oidc' 
-								? 'Authentication + Authorization with ID token and Access token'
-								: 'API Authorization with Access token only'
-							}
-						</FlowSubtitle>
-					</div>
-					<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
-						{String(currentStep + 1).padStart(2, '0')}
-						<span style={{ fontSize: '1.25rem', color: 'rgba(255, 255, 255, 0.75)' }}>
-							{' '}
-							of {STEP_METADATA.length}
-						</span>
-					</div>
+				{flowHeader}
 				</FlowHeader>
 
 				{renderStepContent()}
