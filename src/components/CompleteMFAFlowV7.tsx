@@ -441,9 +441,22 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           envIdMatch,
           extractedEnvId: envIdMatch ? envIdMatch[1] : null
         });
+        
+        // If no regex match, try to extract from the end of the URL path
+        if (!envIdMatch) {
+          const urlParts = issuerUrl.split('/');
+          const lastPart = urlParts[urlParts.length - 1];
+          if (lastPart && lastPart.length === 36 && lastPart.includes('-')) {
+            // Looks like a UUID, use it as environment ID
+            envIdMatch = [lastPart, lastPart];
+            console.log('[CompleteMFAFlowV7] Extracted environment ID from URL path:', lastPart);
+          }
+        }
         if (envIdMatch && envIdMatch[1]) {
           const extractedEnvId = envIdMatch[1];
           console.log('[CompleteMFAFlowV7] Extracted environment ID:', extractedEnvId);
+          
+          // Always update credentials with discovered endpoints, even if environment ID is the same
           setCredentials(prev => ({
             ...prev,
             environmentId: extractedEnvId,
@@ -452,9 +465,24 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             userInfoEndpoint: result.document?.userinfo_endpoint,
             jwksUri: result.document?.jwks_uri
           }));
-          v4ToastManager.showSuccess('Environment ID and endpoints auto-populated from discovery');
+          
+          // Show success message
+          if (credentials.environmentId === extractedEnvId) {
+            v4ToastManager.showSuccess('OIDC endpoints auto-populated from discovery');
+          } else {
+            v4ToastManager.showSuccess('Environment ID and endpoints auto-populated from discovery');
+          }
         } else {
           console.log('[CompleteMFAFlowV7] No environment ID found in issuer URL:', issuerUrl);
+          // Even if we can't extract environment ID, still update endpoints
+          setCredentials(prev => ({
+            ...prev,
+            authEndpoint: result.document?.authorization_endpoint,
+            tokenEndpoint: result.document?.token_endpoint,
+            userInfoEndpoint: result.document?.userinfo_endpoint,
+            jwksUri: result.document?.jwks_uri
+          }));
+          v4ToastManager.showSuccess('OIDC endpoints auto-populated from discovery');
         }
       } else {
         console.log('[CompleteMFAFlowV7] No issuer URL in discovery document');
