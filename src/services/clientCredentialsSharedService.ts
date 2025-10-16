@@ -266,6 +266,13 @@ export class ClientCredentialsTokenRequest {
 		const { url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(credentials, authMethod);
 
 		try {
+			log.info('Making token request', {
+				url: '/api/token-exchange',
+				headers: { ...headers, Authorization: headers.Authorization ? '[REDACTED]' : 'NONE' },
+				bodyLength: body.length,
+				bodyPreview: body.substring(0, 200) + (body.length > 200 ? '...' : '')
+			});
+
 			const response = await fetch('/api/token-exchange', {
 				method: 'POST',
 				headers,
@@ -274,6 +281,11 @@ export class ClientCredentialsTokenRequest {
 
 			if (!response.ok) {
 				const errorText = await response.text();
+				log.error('Token request failed', {
+					status: response.status,
+					statusText: response.statusText,
+					errorText
+				});
 				throw new Error(`Token request failed: ${response.status} ${errorText}`);
 			}
 
