@@ -408,87 +408,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     return () => NetworkStatusService.removeStatusListener(handleNetworkChange);
   }, []);
 
-  // Handle OIDC discovery completion
-  const handleDiscoveryComplete = useCallback((result: DiscoveryResult) => {
-    console.log('[CompleteMFAFlowV7] Discovery result received:', result);
-    
-    if (result.success && result.document) {
-      console.log('[CompleteMFAFlowV7] OIDC Discovery completed successfully:', result);
-      v4ToastManager.showSuccess('OIDC endpoints discovered successfully');
-      
-      // Auto-populate credentials from discovery if available
-      if (result.document.issuer) {
-        const issuerUrl = result.document.issuer;
-        console.log('[CompleteMFAFlowV7] Extracting environment ID from issuer:', issuerUrl);
-        // Try multiple patterns for environment ID extraction
-        let envIdMatch = issuerUrl.match(/\/environments\/([^\/]+)/);
-        if (!envIdMatch) {
-          // Try PingOne format: https://auth.pingone.com/{env-id}
-          envIdMatch = issuerUrl.match(/\/pingone\.com\/([^\/]+)/);
-        }
-        if (!envIdMatch) {
-          // Try direct UUID pattern at end of URL
-          envIdMatch = issuerUrl.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
-        }
-        
-        console.log('[CompleteMFAFlowV7] Regex matching results:', {
-          issuerUrl,
-          envIdMatch,
-          extractedEnvId: envIdMatch ? envIdMatch[1] : null
-        });
-        
-        // If no regex match, try to extract from the end of the URL path
-        if (!envIdMatch) {
-          const urlParts = issuerUrl.split('/');
-          const lastPart = urlParts[urlParts.length - 1];
-          if (lastPart && lastPart.length === 36 && lastPart.includes('-')) {
-            // Looks like a UUID, use it as environment ID
-            envIdMatch = [lastPart, lastPart];
-            console.log('[CompleteMFAFlowV7] Extracted environment ID from URL path:', lastPart);
-          }
-        }
-        if (envIdMatch && envIdMatch[1]) {
-          const extractedEnvId = envIdMatch[1];
-          console.log('[CompleteMFAFlowV7] Extracted environment ID:', extractedEnvId);
-          
-          // Always update credentials with discovered endpoints, even if environment ID is the same
-          setCredentials(prev => ({
-            ...prev,
-            environmentId: extractedEnvId,
-            authEndpoint: result.document?.authorization_endpoint,
-            tokenEndpoint: result.document?.token_endpoint,
-            userInfoEndpoint: result.document?.userinfo_endpoint,
-            jwksUri: result.document?.jwks_uri
-          }));
-          
-          // Show success message
-          if (credentials.environmentId === extractedEnvId) {
-            v4ToastManager.showSuccess('OIDC endpoints auto-populated from discovery');
-          } else {
-            v4ToastManager.showSuccess('Environment ID and endpoints auto-populated from discovery');
-          }
-        } else {
-          console.log('[CompleteMFAFlowV7] No environment ID found in issuer URL:', issuerUrl);
-          // Even if we can't extract environment ID, still update endpoints
-          setCredentials(prev => ({
-            ...prev,
-            authEndpoint: result.document?.authorization_endpoint,
-            tokenEndpoint: result.document?.token_endpoint,
-            userInfoEndpoint: result.document?.userinfo_endpoint,
-            jwksUri: result.document?.jwks_uri
-          }));
-          v4ToastManager.showSuccess('OIDC endpoints auto-populated from discovery');
-        }
-      } else {
-        console.log('[CompleteMFAFlowV7] No issuer URL in discovery document');
-      }
-    } else if (result.error) {
-      console.error('[CompleteMFAFlowV7] OIDC Discovery failed:', result.error);
-      v4ToastManager.showError(`Discovery failed: ${result.error}`);
-    } else {
-      console.log('[CompleteMFAFlowV7] Discovery result was not successful and had no error:', result);
-    }
-  }, []);
+  // OIDC discovery removed - not needed for PingOne MFA flow
 
   // Handle saving credentials
   // Create API call data for educational display
@@ -1052,7 +972,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 onClientIdChange={handleWorkerTokenClientIdChange}
                 onClientSecretChange={handleWorkerTokenClientSecretChange}
                 onScopesChange={() => {}}
-                onDiscoveryComplete={handleDiscoveryComplete}
                 onSave={handleSaveCredentials}
                 hasUnsavedChanges={hasUnsavedChanges}
                 isSaving={isSaving}
@@ -1106,7 +1025,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 onClientSecretChange={handleAuthCodeClientSecretChange}
                 onRedirectUriChange={handleAuthCodeRedirectUriChange}
                 onScopesChange={() => {}}
-                onDiscoveryComplete={handleDiscoveryComplete}
                 onSave={handleSaveCredentials}
                 hasUnsavedChanges={hasUnsavedChanges}
                 isSaving={isSaving}
