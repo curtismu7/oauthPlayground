@@ -9,6 +9,7 @@ import {
   FiSmartphone,
   FiCheckCircle,
   FiAlertCircle,
+  FiAlertTriangle,
   FiRefreshCw,
   FiWifi,
   FiWifiOff,
