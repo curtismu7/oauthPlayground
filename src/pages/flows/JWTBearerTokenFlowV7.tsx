@@ -1,5 +1,5 @@
-// src/pages/flows/JWTBearerTokenFlowV6.tsx
-// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V6 Service Architecture
+// src/pages/flows/JWTBearerTokenFlowV7.tsx
+// OAuth 2.0 JWT Bearer Token Flow (RFC 7523) - V7 Service Architecture
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -121,7 +121,7 @@ interface JWTSignature {
 }
 
 // Main Component
-const JWTBearerTokenFlowV6: React.FC = () => {
+const JWTBearerTokenFlowV7: React.FC = () => {
 	// Scroll management
 	usePageScroll();
 
@@ -1029,7 +1029,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 											</div>
 											
 											<div 
-												onClick={() => setTokenEndpoint('https://{pingfederate-host}:9031/as/token.oauth2')}
+												onClick={() => setTokenEndpoint('https://{pingfederate-host}:9031/as/token')}
 												style={{ 
 													padding: '0.75rem', 
 													background: '#f8fafc', 
@@ -1052,15 +1052,15 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 													🟢 PingFederate
 												</div>
 												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-													https://{pingfederate-host}:9031/as/token.oauth2
+													https://{pingfederate-host}:9031/as/token
 												</div>
 												<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-													Supports JWT Bearer (RFC 7523) for enterprise authentication
+													Supports JWT Bearer for enterprise authentication
 												</div>
 											</div>
 											
 											<div 
-												onClick={() => setTokenEndpoint('https://{pingone-ais-domain}/as/token')}
+												onClick={() => setTokenEndpoint('https://{pingone-ais-host}/oauth/token')}
 												style={{ 
 													padding: '0.75rem', 
 													background: '#f8fafc', 
@@ -1083,10 +1083,10 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 													🟣 PingOne Advanced Identity Service
 												</div>
 												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
-													https://{pingone-ais-domain}/as/token
+													https://{pingone-ais-host}/oauth/token
 												</div>
 												<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-													Supports JWT Bearer (RFC 7523) for advanced identity scenarios
+													Supports JWT Bearer for advanced identity scenarios
 												</div>
 											</div>
 										</div>
@@ -1360,4 +1360,4 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 	);
 };
 
-export default JWTBearerTokenFlowV6;
+export default JWTBearerTokenFlowV7;
