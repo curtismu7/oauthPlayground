@@ -18,6 +18,8 @@ import {
 } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastManager';
 import { FlowHeader } from '../services/flowHeaderService';
+import { AuthenticationModalService } from '../services/authenticationModalService';
+import LoginSuccessModal from '../components/LoginSuccessModal';
 
 interface AuthenticationCredentials {
   username: string;
@@ -302,6 +304,9 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [authMode, setAuthMode] = useState<'inline' | 'popup'>(mode);
+  const [showRedirectModal, setShowRedirectModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [authUrl, setAuthUrl] = useState<string>('');
 
   const handleInputChange = useCallback((field: keyof AuthenticationCredentials, value: string) => {
     setCredentials(prev => ({ ...prev, [field]: value }));
@@ -327,16 +332,32 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
       return;
     }
 
+    // Generate a mock authorization URL for demonstration
+    const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
+      `client_id=your-client-id&` +
+      `response_type=code&` +
+      `scope=openid+profile+email&` +
+      `redirect_uri=${encodeURIComponent('https://localhost:3000/authz-callback')}&` +
+      `state=pingone-auth-${Date.now()}`;
+
+    setAuthUrl(mockAuthUrl);
+    setShowRedirectModal(true);
+  }, [credentials]);
+
+  const handleConfirmRedirect = useCallback(async () => {
+    setShowRedirectModal(false);
     setIsLoading(true);
+    
     try {
       if (onAuthenticate) {
         await onAuthenticate(credentials);
       } else {
-        // Default behavior - navigate to MFA flow
-        v4ToastManager.showSuccess('Authentication successful! Redirecting to MFA flow...');
-        setTimeout(() => {
-          navigate('/flows/pingone-complete-mfa-v7');
-        }, 1000);
+        // Simulate authentication process
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Show success modal
+        setShowSuccessModal(true);
+        v4ToastManager.showSuccess('Authentication successful!');
       }
     } catch (error) {
       console.error('Authentication failed:', error);
@@ -344,7 +365,13 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [credentials, onAuthenticate, navigate]);
+  }, [credentials, onAuthenticate]);
+
+  const handleSuccessModalClose = useCallback(() => {
+    setShowSuccessModal(false);
+    // Navigate to MFA flow after successful authentication
+    navigate('/flows/pingone-complete-mfa-v7');
+  }, [navigate]);
 
   const handleCancel = useCallback(() => {
     if (onCancel) {
@@ -476,6 +503,29 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
           {renderAuthForm()}
         </AuthBody>
       </AuthCard>
+
+      {/* Authentication Modal - Before redirect */}
+      {AuthenticationModalService.showModal(
+        showRedirectModal,
+        () => setShowRedirectModal(false),
+        handleConfirmRedirect,
+        authUrl,
+        'pingone',
+        'PingOne Authentication',
+        {
+          description: 'You\'re about to be redirected to PingOne for authentication. This will open in a new window for secure authentication.',
+          redirectMode: authMode === 'popup' ? 'popup' : 'redirect'
+        }
+      )}
+
+      {/* Success Modal - After authentication */}
+      <LoginSuccessModal
+        isOpen={showSuccessModal}
+        onClose={handleSuccessModalClose}
+        title="🎉 Authentication Successful!"
+        message="You have been successfully authenticated with PingOne. You can now proceed to the MFA flow to complete your authentication setup."
+        autoCloseDelay={5000}
+      />
     </PageContainer>
   );
 };
