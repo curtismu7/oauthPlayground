@@ -623,34 +623,6 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
     }
   }, [credentials]);
 
-  // Real user creation
-  const handleUserCreation = useCallback(async (userData: any) => {
-    try {
-      setIsLoading(true);
-      console.log('👤 [MFA Flow V7] Creating real PingOne user');
-
-      // In a real implementation, this would call PingOne User API
-      // For demo, we'll simulate and move to authentication
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setFlowContext(prev => ({
-        ...prev,
-        username: userData.username || 'demo@example.com'
-      }));
-
-      setCurrentStep('username_login');
-      onStepChange?.('username_login', userData);
-
-      v4ToastManager.showSuccess('User account created successfully!');
-    } catch (err) {
-      handleError(err instanceof Error ? err : new Error('User creation failed'), {
-        operation: 'user_creation'
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [onStepChange]);
-
   // Real authentication with PingOne
   const handleAuthentication = useCallback(async () => {
     try {
@@ -878,7 +850,7 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
       userDevices: [],
       networkStatus: NetworkStatusService.getNetworkStatus()
     });
-    setCurrentStep('create_user');
+    setCurrentStep('username_login');
     console.log('🔄 [MFA Flow V7] Flow restarted');
   }, []);
 
@@ -1089,8 +1061,146 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
 
       case 'password_auth':
         // Handled in username_login step
-        return renderCurrentStep();
+    }
 
+    switch (currentStep) {
+      case 'username_login':
+        return (
+          <ModalOverlay>
+            <ModalCard>
+              <ModalHeader>
+                <ModalHeaderIcon>
+                  <FiKey size={20} />
+                </ModalHeaderIcon>
+                <div>
+                  <ModalTitle>{currentStepMeta.title}</ModalTitle>
+                  <ModalSubtitle>{currentStepMeta.subtitle}</ModalSubtitle>
+                </div>
+              </ModalHeader>
+              <ModalBody>
+                <InfoBox $variant="info">
+                  <FiInfo size={20} style={{ flexShrink: 0 }} />
+                  <InfoContent>
+                    <InfoTitle>🔐 Primary Authentication</InfoTitle>
+                    <InfoText>
+                      Authenticate against PingOne using your application credentials. Successful sign-in seeds the MFA flow with real access tokens and device profile data.
+                    </InfoText>
+                  </InfoContent>
+                </InfoBox>
+
+                <div style={{ margin: '0.5rem 0 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
+                  <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+                    🔗 PingOne Authentication API
+                  </h4>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.6 }}>
+                    <div><strong>Endpoint:</strong> POST /environments/{'{environmentId}'}/as/token</div>
+                    <div><strong>Grant Type:</strong> password (Resource Owner Password Credentials)</div>
+                    <div><strong>Response:</strong> access_token, refresh_token, id_token (if requested)</div>
+                  </div>
+                </div>
+
+                <CredentialsInput
+                  environmentId={credentials.environmentId}
+                  clientId={credentials.clientId}
+                  clientSecret={credentials.clientSecret}
+                  scopes="openid profile email"
+                  onEnvironmentIdChange={(value) => setCredentials(prev => ({ ...prev, environmentId: value }))}
+                  onClientIdChange={(value) => setCredentials(prev => ({ ...prev, clientId: value }))}
+                  onClientSecretChange={(value) => setCredentials(prev => ({ ...prev, clientSecret: value }))}
+                  onScopesChange={() => {}}
+                  showClientSecret={true}
+                  showEnvironmentIdInput={true}
+                  showRedirectUri={false}
+                  showPostLogoutRedirectUri={false}
+                  showLoginHint={false}
+                  flowKey="password"
+                />
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                    Username *
+                  </label>
+                  <input
+                    type="text"
+                    value={credentials.username}
+                    onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
+                    placeholder="Enter your username"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem'
+                    }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
+                    Password *
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={credentials.password}
+                      onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
+                      placeholder="Enter your password"
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem 2.75rem 0.75rem 0.75rem',
+                        border: '1px solid #d1d5db',
+                        borderRadius: '0.5rem',
+                        fontSize: '0.875rem'
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(prev => !prev)}
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      style={{
+                        position: 'absolute',
+                        top: '50%',
+                        right: '0.75rem',
+                        transform: 'translateY(-50%)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        color: '#6b7280'
+                      }}
+                    >
+                      {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                    </button>
+                  </div>
+                </div>
+
+                <ModalActions>
+                  <Button
+                    $variant="secondary"
+                    onClick={handleSaveCredentials}
+                    disabled={isSavingCredentials}
+                  >
+                    {isSavingCredentials ? <SpinningIcon><FiRefreshCw size={16} /></SpinningIcon> : <FiCheckCircle size={16} />}
+                    {isSavingCredentials ? 'Saving…' : 'Save Credentials'}
+                  </Button>
+
+                  <NavigationButton
+                    onClick={handleAuthentication}
+                    disabled={isLoading || !credentials.username || !credentials.password || !credentials.environmentId}
+                  >
+                    {isLoading ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiArrowRight />}
+                    Authenticate
+                  </NavigationButton>
+                </ModalActions>
+              </ModalBody>
+            </ModalCard>
+          </ModalOverlay>
+        );
+
+      case 'password_auth':
+        // Handled in username_login step
+    }
+
+    switch (currentStep) {
       case 'mfa_enrollment':
         return (
           <StepContainer>
