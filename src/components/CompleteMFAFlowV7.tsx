@@ -38,6 +38,18 @@ import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 
 import PingOneAuthService from '../services/pingOneAuthService';
 import PingOneMfaService, { type MfaCredentials, type MfaDevice } from '../services/pingOneMfaService';
+
+// Extended credentials interface for the complete MFA flow
+interface CompleteMfaCredentials extends MfaCredentials {
+  clientId: string;
+  clientSecret: string;
+  redirectUri?: string;
+  username?: string;
+  password?: string;
+  accessToken?: string;
+  refreshToken?: string;
+  idToken?: string;
+}
 import SecuritySessionService from '../services/securitySessionService';
 import SecurityMonitoringService from '../services/securityMonitoringService';
 import NetworkStatusService, { type NetworkStatus } from '../services/networkStatusService';
@@ -322,12 +334,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     networkStatus: { online: true, lastChecked: Date.now() }
   });
 
-  const [credentials, setCredentials] = useState<MfaCredentials>({
+  const [credentials, setCredentials] = useState<CompleteMfaCredentials>({
     environmentId: '',
     clientId: '',
     clientSecret: '',
-    authMethod: 'client_secret_post',
-    region: 'us',
+    workerToken: '',
+    userId: '',
+    redirectUri: 'https://localhost:3000/authz-callback',
     username: '',
     password: ''
   });
@@ -733,6 +746,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     setHasUnsavedChanges(true);
   }, []);
 
+  const handleRedirectUriChange = useCallback((value: string) => {
+    setCredentials(prev => ({ ...prev, redirectUri: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
   const handleUsernameLogin = useCallback(async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
     if (mode === 'redirectless') {
       // For redirectless, we need username/password and use response_mode=pi.flow
@@ -852,9 +870,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       case 'username_login':
         return (
           <>
+            {/* Worker Token Configuration */}
             <CollapsibleHeaderService.CollapsibleHeader
-              title="Application Configuration & Credentials"
-              subtitle="Configure PingOne application settings and authentication credentials"
+              title="Worker Token Configuration"
+              subtitle="Configure PingOne application for MFA operations (Client Credentials)"
               icon={<FiSettings />}
               theme="orange"
               defaultCollapsed={false}
@@ -862,21 +881,22 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               <InfoBox $variant="info">
                 <FiInfo size={20} style={{ flexShrink: 0 }} />
                 <InfoContent>
-                  <InfoTitle>🔐 Primary Authentication</InfoTitle>
+                  <InfoTitle>🔑 Worker Token (Client Credentials)</InfoTitle>
                   <InfoText>
-                    Authenticate against PingOne using your application credentials. Successful sign-in seeds the MFA flow with real access tokens and device profile data.
+                    This configuration is used to obtain a worker token for MFA operations. Uses client credentials grant type - no redirect URI needed.
                   </InfoText>
                 </InfoContent>
               </InfoBox>
 
               <div style={{ margin: '0.5rem 0 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
                 <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
-                  🔗 PingOne Authentication API
+                  🔗 Worker Token API
                 </h4>
                 <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.6 }}>
                   <div><strong>Endpoint:</strong> POST /environments/{'{environmentId}'}/as/token</div>
-                  <div><strong>Grant Type:</strong> password (Resource Owner Password Credentials)</div>
-                  <div><strong>Response:</strong> access_token, refresh_token, id_token (if requested)</div>
+                  <div><strong>Grant Type:</strong> client_credentials</div>
+                  <div><strong>Scopes:</strong> p1:read:user p1:update:user p1:read:device p1:update:device</div>
+                  <div><strong>Response:</strong> access_token (worker token)</div>
                 </div>
               </div>
 
@@ -884,7 +904,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 environmentId={credentials.environmentId}
                 clientId={credentials.clientId}
                 clientSecret={credentials.clientSecret}
-                scopes="openid profile email"
+                scopes="p1:read:user p1:update:user p1:read:device p1:update:device"
                 onEnvironmentIdChange={handleEnvironmentIdChange}
                 onClientIdChange={handleClientIdChange}
                 onClientSecretChange={handleClientSecretChange}
@@ -898,7 +918,61 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 showRedirectUri={false}
                 showPostLogoutRedirectUri={false}
                 showLoginHint={false}
-                flowKey="password"
+                flowKey="client-credentials"
+              />
+            </CollapsibleHeaderService.CollapsibleHeader>
+
+            {/* Authorization Code Flow Configuration */}
+            <CollapsibleHeaderService.CollapsibleHeader
+              title="User Authentication Configuration"
+              subtitle="Configure PingOne application for user authentication (Authorization Code Flow)"
+              icon={<FiUser />}
+              theme="blue"
+              defaultCollapsed={false}
+            >
+              <InfoBox $variant="info">
+                <FiInfo size={20} style={{ flexShrink: 0 }} />
+                <InfoContent>
+                  <InfoTitle>👤 User Authentication (Authorization Code)</InfoTitle>
+                  <InfoText>
+                    This configuration is used for user authentication with redirect/redirectless flows. Requires redirect URI to be configured in PingOne.
+                  </InfoText>
+                </InfoContent>
+              </InfoBox>
+
+              <div style={{ margin: '0.5rem 0 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: 600, color: '#374151' }}>
+                  🔗 Authorization Code Flow API
+                </h4>
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: 1.6 }}>
+                  <div><strong>Endpoint:</strong> GET /environments/{'{environmentId}'}/as/authorize</div>
+                  <div><strong>Grant Type:</strong> authorization_code</div>
+                  <div><strong>Scopes:</strong> openid profile email</div>
+                  <div><strong>Response:</strong> authorization code → access_token, refresh_token, id_token</div>
+                </div>
+              </div>
+
+              <CredentialsInput
+                environmentId={credentials.environmentId}
+                clientId={credentials.clientId}
+                clientSecret={credentials.clientSecret}
+                scopes="openid profile email"
+                redirectUri={credentials.redirectUri}
+                onEnvironmentIdChange={handleEnvironmentIdChange}
+                onClientIdChange={handleClientIdChange}
+                onClientSecretChange={handleClientSecretChange}
+                onRedirectUriChange={(uri) => setCredentials(prev => ({ ...prev, redirectUri: uri }))}
+                onScopesChange={() => {}}
+                onDiscoveryComplete={handleDiscoveryComplete}
+                onSave={handleSaveCredentials}
+                hasUnsavedChanges={hasUnsavedChanges}
+                isSaving={isSaving}
+                showClientSecret={true}
+                showEnvironmentIdInput={false}
+                showRedirectUri={true}
+                showPostLogoutRedirectUri={false}
+                showLoginHint={false}
+                flowKey="authorization-code"
               />
             </CollapsibleHeaderService.CollapsibleHeader>
 
