@@ -786,6 +786,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							</MigrationBadge>
 						</MenuItemContent>
 					</MenuItem>
+
+					<MenuItem
+						icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
+						active={isActive('/flows/device-authorization-v7')}
+						onClick={() => handleNavigation('/flows/device-authorization-v7')}
+						className="v6-flow"
+						style={getV6FlowStyles(isActive('/flows/device-authorization-v7'))}
+					>
+						<MenuItemContent>
+							<span>Device Authorization (V7 Unified)</span>
+							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
 				</SubMenu>
 
 				{/* OpenID Connect */}
