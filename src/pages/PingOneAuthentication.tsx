@@ -24,7 +24,6 @@ import LoginSuccessModal from '../components/LoginSuccessModal';
 interface AuthenticationCredentials {
   username: string;
   password: string;
-  environmentId: string;
 }
 
 interface PingOneAuthenticationProps {
@@ -32,6 +31,7 @@ interface PingOneAuthenticationProps {
   onCancel?: () => void;
   mode?: 'inline' | 'popup';
   showModeSelector?: boolean;
+  environmentId?: string; // Environment ID passed from parent component
 }
 
 const PageContainer = styled.div`
@@ -293,12 +293,16 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
   onCancel,
   mode = 'inline',
   showModeSelector = true,
+  environmentId = 'b9817c16-9910-4415-b67e-4ac687da74d9', // Default environment ID
 }) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const urlEnvironmentId = searchParams.get('environmentId');
+  const finalEnvironmentId = environmentId || urlEnvironmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9';
+  
   const [credentials, setCredentials] = useState<AuthenticationCredentials>({
     username: '',
     password: '',
-    environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9', // Default environment ID
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -333,7 +337,7 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
     }
 
     // Generate a mock authorization URL for demonstration
-    const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
+    const mockAuthUrl = `https://auth.pingone.com/${finalEnvironmentId}/as/authorize?` +
       `client_id=your-client-id&` +
       `response_type=code&` +
       `scope=openid+profile+email&` +
@@ -342,7 +346,7 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
 
     setAuthUrl(mockAuthUrl);
     setShowRedirectModal(true);
-  }, [credentials]);
+  }, [credentials, finalEnvironmentId]);
 
   const handleConfirmRedirect = useCallback(async () => {
     setShowRedirectModal(false);
@@ -435,15 +439,6 @@ const PingOneAuthentication: React.FC<PingOneAuthenticationProps> = ({
         </InputContainer>
       </FormGroup>
 
-      <FormGroup>
-        <Label>Environment ID</Label>
-        <Input
-          type="text"
-          placeholder="Enter environment ID"
-          value={credentials.environmentId}
-          onChange={(e) => handleInputChange('environmentId', e.target.value)}
-        />
-      </FormGroup>
 
       <ButtonGroup>
         <Button
