@@ -11,8 +11,6 @@ import {
   FiAlertCircle,
   FiAlertTriangle,
   FiRefreshCw,
-  FiWifi,
-  FiWifiOff,
   FiArrowLeft,
   FiArrowRight,
   FiKey,
@@ -161,24 +159,6 @@ const MainCard = styled.div`
 
 
 
-const NetworkStatusBar = styled.div<{ $online: boolean }>`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: ${props => props.$online ? '#10b981' : '#ef4444'};
-  color: white;
-  padding: 0.5rem;
-  text-align: center;
-  font-size: 0.875rem;
-  font-weight: 500;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  transition: all 0.3s ease;
-`;
 
 const InfoBox = styled.div<{ $variant: 'info' | 'success' | 'warning' | 'error' }>`
   display: flex;
@@ -1582,21 +1562,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   return (
     <Container>
       {/* Network Status Bar */}
-      {showNetworkStatus && (
-        <NetworkStatusBar $online={flowContext.networkStatus.online}>
-          {flowContext.networkStatus.online ? (
-            <>
-              <FiWifi size={16} />
-              Connected
-            </>
-          ) : (
-            <>
-              <FiWifiOff size={16} />
-              No Internet Connection
-            </>
-          )}
-        </NetworkStatusBar>
-      )}
 
       <ContentWrapper>
         <FlowHeader flowId="pingone-complete-mfa-v7" />
