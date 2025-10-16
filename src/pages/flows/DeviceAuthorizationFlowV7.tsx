@@ -2850,9 +2850,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					showImplementationNotes={false}
 				/>
 
-				{/* V7 Variant Selector */}
-				{renderVariantSelector()}
-
 				<FlowHeader $variant={selectedVariant}>
 					<div>
 						<StepBadge $variant={selectedVariant}>
@@ -2876,6 +2873,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						</span>
 					</div>
 				</FlowHeader>
+
+				{/* V7 Variant Selector - Now below Flow Header */}
+				{renderVariantSelector()}
 
 				{renderStepContent()}
 
