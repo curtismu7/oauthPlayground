@@ -771,6 +771,16 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			setFlowVariant(nextVariant);
 			controller.setFlowVariant(nextVariant);
 
+			// Reload variant-specific credentials from standardized storage
+			const reloadedCredentials = FlowCredentialService.getSharedCredentials(`oauth-authorization-code-v7-${nextVariant}`);
+			if (reloadedCredentials && Object.keys(reloadedCredentials).length > 0) {
+				console.log(`[V7 AuthZ] Loading saved ${nextVariant.toUpperCase()} credentials:`, reloadedCredentials);
+				controller.setCredentials({
+					...controller.credentials,
+					...reloadedCredentials,
+				});
+			}
+
 			if (nextVariant === 'oidc') {
 				const updatedScope = ensureOidcScopes(controller.credentials.scope || controller.credentials.scopes);
 				controller.setCredentials({
@@ -1110,6 +1120,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				[field]: value,
 			};
 			controller.setCredentials(updatedCredentials);
+			// Save credentials with variant-specific key for better isolation
+			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
+			// Also save to the main key for backward compatibility
 			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
 			if (typeof value === 'string' && value.trim()) {
 				setEmptyRequiredFields((prevMissing) => {
