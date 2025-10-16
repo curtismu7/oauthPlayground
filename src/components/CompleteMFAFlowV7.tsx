@@ -544,6 +544,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       return;
     }
 
+    // Store current scroll position to prevent jumping to top
+    const currentScrollY = window.scrollY;
+    
     setIsLoading(true);
     try {
       console.log('🔑 [MFA Flow V7] Requesting worker token...');
@@ -621,6 +624,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       v4ToastManager.showError(`Failed to get worker token: ${error.message}`);
     } finally {
       setIsLoading(false);
+      
+      // Restore scroll position to prevent jumping to top
+      setTimeout(() => {
+        window.scrollTo(0, currentScrollY);
+      }, 100);
     }
   }, [createApiCallData, credentials]);
 
