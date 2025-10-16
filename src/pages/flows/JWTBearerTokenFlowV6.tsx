@@ -946,15 +946,163 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 									<InfoBox $variant="warning">
 										<FiAlertCircle size={20} />
 										<div>
-											<InfoTitle>🎓 Mock JWT Bearer Token Request</InfoTitle>
+											<InfoTitle>🎓 JWT Bearer Token Request</InfoTitle>
 											<InfoText>
 												This demonstrates how a JWT Bearer token request would be sent to an OAuth 2.0 server that supports RFC 7523. The assertion parameter contains the signed JWT that proves the client's identity.
 											</InfoText>
 											<InfoText style={{ marginTop: '0.5rem' }}>
-												<strong>Note:</strong> PingOne does not support JWT Bearer assertions, so this is a simulated request for learning purposes.
+												<strong>Note:</strong> PingOne does not support JWT Bearer assertions, but many other OAuth providers do. Below are real-world examples of providers that support JWT Bearer grant type.
 											</InfoText>
 										</div>
 									</InfoBox>
+
+									{/* Real-world JWT Bearer Examples */}
+									<div style={{ marginBottom: '1.5rem' }}>
+										<h4 style={{ margin: '0 0 1rem 0', fontSize: '1rem', fontWeight: '600', color: '#374151' }}>
+											🌐 Real-World JWT Bearer Examples
+										</h4>
+										<div style={{ display: 'grid', gap: '0.75rem' }}>
+											<div 
+												onClick={() => setTokenEndpoint('https://oauth2.googleapis.com/token')}
+												style={{ 
+													padding: '0.75rem', 
+													background: '#f8fafc', 
+													border: '1px solid #e2e8f0', 
+													borderRadius: '6px',
+													fontSize: '0.875rem',
+													cursor: 'pointer',
+													transition: 'all 0.2s ease',
+													'&:hover': {
+														background: '#f1f5f9',
+														borderColor: '#3b82f6'
+													}
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.background = '#f1f5f9';
+													e.currentTarget.style.borderColor = '#3b82f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.background = '#f8fafc';
+													e.currentTarget.style.borderColor = '#e2e8f0';
+												}}
+											>
+												<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+													🔵 Google Cloud Platform
+												</div>
+												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+													https://oauth2.googleapis.com/token
+												</div>
+												<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+													Supports JWT Bearer for service account authentication
+												</div>
+											</div>
+											
+											<div 
+												onClick={() => setTokenEndpoint('https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token')}
+												style={{ 
+													padding: '0.75rem', 
+													background: '#f8fafc', 
+													border: '1px solid #e2e8f0', 
+													borderRadius: '6px',
+													fontSize: '0.875rem',
+													cursor: 'pointer',
+													transition: 'all 0.2s ease'
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.background = '#f1f5f9';
+													e.currentTarget.style.borderColor = '#3b82f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.background = '#f8fafc';
+													e.currentTarget.style.borderColor = '#e2e8f0';
+												}}
+											>
+												<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+													🟠 Microsoft Azure AD
+												</div>
+												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+													https://login.microsoftonline.com/{tenant-id}/oauth2/v2.0/token
+												</div>
+												<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+													Supports JWT Bearer for application authentication
+												</div>
+											</div>
+											
+											<div 
+												onClick={() => setTokenEndpoint('https://{domain}/oauth/token')}
+												style={{ 
+													padding: '0.75rem', 
+													background: '#f8fafc', 
+													border: '1px solid #e2e8f0', 
+													borderRadius: '6px',
+													fontSize: '0.875rem',
+													cursor: 'pointer',
+													transition: 'all 0.2s ease'
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.background = '#f1f5f9';
+													e.currentTarget.style.borderColor = '#3b82f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.background = '#f8fafc';
+													e.currentTarget.style.borderColor = '#e2e8f0';
+												}}
+											>
+												<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+													🟢 Auth0
+												</div>
+												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+													https://{domain}/oauth/token
+												</div>
+												<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+													Supports JWT Bearer for machine-to-machine authentication
+												</div>
+											</div>
+											
+											<div 
+												onClick={() => setTokenEndpoint('https://{domain}/oauth2/v1/token')}
+												style={{ 
+													padding: '0.75rem', 
+													background: '#f8fafc', 
+													border: '1px solid #e2e8f0', 
+													borderRadius: '6px',
+													fontSize: '0.875rem',
+													cursor: 'pointer',
+													transition: 'all 0.2s ease'
+												}}
+												onMouseEnter={(e) => {
+													e.currentTarget.style.background = '#f1f5f9';
+													e.currentTarget.style.borderColor = '#3b82f6';
+												}}
+												onMouseLeave={(e) => {
+													e.currentTarget.style.background = '#f8fafc';
+													e.currentTarget.style.borderColor = '#e2e8f0';
+												}}
+											>
+												<div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+													🟣 Okta
+												</div>
+												<div style={{ color: '#6b7280', fontFamily: 'monospace' }}>
+													https://{domain}/oauth2/v1/token
+												</div>
+												<div style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+													Supports JWT Bearer for service-to-service authentication
+												</div>
+											</div>
+										</div>
+										
+										<div style={{ 
+											marginTop: '1rem', 
+											padding: '0.75rem', 
+											background: '#fef3c7', 
+											border: '1px solid #f59e0b', 
+											borderRadius: '6px',
+											fontSize: '0.875rem',
+											color: '#92400e'
+										}}>
+											<strong>💡 Tip:</strong> Click on any example above to use it as your token endpoint, or enter your own OAuth provider's token endpoint that supports JWT Bearer grant type.
+										</div>
+									</div>
 
 									<GeneratedContentBox>
 										<ParameterGrid>
