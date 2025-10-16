@@ -43,6 +43,7 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import credentialManager from '../utils/credentialManager';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { CredentialsInput } from '../components/CredentialsInput';
+import { oidcDiscoveryService, type DiscoveryResult } from '../services/oidcDiscoveryService';
 
 export interface CompleteMFAFlowProps {
   requireMFA?: boolean;
@@ -399,6 +400,34 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     return () => NetworkStatusService.removeStatusListener(handleNetworkChange);
   }, []);
 
+  // Handle OIDC discovery completion
+  const handleDiscoveryComplete = useCallback((result: DiscoveryResult) => {
+    if (result.success && result.document) {
+      console.log('[CompleteMFAFlowV7] OIDC Discovery completed:', result);
+      v4ToastManager.showSuccess('OIDC endpoints discovered successfully');
+      
+      // Auto-populate credentials from discovery if available
+      if (result.document.issuer) {
+        const issuerUrl = result.document.issuer;
+        const envIdMatch = issuerUrl.match(/\/environments\/([^\/]+)/);
+        if (envIdMatch && envIdMatch[1]) {
+          setCredentials(prev => ({
+            ...prev,
+            environmentId: envIdMatch[1],
+            authEndpoint: result.document?.authorization_endpoint,
+            tokenEndpoint: result.document?.token_endpoint,
+            userInfoEndpoint: result.document?.userinfo_endpoint,
+            jwksUri: result.document?.jwks_uri
+          }));
+          v4ToastManager.showSuccess('Environment ID and endpoints auto-populated from discovery');
+        }
+      }
+    } else if (result.error) {
+      console.error('[CompleteMFAFlowV7] OIDC Discovery failed:', result.error);
+      v4ToastManager.showError(`Discovery failed: ${result.error}`);
+    }
+  }, []);
+
   const handleUsernameLogin = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -521,6 +550,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 onClientIdChange={(value) => setCredentials(prev => ({ ...prev, clientId: value }))}
                 onClientSecretChange={(value) => setCredentials(prev => ({ ...prev, clientSecret: value }))}
                 onScopesChange={() => {}}
+                onDiscoveryComplete={handleDiscoveryComplete}
                 showClientSecret={true}
                 showEnvironmentIdInput={true}
                 showRedirectUri={false}
