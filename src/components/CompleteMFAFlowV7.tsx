@@ -794,10 +794,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       return;
     }
 
-    // Generate a mock authorization URL for demonstration
+    // Generate a mock authorization URL for demonstration with response_mode=pi.flow
     const mockAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
       `client_id=${credentials.clientId}&` +
       `response_type=code&` +
+      `response_mode=pi.flow&` +
       `scope=openid+profile+email&` +
       `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
       `state=mfa-flow-${Date.now()}`;
