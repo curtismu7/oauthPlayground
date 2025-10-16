@@ -60,7 +60,7 @@ export class FlowFactory {
 		};
 
 		// Create flow component
-		const flowComponent = this.createFlowComponent(mergedConfig, flowController, enableAnalytics);
+		const flowComponent = FlowFactory.createFlowComponent(mergedConfig, flowController, enableAnalytics);
 
 		return {
 			flowComponent,
@@ -74,7 +74,7 @@ export class FlowFactory {
 	 * Create a flow component from template
 	 */
 	static createFlowFromTemplate(template: FlowConfig): FlowFactoryResult {
-		return this.createFlow({
+		return FlowFactory.createFlow({
 			flowType: template.flowType,
 			customConfig: template,
 		});
@@ -84,7 +84,7 @@ export class FlowFactory {
 	 * Create a custom flow component
 	 */
 	static createCustomFlow(config: FlowConfig): FlowFactoryResult {
-		return this.createFlow({
+		return FlowFactory.createFlow({
 			flowType: config.flowType,
 			customConfig: config,
 		});
@@ -94,21 +94,21 @@ export class FlowFactory {
 	 * Register a flow component
 	 */
 	static registerFlow(flowType: string, component: React.ComponentType): void {
-		this.flowRegistry.set(flowType, component);
+		FlowFactory.flowRegistry.set(flowType, component);
 	}
 
 	/**
 	 * Get a registered flow component
 	 */
 	static getFlow(flowType: string): React.ComponentType | undefined {
-		return this.flowRegistry.get(flowType);
+		return FlowFactory.flowRegistry.get(flowType);
 	}
 
 	/**
 	 * Get all registered flows
 	 */
 	static getAllFlows(): Array<{ flowType: string; component: React.ComponentType }> {
-		return Array.from(this.flowRegistry.entries()).map(([flowType, component]) => ({
+		return Array.from(FlowFactory.flowRegistry.entries()).map(([flowType, component]) => ({
 			flowType,
 			component,
 		}));

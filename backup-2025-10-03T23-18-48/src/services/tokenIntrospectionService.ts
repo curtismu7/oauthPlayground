@@ -71,7 +71,7 @@ export class TokenIntrospectionService {
 		apiCall: IntrospectionApiCallData;
 		response: IntrospectionResponse;
 	}> {
-		const apiCall = this.createIntrospectionApiCall(request, flowType, baseUrl);
+		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(request, flowType, baseUrl);
 
 		try {
 			const formData = new URLSearchParams();
@@ -136,7 +136,7 @@ export class TokenIntrospectionService {
 		response: IntrospectionResponse,
 		baseUrl: string = '/api/introspect'
 	): IntrospectionApiCallData {
-		const apiCall = this.createIntrospectionApiCall(request, flowType, baseUrl);
+		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(request, flowType, baseUrl);
 		
 		return {
 			...apiCall,
@@ -159,7 +159,7 @@ export class TokenIntrospectionService {
 		status: number = 400,
 		baseUrl: string = '/api/introspect'
 	): IntrospectionApiCallData {
-		const apiCall = this.createIntrospectionApiCall(request, flowType, baseUrl);
+		const apiCall = TokenIntrospectionService.createIntrospectionApiCall(request, flowType, baseUrl);
 		
 		return {
 			...apiCall,

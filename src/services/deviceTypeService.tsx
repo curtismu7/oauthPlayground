@@ -159,6 +159,19 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		scenario: 'Voice & IoT',
 		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices'
 	},
+	'smartphone': {
+		id: 'smartphone',
+		name: 'Mobile Phone',
+		displayName: 'iPhone 15 Pro - Demo',
+		brandName: 'APPLEID',
+		icon: '📱',
+		emoji: '📱',
+		description: 'On-the-go mobile authorization',
+		color: '#2563eb', // Blue
+		secondaryColor: '#1d4ed8',
+		scenario: 'Mobile Auth',
+		useCase: 'Perfect for smartphones, companion apps, and mobile-first experiences'
+	},
 	'smart-vehicle': {
 		id: 'smart-vehicle',
 		name: 'Smart Vehicle',
@@ -228,6 +241,7 @@ class DeviceTypeService {
 			'ai-agent': 'AGENT AUTHENTICATION',
 			'mcp-server': 'CONTEXT AUTHORIZATION',
 			'smart-speaker': 'VOICE PAIRING',
+			'smartphone': 'MOBILE SIGN-IN',
 			'smart-vehicle': 'VEHICLE SYNC'
 		};
 		
@@ -250,6 +264,7 @@ class DeviceTypeService {
 			'ai-agent': 'Scan to authorize this AI agent and grant it access to your resources',
 			'mcp-server': 'Scan to authorize MCP server connection and enable context sharing',
 			'smart-speaker': 'Scan to link your voice assistant to your account',
+			'smartphone': 'Scan to authorize this mobile device immediately',
 			'smart-vehicle': 'Scan to connect your vehicle infotainment system'
 		};
 		
@@ -349,6 +364,16 @@ class DeviceTypeService {
 				{ label: 'Reminders', icon: '⏰', color: '#8b5cf6' },
 				{ label: 'Shopping', icon: '🛒', color: '#ec4899' },
 				{ label: 'Skills', icon: '✨', color: '#fbbf24' },
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+			],
+			'smartphone': [
+				{ label: 'Messages', icon: '💬', color: '#2563eb' },
+				{ label: 'Auth App', icon: '🔐', color: '#f59e0b' },
+				{ label: 'Wallet', icon: '💳', color: '#22c55e' },
+				{ label: 'Email', icon: '✉️', color: '#8b5cf6' },
+				{ label: 'Calendar', icon: '🗓️', color: '#ec4899' },
+				{ label: 'Maps', icon: '🗺️', color: '#0ea5e9' },
+				{ label: 'Music', icon: '🎶', color: '#f97316' },
 				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 			],
 			'smart-vehicle': [

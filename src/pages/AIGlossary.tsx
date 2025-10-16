@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FiSearch } from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
@@ -25,7 +25,7 @@ const SearchBar = styled.div`
 
 const SearchInput = styled.input`
 	width: 100%;
-	padding: 1.1rem 1.25rem 1.1rem 3.5rem;
+	padding: 1.1rem 3.25rem 1.1rem 3.5rem;
 	border-radius: 18px;
 	border: 2px solid var(--border-subtle, #e5e7eb);
 	font-size: 1rem;
@@ -46,6 +46,34 @@ const SearchIcon = styled(FiSearch)`
 	width: 1.25rem;
 	height: 1.25rem;
 	color: #9ca3af;
+`;
+
+const ClearButton = styled.button<{ $inactive?: boolean }>`
+	position: absolute;
+	right: 1rem;
+	background: transparent;
+	border: none;
+	color: #9ca3af;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.75rem;
+	height: 1.75rem;
+	border-radius: 999px;
+	cursor: pointer;
+	opacity: ${({ $inactive }) => ($inactive ? 0.4 : 1)};
+	pointer-events: ${({ $inactive }) => ($inactive ? 'none' : 'auto')};
+	transition: color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+
+	&:hover {
+		color: #374151;
+		background: rgba(156, 163, 175, 0.12);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--primary-color, #4f46e5);
+		outline-offset: 2px;
+	}
 `;
 
 const CategoryList = styled.section`
@@ -166,6 +194,10 @@ interface GlossaryCategory {
 
 const AIGlossary: React.FC = () => {
 	const [searchTerm, setSearchTerm] = useState('');
+
+	useEffect(() => {
+		window.scrollTo({ top: 0, behavior: 'smooth' });
+	}, []);
 
 	const glossaryData: GlossaryCategory[] = [
 		{
@@ -1221,38 +1253,112 @@ const AIGlossary: React.FC = () => {
 				},
 			],
 		},
+		{
+			category: 'Emerging Standards',
+			icon: '🔐',
+			terms: [
+				{
+					term: 'Dynamic Client Registration (DCR)',
+					definition:
+						'Defines how OAuth clients register with authorization servers at runtime rather than through manual provisioning. While foundational for many integrations, DCR assumes a pre-existing trust relationship and approval workflow between client and server, which becomes challenging for autonomous AI agents that must connect to new services on demand.',
+					example:
+						'A personal AI assistant attempting to connect to an enterprise API may stall if the API requires manual DCR approval, preventing spontaneous agent-to-service collaboration.',
+					relatedTerms: ['Client Metadata', 'OAuth 2.1'],
+				},
+				{
+					term: 'Client ID Metadata Document (CIMD)',
+					definition:
+						'An emerging IETF OAuth Working Group draft that lets authorization servers resolve a client_id as an HTTPS URL pointing to rich metadata. Instead of pre-registering every agent, servers can fetch the metadata document when needed, enabling open ecosystems. Read the draft at <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-client-id-metadata-document" target="_blank" rel="noopener noreferrer">draft-ietf-oauth-client-id-metadata-document</a>.',
+					example:
+						'An AI agent presents its client_id as https://agent.example/metadata.json; the resource server downloads the document to learn scopes, redirect URIs, and keys before issuing tokens.',
+					relatedTerms: ['Dynamic Client Registration', 'MCP'],
+				},
+				{
+					term: 'Identity Assertion Authorization Grant (ID-JAG)',
+					definition:
+						'A proposed OAuth grant that allows applications to present an identity assertion from a trusted enterprise identity provider and exchange it for API access tokens. It builds on RFC 8693 Token Exchange and the JWT Profile for OAuth 2.0 Authorization Grants to support cross-application delegation for AI agents. Draft available at <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant" target="_blank" rel="noopener noreferrer">draft-ietf-oauth-identity-assertion-authz-grant</a>.',
+					example:
+						'An enterprise AI copilot receives a signed assertion from the corporate IdP and trades it for an access token to call a partner SaaS API on behalf of an employee.',
+					relatedTerms: ['Token Exchange', 'JWT Profile'],
+				},
+				{
+					term: 'OAuth Identity and Authorization Chaining',
+					definition:
+						'An IETF draft that preserves authoritative identity and authorization context as tokens move across multiple trust domains. Chaining ensures downstream services can verify who initiated a request and under which policy. Read more at <a href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining" target="_blank" rel="noopener noreferrer">draft-ietf-oauth-identity-chaining</a>.',
+					example:
+						'A workflow where an AI agent triggers a downstream automation, and each hop maintains the original user identity and consent, enabling auditable delegated actions.',
+					relatedTerms: ['ID-JAG', 'Token Exchange'],
+				},
+				{
+					term: 'Model Context Protocol (MCP)',
+					definition:
+						'An open protocol for connecting AI clients and servers. The community is evaluating CIMD as an alternative to traditional DCR so personal agents can register on the fly. Background and analysis can be found at <a href="https://blog.modelcontextprotocol.io/posts/client_registration" target="_blank" rel="noopener noreferrer">Evolving OAuth Client Registration in the Model Context Protocol</a>.',
+					example:
+						'MCP clients broadcast their capabilities and use CIMD-based client identifiers so any compliant server can fetch metadata and establish trust without manual onboarding.',
+					relatedTerms: ['CIMD', 'Dynamic Client Registration'],
+				},
+			],
+		},
 	];
+	const normalizedSearch = searchTerm.trim().toLowerCase();
+
 	const filteredData = glossaryData
-		.map((category) => ({
-			...category,
-			terms: category.terms.filter(
-				(item) =>
-					item.term.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					item.definition.toLowerCase().includes(searchTerm.toLowerCase()) ||
-					item.example?.toLowerCase().includes(searchTerm.toLowerCase())
-			),
-		}))
-		.filter((category) => category.terms.length > 0);
+		.map((category) => {
+			if (!normalizedSearch) {
+				return category;
+			}
+
+			const categoryMatches = category.category.toLowerCase().includes(normalizedSearch);
+			const termMatches = category.terms.filter((item) => {
+				const definitionText = item.definition.toLowerCase();
+				const exampleText = item.example?.toLowerCase() ?? '';
+				const relatedMatches = item.relatedTerms?.some((related) =>
+					related.toLowerCase().includes(normalizedSearch)
+				);
+				return (
+					item.term.toLowerCase().includes(normalizedSearch) ||
+					definitionText.includes(normalizedSearch) ||
+					exampleText.includes(normalizedSearch) ||
+					relatedMatches
+				);
+			});
+
+			return {
+				...category,
+				terms: categoryMatches ? category.terms : termMatches,
+			};
+		})
+ 		.filter((category) => category.terms.length > 0);
+
+	const hasResults = filteredData.length > 0;
 
 	return (
 		<PageContainer>
 			<PageContent>
-				<FlowHeader flowType="ai-glossary" />
+				<FlowHeader flowId="ai-glossary" />
 
 				<SearchBar>
 					<SearchInput
 						type="text"
-						placeholder="Search terms..."
+						placeholder="Search AI terms, standards, or concepts..."
 						value={searchTerm}
-						onChange={(e) => setSearchTerm(e.target.value)}
+						onChange={(event) => setSearchTerm(event.target.value)}
 					/>
 					<SearchIcon />
+					<ClearButton
+						type="button"
+						onClick={() => searchTerm && setSearchTerm('')}
+						title="Clear search"
+						$inactive={!searchTerm}
+					>
+						<FiX />
+					</ClearButton>
 				</SearchBar>
 
-				{filteredData.length === 0 ? (
+				{!hasResults ? (
 					<NoResults>
-						<h3>No results found</h3>
-						<p>Try adjusting your search terms</p>
+						<h3>No matching terms found</h3>
+						<p>Try different keywords or clear the search to browse all glossary entries.</p>
 					</NoResults>
 				) : (
 					<CategoryList>

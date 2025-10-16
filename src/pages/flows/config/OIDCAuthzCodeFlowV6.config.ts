@@ -1,5 +1,6 @@
 // src/pages/flows/config/OIDCAuthzCodeFlow.config.ts
 import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
+import FlowStateService from '../../../services/flowStateService';
 
 // Flow configuration
 export const FLOW_TYPE = 'authorization-code';
@@ -67,11 +68,8 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 	includeX5tParameter: false,
 	oidcSessionManagement: false,
 	requestScopesForMultipleResources: false,
-	terminateUserSessionByIdToken: false,
+ 	terminateUserSessionByIdToken: false,
 	corsOrigins: [],
 	corsAllowAnyOrigin: false,
 };
-
-// Import FlowStateService for metadata generation
-import { FlowStateService } from '../../../services/flowStateService';
 
