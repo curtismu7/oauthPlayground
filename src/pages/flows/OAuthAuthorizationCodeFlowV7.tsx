@@ -149,6 +149,44 @@ const RequirementsIcon = styled.div`
 	flex-shrink: 0;
 `;
 
+// V7 Variant Selector Components
+const VariantSelector = styled.div`
+	display: flex;
+	gap: 1rem;
+	margin-bottom: 2rem;
+	padding: 1.5rem;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border-radius: 0.75rem;
+	border: 1px solid #cbd5e1;
+`;
+
+const VariantButton = styled.button<{ $selected: boolean }>`
+	flex: 1;
+	padding: 1rem;
+	border-radius: 0.5rem;
+	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
+	background: ${props => props.$selected ? '#dbeafe' : 'white'};
+	color: ${props => props.$selected ? '#1e40af' : '#475569'};
+	font-weight: ${props => props.$selected ? '600' : '500'};
+	transition: all 0.2s ease;
+	cursor: pointer;
+
+	&:hover {
+		border-color: #3b82f6;
+		background: #dbeafe;
+	}
+`;
+
+const VariantTitle = styled.div`
+	font-size: 1.1rem;
+	margin-bottom: 0.25rem;
+`;
+
+const VariantDescription = styled.div`
+	font-size: 0.875rem;
+	opacity: 0.8;
+`;
+
 const RequirementsText = styled.div`
 	color: #92400e;
 	font-size: 0.875rem;
@@ -750,8 +788,31 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					enableOIDC: false,
 				});
 			}
+			
+			// Show success message
+			v4ToastManager.showSuccess(`Switched to ${nextVariant.toUpperCase()} variant`);
 		},
 		[controller, ensureOidcScopes]
+	);
+
+	// V7 Variant Selector Component
+	const renderVariantSelector = () => (
+		<VariantSelector>
+			<VariantButton
+				$selected={flowVariant === 'oauth'}
+				onClick={() => handleFlowVariantChange('oauth')}
+			>
+				<VariantTitle>OAuth 2.0 Authorization Code</VariantTitle>
+				<VariantDescription>Access token only - API authorization</VariantDescription>
+			</VariantButton>
+			<VariantButton
+				$selected={flowVariant === 'oidc'}
+				onClick={() => handleFlowVariantChange('oidc')}
+			>
+				<VariantTitle>OpenID Connect Authorization Code</VariantTitle>
+				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+			</VariantButton>
+		</VariantSelector>
 	);
 	
 	// API call tracking for display
@@ -1609,10 +1670,13 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			case 0:
 				return (
 					<>
-						<FlowConfigurationRequirements flowType="authorization-code" variant="oauth" />
+						{/* V7 Variant Selector */}
+						{renderVariantSelector()}
 						
-						{/* OAuth 2.0 Educational Content */}
-						<EducationalContentService flowType="oauth" defaultCollapsed={false} />
+						<FlowConfigurationRequirements flowType="authorization-code" variant={flowVariant} />
+						
+						{/* Educational Content - Dynamic based on variant */}
+						<EducationalContentService flowType={flowVariant} defaultCollapsed={false} />
 						
 				<CollapsibleSection>
 				<GreenHeaderButton
@@ -1620,7 +1684,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					aria-expanded={!collapsedSections.overview}
 				>
 					<CollapsibleTitle>
-						<FiBook /> OAuth 2.0 Authorization Code Overview
+						<FiBook /> {flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code Overview
 					</CollapsibleTitle>
 					<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
 						<FiChevronDown />
@@ -1631,10 +1695,12 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiShield size={20} />
 										<div>
-											<InfoTitle>When to Use OAuth 2.0 Authorization Code</InfoTitle>
+											<InfoTitle>When to Use {flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code</InfoTitle>
 											<InfoText>
-												OAuth 2.0 Authorization Code Flow is perfect when you need to access user's resources 
-												on their behalf without needing to authenticate them or know their identity.
+												{flowVariant === 'oidc' 
+													? 'OpenID Connect Authorization Code Flow is perfect when you need both user authentication and API authorization. You get user identity information plus access to their resources.'
+													: 'OAuth 2.0 Authorization Code Flow is perfect when you need to access user\'s resources on their behalf without needing to authenticate them or know their identity.'
+												}
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1839,11 +1905,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							)}
 						</CollapsibleSection>
 
-						<EnhancedFlowWalkthrough flowId="oauth-authorization-code" />
+						<EnhancedFlowWalkthrough flowId={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
 
 						<FlowSequenceDisplay flowType="authorization-code" />
 
-					<EnhancedFlowInfoCard flowId="oauth-authorization-code" />
+					<EnhancedFlowInfoCard flowId={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
 					</>
 				);
 			case 0:
@@ -2811,10 +2877,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-authorization-code-v7" />
 
-				{UISettingsService.getFlowSpecificSettingsPanel('oauth-authorization-code')}
+				{UISettingsService.getFlowSpecificSettingsPanel(flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code')}
 
 				<EnhancedFlowInfoCard
-					flowType="oauth-authorization-code"
+					flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}
 					showAdditionalInfo={true}
 					showDocumentation={true}
 					showCommonIssues={false}
@@ -2825,8 +2891,15 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					<StepHeader>
 						<StepHeaderLeft>
 							<VersionBadge>Authorization Code Flow · V7 Unified</VersionBadge>
-							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
-							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+							<StepHeaderTitle>
+								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
+							</StepHeaderTitle>
+							<StepHeaderSubtitle>
+								{flowVariant === 'oidc' 
+									? 'Authentication + Authorization with ID token and Access token'
+									: 'API Authorization with Access token only'
+								}
+							</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
 							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
