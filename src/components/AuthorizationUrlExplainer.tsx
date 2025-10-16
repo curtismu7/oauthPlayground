@@ -372,6 +372,18 @@ const parseAuthorizationUrl = (url: string): UrlParameter[] => {
 					});
 					break;
 
+				case 'request_uri':
+					parameters.push({
+						name: 'Request URI (PAR)',
+						value: value,
+						description: 'Pushed Authorization Request URI containing the authorization parameters.',
+						purpose:
+							'This URI references authorization parameters that were securely pushed to the authorization server via PAR, enhancing security by keeping sensitive parameters off the browser URL.',
+						icon: <FiShield />,
+						category: 'security',
+					});
+					break;
+
 				default:
 					parameters.push({
 						name: key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' '),

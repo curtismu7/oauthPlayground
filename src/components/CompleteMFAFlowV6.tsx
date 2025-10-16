@@ -1,5 +1,5 @@
 // src/components/CompleteMFAFlowV6.tsx
-// Real V7 MFA Flow - Complete PingOne MFA implementation with educational content
+// Real V7 MFA Flow - Complete PingOne MFA implementation with modern V7 UI
 // Implements the full 8-step specification with real API integration
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -22,14 +22,19 @@ import {
   FiEye,
   FiEyeOff,
   FiChevronDown,
+  FiSettings,
+  FiBook,
+  FiPackage,
 } from 'react-icons/fi';
-import { V5StepperService } from '../services/v5StepperService';
-import { V6FlowService } from '../services/v6FlowService';
-import { useV6CollapsibleSections } from '../services/v6StepManagementService';
+import styled from 'styled-components';
+import { FlowHeader } from '../services/flowHeaderService';
+import { CollapsibleHeaderService } from '../services/collapsibleHeaderService';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 
-import PingOneAuthService, { type AuthCredentials } from '../services/pingOneAuthService';
+import PingOneAuthService from '../services/pingOneAuthService';
 import PingOneMfaService, { type MfaCredentials, type MfaDevice } from '../services/pingOneMfaService';
-import SecuritySessionService, { type SecuritySession } from '../services/securitySessionService';
+import SecuritySessionService from '../services/securitySessionService';
 import SecurityMonitoringService from '../services/securityMonitoringService';
 import NetworkStatusService, { type NetworkStatus } from '../services/networkStatusService';
 import AuthErrorRecoveryService from '../services/authErrorRecoveryService';
@@ -42,29 +47,16 @@ import { CredentialsInput } from '../components/CredentialsInput';
 import styled from 'styled-components';
 
 export interface CompleteMFAFlowProps {
-  // Configuration
-  environmentId?: string;
-  clientId?: string;
-  redirectUri?: string;
-  theme?: 'blue' | 'green' | 'purple';
-
-  // Flow options
-  allowDeviceRegistration?: boolean;
   requireMFA?: boolean;
-  allowedMethods?: string[];
   maxRetries?: number;
-
-  // Callbacks
   onFlowComplete?: (result: {
     success: boolean;
-    session?: SecuritySession;
-    tokens?: any;
+    session?: unknown;
+    tokens?: unknown;
     error?: string;
   }) => void;
   onFlowError?: (error: string, context?: any) => void;
   onStepChange?: (step: string, data?: any) => void;
-
-  // UI customization
   showNetworkStatus?: boolean;
 }
 
@@ -80,7 +72,11 @@ type FlowStep =
 
 interface FlowContext {
   flowId: string;
-  authCredentials?: AuthCredentials;
+  authCredentials?: {
+    userId: string;
+    accessToken?: string;
+    refreshToken?: string;
+  };
   mfaCredentials?: MfaCredentials;
   userDevices: MfaDevice[];
   selectedDevice?: MfaDevice;
@@ -95,16 +91,115 @@ interface FlowContext {
 
 const MFA_CREDENTIALS_STORAGE_KEY = 'pingone_complete_mfa_v7_credentials';
 
-// V5Stepper components for consistent UI
-const { StepContainer, StepHeader, StepContent, NavigationButton } = V5StepperService.createStepLayout({ theme: 'purple', showProgress: true });
-
-const FlowContainer = styled.div`
+// Modern V7 Layout Components
+const Container = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background-color: #f9fafb;
+  padding: 2rem 0 6rem;
+`;
+
+const ContentWrapper = styled.div`
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0 1rem;
+`;
+
+const MainCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+`;
+
+const StepHeader = styled.div`
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+  color: #ffffff;
+  padding: 2rem;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+`;
+
+const StepHeaderLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+`;
+
+const StepHeaderRight = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  opacity: 0.9;
+`;
+
+const VersionBadge = styled.span`
+  align-self: flex-start;
+  background: rgba(124, 58, 237, 0.2);
+  border: 1px solid #a78bfa;
+  color: #ddd6fe;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const StepHeaderTitle = styled.h1`
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+`;
+
+const StepHeaderSubtitle = styled.p`
+  margin: 0.25rem 0 0 0;
+  font-size: 0.875rem;
+  opacity: 0.9;
+  line-height: 1.4;
+`;
+
+const StepNumber = styled.span`
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+`;
+
+const StepTotal = styled.span`
+  font-size: 0.875rem;
+  opacity: 0.7;
+`;
+
+const StepContentWrapper = styled.div`
+  padding: 2rem;
+`;
+
+const NavigationButton = styled.button`
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-  padding: 1rem;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #7c3aed;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    background: #6d28d9;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 `;
 
 const NetworkStatusBar = styled.div<{ $online: boolean }>`
@@ -340,13 +435,7 @@ const ModalActions = styled.div`
 const { Collapsible } = V6FlowService.createFlowComponents('purple');
 
 export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
-  environmentId = 'default',
-  clientId = 'default',
-  redirectUri = window.location.origin,
-  theme = 'purple',
-  allowDeviceRegistration = true,
   requireMFA = true,
-  allowedMethods = ['SMS', 'EMAIL', 'TOTP', 'FIDO2'],
   maxRetries = 3,
   onFlowComplete,
   onFlowError,
@@ -354,6 +443,9 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
   showNetworkStatus = true,
 }) => {
   const { collapsedSections, toggleSection } = useV6CollapsibleSections();
+
+  // Get V6 Flow components
+  const { Collapsible } = V6FlowService.createFlowComponents('blue');
 
   // Flow state
   const [currentStep, setCurrentStep] = useState<FlowStep>('username_login');
@@ -382,6 +474,16 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isSavingCredentials, setIsSavingCredentials] = useState(false);
+
+  // Modern V7 Step Metadata Configuration
+  const STEP_METADATA = [
+    { title: 'Step 1: User Authentication', subtitle: 'Enter credentials and authenticate with PingOne' },
+    { title: 'Step 2: MFA Enrollment', subtitle: 'Set up multi-factor authentication devices' },
+    { title: 'Step 3: Device Pairing', subtitle: 'Pair and activate your MFA device' },
+    { title: 'Step 4: MFA Challenge', subtitle: 'Complete multi-factor authentication' },
+    { title: 'Step 5: Token Retrieval', subtitle: 'Retrieve access tokens and complete session' },
+    { title: 'Step 6: Authentication Complete', subtitle: 'MFA authentication successful' },
+  ];
 
   // Flow steps configuration based on specification
   const flowSteps: Array<{ id: FlowStep; title: string; subtitle: string; icon: React.ReactNode }> = [
@@ -450,10 +552,10 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
           error: error.message,
           context,
           step: currentStep,
-          retryCount
-        },
-        sensitiveData: false,
-        riskScore: 60
+          retryCount,
+          sensitiveData: false,
+          riskScore: 60
+        }
       });
 
       // Attempt error recovery
@@ -464,12 +566,12 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
         timestamp: new Date()
       });
 
-      if (recoveryResult.success) {
+      if (recoveryResult.recovered) {
         setError(null);
         return;
       }
 
-      setError(recoveryResult.message);
+      setError(recoveryResult.action?.description || error.message);
       setCurrentStep('error');
       onFlowError?.(error.message, context);
     } catch (recoveryError) {
@@ -635,6 +737,10 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
       }
 
       // Real PingOne authentication
+      if (!flowContext.workerToken) {
+        await getWorkerToken();
+      }
+
       const authResult = await PingOneAuthService.authenticate({
         username: credentials.username,
         password: credentials.password,
@@ -647,7 +753,11 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
 
       setFlowContext(prev => ({
         ...prev,
-        authCredentials: authResult as AuthCredentials,
+        authCredentials: {
+          userId: authResult.userId!,
+          accessToken: authResult.accessToken,
+          refreshToken: authResult.refreshToken
+        },
         userId: authResult.userId,
         username: credentials.username
       }));
@@ -688,7 +798,7 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, [credentials, requireMFA, flowContext.workerToken, onStepChange]);
+  }, [credentials, requireMFA, flowContext.workerToken, onStepChange, getWorkerToken]);
 
   // Device selection for MFA challenge
   const handleDeviceSelection = useCallback(async (device: MfaDevice) => {
@@ -769,24 +879,11 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
       await new Promise(resolve => setTimeout(resolve, 1000));
 
       // Create security session
-      const session = await SecuritySessionService.createSession(
-        flowContext.authCredentials.userId!,
-        {
-          accessToken: flowContext.authCredentials.accessToken!,
-          refreshToken: flowContext.authCredentials.refreshToken || '',
-          expiresIn: 3600
-        },
-        {
-          ipAddress: '127.0.0.1',
-          userAgent: navigator.userAgent,
-          mfaDevices: [flowContext.selectedDevice.id]
-        }
-      );
+      const session = SecuritySessionService.createSession(flowContext.authCredentials.userId);
+
+      SecuritySessionService.updateSession({ mfaCompleted: true, deviceTrusted: true });
 
       setFlowContext(prev => ({ ...prev, session }));
-
-      // Mark MFA as completed
-      SecuritySessionService.updateSession(session.sessionId, { mfaCompleted: true });
 
       setCurrentStep('token_retrieval');
       onStepChange?.('token_retrieval');
@@ -857,75 +954,21 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
   const renderCurrentStep = () => {
     if (isLoading && currentStep === 'username_login') {
       return (
-        <FlowContainer>
-          <div style={{ textAlign: 'center', padding: '3rem' }}>
-            <FiRefreshCw size={48} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
-            <h3 style={{ margin: '1rem 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
-              Initializing PingOne MFA Flow V7
-            </h3>
-            <p style={{ margin: 0, color: '#6b7280' }}>
-              Setting up your secure multi-factor authentication flow...
-            </p>
-          </div>
-        </FlowContainer>
+        <div style={{ textAlign: 'center', padding: '3rem' }}>
+          <FiRefreshCw size={48} color="#7c3aed" style={{ animation: 'spin 1s linear infinite' }} />
+          <h3 style={{ margin: '1rem 0 0.5rem 0', fontSize: '1.25rem', fontWeight: '600' }}>
+            Initializing PingOne MFA Flow V7
+          </h3>
+          <p style={{ margin: 0, color: '#6b7280' }}>
+            Setting up your secure multi-factor authentication flow...
+          </p>
+        </div>
       );
-
     }
 
+    // Group indicators for analytics step tracking
     switch (currentStep) {
-                    <InfoBox $variant="info">
-                      <FiInfo size={20} style={{ flexShrink: 0 }} />
-                      <InfoContent>
-                        <InfoTitle>👤 User Account Creation</InfoTitle>
-                        <InfoText>
-                          This step creates a new user account in PingOne. In a real implementation, this would call the PingOne User API to create a user with profile information, credentials, and initial MFA settings.
-                        </InfoText>
-                      </InfoContent>
-                    </InfoBox>
-
-                    <div style={{ margin: '1rem 0', padding: '1rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
-                      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#374151' }}>
-                        🔗 PingOne User API:
-                      </h4>
-                      <div style={{ fontSize: '0.75rem', color: '#6b7280', lineHeight: '1.5' }}>
-                        <div><strong>Endpoint:</strong> POST /environments/{'{environmentId}'}/users</div>
-                        <div><strong>Content-Type:</strong> application/vnd.pingidentity.user.import+json</div>
-                        <div><strong>Purpose:</strong> Create new user accounts with profile and authentication settings</div>
-                      </div>
-                    </div>
-
-                    <div style={{ marginBottom: '1rem' }}>
-                      <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 500 }}>
-                        Username/Email *
-                      </label>
-                      <input
-                        type="email"
-                        placeholder="Enter email address for new user"
-                        value={credentials.username}
-                        onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                        style={{
-                          width: '100%',
-                          padding: '0.75rem',
-                          border: '1px solid #d1d5db',
-                          borderRadius: '0.5rem',
-                          fontSize: '0.875rem'
-                        }}
-                      />
-                    </div>
-
-                    <NavigationButton
-                      onClick={() => handleUserCreation({ username: credentials.username || 'demo@example.com' })}
-                      disabled={isLoading || !credentials.username}
-                    >
-                      {isLoading ? <SpinningIcon><FiRefreshCw /></SpinningIcon> : <FiArrowRight />}
-                      Create User & Continue
-                    </NavigationButton>
-                  </Collapsible.CollapsibleContent>
-                )}
-              </Collapsible.CollapsibleSection>
-            </StepContent>
-          </StepContainer>
-        );
+    
 
       case 'username_login':
         return (
@@ -1630,8 +1673,14 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
     }
   };
 
+  // Get current step index for metadata
+  const currentStepIndex = useMemo(() => {
+    const stepOrder: FlowStep[] = ['username_login', 'password_auth', 'mfa_enrollment', 'device_pairing', 'mfa_challenge', 'token_retrieval', 'success'];
+    return stepOrder.indexOf(currentStep);
+  }, [currentStep]);
+
   return (
-    <FlowContainer>
+    <Container>
       {/* Network Status Bar */}
       {showNetworkStatus && (
         <NetworkStatusBar $online={flowContext.networkStatus.online}>
@@ -1649,9 +1698,38 @@ export const CompleteMFAFlowV6: React.FC<CompleteMFAFlowProps> = ({
         </NetworkStatusBar>
       )}
 
-      {/* Main Flow Content */}
-      {renderCurrentStep()}
-    </FlowContainer>
+      <ContentWrapper>
+        <FlowHeader flowId="pingone-complete-mfa-v7" />
+
+        <EnhancedFlowInfoCard
+          flowType="mfa"
+          showAdditionalInfo={true}
+          showDocumentation={true}
+          showCommonIssues={false}
+          showImplementationNotes={true}
+        />
+
+        <MainCard>
+          <StepHeader>
+            <StepHeaderLeft>
+              <VersionBadge>MFA V7</VersionBadge>
+              <div>
+                <StepHeaderTitle>{STEP_METADATA[currentStepIndex]?.title || 'MFA Authentication'}</StepHeaderTitle>
+                <StepHeaderSubtitle>{STEP_METADATA[currentStepIndex]?.subtitle || 'Complete multi-factor authentication'}</StepHeaderSubtitle>
+              </div>
+            </StepHeaderLeft>
+            <StepHeaderRight>
+              <StepNumber>{String(currentStepIndex + 1).padStart(2, '0')}</StepNumber>
+              <StepTotal>of {STEP_METADATA.length}</StepTotal>
+            </StepHeaderRight>
+          </StepHeader>
+
+          <StepContentWrapper>
+            {renderCurrentStep()}
+          </StepContentWrapper>
+        </MainCard>
+      </ContentWrapper>
+    </Container>
   );
 };
 

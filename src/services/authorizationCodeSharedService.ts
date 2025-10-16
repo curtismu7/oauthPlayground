@@ -799,6 +799,7 @@ export class AuthzFlowDefaults {
 		return {
 			overview: true,
 			flowDiagram: true,
+			configuration: false, // Expanded by default (condensed V7)
 			credentials: false, // Expanded by default
 			pkceOverview: false, // Expanded by default for Step 1
 			pkceDetails: true,

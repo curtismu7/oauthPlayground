@@ -901,8 +901,6 @@ const OIDCHybridFlowV6: React.FC = () => {
 			<ContentWrapper>
 			<FlowHeader flowId="oidc-hybrid-v6" />
 
-			{UISettingsService.getFlowSpecificSettingsPanel('oidc-hybrid')}
-
 			{currentStep === 0 && AdvancedParametersSectionService.getSimpleSection('oidc-hybrid')}
 
 			<FlowInfoCard flowInfo={getFlowInfo('oidc-hybrid')!} />
