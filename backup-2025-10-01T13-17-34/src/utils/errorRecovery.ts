@@ -276,7 +276,7 @@ export class EnhancedErrorRecovery {
 	): Promise<void> {
 		this.retryCount++;
 		const delay = Math.min(
-			this.config.baseDelay * Math.pow(2, this.retryCount - 1),
+			this.config.baseDelay * 2 ** (this.retryCount - 1),
 			this.config.maxDelay
 		);
 

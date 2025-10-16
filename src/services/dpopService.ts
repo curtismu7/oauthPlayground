@@ -45,7 +45,7 @@ export class DPoPService {
 	 */
 	static async generateKeyPair(config?: Partial<DPoPConfig>): Promise<DPoPKeyPair> {
 		try {
-			const finalConfig = { ...this.config, ...config };
+			const finalConfig = { ...DPoPService.config, ...config };
 			
 			let keyGenParams: RsaHashedKeyGenParams | EcKeyGenParams;
 			
@@ -85,7 +85,7 @@ export class DPoPService {
 				jwk
 			};
 
-			this.keyPair = keyPair;
+			DPoPService.keyPair = keyPair;
 			console.log('🔐 [DPoP] Generated new key pair:', {
 				algorithm: finalConfig.algorithm,
 				keyType: jwk.kty,
@@ -109,18 +109,18 @@ export class DPoPService {
 		nonce?: string
 	): Promise<DPoPProof> {
 		try {
-			if (!this.keyPair) {
-				await this.generateKeyPair();
+			if (!DPoPService.keyPair) {
+				await DPoPService.generateKeyPair();
 			}
 
-			const jti = this.generateJti();
+			const jti = DPoPService.generateJti();
 			const iat = Math.floor(Date.now() / 1000);
 
 			// DPoP JWT Header
 			const header = {
 				typ: 'dpop+jwt',
-				alg: this.config.algorithm,
-				jwk: this.keyPair!.jwk
+				alg: DPoPService.config.algorithm,
+				jwk: DPoPService.keyPair!.jwk
 			};
 
 			// DPoP JWT Payload
@@ -133,7 +133,7 @@ export class DPoPService {
 
 			// Add access token hash if provided
 			if (accessToken) {
-				payload.ath = await this.generateAccessTokenHash(accessToken);
+				payload.ath = await DPoPService.generateAccessTokenHash(accessToken);
 			}
 
 			// Add nonce if provided by server
@@ -141,7 +141,7 @@ export class DPoPService {
 				payload.nonce = nonce;
 			}
 
-			const jwt = await this.signJWT(header, payload);
+			const jwt = await DPoPService.signJWT(header, payload);
 
 			console.log('🔐 [DPoP] Created proof:', {
 				jti,
@@ -168,14 +168,14 @@ export class DPoPService {
 	 * Get the current public key JWK
 	 */
 	static getPublicKeyJWK(): JsonWebKey | null {
-		return this.keyPair?.jwk || null;
+		return DPoPService.keyPair?.jwk || null;
 	}
 
 	/**
 	 * Clear the current key pair (for testing or key rotation)
 	 */
 	static clearKeyPair(): void {
-		this.keyPair = null;
+		DPoPService.keyPair = null;
 		console.log('🔐 [DPoP] Key pair cleared');
 	}
 
@@ -211,14 +211,14 @@ export class DPoPService {
 		const encoder = new TextEncoder();
 		
 		// Base64url encode header and payload
-		const encodedHeader = this.base64urlEncode(JSON.stringify(header));
-		const encodedPayload = this.base64urlEncode(JSON.stringify(payload));
+		const encodedHeader = DPoPService.base64urlEncode(JSON.stringify(header));
+		const encodedPayload = DPoPService.base64urlEncode(JSON.stringify(payload));
 		
 		const signingInput = `${encodedHeader}.${encodedPayload}`;
 		const signingInputBytes = encoder.encode(signingInput);
 
 		let algorithm: AlgorithmIdentifier;
-		if (this.config.algorithm === 'RS256') {
+		if (DPoPService.config.algorithm === 'RS256') {
 			algorithm = 'RSASSA-PKCS1-v1_5';
 		} else {
 			algorithm = 'ECDSA';
@@ -226,11 +226,11 @@ export class DPoPService {
 
 		const signature = await window.crypto.subtle.sign(
 			algorithm,
-			this.keyPair!.privateKey,
+			DPoPService.keyPair!.privateKey,
 			signingInputBytes
 		);
 
-		const encodedSignature = this.base64urlEncode(signature);
+		const encodedSignature = DPoPService.base64urlEncode(signature);
 		return `${signingInput}.${encodedSignature}`;
 	}
 
@@ -291,7 +291,7 @@ export class DPoPHttpHelper {
 	): Promise<Response> {
 		const method = options.method || 'GET';
 		
-		const dpopHeaders = await this.addDPoPHeaders(
+		const dpopHeaders = await DPoPHttpHelper.addDPoPHeaders(
 			url,
 			method,
 			options.headers,
@@ -326,7 +326,7 @@ export class DPoPStatus {
 	 */
 	static getStatus() {
 		return {
-			supported: this.isSupported(),
+			supported: DPoPStatus.isSupported(),
 			hasKeyPair: !!DPoPService.getPublicKeyJWK(),
 			algorithm: DPoPService['config'].algorithm,
 			publicKey: DPoPService.getPublicKeyJWK()

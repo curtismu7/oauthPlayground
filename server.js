@@ -951,6 +951,311 @@ app.post('/api/par', async (req, res) => {
 	}
 });
 
+// PingOne MFA Device Registration Endpoint
+app.post('/api/pingone/mfa/register-device', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			clientId,
+			clientSecret,
+			username,
+			type,
+			phone,
+			email,
+		} = req.body;
+
+		console.log(`[PingOne MFA] Device registration request:`, {
+			environmentId,
+			clientId: clientId ? `${clientId.substring(0, 8)}...` : 'none',
+			username,
+			type,
+			phone: phone ? `${phone.substring(0, 3)}***${phone.substring(phone.length - 4)}` : 'none',
+			email: email ? `${email.substring(0, 3)}***@${email.split('@')[1]}` : 'none',
+		});
+
+		if (!environmentId || !clientId || !username || !type) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, clientId, username, type',
+			});
+		}
+
+		// First, get a worker token for management API access
+		const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+		
+		const tokenResponse = await fetch(tokenEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+			},
+			body: new URLSearchParams({
+				grant_type: 'client_credentials',
+				scope: 'p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device',
+			}),
+		});
+
+		if (!tokenResponse.ok) {
+			const tokenError = await tokenResponse.json();
+			console.error(`[PingOne MFA] Worker token error:`, tokenError);
+			return res.status(tokenResponse.status).json({
+				error: 'authentication_failed',
+				error_description: 'Failed to obtain worker token for MFA operations',
+				details: tokenError,
+			});
+		}
+
+		const tokenData = await tokenResponse.json();
+		const workerToken = tokenData.access_token;
+
+		console.log(`[PingOne MFA] Worker token obtained successfully`);
+
+		// Find or create user
+		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users`;
+		
+		// Search for existing user
+		const userSearchResponse = await fetch(`${usersEndpoint}?filter=username eq "${username}"`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		let userId;
+		if (userSearchResponse.ok) {
+			const userSearchData = await userSearchResponse.json();
+			if (userSearchData._embedded && userSearchData._embedded.users && userSearchData._embedded.users.length > 0) {
+				userId = userSearchData._embedded.users[0].id;
+				console.log(`[PingOne MFA] Found existing user: ${userId}`);
+			}
+		}
+
+		// Create user if not found
+		if (!userId) {
+			const createUserResponse = await fetch(usersEndpoint, {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					username: username,
+					email: email || `${username}@example.com`,
+					population: {
+						id: 'default', // You may need to adjust this based on your environment
+					},
+					...(phone && { mobilePhone: phone }),
+				}),
+			});
+
+			if (!createUserResponse.ok) {
+				const createUserError = await createUserResponse.json();
+				console.error(`[PingOne MFA] User creation error:`, createUserError);
+				return res.status(createUserResponse.status).json({
+					error: 'user_creation_failed',
+					error_description: 'Failed to create user for MFA enrollment',
+					details: createUserError,
+				});
+			}
+
+			const userData = await createUserResponse.json();
+			userId = userData.id;
+			console.log(`[PingOne MFA] Created new user: ${userId}`);
+		}
+
+		// Register MFA device
+		const devicesEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
+		
+		const deviceData = {
+			type: type.toUpperCase(),
+			...(type.toLowerCase() === 'sms' && phone && { phone: phone }),
+			...(type.toLowerCase() === 'email' && email && { email: email }),
+		};
+
+		const deviceResponse = await fetch(devicesEndpoint, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(deviceData),
+		});
+
+		if (!deviceResponse.ok) {
+			const deviceError = await deviceResponse.json();
+			console.error(`[PingOne MFA] Device registration error:`, deviceError);
+			return res.status(deviceResponse.status).json({
+				error: 'device_registration_failed',
+				error_description: 'Failed to register MFA device',
+				details: deviceError,
+			});
+		}
+
+		const deviceResult = await deviceResponse.json();
+		console.log(`[PingOne MFA] Device registered successfully: ${deviceResult.id}`);
+
+		res.json({
+			success: true,
+			deviceId: deviceResult.id,
+			userId: userId,
+			type: type.toUpperCase(),
+			status: 'ACTIVE',
+			message: `${type.toUpperCase()} device registered successfully`,
+			server_timestamp: new Date().toISOString(),
+		});
+
+	} catch (error) {
+		console.error('[PingOne MFA] Device registration server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during MFA device registration',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne MFA Challenge Initiation Endpoint
+app.post('/api/pingone/mfa/initiate-challenge', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			clientId,
+			clientSecret,
+			username,
+			deviceId,
+			type,
+			phone,
+			email,
+		} = req.body;
+
+		console.log(`[PingOne MFA] Challenge initiation request:`, {
+			environmentId,
+			clientId: clientId ? `${clientId.substring(0, 8)}...` : 'none',
+			username,
+			deviceId,
+			type,
+			phone: phone ? `${phone.substring(0, 3)}***${phone.substring(phone.length - 4)}` : 'none',
+			email: email ? `${email.substring(0, 3)}***@${email.split('@')[1]}` : 'none',
+		});
+
+		if (!environmentId || !clientId || !username || !type) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, clientId, username, type',
+			});
+		}
+
+		// Get worker token for management API access
+		const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+		
+		const tokenResponse = await fetch(tokenEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'Authorization': `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+			},
+			body: new URLSearchParams({
+				grant_type: 'client_credentials',
+				scope: 'p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device',
+			}),
+		});
+
+		if (!tokenResponse.ok) {
+			const tokenError = await tokenResponse.json();
+			console.error(`[PingOne MFA] Worker token error:`, tokenError);
+			return res.status(tokenResponse.status).json({
+				error: 'authentication_failed',
+				error_description: 'Failed to obtain worker token for MFA operations',
+				details: tokenError,
+			});
+		}
+
+		const tokenData = await tokenResponse.json();
+		const workerToken = tokenData.access_token;
+
+		// Find user
+		const usersEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users`;
+		const userSearchResponse = await fetch(`${usersEndpoint}?filter=username eq "${username}"`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!userSearchResponse.ok) {
+			return res.status(404).json({
+				error: 'user_not_found',
+				error_description: 'User not found for MFA challenge',
+			});
+		}
+
+		const userSearchData = await userSearchResponse.json();
+		if (!userSearchData._embedded || !userSearchData._embedded.users || userSearchData._embedded.users.length === 0) {
+			return res.status(404).json({
+				error: 'user_not_found',
+				error_description: 'User not found for MFA challenge',
+			});
+		}
+
+		const userId = userSearchData._embedded.users[0].id;
+
+		// Initiate MFA challenge
+		const challengeEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/mfa/challenges`;
+		
+		const challengeData = {
+			deviceId: deviceId,
+			type: type.toUpperCase(),
+		};
+
+		const challengeResponse = await fetch(challengeEndpoint, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify(challengeData),
+		});
+
+		if (!challengeResponse.ok) {
+			const challengeError = await challengeResponse.json();
+			console.error(`[PingOne MFA] Challenge initiation error:`, challengeError);
+			return res.status(challengeResponse.status).json({
+				error: 'challenge_initiation_failed',
+				error_description: 'Failed to initiate MFA challenge',
+				details: challengeError,
+			});
+		}
+
+		const challengeResult = await challengeResponse.json();
+		console.log(`[PingOne MFA] Challenge initiated successfully: ${challengeResult.id}`);
+
+		const message = type.toLowerCase() === 'sms' 
+			? `Verification code sent to ${phone}` 
+			: `Verification code sent to ${email}`;
+
+		res.json({
+			success: true,
+			challengeId: challengeResult.id,
+			userId: userId,
+			type: type.toUpperCase(),
+			status: 'PENDING',
+			message: message,
+			expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(), // 5 minutes
+			server_timestamp: new Date().toISOString(),
+		});
+
+	} catch (error) {
+		console.error('[PingOne MFA] Challenge initiation server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during MFA challenge initiation',
+			details: error.message,
+		});
+	}
+});
+
 // JWKS Endpoint (proxy to PingOne)
 app.get('/api/jwks', async (req, res) => {
 	try {

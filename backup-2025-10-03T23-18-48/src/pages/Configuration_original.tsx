@@ -2478,15 +2478,13 @@ const Configuration = () => {
 						flows, especially the V5 flow template.
 					</p>
 				</div>
-			</CollapsibleSection>
-
-			{saveStatus && (
+			</CollapsibleSection>saveStatus && (
 				<StandardMessage
 					type={saveStatus.type === 'danger' ? 'error' : saveStatus.type}
 					title={saveStatus.title}
 					message={saveStatus.message}
 				/>
-			)}
+			)
 
 			<CollapsibleSection
 				title="PingOne Configuration Help"
@@ -2631,19 +2629,12 @@ const Configuration = () => {
 						</em>
 					</p>
 				</div>
-			</CollapsibleSection>
-
-			{/* Discovery Panel */}
-			{showDiscoveryPanel && (
+			</CollapsibleSection>showDiscoveryPanel && (
 				<DiscoveryPanel
 					onConfigurationDiscovered={handleConfigurationDiscovered}
 					onClose={() => setShowDiscoveryPanel(false)}
 				/>
-			)}
-
-			{/* Centralized Success/Error Messages */}
-
-			{/* UI Settings Modal */}
+			)
 			<UISettingsModal
 				isOpen={isUISettingsModalOpen}
 				onClose={() => setIsUISettingsModalOpen(false)}

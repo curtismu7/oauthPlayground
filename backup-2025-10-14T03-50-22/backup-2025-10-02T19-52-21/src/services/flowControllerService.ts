@@ -55,12 +55,12 @@ export class FlowControllerService {
 		// State management
 		const [currentStep, setCurrentStep] = useState(0);
 		const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(
-			this.createDefaultCollapsedSections(introSectionKeys)
+			FlowControllerService.createDefaultCollapsedSections(introSectionKeys)
 		);
 
 		// Navigation handlers
 		const { handleNext, handlePrev, handleReset, canNavigateNext, isFirstStep, isLastStep } =
-			this.createNavigationHandlers(currentStep, setCurrentStep, stepCount);
+			FlowControllerService.createNavigationHandlers(currentStep, setCurrentStep, stepCount);
 
 		// Toggle section handler
 		const toggleSection = useCallback((key: string) => {
@@ -68,7 +68,7 @@ export class FlowControllerService {
 		}, []);
 
 		// Validation
-		const validation = this.createStepValidation(config, controller);
+		const validation = FlowControllerService.createStepValidation(config, controller);
 
 		return {
 			config,
@@ -104,29 +104,29 @@ export class FlowControllerService {
 				// Default validation based on flow type
 				switch (config.flowType) {
 					case 'implicit':
-						return this.validateImplicitStep(stepIndex, controller);
+						return FlowControllerService.validateImplicitStep(stepIndex, controller);
 					case 'authorization-code':
-						return this.validateAuthorizationCodeStep(stepIndex, controller);
+						return FlowControllerService.validateAuthorizationCodeStep(stepIndex, controller);
 					case 'client-credentials':
-						return this.validateClientCredentialsStep(stepIndex, controller);
+						return FlowControllerService.validateClientCredentialsStep(stepIndex, controller);
 					case 'device-authorization':
-						return this.validateDeviceAuthorizationStep(stepIndex, controller);
+						return FlowControllerService.validateDeviceAuthorizationStep(stepIndex, controller);
 					case 'resource-owner-password':
-						return this.validateResourceOwnerPasswordStep(stepIndex, controller);
+						return FlowControllerService.validateResourceOwnerPasswordStep(stepIndex, controller);
 					case 'jwt-bearer':
-						return this.validateJWTBearerStep(stepIndex, controller);
+						return FlowControllerService.validateJWTBearerStep(stepIndex, controller);
 					case 'ciba':
-						return this.validateCIBAStep(stepIndex, controller);
+						return FlowControllerService.validateCIBAStep(stepIndex, controller);
 					case 'hybrid':
-						return this.validateHybridStep(stepIndex, controller);
+						return FlowControllerService.validateHybridStep(stepIndex, controller);
 					case 'redirectless':
-						return this.validateRedirectlessStep(stepIndex, controller);
+						return FlowControllerService.validateRedirectlessStep(stepIndex, controller);
 					case 'token-introspection':
-						return this.validateTokenIntrospectionStep(stepIndex, controller);
+						return FlowControllerService.validateTokenIntrospectionStep(stepIndex, controller);
 					case 'token-revocation':
-						return this.validateTokenRevocationStep(stepIndex, controller);
+						return FlowControllerService.validateTokenRevocationStep(stepIndex, controller);
 					case 'user-info':
-						return this.validateUserInfoStep(stepIndex, controller);
+						return FlowControllerService.validateUserInfoStep(stepIndex, controller);
 					default:
 						return true;
 				}
@@ -141,7 +141,7 @@ export class FlowControllerService {
 				}
 
 				// Default requirements based on flow type
-				return this.getDefaultStepRequirements(config.flowType, stepIndex);
+				return FlowControllerService.getDefaultStepRequirements(config.flowType, stepIndex);
 			},
 			[config]
 		);
@@ -513,7 +513,7 @@ export class FlowControllerService {
 		introSectionKeys: string[]
 	): FlowController {
 		return useMemo(
-			() => this.createFlowController(config, controller, stepCount, introSectionKeys),
+			() => FlowControllerService.createFlowController(config, controller, stepCount, introSectionKeys),
 			[config, controller, stepCount, introSectionKeys]
 		);
 	}

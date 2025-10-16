@@ -47,15 +47,15 @@ export class ApiCallDisplayService {
 			insecure = false,
 		} = options;
 
-		const formattedCall = this.formatApiCallText(apiCall, prettyPrint);
-		const curlCommand = this.generateCurlCommand(apiCall, {
+		const formattedCall = ApiCallDisplayService.formatApiCallText(apiCall, prettyPrint);
+		const curlCommand = ApiCallDisplayService.generateCurlCommand(apiCall, {
 			includeHeaders,
 			includeBody,
 			verbose,
 			insecure,
 		});
-		const responseSummary = this.formatResponseSummary(apiCall);
-		const timingInfo = apiCall.duration ? this.formatTimingInfo(apiCall.duration) : undefined;
+		const responseSummary = ApiCallDisplayService.formatResponseSummary(apiCall);
+		const timingInfo = apiCall.duration ? ApiCallDisplayService.formatTimingInfo(apiCall.duration) : undefined;
 
 		return {
 			formattedCall,
@@ -203,7 +203,7 @@ export class ApiCallDisplayService {
 	 * Create a complete display string with all API call information
 	 */
 	static createFullDisplay(apiCall: ApiCallData, options: CurlCommandOptions = {}): string {
-		const result = this.formatApiCall(apiCall, options);
+		const result = ApiCallDisplayService.formatApiCall(apiCall, options);
 
 		let display = '🚀 API Call Details\n';
 		display += '='.repeat(50) + '\n\n';
@@ -231,7 +231,7 @@ export class ApiCallDisplayService {
 		const status = apiCall.response?.status || 'Unknown';
 		const method = apiCall.method;
 		const url = apiCall.url;
-		const duration = apiCall.duration ? ` (${this.formatTimingInfo(apiCall.duration)})` : '';
+		const duration = apiCall.duration ? ` (${ApiCallDisplayService.formatTimingInfo(apiCall.duration)})` : '';
 
 		return `${method} ${url} → ${status}${duration}`;
 	}
@@ -295,12 +295,12 @@ export class ApiCallDisplayService {
 
 		// Sanitize body if it's an object
 		if (sanitized.body && typeof sanitized.body === 'object') {
-			sanitized.body = this.sanitizeObject(sanitized.body, sensitiveFields) as object;
+			sanitized.body = ApiCallDisplayService.sanitizeObject(sanitized.body, sensitiveFields) as object;
 		}
 
 		// Sanitize response data
 		if (sanitized.response?.data && typeof sanitized.response.data === 'object') {
-			sanitized.response.data = this.sanitizeObject(sanitized.response.data, sensitiveFields);
+			sanitized.response.data = ApiCallDisplayService.sanitizeObject(sanitized.response.data, sensitiveFields);
 		}
 
 		return sanitized;
@@ -320,7 +320,7 @@ export class ApiCallDisplayService {
 			if (sensitiveFields.some((field) => key.toLowerCase().includes(field))) {
 				(sanitized as Record<string, unknown>)[key] = '***REDACTED***';
 			} else if (typeof (sanitized as Record<string, unknown>)[key] === 'object') {
-				(sanitized as Record<string, unknown>)[key] = this.sanitizeObject(
+				(sanitized as Record<string, unknown>)[key] = ApiCallDisplayService.sanitizeObject(
 					(sanitized as Record<string, unknown>)[key],
 					sensitiveFields
 				);

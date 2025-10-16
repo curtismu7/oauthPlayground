@@ -140,21 +140,21 @@ export class SAMLIssuerService {
 	 * Get all available SAML issuers
 	 */
 	static getAllIssuers(): SAMLIssuer[] {
-		return [...this.COMMON_ISSUERS];
+		return [...SAMLIssuerService.COMMON_ISSUERS];
 	}
 
 	/**
 	 * Get issuers by category
 	 */
 	static getIssuersByCategory(category: SAMLIssuer['category']): SAMLIssuer[] {
-		return this.COMMON_ISSUERS.filter(issuer => issuer.category === category);
+		return SAMLIssuerService.COMMON_ISSUERS.filter(issuer => issuer.category === category);
 	}
 
 	/**
 	 * Find issuer by ID
 	 */
 	static getIssuerById(id: string): SAMLIssuer | undefined {
-		return this.COMMON_ISSUERS.find(issuer => issuer.id === id);
+		return SAMLIssuerService.COMMON_ISSUERS.find(issuer => issuer.id === id);
 	}
 
 	/**
@@ -194,7 +194,7 @@ export class SAMLIssuerService {
 		audience: string;
 		subject: string;
 	}> {
-		const issuer = this.getIssuerById(issuerId);
+		const issuer = SAMLIssuerService.getIssuerById(issuerId);
 		if (!issuer) {
 			return {};
 		}
@@ -211,11 +211,11 @@ export class SAMLIssuerService {
 	 */
 	static getIssuerSuggestions(input: string): SAMLIssuer[] {
 		if (!input.trim()) {
-			return this.COMMON_ISSUERS.slice(0, 5); // Return top 5 by default
+			return SAMLIssuerService.COMMON_ISSUERS.slice(0, 5); // Return top 5 by default
 		}
 
 		const lowerInput = input.toLowerCase();
-		return this.COMMON_ISSUERS.filter(issuer => 
+		return SAMLIssuerService.COMMON_ISSUERS.filter(issuer => 
 			issuer.name.toLowerCase().includes(lowerInput) ||
 			issuer.issuerUrl.toLowerCase().includes(lowerInput) ||
 			issuer.description.toLowerCase().includes(lowerInput)
