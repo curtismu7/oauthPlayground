@@ -379,7 +379,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'Artificial Intelligence': false,
 			'Security & Management': false,
 			'Tools & Utilities': false,
-			Documentation: false,'Developers': false,			'Developers': false,
+			Documentation: false,
+			'Developers': false,
 		};
 	});
 
@@ -1310,6 +1311,15 @@ onClose();
 }}
 >
 PingOne SDKs
+</MenuItem>
+<MenuItem
+icon={<FiExternalLink />}
+onClick={() => {
+window.open('https://developer.pingidentity.com/ai/', '_blank');
+onClose();
+}}
+>
+Ping Identity AI for Developers
 </MenuItem>
 <MenuItem
 icon={<FiEye />}
