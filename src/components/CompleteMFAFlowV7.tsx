@@ -48,6 +48,7 @@ import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, type EnhancedApiCallData } from '../services/enhancedApiCallDisplayService';
 import { AuthenticationModalService } from '../services/authenticationModalService';
 import LoginSuccessModal from '../components/LoginSuccessModal';
+import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 
 export interface CompleteMFAFlowProps {
   requireMFA?: boolean;
@@ -528,118 +529,79 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     };
   }, [credentials.environmentId]);
 
-  // Simulate API calls for educational purposes
-  const simulateApiCalls = useCallback(() => {
-    // Worker Token API Call
-    const workerTokenCall = createApiCallData(
-      'workerToken',
-      'POST',
-      '/as/token',
-      {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`
-      },
-      {
-        grant_type: 'client_credentials',
-        scope: 'p1:read:user p1:update:user p1:read:device p1:update:device'
-      },
-      {
-        status: 200,
-        statusText: 'OK',
-        data: {
-          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-          token_type: 'Bearer',
-          expires_in: 3600,
+  // Get worker token with real API call
+  const getWorkerToken = useCallback(async () => {
+    if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+      v4ToastManager.showError('Please enter Environment ID, Client ID, and Client Secret');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      console.log('🔑 [MFA Flow V7] Requesting worker token...');
+      
+      // Prepare credentials for worker token request
+      const workerCredentials = {
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+        tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`
+      };
+
+      // Make real API call to get worker token
+      const tokenData = await ClientCredentialsTokenRequest.executeTokenRequest(
+        workerCredentials,
+        'client_secret_post'
+      );
+
+      console.log('✅ [MFA Flow V7] Worker token received:', tokenData);
+
+      // Create API call data for display
+      const workerTokenCall = createApiCallData(
+        'workerToken',
+        'POST',
+        `/as/token`,
+        {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`
+        },
+        {
+          grant_type: 'client_credentials',
           scope: 'p1:read:user p1:update:user p1:read:device p1:update:device'
-        }
-      },
-      [
-        'Worker tokens are used for server-to-server authentication',
-        'This token has permissions to manage MFA devices and challenges',
-        'The scope includes device management permissions: p1:read:device, p1:update:device',
-        'Worker tokens typically have longer expiration times than user tokens'
-      ]
-    );
+        },
+        {
+          status: 200,
+          statusText: 'OK',
+          data: tokenData
+        },
+        [
+          'Worker tokens are used for server-to-server authentication',
+          'This token has permissions to manage MFA devices and challenges',
+          'The scope includes device management permissions: p1:read:device, p1:update:device',
+          'Token expires in ' + (tokenData.expires_in || 3600) + ' seconds'
+        ]
+      );
 
-    // Authentication API Call
-    const authCall = createApiCallData(
-      'authentication',
-      'POST',
-      '/as/token',
-      {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Authorization': `Basic ${btoa(`${credentials.clientId}:${credentials.clientSecret}`)}`
-      },
-      {
-        grant_type: 'password',
-        username: 'user@example.com',
-        password: '••••••••',
-        scope: 'openid profile email'
-      },
-      {
-        status: 200,
-        statusText: 'OK',
-        data: {
-          access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-          refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-          id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-          token_type: 'Bearer',
-          expires_in: 3600,
-          scope: 'openid profile email'
-        }
-      },
-      [
-        'This uses the Resource Owner Password Credentials grant type',
-        'The username and password are sent in the request body',
-        'Response includes access_token, refresh_token, and id_token',
-        'The id_token contains user identity information'
-      ]
-    );
+      setApiCalls(prev => ({
+        ...prev,
+        workerToken: workerTokenCall
+      }));
 
-    // MFA Device Registration API Call
-    const deviceRegistrationCall = createApiCallData(
-      'deviceRegistration',
-      'POST',
-      `/users/${credentials.userId || 'user-id'}/devices`,
-      {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer [worker-token]'
-      },
-      {
-        type: 'TOTP',
-        name: 'My Authenticator App',
-        nickname: 'Primary Device'
-      },
-      {
-        status: 201,
-        statusText: 'Created',
-        data: {
-          id: 'device-12345',
-          type: 'TOTP',
-          status: 'ACTIVATION_REQUIRED',
-          name: 'My Authenticator App',
-          nickname: 'Primary Device',
-          qrCode: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...',
-          secret: 'JBSWY3DPEHPK3PXP',
-          totpUri: 'otpauth://totp/PingOne:user@example.com?secret=JBSWY3DPEHPK3PXP&issuer=PingOne',
-          createdAt: new Date().toISOString()
-        }
-      },
-      [
-        'This creates a new MFA device for the user',
-        'The device type can be TOTP, SMS, EMAIL, VOICE, or FIDO2',
-        'Response includes QR code data for TOTP setup',
-        'The device starts in ACTIVATION_REQUIRED status',
-        'The secret key is used to generate TOTP codes'
-      ]
-    );
+      // Store the worker token for later use
+      setFlowContext(prev => ({
+        ...prev,
+        workerToken: tokenData.access_token
+      }));
 
-    setApiCalls(prev => ({
-      ...prev,
-      workerToken: workerTokenCall,
-      authentication: authCall,
-      deviceRegistration: deviceRegistrationCall
-    }));
+      v4ToastManager.showSuccess('✅ Worker token obtained successfully!');
+      
+    } catch (error: any) {
+      console.error('❌ [MFA Flow V7] Failed to get worker token:', error);
+      v4ToastManager.showError(`Failed to get worker token: ${error.message}`);
+    } finally {
+      setIsLoading(false);
+    }
   }, [createApiCallData, credentials]);
 
   const handleSaveCredentials = useCallback(async () => {
@@ -864,19 +826,34 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                     <FiKey size={24} style={{ marginBottom: '0.5rem' }} />
                     <p style={{ marginBottom: '1rem' }}>Worker token API call will be displayed here after authentication</p>
                     <button
-                      onClick={simulateApiCalls}
+                      onClick={getWorkerToken}
+                      disabled={isLoading}
                       style={{
-                        background: '#7c3aed',
+                        background: isLoading ? '#9ca3af' : '#3b82f6',
                         color: 'white',
                         border: 'none',
                         padding: '0.5rem 1rem',
                         borderRadius: '6px',
-                        cursor: 'pointer',
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
                         fontSize: '0.875rem',
-                        fontWeight: '500'
+                        fontWeight: '500',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        transition: 'all 0.2s ease'
                       }}
                     >
-                      Simulate API Calls
+                      {isLoading ? (
+                        <>
+                          <SpinningIcon><FiRefreshCw size={16} /></SpinningIcon>
+                          Getting Token...
+                        </>
+                      ) : (
+                        <>
+                          <FiKey size={16} />
+                          Get Worker Token
+                        </>
+                      )}
                     </button>
                   </div>
                 )}
