@@ -13,6 +13,7 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
+import { useStepValidation, StepValidationService } from '../../services/stepValidationService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -288,19 +289,28 @@ const TokenInfoValue = styled.span`
 `;
 
 const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
+	const controller = useResourceOwnerPasswordFlowController();
 	const [currentStep, setCurrentStep] = useState<StepIndex>(() => {
-	// Ensure page starts at top
-	usePageScroll({ pageName: 'OIDCResourceOwnerPasswordFlowV5', force: true });
-
+		// Check for restore_step from token management navigation
 		const restoreStep = sessionStorage.getItem('restore_step');
-		return restoreStep ? (parseInt(restoreStep, 10) as StepIndex) : 0;
+		if (restoreStep) {
+			const step = parseInt(restoreStep, 10);
+			sessionStorage.removeItem('restore_step'); // Clear after use
+			console.log('🔗 [OIDCResourceOwnerPasswordFlowV5] Restoring to step:', step);
+			return step as StepIndex;
+		}
+		return 0;
 	});
 	const [isRequesting, setIsRequesting] = useState(false);
 	const [tokenResult, setTokenResult] = useState<unknown>(null);
 	const [error, setError] = useState<string | null>(null);
+	const {
+		validateAndProceed,
+		StepValidationModal,
+	} = useStepValidation();
 
-	const { credentials, tokens, requestToken, clearResults, updateCredentials, saveCredentials } =
-		useResourceOwnerPasswordFlowController();
+	// Ensure page starts at top
+	usePageScroll({ pageName: 'OIDCResourceOwnerPasswordFlowV5', force: true });
 
 	const handleDiscoveryComplete = useCallback(
 		(discoveryResult: DiscoveryResult) => {
@@ -319,10 +329,36 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 	);
 
 	const handleNext = useCallback(() => {
+		if (currentStep === 0) {
+			const rules = StepValidationService.createStep0ValidationRules(controller.credentials);
+			validateAndProceed(
+				{
+					stepIndex: 0,
+					stepName: 'Credentials',
+					rules,
+				},
+				() => setCurrentStep((prev) => (prev + 1) as StepIndex)
+			);
+			return;
+		}
+
+		if (currentStep === 1) {
+			const rules = StepValidationService.createTokenValidationRules(tokens);
+			validateAndProceed(
+				{
+					stepIndex: 1,
+					stepName: 'Token Request',
+					rules,
+				},
+				() => setCurrentStep((prev) => (prev + 1) as StepIndex)
+			);
+			return;
+		}
+
 		if (currentStep < 3) {
 			setCurrentStep((prev) => (prev + 1) as StepIndex);
 		}
-	}, [currentStep]);
+	}, [controller.credentials, currentStep, validateAndProceed]);
 
 	const handlePrevious = useCallback(() => {
 		if (currentStep > 0) {
@@ -688,6 +724,7 @@ const OIDCResourceOwnerPasswordFlowV5: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-resource-owner-password-v5" />
+				{StepValidationModal}
 
 				<EnhancedFlowInfoCard
 					flowType="oidc-resource-owner-password"

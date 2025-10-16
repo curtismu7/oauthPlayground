@@ -114,7 +114,7 @@ const createAuthorizationCodeV5Steps = ({
 				isAuthorizing,
 				authCode
 			),
-			canExecute: Boolean(authUrl) && !Boolean(authCode),
+			canExecute: Boolean(authUrl) && !authCode,
 			completed: hasStepResult('user-authorization') || Boolean(authCode),
 		},
 		{

@@ -122,14 +122,14 @@ const SaveButton = styled.button`
   font-size: 1rem;
   font-weight: 500;
   color: white;
-  background-color: #3b82f6;
+  background-color: #10b981;
   border: 1px solid transparent;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
   &:hover {
-    background-color: #2563eb;
+    background-color: #059669;
   }
 
   &:disabled {

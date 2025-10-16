@@ -140,7 +140,7 @@ const MockButton = styled.button`
 	}
 `;
 
-interface AdvancedOAuthParametersDemoFlowProps {}
+type AdvancedOAuthParametersDemoFlowProps = {}
 
 const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowProps> = () => {
 	// State for all parameters

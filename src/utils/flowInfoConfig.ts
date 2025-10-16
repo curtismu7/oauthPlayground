@@ -244,9 +244,9 @@ export const FLOW_INFO_CONFIG: Record<string, FlowInfo> = {
 			'Custom authentication flows',
 		],
 	},
-	'oidc-ciba-v5': {
+	'oidc-ciba-v6': {
 		flowType: 'oidc',
-		flowName: 'OIDC CIBA Flow',
+		flowName: 'OIDC CIBA Flow (Mock)',
 		tokensReturned: 'Access Token + ID Token + Refresh Token',
 		purpose: 'Decoupled Authentication + Authorization',
 		specLayer: 'Defined in OIDC CIBA (RFC 8628 extension)',
@@ -310,7 +310,7 @@ export const PRESET_FLOW_CONFIGS = {
 	par: FLOW_INFO_CONFIG['par'],
 	'resource-owner-password': FLOW_INFO_CONFIG['resource-owner-password'],
 	redirectless: FLOW_INFO_CONFIG['redirectless'],
-	'oidc-ciba-v5': FLOW_INFO_CONFIG['oidc-ciba-v5'],
+	'oidc-ciba-v6': FLOW_INFO_CONFIG['oidc-ciba-v6'],
 	rar: FLOW_INFO_CONFIG['rar'],
 };
 

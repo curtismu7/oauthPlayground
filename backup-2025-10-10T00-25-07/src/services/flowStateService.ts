@@ -126,8 +126,8 @@ export class FlowStateService {
 
 	// Flow-specific configurations
 	static getFlowConfig(flowType: string): FlowStateConfig {
-		const introSectionKeys = this.createIntroSectionKeys(flowType);
-		const defaultCollapsedSections = this.createDefaultCollapsedSections(introSectionKeys);
+		const introSectionKeys = FlowStateService.createIntroSectionKeys(flowType);
+		const defaultCollapsedSections = FlowStateService.createDefaultCollapsedSections(introSectionKeys);
 
 		const stepCounts: Record<string, number> = {
 			'authorization-code': 8,

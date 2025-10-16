@@ -27,7 +27,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { FlowLayoutService } from '../../services/flowLayoutService';
-import { FlowStateService } from '../../services/flowStateService';
+import FlowStateService from '../../services/flowStateService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import {
@@ -41,7 +41,7 @@ import AudienceParameterInput from '../../components/AudienceParameterInput';
 import ResourceParameterInput from '../../components/ResourceParameterInput';
 import EnhancedPromptSelector, { PromptValue } from '../../components/EnhancedPromptSelector';
 import { useUISettings } from '../../contexts/UISettingsContext';
-import ImplicitFlowSharedService from '../../services/implicitFlowSharedService';
+import { ImplicitFlowSharedService } from '../../services/implicitFlowSharedService';
 import { FlowConfigurationService } from '../../services/flowConfigurationService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { FlowUIService } from '../../services/flowUIService';
@@ -954,7 +954,17 @@ const OAuthImplicitFlowV6: React.FC = () => {
 			// Discovery handler - environment ID is auto-populated by the service
 			onDiscoveryComplete={(result) => {
 				console.log('[OAuth Implicit V6] OIDC Discovery completed:', result);
-				// Service already handles environment ID extraction
+				// Extract environment ID from issuer URL using the standard service
+				if (result.issuerUrl) {
+					const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
+					if (extractedEnvId) {
+						implicitFlowActions.setCredentials({
+							...implicitFlowState.credentials,
+							environmentId: extractedEnvId,
+						});
+						console.log('[OAuth Implicit V6] Auto-extracted Environment ID:', extractedEnvId);
+					}
+				}
 			}}
 				
 				// PingOne Advanced Configuration (correct prop names)
@@ -1595,6 +1605,7 @@ console.log('✓ RFC 6749 compliant token parsing successful');`}
 												);
 											}
 										})()}
+
 
 										{/* Token Analysis Section */}
 										<GeneratedContentBox>

@@ -338,10 +338,10 @@ export class FlowThemeService {
 
 	// Theme-specific styles
 	static getThemeStyles(theme: string): Record<string, unknown> {
-		const flowTheme = this.getFlowTheme(theme);
-		const buttonColors = this.getButtonColors(theme);
-		const infoBoxColors = this.getInfoBoxColors(theme);
-		const collapsibleColors = this.getCollapsibleColors(theme);
+		const flowTheme = FlowThemeService.getFlowTheme(theme);
+		const buttonColors = FlowThemeService.getButtonColors(theme);
+		const infoBoxColors = FlowThemeService.getInfoBoxColors(theme);
+		const collapsibleColors = FlowThemeService.getCollapsibleColors(theme);
 
 		return {
 			colors: {
@@ -358,7 +358,7 @@ export class FlowThemeService {
 			infoBoxes: infoBoxColors,
 			collapsible: collapsibleColors,
 			gradients: {
-				stepHeader: this.getStepHeaderGradient(theme),
+				stepHeader: FlowThemeService.getStepHeaderGradient(theme),
 			},
 		};
 	}
@@ -421,7 +421,7 @@ export class FlowThemeService {
 
 	// Get theme CSS variables
 	static getThemeCSSVariables(theme: string): Record<string, string> {
-		const flowTheme = this.getFlowTheme(theme);
+		const flowTheme = FlowThemeService.getFlowTheme(theme);
 
 		return {
 			'--flow-primary': flowTheme.primary,
@@ -437,7 +437,7 @@ export class FlowThemeService {
 
 	// Apply theme to document
 	static applyThemeToDocument(theme: string): void {
-		const cssVariables = this.getThemeCSSVariables(theme);
+		const cssVariables = FlowThemeService.getThemeCSSVariables(theme);
 		const root = document.documentElement;
 
 		Object.entries(cssVariables).forEach(([property, value]) => {
@@ -464,7 +464,7 @@ export class FlowThemeService {
 
 	// Check if theme meets accessibility standards
 	static isThemeAccessible(theme: string): boolean {
-		const contrastRatio = this.getThemeContrastRatio(theme);
+		const contrastRatio = FlowThemeService.getThemeContrastRatio(theme);
 		return contrastRatio >= 4.5; // WCAG AA standard
 	}
 

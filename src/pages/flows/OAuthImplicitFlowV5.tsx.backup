@@ -31,7 +31,7 @@ import { useResponseModeIntegration } from '../../services/responseModeIntegrati
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { FlowLayoutService } from '../../services/flowLayoutService';
-import { FlowStateService } from '../../services/flowStateService';
+import FlowStateService from '../../services/flowStateService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import {

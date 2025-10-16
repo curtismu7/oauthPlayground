@@ -188,9 +188,9 @@ const DeviceFlow: React.FC<DeviceFlowProps> = ({ credentials }) => {
 	const [currentStep, setCurrentStep] = useState(0);
 	const [demoStatus, setDemoStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || '',
-		clientSecret: credentials?.clientSecret || '',
-		environmentId: credentials?.environmentId || '',
+		clientId: credentials?.clientId || 'mock_device_client_id_demo_12345',
+		clientSecret: credentials?.clientSecret || 'mock_device_client_secret_demo_67890',
+		environmentId: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
 		scope: 'openid profile email',
 		audience: '',
 		acrValues: '',

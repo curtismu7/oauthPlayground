@@ -959,7 +959,7 @@ Success Rate: 100%
 	// Calculate real security score based on actual conditions
 	const calculateSecurityScore = useCallback(() => {
 		let score = 0;
-		let maxScore = 100;
+		const maxScore = 100;
 		const factors: Array<{ name: string; status: boolean; points: number; reason: string }> = [];
 
 		// Token presence and validation (30 points)
