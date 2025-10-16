@@ -54,7 +54,7 @@ export class ClaimsRequestService {
 	 * Convert claims structure to JSON string for URL parameter
 	 */
 	static toUrlParameter(claims: ClaimsRequestStructure | null): string | null {
-		if (!claims || !this.isValidClaimsRequest(claims)) return null;
+		if (!claims || !ClaimsRequestService.isValidClaimsRequest(claims)) return null;
 		
 		try {
 			return JSON.stringify(claims);
@@ -69,7 +69,7 @@ export class ClaimsRequestService {
 	static fromUrlParameter(claimsString: string): ClaimsRequestStructure | null {
 		try {
 			const parsed = JSON.parse(claimsString);
-			return this.isValidClaimsRequest(parsed) ? parsed : null;
+			return ClaimsRequestService.isValidClaimsRequest(parsed) ? parsed : null;
 		} catch {
 			return null;
 		}
@@ -94,7 +94,7 @@ export class ClaimsRequestService {
 	 * Add claims parameter to URL if present
 	 */
 	static addToParams(params: URLSearchParams, claims: ClaimsRequestStructure | null): void {
-		const claimsParam = this.toUrlParameter(claims);
+		const claimsParam = ClaimsRequestService.toUrlParameter(claims);
 		if (claimsParam) {
 			params.set('claims', claimsParam);
 		}
@@ -147,7 +147,7 @@ export class ClaimsRequestService {
 		claimName: string,
 		essential: boolean = false
 	): ClaimsRequestStructure {
-		const current = claims || this.createEmpty();
+		const current = claims || ClaimsRequestService.createEmpty();
 		
 		return {
 			...current,

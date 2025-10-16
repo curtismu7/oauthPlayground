@@ -274,7 +274,7 @@ interface OIDCClientCredentialsTokens {
 	[key: string]: unknown;
 }
 
-interface OIDCClientCredentialsFlowV3Props {}
+type OIDCClientCredentialsFlowV3Props = {}
 
 const OIDCClientCredentialsFlowV3: React.FC<OIDCClientCredentialsFlowV3Props> = () => {
 	const authContext = useAuth();

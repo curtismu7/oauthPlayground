@@ -1,424 +1,182 @@
 // src/services/flowStateService.ts
-// Common state management patterns and configuration for V5 flows
+// Comprehensive Flow State Management Service
 
-export interface FlowStateConfig {
-	flowKey: string;
-	stepCount: number;
-	introSectionKeys: string[];
-	defaultCollapsedSections: Record<string, boolean>;
+import { logger } from '../utils/logger';
+
+export interface FlowStep {
+	stepId: string;
+	stepName: string;
+	stepType:
+		| 'authentication'
+		| 'device_selection'
+		| 'device_registration'
+		| 'challenge'
+		| 'verification'
+		| 'completion';
+	status: 'not_started' | 'in_progress' | 'completed' | 'failed' | 'skipped';
+	startedAt?: Date;
+	completedAt?: Date;
+	duration?: number;
+	data?: Record<string, any>;
+	error?: string;
+	retryCount?: number;
 }
 
-export interface StepConfig {
-	title: string;
-	subtitle: string;
-	description?: string;
-	requirements?: string[];
+export interface FlowState {
+	flowId: string;
+	userId: string;
+	flowType: string;
+	status: 'not_started' | 'in_progress' | 'completed' | 'failed' | 'abandoned';
+	currentStepId?: string;
+	steps: FlowStep[];
+	startedAt: Date;
+	completedAt?: Date;
+	totalDuration?: number;
+	metadata: Record<string, any>;
+	configuration: Record<string, any>;
+	results: Record<string, any>;
 }
 
-export type StepMetadata = {
-	title: string;
-	subtitle: string;
-};
-
-export type StepCompletionState = Record<number, boolean>;
-
-export interface FlowController {
-	credentials: Record<string, string>;
-	setCredentials: (credentials: Record<string, string>) => void;
-	pkceCodes?: {
-		codeVerifier: string;
-		codeChallenge: string;
-	};
-	authUrl?: string;
-	authCode?: string;
-	tokens?: {
-		access_token: string;
-		refresh_token?: string;
-		id_token?: string;
-	};
-	deviceCode?: string;
-	userCode?: string;
+export interface FlowTransition {
+	fromStepId: string;
+	toStepId: string;
+	timestamp: Date;
+	reason: string;
+	data?: Record<string, any>;
 }
 
-export class FlowStateService {
-	// Step metadata creation
-	static createStepMetadata(steps: StepConfig[]): StepMetadata[] {
-		return steps.map((step) => ({
-			title: step.title,
-			subtitle: step.subtitle,
+class FlowStateService {
+	private static flows = new Map<string, FlowState>();
+	private static transitions = new Map<string, FlowTransition[]>();
+
+	/**
+	 * Generate structured metadata for flow steps from config definitions
+	 */
+	static createStepMetadata(
+		stepConfigs: Array<{ title: string; subtitle?: string; description?: string }>
+	) {
+		return stepConfigs.map((config, index) => ({
+			stepNumber: index,
+			title: config.title,
+			subtitle: config.subtitle ?? '',
+			description: config.description ?? '',
 		}));
 	}
 
-	// Intro section key generation based on flow type
+	/**
+	 * Create a consistent set of intro section keys for flow summary panels
+	 */
 	static createIntroSectionKeys(flowType: string): string[] {
 		const baseKeys = [
 			'overview',
 			'flowDiagram',
 			'credentials',
 			'results',
-			'authRequestOverview',
-			'authRequestDetails',
-			'introspectionOverview',
-			'introspectionDetails',
-			'completionOverview',
-			'completionDetails',
+			'flowSummary',
 		];
 
 		const flowSpecificKeys: Record<string, string[]> = {
-			'authorization-code': [
-				'pkceOverview',
-				'pkceDetails',
-				'tokenExchangeOverview',
-				'tokenExchangeDetails',
-			],
-			implicit: ['tokenResponseOverview', 'tokenResponseDetails'],
-			'client-credentials': ['tokenRequestOverview', 'tokenRequestDetails'],
-			'device-authorization': [
-				'deviceRequestOverview',
-				'deviceRequestDetails',
-				'userCodeDisplayOverview',
-				'userCodeDisplayDetails',
-				'tokenPollingOverview',
-				'tokenPollingDetails',
-			],
-			'resource-owner-password': ['passwordRequestOverview', 'passwordRequestDetails'],
-			'jwt-bearer': ['jwtRequestOverview', 'jwtRequestDetails'],
-			ciba: [
-				'cibaRequestOverview',
-				'cibaRequestDetails',
-				'cibaPollingOverview',
-				'cibaPollingDetails',
-			],
-			redirectless: ['redirectlessOverview', 'redirectlessDetails'],
-			hybrid: ['hybridOverview', 'hybridDetails'],
+			authorization: ['pkceOverview', 'authRequestOverview', 'authResponseOverview'],
+			oauth: ['tokenExchangeOverview', 'introspectionOverview'],
+			oidc: ['tokenExchangeOverview', 'introspectionOverview', 'securityOverview'],
+			default: ['securityOverview'],
 		};
 
-		const specificKeys = flowSpecificKeys[flowType] || [];
-		return [...baseKeys, ...specificKeys];
+		const normalizedType = flowType.toLowerCase();
+		const additionalKeys =
+			flowSpecificKeys[normalizedType as keyof typeof flowSpecificKeys] ?? flowSpecificKeys.default;
+
+		return Array.from(new Set([...baseKeys, ...additionalKeys]));
 	}
 
-	// Default collapsed sections based on intro section keys
-	static createDefaultCollapsedSections(keys: string[]): Record<string, boolean> {
-		const defaultCollapsed: Record<string, boolean> = {};
+	/**
+	 * Initialize a new flow with default configuration
+	 */
+	static initializeFlow(
+		userId: string,
+		flowType: string,
+		configuration: Partial<FlowState['configuration']> = {}
+	): FlowState {
+		const flowId = this.generateFlowId();
 
-		keys.forEach((key) => {
-			// Default to collapsed for technical details, expanded for overview
-			if (key.includes('Details') || key.includes('Diagram')) {
-				defaultCollapsed[key] = true;
-			} else if (key.includes('Overview') || key.includes('credentials')) {
-				defaultCollapsed[key] = false;
-			} else {
-				defaultCollapsed[key] = false;
-			}
-		});
+		const flow: FlowState = {
+			flowId,
+			userId,
+			flowType,
+			status: 'not_started',
+			steps: [],
+			startedAt: new Date(),
+			metadata: {
+				sessionId: this.generateSessionId(),
+			},
+			configuration: { ...configuration },
+			results: {},
+		};
 
-		return defaultCollapsed;
+		this.flows.set(flowId, flow);
+		this.transitions.set(flowId, []);
+		logger.info('FlowStateService', 'Flow initialized', { flowId, flowType });
+		return flow;
 	}
 
-	// Step completion state creation
-	static createStepCompletions(stepCount: number): StepCompletionState {
-		const completions: StepCompletionState = {};
-		for (let i = 0; i < stepCount; i++) {
-			completions[i] = false;
+	static getFlow(flowId: string): FlowState | undefined {
+		return this.flows.get(flowId);
+	}
+
+	static updateFlow(flowId: string, updates: Partial<FlowState>): FlowState | undefined {
+		const existing = this.flows.get(flowId);
+		if (!existing) {
+			return undefined;
 		}
-		return completions;
+
+		const updated: FlowState = {
+			...existing,
+			...updates,
+			metadata: {
+				...existing.metadata,
+				...(updates.metadata ?? {}),
+			},
+			configuration: {
+				...existing.configuration,
+				...(updates.configuration ?? {}),
+			},
+			results: {
+				...existing.results,
+				...(updates.results ?? {}),
+			},
+		};
+
+		this.flows.set(flowId, updated);
+		return updated;
 	}
 
-	// Flow-specific configurations
-	static getFlowConfig(flowType: string): FlowStateConfig {
-		const introSectionKeys = this.createIntroSectionKeys(flowType);
-		const defaultCollapsedSections = this.createDefaultCollapsedSections(introSectionKeys);
-
-		const stepCounts: Record<string, number> = {
-			'authorization-code': 8,
-			implicit: 5,
-			'client-credentials': 4,
-			'device-authorization': 6,
-			'resource-owner-password': 4,
-			'jwt-bearer': 4,
-			ciba: 6,
-			redirectless: 5,
-			hybrid: 6,
+	static recordTransition(
+		flowId: string,
+		fromStepId: string,
+		toStepId: string,
+		reason: string,
+		data?: Record<string, any>
+	) {
+		const transition: FlowTransition = {
+			fromStepId,
+			toStepId,
+			timestamp: new Date(),
+			reason,
+			data: data ?? {},
 		};
 
-		return {
-			flowKey: `${flowType}-v5`,
-			stepCount: stepCounts[flowType] || 5,
-			introSectionKeys,
-			defaultCollapsedSections,
-		};
+		const existing = this.transitions.get(flowId) ?? [];
+		existing.push(transition);
+		this.transitions.set(flowId, existing);
 	}
 
-	// Common state handlers
-	static createToggleSectionHandler(
-		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
-	): (key: string) => void {
-		return (key: string) => {
-			setCollapsedSections((prev) => ({ ...prev, [key]: !prev[key] }));
-		};
+	private static generateFlowId(): string {
+		return `flow_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 	}
 
-	static createStepNavigationHandlers(
-		currentStep: number,
-		setCurrentStep: React.Dispatch<React.SetStateAction<number>>,
-		stepCount: number
-	): {
-		handleNext: () => void;
-		handlePrev: () => void;
-		canNavigateNext: () => boolean;
-	} {
-		const handleNext = () => {
-			if (currentStep < stepCount - 1) {
-				setCurrentStep(currentStep + 1);
-			}
-		};
-
-		const handlePrev = () => {
-			if (currentStep > 0) {
-				setCurrentStep(currentStep - 1);
-			}
-		};
-
-		const canNavigateNext = () => {
-			return currentStep < stepCount - 1;
-		};
-
-		return {
-			handleNext,
-			handlePrev,
-			canNavigateNext,
-		};
-	}
-
-	// Common field change handler
-	static createFieldChangeHandler(
-		controller: FlowController,
-		setEmptyRequiredFields: React.Dispatch<React.SetStateAction<Set<string>>>
-	): (field: string, value: string) => void {
-		return (field: string, value: string) => {
-			const updatedCredentials = {
-				...controller.credentials,
-				[field]: value,
-			};
-			controller.setCredentials(updatedCredentials);
-
-			if (value.trim()) {
-				setEmptyRequiredFields((prev) => {
-					const next = new Set(prev);
-					next.delete(field);
-					return next;
-				});
-			} else {
-				setEmptyRequiredFields((prev) => new Set(prev).add(field));
-			}
-		};
-	}
-
-	// Copy handler
-	static createCopyHandler(
-		setCopiedField: React.Dispatch<React.SetStateAction<string | null>>
-	): (text: string, label: string) => void {
-		return (text: string, label: string) => {
-			navigator.clipboard
-				.writeText(text)
-				.then(() => {
-					setCopiedField(label);
-					setTimeout(() => setCopiedField(null), 1000);
-				})
-				.catch((err) => {
-					console.error('Failed to copy text: ', err);
-				});
-		};
-	}
-
-	// Common step validation patterns
-	static createStepValidationPatterns(
-		flowType: string
-	): Record<string, (controller: FlowController) => boolean> {
-		const patterns: Record<string, Record<string, (controller: FlowController) => boolean>> = {
-			'authorization-code': {
-				'0': () => true, // Introduction step
-				'1': (controller) =>
-					!!(controller.pkceCodes?.codeVerifier && controller.pkceCodes?.codeChallenge),
-				'2': (controller) => !!(controller.authUrl && controller.pkceCodes?.codeVerifier),
-				'3': (controller) => !!controller.authCode,
-				'4': (controller) => !!controller.tokens?.access_token,
-				'5': (controller) => !!controller.tokens?.access_token,
-				'6': () => true, // Completion step
-				'7': () => true, // Security features step
-			},
-			implicit: {
-				'0': () => true, // Introduction step
-				'1': (controller) => !!controller.authUrl,
-				'2': (controller) => !!controller.tokens,
-				'3': (controller) => !!controller.tokens,
-				'4': () => true, // Security features step
-			},
-			'client-credentials': {
-				'0': () => true, // Introduction step
-				'1': (controller) =>
-					!!(controller.credentials?.clientId && controller.credentials?.clientSecret),
-				'2': (controller) => !!controller.tokens?.access_token,
-				'3': () => true, // Security features step
-			},
-			'device-authorization': {
-				'0': () => true, // Introduction step
-				'1': (controller) => !!controller.deviceCode,
-				'2': (controller) => !!controller.userCode,
-				'3': (controller) => !!controller.tokens?.access_token,
-				'4': (controller) => !!controller.tokens?.access_token,
-				'5': () => true, // Security features step
-			},
-		};
-
-		return patterns[flowType] || patterns['authorization-code'];
-	}
-
-	// Common step requirements
-	static createStepRequirements(flowType: string): Record<string, string[]> {
-		const requirements: Record<string, Record<string, string[]>> = {
-			'authorization-code': {
-				'0': ['Review the flow overview and setup credentials'],
-				'1': ['Generate PKCE code verifier and code challenge'],
-				'2': ['Generate authorization URL with PKCE parameters'],
-				'3': ['Receive authorization code from PingOne callback'],
-				'4': ['Exchange authorization code for access and refresh tokens'],
-				'5': ['Introspect access token to validate and inspect claims'],
-				'6': ['Flow completed successfully'],
-				'7': ['Demonstrate advanced security implementations'],
-			},
-			implicit: {
-				'0': ['Review the flow overview and setup credentials'],
-				'1': ['Generate authorization URL with implicit flow parameters'],
-				'2': ['Receive tokens directly from URL fragment'],
-				'3': ['Validate and inspect received tokens'],
-				'4': ['Demonstrate advanced security implementations'],
-			},
-			'client-credentials': {
-				'0': ['Review the flow overview and setup credentials'],
-				'1': ['Configure client credentials and scopes'],
-				'2': ['Exchange client credentials for access token'],
-				'3': ['Demonstrate advanced security implementations'],
-			},
-			'device-authorization': {
-				'0': ['Review the flow overview and setup credentials'],
-				'1': ['Request device authorization code'],
-				'2': ['Display user code and verification URL'],
-				'3': ['Poll for token after user authorization'],
-				'4': ['Validate and inspect received tokens'],
-				'5': ['Demonstrate advanced security implementations'],
-			},
-		};
-
-		return requirements[flowType] || requirements['authorization-code'];
-	}
-
-	// Common PingOne application configuration
-	static getDefaultPingOneConfig(flowType: string): Record<string, unknown> {
-		const baseConfig = {
-			allowRedirectUriPatterns: false,
-			initiateLoginUri: '',
-			targetLinkUri: '',
-			signoffUrls: [],
-			requestParameterSignatureRequirement: 'DEFAULT',
-			enableJWKS: false,
-			jwksMethod: 'JWKS_URL',
-			jwksUrl: '',
-			jwks: '',
-			requirePushedAuthorizationRequest: false,
-			pushedAuthorizationRequestTimeout: 60,
-			additionalRefreshTokenReplayProtection: false,
-			includeX5tParameter: false,
-			oidcSessionManagement: false,
-			requestScopesForMultipleResources: false,
-			terminateUserSessionByIdToken: false,
-			corsOrigins: [],
-			corsAllowAnyOrigin: false,
-		};
-
-		const flowSpecificConfigs: Record<string, Record<string, unknown>> = {
-			'authorization-code': {
-				...baseConfig,
-				clientAuthMethod: 'client_secret_post',
-				pkceEnforcement: 'REQUIRED',
-				responseTypeCode: true,
-				responseTypeToken: false,
-				responseTypeIdToken: false,
-				grantTypeAuthorizationCode: true,
-			},
-			implicit: {
-				...baseConfig,
-				clientAuthMethod: 'none',
-				pkceEnforcement: 'OPTIONAL',
-				responseTypeCode: false,
-				responseTypeToken: true,
-				responseTypeIdToken: true,
-				grantTypeAuthorizationCode: false,
-			},
-			'client-credentials': {
-				...baseConfig,
-				clientAuthMethod: 'client_secret_post',
-				pkceEnforcement: 'OPTIONAL',
-				responseTypeCode: false,
-				responseTypeToken: false,
-				responseTypeIdToken: false,
-				grantTypeClientCredentials: true,
-			},
-			'device-authorization': {
-				...baseConfig,
-				clientAuthMethod: 'client_secret_post',
-				pkceEnforcement: 'OPTIONAL',
-				responseTypeCode: false,
-				responseTypeToken: false,
-				responseTypeIdToken: false,
-				grantTypeDeviceCode: true,
-			},
-		};
-
-		return flowSpecificConfigs[flowType] || flowSpecificConfigs['authorization-code'];
-	}
-
-	// Common credential requirements
-	static getRequiredCredentials(flowType: string): string[] {
-		const requirements: Record<string, string[]> = {
-			'authorization-code': ['environmentId', 'clientId', 'clientSecret', 'redirectUri'],
-			implicit: ['environmentId', 'clientId', 'redirectUri'],
-			'client-credentials': ['environmentId', 'clientId', 'clientSecret'],
-			'device-authorization': ['environmentId', 'clientId', 'clientSecret'],
-			'resource-owner-password': [
-				'environmentId',
-				'clientId',
-				'clientSecret',
-				'username',
-				'password',
-			],
-			'jwt-bearer': ['environmentId', 'clientId', 'privateKey'],
-		};
-
-		return requirements[flowType] || requirements['authorization-code'];
-	}
-
-	// Session storage helpers
-	static createSessionStorageHelpers(flowKey: string) {
-		return {
-			saveStep: (step: number) => {
-				sessionStorage.setItem(`${flowKey}-current-step`, step.toString());
-			},
-			loadStep: (): number => {
-				const stored = sessionStorage.getItem(`${flowKey}-current-step`);
-				return stored ? parseInt(stored, 10) : 0;
-			},
-			saveConfig: (config: Record<string, unknown>) => {
-				sessionStorage.setItem(`${flowKey}-app-config`, JSON.stringify(config));
-			},
-			loadConfig: (): Record<string, unknown> | null => {
-				const stored = sessionStorage.getItem(`${flowKey}-app-config`);
-				return stored ? JSON.parse(stored) : null;
-			},
-			clearAll: () => {
-				sessionStorage.removeItem(`${flowKey}-current-step`);
-				sessionStorage.removeItem(`${flowKey}-app-config`);
-			},
-		};
+	private static generateSessionId(): string {
+		return `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
 	}
 }
+
+export default FlowStateService;

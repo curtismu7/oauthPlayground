@@ -48,6 +48,8 @@ class CredentialManager {
 	private readonly CONFIG_CREDENTIALS_KEY = 'pingone_config_credentials';
 	private readonly AUTHZ_FLOW_CREDENTIALS_KEY = 'pingone_authz_flow_credentials';
 	private readonly IMPLICIT_FLOW_CREDENTIALS_KEY = 'pingone_implicit_flow_credentials';
+	private readonly IMPLICIT_OAUTH_CREDENTIALS_KEY = 'pingone_implicit_oauth_credentials';
+	private readonly IMPLICIT_OIDC_CREDENTIALS_KEY = 'pingone_implicit_oidc_credentials';
 	private readonly HYBRID_FLOW_CREDENTIALS_KEY = 'pingone_hybrid_flow_credentials';
 	private readonly WORKER_FLOW_CREDENTIALS_KEY = 'pingone_worker_flow_credentials';
 	private readonly DEVICE_FLOW_CREDENTIALS_KEY = 'pingone_device_flow_credentials';
@@ -284,12 +286,18 @@ class CredentialManager {
 	}
 
 	/**
-	 * Save implicit flow-specific credentials (from Implicit flow)
+	 * Save implicit flow-specific credentials with variant support
 	 * These are separate from configuration and authz flow credentials
 	 */
-	saveImplicitFlowCredentials(credentials: Partial<PermanentCredentials>): boolean {
+	saveImplicitFlowCredentials(credentials: Partial<PermanentCredentials>, variant?: 'oauth' | 'oidc'): boolean {
 		try {
-			const existing = this.loadImplicitFlowCredentials();
+			const storageKey = variant === 'oauth' 
+				? this.IMPLICIT_OAUTH_CREDENTIALS_KEY 
+				: variant === 'oidc' 
+					? this.IMPLICIT_OIDC_CREDENTIALS_KEY 
+					: this.IMPLICIT_FLOW_CREDENTIALS_KEY;
+
+			const existing = this.loadImplicitFlowCredentials(variant);
 			const updated = {
 				...existing,
 				...credentials,
@@ -297,17 +305,18 @@ class CredentialManager {
 			};
 
 			console.log(' [CredentialManager] Saving implicit flow credentials to localStorage:', {
-				key: this.IMPLICIT_FLOW_CREDENTIALS_KEY,
+				key: storageKey,
+				variant: variant || 'generic',
 				data: updated,
 			});
 
-			localStorage.setItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY, JSON.stringify(updated));
+			localStorage.setItem(storageKey, JSON.stringify(updated));
 			this.invalidateCache();
 
 			// Dispatch event to notify components of credential change
 			window.dispatchEvent(
 				new CustomEvent('implicit-flow-credentials-changed', {
-					detail: { credentials: updated },
+					detail: { credentials: updated, variant },
 				})
 			);
 
@@ -325,11 +334,23 @@ class CredentialManager {
 	}
 
 	/**
-	 * Load implicit flow-specific credentials
+	 * Load implicit flow-specific credentials with variant support
 	 */
-	loadImplicitFlowCredentials(): PermanentCredentials {
+	loadImplicitFlowCredentials(variant?: 'oauth' | 'oidc'): PermanentCredentials {
 		try {
-			const stored = localStorage.getItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY);
+			const storageKey = variant === 'oauth' 
+				? this.IMPLICIT_OAUTH_CREDENTIALS_KEY 
+				: variant === 'oidc' 
+					? this.IMPLICIT_OIDC_CREDENTIALS_KEY 
+					: this.IMPLICIT_FLOW_CREDENTIALS_KEY;
+
+			let stored = localStorage.getItem(storageKey);
+
+			// If variant-specific key doesn't exist, fall back to generic key for backward compatibility
+			if (!stored && variant) {
+				stored = localStorage.getItem(this.IMPLICIT_FLOW_CREDENTIALS_KEY);
+				console.log('📥 [CredentialManager] Falling back to generic implicit credentials key for variant:', variant);
+			}
 
 			if (stored) {
 				const credentials = JSON.parse(stored);
@@ -348,6 +369,8 @@ class CredentialManager {
 				};
 
 				console.log('📥 [CredentialManager] Loaded implicit flow credentials:', {
+					key: storageKey,
+					variant: variant || 'generic',
 					hasRedirectUri: !!credentials.redirectUri,
 					redirectUri: credentials.redirectUri,
 					fullResult: result

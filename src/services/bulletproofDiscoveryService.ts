@@ -148,7 +148,7 @@ export class BulletproofDiscoveryService {
 				console.warn(`[Bulletproof Discovery] Attempt ${attempt} failed:`, lastError.message);
 
 				if (attempt < this.MAX_RETRIES) {
-					const delay = this.RETRY_DELAY * Math.pow(2, attempt - 1); // Exponential backoff
+					const delay = this.RETRY_DELAY * 2 ** (attempt - 1); // Exponential backoff
 					console.log(`[Bulletproof Discovery] Retrying in ${delay}ms...`);
 					await this.sleep(delay);
 				}

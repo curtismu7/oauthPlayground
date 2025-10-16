@@ -40,6 +40,7 @@ import type { ClaimsRequestStructure } from '../../components/ClaimsRequestBuild
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import ModalPresentationService from '../../services/modalPresentationService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 
 // Styled Components
 const Container = styled.div`
@@ -486,7 +487,14 @@ const OIDCHybridFlowV6: React.FC = () => {
 							// OIDC Discovery completion handler - allows environment ID auto-population
 							onDiscoveryComplete={(result) => {
 								console.log('[OIDC Hybrid V6] OIDC Discovery completed:', result);
-								// Service automatically handles environment ID extraction and credential updates
+								// Extract environment ID from issuer URL using the standard service
+								if (result.issuerUrl) {
+									const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
+									if (extractedEnvId) {
+										handleFieldChange('environmentId', extractedEnvId);
+										console.log('[OIDC Hybrid V6] Auto-extracted Environment ID:', extractedEnvId);
+									}
+								}
 							}}
 						/>
 					) : (
