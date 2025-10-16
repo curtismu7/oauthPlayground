@@ -395,8 +395,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       setFlowContext(prev => ({ ...prev, networkStatus: status }));
     };
 
-    NetworkStatusService.onStatusChange(handleNetworkChange);
-    return () => NetworkStatusService.offStatusChange(handleNetworkChange);
+    NetworkStatusService.addStatusListener(handleNetworkChange);
+    return () => NetworkStatusService.removeStatusListener(handleNetworkChange);
   }, []);
 
   const handleUsernameLogin = useCallback(async () => {
