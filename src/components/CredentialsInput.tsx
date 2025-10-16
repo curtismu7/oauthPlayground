@@ -329,7 +329,7 @@ export const CredentialsInput = ({
 									onEnvironmentIdChange={onEnvironmentIdChange}
 									onIssuerUrlChange={() => {}}
 									showSuggestions={true}
-									autoDiscover={false}
+									autoDiscover={true}
 								/>
 							</EnvironmentSection>
 
