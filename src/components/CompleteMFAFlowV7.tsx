@@ -28,7 +28,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
-import { CollapsibleHeaderService } from '../services/collapsibleHeaderService';
+import CollapsibleHeaderService from '../services/collapsibleHeaderService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import EnhancedFlowInfoCard from '../components/EnhancedFlowInfoCard';
 
