@@ -402,29 +402,40 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
   // Handle OIDC discovery completion
   const handleDiscoveryComplete = useCallback((result: DiscoveryResult) => {
+    console.log('[CompleteMFAFlowV7] Discovery result received:', result);
+    
     if (result.success && result.document) {
-      console.log('[CompleteMFAFlowV7] OIDC Discovery completed:', result);
+      console.log('[CompleteMFAFlowV7] OIDC Discovery completed successfully:', result);
       v4ToastManager.showSuccess('OIDC endpoints discovered successfully');
       
       // Auto-populate credentials from discovery if available
       if (result.document.issuer) {
         const issuerUrl = result.document.issuer;
+        console.log('[CompleteMFAFlowV7] Extracting environment ID from issuer:', issuerUrl);
         const envIdMatch = issuerUrl.match(/\/environments\/([^\/]+)/);
         if (envIdMatch && envIdMatch[1]) {
+          const extractedEnvId = envIdMatch[1];
+          console.log('[CompleteMFAFlowV7] Extracted environment ID:', extractedEnvId);
           setCredentials(prev => ({
             ...prev,
-            environmentId: envIdMatch[1],
+            environmentId: extractedEnvId,
             authEndpoint: result.document?.authorization_endpoint,
             tokenEndpoint: result.document?.token_endpoint,
             userInfoEndpoint: result.document?.userinfo_endpoint,
             jwksUri: result.document?.jwks_uri
           }));
           v4ToastManager.showSuccess('Environment ID and endpoints auto-populated from discovery');
+        } else {
+          console.log('[CompleteMFAFlowV7] No environment ID found in issuer URL:', issuerUrl);
         }
+      } else {
+        console.log('[CompleteMFAFlowV7] No issuer URL in discovery document');
       }
     } else if (result.error) {
       console.error('[CompleteMFAFlowV7] OIDC Discovery failed:', result.error);
       v4ToastManager.showError(`Discovery failed: ${result.error}`);
+    } else {
+      console.log('[CompleteMFAFlowV7] Discovery result was not successful and had no error:', result);
     }
   }, []);
 
