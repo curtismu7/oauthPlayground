@@ -105,6 +105,7 @@ import PARFlow from './pages/flows/PARFlow';
 import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 import PingOneMFAFlowV6 from './pages/flows/PingOneMFAFlowV6';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
+import PingOneAuthentication from './pages/PingOneAuthentication';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
 import RARFlowV6 from './pages/flows/RARFlowV6_New';
@@ -466,6 +467,7 @@ const AppRoutes = () => {
 							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-mfa-v6" replace />} />
 							<Route path="/flows/pingone-mfa-v6" element={<PingOneMFAFlowV6 />} />
 							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
+							<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
 							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
 							{/* Legacy route removed - use V5 */}
