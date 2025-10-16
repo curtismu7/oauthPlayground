@@ -19,11 +19,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'streaming-tv': {
 		id: 'streaming-tv',
 		name: 'Smart TV',
-		displayName: 'Smart TV - Living Room',
-		brandName: 'STREAMINGTV',
+		displayName: 'VIZIO 65" V-Series 4K UHD Smart TV',
+		brandName: 'VIZIO',
 		icon: '📺',
 		emoji: '📺',
-		description: 'Stream your favorite shows and movies',
+		description: 'Stream Netflix, Disney+, Hulu, and more',
 		color: '#dc2626', // Red
 		secondaryColor: '#991b1b',
 		scenario: 'Home Entertainment',
@@ -32,11 +32,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'gas-pump': {
 		id: 'gas-pump',
 		name: 'Gas Pump',
-		displayName: 'Pump #7 - Station 4215',
-		brandName: 'FASTFUEL',
+		displayName: 'Kroger Fuel Center - Pump #7',
+		brandName: 'KROGER',
 		icon: '⛽',
 		emoji: '⛽',
-		description: 'Quick and secure fuel payment',
+		description: 'Pay with Kroger Plus Card and mobile app',
 		color: '#22c55e', // Green
 		secondaryColor: '#16a34a',
 		scenario: 'Fuel Payment',
@@ -57,12 +57,12 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	},
 	'gaming-console': {
 		id: 'gaming-console',
-		name: 'Gaming Console',
-		displayName: 'Gaming Console - Family Room',
-		brandName: 'GAMESTATION',
+		name: 'Game Controller',
+		displayName: 'Sony DualSense Wireless Controller',
+		brandName: 'SONY',
 		icon: '🎮',
 		emoji: '🎮',
-		description: 'Play your favorite games',
+		description: 'Connect to PlayStation Network and game library',
 		color: '#8b5cf6', // Purple
 		secondaryColor: '#7c3aed',
 		scenario: 'Gaming & Entertainment',
@@ -71,11 +71,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'fitness-wearable': {
 		id: 'fitness-wearable',
 		name: 'Fitness Tracker',
-		displayName: 'Fitness Watch - Model X',
-		brandName: 'FITTRACK',
+		displayName: 'Fitbit Charge 6 - Health & Fitness',
+		brandName: 'FITBIT',
 		icon: '⌚',
 		emoji: '⌚',
-		description: 'Track your fitness journey',
+		description: 'Sync workouts, heart rate, and health data',
 		color: '#f97316', // Orange
 		secondaryColor: '#ea580c',
 		scenario: 'Health & Fitness',
@@ -84,11 +84,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'smart-printer': {
 		id: 'smart-printer',
 		name: 'Smart Printer',
-		displayName: 'Printer - Office HP1200',
-		brandName: 'PRINTPRO',
+		displayName: 'HP OfficeJet Pro 9015e All-in-One',
+		brandName: 'HP',
 		icon: '🖨️',
 		emoji: '🖨️',
-		description: 'Secure document printing',
+		description: 'Print, scan, copy from HP Smart app',
 		color: '#06b6d4', // Cyan
 		secondaryColor: '#0891b2',
 		scenario: 'Office Equipment',
@@ -97,11 +97,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'airport-kiosk': {
 		id: 'airport-kiosk',
 		name: 'Airport Kiosk',
-		displayName: 'Check-In Kiosk - Gate B12',
-		brandName: 'AIRCHECK',
+		displayName: 'DFW Airport Terminal C - Gate C15',
+		brandName: 'DFW',
 		icon: '✈️',
 		emoji: '✈️',
-		description: 'Quick self-service check-in',
+		description: 'American Airlines self-service check-in',
 		color: '#0ea5e9', // Sky Blue
 		secondaryColor: '#0284c7',
 		scenario: 'Travel & Transportation',
@@ -149,11 +149,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'smart-speaker': {
 		id: 'smart-speaker',
 		name: 'Smart Speaker',
-		displayName: 'Echo Pro - Living Room',
-		brandName: 'VOICELINK',
+		displayName: 'Sonos One SL - Kitchen Counter',
+		brandName: 'SONOS',
 		icon: '🔊',
 		emoji: '🔊',
-		description: 'Voice-activated smart assistant',
+		description: 'Stream Spotify, Apple Music, and more',
 		color: '#0891b2', // Cyan
 		secondaryColor: '#0e7490',
 		scenario: 'Voice & IoT',
@@ -162,11 +162,11 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'smartphone': {
 		id: 'smartphone',
 		name: 'Mobile Phone',
-		displayName: 'iPhone 15 Pro - Demo',
-		brandName: 'APPLEID',
+		displayName: 'iPhone 15 Pro - Personal Device',
+		brandName: 'APPLE',
 		icon: '📱',
 		emoji: '📱',
-		description: 'On-the-go mobile authorization',
+		description: 'Access apps, Face ID, and Apple Wallet',
 		color: '#2563eb', // Blue
 		secondaryColor: '#1d4ed8',
 		scenario: 'Mobile Auth',
@@ -175,8 +175,8 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'smart-vehicle': {
 		id: 'smart-vehicle',
 		name: 'Smart Vehicle',
-		displayName: 'Model S - Dashboard System',
-		brandName: 'AUTODRIVE',
+		displayName: 'Tesla Model Y - Infotainment',
+		brandName: 'TESLA',
 		icon: '🚗',
 		emoji: '🚗',
 		description: 'Connected vehicle authorization',
@@ -184,6 +184,84 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		secondaryColor: '#dc2626',
 		scenario: 'Automotive & Transport',
 		useCase: 'Optimized for connected cars, vehicle infotainment, and automotive IoT systems'
+	},
+	'smart-doorbell': {
+		id: 'smart-doorbell',
+		name: 'Smart Doorbell',
+		displayName: 'Ring Video Doorbell Pro 2',
+		brandName: 'RING',
+		icon: '🔔',
+		emoji: '🔔',
+		description: 'Smart home security device',
+		color: '#0ea5e9', // Sky Blue
+		secondaryColor: '#0284c7',
+		scenario: 'Smart Home Security',
+		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems'
+	},
+	'ev-charger': {
+		id: 'ev-charger',
+		name: 'EV Charging Station',
+		displayName: 'Tesla Supercharger V4 - Stall 8A',
+		brandName: 'SUPERCHARGER',
+		icon: '🔌',
+		emoji: '🔌',
+		description: 'Electric vehicle fast charging',
+		color: '#22c55e', // Green
+		secondaryColor: '#16a34a',
+		scenario: 'Electric Vehicle Infrastructure',
+		useCase: 'Built for EV charging stations, fast chargers, and electric vehicle infrastructure'
+	},
+	'smart-thermostat': {
+		id: 'smart-thermostat',
+		name: 'Smart Thermostat',
+		displayName: 'Nest Learning Thermostat 4th Gen',
+		brandName: 'NEST',
+		icon: '🌡️',
+		emoji: '🌡️',
+		description: 'Intelligent climate control',
+		color: '#f97316', // Orange
+		secondaryColor: '#ea580c',
+		scenario: 'Smart Home Climate',
+		useCase: 'Designed for smart thermostats, HVAC systems, and climate control devices'
+	},
+	'digital-signage': {
+		id: 'digital-signage',
+		name: 'Digital Signage',
+		displayName: 'Samsung The Wall - Lobby Display',
+		brandName: 'SAMSUNG',
+		icon: '📢',
+		emoji: '📢',
+		description: 'Interactive digital display',
+		color: '#8b5cf6', // Purple
+		secondaryColor: '#7c3aed',
+		scenario: 'Digital Advertising',
+		useCase: 'Perfect for digital billboards, interactive displays, and public information systems'
+	},
+	'drone-controller': {
+		id: 'drone-controller',
+		name: 'Drone Controller',
+		displayName: 'DJI Air 3 Remote Controller',
+		brandName: 'DJI',
+		icon: '🚁',
+		emoji: '🚁',
+		description: 'Autonomous drone system',
+		color: '#06b6d4', // Cyan
+		secondaryColor: '#0891b2',
+		scenario: 'Autonomous Vehicles',
+		useCase: 'Built for drones, UAVs, and autonomous aerial vehicle systems'
+	},
+	'vr-headset': {
+		id: 'vr-headset',
+		name: 'VR Headset',
+		displayName: 'Meta Quest 3 - Gaming Setup',
+		brandName: 'META',
+		icon: '🥽',
+		emoji: '🥽',
+		description: 'Virtual reality experience',
+		color: '#a855f7', // Purple
+		secondaryColor: '#9333ea',
+		scenario: 'Virtual & Augmented Reality',
+		useCase: 'Optimized for VR headsets, AR glasses, and immersive reality devices'
 	}
 };
 
@@ -277,19 +355,23 @@ class DeviceTypeService {
 	getDeviceApps(deviceId: string): Array<{ label: string; icon: string; color: string }> {
 		const apps: Record<string, Array<{ label: string; icon: string; color: string }>> = {
 			'streaming-tv': [
-				{ label: 'Movies', icon: '🎬', color: '#dc2626' },
-				{ label: 'Series', icon: '📺', color: '#3b82f6' },
-				{ label: 'Music', icon: '🎵', color: '#22c55e' },
-				{ label: 'Games', icon: '🎮', color: '#f97316' },
-				{ label: 'Kids', icon: '👶', color: '#6366f1' },
-				{ label: 'Live', icon: '🎤', color: '#a855f7' },
-				{ label: 'Featured', icon: '⭐', color: '#eab308' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Netflix', icon: '🎬', color: '#e50914' },
+				{ label: 'Disney+', icon: '🏰', color: '#113ccf' },
+				{ label: 'Hulu', icon: '📺', color: '#1ce783' },
+				{ label: 'Prime Video', icon: '📹', color: '#00a8e1' },
+				{ label: 'YouTube TV', icon: '📺', color: '#ff0000' },
+				{ label: 'Apple TV+', icon: '🍎', color: '#000000' },
+				{ label: 'HBO Max', icon: '🎭', color: '#673ab7' },
+				{ label: 'SmartCast', icon: '⚙️', color: '#64748b' }
 			],
 			'gas-pump': [
-				{ label: 'Regular', icon: '⛽', color: '#22c55e' },
-				{ label: 'Premium', icon: '⛽', color: '#3b82f6' },
-				{ label: 'Diesel', icon: '⛽', color: '#fbbf24' },
+				{ label: 'Kroger Pay', icon: '💳', color: '#004c91' },
+				{ label: 'Kroger Plus Card', icon: '🏪', color: '#004c91' },
+				{ label: 'Shell Rewards', icon: '⛽', color: '#ffde00' },
+				{ label: 'GasBuddy', icon: '📱', color: '#7b68ee' },
+				{ label: 'Fuel Rewards', icon: '💰', color: '#ff6b35' },
+				{ label: 'Regular 87', icon: '⛽', color: '#22c55e' },
+				{ label: 'Premium 93', icon: '⛽', color: '#3b82f6' },
 				{ label: 'Receipt', icon: '📄', color: '#64748b' }
 			],
 		'iot-device': [
@@ -303,31 +385,43 @@ class DeviceTypeService {
 			{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 		],
 			'gaming-console': [
-				{ label: 'Play', icon: '🎮', color: '#8b5cf6' },
-				{ label: 'Store', icon: '🛒', color: '#3b82f6' },
-				{ label: 'Friends', icon: '👥', color: '#22c55e' },
-				{ label: 'Library', icon: '📚', color: '#f97316' },
-				{ label: 'Achievements', icon: '🏆', color: '#fbbf24' },
-				{ label: 'Party', icon: '🎉', color: '#ec4899' },
-				{ label: 'Streaming', icon: '📡', color: '#06b6d4' },
+				{ label: 'Call of Duty', icon: '🎮', color: '#000000' },
+				{ label: 'FIFA 24', icon: '⚽', color: '#326295' },
+				{ label: 'Fortnite', icon: '🏗️', color: '#9146ff' },
+				{ label: 'Minecraft', icon: '🧱', color: '#62b47a' },
+				{ label: 'Spider-Man 2', icon: '🕷️', color: '#c41e3a' },
+				{ label: 'PlayStation Store', icon: '🛒', color: '#003791' },
+				{ label: 'PlayStation Plus', icon: '➕', color: '#f59e0b' },
 				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 			],
 			'fitness-wearable': [
-				{ label: 'Activity', icon: '🏃', color: '#22c55e' },
-				{ label: 'Heart Rate', icon: '❤️', color: '#ef4444' },
-				{ label: 'Sleep', icon: '😴', color: '#8b5cf6' },
-				{ label: 'Nutrition', icon: '🍎', color: '#f97316' }
+				{ label: 'Strava', icon: '🏃', color: '#fc4c02' },
+				{ label: 'MyFitnessPal', icon: '🍎', color: '#0072ce' },
+				{ label: 'Nike Run Club', icon: '👟', color: '#000000' },
+				{ label: 'Fitbit Today', icon: '⌚', color: '#00b0b9' },
+				{ label: 'Apple Health', icon: '❤️', color: '#ff2d92' },
+				{ label: 'Sleep Score', icon: '😴', color: '#8b5cf6' },
+				{ label: 'Heart Rate', icon: '💓', color: '#ef4444' },
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 			],
 			'smart-printer': [
-				{ label: 'Print', icon: '🖨️', color: '#3b82f6' },
-				{ label: 'Scan', icon: '📷', color: '#22c55e' },
-				{ label: 'Copy', icon: '📋', color: '#f97316' },
-				{ label: 'Queue', icon: '📄', color: '#64748b' }
+				{ label: 'HP Smart', icon: '🖨️', color: '#0096d6' },
+				{ label: 'HP Print Service', icon: '📄', color: '#0096d6' },
+				{ label: 'Microsoft Office', icon: '📊', color: '#d83b01' },
+				{ label: 'Google Docs', icon: '📝', color: '#4285f4' },
+				{ label: 'Adobe Acrobat', icon: '📋', color: '#dc143c' },
+				{ label: 'Print Queue', icon: '📄', color: '#64748b' },
+				{ label: 'Scan to Email', icon: '📧', color: '#22c55e' },
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 			],
 			'airport-kiosk': [
-				{ label: 'Check In', icon: '✅', color: '#22c55e' },
-				{ label: 'Baggage', icon: '🧳', color: '#3b82f6' },
-				{ label: 'Boarding', icon: '🎫', color: '#f97316' },
+				{ label: 'American Airlines', icon: '✈️', color: '#c8102e' },
+				{ label: 'Delta', icon: '🛫', color: '#003366' },
+				{ label: 'United', icon: '🌐', color: '#0e4194' },
+				{ label: 'Southwest', icon: '❤️', color: '#304cb2' },
+				{ label: 'TSA PreCheck', icon: '🛂', color: '#1f4e79' },
+				{ label: 'Check Baggage', icon: '🧳', color: '#3b82f6' },
+				{ label: 'Print Boarding Pass', icon: '🎫', color: '#f97316' },
 				{ label: 'Help', icon: 'ℹ️', color: '#64748b' }
 			],
 			'pos-terminal': [
@@ -357,23 +451,23 @@ class DeviceTypeService {
 				{ label: 'Docs', icon: '📖', color: '#8b5cf6' }
 			],
 			'smart-speaker': [
-				{ label: 'Music', icon: '🎵', color: '#22c55e' },
-				{ label: 'News', icon: '📰', color: '#3b82f6' },
-				{ label: 'Weather', icon: '🌤️', color: '#0ea5e9' },
-				{ label: 'Smart Home', icon: '🏠', color: '#f97316' },
-				{ label: 'Reminders', icon: '⏰', color: '#8b5cf6' },
-				{ label: 'Shopping', icon: '🛒', color: '#ec4899' },
-				{ label: 'Skills', icon: '✨', color: '#fbbf24' },
+				{ label: 'Spotify', icon: '🎵', color: '#1db954' },
+				{ label: 'Apple Music', icon: '🎶', color: '#fa243c' },
+				{ label: 'Amazon Music', icon: '🎧', color: '#ff9900' },
+				{ label: 'Pandora', icon: '📻', color: '#005483' },
+				{ label: 'YouTube Music', icon: '🎤', color: '#ff0000' },
+				{ label: 'Sonos Radio', icon: '📡', color: '#000000' },
+				{ label: 'TuneIn', icon: '🌐', color: '#14d9c4' },
 				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 			],
 			'smartphone': [
-				{ label: 'Messages', icon: '💬', color: '#2563eb' },
-				{ label: 'Auth App', icon: '🔐', color: '#f59e0b' },
-				{ label: 'Wallet', icon: '💳', color: '#22c55e' },
-				{ label: 'Email', icon: '✉️', color: '#8b5cf6' },
-				{ label: 'Calendar', icon: '🗓️', color: '#ec4899' },
-				{ label: 'Maps', icon: '🗺️', color: '#0ea5e9' },
-				{ label: 'Music', icon: '🎶', color: '#f97316' },
+				{ label: 'Instagram', icon: '📷', color: '#e4405f' },
+				{ label: 'WhatsApp', icon: '💬', color: '#25d366' },
+				{ label: 'TikTok', icon: '🎵', color: '#000000' },
+				{ label: 'Uber', icon: '🚗', color: '#000000' },
+				{ label: 'Venmo', icon: '💸', color: '#3d95ce' },
+				{ label: 'Apple Wallet', icon: '💳', color: '#007aff' },
+				{ label: 'Face ID', icon: '🔐', color: '#f59e0b' },
 				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
 			],
 			'smart-vehicle': [

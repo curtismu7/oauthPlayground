@@ -20,6 +20,8 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
+import DeviceTypeSelector from '../../components/DeviceTypeSelector';
+import DynamicDeviceFlow from '../../components/DynamicDeviceFlow';
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -41,11 +43,11 @@ import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { logger } from '../../utils/logger';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import { DeviceTypeSelector } from '../../components/DeviceTypeSelector';
 import { deviceTypeService } from '../../services/deviceTypeService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 
@@ -62,15 +64,21 @@ const FlowContent = styled.div`
 	padding: 0 1rem;
 `;
 
-const FlowHeader = styled.div`
-	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+const FlowHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
+	background: ${props => props.$variant === 'oidc' 
+		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
+		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
+	};
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 1rem 1rem 0 0;
-	box-shadow: 0 10px 25px rgba(22, 163, 74, 0.2);
+	box-shadow: ${props => props.$variant === 'oidc' 
+		? '0 10px 25px rgba(59, 130, 246, 0.2)' 
+		: '0 10px 25px rgba(22, 163, 74, 0.2)'
+	};
 	max-width: 64rem;
 	margin: 0 auto;
 `;
@@ -88,10 +96,19 @@ const FlowSubtitle = styled.p`
 	margin: 0.5rem 0 0 0;
 `;
 
-const StepBadge = styled.span`
-	background: rgba(22, 163, 74, 0.2);
-	border: 1px solid #4ade80;
-	color: #bbf7d0;
+const StepBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
+	background: ${props => props.$variant === 'oidc' 
+		? 'rgba(59, 130, 246, 0.2)' 
+		: 'rgba(22, 163, 74, 0.2)'
+	};
+	border: 1px solid ${props => props.$variant === 'oidc' 
+		? '#60a5fa' 
+		: '#4ade80'
+	};
+	color: ${props => props.$variant === 'oidc' 
+		? '#dbeafe' 
+		: '#bbf7d0'
+	};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -115,7 +132,7 @@ const CollapsibleHeaderButton = styled.button`
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	padding: 1.25rem 1.5rem;
+	padding: 1.5rem 1.75rem;
 	background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
 	border: none;
 	border-radius: 0.75rem;
@@ -124,6 +141,9 @@ const CollapsibleHeaderButton = styled.button`
 	font-weight: 600;
 	color: #0c4a6e;
 	transition: background 0.2s ease;
+	line-height: 1.4;
+	min-height: 72px;
+	gap: 0.75rem;
 
 	&:hover {
 		background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%);
@@ -943,13 +963,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			const current = deviceFlow.credentials ?? {
 				environmentId: '',
 				clientId: '',
-				scopes: 'openid',
+				scopes: selectedVariant === 'oidc' ? 'openid profile email' : 'read write',
 			};
 
 			const next: DeviceAuthCredentials = {
 				environmentId: updates.environmentId ?? current.environmentId ?? '',
 				clientId: updates.clientId ?? current.clientId ?? '',
-				scopes: updates.scopes ?? current.scopes ?? 'openid',
+				scopes: updates.scopes ?? current.scopes ?? (selectedVariant === 'oidc' ? 'openid profile email' : 'read write'),
 			};
 
 			const optionalFields: Array<keyof Pick<DeviceAuthCredentials, 'clientSecret' | 'loginHint' | 'postLogoutRedirectUri'>> = [
@@ -977,11 +997,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
 		setSelectedVariant(variant);
 		
-		// Update scopes based on variant
+		// Update scopes based on variant to meet PingOne requirements
 		const currentCredentials = deviceFlow.credentials || { environmentId: '', clientId: '', scopes: '' };
 		const updatedScopes = variant === 'oidc' 
-			? 'openid profile email' 
-			: 'read write'; // Default OAuth scopes
+			? 'openid profile email' // OIDC MUST include 'openid' scope per spec
+			: 'openid read write'; // PingOne requires 'openid' scope even for OAuth 2.0
 			
 		ensureCredentials({
 			...currentCredentials,
@@ -1085,7 +1105,15 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	const { settings } = useUISettings();
 	const [selectedDevice, setSelectedDevice] = useState(() => {
 		const stored = localStorage.getItem('device_flow_selected_device');
-		return stored && deviceTypeService.getDeviceType(stored) ? stored : 'streaming-tv';
+		// Check if the stored device ID exists in the deviceTypeService
+		if (stored && deviceTypeService.getDeviceType(stored).id === stored) {
+			return stored;
+		}
+		// Clear invalid stored device ID and use default
+		if (stored) {
+			localStorage.removeItem('device_flow_selected_device');
+		}
+		return 'streaming-tv';
 	});
 	const deviceConfig = useMemo(
 		() => deviceTypeService.getDeviceType(selectedDevice),
@@ -1522,11 +1550,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 									<FiInfo size={20} />
 									<div>
-										<InfoTitle>OAuth vs OIDC Tokens</InfoTitle>
+										<InfoTitle>{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Token Response (PingOne)</InfoTitle>
 										<InfoText>
-											<strong>OAuth 2.0 Device Flow</strong> returns an `access_token` and often a
-											`refresh_token`. For ID Tokens and UserInfo, use the OIDC Device Authorization Flow which adds the
-											`openid` scope.
+											{selectedVariant === 'oidc' 
+												? <><strong>OpenID Connect Device Flow</strong> returns an <code>access_token</code>, <code>id_token</code> (for user identity), and optionally a <code>refresh_token</code>. The <code>openid</code> scope is mandatory per OIDC Core 1.0 specification.</>
+												: <><strong>OAuth 2.0 Device Flow (PingOne)</strong> returns an <code>access_token</code> and optionally a <code>refresh_token</code>. No ID tokens or identity information, but PingOne still requires the <code>openid</code> scope (non-standard requirement).</>
+											}
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1676,23 +1705,24 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<FiShield size={20} />
 								<div>
-									<InfoTitle>OAuth vs OIDC Device Flow:</InfoTitle>
+									<InfoTitle>OAuth vs OIDC Device Flow (PingOne Implementation):</InfoTitle>
 									<InfoText style={{ marginTop: '0.5rem' }}>
 										<strong>Important:</strong> OIDC doesn't define a separate "Device Flow"
 										specification. It reuses the OAuth 2.0 Device Authorization Grant (RFC 8628) and
-										adds the usual OIDC semantics:
+										adds the usual OIDC semantics. <strong>PingOne requires the openid scope for both variants:</strong>
 									</InfoText>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 										<li>
-											<strong>OAuth Device Flow</strong>: Returns access_token and refresh_token
-											only
+											<strong>OAuth Device Flow (PingOne)</strong>: Returns access_token and refresh_token
+											only, but still requires <code>openid</code> scope
 										</li>
 										<li>
 											<strong>OIDC Device Flow</strong>: Adds ID Token, UserInfo endpoint, and
-											requires <code>openid</code> scope
+											requires <code>openid</code> scope (standard OIDC requirement)
 										</li>
 										<li>Both flows use the same RFC 8628 device authorization mechanism</li>
 										<li>OIDC adds identity layer on top of OAuth's authorization framework</li>
+										<li><strong>PingOne Specific:</strong> Unlike standard OAuth 2.0, PingOne requires openid scope for all flows</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -1799,7 +1829,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 			{/* Flow Walkthrough */}
 			<EnhancedFlowWalkthrough flowId={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
-			<FlowSequenceDisplay flowType="device-authorization" />
+			<FlowSequenceDisplay flowType={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
 
 			{/* V6 Comprehensive Credentials Service */}
 			<ComprehensiveCredentialsService
@@ -1826,7 +1856,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				environmentId={deviceFlow.credentials?.environmentId || ''}
 				clientId={deviceFlow.credentials?.clientId || ''}
 				clientSecret={deviceFlow.credentials?.clientSecret || ''}
-				scopes={deviceFlow.credentials?.scopes || 'openid profile email'}
+				scopes={deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'read write')}
 				
 				// Change handlers
 				onEnvironmentIdChange={(newEnvId) => {
@@ -1845,12 +1875,22 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					ensureCredentials({ clientSecret: newClientSecret });
 				}}
 				onScopesChange={(newScopes) => {
-					// PingOne requires 'openid' scope even for OAuth flows
 					let finalScopes = newScopes;
-					if (!newScopes.includes('openid')) {
-						finalScopes = `openid ${newScopes}`.trim();
-						v4ToastManager.showWarning('Added "openid" scope (required by PingOne)');
+					
+					if (selectedVariant === 'oidc') {
+						// OIDC MUST include 'openid' scope per OpenID Connect Core 1.0 spec
+						if (!newScopes.includes('openid')) {
+							finalScopes = `openid ${newScopes}`.trim();
+							v4ToastManager.showWarning('Added "openid" scope (required by OpenID Connect specification)');
+						}
+					} else {
+						// PingOne requires 'openid' scope even for OAuth 2.0 flows (non-standard)
+						if (!newScopes.includes('openid')) {
+							finalScopes = `openid ${newScopes}`.trim();
+							v4ToastManager.showInfo('Added "openid" scope (required by PingOne for all flows, including OAuth 2.0)');
+						}
 					}
+					
 					ensureCredentials({ scopes: finalScopes });
 				}}
 				
@@ -1891,9 +1931,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						<strong>Redirect URI:</strong> Not required for Device Authorization Flow (designed for 
 						devices that cannot handle browser redirects like smart TVs, IoT devices, or CLI tools).
 						<br /><br />
-						<strong>Scopes:</strong> PingOne requires the <code>openid</code> scope even for OAuth flows. 
-						It will be automatically added if you remove it. You can add additional scopes like 
-						<code>profile</code>, <code>email</code>, <code>offline_access</code>, or custom API scopes.
+						<strong>Scopes (PingOne Implementation):</strong> 
+						{selectedVariant === 'oidc' 
+							? 'OpenID Connect REQUIRES the openid scope per OIDC Core 1.0 specification. Additional scopes like profile, email, offline_access are optional.'
+							: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'
+						}
 					</InfoText>
 				</div>
 			</InfoBox>
@@ -2579,115 +2621,41 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								</select>
 							</div>
 
-							<SmartTVContainer>
-								<QRSection>
-									<h3 style={{ margin: '0 0 1rem 0', fontSize: '1.25rem', color: '#1e293b' }}>
-										📱 Step 1: Scan with Your Device
-									</h3>
-									<p style={{ margin: '0 0 1.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>
-										{instructionMessage}
-									</p>
+							{/* Device Type Selector */}
+							<DeviceTypeSelector
+								selectedDevice={selectedDevice}
+								onDeviceChange={setSelectedDevice}
+							/>
 
-									<div
-										style={{
-											padding: '1rem',
-											backgroundColor: '#f8fafc',
-											borderRadius: '0.5rem',
-											marginBottom: '1rem',
-										}}
-									>
-										{deviceFlow.deviceCodeData.verification_uri_complete ? (
-											<QRCodeSVG
-												value={deviceFlow.deviceCodeData.verification_uri_complete}
-												size={200}
-												level="H"
-												includeMargin={true}
-												style={{ display: 'block', margin: '0 auto' }}
-											/>
-										) : (
-											<p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>
-												QR code will appear here when available
-											</p>
-										)}
-									</div>
-
-									<div
-										style={{
-											padding: '1rem',
-											backgroundColor: '#eff6ff',
-											borderRadius: '0.5rem',
-											border: '1px solid #bfdbfe',
-											marginBottom: '1rem',
-										}}
-									>
-										<p
-											style={{
-												margin: '0 0 0.5rem 0',
-												fontSize: '0.75rem',
-												color: '#64748b',
-												textTransform: 'uppercase',
-												fontWeight: '600',
-											}}
-										>
-											Or visit manually:
-										</p>
-										<code
-											style={{ fontSize: '0.875rem', color: '#1e40af', wordBreak: 'break-all' }}
-										>
-											{deviceFlow.deviceCodeData.verification_uri}
-										</code>
-										<p style={{ margin: '0.75rem 0 0 0', fontSize: '0.75rem', color: '#64748b' }}>
-											Enter code:{' '}
-											<strong
-												style={{ color: '#1e40af', fontSize: '1rem', letterSpacing: '0.1rem' }}
-											>
-												{deviceFlow.deviceCodeData.user_code}
-											</strong>
-										</p>
-									</div>
-
-									<ActionRow style={{ justifyContent: 'center' }}>
-										<Button onClick={handleOpenOnThisDevice} $variant="primary">
-											<FiExternalLink /> Open on This Device
-										</Button>
-									</ActionRow>
-								</QRSection>
-
-								{/* Scroll Indicator */}
-								<ScrollIndicator>
-									<ScrollText>👇 Scroll down to see your {deviceConfig.name} display 👇</ScrollText>
-									<ScrollArrow>⬇️</ScrollArrow>
-								</ScrollIndicator>
-
-								{/* Device Display - Shows result after authorization */}
-								<SmartTV
-									$isWaiting={deviceFlow.pollingStatus.isPolling || !deviceFlow.tokens}
-									$accentStart={deviceConfig.color}
-									$accentEnd={deviceConfig.secondaryColor}
-									data-tv-display
-								>
-									<div
-										style={{
-											display: 'flex',
-											alignItems: 'center',
-											justifyContent: 'center',
-											marginBottom: '1rem',
-										}}
-									>
-										<TVStatusIndicator
-											$active={!!deviceFlow.tokens}
-											$activeColor={deviceConfig.color}
-											$inactiveColor="#ef4444"
-										/>
-										<h3 style={{ margin: 0, fontSize: '1.25rem', color: '#94a3b8' }}>
-											{deviceConfig.icon} {deviceConfig.displayName}
-										</h3>
-									</div>
-									<TVScreen $showContent={!!deviceFlow.tokens}>
-										{renderDeviceDisplay(deviceFlow.tokens)}
-									</TVScreen>
-								</SmartTV>
-							</SmartTVContainer>
+							{/* Dynamic Device Authorization Interface */}
+							<DynamicDeviceFlow
+								deviceType={selectedDevice}
+								state={{
+									deviceCode: deviceFlow.deviceCodeData?.device_code || '',
+									userCode: deviceFlow.deviceCodeData?.user_code || '',
+									verificationUri: deviceFlow.deviceCodeData?.verification_uri || '',
+									verificationUriComplete: deviceFlow.deviceCodeData?.verification_uri_complete || '',
+									expiresIn: deviceFlow.deviceCodeData?.expires_in || 0,
+									interval: deviceFlow.deviceCodeData?.interval || 5,
+									expiresAt: deviceFlow.deviceCodeData?.expires_at || new Date(),
+									status: deviceFlow.tokens ? 'authorized' : (deviceFlow.pollingStatus.isPolling ? 'pending' : 'pending'),
+									tokens: deviceFlow.tokens,
+									lastPolled: deviceFlow.pollingStatus.lastPolled,
+									pollCount: deviceFlow.pollingStatus.pollCount || 0,
+								}}
+								onStateUpdate={(newState) => {
+									// Handle state updates if needed
+									logger.info('DynamicDeviceFlow', 'State updated', newState);
+								}}
+								onComplete={(tokens) => {
+									// Handle completion
+									logger.info('DynamicDeviceFlow', 'Authorization completed', tokens);
+								}}
+								onError={(error) => {
+									// Handle errors
+									logger.error('DynamicDeviceFlow', 'Authorization error', error);
+								}}
+							/>
 
 							{deviceFlow.timeRemaining > 0 && (
 								<CountdownTimer>
@@ -2874,8 +2842,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			<FlowContent>
 				<StandardFlowHeader flowId="device-authorization-v7" />
 				
-				{UISettingsService.getFlowSpecificSettingsPanel('device-authorization')}
-				
 				<EnhancedFlowInfoCard
 					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
 					showAdditionalInfo={true}
@@ -2887,9 +2853,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				{/* V7 Variant Selector */}
 				{renderVariantSelector()}
 
-				<FlowHeader>
+				<FlowHeader $variant={selectedVariant}>
 					<div>
-						<StepBadge>
+						<StepBadge $variant={selectedVariant}>
 							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION • V7 UNIFIED
 						</StepBadge>
 						<FlowTitle>
@@ -2950,10 +2916,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									</InfoText>
 									<div style={{ marginTop: '1rem' }}>
 										<DeviceTypeSelector
-											value={selectedDevice}
-											onChange={setSelectedDevice}
-											label="Select Device Type"
-											showInfo={true}
+											selectedDevice={selectedDevice}
+											onDeviceChange={setSelectedDevice}
 										/>
 									</div>
 								</div>

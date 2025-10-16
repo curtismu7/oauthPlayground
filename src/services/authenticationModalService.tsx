@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import { FiShield, FiExternalLink, FiX, FiInfo, FiCheckCircle, FiClock } from 'react-icons/fi';
 import { ColoredUrlDisplay } from '../components/ColoredUrlDisplay';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import PARInputInterface from '../components/PARInputInterface';
 
 // Modern styled components with professional design
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -50,7 +51,7 @@ const ModalContainer = styled.div`
 	box-shadow: 
 		0 25px 50px -12px rgba(0, 0, 0, 0.25),
 		0 0 0 1px rgba(255, 255, 255, 0.05);
-	max-width: 700px;
+	max-width: 900px;
 	width: 100%;
 	max-height: 90vh;
 	display: flex;
@@ -324,6 +325,10 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 	// Auto-redirect countdown timer (20 seconds)
 	const [countdown, setCountdown] = React.useState<number>(20);
 	const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+	
+	// PAR input modal state
+	const [showPARInput, setShowPARInput] = useState(false);
+	const [parGeneratedUrl, setParGeneratedUrl] = useState<string>('');
 
 	// Validate URL to prevent ColoredUrlDisplay errors
 	const isValidUrl = (url: string): boolean => {
@@ -335,7 +340,34 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 		}
 	};
 
-	const safeAuthUrl = isValidUrl(authUrl) ? authUrl : 'https://auth.pingone.com/placeholder/as/authorize?client_id=placeholder&redirect_uri=placeholder&response_type=code&scope=openid';
+	// Handle PAR data submission
+	const handlePARDataSubmit = (parData: any) => {
+		try {
+			// Generate authorization URL with request_uri
+			const authEndpoint = `https://auth.pingone.com/${parData.environmentId}/as/authorize`;
+			const params = new URLSearchParams({
+				client_id: parData.clientId,
+				request_uri: parData.requestUri,
+			});
+			
+			const generatedUrl = `${authEndpoint}?${params.toString()}`;
+			setParGeneratedUrl(generatedUrl);
+			setShowPARInput(false);
+			
+			v4ToastManager.showSuccess('PAR Authorization URL Generated', {
+				description: 'Authorization URL with PAR request_uri has been generated successfully.'
+			});
+		} catch (error) {
+			console.error('Error generating PAR URL:', error);
+			v4ToastManager.showError('Failed to Generate PAR URL', {
+				description: 'There was an error generating the authorization URL with PAR data.'
+			});
+		}
+	};
+
+	// Use PAR-generated URL if available, otherwise use the provided authUrl
+	const displayUrl = parGeneratedUrl || authUrl;
+	const safeAuthUrl = isValidUrl(displayUrl) ? displayUrl : 'https://auth.pingone.com/placeholder/as/authorize?client_id=placeholder&redirect_uri=placeholder&response_type=code&scope=openid';
 
 	const handleContinue = React.useCallback(() => {
 		console.log('🚀 [AuthModal] handleContinue called');
@@ -519,7 +551,8 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 	const flowInfo = getFlowInfo();
 
 	return (
-		<ModalOverlay $isOpen={isOpen}>
+		<>
+			<ModalOverlay $isOpen={isOpen}>
 			<ModalContainer>
 				<ModalHeader>
 					<HeaderContent>
@@ -603,6 +636,47 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 							showCopyButton={isValidUrl(authUrl)}
 							showOpenButton={false}
 						/>
+						
+						{/* PAR Input Option */}
+						{flowType === 'oauth' && (
+							<div style={{
+								marginTop: '1rem',
+								padding: '1rem',
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '6px',
+								textAlign: 'center'
+							}}>
+								<div style={{ fontSize: '0.875rem', color: '#374151', marginBottom: '0.75rem' }}>
+									<strong>Using PAR (Pushed Authorization Request)?</strong>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#6b7280', marginBottom: '1rem' }}>
+									If you have a PAR request URI, you can input it here to generate the authorization URL
+								</div>
+								<button
+									type="button"
+									onClick={() => {
+										setShowPARInput(true);
+									}}
+									style={{
+										background: '#3b82f6',
+										color: 'white',
+										border: 'none',
+										borderRadius: '6px',
+										padding: '0.5rem 1rem',
+										fontSize: '0.875rem',
+										fontWeight: '500',
+										cursor: 'pointer',
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '0.5rem'
+									}}
+								>
+									<FiShield size={14} />
+									Input PAR Request URI
+								</button>
+							</div>
+						)}
 					</UrlSection>
 
 					{/* User action required notice */}
@@ -644,6 +718,14 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				</ModalContent>
 			</ModalContainer>
 		</ModalOverlay>
+		
+		{/* PAR Input Modal */}
+		<PARInputInterface
+			isOpen={showPARInput}
+			onClose={() => setShowPARInput(false)}
+			onPARDataSubmit={handlePARDataSubmit}
+		/>
+		</>
 	);
 };
 
