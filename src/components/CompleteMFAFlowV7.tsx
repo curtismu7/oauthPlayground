@@ -980,6 +980,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 showPostLogoutRedirectUri={false}
                 showLoginHint={false}
                 flowKey="client-credentials"
+                autoDiscover={false}
               />
             </CollapsibleHeaderService.CollapsibleHeader>
 
@@ -1033,6 +1034,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 showPostLogoutRedirectUri={false}
                 showLoginHint={false}
                 flowKey="authorization-code"
+                autoDiscover={false}
               />
             </CollapsibleHeaderService.CollapsibleHeader>
 
