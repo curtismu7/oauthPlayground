@@ -354,7 +354,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     password: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isSavingCredentials, setIsSavingCredentials] = useState(false);
 
   // Modern V7 Step Metadata Configuration
   const STEP_METADATA = [
@@ -506,22 +505,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     }
   }, [onStepChange]);
 
-  const handleSaveCredentials = useCallback(async () => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    setIsSavingCredentials(true);
-    try {
-      await credentialManager.saveCustomData(MFA_CREDENTIALS_STORAGE_KEY, credentials);
-      v4ToastManager.showSuccess('✅ Credentials saved successfully!');
-    } catch (error: any) {
-      console.error('Save Error:', error);
-      v4ToastManager.showError(`Failed to save credentials: ${error.message}`);
-    } finally {
-      setIsSavingCredentials(false);
-    }
-  }, [credentials]);
 
   const handleRetry = useCallback(() => {
     setRetryCount(prev => prev + 1);
@@ -686,10 +669,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 <Button
                   $variant="secondary"
                   onClick={handleSaveCredentials}
-                  disabled={isSavingCredentials}
+                  disabled={isSaving}
                 >
-                  {isSavingCredentials ? <SpinningIcon><FiRefreshCw size={16} /></SpinningIcon> : <FiCheckCircle size={16} />}
-                  {isSavingCredentials ? 'Saving…' : 'Save Credentials'}
+                  {isSaving ? <SpinningIcon><FiRefreshCw size={16} /></SpinningIcon> : <FiCheckCircle size={16} />}
+                  {isSaving ? 'Saving…' : 'Save Credentials'}
                 </Button>
 
                 <NavigationButton
