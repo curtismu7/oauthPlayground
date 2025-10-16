@@ -598,8 +598,18 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
 
   // Auto-discover when environment ID changes (debounced)
   useEffect(() => {
+    console.log('[EnvironmentIdInput] Auto-discovery check:', {
+      autoDiscover,
+      environmentId,
+      envIdLength: environmentId?.length,
+      hasDiscoveryResult: !!discoveryResult,
+      shouldTrigger: autoDiscover && environmentId && environmentId.length > 10 && !discoveryResult
+    });
+    
     if (autoDiscover && environmentId && environmentId.length > 10 && !discoveryResult) {
+      console.log('[EnvironmentIdInput] Triggering auto-discovery in 1 second...');
       const timeoutId = setTimeout(() => {
+        console.log('[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover');
         handleDiscover();
       }, 1000); // 1 second delay
       
