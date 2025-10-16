@@ -21,6 +21,7 @@ export interface CredentialsInputProps {
 	scopes?: string;
 	loginHint?: string;
 	postLogoutRedirectUri?: string;
+	region?: 'us' | 'eu' | 'ap' | 'ca';
 	responseMode?: ResponseMode;
 	flowKey?: 'authorization_code' | 'implicit' | 'hybrid' | 'device' | 'client_credentials';
 	responseType?:
@@ -38,6 +39,7 @@ export interface CredentialsInputProps {
 	onScopesChange?: (value: string) => void;
 	onLoginHintChange?: (value: string) => void;
 	onPostLogoutRedirectUriChange?: (value: string) => void;
+	onRegionChange?: (value: 'us' | 'eu' | 'ap' | 'ca') => void;
 	onResponseModeChange?: (value: ResponseMode) => void;
 	emptyRequiredFields?: Set<string>;
 	showRedirectUri?: boolean;
@@ -197,6 +199,40 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	}
 `;
 
+const FormSelect = styled.select`
+	width: 100%;
+	padding: 0.75rem 0.875rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
+	font-family: inherit;
+	background: #ffffff;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+	cursor: pointer;
+	position: relative;
+	z-index: 10;
+	user-select: none;
+
+	&:hover {
+		border-color: #9ca3af;
+	}
+
+	&:focus {
+		outline: none;
+		border-color: #2563eb;
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+		z-index: 20;
+	}
+
+	&:disabled {
+		background: #f9fafb;
+		color: #6b7280;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+`;
+
 const IconButton = styled.button`
 	position: absolute;
 	background: white;
@@ -262,6 +298,7 @@ export const CredentialsInput = ({
 	scopes = 'openid',
 	loginHint = '',
 	postLogoutRedirectUri = '',
+	region = 'us',
 	responseMode = 'fragment',
 	flowKey = 'authorization_code',
 	responseType = 'code',
@@ -272,6 +309,7 @@ export const CredentialsInput = ({
 	onScopesChange,
 	onLoginHintChange,
 	onPostLogoutRedirectUriChange,
+	onRegionChange,
 	onResponseModeChange,
 	emptyRequiredFields = new Set(),
 	showRedirectUri = true,
@@ -373,6 +411,24 @@ export const CredentialsInput = ({
 								{CopyButtonVariants.identifier(environmentId, 'Environment ID')}
 							</div>
 						)}
+					</div>
+				</FormField>
+
+				<FormField>
+					<FormLabel>
+						Region
+					</FormLabel>
+					<FormSelect
+						value={region}
+						onChange={(e) => onRegionChange?.(e.target.value as 'us' | 'eu' | 'ap' | 'ca')}
+					>
+						<option value="us">US (North America)</option>
+						<option value="eu">EU (Europe)</option>
+						<option value="ap">AP (Asia Pacific)</option>
+						<option value="ca">CA (Canada)</option>
+					</FormSelect>
+					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+						The region where your PingOne environment is hosted.
 					</div>
 				</FormField>
 
