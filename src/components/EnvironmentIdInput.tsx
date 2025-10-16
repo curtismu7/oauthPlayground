@@ -596,6 +596,18 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
     }
   }, [autoDiscover, initialEnvironmentId, discoveryResult, handleDiscover]);
 
+  // Auto-discover when environment ID changes (debounced)
+  useEffect(() => {
+    if (autoDiscover && environmentId && environmentId.length > 10 && !discoveryResult) {
+      const timeoutId = setTimeout(() => {
+        handleDiscover();
+      }, 1000); // 1 second delay
+      
+      return () => clearTimeout(timeoutId);
+    }
+    return undefined;
+  }, [autoDiscover, environmentId, discoveryResult, handleDiscover]);
+
   const renderStatus = () => {
     if (isDiscovering) {
       return (
@@ -664,7 +676,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
             onKeyPress={handleKeyPress}
             placeholder="your-environment-id"
             hasError={!!error}
-            hasSuccess={discoveryResult?.success}
+            hasSuccess={discoveryResult?.success || false}
             disabled={disabled || isDiscovering}
           />
           
