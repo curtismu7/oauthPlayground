@@ -1806,8 +1806,6 @@ const OIDCDeviceAuthorizationFlowV6: React.FC = () => {
 			<FlowContent>
 				<StandardFlowHeader flowId="oidc-device-authorization-v6" />
 				
-				{UISettingsService.getFlowSpecificSettingsPanel('device-authorization')}
-				
 				<FlowInfoCard flowInfo={getFlowInfo('device-code')!} />
 				<FlowSequenceDisplay flowType="device-authorization" />
 				{renderStepContent()}

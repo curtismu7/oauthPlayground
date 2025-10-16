@@ -45,12 +45,12 @@ const UrlContent = styled.div`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	word-break: break-word; /* Changed from break-all to break-word for better readability */
-	white-space: pre-wrap;
+	word-break: break-all; /* Allow URLs to break and wrap within the container */
+	white-space: normal; /* Allow wrapping to fit within the box */
 	position: relative;
 	min-height: ${({ height }) => height || '150px'};
-	overflow-x: auto; /* Allow horizontal scrolling for long URLs */
-	overflow-y: hidden;
+	overflow-x: hidden; /* Hide horizontal scroll since we're wrapping */
+	overflow-y: auto; /* Allow vertical scrolling if content is too tall */
 	max-width: 100%;
 	width: 100%; /* Ensure full width usage */
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

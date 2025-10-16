@@ -412,7 +412,7 @@ export const MFAChallengeFormV6: React.FC<MFAChallengeFormProps> = ({
     setError(null);
 
     try {
-      const validation = await PingOneMfaService.activateDevice(
+      const validation = await PingOneMfaService.activateDeviceWithCode(
         credentials,
         selectedDevice.id,
         { totpCode }

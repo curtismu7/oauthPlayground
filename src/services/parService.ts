@@ -74,16 +74,27 @@ export class PARService {
 				jsonBody = requestBody;
 			}
 
+			// Extract environment ID from baseUrl (format: https://auth.pingone.com/{envId})
+			const environmentId = this.baseUrl.split('/').pop();
+			
+			const backendRequestBody = {
+				environment_id: environmentId,
+				...jsonBody,
+			};
+			
+			logger.info('PARService', 'Sending PAR request to backend', {
+				parUrl,
+				environmentId,
+				requestBody: { ...backendRequestBody, client_secret: backendRequestBody.client_secret ? '[REDACTED]' : undefined },
+			});
+			
 			const response = await fetch(parUrl, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Accept: 'application/json',
 				},
-				body: JSON.stringify({
-					environment_id: this.baseUrl.split('/').pop(), // Extract environment ID from baseUrl
-					...jsonBody,
-				}),
+				body: JSON.stringify(backendRequestBody),
 			});
 
 			if (!response.ok) {

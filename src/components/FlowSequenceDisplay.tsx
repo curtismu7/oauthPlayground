@@ -207,21 +207,7 @@ const BenefitItem = styled.li`
 
 
 interface FlowSequenceDisplayProps {
-	flowType:
-		| 'device-authorization'
-		| 'authorization-code'
-		| 'implicit'
-		| 'client-credentials'
-		| 'resource-owner-password'
-		| 'ciba'
-		| 'redirectless'
-		| 'hybrid'
-		| 'jwt-bearer'
-		| 'worker-token'
-		| 'token-introspection'
-		| 'token-revocation'
-		| 'user-info'
-		| 'rar';
+	flowType: string;
 }
 
 export const FlowSequenceDisplay: React.FC<FlowSequenceDisplayProps> = ({ flowType }) => {

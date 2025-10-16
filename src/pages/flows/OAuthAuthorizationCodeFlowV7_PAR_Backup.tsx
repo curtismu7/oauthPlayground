@@ -39,7 +39,6 @@ import {
 	SectionDivider,
 } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
@@ -88,11 +87,8 @@ const MainCard = styled.div`
 	overflow: hidden;
 `;
 
-const StepHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
-	};
+const StepHeader = styled.div`
+	background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
@@ -106,20 +102,11 @@ const StepHeaderLeft = styled.div`
 	gap: 0.5rem;
 `;
 
-const VersionBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
+const VersionBadge = styled.span`
 	align-self: flex-start;
-	background: ${props => props.$variant === 'oidc' 
-		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(22, 163, 74, 0.2)'
-	};
-	border: 1px solid ${props => props.$variant === 'oidc' 
-		? '#60a5fa' 
-		: '#4ade80'
-	};
-	color: ${props => props.$variant === 'oidc' 
-		? '#dbeafe' 
-		: '#bbf7d0'
-	};
+	background: rgba(22, 163, 74, 0.2);
+	border: 1px solid #4ade80;
+	color: #bbf7d0;
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -2703,19 +2690,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 		case 6:
 			return (
-				<EnhancedSecurityFeaturesDemo
+				<SecurityFeaturesDemo
 					tokens={controller.tokens as unknown as Record<string, unknown> | null}
 					credentials={controller.credentials as unknown as Record<string, unknown>}
-					pingOneConfig={pingOneConfig}
 					onTerminateSession={() => {
-						console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
+						console.log('🚪 Session terminated via SecurityFeaturesDemo');
 						v4ToastManager.showSuccess('Session termination completed.');
 					}}
 					onRevokeTokens={() => {
-						console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
+						console.log('❌ Tokens revoked via SecurityFeaturesDemo');
 						v4ToastManager.showSuccess('Token revocation completed.');
 					}}
-					flowType="oauth-authorization-code-v7"
 				/>
 			);
 
@@ -2783,6 +2768,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-authorization-code-v7" />
 
+				{UISettingsService.getFlowSpecificSettingsPanel(flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code')}
+
 				<EnhancedFlowInfoCard
 					flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}
 					showAdditionalInfo={true}
@@ -2792,9 +2779,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				/>
 
 				<MainCard>
-					<StepHeader $variant={flowVariant}>
+					<StepHeader>
 						<StepHeaderLeft>
-							<VersionBadge $variant={flowVariant}>Authorization Code Flow · V7 Unified</VersionBadge>
+							<VersionBadge>Authorization Code Flow · V7 Unified</VersionBadge>
 							<StepHeaderTitle>
 								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
 							</StepHeaderTitle>

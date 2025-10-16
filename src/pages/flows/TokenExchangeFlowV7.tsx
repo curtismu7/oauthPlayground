@@ -178,7 +178,7 @@ const CollapsibleHeaderButton = styled.button`
 	align-items: center;
 	justify-content: space-between;
 	width: 100%;
-	padding: 1.25rem 1.5rem;
+	padding: 1.5rem 1.75rem;
 	background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
 	border: none;
 	border-radius: 0.75rem;
@@ -187,6 +187,9 @@ const CollapsibleHeaderButton = styled.button`
 	font-weight: 600;
 	color: #374151;
 	transition: background 0.2s ease;
+	line-height: 1.4;
+	min-height: 72px;
+	gap: 0.75rem;
 
 	&:hover {
 		background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);

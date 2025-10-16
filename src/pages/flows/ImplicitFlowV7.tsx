@@ -90,6 +90,29 @@ const {
 	HighlightBadge,
 } = FlowUIService.getFlowUIComponents();
 
+// Local styled components with dynamic colors
+const DynamicStepHeader = styled(StepHeader)<{ $variant: 'oauth' | 'oidc' }>`
+	background: ${props => props.$variant === 'oidc' 
+		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
+		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
+	};
+`;
+
+const DynamicVersionBadge = styled(VersionBadge)<{ $variant: 'oauth' | 'oidc' }>`
+	background: ${props => props.$variant === 'oidc' 
+		? 'rgba(59, 130, 246, 0.2)' 
+		: 'rgba(22, 163, 74, 0.2)'
+	};
+	border: 1px solid ${props => props.$variant === 'oidc' 
+		? '#60a5fa' 
+		: '#4ade80'
+	};
+	color: ${props => props.$variant === 'oidc' 
+		? '#dbeafe' 
+		: '#bbf7d0'
+	};
+`;
+
 // Local CollapsibleToggleIcon that accepts children
 const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
 	display: inline-flex;
@@ -239,6 +262,16 @@ const ImplicitFlowV7: React.FC = () => {
 		// Reset to step 0 when switching variants
 		setCurrentStep(0);
 		controller.resetFlow();
+		
+		// Update credentials based on variant (PingOne requires openid for both)
+		setCredentials(prev => ({
+			...prev,
+			scope: variant === 'oidc' ? 'openid profile email' : 'openid',
+			scopes: variant === 'oidc' ? 'openid profile email' : 'openid',
+			responseType: variant === 'oidc' ? 'id_token token' : 'token',
+		}));
+		
+		v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
 	}, [controller]);
 
 	const renderVariantSelector = () => (
@@ -268,8 +301,6 @@ const ImplicitFlowV7: React.FC = () => {
 
 		return (
 			<>
-				{renderVariantSelector()}
-
 				<CollapsibleSection>
 					<CollapsibleHeaderButton
 						onClick={() => toggleSection('overview')}
@@ -486,7 +517,7 @@ const ImplicitFlowV7: React.FC = () => {
 													<StrongText>Tokens:</StrongText> {selectedVariant === 'oidc' ? 'Access Token + ID Token' : 'Access Token only'}
 												</li>
 												<li>
-													<StrongText>Scopes:</StrongText> {selectedVariant === 'oidc' ? 'openid required' : 'Custom scopes only'}
+													<StrongText>Scopes (PingOne):</StrongText> {selectedVariant === 'oidc' ? 'openid required (OIDC spec)' : 'openid required (PingOne-specific) + custom scopes'}
 												</li>
 											</InfoList>
 										</div>
@@ -978,10 +1009,13 @@ const ImplicitFlowV7: React.FC = () => {
 					showImplementationNotes={true}
 				/>
 
+				{/* V7 Variant Selector */}
+				{renderVariantSelector()}
+
 				<MainCard>
-					<StepHeader>
+					<DynamicStepHeader $variant={selectedVariant}>
 						<StepHeaderLeft>
-							<VersionBadge>V7</VersionBadge>
+							<DynamicVersionBadge $variant={selectedVariant}>V7</DynamicVersionBadge>
 							<div>
 								<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
 								<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
@@ -991,7 +1025,7 @@ const ImplicitFlowV7: React.FC = () => {
 							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
 							<StepTotal>of {STEP_METADATA.length}</StepTotal>
 						</StepHeaderRight>
-					</StepHeader>
+					</DynamicStepHeader>
 
 					<StepContentWrapper>
 						{renderStepContent}

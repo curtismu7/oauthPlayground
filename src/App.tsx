@@ -11,6 +11,7 @@ import './styles/ui-settings.css';
 import './styles/sidebar-v6-forces.css';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import DynamicHeaderExample from './components/DynamicHeaderExample';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
 import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
@@ -93,6 +94,9 @@ import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
 import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
+import OAuthAuthorizationCodeFlowV7_Condensed_Mock from './pages/flows/OAuthAuthorizationCodeFlowV7_Condensed_Mock';
+import V7CondensedMock from './pages/flows/V7CondensedMock';
+import TestMock from './pages/flows/TestMock';
 import TokenExchangeFlowV7 from './pages/flows/TokenExchangeFlowV7';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
@@ -336,6 +340,7 @@ const AppRoutes = () => {
 							<Route path="/" element={<Navigate to="/dashboard" replace />} />
 							<Route path="/dashboard" element={<Dashboard />} />
 							<Route path="/sidebar-test" element={<SidebarTest />} />
+							<Route path="/dynamic-header-demo" element={<DynamicHeaderExample />} />
 							<Route path="/flows" element={<OAuthFlowsNew />}>
 								<Route path="compare" element={<FlowComparisonTool />} />
 								<Route path="diagrams" element={<InteractiveFlowDiagram />} />
@@ -351,6 +356,22 @@ const AppRoutes = () => {
 						<Route
 							path="/flows/oauth-authorization-code-v7"
 							element={<OAuthAuthorizationCodeFlowV7 />}
+						/>
+						<Route
+							path="/flows/oauth-authorization-code-v7-mock"
+							element={<TestMock />}
+						/>
+						<Route
+							path="/flows/oauth-authorization-code-v7-condensed-mock"
+							element={<OAuthAuthorizationCodeFlowV7_Condensed_Mock />}
+						/>
+						<Route
+							path="/flows/v7-condensed-mock"
+							element={<V7CondensedMock />}
+						/>
+						<Route
+							path="/flows/test-mock"
+							element={<TestMock />}
 						/>
 						{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
 						<Route

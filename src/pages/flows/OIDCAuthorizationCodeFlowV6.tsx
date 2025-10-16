@@ -33,6 +33,7 @@ import {
 	SectionDivider,
 } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
+import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
@@ -2451,17 +2452,19 @@ const [currentStep, setCurrentStep] = useState(
 
 		case 8:
 				return (
-					<SecurityFeaturesDemo
+					<EnhancedSecurityFeaturesDemo
 						tokens={controller.tokens as unknown as Record<string, unknown> | null}
 						credentials={controller.credentials as unknown as Record<string, unknown>}
+						pingOneConfig={pingOneConfig}
 						onTerminateSession={() => {
-							console.log('🚪 Session terminated via SecurityFeaturesDemo');
+							console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
 							v4ToastManager.showSuccess('Session termination completed.');
 						}}
 						onRevokeTokens={() => {
-							console.log('❌ Tokens revoked via SecurityFeaturesDemo');
+							console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
 							v4ToastManager.showSuccess('Token revocation completed.');
 						}}
+						flowType="oidc-authorization-code-v6"
 					/>
 				);
 
@@ -2513,8 +2516,6 @@ const [currentStep, setCurrentStep] = useState(
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oidc-authorization-code-v6" />
-
-				{UISettingsService.getFlowSpecificSettingsPanel('oidc-authorization-code')}
 
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />

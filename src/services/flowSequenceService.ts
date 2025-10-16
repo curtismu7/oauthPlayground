@@ -519,10 +519,45 @@ const flowSequences: Record<FlowType, FlowSequence> = {
 };
 
 /**
+ * Normalize extended flow type identifiers to known FlowType keys
+ */
+function normalizeFlowType(flowType: string): FlowType | null {
+    const normalizedMap: Record<string, FlowType> = {
+        'oauth-authorization-code': 'authorization-code',
+        'oidc-authorization-code': 'authorization-code',
+        'oauth-authorization-code-v7': 'authorization-code',
+        'oidc-authorization-code-v7': 'authorization-code',
+        'oauth-device-authorization': 'device-authorization',
+        'oidc-device-authorization': 'device-authorization',
+        'device-authorization-flow-v7': 'device-authorization',
+        'oidc-device-authorization-flow-v7': 'device-authorization',
+        'oauth-implicit': 'implicit',
+        'oidc-implicit': 'implicit',
+        'oauth-implicit-v7': 'implicit',
+        'oidc-implicit-v7': 'implicit',
+    };
+
+    if (normalizedMap[flowType]) {
+        return normalizedMap[flowType];
+    }
+
+    const trimmed = flowType.replace(/-v\d+$/i, '') as FlowType;
+    if (flowSequences[trimmed]) {
+        return trimmed;
+    }
+
+    return (flowSequences as Record<string, FlowSequence>)[flowType] ? (flowType as FlowType) : null;
+}
+
+/**
  * Get flow sequence data for a specific flow type
  */
-export function getFlowSequence(flowType: FlowType): FlowSequence | null {
-	return flowSequences[flowType] || null;
+export function getFlowSequence(flowType: string): FlowSequence | null {
+    const normalized = normalizeFlowType(flowType);
+    if (!normalized) {
+        return null;
+    }
+    return flowSequences[normalized] || null;
 }
 
 /**
