@@ -336,6 +336,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [retryCount, setRetryCount] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [flowContext, setFlowContext] = useState<FlowContext>({
     flowId: '',
     userDevices: [],
@@ -437,6 +439,48 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     } else {
       console.log('[CompleteMFAFlowV7] Discovery result was not successful and had no error:', result);
     }
+  }, []);
+
+  // Handle saving credentials
+  const handleSaveCredentials = useCallback(async () => {
+    setIsSaving(true);
+    try {
+      console.log('[CompleteMFAFlowV7] Saving credentials:', credentials);
+      
+      // Save to credential manager
+      await credentialManager.saveCredentials({
+        environmentId: credentials.environmentId,
+        clientId: credentials.clientId,
+        clientSecret: credentials.clientSecret,
+        redirectUri: credentials.redirectUri,
+        scopes: ['openid', 'profile', 'email']
+      });
+      
+      setHasUnsavedChanges(false);
+      v4ToastManager.showSuccess('Credentials saved successfully');
+      console.log('[CompleteMFAFlowV7] Credentials saved successfully');
+    } catch (error) {
+      console.error('[CompleteMFAFlowV7] Failed to save credentials:', error);
+      v4ToastManager.showError('Failed to save credentials');
+    } finally {
+      setIsSaving(false);
+    }
+  }, [credentials]);
+
+  // Handle credential changes and track unsaved changes
+  const handleEnvironmentIdChange = useCallback((value: string) => {
+    setCredentials(prev => ({ ...prev, environmentId: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleClientIdChange = useCallback((value: string) => {
+    setCredentials(prev => ({ ...prev, clientId: value }));
+    setHasUnsavedChanges(true);
+  }, []);
+
+  const handleClientSecretChange = useCallback((value: string) => {
+    setCredentials(prev => ({ ...prev, clientSecret: value }));
+    setHasUnsavedChanges(true);
   }, []);
 
   const handleUsernameLogin = useCallback(async () => {
@@ -557,11 +601,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 clientId={credentials.clientId}
                 clientSecret={credentials.clientSecret}
                 scopes="openid profile email"
-                onEnvironmentIdChange={(value) => setCredentials(prev => ({ ...prev, environmentId: value }))}
-                onClientIdChange={(value) => setCredentials(prev => ({ ...prev, clientId: value }))}
-                onClientSecretChange={(value) => setCredentials(prev => ({ ...prev, clientSecret: value }))}
+                onEnvironmentIdChange={handleEnvironmentIdChange}
+                onClientIdChange={handleClientIdChange}
+                onClientSecretChange={handleClientSecretChange}
                 onScopesChange={() => {}}
                 onDiscoveryComplete={handleDiscoveryComplete}
+                onSave={handleSaveCredentials}
+                hasUnsavedChanges={hasUnsavedChanges}
+                isSaving={isSaving}
                 showClientSecret={true}
                 showEnvironmentIdInput={true}
                 showRedirectUri={false}
