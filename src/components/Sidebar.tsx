@@ -29,7 +29,6 @@ import {
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { isFlowMigrated } from '../config/migrationStatus';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Colored icon wrapper component for sidebar menu
@@ -332,7 +331,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	});
 
 	// Helper function to get V6 flow hover styles
-	const getV6FlowHoverStyles = (isActive: boolean) => ({
+	const getV6FlowHoverStyles = () => ({
 		background: '#bbf7d0', // Light green hover
 		color: '#15803d', // Dark green text
 		transform: 'translateX(2px)',
@@ -343,18 +342,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const createV6MenuItemProps = (path: string, additionalPaths: string[] = []) => {
 		const isActiveState = isActive(path) || additionalPaths.some(p => isActive(p));
 		return {
-			className: "v6-flow",
-			style: getV6FlowStyles(isActiveState),
-			onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
-				if (!isActiveState) {
-					Object.assign(e.currentTarget.style, getV6FlowHoverStyles(false));
-				}
-			},
-			onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
-				if (!isActiveState) {
-					Object.assign(e.currentTarget.style, getV6FlowStyles(false));
-				}
-			}
+			className: 'v6-flow',
+			style: getV6FlowStyles(isActiveState)
 		};
 	};
 
@@ -387,7 +376,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const isActive = (path: string) => location.pathname === path;
 
 	// Get friendly flow name from path for toast notification
-	const getFlowName = (path: string): string => {
+	const getFlowName = (path: string): string | undefined => {
 		const flowNames: Record<string, string> = {
 			'/dashboard': 'Dashboard',
 			'/configuration': 'Configuration',
@@ -400,6 +389,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/oidc-hybrid-v6': 'OIDC Hybrid Flow',
 			'/flows/implicit-v7': 'Unified Implicit Flow V7',
 			'/flows/client-credentials-v6': 'Client Credentials',
+			'/flows/client-credentials-v7': 'Client Credentials (V7)',
 			'/flows/device-authorization-v6': 'Device Authorization',
 			'/flows/oidc-device-authorization-v6': 'OIDC Device Authorization',
 			'/flows/worker-token-v6': 'Worker Token',
@@ -414,7 +404,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/pingone-authentication': 'PingOne Authentication',
 			'/pingone-mock-features': 'PingOne Mock Features',
 		};
-		return flowNames[path] || 'Flow';
+		return flowNames[path];
 	};
 
 	const handleNavigation = (path: string) => {
@@ -424,8 +414,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		if (location.pathname !== path) {
 			const flowName = getFlowName(path);
 			console.log('Flow name:', flowName);
-			// Show brief toast notification using showSuccess (no showInfo method exists)
-			v4ToastManager.showSuccess(`Switched to ${flowName}`, {}, { duration: 1500 });
+			if (!flowName && path.startsWith('/flows/')) {
+				v4ToastManager.showError('Unable to locate that flow. Please verify the menu configuration.');
+				return;
+			}
+			if (flowName) {
+				// Show brief toast notification using showSuccess (no showInfo method exists)
+				v4ToastManager.showSuccess(`Switched to ${flowName}`, {}, { duration: 1500 });
+			}
 		}
 		
 		// Navigate immediately without scrolling the menu
@@ -436,78 +432,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		}, 150);
 	};
 
-	const scrollMenuItemToCenter = (path: string) => {
-		console.log('[Sidebar] Attempting to scroll to center for path:', path);
-
-		// Find the menu item element that corresponds to this path
-		const menuItems = document.querySelectorAll('.ps-menu-button, [role="menuitem"]');
-		let targetElement: Element | null = null;
-		let matchReason = '';
-
-		menuItems.forEach((item) => {
-			const itemText = item.textContent?.toLowerCase().trim() || '';
-			const pathLower = path.toLowerCase();
-
-			console.log('[Sidebar] Checking menu item:', itemText, 'for path:', pathLower);
-
-			// Check for exact path matches in various formats
-			if (path === '/dashboard' && itemText.includes('dashboard')) {
-				targetElement = item;
-				matchReason = 'dashboard match';
-			} else if (path === '/configuration' && itemText.includes('setup')) {
-				targetElement = item;
-				matchReason = 'configuration match';
-			} else if (path.includes('/flows/')) {
-				const flowType = path.split('/').pop() || '';
-				// Check if the flow type appears in the menu item text
-				if (itemText.includes(flowType.replace(/[-_]/g, '')) ||
-				    itemText.includes(flowType.split('-')[0]) ||
-				    itemText.includes('flow')) {
-					targetElement = item;
-					matchReason = `flow match: ${flowType}`;
-				}
-			} else if (pathLower.includes(itemText.replace(/\s+/g, ''))) {
-				targetElement = item;
-				matchReason = 'path contains text';
-			}
-		});
-
-		console.log('[Sidebar] Found target element:', targetElement, 'Reason:', matchReason);
-
-		if (targetElement) {
-			// Get the sidebar container
-			const sidebarContainer = document.querySelector('.ps-sidebar-root');
-			if (sidebarContainer) {
-				const containerRect = sidebarContainer.getBoundingClientRect();
-				const itemRect = targetElement.getBoundingClientRect();
-
-				// Calculate position to center the item
-				const scrollTop = sidebarContainer.scrollTop;
-				const containerHeight = containerRect.height;
-				const itemHeight = itemRect.height;
-
-				// Calculate the center position
-				const centerPosition = scrollTop + itemRect.top - containerRect.top - (containerHeight / 2) + (itemHeight / 2);
-
-				console.log('[Sidebar] Scrolling to position:', centerPosition, {
-					scrollTop,
-					containerHeight,
-					itemHeight,
-					itemTop: itemRect.top,
-					containerTop: containerRect.top
-				});
-
-				sidebarContainer.scrollTo({
-					top: centerPosition,
-					behavior: 'smooth'
-				});
-			} else {
-				console.log('[Sidebar] Sidebar container not found');
-			}
-		} else {
-			console.log('[Sidebar] No matching menu item found for path:', path);
-		}
-	};
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		isResizing.current = true;
@@ -1161,6 +1085,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							onClick={() => handleNavigation('/tutorials')}
 						>
 							Interactive Tutorials
+						</MenuItem>
+						<MenuItem
+							icon={<FiExternalLink />}
+							onClick={() => {
+								window.open('https://docs.google.com/presentation/d/1xiLl0VdrlNMAei8pmaX4ojIOfej6lhvZbOIK7Z6C-Go/edit?usp=sharing', '_blank');
+								onClose();
+							}}
+						>
+							State of AI Report - 2025 ONLINE
 						</MenuItem>
 					</SubMenu>
 					<SubMenu

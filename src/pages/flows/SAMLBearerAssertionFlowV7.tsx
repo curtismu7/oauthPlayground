@@ -4,45 +4,27 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import {
-	FiAlertCircle,
 	FiAlertTriangle,
 	FiCheckCircle,
-	FiChevronDown,
 	FiCopy,
-	FiExternalLink,
 	FiGlobe,
 	FiInfo,
-	FiKey,
 	FiPackage,
 	FiRefreshCw,
 	FiSend,
 	FiSettings,
-	FiShield,
-	FiCode,
-	FiClock,
 	FiEye,
 	FiEyeOff,
 	FiUsers,
 } from 'react-icons/fi';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
-import EducationalContentService from '../../services/educationalContentService';
-import TokenDisplayService from '../../services/tokenDisplayService';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { FlowCompletionService } from '../../services/flowCompletionService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { CopyButtonService } from '../../services/copyButtonService';
-import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
 import SAMLAssertionService from '../../services/samlAssertionService';
-import SAMLIssuerService from '../../services/samlIssuerService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { credentialManager } from '../../utils/credentialManager';
-
-const LOG_PREFIX = '[🏢 SAML-BEARER-V6]';
 
 // Styled Components (reusing from JWT Bearer Flow)
 const Container = styled.div`
@@ -113,19 +95,6 @@ const InfoText = styled.div`
 	}
 `;
 
-const InfoList = styled.ul`
-	margin: 0.5rem 0;
-	padding-left: 1.5rem;
-	
-	li {
-		margin-bottom: 0.5rem;
-		
-		&:last-child {
-			margin-bottom: 0;
-		}
-	}
-`;
-
 const FormGroup = styled.div`
 	margin-bottom: 1.5rem;
 `;
@@ -161,24 +130,6 @@ const Helper = styled.div`
 	line-height: 1.4;
 `;
 
-const Textarea = styled.textarea`
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	min-height: 120px;
-	resize: vertical;
-	transition: border-color 0.2s ease-in-out;
-
-	&:focus {
-		outline: none;
-		border-color: #3b82f6;
-		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-	}
-`;
-
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
@@ -210,18 +161,6 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 			border-color: #9ca3af;
 		}
 	`}
-`;
-
-const CodeBlock = styled.pre`
-	background: #1e293b;
-	color: #e2e8f0;
-	padding: 1rem;
-	border-radius: 0.5rem;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	overflow-x: auto;
-	margin: 1rem 0;
-	border: 1px solid #334155;
 `;
 
 const GeneratedContentBox = styled.div`
@@ -265,52 +204,31 @@ interface SAMLAssertion {
 		notBefore: string;
 		notOnOrAfter: string;
 	};
-	attributes: Record<string, string[]>;
+	attributes: Record<string, string>;
 }
 
-// Educational Content
-const SAMLBearerEducationalContent = {
-	overview: {
-		title: 'SAML Bearer Flow',
-		description: 'Securely obtain access tokens using SAML assertions from your identity provider.',
-		useCases: [
-			'Enterprise single sign-on (SSO)',
-			'Integrating with existing SAML providers',
-			'Corporate authentication systems'
-		]
-	},
-	security: {
-		title: 'Security',
-		description: 'Uses digital signatures and trusted identity providers for secure authentication.',
-		features: [
-			'Digital signature protection',
-			'Trusted identity providers',
-			'Configurable security settings'
-		]
-	},
-	implementation: {
-		title: 'How It Works',
-		description: 'Exchange a SAML assertion for an access token in three simple steps:',
-		steps: [
-			'Get SAML assertion from your identity provider',
-			'Submit it to the token endpoint',
-			'Receive your access token'
-		]
-	}
+// Main Component
+const completionConfig = {
+	flowName: 'SAML Bearer Assertion (Mock)',
+	flowDescription: 'You generated a mock SAML assertion and simulated exchanging it for an access token.',
+	completedSteps: [
+		{ completed: true, description: 'Configured SAML issuer, subject, and audience' },
+		{ completed: true, description: 'Generated mock SAML assertion' },
+		{ completed: true, description: 'Simulated token request with SAML assertion' }
+	],
+	nextSteps: [
+		'Implement assertion signing using enterprise IdP keys',
+		'Validate SAML assertion signature and timing windows',
+		'Integrate with an OAuth server that supports SAML bearer assertions'
+	]
 };
 
-// Main Component
 const SAMLBearerAssertionFlowV7: React.FC = () => {
 	// Scroll management
 	usePageScroll();
 
 	// State management
-	const [currentStep, setCurrentStep] = useState(0);
 	const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({
-		comparison: false,
-		overview: false,
-		security: false,
-		implementation: false,
 		credentials: false,
 		samlBuilder: false,
 		tokenRequest: false,
@@ -319,19 +237,91 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 	});
 
 	// SAML Configuration
-	const [environmentId, setEnvironmentId] = useState('');
-	const [clientId, setClientId] = useState('');
-	const [tokenEndpoint, setTokenEndpoint] = useState('');
-	const [identityProvider, setIdentityProvider] = useState('');
-	const [scopes, setScopes] = useState('');
+	const [environmentId, setEnvironmentId] = useState('1234567890abcdef1234567890abcdef');
+	const [clientId, setClientId] = useState('mock-saml-bearer-client');
+	const [tokenEndpoint, setTokenEndpoint] = useState('https://auth.mock.pingone.com/mock-environment/as/token');
+	const [identityProvider, setIdentityProvider] = useState('Mock Identity Provider Co.');
 
 	// SAML Assertion
-	const [samlAssertion, setSamlAssertion] = useState<SAMLAssertion>(SAMLAssertionService.getDefaultSAMLAssertion());
+	const [samlAssertion, setSamlAssertion] = useState<SAMLAssertion>(() => {
+		const now = new Date();
+		const notBefore = new Date(now.getTime() - 5 * 60 * 1000).toISOString();
+		const notOnOrAfter = new Date(now.getTime() + 15 * 60 * 1000).toISOString();
+		return {
+			issuer: 'https://idp.mock.pingone.com/mock-environment',
+			subject: 'mock.user@example.com',
+			audience: 'https://auth.mock.pingone.com/mock-environment/as/token',
+			conditions: {
+				notBefore,
+				notOnOrAfter
+			},
+			attributes: {
+				email: 'mock.user@example.com',
+				given_name: 'Mock',
+				family_name: 'User',
+				role: 'API Administrator'
+			}
+		};
+	});
 
 	// Generated SAML Assertion
 	const [generatedSAML, setGeneratedSAML] = useState('');
+	const [showDecodedSAML, setShowDecodedSAML] = useState(false);
 	const [tokenResponse, setTokenResponse] = useState<any>(null);
 	const [isLoading, setIsLoading] = useState(false);
+
+	const normalizeAttributes = useCallback((attributes: Record<string, string | string[]> | undefined) => {
+		if (!attributes) {
+			return {} as Record<string, string>;
+		}
+
+		return Object.entries(attributes).reduce<Record<string, string>>((acc, [key, value]) => {
+			if (Array.isArray(value)) {
+				acc[key] = value.join(', ');
+			} else if (typeof value === 'string') {
+				acc[key] = value;
+			}
+			return acc;
+		}, {});
+	}, []);
+
+	const base64SAML = useMemo(() => {
+		if (!generatedSAML) {
+			return '';
+		}
+		try {
+			return typeof window !== 'undefined' && window.btoa ? window.btoa(generatedSAML) : btoa(generatedSAML);
+		} catch (error) {
+			console.error('[SAML Bearer] Failed to encode SAML assertion to Base64:', error);
+			return '';
+		}
+	}, [generatedSAML]);
+
+	const decodedSAMLFromBase64 = useMemo(() => {
+		if (!showDecodedSAML || !base64SAML) {
+			return '';
+		}
+		try {
+			return typeof window !== 'undefined' && window.atob ? window.atob(base64SAML) : atob(base64SAML);
+		} catch (error) {
+			console.error('[SAML Bearer] Failed to decode Base64 SAML assertion:', error);
+			return '';
+		}
+	}, [showDecodedSAML, base64SAML]);
+
+	const copyToClipboard = useCallback(async (text: string, label: string) => {
+		if (!text) {
+			v4ToastManager.showWarning(`No ${label} available to copy.`);
+			return;
+		}
+		try {
+			await navigator.clipboard.writeText(text);
+			v4ToastManager.showSuccess(`${label} copied to clipboard.`);
+		} catch (error) {
+			console.error('[SAML Bearer] Failed to copy to clipboard:', error);
+			v4ToastManager.showError(`Unable to copy ${label}.`);
+		}
+	}, []);
 
 	// Toggle section handler
 	const toggleSection = useCallback((section: string) => {
@@ -351,33 +341,24 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 
 			try {
 				console.log('[SAML Bearer] Fetching OIDC Discovery for environment:', environmentId);
-				
-				// Construct issuer URL from environment ID
 				const issuerUrl = `https://auth.pingone.com/${environmentId}/as`;
-				
 				const result = await oidcDiscoveryService.discover({ issuerUrl });
-				
-		if (result.success && result.document) {
-			console.log('[SAML Bearer] OIDC Discovery successful:', result.document);
-			
-			// Auto-populate Token Endpoint (always update from discovery)
-			if (result.document.token_endpoint) {
-				setTokenEndpoint(result.document.token_endpoint);
-				console.log('[SAML Bearer] Token endpoint auto-populated:', result.document.token_endpoint);
-			}
-			
-			// Auto-populate SAML Assertion fields from OIDC Discovery (always update from discovery)
-			if (result.document.issuer) {
-				setSamlAssertion(prev => ({
-					...prev,
-					issuer: result.document.issuer,
-					audience: result.document.issuer
-				}));
-				console.log('[SAML Bearer] Issuer and Audience auto-populated:', result.document.issuer);
-			}
-			
-			v4ToastManager.showSuccess('Endpoints and SAML fields auto-populated from OIDC Discovery');
-		}
+				if (result.success && result.document) {
+					const { token_endpoint, issuer } = result.document;
+					if (token_endpoint) {
+						setTokenEndpoint(token_endpoint);
+						console.log('[SAML Bearer] Token endpoint auto-populated:', token_endpoint);
+					}
+					if (issuer) {
+						setSamlAssertion(prev => ({
+							...prev,
+							issuer,
+							audience: issuer
+						}));
+						console.log('[SAML Bearer] Issuer and Audience auto-populated:', issuer);
+					}
+					v4ToastManager.showSuccess('Endpoints and SAML fields auto-populated from OIDC Discovery');
+				}
 			} catch (error) {
 				console.warn('[SAML Bearer] OIDC Discovery failed:', error);
 				// Don't show error toast - user can manually enter endpoints
@@ -416,7 +397,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 			clientId,
 			tokenEndpoint,
 			identityProvider,
-			scopes,
+			scopes: '',
 			samlAssertion
 		};
 
@@ -434,7 +415,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 			console.error('[SAML Bearer] Error generating SAML assertion:', error);
 			v4ToastManager.showError('Failed to generate SAML assertion');
 		}
-	}, [clientId, tokenEndpoint, identityProvider, scopes, samlAssertion]);
+	}, [clientId, tokenEndpoint, identityProvider, samlAssertion]);
 
 	// Save SAML configuration using service
 	const saveSAMLConfiguration = useCallback(async () => {
@@ -442,7 +423,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 			clientId,
 			tokenEndpoint,
 			identityProvider,
-			scopes,
+			scopes: '',
 			samlAssertion
 		};
 		
@@ -451,7 +432,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 		} catch (error) {
 			console.error('[SAML Bearer] Error saving configuration:', error);
 		}
-	}, [clientId, tokenEndpoint, identityProvider, scopes, samlAssertion]);
+	}, [clientId, tokenEndpoint, identityProvider, samlAssertion]);
 
 	// Load SAML configuration using service
 	const loadSAMLConfiguration = useCallback(() => {
@@ -461,14 +442,29 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				setClientId(config.clientId || '');
 				setTokenEndpoint(config.tokenEndpoint || '');
 				setIdentityProvider(config.identityProvider || '');
-				setScopes(config.scopes || '');
-				setSamlAssertion(config.samlAssertion || SAMLAssertionService.getDefaultSAMLAssertion());
+				if (config.samlAssertion) {
+					setSamlAssertion({
+						...config.samlAssertion,
+						attributes: normalizeAttributes(config.samlAssertion.attributes)
+					});
+				} else {
+					setSamlAssertion({
+						issuer: '',
+						subject: '',
+						audience: '',
+						conditions: {
+							notBefore: '',
+							notOnOrAfter: ''
+						},
+						attributes: {}
+					});
+				}
 				v4ToastManager.showSuccess('SAML configuration loaded from saved settings');
 			}
 		} catch (error) {
 			console.error('[SAML Bearer] Error loading configuration:', error);
 		}
-	}, []);
+	}, [normalizeAttributes]);
 
 	// Load comprehensive credentials on mount
 	useEffect(() => {
@@ -481,7 +477,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 					console.log('[SAML Bearer] Loading credentials from comprehensive system:', comprehensiveCredentials);
 					setEnvironmentId(comprehensiveCredentials.environmentId);
 					setClientId(comprehensiveCredentials.clientId || '');
-					setScopes(comprehensiveCredentials.scopes || 'openid profile email');
+					console.log('[SAML Bearer] Comprehensive credentials loaded for mock flow.');
 					
 					// Auto-populate token endpoint from environment ID
 					const tokenEndpointUrl = `https://auth.pingone.com/${comprehensiveCredentials.environmentId}/as/token`;
@@ -519,14 +515,12 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				access_token: 'mock_saml_bearer_token_' + Math.random().toString(36).substr(2, 32),
 				token_type: 'Bearer',
 				expires_in: 3600,
-				scope: scopes || 'read write',
 				_mock: true, // Indicator that this is a mock response
 				_note: 'This is a simulated response for educational purposes. PingOne does not support SAML Bearer assertions.'
 			};
 
 			console.log('[SAML Bearer Mock] Mock token response:', mockTokenResponse);
 			setTokenResponse(mockTokenResponse);
-			setCurrentStep(3); // Move to token response step
 			v4ToastManager.showSuccess('Mock access token generated successfully! (Educational simulation)');
 		} catch (error) {
 			console.error('[SAML Bearer Mock] Error in simulation:', error);
@@ -534,26 +528,16 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [generatedSAML, clientId, tokenEndpoint, scopes]);
+	}, [generatedSAML, clientId, tokenEndpoint]);
 
 	// Step content renderers
 	const renderCredentials = () => (
 		<>
-			<EducationalContentService
+			<CollapsibleHeader
 				title="SAML Bearer Configuration"
-				content={{
-					title: 'Configure SAML Bearer Authentication',
-					description: 'Set up the required credentials and endpoints for SAML Bearer Assertion flow.',
-					useCases: [
-						'Client ID: Your OAuth client identifier',
-						'Token Endpoint: OAuth server token endpoint URL',
-						'Identity Provider: SAML identity provider URL',
-						'Scopes: Requested permissions (optional)'
-					]
-				}}
-				collapsed={collapsedSections.credentials}
-				onToggleCollapsed={() => toggleSection('credentials')}
-				flowType="saml-bearer"
+				icon={<FiSettings />}
+				defaultCollapsed={collapsedSections.credentials}
+				showArrow={true}
 			>
 				<FormGroup>
 					<Label>Environment ID *</Label>
@@ -589,25 +573,15 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				</FormGroup>
 
 				<FormGroup>
-					<Label>Identity Provider URL</Label>
+					<Label>Identity Provider Entity ID</Label>
 					<Input
 						type="url"
 						value={identityProvider}
 						onChange={(e) => setIdentityProvider(e.target.value)}
-						placeholder="https://idp.example.com/sso"
+						placeholder="https://idp.example.com/metadata"
 					/>
 				</FormGroup>
-
-				<FormGroup>
-					<Label>Scopes (Optional)</Label>
-					<Input
-						type="text"
-						value={scopes}
-						onChange={(e) => setScopes(e.target.value)}
-						placeholder="read write admin"
-					/>
-				</FormGroup>
-			</EducationalContentService>
+			</CollapsibleHeader>
 		</>
 	);
 
@@ -616,114 +590,113 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 			<CollapsibleHeader
 				title="SAML Assertion Builder"
 				icon={<FiSettings />}
-				theme="orange"
 				defaultCollapsed={collapsedSections.samlBuilder}
 				showArrow={true}
 			>
-						<InfoBox $variant="info">
-							<FiInfo size={20} />
-							<div>
-								<InfoTitle>SAML Assertion Configuration</InfoTitle>
-								<InfoText>
-									Configure the SAML assertion that will be used as a client assertion
-									in the token request. This represents the user's identity from the identity provider.
-								</InfoText>
+				<InfoBox $variant="info">
+					<FiInfo size={20} />
+					<div>
+						<InfoTitle>SAML Assertion Configuration</InfoTitle>
+						<InfoText>
+							Configure the SAML assertion that will be used as a client assertion
+							in the token request. This represents the user's identity from the identity provider.
+						</InfoText>
+					</div>
+				</InfoBox>
+
+				<FormGroup>
+					<Label>Issuer (Identity Provider) *</Label>
+					<Input
+						type="text"
+						value={samlAssertion.issuer}
+						onChange={(e) => setSamlAssertion(prev => ({ ...prev, issuer: e.target.value }))}
+						placeholder="https://idp.example.com"
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Subject (User Identity) *</Label>
+					<Input
+						type="text"
+						value={samlAssertion.subject}
+						onChange={(e) => setSamlAssertion(prev => ({ ...prev, subject: e.target.value }))}
+						placeholder="user@example.com"
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Audience (Token Endpoint) *</Label>
+					<Input
+						type="text"
+						value={samlAssertion.audience}
+						onChange={(e) => setSamlAssertion(prev => ({ ...prev, audience: e.target.value }))}
+						placeholder="https://auth.example.com/oauth/token"
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Not Before</Label>
+					<Input
+						type="datetime-local"
+						value={samlAssertion.conditions.notBefore.slice(0, 16)}
+						onChange={(e) => setSamlAssertion(prev => ({ 
+							...prev, 
+							conditions: { ...prev.conditions, notBefore: new Date(e.target.value).toISOString() }
+						}))}
+					/>
+				</FormGroup>
+
+				<FormGroup>
+					<Label>Not On Or After</Label>
+					<Input
+						type="datetime-local"
+						value={samlAssertion.conditions.notOnOrAfter.slice(0, 16)}
+						onChange={(e) => setSamlAssertion(prev => ({ 
+							...prev, 
+							conditions: { ...prev.conditions, notOnOrAfter: new Date(e.target.value).toISOString() }
+						}))}
+					/>
+				</FormGroup>
+
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+					<div style={{ display: 'flex', gap: '1rem' }}>
+						<Button onClick={saveSAMLConfiguration} $variant="secondary">
+							<FiSettings /> Save Configuration
+						</Button>
+						<Button 
+							onClick={generateSAMLAssertion} 
+							$variant="primary"
+							disabled={!canGenerateSAML()}
+							style={{ 
+								opacity: !canGenerateSAML() ? 0.5 : 1,
+								cursor: !canGenerateSAML() ? 'not-allowed' : 'pointer'
+							}}
+						>
+							<FiUsers /> Generate SAML Assertion
+						</Button>
+					</div>
+					{!canGenerateSAML() && (
+						<div style={{ 
+							fontSize: '0.875rem', 
+							color: '#f59e0b', 
+							display: 'flex', 
+							flexDirection: 'column',
+							gap: '0.5rem' 
+						}}>
+							<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+								<FiAlertTriangle size={16} />
+								Missing required fields:
 							</div>
-						</InfoBox>
-
-						<FormGroup>
-							<Label>Issuer (Identity Provider) *</Label>
-							<Input
-								type="text"
-								value={samlAssertion.issuer}
-								onChange={(e) => setSamlAssertion(prev => ({ ...prev, issuer: e.target.value }))}
-								placeholder="https://idp.example.com"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<Label>Subject (User Identity) *</Label>
-							<Input
-								type="text"
-								value={samlAssertion.subject}
-								onChange={(e) => setSamlAssertion(prev => ({ ...prev, subject: e.target.value }))}
-								placeholder="user@example.com"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<Label>Audience (Token Endpoint) *</Label>
-							<Input
-								type="text"
-								value={samlAssertion.audience}
-								onChange={(e) => setSamlAssertion(prev => ({ ...prev, audience: e.target.value }))}
-								placeholder="https://auth.example.com/oauth/token"
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<Label>Not Before</Label>
-							<Input
-								type="datetime-local"
-								value={samlAssertion.conditions.notBefore.slice(0, 16)}
-								onChange={(e) => setSamlAssertion(prev => ({ 
-									...prev, 
-									conditions: { ...prev.conditions, notBefore: new Date(e.target.value).toISOString() }
-								}))}
-							/>
-						</FormGroup>
-
-						<FormGroup>
-							<Label>Not On Or After</Label>
-							<Input
-								type="datetime-local"
-								value={samlAssertion.conditions.notOnOrAfter.slice(0, 16)}
-								onChange={(e) => setSamlAssertion(prev => ({ 
-									...prev, 
-									conditions: { ...prev.conditions, notOnOrAfter: new Date(e.target.value).toISOString() }
-								}))}
-							/>
-						</FormGroup>
-
-						<div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-							<div style={{ display: 'flex', gap: '1rem' }}>
-								<Button onClick={saveSAMLConfiguration} $variant="success">
-									<FiSettings /> Save Configuration
-								</Button>
-								<Button 
-									onClick={generateSAMLAssertion} 
-									$variant="primary"
-									disabled={!canGenerateSAML()}
-									style={{ 
-										opacity: !canGenerateSAML() ? 0.5 : 1,
-										cursor: !canGenerateSAML() ? 'not-allowed' : 'pointer'
-									}}
-								>
-									<FiUsers /> Generate SAML Assertion
-								</Button>
-							</div>
-							{!canGenerateSAML() && (
-								<div style={{ 
-									fontSize: '0.875rem', 
-									color: '#f59e0b', 
-									display: 'flex', 
-									flexDirection: 'column',
-									gap: '0.5rem' 
-								}}>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-										<FiAlertTriangle size={16} />
-										Missing required fields:
-									</div>
-									<ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
-										{!clientId.trim() && <li>Client ID (in Credentials section above)</li>}
-										{!tokenEndpoint.trim() && <li>Token Endpoint (in Credentials section above)</li>}
-										{!samlAssertion.issuer.trim() && <li>Issuer (Identity Provider)</li>}
-										{!samlAssertion.subject.trim() && <li>Subject (User Identity)</li>}
-										{!samlAssertion.audience.trim() && <li>Audience (Token Endpoint)</li>}
-									</ul>
-								</div>
-							)}
+							<ul style={{ margin: 0, paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
+								{!clientId.trim() && <li>Client ID (in Credentials section above)</li>}
+								{!tokenEndpoint.trim() && <li>Token Endpoint (in Credentials section above)</li>}
+								{!samlAssertion.issuer.trim() && <li>Issuer (Identity Provider)</li>}
+								{!samlAssertion.subject.trim() && <li>Subject (User Identity)</li>}
+								{!samlAssertion.audience.trim() && <li>Audience (Token Endpoint)</li>}
+							</ul>
 						</div>
+					)}
+				</div>
 			</CollapsibleHeader>
 
 			{generatedSAML && (
@@ -734,109 +707,140 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 					defaultCollapsed={collapsedSections.generatedSAML}
 					showArrow={true}
 				>
-							<GeneratedContentBox>
-								{/* SAML Assertion Display */}
-								<div style={{ marginBottom: '1.5rem' }}>
-									<ParameterLabel>SAML Assertion (XML)</ParameterLabel>
-									<div style={{
-										background: '#1e293b',
-										border: '1px solid #334155',
-										borderRadius: '0.5rem',
-										padding: '1rem',
-										marginTop: '0.5rem',
-										position: 'relative'
-									}}>
-										<pre style={{
-											color: '#e2e8f0',
-											fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-											fontSize: '0.875rem',
-											lineHeight: '1.5',
-											margin: 0,
-											whiteSpace: 'pre-wrap',
-											wordBreak: 'break-word',
-											maxHeight: '400px',
-											overflowY: 'auto'
-										}}>
-											{generatedSAML}
-										</pre>
-										<div style={{
-											position: 'absolute',
-											top: '0.5rem',
-											right: '0.5rem',
-											display: 'flex',
-											gap: '0.5rem'
-										}}>
-											<Button 
-												onClick={() => CopyButtonService.copyToClipboard(generatedSAML)} 
-												$variant="secondary"
-												style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-											>
-												<FiCopy /> Copy XML
-											</Button>
-										</div>
-									</div>
-								</div>
-
-								{/* Base64 Encoded SAML */}
-								<div style={{ marginBottom: '1.5rem' }}>
-									<ParameterLabel>SAML Assertion (Base64 Encoded)</ParameterLabel>
-									<div style={{
-										background: '#f8fafc',
-										border: '1px solid #e2e8f0',
-										borderRadius: '0.5rem',
-										padding: '1rem',
-										marginTop: '0.5rem',
-										position: 'relative'
-									}}>
-										<pre style={{
-											color: '#475569',
-											fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-											fontSize: '0.75rem',
-											lineHeight: '1.4',
-											margin: 0,
-											whiteSpace: 'pre-wrap',
-											wordBreak: 'break-all',
-											maxHeight: '200px',
-											overflowY: 'auto'
-										}}>
-											{btoa(generatedSAML)}
-										</pre>
-										<div style={{
-											position: 'absolute',
-											top: '0.5rem',
-											right: '0.5rem'
-										}}>
-											<Button 
-												onClick={() => CopyButtonService.copyToClipboard(btoa(generatedSAML))} 
-												$variant="secondary"
-												style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
-											>
-												<FiCopy /> Copy Base64
-											</Button>
-										</div>
-									</div>
-								</div>
-
-								{/* Action Buttons */}
-								<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-									<Button onClick={() => CopyButtonService.copyToClipboard(generatedSAML)} $variant="secondary">
-										<FiCopy /> Copy XML SAML
-									</Button>
-									<Button onClick={() => CopyButtonService.copyToClipboard(btoa(generatedSAML))} $variant="secondary">
-										<FiCopy /> Copy Base64 SAML
-									</Button>
+					<GeneratedContentBox>
+						{/* SAML Assertion Display */}
+						<div style={{ marginBottom: '1.5rem' }}>
+							<ParameterLabel>SAML Assertion (XML)</ParameterLabel>
+							<div style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.5rem',
+								padding: '1rem',
+								marginTop: '0.5rem',
+								position: 'relative'
+							}}>
+								<pre style={{
+									color: '#111827',
+									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+									fontSize: '0.875rem',
+									lineHeight: '1.5',
+									margin: 0,
+									whiteSpace: 'pre-wrap',
+									wordBreak: 'break-word',
+									maxHeight: '400px',
+									overflowY: 'auto'
+								}}>
+									{generatedSAML}
+								</pre>
+								<div style={{
+									position: 'absolute',
+									top: '0.5rem',
+									right: '0.5rem',
+									display: 'flex',
+									gap: '0.5rem'
+								}}>
 									<Button 
-										onClick={() => {
-											const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
-											console.log('[SAML Bearer] Formatted SAML:', formatted);
-											v4ToastManager.showSuccess('SAML assertion formatted for display');
-										}} 
+										onClick={() => copyToClipboard(generatedSAML, 'SAML XML assertion')} 
 										$variant="secondary"
+										style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+										disabled={!generatedSAML}
 									>
-										<FiSettings /> Format Display
+										<FiCopy /> Copy XML
 									</Button>
+								</div>
 							</div>
-						</GeneratedContentBox>
+						</div>
+
+						{/* Base64 Encoded SAML */}
+						<div style={{ marginBottom: '1.5rem' }}>
+							<ParameterLabel>SAML Assertion (Base64 Encoded)</ParameterLabel>
+							<div style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.5rem',
+								padding: '1rem',
+								marginTop: '0.5rem',
+								position: 'relative'
+							}}>
+								<pre style={{
+									color: '#475569',
+									fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+									fontSize: '0.75rem',
+									lineHeight: '1.4',
+									margin: 0,
+									whiteSpace: 'pre-wrap',
+									wordBreak: 'break-all',
+									maxHeight: '200px',
+									overflowY: 'auto'
+								}}>
+									{base64SAML}
+								</pre>
+								<div style={{
+									position: 'absolute',
+									top: '0.5rem',
+									right: '0.5rem'
+								}}>
+									<Button 
+										onClick={() => copyToClipboard(base64SAML, 'Base64 SAML assertion')} 
+										$variant="secondary"
+										style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem' }}
+										disabled={!base64SAML}
+									>
+										<FiCopy /> Copy Base64
+									</Button>
+								</div>
+							</div>
+							{showDecodedSAML && decodedSAMLFromBase64 && (
+								<div style={{
+									marginTop: '1rem',
+									background: '#fff7ed',
+									border: '1px solid #fed7aa',
+									borderRadius: '0.5rem',
+									padding: '1rem'
+								}}>
+									<ParameterLabel>Decoded Assertion (Preview)</ParameterLabel>
+									<pre style={{
+										color: '#7c2d12',
+										fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+										fontSize: '0.75rem',
+										lineHeight: '1.4',
+										margin: '0.5rem 0 0',
+										whiteSpace: 'pre-wrap',
+										wordBreak: 'break-word'
+									}}>
+										{decodedSAMLFromBase64}
+									</pre>
+								</div>
+							)}
+						</div>
+
+						{/* Action Buttons */}
+						<div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+							<Button onClick={() => copyToClipboard(generatedSAML, 'SAML XML assertion')} $variant="secondary" disabled={!generatedSAML}>
+								<FiCopy /> Copy XML SAML
+							</Button>
+							<Button onClick={() => copyToClipboard(base64SAML, 'Base64 SAML assertion')} $variant="secondary" disabled={!base64SAML}>
+								<FiCopy /> Copy Base64 SAML
+							</Button>
+							<Button 
+								onClick={() => {
+									const formatted = SAMLAssertionService.formatSAMLForDisplay(generatedSAML);
+									console.log('[SAML Bearer] Formatted SAML:', formatted);
+									v4ToastManager.showSuccess('SAML assertion formatted for display');
+								}} 
+								$variant="secondary"
+							>
+								<FiSettings /> Format Display
+							</Button>
+							<Button 
+								onClick={() => setShowDecodedSAML(prev => !prev)} 
+								$variant="secondary"
+								disabled={!base64SAML}
+							>
+								{showDecodedSAML ? <FiEyeOff /> : <FiEye />} {showDecodedSAML ? 'Hide Decode' : 'Decode Base64'}
+							</Button>
+						</div>
+					</GeneratedContentBox>
 				</CollapsibleHeader>
 			)}
 		</>
@@ -851,72 +855,66 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				defaultCollapsed={collapsedSections.tokenRequest}
 				showArrow={true}
 			>
-						<InfoBox $variant="warning">
-							<FiAlertTriangle size={20} />
-							<div>
-								<InfoTitle>🎓 Mock SAML Bearer Token Request</InfoTitle>
-								<InfoText>
-									<strong>Educational Simulation:</strong> This demonstrates how a SAML Bearer token request 
-									would be sent to an OAuth 2.0 server that supports RFC 7522. The assertion parameter 
-									contains the Base64-encoded SAML assertion that proves the user's identity.
-								</InfoText>
-								<InfoText style={{ marginTop: '0.5rem' }}>
-									<strong>Note:</strong> PingOne does not support SAML Bearer assertions, so this is a 
-									simulated request for learning purposes.
-								</InfoText>
-							</div>
-						</InfoBox>
+				<InfoBox $variant="warning">
+					<FiAlertTriangle size={20} />
+					<div>
+						<InfoTitle>🎓 Mock SAML Bearer Token Request</InfoTitle>
+						<InfoText>
+							The SAML Bearer Assertion flow enables OAuth clients to authenticate using SAML assertions from an identity provider. This is commonly used in enterprise environments where SAML-based SSO is already established.
+						</InfoText>
+						<InfoText style={{ marginTop: '0.5rem' }}>
+							<strong>Note:</strong> PingOne does not support SAML Bearer assertions, so this is a simulated request for learning purposes.
+						</InfoText>
+					</div>
+				</InfoBox>
 
-						<GeneratedContentBox>
-							<ParameterGrid>
-								<ParameterLabel>Request URL</ParameterLabel>
-								<ParameterValue>{tokenEndpoint}</ParameterValue>
-								
-								<ParameterLabel>Method</ParameterLabel>
-								<ParameterValue>POST</ParameterValue>
-								
-								<ParameterLabel>Content-Type</ParameterLabel>
-								<ParameterValue>application/x-www-form-urlencoded</ParameterValue>
-								
-								<ParameterLabel>grant_type</ParameterLabel>
-								<ParameterValue>urn:ietf:params:oauth:grant-type:saml2-bearer</ParameterValue>
-								
-								<ParameterLabel>assertion</ParameterLabel>
-								<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-									{generatedSAML ? btoa(generatedSAML) : 'Generate SAML assertion first'}
-								</ParameterValue>
-								
-								<ParameterLabel>scope</ParameterLabel>
-								<ParameterValue>{scopes || 'Not specified'}</ParameterValue>
-							</ParameterGrid>
-						</GeneratedContentBox>
+				<GeneratedContentBox>
+					<ParameterGrid>
+						<ParameterLabel>Request URL</ParameterLabel>
+						<ParameterValue>{tokenEndpoint}</ParameterValue>
+						
+						<ParameterLabel>Method</ParameterLabel>
+						<ParameterValue>POST</ParameterValue>
+						
+						<ParameterLabel>Content-Type</ParameterLabel>
+						<ParameterValue>application/x-www-form-urlencoded</ParameterValue>
+						
+						<ParameterLabel>grant_type</ParameterLabel>
+						<ParameterValue>urn:ietf:params:oauth:grant-type:saml2-bearer</ParameterValue>
+						
+						<ParameterLabel>assertion</ParameterLabel>
+						<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
+							{base64SAML || 'Generate SAML assertion first'}
+						</ParameterValue>
+					</ParameterGrid>
+				</GeneratedContentBox>
 
-						<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-							<Button 
-								onClick={makeTokenRequest} 
-								$variant="primary" 
-								disabled={!generatedSAML || isLoading}
-								style={{ 
-									opacity: !generatedSAML ? 0.5 : 1,
-									cursor: !generatedSAML ? 'not-allowed' : 'pointer'
-								}}
-							>
-								{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiGlobe />}
-								{isLoading ? 'Requesting Token...' : 'Make Token Request'}
-							</Button>
-							{!generatedSAML && (
-								<div style={{ 
-									fontSize: '0.875rem', 
-									color: '#f59e0b', 
-									display: 'flex', 
-									alignItems: 'center', 
-									gap: '0.25rem' 
-								}}>
-									<FiAlertTriangle size={16} />
-									Generate a SAML assertion first to enable token request
-								</div>
-							)}
+				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+					<Button 
+						onClick={makeTokenRequest} 
+						$variant="primary" 
+						disabled={!generatedSAML || isLoading}
+						style={{ 
+							opacity: !generatedSAML ? 0.5 : 1,
+							cursor: !generatedSAML ? 'not-allowed' : 'pointer'
+						}}
+					>
+						{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiGlobe />}
+						{isLoading ? 'Requesting Token...' : 'Make Token Request'}
+					</Button>
+					{!generatedSAML && (
+						<div style={{ 
+							fontSize: '0.875rem', 
+							color: '#f59e0b', 
+							display: 'flex', 
+							alignItems: 'center', 
+							gap: '0.25rem' 
+						}}>
+							<FiAlertTriangle size={16} />
+							Generate a SAML assertion first to enable token request
 						</div>
+					)}
+				</div>
 			</CollapsibleHeader>
 		</>
 	);
@@ -930,240 +928,89 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 					defaultCollapsed={collapsedSections.tokenResponse}
 					showArrow={true}
 				>
-							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
-								<div>
-									<InfoTitle>Access Token Received!</InfoTitle>
-									<InfoText>
-										The SAML Bearer Assertion flow has completed successfully. You now have an access token
-										that can be used to access protected resources.
-									</InfoText>
-								</div>
-							</InfoBox>
-
-							<GeneratedContentBox>
-								<ParameterGrid>
-									<ParameterLabel>access_token</ParameterLabel>
-									<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-										{tokenResponse.access_token}
-									</ParameterValue>
-									
-									<ParameterLabel>token_type</ParameterLabel>
-									<ParameterValue>{tokenResponse.token_type}</ParameterValue>
-									
-									<ParameterLabel>expires_in</ParameterLabel>
-									<ParameterValue>{tokenResponse.expires_in} seconds</ParameterValue>
-									
-									<ParameterLabel>scope</ParameterLabel>
-									<ParameterValue>{tokenResponse.scope}</ParameterValue>
-								</ParameterGrid>
-							</GeneratedContentBox>
-
-							<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-								<Button 
-									onClick={() => CopyButtonService.copyToClipboard(tokenResponse.access_token)} 
-									$variant="secondary"
-								>
-									<FiCopy /> Copy Access Token
-								</Button>
-								<Button 
-									onClick={() => CopyButtonService.copyToClipboard(JSON.stringify(tokenResponse, null, 2))} 
-									$variant="secondary"
-								>
-									<FiCopy /> Copy Full Response
-							</Button>
+					<InfoBox $variant="success">
+						<FiCheckCircle size={20} />
+						<div>
+							<InfoTitle>Access Token Received!</InfoTitle>
+							<InfoText>
+								The SAML Bearer Assertion flow has completed successfully. You now have an access token
+								that can be used to access protected resources.
+							</InfoText>
 						</div>
+					</InfoBox>
+
+					<GeneratedContentBox>
+						<ParameterGrid>
+							<ParameterLabel>access_token</ParameterLabel>
+							<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
+								{tokenResponse.access_token}
+							</ParameterValue>
+							
+							<ParameterLabel>token_type</ParameterLabel>
+							<ParameterValue>{tokenResponse.token_type}</ParameterValue>
+							
+							<ParameterLabel>expires_in</ParameterLabel>
+							<ParameterValue>{tokenResponse.expires_in} seconds</ParameterValue>
+						</ParameterGrid>
+					</GeneratedContentBox>
+
+					<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+						<Button 
+							onClick={() => copyToClipboard(tokenResponse.access_token, 'access token')} 
+							$variant="secondary"
+							disabled={!tokenResponse?.access_token}
+						>
+							<FiCopy /> Copy Access Token
+						</Button>
+						<Button 
+							onClick={() => copyToClipboard(JSON.stringify(tokenResponse, null, 2), 'token response JSON')} 
+							$variant="secondary"
+							disabled={!tokenResponse}
+						>
+							<FiCopy /> Copy Full Response
+						</Button>
+					</div>
 				</CollapsibleHeader>
 			)}
 		</>
 	);
 
 	const renderCompletion = () => (
-		<>
-			<FlowCompletionService
-				config={FlowCompletionConfigs.samlBearer}
-				collapsed={collapsedSections.completion}
-				onToggleCollapsed={() => toggleSection('completion')}
-			/>
-		</>
+		<FlowCompletionService
+			config={{
+				...completionConfig,
+				onStartNewFlow: () => {
+					setCollapsedSections(prev => ({
+						...prev,
+						tokenResponse: true,
+						completion: false
+					}));
+					setGeneratedSAML('');
+					setTokenResponse(null);
+					setShowDecodedSAML(false);
+				}
+			}}
+			collapsed={collapsedSections.completion}
+			onToggleCollapsed={() => toggleSection('completion')}
+		/>
 	);
 
 	// Main render
 	return (
 		<Container>
-			<FlowHeader
-				title="OAuth 2.0 SAML Bearer Assertion Flow (Mock)"
-				subtitle="RFC 7522 - Enterprise SSO Integration with SAML Assertions"
-				flowType="saml-bearer"
-			/>
-
+			<FlowHeader flowId="saml-bearer" />
 			<ContentWrapper>
-				{/* Process Guide */}
-				<div style={{
-					background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-					border: '1px solid #0ea5e9',
-					borderRadius: '0.75rem',
-					padding: '1.5rem',
-					marginBottom: '2rem'
-				}}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-						<FiInfo size={24} style={{ color: '#0ea5e9' }} />
-						<h3 style={{ margin: 0, color: '#0c4a6e', fontSize: '1.125rem', fontWeight: '600' }}>
-							SAML Bearer Flow Process
-						</h3>
-					</div>
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-							<div style={{ 
-								width: '24px', 
-								height: '24px', 
-								borderRadius: '50%', 
-								background: clientId && tokenEndpoint ? '#10b981' : '#e5e7eb',
-								color: 'white',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								fontSize: '0.75rem',
-								fontWeight: 'bold'
-							}}>1</div>
-							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Configure Credentials</span>
-						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-							<div style={{ 
-								width: '24px', 
-								height: '24px', 
-								borderRadius: '50%', 
-								background: canGenerateSAML() ? '#10b981' : '#e5e7eb',
-								color: 'white',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								fontSize: '0.75rem',
-								fontWeight: 'bold'
-							}}>2</div>
-							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Build SAML Assertion</span>
-						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-							<div style={{ 
-								width: '24px', 
-								height: '24px', 
-								borderRadius: '50%', 
-								background: generatedSAML ? '#10b981' : '#e5e7eb',
-								color: 'white',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								fontSize: '0.75rem',
-								fontWeight: 'bold'
-							}}>3</div>
-							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Generate SAML</span>
-						</div>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-							<div style={{ 
-								width: '24px', 
-								height: '24px', 
-								borderRadius: '50%', 
-								background: tokenResponse ? '#10b981' : '#e5e7eb',
-								color: 'white',
-								display: 'flex',
-								alignItems: 'center',
-								justifyContent: 'center',
-								fontSize: '0.75rem',
-								fontWeight: 'bold'
-							}}>4</div>
-							<span style={{ fontSize: '0.875rem', color: '#374151' }}>Request Token</span>
-						</div>
-					</div>
-				</div>
-
-				{/* Flow Sequence Diagram */}
-				<FlowSequenceDisplay flowType="saml-bearer" />
-				
-				<SectionDivider />
-
-				{/* Mock Implementation Warning */}
-				<InfoBox $variant="warning" style={{ marginBottom: '2rem' }}>
-					<FiAlertTriangle size={24} />
-					<div>
-						<InfoTitle>🎓 Educational Mock Implementation</InfoTitle>
-						<InfoText>
-							This is a <strong>mock/educational implementation</strong> of the SAML Bearer Assertion flow. 
-							PingOne does not currently support SAML Bearer assertions for client authentication.
-						</InfoText>
-						<InfoText style={{ marginTop: '0.5rem' }}>
-							<strong>What you'll learn:</strong>
-						</InfoText>
-						<InfoList>
-							<li>How SAML Bearer Assertion flow works (RFC 7522)</li>
-							<li>SAML assertion structure and XML format</li>
-							<li>Identity provider integration patterns</li>
-							<li>Enterprise SSO and federation concepts</li>
-							<li>Assertion lifecycle and validity conditions</li>
-						</InfoList>
-						<InfoText style={{ marginTop: '0.5rem' }}>
-							This flow demonstrates the concepts and provides a simulation of how SAML Bearer 
-							authentication would work in production OAuth 2.0 servers that support this grant type.
-						</InfoText>
-					</div>
-				</InfoBox>
-
-				<SectionDivider />
-
-			{/* Flow Comparison Table */}
-			{OAuthFlowComparisonService.getComparisonTable({
-				highlightFlow: 'saml',
-				collapsed: collapsedSections.comparison
-			})}
-
-				<SectionDivider />
-
-				{/* Educational Content */}
-				<EducationalContentService
-					title="SAML Bearer Assertion Flow Overview"
-					content={SAMLBearerEducationalContent.overview}
-					collapsed={collapsedSections.overview}
-					onToggleCollapsed={() => toggleSection('overview')}
-					flowType="saml-bearer"
-				/>
-
-				<SectionDivider />
-
-				<EducationalContentService
-					title="Security Considerations"
-					content={SAMLBearerEducationalContent.security}
-					collapsed={collapsedSections.security}
-					onToggleCollapsed={() => toggleSection('security')}
-					flowType="saml-bearer"
-				/>
-
-				<SectionDivider />
-
-				<EducationalContentService
-					title="Implementation Steps"
-					content={SAMLBearerEducationalContent.implementation}
-					collapsed={collapsedSections.implementation}
-					onToggleCollapsed={() => toggleSection('implementation')}
-					flowType="saml-bearer"
-				/>
-
-				<SectionDivider />
-
-				{/* Step Content - Show all steps for mock flow */}
 				{renderCredentials()}
 				<SectionDivider />
-				
+
 				{renderSAMLBuilder()}
 				<SectionDivider />
-				
+
 				{renderTokenRequest()}
-				
-				{tokenResponse && (
-					<>
-						<SectionDivider />
-						{renderTokenResponse()}
-					</>
-				)}
-				
+				<SectionDivider />
+
+				{renderTokenResponse()}
+
 				{tokenResponse && (
 					<>
 						<SectionDivider />
