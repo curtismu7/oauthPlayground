@@ -1,138 +1,189 @@
 // src/components/DeviceTypeSelector.tsx
-// Device Type Dropdown Selector Component
+// Device Type Selector for V7 Device Authorization Flow
 
 import React from 'react';
 import styled from 'styled-components';
-import { deviceTypeService, DeviceTypeConfig } from '../services/deviceTypeService';
+import { FaCar, FaGasPump, FaGamepad, FaIndustry, FaRobot, FaServer, FaTv, FaWalking } from 'react-icons/fa';
+import { FiPrinter, FiSpeaker } from 'react-icons/fi';
+import { MdOutlineAirportShuttle, MdPointOfSale } from 'react-icons/md';
+import { IoIosPhonePortrait } from 'react-icons/io';
 
-const SelectorContainer = styled.div`
-	margin-bottom: 1.5rem;
+const DeviceSelectorContainer = styled.div`
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid #cbd5e1;
 `;
 
-const Label = styled.label`
-	display: block;
-	font-weight: 600;
-	font-size: 0.875rem;
-	color: #1e293b;
-	margin-bottom: 0.5rem;
+const SelectorTitle = styled.div`
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 1rem;
 `;
 
-const SelectWrapper = styled.div`
-	position: relative;
-	display: inline-block;
-	width: 100%;
+const DropdownContainer = styled.div`
+  position: relative;
 `;
 
-const Select = styled.select<{ $color: string }>`
-	width: 100%;
-	padding: 0.75rem 2.5rem 0.75rem 1rem;
-	font-size: 1rem;
-	font-weight: 500;
-	color: #1e293b;
-	background: white;
-	border: 2px solid ${props => props.$color || '#e2e8f0'};
-	border-radius: 0.5rem;
-	cursor: pointer;
-	appearance: none;
-	transition: all 0.2s;
-	
-	&:hover {
-		border-color: ${props => props.$color || '#cbd5e1'};
-		box-shadow: 0 0 0 3px ${props => props.$color + '20' || '#cbd5e120'};
-	}
-	
-	&:focus {
-		outline: none;
-		border-color: ${props => props.$color || '#3b82f6'};
-		box-shadow: 0 0 0 3px ${props => props.$color + '30' || '#3b82f630'};
-	}
+const DeviceDropdown = styled.select`
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background: white;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    border-color: #3b82f6;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
 `;
 
-const SelectIcon = styled.div`
-	position: absolute;
-	right: 1rem;
-	top: 50%;
-	transform: translateY(-50%);
-	pointer-events: none;
-	font-size: 0.875rem;
-	color: #64748b;
+const DeviceOption = styled.option`
+  padding: 0.5rem;
+  font-size: 1rem;
 `;
 
-const DeviceInfo = styled.div`
-	margin-top: 0.75rem;
-	padding: 0.75rem 1rem;
-	background: #f8fafc;
-	border-left: 3px solid ${props => props.color || '#3b82f6'};
-	border-radius: 0.375rem;
-`;
-
-const DeviceDescription = styled.div`
-	font-size: 0.875rem;
-	color: #64748b;
-	margin-bottom: 0.5rem;
-`;
-
-const DeviceUseCase = styled.div`
-	font-size: 0.75rem;
-	color: #94a3b8;
-	font-style: italic;
-`;
-
-export interface DeviceTypeSelectorProps {
-	value: string;
-	onChange: (deviceId: string) => void;
-	label?: string;
-	showInfo?: boolean;
+export interface DeviceType {
+  value: string;
+  label: string;
+  description: string;
+  icon: React.ComponentType;
+  emoji: string;
 }
 
-/**
- * Device Type Selector Component
- * Provides a dropdown to select different device scenarios
- */
-export const DeviceTypeSelector: React.FC<DeviceTypeSelectorProps> = ({
-	value,
-	onChange,
-	label = 'Select Device Type',
-	showInfo = true
+export const DEVICE_TYPES: DeviceType[] = [
+  {
+    value: 'streaming-tv',
+    label: 'Smart TV',
+    description: 'Ideal for streaming apps and smart home displays',
+    icon: FaTv,
+    emoji: '📺'
+  },
+  {
+    value: 'gas-pump',
+    label: 'Gas Pump',
+    description: 'Ideal for gas stations, charging stations',
+    icon: FaGasPump,
+    emoji: '⛽'
+  },
+  {
+    value: 'iot-device',
+    label: 'Industrial IoT Controller',
+    description: 'Ideal for manufacturing and industrial automation',
+    icon: FaIndustry,
+    emoji: '🏭'
+  },
+  {
+    value: 'gaming-console',
+    label: 'Gaming Console',
+    description: 'Ideal for gaming platforms and entertainment systems',
+    icon: FaGamepad,
+    emoji: '🎮'
+  },
+  {
+    value: 'fitness-wearable',
+    label: 'Fitness Tracker',
+    description: 'Ideal for wearable devices and health monitoring',
+    icon: FaWalking,
+    emoji: '⌚'
+  },
+  {
+    value: 'smart-printer',
+    label: 'Smart Printer',
+    description: 'Ideal for office equipment and document management',
+    icon: FiPrinter,
+    emoji: '🖨️'
+  },
+  {
+    value: 'airport-kiosk',
+    label: 'Airport Kiosk',
+    description: 'Ideal for self-service terminals and public displays',
+    icon: MdOutlineAirportShuttle,
+    emoji: '✈️'
+  },
+  {
+    value: 'pos-terminal',
+    label: 'POS Terminal',
+    description: 'Ideal for point of sale and payment systems',
+    icon: MdPointOfSale,
+    emoji: '💳'
+  },
+  {
+    value: 'ai-agent',
+    label: 'AI Agent',
+    description: 'Ideal for AI assistants and automated systems',
+    icon: FaRobot,
+    emoji: '🤖'
+  },
+  {
+    value: 'mcp-server',
+    label: 'MCP Server',
+    description: 'Ideal for server applications and backend services',
+    icon: FaServer,
+    emoji: '🖥️'
+  },
+  {
+    value: 'smart-speaker',
+    label: 'Smart Speaker',
+    description: 'Ideal for voice assistants and audio devices',
+    icon: FiSpeaker,
+    emoji: '🔊'
+  },
+  {
+    value: 'smartphone',
+    label: 'Mobile Phone',
+    description: 'Ideal for mobile apps and smartphone interfaces',
+    icon: IoIosPhonePortrait,
+    emoji: '📱'
+  },
+  {
+    value: 'smart-vehicle',
+    label: 'Smart Vehicle',
+    description: 'Ideal for automotive systems and connected cars',
+    icon: FaCar,
+    emoji: '🚗'
+  }
+];
+
+interface DeviceTypeSelectorProps {
+  selectedDevice: string;
+  onDeviceChange: (deviceType: string) => void;
+}
+
+const DeviceTypeSelector: React.FC<DeviceTypeSelectorProps> = ({
+  selectedDevice,
+  onDeviceChange,
 }) => {
-	const options = deviceTypeService.getDeviceTypeOptions();
-	const selectedDevice = deviceTypeService.getDeviceType(value);
-
-	const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		onChange(e.target.value);
-	};
-
-	return (
-		<SelectorContainer>
-			<Label>{label}</Label>
-			<SelectWrapper>
-				<Select
-					value={value}
-					onChange={handleChange}
-					$color={selectedDevice.color}
-				>
-					{options.map(option => (
-						<option key={option.value} value={option.value}>
-							{option.emoji} {option.label}
-						</option>
-					))}
-				</Select>
-				<SelectIcon>▼</SelectIcon>
-			</SelectWrapper>
-			
-			{showInfo && (
-				<DeviceInfo color={selectedDevice.color}>
-					<DeviceDescription>
-						<strong>{selectedDevice.scenario}:</strong> {selectedDevice.description}
-					</DeviceDescription>
-					<DeviceUseCase>
-						💡 {selectedDevice.useCase}
-					</DeviceUseCase>
-				</DeviceInfo>
-			)}
-		</SelectorContainer>
-	);
+  return (
+    <DeviceSelectorContainer>
+      <SelectorTitle>Simulate Device View</SelectorTitle>
+      <DropdownContainer>
+        <DeviceDropdown
+          value={selectedDevice}
+          onChange={(e) => onDeviceChange(e.target.value)}
+        >
+          {DEVICE_TYPES.map((device) => (
+            <DeviceOption key={device.value} value={device.value}>
+              {device.emoji} {device.label} - {device.description}
+            </DeviceOption>
+          ))}
+        </DeviceDropdown>
+      </DropdownContainer>
+    </DeviceSelectorContainer>
+  );
 };
 
+export { DeviceTypeSelector };
 export default DeviceTypeSelector;
-

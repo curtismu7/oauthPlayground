@@ -380,7 +380,7 @@ export const EmailSMSRegistrationV6: React.FC<EmailSMSRegistrationProps> = ({
 
       if (validation.valid) {
         // Activate the device
-        const activation = await PingOneMfaService.activateDevice(
+        const activation = await PingOneMfaService.activateDeviceWithCode(
           credentials,
           registrationResult.device.id,
           { otp: verificationCode }
