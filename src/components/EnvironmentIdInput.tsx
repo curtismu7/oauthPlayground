@@ -691,14 +691,16 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
             disabled={disabled || isDiscovering}
           />
           
-          <DiscoverButton
-            onClick={handleDiscover}
-            disabled={disabled || isDiscovering || !environmentId.trim()}
-            isLoading={isDiscovering}
-            title="Discover OIDC endpoints"
-          >
-            {isDiscovering ? <FiLoader className="animate-spin" /> : <FiSearch />}
-          </DiscoverButton>
+          {autoDiscover && (
+            <DiscoverButton
+              onClick={handleDiscover}
+              disabled={disabled || isDiscovering || !environmentId.trim()}
+              isLoading={isDiscovering}
+              title="Discover OIDC endpoints"
+            >
+              {isDiscovering ? <FiLoader className="animate-spin" /> : <FiSearch />}
+            </DiscoverButton>
+          )}
         </InputGroup>
         
         {error && <ErrorMessage>{error}</ErrorMessage>}
@@ -717,7 +719,7 @@ const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
         </div>
       )}
 
-      {discoveryResult?.success && discoveryResult.document && (
+      {autoDiscover && discoveryResult?.success && discoveryResult.document && (
         <div style={{ marginTop: '1rem' }}>
           {/* Discovery Results Display */}
           <DiscoveryResultsBox>
