@@ -49,6 +49,11 @@
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.18.1",
 		"@pingidentity-developers-experience/ping-oidc-client-sdk": "^2.4.2",
+		"@radix-ui/react-slot": "^1.2.3",
+		"@radix-ui/react-tabs": "^1.1.13",
+		"@types/react-toastify": "^4.0.2",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
 		"cors": "^2.8.5",
 		"dotenv": "^17.2.2",
 		"express": "^5.1.0",
@@ -64,7 +69,9 @@
 		"react-pro-sidebar": "^1.1.0",
 		"react-router-dom": "^6.28.0",
 		"react-tabs": "^6.1.0",
-		"styled-components": "^6.1.13",
+		"react-toastify": "^11.0.5",
+		"styled-components": "^6.1.19",
+		"tailwind-merge": "^3.3.1",
 		"winston": "^3.17.0",
 		"winston-daily-rotate-file": "^5.0.0",
 		"zod": "^4.1.11"

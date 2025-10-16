@@ -655,15 +655,36 @@ export const useAuthorizationCodeFlowController = (
 			matchesWindowOrigin: credentials.redirectUri.startsWith(typeof window !== 'undefined' ? window.location.origin : ''),
 		});
 
-		if (!pkceCodes.codeVerifier || !pkceCodes.codeChallenge) {
-			throw new Error('PKCE parameters not generated. Please generate PKCE codes first.');
+		// Ensure PKCE codes are generated before creating authorization URL
+		let currentPkceCodes = pkceCodes;
+		if (!currentPkceCodes.codeVerifier || !currentPkceCodes.codeChallenge) {
+			console.log('🔐 [PKCE] PKCE codes missing, generating them automatically...');
+			
+			try {
+				const codeVerifier = generateCodeVerifier();
+				const codeChallenge = await generateCodeChallenge(codeVerifier);
+				
+				currentPkceCodes = {
+					codeVerifier,
+					codeChallenge,
+					codeChallengeMethod: 'S256',
+				};
+				
+				// Update state for future use
+				setPkceCodes(currentPkceCodes);
+				
+				console.log('✅ [PKCE] PKCE codes generated automatically');
+			} catch (error) {
+				console.error('❌ [PKCE] Failed to generate PKCE codes:', error);
+				throw new Error('Failed to generate PKCE parameters. Please try again.');
+			}
 		}
 
 		console.log('🌐 [PKCE DEBUG] ===== BUILDING AUTHORIZATION URL =====');
 		console.log('🌐 [PKCE DEBUG] Using PKCE codes:', {
-			codeVerifier: pkceCodes.codeVerifier.substring(0, 20) + '...',
-			codeChallenge: pkceCodes.codeChallenge.substring(0, 20) + '...',
-			codeChallengeMethod: pkceCodes.codeChallengeMethod
+			codeVerifier: currentPkceCodes.codeVerifier.substring(0, 20) + '...',
+			codeChallenge: currentPkceCodes.codeChallenge.substring(0, 20) + '...',
+			codeChallengeMethod: currentPkceCodes.codeChallengeMethod
 		});
 
 		const state =
@@ -715,8 +736,8 @@ export const useAuthorizationCodeFlowController = (
 					scope: credentials.scope || 'openid',
 					state,
 					nonce: pingOneConfig.nonce,
-					codeChallenge: pkceCodes.codeChallenge,
-					codeChallengeMethod: pkceCodes.codeChallengeMethod || 'S256',
+					codeChallenge: currentPkceCodes.codeChallenge,
+					codeChallengeMethod: currentPkceCodes.codeChallengeMethod || 'S256',
 					acrValues: pingOneConfig.acrValues,
 					prompt: pingOneConfig.prompt,
 					maxAge: pingOneConfig.maxAge,
@@ -786,8 +807,8 @@ export const useAuthorizationCodeFlowController = (
 
 			// Add PKCE parameters if using authorization code flow (default behavior)
 			if (responseType.includes('code')) {
-				params.set('code_challenge', pkceCodes.codeChallenge);
-				params.set('code_challenge_method', pkceCodes.codeChallengeMethod || 'S256');
+				params.set('code_challenge', currentPkceCodes.codeChallenge);
+				params.set('code_challenge_method', currentPkceCodes.codeChallengeMethod || 'S256');
 			}
 
 			// Add OIDC-specific parameters
@@ -852,8 +873,8 @@ export const useAuthorizationCodeFlowController = (
 		saveStepResult('generate-auth-url', {
 			url,
 			state,
-			codeChallenge: pkceCodes.codeChallenge,
-			codeChallengeMethod: pkceCodes.codeChallengeMethod,
+			codeChallenge: currentPkceCodes.codeChallenge,
+			codeChallengeMethod: currentPkceCodes.codeChallengeMethod,
 			timestamp: Date.now(),
 		});
 	}, [credentials, pkceCodes, flowVariant, flowKey, flowConfig, persistKey, saveStepResult]);
@@ -1462,6 +1483,13 @@ export const useAuthorizationCodeFlowController = (
 
 		try {
 			console.log('💾 [useAuthorizationCodeFlowController] Saving credentials...');
+			console.log('💾 [useAuthorizationCodeFlowController] Credentials to save:', {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				hasClientSecret: !!credentials.clientSecret,
+				redirectUri: credentials.redirectUri,
+				scope: credentials.scope,
+			});
 			
 		// Save using FlowCredentialService
 		const success = await FlowCredentialService.saveFlowCredentials(
@@ -1480,6 +1508,8 @@ export const useAuthorizationCodeFlowController = (
 			},
 			{ showToast: false } // Don't show toast, calling component handles it
 		);
+		
+		console.log('💾 [useAuthorizationCodeFlowController] FlowCredentialService.saveFlowCredentials result:', success);
 
 			if (!success) {
 				throw new Error('Failed to save credentials via FlowCredentialService');
