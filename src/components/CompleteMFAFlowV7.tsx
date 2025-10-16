@@ -145,70 +145,6 @@ const MainCard = styled.div`
   overflow: hidden;
 `;
 
-const StepHeader = styled.div`
-  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-  color: #ffffff;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const StepHeaderLeft = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-`;
-
-const StepHeaderRight = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  opacity: 0.9;
-`;
-
-const VersionBadge = styled.span`
-  align-self: flex-start;
-  background: rgba(124, 58, 237, 0.2);
-  border: 1px solid #a78bfa;
-  color: #ddd6fe;
-  padding: 0.25rem 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-`;
-
-const StepHeaderTitle = styled.h1`
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.2;
-`;
-
-const StepHeaderSubtitle = styled.p`
-  margin: 0.25rem 0 0 0;
-  font-size: 0.875rem;
-  opacity: 0.9;
-  line-height: 1.4;
-`;
-
-const StepNumber = styled.span`
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1;
-`;
-
-const StepTotal = styled.span`
-  font-size: 0.875rem;
-  opacity: 0.7;
-`;
-
-const StepContentWrapper = styled.div`
-  padding: 2rem;
-`;
 
 
 const NetworkStatusBar = styled.div<{ $online: boolean }>`
@@ -345,6 +281,10 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   const [currentStep, setCurrentStep] = useState<FlowStep>('username_login');
   const [currentStepNumber, setCurrentStepNumber] = useState(1); // For V5Stepper
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Map FlowStep to step number for V5Stepper
   const getStepNumber = useCallback((step: FlowStep): number => {
@@ -365,10 +305,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   useEffect(() => {
     setCurrentStepNumber(getStepNumber(currentStep));
   }, [currentStep, getStepNumber]);
-  const [error, setError] = useState<string | null>(null);
-  const [retryCount, setRetryCount] = useState(0);
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   
   // API Call tracking for educational display
   const [apiCalls, setApiCalls] = useState<{
