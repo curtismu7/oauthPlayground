@@ -1011,7 +1011,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   🔐 Authentication Options
                 </h4>
                 <p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', color: '#6b7280' }}>
-                  Choose how you want to authenticate with PingOne. You can use the dedicated authentication page or authenticate inline.
+                  Choose your authentication method: redirect-based or redirectless (response=pi.flow). This determines how PingOne handles the authentication flow.
                 </p>
                 
                 <div style={{ display: 'grid', gap: '1rem' }}>
@@ -1035,13 +1035,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <FiUser size={20} color="#3b82f6" />
+                      <FiExternalLink size={20} color="#3b82f6" />
                       <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
-                        Dedicated Authentication Page
+                        Redirect Authentication
                       </h5>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280' }}>
-                      Open a dedicated authentication page with inline or popup modes. Better for complex authentication flows.
+                      Standard OAuth redirect flow. User is redirected to PingOne for authentication, then redirected back to your application.
                     </p>
                   </div>
 
@@ -1065,13 +1065,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <FiSettings size={20} color="#8b5cf6" />
+                      <FiArrowRight size={20} color="#8b5cf6" />
                       <h5 style={{ margin: 0, fontSize: '0.875rem', fontWeight: '600', color: '#1f2937' }}>
-                        Popup Authentication
+                        Redirectless Authentication (response=pi.flow)
                       </h5>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280' }}>
-                      Open authentication in a popup window. Ideal for seamless user experience without leaving the current page.
+                      PingOne proprietary flow format. Authentication happens without redirects, using response=pi.flow for seamless user experience.
                     </p>
                   </div>
                 </div>
@@ -1089,7 +1089,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   <strong style={{ fontSize: '0.875rem', color: '#92400e' }}>Quick Access</strong>
                 </div>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: '#92400e' }}>
-                  Click on either option above to open the authentication page. After successful authentication, you'll be redirected back to continue the MFA flow.
+                  Choose between redirect-based authentication (standard OAuth flow) or redirectless authentication (response=pi.flow). Both methods will complete the authentication and continue to MFA setup.
                 </p>
               </div>
 
