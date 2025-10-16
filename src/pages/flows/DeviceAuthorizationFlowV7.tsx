@@ -1377,7 +1377,25 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											response: {
 												status: 200,
 												statusText: 'OK',
-												data: deviceFlow.tokens
+												headers: {
+													'Content-Type': 'application/json',
+													'Cache-Control': 'no-store',
+													'Pragma': 'no-cache'
+												},
+												data: selectedVariant === 'oidc' ? {
+													access_token: deviceFlow.tokens?.access_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+													id_token: deviceFlow.tokens?.id_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+													refresh_token: deviceFlow.tokens?.refresh_token || 'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+													token_type: 'Bearer',
+													expires_in: 3600,
+													scope: deviceFlow.tokens?.scope || 'openid profile email'
+												} : {
+													access_token: deviceFlow.tokens?.access_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+													refresh_token: deviceFlow.tokens?.refresh_token || 'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+													token_type: 'Bearer',
+													expires_in: 3600,
+													scope: deviceFlow.tokens?.scope || 'read write'
+												}
 											},
 											flowType: 'device-code',
 											stepName: 'token-exchange',
@@ -1403,6 +1421,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									</ResultsHeading>
 									<GeneratedContentBox>
 										<ParameterGrid>
+											{/* Access Token - Always present */}
 											<div style={{ gridColumn: '1 / -1' }}>
 												<ParameterLabel>Access Token</ParameterLabel>
 												<ParameterValue
@@ -1415,6 +1434,41 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													{deviceFlow.tokens.access_token}
 												</ParameterValue>
 											</div>
+											
+											{/* ID Token - Only for OIDC flows */}
+											{selectedVariant === 'oidc' && deviceFlow.tokens.id_token && (
+												<div style={{ gridColumn: '1 / -1' }}>
+													<ParameterLabel>ID Token (OIDC)</ParameterLabel>
+													<ParameterValue
+														style={{
+															wordBreak: 'break-all',
+															fontFamily: 'monospace',
+															fontSize: '0.75rem',
+															backgroundColor: '#f0f9ff',
+															border: '1px solid #0ea5e9',
+														}}
+													>
+														{deviceFlow.tokens.id_token}
+													</ParameterValue>
+												</div>
+											)}
+											
+											{/* Refresh Token - If present */}
+											{deviceFlow.tokens.refresh_token && (
+												<div style={{ gridColumn: '1 / -1' }}>
+													<ParameterLabel>Refresh Token</ParameterLabel>
+													<ParameterValue
+														style={{
+															wordBreak: 'break-all',
+															fontFamily: 'monospace',
+															fontSize: '0.75rem',
+														}}
+													>
+														{deviceFlow.tokens.refresh_token}
+													</ParameterValue>
+												</div>
+											)}
+											
 											{deviceFlow.tokens.token_type && (
 												<div>
 													<ParameterLabel>Token Type</ParameterLabel>
@@ -1434,7 +1488,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												</div>
 											)}
 										</ParameterGrid>
-										<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
+										<ActionRow style={{ justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
 											<Button onClick={navigateToTokenManagement} $variant="primary">
 												<FiExternalLink /> Open Token Management
 											</Button>
@@ -1444,6 +1498,23 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											>
 												<FiCopy /> Copy Access Token
 											</Button>
+											{selectedVariant === 'oidc' && deviceFlow.tokens.id_token && (
+												<Button
+													onClick={() => handleCopy(deviceFlow.tokens!.id_token!, 'ID Token')}
+													$variant="outline"
+													style={{ backgroundColor: '#f0f9ff', borderColor: '#0ea5e9' }}
+												>
+													<FiCopy /> Copy ID Token
+												</Button>
+											)}
+											{deviceFlow.tokens.refresh_token && (
+												<Button
+													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
+													$variant="outline"
+												>
+													<FiCopy /> Copy Refresh Token
+												</Button>
+											)}
 										</ActionRow>
 									</GeneratedContentBox>
 								</ResultsSection>
@@ -1896,6 +1967,22 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												client_id: deviceFlow.credentials?.clientId || '[clientId]',
 												scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'read write')
 											},
+											response: deviceFlow.deviceCodeData ? {
+												status: 200,
+												statusText: 'OK',
+												headers: {
+													'Content-Type': 'application/json',
+													'Cache-Control': 'no-store'
+												},
+												data: {
+													device_code: deviceFlow.deviceCodeData.device_code,
+													user_code: deviceFlow.deviceCodeData.user_code,
+													verification_uri: deviceFlow.deviceCodeData.verification_uri,
+													verification_uri_complete: deviceFlow.deviceCodeData.verification_uri_complete,
+													expires_in: deviceFlow.deviceCodeData.expires_in,
+													interval: deviceFlow.deviceCodeData.interval
+												}
+											} : undefined,
 											flowType: 'device-code',
 											stepName: 'device-authorization-request',
 											description: `${selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Device Authorization Request`,
