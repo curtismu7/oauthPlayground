@@ -59,6 +59,8 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import credentialManager from '../utils/credentialManager';
 import JSONHighlighter from '../components/JSONHighlighter';
 import { CredentialsInput } from '../components/CredentialsInput';
+import { WorkerTokenCredentialsInput } from '../components/WorkerTokenCredentialsInput';
+import { workerTokenCredentialsService, type WorkerTokenCredentials } from '../services/workerTokenCredentialsService';
 import { EnhancedApiCallDisplay } from '../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, type EnhancedApiCallData } from '../services/enhancedApiCallDisplayService';
 import { AuthenticationModalService } from '../services/authenticationModalService';
@@ -316,16 +318,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   });
 
   // Separate credentials for different authentication flows
-  const [workerTokenCredentials, setWorkerTokenCredentials] = useState<CompleteMfaCredentials>({
-    environmentId: '',
-    clientId: '',
-    clientSecret: '',
-    workerToken: '',
-    userId: '',
-    redirectUri: 'https://localhost:3000/authz-callback',
-    username: '',
-    password: ''
-  });
+  const [workerTokenCredentials, setWorkerTokenCredentials] = useState<WorkerTokenCredentials>(
+    workerTokenCredentialsService.getDefaultCredentials()
+  );
 
   const [authCodeCredentials, setAuthCodeCredentials] = useState<CompleteMfaCredentials>({
     environmentId: '',
@@ -367,6 +362,14 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
     setCurrentStep('username_login');
     onStepChange?.('username_login');
+    
+    // Load worker token credentials from service
+    const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials();
+    if (savedWorkerTokenCreds) {
+      console.log('🔍 [MFA Flow V7] Loading saved worker token credentials:', savedWorkerTokenCreds);
+      setWorkerTokenCredentials(savedWorkerTokenCreds);
+    }
+    
     if (typeof window !== 'undefined') {
       const savedCreds = credentialManager.loadCustomData<typeof credentials>(MFA_CREDENTIALS_STORAGE_KEY, null);
       console.log('🔍 [MFA Flow V7] Loading saved credentials:', savedCreds);
@@ -657,18 +660,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
   // Handle credential changes and track unsaved changes
   // Worker Token Credentials Handlers
-  const handleWorkerTokenEnvironmentIdChange = useCallback((value: string) => {
-    setWorkerTokenCredentials(prev => ({ ...prev, environmentId: value }));
-    setHasUnsavedChanges(true);
-  }, []);
-
-  const handleWorkerTokenClientIdChange = useCallback((value: string) => {
-    setWorkerTokenCredentials(prev => ({ ...prev, clientId: value }));
-    setHasUnsavedChanges(true);
-  }, []);
-
-  const handleWorkerTokenClientSecretChange = useCallback((value: string) => {
-    setWorkerTokenCredentials(prev => ({ ...prev, clientSecret: value }));
+  const handleWorkerTokenCredentialsChange = useCallback((newCredentials: WorkerTokenCredentials) => {
+    setWorkerTokenCredentials(newCredentials);
     setHasUnsavedChanges(true);
   }, []);
 
@@ -942,25 +935,13 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 </div>
               </div>
 
-              <CredentialsInput
-                environmentId={workerTokenCredentials.environmentId}
-                clientId={workerTokenCredentials.clientId}
-                clientSecret={workerTokenCredentials.clientSecret}
-                scopes="p1:read:user p1:update:user p1:read:device p1:update:device"
-                onEnvironmentIdChange={handleWorkerTokenEnvironmentIdChange}
-                onClientIdChange={handleWorkerTokenClientIdChange}
-                onClientSecretChange={handleWorkerTokenClientSecretChange}
-                onScopesChange={() => {}}
+              <WorkerTokenCredentialsInput
+                credentials={workerTokenCredentials}
+                onCredentialsChange={handleWorkerTokenCredentialsChange}
                 onSave={handleSaveCredentials}
                 hasUnsavedChanges={hasUnsavedChanges}
                 isSaving={isSaving}
-                showClientSecret={true}
-                showEnvironmentIdInput={true}
-                showRedirectUri={false}
-                showPostLogoutRedirectUri={false}
-                showLoginHint={false}
-                flowKey="client-credentials"
-                autoDiscover={false}
+                showAdvancedOptions={true}
               />
             </CollapsibleHeaderService.CollapsibleHeader>
 
