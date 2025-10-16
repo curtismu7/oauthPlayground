@@ -65,6 +65,7 @@ import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
 import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
+import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
 import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
 import SAMLBearerAssertionFlowV6 from './pages/flows/SAMLBearerAssertionFlowV6';
 import AdvancedParametersV6 from './pages/flows/AdvancedParametersV6';
@@ -501,6 +502,7 @@ const AppRoutes = () => {
 							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
 							<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
 							<Route path="/flows/token-exchange-v7" element={<TokenExchangeFlowV7 />} />
+							<Route path="/flows/device-authorization-v7" element={<DeviceAuthorizationFlowV7 />} />
 						<Route
 							path="/flows/oidc-authorization-code-v5"
 							element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
