@@ -735,60 +735,29 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
   const handleUsernameLogin = useCallback(async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
     if (mode === 'redirectless') {
-      // For redirectless, we need username/password and make API call
+      // For redirectless, we need username/password and use response_mode=pi.flow
       if (!credentials.username || !credentials.password) {
         v4ToastManager.showError('Please enter username and password for redirectless authentication');
         return;
       }
 
-      console.log(`🔐 [MFA Flow V7] Starting redirectless authentication with credentials`);
-      setIsLoading(true);
-      setError(null);
+      console.log(`🔐 [MFA Flow V7] Starting redirectless authentication with response_mode=pi.flow`);
+      
+      // Generate authorization URL with response_mode=pi.flow for redirectless authentication
+      const redirectlessAuthUrl = `https://auth.pingone.com/${credentials.environmentId}/as/authorize?` +
+        `client_id=${credentials.clientId}&` +
+        `response_type=code&` +
+        `response_mode=pi.flow&` +
+        `scope=openid+profile+email&` +
+        `redirect_uri=${encodeURIComponent(credentials.redirectUri || 'https://localhost:3000/authz-callback')}&` +
+        `state=mfa-flow-${Date.now()}&` +
+        `username=${encodeURIComponent(credentials.username)}&` +
+        `password=${encodeURIComponent(credentials.password)}`;
 
-      try {
-        // Make API call for redirectless authentication
-        const response = await fetch('/api/token-exchange', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            grant_type: 'password',
-            client_id: credentials.clientId,
-            client_secret: credentials.clientSecret,
-            username: credentials.username,
-            password: credentials.password,
-            scope: 'openid profile email',
-            environment_id: credentials.environmentId
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Authentication failed: ${response.statusText}`);
-        }
-
-        const tokenData = await response.json();
-        console.log('✅ [MFA Flow V7] Redirectless authentication successful:', tokenData);
-        
-        // Store the tokens
-        setCredentials(prev => ({
-          ...prev,
-          accessToken: tokenData.access_token,
-          refreshToken: tokenData.refresh_token,
-          idToken: tokenData.id_token
-        }));
-
-        v4ToastManager.showSuccess('✅ Redirectless authentication successful!');
-        setCurrentStep('mfa_enrollment');
-        onStepChange?.('mfa_enrollment');
-
-      } catch (error: any) {
-        console.error('❌ [MFA Flow V7] Redirectless authentication failed:', error);
-        setError(error.message || 'Redirectless authentication failed');
-        v4ToastManager.showError(`Redirectless authentication failed: ${error.message}`);
-      } finally {
-        setIsLoading(false);
-      }
+      console.log(`🔐 [MFA Flow V7] Redirectless authentication URL:`, redirectlessAuthUrl);
+      
+      setAuthUrl(redirectlessAuthUrl);
+      setShowRedirectModal(true);
 
     } else {
       // For redirect, just open the authorization URL (PingOne provides the UI)
@@ -805,7 +774,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       setAuthUrl(mockAuthUrl);
       setShowRedirectModal(true);
     }
-  }, [credentials, onStepChange]);
+  }, [credentials]);
 
   const handleConfirmRedirect = useCallback(async () => {
     setShowRedirectModal(false);
