@@ -909,7 +909,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		
 		// Regenerate authorization URL with new parameters
 		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
-			'oauth',
+			flowVariant,
 			controller.credentials,
 			controller
 		);
@@ -1268,7 +1268,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const handleGenerateAuthUrl = useCallback(async () => {
 		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
-			'oauth',
+			flowVariant,
 			controller.credentials,
 			controller
 		);

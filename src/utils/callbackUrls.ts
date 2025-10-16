@@ -54,6 +54,9 @@ export function getCallbackUrlForFlow(flowType: string, baseUrl?: string): strin
 		case 'oidc-authorization-code-v6':
 		case 'oauth-authorization-code-v6':
 			return urls.authz; // Use standard authz-callback, NewAuthContext will redirect to V6 flow page
+		case 'oidc-authorization-code-v7':
+		case 'oauth-authorization-code-v7':
+			return urls.authz; // Use standard authz-callback, NewAuthContext will redirect to V7 flow page
 		case 'hybrid':
 		case 'oidc-hybrid-v3':
 			return urls.hybrid;
