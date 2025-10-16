@@ -1360,9 +1360,46 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 						{deviceFlow.tokens && (
 							<>
+								{/* Enhanced API Call Display for Token Exchange */}
+								<div style={{ marginTop: '1.5rem' }}>
+									<EnhancedApiCallDisplay
+										apiCall={{
+											method: 'POST',
+											url: `https://auth.pingone.com/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/token`,
+											headers: {
+												'Content-Type': 'application/x-www-form-urlencoded'
+											},
+											body: {
+												grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+												device_code: '[device_code_from_step_1]',
+												client_id: deviceFlow.credentials?.clientId || '[clientId]'
+											},
+											response: {
+												status: 200,
+												statusText: 'OK',
+												data: deviceFlow.tokens
+											},
+											flowType: 'device-code',
+											stepName: 'token-exchange',
+											description: `${selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Device Token Exchange`,
+											educationalNotes: [
+												'This request exchanges the device_code for access tokens',
+												'The device polls this endpoint until the user completes authorization',
+												`${selectedVariant === 'oidc' ? 'OIDC response includes ID token for user identity' : 'OAuth response includes access token for API access'}`,
+												'Polling continues until success, error, or timeout'
+											]
+										}}
+										options={{
+											showEducationalNotes: true,
+											showFlowContext: true,
+											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+										}}
+									/>
+								</div>
+
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
 									<ResultsHeading>
-										<FiKey size={18} /> Access Token
+										<FiKey size={18} /> {selectedVariant === 'oidc' ? 'Tokens Received' : 'Access Token'}
 									</ResultsHeading>
 									<GeneratedContentBox>
 										<ParameterGrid>
@@ -1848,77 +1885,33 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									1
 								</div>
 								<div style={{ width: '100%' }}>
-									<InfoTitle>Device Authorization Endpoint URL</InfoTitle>
-									<InfoText style={{ marginBottom: '1rem' }}>
-										This is the PingOne endpoint that will be called to request the device code:
-									</InfoText>
-									<div
-										style={{
-											background: '#1e293b',
-											color: '#e2e8f0',
-											padding: '1rem',
-											borderRadius: '0.5rem',
-											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-											fontSize: '0.875rem',
-											wordBreak: 'break-all',
-											border: '1px solid #334155',
-											marginBottom: '1rem',
+									<EnhancedApiCallDisplay
+										apiCall={{
+											method: 'POST',
+											url: `https://auth.pingone.com/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/device_authorization`,
+											headers: {
+												'Content-Type': 'application/x-www-form-urlencoded'
+											},
+											body: {
+												client_id: deviceFlow.credentials?.clientId || '[clientId]',
+												scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'read write')
+											},
+											flowType: 'device-code',
+											stepName: 'device-authorization-request',
+											description: `${selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Device Authorization Request`,
+											educationalNotes: [
+												'This endpoint initiates the device authorization flow',
+												`For ${selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'}: Returns device_code, user_code, and verification_uri`,
+												'The device will poll the token endpoint using the device_code',
+												'The user will enter the user_code at the verification_uri'
+											]
 										}}
-									>
-										POST https://auth.pingone.com/
-										{deviceFlow.credentials?.environmentId || 'environmentId'}
-										/as/device_authorization
-									</div>
-
-									<InfoText style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
-										<strong>Request Body (JSON):</strong>
-									</InfoText>
-									<div
-										style={{
-											background: '#1e293b',
-											color: '#e2e8f0',
-											padding: '1rem',
-											borderRadius: '0.5rem',
-											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-											fontSize: '0.875rem',
-											border: '1px solid #334155',
-											marginBottom: '1rem',
+										options={{
+											showEducationalNotes: true,
+											showFlowContext: true,
+											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
 										}}
-									>
-										<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
-											{JSON.stringify(
-												{
-													client_id: deviceFlow.credentials?.clientId || 'clientId',
-													scope: deviceFlow.credentials?.scopes || 'openid profile email',
-												},
-												null,
-												2
-											)}
-										</pre>
-									</div>
-
-									<InfoText style={{ marginTop: '1rem', marginBottom: '0.5rem' }}>
-										<strong>cURL Example:</strong>
-									</InfoText>
-									<div
-										style={{
-											background: '#1e293b',
-											color: '#e2e8f0',
-											padding: '1rem',
-											borderRadius: '0.5rem',
-											fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace',
-											fontSize: '0.75rem',
-											border: '1px solid #334155',
-											overflowX: 'auto',
-										}}
-									>
-										<pre
-											style={{ margin: 0, whiteSpace: 'pre-wrap' }}
-										>{`curl -X POST https://auth.pingone.com/${deviceFlow.credentials?.environmentId || 'environmentId'}/as/device_authorization \\
-  -H "Content-Type: application/x-www-form-urlencoded" \\
-  -d "client_id=${deviceFlow.credentials?.clientId || 'clientId'}" \\
-  -d "scope=${deviceFlow.credentials?.scopes || 'openid profile email'}"`}</pre>
-									</div>
+									/>
 								</div>
 							</InfoBox>
 
