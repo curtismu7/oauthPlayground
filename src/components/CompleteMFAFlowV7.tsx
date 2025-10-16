@@ -423,6 +423,12 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           // Try direct UUID pattern at end of URL
           envIdMatch = issuerUrl.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
         }
+        
+        console.log('[CompleteMFAFlowV7] Regex matching results:', {
+          issuerUrl,
+          envIdMatch,
+          extractedEnvId: envIdMatch ? envIdMatch[1] : null
+        });
         if (envIdMatch && envIdMatch[1]) {
           const extractedEnvId = envIdMatch[1];
           console.log('[CompleteMFAFlowV7] Extracted environment ID:', extractedEnvId);
