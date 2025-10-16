@@ -738,10 +738,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 							parsed?.flow === 'oidc-authorization-code-v6' ||
 							parsed?.flow === 'oauth-authorization-code-v6';
 						
-						console.log('🔍 [NewAuthContext] Is V6 flow?', isV6Flow, 'Flow:', parsed?.flow);
+						const isV7Flow =
+							parsed?.flow === 'oidc-authorization-code-v7' ||
+							parsed?.flow === 'oauth-authorization-code-v7';
 						
-					if (isV6Flow) {
-						// For V6 flows, skip state validation and redirect immediately
+						console.log('🔍 [NewAuthContext] Is V6 flow?', isV6Flow, 'Is V7 flow?', isV7Flow, 'Flow:', parsed?.flow);
+						
+					if (isV6Flow || isV7Flow) {
+						// For V6/V7 flows, skip state validation and redirect immediately
 						console.log(' [NewAuthContext] V6 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
 						
 						// Store auth code and state for the V6 flow page
@@ -1061,6 +1065,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 						const isV6Flow =
 							parsed?.flow === 'oidc-authorization-code-v6' ||
 							parsed?.flow === 'oauth-authorization-code-v6';
+						
+						const isV7Flow =
+							parsed?.flow === 'oidc-authorization-code-v7' ||
+							parsed?.flow === 'oauth-authorization-code-v7';
 
 						console.log(' [NewAuthContext] Flow type detection:', {
 							flowType: parsed?.flow,
@@ -1170,7 +1178,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					
 					// Determine redirect path based on active flow
 					let returnPath = '/flows/oauth-authorization-code-v6';
-					if (activeOAuthFlow.includes('oidc-authorization-code')) {
+					if (activeOAuthFlow.includes('oidc-authorization-code-v7')) {
+						returnPath = '/flows/oauth-authorization-code-v7'; // V7 unified flow handles both OAuth and OIDC
+					} else if (activeOAuthFlow.includes('oauth-authorization-code-v7')) {
+						returnPath = '/flows/oauth-authorization-code-v7'; // V7 unified flow handles both OAuth and OIDC
+					} else if (activeOAuthFlow.includes('oidc-authorization-code')) {
 						returnPath = '/flows/oidc-authorization-code-v6';
 					} else if (activeOAuthFlow.includes('oauth-authorization-code')) {
 						returnPath = '/flows/oauth-authorization-code-v6';

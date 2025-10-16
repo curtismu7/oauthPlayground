@@ -1,0 +1,60 @@
+= PingOne MFA Combined Flow (SDK/API Full Tutorial)
+:version: 3.0.0
+:mode-switch: SDK or API
+:stepper: Create User → Username/Email → Password → Enroll MFA → Pair → Challenge → Tokens → Success
+:services: V6
+:tokens: access_token, id_token, refresh_token
+
+== Overview
+This guide covers the PingOne MFA combined flow for registration and authentication using either SDK or REST APIs.
+All steps are annotated with sample JSON, code snippets, and flow logic.
+
+== Step Flow
+1. Create User
+2. Username/Email Login
+3. Password Authentication (PKCE)
+4. MFA Enrollment (if required)
+5. Device Pairing (TOTP, FIDO2, Push, SMS/Email)
+6. MFA Challenge Verification
+7. Token Retrieval (access, ID, refresh)
+8. Success & Session Establishment
+
+== V6 Service Code Reference
+[source,typescript]
+----
+class AuthServiceV6 {
+  login(identifier: string): Promise<{authUrl, flowId}> { … }
+  exchangeToken(code: string, verifier: string): Promise<Tokens> { … }
+  refreshToken(refreshToken: string): Promise<Tokens> { … }
+}
+
+class UserServiceV6 {
+  createUser(payload): Promise<User> { … }
+  listDevices(userId): Promise<Device[]> { … }
+}
+
+class MFAServiceV6 {
+  createDevice(userId, type): Promise<Device> { … }
+  verifyDevice(userId, deviceId, code): Promise<Device> { … }
+  initiateDeviceAuth(userId, deviceId): Promise<DeviceAuthTxn> { … }
+  completeDeviceAuth(txnId, data): Promise<{status: string}> { … }
+}
+----
+
+== Token Reference
+|===
+| Token | Description | Example
+| Access Token | Used for API calls | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+| ID Token | Contains user claims | eyJraWQiOiJrMTIzIn0.eyJzdWIiOiJ1c2VyXzEyMyIsImVtYWlsIjoiYWxleC5zbWl0aEBleGFtcGxlLmNvbSJ9...
+| Refresh Token | Used to renew access tokens | def50200a1bcd...
+|===
+
+== Security & UX Notes
+* Use PKCE + state for OIDC flows.
+* Never expose secrets or OTPs in logs.
+* Enable fallback MFA types.
+* Display status updates with V5stepper and unified logs.
+
+== Outcome
+Users can complete full MFA registration and authentication,
+view all token types, and seamlessly toggle between SDK and API implementations.
