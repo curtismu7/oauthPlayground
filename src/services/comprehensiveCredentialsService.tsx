@@ -224,8 +224,22 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 	const saveHandler = onSaveCredentials ?? onSave;
 
+	// Normalize scopes to be space-separated
+	const normalizeScopes = (scopeValue: string | undefined): string => {
+		if (!scopeValue) return defaultScopes;
+		
+		// Convert comma-separated to space-separated if needed
+		if (scopeValue.includes(',') && !scopeValue.includes(' ')) {
+			return scopeValue.split(',').map(s => s.trim()).join(' ');
+		}
+		
+		return scopeValue;
+	};
+
 	const resolvedCredentials = useMemo<StepCredentials>(() => {
 		const fallbackScope = scopes || defaultScopes;
+		const normalizedScope = normalizeScopes(credentials?.scope ?? credentials?.scopes ?? fallbackScope);
+		
 		return {
 			environmentId: credentials?.environmentId ?? environmentId ?? '',
 			clientId: credentials?.clientId ?? clientId ?? '',
@@ -233,8 +247,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			// Use credentials.redirectUri if available, otherwise use actualRedirectUri
 			// BUT respect empty string as a valid user input (don't force default)
 			redirectUri: credentials?.redirectUri !== undefined ? credentials.redirectUri : actualRedirectUri,
-			scope: credentials?.scope ?? fallbackScope,
-			scopes: credentials?.scopes ?? fallbackScope,
+			scope: normalizedScope,
+			scopes: normalizedScope,
 			loginHint: credentials?.loginHint ?? loginHint ?? '',
 			postLogoutRedirectUri: credentials?.postLogoutRedirectUri !== undefined ? credentials.postLogoutRedirectUri : actualPostLogoutRedirectUri,
 			responseType: credentials?.responseType ?? 'code',
