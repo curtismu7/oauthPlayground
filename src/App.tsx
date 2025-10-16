@@ -349,7 +349,7 @@ const AppRoutes = () => {
 						/>
 						<Route
 							path="/flows/oauth-authorization-code-v7"
-							element={<OAuthAuthorizationCodeFlowV6 />}
+							element={<OAuthAuthorizationCodeFlowV7 />}
 						/>
 						{/* RFC 6749 Compliant OAuth 2.0 Authorization Code Flow */}
 						<Route
