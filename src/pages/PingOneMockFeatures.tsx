@@ -291,13 +291,18 @@ const PingOneMockFeatures: React.FC = () => {
             }}>
               PingOne Mock & Educational Features
             </h1>
-            <p style={{ 
-              fontSize: '1.25rem', 
-              color: '#6b7280', 
-              lineHeight: '1.6',
-              maxWidth: '800px'
-            }}>
-              Features implemented as mock demonstrations because they are not supported by PingOne. Click the links below to try existing mock flows.
+            <p
+              style={{
+                fontSize: '1.25rem',
+                color: '#6b7280',
+                lineHeight: '1.6',
+                maxWidth: '800px',
+              }}
+            >
+              <strong>
+                Features implemented as mock demonstrations because they are{' '}
+                <span style={{ color: '#dc2626' }}>not supported by PingOne</span>. Click the links below to try existing mock flows.
+              </strong>
             </p>
           </div>
 

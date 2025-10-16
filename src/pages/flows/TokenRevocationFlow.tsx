@@ -269,12 +269,12 @@ const TokenRevocationFlow: React.FC<TokenRevocationFlowProps> = ({ credentials }
 		'access_token'
 	);
 	const [formData, setFormData] = useState({
-		clientId: credentials?.clientId || '',
-		clientSecret: credentials?.clientSecret || '',
-		environmentId: credentials?.environmentId || '',
-		tokenToRevoke: '',
+		clientId: credentials?.clientId || 'mock_revocation_client_id_demo_12345',
+		clientSecret: credentials?.clientSecret || 'mock_revocation_client_secret_demo_67890',
+		environmentId: credentials?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9',
+		tokenToRevoke: 'mock_access_token_to_revoke_example_12345',
 		tokenTypeHint: 'access_token' as 'access_token' | 'refresh_token',
-		bulkTokens: '',
+		bulkTokens: 'mock_token_1_example_abc123\nmock_token_2_example_def456\nmock_token_3_example_ghi789',
 		revocationReason: 'user_logout',
 	});
 	const [response, setResponse] = useState<Record<string, unknown> | null>(null);

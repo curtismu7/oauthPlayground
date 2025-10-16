@@ -100,10 +100,10 @@ export class V6InfoComponentsService {
 	 */
 	static createInfoComponents() {
 		return {
-			InfoBox: this.createInfoBox(),
-			InfoTitle: this.createInfoTitle(),
-			InfoText: this.createInfoText(),
-			InfoList: this.createInfoList(),
+			InfoBox: V6InfoComponentsService.createInfoBox(),
+			InfoTitle: V6InfoComponentsService.createInfoTitle(),
+			InfoText: V6InfoComponentsService.createInfoText(),
+			InfoList: V6InfoComponentsService.createInfoList(),
 		};
 	}
 }

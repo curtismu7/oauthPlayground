@@ -31,7 +31,7 @@ import { FlowConfigService } from '../../services/flowConfigService';
 import { FlowControllerService } from '../../services/flowControllerService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowLayoutService } from '../../services/flowLayoutService';
-import { FlowStateService } from '../../services/flowStateService';
+import FlowStateService from '../../services/flowStateService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { useImplicitFlowController } from '../../hooks/useImplicitFlowController';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

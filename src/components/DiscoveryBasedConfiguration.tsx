@@ -440,7 +440,7 @@ const DiscoveryBasedConfiguration: React.FC<DiscoveryBasedConfigurationProps> = 
 						)}
 
 						<ButtonGroup>
-							<Button variant="primary" onClick={handleSaveConfiguration} disabled={!canSave}>
+							<Button variant="success" onClick={handleSaveConfiguration} disabled={!canSave}>
 								{isSaving ? <FiRefreshCw className="animate-spin" /> : <FiSave />}
 								{isSaving ? 'Saving...' : 'Save Configuration'}
 							</Button>

@@ -31,7 +31,7 @@ import { useResponseModeIntegration } from '../../services/responseModeIntegrati
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
 import { FlowLayoutService } from '../../services/flowLayoutService';
-import { FlowStateService } from '../../services/flowStateService';
+import FlowStateService from '../../services/flowStateService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import {
@@ -50,7 +50,7 @@ import { UISettingsService } from '../../services/uiSettingsService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { validateForStep } from '../../services/credentialsValidationService';
-import ImplicitFlowSharedService from '../../services/implicitFlowSharedService';
+import { ImplicitFlowSharedService } from '../../services/implicitFlowSharedService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { getFlowSequence } from '../../services/flowSequenceService';
 
@@ -672,8 +672,18 @@ const renderStepContent = useMemo(() => {
 				
 			// Discovery handler - environment ID is auto-populated by the service
 			onDiscoveryComplete={(result) => {
-				console.log('[OIDC Implicit V5] OIDC Discovery completed:', result);
-				// Service already handles environment ID extraction
+				console.log('[OIDC Implicit V6] OIDC Discovery completed:', result);
+				// Extract environment ID from issuer URL using the standard service
+				if (result.issuerUrl) {
+					const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
+					if (extractedEnvId) {
+						implicitFlowActions.setCredentials({
+							...implicitFlowState.credentials,
+							environmentId: extractedEnvId,
+						});
+						console.log('[OIDC Implicit V6] Auto-extracted Environment ID:', extractedEnvId);
+					}
+				}
 			}}
 				
 				// PingOne Advanced Configuration (correct prop names)

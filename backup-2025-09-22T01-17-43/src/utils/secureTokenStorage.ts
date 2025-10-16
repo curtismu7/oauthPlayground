@@ -19,7 +19,7 @@ class SimpleEncryption {
 			let result = '';
 			for (let i = 0; i < text.length; i++) {
 				result += String.fromCharCode(
-					text.charCodeAt(i) ^ this.KEY.charCodeAt(i % this.KEY.length)
+					text.charCodeAt(i) ^ SimpleEncryption.KEY.charCodeAt(i % SimpleEncryption.KEY.length)
 				);
 			}
 			return btoa(result);
@@ -35,7 +35,7 @@ class SimpleEncryption {
 			let result = '';
 			for (let i = 0; i < text.length; i++) {
 				result += String.fromCharCode(
-					text.charCodeAt(i) ^ this.KEY.charCodeAt(i % this.KEY.length)
+					text.charCodeAt(i) ^ SimpleEncryption.KEY.charCodeAt(i % SimpleEncryption.KEY.length)
 				);
 			}
 			return result;
