@@ -284,22 +284,22 @@ export class V6FlowLayoutService {
 	 */
 	static createFlowLayout(theme: ThemeColor = 'blue') {
 		return {
-			Container: this.createContainer(),
-			ContentWrapper: this.createContentWrapper(),
-			MainCard: this.createMainCard(),
-			StepHeader: this.createStepHeader(theme),
-			StepHeaderLeft: this.createStepHeaderLeft(),
-			VersionBadge: this.createVersionBadge(theme),
-			StepHeaderTitle: this.createStepHeaderTitle(),
-			StepHeaderSubtitle: this.createStepHeaderSubtitle(),
-			StepHeaderRight: this.createStepHeaderRight(),
-			StepNumber: this.createStepNumber(),
-			StepTotal: this.createStepTotal(),
-			StepContentWrapper: this.createStepContentWrapper(),
-			RequirementsIndicator: this.createRequirementsIndicator(),
-			RequirementsIcon: this.createRequirementsIcon(),
-			RequirementsText: this.createRequirementsText(),
-			theme: this.getTheme(theme),
+			Container: V6FlowLayoutService.createContainer(),
+			ContentWrapper: V6FlowLayoutService.createContentWrapper(),
+			MainCard: V6FlowLayoutService.createMainCard(),
+			StepHeader: V6FlowLayoutService.createStepHeader(theme),
+			StepHeaderLeft: V6FlowLayoutService.createStepHeaderLeft(),
+			VersionBadge: V6FlowLayoutService.createVersionBadge(theme),
+			StepHeaderTitle: V6FlowLayoutService.createStepHeaderTitle(),
+			StepHeaderSubtitle: V6FlowLayoutService.createStepHeaderSubtitle(),
+			StepHeaderRight: V6FlowLayoutService.createStepHeaderRight(),
+			StepNumber: V6FlowLayoutService.createStepNumber(),
+			StepTotal: V6FlowLayoutService.createStepTotal(),
+			StepContentWrapper: V6FlowLayoutService.createStepContentWrapper(),
+			RequirementsIndicator: V6FlowLayoutService.createRequirementsIndicator(),
+			RequirementsIcon: V6FlowLayoutService.createRequirementsIcon(),
+			RequirementsText: V6FlowLayoutService.createRequirementsText(),
+			theme: V6FlowLayoutService.getTheme(theme),
 		};
 	}
 }

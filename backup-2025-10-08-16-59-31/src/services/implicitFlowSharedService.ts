@@ -816,7 +816,7 @@ export class ImplicitFlowResponseTypeEnforcer {
 		credentials: StepCredentials,
 		setCredentials: (creds: StepCredentials) => void
 	): void {
-		const expectedType = this.getExpectedResponseType(variant);
+		const expectedType = ImplicitFlowResponseTypeEnforcer.getExpectedResponseType(variant);
 		
 		if (credentials.responseType !== expectedType) {
 			console.log(`[ResponseTypeEnforcer] Correcting response_type from '${credentials.responseType}' to '${expectedType}'`);

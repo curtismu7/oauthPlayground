@@ -156,9 +156,9 @@ const DiscoverButton = styled.button.withConfig({
 
 const SaveButton = styled.button<{ $isSaved?: boolean }>`
   padding: 0.5rem 1rem;
-  background: ${props => props.$isSaved ? '#10b981' : '#3b82f6'};
+  background: ${props => props.$isSaved ? '#059669' : '#10b981'};
   color: white;
-  border: 1px solid ${props => props.$isSaved ? '#059669' : '#2563eb'};
+  border: 1px solid ${props => props.$isSaved ? '#047857' : '#059669'};
   border-radius: 0.375rem;
   cursor: pointer;
   display: flex;

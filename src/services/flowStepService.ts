@@ -59,31 +59,31 @@ export class FlowStepService {
 	): StepContent {
 		switch (flowType) {
 			case 'implicit':
-				return this.createImplicitStepContent(stepIndex, controller, theme);
+				return FlowStepService.createImplicitStepContent(stepIndex, controller, theme);
 			case 'authorization-code':
-				return this.createAuthorizationCodeStepContent(stepIndex, controller, theme);
+				return FlowStepService.createAuthorizationCodeStepContent(stepIndex, controller, theme);
 			case 'client-credentials':
-				return this.createClientCredentialsStepContent(stepIndex, controller, theme);
+				return FlowStepService.createClientCredentialsStepContent(stepIndex, controller, theme);
 			case 'device-authorization':
-				return this.createDeviceAuthorizationStepContent(stepIndex, controller, theme);
+				return FlowStepService.createDeviceAuthorizationStepContent(stepIndex, controller, theme);
 			case 'resource-owner-password':
-				return this.createResourceOwnerPasswordStepContent(stepIndex, controller, theme);
+				return FlowStepService.createResourceOwnerPasswordStepContent(stepIndex, controller, theme);
 			case 'jwt-bearer':
-				return this.createJWTBearerStepContent(stepIndex, controller, theme);
+				return FlowStepService.createJWTBearerStepContent(stepIndex, controller, theme);
 			case 'ciba':
-				return this.createCIBAStepContent(stepIndex, controller, theme);
+				return FlowStepService.createCIBAStepContent(stepIndex, controller, theme);
 			case 'hybrid':
-				return this.createHybridStepContent(stepIndex, controller, theme);
+				return FlowStepService.createHybridStepContent(stepIndex, controller, theme);
 			case 'redirectless':
-				return this.createRedirectlessStepContent(stepIndex, controller, theme);
+				return FlowStepService.createRedirectlessStepContent(stepIndex, controller, theme);
 			case 'token-introspection':
-				return this.createTokenIntrospectionStepContent(stepIndex, controller, theme);
+				return FlowStepService.createTokenIntrospectionStepContent(stepIndex, controller, theme);
 			case 'token-revocation':
-				return this.createTokenRevocationStepContent(stepIndex, controller, theme);
+				return FlowStepService.createTokenRevocationStepContent(stepIndex, controller, theme);
 			case 'user-info':
-				return this.createUserInfoStepContent(stepIndex, controller, theme);
+				return FlowStepService.createUserInfoStepContent(stepIndex, controller, theme);
 			default:
-				return this.createDefaultStepContent(stepIndex, controller, theme);
+				return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 		}
 	}
 
@@ -111,7 +111,7 @@ export class FlowStepService {
 		};
 
 		const getStepRequirements = (stepIndex: number): string[] => {
-			return this.getStepRequirements(flowType, stepIndex);
+			return FlowStepService.getStepRequirements(flowType, stepIndex);
 		};
 
 		return { isStepValid, getStepRequirements };
@@ -302,7 +302,7 @@ export class FlowStepService {
 					],
 				};
 			default:
-				return this.createDefaultStepContent(stepIndex, controller, theme);
+				return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 		}
 	}
 
@@ -312,7 +312,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Similar structure to implicit but with authorization code specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createClientCredentialsStepContent(
@@ -321,7 +321,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Client credentials specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createDeviceAuthorizationStepContent(
@@ -330,7 +330,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Device authorization specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createResourceOwnerPasswordStepContent(
@@ -339,7 +339,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Resource owner password specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createJWTBearerStepContent(
@@ -348,7 +348,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// JWT bearer specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createCIBAStepContent(
@@ -357,7 +357,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// CIBA specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createHybridStepContent(
@@ -473,7 +473,7 @@ export class FlowStepService {
 					]
 				};
 			default:
-				return this.createDefaultStepContent(stepIndex, controller, theme);
+				return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 		}
 	}
 
@@ -483,7 +483,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Redirectless specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createTokenIntrospectionStepContent(
@@ -492,7 +492,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Token introspection specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createTokenRevocationStepContent(
@@ -501,7 +501,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// Token revocation specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createUserInfoStepContent(
@@ -510,7 +510,7 @@ export class FlowStepService {
 		theme: string
 	): StepContent {
 		// User info specific content
-		return this.createDefaultStepContent(stepIndex, controller, theme);
+		return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
 	}
 
 	private static createDefaultStepContent(
@@ -541,9 +541,9 @@ export class FlowStepService {
 		controller: any,
 		theme: string = 'blue'
 	): StepConfig {
-		const content = this.createStepContent(flowType, stepIndex, controller, theme);
-		const validation = this.createStepValidation(flowType, controller);
-		const requirements = this.getStepRequirements(flowType, stepIndex);
+		const content = FlowStepService.createStepContent(flowType, stepIndex, controller, theme);
+		const validation = FlowStepService.createStepValidation(flowType, controller);
+		const requirements = FlowStepService.getStepRequirements(flowType, stepIndex);
 
 		return {
 			stepIndex,
@@ -566,7 +566,7 @@ export class FlowStepService {
 		theme: string = 'blue'
 	): StepConfig[] {
 		return steps.map((step, index) =>
-			this.createStepConfig(index, step.title, step.subtitle, flowType, controller, theme)
+			FlowStepService.createStepConfig(index, step.title, step.subtitle, flowType, controller, theme)
 		);
 	}
 }

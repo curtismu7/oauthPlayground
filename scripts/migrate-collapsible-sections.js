@@ -43,7 +43,7 @@ function extractTitle(content) {
 	if (!match) return null;
 	
 	// Remove icon components and get text
-	let title = match[1]
+	const title = match[1]
 		.replace(/<Fi\w+\s*\/>/g, '')  // Remove self-closing icons
 		.replace(/<Fi\w+>.*?<\/Fi\w+>/g, '')  // Remove icon wrappers
 		.trim();
@@ -65,7 +65,7 @@ function migrateFile(filePath) {
 	
 	let content = fs.readFileSync(filePath, 'utf-8');
 	const originalContent = content;
-	let changes = [];
+	const changes = [];
 	
 	// Step 1: Check if already using CollapsibleHeader
 	if (content.includes('from \'../../services/collapsibleHeaderService\'')) {

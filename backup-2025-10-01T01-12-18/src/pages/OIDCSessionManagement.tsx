@@ -1400,8 +1400,8 @@ function checkSessionStatus() {
 function base64url(buffer) {
   return buffer
     .toString('base64')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
+    .replace(/+/g, '-')
+    .replace(///g, '_')
     .replace(/=/g, '');
 }`,
 											'session-validation'

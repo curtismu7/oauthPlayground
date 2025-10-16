@@ -223,6 +223,15 @@ export const StepValidationService = {
 			required: true,
 			label: 'PKCE Code Verifier'
 		}
+	],
+
+	createTokenValidationRules: (tokens: any) => [
+		{
+			field: 'accessToken',
+			value: tokens?.access_token,
+			required: true,
+			label: 'Access Token'
+		}
 	]
 };
 
