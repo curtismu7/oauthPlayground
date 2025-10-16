@@ -65,6 +65,7 @@ import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
+import ClientCredentialsFlowV7 from './pages/flows/ClientCredentialsFlowV7';
 import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
 import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
 import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
@@ -426,7 +427,14 @@ const AppRoutes = () => {
 							/>
 							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
 							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
-							<Route path="/flows/client-credentials-v6" element={<ClientCredentialsFlowV6 />} />
+							<Route
+								path="/flows/client-credentials-v6"
+								element={<ClientCredentialsFlowV6 />}
+							/>
+							<Route
+								path="/flows/client-credentials-v7"
+								element={<ClientCredentialsFlowV7 />}
+							/>
 							<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v6" replace />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route path="/flows/oidc-hybrid-v6" element={<OIDCHybridFlowV6 />} />
