@@ -1088,15 +1088,28 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
         // For pi.flow, we need to make a POST request to the authorize endpoint
         // This is a PingOne proprietary extension for redirectless authentication
-        const authEndpoint = `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize`;
+        
+        // Use authCodeCredentials if available, otherwise fall back to main credentials
+        const effectiveEnvironmentId = authCodeCredentials.environmentId || credentials.environmentId;
+        const effectiveClientId = authCodeCredentials.clientId || credentials.clientId;
+        const effectiveClientSecret = authCodeCredentials.clientSecret || credentials.clientSecret;
+        const effectiveRedirectUri = authCodeCredentials.redirectUri || credentials.redirectUri || 'https://localhost:3000/oauth-callback';
+        
+        if (!effectiveEnvironmentId || !effectiveClientId) {
+          v4ToastManager.showError('Please enter Environment ID and Client ID in the Authorization Code Configuration section');
+          setIsLoading(false);
+          return;
+        }
+        
+        const authEndpoint = `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize`;
         
         // Build the request body for pi.flow with PKCE parameters
         const requestBody = new URLSearchParams({
-          client_id: authCodeCredentials.clientId,
+          client_id: effectiveClientId,
           response_type: 'code',
           response_mode: 'pi.flow',
           scope: 'openid profile email',
-          redirect_uri: authCodeCredentials.redirectUri || 'https://localhost:3000/oauth-callback',
+          redirect_uri: effectiveRedirectUri,
           state: `mfa-flow-${Date.now()}`,
           code_challenge: codeChallenge,
           code_challenge_method: 'S256',
@@ -1106,11 +1119,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
         console.log(`🔐 [MFA Flow V7] Making POST request to authorize endpoint for pi.flow`);
         console.log(`🔐 [MFA Flow V7] Request body:`, {
-          client_id: authCodeCredentials.clientId,
+          client_id: effectiveClientId,
           response_mode: 'pi.flow',
           hasUsername: !!credentials.username,
           hasPassword: !!credentials.password,
-          redirect_uri: authCodeCredentials.redirectUri,
+          redirect_uri: effectiveRedirectUri,
           code_challenge: codeChallenge.substring(0, 20) + '...',
           code_challenge_method: 'S256'
         });
@@ -1145,7 +1158,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         const redirectlessApiCall = createApiCallData(
           'authentication',
           'POST' as const,
-          `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize`,
+          `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize`,
           {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
@@ -1236,8 +1249,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           setAuthUrl(`PingOne Flow ID: ${responseData.id}\nResume URL: ${responseData.resumeUrl}`);
           setShowRedirectModal(true);
           
-          // Move to the next step to continue the flow
-          setCurrentStep('device_pairing');
+          // Don't advance the step here - let the user confirm the modal first
         } else {
           console.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
           v4ToastManager.showWarning('Unexpected response format from PingOne');
@@ -1361,14 +1373,24 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     setError(null);
 
     try {
-      console.log('🔐 [MFA Flow V7] Starting user authentication');
+      console.log('🔐 [MFA Flow V7] User confirmed redirect/flow');
       
-      // Simulate authentication process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Show success modal
-      setShowSuccessModal(true);
-      v4ToastManager.showSuccess('✅ User authenticated successfully!');
+      // Check if we have flow context (from redirectless authentication)
+      if (flowContext.flowId && flowContext.resumeUrl) {
+        console.log('🔐 [MFA Flow V7] Advancing to device pairing step after flow confirmation');
+        // Move to device pairing step for redirectless flow
+        setCurrentStep('device_pairing');
+        onStepChange?.('device_pairing');
+        v4ToastManager.showSuccess('✅ Flow confirmed! Proceeding to device registration.');
+      } else {
+        console.log('🔐 [MFA Flow V7] Simulating redirect authentication');
+        // Simulate authentication process for regular redirect
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Show success modal
+        setShowSuccessModal(true);
+        v4ToastManager.showSuccess('✅ User authenticated successfully!');
+      }
       
     } catch (error: any) {
       console.error('Authentication Error:', error);
@@ -1377,7 +1399,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [flowContext.flowId, flowContext.resumeUrl, onStepChange]);
 
   const handleSuccessModalClose = useCallback(() => {
     setShowSuccessModal(false);
