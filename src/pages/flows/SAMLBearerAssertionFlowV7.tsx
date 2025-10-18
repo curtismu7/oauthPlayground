@@ -237,7 +237,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 	});
 
 	// SAML Configuration
-	const [environmentId, setEnvironmentId] = useState('1234567890abcdef1234567890abcdef');
+	const [environmentId, setEnvironmentId] = useState(__PINGONE_ENVIRONMENT_ID__ || 'b9817c16-9910-4415-b67e-4ac687da74d9');
 	const [clientId, setClientId] = useState('mock-saml-bearer-client');
 	const [tokenEndpoint, setTokenEndpoint] = useState('https://auth.mock.pingone.com/mock-environment/as/token');
 	const [identityProvider, setIdentityProvider] = useState('Mock Identity Provider Co.');
@@ -334,8 +334,8 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 	// Auto-populate Token Endpoint and Audience from OIDC Discovery
 	useEffect(() => {
 		const fetchDiscoveryAndPopulateEndpoints = async () => {
-			if (!environmentId || environmentId.length < 32) {
-				// Not a valid PingOne environment ID yet
+			if (!environmentId || environmentId.length < 36) {
+				// Not a valid PingOne environment ID yet (UUID format)
 				return;
 			}
 

@@ -1670,6 +1670,38 @@ export const FLOW_STEPS = {
 			description: 'Make API calls using the access token',
 		},
 	},
+	'worker-token': {
+		step1: {
+			id: 'step1',
+			name: 'Get Worker Token',
+			description: 'Request worker token using client credentials for machine-to-machine authentication',
+		},
+		step2: {
+			id: 'step2',
+			name: 'Use Worker Token',
+			description: 'Make API calls using the worker token',
+		},
+		deviceRegistration: {
+			id: 'deviceRegistration',
+			name: 'Device Registration',
+			description: 'Register MFA device using worker token',
+		},
+		authentication: {
+			id: 'authentication',
+			name: 'User Authentication',
+			description: 'Authenticate user with PingOne MFA',
+		},
+		mfaChallengeInitiate: {
+			id: 'mfaChallengeInitiate',
+			name: 'MFA Challenge Initiation',
+			description: 'Initiate MFA challenge for registered device',
+		},
+		mfaChallengeVerify: {
+			id: 'mfaChallengeVerify',
+			name: 'MFA Challenge Verification',
+			description: 'Verify MFA challenge code',
+		},
+	},
 	'device-authorization': {
 		step1: {
 			id: 'step1',

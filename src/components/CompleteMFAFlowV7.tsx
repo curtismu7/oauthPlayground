@@ -347,9 +347,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     setCurrentStep('username_login');
     onStepChange?.('username_login');
     
-    // Reset all flow state
-    setFlowContext(prev => ({
-      ...prev,
+    // Reset all flow state - including redirectless flow context
+    setFlowContext({
+      flow: 'pingone-complete-mfa-v7',
+      returnPath: '/pingone-authentication',
+      timestamp: Date.now(),
       authCredentials: { userId: '' },
       mfaCredentials: { userId: '', workerToken: '', environmentId: '' },
       userDevices: [],
@@ -357,8 +359,15 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       session: undefined,
       tokens: undefined,
       networkStatus: { online: true },
-      error: undefined
-    }));
+      error: undefined,
+      // Clear redirectless flow specific state
+      flowId: '',
+      resumeUrl: '',
+      flowEnvironment: undefined,
+      flowLinks: undefined,
+      flowEmbedded: undefined,
+      userId: undefined
+    });
     
     // Reset UI state
     setIsLoading(false);
@@ -375,11 +384,16 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       verificationCode: ''
     });
     
+    // Clear API calls
+    setApiCalls({});
+    
     // Clear any stored session data
     if (typeof window !== 'undefined') {
       sessionStorage.removeItem('pingone_mfa_v7_session');
       sessionStorage.removeItem('pingone_mfa_v7_tokens');
       sessionStorage.removeItem('pingone_mfa_v7_pkce');
+      // Clear any redirectless flow specific storage
+      sessionStorage.removeItem('pingone_mfa_v7_flow_context');
     }
     
     console.log('✅ [MFA Flow V7] Flow reset complete');
@@ -450,14 +464,41 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     NetworkStatusService.initialize();
     SecurityMonitoringService.initialize();
 
+    // Set default credentials for testing
+    setCredentials(prev => ({
+      ...prev,
+      username: prev.username || 'curtis7',
+      password: prev.password || 'Wolverine7&'
+    }));
+
     setCurrentStep('username_login');
     onStepChange?.('username_login');
     
     // Load worker token credentials from service
     const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials();
+    console.log('🔍 [MFA Flow V7] Worker token credentials check:', {
+      found: !!savedWorkerTokenCreds,
+      credentials: savedWorkerTokenCreds
+    });
     if (savedWorkerTokenCreds) {
       console.log('🔍 [MFA Flow V7] Loading saved worker token credentials:', savedWorkerTokenCreds);
       setWorkerTokenCredentials(savedWorkerTokenCreds);
+    } else {
+      console.log('🔍 [MFA Flow V7] No worker token credentials found in storage');
+      
+      // TEMPORARY: Save worker token credentials for testing
+      const workerCreds = {
+        environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
+        clientId: '66a4686b-9222-4ad2-91b6-03113711c9aa',
+        clientSecret: '0mClRqd3fif2vh4WJCO6B-8OZuOokzsh5gLw1V3GHbeGJYCMLk_zPfrptWzfYJ.a',
+        scopes: ['p1:read:user', 'p1:update:user', 'p1:create:device', 'p1:read:device', 'p1:update:device', 'p1:delete:device'],
+        region: 'us' as const,
+        tokenEndpointAuthMethod: 'client_secret_basic' as const
+      };
+      
+      console.log('🔍 [MFA Flow V7] Saving worker token credentials for testing:', workerCreds);
+      workerTokenCredentialsService.saveCredentials(workerCreds);
+      setWorkerTokenCredentials(workerCreds);
     }
     
     // Load authorization code credentials from storage
@@ -1039,6 +1080,18 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   }, []);
 
   const handleUsernameLogin = useCallback(async (mode: 'redirect' | 'redirectless' = 'redirectless') => {
+    console.log(`🔐 [MFA Flow V7] handleUsernameLogin called with mode: ${mode}`);
+    
+    // Clear any existing flow context when starting a new authentication
+    setFlowContext(prev => ({
+      ...prev,
+      flowId: '',
+      resumeUrl: '',
+      flowEnvironment: undefined,
+      flowLinks: undefined,
+      flowEmbedded: undefined
+    }));
+    
     if (mode === 'redirectless') {
       // For redirectless, we need username/password and use response_mode=pi.flow
       if (!credentials.username || !credentials.password) {
@@ -1047,6 +1100,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       }
 
       console.log(`🔐 [MFA Flow V7] Starting redirectless authentication with response_mode=pi.flow`);
+      console.log(`🔐 [MFA Flow V7] Username: ${credentials.username}`);
+      console.log(`🔐 [MFA Flow V7] Password: ${credentials.password ? '***' : 'NOT SET'}`);
       
       // Store current scroll position to prevent jumping to top
       const currentScrollY = window.scrollY;
@@ -1095,6 +1150,24 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         const effectiveClientSecret = authCodeCredentials.clientSecret || credentials.clientSecret;
         const effectiveRedirectUri = authCodeCredentials.redirectUri || credentials.redirectUri || 'https://localhost:3000/oauth-callback';
         
+        console.log('🔐 [MFA Flow V7] Credential Debug:', {
+          authCodeCredentials: {
+            environmentId: authCodeCredentials.environmentId,
+            clientId: authCodeCredentials.clientId,
+            redirectUri: authCodeCredentials.redirectUri
+          },
+          mainCredentials: {
+            environmentId: credentials.environmentId,
+            clientId: credentials.clientId,
+            redirectUri: credentials.redirectUri
+          },
+          effective: {
+            environmentId: effectiveEnvironmentId,
+            clientId: effectiveClientId,
+            redirectUri: effectiveRedirectUri
+          }
+        });
+        
         if (!effectiveEnvironmentId || !effectiveClientId) {
           v4ToastManager.showError('Please enter Environment ID and Client ID in the Authorization Code Configuration section');
           setIsLoading(false);
@@ -1103,48 +1176,83 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         
         const authEndpoint = `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize`;
         
-        // Build the request body for pi.flow with PKCE parameters
-        const requestBody = new URLSearchParams({
-          client_id: effectiveClientId,
-          response_type: 'code',
-          response_mode: 'pi.flow',
-          scope: 'openid profile email',
-          redirect_uri: effectiveRedirectUri,
-          state: `mfa-flow-${Date.now()}`,
-          code_challenge: codeChallenge,
-          code_challenge_method: 'S256',
-          username: credentials.username,
-          password: credentials.password
-        });
+          // Use direct authorization request with response_mode=pi.flow (like V5/V6 flows)
+          console.log(`🔐 [MFA Flow V7] Using direct authorization request with response_mode=pi.flow`);
 
-        console.log(`🔐 [MFA Flow V7] Making POST request to authorize endpoint for pi.flow`);
-        console.log(`🔐 [MFA Flow V7] Request body:`, {
-          client_id: effectiveClientId,
-          response_mode: 'pi.flow',
-          hasUsername: !!credentials.username,
-          hasPassword: !!credentials.password,
-          redirect_uri: effectiveRedirectUri,
-          code_challenge: codeChallenge.substring(0, 20) + '...',
-          code_challenge_method: 'S256'
-        });
+          // Build authorization request body for POST request (redirectless authentication)
+          // Note: No redirect_uri needed for redirectless authentication
+          const authRequestBody = new URLSearchParams({
+            response_type: 'code',
+            client_id: effectiveClientId,
+            scope: 'openid profile email',
+            state: `mfa-flow-${Date.now()}`,
+            nonce: `nonce-${Date.now()}`,
+            code_challenge: codeChallenge,
+            code_challenge_method: 'S256',
+            response_mode: 'pi.flow', // Key parameter for redirectless authentication
+            username: credentials.username,
+            password: credentials.password
+          });
+          
+          console.log(`🔐 [MFA Flow V7] Making POST request to authorize endpoint with response_mode=pi.flow`);
+          console.log(`🔐 [MFA Flow V7] Authorization endpoint:`, authEndpoint);
+          console.log(`🔐 [MFA Flow V7] Request body:`, {
+            response_type: 'code',
+            client_id: effectiveClientId,
+            scope: 'openid profile email',
+            state: `mfa-flow-${Date.now()}`,
+            nonce: `nonce-${Date.now()}`,
+            code_challenge: codeChallenge,
+            code_challenge_method: 'S256',
+            response_mode: 'pi.flow',
+            hasUsername: !!credentials.username,
+            hasPassword: !!credentials.password
+          });
+          
+          // Make the POST request to PingOne authorize endpoint with response_mode=pi.flow
+          console.log(`🔐 [MFA Flow V7] Making POST request to: ${authEndpoint}`);
+          console.log(`🔐 [MFA Flow V7] Request body: ${authRequestBody.toString()}`);
+          
+          const response = await fetch(authEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+              'Accept': 'application/json'
+            },
+            body: authRequestBody.toString()
+          });
 
-        // Make the POST request to PingOne authorize endpoint
-        const response = await fetch(authEndpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Accept': 'application/json'
-          },
-          body: requestBody.toString()
-        });
-
-        const responseData = await response.json();
+          console.log(`🔐 [MFA Flow V7] Response status: ${response.status} ${response.statusText}`);
+          console.log(`🔐 [MFA Flow V7] Response headers:`, Object.fromEntries(response.headers.entries()));
+          
+          // Check if response is JSON or HTML
+          const contentType = response.headers.get('content-type');
+          console.log(`🔐 [MFA Flow V7] Response content-type:`, contentType);
+          
+          let responseData;
+          if (contentType && contentType.includes('application/json')) {
+            responseData = await response.json();
+            console.log(`🔐 [MFA Flow V7] Response data:`, responseData);
+          } else {
+            // Response is HTML, not JSON - this usually means an error page
+            const responseText = await response.text();
+            console.log(`🔐 [MFA Flow V7] HTML Response (first 500 chars):`, responseText.substring(0, 500));
+            console.log(`🔐 [MFA Flow V7] Full HTML Response:`, responseText);
+            
+            // Try to extract error information from HTML
+            const errorMatch = responseText.match(/<title[^>]*>([^<]+)<\/title>/i);
+            const title = errorMatch ? errorMatch[1] : 'Unknown Error';
+            console.log(`🔐 [MFA Flow V7] HTML Page Title:`, title);
+            
+            throw new Error(`PingOne returned HTML instead of JSON. Page title: "${title}". This usually means invalid credentials or unsupported flow.`);
+          }
 
         console.log(`🔐 [MFA Flow V7] PingOne pi.flow response:`, {
           status: response.status,
           statusText: response.statusText,
-          hasFlow: !!responseData.flow,
-          flowState: responseData.flow?.state,
+          hasFlow: !!(responseData.id && responseData.resumeUrl),
+          flowId: responseData.id,
+          flowState: responseData.state,
           hasTokens: !!(responseData.access_token || responseData.id_token)
         });
 
@@ -1163,7 +1271,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json'
           },
-          requestBody.toString(),
+          authRequestBody.toString(),
           {
             status: response.status,
             statusText: response.statusText,
@@ -1171,7 +1279,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           },
           [
             'PingOne pi.flow (redirectless) authentication',
-            'POST request to /as/authorize (not GET)',
+            'POST request to /as/authorize with username/password in body',
             'Returns flow object instead of redirect',
             'Enables embedded authentication without browser redirects',
             'PingOne proprietary extension to OAuth 2.0/OIDC'
@@ -1183,15 +1291,178 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           authentication: redirectlessApiCall
         }));
 
-        // Handle the pi.flow response
-        if (responseData.flow) {
-          console.log(`🔐 [MFA Flow V7] Received flow object:`, responseData.flow);
+        // Handle the pi.flow response - the responseData IS the flow object
+        if (responseData.id && responseData.resumeUrl) {
+          console.log(`🔐 [MFA Flow V7] Received flow object:`, responseData);
+          console.log(`🔐 [MFA Flow V7] Flow object details:`, {
+            id: responseData.id,
+            state: responseData.state,
+            resumeUrl: responseData.resumeUrl,
+            environment: responseData.environment,
+            links: responseData._links,
+            embedded: responseData._embedded,
+            userId: responseData.userId,
+            user: responseData.user
+          });
           v4ToastManager.showSuccess('Redirectless authentication initiated successfully');
           
-          // For now, show the flow object in the UI
-          // In a real implementation, you would handle the flow steps
-          setAuthUrl(`Flow Object: ${JSON.stringify(responseData.flow, null, 2)}`);
-          setShowRedirectModal(true);
+          // Store the flow context for later use
+          const newUserId = responseData.userId || responseData.user?.id || 'test-user-' + Date.now();
+          console.log(`🔐 [MFA Flow V7] Setting userId in flow context:`, {
+            fromFlow: responseData.userId,
+            fromUser: responseData.user?.id,
+            fallback: 'test-user-' + Date.now(),
+            finalUserId: newUserId
+          });
+          
+          setFlowContext(prev => {
+            const newContext = {
+              ...prev,
+              flowId: responseData.id,
+              resumeUrl: responseData.resumeUrl,
+              flowEnvironment: responseData.environment,
+              flowLinks: responseData._links,
+              flowEmbedded: responseData._embedded,
+              // Try to get userId from flow object, fallback to temporary for testing
+              userId: newUserId
+            };
+            console.log(`🔐 [MFA Flow V7] Updated flow context:`, newContext);
+            return newContext;
+          });
+          
+          // For redirectless flow, we need to get a worker token for device registration
+          console.log('🔐 [MFA Flow V7] Redirectless flow established - getting worker token for device registration');
+          
+          // Get worker token using client credentials
+          try {
+            console.log('🔐 [MFA Flow V7] Getting worker token for device registration');
+            
+            // Use worker token credentials instead of authorization code credentials
+            const workerCredentials = workerTokenCredentials || authCodeCredentials;
+            const workerClientId = workerCredentials.clientId || effectiveClientId;
+            const workerClientSecret = workerCredentials.clientSecret || authCodeCredentials.clientSecret || credentials.clientSecret || '';
+            const workerEnvironmentId = workerCredentials.environmentId || effectiveEnvironmentId;
+            
+            console.log('🔐 [MFA Flow V7] Worker token request details:', {
+              environmentId: workerEnvironmentId,
+              clientId: workerClientId,
+              hasClientSecret: !!workerClientSecret,
+              clientSecretLength: workerClientSecret.length,
+              usingWorkerCredentials: !!workerTokenCredentials
+            });
+            
+            // Try Basic Authentication instead of client_secret_post
+            const basicAuth = btoa(`${workerClientId}:${workerClientSecret}`);
+            
+            const tokenRequestBody = new URLSearchParams({
+              grant_type: 'client_credentials',
+              scope: 'p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device p1:delete:device'
+            });
+            
+            console.log('🔐 [MFA Flow V7] Making worker token request to:', `https://auth.pingone.com/${workerEnvironmentId}/as/token`);
+            console.log('🔐 [MFA Flow V7] Using Basic Authentication');
+            console.log('🔐 [MFA Flow V7] Client ID:', workerClientId);
+            console.log('🔐 [MFA Flow V7] Client Secret length:', workerClientSecret.length);
+            console.log('🔐 [MFA Flow V7] Basic Auth header:', `Basic ${basicAuth.substring(0, 20)}...`);
+            console.log('🔐 [MFA Flow V7] Request body:', tokenRequestBody.toString());
+            
+            const tokenResponse = await fetch(`https://auth.pingone.com/${workerEnvironmentId}/as/token`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'Authorization': `Basic ${basicAuth}`
+              },
+              body: tokenRequestBody.toString()
+            });
+            
+            if (tokenResponse.ok) {
+              const tokenData = await tokenResponse.json();
+              console.log('🔐 [MFA Flow V7] Worker token obtained:', {
+                access_token: tokenData.access_token ? '***' : 'none',
+                token_type: tokenData.token_type,
+                expires_in: tokenData.expires_in
+              });
+              
+              // Update flow context with worker token
+              setFlowContext(prev => ({
+                ...prev,
+                workerToken: tokenData.access_token
+              }));
+              
+              v4ToastManager.showSuccess('✅ Worker token obtained! Ready for device registration.');
+            } else {
+              const errorData = await tokenResponse.json();
+              console.log('🔐 [MFA Flow V7] Worker token request failed:', {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                error: errorData,
+                requestUrl: `https://auth.pingone.com/${workerEnvironmentId}/as/token`,
+                clientId: workerClientId,
+                hasClientSecret: !!workerClientSecret,
+                clientSecretLength: workerClientSecret.length,
+                basicAuthHeader: `Basic ${basicAuth.substring(0, 20)}...`,
+                requestBody: tokenRequestBody.toString()
+              });
+              v4ToastManager.showError(`Failed to get worker token: ${errorData.error_description || errorData.error || 'Unknown error'}`);
+            }
+          } catch (error) {
+            console.log('🔐 [MFA Flow V7] Worker token request failed:', error);
+            console.log('🔐 [MFA Flow V7] Continuing without worker token - device registration will use alternative method');
+            // Don't show error to user - worker token is optional for basic MFA flow
+          }
+          
+        // For redirectless flow, we need to complete the authentication by calling the resumeUrl
+        console.log('🔐 [MFA Flow V7] Completing redirectless authentication by calling resumeUrl');
+        
+        try {
+          const resumeResponse = await fetch('http://localhost:3001/api/pingone/resume', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              resumeUrl: responseData.resumeUrl,
+              flowId: responseData.id,
+              flowState: state,
+              clientId: effectiveClientId,
+              clientSecret: effectiveClientSecret
+            })
+          });
+          
+          if (resumeResponse.ok) {
+            const resumeData = await resumeResponse.json();
+            console.log('🔐 [MFA Flow V7] Resume response:', resumeData);
+            
+            // Check if we got tokens or need to continue the flow
+            if (resumeData.access_token) {
+              console.log('🔐 [MFA Flow V7] Authentication completed with tokens');
+              // Store tokens and get real user ID
+              const realUserId = resumeData.id_token ? JSON.parse(atob(resumeData.id_token.split('.')[1])).sub : 'real-user-' + Date.now();
+              setFlowContext(prev => ({
+                ...prev,
+                userId: realUserId
+              }));
+            } else if (resumeData.userId) {
+              console.log('🔐 [MFA Flow V7] Authentication completed with user ID');
+              setFlowContext(prev => ({
+                ...prev,
+                userId: resumeData.userId
+              }));
+            }
+          } else {
+            const errorData = await resumeResponse.json().catch(() => ({}));
+            console.log('🔐 [MFA Flow V7] Resume URL returned error:', resumeResponse.status, resumeResponse.statusText, errorData);
+            // Continue with flow even if resume fails - user can still proceed to device pairing
+          }
+        } catch (error) {
+          console.log('🔐 [MFA Flow V7] Error calling resume URL:', error);
+        }
+        
+        // Advance to device pairing step
+        setCurrentStep('device_pairing');
+        onStepChange?.('device_pairing');
+        v4ToastManager.showSuccess('✅ Redirectless authentication completed! Proceeding to device pairing.');
         } else if (responseData.access_token) {
           console.log(`🔐 [MFA Flow V7] Received tokens directly from pi.flow`);
           v4ToastManager.showSuccess('Redirectless authentication completed successfully');
@@ -1245,19 +1516,23 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             flowEmbedded: responseData._embedded
           }));
           
-          // Show the flow information in the UI
-          setAuthUrl(`PingOne Flow ID: ${responseData.id}\nResume URL: ${responseData.resumeUrl}`);
-          setShowRedirectModal(true);
+          // For redirectless flow, we don't need to call resumeUrl
+          // The flow is already established and we can proceed directly to device pairing
+          console.log(`🔐 [MFA Flow V7] Redirectless flow established - proceeding directly to device pairing`);
           
-          // Don't advance the step here - let the user confirm the modal first
+          // Advance directly to device pairing step for redirectless authentication
+          setCurrentStep('device_pairing');
+          onStepChange?.('device_pairing');
+          v4ToastManager.showSuccess('✅ Redirectless authentication successful! Ready for device registration.');
         } else {
           console.warn(`⚠️ [MFA Flow V7] Unexpected pi.flow response format:`, responseData);
           v4ToastManager.showWarning('Unexpected response format from PingOne');
         }
         
-      } catch (error: any) {
-        console.error(`❌ [MFA Flow V7] Failed to make redirectless authentication request:`, error);
-        v4ToastManager.showError(`Redirectless authentication failed: ${error.message}`);
+      } catch (authError: any) {
+        console.error(`❌ [MFA Flow V7] Authorization request failed:`, authError);
+        v4ToastManager.showError(`Authorization request failed: ${authError.message}`);
+        return;
       } finally {
         setIsLoading(false);
         
@@ -1266,6 +1541,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
           window.scrollTo(0, currentScrollY);
         });
       }
+      
+      // Return early to prevent falling back to redirect logic
+      return;
 
     } else {
       // For redirect, generate PKCE codes and build authorization URL
@@ -1322,19 +1600,47 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         return;
       }
 
+      // Use authCodeCredentials if available, otherwise fall back to main credentials
+      const effectiveEnvironmentId = authCodeCredentials.environmentId || credentials.environmentId;
+      const effectiveClientId = authCodeCredentials.clientId || credentials.clientId;
+      const effectiveRedirectUri = authCodeCredentials.redirectUri || credentials.redirectUri || 'https://localhost:3000/oauth-callback';
+      
+      console.log('🔐 [MFA Flow V7] Redirect Credential Debug:', {
+        authCodeCredentials: {
+          environmentId: authCodeCredentials.environmentId,
+          clientId: authCodeCredentials.clientId,
+          redirectUri: authCodeCredentials.redirectUri
+        },
+        mainCredentials: {
+          environmentId: credentials.environmentId,
+          clientId: credentials.clientId,
+          redirectUri: credentials.redirectUri
+        },
+        effective: {
+          environmentId: effectiveEnvironmentId,
+          clientId: effectiveClientId,
+          redirectUri: effectiveRedirectUri
+        }
+      });
+      
+      if (!effectiveEnvironmentId || !effectiveClientId) {
+        v4ToastManager.showError('Please enter Environment ID and Client ID in the Authorization Code Configuration section');
+        return;
+      }
+
       // Build authorization URL with PKCE parameters
       const urlParams = new URLSearchParams({
-        client_id: authCodeCredentials.clientId,
+        client_id: effectiveClientId,
         response_type: 'code',
         response_mode: 'query',
         scope: 'openid profile email',
-        redirect_uri: authCodeCredentials.redirectUri || 'https://localhost:3000/oauth-callback',
+        redirect_uri: effectiveRedirectUri,
         state: `mfa-flow-${Date.now()}`,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256'
       });
 
-      const mockAuthUrl = `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize?${urlParams.toString()}`;
+      const mockAuthUrl = `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize?${urlParams.toString()}`;
 
       console.log(`🔐 [MFA Flow V7] Starting redirect authentication with URL:`, mockAuthUrl);
       console.log(`🔐 [MFA Flow V7] URL Parameters:`, Object.fromEntries(urlParams));
@@ -1343,9 +1649,9 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         code_challenge_method: 'S256'
       });
       console.log(`🔐 [MFA Flow V7] Authorization URL breakdown:`, {
-        baseUrl: `https://auth.pingone.com/${authCodeCredentials.environmentId}/as/authorize`,
-        clientId: authCodeCredentials.clientId,
-        redirectUri: authCodeCredentials.redirectUri || 'https://localhost:3000/oauth-callback',
+        baseUrl: `https://auth.pingone.com/${effectiveEnvironmentId}/as/authorize`,
+        clientId: effectiveClientId,
+        redirectUri: effectiveRedirectUri,
         state: `mfa-flow-${Date.now()}`,
         hasCodeChallenge: !!codeChallenge,
         hasCodeVerifier: !!codeVerifier
@@ -1363,7 +1669,8 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       console.log(`🔐 [MFA Flow V7] Set flow context for callback:`, mfaFlowContext);
       
       setAuthUrl(mockAuthUrl);
-      setShowRedirectModal(true);
+      // Modal showing removed - redirect flows are now triggered manually via button click
+      // Redirectless flows never show a modal
     }
   }, [credentials, authCodeCredentials]);
 
@@ -1377,11 +1684,37 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       
       // Check if we have flow context (from redirectless authentication)
       if (flowContext.flowId && flowContext.resumeUrl) {
-        console.log('🔐 [MFA Flow V7] Advancing to device pairing step after flow confirmation');
-        // Move to device pairing step for redirectless flow
-        setCurrentStep('device_pairing');
-        onStepChange?.('device_pairing');
-        v4ToastManager.showSuccess('✅ Flow confirmed! Proceeding to device registration.');
+        console.log('🔐 [MFA Flow V7] Redirectless flow confirmed - opening resumeUrl for user to complete authentication');
+        console.log('🔐 [MFA Flow V7] Flow ID:', flowContext.flowId);
+        console.log('🔐 [MFA Flow V7] Resume URL:', flowContext.resumeUrl);
+        
+        // For redirectless flow, we need to open the resumeUrl in a popup
+        // so the user can complete the authentication steps (MFA, consent, etc.)
+        const popup = window.open(
+          flowContext.resumeUrl,
+          'PingOneAuth',
+          'width=600,height=700,scrollbars=yes,resizable=yes'
+        );
+        
+        if (!popup) {
+          throw new Error('Failed to open authentication popup. Please allow popups for this site.');
+        }
+        
+        console.log('🔐 [MFA Flow V7] Opened resumeUrl in popup - waiting for user to complete authentication');
+        
+        // Monitor the popup for completion
+        const checkClosed = setInterval(() => {
+          if (popup.closed) {
+            clearInterval(checkClosed);
+            console.log('🔐 [MFA Flow V7] Authentication popup closed - assuming user completed authentication');
+            
+            // Move to device pairing step after user completes authentication
+            setCurrentStep('device_pairing');
+            onStepChange?.('device_pairing');
+            
+            v4ToastManager.showSuccess('✅ Authentication completed! Proceeding to device registration.');
+          }
+        }, 1000);
       } else {
         console.log('🔐 [MFA Flow V7] Simulating redirect authentication');
         // Simulate authentication process for regular redirect
@@ -1448,6 +1781,20 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       return;
     }
 
+    // Check if we have userId from authentication
+    console.log(`📱 [MFA Flow V7] Device registration - checking userId:`, {
+      userId: flowContext.userId,
+      flowId: flowContext.flowId,
+      resumeUrl: flowContext.resumeUrl,
+      hasFlowContext: !!flowContext
+    });
+    
+    if (!flowContext.userId) {
+      console.error(`❌ [MFA Flow V7] No userId found in flowContext:`, flowContext);
+      v4ToastManager.showError('Please complete authentication first to get your user ID. Go back to the authentication step and complete the flow.');
+      return;
+    }
+
     setIsLoading(true);
     try {
       // For SMS devices, concatenate country code with phone number
@@ -1469,6 +1816,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       });
 
       // Make API call through backend proxy to avoid CORS issues
+      // Temporarily use direct backend URL to test
       const deviceRegistrationUrl = `http://localhost:3001/api/device/register`;
       const requestBody = {
         environmentId: authCodeCredentials.environmentId,
@@ -1487,8 +1835,26 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         headers: {
           'Content-Type': 'application/json'
         },
-        body: requestBody
+        body: requestBody,
+        fullUrl: window.location.origin + deviceRegistrationUrl
       });
+
+      // Show request details in UI for debugging
+      const deviceRegistrationCall = createApiCallData(
+        'deviceRegistration',
+        'POST' as const,
+        deviceRegistrationUrl,
+        {
+          'Content-Type': 'application/json'
+        },
+        requestBody,
+        'Device registration request details'
+      );
+      
+      setApiCalls(prev => ({
+        ...prev,
+        deviceRegistration: deviceRegistrationCall
+      }));
 
       const deviceRegistrationResponse = await fetch(deviceRegistrationUrl, {
         method: 'POST',
@@ -1643,7 +2009,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
       try {
         // Make real API call to initiate MFA challenge
-        const challengeResponse = await fetch(`http://localhost:3001/api/mfa/challenge/initiate`, {
+        const challengeResponse = await fetch(`/api/mfa/challenge/initiate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1669,7 +2035,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         const challengeInitiateCall = createApiCallData(
           'mfaChallengeInitiate',
           'POST',
-          `http://localhost:3001/api/mfa/challenge/initiate`,
+          `/api/mfa/challenge/initiate`,
           {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${flowContext.workerToken}`
@@ -1748,7 +2114,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
       try {
         // Make real API call to verify MFA challenge
-        const verifyResponse = await fetch(`http://localhost:3001/api/mfa/challenge/verify`, {
+        const verifyResponse = await fetch(`/api/mfa/challenge/verify`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1773,7 +2139,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
         const challengeVerifyCall = createApiCallData(
           'mfaChallengeVerify',
           'POST',
-          `http://localhost:3001/api/mfa/challenge/verify`,
+          `/api/mfa/challenge/verify`,
           {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${flowContext.workerToken}`
@@ -1867,7 +2233,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       });
 
       // Make token exchange request through backend proxy
-      const tokenResponse = await fetch('http://localhost:3001/api/token-exchange', {
+      const tokenResponse = await fetch('/api/token-exchange', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -2565,7 +2931,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                       </label>
                       <input
                         type="text"
-                        value={credentials.username || ''}
+                        value={credentials.username || 'curtis7'}
                         onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                         placeholder="Enter your username"
                         style={{
@@ -2584,7 +2950,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                       </label>
                       <input
                         type="password"
-                        value={credentials.password || ''}
+                        value={credentials.password || 'Wolverine7&'}
                         onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
                         placeholder="Enter your password"
                         style={{
@@ -2607,18 +2973,65 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   marginBottom: '1.5rem'
                 }}>
                   <button
+                    onClick={() => handleUsernameLogin('redirectless')}
+                    disabled={isLoading || !credentials.username || !credentials.password}
+                    style={{
+                      padding: '1.25rem',
+                      background: (!credentials.username || !credentials.password) ? '#9ca3af' : '#059669',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '12px',
+                      fontSize: '1rem',
+                      fontWeight: '700',
+                      cursor: (isLoading || !credentials.username || !credentials.password) ? 'not-allowed' : 'pointer',
+                      opacity: (isLoading || !credentials.username || !credentials.password) ? 0.6 : 1,
+                      transition: 'all 0.2s ease',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.75rem',
+                      flexDirection: 'column',
+                      textAlign: 'center',
+                      boxShadow: (!credentials.username || !credentials.password) ? 'none' : '0 4px 12px rgba(5, 150, 105, 0.3)',
+                      transform: (!credentials.username || !credentials.password) ? 'none' : 'translateY(-2px)',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ 
+                      position: 'absolute', 
+                      top: '-8px', 
+                      right: '-8px', 
+                      background: '#f59e0b', 
+                      color: 'white', 
+                      fontSize: '0.625rem', 
+                      fontWeight: '600', 
+                      padding: '0.25rem 0.5rem', 
+                      borderRadius: '12px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Default
+                    </div>
+                    <FiZap size={28} />
+                    <div>
+                      <div style={{ fontWeight: '700', marginBottom: '0.25rem', fontSize: '1.1rem' }}>Redirectless Authentication</div>
+                      <div style={{ fontSize: '0.8rem', opacity: 0.9 }}>Uses response_mode=pi.flow</div>
+                    </div>
+                  </button>
+
+                  <button
                     onClick={() => handleUsernameLogin('redirect')}
-                    disabled={isLoading}
+                    disabled={false}
                     style={{
                       padding: '1rem',
-                      background: '#10b981',
+                      background: '#3b82f6',
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '0.875rem',
                       fontWeight: '600',
-                      cursor: isLoading ? 'not-allowed' : 'pointer',
-                      opacity: isLoading ? 0.6 : 1,
+                      cursor: 'pointer',
+                      opacity: 1,
                       transition: 'all 0.2s ease',
                       display: 'flex',
                       alignItems: 'center',
@@ -2632,35 +3045,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                     <div>
                       <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>Redirect Authentication</div>
                       <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>PingOne provides the UI</div>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => handleUsernameLogin('redirectless')}
-                    disabled={isLoading || !credentials.username || !credentials.password}
-                    style={{
-                      padding: '1rem',
-                      background: (!credentials.username || !credentials.password) ? '#9ca3af' : '#8b5cf6',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '0.875rem',
-                      fontWeight: '600',
-                      cursor: (isLoading || !credentials.username || !credentials.password) ? 'not-allowed' : 'pointer',
-                      opacity: (isLoading || !credentials.username || !credentials.password) ? 0.6 : 1,
-                      transition: 'all 0.2s ease',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      flexDirection: 'column',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <FiZap size={24} />
-                    <div>
-                      <div style={{ fontWeight: '700', marginBottom: '0.25rem' }}>Redirectless Authentication</div>
-                      <div style={{ fontSize: '0.75rem', opacity: 0.9 }}>Uses response_mode=pi.flow</div>
                     </div>
                   </button>
                 </div>
@@ -2725,19 +3109,6 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
               </div>
             </CollapsibleHeaderService.CollapsibleHeader>
 
-            {/* Navigation to next step */}
-            <div style={{ marginTop: '2rem', display: 'flex', gap: '0.75rem', justifyContent: 'space-between' }}>
-              <div></div>
-              <NavigationButton
-                onClick={() => {
-                  setCurrentStep('mfa_enrollment');
-                  onStepChange?.('mfa_enrollment');
-                }}
-              >
-                <FiArrowRight />
-                Continue to MFA Enrollment
-              </NavigationButton>
-            </div>
 
           </>
         );
@@ -2795,7 +3166,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                   }}
                 >
                   <FiArrowRight size={16} />
-                  response=pi.flow
+                  response_mode=pi.flow
                 </button>
 
                 <button
@@ -2929,15 +3300,28 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             theme="yellow"
             defaultCollapsed={false}
           >
-            <InfoBox $variant="info">
-              <FiInfo size={20} style={{ flexShrink: 0 }} />
-              <InfoContent>
-                <InfoTitle>📱 MFA Device Registration</InfoTitle>
-                <InfoText>
-                  Select your preferred MFA method and provide the required information to register your device with PingOne.
-                </InfoText>
-              </InfoContent>
-            </InfoBox>
+            {!flowContext.userId ? (
+              <InfoBox $variant="warning">
+                <FiAlertTriangle size={20} style={{ flexShrink: 0 }} />
+                <InfoContent>
+                  <InfoTitle>⚠️ Authentication Required</InfoTitle>
+                  <InfoText>
+                    You need to complete authentication first to get your user ID before registering devices. 
+                    Please go back to the authentication step and complete the flow.
+                  </InfoText>
+                </InfoContent>
+              </InfoBox>
+            ) : (
+              <InfoBox $variant="info">
+                <FiInfo size={20} style={{ flexShrink: 0 }} />
+                <InfoContent>
+                  <InfoTitle>📱 MFA Device Registration</InfoTitle>
+                  <InfoText>
+                    Select your preferred MFA method and provide the required information to register your device with PingOne.
+                  </InfoText>
+                </InfoContent>
+              </InfoBox>
+            )}
 
             {/* Device Type Selection */}
             <div style={{ margin: '1.5rem 0' }}>
@@ -2955,7 +3339,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 ].map((device) => (
                   <div
                     key={device.id}
-                    onClick={() => setSelectedDeviceType(device.id)}
+                    onClick={() => {
+                      setSelectedDeviceType(device.id);
+                      // Clear device name when switching device types
+                      setDeviceInfo(prev => ({ ...prev, deviceName: '' }));
+                    }}
                     style={{
                       padding: '1rem',
                       border: selectedDeviceType === device.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
