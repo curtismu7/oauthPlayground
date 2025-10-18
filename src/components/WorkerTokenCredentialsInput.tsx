@@ -11,6 +11,7 @@ import {
   FiEyeOff, 
   FiSave, 
   FiCheck, 
+  FiCheckCircle,
   FiAlertCircle, 
   FiInfo,
   FiChevronDown,
@@ -327,6 +328,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
   const [validation, setValidation] = useState<WorkerTokenValidationResult | null>(null);
+  const [isSaved, setIsSaved] = useState(false);
 
   // Validate credentials whenever they change
   useEffect(() => {
@@ -349,6 +351,12 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
       if (success) {
         v4ToastManager.showSuccess('Worker Token credentials saved successfully');
         onSave?.();
+        
+        // Show "Saved" for 10 seconds
+        setIsSaved(true);
+        setTimeout(() => {
+          setIsSaved(false);
+        }, 10000);
       } else {
         v4ToastManager.showError('Failed to save credentials');
       }
@@ -534,6 +542,11 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
                 <>
                   <FiRefreshCw className="animate-spin" size={16} />
                   Saving...
+                </>
+              ) : isSaved ? (
+                <>
+                  <FiCheckCircle size={16} />
+                  Saved
                 </>
               ) : (
                 <>

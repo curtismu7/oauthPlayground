@@ -20,7 +20,7 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
-  background: #f8fafc;
+  background: blue !important;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
 `;
@@ -71,7 +71,7 @@ const RegionSelector = styled.select`
   border-right: none;
   border-radius: 6px 0 0 6px;
   font-size: 0.875rem;
-  background: white;
+  background: blue !important;
   color: #1f2937;
   min-width: 120px;
   
@@ -94,7 +94,7 @@ const Input = styled.input.withConfig({
   };
   border-radius: 0 6px 6px 0;
   font-size: 0.875rem;
-  background: white;
+  background: blue !important;
   color: #1f2937;
   font-family: monospace;
   transition: all 0.2s ease;
