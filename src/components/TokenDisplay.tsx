@@ -18,23 +18,24 @@ interface TokenDisplayProps {
 const TokenContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-top: 1rem;
+  gap: 2.25rem;
+  margin-top: 1.75rem;
+  width: 100%;
 `;
 
 const TokenHeaderMain = styled.div`
   text-align: center;
   margin-bottom: 1rem;
-  padding: 1rem;
+  padding: 1.5rem;
   background: #f8fafc;
-  border-radius: 1rem;
+  border-radius: 1.5rem;
   color: #1f2937;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.15);
 
   h3 {
     margin: 0;
-    font-size: 1.5rem;
+    font-size: 1.85rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -43,7 +44,7 @@ const TokenHeaderMain = styled.div`
 
   p {
     margin: 0.5rem 0 0 0;
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #475569;
   }
 `;
@@ -59,15 +60,18 @@ const tokenBackgrounds: Record<'access' | 'id' | 'refresh' | 'info' | 'default',
 const TokenSection = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   background: ${({ $type }) => tokenBackgrounds[$type ?? 'default']};
   border: 2px solid #e2e8f0;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+  border-radius: 1.5rem;
+  padding: 2.4rem;
   position: relative;
-  box-shadow: 0 4px 6px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.18);
   transition: all 0.3s ease;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.12);
+    box-shadow: 0 22px 38px rgba(15, 23, 42, 0.2);
   }
 `;
 
@@ -112,7 +116,7 @@ const TokenTypeLabel = styled.div<{ $type?: 'access' | 'id' | 'refresh' | 'info'
 
 const TokenLabel = styled.h4<{ $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: ${({ $type }) => {
 		switch ($type) {
@@ -193,11 +197,12 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   }
 `;
 
-const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | 'refresh' }>`
+const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | 'refresh' | 'info' }>`
   margin: 0;
   font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
-  font-size: 0.8rem;
-  line-height: 1.6;
+  font-size: 1.08rem;
+  line-height: 1.9;
+  letter-spacing: 0.01em;
   color: var(--color-text-primary, #000000);
   background: #f0fdf4; /* Light green for generated content */
   border: 2px solid ${({ $type }) => {
@@ -212,16 +217,16 @@ const TokenValue = styled.pre<{ $isMasked?: boolean; $type?: 'access' | 'id' | '
 				return '#d1d5db';
 		}
 	}};
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-top: 0.5rem;
+  border-radius: 1rem;
+  padding: 2.1rem;
+  margin-top: 0.9rem;
   overflow-x: auto;
-  word-break: break-all;
+  word-break: break-word;
   white-space: pre-wrap;
   text-indent: 0;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: inset 0 2px 6px 0 rgba(0, 0, 0, 0.08);
   position: relative;
-  min-height: 4rem;
+  min-height: 7rem;
   
   /* Ensure text is always visible and readable */
   &, & *, &::before, &::after {
@@ -292,26 +297,29 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
 	}
 	const [copiedStates, setCopiedStates] = useState<Record<string, boolean>>({});
 	const [maskedStates, setMaskedStates] = useState<Record<string, boolean>>({});
-	const { announceToScreenReader } = useAccessibility();
+	const { announce } = useAccessibility();
 
 	const copyToClipboard = async (text: string, key: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
 			setCopiedStates((prev) => ({ ...prev, [key]: true }));
-			announceToScreenReader(`${key} copied to clipboard`);
+			announce(`${key} copied to clipboard`);
 			setTimeout(() => {
 				setCopiedStates((prev) => ({ ...prev, [key]: false }));
 			}, 2000);
 		} catch (err) {
 			console.error('Failed to copy text: ', err);
-			announceToScreenReader('Failed to copy to clipboard');
+			announce('Failed to copy to clipboard', 'assertive');
 		}
 	};
 
 	const toggleMask = (key: string) => {
-		setMaskedStates((prev) => ({ ...prev, [key]: !prev[key] }));
-		const isMasked = maskedStates[key];
-		announceToScreenReader(`${key} ${isMasked ? 'unmasked' : 'masked'}`);
+		setMaskedStates(prev => {
+			const current = prev[key] ?? false;
+			const next = !current;
+			announce(`${key} ${next ? 'masked' : 'unmasked'}`);
+			return { ...prev, [key]: next };
+		});
 	};
 
 	const maskToken = (token: string) => {
@@ -339,9 +347,9 @@ const TokenDisplay: React.FC<TokenDisplayProps> = ({ tokens }) => {
 		value: string | number,
 		isToken: boolean = false
 	) => {
-		const displayValue = isToken && maskedStates[key] ? maskToken(String(value)) : String(value);
+		const isMasked = maskedStates[key] ?? false;
+		const displayValue = isToken && isMasked ? maskToken(String(value)) : String(value);
 		const isCopied = copiedStates[key];
-		const isMasked = maskedStates[key];
 
 		// Determine the type for styling
 		const getType = (key: string): 'access' | 'id' | 'refresh' | 'info' => {

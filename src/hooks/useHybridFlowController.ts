@@ -23,6 +23,7 @@ import {
 	HybridFlowDefaults,
 	log
 } from '../services/hybridFlowSharedService';
+import { credentialManager } from '../utils/credentialManager';
 
 export interface HybridFlowControllerOptions {
 	flowKey?: string;
@@ -30,10 +31,12 @@ export interface HybridFlowControllerOptions {
 	enableDebugger?: boolean;
 }
 
+type CredentialsUpdater = StepCredentials | ((prev: StepCredentials | null) => StepCredentials);
+
 export interface HybridFlowController {
 	// Credentials
 	credentials: StepCredentials | null;
-	setCredentials: (credentials: StepCredentials) => void;
+	setCredentials: (updater: CredentialsUpdater) => void;
 	saveCredentials: () => Promise<void>;
 	hasValidCredentials: boolean;
 
@@ -229,21 +232,27 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	}, []);
 
 	// Set credentials with validation
-	const setCredentials = useCallback((newCredentials: StepCredentials) => {
-		setCredentialsState(newCredentials);
-		
-		// Validate credentials
-		const isValid = !!(newCredentials.environmentId && newCredentials.clientId);
-		setHasValidCredentials(isValid);
+	const setCredentials = useCallback((updater: CredentialsUpdater) => {
+		setCredentialsState((prevCredentials: StepCredentials | null) => {
+			const resolved =
+				typeof updater === 'function'
+					? (updater as (prev: StepCredentials | null) => StepCredentials)(prevCredentials)
+					: updater;
 
-		// Sync credentials
-		HybridFlowCredentialsSync.syncCredentials(flowVariant, newCredentials);
+			const isValid = !!(resolved.environmentId && resolved.clientId);
+			setHasValidCredentials(isValid);
 
-		log.info('Credentials updated', {
-			environmentId: newCredentials.environmentId,
-			clientId: newCredentials.clientId?.substring(0, 8) + '...',
-			responseType: newCredentials.responseType,
-			isValid,
+			HybridFlowCredentialsSync.syncCredentials(flowVariant, resolved);
+
+			const clientIdPreview = resolved.clientId ? `${resolved.clientId.substring(0, 8)}...` : undefined;
+			log.info('Credentials updated', {
+				environmentId: resolved.environmentId,
+				clientId: clientIdPreview,
+				responseType: resolved.responseType,
+				isValid,
+			});
+
+			return resolved;
 		});
 	}, [flowVariant]);
 
