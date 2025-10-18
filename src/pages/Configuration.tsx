@@ -21,6 +21,7 @@ import { FlowUIService } from '../services/flowUIService';
 import { usePageScroll } from '../hooks/usePageScroll';
 import { credentialManager } from '../utils/credentialManager';
 import { CredentialsInput } from '../components/CredentialsInput';
+import PingOneApplicationConfig, { type PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import packageJson from '../../package.json';
 
 const Container = styled.div`
@@ -233,6 +234,36 @@ const Configuration: React.FC = () => {
 	const [hasCredentials, setHasCredentials] = useState(false);
 	const [credentialsSaved, setCredentialsSaved] = useState(false);
 
+	// PingOne Application Configuration state
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
+		clientAuthMethod: 'client_secret_basic',
+		allowRedirectUriPatterns: false,
+		pkceEnforcement: 'REQUIRED',
+		responseTypeCode: true,
+		responseTypeToken: false,
+		responseTypeIdToken: true,
+		grantTypeAuthorizationCode: true,
+		initiateLoginUri: '',
+		targetLinkUri: '',
+		signoffUrls: [],
+		requestParameterSignatureRequirement: 'DEFAULT',
+		enableJWKS: false,
+		jwksMethod: 'JWKS_URL',
+		jwksUrl: '',
+		jwks: '',
+		requirePushedAuthorizationRequest: false,
+		enableDPoP: false,
+		dpopAlgorithm: 'ES256',
+		additionalRefreshTokenReplayProtection: false,
+		includeX5tParameter: false,
+		oidcSessionManagement: false,
+		requestScopesForMultipleResources: false,
+		terminateUserSessionByIdToken: false,
+		corsOrigins: [],
+		corsAllowAnyOrigin: false,
+	});
+	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
+
 	// Load existing credentials on mount
 	useEffect(() => {
 		const loadCredentials = () => {
@@ -258,6 +289,23 @@ const Configuration: React.FC = () => {
 		loadCredentials();
 	}, []);
 
+	// Load existing PingOne configuration on mount
+	useEffect(() => {
+		const loadPingOneConfig = () => {
+			try {
+				const savedConfig = localStorage.getItem('pingone-application-config');
+				if (savedConfig) {
+					const parsed = JSON.parse(savedConfig);
+					setPingOneConfig(prev => ({ ...prev, ...parsed }));
+				}
+			} catch (error) {
+				console.error('Failed to load PingOne configuration:', error);
+			}
+		};
+
+		loadPingOneConfig();
+	}, []);
+
 	// Save credentials to config storage
 	const saveCredentials = async () => {
 		try {
@@ -278,6 +326,20 @@ const Configuration: React.FC = () => {
 			setTimeout(() => setCredentialsSaved(false), 3000);
 		} catch (error) {
 			console.error('Failed to save credentials:', error);
+		}
+	};
+
+	// Save PingOne Application Configuration
+	const savePingOneConfig = async () => {
+		try {
+			// Save to localStorage with a specific key
+			localStorage.setItem('pingone-application-config', JSON.stringify(pingOneConfig));
+			setPingOneConfigSaved(true);
+			
+			// Show success message
+			setTimeout(() => setPingOneConfigSaved(false), 3000);
+		} catch (error) {
+			console.error('Failed to save PingOne configuration:', error);
 		}
 	};
 
@@ -526,6 +588,63 @@ cd oauthPlayground`}
 				<StepCard>
 					<StepHeader>
 						<div className="step-number">4</div>
+						<h3>Configure PAR (Pushed Authorization Request)</h3>
+					</StepHeader>
+					<p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+						Configure PAR settings for enhanced security. PAR allows you to push authorization requests 
+						to PingOne via back-channel, safeguarding sensitive data from end-user devices.
+					</p>
+
+					{pingOneConfigSaved && (
+						<InfoBox $type="success">
+							<FiCheckCircle size={16} />
+							<strong>PAR Configuration saved!</strong> Your PingOne PAR settings are now configured.
+						</InfoBox>
+					)}
+
+					<PingOneApplicationConfig
+						value={pingOneConfig}
+						onChange={setPingOneConfig}
+						onSave={savePingOneConfig}
+						hasUnsavedChanges={false}
+						flowType="authorization-code"
+					/>
+
+					<div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'flex-end' }}>
+						<button
+							onClick={savePingOneConfig}
+							style={{
+								background: '#10b981',
+								color: 'white',
+								border: '1px solid #ffffff',
+								borderRadius: '0.5rem',
+								padding: '0.75rem 1.5rem',
+								fontSize: '0.875rem',
+								fontWeight: '600',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								e.currentTarget.style.backgroundColor = '#059669';
+								e.currentTarget.style.borderColor = '#ffffff';
+							}}
+							onMouseLeave={(e) => {
+								e.currentTarget.style.backgroundColor = '#10b981';
+								e.currentTarget.style.borderColor = '#ffffff';
+							}}
+						>
+							<FiSave size={16} />
+							Save PAR Configuration
+						</button>
+					</div>
+				</StepCard>
+
+				<StepCard>
+					<StepHeader>
+						<div className="step-number">5</div>
 						<h3>Start the Application</h3>
 					</StepHeader>
 					<p style={{ color: '#6b7280', marginBottom: '1rem' }}>

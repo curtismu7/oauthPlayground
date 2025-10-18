@@ -44,6 +44,7 @@ import { CredentialGuardService } from '../../services/credentialGuardService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 
 const LOG_PREFIX = '[🔑 CLIENT-CREDS-V6]';
+const DEFAULT_CLIENT_CREDENTIALS_SCOPES = 'p1:read:user p1:update:user p1:read:device p1:update:device';
 
 // Styled Components
 const Container = styled.div`
@@ -80,17 +81,17 @@ const SectionDivider = styled.div`
 	margin: 2rem 0;
 `;
 
-const AuthMethodCard = styled.div<{ isSelected: boolean; method: ClientAuthMethod }>`
+const AuthMethodCard = styled.div<{ $isSelected: boolean; $method: ClientAuthMethod }>`
 	padding: 1.5rem;
-	border: 2px solid ${props => props.isSelected ? getAuthMethodColor(props.method) : '#e2e8f0'};
+	border: 2px solid ${props => props.$isSelected ? getAuthMethodColor(props.$method) : '#e2e8f0'};
 	border-radius: 0.75rem;
-	background: ${props => props.isSelected ? `${getAuthMethodColor(props.method)}10` : 'white'};
+	background: ${props => props.$isSelected ? `${getAuthMethodColor(props.$method)}10` : 'white'};
 	cursor: pointer;
 	transition: all 0.2s ease;
 	
 	&:hover {
-		border-color: ${props => getAuthMethodColor(props.method)};
-		background: ${props => `${getAuthMethodColor(props.method)}05`};
+		border-color: ${props => getAuthMethodColor(props.$method)};
+		background: ${props => `${getAuthMethodColor(props.$method)}05`};
 	}
 `;
 
@@ -101,11 +102,11 @@ const AuthMethodHeader = styled.div`
 	margin-bottom: 1rem;
 `;
 
-const AuthMethodIcon = styled.div<{ method: ClientAuthMethod }>`
+const AuthMethodIcon = styled.div<{ $method: ClientAuthMethod }>`
 	width: 2.5rem;
 	height: 2.5rem;
 	border-radius: 0.5rem;
-	background: ${props => getAuthMethodColor(props.method)};
+	background: ${props => getAuthMethodColor(props.$method)};
 	color: white;
 	display: flex;
 	align-items: center;
@@ -126,7 +127,7 @@ const AuthMethodDescription = styled.p`
 	line-height: 1.5;
 `;
 
-const SecurityBadge = styled.span<{ level: 'high' | 'medium' | 'low' }>`
+const SecurityBadge = styled.span<{ $level: 'high' | 'medium' | 'low' }>`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.25rem;
@@ -136,14 +137,14 @@ const SecurityBadge = styled.span<{ level: 'high' | 'medium' | 'low' }>`
 	font-weight: 600;
 	text-transform: uppercase;
 	background: ${props => {
-		switch (props.level) {
+		switch (props.$level) {
 			case 'high': return '#10b98120';
 			case 'medium': return '#f59e0b20';
 			case 'low': return '#ef444420';
 		}
 	}};
 	color: ${props => {
-		switch (props.level) {
+		switch (props.$level) {
 			case 'high': return '#047857';
 			case 'medium': return '#d97706';
 			case 'low': return '#dc2626';
@@ -172,9 +173,9 @@ const BenefitItem = styled.li`
 	}
 `;
 
-const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
+const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	padding: 0.75rem 1.5rem;
-	background: ${props => props.variant === 'secondary' ? '#10b981' : '#3b82f6'};
+	background: ${props => props.$variant === 'secondary' ? '#10b981' : '#3b82f6'};
 	color: white;
 	border: none;
 	border-radius: 0.5rem;
@@ -184,7 +185,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	transition: all 0.2s ease;
 	
 	&:hover:not(:disabled) {
-		background: ${props => props.variant === 'secondary' ? '#059669' : '#2563eb'};
+		background: ${props => props.$variant === 'secondary' ? '#059669' : '#2563eb'};
 		transform: translateY(-2px);
 		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 	}
@@ -423,7 +424,21 @@ const STEP_METADATA = [
 	}
 ];
 
-const ClientCredentialsFlowV6: React.FC = () => {
+interface ClientCredentialsFlowV6Props {
+	flowKey?: string;
+	flowVersion?: string;
+	flowTitle?: string;
+	selectedAuthMethod?: ClientAuthMethod;
+	onAuthMethodChange?: (method: ClientAuthMethod) => void;
+}
+
+const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
+	flowKey = 'client-credentials-v6',
+	flowVersion = 'V6',
+	flowTitle = 'Client Credentials (V6)',
+	selectedAuthMethod: propSelectedAuthMethod,
+	onAuthMethodChange: propOnAuthMethodChange
+}) => {
 	const navigate = useNavigate();
 	
 	// Initialize page scroll management
@@ -431,7 +446,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	
 	// Initialize client credentials flow controller
 	const controller = useClientCredentialsFlowController({
-		flowKey: 'client-credentials-v6',
+		flowKey,
 	});
 
 	// Step management
@@ -441,7 +456,17 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	const shouldCollapseAll = true;
 	
 	// Authentication method
-	const [selectedAuthMethod, setSelectedAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
+	const [selectedAuthMethod, setSelectedAuthMethod] = useState<ClientAuthMethod>(
+		propSelectedAuthMethod || 'client_secret_post'
+	);
+
+	// Wrapper function to handle auth method changes
+	const handleAuthMethodChange = useCallback((method: ClientAuthMethod) => {
+		setSelectedAuthMethod(method);
+		if (propOnAuthMethodChange) {
+			propOnAuthMethodChange(method);
+		}
+	}, [propOnAuthMethodChange]);
 	
 	// PingOne Advanced Configuration
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
@@ -551,7 +576,6 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	}, [controller]);
 
 	const handleStartOver = useCallback(() => {
-		const flowKey = 'client-credentials-v6';
 		sessionStorage.removeItem(`${flowKey}-tokens`);
 		sessionStorage.removeItem('restore_step');
 		controller.clearStepResults?.();
@@ -560,7 +584,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 		v4ToastManager.showSuccess('Flow restarted', {
 			description: 'Tokens cleared. Credentials preserved.',
 		});
-	}, [controller]);
+	}, [controller, flowKey]);
 
 	// Token request handler
 	const handleTokenRequest = useCallback(async () => {
@@ -579,11 +603,11 @@ const ClientCredentialsFlowV6: React.FC = () => {
 		} catch (error) {
 			// Use ErrorHandlingService for comprehensive error handling
 			const errorResponse = ErrorHandlingService.handleFlowError(error, {
-				flowId: 'client-credentials-v6',
+				flowId: flowKey,
 				stepId: 'token-request',
 				metadata: {
 					authMethod: selectedAuthMethod,
-					hasCredentials: !!controller.credentials,
+					clientId: controller.credentials.clientId,
 					environmentId: controller.credentials?.environmentId
 				}
 			});
@@ -607,8 +631,16 @@ const ClientCredentialsFlowV6: React.FC = () => {
 
 	// Wrapper to enforce openid scope (required by PingOne)
 	const handleCredentialsChange = useCallback((newCredentials: typeof controller.credentials) => {
-		// Ensure openid is always included in scopes
-		if (newCredentials.scopes) {
+		const trimmedScopes = newCredentials.scopes?.trim() || '';
+		const isClientCredentialsV7 = flowKey === 'client-credentials-v7';
+
+		if (isClientCredentialsV7) {
+			if (!trimmedScopes) {
+				newCredentials.scopes = DEFAULT_CLIENT_CREDENTIALS_SCOPES;
+				newCredentials.scope = DEFAULT_CLIENT_CREDENTIALS_SCOPES;
+				v4ToastManager.showWarning('Added default admin scopes required for PingOne client credentials');
+			}
+		} else if (newCredentials.scopes) {
 			const scopes = newCredentials.scopes.split(/\s+/).filter(s => s.length > 0);
 			if (!scopes.includes('openid')) {
 				scopes.unshift('openid');
@@ -616,8 +648,9 @@ const ClientCredentialsFlowV6: React.FC = () => {
 				v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
 			}
 		}
+
 		controller.setCredentials(newCredentials);
-	}, [controller]);
+	}, [controller, flowKey]);
 
 	// Render step content
 	const renderStepContent = useCallback((step: number) => {
@@ -864,12 +897,12 @@ const ClientCredentialsFlowV6: React.FC = () => {
 						return (
 							<AuthMethodCard
 								key={method}
-								isSelected={isSelected}
-								method={method}
-								onClick={() => setSelectedAuthMethod(method)}
+								$isSelected={isSelected}
+								$method={method}
+								onClick={() => handleAuthMethodChange(method)}
 							>
 								<AuthMethodHeader>
-									<AuthMethodIcon method={method}>
+									<AuthMethodIcon $method={method}>
 										{method === 'client_secret_basic' && <FiShield />}
 										{method === 'client_secret_post' && <FiKey />}
 										{method === 'private_key_jwt' && <FiZap />}
@@ -877,7 +910,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 									</AuthMethodIcon>
 									<div>
 										<AuthMethodTitle>{config.authMethod.replace(/_/g, ' ').toUpperCase()}</AuthMethodTitle>
-										<SecurityBadge level={config.securityLevel}>
+										<SecurityBadge $level={config.securityLevel}>
 											{config.securityLevel} Security
 										</SecurityBadge>
 									</div>
@@ -1109,7 +1142,10 @@ const ClientCredentialsFlowV6: React.FC = () => {
 
 		return (
 			<FlowCompletionService
-				config={completionConfig}
+				config={{
+					...completionConfig,
+					flowName: flowTitle,
+				}}
 				collapsed={collapsedSections.flowSummary}
 				onToggleCollapsed={() => toggleSection('flowSummary')}
 			/>
@@ -1132,7 +1168,7 @@ const ClientCredentialsFlowV6: React.FC = () => {
 	return (
 		<Container>
 			<ContentWrapper>
-				<FlowHeader flowId="client-credentials-v6" />
+				<FlowHeader flowId={flowKey} customConfig={{ title: flowTitle, version: flowVersion }} />
 			
 			<FlowSequenceDisplay flowType="client-credentials" />
 				
