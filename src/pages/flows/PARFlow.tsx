@@ -277,6 +277,7 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 		scope: 'openid profile email',
 		state: '',
 		nonce: '',
+		codeVerifier: '',
 		codeChallenge: '',
 		codeChallengeMethod: 'S256',
 		acrValues: '',
@@ -307,18 +308,79 @@ const PARFlow: React.FC<PARFlowProps> = ({ credentials }) => {
 		return nonce;
 	}, []);
 
-	const generateCodeChallenge = useCallback(() => {
-		const codeVerifier =
-			Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-		const codeChallenge = btoa(codeVerifier)
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=/g, '');
-		setFormData((prev) => ({ ...prev, codeChallenge }));
-		return { codeVerifier, codeChallenge };
+	const generateCodeChallenge = useCallback(async () => {
+		try {
+			// Import OAuth utilities for proper PKCE generation
+			const { generateCodeVerifier, generateCodeChallenge: generateChallenge } = await import('../../utils/oauth');
+			
+			const codeVerifier = generateCodeVerifier();
+			const codeChallenge = await generateChallenge(codeVerifier);
+			
+			setFormData((prev) => ({ 
+				...prev, 
+				codeChallenge,
+				codeVerifier // Store the verifier for later use
+			}));
+			
+			console.log('🔐 [PAR Flow] Generated PKCE codes:', {
+				codeVerifier: `${codeVerifier.substring(0, 20)}...`,
+				codeChallenge: `${codeChallenge.substring(0, 20)}...`,
+				method: 'S256'
+			});
+			
+			return { codeVerifier, codeChallenge };
+		} catch (error) {
+			console.error('❌ [PAR Flow] Failed to generate PKCE codes:', error);
+			// Fallback to simple generation if OAuth utils fail
+			const codeVerifier =
+				Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+			const codeChallenge = btoa(codeVerifier)
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+			setFormData((prev) => ({ ...prev, codeChallenge }));
+			return { codeVerifier, codeChallenge };
+		}
 	}, []);
 
 	const steps = [
+		{
+			id: 'step-0',
+			title: 'Generate PKCE Parameters',
+			description: 'Generate secure PKCE (Proof Key for Code Exchange) parameters for enhanced security.',
+			code: `// 🔐 Generate PKCE Parameters
+// PKCE (RFC 7636) provides additional security for authorization code flows
+
+const { generateCodeVerifier, generateCodeChallenge } = await import('../../utils/oauth');
+
+// Generate a cryptographically secure code verifier
+const codeVerifier = generateCodeVerifier();
+// Result: 43-128 character string using [A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"
+
+// Generate the code challenge using SHA-256
+const codeChallenge = await generateCodeChallenge(codeVerifier);
+// Result: Base64URL-encoded SHA-256 hash of the code verifier
+
+console.log('Generated PKCE parameters:', {
+  codeVerifier: codeVerifier.substring(0, 20) + '...',
+  codeChallenge: codeChallenge.substring(0, 20) + '...',
+  method: 'S256'
+});`,
+			execute: async () => {
+				logger.info('PARFlow', 'Generating PKCE parameters');
+				setDemoStatus('loading');
+				
+				try {
+					await generateCodeChallenge();
+					setDemoStatus('success');
+					logger.success('PARFlow', 'PKCE parameters generated successfully');
+				} catch (error) {
+					setDemoStatus('error');
+					setError(`Failed to generate PKCE parameters: ${error instanceof Error ? error.message : 'Unknown error'}`);
+					logger.error('PARFlow', 'PKCE generation failed', error);
+				}
+			},
+		},
 		{
 			id: 'step-1',
 			title: 'Push PAR Request',
@@ -360,7 +422,7 @@ if (parResponse.ok) {
 				logger.info('PARFlow', 'Pushing PAR request');
 				generateState();
 				generateNonce();
-				generateCodeChallenge();
+				// PKCE codes should already be generated in step 0
 				setDemoStatus('loading');
 
 				try {
@@ -752,6 +814,73 @@ if (tokenResponse.ok) {
 					<h4>Error:</h4>
 					<p>{error}</p>
 				</ErrorContainer>
+			)}
+
+			{/* PKCE Parameters Display */}
+			{formData.codeChallenge && (
+				<PARContainer>
+					<PARTitle>🔐 Generated PKCE Parameters</PARTitle>
+					<PARDetails>
+						<PARDetail>
+							<PARLabel>Code Verifier</PARLabel>
+							<PARValue>{formData.codeVerifier || 'Not generated'}</PARValue>
+						</PARDetail>
+						<PARDetail>
+							<PARLabel>Code Challenge</PARLabel>
+							<PARValue>{formData.codeChallenge}</PARValue>
+						</PARDetail>
+						<PARDetail>
+							<PARLabel>Method</PARLabel>
+							<PARValue>{formData.codeChallengeMethod}</PARValue>
+						</PARDetail>
+					</PARDetails>
+					<div style={{ marginTop: '1rem' }}>
+						<Button
+							onClick={generateCodeChallenge}
+							style={{
+								background: '#3b82f6',
+								color: 'white',
+								border: 'none',
+								borderRadius: '0.375rem',
+								padding: '0.5rem 1rem',
+								fontSize: '0.875rem',
+								fontWeight: '500',
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							🔄 Regenerate PKCE Parameters
+						</Button>
+					</div>
+				</PARContainer>
+			)}
+
+			{/* PKCE Generation Button */}
+			{!formData.codeChallenge && (
+				<FormContainer>
+					<h3>🔐 PKCE Parameters</h3>
+					<p>Generate PKCE (Proof Key for Code Exchange) parameters for enhanced security:</p>
+					<Button
+						onClick={generateCodeChallenge}
+						style={{
+							background: '#10b981',
+							color: 'white',
+							border: 'none',
+							borderRadius: '0.375rem',
+							padding: '0.75rem 1.5rem',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							cursor: 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
+						🔐 Generate PKCE Parameters
+					</Button>
+				</FormContainer>
 			)}
 
 			<FormContainer>

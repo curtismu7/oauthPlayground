@@ -326,6 +326,7 @@ export const CredentialsInput = ({
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [isSaved, setIsSaved] = useState(false);
 
 	// Handle scopes change - allow spaces while typing, clean up on blur
 	const handleScopesChange = (value: string) => {

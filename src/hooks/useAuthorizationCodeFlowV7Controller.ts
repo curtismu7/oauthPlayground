@@ -178,8 +178,9 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 		redirectUri: urlRedirect || loaded.redirectUri || getCallbackUrlForFlow('authorization-code'),
 		scope: mergedScopes,
 		scopes: mergedScopes,
-		responseType: 'code',
+		responseType: variant === 'oidc' ? 'code id_token' : 'code',
 		grantType: 'authorization_code',
+		responseTypeIdToken: variant === 'oidc',
 		issuerUrl: loaded.environmentId
 			? `https://auth.pingone.com/${loaded.environmentId}`
 			: loaded.authEndpoint?.replace('/as/authorize', '') || '',
