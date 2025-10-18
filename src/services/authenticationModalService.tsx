@@ -53,7 +53,7 @@ const ModalContainer = styled.div`
 		0 0 0 1px rgba(255, 255, 255, 0.05);
 	max-width: 900px;
 	width: 100%;
-	max-height: 90vh;
+	max-height: 95vh;
 	display: flex;
 	flex-direction: column;
 	position: relative;
@@ -125,8 +125,17 @@ const CloseButton = styled.button`
 
 const ModalContent = styled.div`
 	padding: 2rem;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+`;
+
+const ScrollableContent = styled.div`
 	overflow-y: auto;
 	flex: 1;
+	padding-right: 0.5rem;
+	margin-right: -0.5rem;
 `;
 
 const DescriptionSection = styled.div`
@@ -229,6 +238,13 @@ const ModalActions = styled.div`
 	gap: 1rem;
 	justify-content: flex-end;
 	align-items: center;
+	margin-top: auto;
+	padding-top: 1.5rem;
+	border-top: 1px solid #e2e8f0;
+	background: #ffffff;
+	position: sticky;
+	bottom: 0;
+	z-index: 10;
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }>`
@@ -412,10 +428,9 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						if (popup.closed) {
 							console.log('❌ [AuthModal] Popup was closed!');
 							clearInterval(monitorPopup);
-						} else {
-							console.log('✅ [AuthModal] Popup still open...');
 						}
-					}, 1000);
+						// Removed excessive logging to avoid performance issues
+					}, 2000); // Reduced frequency to every 2 seconds
 					
 					// Stop monitoring after 30 seconds
 					setTimeout(() => {
@@ -570,11 +585,12 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				</ModalHeader>
 
 				<ModalContent>
-					<DescriptionSection>
-						<DescriptionText>
-							{description || `You're about to be redirected to PingOne for authentication. This will open in a ${redirectMode === 'popup' ? 'new popup window' : 'redirect your current tab'}.`}
-						</DescriptionText>
-					</DescriptionSection>
+					<ScrollableContent>
+						<DescriptionSection>
+							<DescriptionText>
+								{description || `You're about to be redirected to PingOne for authentication. This will open in a ${redirectMode === 'popup' ? 'new popup window' : 'redirect your current tab'}.`}
+							</DescriptionText>
+						</DescriptionSection>
 
 					<FlowInfo>
 						<FlowIcon>
@@ -696,6 +712,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 							Click "Continue to PingOne" when you're ready to authenticate
 						</div>
 					)}
+					</ScrollableContent>
 
 					<ModalActions>
 					<ActionButton 

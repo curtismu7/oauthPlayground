@@ -83,6 +83,7 @@ import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuth2ResourceOwnerPasswordFlowV6 from './pages/flows/OAuth2ResourceOwnerPasswordFlowV6';
+import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 // V5 OAuth/OIDC Flows
 import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
@@ -93,6 +94,7 @@ import OIDCDeviceAuthorizationFlowV6 from './pages/flows/OIDCDeviceAuthorization
 // OIDCHybridFlowV3 backed up
 import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
 import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
+import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 // OIDCImplicitFlowV3 backed up
 import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
@@ -107,11 +109,14 @@ import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
 import PingOneMFAFlowV6 from './pages/flows/PingOneMFAFlowV6';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
 import PingOneAuthentication from './pages/PingOneAuthentication';
+import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
+import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
 import RARFlowV6 from './pages/flows/RARFlowV6_New';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
+import RedirectlessFlowV7Real from './pages/flows/RedirectlessFlowV7_Real';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantAuthorizationCodeFlow';
@@ -341,6 +346,13 @@ const AppRoutes = () => {
 							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
 							<Route path="/logout-callback" element={<LogoutCallback />} />
 							<Route path="/dashboard-callback" element={<DashboardCallback />} />
+							{/* Dynamic callback route - handles any redirect URI the user configures */}
+							<Route path="/oauth-callback" element={<AuthzCallback />} />
+							<Route path="/oidc-callback" element={<AuthzCallback />} />
+							<Route path="/mfa-callback" element={<AuthzCallback />} />
+							<Route path="/pingone-callback" element={<AuthzCallback />} />
+							{/* Catch-all callback route for any custom redirect URI */}
+							<Route path="/callback/*" element={<AuthzCallback />} />
 							<Route path="/" element={<Navigate to="/dashboard" replace />} />
 							<Route path="/dashboard" element={<Dashboard />} />
 							<Route path="/sidebar-test" element={<SidebarTest />} />
@@ -438,8 +450,9 @@ const AppRoutes = () => {
 							<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v6" replace />} />
 							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
 							<Route path="/flows/oidc-hybrid-v6" element={<OIDCHybridFlowV6 />} />
-							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
-							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v6" replace />} />
+							<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
+							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
+							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
 							<Route path="/flows/ciba-v5" element={<Navigate to="/flows/ciba-v6" replace />} />
 							<Route path="/flows/ciba-v6" element={<CIBAFlowV6 />} />
 							{/* Advanced Parameters Route */}
@@ -456,6 +469,7 @@ const AppRoutes = () => {
 							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
 							<Route path="/flows/redirectless-v6" element={<RedirectlessFlowV6Real />} />
 							<Route path="/flows/redirectless-v6-real" element={<RedirectlessFlowV6Real />} />
+							<Route path="/flows/redirectless-v7-real" element={<RedirectlessFlowV7Real />} />
 							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV6Real />} /> {/* Redirect V5 to V6 */}
 							{/* V3/V4 routes backed up - use V5 versions instead */}
 							<Route path="/flows/par" element={<PARFlow />} />
@@ -476,6 +490,8 @@ const AppRoutes = () => {
 							<Route path="/flows/pingone-mfa-v6" element={<PingOneMFAFlowV6 />} />
 							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
 							<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
+							<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
+							<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
 							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
 							{/* Legacy route removed - use V5 */}
@@ -486,6 +502,10 @@ const AppRoutes = () => {
 							<Route
 								path="/flows/oauth2-resource-owner-password-v6"
 								element={<OAuth2ResourceOwnerPasswordFlowV6 />}
+							/>
+							<Route
+								path="/flows/oauth-ropc-v7"
+								element={<OAuthROPCFlowV7 />}
 							/>
 							{/* Test MFA Flow */}
 							<Route path="/mfa-test" element={<MFAFlow />} />
@@ -523,6 +543,7 @@ const AppRoutes = () => {
 							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
 							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
 							<Route path="/url-decoder" element={<URLDecoder />} />
+							<Route path="/code-examples" element={<CodeExamplesDemo />} />
 							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
 							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
 							<Route path="/ai-glossary" element={<AIGlossary />} />
@@ -555,8 +576,9 @@ const AppRoutes = () => {
 							/>
 							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
 							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
-							<Route path="*" element={<Navigate to="/dashboard" replace />} />
-						</Routes>
+							<Route path="/:customCallback(p1-callback)" element={<PingOneAuthenticationCallback />} />
+					<Route path="*" element={<Navigate to="/pingone-authentication" replace />} />
+				</Routes>
 					</MainContent>
 					<PageFooter />
 				</ContentColumn>

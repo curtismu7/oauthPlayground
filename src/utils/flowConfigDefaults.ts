@@ -87,7 +87,7 @@ export const getImplicitConfig = (): FlowConfig => ({
 
 // Default configuration for Client Credentials Flow
 export const getClientCredentialsConfig = (): FlowConfig => ({
-	scopes: ['api:read', 'api:write'],
+	scopes: ['openid'],
 	responseType: '',
 	grantType: 'client_credentials',
 	enablePKCE: false,
