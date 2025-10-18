@@ -13,15 +13,10 @@ export * from './components';
 // Export hooks
 export * from './hooks';
 
-// Export main component (when refactored)
-// export { default as OAuthAuthorizationCodeFlowV7_1 } from './OAuthAuthorizationCodeFlowV7_1';
+// Export main component
+export { default as OAuthAuthorizationCodeFlowV7_1 } from './OAuthAuthorizationCodeFlowV7_1';
 
-// Export other components (when refactored)
-// export { FlowHeader } from './components/FlowHeader';
-// export { FlowSteps } from './components/FlowSteps';
-// export { FlowConfiguration } from './components/FlowConfiguration';
-// export { FlowResults } from './components/FlowResults';
-// export { FlowNavigation } from './components/FlowNavigation';
+// All components are exported via the components index
 
 // Re-export commonly used items for convenience
 export {
