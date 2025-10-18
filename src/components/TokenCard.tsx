@@ -12,6 +12,8 @@ interface TokenCardProps {
 	isOIDC?: boolean;
 	flowKey?: string;
 	className?: string;
+	defaultMasked?: boolean;
+	allowMaskToggle?: boolean;
 }
 
 const Card = styled.div`
@@ -139,12 +141,16 @@ const TokenPreview = styled.div`
 	font-size: 0.875rem;
 	line-height: 1.5;
 	color: #374151;
-	word-break: break-all;
 	background: #f0fdf4; /* Light green for generated content */
 	padding: 1rem;
 	border-radius: 8px;
 	border: 1px solid #e2e8f0;
 	margin-bottom: 1rem;
+	overflow-x: auto;
+	white-space: pre-wrap;
+	word-break: break-all;
+	overflow-wrap: anywhere;
+	max-width: 100%;
 `;
 
 const DecodeModal = styled.div<{ $isOpen: boolean }>`
@@ -228,9 +234,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 	tokenType,
 	isOIDC = false,
 	flowKey = '',
-	className
+	className,
+	defaultMasked = true,
+	allowMaskToggle = true
 }) => {
-	const [masked, setMasked] = useState(true);
+	const [masked, setMasked] = useState(defaultMasked);
 	const [showDecodeModal, setShowDecodeModal] = useState(false);
 	const [decodedContent, setDecodedContent] = useState<DecodedJWT | null>(null);
 	const [isOpaque, setIsOpaque] = useState(false);
@@ -271,8 +279,11 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 	}, [token, tokenInfo]);
 
 	const handleToggleMask = useCallback(() => {
+		if (!allowMaskToggle) {
+			return;
+		}
 		setMasked(prev => !prev);
-	}, []);
+	}, [allowMaskToggle]);
 
 	const handleSendToTokenManagement = useCallback(() => {
 		// Navigate to Token Management page with token in state
@@ -303,6 +314,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 					</TokenBadge>
 				</TokenLabel>
 				<ActionButtons>
+					{allowMaskToggle && (
 					<ActionButton
 						onClick={handleToggleMask}
 						title={masked ? 'Show token' : 'Hide token'}
@@ -310,6 +322,7 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 						{masked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
 						{masked ? 'Show' : 'Hide'}
 					</ActionButton>
+					)}
 					<ActionButton
 						onClick={handleDecode}
 						title="Decode token"

@@ -130,13 +130,15 @@ export interface ClientCredentialsFlowControllerOptions {
 
 const DEFAULT_FLOW_KEY = 'client-credentials-v5';
 
+const DEFAULT_ADMIN_SCOPES = 'openid';
+
 const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
 	clientId: '',
 	clientSecret: '',
 	redirectUri: '', // Not used in Client Credentials
-	scope: 'openid',
-	scopes: 'openid',
+	scope: DEFAULT_ADMIN_SCOPES,
+	scopes: DEFAULT_ADMIN_SCOPES,
 	responseType: '', // Not used in Client Credentials
 	grantType: 'client_credentials',
 	authorizationEndpoint: '', // Not used in Client Credentials
@@ -149,7 +151,7 @@ const createEmptyConfig = (): ClientCredentialsConfig => ({
 	clientId: '',
 	clientSecret: '',
 	authMethod: 'client_secret_post',
-	scopes: 'openid',
+	scopes: DEFAULT_ADMIN_SCOPES,
 	audience: '',
 	resource: '',
 	tokenEndpoint: '',
@@ -285,7 +287,35 @@ export const useClientCredentialsFlowController = (
 
 				// Load credentials
 				if (loadedCreds) {
+					// Check if we need to migrate from old admin scopes to new openid scope
+					const normalizedScope = loadedCreds.scope?.trim() || '';
+					const needsScopeMigration = normalizedScope !== '' && /^p1:read:user p1:update:user p1:read:device p1:update:device$/i.test(normalizedScope);
+					const updatedCredentials = {
+						...loadedCreds,
+						scope: needsScopeMigration ? DEFAULT_ADMIN_SCOPES : (loadedCreds.scope || DEFAULT_ADMIN_SCOPES),
+						scopes: needsScopeMigration ? DEFAULT_ADMIN_SCOPES : (loadedCreds.scopes || loadedCreds.scope || DEFAULT_ADMIN_SCOPES),
+					};
+
 					setCredentials(loadedCreds);
+
+					if (needsScopeMigration || !loadedCreds.scope) {
+						setCredentials(updatedCredentials);
+						setFlowConfig(prev => ({
+							...prev,
+							scopes: DEFAULT_ADMIN_SCOPES,
+						}));
+						localStorage.setItem(persistKey, JSON.stringify({
+							credentials: updatedCredentials,
+							flowConfig: {
+								...(flowState?.flowConfig || createEmptyConfig()),
+								scopes: DEFAULT_ADMIN_SCOPES,
+							},
+							tokens: flowState?.tokens,
+							flowVariant: flowState?.flowVariant || defaultFlowVariant,
+						}));
+						console.log('[ClientCredsController] Migrated legacy admin scopes to openid scope for client credentials');
+					}
+
 					setHasCredentialsSaved(true);
 				}
 

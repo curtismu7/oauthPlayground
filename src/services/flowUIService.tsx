@@ -1,4 +1,4 @@
-// src/services/flowUIService.ts
+	// src/services/flowUIService.ts
 // Comprehensive UI component library for V5 flows
 // Consolidates all common UI patterns from OAuth flows
 
@@ -83,6 +83,51 @@ export class FlowUIService {
 			min-height: 100vh;
 			background-color: #f9fafb;
 			padding: 2rem 0 6rem;
+		`;
+	}
+
+	static getVariantSelector() {
+		return styled.div`
+			display: flex;
+			gap: 1rem;
+			margin-bottom: 2rem;
+			padding: 1.5rem;
+			background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+			border-radius: 0.75rem;
+			border: 1px solid #cbd5e1;
+		`;
+	}
+
+	static getVariantButton() {
+		return styled.button<{ $selected: boolean }>`
+			flex: 1;
+			padding: 1rem;
+			border-radius: 0.5rem;
+			border: 2px solid ${({ $selected }) => ($selected ? '#3b82f6' : '#cbd5e1')};
+			background: ${({ $selected }) => ($selected ? '#dbeafe' : 'white')};
+			color: ${({ $selected }) => ($selected ? '#1e40af' : '#475569')};
+			font-weight: ${({ $selected }) => ($selected ? '600' : '500')};
+			transition: all 0.2s ease;
+			cursor: pointer;
+
+			&:hover {
+				border-color: #3b82f6;
+				background: #dbeafe;
+			}
+		`;
+	}
+
+	static getVariantTitle() {
+		return styled.div`
+			font-size: 1.1rem;
+			margin-bottom: 0.25rem;
+		`;
+	}
+
+	static getVariantDescription() {
+		return styled.div`
+			font-size: 0.875rem;
+			opacity: 0.8;
 		`;
 	}
 
@@ -943,6 +988,10 @@ export class FlowUIService {
 			// Utility components
 			SectionDivider: FlowUIService.getSectionDivider(),
 			HelperText: FlowUIService.getHelperText(),
+			VariantSelector: FlowUIService.getVariantSelector(),
+			VariantButton: FlowUIService.getVariantButton(),
+			VariantTitle: FlowUIService.getVariantTitle(),
+			VariantDescription: FlowUIService.getVariantDescription(),
 
 			// Typography
 			StrongText: styled.span`
