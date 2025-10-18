@@ -57,44 +57,46 @@ export class PARService {
 		});
 
 		try {
-			// Use relative URL to go through Vite proxy (avoids certificate issues)
 			const parUrl = '/api/par';
 
-			// Convert to JSON format for backend proxy
 			const requestBody = this.buildPARRequestBody(request, authMethod);
-			const _headers = this.buildPARHeaders(authMethod);
+			const jsonBody: Record<string, unknown> = {};
 
-			// Convert FormData to JSON if needed
-			let jsonBody: any = {};
-			if (requestBody instanceof FormData) {
-				for (const [key, value] of requestBody.entries()) {
-					jsonBody[key] = value;
-				}
-			} else {
-				jsonBody = requestBody;
+			for (const [key, value] of requestBody.entries()) {
+				jsonBody[key] = value;
 			}
 
-			// Extract environment ID from baseUrl (format: https://auth.pingone.com/{envId})
 			const environmentId = this.baseUrl.split('/').pop();
-			
-			const backendRequestBody = {
+			const payload: Record<string, unknown> = {
 				environment_id: environmentId,
+				client_auth_method: authMethod.type,
 				...jsonBody,
 			};
-			
+
+			if (!payload.client_id) {
+				payload.client_id = request.clientId;
+			}
+
+			if (authMethod.clientSecret && !payload.client_secret) {
+				payload.client_secret = authMethod.clientSecret;
+			}
+
 			logger.info('PARService', 'Sending PAR request to backend', {
 				parUrl,
 				environmentId,
-				requestBody: { ...backendRequestBody, client_secret: backendRequestBody.client_secret ? '[REDACTED]' : undefined },
+				requestBody: {
+					...payload,
+					client_secret: payload.client_secret ? '[REDACTED]' : undefined,
+				},
 			});
-			
+
 			const response = await fetch(parUrl, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 					Accept: 'application/json',
 				},
-				body: JSON.stringify(backendRequestBody),
+				body: JSON.stringify(payload),
 			});
 
 			if (!response.ok) {
@@ -111,7 +113,7 @@ export class PARService {
 
 			return parResponse;
 		} catch (error) {
-			logger.error('PARService', 'Failed to generate PAR request', error);
+			logger.error('PARService', 'Failed to generate PAR request', undefined, error as Error);
 			throw error;
 		}
 	}
@@ -119,10 +121,9 @@ export class PARService {
 	/**
 	 * Build the request body for PAR based on authentication method
 	 */
-	private buildPARRequestBody(request: PARRequest, authMethod: PARAuthMethod): FormData | string {
+	private buildPARRequestBody(request: PARRequest, authMethod: PARAuthMethod): FormData {
 		const formData = new FormData();
 
-		// Add OAuth parameters
 		formData.append('client_id', request.clientId);
 		formData.append('response_type', request.responseType);
 		formData.append('redirect_uri', request.redirectUri);
@@ -158,14 +159,12 @@ export class PARService {
 			formData.append('claims', request.claims);
 		}
 
-		// Add authentication parameters based on method
 		switch (authMethod.type) {
 			case 'CLIENT_SECRET_POST':
 				if (authMethod.clientSecret) {
 					formData.append('client_secret', authMethod.clientSecret);
 				}
 				break;
-
 			case 'CLIENT_SECRET_JWT':
 				if (authMethod.clientSecret) {
 					const clientSecretJWT = this.generateClientSecretJWT(request, authMethod);
@@ -176,7 +175,6 @@ export class PARService {
 					);
 				}
 				break;
-
 			case 'PRIVATE_KEY_JWT':
 				if (authMethod.privateKey) {
 					const privateKeyJWT = this.generatePrivateKeyJWT(request, authMethod);
@@ -201,7 +199,6 @@ export class PARService {
 			Accept: 'application/json',
 		};
 
-		// Add basic authentication header if needed
 		if (authMethod.type === 'CLIENT_SECRET_BASIC' && authMethod.clientSecret) {
 			const credentials = btoa(`${authMethod.clientId}:${authMethod.clientSecret}`);
 			headers['Authorization'] = `Basic ${credentials}`;
@@ -215,24 +212,17 @@ export class PARService {
 	 */
 	private generateClientSecretJWT(request: PARRequest, _authMethod: PARAuthMethod): string {
 		const now = Math.floor(Date.now() / 1000);
-		const header = {
-			alg: 'HS256',
-			typ: 'JWT',
-		};
-
+		const header = { alg: 'HS256', typ: 'JWT' };
 		const payload = {
 			iss: request.clientId,
 			sub: request.clientId,
 			aud: `${this.baseUrl}/as/par`,
 			iat: now,
-			exp: now + 300, // 5 minutes
+			exp: now + 300,
 			jti: this.generateJTI(),
 		};
 
-		// In a real implementation, you would use a JWT library
-		// For demo purposes, we'll return a mock JWT
 		const mockJWT = `${btoa(JSON.stringify(header))}.${btoa(JSON.stringify(payload))}.mock_signature`;
-
 		logger.info('PARService', 'Generated client secret JWT', { jti: payload.jti });
 		return mockJWT;
 	}
@@ -242,23 +232,16 @@ export class PARService {
 	 */
 	private generatePrivateKeyJWT(request: PARRequest, authMethod: PARAuthMethod): string {
 		const now = Math.floor(Date.now() / 1000);
-		const header = {
-			alg: 'RS256',
-			typ: 'JWT',
-			kid: authMethod.keyId || 'default-key',
-		};
-
+		const header = { alg: 'RS256', typ: 'JWT', kid: authMethod.keyId || 'default-key' };
 		const payload = {
 			iss: request.clientId,
 			sub: request.clientId,
 			aud: `${this.baseUrl}/as/par`,
 			iat: now,
-			exp: now + 300, // 5 minutes
+			exp: now + 300,
 			jti: this.generateJTI(),
 		};
 
-		// In a real implementation, you would use a JWT library with the private key
-		// For demo purposes, we'll return a mock JWT
 		const mockJWT =
 			btoa(JSON.stringify(header)) +
 			'.' +
@@ -310,14 +293,12 @@ export class PARService {
 			errors.push('state is required');
 		}
 
-		// Validate redirect URI format
 		try {
 			new URL(request.redirectUri);
 		} catch {
 			errors.push('redirectUri must be a valid URL');
 		}
 
-		// Validate response type
 		const validResponseTypes = [
 			'code',
 			'token',
@@ -353,15 +334,20 @@ export class PARService {
 	/**
 	 * Parse PAR response and extract request URI
 	 */
-	parsePARResponse(response: unknown): PARResponse {
-		if (!response.request_uri) {
-			throw new Error('Invalid PAR response: missing request_uri');
+	parsePARResponse(response: any): PARResponse {
+		// Handle different response formats from PingOne
+		const requestUri = response.request_uri || response.requestUri;
+		const expiresIn = response.expires_in || response.expiresIn || 600; // Default 10 minutes
+
+		if (!requestUri) {
+			console.error('PAR Response Debug:', response);
+			throw new Error('Invalid PAR response: missing request_uri. Response: ' + JSON.stringify(response));
 		}
 
 		return {
-			requestUri: response.request_uri,
-			expiresIn: response.expires_in || 600, // Default 10 minutes
-			expiresAt: Date.now() + (response.expires_in || 600) * 1000,
+			requestUri: requestUri,
+			expiresIn: expiresIn,
+			expiresAt: Date.now() + expiresIn * 1000,
 		};
 	}
 }
