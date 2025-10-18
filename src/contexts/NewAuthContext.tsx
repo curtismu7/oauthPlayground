@@ -212,20 +212,23 @@ async function loadConfiguration(): Promise<AppConfig> {
 
 		console.log(' [NewAuthContext] Environment config:', envConfig);
 
-		// If we have environment variables, use them
-		if (envConfig.clientId && envConfig.environmentId) {
-			console.log(' [NewAuthContext] Using environment variables');
-			return envConfig;
+		// First, try to get from credential manager (prioritize stored credentials)
+		console.log(' [NewAuthContext] Loading from credential manager...');
+		// Use getAllCredentials to get the permanent credentials from localStorage
+		const permanentCredentials = credentialManager.getAllCredentials();
+		console.log(' [NewAuthContext] Permanent credentials result:', permanentCredentials);
+
+		// If we have stored credentials, use them
+		if (permanentCredentials?.clientId && permanentCredentials?.environmentId) {
+			console.log(' [NewAuthContext] Using stored permanent credentials');
+			return permanentCredentials;
 		}
 
-		// Otherwise, try to get from credential manager
-		console.log(' [NewAuthContext] Loading from credential manager...');
-		// Try to load from config credentials first, then fall back to authz flow credentials
-		const configCredentials = credentialManager.loadConfigCredentials();
-		console.log(' [NewAuthContext] Config credentials result:', configCredentials);
-
-		const authzCredentials = credentialManager.loadAuthzFlowCredentials();
-		console.log(' [NewAuthContext] Authz credentials result:', authzCredentials);
+		// Otherwise, fall back to environment variables
+		if (envConfig.clientId && envConfig.environmentId) {
+			console.log(' [NewAuthContext] Using environment variables as fallback');
+			return envConfig;
+		}
 
 		// Use config credentials if available, otherwise use authz credentials
 		let allCredentials = configCredentials;
