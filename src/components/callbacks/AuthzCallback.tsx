@@ -166,6 +166,7 @@ const AuthzCallback: React.FC = () => {
 				let isOAuthV3 = false;
 				let isEnhancedV3 = false;
 				let isV5 = false;
+				let isMFA = false;
 				let context = null;
 
 				try {
@@ -177,12 +178,14 @@ const AuthzCallback: React.FC = () => {
 					isV5 =
 						context?.flow === 'oauth-authorization-code-v5' ||
 						context?.flow === 'oidc-authorization-code-v5';
+					isMFA = context?.flow === 'pingone-complete-mfa-v7';
 
 					console.log(' [AuthzCallback] Flow context parsing successful:', {
 						flowContext: context?.flow,
 						isOAuthV3,
 						isEnhancedV3,
 						isV5,
+						isMFA,
 						contextExists: !!context,
 						rawFlowContext: flowContext,
 					});
@@ -390,6 +393,59 @@ const AuthzCallback: React.FC = () => {
 								setTimeout(() => {
 									navigate(fullReturnPath);
 								}, 1500);
+								return;
+							}
+						}
+
+						if (isMFA) {
+							// For MFA flow, extract code and state, then redirect to MFA page
+							const urlParams = new URL(currentUrl).searchParams;
+							const code = urlParams.get('code');
+							const state = urlParams.get('state');
+							const error = urlParams.get('error');
+							
+							// Debug: Log all URL parameters received
+							console.log(' [AuthzCallback] MFA callback URL parameters:', {
+								code: code ? `${code.substring(0, 10)}...` : 'MISSING',
+								state: state ? `${state.substring(0, 10)}...` : 'MISSING',
+								error: error || 'none',
+								fullUrl: currentUrl,
+								allParams: Object.fromEntries(urlParams.entries())
+							});
+
+							if (error) {
+								console.error(' [AuthzCallback] MFA authorization error:', error);
+								setStatus('error');
+								setMessage(`Authorization failed: ${urlParams.get('error_description') || error}`);
+								// Redirect back to MFA flow with error
+								setTimeout(() => {
+									navigate('/pingone-authentication?error=' + encodeURIComponent(error));
+								}, 2000);
+								return;
+							}
+
+							if (code && state) {
+								console.log(' [AuthzCallback] MFA authorization successful, storing code and redirecting');
+								
+								// Store the authorization code and state for MFA flow
+								sessionStorage.setItem('mfa_v7_auth_code', code);
+								sessionStorage.setItem('mfa_v7_state', state);
+								
+								setStatus('success');
+								setMessage('Authorization successful! Redirecting back to MFA flow...');
+								
+								// Redirect back to MFA flow - use the returnPath from context or default to MFA page
+								// The returnPath should be set by the MFA flow when it initiates the redirect
+								const returnPath = context?.returnPath || '/pingone-authentication';
+								console.log(' [AuthzCallback] MFA redirecting to:', returnPath);
+								setTimeout(() => {
+									navigate(returnPath);
+								}, 1500);
+								return;
+							} else {
+								console.error(' [AuthzCallback] Missing code or state in MFA callback');
+								setStatus('error');
+								setMessage('Authorization failed: Missing authorization code');
 								return;
 							}
 						}

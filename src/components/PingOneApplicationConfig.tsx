@@ -672,8 +672,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 						<Toggle
 							id="enable-jwks-toggle"
 							$active={value.enableJWKS}
-							disabled
-							style={{ cursor: 'not-allowed', opacity: 0.6 }}
+							onClick={() => onChange({ ...value, enableJWKS: !value.enableJWKS })}
 							aria-pressed={value.enableJWKS}
 							role="switch"
 							aria-label="Enable JWKS"
@@ -681,7 +680,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 							<span />
 						</Toggle>
 						<Helper style={{ color: '#059669', fontWeight: '500' }}>
-							⚙️ Configured in PingOne → Enable JWKS in your PingOne application settings to see JWT signature validation features
+							🔧 Enable JWKS to configure JWT signature validation features
 						</Helper>
 					</Field>
 
@@ -696,8 +695,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											name="jwksMethod"
 											value="JWKS_URL"
 											checked={value.jwksMethod === 'JWKS_URL'}
-											disabled
-											style={{ cursor: 'not-allowed' }}
+											onChange={() => onChange({ ...value, jwksMethod: 'JWKS_URL' })}
 										/>
 										JWKS URL
 									</RadioLabel>
@@ -707,14 +705,13 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 											name="jwksMethod"
 											value="JWKS"
 											checked={value.jwksMethod === 'JWKS'}
-											disabled
-											style={{ cursor: 'not-allowed' }}
+											onChange={() => onChange({ ...value, jwksMethod: 'JWKS' })}
 										/>
 										JWKS
 									</RadioLabel>
 								</RadioGroup>
 								<Helper style={{ color: '#059669', fontWeight: '500' }}>
-									⚙️ Configured in PingOne → Set your JWKS method in PingOne application configuration
+									🔧 Choose how to provide your JSON Web Key Set
 								</Helper>
 							</Field>
 
@@ -725,8 +722,7 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 										id="jwks-url"
 										type="url"
 										value={value.jwksUrl}
-										disabled
-										style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
+										onChange={(e) => onChange({ ...value, jwksUrl: e.target.value })}
 										placeholder="https://example.com/.well-known/jwks.json"
 									/>
 									<Helper style={{ color: '#059669', fontWeight: '500' }}>
@@ -741,12 +737,11 @@ const PingOneApplicationConfig: React.FC<PingOneApplicationConfigProps> = ({
 									<Textarea
 										id="jwks"
 										value={value.jwks}
-										disabled
-										style={{ backgroundColor: '#f9fafb', color: '#6b7280', cursor: 'not-allowed' }}
+										onChange={(e) => onChange({ ...value, jwks: e.target.value })}
 										placeholder='{"keys": [...]}'
 									/>
 									<Helper style={{ color: '#059669', fontWeight: '500' }}>
-										⚙️ Configured in PingOne → Set your JWKS JSON in PingOne application settings
+										🔧 Enter your JSON Web Key Set as JSON
 									</Helper>
 								</Field>
 							)}
