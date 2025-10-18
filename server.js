@@ -467,6 +467,150 @@ app.post('/api/token-exchange', async (req, res) => {
 	}
 });
 
+// Redirectless authorize proxy to avoid frontend CORS issues
+app.post('/api/pingone/redirectless/authorize', async (req, res) => {
+	console.log('🛰️ [Server] Redirectless authorize request received');
+	
+	// Handle both JSON and form-encoded data
+	let requestData = req.body || {};
+	
+	// If Content-Type is form-encoded, parse it
+	if (req.headers['content-type'] === 'application/x-www-form-urlencoded') {
+		const formData = new URLSearchParams(req.body);
+		requestData = {};
+		for (const [key, value] of formData.entries()) {
+			requestData[key] = value;
+		}
+	}
+	
+	const {
+		environmentId,
+		clientId,
+		responseType = 'token',
+		scope = 'openid',
+		state,
+		nonce,
+		codeChallenge,
+		codeChallengeMethod,
+		redirectUri,
+		username,
+		password,
+		additionalParams,
+	} = requestData;
+
+	if (!environmentId || !clientId) {
+		console.error('❌ [Server] Missing environmentId or clientId for redirectless authorize');
+		return res.status(400).json({
+			success: false,
+			error: 'invalid_request',
+			message: 'environmentId and clientId are required',
+		});
+	}
+
+	const authorizeEndpoint = `https://auth.pingone.com/${environmentId}/as/authorize`;
+	const params = new URLSearchParams({
+		client_id: clientId,
+		response_type: responseType,
+		scope,
+		response_mode: req.body.responseMode || 'pi.flow',
+		state: state || `pi-flow-${Date.now()}`,
+	});
+
+	if (nonce) {
+		params.set('nonce', nonce);
+	}
+	if (codeChallenge) {
+		params.set('code_challenge', codeChallenge);
+	}
+	if (codeChallengeMethod) {
+		params.set('code_challenge_method', codeChallengeMethod);
+	}
+	if (redirectUri) {
+		params.set('redirect_uri', redirectUri);
+	}
+	if (username) {
+		params.set('username', username);
+	}
+	if (password) {
+		params.set('password', password);
+	}
+	if (additionalParams && typeof additionalParams === 'object') {
+		for (const [key, value] of Object.entries(additionalParams)) {
+			if (value !== undefined && value !== null) {
+				params.set(key, String(value));
+			}
+		}
+	}
+
+	console.log('📡 [Server] Forwarding redirectless authorize request:', {
+		authorizeEndpoint,
+		clientId: `${clientId.substring(0, 8)}...`,
+		hasUsername: !!username,
+		hasPassword: !!password,
+		state: params.get('state'),
+	});
+
+	try {
+		const response = await fetch(authorizeEndpoint, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				Accept: 'application/json',
+			},
+			body: params.toString(),
+			redirect: 'manual',
+		});
+
+		const rawBody = await response.text();
+		let parsedBody = {};
+		let isJson = false;
+
+		try {
+			parsedBody = rawBody ? JSON.parse(rawBody) : {};
+			isJson = true;
+		} catch (parseError) {
+			console.error('⚠️ [Server] PingOne returned non-JSON response for redirectless authorize:', {
+				status: response.status,
+				statusText: response.statusText,
+				bodyPreview: rawBody.slice(0, 200),
+			});
+		}
+
+		if (!response.ok) {
+			console.error('❌ [Server] Redirectless authorize failed:', {
+				status: response.status,
+				statusText: response.statusText,
+				body: isJson ? parsedBody : rawBody.slice(0, 200),
+			});
+			return res.status(response.status).json({
+				success: false,
+				status: response.status,
+				statusText: response.statusText,
+				data: isJson ? parsedBody : undefined,
+				rawBody: isJson ? undefined : rawBody,
+			});
+		}
+
+		if (isJson) {
+			return res.status(200).json(parsedBody);
+		}
+
+		return res.status(502).json({
+			success: false,
+			error: 'invalid_response',
+			message: 'PingOne returned a non-JSON response.',
+			rawBody: rawBody.slice(0, 500),
+		});
+	} catch (error) {
+		console.error('💥 [Server] Redirectless authorize proxy error:', error);
+		return res.status(500).json({
+			success: false,
+			error: 'proxy_error',
+			message: error instanceof Error ? error.message : 'Unexpected proxy error',
+		});
+	}
+});
+
 // Client Credentials Flow Endpoint
 app.post('/api/client-credentials', async (req, res) => {
 	try {
@@ -1267,6 +1411,167 @@ app.post('/api/pingone/mfa/initiate-challenge', async (req, res) => {
 	}
 });
 
+// PingOne MFA Challenge Verification Endpoint
+app.post('/api/mfa/challenge/verify', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			challengeId,
+			challengeCode,
+			userId
+		} = req.body;
+
+		console.log(`[PingOne MFA] Challenge verification request:`, {
+			environmentId,
+			challengeId,
+			challengeCode: challengeCode ? `${challengeCode.substring(0, 2)}***` : 'none',
+			userId
+		});
+
+		// Make real API call to PingOne for MFA challenge verification
+		const pingOneVerifyUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/challenges/${challengeId}/verify`;
+		
+		const verifyRequestBody = {
+			challengeCode: challengeCode
+		};
+
+		console.log(`[PingOne MFA] Making real API call to PingOne for verification:`, {
+			url: pingOneVerifyUrl,
+			method: 'POST',
+			body: { challengeCode: challengeCode ? `${challengeCode.substring(0, 2)}***` : 'none' }
+		});
+
+		const pingOneResponse = await fetch(pingOneVerifyUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${req.headers.authorization?.replace('Bearer ', '')}`
+			},
+			body: JSON.stringify(verifyRequestBody)
+		});
+
+		if (!pingOneResponse.ok) {
+			const errorData = await pingOneResponse.json();
+			console.error(`[PingOne MFA] PingOne challenge verification failed:`, errorData);
+			return res.status(pingOneResponse.status).json({
+				success: false,
+				error: errorData.error || 'verification_failed',
+				error_description: errorData.error_description || errorData.message || 'Failed to verify MFA challenge',
+				server_timestamp: new Date().toISOString(),
+			});
+		}
+
+		const verifyData = await pingOneResponse.json();
+		console.log(`[PingOne MFA] PingOne challenge verified successfully:`, verifyData);
+
+		res.json({
+			success: true,
+			challengeId: challengeId,
+			userId: userId,
+			status: verifyData.status || 'VERIFIED',
+			message: 'MFA challenge completed successfully',
+			verifiedAt: new Date().toISOString(),
+			server_timestamp: new Date().toISOString(),
+			pingOneResponse: verifyData
+		});
+
+	} catch (error) {
+		console.error('[PingOne MFA] Challenge verification server error:', error);
+		res.status(500).json({
+			success: false,
+			error: 'server_error',
+			error_description: 'Internal server error during MFA challenge verification',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne MFA Challenge Initiation Endpoint (simplified for frontend)
+app.post('/api/mfa/challenge/initiate', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			userId,
+			deviceId,
+			deviceType,
+			challengeType
+		} = req.body;
+
+		console.log(`[PingOne MFA] Challenge initiation request:`, {
+			environmentId,
+			userId,
+			deviceId,
+			deviceType,
+			challengeType
+		});
+
+		// Make real API call to PingOne for MFA challenge initiation
+		const pingOneChallengeUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceId}/challenges`;
+		
+		const challengeRequestBody = {
+			challengeType: challengeType,
+			deviceType: deviceType
+		};
+
+		console.log(`[PingOne MFA] Making real API call to PingOne:`, {
+			url: pingOneChallengeUrl,
+			method: 'POST',
+			body: challengeRequestBody
+		});
+
+		const pingOneResponse = await fetch(pingOneChallengeUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${req.headers.authorization?.replace('Bearer ', '')}`
+			},
+			body: JSON.stringify(challengeRequestBody)
+		});
+
+		if (!pingOneResponse.ok) {
+			const errorData = await pingOneResponse.json();
+			console.error(`[PingOne MFA] PingOne challenge initiation failed:`, errorData);
+			return res.status(pingOneResponse.status).json({
+				success: false,
+				error: errorData.error || 'challenge_initiation_failed',
+				error_description: errorData.error_description || errorData.message || 'Failed to initiate MFA challenge',
+				server_timestamp: new Date().toISOString(),
+			});
+		}
+
+		const challengeData = await pingOneResponse.json();
+		console.log(`[PingOne MFA] PingOne challenge initiated successfully:`, challengeData);
+
+		const message = challengeType === 'SMS' 
+			? `Verification code sent to your phone` 
+			: challengeType === 'EMAIL'
+			? `Verification code sent to your email`
+			: `Verification code generated for your ${challengeType} device`;
+
+		res.json({
+			success: true,
+			challengeId: challengeData.challengeId || challengeData.id,
+			userId: userId,
+			deviceId: deviceId,
+			type: challengeType,
+			status: challengeData.status || 'PENDING',
+			message: message,
+			expiresAt: challengeData.expiresAt || new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+			server_timestamp: new Date().toISOString(),
+			pingOneResponse: challengeData
+		});
+
+	} catch (error) {
+		console.error('[PingOne MFA] Challenge initiation server error:', error);
+		res.status(500).json({
+			success: false,
+			error: 'server_error',
+			error_description: 'Internal server error during MFA challenge initiation',
+			details: error.message,
+		});
+	}
+});
+
 // JWKS Endpoint (proxy to PingOne)
 app.get('/api/jwks', async (req, res) => {
 	try {
@@ -1312,6 +1617,163 @@ app.get('/api/jwks', async (req, res) => {
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during JWKS fetch',
+		});
+	}
+});
+
+// Device Registration Endpoint (proxy to PingOne)
+app.post('/api/device/register', async (req, res) => {
+	try {
+		const {
+			environmentId,
+			userId,
+			deviceType,
+			deviceName,
+			contactInfo,
+			verificationCode,
+			workerToken
+		} = req.body;
+
+		console.log(`[Device Registration] Request received:`, {
+			environmentId,
+			userId,
+			deviceType,
+			deviceName,
+			contactInfo: contactInfo ? `${contactInfo.substring(0, 3)}***${contactInfo.substring(contactInfo.length - 4)}` : 'none',
+			hasVerificationCode: !!verificationCode,
+			hasWorkerToken: !!workerToken
+		});
+
+		if (!environmentId || !userId || !deviceType || !deviceName || !workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, deviceType, deviceName, workerToken'
+			});
+		}
+
+		// Make API call to PingOne for device registration
+		// Use device-type-specific endpoint according to PingOne MFA API documentation
+		const deviceTypeEndpoint = deviceType.toLowerCase(); // e.g., 'sms', 'email', 'totp', 'fido2'
+		const deviceRegistrationUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices/${deviceTypeEndpoint}`;
+		
+		// Build request body according to device type
+		const requestBody = {
+			nickname: deviceName
+		};
+		
+		// Add device-specific fields
+		if (deviceType.toLowerCase() === 'sms' || deviceType.toLowerCase() === 'voice') {
+			requestBody.phone = contactInfo;
+		} else if (deviceType.toLowerCase() === 'email') {
+			requestBody.email = contactInfo;
+		} else if (deviceType.toLowerCase() === 'totp') {
+			// TOTP doesn't require additional fields
+		} else if (deviceType.toLowerCase() === 'fido2') {
+			// FIDO2 registration is handled differently (client-side WebAuthn API)
+		}
+
+		console.log(`[Device Registration] Making API call to PingOne:`, {
+			url: deviceRegistrationUrl,
+			method: 'POST',
+			body: requestBody
+		});
+
+		const deviceRegistrationResponse = await fetch(deviceRegistrationUrl, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${workerToken}`
+			},
+			body: JSON.stringify(requestBody)
+		});
+
+		const responseData = await deviceRegistrationResponse.json();
+
+		if (!deviceRegistrationResponse.ok) {
+			console.error(`[Device Registration] PingOne API error:`, responseData);
+			return res.status(deviceRegistrationResponse.status).json({
+				error: 'device_registration_failed',
+				error_description: responseData.message || responseData.error || 'Device registration failed',
+				details: responseData
+			});
+		}
+
+		console.log(`[Device Registration] Success:`, responseData);
+		res.json(responseData);
+
+	} catch (error) {
+		console.error(`[Device Registration] Error:`, error);
+		res.status(500).json({
+			error: 'internal_server_error',
+			error_description: 'Internal server error during device registration',
+			details: error.message
+		});
+	}
+});
+
+// PingOne Resume URL Endpoint (for completing redirectless authentication)
+app.post('/api/pingone/resume', async (req, res) => {
+	try {
+		const { resumeUrl, flowId, flowState, clientId, clientSecret } = req.body;
+
+		if (!resumeUrl) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing resumeUrl parameter'
+			});
+		}
+
+		console.log(`[PingOne Resume] Calling resume URL:`, resumeUrl);
+		console.log(`[PingOne Resume] Flow ID:`, flowId);
+		console.log(`[PingOne Resume] Flow State:`, flowState);
+		console.log(`[PingOne Resume] Client ID:`, clientId ? `${clientId.substring(0, 8)}...` : 'none');
+		console.log(`[PingOne Resume] Has Client Secret:`, !!clientSecret);
+
+		// For redirectless flow, we need to POST to the resumeUrl with flow completion data
+		// PingOne expects form-encoded data with specific parameter names
+		const resumeBody = new URLSearchParams();
+		if (flowId) resumeBody.append('flowId', flowId);
+		if (flowState) resumeBody.append('state', flowState);
+		if (clientId) resumeBody.append('client_id', clientId);
+		if (clientSecret) resumeBody.append('client_secret', clientSecret);
+		
+		console.log(`[PingOne Resume] Request body:`, resumeBody.toString());
+		
+		const resumeResponse = await fetch(resumeUrl, {
+			method: 'POST',
+			headers: {
+				'Accept': 'application/json',
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'User-Agent': 'OAuth-Playground/1.0'
+			},
+			body: resumeBody.toString()
+		});
+
+		const responseData = await resumeResponse.json();
+
+		if (!resumeResponse.ok) {
+			console.error(`[PingOne Resume] Error:`, responseData);
+			return res.status(resumeResponse.status).json({
+				error: 'resume_failed',
+				error_description: responseData.message || responseData.error || 'Failed to resume authentication flow',
+				details: responseData
+			});
+		}
+
+		console.log(`[PingOne Resume] Success:`, {
+			hasAccessToken: !!responseData.access_token,
+			hasIdToken: !!responseData.id_token,
+			hasUserId: !!responseData.userId
+		});
+
+		res.json(responseData);
+
+	} catch (error) {
+		console.error(`[PingOne Resume] Error:`, error);
+		res.status(500).json({
+			error: 'internal_server_error',
+			error_description: 'Internal server error during resume URL call',
+			details: error.message
 		});
 	}
 });

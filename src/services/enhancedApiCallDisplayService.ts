@@ -152,6 +152,101 @@ export class EnhancedApiCallDisplayService {
 					],
 				},
 			},
+			'redirectless': {
+				'PKCE Generation': {
+					method: 'LOCAL' as const,
+					url: 'Client-side PKCE Generation',
+					description: 'Generate cryptographically secure PKCE parameters for redirectless flow',
+					body: {
+						code_verifier: '[cryptographically-random-string-43-128-chars]',
+						code_challenge: '[sha256-hash-of-code-verifier]',
+						code_challenge_method: 'S256',
+						algorithm: 'SHA256',
+						verifier_length: '43-128 characters',
+						challenge_length: '43 characters (base64url encoded)'
+					},
+					educationalNotes: [
+						'PKCE (Proof Key for Code Exchange) is a security extension for OAuth 2.0',
+						'Code verifier is a cryptographically random string',
+						'Code challenge is the SHA256 hash of the code verifier',
+						'This prevents authorization code interception attacks',
+					],
+				},
+				'authorization-request': {
+					method: 'POST' as const,
+					url: `https://auth.pingone.com/${config.environmentId as string}/as/authorize`,
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'Accept': 'application/json',
+					},
+					body: {
+						response_type: 'code',
+						client_id: config.clientId as string,
+						scope: (config.scopes as string[])?.join(' ') || 'openid profile email',
+						state: 'redirectless-flow-state',
+						nonce: 'redirectless-flow-nonce',
+						code_challenge: '[pkce_code_challenge]',
+						code_challenge_method: 'S256',
+						response_mode: 'pi.flow',
+						username: '[username]',
+						password: '[password]',
+					},
+					description: 'Initiate redirectless authentication with response_mode=pi.flow',
+					educationalNotes: [
+						'This is a PingOne proprietary flow that bypasses the redirect',
+						'Username and password are sent directly in the request body',
+						'Uses response_mode=pi.flow for seamless authentication',
+						'PKCE is still required for security',
+					],
+				},
+				'Authorization URL Generation': {
+					method: 'LOCAL' as const,
+					url: 'Client-side URL Construction',
+					description: 'Construct authorization URL for redirectless authentication',
+					queryParams: {
+						response_type: 'code',
+						response_mode: 'pi.flow',
+						client_id: '[client-id]',
+						scope: 'openid profile email',
+						state: '[random-state-value]',
+						nonce: '[random-nonce-value]',
+						code_challenge: '[pkce-code-challenge]',
+						code_challenge_method: 'S256'
+					},
+					body: {
+						username: '[user-username]',
+						password: '[user-password]',
+						note: 'Credentials sent in request body for redirectless flow'
+					},
+					educationalNotes: [
+						'This step builds the authorization URL with all required parameters',
+						'Includes PKCE challenge, state, nonce, and response_mode=pi.flow',
+						'Username and password will be sent in the request body',
+						'No redirect_uri is needed for redirectless flows',
+					],
+				},
+				'Token Exchange': {
+					method: 'POST' as const,
+					url: `https://auth.pingone.com/${config.environmentId as string}/as/token`,
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+						Authorization: `Basic ${btoa(`${config.clientId as string}:${config.clientSecret as string}`)}`,
+					},
+					body: {
+						grant_type: 'authorization_code',
+						code: '[authorization_code]',
+						redirect_uri: config.redirectUri as string,
+						code_verifier: '[pkce_code_verifier]',
+					},
+					description: 'Exchange authorization code for access token (redirectless flow)',
+					educationalNotes: [
+						'This request exchanges the authorization code for an access token',
+						'Client credentials are sent via Basic authentication',
+						'PKCE code_verifier is required to complete the flow',
+						'The response will contain access_token and refresh_token',
+					],
+				},
+			},
 		};
 
 		const flowTemplates = templates[flowType];
@@ -164,8 +259,21 @@ export class EnhancedApiCallDisplayService {
 			throw new Error(`Step not found for flow ${flowType}: ${stepName}`);
 		}
 
-		return {
+		// Merge template with custom config properties
+		const mergedTemplate = {
 			...template,
+			// Allow custom properties to override template defaults
+			...(config.description && { description: config.description }),
+			...(config.educationalNotes && { educationalNotes: config.educationalNotes }),
+			...(config.method && { method: config.method }),
+			...(config.url && { url: config.url }),
+			...(config.headers && { headers: config.headers }),
+			...(config.body && { body: config.body }),
+			...(config.queryParams && { queryParams: config.queryParams }),
+		};
+
+		return {
+			...mergedTemplate,
 			flowType: flowType as EnhancedApiCallData['flowType'],
 			stepName,
 			timestamp: new Date(),

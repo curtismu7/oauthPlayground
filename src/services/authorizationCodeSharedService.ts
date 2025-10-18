@@ -964,10 +964,10 @@ export class AuthzFlowCollapsibleSectionsManager {
  */
 export class AuthzFlowResponseTypeEnforcer {
 	/**
-	 * Get expected response type for variant (both use 'code')
+	 * Get expected response type for variant
 	 */
-	static getExpectedResponseType(_variant: AuthzFlowVariant): string {
-		return 'code'; // Both OAuth and OIDC use 'code' for authorization code flow
+	static getExpectedResponseType(variant: AuthzFlowVariant): string {
+		return variant === 'oidc' ? 'code id_token' : 'code';
 	}
 
 	/**

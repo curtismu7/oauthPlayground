@@ -192,40 +192,32 @@ const HeaderIcon = styled.span`
   font-size: 1.5rem;
 `;
 
-// Predefined flow configurations
+// Predefined flow configurations - Updated for V7 flows - Cache bust: 2025-01-17-08:50
 export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
-	// OAuth 2.0 V5 Flows
-	'oauth-authorization-code-v5': {
+	// OAuth 2.0 V7 Flows
+	'oauth-authorization-code-v7': {
 		flowType: 'oauth',
-		title: 'OAuth 2.0 Authorization Code Flow - Delegated Authorization',
+		title: 'Authorization Code (V7) - Unified OAuth/OIDC',
 		subtitle:
-			'🔐 OAuth 2.0 Authorization Framework (RFC 6749) - Allows your app to access resources on behalf of a user without handling their credentials. Returns Access Token for API calls. ⚠️ Note: OAuth 2.0 provides AUTHORIZATION (resource access) but NOT AUTHENTICATION (user identity). Use OIDC if you need to verify who the user is.',
+			'🔐 V7: Unified OAuth/OIDC authorization code experience - Modern implementation supporting both OAuth 2.0 and OpenID Connect variants with enhanced security, PKCE, and comprehensive educational content.',
 		icon: '🔐',
-		version: 'V5',
+		version: 'V7',
 	},
-	'oauth-authorization-code-v6': {
+	'implicit-v7': {
 		flowType: 'oauth',
-		title: 'OAuth 2.0 Authorization Code Flow V6 - Delegated Authorization',
+		title: 'Implicit Flow (V7) - Unified OAuth/OIDC',
 		subtitle:
-			'🔐 OAuth 2.0 Authorization Framework (RFC 6749) - Allows your app to access resources on behalf of a user without handling their credentials. Returns Access Token for API calls. ⚠️ Note: OAuth 2.0 provides AUTHORIZATION (resource access) but NOT AUTHENTICATION (user identity). Use OIDC if you need to verify who the user is.',
-		icon: '🔐',
-		version: 'V6',
-	},
-	'oauth-implicit-v5': {
-		flowType: 'oauth',
-		title: 'Implicit Flow - Legacy Browser-Based Authentication',
-		subtitle:
-			'Deprecated OAuth 2.0 flow that returns access tokens directly in the URL fragment without an authorization code exchange. No longer recommended - use Authorization Code Flow with PKCE instead for better security.',
+			'⚡ V7: Unified OAuth/OIDC implementation with variant selector - Modern implicit flow supporting both OAuth 2.0 and OpenID Connect with enhanced security features and educational content.',
 		icon: '⚡',
-		version: 'V5',
+		version: 'V7',
 	},
-	'oauth-implicit-v6': {
+	'device-authorization-v7': {
 		flowType: 'oauth',
-		title: 'Implicit Flow V6 - Legacy Browser-Based Authentication',
+		title: 'Device Authorization (V7) - Unified OAuth/OIDC',
 		subtitle:
-			'Deprecated OAuth 2.0 flow that returns access tokens directly in the URL fragment without an authorization code exchange. No longer recommended - use Authorization Code Flow with PKCE instead for better security.',
-		icon: '⚡',
-		version: 'V6',
+			'📱 V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools - Modern implementation with comprehensive device flow support.',
+		icon: '📱',
+		version: 'V7',
 	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
@@ -235,21 +227,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔑',
 		version: 'V5',
 	},
-	'client-credentials-v6': {
+	'client-credentials-v7': {
 		flowType: 'oauth',
-		title: 'Client Credentials Flow V6 - Server-to-Server Authentication',
+		title: 'Client Credentials Flow V7 - Enhanced Server-to-Server Authentication',
 		subtitle:
-			'🔑 Secure machine-to-machine authentication for backend services and APIs. Obtain access tokens directly using client ID and secret without user interaction. Perfect for microservices, batch jobs, and automated processes. ✅ V6: Service Architecture + Multiple Auth Methods.',
+			'🔑 Enhanced machine-to-machine authentication for backend services and APIs. Obtain access tokens directly using client ID and secret without user interaction. Perfect for microservices, batch jobs, and automated processes. ✅ V7: Enhanced with new AuthMethodService and improved UI.',
 		icon: '🔑',
-		version: 'V6',
-	},
-	'device-authorization-v6': {
-		flowType: 'oauth',
-		title: 'Device Authorization Flow - Input-Constrained Devices',
-		subtitle:
-			'OAuth 2.0 flow for devices without browsers or limited input capability (smart TVs, IoT devices, CLI tools). Users authenticate on a secondary device using a device code and user code.',
-		icon: '📱',
-		version: 'V5',
+		version: 'V7',
+		isExperimental: false,
 	},
 	'oauth-resource-owner-password-v5': {
 		flowType: 'oauth',
@@ -270,14 +255,6 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🆔',
 		version: 'V5',
 	},
-	'oidc-authorization-code-v6': {
-		flowType: 'oidc',
-		title: 'OIDC Authorization Code Flow V6 - Federated Authentication',
-		subtitle:
-			'🆔 OpenID Connect (Identity Layer on OAuth 2.0) - Verifies user identity AND provides API access. Returns ID Token (user identity) + Access Token (resource access). Built on OAuth 2.0 with added authentication layer. ✅ Use OIDC when you need to know WHO the user is (social login, SSO, identity verification).',
-		icon: '🆔',
-		version: 'V6',
-	},
 	'oidc-implicit-v5': {
 		flowType: 'oidc',
 		title: 'Implicit Flow - Legacy Browser Authentication',
@@ -286,32 +263,8 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🌐',
 		version: 'V5',
 	},
-	'oidc-implicit-v6': {
-		flowType: 'oidc',
-		title: 'Implicit Flow V6 - Legacy Browser Authentication',
-		subtitle:
-			'Deprecated OpenID Connect flow that returns ID tokens and access tokens directly in the URL fragment. No longer recommended - use Authorization Code Flow with PKCE for better security.',
-		icon: '🌐',
-		version: 'V6',
-	},
 
 	// V7 Unified Flows
-	'implicit-v7': {
-		flowType: 'oauth',
-		title: 'Unified Implicit Flow V7 - OAuth/OIDC Selector',
-		subtitle:
-			'🆕 Unified implementation supporting both OAuth 2.0 and OpenID Connect Implicit flows. Select your variant to see tailored educational content, parameters, and token responses. Legacy flow for educational purposes - use Authorization Code + PKCE for production.',
-		icon: '🆕',
-		version: 'V7',
-	},
-	'oauth-authorization-code-v7': {
-		flowType: 'oauth',
-		title: 'Unified Authorization Code Flow V7 - OAuth/OIDC Selector',
-		subtitle:
-			'🆕 Unified implementation supporting both OAuth 2.0 and OpenID Connect Authorization Code flows. Select your variant to see tailored educational content, parameters, and token responses. Recommended for production applications.',
-		icon: '🆕',
-		version: 'V7',
-	},
 	'token-exchange-v7': {
 		flowType: 'oauth',
 		title: 'OAuth 2.0 Token Exchange V7 - RFC 8693',
@@ -321,29 +274,21 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		version: 'V7',
 	},
 
-	'hybrid-v5': {
+	'oidc-hybrid-v7': {
 		flowType: 'oidc',
-		title: 'Hybrid Flow - Combined Authorization Approach',
+		title: 'Hybrid Flow (V7) - Unified OAuth/OIDC',
 		subtitle:
-			'Advanced OpenID Connect flow combining Authorization Code and Implicit patterns. Returns some tokens immediately from the authorization endpoint and others via code exchange for flexible authentication scenarios.',
+			'🔄 V7: Unified OAuth/OIDC hybrid flow implementation - Advanced flow combining Authorization Code and Implicit patterns with modern V7 architecture and enhanced educational content.',
 		icon: '🔄',
-		version: 'V5',
+		version: 'V7',
 	},
-	'oidc-hybrid-v6': {
+	'jwt-bearer-token-v7': {
 		flowType: 'oidc',
-		title: 'Hybrid Flow V6 - Combined Authorization Approach',
+		title: 'JWT Bearer Token (V7)',
 		subtitle:
-			'🔄 Advanced OpenID Connect flow combining Authorization Code and Implicit patterns. Returns some tokens immediately from the authorization endpoint and others via code exchange for flexible authentication scenarios. ✅ V6: Service Architecture + Enhanced Hybrid Flow Education.',
-		icon: '🔄',
-		version: 'V6',
-	},
-	'oidc-device-authorization-v6': {
-		flowType: 'oidc',
-		title: 'Device Authorization Flow - OIDC for Constrained Devices',
-		subtitle:
-			'OpenID Connect device flow for input-constrained devices (smart TVs, IoT, CLI). Provides both access tokens and ID tokens with user authentication on a secondary device.',
-		icon: '📲',
-		version: 'V5',
+			'🛡️ V7: JWT Bearer with PingFederate/PingOne AIS examples - Modern implementation of RFC 7523 JWT Bearer Token flow for secure application-to-application authentication.',
+		icon: '🛡️',
+		version: 'V7',
 	},
 
 	// PingOne Token Flows
@@ -355,14 +300,6 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚙️',
 		version: 'V5',
 	},
-	'worker-token-v6': {
-		flowType: 'pingone',
-		title: 'Worker Token Flow V6 - Administrative API Access',
-		subtitle:
-			'🔑 PingOne Worker Application Token Flow - Service-based architecture for obtaining administrative access tokens. Designed for backend automation, management API access, and server-to-server authentication without user interaction. ✅ V6: Enhanced service architecture, comprehensive toast notifications, and improved error handling.',
-		icon: '🔑',
-		version: 'V6',
-	},
 	'pingone-par-v5': {
 		flowType: 'pingone',
 		title: 'PAR (Pushed Authorization Requests) Flow - Enhanced Security',
@@ -370,14 +307,6 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'🔒 RFC 9126 - Authorization Code Flow + PAR enhancement. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits. Perfect for production OIDC clients with sensitive scopes.',
 		icon: '🔒',
 		version: 'V5',
-	},
-	'pingone-par-v6': {
-		flowType: 'pingone',
-		title: 'PAR (Pushed Authorization Requests) Flow V6 - Enhanced Security',
-		subtitle:
-			'🔒 RFC 9126 - Authorization Code Flow + PAR enhancement. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits. Perfect for production OIDC clients with sensitive scopes.',
-		icon: '🔒',
-		version: 'V6',
 	},
 	'rar-flow-v5': {
 		flowType: 'pingone',
@@ -387,20 +316,28 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '📊',
 		version: 'V5',
 	},
-	'rar-v6': {
-		flowType: 'pingone',
-		title: 'RAR (Rich Authorization Requests) Flow V6 - Fine-Grained Permissions',
-		subtitle:
-			'📊 RFC 9396 - Authorization Code Flow + RAR extension. Express complex authorization requirements using structured JSON authorization_details instead of simple scope strings. Example: "authorize $250 payment to ABC Supplies" vs "payments.write". ✅ Benefits: Fine-grained permissions, clear user consent, structured audit logs. Ideal for financial transactions and compliance scenarios.',
-		icon: '📊',
-		version: 'V6',
-	},
 	'pingone-complete-mfa-v7': {
 		flowType: 'pingone',
 		title: 'PingOne Complete MFA Flow V7',
 		subtitle:
 			'🔐 Complete multi-factor authentication implementation with modern V7 UI. Demonstrates user authentication, MFA enrollment, device pairing, challenge verification, and token retrieval with PingOne integration.',
 		icon: '🔐',
+		version: 'V7',
+	},
+	'pingone-authentication': {
+		flowType: 'pingone',
+		title: 'PingOne Authentication',
+		subtitle:
+			'🔐 V7: Dedicated authentication page with inline and popup modes - Modern PingOne authentication interface with comprehensive user management and security features.',
+		icon: '🔐',
+		version: 'V7',
+	},
+	'saml-bearer-assertion-v7': {
+		flowType: 'pingone',
+		title: 'SAML Bearer Assertion (V7)',
+		subtitle:
+			'🛡️ V7: SAML Bearer with PingFederate/PingOne AIS examples - Modern implementation of SAML Bearer Assertion flow for enterprise authentication.',
+		icon: '🛡️',
 		version: 'V7',
 	},
 	'redirectless-flow-v5': {
@@ -418,6 +355,15 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'⚡ PingOne Proprietary - Authorization Code Flow with response_mode=pi.flow parameter. Eliminates browser redirects entirely - authentication happens via direct API calls to PingOne Flow API. Returns tokens directly without redirect_uri. ✅ Benefits: Embedded login UX, no browser navigation, seamless mobile/desktop experience. ⚠️ PingOne-specific, not OAuth/OIDC standard.',
 		icon: '⚡',
 		version: 'V6',
+	},
+	'redirectless-v7-real': {
+		flowType: 'pingone',
+		title: 'Redirectless Flow V7 (response_mode=pi.flow) - Enhanced Implementation',
+		subtitle:
+			'🚀 PingOne Proprietary V7 - Enhanced Authorization Code Flow with response_mode=pi.flow parameter. V7 improvements: Fresh PKCE generation every time, enhanced error handling, improved logging, and better state management. Eliminates browser redirects entirely - authentication happens via direct API calls to PingOne Flow API. Returns tokens directly without redirect_uri. ✅ Benefits: Embedded login UX, no browser navigation, seamless mobile/desktop experience, enhanced reliability. ⚠️ PingOne-specific, not OAuth/OIDC standard.',
+		icon: '🚀',
+		version: 'V7',
+		isExperimental: false,
 	},
 	'redirectless-v6': {
 		flowType: 'pingone',
@@ -567,6 +513,15 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'🎭 Hybrid V6 implementation: Proven V5 controller with modern V6 layout and styling. Direct username/password exchange for access tokens with comprehensive educational content.',
 		version: 'V6',
 		icon: '🔑',
+	},
+	'oauth-ropc-v7': {
+		flowType: 'oauth',
+		title: 'OAuth ROPC (V7)',
+		subtitle:
+			'🚀 V7 Enhanced implementation: Modern UI with improved user experience, enhanced error handling, and better visual design. Resource Owner Password Credentials flow with comprehensive educational content.',
+		version: 'V7',
+		icon: '🔑',
+		isExperimental: false,
 	},
 	'pingone-mfa-v5': {
 		flowType: 'oidc',

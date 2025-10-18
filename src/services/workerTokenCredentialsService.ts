@@ -9,6 +9,7 @@ export interface WorkerTokenCredentials {
   scopes: string[];
   tokenEndpoint?: string;
   region?: 'us' | 'eu' | 'ap' | 'ca';
+  tokenEndpointAuthMethod?: 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt';
 }
 
 export interface WorkerTokenConfig {
@@ -153,7 +154,8 @@ class WorkerTokenCredentialsService {
       clientId: '',
       clientSecret: '',
       scopes: [...this.DEFAULT_SCOPES],
-      region: 'us'
+      region: 'us',
+      tokenEndpointAuthMethod: 'client_secret_post'
     };
   }
 

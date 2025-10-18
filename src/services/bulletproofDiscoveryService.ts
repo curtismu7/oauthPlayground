@@ -34,7 +34,7 @@ export class BulletproofDiscoveryService {
 				return {
 					success: true,
 					document,
-					issuerUrl: `https://auth.pingone.com/${environmentId}/as`,
+					issuerUrl: `https://auth.pingone.com/${environmentId}`,
 					provider: 'pingone',
 				};
 			} catch (proxyError) {
@@ -48,7 +48,7 @@ export class BulletproofDiscoveryService {
 				return {
 					success: true,
 					document,
-					issuerUrl: `https://auth.pingone.com/${environmentId}/as`,
+					issuerUrl: `https://auth.pingone.com/${environmentId}`,
 					provider: 'pingone',
 				};
 			} catch (directError) {
@@ -199,7 +199,7 @@ export class BulletproofDiscoveryService {
 		const baseUrl = `https://auth.pingone.com/${environmentId}/as`;
 
 		return {
-			issuer: baseUrl,
+			issuer: `https://auth.pingone.com/${environmentId}`,
 			authorization_endpoint: `${baseUrl}/authorize`,
 			token_endpoint: `${baseUrl}/token`,
 			userinfo_endpoint: `${baseUrl}/userinfo`,

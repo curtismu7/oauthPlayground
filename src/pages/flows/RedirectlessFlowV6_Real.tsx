@@ -28,6 +28,7 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { V5StepperService } from '../../services/v5StepperService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
+import { v4ToastManager } from '../../utils/v4ToastManager';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { HelperText, ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
@@ -106,6 +107,8 @@ const RedirectlessFlowV6Real: React.FC = () => {
     // V6 Educational API Call Tracking
     const [apiCalls, setApiCalls] = useState<EnhancedApiCallData[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [tokens, setTokens] = useState<any>(null);
 
     // Scroll to top on step change
     useEffect(() => {
@@ -228,65 +231,248 @@ const RedirectlessFlowV6Real: React.FC = () => {
         AuthorizationCodeSharedService.Authorization.generateAuthUrl('oidc', controller.credentials, controller);
     }, [controller]);
 
-    // Redirectless Token Exchange - Service-based API Call
+    // Real Redirectless Authentication and Token Exchange
     const handleRedirectlessTokenExchange = useCallback(async () => {
-        if (!controller.authUrl) return;
+        if (!controller.credentials.clientId || !controller.credentials.environmentId || !controller.pkceCodes.codeVerifier) {
+            v4ToastManager.showError('Complete above actions: Generate PKCE parameters and ensure credentials are set.');
+            return;
+        }
 
         setIsLoading(true);
+        setError(null);
 
-        // Use service to create token exchange API call template
-        const tokenExchangeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
-            'redirectless',
-            'Token Exchange',
-            {
+        try {
+            // Force generate fresh PKCE codes for redirectless flow
+            console.log('🔐 [Redirectless V6] Force generating fresh PKCE codes for redirectless flow');
+            
+            // Import PKCE generation utilities
+            const { generateCodeVerifier, generateCodeChallenge } = await import('../../utils/oauth');
+            
+            // Generate fresh PKCE codes directly
+            const codeVerifier = generateCodeVerifier();
+            const codeChallenge = await generateCodeChallenge(codeVerifier);
+            
+            const freshPkceCodes = {
+                codeVerifier,
+                codeChallenge,
+                codeChallengeMethod: 'S256' as const
+            };
+            
+            console.log('🔐 [Redirectless V6] Generated fresh PKCE codes:', {
+                codeVerifier: codeVerifier.substring(0, 20) + '...',
+                codeChallenge: codeChallenge.substring(0, 20) + '...'
+            });
+            
+            // Update the controller with fresh codes
+            controller.setPkceCodes(freshPkceCodes);
+            
+            // Also update sessionStorage
+            const pkceStorageKey = 'redirectless-v6-real-pkce-codes';
+            sessionStorage.setItem(pkceStorageKey, JSON.stringify(freshPkceCodes));
+            
+            console.log('🔐 [Redirectless V6] Fresh PKCE codes set in controller and sessionStorage');
+            
+            // Step 1: Make real authorization request with response_mode=pi.flow (UPDATED VERSION)
+            console.log('🔐 [Redirectless V6] Making real authorization request with response_mode=pi.flow - UPDATED VERSION');
+            
+            const authEndpoint = `https://auth.pingone.com/${controller.credentials.environmentId}/as/authorize`;
+            const stateValue = `redirectless-${Date.now()}`;
+            const authRequestBody = new URLSearchParams({
+                response_type: 'code',
+                client_id: controller.credentials.clientId,
+                scope: 'openid profile email',
+                state: stateValue,
+                nonce: `nonce-${Date.now()}`,
+                code_challenge: controller.pkceCodes.codeChallenge,
+                code_challenge_method: 'S256',
+                response_mode: 'pi.flow',
+                username: 'testuser', // TODO: Get from user input
+                password: 'testpass'  // TODO: Get from user input
+            });
+
+            console.log('🔐 [Redirectless V6] Authorization request body:', authRequestBody.toString());
+
+            const authResponse = await fetch(authEndpoint, {
                 method: 'POST',
-                url: `https://auth.pingone.com/${controller.credentials.environmentId}/as/token`,
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    'Authorization': 'Basic [base64(client_id:client_secret)]'
+                    'Accept': 'application/json'
                 },
-                body: `grant_type=authorization_code&code=[authorization_code_from_pi.flow]&redirect_uri=urn:pingidentity:redirectless&code_verifier=${controller.pkceCodes.codeVerifier}&client_id=${controller.credentials.clientId}`,
-                description: 'Server-to-server token exchange using response_mode=pi.flow',
-                educationalNotes: [
-                    'Redirectless flow returns authorization code directly in API response',
-                    'No browser redirect required - pure server-to-server exchange',
-                    'PKCE code_verifier validates the original request',
-                    'Special redirect_uri urn:pingidentity:redirectless used',
-                    'Response includes access_token, id_token, and refresh_token'
-                ]
-            }
-        );
-
-        // Simulate successful response
-        tokenExchangeApiCall.response = {
-            status: 200,
-            statusText: 'OK',
-            headers: {
-                'Content-Type': 'application/json',
-                'Cache-Control': 'no-store',
-                'Pragma': 'no-cache'
-            },
-            data: {
-                access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-                token_type: 'Bearer',
-                expires_in: 3600,
-                refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-                id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-                scope: 'openid profile email'
-            }
-        };
-
-        setApiCalls(prev => [...prev, tokenExchangeApiCall]);
-
-        // Simulate API delay and set tokens
-        setTimeout(() => {
-            controller.setTokens({
-                accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.EkN-DOsnsuRjRO6BxXemmJDm3HbxrbRzXglbN2S4sOkopdU4IsDxTI8jO19W_A4K8ZPJijNLis4EZsHeY559a4DFOd50_OqgHs3UjlKKKNGKFLN5C_jo_A3dpOBiLKPL2ze-YIxN-QLt3Q8gd2R4_FMVkbG0w0K4EkMlkjr0Qro',
-                refreshToken: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.EkN-DOsnsuRjRO6BxXemmJDm3HbxrbRzXglbN2S4sOkopdU4IsDxTI8jO19W_A4K8ZPJijNLis4EZsHeY559a4DFOd50_OqgHs3UjlKKKNGKFLN5C_jo_A3dpOBiLKPL2ze-YIxN-QLt3Q8gd2R4_FMVkbG0w0K4EkMlkjr0Qro',
-                idToken: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.EkN-DOsnsuRjRO6BxXemmJDm3HbxrbRzXglbN2S4sOkopdU4IsDxTI8jO19W_A4K8ZPJijNLis4EZsHeY559a4DFOd50_OqgHs3UjlKKKNGKFLN5C_jo_A3dpOBiLKPL2ze-YIxN-QLt3Q8gd2R4_FMVkbG0w0K4EkMlkjr0Qro'
+                body: authRequestBody.toString()
             });
+
+            console.log('🔐 [Redirectless V6] Authorization response status:', authResponse.status);
+
+            if (!authResponse.ok) {
+                const errorText = await authResponse.text();
+                throw new Error(`Authorization request failed: ${authResponse.status} ${authResponse.statusText}. ${errorText}`);
+            }
+
+            const authData = await authResponse.json();
+            console.log('🔐 [Redirectless V6] Authorization response data:', authData);
+            console.log('🔐 [Redirectless V6] Checking for resumeUrl:', authData.resumeUrl);
+
+            // In redirectless flow, PingOne returns a flow object with resumeUrl, not a direct code
+            if (!authData.resumeUrl) {
+                throw new Error('No resumeUrl received from PingOne redirectless flow - this is the updated error message');
+            }
+
+            // Step 2: Call the resumeUrl to complete the authentication and get the authorization code
+            console.log('🔐 [Redirectless V6] Calling resumeUrl to complete authentication');
+            console.log('🔐 [Redirectless V6] Flow ID:', authData.id);
+            console.log('🔐 [Redirectless V6] Flow state:', authData.state);
+            
+            // For redirectless flow, we need to call the resumeUrl directly with POST method
+            // and include the flow state information
+            const resumeResponse = await fetch('/api/pingone/resume', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    resumeUrl: authData.resumeUrl,
+                    flowId: authData.id,
+                    flowState: stateValue, // Use the state we sent in the authorization request
+                    clientId: controller.credentials.clientId,
+                    clientSecret: controller.credentials.clientSecret
+                })
+            });
+
+            if (!resumeResponse.ok) {
+                const errorText = await resumeResponse.text();
+                throw new Error(`Resume request failed: ${resumeResponse.status} ${resumeResponse.statusText}. ${errorText}`);
+            }
+
+            const resumeData = await resumeResponse.json();
+            console.log('🔐 [Redirectless V6] Resume response data:', resumeData);
+
+            if (!resumeData.code) {
+                throw new Error('No authorization code received after calling resumeUrl');
+            }
+
+            // Step 3: Exchange authorization code for tokens using backend proxy
+            console.log('🔐 [Redirectless V6] Exchanging authorization code for tokens');
+            
+            const backendUrl = process.env.NODE_ENV === 'production' 
+                ? 'https://oauth-playground.vercel.app' 
+                : 'https://localhost:3001';
+
+            const tokenRequestBody = {
+                grant_type: 'authorization_code',
+                code: resumeData.code,
+                redirect_uri: 'urn:pingidentity:redirectless',
+                client_id: controller.credentials.clientId,
+                client_secret: controller.credentials.clientSecret,
+                environment_id: controller.credentials.environmentId,
+                code_verifier: controller.pkceCodes.codeVerifier
+            };
+
+            const tokenResponse = await fetch(`${backendUrl}/api/token-exchange`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(tokenRequestBody)
+            });
+
+            if (!tokenResponse.ok) {
+                const errorData = await tokenResponse.json().catch(() => ({}));
+                throw new Error(`Token exchange failed: ${tokenResponse.status} ${tokenResponse.statusText}. ${errorData.error_description || errorData.error || 'Please check your configuration.'}`);
+            }
+
+            const tokenData = await tokenResponse.json();
+            console.log('🔐 [Redirectless V6] Token exchange successful:', tokenData);
+
+            if (!tokenData.access_token) {
+                throw new Error('No access token received from PingOne');
+            }
+
+            // Create API call display for the resume step
+            const resumeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
+                'redirectless',
+                'Resume Flow',
+                {
+                    method: 'POST',
+                    url: '/api/pingone/resume',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: {
+                        resumeUrl: authData.resumeUrl,
+                        clientId: controller.credentials.clientId,
+                        clientSecret: '***REDACTED***'
+                    },
+                    description: 'Complete redirectless authentication by calling resumeUrl',
+                    educationalNotes: [
+                        'Redirectless flow returns a resumeUrl instead of direct authorization code',
+                        'ResumeUrl must be called to complete the authentication process',
+                        'This step validates the user credentials and returns the authorization code',
+                        'No browser interaction required - pure API-based flow'
+                    ]
+                }
+            );
+
+            // Create API call display for the successful token exchange
+            const tokenExchangeApiCall = EnhancedApiCallDisplayService.createOAuthTemplate(
+                'redirectless',
+                'Token Exchange',
+                {
+                    method: 'POST',
+                    url: `${backendUrl}/api/token-exchange`,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: {
+                        grant_type: 'authorization_code',
+                        code: resumeData.code,
+                        redirect_uri: 'urn:pingidentity:redirectless',
+                        client_id: controller.credentials.clientId,
+                        client_secret: '***REDACTED***',
+                        environment_id: controller.credentials.environmentId,
+                        code_verifier: controller.pkceCodes.codeVerifier
+                    },
+                    description: 'Real server-to-server token exchange using response_mode=pi.flow',
+                    educationalNotes: [
+                        'Authorization code obtained from resume step is exchanged for tokens',
+                        'No browser redirect required - pure server-to-server exchange',
+                        'PKCE code_verifier validates the original request',
+                        'Special redirect_uri urn:pingidentity:redirectless used',
+                        'Response includes access_token, id_token, and refresh_token'
+                    ]
+                }
+            );
+
+            // Add real response data
+            tokenExchangeApiCall.response = {
+                status: tokenResponse.status,
+                statusText: tokenResponse.statusText,
+                headers: Object.fromEntries(tokenResponse.headers.entries()),
+                data: {
+                    ...tokenData,
+                    access_token: `${tokenData.access_token.substring(0, 20)}...[TRUNCATED FOR SECURITY]`
+                }
+            };
+
+            setApiCalls(prev => [...prev, resumeApiCall, tokenExchangeApiCall]);
             setIsLoading(false);
-        }, 1000);
+            v4ToastManager.showSuccess('✅ Real tokens obtained from PingOne redirectless flow!');
+            
+            // Store tokens in local state for display
+            setTokens({
+                access_token: tokenData.access_token,
+                refresh_token: tokenData.refresh_token,
+                id_token: tokenData.id_token,
+                token_type: tokenData.token_type,
+                expires_in: tokenData.expires_in,
+                scope: tokenData.scope
+            });
+
+        } catch (error: any) {
+            console.error('🔐 [Redirectless V6] Real token exchange failed:', error);
+            setError(error.message);
+            setIsLoading(false);
+            v4ToastManager.showError(`❌ Real token exchange failed: ${error.message}`);
+        }
     }, [controller]);
 
     // Open authorization URL handler
@@ -484,23 +670,25 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                     />
                                 </div>
                                 
-                                <div style={{ marginBottom: '2rem' }}>
-                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
-                                        Password
-                                    </label>
-                                    <input 
-                                        type="password" 
-                                        placeholder="Enter your password"
-                                        style={{ 
-                                            width: '100%', 
-                                            padding: '0.75rem', 
-                                            border: '1px solid #d1d5db', 
-                                            borderRadius: '0.5rem',
-                                            fontSize: '1rem'
-                                        }}
-                                        disabled
-                                    />
-                                </div>
+                                <form key="v6-password-form">
+                                    <div style={{ marginBottom: '2rem' }}>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#374151' }}>
+                                            Password
+                                        </label>
+                                        <input 
+                                            type="password" 
+                                            placeholder="Enter your password"
+                                            style={{ 
+                                                width: '100%', 
+                                                padding: '0.75rem', 
+                                                border: '1px solid #d1d5db', 
+                                                borderRadius: '0.5rem',
+                                                fontSize: '1rem'
+                                            }}
+                                            disabled
+                                        />
+                                    </div>
+                                </form>
                                 
                                 <NavigationButton
                                     disabled
@@ -693,14 +881,14 @@ const RedirectlessFlowV6Real: React.FC = () => {
 					<div style={{ marginBottom: '1rem' }}>
                                 <p>
                                     For Redirectless flow, tokens are returned directly in the API response 
-                                    without requiring a separate token exchange call. Click below to simulate the server-to-server token exchange.
+                                    without requiring a separate token exchange call. Click below to make real API calls to PingOne and get actual tokens.
                                 </p>
                             </div>
 
                             <NavigationButton
                                 onClick={handleRedirectlessTokenExchange}
                                 disabled={!controller.authUrl || isLoading}
-                                title={!controller.authUrl ? 'Generate authorization URL first' : 'Simulate redirectless token exchange'}
+                                title={!controller.authUrl ? 'Generate authorization URL first' : 'Get real tokens from PingOne'}
                             >
                                 {isLoading ? (
                                     <>
@@ -708,7 +896,7 @@ const RedirectlessFlowV6Real: React.FC = () => {
                                     </>
                                 ) : (
                                     <>
-                                        <FiSend /> Simulate Token Exchange
+                                        <FiSend /> Get Real Tokens
                                     </>
                                 )}
                                 <HighlightBadge>2</HighlightBadge>
@@ -827,9 +1015,9 @@ const RedirectlessFlowV6Real: React.FC = () => {
                             <HelperText>
                                 Educational view of the redirectless flow API interactions with PingOne.
                             </HelperText>
-                            {apiCalls.map((apiCall) => (
+                            {apiCalls.map((apiCall, index) => (
                                 <EnhancedApiCallDisplay
-                                    key={apiCall.id}
+                                    key={`${apiCall.flowType}-${apiCall.stepName}-${index}`}
                                     apiCall={apiCall}
                                     onCopy={() => {}}
                                 />

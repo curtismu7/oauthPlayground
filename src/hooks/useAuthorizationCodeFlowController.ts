@@ -24,8 +24,9 @@ import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { storeRedirectUriFromAuthUrl, getStoredRedirectUri, clearRedirectUri, auditRedirectUri } from '../utils/redirectUriHelpers';
+import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
 
-type FlowVariant = 'oauth' | 'oidc';
+type FlowVariant = 'oauth' | 'oidc' | 'hybrid';
 
 export interface AuthorizationCodeFlowControllerOptions {
 	flowKey?: string;

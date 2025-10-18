@@ -205,10 +205,10 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 	isOpen
 }) => {
 	const [formData, setFormData] = useState<PARInputData>({
-		requestUri: '',
+		requestUri: 'urn:ietf:params:oauth:request_uri:example-request-uri-12345',
 		expiresIn: 60, // PingOne default lifetime
-		clientId: '',
-		environmentId: ''
+		clientId: 'your-client-id-here',
+		environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9'
 	});
 
 	const handleSubmit = (e: React.FormEvent) => {
@@ -256,6 +256,19 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 						</InfoContent>
 					</InfoBox>
 
+					<div style={{
+						padding: '0.75rem',
+						background: '#fef3c7',
+						border: '1px solid #f59e0b',
+						borderRadius: '6px',
+						marginBottom: '1rem',
+						fontSize: '0.875rem',
+						color: '#92400e'
+					}}>
+						<strong>📝 Note:</strong> The form below is pre-filled with example values to help you understand the expected format. 
+						Replace these with your actual PAR request URI, Client ID, and Environment ID from your PingOne configuration.
+					</div>
+
 					<Form onSubmit={handleSubmit}>
 						<Field>
 							<Label>
@@ -270,8 +283,8 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 								required
 							/>
 							<Helper>
-								The request_uri returned from PingOne's PAR endpoint. PingOne returns this after validating your PAR request payload. 
-								Default lifetime is 60 seconds and can only be used once.
+								The request_uri returned from PingOne's PAR endpoint. This example shows the format PingOne typically returns. 
+								Replace with your actual request_uri from the PAR API response. Default lifetime is 60 seconds and can only be used once.
 							</Helper>
 						</Field>
 
@@ -288,7 +301,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 								required
 							/>
 							<Helper>
-								Your OAuth application's client ID
+								Your OAuth application's client ID. This example shows the typical UUID format used by PingOne applications.
 							</Helper>
 						</Field>
 
@@ -305,7 +318,7 @@ const PARInputInterface: React.FC<PARInputInterfaceProps> = ({
 								required
 							/>
 							<Helper>
-								Your PingOne environment ID
+								Your PingOne environment ID. This example shows the typical UUID format used by PingOne environments.
 							</Helper>
 						</Field>
 

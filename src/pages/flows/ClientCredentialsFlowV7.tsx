@@ -4,7 +4,7 @@
 import React from 'react';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { useClientCredentialsFlowController } from '../../hooks/useClientCredentialsFlowController';
-import { AuthMethod } from '../../services/authMethodService';
+import { ClientAuthMethod } from '../../services/clientCredentialsSharedService';
 import ClientCredentialsFlowV6 from './ClientCredentialsFlowV6';
 
 interface ClientCredentialsFlowV7Props {
@@ -21,7 +21,7 @@ const ClientCredentialsFlowV7: React.FC<ClientCredentialsFlowV7Props> = () => {
   });
   
   // Set default auth method
-  const [selectedAuthMethod, setSelectedAuthMethod] = React.useState<AuthMethod>('client_secret_basic');
+  const [selectedAuthMethod, setSelectedAuthMethod] = React.useState<ClientAuthMethod>('client_secret_post');
   
   // Update local storage when auth method changes
   React.useEffect(() => {
