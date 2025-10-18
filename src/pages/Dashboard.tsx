@@ -65,12 +65,30 @@ const FlowGrid = styled.div`
   gap: 1rem;
 `;
 
+const OAUTH_THEME = {
+  titleColor: '#2563eb',
+  bgColor: '#eff6ff',
+  borderColor: '#bfdbfe',
+};
+
+const OIDC_THEME = {
+  titleColor: '#059669',
+  bgColor: '#f0fdf4',
+  borderColor: '#bbf7d0',
+};
+
+const ENTERPRISE_THEME = {
+  titleColor: '#7c3aed',
+  bgColor: '#f5f3ff',
+  borderColor: '#ddd6fe',
+};
+
 const FlowCategory = styled.div`
-  h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-  }
+  background: #ffffff;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e2e8f0;
 `;
 
 const FlowCategoryTitle = styled.h3<{ $color?: string }>`
@@ -84,15 +102,16 @@ const FlowItem = styled.div<{ $bgColor?: string; $borderColor?: string }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
-  background-color: ${props => props.$bgColor || '#f8fafc'};
-  border-radius: 0.375rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.75rem;
+  background: ${props => props.$bgColor || '#f8fafc'};
   border: 1px solid ${props => props.$borderColor || '#e2e8f0'};
-  
-  span {
-    font-size: 0.875rem;
-    font-weight: 500;
+  margin-bottom: 0.75rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.08);
   }
 `;
 
@@ -185,13 +204,15 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
       box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
     }
   ` : `
-    background: #f3f4f6;
-    color: #374151;
-    border: 1px solid #d1d5db;
+    background: #2563eb;
+    color: white;
+    border: 2px solid #1d4ed8;
+    font-weight: 700;
 
     &:hover {
-      background: #e5e7eb;
-      border-color: #9ca3af;
+      background: #1d4ed8;
+      border-color: #1e40af;
+      color: white;
     }
   `}
 `;
@@ -581,7 +602,7 @@ const Dashboard = () => {
 
 			{/* Flow Credential Status */}
 			<CollapsibleHeader
-				title="V5 Flow Credential Status"
+				title="V7 Flow Credential Status"
 				subtitle="Configuration status for all OAuth and OIDC flows"
 				icon={<FiKey />}
 				defaultCollapsed={collapsedSections.credentialStatus}
@@ -590,10 +611,10 @@ const Dashboard = () => {
 			>
 			<ContentCard>
 				<FlowGrid>
-					{/* OAuth 2.0 V5 Flows */}
+					{/* OAuth 2.0 V7 Flows */}
 					<FlowCategory>
-						<FlowCategoryTitle $color="#dc2626">
-							OAuth 2.0 V5 Flows
+						<FlowCategoryTitle $color={OAUTH_THEME.titleColor}>
+							OAuth 2.0 V7 Flows
 						</FlowCategoryTitle>
 						<div>
 							{Object.entries(FLOW_CONFIGS)
@@ -604,8 +625,8 @@ const Dashboard = () => {
 									return (
 										<FlowItem
 											key={flow.id}
-											$bgColor="#fef2f2"
-											$borderColor="#fecaca"
+											$bgColor={OAUTH_THEME.bgColor}
+											$borderColor={OAUTH_THEME.borderColor}
 										>
 											<span>{flow.name}</span>
 											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
@@ -617,10 +638,10 @@ const Dashboard = () => {
 						</div>
 					</FlowCategory>
 
-					{/* OIDC V5 Flows */}
+					{/* OIDC V7 Flows */}
 					<FlowCategory>
-						<FlowCategoryTitle $color="#059669">
-							OIDC V5 Flows
+						<FlowCategoryTitle $color={OIDC_THEME.titleColor}>
+							OIDC V7 Flows
 						</FlowCategoryTitle>
 						<div>
 							{Object.entries(FLOW_CONFIGS)
@@ -631,8 +652,32 @@ const Dashboard = () => {
 									return (
 										<FlowItem
 											key={flow.id}
-											$bgColor="#f0fdf4"
-											$borderColor="#bbf7d0"
+											$bgColor={OIDC_THEME.bgColor}
+											$borderColor={OIDC_THEME.borderColor}
+										>
+											<span>{flow.name}</span>
+											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
+												{status?.hasCredentials ? 'Configured' : 'Missing'}
+											</StatusBadge>
+										</FlowItem>
+									);
+								})}
+						</div>
+					</FlowCategory>
+
+					{/* Enterprise & PingOne V7 Flows */}
+					<FlowCategory>
+						<div>
+							{Object.entries(FLOW_CONFIGS)
+								.filter(([, config]) => config.flowType === 'pingone')
+								.map(([flowId, config]) => ({ id: flowId, name: config.title }))
+								.map((flow) => {
+									const status = getFlowStatus(flow.id);
+									return (
+										<FlowItem
+											key={flow.id}
+											$bgColor={ENTERPRISE_THEME.bgColor}
+											$borderColor={ENTERPRISE_THEME.borderColor}
 										>
 											<span>{flow.name}</span>
 											<StatusBadge $status={status?.hasCredentials ? 'active' : 'error'}>
@@ -705,17 +750,17 @@ const Dashboard = () => {
 							public clients).
 						</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/oauth-authorization-code-v6" $variant="primary">
-								Authorization Code V6
+							<FlowLink href="/flows/oauth-authorization-code-v7" $variant="primary">
+								Authorization Code (V7)
 							</FlowLink>
-							<FlowLink href="/flows/client-credentials-v6" $variant="secondary">
-								Client Credentials V6
+							<FlowLink href="/flows/implicit-v7" $variant="secondary">
+								Implicit Flow (V7)
 							</FlowLink>
-							<FlowLink href="/flows/device-authorization-v6" $variant="secondary">
-								Device Authorization V6
+							<FlowLink href="/flows/device-authorization-v7" $variant="secondary">
+								Device Authorization (V7)
 							</FlowLink>
-							<FlowLink href="/flows/oauth-implicit-v6" $variant="secondary">
-								Implicit V6
+							<FlowLink href="/flows/client-credentials-v7" $variant="secondary">
+								Client Credentials (V7)
 							</FlowLink>
 						</FlowButtonsContainer>
 					</FlowCard>
@@ -724,14 +769,17 @@ const Dashboard = () => {
 						<h3>OpenID Connect</h3>
 						<p>Identity layer on top of OAuth 2.0.</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/oidc-authorization-code-v6" $variant="primary">
-								OIDC Authorization Code V6
+							<FlowLink href="/flows/oauth-authorization-code-v7" $variant="primary">
+								Authorization Code (V7)
 							</FlowLink>
-							<FlowLink href="/flows/oidc-implicit-v6" $variant="secondary">
-								OIDC Implicit V6
+							<FlowLink href="/flows/oidc-hybrid-v7" $variant="secondary">
+								Hybrid Flow (V7)
 							</FlowLink>
-							<FlowLink href="/flows/oidc-hybrid-v6" $variant="secondary">
-								OIDC Hybrid V6
+							<FlowLink href="/flows/implicit-v7" $variant="secondary">
+								Implicit Flow (V7)
+							</FlowLink>
+							<FlowLink href="/oidc-overview" $variant="secondary">
+								OIDC Overview
 							</FlowLink>
 						</FlowButtonsContainer>
 					</FlowCard>
@@ -741,13 +789,13 @@ const Dashboard = () => {
 						<p>PingOne-specific authentication and authorization flows.</p>
 						<FlowButtonsContainer>
 							<FlowLink href="/flows/worker-token-v6" $variant="primary">
-								Worker Token V6
+								Worker Token (V6)
 							</FlowLink>
 							<FlowLink href="/flows/pingone-par-v6" $variant="secondary">
-								PingOne PAR V6
+								PAR (V6)
 							</FlowLink>
-							<FlowLink href="/flows/redirectless-flow-v6" $variant="secondary">
-								Redirectless Flow V6
+							<FlowLink href="/flows/redirectless-v6-real" $variant="secondary">
+								Redirectless Flow (V6)
 							</FlowLink>
 						</FlowButtonsContainer>
 					</FlowCard>

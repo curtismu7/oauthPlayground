@@ -37,6 +37,9 @@ const OAuth21 = React.lazy(() => import('./pages/OAuth21'));
 const OIDCSessionManagement = React.lazy(() => import('./pages/OIDCSessionManagement'));
 const OIDC = React.lazy(() => import('./pages/OIDC'));
 const OAuthOIDCTraining = React.lazy(() => import('./pages/OAuthOIDCTraining'));
+const PingOneAuthentication = React.lazy(() => import('./pages/PingOneAuthentication'));
+const PingOneAuthenticationCallback = React.lazy(() => import('./pages/PingOneAuthenticationCallback'));
+const PingOneAuthenticationResult = React.lazy(() => import('./pages/PingOneAuthenticationResult'));
 
 // Lazy load OAuth flow components
 const AuthorizationCodeFlow = React.lazy(() => import('./pages/flows/AuthorizationCodeFlow'));
@@ -159,6 +162,7 @@ const AppRoutes = () => {
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
 	const { showAuthModal, authRequestData, proceedWithOAuth, closeAuthModal } = useAuth();
+	const location = useLocation();
 
 	// Preload common components for better performance
 	useEffect(() => {
@@ -307,351 +311,40 @@ const AppRoutes = () => {
 							}
 						/>
 
-						<Route path="/" element={<Navigate to="/dashboard" replace />} />
+						<Route
+							path="/pingone-authentication"
+							element={
+								<LazyRouteWrapper fallbackMessage="Loading PingOne playground...">
+									<PingOneAuthentication />
+								</LazyRouteWrapper>
+							}
+						/>
+
+						<Route
+							path="/pingone-authentication/result"
+							element={
+								<LazyRouteWrapper fallbackMessage="Loading PingOne tokens lounge...">
+									<PingOneAuthenticationResult />
+								</LazyRouteWrapper>
+							}
+						/>
+
+						<Route
+							path="/p1-callback"
+							element={
+								<LazyRouteWrapper fallbackMessage="Processing PingOne callback...">
+									<PingOneAuthenticationCallback />
+								</LazyRouteWrapper>
+							}
+						/>
+
+						<Route path="/" element={<Navigate to="/pingone-authentication" replace />} />
 
 						<Route
 							path="/dashboard"
 							element={
 								<LazyRouteWrapper fallbackMessage="Loading dashboard...">
 									<Dashboard />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/flows"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading OAuth flows...">
-									<Flows />
-								</LazyRouteWrapper>
-							}
-						>
-							<Route
-								path="authorization-code"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Authorization Code flow..."
-										flowType="Authorization Code"
-									>
-										<AuthorizationCodeFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="implicit"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Implicit Grant flow..."
-										flowType="Implicit Grant"
-									>
-										<ImplicitGrantFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="client-credentials"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Client Credentials flow..."
-										flowType="Client Credentials"
-									>
-										<ClientCredentialsFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="worker-token"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Worker Token flow..."
-										flowType="Worker Token"
-									>
-										<WorkerTokenFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="device-code"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Device Code flow..."
-										flowType="Device Code"
-									>
-										<DeviceCodeFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-						</Route>
-
-						<Route
-							path="/oidc"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading OpenID Connect...">
-									<OIDC />
-								</LazyRouteWrapper>
-							}
-						>
-							<Route
-								path="userinfo"
-								element={
-									<LazyRouteWrapper fallbackMessage="Loading UserInfo flow..." flowType="UserInfo">
-										<UserInfoFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="id-tokens"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading ID Tokens flow..."
-										flowType="ID Tokens"
-									>
-										<IDTokensFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="authorization-code"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Authorization Code flow..."
-										flowType="OIDC Authorization Code"
-									>
-										<AuthorizationCodeFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="hybrid"
-								element={
-									<LazyRouteWrapper fallbackMessage="Loading Hybrid flow..." flowType="Hybrid">
-										<HybridFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="implicit"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Implicit flow..."
-										flowType="OIDC Implicit"
-									>
-										<ImplicitGrantFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="client-credentials"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Client Credentials flow..."
-										flowType="OIDC Client Credentials"
-									>
-										<ClientCredentialsFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="worker-token"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Worker Token flow..."
-										flowType="OIDC Worker Token"
-									>
-										<WorkerTokenFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							<Route
-								path="device-code"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Device Code flow..."
-										flowType="OIDC Device Code"
-									>
-										<DeviceCodeFlow />
-									</LazyRouteWrapper>
-								}
-							/>
-
-							{/* V5 Flow Routes */}
-							<Route
-								path="oauth-authorization-code-v5"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OAuth Authorization Code V5..."
-										flowType="OAuth Authorization Code V5"
-									>
-										<OAuthAuthorizationCodeFlowV5 />
-									</LazyRouteWrapper>
-								}
-							/>
-							<Route
-								path="oidc-authorization-code-v5"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Authorization Code V5..."
-										flowType="OIDC Authorization Code V5"
-									>
-										<OIDCAuthorizationCodeFlowV5 />
-									</LazyRouteWrapper>
-								}
-							/>
-							<Route
-								path="oauth-implicit-v5"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OAuth Implicit V5..."
-										flowType="OAuth Implicit V5"
-									>
-										<OAuthImplicitFlowV5 />
-									</LazyRouteWrapper>
-								}
-							/>
-							<Route
-								path="oidc-implicit-v5"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading OIDC Implicit V5..."
-										flowType="OIDC Implicit V5"
-									>
-										<OIDCImplicitFlowV5 />
-									</LazyRouteWrapper>
-								}
-							/>
-							<Route
-								path="client-credentials-v5"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Client Credentials V5..."
-										flowType="Client Credentials V5"
-									>
-										<ClientCredentialsFlowV5 />
-									</LazyRouteWrapper>
-								}
-							/>
-							<Route
-								path="device-authorization-v6"
-								element={
-									<LazyRouteWrapper
-										fallbackMessage="Loading Device Authorization V6..."
-										flowType="Device Authorization V6"
-									>
-										<DeviceAuthorizationFlowV6 />
-									</LazyRouteWrapper>
-								}
-							/>
-						</Route>
-
-						{/* Backward-compatible redirect for older links */}
-						<Route path="/oidc/tokens" element={<Navigate to="/oidc/id-tokens" replace />} />
-
-						<Route
-							path="/configuration"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading configuration...">
-									<Configuration />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/documentation"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading documentation...">
-									<Documentation />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/token-management"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading token management...">
-									<TokenManagement />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/documentation/oidc-overview"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading OIDC overview...">
-									<OIDCOverview />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/ai-glossary"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading AI Glossary...">
-									<AIGlossary />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/emerging-ai-standards"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading Emerging AI Standards...">
-									<EmergingAIStandards />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/ai-agent-overview"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading AI Agents OAuth...">
-									<AIAgentOverview />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/comprehensive-oauth-education"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading Comprehensive OAuth Education...">
-									<ComprehensiveOAuthEducation />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/advanced-config"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading advanced configuration...">
-									<AdvancedConfiguration />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/tutorials"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading tutorials...">
-									<InteractiveTutorials />
-								</LazyRouteWrapper>
-							}
-						/>
-
-						<Route
-							path="/oauth-oidc-training"
-							element={
-								<LazyRouteWrapper fallbackMessage="Loading OAuth and OIDC training...">
-									<OAuthOIDCTraining />
 								</LazyRouteWrapper>
 							}
 						/>
@@ -683,7 +376,16 @@ const AppRoutes = () => {
 							}
 						/>
 
-						<Route path="*" element={<div>Not Found</div>} />
+						<Route
+							path="*"
+							element={
+								location.pathname.includes('callback') ? (
+									<Navigate to="/pingone-authentication" replace />
+								) : (
+									<Navigate to="/dashboard" replace />
+								)
+							}
+						/>
 					</Routes>
 				</MainContent>
 			</AppContainer>

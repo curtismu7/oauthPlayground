@@ -185,6 +185,20 @@ const NavButton = styled.button<{ $variant?: 'primary' | 'success' | 'outline' |
 	}
 `;
 
+const DEFAULT_STEPPER_WIDTH = 420;
+const DEFAULT_STEPPER_HEIGHT = 160;
+
+const getInitialCenteredPosition = (): { x: number; y: number } => {
+	if (typeof window === 'undefined') {
+		return { x: 0, y: 0 };
+	}
+
+	return {
+		x: Math.max((window.innerWidth - DEFAULT_STEPPER_WIDTH) / 2, 0),
+		y: Math.max((window.innerHeight - DEFAULT_STEPPER_HEIGHT) / 2, 0),
+	};
+};
+
 const CompactToggle = styled.button`
 	display: flex;
 	align-items: center;
@@ -232,10 +246,7 @@ export const StepNavigationButtons = ({
 	showCompleteActionButton,
 }: StepNavigationButtonsProps) => {
 	// Drag state management
-	const [position, setPosition] = useState({
-		x: window.innerWidth / 2 - 200,
-		y: window.innerHeight - 120,
-	});
+	const [position, setPosition] = useState<{ x: number; y: number }>(getInitialCenteredPosition);
 	const [isDragging, setIsDragging] = useState(false);
 	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 	// Load compact mode from localStorage on mount - persists across refreshes
@@ -249,6 +260,28 @@ export const StepNavigationButtons = ({
 		}
 	});
 	const stepperRef = useRef<HTMLDivElement>(null);
+	const hasCenteredRef = useRef(false);
+
+	useEffect(() => {
+		if (!stepperRef.current || hasCenteredRef.current || typeof window === 'undefined') {
+			return;
+		}
+
+		const rect = stepperRef.current.getBoundingClientRect();
+		const centeredPosition = {
+			x: Math.max((window.innerWidth - rect.width) / 2, 0),
+			y: Math.max((window.innerHeight - rect.height) / 2, 0),
+		};
+
+		setPosition((prev) => {
+			if (Math.abs(prev.x - centeredPosition.x) < 0.5 && Math.abs(prev.y - centeredPosition.y) < 0.5) {
+				return prev;
+			}
+			return centeredPosition;
+		});
+
+		hasCenteredRef.current = true;
+	}, []);
 
 	// Save compact mode to localStorage whenever it changes
 	useEffect(() => {

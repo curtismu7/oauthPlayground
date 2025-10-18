@@ -1,6 +1,6 @@
 // src/pages/flows/RedirectlessFlowV5.tsx
 // PingOne Redirectless Flow (response_mode=pi.flow) - Full V5 Implementation
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	FiAlertCircle,
 	FiCheckCircle,
@@ -32,6 +32,7 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { FlowHeader } from '../../services/flowHeaderService'
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -416,6 +417,23 @@ const RedirectlessFlowV5: React.FC = () => {
 		defaultFlowVariant: 'oidc',
 		enableDebugger: true,
 	});
+
+	// Response mode integration using centralized service
+	const responseModeIntegration = useResponseModeIntegration({
+		flowKey: 'redirectless-flow-v5',
+		credentials: controller.credentials,
+		setCredentials: controller.setCredentials,
+		logPrefix: '[🔐 REDIRECTLESS-V5]',
+	});
+
+	const { responseMode, setResponseMode } = responseModeIntegration;
+
+	// Set default response mode to pi.flow for redirectless authentication
+	useEffect(() => {
+		if (responseMode !== 'pi.flow') {
+			setResponseMode('pi.flow');
+		}
+	}, [responseMode, setResponseMode]);
 
 	const [currentStep, setCurrentStep] = useState(() => {
 		const restoreStep = sessionStorage.getItem('restore_step');

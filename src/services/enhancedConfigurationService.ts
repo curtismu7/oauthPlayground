@@ -162,7 +162,7 @@ export class EnhancedConfigurationService {
     EnhancedConfigurationService.baseConfigs.set(FlowType.OAUTH_CLIENT_CREDENTIALS, {
       responseTypes: [],
       grantTypes: ['client_credentials'],
-      scopes: ['api:read', 'api:write'],
+      scopes: ['openid'],
       requirePkce: false,
       allowHttpRedirects: false,
       enforceState: false,

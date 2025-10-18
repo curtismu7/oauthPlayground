@@ -212,6 +212,12 @@ export class ClientCredentialsTokenRequest {
 			grant_type: 'client_credentials',
 		};
 
+		if (credentials.environmentId) {
+			bodyParams.environment_id = credentials.environmentId;
+		}
+
+		bodyParams.client_auth_method = authMethod;
+
 		// Add scope if provided
 		if (credentials.scope) {
 			bodyParams.scope = credentials.scope;
@@ -220,9 +226,12 @@ export class ClientCredentialsTokenRequest {
 		// Handle authentication method
 		switch (authMethod) {
 			case 'client_secret_basic': {
-				// Basic authentication in header
+				// Basic authentication in header (still include client ID for server-side validation)
 				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
 				headers['Authorization'] = `Basic ${basicAuth}`;
+				if (credentials.clientId) {
+					bodyParams.client_id = credentials.clientId;
+				}
 				break;
 			}
 
