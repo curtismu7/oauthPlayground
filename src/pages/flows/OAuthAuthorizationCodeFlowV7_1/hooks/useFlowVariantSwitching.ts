@@ -1,7 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_1/hooks/useFlowVariantSwitching.ts
 // V7.1 Flow Variant Switching - Centralized OAuth/OIDC variant management
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useMemo } from 'react';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import type { FlowVariant, FlowCredentials } from '../types/flowTypes';
 
