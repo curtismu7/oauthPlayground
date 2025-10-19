@@ -362,7 +362,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	className,
 }) => {
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(
-		new Set(['curl', 'details', 'url'])
+		new Set(['url']) // Only URL expanded by default, curl and details collapsed
 	);
 	const [isExecuting, setIsExecuting] = useState(false);
 	const [showInfoTooltip, setShowInfoTooltip] = useState(false);
@@ -658,6 +658,129 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 							View Code Examples
 						</ActionButton>
 					</ActionButtons>
+				</SectionContent>
+			</CollapsibleSection>
+
+			{/* Real PingOne Request */}
+			<CollapsibleSection>
+				<SectionHeader onClick={() => toggleSection('pingone')}>
+					<SectionTitle>Real Request to PingOne</SectionTitle>
+					<FiChevronDown
+						style={{
+							transform: expandedSections.has('pingone') ? 'rotate(0deg)' : 'rotate(-90deg)',
+							transition: 'transform 0.2s ease',
+						}}
+					/>
+				</SectionHeader>
+				<SectionContent $isExpanded={expandedSections.has('pingone')}>
+					<div style={{ marginBottom: '1rem' }}>
+						<p style={{ margin: '0 0 0.75rem 0', color: '#6b7280', fontSize: '0.875rem' }}>
+							This shows the actual HTTP request that will be sent to PingOne's token endpoint:
+						</p>
+						
+						{/* Real PingOne URL */}
+						<div style={{ marginBottom: '1rem' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								PingOne Token Endpoint
+							</h5>
+							<CodeBlock $theme={theme}>
+								{apiCall.method} {apiCall.url}
+							</CodeBlock>
+						</div>
+
+						{/* Real Headers */}
+						{apiCall.headers && Object.keys(apiCall.headers).length > 0 && (
+							<div style={{ marginBottom: '1rem' }}>
+								<h5
+									style={{
+										margin: '0 0 0.5rem 0',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									HTTP Headers
+								</h5>
+								<ParameterList>
+									{Object.entries(apiCall.headers).map(([key, value]) => (
+										<ParameterItem key={key}>
+											<span>
+												<strong>{key}:</strong>
+											</span>
+											<ParameterValue>{value}</ParameterValue>
+										</ParameterItem>
+									))}
+								</ParameterList>
+							</div>
+						)}
+
+						{/* Real Request Body */}
+						{apiCall.body && (
+							<div style={{ marginBottom: '1rem' }}>
+								<h5
+									style={{
+										margin: '0 0 0.5rem 0',
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									Request Body (JSON)
+								</h5>
+								<CodeBlock $theme={theme}>
+									{typeof apiCall.body === 'string'
+										? apiCall.body
+										: JSON.stringify(apiCall.body, null, 2)}
+								</CodeBlock>
+							</div>
+						)}
+
+						{/* Real cURL for PingOne */}
+						<div>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								Real cURL Command to PingOne
+							</h5>
+							<CodeBlock $theme={theme}>
+								{EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
+									...options,
+									verbose: true,
+									includeHeaders: true,
+									includeBody: true,
+								})}
+							</CodeBlock>
+							<ActionButtons style={{ marginTop: '0.75rem' }}>
+								<ActionButton
+									$variant="primary"
+									onClick={() => handleCopy(
+										EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
+											...options,
+											verbose: true,
+											includeHeaders: true,
+											includeBody: true,
+										}),
+										'Real PingOne cURL Command'
+									)}
+								>
+									<FiCopy size={14} />
+									Copy Real cURL
+								</ActionButton>
+							</ActionButtons>
+						</div>
+					</div>
 				</SectionContent>
 			</CollapsibleSection>
 
