@@ -22,6 +22,7 @@ import {
 import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
 
 type TokenExchangeScenario = 'delegation' | 'impersonation' | 'scope-reduction' | 'audience-restriction';
 
@@ -389,6 +390,26 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 
 	const currentScenario = scenarios[selectedScenario];
 
+	// Create API call object for EnhancedApiCallDisplay
+	const tokenExchangeApiCall = {
+		method: 'POST',
+		url: 'https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/token',
+		headers: {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			'Accept': 'application/json',
+			'Authorization': 'Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ='
+		},
+		body: {
+			grant_type: currentScenario.grantType,
+			subject_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+			subject_token_type: currentScenario.subjectTokenType,
+			requested_token_type: currentScenario.requestedTokenType,
+			audience: currentScenario.audience,
+			scope: currentScenario.scope
+		},
+		flowType: 'token-exchange'
+	};
+
 	const renderScenarioDetails = () => (
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('details')}>
@@ -501,19 +522,18 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 						</div>
 					</div>
 
-					<CodeBlock>
-{`POST /oauth/token HTTP/1.1
-Host: auth.cba.com.au
-Content-Type: application/x-www-form-urlencoded
-Authorization: Basic Y2xpZW50X2lkOmNsaWVudF9zZWNyZXQ=
-
-grant_type=${encodeURIComponent(currentScenario.grantType)}&
-subject_token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...&
-subject_token_type=${encodeURIComponent(currentScenario.subjectTokenType)}&
-requested_token_type=${encodeURIComponent(currentScenario.requestedTokenType)}&
-audience=${encodeURIComponent(currentScenario.audience)}&
-scope=${encodeURIComponent(currentScenario.scope)}`}
-					</CodeBlock>
+					{/* Enhanced API Call Display with Documentation Links */}
+					<EnhancedApiCallDisplay
+						apiCall={tokenExchangeApiCall}
+						options={{
+							showEducationalNotes: true,
+							showFlowContext: true,
+							urlHighlightRules: {
+								'pingone.com': { color: '#7c3aed', weight: 'bold' },
+								'token': { color: '#059669', weight: 'bold' }
+							}
+						}}
+					/>
 
 					<div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
 						<Button $variant="primary" onClick={simulateTokenExchange} disabled={isLoading}>
