@@ -837,6 +837,109 @@ console.log('PingOne Response:', data);`,
 							</ActionButtons>
 						</div>
 
+						{/* Postman Collection Example */}
+						<div style={{ marginBottom: '1.5rem' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								📮 Postman Collection Example
+							</h5>
+							<CodeBlock $theme={theme}>
+								{`{
+  "info": {
+    "name": "PingOne Token Exchange Request",
+    "description": "OAuth 2.0 Token Exchange request to PingOne",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Token Exchange",
+      "request": {
+        "method": "${apiCall.method}",
+        "header": [
+${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `          {
+            "key": "${key}",
+            "value": "${value}",
+            "type": "text"
+          }`).join(',\n') : '          // No headers'},${apiCall.body ? `
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "${JSON.stringify(apiCall.body, null, 2).replace(/"/g, '\\"')}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }` : ''}
+        ],
+        "url": {
+          "raw": "${apiCall.url}",
+          "protocol": "https",
+          "host": ["auth", "pingone", "com"],
+          "path": ["${apiCall.url.split('/').slice(3).join('", "')}"]
+        }
+      }
+    }
+  ]
+}`}
+							</CodeBlock>
+							<ActionButtons style={{ marginTop: '0.75rem' }}>
+								<ActionButton
+									$variant="primary"
+									onClick={() => handleCopy(
+										`{
+  "info": {
+    "name": "PingOne Token Exchange Request",
+    "description": "OAuth 2.0 Token Exchange request to PingOne",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Token Exchange",
+      "request": {
+        "method": "${apiCall.method}",
+        "header": [
+${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `          {
+            "key": "${key}",
+            "value": "${value}",
+            "type": "text"
+          }`).join(',\n') : '          // No headers'},${apiCall.body ? `
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "${JSON.stringify(apiCall.body, null, 2).replace(/"/g, '\\"')}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }` : ''}
+        ],
+        "url": {
+          "raw": "${apiCall.url}",
+          "protocol": "https",
+          "host": ["auth", "pingone", "com"],
+          "path": ["${apiCall.url.split('/').slice(3).join('", "')}"]
+        }
+      }
+    }
+  ]
+}`,
+										'Postman Collection JSON'
+									)}
+								>
+									<FiCopy size={14} />
+									Copy Postman Collection
+								</ActionButton>
+							</ActionButtons>
+						</div>
+
 						{/* Documentation Links - Moved up for better visibility */}
 						<div style={{ marginBottom: '1.5rem' }}>
 							<h5
@@ -876,7 +979,7 @@ console.log('PingOne Response:', data);`,
 								fontSize: '0.8rem',
 								color: '#64748b'
 							}}>
-								💡 <strong>Tip:</strong> Use the official PingOne API documentation to understand all available endpoints, parameters, and authentication methods. The Postman collection provides ready-to-use examples you can import and test.
+								💡 <strong>Tip:</strong> Copy the Postman Collection JSON above and import it into Postman, or use the official PingOne Postman collection for ready-to-use examples.
 							</div>
 						</div>
 
