@@ -20,10 +20,7 @@ interface FlowHeaderProps {
 }
 
 const HeaderContainer = styled.div<{ $variant: FlowVariant }>`
-  background: ${props => props.$variant === 'oidc' 
-    ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-    : 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
-  };
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   color: #ffffff;
   padding: ${UI_CONSTANTS.HEADER.PADDING};
   display: flex;
@@ -81,18 +78,9 @@ const VersionBadge = styled.span<{ $variant: FlowVariant }>`
   display: inline-flex;
   align-items: center;
   gap: ${UI_CONSTANTS.SPACING.XS};
-  background: ${props => props.$variant === 'oidc' 
-    ? 'rgba(59, 130, 246, 0.2)' 
-    : 'rgba(22, 163, 74, 0.2)'
-  };
-  border: 1px solid ${props => props.$variant === 'oidc' 
-    ? '#60a5fa' 
-    : '#4ade80'
-  };
-  color: ${props => props.$variant === 'oidc' 
-    ? '#60a5fa' 
-    : '#4ade80'
-  };
+  background: rgba(249, 115, 22, 0.2);
+  border: 1px solid #fb923c;
+  color: #fb923c;
   font-size: ${UI_CONSTANTS.HEADER.VERSION_BADGE_FONT_SIZE};
   font-weight: ${UI_CONSTANTS.HEADER.VERSION_BADGE_FONT_WEIGHT};
   letter-spacing: ${UI_CONSTANTS.HEADER.VERSION_BADGE_LETTER_SPACING};
@@ -241,7 +229,7 @@ export const FlowHeader: React.FC<FlowHeaderProps> = ({
               {currentConfig.name} - {currentConfig.description}
             </FlowSubtitle>
             <VersionBadge $variant={flowVariant}>
-              V7.1
+              7.1
             </VersionBadge>
           </FlowInfo>
         </HeaderLeft>
