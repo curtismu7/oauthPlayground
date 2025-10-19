@@ -19,7 +19,12 @@ export interface OIDCWebAppConfig extends BaseAppConfig {
 	postLogoutRedirectUris?: string[];
 	grantTypes: ('authorization_code' | 'implicit' | 'refresh_token' | 'client_credentials')[];
 	responseTypes: ('code' | 'token' | 'id_token')[];
-	tokenEndpointAuthMethod: 'client_secret_basic' | 'client_secret_post' | 'none';
+	tokenEndpointAuthMethod:
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt'
+		| 'none';
 	pkceEnforcement?: 'OPTIONAL' | 'REQUIRED';
 	scopes: string[];
 	accessTokenValiditySeconds?: number;
@@ -32,7 +37,12 @@ export interface OIDCNativeAppConfig extends BaseAppConfig {
 	redirectUris: string[];
 	grantTypes: ('authorization_code' | 'implicit' | 'refresh_token')[];
 	responseTypes: ('code' | 'token' | 'id_token')[];
-	tokenEndpointAuthMethod: 'client_secret_basic' | 'client_secret_post' | 'none';
+	tokenEndpointAuthMethod:
+		| 'client_secret_basic'
+		| 'client_secret_post'
+		| 'client_secret_jwt'
+		| 'private_key_jwt'
+		| 'none';
 	pkceEnforcement?: 'OPTIONAL' | 'REQUIRED';
 	scopes: string[];
 	accessTokenValiditySeconds?: number;
