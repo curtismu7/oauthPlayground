@@ -100,19 +100,67 @@ const CollapsibleSection = styled.div`
 	margin-bottom: 1rem;
 `;
 
-const SectionHeader = styled.div`
+const SectionHeader = styled.div<{ $sectionType?: string }>`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
 	padding: 0.75rem;
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
+	background: ${({ $sectionType }) => {
+		switch ($sectionType) {
+			case 'details':
+				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'; // Blue gradient
+			case 'curl':
+				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; // Green gradient
+			case 'pingone':
+				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'; // Yellow gradient
+			case 'response':
+				return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient
+			case 'notes':
+				return 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)'; // Purple gradient
+			default:
+				return '#f8fafc';
+		}
+	}};
+	border: 2px solid ${({ $sectionType }) => {
+		switch ($sectionType) {
+			case 'details':
+				return '#3b82f6'; // Blue border
+			case 'curl':
+				return '#10b981'; // Green border
+			case 'pingone':
+				return '#f59e0b'; // Yellow border
+			case 'response':
+				return '#ec4899'; // Pink border
+			case 'notes':
+				return '#8b5cf6'; // Purple border
+			default:
+				return '#e2e8f0';
+		}
+	}};
 	border-radius: 6px;
 	cursor: pointer;
 	transition: all 0.2s;
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	
 	&:hover {
-		background: #f1f5f9;
+		background: ${({ $sectionType }) => {
+			switch ($sectionType) {
+				case 'details':
+					return 'linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%)'; // Darker blue
+				case 'curl':
+					return 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)'; // Darker green
+				case 'pingone':
+					return 'linear-gradient(135deg, #fde68a 0%, #fcd34d 100%)'; // Darker yellow
+				case 'response':
+					return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink
+				case 'notes':
+					return 'linear-gradient(135deg, #c7d2fe 0%, #a5b4fc 100%)'; // Darker purple
+				default:
+					return '#f1f5f9';
+			}
+		}};
+		transform: translateY(-1px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 	}
 `;
 
@@ -514,7 +562,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 			{/* Request Details */}
 			<CollapsibleSection>
-				<SectionHeader onClick={() => toggleSection('details')}>
+				<SectionHeader $sectionType="details" onClick={() => toggleSection('details')}>
 					<SectionTitle>Request Details</SectionTitle>
 					<FiChevronDown
 						style={{
@@ -630,7 +678,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 			{/* cURL Command */}
 			<CollapsibleSection>
-				<SectionHeader onClick={() => toggleSection('curl')}>
+				<SectionHeader $sectionType="curl" onClick={() => toggleSection('curl')}>
 					<SectionTitle>cURL Command</SectionTitle>
 					<FiChevronDown
 						style={{
@@ -663,7 +711,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 
 			{/* Real PingOne Request */}
 			<CollapsibleSection>
-				<SectionHeader onClick={() => toggleSection('pingone')}>
+				<SectionHeader $sectionType="pingone" onClick={() => toggleSection('pingone')}>
 					<SectionTitle>Real Request to PingOne</SectionTitle>
 					<FiChevronDown
 						style={{
@@ -742,6 +790,53 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 							</div>
 						)}
 
+						{/* JavaScript Example */}
+						<div style={{ marginBottom: '1rem' }}>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								JavaScript Fetch Example
+							</h5>
+							<CodeBlock $theme={theme}>
+								{`// JavaScript fetch request to PingOne
+const response = await fetch('${apiCall.url}', {
+  method: '${apiCall.method}',
+  headers: {
+${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `    '${key}': '${value}'`).join(',\n') : '    // No headers'},${apiCall.body ? `
+  body: JSON.stringify(${typeof apiCall.body === 'string' ? apiCall.body : JSON.stringify(apiCall.body, null, 2)})` : ''}
+});
+
+const data = await response.json();
+console.log('PingOne Response:', data);`}
+							</CodeBlock>
+							<ActionButtons style={{ marginTop: '0.75rem' }}>
+								<ActionButton
+									$variant="primary"
+									onClick={() => handleCopy(
+										`// JavaScript fetch request to PingOne
+const response = await fetch('${apiCall.url}', {
+  method: '${apiCall.method}',
+  headers: {
+${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `    '${key}': '${value}'`).join(',\n') : '    // No headers'},${apiCall.body ? `
+  body: JSON.stringify(${typeof apiCall.body === 'string' ? apiCall.body : JSON.stringify(apiCall.body, null, 2)})` : ''}
+});
+
+const data = await response.json();
+console.log('PingOne Response:', data);`,
+										'JavaScript Fetch Example'
+									)}
+								>
+									<FiCopy size={14} />
+									Copy JavaScript
+								</ActionButton>
+							</ActionButtons>
+						</div>
+
 						{/* Real cURL for PingOne */}
 						<div>
 							<h5
@@ -787,7 +882,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			{/* Response */}
 			{apiCall.response && (
 				<CollapsibleSection>
-					<SectionHeader onClick={() => toggleSection('response')}>
+					<SectionHeader $sectionType="response" onClick={() => toggleSection('response')}>
 						<SectionTitle>Response</SectionTitle>
 						<FiChevronDown
 							style={{
