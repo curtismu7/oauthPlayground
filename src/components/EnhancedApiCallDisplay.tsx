@@ -837,47 +837,8 @@ console.log('PingOne Response:', data);`,
 							</ActionButtons>
 						</div>
 
-						{/* Real cURL for PingOne */}
-						<div>
-							<h5
-								style={{
-									margin: '0 0 0.5rem 0',
-									fontSize: '0.875rem',
-									fontWeight: 600,
-									color: '#374151',
-								}}
-							>
-								Real cURL Command to PingOne
-							</h5>
-							<CodeBlock $theme={theme}>
-								{EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
-									...options,
-									verbose: true,
-									includeHeaders: true,
-									includeBody: true,
-								})}
-							</CodeBlock>
-							<ActionButtons style={{ marginTop: '0.75rem' }}>
-								<ActionButton
-									$variant="primary"
-									onClick={() => handleCopy(
-										EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
-											...options,
-											verbose: true,
-											includeHeaders: true,
-											includeBody: true,
-										}),
-										'Real PingOne cURL Command'
-									)}
-								>
-									<FiCopy size={14} />
-									Copy Real cURL
-								</ActionButton>
-							</ActionButtons>
-						</div>
-
-						{/* Documentation Links */}
-						<div style={{ marginTop: '1.5rem' }}>
+						{/* Documentation Links - Moved up for better visibility */}
+						<div style={{ marginBottom: '1.5rem' }}>
 							<h5
 								style={{
 									margin: '0 0 0.75rem 0',
@@ -918,6 +879,46 @@ console.log('PingOne Response:', data);`,
 								💡 <strong>Tip:</strong> Use the official PingOne API documentation to understand all available endpoints, parameters, and authentication methods. The Postman collection provides ready-to-use examples you can import and test.
 							</div>
 						</div>
+
+						{/* Real cURL for PingOne */}
+						<div>
+							<h5
+								style={{
+									margin: '0 0 0.5rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								Real cURL Command to PingOne
+							</h5>
+							<CodeBlock $theme={theme}>
+								{EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
+									...options,
+									verbose: true,
+									includeHeaders: true,
+									includeBody: true,
+								})}
+							</CodeBlock>
+							<ActionButtons style={{ marginTop: '0.75rem' }}>
+								<ActionButton
+									$variant="primary"
+									onClick={() => handleCopy(
+										EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, {
+											...options,
+											verbose: true,
+											includeHeaders: true,
+											includeBody: true,
+										}),
+										'Real PingOne cURL Command'
+									)}
+								>
+									<FiCopy size={14} />
+									Copy Real cURL
+								</ActionButton>
+							</ActionButtons>
+						</div>
+
 					</div>
 				</SectionContent>
 			</CollapsibleSection>
