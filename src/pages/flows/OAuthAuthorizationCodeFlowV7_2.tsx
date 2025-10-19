@@ -1307,7 +1307,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		});
 		
 		const success = await AuthorizationCodeSharedService.PKCE.generatePKCE(
-			'oauth',
+			flowVariant,
 			controller.credentials,
 			controller
 		);
@@ -1530,7 +1530,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 	const navigateToTokenManagement = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
-			'oauth',
+			flowVariant,
 			controller.tokens,
 			controller.credentials,
 			currentStep
@@ -1555,7 +1555,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
-			'oauth',
+			flowVariant,
 			controller.tokens,
 			controller.credentials,
 			currentStep
@@ -2661,7 +2661,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								{/* Only show tokens if they were exchanged in this session */}
 								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
 									controller.tokens,
-									'oauth',
+									flowVariant,
 									'oauth-authorization-code-v7',
 									{
 										showCopyButtons: true,
