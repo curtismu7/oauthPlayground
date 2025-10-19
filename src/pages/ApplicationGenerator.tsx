@@ -1,7 +1,7 @@
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiArrowLeft, FiCheckCircle, FiX, FiSettings, FiChevronLeft, FiChevronRight, FiGlobe, FiSmartphone, FiCode, FiServer, FiCloud, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
@@ -469,15 +469,29 @@ function normalizePkceEnforcement(value: string | undefined): PkceOption {
 }
 
 function normalizeWebAppTokenMethod(value: TokenEndpointMethod): OIDCWebAppConfig['tokenEndpointAuthMethod'] {
-  if (value === 'client_secret_post') return 'client_secret_post';
-  if (value === 'none') return 'none';
-  return 'client_secret_basic';
+  switch (value) {
+    case 'client_secret_basic':
+    case 'client_secret_post':
+    case 'client_secret_jwt':
+    case 'private_key_jwt':
+    case 'none':
+      return value;
+    default:
+      return 'client_secret_basic';
+  }
 }
 
 function normalizeNativeTokenMethod(value: TokenEndpointMethod): OIDCNativeAppConfig['tokenEndpointAuthMethod'] {
-  if (value === 'client_secret_post') return 'client_secret_post';
-  if (value === 'none') return 'none';
-  return 'client_secret_basic';
+  switch (value) {
+    case 'client_secret_basic':
+    case 'client_secret_post':
+    case 'client_secret_jwt':
+    case 'private_key_jwt':
+    case 'none':
+      return value;
+    default:
+      return 'client_secret_basic';
+  }
 }
 
 function normalizeWorkerTokenMethod(value: TokenEndpointMethod): WorkerAppConfig['tokenEndpointAuthMethod'] {
@@ -1449,15 +1463,24 @@ const ApplicationGenerator: React.FC = () => {
                   >
                     <option value="client_secret_basic">Client Secret Basic</option>
                     <option value="client_secret_post">Client Secret Post</option>
-                    {(selectedAppType === 'WORKER' || selectedAppType === 'SERVICE') && (
-                      <>
-                        <option value="client_secret_jwt">Client Secret JWT</option>
-                        <option value="private_key_jwt">Private Key JWT</option>
-                      </>
-                    )}
-                    {(selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP') && (
-                      <option value="none">None (Public Client)</option>
-                    )}
+                    <option
+                      value="client_secret_jwt"
+                      disabled={selectedAppType === 'SINGLE_PAGE_APP'}
+                    >
+                      Client Secret JWT
+                    </option>
+                    <option
+                      value="private_key_jwt"
+                      disabled={selectedAppType === 'SINGLE_PAGE_APP'}
+                    >
+                      Private Key JWT
+                    </option>
+                    <option
+                      value="none"
+                      disabled={!(selectedAppType === 'OIDC_NATIVE_APP' || selectedAppType === 'SINGLE_PAGE_APP')}
+                    >
+                      None (Public Client)
+                    </option>
                   </Select>
                 </FormGroup>
 
@@ -1738,6 +1761,11 @@ const ApplicationGenerator: React.FC = () => {
   }
 
   // Get V5 stepper components
+  const stepperLayout = useMemo(
+    () => V5StepperService.createStepLayout({ theme: 'blue', showProgress: true }),
+    []
+  );
+
   const {
     StepContainer,
     StepHeader,
@@ -1753,7 +1781,7 @@ const ApplicationGenerator: React.FC = () => {
     StepProgress,
     ProgressBar,
     ProgressText
-  } = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+  } = stepperLayout;
 
   console.log('[ApplicationGenerator] V5 Stepper Components:', { StepContainer, StepHeader, StepContent });
   console.log('[ApplicationGenerator] Rendering - currentStep:', currentStep, 'selectedAppType:', selectedAppType);
