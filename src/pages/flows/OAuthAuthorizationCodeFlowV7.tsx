@@ -1307,7 +1307,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		});
 		
 		const success = await AuthorizationCodeSharedService.PKCE.generatePKCE(
-			'oauth',
+			flowVariant,
 			controller.credentials,
 			controller
 		);
@@ -1530,7 +1530,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const navigateToTokenManagement = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
-			'oauth',
+			flowVariant,
 			controller.tokens,
 			controller.credentials,
 			currentStep
@@ -1555,7 +1555,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const navigateToTokenManagementWithRefreshToken = useCallback(() => {
 		AuthorizationCodeSharedService.TokenManagement.navigateToTokenManagement(
-			'oauth',
+			flowVariant,
 			controller.tokens,
 			controller.credentials,
 			currentStep
@@ -1726,7 +1726,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		AuthorizationCodeSharedService.Navigation.handleNext(
 			currentStep,
 			controller.credentials,
-			'oauth',
+			flowVariant,
 			controller,
 			isStepValid,
 			() => {
@@ -2132,7 +2132,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							<PKCEGenerationService.showComponent
 								controller={controller}
 								credentials={controller.credentials}
-								flowType="oauth"
+								flowType={flowVariant}
 								onPKCEGenerated={() => {
 									console.log('[OAuth AuthZ V6] PKCE codes generated successfully');
 								}}
@@ -2661,7 +2661,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								{/* Only show tokens if they were exchanged in this session */}
 								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
 									controller.tokens,
-									'oauth',
+									flowVariant,
 									'oauth-authorization-code-v7',
 									{
 										showCopyButtons: true,
@@ -2894,7 +2894,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				}
 			},
 			controller.authUrl || '',
-			'oauth',
+			flowVariant,
 			'OAuth 2.0 Authorization Code',
 			{
 				description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authorization. The page will redirect to PingOne for secure authentication.',
