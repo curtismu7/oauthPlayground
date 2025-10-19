@@ -667,6 +667,9 @@ const Dashboard = () => {
 
 					{/* Enterprise & PingOne V7 Flows */}
 					<FlowCategory>
+						<FlowCategoryTitle $color={ENTERPRISE_THEME.titleColor}>
+							Enterprise & PingOne V7 Flows
+						</FlowCategoryTitle>
 						<div>
 							{Object.entries(FLOW_CONFIGS)
 								.filter(([, config]) => config.flowType === 'pingone')
