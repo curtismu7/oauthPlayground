@@ -2132,7 +2132,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							<PKCEGenerationService.showComponent
 								controller={controller}
 								credentials={controller.credentials}
-								flowType="oauth"
+								flowType={flowVariant}
 								onPKCEGenerated={() => {
 									console.log('[OAuth AuthZ V6] PKCE codes generated successfully');
 								}}
@@ -2661,7 +2661,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								{/* Only show tokens if they were exchanged in this session */}
 								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
 									controller.tokens,
-									'oauth',
+									flowVariant,
 									'oauth-authorization-code-v7',
 									{
 										showCopyButtons: true,
