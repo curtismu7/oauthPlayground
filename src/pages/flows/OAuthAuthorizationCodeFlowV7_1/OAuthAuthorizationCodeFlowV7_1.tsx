@@ -3,16 +3,22 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { 
+  FiLoader, 
+  FiSettings, 
+  FiBook, 
+  FiCheckCircle, 
+  FiChevronDown 
+} from 'react-icons/fi';
 import { useFlowStateManagement } from './hooks/useFlowStateManagement';
 import { useAuthCodeManagement } from './hooks/useAuthCodeManagement';
 import { useFlowVariantSwitching } from './hooks/useFlowVariantSwitching';
 import { usePerformanceMonitoring } from './hooks/usePerformanceMonitoring';
 import { FlowErrorWrapper } from './components/FlowErrorWrapper';
-import { FlowHeader } from './components/FlowHeader';
-import { FlowNavigation } from './components/FlowNavigation';
 import { FlowConfiguration } from './components/FlowConfiguration';
 import { FlowSteps } from './components/FlowSteps';
 import { FlowResults } from './components/FlowResults';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { FLOW_CONSTANTS } from './constants/flowConstants';
 import { UI_CONSTANTS } from './constants/uiConstants';
 import type { FlowVariant, FlowCredentials, TokenResponse, UserInfo } from './types/flowTypes';
@@ -78,6 +84,158 @@ const LoadingSpinner = styled.div`
   font-size: ${UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.LG};
 `;
 
+// Original V7 styled components for compatibility
+const MainCard = styled.div`
+  background-color: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.1);
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+`;
+
+const StepHeader = styled.div<{ $variant: FlowVariant }>`
+  background: ${props => props.$variant === 'oidc' 
+    ? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
+    : 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
+  };
+  color: #ffffff;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const StepHeaderLeft = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+`;
+
+const VersionBadge = styled.span<{ $variant: FlowVariant }>`
+  align-self: flex-start;
+  background: ${props => props.$variant === 'oidc' 
+    ? 'rgba(59, 130, 246, 0.2)' 
+    : 'rgba(249, 115, 22, 0.2)'
+  };
+  border: 1px solid ${props => props.$variant === 'oidc' 
+    ? '#60a5fa' 
+    : '#fb923c'
+  };
+  color: ${props => props.$variant === 'oidc' 
+    ? '#dbeafe' 
+    : '#fed7aa'
+  };
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+`;
+
+const StepHeaderTitle = styled.h2`
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+`;
+
+const StepHeaderSubtitle = styled.p`
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+`;
+
+const StepHeaderRight = styled.div`
+  text-align: right;
+`;
+
+const VariantSelector = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const VariantButton = styled.button<{ $active: boolean }>`
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.5rem;
+  background: ${props => props.$active 
+    ? 'rgba(255, 255, 255, 0.2)' 
+    : 'transparent'
+  };
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+`;
+
+const StepContentWrapper = styled.div`
+  padding: 2rem;
+`;
+
+const CollapsibleSection = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const CollapsibleHeaderButton = styled.button<{ $collapsed: boolean }>`
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+`;
+
+const CollapsibleTitle = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+`;
+
+const CollapsibleToggleIcon = styled.span<{ $collapsed: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 6px 16px #3b82f633;
+  transition: all 0.2s ease;
+  transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+`;
+
+const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
+  max-height: ${props => props.$collapsed ? '0' : '1000px'};
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  padding: ${props => props.$collapsed ? '0' : '1rem'};
+  border: 1px solid #e2e8f0;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  background: #ffffff;
+`;
+
 interface OAuthAuthorizationCodeFlowV7_1Props {
   initialVariant?: FlowVariant;
   initialCredentials?: Partial<FlowCredentials>;
@@ -101,7 +259,7 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
   // State management
   const flowState = useFlowStateManagement();
   const authCodeManagement = useAuthCodeManagement();
-  
+		
   // Local state
   const [isLoading, setIsLoading] = useState(true);
   const [appConfig, setAppConfig] = useState<PingOneApplicationState>({
@@ -235,201 +393,6 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
     window.location.href = '/';
   }, []);
 
-  // Render step-based content
-  const renderStepContent = useCallback((currentStep: number) => {
-    switch (currentStep) {
-      case 0:
-        return (
-          <div>
-            <FlowSteps
-              currentStep={flowState.flowState.currentStep}
-              totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-              stepCompletion={flowState.stepCompletion}
-              flowVariant={flowState.flowState.flowVariant}
-              onStepClick={handleStepChange}
-              showStepDetails={true}
-              showProgress={true}
-              isInteractive={true}
-            />
-          </div>
-        );
-      
-      case 1:
-        return (
-          <div>
-            <FlowConfiguration
-              credentials={flowState.credentials}
-              onCredentialsChange={handleCredentialsChange}
-              flowVariant={flowState.flowState.flowVariant}
-              onVariantChange={handleVariantChange}
-              appConfig={appConfig}
-              onAppConfigChange={handleAppConfigChange}
-              isCollapsed={false}
-              onToggleCollapse={() => handleToggleSection('configuration')}
-              showAdvancedSettings={false}
-              onToggleAdvancedSettings={() => handleToggleSection('advancedSettings')}
-            />
-          </div>
-        );
-      
-      case 2:
-        return (
-          <div>
-            <div style={{ 
-              background: UI_CONSTANTS.SECTION.BACKGROUND,
-              border: UI_CONSTANTS.SECTION.BORDER,
-              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-              padding: UI_CONSTANTS.SPACING.LG,
-              marginBottom: UI_CONSTANTS.SPACING.LG
-            }}>
-              <h3>Step 2: PKCE Generation</h3>
-              <p>Generate secure code verifier and challenge for PKCE (Proof Key for Code Exchange).</p>
-              <div style={{ 
-                background: UI_CONSTANTS.COLORS.GRAY_100,
-                padding: UI_CONSTANTS.SPACING.MD,
-                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-                fontFamily: 'monospace',
-                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
-              }}>
-                Code Verifier: {flowState.pkceCodes.codeVerifier || 'Not generated yet'}
-                <br />
-                Code Challenge: {flowState.pkceCodes.codeChallenge || 'Not generated yet'}
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 3:
-        return (
-          <div>
-            <div style={{ 
-              background: UI_CONSTANTS.SECTION.BACKGROUND,
-              border: UI_CONSTANTS.SECTION.BORDER,
-              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-              padding: UI_CONSTANTS.SPACING.LG,
-              marginBottom: UI_CONSTANTS.SPACING.LG
-            }}>
-              <h3>Step 3: Authorization Request</h3>
-              <p>Build and send the authorization request to the authorization server.</p>
-              <div style={{ 
-                background: UI_CONSTANTS.COLORS.GRAY_100,
-                padding: UI_CONSTANTS.SPACING.MD,
-                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-                fontFamily: 'monospace',
-                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
-              }}>
-                Authorization URL: {flowState.credentials.environmentId ? 'Ready to generate' : 'Configure credentials first'}
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 4:
-        return (
-          <div>
-            <div style={{ 
-              background: UI_CONSTANTS.SECTION.BACKGROUND,
-              border: UI_CONSTANTS.SECTION.BORDER,
-              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-              padding: UI_CONSTANTS.SPACING.LG,
-              marginBottom: UI_CONSTANTS.SPACING.LG
-            }}>
-              <h3>Step 4: Authorization Code</h3>
-              <p>Receive the authorization code from the authorization server.</p>
-              <div style={{ 
-                background: UI_CONSTANTS.COLORS.GRAY_100,
-                padding: UI_CONSTANTS.SPACING.MD,
-                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-                fontFamily: 'monospace',
-                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
-              }}>
-                Authorization Code: {flowState.flowState.authCode.code || 'Not received yet'}
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 5:
-        return (
-          <div>
-            <div style={{ 
-              background: UI_CONSTANTS.SECTION.BACKGROUND,
-              border: UI_CONSTANTS.SECTION.BORDER,
-              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-              padding: UI_CONSTANTS.SPACING.LG,
-              marginBottom: UI_CONSTANTS.SPACING.LG
-            }}>
-              <h3>Step 5: Token Exchange</h3>
-              <p>Exchange the authorization code for access and ID tokens.</p>
-              <div style={{ 
-                background: UI_CONSTANTS.COLORS.GRAY_100,
-                padding: UI_CONSTANTS.SPACING.MD,
-                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-                fontFamily: 'monospace',
-                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
-              }}>
-                Token Exchange: {flowState.tokens ? 'Completed' : 'Pending authorization code'}
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 6:
-        return (
-          <div>
-            <div style={{ 
-              background: UI_CONSTANTS.SECTION.BACKGROUND,
-              border: UI_CONSTANTS.SECTION.BORDER,
-              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-              padding: UI_CONSTANTS.SPACING.LG,
-              marginBottom: UI_CONSTANTS.SPACING.LG
-            }}>
-              <h3>Step 6: User Info</h3>
-              <p>Retrieve user information using the access token.</p>
-              <div style={{ 
-                background: UI_CONSTANTS.COLORS.GRAY_100,
-                padding: UI_CONSTANTS.SPACING.MD,
-                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-                fontFamily: 'monospace',
-                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
-              }}>
-                User Info: {flowState.userInfo ? 'Retrieved' : 'Pending access token'}
-              </div>
-            </div>
-          </div>
-        );
-      
-      case 7:
-        return (
-          <div>
-            <FlowResults
-              tokens={flowState.tokens}
-              userInfo={flowState.userInfo}
-              isCollapsed={false}
-              onToggleCollapse={() => handleToggleSection('results')}
-              onRefreshTokens={handleRefreshTokens}
-              onClearResults={handleClearResults}
-              showTokenDetails={true}
-              showUserInfo={true}
-            />
-          </div>
-        );
-      
-      default:
-        return (
-          <div style={{ 
-            background: UI_CONSTANTS.SECTION.BACKGROUND,
-            border: UI_CONSTANTS.SECTION.BORDER,
-            borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
-            padding: UI_CONSTANTS.SPACING.LG,
-            marginBottom: UI_CONSTANTS.SPACING.LG
-          }}>
-            <h3>Step {currentStep + 1}</h3>
-            <p>This step is not yet implemented.</p>
-          </div>
-        );
-    }
-  }, [flowState, handleCredentialsChange, handleVariantChange, handleStepChange, handleToggleSection, handleRefreshTokens, handleClearResults, appConfig]);
 
   if (isLoading) {
     return (
@@ -445,38 +408,137 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
     <FlowErrorWrapper flowKey={FLOW_CONSTANTS.FLOW_KEY}>
       <Container>
         <ContentWrapper>
-          {/* Flow Header */}
-          <FlowHeader
-            flowVariant={flowState.flowState.flowVariant}
-            onVariantChange={handleVariantChange}
-            currentStep={flowState.flowState.currentStep}
-            totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-            isCollapsed={flowState.flowState.collapsedSections.header || false}
-            onToggleCollapse={() => handleToggleSection('header')}
-            flowName="OAuth Authorization Code Flow V7.1"
-            showVariantSelector={true}
-          />
+          <MainCard>
+            {/* Original V7 Header Structure */}
+            <StepHeader $variant={flowState.flowState.flowVariant}>
+              <StepHeaderLeft>
+                <VersionBadge $variant={flowState.flowState.flowVariant}>
+                  V7.1
+                </VersionBadge>
+                <StepHeaderTitle>
+                  OAuth Authorization Code Flow V7.1
+                </StepHeaderTitle>
+                <StepHeaderSubtitle>
+                  Enhanced with modular architecture, error boundaries, and performance monitoring
+                </StepHeaderSubtitle>
+              </StepHeaderLeft>
+              <StepHeaderRight>
+                <VariantSelector>
+                  <VariantButton
+                    $active={flowState.flowState.flowVariant === 'oauth'}
+                    onClick={() => handleVariantChange('oauth')}
+                  >
+                    OAuth 2.0
+                  </VariantButton>
+                  <VariantButton
+                    $active={flowState.flowState.flowVariant === 'oidc'}
+                    onClick={() => handleVariantChange('oidc')}
+                  >
+                    OpenID Connect
+                  </VariantButton>
+                </VariantSelector>
+              </StepHeaderRight>
+            </StepHeader>
 
-          <MainContent>
-            {/* Flow Navigation */}
-            <FlowNavigation
-              currentStep={flowState.flowState.currentStep}
-              totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-              canGoBack={flowState.canGoBack()}
-              canGoForward={flowState.canGoForward()}
-              isComplete={flowState.isFlowComplete()}
-              onStepChange={handleStepChange}
-              onReset={handleFlowReset}
-              onGoHome={handleGoHome}
-              stepCompletion={flowState.stepCompletion}
-              showStepButtons={true}
-              showResetButton={true}
-              showHomeButton={true}
-            />
+            <StepContentWrapper>
+              {/* Original V7 Step Navigation */}
+              <StepNavigationButtons
+                currentStep={flowState.flowState.currentStep}
+                totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
+                onStepChange={handleStepChange}
+                onReset={handleFlowReset}
+                onGoHome={handleGoHome}
+                stepCompletion={flowState.stepCompletion}
+                canGoBack={flowState.canGoBack()}
+                canGoForward={flowState.canGoForward()}
+                isComplete={flowState.isFlowComplete()}
+              />
 
-            {/* Step-based Content Rendering */}
-            {renderStepContent(flowState.flowState.currentStep)}
-          </MainContent>
+              {/* Original V7 Collapsible Sections Structure */}
+              <CollapsibleSection>
+                <CollapsibleHeaderButton
+                  onClick={() => handleToggleSection('configuration')}
+                  $collapsed={flowState.flowState.collapsedSections.configuration || false}
+                >
+                  <CollapsibleTitle>
+                    <FiSettings />
+                    Configuration
+                  </CollapsibleTitle>
+                  <CollapsibleToggleIcon $collapsed={flowState.flowState.collapsedSections.configuration || false}>
+                    <FiChevronDown />
+                  </CollapsibleToggleIcon>
+                </CollapsibleHeaderButton>
+                <CollapsibleContent $collapsed={flowState.flowState.collapsedSections.configuration || false}>
+                  <FlowConfiguration
+                    credentials={flowState.credentials}
+                    onCredentialsChange={handleCredentialsChange}
+                    flowVariant={flowState.flowState.flowVariant}
+                    onVariantChange={handleVariantChange}
+                    appConfig={appConfig}
+                    onAppConfigChange={handleAppConfigChange}
+                    isCollapsed={false}
+                    onToggleCollapse={() => handleToggleSection('configuration')}
+                    showAdvancedSettings={false}
+                    onToggleAdvancedSettings={() => handleToggleSection('advancedSettings')}
+                  />
+                </CollapsibleContent>
+              </CollapsibleSection>
+
+              <CollapsibleSection>
+                <CollapsibleHeaderButton
+                  onClick={() => handleToggleSection('steps')}
+                  $collapsed={flowState.flowState.collapsedSections.steps || false}
+                >
+                  <CollapsibleTitle>
+                    <FiBook />
+                    Flow Steps
+                  </CollapsibleTitle>
+                  <CollapsibleToggleIcon $collapsed={flowState.flowState.collapsedSections.steps || false}>
+                    <FiChevronDown />
+                  </CollapsibleToggleIcon>
+                </CollapsibleHeaderButton>
+                <CollapsibleContent $collapsed={flowState.flowState.collapsedSections.steps || false}>
+                  <FlowSteps
+                    currentStep={flowState.flowState.currentStep}
+                    totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
+                    stepCompletion={flowState.stepCompletion}
+                    flowVariant={flowState.flowState.flowVariant}
+                    onStepClick={handleStepChange}
+                    showStepDetails={true}
+                    showProgress={true}
+                    isInteractive={true}
+                  />
+                </CollapsibleContent>
+              </CollapsibleSection>
+
+              <CollapsibleSection>
+                <CollapsibleHeaderButton
+                  onClick={() => handleToggleSection('results')}
+                  $collapsed={flowState.flowState.collapsedSections.results || false}
+                >
+                  <CollapsibleTitle>
+                    <FiCheckCircle />
+                    Results
+                  </CollapsibleTitle>
+                  <CollapsibleToggleIcon $collapsed={flowState.flowState.collapsedSections.results || false}>
+                    <FiChevronDown />
+                  </CollapsibleToggleIcon>
+                </CollapsibleHeaderButton>
+                <CollapsibleContent $collapsed={flowState.flowState.collapsedSections.results || false}>
+                  <FlowResults
+                    tokens={flowState.tokens}
+                    userInfo={flowState.userInfo}
+                    isCollapsed={false}
+                    onToggleCollapse={() => handleToggleSection('results')}
+                    onRefreshTokens={handleRefreshTokens}
+                    onClearResults={handleClearResults}
+                    showTokenDetails={true}
+                    showUserInfo={true}
+                  />
+                </CollapsibleContent>
+              </CollapsibleSection>
+            </StepContentWrapper>
+          </MainCard>
 
           {/* Debug Information */}
           {showDebugInfo && (
