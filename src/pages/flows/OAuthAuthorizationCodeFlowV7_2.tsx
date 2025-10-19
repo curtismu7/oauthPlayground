@@ -90,7 +90,7 @@ const MainCard = styled.div`
 const StepHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
 	background: ${props => props.$variant === 'oidc' 
 		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'
+		: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)'
 	};
 	color: #ffffff;
 	padding: 2rem;
@@ -109,15 +109,15 @@ const VersionBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	align-self: flex-start;
 	background: ${props => props.$variant === 'oidc' 
 		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(249, 115, 22, 0.2)'
+		: 'rgba(234, 179, 8, 0.2)'
 	};
 	border: 1px solid ${props => props.$variant === 'oidc' 
 		? '#60a5fa' 
-		: '#fb923c'
+		: '#facc15'
 	};
 	color: ${props => props.$variant === 'oidc' 
 		? '#dbeafe' 
-		: '#fed7aa'
+		: '#fef3c7'
 	};
 	font-size: 0.75rem;
 	font-weight: 600;
@@ -2826,7 +2826,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				<MainCard>
 					<StepHeader $variant={flowVariant}>
 						<StepHeaderLeft>
-							<VersionBadge $variant={flowVariant}>Authorization Code Flow · V7.2</VersionBadge>
+							<VersionBadge $variant={flowVariant}>7.2</VersionBadge>
 							<StepHeaderTitle>
 								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
 							</StepHeaderTitle>
