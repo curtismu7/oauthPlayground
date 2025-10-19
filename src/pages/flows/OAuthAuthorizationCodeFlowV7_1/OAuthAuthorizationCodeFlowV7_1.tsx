@@ -18,11 +18,11 @@ import { FlowErrorWrapper } from './components/FlowErrorWrapper';
 import { FlowConfiguration } from './components/FlowConfiguration';
 import { FlowSteps } from './components/FlowSteps';
 import { FlowResults } from './components/FlowResults';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { StepNavigationButtons } from '../../../components/StepNavigationButtons';
 import { FLOW_CONSTANTS } from './constants/flowConstants';
 import { UI_CONSTANTS } from './constants/uiConstants';
 import type { FlowVariant, FlowCredentials, TokenResponse, UserInfo } from './types/flowTypes';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 
 // Mock services - these would be imported from actual services in real implementation
 const v4ToastManager = {
