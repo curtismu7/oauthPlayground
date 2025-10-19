@@ -875,6 +875,49 @@ console.log('PingOne Response:', data);`,
 								</ActionButton>
 							</ActionButtons>
 						</div>
+
+						{/* Documentation Links */}
+						<div style={{ marginTop: '1.5rem' }}>
+							<h5
+								style={{
+									margin: '0 0 0.75rem 0',
+									fontSize: '0.875rem',
+									fontWeight: 600,
+									color: '#374151',
+								}}
+							>
+								📚 Official Documentation & Examples
+							</h5>
+							<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+								<ActionButton
+									$variant="secondary"
+									onClick={() => window.open('https://apidocs.pingidentity.com/pingone/platform/v1/api/', '_blank')}
+									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
+								>
+									<FiExternalLink size={16} />
+									PingOne API Documentation
+								</ActionButton>
+								<ActionButton
+									$variant="secondary"
+									onClick={() => window.open('https://www.postman.com/ping-identity/pingone/documentation/ps5gedp/pingone-platform-apis-with-documentation', '_blank')}
+									style={{ justifyContent: 'flex-start', textAlign: 'left' }}
+								>
+									<FiExternalLink size={16} />
+									PingOne Postman Collection
+								</ActionButton>
+							</div>
+							<div style={{ 
+								marginTop: '0.75rem', 
+								padding: '0.75rem', 
+								background: '#f8fafc', 
+								border: '1px solid #e2e8f0', 
+								borderRadius: '0.5rem',
+								fontSize: '0.8rem',
+								color: '#64748b'
+							}}>
+								💡 <strong>Tip:</strong> Use the official PingOne API documentation to understand all available endpoints, parameters, and authentication methods. The Postman collection provides ready-to-use examples you can import and test.
+							</div>
+						</div>
 					</div>
 				</SectionContent>
 			</CollapsibleSection>
