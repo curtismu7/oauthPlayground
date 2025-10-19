@@ -29,6 +29,74 @@ export const UI_CONSTANTS = {
     SUBTITLE_OPACITY: '0.85',
   },
   
+  // Spacing constants
+  SPACING: {
+    XS: '0.25rem',
+    SM: '0.5rem',
+    MD: '0.75rem',
+    LG: '1rem',
+    XL: '1.5rem',
+    '2XL': '2rem',
+    '3XL': '3rem',
+  },
+  
+  // Typography constants
+  TYPOGRAPHY: {
+    FONT_SIZES: {
+      XS: '0.75rem',
+      SM: '0.875rem',
+      BASE: '1rem',
+      LG: '1.125rem',
+      XL: '1.25rem',
+      '2XL': '1.5rem',
+      '3XL': '1.875rem',
+    },
+    FONT_WEIGHTS: {
+      NORMAL: '400',
+      MEDIUM: '500',
+      SEMIBOLD: '600',
+      BOLD: '700',
+    },
+    LINE_HEIGHTS: {
+      TIGHT: '1.25',
+      NORMAL: '1.5',
+      RELAXED: '1.75',
+    },
+    LETTER_SPACING: {
+      TIGHT: '-0.025em',
+      NORMAL: '0em',
+      WIDE: '0.025em',
+    },
+  },
+  
+  // Color constants
+  COLORS: {
+    WHITE: '#ffffff',
+    GRAY_50: '#f9fafb',
+    GRAY_100: '#f3f4f6',
+    GRAY_200: '#e5e7eb',
+    GRAY_300: '#d1d5db',
+    GRAY_400: '#9ca3af',
+    GRAY_500: '#6b7280',
+    GRAY_600: '#4b5563',
+    GRAY_700: '#374151',
+    GRAY_800: '#1f2937',
+    GRAY_900: '#111827',
+    BLUE_600: '#2563eb',
+    GREEN_600: '#16a34a',
+  },
+  
+  // Animation constants
+  ANIMATION: {
+    DURATION_FAST: '0.15s',
+    DURATION_NORMAL: '0.2s',
+    DURATION_SLOW: '0.3s',
+    EASING_EASE: 'ease',
+    EASING_EASE_IN_OUT: 'ease-in-out',
+    TRANSFORM_SCALE_HOVER: 'scale(1.05)',
+    TRANSFORM_SCALE_ACTIVE: 'scale(0.95)',
+  },
+  
   // Variant selector constants
   VARIANT_SELECTOR: {
     BACKGROUND: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
@@ -55,6 +123,7 @@ export const UI_CONSTANTS = {
     HEADER_FONT_WEIGHT: '600',
     HEADER_GAP: '0.75rem',
     HEADER_LINE_HEIGHT: '1.35',
+    CARD_SHADOW: '0 10px 20px rgba(15, 23, 42, 0.05)',
   },
   
   // Collapsible constants
