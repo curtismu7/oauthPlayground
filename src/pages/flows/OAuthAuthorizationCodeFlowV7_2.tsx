@@ -763,12 +763,12 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	});
 
 	// Scroll to top on page load
-	usePageScroll({ pageName: 'OAuth Authorization Code Flow V7 - Complete', force: true });
+	usePageScroll({ pageName: 'OAuth Authorization Code Flow V7.2', force: true });
 
 	const manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'oauth-authorization-code-v7',
-		defaultFlowVariant: 'oidc', // V7 defaults to OIDC
+		defaultFlowVariant: 'oauth', // V7.2 defaults to OAuth for yellow theme
 		enableDebugger: true,
 	});
 
