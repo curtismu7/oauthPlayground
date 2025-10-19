@@ -410,7 +410,7 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 	className,
 }) => {
 	const [expandedSections, setExpandedSections] = useState<Set<string>>(
-		new Set(['url']) // Only URL expanded by default, curl and details collapsed
+		new Set(['url', 'pingone']) // URL and PingOne section expanded by default to show new documentation links
 	);
 	const [isExecuting, setIsExecuting] = useState(false);
 	const [showInfoTooltip, setShowInfoTooltip] = useState(false);
