@@ -235,6 +235,202 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
     window.location.href = '/';
   }, []);
 
+  // Render step-based content
+  const renderStepContent = useCallback((currentStep: number) => {
+    switch (currentStep) {
+      case 0:
+        return (
+          <div>
+            <FlowSteps
+              currentStep={flowState.flowState.currentStep}
+              totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
+              stepCompletion={flowState.stepCompletion}
+              flowVariant={flowState.flowState.flowVariant}
+              onStepClick={handleStepChange}
+              showStepDetails={true}
+              showProgress={true}
+              isInteractive={true}
+            />
+          </div>
+        );
+      
+      case 1:
+        return (
+          <div>
+            <FlowConfiguration
+              credentials={flowState.credentials}
+              onCredentialsChange={handleCredentialsChange}
+              flowVariant={flowState.flowState.flowVariant}
+              onVariantChange={handleVariantChange}
+              appConfig={appConfig}
+              onAppConfigChange={handleAppConfigChange}
+              isCollapsed={false}
+              onToggleCollapse={() => handleToggleSection('configuration')}
+              showAdvancedSettings={false}
+              onToggleAdvancedSettings={() => handleToggleSection('advancedSettings')}
+            />
+          </div>
+        );
+      
+      case 2:
+        return (
+          <div>
+            <div style={{ 
+              background: UI_CONSTANTS.SECTION.BACKGROUND,
+              border: UI_CONSTANTS.SECTION.BORDER,
+              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+              padding: UI_CONSTANTS.SPACING.LG,
+              marginBottom: UI_CONSTANTS.SPACING.LG
+            }}>
+              <h3>Step 2: PKCE Generation</h3>
+              <p>Generate secure code verifier and challenge for PKCE (Proof Key for Code Exchange).</p>
+              <div style={{ 
+                background: UI_CONSTANTS.COLORS.GRAY_100,
+                padding: UI_CONSTANTS.SPACING.MD,
+                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+                fontFamily: 'monospace',
+                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
+              }}>
+                Code Verifier: {flowState.pkceCodes.codeVerifier || 'Not generated yet'}
+                <br />
+                Code Challenge: {flowState.pkceCodes.codeChallenge || 'Not generated yet'}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 3:
+        return (
+          <div>
+            <div style={{ 
+              background: UI_CONSTANTS.SECTION.BACKGROUND,
+              border: UI_CONSTANTS.SECTION.BORDER,
+              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+              padding: UI_CONSTANTS.SPACING.LG,
+              marginBottom: UI_CONSTANTS.SPACING.LG
+            }}>
+              <h3>Step 3: Authorization Request</h3>
+              <p>Build and send the authorization request to the authorization server.</p>
+              <div style={{ 
+                background: UI_CONSTANTS.COLORS.GRAY_100,
+                padding: UI_CONSTANTS.SPACING.MD,
+                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+                fontFamily: 'monospace',
+                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
+              }}>
+                Authorization URL: {flowState.credentials.environmentId ? 'Ready to generate' : 'Configure credentials first'}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 4:
+        return (
+          <div>
+            <div style={{ 
+              background: UI_CONSTANTS.SECTION.BACKGROUND,
+              border: UI_CONSTANTS.SECTION.BORDER,
+              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+              padding: UI_CONSTANTS.SPACING.LG,
+              marginBottom: UI_CONSTANTS.SPACING.LG
+            }}>
+              <h3>Step 4: Authorization Code</h3>
+              <p>Receive the authorization code from the authorization server.</p>
+              <div style={{ 
+                background: UI_CONSTANTS.COLORS.GRAY_100,
+                padding: UI_CONSTANTS.SPACING.MD,
+                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+                fontFamily: 'monospace',
+                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
+              }}>
+                Authorization Code: {flowState.flowState.authCode.code || 'Not received yet'}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 5:
+        return (
+          <div>
+            <div style={{ 
+              background: UI_CONSTANTS.SECTION.BACKGROUND,
+              border: UI_CONSTANTS.SECTION.BORDER,
+              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+              padding: UI_CONSTANTS.SPACING.LG,
+              marginBottom: UI_CONSTANTS.SPACING.LG
+            }}>
+              <h3>Step 5: Token Exchange</h3>
+              <p>Exchange the authorization code for access and ID tokens.</p>
+              <div style={{ 
+                background: UI_CONSTANTS.COLORS.GRAY_100,
+                padding: UI_CONSTANTS.SPACING.MD,
+                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+                fontFamily: 'monospace',
+                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
+              }}>
+                Token Exchange: {flowState.tokens ? 'Completed' : 'Pending authorization code'}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 6:
+        return (
+          <div>
+            <div style={{ 
+              background: UI_CONSTANTS.SECTION.BACKGROUND,
+              border: UI_CONSTANTS.SECTION.BORDER,
+              borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+              padding: UI_CONSTANTS.SPACING.LG,
+              marginBottom: UI_CONSTANTS.SPACING.LG
+            }}>
+              <h3>Step 6: User Info</h3>
+              <p>Retrieve user information using the access token.</p>
+              <div style={{ 
+                background: UI_CONSTANTS.COLORS.GRAY_100,
+                padding: UI_CONSTANTS.SPACING.MD,
+                borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+                fontFamily: 'monospace',
+                fontSize: UI_CONSTANTS.TYPOGRAPHY.FONT_SIZES.SM
+              }}>
+                User Info: {flowState.userInfo ? 'Retrieved' : 'Pending access token'}
+              </div>
+            </div>
+          </div>
+        );
+      
+      case 7:
+        return (
+          <div>
+            <FlowResults
+              tokens={flowState.tokens}
+              userInfo={flowState.userInfo}
+              isCollapsed={false}
+              onToggleCollapse={() => handleToggleSection('results')}
+              onRefreshTokens={handleRefreshTokens}
+              onClearResults={handleClearResults}
+              showTokenDetails={true}
+              showUserInfo={true}
+            />
+          </div>
+        );
+      
+      default:
+        return (
+          <div style={{ 
+            background: UI_CONSTANTS.SECTION.BACKGROUND,
+            border: UI_CONSTANTS.SECTION.BORDER,
+            borderRadius: UI_CONSTANTS.SECTION.BORDER_RADIUS,
+            padding: UI_CONSTANTS.SPACING.LG,
+            marginBottom: UI_CONSTANTS.SPACING.LG
+          }}>
+            <h3>Step {currentStep + 1}</h3>
+            <p>This step is not yet implemented.</p>
+          </div>
+        );
+    }
+  }, [flowState, handleCredentialsChange, handleVariantChange, handleStepChange, handleToggleSection, handleRefreshTokens, handleClearResults, appConfig]);
+
   if (isLoading) {
     return (
       <Container>
@@ -278,43 +474,8 @@ export const OAuthAuthorizationCodeFlowV7_1: React.FC<OAuthAuthorizationCodeFlow
               showHomeButton={true}
             />
 
-            {/* Flow Configuration */}
-            <FlowConfiguration
-              credentials={flowState.credentials}
-              onCredentialsChange={handleCredentialsChange}
-              flowVariant={flowState.flowState.flowVariant}
-              onVariantChange={handleVariantChange}
-              appConfig={appConfig}
-              onAppConfigChange={handleAppConfigChange}
-              isCollapsed={flowState.flowState.collapsedSections.configuration || false}
-              onToggleCollapse={() => handleToggleSection('configuration')}
-              showAdvancedSettings={false}
-              onToggleAdvancedSettings={() => handleToggleSection('advancedSettings')}
-            />
-
-            {/* Flow Steps */}
-            <FlowSteps
-              currentStep={flowState.flowState.currentStep}
-              totalSteps={FLOW_CONSTANTS.TOTAL_STEPS}
-              stepCompletion={flowState.stepCompletion}
-              flowVariant={flowState.flowState.flowVariant}
-              onStepClick={handleStepChange}
-              showStepDetails={true}
-              showProgress={true}
-              isInteractive={true}
-            />
-
-            {/* Flow Results */}
-            <FlowResults
-              tokens={flowState.tokens}
-              userInfo={flowState.userInfo}
-              isCollapsed={flowState.flowState.collapsedSections.results || false}
-              onToggleCollapse={() => handleToggleSection('results')}
-              onRefreshTokens={handleRefreshTokens}
-              onClearResults={handleClearResults}
-              showTokenDetails={true}
-              showUserInfo={true}
-            />
+            {/* Step-based Content Rendering */}
+            {renderStepContent(flowState.flowState.currentStep)}
           </MainContent>
 
           {/* Debug Information */}
