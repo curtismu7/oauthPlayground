@@ -295,19 +295,78 @@ const TabList = styled.div`
 	gap: 0;
 `;
 
-const Tab = styled.button<{ $active: boolean }>`
+const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 	padding: 1rem 1.5rem;
 	border: none;
-	background: ${(props) => (props.$active ? 'white' : 'transparent')};
-	color: ${(props) => (props.$active ? '#3b82f6' : '#6b7280')};
+	background: ${(props) => {
+		if (props.$active) {
+			switch (props.$tabType) {
+				case 'config':
+					return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)'; // Blue gradient
+				case 'demo':
+					return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)'; // Green gradient
+				case 'analysis':
+					return 'linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%)'; // Pink gradient
+				default:
+					return 'white';
+			}
+		}
+		return 'transparent';
+	}};
+	color: ${(props) => {
+		if (props.$active) {
+			switch (props.$tabType) {
+				case 'config':
+					return '#1e40af'; // Dark blue
+				case 'demo':
+					return '#047857'; // Dark green
+				case 'analysis':
+					return '#be185d'; // Dark pink
+				default:
+					return '#3b82f6';
+			}
+		}
+		return '#6b7280';
+	}};
 	font-weight: ${(props) => (props.$active ? '600' : '500')};
 	cursor: pointer;
-	border-bottom: 2px solid ${(props) => (props.$active ? '#3b82f6' : 'transparent')};
+	border-bottom: 3px solid ${(props) => {
+		if (props.$active) {
+			switch (props.$tabType) {
+				case 'config':
+					return '#3b82f6'; // Blue border
+				case 'demo':
+					return '#10b981'; // Green border
+				case 'analysis':
+					return '#ec4899'; // Pink border
+				default:
+					return '#3b82f6';
+			}
+		}
+		return 'transparent';
+	}};
 	transition: all 0.2s;
+	box-shadow: ${(props) => props.$active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
 	
 	&:hover {
-		background: ${(props) => (props.$active ? 'white' : '#f8fafc')};
-		color: ${(props) => (props.$active ? '#3b82f6' : '#374151')};
+		background: ${(props) => {
+			if (props.$active) {
+				switch (props.$tabType) {
+					case 'config':
+						return 'linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%)'; // Darker blue
+					case 'demo':
+						return 'linear-gradient(135deg, #bbf7d0 0%, #86efac 100%)'; // Darker green
+					case 'analysis':
+						return 'linear-gradient(135deg, #fbcfe8 0%, #f9a8d4 100%)'; // Darker pink
+					default:
+						return 'white';
+				}
+			}
+			return '#f8fafc';
+		}};
+		color: ${(props) => (props.$active ? props.color : '#374151')};
+		transform: ${(props) => props.$active ? 'translateY(-1px)' : 'none'};
+		box-shadow: ${(props) => props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
 	}
 `;
 
@@ -759,6 +818,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						<TabList>
 							<Tab
 								$active={activeTab === 'config'}
+								$tabType="config"
 								onClick={() => setActiveTab('config')}
 							>
 								<FiSettings size={16} />
@@ -766,17 +826,41 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 							</Tab>
 							<Tab
 								$active={activeTab === 'demo'}
+								$tabType="demo"
 								onClick={() => setActiveTab('demo')}
 							>
 								<FiPlay size={16} />
 								Demo & Testing
+								<span style={{ 
+									marginLeft: '0.5rem', 
+									fontSize: '0.75rem', 
+									background: '#10b981', 
+									color: 'white', 
+									padding: '0.125rem 0.375rem', 
+									borderRadius: '0.25rem',
+									fontWeight: '600'
+								}}>
+									🚪 Logout
+								</span>
 							</Tab>
 							<Tab
 								$active={activeTab === 'analysis'}
+								$tabType="analysis"
 								onClick={() => setActiveTab('analysis')}
 							>
 								<FiShield size={16} />
 								Analysis
+								<span style={{ 
+									marginLeft: '0.5rem', 
+									fontSize: '0.75rem', 
+									background: '#ec4899', 
+									color: 'white', 
+									padding: '0.125rem 0.375rem', 
+									borderRadius: '0.25rem',
+									fontWeight: '600'
+								}}>
+									🛡️ Security
+								</span>
 							</Tab>
 						</TabList>
 					</TabContainer>
