@@ -382,6 +382,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/configuration': 'Configuration',
 			'/flows/oauth-authorization-code-v6': 'OAuth Authorization Code',
 			'/flows/oauth-authorization-code-v7': 'Authorization Code V7',
+			'/flows/oauth-authorization-code-v7-1': 'Authorization Code V7.1',
 			'/flows/oauth2-compliant-authorization-code': 'RFC 6749 Compliant OAuth 2.0',
 			'/flows/oidc-compliant-authorization-code': 'OIDC Core 1.0 Compliant',
 			'/flows/oauth-implicit-v6': 'OAuth Implicit Flow',
@@ -584,6 +585,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						<MenuItemContent>
 							<span>Authorization Code (V7)</span>
 							<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
+								<FiCheckCircle />
+							</MigrationBadge>
+						</MenuItemContent>
+					</MenuItem>
+
+					{/* Authorization Code (V7.1) - Refactored */}
+					<MenuItem
+						icon={<ColoredIcon $color="#10b981"><FiKey /></ColoredIcon>}
+						active={isActive('/flows/oauth-authorization-code-v7-1')}
+						onClick={() => handleNavigation('/flows/oauth-authorization-code-v7-1')}
+						className="v7-flow"
+						style={{
+							background: isActive('/flows/oauth-authorization-code-v7-1') ? '#f0fdf4' : 'transparent',
+							borderLeft: isActive('/flows/oauth-authorization-code-v7-1') ? '3px solid #10b981' : '3px solid transparent',
+						}}
+					>
+						<MenuItemContent>
+							<span>Authorization Code (V7.1)</span>
+							<MigrationBadge title="V7.1: Refactored with modular components, error boundaries, and performance monitoring">
 								<FiCheckCircle />
 							</MigrationBadge>
 						</MenuItemContent>
