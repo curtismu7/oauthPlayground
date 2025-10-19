@@ -203,6 +203,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🔐',
 		version: 'V7',
 	},
+	'oauth-authorization-code-v7-1': {
+		flowType: 'oauth',
+		title: 'Authorization Code (V7.1) - Refactored',
+		subtitle:
+			'🚀 V7.1: Refactored with modular components, error boundaries, and performance monitoring - Complete rewrite with 6 focused components, unified state management, and enhanced developer experience.',
+		icon: '🚀',
+		version: 'V7.1',
+	},
 	'implicit-v7': {
 		flowType: 'oauth',
 		title: 'Implicit Flow (V7) - Unified OAuth/OIDC',
