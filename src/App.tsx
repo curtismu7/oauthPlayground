@@ -99,6 +99,7 @@ import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
+import { OAuthAuthorizationCodeFlowV7_1 } from './pages/flows/OAuthAuthorizationCodeFlowV7_1';
 import OAuthAuthorizationCodeFlowV7_Condensed_Mock from './pages/flows/OAuthAuthorizationCodeFlowV7_Condensed_Mock';
 import V7CondensedMock from './pages/flows/V7CondensedMock';
 import TestMock from './pages/flows/TestMock';
@@ -372,6 +373,10 @@ const AppRoutes = () => {
 						<Route
 							path="/flows/oauth-authorization-code-v7"
 							element={<OAuthAuthorizationCodeFlowV7 />}
+						/>
+						<Route
+							path="/flows/oauth-authorization-code-v7-1"
+							element={<OAuthAuthorizationCodeFlowV7_1 />}
 						/>
 						<Route
 							path="/flows/oauth-authorization-code-v7-mock"
