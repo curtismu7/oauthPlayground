@@ -1825,7 +1825,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			</CollapsibleSection>
 
 			{/* Configuration Requirements */}
-			<FlowConfigurationRequirements flowType="device-authorization" variant="oauth" />
+			<FlowConfigurationRequirements flowType="device-authorization" variant={selectedVariant} />
 
 			{/* Flow Walkthrough */}
 			<EnhancedFlowWalkthrough flowId={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
