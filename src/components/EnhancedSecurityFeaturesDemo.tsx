@@ -822,19 +822,60 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						<FiTrash2 size={16} />
 						Terminate Session
 					</ActionButton>
-					{calculatedLogoutUrl && (
-						<>
-							<ActionButton
-								onClick={() => setShowLogoutUrl(!showLogoutUrl)}
-								$variant="secondary"
-							>
-								<FiEye size={16} />
-								{showLogoutUrl ? 'Hide' : 'Show'} Logout URL
-							</ActionButton>
-							<CodeBlock $isVisible={showLogoutUrl}>
-								{calculatedLogoutUrl}
+					<ActionButton
+						onClick={() => setShowLogoutUrl(!showLogoutUrl)}
+						$variant="primary"
+						style={{
+							background: '#3b82f6',
+							color: 'white',
+							border: '1px solid #3b82f6'
+						}}
+					>
+						<FiEye size={16} />
+						{showLogoutUrl ? 'Hide' : 'Show'} Logout URL
+					</ActionButton>
+					
+					{/* Session Termination Request URL Display */}
+					{showLogoutUrl && (
+						<InfoBox
+							style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}
+						>
+							<InfoTitle style={{ color: '#475569' }}>🌐 Logout Request URL</InfoTitle>
+							<CodeBlock $isVisible={true}>
+								{calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff'}
 							</CodeBlock>
-						</>
+							<InfoText
+								style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}
+							>
+								<strong>Parameters:</strong>
+								<br />• id_token_hint: ID token for logout hint
+								<br />• client_id: Client identifier
+								<br />• post_logout_redirect_uri: Optional redirect after logout
+							</InfoText>
+							<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+								<ActionButton
+									$variant="primary"
+									$primaryColor={colors.primary}
+									onClick={() => {
+										const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+										window.open(logoutUrl, '_blank');
+									}}
+								>
+									<FiExternalLink /> Execute Logout URL
+								</ActionButton>
+								<ActionButton
+									$variant="secondary"
+									$primaryColor={colors.primary}
+									onClick={() => {
+										const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+										navigator.clipboard.writeText(logoutUrl);
+										v4ToastManager.showSuccess('📋 Logout URL copied to clipboard!');
+									}}
+								>
+									<FiDownload /> Copy URL
+								</ActionButton>
+							</div>
+						</InfoBox>
 					)}
 				</FeatureCard>
 

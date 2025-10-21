@@ -518,8 +518,8 @@ export class ImplicitFlowDefaults {
 	const { FlowRedirectUriService } = require('../services/flowRedirectUriService');
         return {
             redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6'),
-            scope: '',  // OAuth doesn't require openid scope
-            scopes: '',
+            scope: 'openid profile email',  // Consistent scopes for both OAuth 2.0 and OIDC variants
+            scopes: 'openid profile email',  // Consistent scopes for both OAuth 2.0 and OIDC variants
             responseType: 'token',
             clientAuthMethod: 'none',
         };

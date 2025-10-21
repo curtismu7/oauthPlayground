@@ -451,7 +451,7 @@ export const RARValidationDisplay: React.FC<RARValidationDisplayProps> = ({
               <ValidationMessage level="info">
                 <MessageIcon>{getMessageIcon('info')}</MessageIcon>
                 <MessageText>
-                  Granted scopes: {grantedScopes.length > 0 ? grantedScopes.join(', ') : 'None specified'}
+                  Granted scopes: {grantedScopes.length > 0 ? grantedScopes.join(' ') : 'None specified'}
                 </MessageText>
               </ValidationMessage>
             </MessageList>

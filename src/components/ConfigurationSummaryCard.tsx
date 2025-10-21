@@ -394,7 +394,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 										>
 											{configuration?.scopes ||
 												(configurationDetails?.scopes
-													? configurationDetails.scopes.join(', ')
+													? configurationDetails.scopes.join(' ')
 													: '')}
 										</div>
 									</>

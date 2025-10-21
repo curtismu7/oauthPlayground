@@ -130,7 +130,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	useEffect(() => {
 		const creds = safeLocalStorageParse<DeviceAuthCredentials>(
 			'device_flow_credentials',
-			null
+			{} as DeviceAuthCredentials
 		);
 		if (creds) {
 			setCredentialsState(creds);
@@ -165,8 +165,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		}, 1000);
 
 		return () => clearInterval(interval);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [expiresAt, stopPolling]); // stopPolling is stable, no need in deps
+	}, [expiresAt, stopPolling]);
 
 	// Format time remaining as MM:SS
 	const formatTimeRemaining = useCallback((ms: number): string => {
@@ -197,18 +196,18 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		try {
 			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
 
-			const params = new URLSearchParams({
-				client_id: credentials.clientId,
-				scope: credentials.scopes || 'openid',
-			});
+		const params = new URLSearchParams({
+			client_id: credentials.clientId,
+			scope: credentials.scopes || 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
+		});
 
-			// Add client_secret if available (for confidential clients)
-			if (credentials.clientSecret) {
-				params.append('client_secret', credentials.clientSecret);
-				console.log(`${LOG_PREFIX} [INFO] Using confidential client authentication`);
-			} else {
-				console.log(`${LOG_PREFIX} [INFO] Using public client authentication (no client_secret)`);
-			}
+		// RFC 8628 Device Authorization Grant: ONLY client_id and scope are supported
+		// Do NOT add response_type, nonce, claims, or client_secret to device authorization endpoint
+		// These parameters cause 400 Bad Request errors
+		
+		console.log(`${LOG_PREFIX} [INFO] Device Authorization Request (RFC 8628)`);
+		console.log(`${LOG_PREFIX} [INFO] Using public client authentication (Device flow does not use client_secret)`);
+		console.log(`${LOG_PREFIX} [INFO] Flow type: ${credentials.scopes && credentials.scopes.includes('openid') ? 'OIDC' : 'OAuth 2.0'}`)
 
 			console.log(`${LOG_PREFIX} [INFO] Device authorization endpoint: ${deviceAuthEndpoint}`);
 			console.log(`${LOG_PREFIX} [INFO] Scopes: ${credentials.scopes || 'openid'}`);
@@ -226,7 +225,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				let errorData: any = {};
+				let errorData: { error?: string; error_description?: string; message?: string } = {};
 				try {
 					errorData = JSON.parse(errorText);
 				} catch {
@@ -238,6 +237,22 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					statusText: response.statusText,
 					error: errorData,
 				});
+
+				// Enhanced error logging for Device Authorization Grant setup
+				console.group('🔧 Device Authorization Grant Setup Issues');
+				console.error('Common causes of 400 errors in device code requests:');
+				console.log('1. Application not configured for Device Authorization Grant');
+				console.log('2. Invalid client_id - check if client exists in PingOne');
+				console.log('3. Invalid environment_id - verify the environment ID is correct');
+				console.log('4. Missing required scopes or invalid scope format');
+				console.log('5. Application not enabled for public clients (Device Flow requires public client)');
+				console.log('Request Details:', {
+					endpoint: deviceAuthEndpoint,
+					client_id: credentials.clientId,
+					environment_id: credentials.environmentId,
+					scopes: credentials.scopes
+				});
+				console.groupEnd();
 
 				throw new Error(
 					errorData.error_description || errorData.message || `Request failed: ${response.status}`
@@ -286,6 +301,13 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 		const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
 
+		// Prepare request params outside try block to ensure availability in catch block
+		const params = new URLSearchParams({
+			grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+			device_code: deviceCodeData.device_code,
+			client_id: credentials.clientId,
+		});
+
 		setPollingStatus((prev) => ({
 			...prev,
 			attempts: prev.attempts + 1,
@@ -298,14 +320,23 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		);
 
 		try {
-			const params = new URLSearchParams({
-				grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-				device_code: deviceCodeData.device_code,
-				client_id: credentials.clientId,
-			});
-
 			// Device Authorization Flow uses public clients - NO client authentication
 			// Do NOT send client_secret even if provided
+
+			console.log(`${LOG_PREFIX} [INFO] Token request parameters:`, params.toString());
+			console.log(`${LOG_PREFIX} [INFO] Token endpoint: ${tokenEndpoint}`);
+			console.log(`${LOG_PREFIX} [INFO] Device code data:`, {
+				device_code: deviceCodeData.device_code?.substring(0, 10) + '...',
+				user_code: deviceCodeData.user_code,
+				verification_uri: deviceCodeData.verification_uri,
+				expires_in: deviceCodeData.expires_in,
+				interval: deviceCodeData.interval
+			});
+			console.log(`${LOG_PREFIX} [INFO] Credentials:`, {
+				client_id: credentials.clientId,
+				environment_id: credentials.environmentId,
+				scopes: credentials.scopes
+			});
 
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
@@ -315,46 +346,16 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				body: params.toString(),
 			});
 
+			console.log(`${LOG_PREFIX} [INFO] Token response status: ${response.status} ${response.statusText} ${response.status === 400 ? '(Expected for authorization_pending)' : ''}`);
+
 			const data = await response.json();
+			
+			// Log the full response for debugging
+			console.log(`${LOG_PREFIX} [INFO] Token response data:`, data);
 
-			if (response.ok && data.access_token) {
-				// Success! We got tokens
-				console.log(`${LOG_PREFIX} [INFO] ✅ Authorization complete! Tokens received`);
-				console.log(`${LOG_PREFIX} [INFO] Token type: ${data.token_type}`);
-				console.log(`${LOG_PREFIX} [INFO] Expires in: ${data.expires_in} seconds`);
-				console.log(`${LOG_PREFIX} [INFO] Scope: ${data.scope || 'N/A'}`);
-				console.log(`${LOG_PREFIX} [INFO] Has refresh token: ${!!data.refresh_token}`);
-				console.log(`${LOG_PREFIX} [INFO] Has ID token: ${!!data.id_token}`);
-
-				setTokens(data);
-				setPollingStatus((prev) => ({
-					...prev,
-					isPolling: false,
-					status: 'success',
-					error: null,
-				}));
-
-				// Store tokens in localStorage for cross-tab access
-				try {
-					localStorage.setItem(
-						'device_flow_tokens',
-						JSON.stringify({
-							...data,
-							timestamp: Date.now(),
-						})
-					);
-					console.log(`${LOG_PREFIX} [INFO] Tokens stored in localStorage`);
-				} catch (e) {
-					console.warn(`${LOG_PREFIX} [WARN] Failed to store tokens in localStorage:`, e);
-				}
-
-				v4ToastManager.showSuccess('Authorization complete! Tokens received.');
-				return true;
-			}
-
-			// Handle errors
+			// Handle Device Authorization Flow specific responses
 			if (data.error === 'authorization_pending') {
-				console.log(`${LOG_PREFIX} [INFO] Authorization pending, will continue polling...`);
+				console.log(`${LOG_PREFIX} [INFO] Authorization pending, will continue polling... (This is normal - user hasn't authorized yet)`);
 				return false;
 			} else if (data.error === 'slow_down') {
 				console.log(`${LOG_PREFIX} [WARN] Slow down requested by server`);
@@ -390,26 +391,133 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				}));
 				v4ToastManager.showError('Device code expired or invalid. Please start over.');
 				return true; // Stop polling
-			} else {
+			}
+
+			// Only throw error for actual HTTP errors (not Device Flow specific responses)
+			if (!response.ok && !data.error) {
+				console.error(`${LOG_PREFIX} [ERROR] Token request failed:`, {
+					status: response.status,
+					statusText: response.statusText,
+					error: data,
+				});
+				throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
+			}
+
+			if (response.ok && data.access_token) {
+				// Success! We got tokens
+				console.log(`${LOG_PREFIX} [INFO] ✅ Authorization complete! Tokens received`);
+				console.log(`${LOG_PREFIX} [INFO] Token type: ${data.token_type}`);
+				console.log(`${LOG_PREFIX} [INFO] Expires in: ${data.expires_in} seconds`);
+				console.log(`${LOG_PREFIX} [INFO] Scope: ${data.scope || 'N/A'}`);
+				console.log(`${LOG_PREFIX} [INFO] Has refresh token: ${!!data.refresh_token}`);
+				console.log(`${LOG_PREFIX} [INFO] Has ID token: ${!!data.id_token}`);
+
+				// Validate response based on requested scopes (OAuth vs OIDC)
+				const isOIDCFlow = credentials.scopes && credentials.scopes.includes('openid');
+				if (isOIDCFlow && !data.id_token) {
+					console.warn(`${LOG_PREFIX} [WARN] OIDC flow requested but no ID token received`);
+				} else if (!isOIDCFlow && data.id_token) {
+					console.warn(`${LOG_PREFIX} [WARN] OAuth 2.0 flow but ID token received (unexpected)`);
+				}
+
+				// Log flow type for debugging
+				console.log(`${LOG_PREFIX} [INFO] Flow type: ${isOIDCFlow ? 'OIDC' : 'OAuth 2.0'}`);
+
+				setTokens(data);
+				setPollingStatus((prev) => ({
+					...prev,
+					isPolling: false,
+					status: 'success',
+					error: null,
+				}));
+
+				// Store tokens in localStorage for cross-tab access
+				try {
+					localStorage.setItem(
+						'device_flow_tokens',
+						JSON.stringify({
+							...data,
+							timestamp: Date.now(),
+						})
+					);
+					console.log(`${LOG_PREFIX} [INFO] Tokens stored in localStorage`);
+				} catch (e) {
+					console.warn(`${LOG_PREFIX} [WARN] Failed to store tokens in localStorage:`, e);
+				}
+
+				v4ToastManager.showSuccess('Authorization complete! Tokens received.');
+				return true;
+			}
+
+			// Handle unknown errors
+			if (data.error) {
 				console.error(`${LOG_PREFIX} [ERROR] Unknown error during polling:`, data.error);
+				
+				// Enhanced error logging for 400 Bad Request
+				console.group('🔧 Device Authorization Error Response - Troubleshooting Guide');
+				console.error('Error Response:', data);
+				console.log('Response Status:', response.status, response.statusText);
+				console.log('Request Details:', {
+					url: tokenEndpoint,
+					method: 'POST',
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+					body: params.toString()
+				});
+				console.log('Device Code Data:', deviceCodeData);
+				console.log('Credentials:', {
+					clientId: credentials.clientId,
+					environmentId: credentials.environmentId,
+					scopes: credentials.scopes
+				});
+				
+				// Common 400 error causes and solutions
+				console.log('Common 400 Error Causes:');
+				console.log('1. Invalid client_id - check if client exists in PingOne');
+				console.log('2. Invalid device_code - may be expired or already used');
+				console.log('3. Missing required parameters - ensure all required fields are present');
+				console.log('4. Incorrect grant_type - should be "urn:ietf:params:oauth:grant-type:device_code"');
+				console.log('5. Application not configured for Device Authorization Grant');
+				console.groupEnd();
+				
 				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: data.error_description || data.error || 'Unknown error',
 					status: 'error',
 				}));
-				v4ToastManager.showError(data.error_description || 'Authorization failed');
+				v4ToastManager.showError(data.error_description || 'Authorization failed - check console for details');
 				return true; // Stop polling
 			}
 		} catch (error) {
 			console.error(`${LOG_PREFIX} [ERROR] Polling request failed:`, error);
+			
+			// Enhanced error logging for debugging
+			console.group('🔧 Device Authorization Token Exchange Error - Troubleshooting Guide');
+			console.error('Original Error:', error);
+			console.log('Request Details:', {
+				url: tokenEndpoint,
+				method: 'POST',
+				headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+				body: params.toString(),
+				deviceCode: deviceCodeData?.device_code ? 'present' : 'missing',
+				clientId: credentials.clientId ? 'present' : 'missing',
+				environmentId: credentials.environmentId ? 'present' : 'missing'
+			});
+			console.log('Device Code Data:', deviceCodeData);
+			console.log('Credentials:', {
+				clientId: credentials.clientId,
+				environmentId: credentials.environmentId,
+				scopes: credentials.scopes
+			});
+			console.groupEnd();
+			
 			setPollingStatus((prev) => ({
 				...prev,
 				isPolling: false,
 				error: error instanceof Error ? error.message : 'Polling failed',
 				status: 'error',
 			}));
-			v4ToastManager.showError('Failed to poll for tokens');
+			v4ToastManager.showError('Failed to poll for tokens - check console for details');
 			return true; // Stop polling
 		}
 	}, [deviceCodeData, credentials, pollingStatus.attempts, pollingStatus.maxAttempts]);

@@ -44,10 +44,33 @@ export async function requestClientCredentialsToken(
 		authMethod,
 	});
 
+	// Debug: Log the scopes being sent
+	console.log('🔍 [requestClientCredentialsToken] Scopes debug:');
+	console.log('  - scopes array:', scopes);
+	console.log('  - scopes length:', scopes.length);
+	console.log('  - scopes joined:', scopes.join(' '));
+	console.log('  - scopes joined length:', scopes.join(' ').length);
+
+	// Safety check: Ensure we have valid scopes
+	if (!scopes || scopes.length === 0 || scopes.join(' ').trim() === '') {
+		logger.error('WORKER', 'No valid scopes provided for token request', { scopes });
+		throw new Error('No valid scopes provided. Please configure scopes for the worker token request.');
+	}
+
 	const body = new URLSearchParams({
 		grant_type: 'client_credentials',
 		scope: scopes.join(' '),
 	});
+
+	// Debug: Log the final body
+	console.log('🔍 [requestClientCredentialsToken] Final body:');
+	console.log('  - grant_type:', body.get('grant_type'));
+	console.log('  - scope:', body.get('scope'));
+	console.log('  - client_id:', body.get('client_id'));
+	console.log('  - client_secret:', body.get('client_secret') ? '[REDACTED]' : 'not set');
+	
+	// Debug: Log the full body as URL-encoded string
+	console.log('🔍 [requestClientCredentialsToken] Full body string:', body.toString());
 
 	const headers: Record<string, string> = {
 		'Content-Type': 'application/x-www-form-urlencoded',
@@ -272,11 +295,10 @@ export function formatScopes(scopes: string): string[] {
  */
 export function getDefaultWorkerScopes(): string[] {
 	return [
-		'openid',
 		'p1:read:user',
-		'p1:read:userGroup',
-		'p1:read:application',
-		'p1:read:environment',
+		'p1:update:user',
+		'p1:read:device',
+		'p1:update:device',
 	];
 }
 

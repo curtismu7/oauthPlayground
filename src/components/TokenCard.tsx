@@ -1,11 +1,11 @@
-// src/components/TokenCard.tsx
+// src/components/InlineTokenDisplay.tsx
 import React, { useState, useCallback } from 'react';
 import styled from 'styled-components';
 import { FiCopy, FiEye, FiEyeOff, FiKey, FiShield, FiExternalLink } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TokenDisplayService, { type DecodedJWT, type TokenInfo } from '../services/tokenDisplayService';
 
-interface TokenCardProps {
+interface InlineTokenDisplayProps {
 	label: string;
 	token?: string;
 	tokenType: 'access' | 'id' | 'refresh';
@@ -23,6 +23,10 @@ const Card = styled.div`
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 	margin-bottom: 1rem;
 	overflow: hidden;
+	max-width: 1200px; /* Wider for better token display */
+	width: 100%;
+	margin-left: auto;
+	margin-right: auto;
 `;
 
 const CardHeader = styled.div`
@@ -228,14 +232,14 @@ const OpaqueMessage = styled.div`
 	font-size: 0.875rem;
 `;
 
-export const TokenCard: React.FC<TokenCardProps> = ({
+export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	label,
 	token = '',
 	tokenType,
 	isOIDC = false,
 	flowKey = '',
 	className,
-	defaultMasked = true,
+	defaultMasked = false,
 	allowMaskToggle = true
 }) => {
 	const [masked, setMasked] = useState(defaultMasked);
@@ -397,5 +401,5 @@ export const TokenCard: React.FC<TokenCardProps> = ({
 	);
 };
 
-export default TokenCard;
+export default InlineTokenDisplay;
 
