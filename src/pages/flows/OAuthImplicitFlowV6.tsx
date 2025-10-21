@@ -1879,7 +1879,7 @@ const tokenResponse = await fetch('https://auth.pingone.com/ENV_ID/as/token', {
 									aria-expanded={!collapsedSections.apiCallDisplay}
 								>
 									<CollapsibleTitle>
-										<FiCode /> API Call Examples
+										<FiCode /> Code Examples
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallDisplay}>
 										<FiChevronDown />

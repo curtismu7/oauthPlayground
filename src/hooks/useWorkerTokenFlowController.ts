@@ -60,8 +60,8 @@ const createEmptyCredentials = (): StepCredentials => ({
 	clientId: '',
 	clientSecret: '',
 	redirectUri: `${getSafeOrigin()}/callback`,
-	scope: 'openid',
-	scopes: 'openid',
+	scope: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+	scopes: 'p1:read:user p1:update:user p1:read:device p1:update:device',
 	responseType: 'code',
 	grantType: 'client_credentials',
 	issuerUrl: '',
@@ -72,10 +72,18 @@ const createEmptyCredentials = (): StepCredentials => ({
 
 const loadInitialCredentials = (): StepCredentials => {
 	try {
-		// Load from credentialManager (FlowCredentialService will handle this in useEffect)
+		// Load worker token specific credentials from localStorage
+		const workerTokenCredentials = localStorage.getItem('worker_credentials');
+		if (workerTokenCredentials) {
+			const parsed = JSON.parse(workerTokenCredentials);
+			console.log('🔄 [useWorkerTokenFlowController] Loaded worker token credentials from storage:', parsed);
+			return { ...createEmptyCredentials(), ...parsed };
+		}
+		
+		// Fallback to credentialManager if no worker token credentials found
 		const stored = credentialManager.getAllCredentials();
 		if (stored.environmentId && stored.clientId) {
-			console.log('🔄 [useWorkerTokenFlowController] Loaded credentials from storage');
+			console.log('🔄 [useWorkerTokenFlowController] Loaded credentials from credentialManager');
 			return { ...createEmptyCredentials(), ...stored };
 		}
 	} catch (error) {
@@ -267,9 +275,27 @@ export const useWorkerTokenFlowController = (
 			const authUrl = `${baseUrl}/${credentials.environmentId}/as`;
 			const tokenEndpoint = `${authUrl}/token`;
 
-			// Prepare scopes
-			const scopes = credentials.scopes || credentials.scope || 'openid';
+			// Prepare scopes - use proper PingOne worker token scopes
+			const defaultWorkerScopes = 'p1:read:user p1:update:user p1:read:device p1:update:device';
+			const scopes = credentials.scopes || credentials.scope || defaultWorkerScopes;
 			const scopeArray = scopes.split(' ').filter(Boolean);
+			
+			// Debug logging
+			console.log('🔍 [useWorkerTokenFlowController] Scope debugging:');
+			console.log('  - credentials.scopes:', credentials.scopes);
+			console.log('  - credentials.scope:', credentials.scope);
+			console.log('  - defaultWorkerScopes:', defaultWorkerScopes);
+			console.log('  - final scopes:', scopes);
+			console.log('  - scopeArray:', scopeArray);
+
+			// Safety check: Ensure we have valid scopes
+			if (!scopeArray || scopeArray.length === 0) {
+				console.error('❌ [useWorkerTokenFlowController] No valid scopes found!');
+				console.error('  - credentials.scopes:', credentials.scopes);
+				console.error('  - credentials.scope:', credentials.scope);
+				console.error('  - defaultWorkerScopes:', defaultWorkerScopes);
+				throw new Error('No valid scopes configured. Please set scopes for the worker token request.');
+			}
 
 			// Get authentication method (default to client_secret_post)
 			const authMethod =
@@ -423,6 +449,14 @@ export const useWorkerTokenFlowController = (
 		if (success) {
 			console.log('✅ [useWorkerTokenFlowController] Credentials saved successfully via FlowCredentialService');
 			console.log('🔍 [useWorkerTokenFlowController] Saved loginHint:', credentials.loginHint);
+
+			// Also save to worker token specific storage
+			try {
+				localStorage.setItem('worker_credentials', JSON.stringify(credentials));
+				console.log('✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage');
+			} catch (error) {
+				console.warn('⚠️ [useWorkerTokenFlowController] Failed to save to worker_credentials localStorage:', error);
+			}
 
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);

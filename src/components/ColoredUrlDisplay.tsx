@@ -1,7 +1,7 @@
 // src/components/ColoredUrlDisplay.tsx
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { FiInfo, FiExternalLink, FiMaximize2, FiMinimize2 } from 'react-icons/fi';
+import { FiInfo, FiExternalLink, FiMaximize2, FiMinimize2, FiCode, FiEye } from 'react-icons/fi';
 import { CopyButtonVariants, CopyButtonService } from '../services/copyButtonService';
 
 interface ColoredUrlDisplayProps {
@@ -305,11 +305,20 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 	height
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
-	const coloredParts = parseUrlWithColors(url);
-	const parameters = getUrlParameters(url);
+	const [isDecoded, setIsDecoded] = useState(false);
+	
+	// Toggle between encoded and decoded URL
+	const toggleEncoding = () => {
+		setIsDecoded(!isDecoded);
+	};
+	
+	// Get the current URL (encoded or decoded)
+	const currentUrl = isDecoded ? decodeURIComponent(url) : url;
+	const coloredParts = parseUrlWithColors(currentUrl);
+	const parameters = getUrlParameters(currentUrl);
 
 	const handleOpen = () => {
-		window.open(url, '_blank');
+		window.open(currentUrl, '_blank');
 		onOpen?.();
 	};
 
@@ -317,6 +326,19 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 		<UrlContainer>
 			<UrlLabel>
 				{label}
+				{isDecoded && (
+					<span style={{
+						background: '#dbeafe',
+						color: '#1e40af',
+						padding: '0.25rem 0.5rem',
+						borderRadius: '0.375rem',
+						fontSize: '0.75rem',
+						fontWeight: '500',
+						marginLeft: '0.5rem'
+					}}>
+						Decoded
+					</span>
+				)}
 				{showInfoButton && (
 					<ActionButton onClick={() => setShowInfo(true)} $variant="secondary">
 						<FiInfo size={14} />
@@ -329,13 +351,17 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 				<ActionButtons>
 					{showCopyButton && (
 						<CopyButtonService
-							text={url}
+							text={currentUrl}
 							label="Authorization URL"
 							size="sm"
 							variant="primary"
 							showLabel={false}
 						/>
 					)}
+					<ActionButton onClick={toggleEncoding} $variant="secondary">
+						{isDecoded ? <FiCode size={14} /> : <FiEye size={14} />}
+						{isDecoded ? 'Encode' : 'Decode'}
+					</ActionButton>
 					{showOpenButton && (
 						<ActionButton onClick={handleOpen} $variant="secondary">
 							<FiExternalLink size={14} />
@@ -358,15 +384,23 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						<CloseButton onClick={() => setShowInfo(false)}>×</CloseButton>
 					</InfoModalHeader>
 					
-					<ParameterList>
-						{parameters.map((param, index) => (
-							<ParameterItem key={index}>
-								<ParameterName>{param.name}</ParameterName>
-								<ParameterDescription>{param.description}</ParameterDescription>
-								<ParameterValue>{param.value}</ParameterValue>
-							</ParameterItem>
-						))}
-					</ParameterList>
+					{parameters.length > 0 ? (
+						<ParameterList>
+							{parameters.map((param, index) => (
+								<ParameterItem key={index}>
+									<ParameterName>{param.name}</ParameterName>
+									<ParameterDescription>{param.description}</ParameterDescription>
+									<ParameterValue>{param.value}</ParameterValue>
+								</ParameterItem>
+							))}
+						</ParameterList>
+					) : (
+						<div style={{ color: '#4b5563', fontSize: '0.9rem', lineHeight: 1.5 }}>
+							This URL does not include any query parameters to explain.
+							<br />
+							Add parameters such as `response_type`, `client_id`, or `redirect_uri` to see a detailed breakdown.
+						</div>
+					)}
 				</InfoModalContent>
 			</InfoModal>
 		</UrlContainer>

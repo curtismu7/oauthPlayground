@@ -2,27 +2,36 @@
 // Gaming Console Style Device Authorization Flow Interface
 
 import React, { useEffect, useState } from 'react';
-import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiCheckCircle, FiAlertTriangle, FiTv } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import InlineTokenDisplay from './InlineTokenDisplay';
 
-// Gaming Console Main Container - Dark with gaming aesthetics
-const GamingConsoleContainer = styled.div`
-  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #0a0a0a 100%);
-  border-radius: 1rem;
+// Sony PlayStation 5 Console Main Container - Authentic PS5 Design
+const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
+  background: ${({ $authorized }) => 
+    $authorized 
+      ? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)' 
+      : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
+  };
+  border-radius: 1.5rem;
   padding: 2rem;
   margin: 2rem 0;
   box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.4),
-    0 10px 10px -5px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 30px 60px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border: 3px solid ${({ $authorized }) => $authorized ? '#00ff88' : '#e5e7eb'};
   position: relative;
-  overflow: hidden;
-  border: 2px solid #333333;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  color: ${({ $authorized }) => $authorized ? '#000000' : '#1f2937'};
+  transition: all 0.3s ease;
   
+  /* PS5 console styling */
   &::before {
     content: '';
     position: absolute;
@@ -30,37 +39,71 @@ const GamingConsoleContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(0, 150, 255, 0.05) 50%, transparent 70%);
+    border-radius: 1.5rem;
+    background: ${({ $authorized }) => 
+      $authorized 
+        ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 204, 106, 0.1) 100%)' 
+        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(248, 250, 252, 0.6) 100%)'
+    };
     pointer-events: none;
+  }
+  
+  /* PlayStation 5 logo area */
+  &::after {
+    content: 'PS5';
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: ${({ $authorized }) => $authorized ? '#000000' : '#3b82f6'};
+    letter-spacing: 1px;
+    z-index: 2;
   }
 `;
 
-// Console Header
-const ConsoleHeader = styled.div`
-  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-  border: 2px solid #0096ff;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
+// PlayStation 5 Console Header
+const ConsoleHeader = styled.div<{ $authorized?: boolean }>`
+  background: ${({ $authorized }) => 
+    $authorized 
+      ? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)' 
+      : 'linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)'
+  };
+  border: 1px solid ${({ $authorized }) => $authorized ? '#00ff88' : '#3a3a3c'};
+  border-radius: 0.25rem;
+  padding: 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
+  color: ${({ $authorized }) => $authorized ? '#000000' : '#ffffff'};
+  font-weight: 600;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
 `;
 
-const ConsoleTitle = styled.div`
+const ConsoleTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.5rem;
   font-weight: 700;
-  color: #0096ff;
+  color: ${({ $authorized }) => $authorized ? '#000000' : '#0096ff'};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  text-shadow: 0 0 10px rgba(0, 150, 255, 0.5);
+  text-shadow: ${({ $authorized }) => 
+    $authorized 
+      ? '0 0 10px rgba(0, 255, 136, 0.5)' 
+      : '0 0 10px rgba(0, 150, 255, 0.5)'
+  };
+  transition: all 0.3s ease;
 `;
 
-const ConsoleSubtitle = styled.div`
+const ConsoleSubtitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1rem;
-  color: #cccccc;
+  color: ${({ $authorized }) => $authorized ? '#000000' : '#cccccc'};
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  transition: all 0.3s ease;
 `;
 
 // LED Status Indicators
@@ -318,12 +361,17 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
     return deviceFlowService.getStatusMessage(state);
   };
 
+  const isAuthorized = state.status === 'authorized';
+
   return (
-    <GamingConsoleContainer>
+    <GamingConsoleContainer $authorized={isAuthorized}>
       {/* Console Header */}
-      <ConsoleHeader>
-        <ConsoleTitle>Gaming Console</ConsoleTitle>
-        <ConsoleSubtitle>Device Authorization System</ConsoleSubtitle>
+      <ConsoleHeader $authorized={isAuthorized}>
+        <ConsoleTitle $authorized={isAuthorized}>
+          <FiTv style={{ marginRight: '0.5rem' }} />
+          PlayStation 5
+        </ConsoleTitle>
+        <ConsoleSubtitle $authorized={isAuthorized}>Console Authorization System</ConsoleSubtitle>
       </ConsoleHeader>
 
       {/* LED Status Indicators */}
@@ -407,7 +455,66 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
             borderRadius: '0.5rem',
             border: '1px solid #333333'
           }}>
-            <JSONHighlighter data={state.tokens} />
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              {state.tokens.access_token && (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <InlineTokenDisplay
+                    label="Access Token"
+                    token={state.tokens.access_token}
+                    tokenType="access"
+                    isOIDC={state.tokens.id_token ? true : false}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
+                </div>
+              )}
+              {state.tokens.id_token && (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <InlineTokenDisplay
+                    label="ID Token"
+                    token={state.tokens.id_token}
+                    tokenType="id"
+                    isOIDC={true}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
+                </div>
+              )}
+              {state.tokens.refresh_token && (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.2)',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                }}>
+                  <InlineTokenDisplay
+                    label="Refresh Token"
+                    token={state.tokens.refresh_token}
+                    tokenType="refresh"
+                    isOIDC={state.tokens.id_token ? true : false}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

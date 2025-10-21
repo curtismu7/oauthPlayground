@@ -1312,7 +1312,7 @@ console.log('Scope:', scope);`}
 									aria-expanded={!collapsedSections.apiCallDisplay}
 								>
 									<CollapsibleTitle>
-										<FiCode /> API Call Examples
+										<FiCode /> Code Examples
 									</CollapsibleTitle>
 									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallDisplay}>
 										<FiChevronDown />
