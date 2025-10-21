@@ -69,6 +69,8 @@ import TOTPQRCodeModal from '../components/TOTPQRCodeModal';
 import FIDO2RegistrationModal from '../components/FIDO2RegistrationModal';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
 import { V5StepperService } from '../services/v5StepperService';
+import { OAuthErrorHandlingService, OAuthErrorDetails } from '../services/oauthErrorHandlingService';
+import OAuthErrorDisplay from './OAuthErrorDisplay';
 
 export interface CompleteMFAFlowProps {
   requireMFA?: boolean;
@@ -289,6 +291,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
   const [currentStepNumber, setCurrentStepNumber] = useState(1); // For V5Stepper
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
   const [retryCount, setRetryCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -349,9 +352,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
     
     // Reset all flow state - including redirectless flow context
     setFlowContext({
-      flow: 'pingone-complete-mfa-v7',
-      returnPath: '/pingone-authentication',
-      timestamp: Date.now(),
+      flowId: '',
       authCredentials: { userId: '' },
       mfaCredentials: { userId: '', workerToken: '', environmentId: '' },
       userDevices: [],
@@ -361,12 +362,11 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
       networkStatus: { online: true },
       error: undefined,
       // Clear redirectless flow specific state
-      flowId: '',
       resumeUrl: '',
       flowEnvironment: undefined,
       flowLinks: undefined,
       flowEmbedded: undefined,
-      userId: undefined
+      userId: ''
     });
     
     // Reset UI state
@@ -699,9 +699,40 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
 
       v4ToastManager.showSuccess('✅ Worker token obtained successfully!');
       
+      // Clear any previous error details on success
+      setErrorDetails(null);
+      
     } catch (error: any) {
       console.error('❌ [MFA Flow V7] Failed to get worker token:', error);
-      v4ToastManager.showError(`Failed to get worker token: ${error.message}`);
+      
+      // Use the new OAuth Error Handling Service
+      const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
+        flowType: 'mfa',
+        stepId: 'worker-token-request',
+        operation: 'getWorkerToken',
+        credentials: {
+          hasClientId: !!workerTokenCredentials.clientId,
+          hasClientSecret: !!workerTokenCredentials.clientSecret,
+          hasEnvironmentId: !!workerTokenCredentials.environmentId
+        },
+        metadata: {
+          scopes: workerTokenCredentials.scopes,
+          authMethod: workerTokenCredentials.tokenEndpointAuthMethod
+        }
+      });
+      
+      // Show the user-friendly error message
+      v4ToastManager.showError(errorDetails.message);
+      
+      // Store detailed error information for UI display
+      setErrorDetails(errorDetails);
+      
+      // Log detailed troubleshooting info to console for developers
+      console.group('🔧 Worker Token Error - Troubleshooting Guide');
+      console.error('Original Error:', error);
+      console.log('Error Details:', errorDetails);
+      console.groupEnd();
+      
     } finally {
       setIsLoading(false);
       
@@ -1424,7 +1455,7 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
             body: JSON.stringify({
               resumeUrl: responseData.resumeUrl,
               flowId: responseData.id,
-              flowState: state,
+              flowState: responseData.state,
               clientId: effectiveClientId,
               clientSecret: effectiveClientSecret
             })
@@ -2455,6 +2486,26 @@ export const CompleteMFAFlowV7: React.FC<CompleteMFAFlowProps> = ({
                 isSaving={isSaving}
                 showAdvancedOptions={true}
               />
+
+              {/* Error Display with Troubleshooting Steps */}
+              {errorDetails && (
+                <OAuthErrorDisplay
+                  errorDetails={errorDetails}
+                  onDismiss={() => setErrorDetails(null)}
+                  onClearAndRetry={() => {
+                    setErrorDetails(null);
+                    // Clear the form to help user start fresh
+                    setWorkerTokenCredentials({
+                      environmentId: '',
+                      clientId: '',
+                      clientSecret: '',
+                      scopes: ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'],
+                      tokenEndpointAuthMethod: 'client_secret_post'
+                    });
+                  }}
+                  showCorrelationId={true}
+                />
+              )}
             </CollapsibleHeaderService.CollapsibleHeader>
 
             {/* Authorization Code Flow Configuration */}

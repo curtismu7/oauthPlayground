@@ -71,6 +71,13 @@ export async function makeApiRequest<T = any>(
 		method: options.method || 'GET',
 	});
 
+	// Debug: Log token info (first/last 10 chars only for security)
+	const tokenPreview = client.token 
+		? `${client.token.substring(0, 10)}...${client.token.substring(client.token.length - 10)}`
+		: 'NO TOKEN';
+	console.log('[API-CLIENT] Authorization token preview:', tokenPreview);
+	console.log('[API-CLIENT] Token length:', client.token?.length || 0);
+
 	try {
 		const response = await fetch(url, {
 			...options,

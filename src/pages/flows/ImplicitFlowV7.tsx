@@ -2,6 +2,7 @@
 // Unified OAuth/OIDC Implicit Flow V7 - Single implementation supporting both variants
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import {
 	FiAlertCircle,
@@ -25,6 +26,8 @@ import { ImplicitFlowSharedService, ImplicitFlowV7Helpers } from '../../services
 import { useImplicitFlowController, loadInitialCredentials } from '../../hooks/useImplicitFlowController';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
+import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
 
 // Import components
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -33,6 +36,7 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
+import '../../utils/testImplicitConfigChecker'; // Auto-run config checker tests in development
 import TokenIntrospect from '../../components/TokenIntrospect';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
@@ -171,7 +175,9 @@ const VariantDescription = styled.div`
 `;
 
 const ImplicitFlowV7: React.FC = () => {
+	const location = useLocation();
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
+	const [workerToken, setWorkerToken] = useState<string>('');
 
 	// Initialize controller with V7 flow key
 	const controller = useImplicitFlowController({
@@ -180,8 +186,8 @@ const ImplicitFlowV7: React.FC = () => {
 		enableDebugger: true,
 	});
 
-	const [credentials, setCredentials] = useState<StepCredentials>(() =>
-		controller.credentials || {
+	const [credentials, setCredentials] = useState<StepCredentials>(() => {
+		const initialCreds = controller.credentials || {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
@@ -191,13 +197,38 @@ const ImplicitFlowV7: React.FC = () => {
 			responseType: selectedVariant === 'oidc' ? 'id_token token' : 'token',
 			grantType: '',
 			clientAuthMethod: 'none',
-		}
-	);
+		};
+		console.log('[ImplicitFlowV7] Initial credentials from controller:', initialCreds);
+		return initialCreds;
+	});
 
 	const [currentStep, setCurrentStep] = useState(0);
+	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const [collapsedSections, setCollapsedSections] = useState(
 		ImplicitFlowSharedService.CollapsibleSections.getDefaultState
 	);
+
+	// Get worker token from location state or localStorage
+	useEffect(() => {
+		// First try to get from location state (if navigating from Configuration page)
+		const tokenFromLocation = location.state?.workerToken;
+		if (tokenFromLocation) {
+			setWorkerToken(tokenFromLocation);
+			console.log('[ImplicitFlowV7] Worker token loaded from location state');
+			return;
+		}
+
+		// If not in location state, try to load from localStorage
+		const savedToken = localStorage.getItem('worker-token');
+		const savedEnv = localStorage.getItem('worker-token-env');
+		
+		if (savedToken && savedEnv) {
+			setWorkerToken(savedToken);
+			console.log('[ImplicitFlowV7] Worker token loaded from localStorage');
+		} else {
+			console.log('[ImplicitFlowV7] No worker token found in location state or localStorage');
+		}
+	}, [location.state]);
 
 	// Process tokens from URL fragment on mount or when tokens change
 	useEffect(() => {
@@ -227,6 +258,7 @@ const ImplicitFlowV7: React.FC = () => {
 		     controller.credentials.clientId !== credentials.clientId ||
 		     controller.credentials.redirectUri !== credentials.redirectUri)) {
 			console.log('[ImplicitFlowV7] Syncing credentials from controller:', controller.credentials);
+			console.log('[ImplicitFlowV7] Current local credentials:', credentials);
 			setCredentials(controller.credentials);
 		}
 	}, [controller.credentials, credentials.environmentId, credentials.clientId, credentials.redirectUri]);
@@ -426,11 +458,34 @@ const ImplicitFlowV7: React.FC = () => {
 					// Save handler for credentials
 					onSave={async () => {
 						try {
-							// TODO: Add configService.saveConfiguration(credentials)
+							// Use the controller's saveCredentials method
+							await controller.saveCredentials();
 							v4ToastManager.showSuccess('Credentials saved successfully!');
+							// Clear any previous error details on success
+							setErrorDetails(null);
 						} catch (error) {
 							console.error('[Implicit Flow V7] Failed to save credentials:', error);
-							v4ToastManager.showError('Failed to save credentials');
+							
+							// Use the new OAuth Error Handling Service
+							const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
+								flowType: 'implicit',
+								stepId: 'save-credentials',
+								operation: 'saveCredentials',
+								credentials: {
+									hasClientId: !!credentials.clientId,
+									hasClientSecret: !!credentials.clientSecret,
+									hasEnvironmentId: !!credentials.environmentId,
+									hasRedirectUri: !!credentials.redirectUri,
+									hasScope: !!credentials.scope
+								},
+								metadata: {
+									flowVariant: selectedVariant,
+									clientAuthMethod: credentials.clientAuthMethod
+								}
+							});
+							
+							v4ToastManager.showError(errorDetails.message);
+							setErrorDetails(errorDetails);
 						}
 					}}
 					
@@ -452,6 +507,117 @@ const ImplicitFlowV7: React.FC = () => {
 					requireClientSecret={false}
 					showAdvancedConfig={false} // Implicit flow deprecated, no token endpoint for client auth
 					defaultCollapsed={false}
+
+					// App Creation Handler
+					onCreateApplication={async (appData?: { name: string; description: string }) => {
+						try {
+							// Import the service dynamically
+							const { pingOneAppCreationService } = await import('../../services/pingOneAppCreationService');
+							
+							// Initialize the service
+							pingOneAppCreationService.initialize(workerToken, credentials.environmentId || '');
+							
+							// Generate app name with PingOne and flow type
+							const generateAppName = (flowType: string) => {
+								// Extract the actual flow name from flowType
+								let flowName = flowType.replace(/[-_]/g, '-').toLowerCase();
+								
+								// For specific flow types, use the main flow name
+								if (flowName.includes('implicit')) {
+									flowName = 'implicit';
+								} else if (flowName.includes('authorization-code')) {
+									flowName = 'authorization-code';
+								} else if (flowName.includes('device-authorization')) {
+									flowName = 'device-authorization';
+								} else if (flowName.includes('client-credentials')) {
+									flowName = 'client-credentials';
+								} else if (flowName.includes('hybrid')) {
+									flowName = 'hybrid';
+								}
+								
+								const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
+								return `pingone-${flowName}-${uniqueId}`;
+							};
+							
+							// Generate redirect URI with flow name and unique 3-digit number
+							const generateRedirectUri = (flowType: string) => {
+								// Extract the actual flow name from flowType (same logic as app name)
+								let flowName = flowType.replace(/[-_]/g, '-').toLowerCase();
+								
+								// For specific flow types, use the main flow name
+								if (flowName.includes('implicit')) {
+									flowName = 'implicit';
+								} else if (flowName.includes('authorization-code')) {
+									flowName = 'authorization-code';
+								} else if (flowName.includes('device-authorization')) {
+									flowName = 'device-authorization';
+								} else if (flowName.includes('client-credentials')) {
+									flowName = 'client-credentials';
+								} else if (flowName.includes('hybrid')) {
+									flowName = 'hybrid';
+								}
+								
+								const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
+								return `https://localhost:3000/callback/${flowName}-${uniqueId}`;
+							};
+							
+							const generatedAppName = generateAppName('implicit');
+							const generatedRedirectUri = generateRedirectUri('implicit');
+							
+							// Create the app
+							const result = await pingOneAppCreationService.createSinglePageApp({
+								name: appData?.name || generatedAppName,
+								description: appData?.description || `Created via OAuth Playground - Implicit Flow`,
+								enabled: true,
+								type: 'SINGLE_PAGE_APP',
+								redirectUris: [generatedRedirectUri],
+								grantTypes: ['authorization_code', 'implicit'],
+								responseTypes: ['code', 'token', 'id_token'],
+								tokenEndpointAuthMethod: 'none',
+								pkceEnforcement: 'REQUIRED',
+								scopes: credentials.scope?.split(' ') || ['openid', 'profile', 'email'],
+								accessTokenValiditySeconds: 3600,
+								refreshTokenValiditySeconds: 2592000,
+								idTokenValiditySeconds: 3600,
+							});
+							
+							if (result.success && result.app) {
+								// Update credentials with the new application details
+								const updated = {
+									...credentials,
+									clientId: result.app.clientId,
+									clientSecret: result.app.clientSecret || credentials.clientSecret,
+									redirectUri: generatedRedirectUri, // Update with the generated redirect URI
+								};
+								
+								// Update local state
+								setCredentials(updated);
+								
+								// Update controller
+								controller.setCredentials(updated);
+								
+								// Save credentials to persist across refreshes
+								await controller.saveCredentials();
+								
+								console.log('[Implicit Flow V7] Updated credentials with new app details:', {
+									clientId: result.app.clientId,
+									hasSecret: !!result.app.clientSecret
+								});
+								
+								v4ToastManager.showSuccess(`Application "${result.app.name}" created successfully! Credentials updated and saved.`);
+							} else {
+								v4ToastManager.showError(`Failed to create application: ${result.error}`);
+							}
+						} catch (error) {
+							console.error('[Implicit Flow V7] Failed to create PingOne application:', error);
+							v4ToastManager.showError(`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`);
+						}
+					}}
+
+					// Config Checker
+					showConfigChecker={true}
+					workerToken={workerToken}
+					region={'NA'}
 				/>
 			</>
 		);
@@ -1008,6 +1174,19 @@ const ImplicitFlowV7: React.FC = () => {
 					showCommonIssues={false}
 					showImplementationNotes={true}
 				/>
+
+				{/* Error Display */}
+				{errorDetails && (
+					<OAuthErrorDisplay
+						errorDetails={errorDetails}
+						onDismiss={() => setErrorDetails(null)}
+						onRetry={() => {
+							setErrorDetails(null);
+							// Retry the last operation - could be save credentials or other operations
+						}}
+						showCorrelationId={true}
+					/>
+				)}
 
 				<MainCard>
 					<DynamicStepHeader $variant={selectedVariant}>

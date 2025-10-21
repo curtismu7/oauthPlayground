@@ -379,6 +379,12 @@ export class EnhancedApiCallDisplayService {
 		color?: string | undefined;
 		backgroundColor?: string | undefined;
 	}> {
+		// Ensure rules is always an array
+		if (!Array.isArray(rules)) {
+			console.warn('[EnhancedApiCallDisplayService] rules is not an array:', rules);
+			rules = [];
+		}
+		
 		if (!url || rules.length === 0) {
 			return [{ content: url, isHighlighted: false }];
 		}
