@@ -7,21 +7,23 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import InlineTokenDisplay from './InlineTokenDisplay';
 
-// Gas Pump Main Container - Blue with rounded corners like a real pump
+// Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
-  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #1e40af 100%);
-  border-radius: 1rem;
-  padding: 2rem;
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #dc2626 100%);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
   margin: 2rem 0;
   box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 25px 50px rgba(0, 0, 0, 0.2),
+    0 0 0 2px #ffffff,
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
   position: relative;
   overflow: hidden;
+  border: 3px solid #ffffff;
   
+  /* Kroger pump design elements */
   &::before {
     content: '';
     position: absolute;
@@ -29,29 +31,47 @@ const GasPumpContainer = styled.div`
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.05) 50%, transparent 70%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
     pointer-events: none;
+  }
+  
+  /* Kroger logo area */
+  &::after {
+    content: 'KROGER';
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 1px;
+    z-index: 2;
   }
 `;
 
-// Top Screen Area - Like the advertisement screen on a gas pump
+// Kroger Gas Pump Display Screen
 const TopScreen = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  border: 3px solid #1e40af;
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 2px solid #dc2626;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
   text-align: center;
-  position: relative;
+  color: #dc2626;
+  font-weight: 700;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+  position: relative;
 `;
 
 const ScreenTitle = styled.div`
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #1e40af;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #dc2626;
   margin-bottom: 0.5rem;
   text-transform: uppercase;
+  letter-spacing: 1px;
   letter-spacing: 0.05em;
 `;
 
