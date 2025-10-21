@@ -7,48 +7,81 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import InlineTokenDisplay from './InlineTokenDisplay';
 
-// Smart TV Main Container - Black with sleek design
+// Vizio TV Main Container - Authentic Vizio Design
 const SmartTVContainer = styled.div`
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-  border-radius: 1.5rem;
-  padding: 2rem;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+  border-radius: 0.5rem;
+  padding: 1rem;
   margin: 2rem 0;
   box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.1),
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
-  border: 2px solid #404040;
+  border: 2px solid #333333;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
   
+  /* Vizio TV bezel */
   &::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.02) 50%, transparent 70%);
-    pointer-events: none;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+    border-radius: 0.5rem;
+    z-index: -1;
+  }
+  
+  /* Vizio logo area */
+  &::after {
+    content: 'VIZIO';
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: 1px;
+    z-index: 2;
   }
 `;
 
-// TV Screen Area - Main display
+// Vizio SmartCast Screen - Authentic Interface
 const TVScreen = styled.div`
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-  border: 4px solid #333333;
-  border-radius: 1rem;
-  padding: 2rem;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+  border: 1px solid #3a3a3c;
+  border-radius: 0.25rem;
+  padding: 1.5rem;
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.5);
-  min-height: 300px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+  min-height: 400px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
+  align-items: center;
+  color: #ffffff;
+  
+  /* Vizio SmartCast interface styling */
+  &::before {
+    content: 'SmartCast';
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+    z-index: 2;
+  }
 `;
 
 const TVBrand = styled.div`
@@ -92,29 +125,31 @@ const TVSubtitle = styled.div`
   margin-bottom: 2rem;
 `;
 
-// User Code Display - Like a TV channel display
+// Vizio SmartCast User Code Display - Modern Streaming Interface
 const UserCodeDisplay = styled.div`
-  background: #000000;
-  color: #00ff00;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 3rem;
   font-weight: 700;
-  padding: 1.5rem;
-  border-radius: 0.5rem;
+  padding: 2rem 1.5rem;
+  border-radius: 0.75rem;
   margin-bottom: 1.5rem;
-  letter-spacing: 0.2em;
-  text-shadow: 0 0 10px #00ff00;
-  border: 2px solid #00ff00;
+  letter-spacing: 0.3em;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 
-    inset 0 0 20px rgba(0, 255, 0, 0.2),
-    0 0 20px rgba(0, 255, 0, 0.3);
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 `;
 
 const UserCodeLabel = styled.div`
-  color: #00ff00;
+  color: #9ca3af;
   font-size: 0.875rem;
   font-weight: 600;
   margin-bottom: 1rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -359,12 +394,65 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
               Authorization Successful!
             </div>
             <div style={{
-              background: '#000000',
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              border: '1px solid #333333'
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem',
+              marginTop: '1rem'
             }}>
-              <JSONHighlighter data={state.tokens} />
+              {state.tokens.access_token && (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <InlineTokenDisplay
+                    label="Access Token"
+                    token={state.tokens.access_token}
+                    tokenType="access"
+                    isOIDC={state.tokens.id_token ? true : false}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
+                </div>
+              )}
+              {state.tokens.id_token && (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <InlineTokenDisplay
+                    label="ID Token"
+                    token={state.tokens.id_token}
+                    tokenType="id"
+                    isOIDC={true}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
+                </div>
+              )}
+              {state.tokens.refresh_token && (
+                <div style={{
+                  background: 'rgba(0, 0, 0, 0.4)',
+                  padding: '1rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                }}>
+                  <InlineTokenDisplay
+                    label="Refresh Token"
+                    token={state.tokens.refresh_token}
+                    tokenType="refresh"
+                    isOIDC={state.tokens.id_token ? true : false}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
+                </div>
+              )}
             </div>
           </div>
         )}
