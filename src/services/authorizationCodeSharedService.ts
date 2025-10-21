@@ -809,6 +809,7 @@ export class AuthzFlowDefaults {
 			authResponseDetails: true,
 			tokenExchangeOverview: false, // Expanded by default for Step 4
 			tokenExchangeDetails: false, // Expanded by default for Step 4
+			apiCallExamples: true, // Collapsed by default for API call examples
 			introspectionOverview: true,
 			introspectionDetails: false, // Expanded by default for introspection
 			securityOverview: true,

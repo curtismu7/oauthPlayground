@@ -1,9 +1,9 @@
 // src/pages/ApplicationGenerator.tsx
 // Application creation page - handles app type selection and configuration
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiCheckCircle, FiX, FiSettings, FiChevronLeft, FiChevronRight, FiGlobe, FiSmartphone, FiCode, FiServer, FiCloud, FiShield } from 'react-icons/fi';
+import { FiArrowLeft, FiCheckCircle, FiX, FiSettings, FiChevronLeft, FiChevronRight, FiGlobe, FiSmartphone, FiCode, FiServer, FiCloud, FiShield, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
   pingOneAppCreationService,
@@ -19,7 +19,8 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowHeader } from '../services/flowHeaderService';
 import { PresetSelector } from '../components/PresetSelector';
 import { ExportImportPanel } from '../components/ExportImportPanel';
-import { presetManagerService } from '../services/presetManagerService';
+import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
+import { presetManagerService, type BuilderAppType, type FormDataState } from '../services/presetManagerService';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import V5StepperService, { type StepMetadata } from '../services/v5StepperService';
@@ -27,6 +28,7 @@ import { clearAllTokens } from '../utils/tokenCleaner';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
 import '../utils/testAppGeneratorTokenDisplay'; // Auto-run token display tests in development
+import '../utils/testConfigChecker'; // Auto-run config checker tests in development
 
 const Container = styled.div`
   max-width: 1200px;
@@ -373,39 +375,8 @@ const ResultDetails = styled.div`
 
 
 
-type BuilderAppType = 'OIDC_WEB_APP' | 'OIDC_NATIVE_APP' | 'SINGLE_PAGE_APP' | 'WORKER' | 'SERVICE';
-
 type TokenEndpointMethod = 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt' | 'none';
 type PkceOption = 'OPTIONAL' | 'REQUIRED';
-
-type FormDataState = {
-  // Basic Settings
-  name: string;
-  description: string;
-  enabled: boolean;
-  redirectUris: string[];
-  postLogoutRedirectUris: string[];
-  grantTypes: string[];
-  responseTypes: string[];
-  tokenEndpointAuthMethod: TokenEndpointMethod;
-  pkceEnforcement: PkceOption;
-  scopes: string[];
-  accessTokenValiditySeconds: number;
-  refreshTokenValiditySeconds: number;
-  idTokenValiditySeconds: number;
-  
-  // Advanced Settings
-  refreshTokenDuration: number; // in days
-  refreshTokenRollingDuration: number; // in days
-  refreshTokenRollingGracePeriod: number; // in seconds
-  allowRedirectUriPatterns: boolean;
-  jwksUrl: string;
-  pushedAuthorizationRequestStatus: 'OPTIONAL' | 'REQUIRED';
-  parReferenceTimeout: number; // in seconds
-  initiateLoginUri: string;
-  targetLinkUri: string;
-  signoffUrls: string[];
-};
 
 type SavedAppConfiguration = FormDataState & {
   selectedAppType: BuilderAppType | null;
@@ -413,34 +384,44 @@ type SavedAppConfiguration = FormDataState & {
 
 const APP_GENERATOR_STORAGE_KEY = 'app-generator-configuration';
 
-const createDefaultFormData = (): FormDataState => ({
-  // Basic Settings
-  name: '',
-  description: '',
-  enabled: true,
-  redirectUris: ['http://localhost:3000/callback'],
-  postLogoutRedirectUris: ['http://localhost:3000'],
-  grantTypes: ['authorization_code'],
-  responseTypes: ['code'],
-  tokenEndpointAuthMethod: 'client_secret_basic',
-  pkceEnforcement: 'OPTIONAL',
-  scopes: ['openid', 'profile', 'email'],
-  accessTokenValiditySeconds: 3600,
-  refreshTokenValiditySeconds: 2592000,
-  idTokenValiditySeconds: 3600,
-  
-  // Advanced Settings - Default values from PingOne
-  refreshTokenDuration: 30, // 30 days
-  refreshTokenRollingDuration: 180, // 180 days
-  refreshTokenRollingGracePeriod: 0, // 0 seconds
-  allowRedirectUriPatterns: false,
-  jwksUrl: '',
-  pushedAuthorizationRequestStatus: 'OPTIONAL',
-  parReferenceTimeout: 60, // 60 seconds
-  initiateLoginUri: '',
-  targetLinkUri: '',
-  signoffUrls: [],
-});
+const stepperLayout = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+
+const createDefaultFormData = (): FormDataState => {
+  // Generate default app name with PingOne and random 3-digit code
+  const generateDefaultAppName = () => {
+    const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
+    return `pingone-oauth-playground-${uniqueId}`;
+  };
+
+  return {
+    // Basic Settings
+    name: generateDefaultAppName(),
+    description: '',
+    enabled: true,
+    redirectUris: ['https://localhost:3000/callback/oauth-playground-123'],
+    postLogoutRedirectUris: ['http://localhost:3000'],
+    grantTypes: ['authorization_code'],
+    responseTypes: ['code'],
+    tokenEndpointAuthMethod: 'client_secret_basic',
+    pkceEnforcement: 'OPTIONAL',
+    scopes: ['openid', 'profile', 'email'],
+    accessTokenValiditySeconds: 3600,
+    refreshTokenValiditySeconds: 2592000,
+    idTokenValiditySeconds: 3600,
+    
+    // Advanced Settings - Default values from PingOne
+    refreshTokenDuration: 30, // 30 days
+    refreshTokenRollingDuration: 180, // 180 days
+    refreshTokenRollingGracePeriod: 0, // 0 seconds
+    allowRedirectUriPatterns: false,
+    jwksUrl: '',
+    pushedAuthorizationRequestStatus: 'OPTIONAL',
+    parReferenceTimeout: 60, // 60 seconds
+    initiateLoginUri: '',
+    targetLinkUri: '',
+    signoffUrls: [],
+  };
+};
 
 const WEB_APP_GRANT_OPTIONS = ['authorization_code', 'implicit', 'refresh_token', 'client_credentials'] as const;
 const NATIVE_APP_GRANT_OPTIONS = ['authorization_code', 'implicit', 'refresh_token'] as const;
@@ -508,11 +489,23 @@ function normalizeServiceTokenMethod(value: TokenEndpointMethod): ServiceAppConf
   return 'client_secret_basic';
 }
 
+const toErrorDetails = (error: unknown) => {
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+    };
+  }
+  return error ?? null;
+};
+
 const ApplicationGenerator: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const workerToken = location.state?.workerToken;
   const environmentId = location.state?.environmentId;
+  const region = location.state?.region ?? 'NA';
 
   // usePageScroll({ pageName: 'Application Generator' }); // Disabled to prevent jumping
 
@@ -534,17 +527,11 @@ const ApplicationGenerator: React.FC = () => {
   const [selectedPreset, setSelectedPreset] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [creationResult, setCreationResult] = useState<AppCreationResult | null>(null);
+  const [creationErrorDetails, setCreationErrorDetails] = useState<unknown>(null);
   const [isSavedIndicator, setIsSavedIndicator] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Set<string>>(new Set());
 
-  const [currentStep, setCurrentStep] = useState(() => {
-    try {
-      const saved = localStorage.getItem('app-generator-current-step');
-      return saved ? parseInt(saved, 10) : 1;
-    } catch {
-      return 1;
-    }
-  });
+  const [currentStep, setCurrentStep] = useState(1); // Always start on step 1
 
   // Save currentStep to localStorage
   useEffect(() => {
@@ -735,6 +722,10 @@ const ApplicationGenerator: React.FC = () => {
 
   // Step navigation functions
   const handleNextStep = () => {
+    if (currentStep === 1 && !selectedAppType) {
+      handleAppTypeSelect('OIDC_WEB_APP');
+    }
+
     if (currentStep < stepMetadata.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -825,7 +816,6 @@ const ApplicationGenerator: React.FC = () => {
     if (event) {
       event.stopPropagation();
     }
-    console.log('[ApplicationGenerator] handleInputChange called:', { field, value, currentStep });
     setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear validation error when user starts typing (only if it exists)
     setValidationErrors(prev => {
@@ -1108,6 +1098,7 @@ const ApplicationGenerator: React.FC = () => {
       }
 
       setCreationResult(result);
+      setCreationErrorDetails(null);
 
       if (result.success) {
         v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
@@ -1131,9 +1122,11 @@ const ApplicationGenerator: React.FC = () => {
       if (errorMessage.includes('name already exists') || errorMessage.includes('already exists')) {
         const betterMessage = `Application name "${formData.name}" already exists. Please try a different name.`;
         setCreationResult({ success: false, error: betterMessage });
+        setCreationErrorDetails(toErrorDetails(error));
         v4ToastManager.showError(betterMessage);
       } else {
         setCreationResult({ success: false, error: errorMessage });
+        setCreationErrorDetails(toErrorDetails(error));
         v4ToastManager.showError(errorMessage);
       }
     } finally {
@@ -1141,13 +1134,22 @@ const ApplicationGenerator: React.FC = () => {
     }
   };
 
-  const handleCreateApplication = async () => {
+  const handleCreateApplication = async (modalData?: { name: string; description: string; redirectUri?: string; tokenEndpointAuthMethod?: string }) => {
     if (!selectedAppType) return;
 
-    // Validate form
-    const validationErrors = validateForm();
-    if (validationErrors.length > 0) {
-      v4ToastManager.showError(validationErrors.join(', '));
+    // Use modal data if provided, otherwise use form data
+    const appName = modalData?.name || formData.name;
+    const appDescription = modalData?.description || formData.description;
+    const redirectUri = modalData?.redirectUri || (Array.isArray(formData.redirectUris) ? formData.redirectUris[0] : 'http://localhost:3000/callback');
+    const tokenAuthMethod = modalData?.tokenEndpointAuthMethod || formData.tokenEndpointAuthMethod;
+
+    // Validate required fields
+    if (!appName.trim()) {
+      v4ToastManager.showError('Application name is required');
+      return;
+    }
+    if (!redirectUri.trim()) {
+      v4ToastManager.showError('Redirect URI is required');
       return;
     }
 
@@ -1161,17 +1163,17 @@ const ApplicationGenerator: React.FC = () => {
       let result: AppCreationResult;
 
       // Make application name unique by adding timestamp if it's a common test name
-      const uniqueName = formData.name.toLowerCase().includes('test') || 
-                         formData.name.toLowerCase().includes('template') || 
-                         formData.name.toLowerCase().includes('sample') || 
-                         formData.name.toLowerCase().includes('demo')
-        ? `${formData.name}-${Date.now()}`
-        : formData.name;
+      const uniqueName = appName.toLowerCase().includes('test') || 
+                         appName.toLowerCase().includes('template') || 
+                         appName.toLowerCase().includes('sample') || 
+                         appName.toLowerCase().includes('demo')
+        ? `${appName}-${Date.now()}`
+        : appName;
 
       const baseConfig = {
         name: uniqueName,
-        description: formData.description,
-        enabled: formData.enabled,
+        description: appDescription,
+        enabled: true,
       };
 
       switch (selectedAppType) {
@@ -1278,11 +1280,28 @@ const ApplicationGenerator: React.FC = () => {
 
       setCreationResult(result);
 
-      if (result.success) {
-        v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
+      if (result.success && result.app) {
+        // Update form data with new credentials
+        setFormData(prev => ({
+          ...prev,
+          clientId: result.app!.clientId,
+          clientSecret: result.app!.clientSecret || prev.clientSecret,
+          redirectUris: [redirectUri], // Update with the redirect URI from modal or form
+        }));
+        
+        console.log('[ApplicationGenerator] Updated form with new app credentials:', {
+          clientId: result.app.clientId,
+          redirectUri: redirectUri,
+          hasSecret: !!result.app.clientSecret
+        });
+        
+        v4ToastManager.showSuccess(`Application "${formData.name}" created successfully! Credentials updated.`);
         // Advance to results step
         setCurrentStep(4);
         // DON'T reset form - keep fields on screen for user reference
+      } else if (result.success) {
+        v4ToastManager.showSuccess(`Application "${formData.name}" created successfully!`);
+        setCurrentStep(4);
       } else {
         v4ToastManager.showError(`Failed to create application: ${result.error}`);
       }
@@ -1292,8 +1311,8 @@ const ApplicationGenerator: React.FC = () => {
       setCreationResult({
         success: false,
         error: errorMessage,
-        details: error,
       });
+      setCreationErrorDetails(toErrorDetails(error));
       v4ToastManager.showError(`Application creation failed: ${errorMessage}`);
     } finally {
       setIsCreating(false);
@@ -1306,6 +1325,32 @@ const ApplicationGenerator: React.FC = () => {
       case 1:
         return (
           <div>
+            {/* Config Checker - Available on first page */}
+            <ConfigCheckerButtons
+              formData={formData}
+              selectedAppType={selectedAppType}
+              workerToken={workerToken}
+              environmentId={environmentId}
+              region={region}
+              isCreating={isCreating}
+              onCreateApplication={handleCreateApplication}
+              onGenerateWorkerToken={() => {
+                v4ToastManager.showInfo('Please go to the Client Generator to create a new worker token.');
+              }}
+              onImportConfig={(importedConfig) => {
+                // Update form data with imported PingOne configuration
+                setFormData(prev => ({
+                  ...prev,
+                  redirectUris: importedConfig.redirectUris as string[] || prev.redirectUris,
+                  scopes: importedConfig.scopes as string[] || prev.scopes,
+                  tokenEndpointAuthMethod: String(importedConfig.tokenEndpointAuthMethod || prev.tokenEndpointAuthMethod),
+                  grantTypes: importedConfig.grantTypes as string[] || prev.grantTypes,
+                  responseTypes: importedConfig.responseTypes as string[] || prev.responseTypes,
+                }));
+                v4ToastManager.showSuccess('Configuration imported from PingOne!');
+              }}
+            />
+
             <CardGrid>
               {appTypes.map((appType) => (
                 <AppTypeCard
@@ -1323,7 +1368,24 @@ const ApplicationGenerator: React.FC = () => {
         );
 
       case 2:
-        return selectedAppType ? (
+        if (!selectedAppType) {
+          return (
+            <FormContainer>
+              <FormTitle>
+                <FiInfo /> Select an application type to continue
+              </FormTitle>
+              <p style={{ color: '#4b5563', marginBottom: '1.5rem', lineHeight: 1.6 }}>
+                Step 2 customizes settings for the application type you choose on Step 1. Please return to the
+                previous step and pick an application type so we can load the appropriate configuration fields.
+              </p>
+              <Button onClick={() => setCurrentStep(1)} variant="secondary">
+                <FiChevronLeft /> Back to application types
+              </Button>
+            </FormContainer>
+          );
+        }
+
+        return (
           <div>
             {/* Configuration Presets */}
             <PresetSelector
@@ -1664,7 +1726,7 @@ const ApplicationGenerator: React.FC = () => {
               </FormContainer>
             </div>
           </div>
-        ) : null;
+        );
 
       case 3:
         return (
@@ -1680,7 +1742,7 @@ const ApplicationGenerator: React.FC = () => {
                   <p><strong>Redirect URIs:</strong> {formData.redirectUris.join(', ')}</p>
                 )}
                 {formData.scopes.length > 0 && (
-                  <p><strong>Scopes:</strong> {formData.scopes.join(', ')}</p>
+                  <p><strong>Scopes:</strong> {formData.scopes.join(' ')}</p>
                 )}
               </div>
               
@@ -1715,23 +1777,23 @@ const ApplicationGenerator: React.FC = () => {
                 )}
               </FormTitle>
               
-              {creationResult.success ? (
+              {creationResult.success && creationResult.app ? (
                 <div style={{ background: '#f0fdf4', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #16a34a' }}>
                   <h4>Your New Application</h4>
-                  <p><strong>Application ID:</strong> {creationResult.applicationId}</p>
-                  <p><strong>Client ID:</strong> {creationResult.clientId}</p>
-                  {creationResult.clientSecret && (
-                    <p><strong>Client Secret:</strong> {creationResult.clientSecret}</p>
+                  <p><strong>Application ID:</strong> {creationResult.app.id}</p>
+                  <p><strong>Client ID:</strong> {creationResult.app.clientId}</p>
+                  {creationResult.app.clientSecret && (
+                    <p><strong>Client Secret:</strong> {creationResult.app.clientSecret}</p>
                   )}
-                  <p><strong>Environment:</strong> {creationResult.environmentId}</p>
+                  <p><strong>Environment:</strong> {creationResult.app.environment?.id ?? 'Unknown'}</p>
                 </div>
               ) : (
                 <div style={{ background: '#fef2f2', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid #ef4444' }}>
                   <h4>Error Details</h4>
                   <p>{creationResult.error}</p>
-                  {creationResult.details && (
+                  {creationErrorDetails && (
                     <pre style={{ background: '#fff', padding: '1rem', borderRadius: '0.5rem', overflow: 'auto' }}>
-                      {JSON.stringify(creationResult.details, null, 2)}
+                      {JSON.stringify(creationErrorDetails, null, 2)}
                     </pre>
                   )}
                 </div>
@@ -1741,8 +1803,17 @@ const ApplicationGenerator: React.FC = () => {
                 <Button onClick={() => setCurrentStep(1)} variant="secondary">
                   Create Another Application
                 </Button>
-                {creationResult.success && (
-                  <Button onClick={() => window.open(`https://console.pingone.com/${creationResult.environmentId}/applications/${creationResult.applicationId}`, '_blank')}>
+                {creationResult.success && creationResult.app?.environment?.id && creationResult.app.id && (
+                  <Button
+                    onClick={() => {
+                      const envId = creationResult.app?.environment?.id;
+                      const appId = creationResult.app?.id;
+                      if (!envId || !appId) {
+                        return;
+                      }
+                      window.open(`https://console.pingone.com/${envId}/applications/${appId}`, '_blank');
+                    }}
+                  >
                     View in PingOne Console
                   </Button>
                 )}
@@ -1757,14 +1828,8 @@ const ApplicationGenerator: React.FC = () => {
   };
 
   if (!workerToken) {
-    return null; // Will redirect in useEffect
+    return null; // Redirect handled in useEffect
   }
-
-  // Get V5 stepper components
-  const stepperLayout = useMemo(
-    () => V5StepperService.createStepLayout({ theme: 'blue', showProgress: true }),
-    []
-  );
 
   const {
     StepContainer,
@@ -1783,8 +1848,8 @@ const ApplicationGenerator: React.FC = () => {
     ProgressText
   } = stepperLayout;
 
-  console.log('[ApplicationGenerator] V5 Stepper Components:', { StepContainer, StepHeader, StepContent });
-  console.log('[ApplicationGenerator] Rendering - currentStep:', currentStep, 'selectedAppType:', selectedAppType);
+
+  const stepProgressPercent = Math.min(Math.max((currentStep / stepMetadata.length) * 100, 0), 100);
 
   return (
     <Container style={{ scrollBehavior: 'auto' }}>
@@ -1828,6 +1893,10 @@ const ApplicationGenerator: React.FC = () => {
             <StepProgress>
               <StepNumber>{currentStep}</StepNumber>
               <StepTotal>of {stepMetadata.length}</StepTotal>
+            </StepProgress>
+            <StepProgress style={{ flexDirection: 'column', alignItems: 'flex-end', gap: '0.5rem' }}>
+              <ProgressBar $progress={stepProgressPercent} style={{ width: '160px' }} />
+              <ProgressText>{Math.round(stepProgressPercent)}% complete</ProgressText>
             </StepProgress>
           </StepHeaderRight>
         </StepHeader>

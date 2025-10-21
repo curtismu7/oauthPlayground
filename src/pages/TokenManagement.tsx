@@ -3275,7 +3275,7 @@ const TokenManagement = () => {
 													<div>
 														<strong>Scopes:</strong>{' '}
 														{Array.isArray(tokenTypeInfo()?.scopes)
-															? tokenTypeInfo().scopes.join(', ')
+															? tokenTypeInfo().scopes.join(' ')
 															: tokenTypeInfo()?.scopes}
 													</div>
 												)}

@@ -328,6 +328,78 @@ export class PingOneAppCreationService {
 	}
 
 	/**
+	 * Update an existing application
+	 */
+	async updateApplication(appId: string, updates: any): Promise<AppCreationResult> {
+		if (!this.client) {
+			const error = 'Service not initialized. Call initialize() first.';
+			logger.error('APP-CREATION', error);
+			return { success: false, error };
+		}
+
+		try {
+			logger.info('APP-CREATION', 'Updating application', {
+				appId,
+				updates: Object.keys(updates),
+			});
+
+			// Normalize arrays to uppercase for PingOne API
+			const normalizeArray = (values?: string[]) =>
+				Array.isArray(values)
+					? values
+						.map((value) => value?.toString().trim())
+						.filter((value): value is string => !!value)
+						.map((value) => value.toUpperCase())
+					: undefined;
+
+			const payload = {
+				...updates,
+				grantTypes: normalizeArray(updates.grantTypes),
+				responseTypes: normalizeArray(updates.responseTypes),
+				tokenEndpointAuthMethod: updates.tokenEndpointAuthMethod
+					? updates.tokenEndpointAuthMethod.toUpperCase()
+					: undefined,
+			};
+
+			// Remove undefined values
+			Object.keys(payload).forEach(key => {
+				if (payload[key] === undefined) {
+					delete payload[key];
+				}
+			});
+
+			console.log('[APP-CREATION] Update payload:', JSON.stringify(payload, null, 2));
+
+			const updatedApp = await makeApiRequest<CreatedApp>(this.client, `/applications/${appId}`, {
+				method: 'PUT',
+				body: JSON.stringify(payload),
+			});
+
+			logger.success('APP-CREATION', 'Application updated successfully', {
+				appId: updatedApp.id,
+				appName: updatedApp.name,
+				clientId: updatedApp.clientId,
+			});
+
+			return {
+				success: true,
+				app: updatedApp,
+			};
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+			logger.error('APP-CREATION', 'Failed to update application', {
+				error: errorMessage,
+				appId,
+			});
+
+			return {
+				success: false,
+				error: errorMessage,
+			};
+		}
+	}
+
+	/**
 	 * Delete an application
 	 */
 	async deleteApplication(appId: string): Promise<boolean> {

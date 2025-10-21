@@ -18,170 +18,170 @@ export interface DeviceTypeConfig {
 export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 	'streaming-tv': {
 		id: 'streaming-tv',
-		name: 'Smart TV',
-		displayName: 'VIZIO 65" V-Series 4K UHD Smart TV',
-		brandName: 'VIZIO',
+		name: 'Samsung Smart TV',
+		displayName: 'Samsung 65" QLED 4K Smart TV',
+		brandName: 'SAMSUNG',
 		icon: '📺',
 		emoji: '📺',
 		description: 'Stream Netflix, Disney+, Hulu, and more',
-		color: '#dc2626', // Red
-		secondaryColor: '#991b1b',
+		color: '#1e40af', // Samsung Blue
+		secondaryColor: '#1e3a8a',
 		scenario: 'Home Entertainment',
 		useCase: 'Perfect for streaming apps, smart TVs, and media players'
 	},
 	'gas-pump': {
 		id: 'gas-pump',
-		name: 'Gas Pump',
-		displayName: 'Kroger Fuel Center - Pump #7',
-		brandName: 'KROGER',
+		name: 'Shell Gas Pump',
+		displayName: 'Shell Fuel Center - Pump #7',
+		brandName: 'SHELL',
 		icon: '⛽',
 		emoji: '⛽',
-		description: 'Pay with Kroger Plus Card and mobile app',
-		color: '#22c55e', // Green
-		secondaryColor: '#16a34a',
+		description: 'Pay with Shell Fuel Rewards and mobile app',
+		color: '#fbbf24', // Shell Yellow
+		secondaryColor: '#f59e0b',
 		scenario: 'Fuel Payment',
 		useCase: 'Ideal for gas stations, charging stations, and unattended payment terminals'
 	},
 	'iot-device': {
 		id: 'iot-device',
-		name: 'Industrial IoT Controller',
-		displayName: 'Pump Control Unit #4 - Sector A',
-		brandName: 'SMARTVALVE',
+		name: 'Siemens IoT Controller',
+		displayName: 'Siemens SIMATIC S7-1500 PLC',
+		brandName: 'SIEMENS',
 		icon: '⚙️',
 		emoji: '⚙️',
-		description: 'Industrial automation control',
-		color: '#3b82f6', // Blue
-		secondaryColor: '#2563eb',
+		description: 'Industrial automation control system',
+		color: '#0ea5e9', // Siemens Blue
+		secondaryColor: '#0284c7',
 		scenario: 'Industrial IoT',
 		useCase: 'Built for industrial controllers, pump valves, SCADA systems, and factory automation'
 	},
 	'gaming-console': {
 		id: 'gaming-console',
-		name: 'Game Controller',
-		displayName: 'Sony DualSense Wireless Controller',
-		brandName: 'SONY',
+		name: 'Xbox Controller',
+		displayName: 'Xbox Wireless Controller',
+		brandName: 'MICROSOFT',
 		icon: '🎮',
 		emoji: '🎮',
-		description: 'Connect to PlayStation Network and game library',
-		color: '#8b5cf6', // Purple
-		secondaryColor: '#7c3aed',
+		description: 'Connect to Xbox Game Pass and cloud gaming',
+		color: '#10b981', // Xbox Green
+		secondaryColor: '#059669',
 		scenario: 'Gaming & Entertainment',
 		useCase: 'Designed for gaming consoles, cloud gaming, and entertainment systems'
 	},
 	'fitness-wearable': {
 		id: 'fitness-wearable',
-		name: 'Fitness Tracker',
-		displayName: 'Fitbit Charge 6 - Health & Fitness',
-		brandName: 'FITBIT',
+		name: 'Apple Watch',
+		displayName: 'Apple Watch Series 9 - Health & Fitness',
+		brandName: 'APPLE',
 		icon: '⌚',
 		emoji: '⌚',
 		description: 'Sync workouts, heart rate, and health data',
-		color: '#f97316', // Orange
-		secondaryColor: '#ea580c',
+		color: '#1d4ed8', // Apple Blue
+		secondaryColor: '#1e40af',
 		scenario: 'Health & Fitness',
 		useCase: 'Optimized for wearables, fitness trackers, and health monitoring devices'
 	},
 	'smart-printer': {
 		id: 'smart-printer',
-		name: 'Smart Printer',
-		displayName: 'HP OfficeJet Pro 9015e All-in-One',
-		brandName: 'HP',
+		name: 'Canon Printer',
+		displayName: 'Canon PIXMA TR8620 All-in-One',
+		brandName: 'CANON',
 		icon: '🖨️',
 		emoji: '🖨️',
-		description: 'Print, scan, copy from HP Smart app',
-		color: '#06b6d4', // Cyan
-		secondaryColor: '#0891b2',
+		description: 'Print, scan, copy from Canon PRINT app',
+		color: '#dc2626', // Canon Red
+		secondaryColor: '#b91c1c',
 		scenario: 'Office Equipment',
 		useCase: 'Built for printers, scanners, and office document management'
 	},
 	'airport-kiosk': {
 		id: 'airport-kiosk',
-		name: 'Airport Kiosk',
-		displayName: 'DFW Airport Terminal C - Gate C15',
-		brandName: 'DFW',
+		name: 'American Airlines Kiosk',
+		displayName: 'American Airlines Terminal C - Gate C15',
+		brandName: 'AMERICAN',
 		icon: '✈️',
 		emoji: '✈️',
 		description: 'American Airlines self-service check-in',
-		color: '#0ea5e9', // Sky Blue
-		secondaryColor: '#0284c7',
+		color: '#dc2626', // American Red
+		secondaryColor: '#b91c1c',
 		scenario: 'Travel & Transportation',
 		useCase: 'Perfect for airport kiosks, train stations, and travel check-in systems'
 	},
 	'pos-terminal': {
 		id: 'pos-terminal',
-		name: 'POS Terminal',
-		displayName: 'Register #3 - Store 2418',
-		brandName: 'QUICKPAY',
+		name: 'Clover POS',
+		displayName: 'Clover Station - Register #3',
+		brandName: 'CLOVER',
 		icon: '💳',
 		emoji: '💳',
 		description: 'Secure payment processing',
-		color: '#10b981', // Emerald
-		secondaryColor: '#059669',
+		color: '#059669', // Clover Green
+		secondaryColor: '#047857',
 		scenario: 'Retail & Commerce',
 		useCase: 'Ideal for point-of-sale systems, retail terminals, and payment kiosks'
 	},
 	'ai-agent': {
 		id: 'ai-agent',
-		name: 'AI Agent',
-		displayName: 'AI Assistant - Enterprise Portal',
-		brandName: 'NEXUS AI',
+		name: 'OpenAI Agent',
+		displayName: 'OpenAI GPT-4 Assistant',
+		brandName: 'OPENAI',
 		icon: '🤖',
 		emoji: '🤖',
 		description: 'Autonomous AI agent authorization',
-		color: '#a855f7', // Purple
-		secondaryColor: '#9333ea',
+		color: '#10b981', // OpenAI Green
+		secondaryColor: '#059669',
 		scenario: 'Artificial Intelligence',
 		useCase: 'Perfect for AI agents, chatbots, autonomous systems, and LLM-powered applications'
 	},
 	'mcp-server': {
 		id: 'mcp-server',
-		name: 'MCP Server',
-		displayName: 'MCP Server - Context Bridge v2.1',
-		brandName: 'CONTEXTLINK',
+		name: 'Anthropic MCP Server',
+		displayName: 'Anthropic Claude MCP Server v2.1',
+		brandName: 'ANTHROPIC',
 		icon: '🔗',
 		emoji: '🔗',
 		description: 'Model Context Protocol server',
-		color: '#ec4899', // Pink
-		secondaryColor: '#db2777',
+		color: '#8b5cf6', // Anthropic Purple
+		secondaryColor: '#7c3aed',
 		scenario: 'AI Infrastructure',
 		useCase: 'Designed for MCP servers, AI context providers, and model integration systems'
 	},
 	'smart-speaker': {
 		id: 'smart-speaker',
-		name: 'Smart Speaker',
-		displayName: 'Sonos One SL - Kitchen Counter',
-		brandName: 'SONOS',
+		name: 'Amazon Echo',
+		displayName: 'Amazon Echo Dot - Kitchen Counter',
+		brandName: 'AMAZON',
 		icon: '🔊',
 		emoji: '🔊',
 		description: 'Stream Spotify, Apple Music, and more',
-		color: '#0891b2', // Cyan
-		secondaryColor: '#0e7490',
+		color: '#f59e0b', // Amazon Orange
+		secondaryColor: '#d97706',
 		scenario: 'Voice & IoT',
 		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices'
 	},
 	'smartphone': {
 		id: 'smartphone',
-		name: 'Mobile Phone',
-		displayName: 'iPhone 15 Pro - Personal Device',
-		brandName: 'APPLE',
+		name: 'Samsung Galaxy',
+		displayName: 'Samsung Galaxy S24 Ultra - Personal Device',
+		brandName: 'SAMSUNG',
 		icon: '📱',
 		emoji: '📱',
-		description: 'Access apps, Face ID, and Apple Wallet',
-		color: '#2563eb', // Blue
-		secondaryColor: '#1d4ed8',
+		description: 'Access apps, Samsung Pay, and biometrics',
+		color: '#1e40af', // Samsung Blue
+		secondaryColor: '#1e3a8a',
 		scenario: 'Mobile Auth',
 		useCase: 'Perfect for smartphones, companion apps, and mobile-first experiences'
 	},
 	'smart-vehicle': {
 		id: 'smart-vehicle',
-		name: 'Smart Vehicle',
-		displayName: 'Tesla Model Y - Infotainment',
-		brandName: 'TESLA',
+		name: 'BMW iX',
+		displayName: 'BMW iX Electric SUV - Infotainment',
+		brandName: 'BMW',
 		icon: '🚗',
 		emoji: '🚗',
 		description: 'Connected vehicle authorization',
-		color: '#ef4444', // Red
-		secondaryColor: '#dc2626',
+		color: '#1f2937', // BMW Dark
+		secondaryColor: '#111827',
 		scenario: 'Automotive & Transport',
 		useCase: 'Optimized for connected cars, vehicle infotainment, and automotive IoT systems'
 	},
@@ -197,6 +197,71 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		secondaryColor: '#0284c7',
 		scenario: 'Smart Home Security',
 		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems'
+	},
+	'ring-doorbell': {
+		id: 'ring-doorbell',
+		name: 'Ring Doorbell',
+		displayName: 'Ring Video Doorbell Pro 2',
+		brandName: 'RING',
+		icon: '🔔',
+		emoji: '🔔',
+		description: 'Smart home security device',
+		color: '#0ea5e9', // Sky Blue
+		secondaryColor: '#0284c7',
+		scenario: 'Smart Home Security',
+		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems'
+	},
+	'vizio-tv': {
+		id: 'vizio-tv',
+		name: 'Vizio TV',
+		displayName: 'VIZIO V-Series 4K UHD Smart TV',
+		brandName: 'VIZIO',
+		icon: '📺',
+		emoji: '📺',
+		description: 'Stream Netflix, Disney+, Hulu, and more',
+		color: '#dc2626', // Red
+		secondaryColor: '#991b1b',
+		scenario: 'Home Entertainment',
+		useCase: 'Perfect for streaming apps, smart TVs, and media players'
+	},
+	'sony-controller': {
+		id: 'sony-controller',
+		name: 'Sony Controller',
+		displayName: 'Sony DualSense Wireless Controller',
+		brandName: 'SONY',
+		icon: '🎮',
+		emoji: '🎮',
+		description: 'Connect to PlayStation Network and game library',
+		color: '#8b5cf6', // Purple
+		secondaryColor: '#7c3aed',
+		scenario: 'Gaming & Entertainment',
+		useCase: 'Designed for gaming consoles, cloud gaming, and entertainment systems'
+	},
+	'bose-speaker': {
+		id: 'bose-speaker',
+		name: 'Bose Speaker',
+		displayName: 'Bose Smart Speaker 500',
+		brandName: 'BOSE',
+		icon: '🔊',
+		emoji: '🔊',
+		description: 'Stream Spotify, Apple Music, and more',
+		color: '#0891b2', // Cyan
+		secondaryColor: '#0e7490',
+		scenario: 'Voice & IoT',
+		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices'
+	},
+	'square-pos': {
+		id: 'square-pos',
+		name: 'Square POS',
+		displayName: 'Square Point of Sale Terminal',
+		brandName: 'SQUARE',
+		icon: '💳',
+		emoji: '💳',
+		description: 'Secure payment processing',
+		color: '#10b981', // Emerald
+		secondaryColor: '#059669',
+		scenario: 'Retail & Commerce',
+		useCase: 'Ideal for point-of-sale systems, retail terminals, and payment kiosks'
 	},
 	'ev-charger': {
 		id: 'ev-charger',

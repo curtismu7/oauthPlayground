@@ -13,6 +13,10 @@ import {
 	FiSave,
 	FiPlay,
 	FiAlertCircle,
+	FiKey,
+	FiRefreshCw,
+	FiEye,
+	FiEyeOff,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { FlowHeader } from '../services/flowHeaderService';
@@ -22,6 +26,8 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import { credentialManager } from '../utils/credentialManager';
 import { CredentialsInput } from '../components/CredentialsInput';
 import PingOneApplicationConfig, { type PingOneApplicationState } from '../components/PingOneApplicationConfig';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { createPingOneClient, makeApiRequest } from '../utils/apiClient';
 import packageJson from '../../package.json';
 
 const Container = styled.div`
@@ -160,7 +166,7 @@ const CopyButton = styled.button`
   }
 `;
 
-const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
+const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' | 'error' }>`
   padding: 1rem;
   border-radius: 0.5rem;
   margin: 1rem 0;
@@ -179,6 +185,12 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' }>`
           background-color: #d1fae5;
           border-left-color: #10b981;
           color: #065f46;
+        `;
+			case 'error':
+				return `
+          background-color: #fee2e2;
+          border-left-color: #ef4444;
+          color: #991b1b;
         `;
 			default:
 				return `
@@ -218,6 +230,7 @@ const FeatureItem = styled.div`
     font-weight: 500;
   }
 `;
+
 
 const Configuration: React.FC = () => {
 	usePageScroll({ pageName: 'Configuration & Setup', force: true });
@@ -263,6 +276,12 @@ const Configuration: React.FC = () => {
 		corsAllowAnyOrigin: false,
 	});
 	const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
+
+	// Worker Token state
+	const [workerToken, setWorkerToken] = useState('');
+	const [workerTokenLoading, setWorkerTokenLoading] = useState(false);
+	const [workerTokenError, setWorkerTokenError] = useState<string | null>(null);
+	const [showWorkerToken, setShowWorkerToken] = useState(false);
 
 	// Load existing credentials on mount
 	useEffect(() => {
@@ -369,6 +388,61 @@ const Configuration: React.FC = () => {
 		</CodeBlock>
 	);
 
+	// Get Worker Token functionality
+	const getWorkerToken = async () => {
+		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+			v4ToastManager.showError('Please enter Environment ID, Client ID, and Client Secret first');
+			return;
+		}
+
+		setWorkerTokenLoading(true);
+		setWorkerTokenError(null);
+
+		try {
+			const client = createPingOneClient('', credentials.environmentId, 'NA');
+			
+			const response = await makeApiRequest<any>(client, '/as/token', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: credentials.clientId,
+					client_secret: credentials.clientSecret,
+					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device p1:read:application p1:update:application',
+				}),
+			});
+
+			if (response.access_token) {
+				setWorkerToken(response.access_token);
+				v4ToastManager.showSuccess('Worker token obtained successfully!');
+				
+				// Save to localStorage for use across the app
+				localStorage.setItem('worker-token', response.access_token);
+				localStorage.setItem('worker-token-env', credentials.environmentId);
+			} else {
+				throw new Error('No access token received');
+			}
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Failed to get worker token';
+			setWorkerTokenError(errorMessage);
+			v4ToastManager.showError(`Failed to get worker token: ${errorMessage}`);
+		} finally {
+			setWorkerTokenLoading(false);
+		}
+	};
+
+	// Load existing worker token on mount
+	useEffect(() => {
+		const savedToken = localStorage.getItem('worker-token');
+		const savedEnv = localStorage.getItem('worker-token-env');
+		
+		if (savedToken && savedEnv === credentials.environmentId) {
+			setWorkerToken(savedToken);
+		}
+	}, [credentials.environmentId]);
+
 	return (
 		<Container>
 			<FlowHeader flowId="configuration" />
@@ -383,6 +457,99 @@ const Configuration: React.FC = () => {
 					configured and start exploring OAuth flows in minutes.
 				</p>
 			</Header>
+
+		<CollapsibleHeader
+			title="Get Worker Token"
+			subtitle="Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows"
+			icon={<FiKey />}
+			defaultCollapsed={false}
+		>
+			<Card style={{ border: 'none', boxShadow: 'none', marginBottom: 0 }}>
+				{workerTokenError && (
+					<InfoBox $type="error">
+						<FiAlertCircle size={16} />
+						<strong>Error:</strong> {workerTokenError}
+					</InfoBox>
+				)}
+
+				{workerToken && (
+					<InfoBox $type="success">
+						<FiCheckCircle size={16} />
+						<strong>Worker token obtained!</strong> Config Checker is now available in all flows.
+					</InfoBox>
+				)}
+
+				<div style={{ marginBottom: '1rem' }}>
+					<button
+						onClick={getWorkerToken}
+						disabled={workerTokenLoading || !credentials.environmentId || !credentials.clientId || !credentials.clientSecret}
+						style={{
+							background: workerToken ? '#10b981' : '#3b82f6',
+							color: 'white',
+							border: '1px solid #ffffff',
+							borderRadius: '0.5rem',
+							padding: '0.75rem 1.5rem',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							cursor: workerTokenLoading ? 'not-allowed' : 'pointer',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							transition: 'all 0.2s ease',
+							opacity: workerTokenLoading ? 0.6 : 1,
+						}}
+						onMouseEnter={(e) => {
+							if (!workerTokenLoading) {
+								e.currentTarget.style.backgroundColor = workerToken ? '#059669' : '#2563eb';
+								e.currentTarget.style.borderColor = '#ffffff';
+							}
+						}}
+						onMouseLeave={(e) => {
+							if (!workerTokenLoading) {
+								e.currentTarget.style.backgroundColor = workerToken ? '#10b981' : '#3b82f6';
+								e.currentTarget.style.borderColor = '#ffffff';
+							}
+						}}
+					>
+						{workerTokenLoading ? <FiRefreshCw size={16} className="animate-spin" /> : <FiKey size={16} />}
+						{workerTokenLoading ? 'Getting Token...' : workerToken ? 'Token Obtained' : 'Get Worker Token'}
+					</button>
+				</div>
+
+				{workerToken && (
+					<div style={{ marginTop: '1rem' }}>
+						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+							<strong style={{ fontSize: '0.875rem' }}>Worker Token:</strong>
+							<button
+								onClick={() => setShowWorkerToken(!showWorkerToken)}
+								style={{
+									background: 'none',
+									border: 'none',
+									color: '#6b7280',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.25rem',
+									fontSize: '0.75rem',
+								}}
+							>
+								{showWorkerToken ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+								{showWorkerToken ? 'Hide' : 'Show'}
+							</button>
+						</div>
+						<CodeBlockWithCopy label="worker-token">
+							{showWorkerToken ? workerToken : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
+						</CodeBlockWithCopy>
+					</div>
+				)}
+
+				<InfoBox $type="info">
+					<strong>What this enables:</strong> The worker token allows the Config Checker to compare 
+					your flow configurations with existing PingOne applications and create new applications 
+					automatically. This is available in all flows that support Config Checker functionality.
+				</InfoBox>
+			</Card>
+		</CollapsibleHeader>
 
 		<CollapsibleHeader
 			title="Application Information"

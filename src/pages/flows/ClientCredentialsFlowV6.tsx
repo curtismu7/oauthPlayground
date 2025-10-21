@@ -468,6 +468,9 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 		}
 	}, [propOnAuthMethodChange]);
 	
+	// Worker token for Config Checker
+	const [workerToken, setWorkerToken] = useState<string>('');
+
 	// PingOne Advanced Configuration
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
 		clientAuthMethod: 'client_secret_post',
@@ -509,6 +512,17 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 		ClientCredentialsCollapsibleSections.createToggleHandler(setCollapsedSections),
 		[]
 	);
+
+	// Load worker token from localStorage on mount
+	useEffect(() => {
+		const savedToken = localStorage.getItem('worker-token');
+		const savedEnv = localStorage.getItem('worker-token-env');
+		
+		if (savedToken && savedEnv === controller.credentials.environmentId) {
+			setWorkerToken(savedToken);
+			console.log('[ClientCredentialsFlowV6] Worker token loaded from localStorage');
+		}
+	}, [controller.credentials.environmentId]);
 
 	// Step validation
 	const isStepValid = useCallback((step: number): boolean => {
@@ -826,6 +840,11 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}
+
+				// Config Checker
+				showConfigChecker={true}
+				workerToken={workerToken}
+				region={'NA'}
 			/>
 				
 				<SectionDivider />
