@@ -11,6 +11,7 @@ import './styles/ui-settings.css';
 import './styles/sidebar-v6-forces.css';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
+import DeviceMockFlow from './components/DeviceMockFlow';
 import DynamicHeaderExample from './components/DynamicHeaderExample';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
@@ -49,6 +50,8 @@ import PageChangeSpinner from './components/PageChangeSpinner';
 import ServerStatusProvider from './components/ServerStatusProvider';
 import About from './pages/About';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
+import AdvancedSecuritySettingsDemo from './pages/AdvancedSecuritySettingsDemo';
+import AdvancedSecuritySettingsComparison from './pages/AdvancedSecuritySettingsComparison';
 import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
@@ -99,8 +102,6 @@ import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
-import { OAuthAuthorizationCodeFlowV7_1 } from './pages/flows/OAuthAuthorizationCodeFlowV7_1';
-import OAuthAuthorizationCodeFlowV7_2 from './pages/flows/OAuthAuthorizationCodeFlowV7_2';
 import OAuthAuthorizationCodeFlowV7_Condensed_Mock from './pages/flows/OAuthAuthorizationCodeFlowV7_Condensed_Mock';
 import V7CondensedMock from './pages/flows/V7CondensedMock';
 import TestMock from './pages/flows/TestMock';
@@ -126,6 +127,7 @@ import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAutho
 // WorkerToken flows
 // WorkerTokenFlowV5 backed up - use V6
 import WorkerTokenFlowV6 from './pages/flows/WorkerTokenFlowV6';
+import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
 import ResponseModesLearnPage from './pages/learn/ResponseModesLearnPage';
@@ -376,14 +378,6 @@ const AppRoutes = () => {
 							element={<OAuthAuthorizationCodeFlowV7 />}
 						/>
 						<Route
-							path="/flows/oauth-authorization-code-v7-1"
-							element={<OAuthAuthorizationCodeFlowV7_1 />}
-						/>
-						<Route
-							path="/flows/oauth-authorization-code-v7-2"
-							element={<OAuthAuthorizationCodeFlowV7_2 />}
-						/>
-						<Route
 							path="/flows/oauth-authorization-code-v7-mock"
 							element={<TestMock />}
 						/>
@@ -447,8 +441,9 @@ const AppRoutes = () => {
 								path="/flows/saml-bearer-assertion-v7"
 								element={<SAMLBearerAssertionFlowV7 />}
 							/>
+							<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
 							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
-							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
+							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v7" replace />} />
 							<Route
 								path="/flows/client-credentials-v6"
 								element={<ClientCredentialsFlowV6 />}
@@ -555,6 +550,7 @@ const AppRoutes = () => {
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples" element={<CodeExamplesDemo />} />
 							<Route path="/code-examples-demo" element={<CodeExamplesDemo />} />
+							<Route path="/device-mock-flow" element={<DeviceMockFlow />} />
 							<Route path="/documentation/oidc-overview" element={<OIDCOverview />} />
 							<Route path="/ai-glossary" element={<AIGlossary />} />
 							<Route path="/ai-agent-overview" element={<AIAgentOverview />} />
@@ -564,6 +560,8 @@ const AppRoutes = () => {
 								element={<ComprehensiveOAuthEducation />}
 							/>
 							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
+							<Route path="/advanced-security-settings" element={<AdvancedSecuritySettingsDemo />} />
+							<Route path="/advanced-security-settings-comparison" element={<AdvancedSecuritySettingsComparison />} />
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
@@ -587,7 +585,7 @@ const AppRoutes = () => {
 							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
 							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
 							<Route path="/:customCallback(p1-callback)" element={<PingOneAuthenticationCallback />} />
-					<Route path="*" element={<Navigate to="/pingone-authentication" replace />} />
+			<Route path="*" element={<Navigate to="/dashboard" replace />} />
 				</Routes>
 					</MainContent>
 					<PageFooter />

@@ -295,7 +295,35 @@ export class ClientCredentialsTokenRequest {
 					statusText: response.statusText,
 					errorText
 				});
-				throw new Error(`Token request failed: ${response.status} ${errorText}`);
+				
+				// Parse error response to provide more specific error messages
+				let parsedError;
+				try {
+					parsedError = JSON.parse(errorText);
+				} catch {
+					parsedError = { error: 'unknown_error', error_description: errorText };
+				}
+				
+				// Create more descriptive error messages based on status and error type
+				let errorMessage = `Token request failed: ${response.status}`;
+				
+				if (response.status === 401) {
+					if (parsedError.error === 'invalid_client') {
+						errorMessage = `401 Unauthorized: Invalid client credentials - ${parsedError.error_description || 'Please check your Client ID, Client Secret, and Environment ID'}`;
+					} else {
+						errorMessage = `401 Unauthorized: ${parsedError.error_description || 'Authentication failed - please verify your credentials'}`;
+					}
+				} else if (response.status === 403) {
+					errorMessage = `403 Forbidden: ${parsedError.error_description || 'Access denied - check your application permissions and scopes'}`;
+				} else if (response.status === 404) {
+					errorMessage = `404 Not Found: ${parsedError.error_description || 'Environment or endpoint not found - verify your Environment ID'}`;
+				} else if (response.status >= 500) {
+					errorMessage = `${response.status} Server Error: ${parsedError.error_description || 'PingOne server error - please try again later'}`;
+				} else {
+					errorMessage = `${response.status} ${response.statusText}: ${parsedError.error_description || errorText}`;
+				}
+				
+				throw new Error(errorMessage);
 			}
 
 			const tokenData = await response.json();

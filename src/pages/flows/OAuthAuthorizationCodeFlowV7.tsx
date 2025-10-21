@@ -8,6 +8,7 @@ import {
 	FiBook,
 	FiCheckCircle,
 	FiChevronDown,
+	FiCode,
 	FiExternalLink,
 	FiGlobe,
 	FiInfo,
@@ -46,6 +47,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
+import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
 import CollapsibleHeaderService from '../../services/collapsibleHeaderService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
@@ -64,6 +66,8 @@ import {
 	DEFAULT_APP_CONFIG,
 } from './config/OAuthAuthzCodeFlowV6.config';
 import FlowCredentialService from '../../services/flowCredentialService';
+import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
+import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
 
 type StepCompletionState = Record<number, boolean>;
 
@@ -768,7 +772,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'oauth-authorization-code-v7',
-		defaultFlowVariant: 'oidc', // V7 defaults to OIDC
+		defaultFlowVariant: 'oauth', // V7 defaults to OAuth 2.0
 		enableDebugger: true,
 	});
 
@@ -784,15 +788,18 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const [showLoginSuccessModal, setShowLoginSuccessModal] = useState(false);
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
+	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
+	const [workerToken, setWorkerToken] = useState<string>('');
 
-	useEffect(() => {
-		setFlowVariant(controller.flowVariant);
-	}, [controller.flowVariant]);
+	// Remove automatic sync - let user control the variant selection
+	// useEffect(() => {
+	// 	setFlowVariant(controller.flowVariant);
+	// }, [controller.flowVariant]);
 
 	const ensureOidcScopes = useCallback((scopeValue: string | undefined) => {
 		const base = scopeValue?.split(' ').filter(Boolean) ?? [];
-		const required = ['openid'];
+		const required = ['openid', 'profile', 'email']; // Consistent scopes for both OAuth 2.0 and OIDC variants
 		required.forEach((scope) => {
 			if (!base.includes(scope)) {
 				base.push(scope);
@@ -855,6 +862,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		},
 		[controller, ensureOidcScopes]
 	);
+
+	// Load worker token from localStorage on mount
+	useEffect(() => {
+		const savedToken = localStorage.getItem('worker-token');
+		const savedEnv = localStorage.getItem('worker-token-env');
+		
+		if (savedToken && savedEnv === controller.credentials.environmentId) {
+			setWorkerToken(savedToken);
+			console.log('[OAuthAuthorizationCodeFlowV7] Worker token loaded from localStorage');
+		}
+	}, [controller.credentials.environmentId]);
 
 	// V7 Variant Selector Component
 	const renderVariantSelector = () => (
@@ -991,12 +1009,18 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const [selectedResponseType, setSelectedResponseType] = useState<string>('code id_token');
 	
 	// Update controller credentials when response type changes
+	const { credentials: controllerCredentials, setCredentials: setControllerCredentials } = controller;
+
 	useEffect(() => {
-		controller.setCredentials({
-			...controller.credentials,
+		if (controllerCredentials.responseType === selectedResponseType) {
+			return;
+		}
+
+		setControllerCredentials({
+			...controllerCredentials,
 			responseType: selectedResponseType,
 		});
-	}, [selectedResponseType, controller]);
+	}, [controllerCredentials, selectedResponseType, setControllerCredentials]);
 
 	// Load PingOne configuration from sessionStorage on mount
 	useEffect(() => {
@@ -1251,7 +1275,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			clientId: '',
 			clientSecret: '',
 			redirectUri: 'https://localhost:3000/authz-callback',
-			scope: 'openid profile',
+			scope: 'openid profile email',
 			responseType: 'code',
 			grantType: 'authorization_code',
 			clientAuthMethod: 'client_secret_post',
@@ -1395,8 +1419,30 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			
 			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
+			
+			// Clear any previous error details on success
+			setErrorDetails(null);
 		} catch (error) {
 			console.error('[AuthorizationCodeFlowV5] Token exchange failed:', error);
+
+			// Use the new OAuth Error Handling Service
+			const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
+				flowType: 'authorization_code',
+				stepId: 'token-exchange',
+				operation: 'exchangeTokens',
+				credentials: {
+					hasClientId: !!controller.credentials.clientId,
+					hasClientSecret: !!controller.credentials.clientSecret,
+					hasEnvironmentId: !!controller.credentials.environmentId,
+					hasRedirectUri: !!controller.credentials.redirectUri,
+					hasScope: !!controller.credentials.scope
+				},
+				metadata: {
+					authCode: controller.authCode ? 'present' : 'missing',
+					flowVariant: controller.flowVariant,
+					grantType: controller.credentials.grantType
+				}
+			});
 
 			// Update API call with error response
 			const errorApiCall: EnhancedApiCallData = {
@@ -1405,36 +1451,23 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					status: 400,
 					statusText: 'Bad Request',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
+					error: errorDetails.message
 				}
 			};
 			
 			setTokenExchangeApiCall(errorApiCall);
 
-			// Parse error message for better user feedback
-			let errorMessage = 'Token exchange failed. Please try again.';
+			// Show user-friendly error message
+			v4ToastManager.showError(errorDetails.message);
 
-			if (error instanceof Error) {
-				const errorText = error.message.toLowerCase();
-				if (errorText.includes('invalid_client')) {
-					errorMessage =
-						'Invalid client credentials. Please check your Client ID and Client Secret.';
-				} else if (errorText.includes('invalid_grant')) {
-					errorMessage = 'Invalid authorization code. Please restart the flow.';
-				} else if (errorText.includes('unauthorized_client')) {
-					errorMessage =
-						'Client not authorized for this grant type. Check your PingOne application configuration.';
-				} else if (errorText.includes('unsupported_grant_type')) {
-					errorMessage = 'Grant type not supported. Check your PingOne application configuration.';
-				} else if (errorText.includes('invalid_scope')) {
-					errorMessage = 'Invalid scope requested. Check your PingOne application scopes.';
-				} else {
-					// Try to extract more specific error from the message
-					errorMessage = error.message;
-				}
-			}
+			// Store error details for UI display
+			setErrorDetails(errorDetails);
 
-			v4ToastManager.showError(errorMessage);
+			// Log detailed error information for developers
+			console.group('🔧 Token Exchange Error - Troubleshooting Guide');
+			console.error('Original Error:', error);
+			console.log('Error Details:', errorDetails);
+			console.groupEnd();
 		}
 	}, [controller, localAuthCode]);
 
@@ -1967,6 +2000,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								subtitle="Configure your application settings and credentials"
 								showAdvancedConfig={true}
 								defaultCollapsed={false}
+
+								// Config Checker
+								showConfigChecker={true}
+								workerToken={workerToken}
+								region={'NA'}
 							/>
 
 							{/* Inline Advanced Options */}
@@ -2658,6 +2696,19 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										/>
 									)}
 
+									{/* Error Display for Token Exchange */}
+									{errorDetails && (
+										<OAuthErrorDisplay
+											errorDetails={errorDetails}
+											onDismiss={() => setErrorDetails(null)}
+											onRetry={() => {
+												setErrorDetails(null);
+												handleExchangeTokens();
+											}}
+											showCorrelationId={true}
+										/>
+									)}
+
 								{/* Only show tokens if they were exchanged in this session */}
 								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
 									controller.tokens,
@@ -2667,6 +2718,53 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										showCopyButtons: true,
 										showDecodeButtons: true,
 									}
+								)}
+
+								{/* Code Examples Section */}
+								{controller.tokens?.access_token && (
+									<CollapsibleSection>
+										<CollapsibleHeaderButton
+											onClick={() => toggleSection('apiCallExamples')}
+											aria-expanded={!collapsedSections.apiCallExamples}
+										>
+											<CollapsibleTitle>
+												<FiCode /> Code Examples
+											</CollapsibleTitle>
+											<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
+												<FiChevronDown />
+											</CollapsibleToggleIcon>
+										</CollapsibleHeaderButton>
+										{!collapsedSections.apiCallExamples && (
+											<CollapsibleContent>
+												<ResultsSection>
+													<ResultsHeading>
+														<FiCode size={18} /> Test Your Access Token
+													</ResultsHeading>
+													<HelperText>
+														Use the access token to make authenticated API calls. Use the code examples
+														below to test your token with a PingOne API endpoint.
+													</HelperText>
+
+													<CodeExamplesDisplay
+														flowType="authorization-code"
+														stepId="step4"
+														config={{
+															baseUrl: 'https://auth.pingone.com',
+															clientId: controller.credentials.clientId || '',
+															clientSecret: controller.credentials.clientSecret || '',
+															redirectUri: controller.credentials.redirectUri || '',
+															scopes: typeof controller.credentials.scopes === 'string' 
+																? controller.credentials.scopes.split(' ') 
+																: Array.isArray(controller.credentials.scopes) 
+																	? controller.credentials.scopes 
+																	: ['openid', 'profile'],
+															environmentId: controller.credentials.environmentId || '',
+														}}
+													/>
+												</ResultsSection>
+											</CollapsibleContent>
+										)}
+									</CollapsibleSection>
 								)}
 								</CollapsibleContent>
 							)}
@@ -2729,6 +2827,53 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
 								}}
 							/>
+						)}
+
+						{/* Code Examples Section for Step 5 */}
+						{controller.tokens?.access_token && (
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('apiCallExamples')}
+									aria-expanded={!collapsedSections.apiCallExamples}
+								>
+									<CollapsibleTitle>
+										<FiCode /> Code Examples
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.apiCallExamples && (
+									<CollapsibleContent>
+										<ResultsSection>
+											<ResultsHeading>
+												<FiCode size={18} /> Test Your Access Token
+											</ResultsHeading>
+											<HelperText>
+												Use the access token to make authenticated API calls. Use the code examples
+												below to test your token with a PingOne API endpoint.
+											</HelperText>
+
+											<CodeExamplesDisplay
+												flowType="authorization-code"
+												stepId="step5"
+												config={{
+													baseUrl: 'https://auth.pingone.com',
+													clientId: controller.credentials.clientId || '',
+													clientSecret: controller.credentials.clientSecret || '',
+													redirectUri: controller.credentials.redirectUri || '',
+													scopes: typeof controller.credentials.scopes === 'string' 
+														? controller.credentials.scopes.split(' ') 
+														: Array.isArray(controller.credentials.scopes) 
+															? controller.credentials.scopes 
+															: ['openid', 'profile'],
+													environmentId: controller.credentials.environmentId || '',
+												}}
+											/>
+										</ResultsSection>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
 						)}
 					</>
 				);

@@ -112,6 +112,7 @@ const OIDCHybridFlowV7: React.FC = () => {
 		HybridFlowCollapsibleSectionsManager.getDefaultState()
 	);
 	const [isExchanging, setIsExchanging] = useState(false);
+	const [workerToken, setWorkerToken] = useState<string>('');
 
 	const toggleSection = useCallback(
 		HybridFlowCollapsibleSectionsManager.createToggleHandler(setCollapsedSections),
@@ -121,6 +122,17 @@ const OIDCHybridFlowV7: React.FC = () => {
 	useEffect(() => {
 		setSelectedVariant(controller.flowVariant);
 	}, [controller.flowVariant]);
+
+	// Load worker token from localStorage on mount
+	useEffect(() => {
+		const savedToken = localStorage.getItem('worker-token');
+		const savedEnv = localStorage.getItem('worker-token-env');
+		
+		if (savedToken && savedEnv === controller.credentials?.environmentId) {
+			setWorkerToken(savedToken);
+			console.log('[OIDCHybridFlowV7] Worker token loaded from localStorage');
+		}
+	}, [controller.credentials?.environmentId]);
 
 	useEffect(() => {
 		if (!controller.credentials) {
@@ -380,6 +392,11 @@ const OIDCHybridFlowV7: React.FC = () => {
 					requireClientSecret
 					showAdvancedConfig
 					defaultCollapsed={false}
+
+					// Config Checker
+					showConfigChecker={true}
+					workerToken={workerToken}
+					region={'NA'}
 				/>
 			</>
 		);

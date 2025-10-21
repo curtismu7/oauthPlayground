@@ -25,6 +25,7 @@ import { storeFlowNavigationState } from '../utils/flowNavigation';
 import { CredentialsInput } from './CredentialsInput';
 import EnvironmentIdInput from './EnvironmentIdInput';
 import { oidcDiscoveryService } from '../services/oidcDiscoveryService';
+import { workerTokenDiscoveryService } from '../services/workerTokenDiscoveryService';
 import FlowConfigurationRequirements from './FlowConfigurationRequirements';
 import FlowInfoCard from './FlowInfoCard';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
@@ -41,6 +42,7 @@ import {
 	IntrospectionApiCallData,
 } from '../services/tokenIntrospectionService';
 import PingOneWorkerInfo from './PingOneWorkerInfo';
+import UnifiedTokenDisplayService from '../services/unifiedTokenDisplayService';
 
 export interface WorkerTokenFlowV5Props {
 	flowName?: string;
@@ -764,8 +766,7 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								<FiSettings size={18} /> PingOne Configuration
 							</ResultsHeading>
 							<HelperText>
-								Configure your PingOne environment and application credentials for the Worker Token
-								Flow.
+								Configure your PingOne environment and application credentials for the <strong>Worker Token Flow</strong>.
 							</HelperText>
 
 							<EnvironmentIdInput
@@ -773,11 +774,66 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								onEnvironmentIdChange={(value) =>
 									controller.setCredentials({ ...controller.credentials, environmentId: value })
 								}
-								onDiscoveryComplete={(discoveryData) => {
-									controller.setCredentials({
-										...controller.credentials,
-										...discoveryData,
-									});
+								onDiscoveryComplete={async (discoveryData) => {
+									console.log('[WorkerToken V5] OIDC Discovery completed:', discoveryData);
+									
+									// Use comprehensive discovery service for enhanced functionality
+									if (discoveryData.environmentId) {
+										try {
+											const comprehensiveResult = await workerTokenDiscoveryService.discover({
+												environmentId: discoveryData.environmentId,
+												region: 'us',
+												clientId: controller.credentials.clientId,
+												clientSecret: controller.credentials.clientSecret,
+												timeout: 15000,
+												enableCaching: true,
+											});
+
+											if (comprehensiveResult.success) {
+												console.log('[WorkerToken V5] Comprehensive discovery successful:', comprehensiveResult);
+												
+												// Update credentials with comprehensive discovery results
+												const updatedCredentials = {
+													...controller.credentials,
+													environmentId: comprehensiveResult.environmentId || discoveryData.environmentId,
+													tokenEndpoint: comprehensiveResult.tokenEndpoint,
+													introspectionEndpoint: comprehensiveResult.introspectionEndpoint,
+													userInfoEndpoint: comprehensiveResult.userInfoEndpoint,
+													scopes: comprehensiveResult.scopes?.join(' ') || controller.credentials.scopes,
+												};
+
+												controller.setCredentials(updatedCredentials);
+												
+												// Auto-save credentials if we have both environmentId and clientId
+												if (updatedCredentials.environmentId && updatedCredentials.clientId) {
+													await controller.saveCredentials();
+													v4ToastManager.showSuccess('Credentials auto-saved after comprehensive OIDC discovery');
+												}
+												
+												v4ToastManager.showSuccess('Enhanced OIDC discovery completed with comprehensive PingOne configuration');
+											} else {
+												console.warn('[WorkerToken V5] Comprehensive discovery failed, using basic discovery:', comprehensiveResult.error);
+												// Fallback to basic discovery data
+												controller.setCredentials({
+													...controller.credentials,
+													...discoveryData,
+												});
+											}
+										} catch (error) {
+											console.warn('[WorkerToken V5] Comprehensive discovery error, using basic discovery:', error);
+											// Fallback to basic discovery data
+											controller.setCredentials({
+												...controller.credentials,
+												...discoveryData,
+											});
+										}
+									} else {
+										// Use basic discovery data if no environmentId
+										controller.setCredentials({
+											...controller.credentials,
+											...discoveryData,
+										});
+									}
 								}}
 							/>
 
@@ -816,6 +872,54 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 								showLoginHint={false}
 								showEnvironmentIdInput={false}
 							/>
+
+							{/* Manual Save Button for Credentials */}
+							<div style={{ 
+								display: 'flex', 
+								justifyContent: 'center', 
+								marginTop: '1rem',
+								marginBottom: '1.5rem'
+							}}>
+								<button
+									onClick={async () => {
+										try {
+											await controller.saveCredentials();
+											v4ToastManager.showSuccess('Credentials saved successfully!');
+										} catch (error) {
+											v4ToastManager.showError('Failed to save credentials');
+											console.error('Failed to save credentials:', error);
+										}
+									}}
+									style={{
+										display: 'flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										padding: '0.75rem 1.5rem',
+										background: '#10b981',
+										color: 'white',
+										border: '1px solid #059669',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										fontWeight: '500',
+										cursor: 'pointer',
+										transition: 'all 0.2s ease',
+										boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.background = '#059669';
+										e.currentTarget.style.transform = 'translateY(-1px)';
+										e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.background = '#10b981';
+										e.currentTarget.style.transform = 'translateY(0)';
+										e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+									}}
+								>
+									<FiSettings size={16} />
+									Save Credentials
+								</button>
+							</div>
 
 							<PingOneApplicationConfig 
 								value={pingOneConfig} 
@@ -900,54 +1004,17 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 
 								<GeneratedContentBox style={{ marginTop: '1rem' }}>
 									<GeneratedLabel>Tokens Received</GeneratedLabel>
-									<ParameterGrid>
-										{controller.tokens.access_token && (
-											<div style={{ gridColumn: '1 / -1' }}>
-												<ParameterLabel>Access Token</ParameterLabel>
-												<ParameterValue style={{ wordBreak: 'break-all' }}>
-													{String(controller.tokens.access_token)}
-												</ParameterValue>
-												<Button
-													onClick={() => {
-														navigator.clipboard.writeText(String(controller.tokens?.access_token));
-														v4ToastManager.showSuccess('Access Token copied to clipboard!');
-													}}
-													$variant="primary"
-													style={{
-														marginTop: '0.5rem',
-														fontSize: '0.8rem',
-														fontWeight: '600',
-														padding: '0.5rem 0.75rem',
-														backgroundColor: '#059669',
-														borderColor: '#059669',
-														color: '#ffffff',
-													}}
-												>
-													<FiCopy /> Copy Access Token
-												</Button>
-											</div>
-										)}
-										{controller.tokens.token_type && (
-											<div>
-												<ParameterLabel>Token Type</ParameterLabel>
-												<ParameterValue>{String(controller.tokens.token_type)}</ParameterValue>
-											</div>
-										)}
-										{controller.tokens.scope && (
-											<div>
-												<ParameterLabel>Scope</ParameterLabel>
-												<ParameterValue>{String(controller.tokens.scope)}</ParameterValue>
-											</div>
-										)}
-										{controller.tokens.expires_in && (
-											<div>
-												<ParameterLabel>Expires In</ParameterLabel>
-												<ParameterValue>
-													{String(controller.tokens.expires_in)} seconds
-												</ParameterValue>
-											</div>
-										)}
-									</ParameterGrid>
+									{UnifiedTokenDisplayService.showTokens(
+										controller.tokens,
+										'oauth',
+										'worker-token-v5',
+										{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+											showIntrospection: false,
+											title: '🔑 Worker Access Token'
+										}
+									)}
 
 									{/* Token Management Buttons */}
 									<ActionRow
@@ -964,22 +1031,6 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 										>
 											<FiExternalLink /> View in Token Management
 										</Button>
-										{controller.tokens.access_token && (
-											<Button
-												onClick={navigateToTokenManagement}
-												$variant="primary"
-												style={{
-													fontSize: '0.9rem',
-													fontWeight: '600',
-													padding: '0.75rem 1rem',
-													backgroundColor: '#059669',
-													borderColor: '#059669',
-													color: '#ffffff',
-												}}
-											>
-												<FiKey /> Decode Access Token
-											</Button>
-										)}
 									</ActionRow>
 								</GeneratedContentBox>
 							</ResultsSection>

@@ -792,7 +792,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const ensureOidcScopes = useCallback((scopeValue: string | undefined) => {
 		const base = scopeValue?.split(' ').filter(Boolean) ?? [];
-		const required = ['openid'];
+		const required = ['openid', 'profile', 'email']; // Consistent scopes for both OAuth 2.0 and OIDC variants
 		required.forEach((scope) => {
 			if (!base.includes(scope)) {
 				base.push(scope);
@@ -1251,7 +1251,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			clientId: '',
 			clientSecret: '',
 			redirectUri: 'https://localhost:3000/authz-callback',
-			scope: 'openid profile',
+			scope: 'openid profile email',
 			responseType: 'code',
 			grantType: 'authorization_code',
 			clientAuthMethod: 'client_secret_post',

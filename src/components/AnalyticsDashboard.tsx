@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
 	FiAlertTriangle,
-	FiBarChart3,
 	FiClock,
 	FiDownload,
 	FiRefreshCw,
@@ -9,6 +8,7 @@ import {
 	FiTrendingUp,
 	FiUsers,
 } from 'react-icons/fi';
+import { BarChart3 } from 'lucide-react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';
@@ -411,7 +411,7 @@ export const AnalyticsDashboard: React.FC = () => {
 			<DashboardHeader>
 				<DashboardTitle>
 					<DashboardIcon>
-						<FiBarChart3 />
+						<BarChart3 size={24} />
 					</DashboardIcon>
 					Analytics Dashboard
 				</DashboardTitle>
@@ -503,7 +503,7 @@ export const AnalyticsDashboard: React.FC = () => {
 					</ChartHeader>
 					<ChartContent>
 						<div style={{ textAlign: 'center' }}>
-							<FiBarChart3 style={{ fontSize: '3rem', marginBottom: '1rem' }} />
+							<BarChart3 size={48} style={{ marginBottom: '1rem' }} />
 							<p>User engagement chart would be displayed here</p>
 							<p style={{ fontSize: '0.75rem', color: '#6b7280' }}>
 								Integration with charting library required

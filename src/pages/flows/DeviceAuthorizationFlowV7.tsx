@@ -20,6 +20,7 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
+import { BarChart3, Play } from 'lucide-react';
 import DeviceTypeSelector from '../../components/DeviceTypeSelector';
 import DynamicDeviceFlow from '../../components/DynamicDeviceFlow';
 import { themeService } from '../../services/themeService';
@@ -48,8 +49,14 @@ import ComprehensiveCredentialsService from '../../services/comprehensiveCredent
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
+import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
 import { deviceTypeService } from '../../services/deviceTypeService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import AnalyticsDashboard from '../../components/AnalyticsDashboard';
+import PerformanceMonitor from '../../components/PerformanceMonitor';
+import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
+import InteractiveTutorial from '../../components/InteractiveTutorial';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -372,7 +379,8 @@ const STEP_METADATA = [
 	{ title: 'Step 2: User Authorization & Polling', subtitle: 'Scan QR code and watch TV update' },
 	{ title: 'Step 3: Tokens Received', subtitle: 'View and analyze tokens' },
 	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 5: Flow Complete', subtitle: 'Summary and next steps' },
+	{ title: 'Step 5: Analytics & Monitoring', subtitle: 'View flow analytics and performance metrics' },
+	{ title: 'Step 6: Flow Complete', subtitle: 'Summary and next steps' },
 ] as const;
 
 type SectionKey =
@@ -393,6 +401,8 @@ type SectionKey =
 	| 'introspectionDetails'
 	| 'completionOverview'
 	| 'completionDetails'
+	| 'analytics'
+	| 'tutorial'
 	| 'uiSettings'
 	| 'deviceSelection';
 
@@ -1094,6 +1104,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		introspectionDetails: false,
 		completionOverview: false,
 		completionDetails: false,
+		analytics: false,
+		tutorial: false,
 		uiSettings: true,  // Collapsed by default
 		deviceSelection: false,
 	});
@@ -1115,6 +1127,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 		return 'streaming-tv';
 	});
+	
+	// Error handling state
+	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const deviceConfig = useMemo(
 		() => deviceTypeService.getDeviceType(selectedDevice),
 		[selectedDevice]
@@ -1132,6 +1147,37 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		[selectedDevice]
 	);
 	const deviceApps = useMemo(() => deviceTypeService.getDeviceApps(selectedDevice), [selectedDevice]);
+	
+	// Monitor deviceFlow polling status for errors
+	React.useEffect(() => {
+		if (deviceFlow.pollingStatus.error) {
+			// Parse the error using OAuth Error Handling Service
+			const errorDetails = OAuthErrorHandlingService.parseOAuthError(
+				new Error(deviceFlow.pollingStatus.error),
+				{
+					flowType: 'device_authorization',
+					stepId: 'token-exchange',
+					operation: 'pollForTokens',
+					credentials: {
+						hasClientId: !!deviceFlow.credentials.clientId,
+						hasClientSecret: !!deviceFlow.credentials.clientSecret,
+						hasEnvironmentId: !!deviceFlow.credentials.environmentId,
+						hasRedirectUri: !!deviceFlow.credentials.redirectUri,
+						hasScope: !!deviceFlow.credentials.scopes
+					},
+					metadata: {
+						deviceCode: deviceFlow.deviceCodeData?.device_code ? 'present' : 'missing',
+						flowVariant: selectedVariant,
+						grantType: 'urn:ietf:params:oauth:grant-type:device_code'
+					}
+				}
+			);
+			setErrorDetails(errorDetails);
+		} else {
+			// Clear error details on success
+			setErrorDetails(null);
+		}
+	}, [deviceFlow.pollingStatus.error, deviceFlow.credentials, deviceFlow.deviceCodeData, selectedVariant]);
 	const deviceOptions = useMemo(() => deviceTypeService.getDeviceTypeOptions(), []);
 
 	React.useEffect(() => {
@@ -1257,6 +1303,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 	const handleStartPolling = useCallback(() => {
 		setShowPollingModal(false);
+		// Clear any previous error details
+		setErrorDetails(null);
 		deviceFlow.startPolling();
 		// Stay on current step (User Authorization - step 2) so user can see Smart TV update
 		// Don't advance to step 3 - let user see the real-time polling results on the TV display
@@ -1290,7 +1338,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				case 4:
 					return !!deviceFlow.tokens; // Introspection (old step 5)
 				case 5:
-					return true; // Completion (old step 6)
+					return true; // Analytics & Monitoring (new step 5)
+				case 6:
+					return true; // Flow Complete (old step 6)
 				default:
 					return false;
 			}
@@ -1353,6 +1403,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			case 4:
 				return renderIntrospection(); // Old step 5
 			case 5:
+				return renderAnalyticsAndMonitoring(); // New analytics step
+			case 6:
 				return renderCompletion(); // Old step 6
 
 			default:
@@ -1442,6 +1494,19 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 										}}
 									/>
 								</div>
+
+								{/* Error Display for Token Exchange */}
+								{errorDetails && (
+									<OAuthErrorDisplay
+										errorDetails={errorDetails}
+										onDismiss={() => setErrorDetails(null)}
+										onRetry={() => {
+											setErrorDetails(null);
+											handleStartPolling();
+										}}
+										showCorrelationId={true}
+									/>
+								)}
 
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
 									<ResultsHeading>
@@ -1894,12 +1959,26 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					ensureCredentials({ scopes: finalScopes });
 				}}
 				
-				// Save handler (setCredentials already persists to localStorage)
-				onSave={() => {
-					// Trigger a re-save by setting credentials again
-					if (deviceFlow.credentials) {
-						ensureCredentials(deviceFlow.credentials);
-						v4ToastManager.showSuccess('Credentials saved successfully!');
+				// Save handler - save to credential manager
+				onSave={async () => {
+					try {
+						if (deviceFlow.credentials) {
+							// Save to credential manager for persistence across flows
+							const success = credentialManager.saveDeviceFlowCredentials({
+								environmentId: deviceFlow.credentials.environmentId,
+								clientId: deviceFlow.credentials.clientId,
+								scopes: deviceFlow.credentials.scopes,
+							});
+							
+							if (success) {
+								v4ToastManager.showSuccess('Credentials saved successfully!');
+							} else {
+								throw new Error('Failed to save credentials to credential manager');
+							}
+						}
+					} catch (error) {
+						console.error('[Device Authz V7] Failed to save credentials:', error);
+						v4ToastManager.showError('Failed to save credentials');
 					}
 				}}
 				hasUnsavedChanges={false}
@@ -1920,6 +1999,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}
+				
+				// Config Checker props
+				showConfigChecker={true}
+				workerToken={localStorage.getItem('worker_token') || ''}
+				region="NA"
 			/>
 
 			{/* Info about Device Flow Requirements */}
@@ -2044,7 +2128,42 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								</div>
 							</InfoBox>
 
-							<InfoBox $variant="success" style={{ marginTop: '1rem' }}>
+							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
+								<div
+									style={{
+										background: '#3b82f6',
+										color: 'white',
+										borderRadius: '50%',
+										width: '24px',
+										height: '24px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										fontSize: '0.875rem',
+										fontWeight: 'bold',
+										flexShrink: 0,
+									}}
+								>
+									2
+								</div>
+								<div>
+									<InfoTitle>Choose Your Device Type</InfoTitle>
+									<InfoText>
+										Select the type of device you want to simulate for the authorization flow.
+										This will determine the visual interface and user experience.
+									</InfoText>
+								</div>
+							</InfoBox>
+
+							{/* Device Type Selector */}
+							<div style={{ marginTop: '1.5rem' }}>
+								<DeviceTypeSelector
+									selectedDevice={selectedDevice}
+									onDeviceChange={setSelectedDevice}
+								/>
+							</div>
+
+							<InfoBox $variant="success" style={{ marginTop: '1.5rem' }}>
 								<div
 									style={{
 										background: '#22c55e',
@@ -2060,7 +2179,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 										flexShrink: 0,
 									}}
 								>
-									2
+									3
 								</div>
 								<div>
 									<InfoTitle>Make the Device Code Request</InfoTitle>
@@ -2588,39 +2707,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								</div>
 							</InfoBox>
 
-							<div
-								style={{
-									display: 'flex',
-									flexDirection: 'column',
-									alignItems: 'flex-start',
-									gap: '0.5rem',
-									marginTop: '1.5rem',
-								}}
-							>
-								<label style={{ fontWeight: 600, color: '#1e293b', fontSize: '0.95rem' }}>
-									Simulate Device View
-								</label>
-								<select
-									value={selectedDevice}
-									onChange={(e) => setSelectedDevice(e.target.value)}
-									style={{
-										padding: '0.65rem 0.85rem',
-										borderRadius: '0.5rem',
-										border: '2px solid #cbd5f5',
-										fontSize: '0.95rem',
-										fontWeight: 500,
-										color: '#1e293b',
-										backgroundColor: '#ffffff',
-									}}
-								>
-									{deviceOptions.map((option) => (
-										<option key={option.value} value={option.value}>
-											{option.emoji} {option.label}
-										</option>
-									))}
-								</select>
-							</div>
-
 							{/* Device Type Selector */}
 							<DeviceTypeSelector
 								selectedDevice={selectedDevice}
@@ -2759,6 +2845,98 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					}}
 				/>
 			)}
+		</>
+	);
+
+	const renderAnalyticsAndMonitoring = () => (
+		<>
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('analytics')}
+					aria-expanded={!collapsedSections.analytics}
+				>
+					<CollapsibleTitle>
+						<BarChart3 size={16} /> Analytics & Monitoring
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.analytics}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.analytics && (
+					<CollapsibleContent>
+						<ExplanationSection>
+							<ExplanationHeading>
+								<BarChart3 size={16} /> Flow Analytics & Performance Monitoring
+							</ExplanationHeading>
+							<InfoText>
+								Monitor the performance and analytics of your device authorization flow.
+								Track completion rates, device usage patterns, and security metrics.
+							</InfoText>
+
+							{/* Analytics Dashboard */}
+							<div style={{ marginTop: '1.5rem' }}>
+								<AnalyticsDashboard />
+							</div>
+
+							{/* Performance Monitor */}
+							<div style={{ marginTop: '1.5rem' }}>
+								<PerformanceMonitor />
+							</div>
+
+							{/* Security Analytics */}
+							<div style={{ marginTop: '1.5rem' }}>
+								<SecurityAnalyticsDashboard />
+							</div>
+
+							<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
+								<FiInfo size={20} />
+								<div>
+									<InfoTitle>Analytics Features:</InfoTitle>
+									<InfoText>
+										• Flow completion tracking and success rates<br />
+										• Device usage patterns and preferences<br />
+										• Performance metrics and response times<br />
+										• Security analytics and threat detection<br />
+										• User behavior insights and learning progress
+									</InfoText>
+								</div>
+							</InfoBox>
+						</ExplanationSection>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
+
+			{/* Interactive Tutorial Section */}
+			<CollapsibleSection>
+				<CollapsibleHeaderButton
+					onClick={() => toggleSection('tutorial')}
+					aria-expanded={!collapsedSections.tutorial}
+				>
+					<CollapsibleTitle>
+						<Play size={16} /> Interactive Tutorial
+					</CollapsibleTitle>
+					<CollapsibleToggleIcon $collapsed={collapsedSections.tutorial}>
+						<FiChevronDown />
+					</CollapsibleToggleIcon>
+				</CollapsibleHeaderButton>
+				{!collapsedSections.tutorial && (
+					<CollapsibleContent>
+						<ExplanationSection>
+							<ExplanationHeading>
+								<Play size={16} /> Learn More About Device Authorization
+							</ExplanationHeading>
+							<InfoText>
+								Take an interactive tutorial to deepen your understanding of device authorization flows,
+								security considerations, and best practices.
+							</InfoText>
+
+							<div style={{ marginTop: '1.5rem' }}>
+								<InteractiveTutorial />
+							</div>
+						</ExplanationSection>
+					</CollapsibleContent>
+				)}
+			</CollapsibleSection>
 		</>
 	);
 
@@ -2909,17 +3087,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<FiMonitor style={{ flexShrink: 0, color: '#3b82f6' }} />
 								<div>
 									<InfoTitle style={{ fontSize: '1rem', fontWeight: 600, color: '#0369a1' }}>
-										🎮 Choose Your Device
+										🎮 Device Selection
 									</InfoTitle>
 									<InfoText style={{ marginTop: '0.75rem', color: '#0c4a6e' }}>
-										Select the type of device you want to simulate. This updates the entire flow’s visuals and messaging.
+										Device selection is available in the main flow area above. Choose your device type to see the appropriate authorization interface.
 									</InfoText>
-									<div style={{ marginTop: '1rem' }}>
-										<DeviceTypeSelector
-											selectedDevice={selectedDevice}
-											onDeviceChange={setSelectedDevice}
-										/>
-									</div>
 								</div>
 							</InfoBox>
 						</CollapsibleContent>

@@ -1,0 +1,2 @@
+1) Need to ask what redirect URI and what Token auth they want to use
+2) If there is only 1 TOken auth allowed (liek implicit only does None) then do not ask. 
