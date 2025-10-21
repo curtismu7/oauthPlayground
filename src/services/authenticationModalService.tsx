@@ -359,14 +359,15 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 	// Handle PAR data submission
 	const handlePARDataSubmit = (parData: any) => {
 		try {
-			// Generate authorization URL with request_uri
-			const authEndpoint = `https://auth.pingone.com/${parData.environmentId}/as/authorize`;
-			const params = new URLSearchParams({
-				client_id: parData.clientId,
-				request_uri: parData.requestUri,
-			});
+			// Parse the existing authorization URL to preserve all parameters
+			const existingUrl = new URL(authUrl);
+			const existingParams = new URLSearchParams(existingUrl.search);
 			
-			const generatedUrl = `${authEndpoint}?${params.toString()}`;
+			// Add the request_uri parameter to the existing parameters
+			existingParams.set('request_uri', parData.requestUri);
+			
+			// Generate the new URL with all original parameters plus request_uri
+			const generatedUrl = `${existingUrl.origin}${existingUrl.pathname}?${existingParams.toString()}`;
 			setParGeneratedUrl(generatedUrl);
 			setShowPARInput(false);
 			
@@ -519,7 +520,7 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 				countdownIntervalRef.current = null;
 			}
 		};
-	}, [isOpen, authUrl, handleContinue]);
+	}, [isOpen, authUrl]);
 
 	// Get flow-specific information
 	const getFlowInfo = () => {
@@ -647,8 +648,8 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 						)}
 						<ColoredUrlDisplay
 							url={safeAuthUrl}
-							title="Authorization URL"
-							showExplainButton={isValidUrl(authUrl)}
+							label="Authorization URL"
+							showInfoButton={isValidUrl(authUrl)}
 							showCopyButton={isValidUrl(authUrl)}
 							showOpenButton={false}
 						/>

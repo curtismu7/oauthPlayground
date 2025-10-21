@@ -412,9 +412,13 @@ export const useImplicitFlowController = (
 			'response_type',
 			credentials.responseType || (flowVariant === 'oidc' ? 'id_token token' : 'token')
 		);
-		params.set('scope', credentials.scope || credentials.scopes || 'openid');
+		params.set('scope', credentials.scope || credentials.scopes || 'openid profile email');
 		params.set('state', finalState);
-		params.set('nonce', finalNonce);
+		
+		// Only send nonce for OIDC variant (when ID token is expected)
+		if (flowVariant === 'oidc' || credentials.responseType?.includes('id_token')) {
+			params.set('nonce', finalNonce);
+		}
 		
 		// Add response_mode parameter (default to fragment for implicit flow)
 		params.set('response_mode', credentials.responseMode || 'fragment');

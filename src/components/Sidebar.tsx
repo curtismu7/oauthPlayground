@@ -314,7 +314,7 @@ const ResizeHandle = styled.div`
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [sidebarWidth, setSidebarWidth] = useState(380); // Increased to fit widest menu items
+	const [sidebarWidth, setSidebarWidth] = useState(450); // Increased to fit widest menu items with mock badges
 	const isResizing = useRef(false);
 	
 	// Force re-render timestamp for CSS updates
@@ -382,8 +382,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/configuration': 'Configuration',
 			'/flows/oauth-authorization-code-v6': 'OAuth Authorization Code',
 			'/flows/oauth-authorization-code-v7': 'Authorization Code V7',
-			'/flows/oauth-authorization-code-v7-1': 'Authorization Code V7.1',
-			'/flows/oauth-authorization-code-v7-2': 'Authorization Code V7.2',
 			'/flows/oauth2-compliant-authorization-code': 'RFC 6749 Compliant OAuth 2.0',
 			'/flows/oidc-compliant-authorization-code': 'OIDC Core 1.0 Compliant',
 			'/flows/oauth-implicit-v6': 'OAuth Implicit Flow',
@@ -591,43 +589,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						</MenuItemContent>
 					</MenuItem>
 
-					{/* Authorization Code (V7.1) - Refactored */}
-					<MenuItem
-						icon={<ColoredIcon $color="#10b981"><FiKey /></ColoredIcon>}
-						active={isActive('/flows/oauth-authorization-code-v7-1')}
-						onClick={() => handleNavigation('/flows/oauth-authorization-code-v7-1')}
-						className="v7-flow"
-						style={{
-							background: isActive('/flows/oauth-authorization-code-v7-1') ? '#f0fdf4' : 'transparent',
-							borderLeft: isActive('/flows/oauth-authorization-code-v7-1') ? '3px solid #10b981' : '3px solid transparent',
-						}}
-					>
-						<MenuItemContent>
-							<span>Authorization Code (V7.1)</span>
-							<MigrationBadge title="V7.1: Refactored with modular components, error boundaries, and performance monitoring">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					{/* Authorization Code (V7.2) - Original UI */}
-					<MenuItem
-						icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
-						active={isActive('/flows/oauth-authorization-code-v7-2')}
-						onClick={() => handleNavigation('/flows/oauth-authorization-code-v7-2')}
-						className="v7-flow"
-						style={{
-							background: isActive('/flows/oauth-authorization-code-v7-2') ? '#fff7ed' : 'transparent',
-							borderLeft: isActive('/flows/oauth-authorization-code-v7-2') ? '3px solid #f97316' : '3px solid transparent',
-						}}
-					>
-						<MenuItemContent>
-							<span>Authorization Code (V7.2)</span>
-							<MigrationBadge title="V7.2: Original V7 UI with minimal architectural improvements" style={{ background: '#f97316', color: '#ffffff' }}>
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
 
 					{/* Implicit Flow (V7) - Unified OAuth/OIDC */}
 					<MenuItem
@@ -715,9 +676,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					>
 						<MenuItemContent>
 							<span>Token Exchange (V7)</span>
-							<MigrationBadge title="V7: RFC 8693 Token Exchange for A2A Security">
-								<FiCheckCircle />
-							</MigrationBadge>
+							<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+								<MigrationBadge title="V7: RFC 8693 Token Exchange for A2A Security">
+									<FiCheckCircle />
+								</MigrationBadge>
+								<span style={{ 
+									background: '#f59e0b', 
+									color: 'white', 
+									padding: '2px 6px', 
+									borderRadius: '4px', 
+									fontSize: '10px', 
+									fontWeight: 'bold' 
+								}}>
+									🎭 MOCK
+								</span>
+							</div>
 						</MenuItemContent>
 					</MenuItem>
 				</SubMenu>
@@ -789,9 +762,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<MenuItemContent>
 								<span>JWT Bearer Token (V7)</span>
-								<MigrationBadge title="V7: JWT Bearer with PingFederate/PingOne AIS examples">
-									<FiCheckCircle />
-								</MigrationBadge>
+								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+									<MigrationBadge title="V7: JWT Bearer with PingFederate/PingOne AIS examples">
+										<FiCheckCircle />
+									</MigrationBadge>
+									<span style={{ 
+										background: '#f59e0b', 
+										color: 'white', 
+										padding: '2px 6px', 
+										borderRadius: '4px', 
+										fontSize: '10px', 
+										fontWeight: 'bold' 
+									}}>
+										🎭 MOCK
+									</span>
+								</div>
 							</MenuItemContent>
 						</MenuItem>
 
@@ -910,7 +895,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							active={isActive('/pingone-mock-features')}
 							onClick={() => handleNavigation('/pingone-mock-features')}
 						>
-							Mock & Educational Features
+							<MenuItemContent>
+								<span>Mock & Educational Features</span>
+								<span style={{ 
+									background: '#f59e0b', 
+									color: 'white', 
+									padding: '2px 6px', 
+									borderRadius: '4px', 
+									fontSize: '10px', 
+									fontWeight: 'bold' 
+								}}>
+									🎭 MOCK
+								</span>
+							</MenuItemContent>
 						</MenuItem>
 
 						{/* V7 PingOne Flows */}
@@ -954,9 +951,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<MenuItemContent>
 								<span>SAML Bearer Assertion (V7)</span>
-								<MigrationBadge title="V7: SAML Bearer with PingFederate/PingOne AIS examples">
-									<FiCheckCircle />
-								</MigrationBadge>
+								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+									<MigrationBadge title="V7: SAML Bearer with PingFederate/PingOne AIS examples">
+										<FiCheckCircle />
+									</MigrationBadge>
+									<span style={{ 
+										background: '#f59e0b', 
+										color: 'white', 
+										padding: '2px 6px', 
+										borderRadius: '4px', 
+										fontSize: '10px', 
+										fontWeight: 'bold' 
+									}}>
+										🎭 MOCK
+									</span>
+								</div>
 							</MenuItemContent>
 						</MenuItem>
 					</SubMenu>
@@ -977,9 +986,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<MenuItemContent>
 								<span>Advanced OAuth Parameters Demo</span>
-								<MigrationBadge title="Demonstrates all OAuth/OIDC advanced parameters with mock responses">
-									<FiBookOpen />
-								</MigrationBadge>
+								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+									<MigrationBadge title="Demonstrates all OAuth/OIDC advanced parameters with mock responses">
+										<FiBookOpen />
+									</MigrationBadge>
+									<span style={{ 
+										background: '#f59e0b', 
+										color: 'white', 
+										padding: '2px 6px', 
+										borderRadius: '4px', 
+										fontSize: '10px', 
+										fontWeight: 'bold' 
+									}}>
+										🎭 MOCK
+									</span>
+								</div>
 							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
@@ -991,9 +1012,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<MenuItemContent>
 								<span>ROPC (Mock) (V6)</span>
-								<MigrationBadge title="V6: Hybrid implementation - V5 controller with V6 layout and styling">
-									<FiCheckCircle />
-								</MigrationBadge>
+								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+									<MigrationBadge title="V6: Hybrid implementation - V5 controller with V6 layout and styling">
+										<FiCheckCircle />
+									</MigrationBadge>
+									<span style={{ 
+										background: '#f59e0b', 
+										color: 'white', 
+										padding: '2px 6px', 
+										borderRadius: '4px', 
+										fontSize: '10px', 
+										fontWeight: 'bold' 
+									}}>
+										🎭 MOCK
+									</span>
+								</div>
 							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
@@ -1005,9 +1038,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						>
 							<MenuItemContent>
 								<span>CIBA Flow (Mock) (V6)</span>
-								<MigrationBadge title="V6: Educational CIBA implementation - PingOne does not support CIBA">
-									<FiBookOpen />
-								</MigrationBadge>
+								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+									<MigrationBadge title="V6: Educational CIBA implementation - PingOne does not support CIBA">
+										<FiBookOpen />
+									</MigrationBadge>
+									<span style={{ 
+										background: '#f59e0b', 
+										color: 'white', 
+										padding: '2px 6px', 
+										borderRadius: '4px', 
+										fontSize: '10px', 
+										fontWeight: 'bold' 
+									}}>
+										🎭 MOCK
+									</span>
+								</div>
 							</MenuItemContent>
 						</MenuItem>
 							<MenuItem
@@ -1019,9 +1064,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							>
 							<MenuItemContent>
 								<span>RAR (V6)</span>
-								<MigrationBadge title="V6: Service Architecture + RAR Education">
-									<FiCheckCircle />
-								</MigrationBadge>
+								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+									<MigrationBadge title="V6: Service Architecture + RAR Education">
+										<FiCheckCircle />
+									</MigrationBadge>
+									<span style={{ 
+										background: '#f59e0b', 
+										color: 'white', 
+										padding: '2px 6px', 
+										borderRadius: '4px', 
+										fontSize: '10px', 
+										fontWeight: 'bold' 
+									}}>
+										🎭 MOCK
+									</span>
+								</div>
 							</MenuItemContent>
 						</MenuItem>
 						<MenuItem
@@ -1036,7 +1093,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 							active={isActive('/flows/redirectless-flow-mock')}
 							onClick={() => handleNavigation('/flows/redirectless-flow-mock')}
 						>
-							Redirectless Flow V5 (Educational)
+							<MenuItemContent>
+								<span>Redirectless Flow V5 (Educational)</span>
+								<span style={{ 
+									background: '#f59e0b', 
+									color: 'white', 
+									padding: '2px 6px', 
+									borderRadius: '4px', 
+									fontSize: '10px', 
+									fontWeight: 'bold' 
+								}}>
+									🎭 MOCK
+								</span>
+							</MenuItemContent>
 						</MenuItem>
 					</SubMenu>
 

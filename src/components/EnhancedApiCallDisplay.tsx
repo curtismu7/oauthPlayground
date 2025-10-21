@@ -482,12 +482,18 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 		(url: string) => {
 			if (!url) return null;
 
-			// Get highlighting rules from service
-			const rules =
-				options.urlHighlightRules ||
-				EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
+		// Get highlighting rules from service
+		const rules =
+			options.urlHighlightRules ||
+			EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
 
-			if (rules.length === 0) return null;
+		// Ensure rules is always an array
+		if (!Array.isArray(rules)) {
+			console.warn('[EnhancedApiCallDisplay] rules is not an array:', rules);
+			return null;
+		}
+
+		if (rules.length === 0) return null;
 
 			// Use service to highlight URL
 			const highlightedParts = EnhancedApiCallDisplayService.highlightURL(url, rules);
@@ -839,16 +845,65 @@ console.log('PingOne Response:', data);`,
 
 						{/* Postman Collection Example */}
 						<div style={{ marginBottom: '1.5rem' }}>
-							<h5
-								style={{
-									margin: '0 0 0.5rem 0',
-									fontSize: '0.875rem',
-									fontWeight: 600,
-									color: '#374151',
-								}}
-							>
-								📮 Postman Collection Example
-							</h5>
+							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+								<h5
+									style={{
+										margin: 0,
+										fontSize: '0.875rem',
+										fontWeight: 600,
+										color: '#374151',
+									}}
+								>
+									📮 Postman Collection Example
+								</h5>
+								<ActionButton
+									onClick={() => {
+										const postmanCollection = `{
+  "info": {
+    "name": "PingOne Token Exchange Request",
+    "description": "OAuth 2.0 Token Exchange request to PingOne",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Token Exchange",
+      "request": {
+        "method": "${apiCall.method}",
+        "header": [
+${apiCall.headers ? Object.entries(apiCall.headers).map(([key, value]) => `          {
+            "key": "${key}",
+            "value": "${value}",
+            "type": "text"
+          }`).join(',\n') : '          // No headers'},${apiCall.body ? `
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "${JSON.stringify(apiCall.body, null, 2).replace(/"/g, '\\"')}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }` : ''}
+        ],
+        "url": {
+          "raw": "${apiCall.url}",
+          "protocol": "https",
+          "host": ["auth", "pingone", "com"],
+          "path": ["${apiCall.url.split('/').slice(3).join('", "')}"]
+        }
+      }
+    }
+  ]
+}`;
+										navigator.clipboard.writeText(postmanCollection);
+										onCopy?.('Postman Collection copied to clipboard!');
+									}}
+								>
+									<FiCopy size={14} />
+									Copy Postman Collection
+								</ActionButton>
+							</div>
 							<CodeBlock $theme={theme}>
 								{`{
   "info": {

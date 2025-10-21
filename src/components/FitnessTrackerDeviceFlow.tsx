@@ -9,31 +9,47 @@ import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowServic
 import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
 
-// Fitness Tracker Main Container - Sleek and modern
+// Fitbit Main Container - Authentic Fitbit Design
 const FitnessTrackerContainer = styled.div`
-  background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-  border-radius: 2rem;
-  padding: 2rem;
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #000000 100%);
+  border-radius: 1rem;
+  padding: 1.5rem;
   margin: 2rem 0;
   box-shadow: 
-    0 20px 25px -5px rgba(0, 0, 0, 0.3),
-    0 10px 10px -5px rgba(0, 0, 0, 0.1),
+    0 25px 50px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
-  border: 2px solid #404040;
-  max-width: 400px;
+  border: 2px solid #333333;
+  max-width: 350px;
   margin-left: auto;
   margin-right: auto;
+  color: #ffffff;
   
+  /* Fitbit branding */
   &::before {
+    content: 'FITBIT';
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #00d4aa;
+    letter-spacing: 1px;
+    z-index: 2;
+  }
+  
+  /* Fitbit strap texture */
+  &::after {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(45deg, transparent 30%, rgba(0, 255, 150, 0.05) 50%, transparent 70%);
+    border-radius: 1rem;
+    background: linear-gradient(90deg, transparent 0%, rgba(0, 212, 170, 0.05) 50%, transparent 100%);
     pointer-events: none;
   }
 `;

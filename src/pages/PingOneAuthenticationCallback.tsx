@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -9,6 +9,7 @@ import {
 	FLOW_CONTEXT_KEY,
 	type PlaygroundResult,
 } from './PingOneAuthentication';
+import { FlowContextService } from '../services/flowContextService';
 
 const Page = styled.div`
   min-height: 100vh;
@@ -113,6 +114,17 @@ const PingOneAuthenticationCallback: React.FC = () => {
     return DEFAULT_CONFIG;
   }, []);
 
+  const computeFallbackPath = useCallback((): string => {
+    const mergedParams = { ...parseParams(location.hash, true), ...parseParams(location.search.startsWith('?') ? location.search.slice(1) : location.search) };
+    if (mergedParams.flow === 'oauth-authorization-code-v7' || location.search.includes('flow=oauth-authorization-code-v7')) {
+      return '/flows/oauth-authorization-code-v7?step=4';
+    }
+    if (mergedParams.flow === 'device-authorization-v7' || location.search.includes('flow=device-authorization-v7')) {
+      return '/flows/device-authorization-v7?step=4';
+    }
+    return '/pingone-authentication/result';
+  }, [location.hash, location.search]);
+
   useEffect(() => {
     const fragmentTokens = parseParams(location.hash, true);
     const queryTokens = parseParams(location.search.startsWith('?') ? location.search.slice(1) : location.search);
@@ -125,6 +137,17 @@ const PingOneAuthenticationCallback: React.FC = () => {
         flowContext = JSON.parse(flowContextRaw);
       } catch (err) {
         console.warn('[PingOneAuthenticationCallback] Failed to parse flow context:', err);
+      }
+    }
+
+    if (!flowContext) {
+      const savedContext = FlowContextService.getFlowContext();
+      if (savedContext) {
+        flowContext = {
+          returnPath: savedContext.returnPath,
+          responseType: savedContext.flowState?.responseType,
+        };
+        FlowContextService.clearFlowContext();
       }
     }
 
@@ -175,10 +198,10 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
     v4ToastManager.showSuccess('Tokens captured! Redirecting to the lounge…');
 
-    const targetPath = flowContext?.returnPath || '/pingone-authentication/result';
+    const targetPath = flowContext?.returnPath || computeFallbackPath();
     setTimeout(() => navigate(targetPath), 900);
     setIsProcessing(false);
-  }, [config, location.hash, location.search, navigate]);
+  }, [computeFallbackPath, config, location.hash, location.search, navigate]);
 
   return (
     <Page>
