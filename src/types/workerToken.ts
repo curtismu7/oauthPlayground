@@ -272,11 +272,10 @@ export type WorkerTokenErrorCode =
 
 // Constants
 export const DEFAULT_WORKER_SCOPES = [
-	'openid',
 	'p1:read:user',
-	'p1:read:userGroup',
-	'p1:read:application',
-	'p1:read:environment',
+	'p1:update:user',
+	'p1:read:device',
+	'p1:update:device',
 ];
 
 export const SUPPORTED_REGIONS = ['NA', 'EU', 'CA', 'AP'];

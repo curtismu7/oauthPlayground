@@ -20,7 +20,7 @@ const Container = styled.div`
   flex-direction: column;
   gap: 1rem;
   padding: 1.5rem;
-  background: blue !important;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
 `;
@@ -36,13 +36,13 @@ const Title = styled.h3`
   margin: 0;
   font-size: 1.125rem;
   font-weight: 600;
-  color: #1e293b;
+  color: #000000;
 `;
 
 const Description = styled.p`
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
-  color: #64748b;
+  color: #000000;
   line-height: 1.5;
 `;
 
@@ -71,7 +71,7 @@ const RegionSelector = styled.select`
   border-right: none;
   border-radius: 6px 0 0 6px;
   font-size: 0.875rem;
-  background: blue !important;
+  background: #ffffff;
   color: #1f2937;
   min-width: 120px;
   
@@ -94,7 +94,7 @@ const Input = styled.input.withConfig({
   };
   border-radius: 0 6px 6px 0;
   font-size: 0.875rem;
-  background: blue !important;
+  background: #ffffff;
   color: #1f2937;
   font-family: monospace;
   transition: all 0.2s ease;
@@ -314,7 +314,7 @@ const RegionInfo = styled.div`
   border: 1px solid #bfdbfe;
   border-radius: 0.375rem;
   font-size: 0.75rem;
-  color: #1e40af;
+  color: #000000;
 `;
 
 const DiscoveryResultsBox = styled.div`
