@@ -18,6 +18,7 @@ import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -154,16 +155,7 @@ const Button = styled.button<{ variant?: 'primary' | 'secondary' | 'danger' }>`
 	`}
 `;
 
-const TokenDisplay = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	margin: 1rem 0;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-	font-size: 0.875rem;
-	word-break: break-all;
-`;
+
 
 const PasswordInputContainer = styled.div`
 	position: relative;
@@ -403,27 +395,19 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									Access Token Received
 								</h4>
 
-								<TokenDisplay>
-									<div style={{ marginBottom: '0.5rem' }}>
-										<strong>Access Token:</strong>
-										<Button
-											variant="secondary"
-											style={{
-												marginLeft: '0.5rem',
-												padding: '0.25rem 0.5rem',
-												fontSize: '0.75rem',
-											}}
-											onClick={() =>
-												copyToClipboard(controller.tokens!.access_token, 'Access token')
-											}
-										>
-											<FiCopy />
-										</Button>
-									</div>
-									<div style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-										{controller.tokens.access_token}
-									</div>
-								</TokenDisplay>
+								<UltimateTokenDisplay
+									tokens={controller.tokens}
+									flowType="oauth"
+									flowKey="oauth-resource-owner-password"
+									displayMode="detailed"
+									title="Resource Owner Password Tokens"
+									subtitle="Access token obtained using username/password credentials"
+									showCopyButtons={true}
+									showDecodeButtons={true}
+									showMaskToggle={true}
+									showTokenManagement={true}
+									showMetadata={true}
+								/>
 
 								<div
 									style={{
@@ -501,9 +485,19 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									User Information
 								</h4>
 
-								<TokenDisplay>
-									<pre>{JSON.stringify(controller.userInfo, null, 2)}</pre>
-								</TokenDisplay>
+								<div style={{
+									background: '#f8fafc',
+									border: '1px solid #e2e8f0',
+									borderRadius: '0.5rem',
+									padding: '1rem',
+									fontFamily: 'Monaco, Menlo, monospace',
+									fontSize: '0.875rem',
+									margin: '1rem 0'
+								}}>
+									<pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>
+										{JSON.stringify(controller.userInfo, null, 2)}
+									</pre>
+								</div>
 							</div>
 						)}
 					</FormContainer>
@@ -563,46 +557,19 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									New Access Token
 								</h4>
 
-								<TokenDisplay>
-									<div style={{ marginBottom: '0.5rem' }}>
-										<strong>New Access Token:</strong>
-										<Button
-											variant="secondary"
-											style={{
-												marginLeft: '0.5rem',
-												padding: '0.25rem 0.5rem',
-												fontSize: '0.75rem',
-											}}
-											onClick={() =>
-												copyToClipboard(
-													controller.refreshedTokens!.access_token,
-													'New access token'
-												)
-											}
-										>
-											<FiCopy />
-										</Button>
-									</div>
-									<div style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-										{controller.refreshedTokens.access_token}
-									</div>
-								</TokenDisplay>
-
-								<div
-									style={{
-										display: 'grid',
-										gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-										gap: '1rem',
-										marginTop: '1rem',
-									}}
-								>
-									<div>
-										<strong>Token Type:</strong> {controller.refreshedTokens.token_type}
-									</div>
-									<div>
-										<strong>Expires In:</strong> {controller.refreshedTokens.expires_in} seconds
-									</div>
-								</div>
+								<UltimateTokenDisplay
+									tokens={controller.refreshedTokens}
+									flowType="oauth"
+									flowKey="oauth-resource-owner-password-refresh"
+									displayMode="detailed"
+									title="🔄 Refreshed Tokens"
+									subtitle="New access token obtained using refresh token"
+									showCopyButtons={true}
+									showDecodeButtons={true}
+									showMaskToggle={true}
+									showTokenManagement={true}
+									showMetadata={true}
+								/>
 							</div>
 						)}
 					</FormContainer>

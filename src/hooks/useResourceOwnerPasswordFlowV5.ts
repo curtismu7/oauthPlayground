@@ -127,6 +127,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 				scopes: credentials.scope ? credentials.scope.split(' ').filter((s) => s.trim()) : [],
 				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
 				clientAuthMethod: credentials.clientAuthMethod || 'client_secret_basic',
+				tokenAuthMethod: credentials.tokenEndpointAuthMethod || credentials.clientAuthMethod || 'client_secret_basic',
 			};
 
 			await credentialManager.saveAuthzFlowCredentials(mappedCredentials);
@@ -187,9 +188,43 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			// Simulate network delay for realistic experience
 			await new Promise(resolve => setTimeout(resolve, 1500));
 
-			// Generate realistic mock tokens using the actual credential values
+			// Generate realistic mock JWT tokens using the actual credential values
+			const now = Math.floor(Date.now() / 1000);
+			const exp = now + 3600; // 1 hour from now
+			
+			// Create JWT header
+			const header = {
+				alg: 'RS256',
+				typ: 'JWT',
+				kid: 'mock-key-id'
+			};
+			
+			// Create JWT payload
+			const payload = {
+				iss: `https://auth.pingone.com/${credentials.environmentId}/as`,
+				sub: credentials.username,
+				aud: credentials.clientId,
+				exp: exp,
+				iat: now,
+				scope: credentials.scope,
+				client_id: credentials.clientId,
+				username: credentials.username,
+				flow: 'resource_owner_password_credentials',
+				environment_id: credentials.environmentId
+			};
+			
+			// Encode header and payload
+			const encodedHeader = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+			const encodedPayload = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+			
+			// Create mock signature
+			const signature = 'mock_signature_' + btoa(credentials.clientId + credentials.username + now).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+			
+			// Combine into JWT
+			const jwtToken = `${encodedHeader}.${encodedPayload}.${signature}`;
+			
 			const mockTokenData: ResourceOwnerPasswordTokens = {
-				access_token: `mock_ropc_access_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				access_token: jwtToken,
 				token_type: 'Bearer',
 				expires_in: 3600,
 				refresh_token: `mock_ropc_refresh_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
@@ -223,8 +258,8 @@ export const useResourceOwnerPasswordFlowV5 = ({
 
 			v4ToastManager.showSuccess('🎭 Mock authentication successful! Access token generated with your credentials.');
 
-			// Auto-advance to next step
-			stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
+			// Don't auto-advance - let user see the tokens on step 1
+			// stepManager.setStep(stepManager.currentStepIndex + 1, 'authentication completed');
 		} catch (error) {
 			console.error('[ResourceOwnerPasswordV5] Authentication failed:', error);
 			v4ToastManager.showError('Authentication failed', {
@@ -295,7 +330,7 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			saveStepResult('fetch-user-info', {
 				success: true,
 				timestamp: Date.now(),
-				userSub: userData.sub,
+				userSub: mockUserData.sub,
 			});
 
 			v4ToastManager.showSuccess('User information fetched successfully.');

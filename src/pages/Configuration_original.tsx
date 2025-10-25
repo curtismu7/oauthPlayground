@@ -14,6 +14,7 @@ import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { FlowHeader } from '../services/flowHeaderService';
 import { credentialManager } from '../utils/credentialManager';
+import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 
 const ConfigurationContainer = styled.div`
 	max-width: 1400px;
@@ -360,19 +361,59 @@ const Configuration = () => {
 	const [showClientSecret, setShowClientSecret] = useState(false);
 	const [showDiscoveryPanel, setShowDiscoveryPanel] = useState(false);
 
-	// Load saved configuration on component mount
+	// Load saved configuration using V7 standardized system
 	useEffect(() => {
-		const loadConfiguration = () => {
-			// Debug: Check all localStorage keys first
-			console.log(' [Configuration] All localStorage keys:', Object.keys(localStorage));
-			console.log(
-				' [Configuration] pingone_permanent_credentials:',
-				localStorage.getItem('pingone_permanent_credentials')
-			);
-			console.log(' [Configuration] pingone_config:', localStorage.getItem('pingone_config'));
-			console.log(' [Configuration] login_credentials:', localStorage.getItem('login_credentials'));
+		const loadConfigurationV7 = async () => {
+			console.log(' [Configuration] Loading configuration using V7 standardized system...');
 
-			// Load from configuration-specific credentials first
+			try {
+				// Try V7 FlowCredentialService first (most recent)
+				const v7Credentials = await loadFlowCredentials({
+					flowKey: 'configuration-page',
+					defaultCredentials: {
+						environmentId: '',
+						clientId: '',
+						clientSecret: '',
+						redirectUri: `${window.location.origin}/callback`,
+						scope: 'openid profile email',
+						scopes: 'openid profile email',
+						loginHint: '',
+						postLogoutRedirectUri: '',
+						responseType: 'code',
+						grantType: 'authorization_code',
+						issuerUrl: '',
+						authorizationEndpoint: '',
+						tokenEndpoint: '',
+						userInfoEndpoint: '',
+						clientAuthMethod: 'client_secret_post',
+						tokenEndpointAuthMethod: 'client_secret_post',
+					}
+				});
+
+				console.log(' [Configuration] V7 FlowCredentialService result:', v7Credentials);
+
+				if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
+					console.log(' [Configuration] Using V7 FlowCredentialService credentials');
+					setFormData((prev) => ({
+						...prev,
+						environmentId: v7Credentials.credentials.environmentId || '',
+						clientId: v7Credentials.credentials.clientId || '',
+						clientSecret: v7Credentials.credentials.clientSecret || '',
+						redirectUri: v7Credentials.credentials.redirectUri || prev.redirectUri,
+						scopes: v7Credentials.credentials.scopes || prev.scopes,
+						authEndpoint: v7Credentials.credentials.authorizationEndpoint || prev.authEndpoint,
+						tokenEndpoint: v7Credentials.credentials.tokenEndpoint || prev.tokenEndpoint,
+						userInfoEndpoint: v7Credentials.credentials.userInfoEndpoint || prev.userInfoEndpoint,
+						endSessionEndpoint: prev.endSessionEndpoint,
+					}));
+					return;
+				}
+			} catch (v7Error) {
+				console.log(' [Configuration] V7 FlowCredentialService not available:', v7Error);
+			}
+
+			// Fallback to legacy credential manager
+			console.log(' [Configuration] Loading from legacy credential manager...');
 			const configCredentials = credentialManager.loadConfigCredentials();
 
 			console.log(' [Configuration] Loading configuration, config credentials:', configCredentials);
@@ -502,7 +543,7 @@ const Configuration = () => {
 			}
 		};
 
-		loadConfiguration();
+		loadConfigurationV7();
 
 		// Show spinner for 500ms
 		setTimeout(() => setInitialLoading(false), 500);
@@ -644,9 +685,41 @@ const Configuration = () => {
 				userInfoEndpoint: formData.userInfoEndpoint.replace('{envId}', formData.environmentId),
 			};
 
-			console.log(' [Configuration] Saving config using credential manager:', configToSave);
+			console.log(' [Configuration] Saving config using V7 standardized system:', configToSave);
 
-			// Save configuration-specific credentials (Environment ID, Client ID, etc.)
+			// Save using V7 standardized storage system
+			const v7Credentials = {
+				environmentId: configToSave.environmentId,
+				clientId: configToSave.clientId,
+				clientSecret: configToSave.clientSecret,
+				redirectUri: configToSave.redirectUri,
+				scope: configToSave.scopes || 'openid profile email',
+				scopes: configToSave.scopes || 'openid profile email',
+				loginHint: '',
+				postLogoutRedirectUri: '',
+				responseType: 'code',
+				grantType: 'authorization_code',
+				issuerUrl: '',
+				authorizationEndpoint: configToSave.authEndpoint,
+				tokenEndpoint: configToSave.tokenEndpoint,
+				userInfoEndpoint: configToSave.userInfoEndpoint,
+				clientAuthMethod: 'client_secret_post',
+				tokenEndpointAuthMethod: 'client_secret_post',
+			};
+
+			const v7Success = await saveFlowCredentials(
+				'configuration-page',
+				v7Credentials,
+				undefined, // flowConfig
+				undefined, // additionalState
+				{ showToast: false } // We'll show our own success message
+			);
+
+			if (!v7Success) {
+				throw new Error('Failed to save credentials using V7 standardized system');
+			}
+
+			// Also save to legacy credential manager for backward compatibility
 			const configSuccess = credentialManager.saveConfigCredentials({
 				environmentId: configToSave.environmentId,
 				clientId: configToSave.clientId,
@@ -691,7 +764,7 @@ const Configuration = () => {
 			setSaveStatus({
 				type: 'success',
 				title: 'PingOne Credentials saved',
-				message: 'Your PingOne credentials have been saved successfully to localStorage.',
+				message: 'Your PingOne credentials have been saved successfully using V7 standardized storage.',
 			});
 
 			// Show centralized success message using v4ToastManager

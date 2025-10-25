@@ -272,6 +272,30 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		],
 	},
 
+	'ciba-v7': {
+		flowType: 'oidc',
+		flowName: 'OIDC CIBA Flow (V7)',
+		icon: '🛡️',
+		steps: [
+			{
+				title: 'Configure CIBA Parameters',
+				description: 'Set up your CIBA configuration with environment details and authentication parameters',
+			},
+			{
+				title: 'Initiate Authentication Request',
+				description: 'Start the CIBA authentication process and generate the authentication request',
+			},
+			{
+				title: 'User Approval Process',
+				description: 'Monitor the user approval process and wait for authentication completion',
+			},
+			{
+				title: 'Token Exchange & Results',
+				description: 'View the authentication results and access tokens with enhanced V7 services',
+			},
+		],
+	},
+
 	'oidc-ciba-v6': {
 		flowType: 'oidc',
 		flowName: 'OpenID Connect CIBA Flow (Mock) (V6)',
@@ -441,6 +465,34 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		],
 	},
 
+	'oauth-ropc-v7': {
+		flowType: 'oauth',
+		flowName: 'OAuth Resource Owner Password Credentials (V7)',
+		icon: '🔒',
+		steps: [
+			{
+				title: 'User enters credentials in your application',
+				description: 'User provides username and password directly in your application interface with enhanced V7 UI',
+			},
+			{
+				title: 'Send token request with user credentials',
+				description: "Your application sends the user's credentials directly to PingOne's token endpoint with grant_type=password",
+			},
+			{
+				title: 'PingOne validates credentials and returns tokens',
+				description: 'PingOne authenticates the user and returns access token and refresh token (not recommended for production)',
+			},
+			{
+				title: 'Use access token for API calls',
+				description: 'Use the access token to make authenticated calls to protected resources on behalf of the user',
+			},
+			{
+				title: 'Enhanced error handling and user feedback',
+				description: 'V7 implementation provides better error handling, visual feedback, and educational content about ROPC security concerns',
+			},
+		],
+	},
+
 	'oauth-authorization-code-v6': {
 		flowType: 'oauth',
 		flowName: 'OAuth 2.0 Authorization Code Flow (V6)',
@@ -545,6 +597,33 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			{
 				title: 'Exchange code for tokens with RAR context',
 				description: 'Tokens include the approved authorization details for fine-grained access control',
+			},
+		],
+	},
+	'rar-v7': {
+		flowType: 'oauth',
+		flowName: 'RAR Flow (V7) - Rich Authorization Requests',
+		icon: '🎯',
+		steps: [
+			{
+				title: 'RAR Overview and Configuration',
+				description: 'Learn about Rich Authorization Requests (RFC 9396) and configure RAR parameters',
+			},
+			{
+				title: 'Set up RAR credentials',
+				description: 'Configure environment, client credentials, and RAR-specific authorization details',
+			},
+			{
+				title: 'Generate RAR authorization URL',
+				description: 'Create authorization request with structured RAR JSON in authorization_details parameter',
+			},
+			{
+				title: 'Token exchange with RAR context',
+				description: 'Exchange authorization code for tokens, maintaining RAR authorization context',
+			},
+			{
+				title: 'Flow completion and review',
+				description: 'Review RAR implementation and understand fine-grained authorization benefits',
 			},
 		],
 	},
