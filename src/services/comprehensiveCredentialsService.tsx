@@ -2,15 +2,15 @@
 // Comprehensive Credentials Service - All-in-one configuration for OAuth/OIDC flows
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiSettings, FiKey, FiInfo } from 'react-icons/fi';
+import { FiSettings, FiKey } from 'react-icons/fi';
 import styled from 'styled-components';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { CredentialsInput } from '../components/CredentialsInput';
 import ClientAuthMethodSelector from '../components/ClientAuthMethodSelector';
 import JwksKeySourceSelector, { JwksKeySource } from '../components/JwksKeySourceSelector';
-import PingOneApplicationConfig, {
-	type PingOneApplicationState,
-} from '../components/PingOneApplicationConfig';
+// import PingOneApplicationConfig, {
+// 	type PingOneApplicationState,
+// } from '../components/PingOneApplicationConfig';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 import { DiscoveryResult } from './comprehensiveDiscoveryService';
 import { oidcDiscoveryService } from './oidcDiscoveryService';
@@ -41,40 +41,80 @@ const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {
 
 // Flow-specific grant types configuration
 const getFlowGrantTypes = (flowType?: string): string[] => {
-	switch (flowType) {
-		case 'authorization-code-v7':
-			return ['authorization_code'];
-		case 'implicit-oauth-v7':
-		case 'implicit-oidc-v7':
-			return ['implicit'];
-		case 'device-authorization-v7':
-			return ['urn:ietf:params:oauth:grant-type:device_code'];
-		case 'client-credentials-v7':
-			return ['client_credentials'];
-		case 'oidc-hybrid-v7':
-			return ['authorization_code'];
-		default:
-			return ['authorization_code'];
+	if (!flowType) return ['authorization_code'];
+	
+	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
+	
+	console.log('[CONFIG-CHECKER] getFlowGrantTypes called:', {
+		flowType,
+		normalizedFlowType,
+		includesClientCredentials: normalizedFlowType.includes('client-credentials'),
+		includesClientCredentialsUnderscore: normalizedFlowType.includes('client_credentials')
+	});
+	
+	// Check for specific patterns
+	if (normalizedFlowType.includes('client-credentials') || normalizedFlowType.includes('client_credentials')) {
+		console.log('[CONFIG-CHECKER] Matched client-credentials pattern, returning client_credentials');
+		return ['client_credentials'];
 	}
+		if (normalizedFlowType.includes('worker-token') || normalizedFlowType.includes('worker_token')) {
+			console.log('[CONFIG-CHECKER] Matched worker-token pattern, returning client_credentials');
+			return ['client_credentials'];
+		}
+		if (normalizedFlowType.includes('par-v7') || normalizedFlowType.includes('par_v7')) {
+			console.log('[CONFIG-CHECKER] Matched PAR V7 pattern, returning authorization_code');
+			return ['authorization_code'];
+		}
+	if (normalizedFlowType.includes('implicit')) {
+		console.log('[CONFIG-CHECKER] Matched implicit pattern, returning implicit');
+		return ['implicit'];
+	}
+	if (normalizedFlowType.includes('device') || normalizedFlowType.includes('device-authorization')) {
+		console.log('[CONFIG-CHECKER] Matched device pattern, returning device_code');
+		return ['urn:ietf:params:oauth:grant-type:device_code'];
+	}
+	if (normalizedFlowType.includes('hybrid')) {
+		console.log('[CONFIG-CHECKER] Matched hybrid pattern, returning authorization_code');
+		return ['authorization_code'];
+	}
+	if (normalizedFlowType.includes('authorization-code') || normalizedFlowType.includes('authorization_code')) {
+		console.log('[CONFIG-CHECKER] Matched authorization-code pattern, returning authorization_code');
+		return ['authorization_code'];
+	}
+	
+	// Default fallback
+	console.log('[CONFIG-CHECKER] No pattern matched, returning default authorization_code');
+	return ['authorization_code'];
 };
 
 // Flow-specific response types configuration
 const getFlowResponseTypes = (flowType?: string): string[] => {
-	switch (flowType) {
-		case 'authorization-code-v7':
-			return ['code'];
-		case 'implicit-oauth-v7':
-			return ['token'];
-		case 'implicit-oidc-v7':
-			return ['token', 'id_token'];
-		case 'oidc-hybrid-v7':
-			return ['code', 'token', 'id_token'];
-		case 'device-authorization-v7':
-		case 'client-credentials-v7':
-			return []; // These flows don't use response_type
-		default:
-			return ['code'];
+	if (!flowType) return ['code'];
+	
+	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
+	
+	// Check for specific patterns
+	if (normalizedFlowType.includes('client-credentials') || normalizedFlowType.includes('client_credentials')) {
+		return []; // Client credentials flow doesn't use response_type
 	}
+	if (normalizedFlowType.includes('device') || normalizedFlowType.includes('device-authorization')) {
+		return []; // Device authorization flow doesn't use response_type
+	}
+	if (normalizedFlowType.includes('implicit') && normalizedFlowType.includes('oidc')) {
+		return ['token', 'id_token'];
+	}
+	if (normalizedFlowType.includes('implicit')) {
+		return ['token'];
+	}
+	if (normalizedFlowType.includes('hybrid')) {
+		return ['code', 'token', 'id_token'];
+	}
+	if (normalizedFlowType.includes('authorization-code') || normalizedFlowType.includes('authorization_code')) {
+		return ['code'];
+	}
+	
+	// Default fallback
+	return ['code'];
 };
 
 export interface ComprehensiveCredentialsProps {
@@ -116,17 +156,17 @@ export interface ComprehensiveCredentialsProps {
 	hasUnsavedChanges?: boolean;
 	isSaving?: boolean;
 
-	// PingOne Advanced Configuration props
-	pingOneAppState?: PingOneApplicationState;
-	onPingOneAppStateChange?: (newState: PingOneApplicationState) => void;
-	onPingOneSave?: () => void;
-	hasUnsavedPingOneChanges?: boolean;
-	isSavingPingOne?: boolean;
+	// PingOne Advanced Configuration props (commented out for now)
+	// pingOneAppState?: PingOneApplicationState;
+	// onPingOneAppStateChange?: (newState: PingOneApplicationState) => void;
+	// onPingOneSave?: () => void;
+	// hasUnsavedPingOneChanges?: boolean;
+	// isSavingPingOne?: boolean;
 
 	// Service configuration
 	title?: string;
 	subtitle?: string;
-	showAdvancedConfig?: boolean;
+	// showAdvancedConfig?: boolean;
 	defaultCollapsed?: boolean;
 
 	// Config Checker props
@@ -138,7 +178,7 @@ export interface ComprehensiveCredentialsProps {
 	showRedirectUri?: boolean;
 	showPostLogoutRedirectUri?: boolean;
 	showLoginHint?: boolean;
-	showClientAuthMethod?: boolean;
+	// showClientAuthMethod?: boolean;
 	
 	// JWKS Configuration (for private_key_jwt and client_secret_jwt auth methods)
 	jwksKeySource?: JwksKeySource;
@@ -146,8 +186,8 @@ export interface ComprehensiveCredentialsProps {
 	privateKey?: string;
 	showPrivateKey?: boolean;
 	isGeneratingKey?: boolean;
-	onJwksKeySourceChange?: (source: JwksKeySource) => void;
-	onJwksUrlChange?: (url: string) => void;
+	// onJwksKeySourceChange?: (source: JwksKeySource) => void;
+	// onJwksUrlChange?: (url: string) => void;
 	onPrivateKeyChange?: (key: string) => void;
 	onTogglePrivateKey?: () => void;
 	onGenerateKey?: () => void;
@@ -161,12 +201,12 @@ const ServiceContainer = styled.div`
 	z-index: 1;
 `;
 
-const AdvancedConfigSection = styled.div`
-	margin-top: 4rem;
-	padding-top: 2.5rem;
-	border-top: 2px solid #e5e7eb;
-	margin-bottom: 2rem;
-`;
+// const AdvancedConfigSection = styled.div`
+// 	margin-top: 4rem;
+// 	padding-top: 2.5rem;
+// 	border-top: 2px solid #e5e7eb;
+// 	margin-bottom: 2rem;
+// `;
 
 
 const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> = ({
@@ -206,24 +246,15 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	hasUnsavedChanges = false,
 	isSaving = false,
 
-	// PingOne Advanced Configuration props
-	pingOneAppState,
-	onPingOneAppStateChange,
-	onPingOneSave,
-	hasUnsavedPingOneChanges = false,
-	isSavingPingOne = false,
-
 	// Service configuration
 	title = "Application Configuration & Credentials",
 	subtitle = "Configure OIDC discovery, credentials, and application settings",
-	showAdvancedConfig = true,
 	defaultCollapsed = false,
 	
 	// Field visibility controls
 	showRedirectUri = true,
 	showPostLogoutRedirectUri = true,
 	showLoginHint = true,
-	showClientAuthMethod = true,
 	
 	// JWKS Configuration
 	jwksKeySource = 'jwks-endpoint',
@@ -231,8 +262,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	privateKey = '',
 	showPrivateKey = false,
 	isGeneratingKey = false,
-	onJwksKeySourceChange,
-	onJwksUrlChange,
+	// onJwksKeySourceChange,
+	// onJwksUrlChange,
 	onPrivateKeyChange,
 	onTogglePrivateKey,
 	onGenerateKey,
@@ -243,13 +274,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	workerToken = '',
 	region = 'NA',
 }) => {
-	const [isAdvancedConfigCollapsed, setIsAdvancedConfigCollapsed] = useState(true);
+	// const [isAdvancedConfigCollapsed, setIsAdvancedConfigCollapsed] = useState(true);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	
 	// Retrieve worker token from localStorage if not provided
 	const [retrievedWorkerToken, setRetrievedWorkerToken] = useState<string>('');
 	
-	useEffect(() => {
+	// Function to check and retrieve worker token from localStorage
+	const checkWorkerToken = useCallback(() => {
 		const storedWorkerToken = localStorage.getItem('worker_token');
 		const expiresAt = localStorage.getItem('worker_token_expires_at');
 		
@@ -273,8 +305,43 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			// Token exists but no expiration data - assume it might be expired
 			console.log('[COMPREHENSIVE-CREDENTIALS] Worker token found but no expiration data, using it anyway');
 			setRetrievedWorkerToken(storedWorkerToken);
+		} else {
+			setRetrievedWorkerToken('');
 		}
 	}, []);
+	
+	// Check worker token on mount and when component becomes visible
+	useEffect(() => {
+		checkWorkerToken();
+		
+		// Listen for storage events (when token is updated in another tab/window)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'worker_token' || e.key === 'worker_token_expires_at') {
+				console.log('[COMPREHENSIVE-CREDENTIALS] Worker token changed in storage, re-checking');
+				checkWorkerToken();
+			}
+		};
+		
+		// Listen for custom event when token is generated in the same tab
+		const handleWorkerTokenUpdate = () => {
+			console.log('[COMPREHENSIVE-CREDENTIALS] Worker token update event received, re-checking');
+			checkWorkerToken();
+		};
+		
+		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
+		
+		// Also check periodically every 30 seconds in case user navigates between flows
+		const intervalId = setInterval(() => {
+			checkWorkerToken();
+		}, 30000); // 30 seconds
+		
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
+			clearInterval(intervalId);
+		};
+	}, [checkWorkerToken]);
 	
 	// Use provided workerToken or retrieved one
 	const effectiveWorkerToken = workerToken || retrievedWorkerToken;
@@ -360,6 +427,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			tokenEndpoint: credentials?.tokenEndpoint ?? '',
 			userInfoEndpoint: credentials?.userInfoEndpoint ?? '',
 			clientAuthMethod: credentials?.clientAuthMethod ?? 'client_secret_post',
+			tokenEndpointAuthMethod: credentials?.tokenEndpointAuthMethod ?? (typeof credentials?.clientAuthMethod === 'string' ? credentials.clientAuthMethod : credentials?.clientAuthMethod?.value) ?? 'client_secret_post',
 		};
 	}, [
 		credentials,
@@ -455,9 +523,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	]
 );
 
-	const handleAdvancedConfigToggle = useCallback(() => {
-		setIsAdvancedConfigCollapsed(prev => !prev);
-	}, []);
+	// const handleAdvancedConfigToggle = useCallback(() => {
+	// 	setIsAdvancedConfigCollapsed(prev => !prev);
+	// }, []);
 
 	// Handle discovery completion and update environment ID
 	const handleInternalDiscoveryComplete = useCallback(
@@ -505,21 +573,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			{/* Worker Token Modal - moved above main content */}
 			<WorkerTokenModal
 				isOpen={showWorkerTokenModal}
-				onClose={() => setShowWorkerTokenModal(false)}
+				onClose={() => {
+					setShowWorkerTokenModal(false);
+					// Re-check worker token when modal closes
+					checkWorkerToken();
+				}}
 				onContinue={() => {
-					// Reload the worker token from localStorage after successful generation
-					const newToken = localStorage.getItem('worker_token');
-					const expiresAt = localStorage.getItem('worker_token_expires_at');
-					
-					if (newToken && expiresAt) {
-						const expirationTime = parseInt(expiresAt, 10);
-						const now = Date.now();
-						const minutesRemaining = Math.floor((expirationTime - now) / 60000);
-						
-						console.log('[COMPREHENSIVE-CREDENTIALS] New worker token loaded, expires in', minutesRemaining, 'minutes');
-						setRetrievedWorkerToken(newToken);
-					}
-					
+					// Re-check worker token immediately after generation
+					checkWorkerToken();
 					setShowWorkerTokenModal(false);
 				}}
 				flowType={flowType || 'flow'}
@@ -541,6 +602,151 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					placeholder={discoveryPlaceholder}
 					showProviderInfo={showProviderInfo}
 				/>
+
+			{/* Advanced Configuration */}
+			<CollapsibleHeader
+				title="Advanced Configuration"
+				subtitle="Advanced OIDC and OAuth configuration options"
+				icon={<FiSettings />}
+				defaultCollapsed={true}
+				theme="orange"
+			>
+				<div style={{
+					display: 'grid',
+					gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+					gap: '1.5rem',
+					padding: '1.5rem',
+					background: '#f8fafc',
+					borderRadius: '0.75rem',
+					border: '1px solid #e2e8f0'
+				}}>
+					{/* Req Object Policy */}
+					<div>
+						<label style={{
+							display: 'block',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '0.5rem'
+						}}>
+							Req Object Policy
+						</label>
+						<select
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '1px solid #d1d5db',
+								borderRadius: '0.5rem',
+								background: 'white',
+								fontSize: '0.875rem',
+								color: '#374151'
+							}}
+							defaultValue="default"
+						>
+							<option value="default">default</option>
+							<option value="required">required</option>
+							<option value="optional">optional</option>
+						</select>
+					</div>
+
+					{/* x5t (JWT hdr) */}
+					<div>
+						<label style={{
+							display: 'block',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '0.5rem'
+						}}>
+							x5t (JWT hdr)
+						</label>
+						<input
+							type="text"
+							placeholder="Base64URL thumbprint"
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '1px solid #d1d5db',
+								borderRadius: '0.5rem',
+								fontSize: '0.875rem',
+								color: '#374151'
+							}}
+						/>
+					</div>
+
+					{/* OIDC Session Management */}
+					<div>
+						<label style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: '#374151',
+							cursor: 'pointer'
+						}}>
+							<input
+								type="checkbox"
+								style={{
+									width: '1rem',
+									height: '1rem',
+									accentColor: '#3b82f6'
+								}}
+							/>
+							<span>Enable OP iframe monitoring</span>
+						</label>
+					</div>
+
+					{/* Resource Scopes */}
+					<div>
+						<label style={{
+							display: 'block',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: '#374151',
+							marginBottom: '0.5rem'
+						}}>
+							Resource Scopes
+						</label>
+						<input
+							type="text"
+							defaultValue="openid profile email"
+							style={{
+								width: '100%',
+								padding: '0.75rem',
+								border: '1px solid #d1d5db',
+								borderRadius: '0.5rem',
+								fontSize: '0.875rem',
+								color: '#374151'
+							}}
+						/>
+					</div>
+
+					{/* Logout via ID Token */}
+					<div>
+						<label style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							fontSize: '0.875rem',
+							fontWeight: '600',
+							color: '#374151',
+							cursor: 'pointer'
+						}}>
+							<input
+								type="checkbox"
+								defaultChecked
+								style={{
+									width: '1rem',
+									height: '1rem',
+									accentColor: '#3b82f6'
+								}}
+							/>
+							<span>Use RP-initiated logout with id_token_hint</span>
+						</label>
+					</div>
+				</div>
+			</CollapsibleHeader>
 
 			{/* Basic Credentials */}
 			<CredentialsInput
@@ -643,27 +849,93 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				<>
 					{effectiveWorkerToken ? (
 					<ConfigCheckerButtons
-						formData={{
-							name: resolvedCredentials.clientId || `${flowType || 'Flow'} App`,
-							clientId: resolvedCredentials.clientId,
-							environmentId: resolvedCredentials.environmentId,
-							redirectUris: resolvedCredentials.redirectUri ? [resolvedCredentials.redirectUri] : [],
-							scopes: (() => {
-								const scopeData = resolvedCredentials.scope || resolvedCredentials.scopes;
-								if (Array.isArray(scopeData)) return scopeData;
-								if (typeof scopeData === 'string') return scopeData.split(' ').filter(Boolean);
-								return ['openid', 'profile', 'email'];
-							})(),
-							grantTypes: getFlowGrantTypes(flowType),
-							responseTypes: getFlowResponseTypes(flowType),
-							tokenEndpointAuthMethod: clientAuthMethod || 'none',
-						}}
-						selectedAppType={flowType?.includes('implicit') ? 'SINGLE_PAGE_APP' : 'OIDC_WEB_APP'}
+						formData={(() => {
+							// Helper: Determine if flow uses redirects
+							const flowUsesRedirects = !flowType?.toLowerCase().includes('client-credentials') && 
+								!flowType?.toLowerCase().includes('ropc');
+							
+							// Load worker credentials for Config Checker (needed for PingOne Management API)
+							let workerCredentials = null;
+							try {
+								const saved = localStorage.getItem('worker_credentials');
+								if (saved) {
+									workerCredentials = JSON.parse(saved);
+									console.log('[CONFIG-CHECKER] Loaded worker credentials:', {
+										clientId: workerCredentials.clientId,
+										clientSecret: workerCredentials.clientSecret ? `${workerCredentials.clientSecret.substring(0, 10)}...` : 'undefined',
+										environmentId: workerCredentials.environmentId
+									});
+								}
+							} catch (error) {
+								console.warn('[CONFIG-CHECKER] Failed to load worker credentials:', error);
+							}
+							
+							// Base form data - use application credentials for comparison, worker credentials for authentication
+							const baseFormData: Record<string, unknown> = {
+								name: resolvedCredentials.clientId || `${flowType || 'Flow'} App`,
+								clientId: resolvedCredentials.clientId, // Use application's clientId for comparison
+								clientSecret: resolvedCredentials.clientSecret, // Use application's clientSecret for comparison
+								environmentId: workerCredentials?.environmentId || resolvedCredentials.environmentId,
+								scopes: (() => {
+									const scopeData = resolvedCredentials.scope || resolvedCredentials.scopes;
+									if (Array.isArray(scopeData)) return scopeData;
+									if (typeof scopeData === 'string') return scopeData.split(' ').filter(Boolean);
+									return ['openid', 'profile', 'email'];
+								})(),
+								grantTypes: getFlowGrantTypes(flowType),
+								responseTypes: getFlowResponseTypes(flowType),
+								tokenEndpointAuthMethod: resolvedCredentials.clientAuthMethod || 'client_secret_basic',
+							};
+							
+							// Debug logging to see what flowType and grantTypes are being used
+							console.log('[CONFIG-CHECKER] Form data construction:', {
+								flowType,
+								grantTypes: getFlowGrantTypes(flowType),
+								responseTypes: getFlowResponseTypes(flowType),
+								clientAuthMethod,
+								resolvedCredentialsClientAuthMethod: resolvedCredentials.clientAuthMethod,
+								clientSecret: resolvedCredentials.clientSecret ? `${resolvedCredentials.clientSecret.substring(0, 10)}...` : 'undefined',
+								baseFormData,
+								normalizedFlowType: flowType?.toLowerCase().replace(/[-_]/g, '-'),
+								includesClientCredentials: flowType?.toLowerCase().includes('client-credentials'),
+								includesClientCredentialsUnderscore: flowType?.toLowerCase().includes('client_credentials')
+							});
+							
+							// Only include redirectUris for flows that use them
+							if (flowUsesRedirects && resolvedCredentials.redirectUri) {
+								baseFormData.redirectUris = [resolvedCredentials.redirectUri];
+							}
+							
+							return baseFormData;
+						})()}
+						selectedAppType={(() => {
+							if (flowType?.toLowerCase().includes('client-credentials')) return 'WORKER';
+							if (flowType?.toLowerCase().includes('implicit')) return 'SINGLE_PAGE_APP';
+							return 'OIDC_WEB_APP';
+						})()}
 						workerToken={effectiveWorkerToken}
 						environmentId={resolvedCredentials.environmentId || ''}
 						region={region}
 							isCreating={isSaving}
 							onGenerateWorkerToken={() => setShowWorkerTokenModal(true)}
+							onImportConfig={(importedConfig) => {
+								// Update credentials with imported PingOne configuration
+								const updatedCredentials = {
+									...resolvedCredentials,
+									redirectUri: importedConfig.redirectUris?.[0] || resolvedCredentials.redirectUri,
+									scopes: importedConfig.scopes || resolvedCredentials.scopes,
+									clientAuthMethod: importedConfig.tokenEndpointAuthMethod || resolvedCredentials.clientAuthMethod,
+									// Note: grantTypes and responseTypes are flow-specific, not imported
+								};
+								
+								// Update the credentials
+								onCredentialsChange(updatedCredentials);
+								
+								// Show success message
+								import('../utils/v4ToastMessages').then(({ v4ToastManager }) => {
+									v4ToastManager.showSuccess('Configuration imported from PingOne!');
+								});
+							}}
 							onCreateApplication={async (appData?: { name: string; description: string; redirectUri?: string; tokenEndpointAuthMethod?: string; responseTypes?: string[]; grantTypes?: string[] }) => {
 								// Create a new PingOne application using the current flow configuration
 								try {
@@ -683,6 +955,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 										// For specific flow types, use the main flow name
 										if (flowName.includes('implicit')) {
 											flowName = 'implicit';
+										} else if (flowName.includes('par-v7') || flowName.includes('par_v7')) {
+											flowName = 'par'; // Use PAR instead of authorization-code for PAR flows
 										} else if (flowName.includes('authorization-code')) {
 											flowName = 'authorization-code';
 										} else if (flowName.includes('device-authorization')) {
@@ -709,6 +983,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 										// For specific flow types, use the main flow name
 										if (flowName.includes('implicit')) {
 											flowName = 'implicit';
+										} else if (flowName.includes('par-v7') || flowName.includes('par_v7')) {
+											flowName = 'par'; // Use PAR instead of authorization-code for PAR flows
 										} else if (flowName.includes('authorization-code')) {
 											flowName = 'authorization-code';
 										} else if (flowName.includes('device-authorization')) {
@@ -805,18 +1081,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									throw error;
 								}
 							}}
-							onImportConfig={(importedConfig) => {
-								// Update credentials with imported PingOne configuration
-								applyCredentialUpdates({
-									redirectUri: String(importedConfig.redirectUri || ''),
-									scopes: String(importedConfig.scopes || ''),
-									clientAuthMethod: String(importedConfig.tokenEndpointAuthMethod || ''),
-								}, { shouldSave: true });
-							}}
 						/>
 					) : null}
 				</>
 			)}
+
 
 
 		{/* JWKS Configuration - Only show for JWT-based auth methods */}

@@ -6,63 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { FiKey, FiExternalLink, FiX, FiInfo, FiAlertTriangle, FiEye, FiEyeOff, FiRefreshCw } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { DraggableModal } from './DraggableModal';
 
-const ModalBackdrop = styled.div`
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 1rem;
-`;
-
-const ModalContent = styled.div`
-  width: min(500px, calc(100vw - 2rem));
-  max-height: calc(100vh - 4rem);
-  background: #ffffff;
-  border-radius: 0.75rem;
-  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
-  padding: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-`;
-
-const ModalHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-`;
-
-const ModalTitle = styled.h3`
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  color: #6b7280;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 0.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    background: #f3f4f6;
-    color: #374151;
-  }
-`;
 
 const InfoBox = styled.div<{ $variant: 'info' | 'warning' }>`
   display: flex;
@@ -288,7 +233,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
           environmentId: environmentId || parsed.environmentId || '',
           clientId: parsed.clientId || '',
           clientSecret: parsed.clientSecret || '',
-          scopes: parsed.scopes || 'p1:read:user p1:update:user p1:read:device p1:update:device',
+          scopes: parsed.scopes || 'p1:read:environment p1:read:application p1:read:resource',
           authMethod: parsed.authMethod || 'client_secret_post'
         };
       }
@@ -300,7 +245,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
       environmentId: environmentId || '',
       clientId: '',
       clientSecret: '',
-      scopes: 'p1:read:user p1:update:user p1:read:device p1:update:device',
+      scopes: 'p1:read:environment p1:read:application p1:read:resource',
       authMethod: 'client_secret_post' as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt'
     };
   });
@@ -431,6 +376,14 @@ export const WorkerTokenModal: React.FC<Props> = ({
         expiresAt: new Date(expiresAt).toISOString()
       });
       
+      // Dispatch custom event to notify other components that worker token was updated
+      window.dispatchEvent(new CustomEvent('workerTokenUpdated', { 
+        detail: { 
+          token: tokenData.access_token,
+          expiresAt 
+        } 
+      }));
+      
       v4ToastManager.showSuccess(`Worker token generated successfully! Expires in ${Math.floor(expiresIn / 60)} minutes.`);
       onContinue();
       
@@ -450,17 +403,17 @@ export const WorkerTokenModal: React.FC<Props> = ({
   if (!isOpen) return null;
 
   return (
-    <ModalBackdrop role="dialog" aria-modal="true" aria-labelledby="worker-token-modal-title">
-      <ModalContent>
-        <ModalHeader>
-          <ModalTitle id="worker-token-modal-title">
-            <FiKey />
-            Worker Token Required
-          </ModalTitle>
-          <CloseButton onClick={onClose} aria-label="Close modal">
-            <FiX size={20} />
-          </CloseButton>
-        </ModalHeader>
+    <DraggableModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Worker Token Required"
+      headerContent={
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <FiKey />
+          <span>Worker Token Required</span>
+        </div>
+      }
+    >
 
         <InfoBox $variant="warning">
           <FiAlertTriangle size={20} style={{ flexShrink: 0, color: '#f59e0b' }} />
@@ -591,8 +544,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
             </ButtonGroup>
           </>
         )}
-      </ModalContent>
-    </ModalBackdrop>
+    </DraggableModal>
   );
 };
 
