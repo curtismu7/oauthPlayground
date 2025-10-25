@@ -10,6 +10,8 @@ import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import FlowStorageService from '../services/flowStorageService';
 import FlowContextUtils from '../services/flowContextUtils';
+import { pingOneConfigService } from '../services/pingOneConfigService';
+import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -212,16 +214,86 @@ async function loadConfiguration(): Promise<AppConfig> {
 
 		console.log(' [NewAuthContext] Environment config:', envConfig);
 
-		// First, try to get from credential manager (prioritize stored credentials)
-		console.log(' [NewAuthContext] Loading from credential manager...');
-		// Use getAllCredentials to get the permanent credentials from localStorage
-		const permanentCredentials = credentialManager.getAllCredentials();
-		console.log(' [NewAuthContext] Permanent credentials result:', permanentCredentials);
+		// V7 Standardized Credential Loading
+		console.log(' [NewAuthContext] Loading credentials using V7 standardized system...');
+		
+		// Try to load from V7 FlowCredentialService first (most recent)
+		try {
+			const v7Credentials = await loadFlowCredentials({
+				flowKey: 'dashboard-login',
+				defaultCredentials: {
+					environmentId: '',
+					clientId: '',
+					clientSecret: '',
+					redirectUri: `${window.location.origin}/dashboard-callback`,
+					scope: 'openid profile email',
+					scopes: 'openid profile email',
+					loginHint: '',
+					postLogoutRedirectUri: '',
+					responseType: 'code',
+					grantType: 'authorization_code',
+					issuerUrl: '',
+					authorizationEndpoint: '',
+					tokenEndpoint: '',
+					userInfoEndpoint: '',
+					clientAuthMethod: 'client_secret_post',
+					tokenEndpointAuthMethod: 'client_secret_post',
+				}
+			});
+			
+			console.log(' [NewAuthContext] V7 FlowCredentialService result:', v7Credentials);
+			
+			if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
+				console.log(' [NewAuthContext] Using V7 FlowCredentialService credentials');
+				console.log('🔍 [NewAuthContext] V7 CREDENTIALS REDIRECT URI:', {
+					redirectUri: v7Credentials.credentials.redirectUri,
+					hasRedirectUri: !!v7Credentials.credentials.redirectUri,
+					redirectUriType: typeof v7Credentials.credentials.redirectUri,
+					allFields: Object.keys(v7Credentials.credentials),
+					fullObject: v7Credentials.credentials
+				});
+				return v7Credentials.credentials;
+			}
+		} catch (v7Error) {
+			console.log(' [NewAuthContext] V7 FlowCredentialService not available:', v7Error);
+		}
 
-		// If we have stored credentials, use them
+		// Fallback to legacy credential manager
+		console.log(' [NewAuthContext] Loading from legacy credential manager...');
+		const permanentCredentials = credentialManager.getAllCredentials();
+		console.log(' [NewAuthContext] Legacy credentials result:', permanentCredentials);
+		
 		if (permanentCredentials?.clientId && permanentCredentials?.environmentId) {
-			console.log(' [NewAuthContext] Using stored permanent credentials');
+			console.log(' [NewAuthContext] Using legacy credential manager credentials');
+			console.log('🔍 [NewAuthContext] LEGACY CREDENTIALS REDIRECT URI:', {
+				redirectUri: permanentCredentials.redirectUri,
+				hasRedirectUri: !!permanentCredentials.redirectUri,
+				redirectUriType: typeof permanentCredentials.redirectUri,
+				allFields: Object.keys(permanentCredentials),
+				fullObject: permanentCredentials
+			});
 			return permanentCredentials;
+		}
+
+		// Final fallback to V5 Config Service (used by Login page)
+		console.log(' [NewAuthContext] Loading from V5 Config Service...');
+		try {
+			const v5Config = pingOneConfigService.getConfig();
+			console.log(' [NewAuthContext] V5 Config Service result:', v5Config);
+			
+			if (v5Config?.clientId && v5Config?.environmentId) {
+				console.log(' [NewAuthContext] Using V5 Config Service credentials');
+				console.log('🔍 [NewAuthContext] V5 CONFIG REDIRECT URI:', {
+					redirectUri: v5Config.redirectUri,
+					hasRedirectUri: !!v5Config.redirectUri,
+					redirectUriType: typeof v5Config.redirectUri,
+					allFields: Object.keys(v5Config),
+					fullObject: v5Config
+				});
+				return v5Config;
+			}
+		} catch (v5Error) {
+			console.log(' [NewAuthContext] V5 Config Service not available:', v5Error);
 		}
 
 		// Otherwise, fall back to environment variables
@@ -241,15 +313,18 @@ async function loadConfiguration(): Promise<AppConfig> {
 		console.log(' [NewAuthContext] Final credential manager result:', allCredentials);
 
 		if (allCredentials.environmentId && allCredentials.clientId) {
+			// Construct PingOne endpoints from environment ID if not provided
+			const baseUrl = `https://auth.pingone.com/${allCredentials.environmentId}/as`;
+			
 			const configFromCredentials = {
 				disableLogin: false,
 				clientId: allCredentials.clientId,
 				clientSecret: allCredentials.clientSecret || '',
 				redirectUri: allCredentials.redirectUri || `${window.location.origin}/authz-callback`,
-				authorizationEndpoint: allCredentials.authEndpoint || '',
-				tokenEndpoint: allCredentials.tokenEndpoint || '',
-				userInfoEndpoint: allCredentials.userInfoEndpoint || '',
-				endSessionEndpoint: allCredentials.endSessionEndpoint || '',
+				authorizationEndpoint: allCredentials.authEndpoint || `${baseUrl}/authorize`,
+				tokenEndpoint: allCredentials.tokenEndpoint || `${baseUrl}/token`,
+				userInfoEndpoint: allCredentials.userInfoEndpoint || `${baseUrl}/userinfo`,
+				endSessionEndpoint: allCredentials.endSessionEndpoint || `${baseUrl}/signoff`,
 				scopes: allCredentials.scopes || ['openid', 'profile', 'email'],
 				environmentId: allCredentials.environmentId,
 				hasConfigError: false,
@@ -431,13 +506,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 	// Listen for configuration changes
 	useEffect(() => {
+		let isHandlingChange = false;
+
 		const handleConfigChange = async () => {
+			// Prevent multiple simultaneous config changes
+			if (isHandlingChange) return;
+			isHandlingChange = true;
+
 			try {
 				const newConfig = await loadConfiguration();
-				setConfig(newConfig);
-				logger.config('NewAuthContext', 'Configuration updated', newConfig);
+				setConfig(prevConfig => {
+					// Only update if config actually changed to prevent unnecessary re-renders
+					const changed = JSON.stringify(prevConfig) !== JSON.stringify(newConfig);
+					if (changed) {
+						logger.config('NewAuthContext', 'Configuration updated', newConfig);
+						return newConfig;
+					}
+					return prevConfig;
+				});
 			} catch (error) {
 				logger.error('NewAuthContext', 'Error updating configuration', error);
+			} finally {
+				isHandlingChange = false;
 			}
 		};
 
@@ -612,49 +702,154 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					oauth_redirect_after_login: redirectAfterLogin,
 				});
 
-				// Determine redirect URI based on callback type - OIDC Spec Compliance
+				// Use configured redirect URI from credentials, fallback to callback type logic
 				// Per OIDC Spec 3.1.2.1: redirect_uri in token request MUST match authorization request
-				const redirectUri =
+				const configuredRedirectUri = config?.redirectUri;
+				console.log('🔍 [NewAuthContext] REDIRECT URI SELECTION DEBUG:', {
+					configRedirectUri: config?.redirectUri,
+					hasConfigRedirectUri: !!config?.redirectUri,
+					callbackType,
+					windowOrigin: window.location.origin,
+					configObject: config,
+					configKeys: config ? Object.keys(config) : []
+				});
+				
+				const redirectUri = configuredRedirectUri || (
 					callbackType === 'dashboard'
 						? `${window.location.origin}/dashboard-callback`
-						: `${window.location.origin}/authz-callback`;
+						: `${window.location.origin}/authz-callback`
+				);
+				
+				console.log('🔍 [NewAuthContext] FINAL REDIRECT URI DECISION:', {
+					configuredRedirectUri,
+					callbackType,
+					finalRedirectUri: redirectUri,
+					usingConfigured: !!configuredRedirectUri,
+					usingFallback: !configuredRedirectUri
+				});
 
 				console.log(' [NewAuthContext] Redirect URI configuration:', {
 					callbackType,
+					configuredRedirectUri,
 					redirectUri,
 					windowOrigin: window.location.origin,
 					configRedirectUri: config.redirectUri,
 					finalRedirectUri: redirectUri,
+					configObject: {
+						hasRedirectUri: !!config.redirectUri,
+						redirectUriValue: config.redirectUri,
+						configKeys: config ? Object.keys(config) : [],
+						fullConfig: config
+					}
 				});
 
+				// Check if PingOne config is available
+				// Handle both config structures: config.pingone.* and config.*
+				let authEndpoint = config?.pingone?.authEndpoint || config?.authorizationEndpoint || config?.authEndpoint;
+				const clientId = config?.pingone?.clientId || config?.clientId;
+				
+				// If authEndpoint is missing but we have environmentId, construct it
+				if (!authEndpoint && config?.environmentId) {
+					authEndpoint = `https://auth.pingone.com/${config.environmentId}/as/authorize`;
+					console.log(' [NewAuthContext] Constructed authEndpoint from environmentId:', authEndpoint);
+				}
+				
+				// Debug logging to help identify configuration issues
+				console.log(' [NewAuthContext] Configuration debug:', {
+					hasConfig: !!config,
+					configKeys: config ? Object.keys(config) : [],
+					authEndpoint,
+					clientId,
+					configStructure: {
+						pingone: config?.pingone,
+						direct: {
+							authorizationEndpoint: config?.authorizationEndpoint,
+							authEndpoint: config?.authEndpoint,
+							clientId: config?.clientId,
+							environmentId: config?.environmentId
+						}
+					}
+				});
+				
+				if (!authEndpoint || !clientId) {
+					const missing = [];
+					if (!authEndpoint) missing.push('Authorization Endpoint');
+					if (!clientId) missing.push('Client ID');
+					
+					const errorMessage = `PingOne configuration incomplete. Missing: ${missing.join(', ')}.
+
+To set up PingOne authentication:
+1. Navigate to Configuration (/configuration)
+2. Enter your PingOne Environment ID and Client ID
+3. Save the configuration
+
+You can find these values in your PingOne Admin Console under Applications.
+Note: The Authorization Endpoint will be automatically constructed from your Environment ID.`;
+					
+					console.error(' [NewAuthContext] Configuration error:', errorMessage);
+					throw new Error(errorMessage);
+				}
+
 				// Build authorization URL
-				const authUrl = new URL(`${config.pingone.authEndpoint}`);
+				const authUrl = new URL(authEndpoint);
 				authUrl.searchParams.set('response_type', 'code');
-				authUrl.searchParams.set('client_id', config.pingone.clientId);
+				authUrl.searchParams.set('client_id', clientId);
 				authUrl.searchParams.set('redirect_uri', redirectUri);
-				authUrl.searchParams.set('scope', 'openid profile email');
+				
+				// Use configured scopes or fallback to default
+				const scopes = config?.scopes || ['openid', 'profile', 'email'];
+				const scopeString = Array.isArray(scopes) ? scopes.join(' ') : scopes;
+				authUrl.searchParams.set('scope', scopeString);
+				
 				authUrl.searchParams.set('state', state);
 				authUrl.searchParams.set('nonce', nonce);
 				authUrl.searchParams.set('code_challenge', codeChallenge);
 				authUrl.searchParams.set('code_challenge_method', 'S256');
 
 				console.log(' [NewAuthContext] Built authorization URL:', {
-					baseUrl: config.pingone.authEndpoint,
+					baseUrl: authEndpoint,
 					fullUrl: authUrl.toString(),
 					params: {
 						response_type: 'code',
-						client_id: config.pingone.clientId,
+						client_id: clientId,
 						redirect_uri: redirectUri,
-						scope: 'openid profile email',
+						scope: scopeString,
 						state: `${state.substring(0, 8)}...`,
 						nonce: `${nonce.substring(0, 8)}...`,
 						code_challenge: `${codeChallenge.substring(0, 20)}...`,
 						code_challenge_method: 'S256',
 					},
+					debugInfo: {
+						redirectUriSource: configuredRedirectUri ? 'configured' : 'fallback',
+						redirectUriExact: redirectUri,
+						scopeSource: config?.scopes ? 'configured' : 'default',
+						scopeExact: scopeString,
+						clientIdSource: config?.clientId ? 'direct' : (config?.pingone?.clientId ? 'pingone' : 'unknown'),
+						authEndpointSource: config?.authEndpoint ? 'authEndpoint' : (config?.authorizationEndpoint ? 'authorizationEndpoint' : (config?.pingone?.authEndpoint ? 'pingone.authEndpoint' : 'constructed'))
+					}
 				});
 
 				logger.auth('NewAuthContext', 'Prepared authorization URL for modal display', {
 					authUrl: authUrl.toString(),
+				});
+
+				// CRITICAL DEBUG: Log the exact URL being sent to PingOne
+				console.log('🔍 [NewAuthContext] EXACT URL BEING SENT TO PINGONE:', authUrl.toString());
+				console.log('🔍 [NewAuthContext] URL BREAKDOWN:', {
+					base: authEndpoint,
+					queryParams: Object.fromEntries(authUrl.searchParams),
+					redirectUri: authUrl.searchParams.get('redirect_uri'),
+					clientId: authUrl.searchParams.get('client_id'),
+					scope: authUrl.searchParams.get('scope'),
+					responseType: authUrl.searchParams.get('response_type')
+				});
+				
+				// CRITICAL DEBUG: Log redirect URI details
+				console.log('🔍 [NewAuthContext] REDIRECT URI BEING SENT:', {
+					redirectUri: authUrl.searchParams.get('redirect_uri'),
+					clientId: authUrl.searchParams.get('client_id'),
+					fullUrl: authUrl.toString(),
+					note: 'Check if this redirect URI matches your PingOne application configuration'
 				});
 
 				console.log(' [NewAuthContext] Authorization URL prepared, returning for modal display...');
@@ -1359,9 +1554,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
 				// Get user info if available
 				let userInfo: UserInfo | null = null;
-				if (tokenData.access_token && config?.pingone?.userInfoEndpoint) {
+				const userInfoEndpoint = config?.pingone?.userInfoEndpoint || config?.userInfoEndpoint;
+				if (tokenData.access_token && userInfoEndpoint) {
 					try {
-						userInfo = await getUserInfo(config.pingone.userInfoEndpoint, tokenData.access_token);
+						userInfo = await getUserInfo(userInfoEndpoint, tokenData.access_token);
 						oauthStorage.setUserInfo(userInfo);
 					} catch (error) {
 						logger.warn('NewAuthContext', 'Failed to fetch user info', error);
@@ -1529,6 +1725,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 		}));
 	}, []);
 
+	// V7 Standardized credential saving function
+	const saveCredentialsV7 = useCallback(async (credentials: any) => {
+		try {
+			console.log(' [NewAuthContext] Saving credentials using V7 standardized system...', credentials);
+			
+			const success = await saveFlowCredentials(
+				'dashboard-login',
+				credentials,
+				undefined, // flowConfig
+				undefined, // additionalState
+				{ showToast: true }
+			);
+			
+			if (success) {
+				console.log(' [NewAuthContext] V7 credentials saved successfully');
+				// Reload configuration to pick up the new credentials
+				const newConfig = await loadConfiguration();
+				setState(prev => ({ ...prev, config: newConfig }));
+			} else {
+				console.error(' [NewAuthContext] Failed to save V7 credentials');
+			}
+			
+			return success;
+		} catch (error) {
+			console.error(' [NewAuthContext] Error saving V7 credentials:', error);
+			return false;
+		}
+	}, []);
+
 	// Dismiss error function
 	const dismissError = useCallback(() => {
 		updateState({ error: null });
@@ -1630,6 +1855,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 			closeAuthModal,
 			updateTokens, // Add the updateTokens function
 			dismissError, // Add the dismissError function
+			saveCredentialsV7, // Add the V7 standardized credential saving function
 			// Flow context helper functions
 			initializeFlowContext,
 			updateFlowStep,

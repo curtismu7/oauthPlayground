@@ -3,6 +3,7 @@
 
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -46,8 +47,11 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { logger } from '../../utils/logger';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { UISettingsService } from '../../services/uiSettingsService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
 import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
@@ -963,8 +967,29 @@ const VariantDescription = styled.div`
 `;
 
 const DeviceAuthorizationFlowV7: React.FC = () => {
+	const location = useLocation();
+	
+	// Detect default variant based on navigation context
+	const getDefaultVariant = (): 'oauth' | 'oidc' => {
+		// Check if there's a variant specified in the URL params
+		const urlParams = new URLSearchParams(location.search);
+		const urlVariant = urlParams.get('variant');
+		if (urlVariant === 'oidc' || urlVariant === 'oauth') {
+			return urlVariant as 'oauth' | 'oidc';
+		}
+		
+		// Check navigation state for context
+		const state = location.state as any;
+		if (state?.fromSection === 'oidc') {
+			return 'oidc';
+		}
+		
+		// Default to OAuth (base protocol for Device Authorization Grant)
+		return 'oauth';
+	};
+	
 	// V7 Variant State
-	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
+	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
 	
 	const deviceFlow = useDeviceAuthorizationFlow();
 
@@ -1190,6 +1215,15 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 	usePageScroll({ pageName: 'Device Authorization Flow V7 - Unified', force: true });
 
+	// Check credentials on mount and show warning if missing
+	React.useEffect(() => {
+		checkCredentialsAndWarn(deviceFlow.credentials, {
+			flowName: 'Device Authorization Flow',
+			requiredFields: ['environmentId', 'clientId'],
+			showToast: true
+		});
+	}, []); // Only run once on mount
+
 	// Explicit scroll to top for step 2 (User Authorization)
 	React.useEffect(() => {
 		if (currentStep === 2) {
@@ -1200,8 +1234,27 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 	}, [currentStep]);
 
-	// Note: Credential loading is now handled automatically by ComprehensiveCredentialsService
-	// The V6 service architecture provides automatic persistence and cross-flow credential sharing
+	// Load credentials using V7 standardized storage
+	useEffect(() => {
+		const loadCredentials = async () => {
+			console.log('🔄 [DeviceAuth-V7] Loading credentials on mount...');
+			
+			const { credentials: v7Credentials } = await FlowCredentialService.loadFlowCredentials({
+				flowKey: 'device-authorization-v7',
+				defaultCredentials: {},
+			});
+
+			if (v7Credentials && Object.keys(v7Credentials).length > 0) {
+				console.log('✅ [DeviceAuth-V7] Loaded V7 credentials:', v7Credentials);
+				// Update device flow credentials
+				ensureCredentials(v7Credentials);
+			} else {
+				console.log('ℹ️ [DeviceAuth-V7] No V7 credentials found, using defaults');
+			}
+		};
+
+		loadCredentials();
+	}, [ensureCredentials]);
 
 	// Show polling prompt modal when device code is received
 	React.useEffect(() => {
@@ -1236,6 +1289,68 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 	// Note: Credential handlers are now managed by ComprehensiveCredentialsService
 	// The V6 service architecture provides unified credential management with OIDC discovery
+
+	// Load credentials using V7 standardized storage
+	useEffect(() => {
+		const loadCredentials = async () => {
+			console.log('🔄 [DeviceAuth-V7] Loading credentials on mount...');
+			
+			try {
+				// Try V7 standardized storage first
+				const { credentials: v7Credentials, hasSharedCredentials, flowState } = await FlowCredentialService.loadFlowCredentials({
+					flowKey: 'device-authorization-v7',
+					defaultCredentials: {},
+				});
+
+				if (v7Credentials && hasSharedCredentials) {
+					console.log('✅ [DeviceAuth-V7] Loaded V7 credentials:', {
+						flowKey: 'device-authorization-v7',
+						environmentId: v7Credentials.environmentId,
+						clientId: v7Credentials.clientId?.substring(0, 8) + '...',
+						hasFlowState: !!flowState,
+					});
+					// Update device flow credentials
+					deviceFlow.setCredentials(v7Credentials);
+				} else {
+					console.log('ℹ️ [DeviceAuth-V7] No V7 credentials found, using defaults');
+				}
+			} catch (error) {
+				console.error('[DeviceAuth-V7] Failed to load V7 credentials:', error);
+			}
+		};
+
+		loadCredentials();
+	}, [deviceFlow.setCredentials]);
+
+	// Ensure Device Authorization Flow V7 uses its own credential storage
+	useEffect(() => {
+		// Save current credentials to flow-specific storage
+		if (deviceFlow.credentials && (deviceFlow.credentials.environmentId || deviceFlow.credentials.clientId)) {
+			console.log('🔧 [Device Authorization V7] Saving credentials to flow-specific storage:', {
+				flowKey: 'device-authorization-v7',
+				environmentId: deviceFlow.credentials.environmentId,
+				clientId: deviceFlow.credentials.clientId?.substring(0, 8) + '...',
+				scopes: deviceFlow.credentials.scopes
+			});
+			
+			// Save to flow-specific storage with enhanced error handling
+			FlowCredentialService.saveFlowCredentials('device-authorization-v7', deviceFlow.credentials, {
+				showToast: false
+			}).catch((error) => {
+				console.error('[Device Authorization V7] Failed to save credentials to V7 storage:', error);
+				// Show user-friendly error message
+				v4ToastManager.showError('Failed to save credentials. Please try again.');
+			});
+		}
+	}, [deviceFlow.credentials]);
+
+	// Use credential backup hook for automatic backup and restoration
+	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
+		flowKey: 'device-authorization-v7',
+		credentials: deviceFlow.credentials,
+		setCredentials: deviceFlow.setCredentials,
+		enabled: true
+	});
 
 	const navigateToTokenManagement = useCallback(() => {
 		// Store flow navigation state for back navigation
@@ -1321,32 +1436,74 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		setUserInfo(null);
 		setIntrospectionResult(null);
 		setHasScrolledToTV(false);
-	}, [deviceFlow]);
+		
+		// Clear Device Authorization Flow V7-specific storage with error handling
+		try {
+			FlowCredentialService.clearFlowState('device-authorization-v7');
+			console.log('🔧 [Device Authorization V7] Cleared flow-specific storage');
+		} catch (error) {
+			console.error('[Device Authorization V7] Failed to clear flow state:', error);
+			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
+		}
+		
+		// Clear credential backup when flow is reset
+		try {
+			clearBackup();
+			console.log('🔧 [Device Authorization V7] Cleared credential backup');
+		} catch (error) {
+			console.error('[Device Authorization V7] Failed to clear credential backup:', error);
+		}
+	}, [deviceFlow, clearBackup]);
 
-	// Step validation
+	// Step validation with enhanced error messages
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			switch (stepIndex) {
 				case 0:
-					return true; // Introduction
+					// Step 0: Introduction is always valid
+					return true;
 				case 1:
+					// Step 1: Must have valid credentials
 					return !!deviceFlow.credentials;
 				case 2:
+					// Step 2: Must have device code data
 					return !!deviceFlow.deviceCodeData;
 				case 3:
-					return !!deviceFlow.tokens; // Tokens (old step 4)
+					// Step 3: Must have tokens from successful polling
+					return !!deviceFlow.tokens;
 				case 4:
-					return !!deviceFlow.tokens; // Introspection (old step 5)
+					// Step 4: Must have tokens for introspection
+					return !!deviceFlow.tokens;
 				case 5:
-					return true; // Analytics & Monitoring (new step 5)
+					// Step 5: Analytics & Monitoring is always valid
+					return true;
 				case 6:
-					return true; // Flow Complete (old step 6)
+					// Step 6: Flow Complete is always valid
+					return true;
 				default:
 					return false;
 			}
 		},
 		[deviceFlow.credentials, deviceFlow.deviceCodeData, deviceFlow.tokens]
 	);
+
+	// Get step validation error message
+	const getStepValidationMessage = useCallback((stepIndex: number): string => {
+		switch (stepIndex) {
+			case 1:
+				if (!deviceFlow.credentials) return 'Credentials are required. Please configure your environment and client settings.';
+				return '';
+			case 2:
+				if (!deviceFlow.deviceCodeData) return 'Device code is required. Please request a device code first.';
+				return '';
+			case 3:
+			case 4:
+				if (!deviceFlow.tokens) return 'Tokens are required. Please complete the device authorization process first.';
+				return '';
+			default:
+				return '';
+		}
+	}, [deviceFlow]);
 
 	// Don't auto-advance - let user see the TV update and click Next manually
 	// This provides better educational experience to see the full authorization flow
@@ -1959,15 +2116,22 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					ensureCredentials({ scopes: finalScopes });
 				}}
 				
-				// Save handler - save to credential manager
+				// Save handler - save to V7 standardized storage
 				onSave={async () => {
 					try {
 						if (deviceFlow.credentials) {
-							// Save to credential manager for persistence across flows
+							// Save using V7 standardized storage
+							await FlowCredentialService.saveFlowCredentials({
+								flowKey: 'device-authorization-v7',
+								credentials: deviceFlow.credentials
+							});
+							
+							// Also save to credential manager for backward compatibility
 							const success = credentialManager.saveDeviceFlowCredentials({
 								environmentId: deviceFlow.credentials.environmentId,
 								clientId: deviceFlow.credentials.clientId,
 								scopes: deviceFlow.credentials.scopes,
+								tokenAuthMethod: deviceFlow.credentials.tokenEndpointAuthMethod || deviceFlow.credentials.clientAuthMethod,
 							});
 							
 							if (success) {
@@ -3066,7 +3230,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					canNavigateNext={isStepValid(currentStep + 1)}
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
-					disabledMessage="Complete the action above to continue"
+					disabledMessage={getStepValidationMessage(currentStep + 1) || "Complete the action above to continue"}
 				/>
 
 				<CollapsibleSection>

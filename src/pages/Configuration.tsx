@@ -27,7 +27,8 @@ import { credentialManager } from '../utils/credentialManager';
 import { CredentialsInput } from '../components/CredentialsInput';
 import PingOneApplicationConfig, { type PingOneApplicationState } from '../components/PingOneApplicationConfig';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { createPingOneClient, makeApiRequest } from '../utils/apiClient';
+import ComprehensiveCredentialsService from '../services/comprehensiveCredentialsService';
+import type { StepCredentials } from '../components/steps/CommonSteps';
 import packageJson from '../../package.json';
 
 const Container = styled.div`
@@ -237,12 +238,24 @@ const Configuration: React.FC = () => {
 	const [copiedText, setCopiedText] = useState<string>('');
 
 	// Credential state
-	const [credentials, setCredentials] = useState({
+	// Comprehensive credentials state
+	const [credentials, setCredentials] = useState<StepCredentials>({
 		environmentId: '',
 		clientId: '',
 		clientSecret: '',
 		redirectUri: 'http://localhost:3000/callback',
+		scope: 'openid profile email',
 		scopes: 'openid profile email',
+		responseType: 'code',
+		grantType: 'authorization_code',
+		clientAuthMethod: 'client_secret_post',
+		tokenEndpointAuthMethod: 'client_secret_post',
+		issuerUrl: '',
+		authorizationEndpoint: '',
+		tokenEndpoint: '',
+		userInfoEndpoint: '',
+		loginHint: '',
+		postLogoutRedirectUri: '',
 	});
 	const [hasCredentials, setHasCredentials] = useState(false);
 	const [credentialsSaved, setCredentialsSaved] = useState(false);
@@ -368,6 +381,12 @@ const Configuration: React.FC = () => {
 		setCredentialsSaved(false);
 	};
 
+	// Handle comprehensive credentials changes
+	const handleCredentialsChange = (updatedCredentials: StepCredentials) => {
+		setCredentials(updatedCredentials);
+		setCredentialsSaved(false);
+	};
+
 	const copyToClipboard = async (text: string, label: string) => {
 		try {
 			await navigator.clipboard.writeText(text);
@@ -399,28 +418,75 @@ const Configuration: React.FC = () => {
 		setWorkerTokenError(null);
 
 		try {
-			const client = createPingOneClient('', credentials.environmentId, 'NA');
-			
-			const response = await makeApiRequest<any>(client, '/as/token', {
+			// Build token endpoint URL
+			const baseUrl = 'https://auth.pingone.com';
+			const tokenEndpoint = `${baseUrl}/${credentials.environmentId}/as/token`;
+
+			// Prepare request body
+			const bodyParams = {
+				grant_type: 'client_credentials',
+				client_id: credentials.clientId,
+				client_secret: credentials.clientSecret,
+				scope: 'p1:read:user p1:update:user p1:read:device p1:update:device p1:read:application p1:update:application',
+			};
+
+			console.log('🔍 [Configuration] Worker token request:', {
+				endpoint: tokenEndpoint,
+				clientId: `${credentials.clientId.substring(0, 8)}...`,
+				scope: bodyParams.scope,
+			});
+
+			// Make the request
+			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/x-www-form-urlencoded',
+					'Accept': 'application/json',
 				},
-				body: new URLSearchParams({
-					grant_type: 'client_credentials',
-					client_id: credentials.clientId,
-					client_secret: credentials.clientSecret,
-					scope: 'p1:read:user p1:update:user p1:read:device p1:update:device p1:read:application p1:update:application',
-				}),
+				body: new URLSearchParams(bodyParams),
 			});
 
-			if (response.access_token) {
-				setWorkerToken(response.access_token);
+			if (!response.ok) {
+				const errorData = await response.text();
+				console.error('❌ [Configuration] Worker token request failed:', {
+					status: response.status,
+					statusText: response.statusText,
+					error: errorData
+				});
+				
+				// Try to parse the error response for better error messages
+				try {
+					const errorJson = JSON.parse(errorData);
+					if (errorJson.error === 'invalid_client') {
+						throw new Error(`Authentication failed: ${errorJson.error_description || 'Invalid client credentials'}`);
+					} else {
+						throw new Error(`Token request failed: ${errorJson.error_description || errorData}`);
+					}
+				} catch (parseError) {
+					throw new Error(`Token request failed: ${response.status} ${errorData}`);
+				}
+			}
+
+			const tokenData = await response.json();
+
+			if (tokenData.access_token) {
+				setWorkerToken(tokenData.access_token);
 				v4ToastManager.showSuccess('Worker token obtained successfully!');
 				
 				// Save to localStorage for use across the app
-				localStorage.setItem('worker-token', response.access_token);
+				localStorage.setItem('worker-token', tokenData.access_token);
 				localStorage.setItem('worker-token-env', credentials.environmentId);
+				
+				// Calculate expiration time (default to 1 hour if not provided)
+				const expiresIn = tokenData.expires_in || 3600; // seconds
+				const expiresAt = Date.now() + (expiresIn * 1000); // convert to milliseconds
+				localStorage.setItem('worker-token-expires-at', expiresAt.toString());
+				
+				console.log('✅ [Configuration] Worker token saved:', {
+					tokenType: tokenData.token_type,
+					expiresIn: tokenData.expires_in,
+					scopes: tokenData.scope,
+				});
 			} else {
 				throw new Error('No access token received');
 			}
@@ -428,6 +494,7 @@ const Configuration: React.FC = () => {
 			const errorMessage = error instanceof Error ? error.message : 'Failed to get worker token';
 			setWorkerTokenError(errorMessage);
 			v4ToastManager.showError(`Failed to get worker token: ${errorMessage}`);
+			console.error('❌ [Configuration] Worker token error:', error);
 		} finally {
 			setWorkerTokenLoading(false);
 		}
@@ -458,8 +525,9 @@ const Configuration: React.FC = () => {
 				</p>
 			</Header>
 
+		{/* Worker Token Section - First Step */}
 		<CollapsibleHeader
-			title="Get Worker Token"
+			title="Worker Token Credentials"
 			subtitle="Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows"
 			icon={<FiKey />}
 			defaultCollapsed={false}
@@ -540,6 +608,73 @@ const Configuration: React.FC = () => {
 						<CodeBlockWithCopy label="worker-token">
 							{showWorkerToken ? workerToken : '••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••'}
 						</CodeBlockWithCopy>
+
+						{/* Check Config and Create App buttons */}
+						<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+							<button
+								onClick={() => {
+									// TODO: Implement check config functionality
+									v4ToastManager.showInfo('Check Config functionality coming soon!');
+								}}
+								style={{
+									background: '#3b82f6',
+									color: 'white',
+									border: '1px solid #3b82f6',
+									borderRadius: '0.5rem',
+									padding: '0.75rem 1.5rem',
+									fontSize: '0.875rem',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#2563eb';
+									e.currentTarget.style.borderColor = '#2563eb';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = '#3b82f6';
+									e.currentTarget.style.borderColor = '#3b82f6';
+								}}
+							>
+								<FiSettings size={16} />
+								Check Config
+							</button>
+
+							<button
+								onClick={() => {
+									// TODO: Implement create app functionality
+									v4ToastManager.showInfo('Create App functionality coming soon!');
+								}}
+								style={{
+									background: '#10b981',
+									color: 'white',
+									border: '1px solid #10b981',
+									borderRadius: '0.5rem',
+									padding: '0.75rem 1.5rem',
+									fontSize: '0.875rem',
+									fontWeight: '600',
+									cursor: 'pointer',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#059669';
+									e.currentTarget.style.borderColor = '#059669';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = '#10b981';
+									e.currentTarget.style.borderColor = '#10b981';
+								}}
+							>
+								<FiPackage size={16} />
+								Create App
+							</button>
+						</div>
 					</div>
 				)}
 
@@ -550,6 +685,24 @@ const Configuration: React.FC = () => {
 				</InfoBox>
 			</Card>
 		</CollapsibleHeader>
+
+		{/* Credentials Configuration Section */}
+		<ComprehensiveCredentialsService
+			flowType="configuration"
+			credentials={credentials}
+			onCredentialsChange={handleCredentialsChange}
+			onSaveCredentials={saveCredentials}
+			hasUnsavedChanges={!credentialsSaved}
+			title="Application Configuration & Credentials"
+			subtitle="Configure your PingOne environment credentials for the OAuth Playground"
+			showAdvancedConfig={true}
+			showConfigChecker={false}
+			requireClientSecret={true}
+			showRedirectUri={true}
+			showPostLogoutRedirectUri={false}
+			showLoginHint={false}
+			showClientAuthMethod={true}
+		/>
 
 		<CollapsibleHeader
 			title="Application Information"

@@ -12,6 +12,7 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -335,18 +336,7 @@ const JsonNull = styled.span`
   font-style: italic;
 `;
 
-const TokenDisplay = styled.div`
-  background-color: var(--color-surface, #000000);
-  border: 2px solid #374151;
-  border-radius: 0.375rem;
-  padding: 1rem;
-  margin: 1rem 0;
-  font-family: monospace;
-  font-size: 0.875rem;
-  color: #ffffff;
-  word-break: break-all;
-  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3);
-`;
+
 
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();
@@ -1187,14 +1177,19 @@ console.log('Welcome, ' + user.name + '!');`,
 					)}
 
 					{accessToken && (
-						<div>
-							<h3>Access Token:</h3>
-							<TokenDisplay>
-								<strong>Bearer Token (masked):</strong>
-								<br />
-								{maskedToken}
-							</TokenDisplay>
-						</div>
+						<UltimateTokenDisplay
+							tokens={{ access_token: accessToken, token_type: 'Bearer' }}
+							flowType="oauth"
+							flowKey="userinfo-flow"
+							displayMode="compact"
+							title="Access Token for UserInfo"
+							subtitle="Token used to access the UserInfo endpoint"
+							showCopyButtons={true}
+							showDecodeButtons={true}
+							showMaskToggle={true}
+							showTokenManagement={true}
+							defaultMasked={true}
+						/>
 					)}
 
 					{/* Request/Response Section */}

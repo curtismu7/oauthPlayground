@@ -9,6 +9,9 @@ import {
 	FiEye,
 	FiEyeOff,
 	FiLogIn,
+	FiSettings,
+	FiKey,
+	FiLock,
 } from 'react-icons/fi';
 import { themeService } from '../services/themeService';
 import { useLocation } from 'react-router-dom';
@@ -16,6 +19,7 @@ import { usePageScroll } from '../hooks/usePageScroll';
 import styled from 'styled-components';
 import packageJson from '../../package.json';
 import AuthorizationRequestModal from '../components/AuthorizationRequestModal';
+import CollapsibleSection from '../components/CollapsibleSection';
 import DebugCredentials from '../components/DebugCredentials';
 import Spinner from '../components/Spinner';
 import { useAuth } from '../contexts/NewAuthContext';
@@ -23,6 +27,8 @@ import { useNotifications } from '../hooks/useNotifications';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { pingOneConfigService, type PingOneConfig } from '../services/pingoneConfigService';
 import { FlowHeader } from '../services/flowHeaderService';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -286,18 +292,7 @@ const CopyButton = styled.button`
   }
 `;
 
-// Themed collapse icon (blue with white arrow)
-const ChevronIcon = styled.div.withConfig({
-	shouldForwardProp: (prop) => prop !== 'collapsed' && prop !== '$collapsed',
-})<{ $collapsed: boolean }>`
-	${() => themeService.getCollapseIconStyles()}
-	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
-	transition: transform 0.2s ease;
-
-	svg {
-		color: inherit;
-	}
-`;
+// ChevronIcon removed - now using CollapsibleSection component
 
 const Login = () => {
 	// Ensure page starts at top
@@ -339,21 +334,62 @@ const Login = () => {
 	const [showRedirectModal, setShowRedirectModal] = useState<boolean>(false);
 	const [redirectUrl, setRedirectUrl] = useState<string>('');
 	const [redirectParams, setRedirectParams] = useState<Record<string, string>>({});
-	const [isConfigSectionCollapsed, setIsConfigSectionCollapsed] = useState<boolean>(true);
-	const [isCredentialsSectionCollapsed, setIsCredentialsSectionCollapsed] =
-		useState<boolean>(false);
+	// Collapsible sections now managed by CollapsibleSection component
 	const [hasExistingCredentials, setHasExistingCredentials] = useState<boolean>(false);
 
 	const { login } = useAuth();
 	const location = useLocation();
 	const { showSuccess, showError } = useNotifications();
 
-	// Load existing credentials on component mount
+	// Load existing credentials using V7 standardized system
 	useEffect(() => {
-		const loadExistingCredentials = () => {
-			console.log(' [Login] Loading existing credentials...');
+		const loadExistingCredentialsV7 = async () => {
+			console.log(' [Login] Loading credentials using V7 standardized system...');
 
-			// Try to load from V5 config service
+			try {
+				// Try V7 FlowCredentialService first (most recent)
+				const v7Credentials = await loadFlowCredentials({
+					flowKey: 'dashboard-login',
+					defaultCredentials: {
+						environmentId: '',
+						clientId: '',
+						clientSecret: '',
+						redirectUri: getCallbackUrlForFlow('dashboard'),
+						scope: 'openid profile email',
+						scopes: 'openid profile email',
+						loginHint: '',
+						postLogoutRedirectUri: '',
+						responseType: 'code',
+						grantType: 'authorization_code',
+						issuerUrl: '',
+						authorizationEndpoint: '',
+						tokenEndpoint: '',
+						userInfoEndpoint: '',
+						clientAuthMethod: 'client_secret_post',
+						tokenEndpointAuthMethod: 'client_secret_post',
+					}
+				});
+
+				console.log(' [Login] V7 FlowCredentialService result:', v7Credentials);
+
+				if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
+					console.log(' [Login] Using V7 FlowCredentialService credentials');
+					setCredentials((prev) => ({
+						...prev,
+						environmentId: v7Credentials.credentials.environmentId || '',
+						clientId: v7Credentials.credentials.clientId || '',
+						clientSecret: v7Credentials.credentials.clientSecret || '',
+						tokenAuthMethod: 'client_secret_basic',
+					}));
+					setHasExistingCredentials(true);
+					return;
+				}
+			} catch (v7Error) {
+				console.log(' [Login] V7 FlowCredentialService not available:', v7Error);
+			}
+
+			// Fallback to V5 config service
+			console.log(' [Login] Loading from V5 config service...');
 			const config = pingOneConfigService.getConfig();
 			console.log(' [Login] Config from service:', config);
 
@@ -367,16 +403,13 @@ const Login = () => {
 					tokenAuthMethod: 'client_secret_basic',
 				}));
 				setHasExistingCredentials(true);
-
-				// Collapse credentials section if they're already filled
-				setIsCredentialsSectionCollapsed(true);
 			} else {
 				console.log(' [Login] No existing credentials found');
 				setHasExistingCredentials(false);
 			}
 		};
 
-		loadExistingCredentials();
+		loadExistingCredentialsV7();
 	}, []);
 
 	// Modal handler functions
@@ -498,13 +531,45 @@ const Login = () => {
 		});
 	};
 
-	const handleCredentialSave = () => {
-		console.log(' [Login] Saving credentials...');
+	const handleCredentialSave = async () => {
+		console.log(' [Login] Saving credentials using V7 standardized system...');
 		setSaveStatus(null);
 		setIsSavingCredentials(true);
 
 		try {
-			// Save configuration using V5 config service
+			// Save using V7 standardized storage system
+			const v7Credentials = {
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: getCallbackUrlForFlow('dashboard'),
+				scope: 'openid profile email',
+				scopes: 'openid profile email',
+				loginHint: '',
+				postLogoutRedirectUri: '',
+				responseType: 'code',
+				grantType: 'authorization_code',
+				issuerUrl: '',
+				authorizationEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
+				tokenEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/token`,
+				userInfoEndpoint: `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`,
+				clientAuthMethod: credentials.tokenAuthMethod || 'client_secret_basic',
+				tokenEndpointAuthMethod: credentials.tokenAuthMethod || 'client_secret_basic',
+			};
+
+			const v7Success = await saveFlowCredentials(
+				'dashboard-login',
+				v7Credentials,
+				undefined, // flowConfig
+				undefined, // additionalState
+				{ showToast: false } // We'll show our own success message
+			);
+
+			if (!v7Success) {
+				throw new Error('Failed to save credentials using V7 standardized system');
+			}
+
+			// Also save to V5 config service for backward compatibility
 			const configToSave: PingOneConfig = {
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -525,13 +590,13 @@ const Login = () => {
 			};
 
 			pingOneConfigService.saveConfig(configToSave);
-			console.log(' [Login] Saved config to V5 service:', configToSave);
+			console.log(' [Login] Saved config to V5 service for backward compatibility:', configToSave);
 
 			setSaveStatus({
 				type: 'success',
 				title: 'Credentials saved',
 				message:
-					'Your login credentials have been saved successfully. The Configuration page has been updated with these same values.',
+					'Your login credentials have been saved successfully using V7 standardized storage. The Configuration page has been updated with these same values.',
 			});
 			showSuccess('Login credentials have been saved successfully.');
 
@@ -671,215 +736,234 @@ const Login = () => {
 						Version {packageJson.version}
 					</div>
 
-					<PingOneSetupSection>
-						<h3
-							onClick={() => setIsConfigSectionCollapsed(!isConfigSectionCollapsed)}
-							style={{
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								userSelect: 'none',
-							}}
-						>
-							<ChevronIcon $collapsed={isConfigSectionCollapsed}>
-								<FiChevronDown />
-							</ChevronIcon>
-							PingOne Configuration Required
-						</h3>
-						{!isConfigSectionCollapsed && (
-							<>
-								<p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
+					<CollapsibleSection
+						title="PingOne Configuration Required"
+						icon="🔧"
+						defaultCollapsed={true}
+					>
+						<p>To use this OAuth Playground, you need to configure your PingOne environment:</p>
 
 								<SetupSteps>
-									<h4>1. Access PingOne Admin Console</h4>
-									<ul>
-										<li>
-											Navigate to your <strong>PingOne Admin Console</strong>
-										</li>
-										<li>
-											Go to <strong>Applications</strong> <strong>Applications</strong>
-										</li>
-										<li>
-											Click{' '}
-											<strong
-												style={{
-													fontSize: '1.1rem',
-													fontWeight: '800',
-													color: '#0070CC',
-												}}
-											>
-												+ Add Application
-											</strong>
-										</li>
-										<li>
-											Select <strong>Web Application</strong>
-										</li>
-									</ul>
-
-									<h4>2. Configure Application Details</h4>
-									<ul>
-										<li>
-											<strong>Application Type:</strong> OIDC Web App
-										</li>
-										<li>
-											<strong>Application Name:</strong>
-											<span
-												style={{
-													fontWeight: '800',
-													fontSize: '1rem',
-													color: '#0070CC',
-													marginLeft: '0.5rem',
-												}}
-											>
-												PingOne OAuth/OIDC Playground v{packageJson.version}
-												<button
-													onClick={() =>
-														copyToClipboard(
-															`PingOne OAuth/OIDC Playground v${packageJson.version}`,
-															'setup-app-name'
-														)
-													}
+									<CollapsibleHeader
+										title="Step 1: Access PingOne Admin Console"
+										subtitle="Navigate to your PingOne environment and create a new application"
+										icon={<FiLogIn />}
+										defaultCollapsed={false}
+										theme="blue"
+										variant="compact"
+									>
+										<ul>
+											<li>
+												Navigate to your <strong>PingOne Admin Console</strong>
+											</li>
+											<li>
+												Go to <strong>Applications</strong> → <strong>Applications</strong>
+											</li>
+											<li>
+												Click{' '}
+												<strong
 													style={{
-														background: 'none',
-														border: '1px solid #0070CC',
+														fontSize: '1.1rem',
+														fontWeight: '800',
 														color: '#0070CC',
-														cursor: 'pointer',
-														padding: '0.125rem 0.25rem',
-														borderRadius: '3px',
-														fontSize: '0.7rem',
-														fontWeight: '600',
+													}}
+												>
+													+ Add Application
+												</strong>
+											</li>
+											<li>
+												Select <strong>Web Application</strong>
+											</li>
+										</ul>
+									</CollapsibleHeader>
+
+									<CollapsibleHeader
+										title="Step 2: Configure Application Details"
+										subtitle="Set up basic application information and settings"
+										icon={<FiEdit />}
+										defaultCollapsed={false}
+										theme="green"
+										variant="compact"
+									>
+										<ul>
+											<li>
+												<strong>Application Type:</strong> OIDC Web App
+											</li>
+											<li>
+												<strong>Application Name:</strong>
+												<span
+													style={{
+														fontWeight: '800',
+														fontSize: '1rem',
+														color: '#0070CC',
 														marginLeft: '0.5rem',
+													}}
+												>
+													PingOne OAuth/OIDC Playground v{packageJson.version}
+													<button
+														onClick={() =>
+															copyToClipboard(
+																`PingOne OAuth/OIDC Playground v${packageJson.version}`,
+																'setup-app-name'
+															)
+														}
+														style={{
+															background: 'none',
+															border: '1px solid #0070CC',
+															color: '#0070CC',
+															cursor: 'pointer',
+															padding: '0.125rem 0.25rem',
+															borderRadius: '3px',
+															fontSize: '0.7rem',
+															fontWeight: '600',
+															marginLeft: '0.5rem',
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: '0.125rem',
+															transition: 'all 0.2s',
+														}}
+														title="Copy Application Name"
+													>
+														{copiedId === 'setup-app-name' ? (
+															<FiCheck size={10} />
+														) : (
+															<FiCopy size={10} />
+														)}
+													</button>
+												</span>
+											</li>
+											<li>
+												<strong>Description:</strong> Interactive OAuth 2.0 testing application
+											</li>
+											<li>
+												<strong>Hit Save Button</strong>
+											</li>
+										</ul>
+									</CollapsibleHeader>
+
+									<CollapsibleHeader
+										title="Step 3: Configure Authentication"
+										subtitle="Set up OAuth/OIDC authentication parameters"
+										icon={<FiKey />}
+										defaultCollapsed={false}
+										theme="orange"
+										variant="compact"
+									>
+										<ul>
+											<li>
+												<strong>Enable Application - Grey button on top Right</strong>
+											</li>
+											<li>
+												<strong>Hit Configuration tab</strong>
+											</li>
+											<li>
+												<strong>Hit blue pencil</strong>
+												<span
+													style={{
 														display: 'inline-flex',
 														alignItems: 'center',
-														gap: '0.125rem',
-														transition: 'all 0.2s',
+														justifyContent: 'center',
+														width: '20px',
+														height: '20px',
+														backgroundColor: '#0070CC',
+														borderRadius: '50%',
+														marginLeft: '8px',
+														color: 'white',
 													}}
-													title="Copy Application Name"
 												>
-													{copiedId === 'setup-app-name' ? (
-														<FiCheck size={10} />
-													) : (
-														<FiCopy size={10} />
-													)}
-												</button>
-											</span>
-										</li>
-										<li>
-											<strong>Description:</strong> Interactive OAuth 2.0 testing application
-										</li>
-										<li>
-											<strong>Hit Save Button</strong>
-										</li>
-									</ul>
-
-									<h4>3. Configure Authentication</h4>
-									<ul>
-										<li>
-											<strong>Enable Application - Grey button on top Right</strong>
-										</li>
-										<li>
-											<strong>Hit Configuration tab</strong>
-										</li>
-										<li>
-											<strong>Hit blue pencil</strong>
-											<span
-												style={{
-													display: 'inline-flex',
-													alignItems: 'center',
-													justifyContent: 'center',
-													width: '20px',
-													height: '20px',
-													backgroundColor: '#0070CC',
-													borderRadius: '50%',
-													marginLeft: '8px',
-													color: 'white',
-												}}
-											>
-												<FiEdit size={12} />
-											</span>
-										</li>
-										<li>
-											<strong>Response Type:</strong> Code
-										</li>
-										<li>
-											<strong>Grant Type:</strong> Authorization Code
-										</li>
-										<li>
-											<strong>Redirect URIs:</strong>
-											<span
-												style={{
-													fontWeight: '800',
-													fontSize: '1rem',
-													color: '#0070CC',
-													marginLeft: '0.5rem',
-												}}
-											>
-												{getCallbackUrlForFlow('dashboard')}
-												<button
-													onClick={() =>
-														copyToClipboard(
-															getCallbackUrlForFlow('dashboard'),
-															'setup-redirect-uri'
-														)
-													}
+													<FiEdit size={12} />
+												</span>
+											</li>
+											<li>
+												<strong>Response Type:</strong> Code
+											</li>
+											<li>
+												<strong>Grant Type:</strong> Authorization Code
+											</li>
+											<li>
+												<strong>Redirect URIs:</strong>
+												<span
 													style={{
-														background: 'none',
-														border: '1px solid #0070CC',
+														fontWeight: '800',
+														fontSize: '1rem',
 														color: '#0070CC',
-														cursor: 'pointer',
-														padding: '0.125rem 0.25rem',
-														borderRadius: '3px',
-														fontSize: '0.7rem',
-														fontWeight: '600',
 														marginLeft: '0.5rem',
+													}}
+												>
+													{getCallbackUrlForFlow('dashboard')}
+													<button
+														onClick={() =>
+															copyToClipboard(
+																getCallbackUrlForFlow('dashboard'),
+																'setup-redirect-uri'
+															)
+														}
+														style={{
+															background: 'none',
+															border: '1px solid #0070CC',
+															color: '#0070CC',
+															cursor: 'pointer',
+															padding: '0.125rem 0.25rem',
+															borderRadius: '3px',
+															fontSize: '0.7rem',
+															fontWeight: '600',
+															marginLeft: '0.5rem',
+															display: 'inline-flex',
+															alignItems: 'center',
+															gap: '0.125rem',
+															transition: 'all 0.2s',
+														}}
+														title="Copy Redirect URI"
+													>
+														{copiedId === 'setup-redirect-uri' ? (
+															<FiCheck size={10} />
+														) : (
+															<FiCopy size={10} />
+														)}
+													</button>
+												</span>
+											</li>
+											<li>
+												<strong>Token Endpoint Authentication Method:</strong> Client Secret Basic
+											</li>
+											<li>
+												Click <strong style={{ color: '#0070CC' }}>Save</strong> to create the
+												application
+											</li>
+										</ul>
+									</CollapsibleHeader>
+
+									<CollapsibleHeader
+										title="Step 4: Save and Get Credentials"
+										subtitle="Copy the generated credentials for use in this playground"
+										icon={<FiCopy />}
+										defaultCollapsed={false}
+										theme="purple"
+										variant="compact"
+									>
+										<ul>
+											<li>
+												See the <strong>Environment ID (Issuer)</strong>
+											</li>
+											<li>
+												See the <strong>Client ID</strong>
+											</li>
+											<li>
+												See the <strong>Client Secret</strong>
+												<span
+													style={{
+														marginLeft: '0.375rem',
+														color: '#6c757d',
 														display: 'inline-flex',
 														alignItems: 'center',
-														gap: '0.125rem',
-														transition: 'all 0.2s',
+														gap: '0.25rem',
 													}}
-													title="Copy Redirect URI"
 												>
-													{copiedId === 'setup-redirect-uri' ? (
-														<FiCheck size={10} />
-													) : (
-														<FiCopy size={10} />
-													)}
-												</button>
-											</span>
-										</li>
-										<li>
-											<strong>Token Endpoint Authentication Method:</strong> Client Secret Basic
-										</li>
-										<li>
-											Click <strong style={{ color: '#0070CC' }}>Save</strong> to create the
-											application
-										</li>
-									</ul>
-
-									<h4>4. Save and Get Credentials</h4>
-									<ul>
-										<li>
-											See the <strong>Environment ID (Issuer)</strong>
-										</li>
-										<li>
-											See the <strong>Client ID</strong>
-										</li>
-										<li>
-											See the <strong>Client Secret</strong>
-											<span
-												style={{
-													marginLeft: '0.375rem',
-													color: '#6c757d',
-													display: 'inline-flex',
-													alignItems: 'center',
-													gap: '0.25rem',
-												}}
-											>
-												(<FiEye size={12} /> show/hide)
-											</span>
-										</li>
-									</ul>
+													(<FiEye size={12} /> show/hide)
+												</span>
+											</li>
+										</ul>
+									</CollapsibleHeader>
 								</SetupSteps>
 
 								<p>
@@ -889,27 +973,15 @@ const Login = () => {
 										PingOne administrator.
 									</em>
 								</p>
-							</>
-						)}
-					</PingOneSetupSection>
+					</CollapsibleSection>
 
 					{/* Credentials Section - Separate Collapsible Section */}
-					<PingOneSetupSection style={{ marginTop: '1rem' }}>
-						<h3
-							onClick={() => setIsCredentialsSectionCollapsed(!isCredentialsSectionCollapsed)}
-							style={{
-								cursor: 'pointer',
-								display: 'flex',
-								alignItems: 'center',
-								gap: '0.5rem',
-								userSelect: 'none',
-							}}
-						>
-							<ChevronIcon $collapsed={isCredentialsSectionCollapsed}>
-								<FiChevronDown />
-							</ChevronIcon>
-							Enter Your Credentials
-							{hasExistingCredentials && (
+					<CollapsibleSection
+						title="Enter Your Credentials"
+						icon="📝"
+						defaultCollapsed={hasExistingCredentials}
+						headerActions={
+							hasExistingCredentials && (
 								<span
 									style={{
 										background: '#d4edda',
@@ -918,7 +990,6 @@ const Login = () => {
 										borderRadius: '12px',
 										fontSize: '0.75rem',
 										fontWeight: '500',
-										marginLeft: '0.5rem',
 										display: 'flex',
 										alignItems: 'center',
 										gap: '0.25rem',
@@ -927,10 +998,10 @@ const Login = () => {
 									<FiCheckCircle size={12} />
 									Configured
 								</span>
-							)}
-						</h3>
-						{!isCredentialsSectionCollapsed && (
-							<CredentialsBox>
+							)
+						}
+					>
+						<div style={{ padding: '1.5rem', background: '#ffffff', borderRadius: '0.5rem' }}>
 								<h4>Configure Your PingOne Application Credentials</h4>
 
 								{redirectMessage && (
@@ -1250,186 +1321,208 @@ const Login = () => {
 
 									{/* Client Assertion Options - HMAC */}
 									{credentials.tokenAuthMethod === 'client_secret_jwt' && (
-										<>
-											<CredentialRow>
-												<p>
-													<strong>HMAC Alg:</strong>
-												</p>
-												<CredentialWrapper>
-													<select
-														value={credentials.clientAssertion?.hmacAlg || 'HS256'}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																clientAssertion: {
-																	...(prev.clientAssertion || {}),
-																	hmacAlg: e.target.value as HMACAlgorithm,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#f8f9fa',
-														}}
-													>
-														<option value="HS256">HS256</option>
-														<option value="HS384">HS384</option>
-														<option value="HS512">HS512</option>
-													</select>
-												</CredentialWrapper>
-											</CredentialRow>
-											<CredentialRow>
-												<p>
-													<strong>Audience (aud):</strong>
-												</p>
-												<CredentialWrapper>
-													<input
-														type="text"
-														placeholder="Defaults to token endpoint"
-														value={credentials.clientAssertion?.audience || ''}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																clientAssertion: {
-																	...(prev.clientAssertion || {}),
-																	audience: e.target.value,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#f8f9fa',
-														}}
-													/>
-												</CredentialWrapper>
-											</CredentialRow>
-										</>
+										<div style={{ marginTop: '1rem' }}>
+											<CollapsibleHeader
+												title="HMAC Client Assertion Settings"
+												subtitle="Configure HMAC-based JWT client authentication parameters"
+												icon={<FiKey />}
+												defaultCollapsed={false}
+												theme="orange"
+												variant="compact"
+											>
+												<div style={{ padding: '0.5rem 0' }}>
+													<CredentialRow>
+														<p>
+															<strong>HMAC Alg:</strong>
+														</p>
+														<CredentialWrapper>
+															<select
+																value={credentials.clientAssertion?.hmacAlg || 'HS256'}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		clientAssertion: {
+																			...(prev.clientAssertion || {}),
+																			hmacAlg: e.target.value as HMACAlgorithm,
+																		},
+																	}))
+																}
+																style={{
+																	width: '100%',
+																	padding: '0.5rem',
+																	border: '1px solid #dee2e6',
+																	borderRadius: 4,
+																	backgroundColor: '#f8f9fa',
+																}}
+															>
+																<option value="HS256">HS256</option>
+																<option value="HS384">HS384</option>
+																<option value="HS512">HS512</option>
+															</select>
+														</CredentialWrapper>
+													</CredentialRow>
+													<CredentialRow>
+														<p>
+															<strong>Audience (aud):</strong>
+														</p>
+														<CredentialWrapper>
+															<input
+																type="text"
+																placeholder="Defaults to token endpoint"
+																value={credentials.clientAssertion?.audience || ''}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		clientAssertion: {
+																			...(prev.clientAssertion || {}),
+																			audience: e.target.value,
+																		},
+																	}))
+																}
+																style={{
+																	width: '100%',
+																	padding: '0.5rem',
+																	border: '1px solid #dee2e6',
+																	borderRadius: 4,
+																	backgroundColor: '#f8f9fa',
+																}}
+															/>
+														</CredentialWrapper>
+													</CredentialRow>
+												</div>
+											</CollapsibleHeader>
+										</div>
 									)}
 
 									{/* Client Assertion Options - Private Key */}
 									{credentials.tokenAuthMethod === 'private_key_jwt' && (
-										<>
-											<CredentialRow>
-												<p>
-													<strong>Signing Alg:</strong>
-												</p>
-												<CredentialWrapper>
-													<select
-														value={credentials.clientAssertion?.signAlg || 'RS256'}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																clientAssertion: {
-																	...(prev.clientAssertion || {}),
-																	signAlg: e.target.value as SigningAlgorithm,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#f8f9fa',
-														}}
-													>
-														<option value="RS256">RS256</option>
-														<option value="ES256">ES256</option>
-													</select>
-												</CredentialWrapper>
-											</CredentialRow>
-											<CredentialRow>
-												<p>
-													<strong>kid:</strong>
-												</p>
-												<CredentialWrapper>
-													<input
-														type="text"
-														placeholder="Key ID registered in PingOne"
-														value={credentials.clientAssertion?.kid || ''}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																clientAssertion: {
-																	...(prev.clientAssertion || {}),
-																	kid: e.target.value,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#f8f9fa',
-														}}
-													/>
-												</CredentialWrapper>
-											</CredentialRow>
-											<CredentialRow>
-												<p>
-													<strong>Private Key (PEM):</strong>
-												</p>
-												<CredentialWrapper>
-													<textarea
-														placeholder={`-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----`}
-														value={credentials.clientAssertion?.privateKeyPEM || ''}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																clientAssertion: {
-																	...(prev.clientAssertion || {}),
-																	privateKeyPEM: e.target.value,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															minHeight: '120px',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#f8f9fa',
-															fontFamily: 'monospace',
-														}}
-													/>
-												</CredentialWrapper>
-											</CredentialRow>
-											<CredentialRow>
-												<p>
-													<strong>Audience (aud):</strong>
-												</p>
-												<CredentialWrapper>
-													<input
-														type="text"
-														placeholder="Defaults to token endpoint"
-														value={credentials.clientAssertion?.audience || ''}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																clientAssertion: {
-																	...(prev.clientAssertion || {}),
-																	audience: e.target.value,
-																},
-															}))
-														}
-														style={{
-															width: '100%',
-															padding: '0.5rem',
-															border: '1px solid #dee2e6',
-															borderRadius: 4,
-															backgroundColor: '#f8f9fa',
-														}}
-													/>
-												</CredentialWrapper>
-											</CredentialRow>
-										</>
+										<div style={{ marginTop: '1rem' }}>
+											<CollapsibleHeader
+												title="Private Key JWT Client Assertion"
+												subtitle="Configure private key-based JWT client authentication"
+												icon={<FiLock />}
+												defaultCollapsed={false}
+												theme="green"
+												variant="compact"
+											>
+												<div style={{ padding: '0.5rem 0' }}>
+													<CredentialRow>
+														<p>
+															<strong>Signing Alg:</strong>
+														</p>
+														<CredentialWrapper>
+															<select
+																value={credentials.clientAssertion?.signAlg || 'RS256'}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		clientAssertion: {
+																			...(prev.clientAssertion || {}),
+																			signAlg: e.target.value as SigningAlgorithm,
+																		},
+																	}))
+																}
+																style={{
+																	width: '100%',
+																	padding: '0.5rem',
+																	border: '1px solid #dee2e6',
+																	borderRadius: 4,
+																	backgroundColor: '#f8f9fa',
+																}}
+															>
+																<option value="RS256">RS256</option>
+																<option value="ES256">ES256</option>
+															</select>
+														</CredentialWrapper>
+													</CredentialRow>
+													<CredentialRow>
+														<p>
+															<strong>kid:</strong>
+														</p>
+														<CredentialWrapper>
+															<input
+																type="text"
+																placeholder="Key ID registered in PingOne"
+																value={credentials.clientAssertion?.kid || ''}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		clientAssertion: {
+																			...(prev.clientAssertion || {}),
+																			kid: e.target.value,
+																		},
+																	}))
+																}
+																style={{
+																	width: '100%',
+																	padding: '0.5rem',
+																	border: '1px solid #dee2e6',
+																	borderRadius: 4,
+																	backgroundColor: '#f8f9fa',
+																}}
+															/>
+														</CredentialWrapper>
+													</CredentialRow>
+													<CredentialRow>
+														<p>
+															<strong>Private Key (PEM):</strong>
+														</p>
+														<CredentialWrapper>
+															<textarea
+																placeholder={`-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----`}
+																value={credentials.clientAssertion?.privateKeyPEM || ''}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		clientAssertion: {
+																			...(prev.clientAssertion || {}),
+																			privateKeyPEM: e.target.value,
+																		},
+																	}))
+																}
+																style={{
+																	width: '100%',
+																	minHeight: '120px',
+																	padding: '0.5rem',
+																	border: '1px solid #dee2e6',
+																	borderRadius: 4,
+																	backgroundColor: '#f8f9fa',
+																	fontFamily: 'monospace',
+																}}
+															/>
+														</CredentialWrapper>
+													</CredentialRow>
+													<CredentialRow>
+														<p>
+															<strong>Audience (aud):</strong>
+														</p>
+														<CredentialWrapper>
+															<input
+																type="text"
+																placeholder="Defaults to token endpoint"
+																value={credentials.clientAssertion?.audience || ''}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		clientAssertion: {
+																			...(prev.clientAssertion || {}),
+																			audience: e.target.value,
+																		},
+																	}))
+																}
+																style={{
+																	width: '100%',
+																	padding: '0.5rem',
+																	border: '1px solid #dee2e6',
+																	borderRadius: 4,
+																	backgroundColor: '#f8f9fa',
+																}}
+															/>
+														</CredentialWrapper>
+													</CredentialRow>
+												</div>
+											</CollapsibleHeader>
+										</div>
 									)}
 
 									<CredentialRow>
@@ -1450,173 +1543,166 @@ const Login = () => {
 									</CredentialRow>
 
 									{/* Advanced Configuration */}
-									<div
-										style={{
-											backgroundColor: '#f8f9fa',
-											border: '1px solid #e9ecef',
-											borderRadius: 8,
-											padding: '1rem',
-											marginTop: '1rem',
-										}}
-									>
-										<h4
-											style={{
-												marginTop: 0,
-												marginBottom: '0.75rem',
-												color: '#343a40',
-											}}
+									<div style={{ marginTop: '1rem' }}>
+										<CollapsibleHeader
+											title="Advanced Configuration"
+											subtitle="Optional settings for specialized OAuth/OIDC configurations"
+											icon={<FiSettings />}
+											defaultCollapsed={true}
+											theme="purple"
+											variant="compact"
 										>
-											Advanced Configuration
-										</h4>
+											<div style={{ padding: '0.5rem 0' }}>
+												<CredentialRow>
+													<p>
+														<strong>Req Object Policy:</strong>
+													</p>
+													<CredentialWrapper>
+														<select
+															value={credentials.advanced?.requestObjectPolicy || 'default'}
+															onChange={(e) =>
+																setCredentials((prev) => ({
+																	...prev,
+																	advanced: {
+																		...(prev.advanced || {}),
+																		requestObjectPolicy: e.target.value as RequestObjectPolicy,
+																	},
+																}))
+															}
+															style={{
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
+																borderRadius: 4,
+																backgroundColor: '#ffffff',
+															}}
+														>
+															<option value="default">default</option>
+															<option value="require">require</option>
+															<option value="allow_unsigned">allow_unsigned</option>
+														</select>
+													</CredentialWrapper>
+												</CredentialRow>
 
-										<CredentialRow>
-											<p>
-												<strong>Req Object Policy:</strong>
-											</p>
-											<CredentialWrapper>
-												<select
-													value={credentials.advanced?.requestObjectPolicy || 'default'}
-													onChange={(e) =>
-														setCredentials((prev) => ({
-															...prev,
-															advanced: {
-																...(prev.advanced || {}),
-																requestObjectPolicy: e.target.value as RequestObjectPolicy,
-															},
-														}))
-													}
-													style={{
-														width: '100%',
-														padding: '0.5rem',
-														border: '1px solid #dee2e6',
-														borderRadius: 4,
-														backgroundColor: '#ffffff',
-													}}
-												>
-													<option value="default">default</option>
-													<option value="require">require</option>
-													<option value="allow_unsigned">allow_unsigned</option>
-												</select>
-											</CredentialWrapper>
-										</CredentialRow>
+												<CredentialRow>
+													<p>
+														<strong>x5t (JWT hdr):</strong>
+													</p>
+													<CredentialWrapper>
+														<input
+															type="text"
+															placeholder="Base64URL thumbprint"
+															value={credentials.clientAssertion?.x5t || ''}
+															onChange={(e) =>
+																setCredentials((prev) => ({
+																	...prev,
+																	clientAssertion: {
+																		...(prev.clientAssertion || {}),
+																		x5t: e.target.value,
+																	},
+																}))
+															}
+															style={{
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
+																borderRadius: 4,
+																backgroundColor: '#ffffff',
+															}}
+														/>
+													</CredentialWrapper>
+												</CredentialRow>
 
-										<CredentialRow>
-											<p>
-												<strong>x5t (JWT hdr):</strong>
-											</p>
-											<CredentialWrapper>
-												<input
-													type="text"
-													placeholder="Base64URL thumbprint"
-													value={credentials.clientAssertion?.x5t || ''}
-													onChange={(e) =>
-														setCredentials((prev) => ({
-															...prev,
-															clientAssertion: {
-																...(prev.clientAssertion || {}),
-																x5t: e.target.value,
-															},
-														}))
-													}
-													style={{
-														width: '100%',
-														padding: '0.5rem',
-														border: '1px solid #dee2e6',
-														borderRadius: 4,
-														backgroundColor: '#ffffff',
-													}}
-												/>
-											</CredentialWrapper>
-										</CredentialRow>
+												<CredentialRow>
+													<p>
+														<strong>OIDC Session Mgmt:</strong>
+													</p>
+													<CredentialWrapper>
+														<label
+															style={{
+																display: 'inline-flex',
+																alignItems: 'center',
+																gap: '0.5rem',
+															}}
+														>
+															<input
+																type="checkbox"
+																checked={!!credentials.advanced?.oidcSessionManagement}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		advanced: {
+																			...(prev.advanced || {}),
+																			oidcSessionManagement: e.target.checked,
+																		},
+																	}))
+																}
+															/>
+															Enable OP iframe monitoring
+														</label>
+													</CredentialWrapper>
+												</CredentialRow>
 
-										<CredentialRow>
-											<p>
-												<strong>OIDC Session Mgmt:</strong>
-											</p>
-											<CredentialWrapper>
-												<label
-													style={{
-														display: 'inline-flex',
-														alignItems: 'center',
-														gap: '0.5rem',
-													}}
-												>
-													<input
-														type="checkbox"
-														checked={!!credentials.advanced?.oidcSessionManagement}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																advanced: {
-																	...(prev.advanced || {}),
-																	oidcSessionManagement: e.target.checked,
-																},
-															}))
-														}
-													/>
-													Enable OP iframe monitoring
-												</label>
-											</CredentialWrapper>
-										</CredentialRow>
+												<CredentialRow>
+													<p>
+														<strong>Resource Scopes:</strong>
+													</p>
+													<CredentialWrapper>
+														<input
+															type="text"
+															placeholder="openid profile email api://resource1 scope1 scope2"
+															value={credentials.advanced?.resourceScopes || ''}
+															onChange={(e) =>
+																setCredentials((prev) => ({
+																	...prev,
+																	advanced: {
+																		...(prev.advanced || {}),
+																		resourceScopes: e.target.value,
+																	},
+																}))
+															}
+															style={{
+																width: '100%',
+																padding: '0.5rem',
+																border: '1px solid #dee2e6',
+																borderRadius: 4,
+																backgroundColor: '#ffffff',
+															}}
+														/>
+													</CredentialWrapper>
+												</CredentialRow>
 
-										<CredentialRow>
-											<p>
-												<strong>Resource Scopes:</strong>
-											</p>
-											<CredentialWrapper>
-												<input
-													type="text"
-													placeholder="openid profile email api://resource1 scope1 scope2"
-													value={credentials.advanced?.resourceScopes || ''}
-													onChange={(e) =>
-														setCredentials((prev) => ({
-															...prev,
-															advanced: {
-																...(prev.advanced || {}),
-																resourceScopes: e.target.value,
-															},
-														}))
-													}
-													style={{
-														width: '100%',
-														padding: '0.5rem',
-														border: '1px solid #dee2e6',
-														borderRadius: 4,
-														backgroundColor: '#ffffff',
-													}}
-												/>
-											</CredentialWrapper>
-										</CredentialRow>
-
-										<CredentialRow>
-											<p>
-												<strong>Logout via ID Token:</strong>
-											</p>
-											<CredentialWrapper>
-												<label
-													style={{
-														display: 'inline-flex',
-														alignItems: 'center',
-														gap: '0.5rem',
-													}}
-												>
-													<input
-														type="checkbox"
-														checked={!!credentials.advanced?.terminateByIdToken}
-														onChange={(e) =>
-															setCredentials((prev) => ({
-																...prev,
-																advanced: {
-																	...(prev.advanced || {}),
-																	terminateByIdToken: e.target.checked,
-																},
-															}))
-														}
-													/>
-													Use RP-initiated logout with id_token_hint
-												</label>
-											</CredentialWrapper>
-										</CredentialRow>
+												<CredentialRow>
+													<p>
+														<strong>Logout via ID Token:</strong>
+													</p>
+													<CredentialWrapper>
+														<label
+															style={{
+																display: 'inline-flex',
+																alignItems: 'center',
+																gap: '0.5rem',
+															}}
+														>
+															<input
+																type="checkbox"
+																checked={!!credentials.advanced?.terminateByIdToken}
+																onChange={(e) =>
+																	setCredentials((prev) => ({
+																		...prev,
+																		advanced: {
+																			...(prev.advanced || {}),
+																			terminateByIdToken: e.target.checked,
+																		},
+																	}))
+																}
+															/>
+															Use RP-initiated logout with id_token_hint
+														</label>
+													</CredentialWrapper>
+												</CredentialRow>
+											</div>
+										</CollapsibleHeader>
 									</div>
 
 									<div
@@ -1666,12 +1752,20 @@ const Login = () => {
 										</SubmitButton>
 									</div>
 								</form>
-							</CredentialsBox>
-						)}
-					</PingOneSetupSection>
+						</div>
+					</CollapsibleSection>
 				</SetupSection>
 
-				<DebugCredentials />
+				<CollapsibleHeader
+					title="Debug & Troubleshooting"
+					subtitle="View stored credentials and configuration for debugging purposes"
+					icon={<FiSettings />}
+					defaultCollapsed={true}
+					theme="yellow"
+					variant="default"
+				>
+					<DebugCredentials />
+				</CollapsibleHeader>
 			</LoginLayout>
 
 			{/* Authorization Request Modal */}

@@ -406,7 +406,7 @@ const InteractiveTutorials = () => {
 	const [clientSecret, setClientSecret] = useState('');
 	const [pingoneAuthUrl, setPingoneAuthUrl] = useState('https://auth.pingone.com');
 	const [redirectUri, setRedirectUri] = useState('');
-	const [configCollapsed, setConfigCollapsed] = useState(true);
+	const [configCollapsed, setConfigCollapsed] = useState(false);
 
 	const buildConfig = useCallback(
 		(overrides: Partial<TutorialPingOneConfig> = {}): TutorialPingOneConfig => ({
@@ -525,12 +525,11 @@ const InteractiveTutorials = () => {
 	// Check if all required fields are filled
 	const isConfigurationComplete = () => {
 		const config = buildConfig();
+		// For demo purposes, only require environmentId and clientId
+		// Users can still start tutorials with minimal configuration
 		return (
 			config.environmentId.trim() &&
-			config.clientId.trim() &&
-			config.clientSecret.trim() &&
-			config.pingoneAuthUrl.trim() &&
-			config.redirectUri.trim()
+			config.clientId.trim()
 		);
 	};
 
@@ -4040,7 +4039,7 @@ export default App;`,
 											startTutorial(tutorial);
 										} else {
 											v4ToastManager.showWarning(
-												'Please complete all configuration fields before starting a tutorial'
+												'Please configure your Environment ID and Client ID to start tutorials'
 											);
 										}
 									}}

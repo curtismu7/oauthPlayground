@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { FiEye, FiEyeOff, FiLoader, FiLock } from 'react-icons/fi';
 import styled from 'styled-components';
 import { credentialManager } from '../utils/credentialManager';
+import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
 import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
@@ -298,31 +299,61 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 		}
 	};
 
-	// Load existing credentials from localStorage when modal opens
+	// Load existing credentials using V7 standardized system when modal opens
 	useEffect(() => {
 		if (isOpen) {
-			console.log(
-				' [CredentialSetupModal] Loading existing credentials from credential manager...'
-			);
+			console.log(' [CredentialSetupModal] Loading credentials using V7 standardized system...');
 
-			// Debug: Check all localStorage keys
-			console.log(' [CredentialSetupModal] All localStorage keys:', Object.keys(localStorage));
-			console.log(
-				' [CredentialSetupModal] pingone_permanent_credentials:',
-				localStorage.getItem('pingone_permanent_credentials')
-			);
-			console.log(
-				' [CredentialSetupModal] pingone_session_credentials:',
-				localStorage.getItem('pingone_session_credentials')
-			);
-			console.log(
-				' [CredentialSetupModal] pingone_config:',
-				localStorage.getItem('pingone_config')
-			);
+			const loadCredentialsV7 = async () => {
+				try {
+					// Try V7 FlowCredentialService first (most recent)
+					const v7Credentials = await loadFlowCredentials({
+						flowKey: 'credential-setup-modal',
+						defaultCredentials: {
+							environmentId: '',
+							clientId: '',
+							clientSecret: '',
+							redirectUri: `${window.location.origin}/authz-callback`,
+							scope: 'openid profile email',
+							scopes: 'openid profile email',
+							loginHint: '',
+							postLogoutRedirectUri: '',
+							responseType: 'code',
+							grantType: 'authorization_code',
+							issuerUrl: '',
+							authorizationEndpoint: '',
+							tokenEndpoint: '',
+							userInfoEndpoint: '',
+							clientAuthMethod: 'client_secret_post',
+							tokenEndpointAuthMethod: 'client_secret_post',
+						}
+					});
 
-			try {
-				// Load credentials using the credential manager
-				const allCredentials = credentialManager.getAllCredentials();
+					console.log(' [CredentialSetupModal] V7 FlowCredentialService result:', v7Credentials);
+
+					if (v7Credentials.credentials?.clientId && v7Credentials.credentials?.environmentId) {
+						console.log(' [CredentialSetupModal] Using V7 FlowCredentialService credentials');
+						const newFormData = {
+							environmentId: v7Credentials.credentials.environmentId || '',
+							clientId: v7Credentials.credentials.clientId || '',
+							clientSecret: v7Credentials.credentials.clientSecret || '',
+							redirectUri: v7Credentials.credentials.redirectUri || `${window.location.origin}/authz-callback`,
+						};
+						setFormData(newFormData);
+						setOriginalFormData(newFormData);
+						setHasUnsavedChanges(false);
+						setHasBeenSaved(false);
+						return;
+					}
+				} catch (v7Error) {
+					console.log(' [CredentialSetupModal] V7 FlowCredentialService not available:', v7Error);
+				}
+
+				// Fallback to legacy credential manager
+				try {
+					console.log(' [CredentialSetupModal] Loading from legacy credential manager...');
+					const allCredentials = credentialManager.getAllCredentials();
+				console.log(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
 
 				// Also check the old pingone_config localStorage key for backward compatibility
 				const oldConfig = localStorage.getItem('pingone_config');
@@ -335,8 +366,6 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 						console.log(' [CredentialSetupModal] Failed to parse old config:', e);
 					}
 				}
-
-				console.log(' [CredentialSetupModal] Loaded credentials:', allCredentials);
 
 				// Check if we have permanent credentials
 				const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
@@ -371,37 +400,30 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							oldCredentials?.redirectUri ||
 							`${window.location.origin}/authz-callback`,
 					};
-					console.log(' [CredentialSetupModal] Setting form data to:', newFormData);
-					console.log(' [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
-					console.log(' [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
-					console.log(' [CredentialSetupModal] oldCredentials:', oldCredentials);
 					setFormData(newFormData);
 					setOriginalFormData(newFormData);
 					setHasUnsavedChanges(false);
 					setHasBeenSaved(false);
+					
+					console.log(' [CredentialSetupModal] Form pre-populated with:', {
+						environmentId: allCredentials.environmentId,
+						hasClientId: !!allCredentials.clientId,
+						hasClientSecret: !!allCredentials.clientSecret,
+					});
 				} else {
-					console.log(
-						' [CredentialSetupModal] No existing credentials found, loading from environment variables...'
-					);
-					console.log(' [CredentialSetupModal] hasPermanentCredentials:', hasPermanentCredentials);
-					console.log(' [CredentialSetupModal] hasSessionCredentials:', hasSessionCredentials);
-					console.log(' [CredentialSetupModal] oldCredentials:', oldCredentials);
-
+					console.log(' [CredentialSetupModal] No existing credentials found, loading from environment variables...');
 					// Load from environment variables as fallback
 					loadFromEnvironmentVariables();
 					setOriginalFormData(formData);
 					setHasUnsavedChanges(false);
 					setHasBeenSaved(false);
 				}
-
-				console.log(' [CredentialSetupModal] Form pre-populated with:', {
-					environmentId: allCredentials.environmentId,
-					hasClientId: !!allCredentials.clientId,
-					hasClientSecret: !!allCredentials.clientSecret,
-				});
-			} catch (error) {
+				} catch (error) {
 				console.error(' [CredentialSetupModal] Error loading existing credentials:', error);
 			}
+		};
+
+		loadCredentialsV7();
 		}
 	}, [
 		isOpen,
@@ -494,7 +516,41 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			// Add minimum delay to ensure spinner is visible
 			const minDelay = new Promise((resolve) => setTimeout(resolve, 500));
 
-			// Save configuration credentials (Environment ID, Client ID, etc.)
+			// Save using V7 standardized storage system
+			console.log(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
+			
+			const v7Credentials = {
+				environmentId: formData.environmentId,
+				clientId: formData.clientId,
+				clientSecret: formData.clientSecret,
+				redirectUri: formData.redirectUri,
+				scope: 'openid profile email',
+				scopes: 'openid profile email',
+				loginHint: '',
+				postLogoutRedirectUri: '',
+				responseType: 'code',
+				grantType: 'authorization_code',
+				issuerUrl: '',
+				authorizationEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/authorize`,
+				tokenEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/token`,
+				userInfoEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
+				clientAuthMethod: 'client_secret_post',
+				tokenEndpointAuthMethod: 'client_secret_post',
+			};
+
+			const v7Success = await saveFlowCredentials(
+				'credential-setup-modal',
+				v7Credentials,
+				undefined, // flowConfig
+				undefined, // additionalState
+				{ showToast: false } // We'll show our own success message
+			);
+
+			if (!v7Success) {
+				throw new Error('Failed to save credentials using V7 standardized system');
+			}
+
+			// Also save to legacy credential manager for backward compatibility
 			const permanentSuccess = credentialManager.saveConfigCredentials({
 				environmentId: formData.environmentId,
 				clientId: formData.clientId,
@@ -505,14 +561,9 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				userInfoEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
 			});
 
-			// Save session credentials (Client Secret)
 			const sessionSuccess = credentialManager.saveSessionCredentials({
 				clientSecret: formData.clientSecret,
 			});
-
-			if (!permanentSuccess || !sessionSuccess) {
-				throw new Error('Failed to save credentials to credential manager');
-			}
 
 			// Dispatch events to notify other components that config has changed
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
@@ -522,7 +573,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			await minDelay;
 
 			console.log(
-				' [CredentialSetupModal] Configuration saved successfully to localStorage and events dispatched'
+				' [CredentialSetupModal] Configuration saved successfully using V7 standardized system and legacy compatibility'
 			);
 
 			setSaveStatus({

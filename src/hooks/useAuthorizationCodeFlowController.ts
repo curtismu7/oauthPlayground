@@ -56,6 +56,7 @@ export interface AuthorizationCodeFlowController {
 	setPkceCodes: Dispatch<SetStateAction<PKCECodes>>;
 	generatePkceCodes: () => Promise<void>;
 	authUrl: string;
+	setAuthUrl: (url: string) => void;
 	generateAuthorizationUrl: () => Promise<void>;
 	showUrlExplainer: boolean;
 	setShowUrlExplainer: (show: boolean) => void;
@@ -1526,6 +1527,7 @@ export const useAuthorizationCodeFlowController = (
 				authEndpoint: credentials.authEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
 				userInfoEndpoint: credentials.userInfoEndpoint,
+				tokenAuthMethod: credentials.tokenEndpointAuthMethod || credentials.authMethod?.value,
 			});
 			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved to authz flow storage for callback');
 
@@ -1612,6 +1614,7 @@ export const useAuthorizationCodeFlowController = (
 		setPkceCodes,
 		generatePkceCodes,
 		authUrl,
+		setAuthUrl,
 		generateAuthorizationUrl,
 		showUrlExplainer,
 		setShowUrlExplainer,

@@ -406,6 +406,26 @@ export const FlowCompletionConfigs = {
 			'Log all Worker app API calls for audit purposes',
 			'Rotate Worker app client secrets regularly (every 90 days)'
 		]
+	},
+	
+	rar: {
+		flowName: 'RAR Flow (V7) - Rich Authorization Requests',
+		flowDescription: 'You\'ve successfully completed the RAR (Rich Authorization Requests) flow with fine-grained authorization details. The authorization request included structured JSON parameters for precise permission specifications.',
+		completedSteps: [
+			{ completed: true, description: 'RAR authorization details configured' },
+			{ completed: true, description: 'Authorization URL generated with RAR parameters' },
+			{ completed: true, description: 'User authorized with detailed permission context' },
+			{ completed: true, description: 'Authorization code received with RAR context' },
+			{ completed: true, description: 'Tokens exchanged maintaining RAR authorization details' }
+		],
+		nextSteps: [
+			'Store the access token securely with RAR context',
+			'Use the token to call APIs with fine-grained permissions',
+			'Validate that the token includes the approved authorization details',
+			'Implement proper RAR parameter validation in your application',
+			'Handle token expiration and re-authorization with RAR context',
+			'Consider implementing RAR for other OAuth flows in your system'
+		]
 	}
 };
 

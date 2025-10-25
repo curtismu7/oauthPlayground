@@ -66,12 +66,11 @@ export default defineConfig(({ mode }) => {
 		hmr: {
 			port: 3000,
 			host: 'localhost',
-			// Remove protocol to let Vite auto-detect
-			// protocol: 'wss',
+			protocol: 'wss',
 		},
 		proxy: {
 			'/api': {
-				target: 'http://localhost:3001', // Backend HTTP server
+				target: 'https://localhost:3002', // Backend HTTPS server
 				changeOrigin: true,
 				secure: false,
 				timeout: 3000, // Shorter timeout for health checks

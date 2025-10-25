@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiX } from 'react-icons/fi';
 
 interface ModalActionDescriptor {
 	label: string;
@@ -15,6 +15,9 @@ interface ModalPresentationServiceProps {
 	description: string;
 	actions?: ModalActionDescriptor[];
 	children?: React.ReactNode;
+	style?: React.CSSProperties;
+	draggable?: boolean;
+	showCloseButton?: boolean;
 }
 
 const Overlay = styled.div`
@@ -31,7 +34,7 @@ const Overlay = styled.div`
 	z-index: 9999;
 `;
 
-const Dialog = styled.div`
+const Dialog = styled.div<{ $isDragging?: boolean }>`
 	background: #ffffff;
 	border-radius: 1rem;
 	box-shadow: 0 30px 60px rgba(15, 23, 42, 0.25);
@@ -39,6 +42,9 @@ const Dialog = styled.div`
 	padding: 2.5rem 2.25rem;
 	position: relative;
 	text-align: left;
+	cursor: ${({ $isDragging }) => ($isDragging ? 'grabbing' : 'default')};
+	user-select: ${({ $isDragging }) => ($isDragging ? 'none' : 'auto')};
+	transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'all 0.2s ease')};
 `;
 
 const WarningIcon = styled.div`
@@ -103,6 +109,49 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 		`}
 `;
 
+const CloseButton = styled.button`
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	background: #f3f4f6;
+	border: none;
+	border-radius: 50%;
+	width: 2rem;
+	height: 2rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	color: #6b7280;
+
+	&:hover {
+		background: #e5e7eb;
+		color: #374151;
+		transform: scale(1.05);
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+`;
+
+const DragHandle = styled.div`
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2rem;
+	cursor: grab;
+	border-radius: 1rem 1rem 0 0;
+	background: transparent;
+	z-index: 1;
+
+	&:active {
+		cursor: grabbing;
+	}
+`;
+
 const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 	isOpen,
 	onClose,
@@ -110,7 +159,53 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 	description,
 	actions,
  	children,
+	style,
+	draggable = false,
+	showCloseButton = true,
 }) => {
+	const [isDragging, setIsDragging] = useState(false);
+	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+	const [position, setPosition] = useState({ x: 0, y: 0 });
+	const dialogRef = useRef<HTMLDivElement>(null);
+
+	const handleDragStart = useCallback((e: React.MouseEvent) => {
+		if (!draggable || !dialogRef.current) return;
+		
+		e.preventDefault();
+		setIsDragging(true);
+		
+		const rect = dialogRef.current.getBoundingClientRect();
+		setDragOffset({
+			x: e.clientX - rect.left,
+			y: e.clientY - rect.top,
+		});
+	}, [draggable]);
+
+	const handleDragMove = useCallback((e: MouseEvent) => {
+		if (!isDragging || !draggable) return;
+		
+		e.preventDefault();
+		setPosition({
+			x: e.clientX - dragOffset.x,
+			y: e.clientY - dragOffset.y,
+		});
+	}, [isDragging, draggable, dragOffset]);
+
+	const handleDragEnd = useCallback(() => {
+		setIsDragging(false);
+	}, []);
+
+	React.useEffect(() => {
+		if (isDragging) {
+			document.addEventListener('mousemove', handleDragMove);
+			document.addEventListener('mouseup', handleDragEnd);
+			return () => {
+				document.removeEventListener('mousemove', handleDragMove);
+				document.removeEventListener('mouseup', handleDragEnd);
+			};
+		}
+	}, [isDragging, handleDragMove, handleDragEnd]);
+
 	if (!isOpen) {
 		return null;
 	}
@@ -127,7 +222,29 @@ const ModalPresentationService: React.FC<ModalPresentationServiceProps> = ({
 
 	return (
 		<Overlay role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-description">
-			<Dialog>
+			<Dialog 
+				ref={dialogRef}
+				$isDragging={isDragging}
+				style={{
+					...style,
+					...(draggable && isDragging && {
+						position: 'fixed',
+						left: `${position.x}px`,
+						top: `${position.y}px`,
+						transform: 'none',
+					}),
+				}}
+			>
+				{draggable && (
+					<DragHandle onMouseDown={handleDragStart} />
+				)}
+				
+				{showCloseButton && (
+					<CloseButton onClick={onClose} title="Close modal">
+						<FiX size={16} />
+					</CloseButton>
+				)}
+				
 				<WarningIcon>
 					<FiAlertTriangle size={28} />
 				</WarningIcon>

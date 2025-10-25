@@ -210,6 +210,7 @@ export interface StepCredentials {
 	environmentId?: string; // Optional for OAuth flows
 	issuerUrl?: string; // Used by OAuth flows instead of environmentId
 	redirectUri: string;
+	postLogoutRedirectUri?: string; // Post-logout redirect URI for logout flows
 	scopes?: string; // Should be optional
 	scope?: string; // Alternative scope format
 	responseType?: string; // OAuth response type

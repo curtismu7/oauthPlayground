@@ -25,12 +25,12 @@ const createInitialFlowState = (): FlowState => ({
 
 // Storage keys for persistence
 const STORAGE_KEYS = {
-  FLOW_STATE: 'oauth-authz-v7-1-flow-state',
-  PKCE_CODES: 'oauth-authz-v7-1-pkce-codes',
-  TOKENS: 'oauth-authz-v7-1-tokens',
-  USER_INFO: 'oauth-authz-v7-1-user-info',
-  STEP_COMPLETION: 'oauth-authz-v7-1-step-completion',
-  CREDENTIALS: 'oauth-authz-v7-1-credentials',
+  FLOW_STATE: 'oauth-authorization-code-v7-1-flow-state',
+  PKCE_CODES: 'oauth-authorization-code-v7-1-pkce-codes',
+  TOKENS: 'oauth-authorization-code-v7-1-tokens',
+  USER_INFO: 'oauth-authorization-code-v7-1-user-info',
+  STEP_COMPLETION: 'oauth-authorization-code-v7-1-step-completion',
+  CREDENTIALS: 'oauth-authorization-code-v7-1-credentials',
 } as const;
 
 export const useFlowStateManagement = () => {

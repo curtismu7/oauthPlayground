@@ -34,7 +34,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { ResponseMode } from '../../services/responseModeService';
 import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import { JWTTokenDisplay } from '../../components/JWTTokenDisplay';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { FlowStepService, type StepConfig } from '../../services/flowStepService';
@@ -920,32 +920,40 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 							{hybridFlow.tokens.id_token && (
 								<div style={{ marginTop: '1rem' }}>
-									<ParameterLabel>ID Token (from fragment)</ParameterLabel>
-									<JWTTokenDisplay
-										token={hybridFlow.tokens.id_token}
-										onCopy={handleCopy}
-										copyLabel="ID Token"
-										tokenType="ID Token"
-										showExpiry={false}
+									<UltimateTokenDisplay
+										tokens={{ id_token: hybridFlow.tokens.id_token }}
+										flowType="oidc"
+										flowKey="hybrid-flow-v5-fragment"
+										displayMode="compact"
+										title="ID Token (from fragment)"
+										subtitle="Identity token received in URL fragment"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										defaultMasked={false}
 									/>
-									<ActionRow>
-										<Button onClick={navigateToTokenManagementWithIdToken} $variant="outline">
-											<FiExternalLink /> Decode ID Token
-										</Button>
-									</ActionRow>
 								</div>
 							)}
 
 							{hybridFlow.tokens.access_token && (
 								<div style={{ marginTop: '1rem' }}>
-									<ParameterLabel>Access Token (from fragment)</ParameterLabel>
-									<JWTTokenDisplay
-										token={hybridFlow.tokens.access_token}
-										onCopy={handleCopy}
-										copyLabel="Access Token"
-										tokenType="Access Token"
-										scope={hybridFlow.tokens.scope ? String(hybridFlow.tokens.scope) : 'openid'}
-										expiresIn={hybridFlow.tokens.expires_in || 3600}
+									<UltimateTokenDisplay
+										tokens={{ 
+											access_token: hybridFlow.tokens.access_token,
+											...(hybridFlow.tokens.scope && { scope: String(hybridFlow.tokens.scope) }),
+											...(hybridFlow.tokens.expires_in && { expires_in: hybridFlow.tokens.expires_in })
+										}}
+										flowType="oidc"
+										flowKey="hybrid-flow-v5-fragment-access"
+										displayMode="compact"
+										title="Access Token (from fragment)"
+										subtitle="Access token received in URL fragment"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										defaultMasked={false}
 									/>
 									<ActionRow>
 										<Button onClick={navigateToTokenManagement} $variant="outline">
@@ -957,19 +965,19 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 							{hybridFlow.tokens.code && (
 								<div style={{ marginTop: '1rem' }}>
-									<ParameterLabel>Authorization Code</ParameterLabel>
-									<JWTTokenDisplay
-										token={hybridFlow.tokens.code}
-										onCopy={handleCopy}
-										copyLabel="Authorization Code"
-										tokenType="Authorization Code"
-										showExpiry={false}
+									<UltimateTokenDisplay
+										tokens={{ code: hybridFlow.tokens.code }}
+										flowType="oidc"
+										flowKey="hybrid-flow-v5-code"
+										displayMode="compact"
+										title="Authorization Code"
+										subtitle="Authorization code received in URL fragment"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										defaultMasked={false}
 									/>
-									<ActionRow>
-										<Button onClick={navigateToTokenManagement} $variant="outline">
-											<FiExternalLink /> Decode Authorization Code
-										</Button>
-									</ActionRow>
 								</div>
 							)}
 						</>
@@ -1040,69 +1048,28 @@ const OIDCHybridFlowV5: React.FC = () => {
 						</div>
 					</InfoBox>
 
-					{hybridFlow.tokens?.access_token && (
+					{(hybridFlow.tokens?.access_token || hybridFlow.tokens?.id_token || hybridFlow.tokens?.refresh_token) && (
 						<div style={{ marginTop: '1rem' }}>
-							<ParameterLabel>Access Token</ParameterLabel>
-							<JWTTokenDisplay
-								token={hybridFlow.tokens.access_token}
-								onCopy={handleCopy}
-								copyLabel="Access Token"
-								tokenType="Access Token"
-								scope={hybridFlow.tokens.scope ? String(hybridFlow.tokens.scope) : 'openid'}
-								expiresIn={hybridFlow.tokens.expires_in || 3600}
+							<UltimateTokenDisplay
+								tokens={{
+									...(hybridFlow.tokens.access_token && { access_token: hybridFlow.tokens.access_token }),
+									...(hybridFlow.tokens.id_token && { id_token: hybridFlow.tokens.id_token }),
+									...(hybridFlow.tokens.refresh_token && { refresh_token: hybridFlow.tokens.refresh_token }),
+									...(hybridFlow.tokens.scope && { scope: String(hybridFlow.tokens.scope) }),
+									...(hybridFlow.tokens.expires_in && { expires_in: hybridFlow.tokens.expires_in })
+								}}
+								flowType="oidc"
+								flowKey="hybrid-flow-v5-tokens"
+								displayMode="detailed"
+								title="OIDC Hybrid Flow Tokens"
+								subtitle="Complete token set from authorization code exchange"
+								showCopyButtons={true}
+								showDecodeButtons={true}
+								showMaskToggle={true}
+								showTokenManagement={true}
+								showMetadata={true}
+								defaultMasked={false}
 							/>
-							<ActionRow>
-								<Button
-									onClick={() => handleCopy(hybridFlow.tokens!.access_token!, 'Access Token')}
-								>
-									<FiCopy /> Copy
-								</Button>
-								<Button onClick={navigateToTokenManagement} $variant="outline">
-									<FiExternalLink /> Analyze in Token Management
-								</Button>
-							</ActionRow>
-						</div>
-					)}
-
-					{hybridFlow.tokens?.id_token && (
-						<div style={{ marginTop: '1rem' }}>
-							<ParameterLabel>ID Token</ParameterLabel>
-							<JWTTokenDisplay
-								token={hybridFlow.tokens.id_token}
-								onCopy={handleCopy}
-								copyLabel="ID Token"
-								tokenType="ID Token"
-								scope={hybridFlow.tokens.scope ? String(hybridFlow.tokens.scope) : 'openid'}
-								expiresIn={hybridFlow.tokens.expires_in || 3600}
-							/>
-							<ActionRow>
-								<Button onClick={() => handleCopy(hybridFlow.tokens!.id_token!, 'ID Token')}>
-									<FiCopy /> Copy
-								</Button>
-								<Button onClick={navigateToTokenManagementWithIdToken} $variant="outline">
-									<FiExternalLink /> Decode ID Token
-								</Button>
-							</ActionRow>
-						</div>
-					)}
-
-					{hybridFlow.tokens?.refresh_token && (
-						<div style={{ marginTop: '1rem' }}>
-							<ParameterLabel>Refresh Token</ParameterLabel>
-							<JWTTokenDisplay
-								token={hybridFlow.tokens.refresh_token}
-								onCopy={handleCopy}
-								copyLabel="Refresh Token"
-								tokenType="Refresh Token"
-								scope={hybridFlow.tokens.scope ? String(hybridFlow.tokens.scope) : 'openid'}
-								expiresIn={hybridFlow.tokens.expires_in || 3600}
-							/>
-							<Button
-								onClick={() => handleCopy(hybridFlow.tokens!.refresh_token!, 'Refresh Token')}
-								style={{ marginTop: '0.5rem' }}
-							>
-								<FiCopy /> Copy Refresh Token
-							</Button>
 						</div>
 					)}
 				</CollapsibleHeader>
