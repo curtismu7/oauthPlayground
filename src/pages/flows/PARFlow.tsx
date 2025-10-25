@@ -750,7 +750,7 @@ if (tokenResponse.ok) {
 					setParResponse(null);
 				}}
 				status={demoStatus}
-				disabled={demoStatus === 'loading'}
+				disabled={false}
 				title={`PAR Flow - Pushed Authorization Requests (${activeAuthMethod})`}
 			/>
 

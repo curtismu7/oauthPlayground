@@ -166,6 +166,24 @@ export class FlowConfigurationService {
 		});
 	}
 
+	static createOAuthImplicitV6Config(): FlowConfigurationService {
+		return new FlowConfigurationService({
+			flowKey: 'oauth-implicit-v6',
+			requiredFields: ['environmentId', 'clientId', 'redirectUri'],
+			defaultCredentials: {
+				environmentId: '',
+				clientId: '',
+				clientSecret: '',
+				redirectUri: FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6'),
+				scope: 'openid profile email',
+				scopes: 'openid profile email',
+				responseType: 'token',
+				grantType: '',
+				clientAuthMethod: 'none',
+			},
+		});
+	}
+
 	static createOAuthAuthorizationCodeConfig(): FlowConfigurationService {
 		return new FlowConfigurationService({
 			flowKey: 'oauth-authorization-code-v5',

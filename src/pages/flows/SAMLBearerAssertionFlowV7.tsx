@@ -25,6 +25,7 @@ import SAMLAssertionService from '../../services/samlAssertionService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { credentialManager } from '../../utils/credentialManager';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 
 // Styled Components (reusing from JWT Bearer Flow)
 const Container = styled.div`

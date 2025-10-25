@@ -1250,7 +1250,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
-			redirectUri: 'https://localhost:3000/authz-callback',
+			redirectUri: 'https://localhost:3002/authz-callback',
 			scope: 'openid profile email',
 			responseType: 'code',
 			grantType: 'authorization_code',
@@ -1917,10 +1917,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								environmentId={credentials.environmentId || ''}
 								clientId={credentials.clientId || ''}
 								clientSecret={credentials.clientSecret || ''}
-								redirectUri={credentials.redirectUri || 'https://localhost:3000/authz-callback'}
+								redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
 								scopes={credentials.scopes || credentials.scope || ''}
 								loginHint={credentials.loginHint || ''}
-								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'}
 								
 								// Change handlers
 								onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
