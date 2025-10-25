@@ -1059,6 +1059,13 @@ app.post('/api/par', async (req, res) => {
 		const parEndpoint = `https://auth.pingone.com/${environment_id}/as/par`;
 
 		console.log(`[PAR] Generating PAR request for client: ${client_id}`);
+		console.log(`[PAR] Debug Info:`, {
+			environmentId: environment_id,
+			clientId: client_id,
+			hasClientSecret: !!client_secret,
+			parParams: parParams,
+			redirectUri: parParams.redirect_uri
+		});
 
 		const formData = new URLSearchParams();
 		Object.entries(parParams).forEach(([key, value]) => {
@@ -1072,12 +1079,27 @@ app.post('/api/par', async (req, res) => {
 			Accept: 'application/json',
 		};
 
-		// Add client authentication via form data (client_secret_post method)
-		// This is the preferred method for PAR requests in PingOne
-		if (client_secret) {
-			formData.append('client_id', client_id);
-			formData.append('client_secret', client_secret);
-		}
+        // Add client authentication based on PingOne configuration
+        // For "Client Secret Basic" method, use Authorization header AND include client_id in form data
+        if (client_secret) {
+            const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+            headers['Authorization'] = `Basic ${credentials}`;
+            // PingOne still requires client_id in the form data even with Basic auth
+            formData.append('client_id', client_id);
+            console.log(`[PAR] Using Basic authentication for client: ${client_id}`);
+        } else {
+            // Fallback to client_secret_post method if no client_secret provided
+            formData.append('client_id', client_id);
+            console.log(`[PAR] Using client_secret_post method for client: ${client_id}`);
+        }
+
+		console.log(`[PAR] Sending to PingOne:`, {
+			url: parEndpoint,
+			headers: headers,
+			body: formData.toString(),
+			redirectUri: formData.get('redirect_uri'),
+			authMethod: client_secret ? 'Basic' : 'client_secret_post'
+		});
 
 		const response = await global.fetch(parEndpoint, {
 			method: 'POST',
@@ -2137,6 +2159,295 @@ app.get('/api/discovery', async (req, res) => {
 			error: 'server_error',
 			error_description: 'Internal server error during discovery',
 			details: error.message,
+		});
+	}
+});
+
+// PingOne Management API proxy endpoints for Config Checker
+app.get('/api/pingone/applications', async (req, res) => {
+	console.log('[Config Checker] Handler called with query:', req.query);
+	try {
+		const { environmentId, clientId, clientSecret, region = 'na', workerToken } = req.query;
+		
+		if (!environmentId) {
+			console.log('[Config Checker] Missing environmentId');
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: environmentId'
+			});
+		}
+
+		let tokenToUse = workerToken;
+		if (!tokenToUse) {
+			// Get worker token using app credentials
+			if (!clientId || !clientSecret) {
+				console.log('[Config Checker] Missing clientId or clientSecret for token request');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameters: clientId, clientSecret'
+				});
+			}
+
+			console.log('[Config Checker] Getting worker token...');
+			// Get worker token first
+			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+			const controller1 = new AbortController();
+			const timeout1 = setTimeout(() => controller1.abort(), 10000); // 10s timeout
+			const tokenResponse = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: clientId,
+					client_secret: clientSecret,
+					scope: 'p1:read:environment p1:read:application p1:read:resource'
+					}),
+				signal: controller1.signal,
+				});
+			clearTimeout(timeout1);
+
+			if (!tokenResponse.ok) {
+				const errorText = await tokenResponse.text();
+				console.error('[Config Checker] Token request failed:', errorText);
+				return res.status(400).json({
+					error: 'invalid_token_request',
+					error_description: 'Failed to get worker token'
+				});
+			}
+
+			const tokenData = await tokenResponse.json();
+			tokenToUse = tokenData.access_token;
+			console.log('[Config Checker] Worker token obtained');
+		} else {
+			console.log('[Config Checker] Using provided worker token');
+		}
+
+		// Determine the base URL based on region
+		const regionMap = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap['na'];
+		const applicationsUrl = `${baseUrl}/v1/environments/${environmentId}/applications`;
+
+		console.log(`[Config Checker] Fetching applications from: ${applicationsUrl}`);
+
+		const controller2 = new AbortController();
+		const timeout2 = setTimeout(() => controller2.abort(), 10000); // 10s timeout
+		const response = await fetch(applicationsUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${tokenToUse}`,
+				'Content-Type': 'application/json',
+			},
+			signal: controller2.signal,
+		});
+		clearTimeout(timeout2);
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error('[Config Checker] Applications request failed:', errorText);
+			return res.status(response.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to fetch applications: ${response.status} ${response.statusText}`
+			});
+		}
+
+		const data = await response.json();
+		console.log(`[Config Checker] Successfully fetched ${data._embedded?.applications?.length || 0} applications`);
+		
+		res.json(data);
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.error('[Config Checker] Request timed out');
+			res.status(504).json({
+				error: 'timeout',
+				error_description: 'Request timed out'
+			});
+		} else {
+			console.error('[Config Checker] Error fetching applications:', error);
+			res.status(500).json({
+				error: 'server_error',
+				error_description: 'Internal server error while fetching applications'
+			});
+		}
+	}
+});
+
+app.get('/api/pingone/applications/:appId/resources', async (req, res) => {
+	try {
+		const { appId } = req.params;
+		const { environmentId, clientId, clientSecret, region = 'na', workerToken } = req.query;
+		
+		if (!environmentId || !appId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, appId'
+			});
+		}
+
+		let tokenToUse = workerToken;
+		if (!tokenToUse) {
+			// Get worker token using app credentials
+			if (!clientId || !clientSecret) {
+				console.log('[Config Checker] Missing clientId or clientSecret for token request');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameters: clientId, clientSecret'
+				});
+			}
+
+			console.log('[Config Checker] Getting worker token...');
+			// Get worker token first
+			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+			const controller1 = new AbortController();
+			const timeout1 = setTimeout(() => controller1.abort(), 10000); // 10s timeout
+			const tokenResponse = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: clientId,
+					client_secret: clientSecret,
+					scope: 'p1:read:environment p1:read:application p1:read:resource'
+					}),
+				signal: controller1.signal,
+				});
+			clearTimeout(timeout1);
+
+			if (!tokenResponse.ok) {
+				const errorText = await tokenResponse.text();
+				console.error('[Config Checker] Token request failed:', errorText);
+				return res.status(400).json({
+					error: 'invalid_token_request',
+					error_description: 'Failed to get worker token'
+				});
+			}
+
+			const tokenData = await tokenResponse.json();
+			tokenToUse = tokenData.access_token;
+			console.log('[Config Checker] Worker token obtained');
+		} else {
+			console.log('[Config Checker] Using provided worker token');
+		}
+
+		// Determine the base URL based on region
+		const regionMap = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap['na'];
+		const resourcesUrl = `${baseUrl}/v1/environments/${environmentId}/applications/${appId}/resources`;
+
+		console.log(`[Config Checker] Fetching resources from: ${resourcesUrl}`);
+
+		const controller2 = new AbortController();
+		const timeout2 = setTimeout(() => controller2.abort(), 10000); // 10s timeout
+		const response = await fetch(resourcesUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${tokenToUse}`,
+				'Content-Type': 'application/json',
+			},
+			signal: controller2.signal,
+		});
+		clearTimeout(timeout2);
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error('[Config Checker] Resources request failed:', errorText);
+			return res.status(response.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to fetch resources: ${response.status} ${response.statusText}`
+			});
+		}
+
+		const data = await response.json();
+		console.log(`[Config Checker] Successfully fetched resources for app ${appId}`);
+		
+		res.json(data);
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.error('[Config Checker] Request timed out');
+			res.status(504).json({
+				error: 'timeout',
+				error_description: 'Request timed out'
+			});
+		} else {
+			console.error('[Config Checker] Error fetching resources:', error);
+			res.status(500).json({
+				error: 'server_error',
+				error_description: 'Internal server error while fetching resources'
+			});
+		}
+	}
+});
+
+app.get('/api/pingone/oidc-config', async (req, res) => {
+	try {
+		const { environmentId, region = 'na' } = req.query;
+		
+		if (!environmentId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: environmentId'
+			});
+		}
+
+		// Determine the base URL based on region
+		const regionMap = {
+			us: 'https://auth.pingone.com',
+			na: 'https://auth.pingone.com',
+			eu: 'https://auth.pingone.eu',
+			ca: 'https://auth.pingone.ca',
+			ap: 'https://auth.pingone.asia',
+			asia: 'https://auth.pingone.asia',
+		};
+
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap['na'];
+		const oidcConfigUrl = `${baseUrl}/${environmentId}/as/.well-known/openid_configuration`;
+
+		console.log(`[Config Checker] Fetching OIDC config from: ${oidcConfigUrl}`);
+
+		const response = await fetch(oidcConfigUrl, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+			},
+		});
+
+		if (!response.ok) {
+			const errorText = await response.text();
+			console.error('[Config Checker] OIDC config request failed:', errorText);
+			return res.status(response.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to fetch OIDC config: ${response.status} ${response.statusText}`
+			});
+		}
+
+		const data = await response.json();
+		console.log(`[Config Checker] Successfully fetched OIDC config`);
+		
+		res.json(data);
+	} catch (error) {
+		console.error('[Config Checker] Error fetching OIDC config:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error while fetching OIDC config'
 		});
 	}
 });

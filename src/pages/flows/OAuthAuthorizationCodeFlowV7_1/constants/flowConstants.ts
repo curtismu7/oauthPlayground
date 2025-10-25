@@ -21,9 +21,9 @@ export const FLOW_CONSTANTS = {
   
   // Storage keys
   STORAGE_KEYS: {
-    CURRENT_STEP: 'oauth-authorization-code-v7-current-step',
-    APP_CONFIG: 'oauth-authorization-code-v7-app-config',
-    PKCE_CODES: 'oauth-authorization-code-v7-pkce-codes',
+    CURRENT_STEP: 'oauth-authorization-code-v7-1-current-step',
+    APP_CONFIG: 'oauth-authorization-code-v7-1-app-config',
+    PKCE_CODES: 'oauth-authorization-code-v7-1-pkce-codes',
     AUTH_CODE: 'oauth_auth_code',
     FLOW_SOURCE: 'flow_source',
   },
@@ -31,7 +31,7 @@ export const FLOW_CONSTANTS = {
   // Flow configuration
   TOTAL_STEPS: 8,
   DEFAULT_FLOW_VARIANT: 'oidc' as const,
-  FLOW_KEY: 'oauth-authorization-code-v7',
+  FLOW_KEY: 'oauth-authorization-code-v7-1',
   FALLBACK_FLOW_ID: 'oauth-authz-v7',
   
   // UI constants

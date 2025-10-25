@@ -105,8 +105,8 @@ const ExternalLink = styled.a`
 `;
 
 const CodeBlock = styled.pre`
-  background-color: ${({ theme }) => theme.colors.gray900};
-  color: white;
+  background-color: #1a202c !important;
+  color: #e2e8f0 !important;
   padding: 1rem;
   border-radius: 0.375rem;
   overflow-x: auto;
@@ -114,9 +114,13 @@ const CodeBlock = styled.pre`
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 1.5rem 0;
+  border: 1px solid #2d3748 !important;
   
   code {
     font-family: inherit;
+    background-color: transparent !important;
+    color: #e2e8f0 !important;
+    border: none !important;
   }
 `;
 

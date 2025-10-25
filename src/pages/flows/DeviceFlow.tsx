@@ -518,7 +518,7 @@ if (tokenResponse.access_token) {
 					setError(null);
 				}}
 				status={demoStatus}
-				disabled={demoStatus === 'loading'}
+				disabled={false}
 				title="Device Flow Steps"
 			/>
 

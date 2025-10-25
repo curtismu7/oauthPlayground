@@ -167,6 +167,23 @@ const ImplicitFlowV3: React.FC = () => {
 	const loadInitialCredentials = useCallback(async () => {
 		try {
 			console.log(' [ImplicitFlowV3] Loading initial credentials...');
+			
+			// Try implicit flow credentials first
+			const implicitCredentials = credentialManager.loadImplicitFlowCredentials('oidc');
+			if (implicitCredentials.environmentId && implicitCredentials.clientId) {
+				setCredentials((prev) => ({
+					...prev,
+					environmentId: implicitCredentials.environmentId,
+					clientId: implicitCredentials.clientId,
+					clientSecret: implicitCredentials.clientSecret || '',
+					scopes: implicitCredentials.scopes || prev.scopes,
+					redirectUri: implicitCredentials.redirectUri || prev.redirectUri,
+				}));
+				console.log(' [ImplicitFlowV3] Implicit flow credentials loaded successfully');
+				return;
+			}
+			
+			// Fallback to all credentials
 			const allCredentials = credentialManager.getAllCredentials();
 
 			if (allCredentials.environmentId && allCredentials.clientId) {
@@ -178,7 +195,7 @@ const ImplicitFlowV3: React.FC = () => {
 					scopes: allCredentials.scopes || prev.scopes,
 					redirectUri: allCredentials.redirectUri || prev.redirectUri,
 				}));
-				console.log(' [ImplicitFlowV3] Credentials loaded successfully');
+				console.log(' [ImplicitFlowV3] All credentials loaded successfully');
 			}
 		} catch (error) {
 			console.error(' [ImplicitFlowV3] Failed to load credentials:', error);
@@ -242,6 +259,25 @@ const ImplicitFlowV3: React.FC = () => {
 			setIsLoading(true);
 			console.log(' [ImplicitFlowV3] Saving credentials...');
 
+			// Validate required fields
+			if (!credentials.environmentId || !credentials.clientId) {
+				throw new Error('Environment ID and Client ID are required');
+			}
+
+			// Save to implicit flow credentials
+			const saveResult = credentialManager.saveImplicitFlowCredentials({
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				scopes: credentials.scopes,
+				redirectUri: credentials.redirectUri,
+			}, 'oidc');
+
+			if (!saveResult) {
+				throw new Error('Failed to save implicit flow credentials');
+			}
+
+			// Also save to all credentials for backward compatibility
 			await credentialManager.saveAllCredentials({
 				environmentId: credentials.environmentId,
 				clientId: credentials.clientId,
@@ -249,6 +285,10 @@ const ImplicitFlowV3: React.FC = () => {
 				scopes: credentials.scopes,
 				redirectUri: credentials.redirectUri,
 			});
+
+			// Dispatch events to notify other components
+			window.dispatchEvent(new CustomEvent('implicit-flow-credentials-changed'));
+			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 
 			showGlobalSuccess('Access granted', 'Implicit flow credentials saved successfully.');
 			console.log(' [ImplicitFlowV3] Credentials saved successfully');

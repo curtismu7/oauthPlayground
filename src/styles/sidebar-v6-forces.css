@@ -20,31 +20,12 @@ body .ps-sidebar .ps-menu-button:hover[style] {
     transform: translateX(2px) !important;
 }
 
-/* Active/Selected state - light green with border */
+/* Active/Selected state - light orange with border */
 body .ps-sidebar .ps-menu-button.ps-active,
 body .ps-sidebar .ps-menu-button.ps-active[style],
 body .ps-sidebar .ps-menu-button.ps-active[style*="background"],
 body .ps-sidebar .ps-menu-button.ps-active:hover,
 body .ps-sidebar .ps-menu-button.ps-active:hover[style] {
-    background: #dcfce7 !important;
-    color: #166534 !important;
-    border-left: 3px solid #22c55e !important;
-    font-weight: 600 !important;
-    transform: translateX(3px) !important;
-}
-
-/* IMPLICIT FLOW ORANGE HIGHLIGHTING - Added Oct 25 2025 */
-.implicit-flow-menu-item,
-body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active,
-body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active[style],
-body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active[style*="background"],
-body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active:hover,
-body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active:hover[style],
-body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active,
-body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active[style],
-body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active[style*="background"],
-body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active:hover,
-body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active:hover[style] {
     background: #fed7aa !important; /* Light orange background */
     color: #9a3412 !important; /* Dark orange text */
     border-left: 3px solid #f97316 !important; /* Orange border */
@@ -52,79 +33,82 @@ body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active:hove
     transform: translateX(3px) !important;
 }
 
-/* V6 Flow specific styling - light green */
+/* IMPLICIT FLOW ORANGE HIGHLIGHTING - All flows now use orange highlighting */
+
+body .ps-sidebar .ps-menu-button.ps-active,
 body .ps-sidebar .ps-menu-button.v6-flow,
 body .ps-sidebar .ps-menu-button.v6-flow[style],
 body .ps-sidebar .ps-menu-button.v6-flow[style*="background"] {
-    background: #dcfce7 !important;
-    color: #166534 !important;
-    border-left: 3px solid #22c55e !important;
+    background: #fed7aa !important; /* Light orange background */
+    color: #9a3412 !important; /* Dark orange text */
+    border-left: 3px solid #f97316 !important; /* Orange border */
     position: relative !important;
     font-weight: 600 !important;
 }
 
 body .ps-sidebar .ps-menu-button.v6-flow:hover,
 body .ps-sidebar .ps-menu-button.v6-flow:hover[style] {
-    background: #bbf7d0 !important;
-    color: #15803d !important;
+    background: #fdba74 !important; /* Slightly darker orange hover */
+    color: #9a3412 !important; /* Dark orange text */
     transform: translateX(2px) !important;
-    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3) !important;
+    box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3) !important;
 }
 
 body .ps-sidebar .ps-menu-button.v6-flow.ps-active,
 body .ps-sidebar .ps-menu-button.v6-flow.ps-active[style],
 body .ps-sidebar .ps-menu-button.ps-active.v6-flow,
 body .ps-sidebar .ps-menu-button.ps-active.v6-flow[style] {
-    background: #bbf7d0 !important;
-    color: #15803d !important;
-    border-right: 3px solid #22c55e !important;
-    border-left: 3px solid #22c55e !important;
+    background: #fed7aa !important; /* Light orange background */
+    color: #9a3412 !important; /* Dark orange text */
+    border-right: 3px solid #f97316 !important; /* Orange border */
+    border-left: 3px solid #f97316 !important; /* Orange border */
     font-weight: 700 !important;
     transform: translateX(3px) !important;
-    box-shadow: 0 3px 10px rgba(34, 197, 94, 0.4) !important;
+    box-shadow: 0 3px 10px rgba(249, 115, 22, 0.4) !important;
     position: relative !important;
+}
+
+/* Override any inline styles for V6 flows */
+body .ps-sidebar .ps-menu-button.v6-flow[style*="background"] {
+    background: #fed7aa !important; /* Light orange background */
+}
+
+body .ps-sidebar .ps-menu-button.v6-flow.ps-active[style*="background"] {
+    background: #fed7aa !important; /* Light orange background */
 }
 
 /* NUCLEAR OVERRIDE - FORCE ALL MENU BUTTONS TO LIGHT COLORS */
 html body .ps-sidebar .ps-menu-button,
 html body .ps-sidebar .ps-menu-button[style],
 html body .ps-sidebar .ps-menu-button[style*="background"] {
-    background: #f8fafc !important;
-    color: #475569 !important;
+    background: #fed7aa !important; /* Light orange background */
+    color: #9a3412 !important; /* Dark orange text */
     border: none !important;
 }
 
 html body .ps-sidebar .ps-menu-button:hover {
-    background: #e0f2fe !important;
-    color: #0369a1 !important;
+    background: #fdba74 !important; /* Slightly darker orange hover */
+    color: #9a3412 !important; /* Dark orange text */
 }
 
 html body .ps-sidebar .ps-menu-button.ps-active,
 html body .ps-sidebar .ps-menu-button.ps-active:hover {
-    background: #dcfce7 !important;
-    color: #166534 !important;
-    border-left: 3px solid #22c55e !important;
-}
-
-/* V6 Flow specific - light green theme */
-html body .ps-sidebar .ps-menu-button.v6-flow,
-html body .ps-sidebar .ps-menu-button.v6-flow[style] {
-    background: #dcfce7 !important;
-    color: #166534 !important;
-    border-left: 3px solid #22c55e !important;
+    background: #fed7aa !important; /* Light orange background */
+    color: #9a3412 !important; /* Dark orange text */
+    border-left: 3px solid #f97316 !important; /* Orange border */
 }
 
 html body .ps-sidebar .ps-menu-button.v6-flow:hover {
-    background: #bbf7d0 !important;
-    color: #15803d !important;
+    background: #fdba74 !important; /* Slightly darker orange hover */
+    color: #9a3412 !important; /* Dark orange text */
 }
 
 html body .ps-sidebar .ps-menu-button.v6-flow.ps-active,
 html body .ps-sidebar .ps-menu-button.v6-flow.ps-active:hover {
-    background: #bbf7d0 !important;
-    color: #15803d !important;
-    border-right: 3px solid #22c55e !important;
-    border-left: 3px solid #22c55e !important;
+    background: #fed7aa !important; /* Light orange background */
+    color: #9a3412 !important; /* Dark orange text */
+    border-right: 3px solid #f97316 !important; /* Orange border */
+    border-left: 3px solid #f97316 !important; /* Orange border */
 }
 
 .ps-submenu-content {

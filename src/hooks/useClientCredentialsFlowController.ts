@@ -191,6 +191,116 @@ const decodeJWT = (token: string): DecodedJWT | null => {
 	}
 };
 
+// Helper: Generate cryptographically secure random string
+const generateRandomString = (length: number = 32): string => {
+	const array = new Uint8Array(length);
+	crypto.getRandomValues(array);
+	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+};
+
+// Helper: Base64 URL encode
+const base64UrlEncode = (str: string): string => {
+	return btoa(str)
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=/g, '');
+};
+
+// Helper: Generate JWT assertion
+const generateJWTAssertion = async (config: ClientCredentialsConfig): Promise<string> => {
+	const now = Math.floor(Date.now() / 1000);
+	const jti = generateRandomString(16);
+	
+	const header = {
+		alg: config.jwtSigningAlg || 'HS256',
+		typ: 'JWT',
+		...(config.jwtSigningKid && { kid: config.jwtSigningKid })
+	};
+
+	const payload = {
+		iss: config.clientId,
+		sub: config.clientId,
+		aud: config.tokenEndpoint || `${config.issuer}/as/token`,
+		exp: now + 300, // 5 minutes from now
+		iat: now,
+		nbf: now,
+		jti: jti
+	};
+
+	const encodedHeader = base64UrlEncode(JSON.stringify(header));
+	const encodedPayload = base64UrlEncode(JSON.stringify(payload));
+	const signatureInput = `${encodedHeader}.${encodedPayload}`;
+
+	let signature: string;
+	
+	if (config.authMethod === 'client_secret_jwt') {
+		// HMAC-SHA256 with client secret
+		const encoder = new TextEncoder();
+		const keyData = encoder.encode(config.clientSecret || '');
+		const key = await crypto.subtle.importKey(
+			'raw',
+			keyData,
+			{ name: 'HMAC', hash: 'SHA-256' },
+			false,
+			['sign']
+		);
+		const signatureBuffer = await crypto.subtle.sign('HMAC', key, encoder.encode(signatureInput));
+		signature = base64UrlEncode(String.fromCharCode(...new Uint8Array(signatureBuffer)));
+	} else if (config.authMethod === 'private_key_jwt') {
+		// RSA-SHA256 with private key
+		if (!config.jwtPrivateKey) {
+			throw new Error('Private key is required for private_key_jwt authentication');
+		}
+		
+		// Parse PEM private key
+		const privateKeyPem = config.jwtPrivateKey
+			.replace(/-----BEGIN PRIVATE KEY-----/, '')
+			.replace(/-----END PRIVATE KEY-----/, '')
+			.replace(/\s/g, '');
+		
+		const privateKeyBuffer = Uint8Array.from(atob(privateKeyPem), c => c.charCodeAt(0));
+		const privateKey = await crypto.subtle.importKey(
+			'pkcs8',
+			privateKeyBuffer,
+			{
+				name: 'RSASSA-PKCS1-v1_5',
+				hash: 'SHA-256'
+			},
+			false,
+			['sign']
+		);
+		
+		const encoder = new TextEncoder();
+		const signatureBuffer = await crypto.subtle.sign(
+			'RSASSA-PKCS1-v1_5',
+			privateKey,
+			encoder.encode(signatureInput)
+		);
+		signature = base64UrlEncode(String.fromCharCode(...new Uint8Array(signatureBuffer)));
+	} else {
+		throw new Error(`Unsupported JWT authentication method: ${config.authMethod}`);
+	}
+
+	return `${signatureInput}.${signature}`;
+};
+
+// Helper: Apply mTLS authentication
+const applyMtlsAuthentication = async (config: ClientCredentialsConfig): Promise<{ headers: Record<string, string>; body: string }> => {
+	if (!config.mtlsCert || !config.mtlsKey) {
+		throw new Error('mTLS certificate and key are required for tls_client_auth');
+	}
+
+	// In a real implementation, you would use the certificate for client authentication
+	// This is a simplified version - in production, you'd need proper certificate handling
+	const headers: Record<string, string> = {
+		'Content-Type': 'application/x-www-form-urlencoded',
+		// Add client certificate headers if supported by the server
+		'X-Client-Certificate': config.mtlsCert,
+	};
+
+	return { headers, body: '' };
+};
+
 // Helper: Apply client authentication
 const applyClientAuthentication = async (
 	config: ClientCredentialsConfig,
@@ -223,14 +333,26 @@ const applyClientAuthentication = async (
 				'client_assertion_type',
 				'urn:ietf:params:oauth:client-assertion-type:jwt-bearer'
 			);
-			// In a real implementation, you would generate the JWT assertion here
-			requestBody.append('client_assertion', '[JWT_ASSERTION_PLACEHOLDER]');
-			body = requestBody.toString();
+			
+			try {
+				const assertion = await generateJWTAssertion(config);
+				requestBody.append('client_assertion', assertion);
+				body = requestBody.toString();
+			} catch (error) {
+				throw new Error(`Failed to generate JWT assertion: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			}
 			break;
 		}
 		case 'tls_client_auth': {
 			requestBody.append('client_id', config.clientId);
-			body = requestBody.toString();
+			
+			try {
+				const mtlsResult = await applyMtlsAuthentication(config);
+				Object.assign(headers, mtlsResult.headers);
+				body = requestBody.toString();
+			} catch (error) {
+				throw new Error(`Failed to apply mTLS authentication: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			}
 			break;
 		}
 		case 'none': {
@@ -387,9 +509,34 @@ export const useClientCredentialsFlowController = (
 
 	// Request token
 	const requestToken = useCallback(async () => {
-		if (!flowConfig.clientId || !flowConfig.clientSecret) {
-			showGlobalError('Client ID and Client Secret are required');
+		// Validate required fields based on authentication method
+		if (!flowConfig.clientId) {
+			showGlobalError('Client ID is required');
 			return;
+		}
+
+		// Validate authentication method specific requirements
+		switch (flowConfig.authMethod) {
+			case 'client_secret_post':
+			case 'client_secret_basic':
+			case 'client_secret_jwt':
+				if (!flowConfig.clientSecret) {
+					showGlobalError('Client Secret is required for this authentication method');
+					return;
+				}
+				break;
+			case 'private_key_jwt':
+				if (!flowConfig.jwtPrivateKey) {
+					showGlobalError('Private Key is required for private_key_jwt authentication');
+					return;
+				}
+				break;
+			case 'tls_client_auth':
+				if (!flowConfig.mtlsCert || !flowConfig.mtlsKey) {
+					showGlobalError('mTLS Certificate and Key are required for tls_client_auth');
+					return;
+				}
+				break;
 		}
 
 		setIsRequesting(true);
@@ -398,6 +545,9 @@ export const useClientCredentialsFlowController = (
 			scopes: flowConfig.scopes,
 			audience: flowConfig.audience,
 			resource: flowConfig.resource,
+			hasClientSecret: !!flowConfig.clientSecret,
+			hasPrivateKey: !!flowConfig.jwtPrivateKey,
+			hasMtlsCert: !!flowConfig.mtlsCert,
 		});
 
 		try {
@@ -463,10 +613,11 @@ export const useClientCredentialsFlowController = (
 					tokenType: tokenData.token_type,
 					expiresIn: tokenData.expires_in || 3600,
 					scope: tokenData.scope || '',
+					authMethod: flowConfig.authMethod,
 				})
 			);
 
-			showGlobalSuccess('Access token retrieved successfully!');
+			showGlobalSuccess(`Access token retrieved successfully using ${flowConfig.authMethod}!`);
 			console.log('Token request successful:', tokenData);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -600,24 +751,53 @@ export const useClientCredentialsFlowController = (
 		const baseRequirementsMet = Boolean(trimmedEnv && trimmedClientId);
 
 		let authRequirementsMet = false;
+		let missingRequirements: string[] = [];
+
 		switch (authMethod) {
 			case 'client_secret_post':
 			case 'client_secret_basic':
 			case 'client_secret_jwt':
 				authRequirementsMet = Boolean(trimmedClientSecret || trimmedConfigSecret);
+				if (!authRequirementsMet) {
+					missingRequirements.push('Client Secret');
+				}
 				break;
 			case 'private_key_jwt':
 				authRequirementsMet = Boolean(trimmedPrivateKey);
+				if (!authRequirementsMet) {
+					missingRequirements.push('Private Key');
+				}
 				break;
 			case 'tls_client_auth':
 				authRequirementsMet = Boolean(trimmedMtlsCert && trimmedMtlsKey);
+				if (!authRequirementsMet) {
+					if (!trimmedMtlsCert) missingRequirements.push('mTLS Certificate');
+					if (!trimmedMtlsKey) missingRequirements.push('mTLS Private Key');
+				}
 				break;
 			case 'none':
 			default:
 				authRequirementsMet = true;
 		}
 
-		setHasValidCredentials(baseRequirementsMet && authRequirementsMet);
+		const isValid = baseRequirementsMet && authRequirementsMet;
+		setHasValidCredentials(isValid);
+
+		// Log validation details for debugging
+		if (!isValid) {
+			console.log('[ClientCredsController] Validation failed:', {
+				authMethod,
+				baseRequirementsMet,
+				authRequirementsMet,
+				missingRequirements,
+				hasEnv: !!trimmedEnv,
+				hasClientId: !!trimmedClientId,
+				hasClientSecret: !!(trimmedClientSecret || trimmedConfigSecret),
+				hasPrivateKey: !!trimmedPrivateKey,
+				hasMtlsCert: !!trimmedMtlsCert,
+				hasMtlsKey: !!trimmedMtlsKey,
+			});
+		}
 	}, [credentials, flowConfig]);
 
 	return {

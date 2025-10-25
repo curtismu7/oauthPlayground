@@ -487,9 +487,19 @@ export const EnhancedApiCallDisplay: React.FC<EnhancedApiCallDisplayProps> = ({
 			options.urlHighlightRules ||
 			EnhancedApiCallDisplayService.getDefaultHighlightRules(apiCall.flowType);
 
+		// Debug logging
+		console.log('[EnhancedApiCallDisplay] Debug info:', {
+			flowType: apiCall.flowType,
+			hasUrlHighlightRules: !!options.urlHighlightRules,
+			rulesType: Array.isArray(rules) ? 'array' : typeof rules,
+			rulesLength: Array.isArray(rules) ? rules.length : 'N/A',
+			rules: rules
+		});
+
 		// Ensure rules is always an array
 		if (!Array.isArray(rules)) {
 			console.warn('[EnhancedApiCallDisplay] rules is not an array:', rules);
+			// Return empty array as fallback
 			return null;
 		}
 

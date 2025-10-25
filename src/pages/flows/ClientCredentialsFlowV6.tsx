@@ -30,7 +30,7 @@ import {
 import { FlowHeader } from '../../services/flowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import { TokenIntrospectionService } from '../../services/tokenIntrospectionService';
@@ -1074,10 +1074,18 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
-					<UnifiedTokenDisplayService
+					<UltimateTokenDisplay
 						tokens={controller.tokens}
-						flowType="client-credentials-v6"
-						showTokenManagementButtons={true}
+						flowType="oauth"
+						flowKey="client-credentials-v6"
+						displayMode="detailed"
+						title="Client Credentials Tokens"
+						subtitle="Machine-to-machine access token"
+						showCopyButtons={true}
+						showDecodeButtons={true}
+						showMaskToggle={true}
+						showTokenManagement={true}
+						showMetadata={true}
 					/>
 				</div>
 			)}
@@ -1128,10 +1136,18 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
-					<UnifiedTokenDisplayService
+					<UltimateTokenDisplay
 						tokens={controller.tokens}
-						flowType="client-credentials-v6"
-						showTokenManagementButtons={true}
+						flowType="oauth"
+						flowKey="client-credentials-v6-management"
+						displayMode="detailed"
+						title="Token Management"
+						subtitle="Manage and monitor your client credentials tokens"
+						showCopyButtons={true}
+						showDecodeButtons={true}
+						showMaskToggle={true}
+						showTokenManagement={true}
+						showMetadata={true}
 					/>
 					
 					<SectionDivider />

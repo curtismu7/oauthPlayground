@@ -38,6 +38,7 @@ import type { StepCredentials } from '../../services/flowCredentialService';
 
 // Import V6 UI components
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import ModalPresentationService from '../../services/modalPresentationService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
@@ -132,7 +133,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		security: true,          // Collapsed
 		implementation: true,    // Collapsed
 		credentials: false,      // Expanded (JWT Bearer Configuration)
-		endpoint: true,          // Collapsed (Token Endpoint Configuration)
+		endpoint: false,         // Expanded (Token Endpoint Configuration) - FIXED: Now visible by default
 		jwtBuilder: false,       // Expanded (JWT Claims & Signature Builder)
 		generatedJWT: false,     // Expanded (Generated JWT)
 		tokenRequest: true,      // Collapsed
@@ -140,21 +141,21 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 		completion: true         // Collapsed
 	});
 
-	// JWT Configuration
+	// JWT Configuration with defaults
 	const [environmentId, setEnvironmentId] = useState('');
 	const [clientId, setClientId] = useState('');
-	const [tokenEndpoint, setTokenEndpoint] = useState('');
-	const [audience, setAudience] = useState('');
+	const [tokenEndpoint, setTokenEndpoint] = useState('https://auth.pingone.com/as/token');
+	const [audience, setAudience] = useState('https://auth.pingone.com/as/token');
 	const [scopes, setScopes] = useState('read write');
 
-	// JWT Claims
+	// JWT Claims with better defaults
 	const [jwtClaims, setJwtClaims] = useState<JWTClaims>({
-		iss: '',
-		sub: '',
-		aud: '',
+		iss: 'https://auth.pingone.com', // Issuer should be the authorization server, not client ID
+		sub: '', // Subject will be set to client ID when user enters it
+		aud: 'https://auth.pingone.com/as/token', // Audience is the token endpoint
 		iat: Math.floor(Date.now() / 1000),
 		exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour
-		jti: ''
+		jti: `jwt-${Math.random().toString(36).substr(2, 9)}` // Generate a unique JWT ID
 	});
 
 	// JWT Signature
@@ -238,28 +239,31 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 
 	// Discover audience from OIDC endpoint
 	const discoverAudience = useCallback(async () => {
-		// Strict validation
+		// Enhanced validation with better error messages
 		if (!environmentId || environmentId.trim() === '') {
 			console.warn('⚠️ [JWT Bearer] Cannot discover audience - Environment ID is empty');
 			v4ToastManager.showWarning('Please enter an Environment ID first');
 			return;
 		}
 
+		// Additional validation for environment ID format
+		const trimmedEnvId = environmentId.trim();
+		if (!trimmedEnvId || trimmedEnvId.length < 10) {
+			console.warn('⚠️ [JWT Bearer] Environment ID appears to be invalid:', trimmedEnvId);
+			v4ToastManager.showWarning('Please enter a valid Environment ID');
+			return;
+		}
+
 		setIsDiscoveringAudience(true);
 		try {
-			console.log('🔍 [JWT Bearer] Discovering audience for environment:', environmentId);
+			console.log('🔍 [JWT Bearer] Discovering audience for environment:', trimmedEnvId);
 			
 			// Construct issuer URL from environment ID
-			const trimmedEnvId = environmentId.trim();
-			if (!trimmedEnvId) {
-				throw new Error('Environment ID is empty after trimming');
-			}
-			
 			const issuerUrl = `https://auth.pingone.com/${trimmedEnvId}/as`;
 			console.log('🔍 [JWT Bearer] Constructed issuer URL:', issuerUrl);
 			
 			// Validate issuer URL before calling discovery
-			if (!issuerUrl || typeof issuerUrl !== 'string') {
+			if (!issuerUrl || typeof issuerUrl !== 'string' || !issuerUrl.startsWith('https://')) {
 				throw new Error('Invalid issuer URL constructed');
 			}
 			
@@ -277,7 +281,8 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('❌ [JWT Bearer] Failed to discover audience:', error);
-			v4ToastManager.showError('Failed to discover audience. Please enter manually.');
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+			v4ToastManager.showError(`Failed to discover audience: ${errorMessage}. Please enter manually.`);
 		} finally {
 			setIsDiscoveringAudience(false);
 		}
@@ -351,8 +356,8 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 	useEffect(() => {
 		setJwtClaims(prev => ({
 			...prev,
-			iss: clientId || prev.iss,
-			sub: clientId || prev.sub,
+			iss: prev.iss, // Keep issuer as authorization server, don't change to client ID
+			sub: clientId || prev.sub, // Subject should be the client ID
 			aud: audience || tokenEndpoint || prev.aud, // Prioritize audience, fallback to tokenEndpoint
 		}));
 		console.log('🔄 [JWT Bearer] Auto-updated JWT claims with audience:', audience || tokenEndpoint);
@@ -604,10 +609,48 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 							)}
 						</CollapsibleSection>
 
-						<SectionDivider />
+					{/* Token Endpoint Configuration */}
+					<CollapsibleSection>
+						<CollapsibleHeaderButton
+							onClick={() => toggleSection('endpoint')}
+							aria-expanded={!collapsedSections.endpoint}
+						>
+							<CollapsibleTitle>
+								<FiExternalLink /> Token Endpoint Configuration
+							</CollapsibleTitle>
+							<CollapsibleToggleIcon $collapsed={collapsedSections.endpoint}>
+								<FiChevronDown />
+							</CollapsibleToggleIcon>
+						</CollapsibleHeaderButton>
+						{!collapsedSections.endpoint && (
+							<CollapsibleContent>
+								<FormGroup>
+									<Label>Token Endpoint *</Label>
+									<Input
+										type="url"
+										value={tokenEndpoint}
+										onChange={(e) => setTokenEndpoint(e.target.value)}
+										placeholder="https://auth.example.com/oauth/token"
+									/>
+								</FormGroup>
 
-					{/* Credentials Configuration */}
-					<ComprehensiveCredentialsService
+								<FormGroup>
+									<Label>Audience (Optional)</Label>
+									<Input
+										type="text"
+										value={audience}
+										onChange={(e) => setAudience(e.target.value)}
+										placeholder="https://api.example.com"
+									/>
+								</FormGroup>
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+
+					<SectionDivider />
+
+				{/* Credentials Configuration */}
+				<ComprehensiveCredentialsService
 						flowType="jwt-bearer-v6"
 						
 				// Discovery props
@@ -698,45 +741,6 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 					showAdvancedConfig={false}  // No need for PingOne advanced settings in JWT Bearer
 				/>
 
-						<SectionDivider />
-
-						{/* Token Endpoint Configuration */}
-						<CollapsibleSection>
-							<CollapsibleHeaderButton
-								onClick={() => toggleSection('endpoint')}
-								aria-expanded={!collapsedSections.endpoint}
-							>
-								<CollapsibleTitle>
-									<FiExternalLink /> Token Endpoint Configuration
-								</CollapsibleTitle>
-								<CollapsibleToggleIcon $collapsed={collapsedSections.endpoint}>
-									<FiChevronDown />
-								</CollapsibleToggleIcon>
-							</CollapsibleHeaderButton>
-							{!collapsedSections.endpoint && (
-								<CollapsibleContent>
-									<FormGroup>
-										<Label>Token Endpoint *</Label>
-										<Input
-											type="url"
-											value={tokenEndpoint}
-											onChange={(e) => setTokenEndpoint(e.target.value)}
-											placeholder="https://auth.example.com/oauth/token"
-										/>
-									</FormGroup>
-
-									<FormGroup>
-										<Label>Audience (Optional)</Label>
-										<Input
-											type="text"
-											value={audience}
-											onChange={(e) => setAudience(e.target.value)}
-											placeholder="https://api.example.com"
-										/>
-									</FormGroup>
-								</CollapsibleContent>
-							)}
-						</CollapsibleSection>
 					</>
 				);
 
@@ -767,8 +771,12 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 											type="text"
 											value={jwtClaims.iss}
 											onChange={(e) => setJwtClaims(prev => ({ ...prev, iss: e.target.value }))}
-											placeholder="your-client-id"
+											placeholder="https://auth.pingone.com"
 										/>
+										<HelperText style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+											<FiInfo size={14} style={{ marginRight: '0.5rem' }} />
+											The issuer should be the authorization server URL, not the client ID
+										</HelperText>
 									</FormGroup>
 
 									<FormGroup>
@@ -785,8 +793,16 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
 											<Label style={{ margin: 0 }}>Audience (aud) *</Label>
 											<Button
-												onClick={discoverAudience}
-												disabled={!environmentId || isDiscoveringAudience}
+												onClick={() => {
+													console.log('🔍 [JWT Bearer] Auto Discover clicked, environmentId:', environmentId);
+													if (!environmentId || environmentId.trim() === '') {
+														console.warn('⚠️ [JWT Bearer] Button clicked but environmentId is empty');
+														v4ToastManager.showWarning('Please enter an Environment ID first');
+														return;
+													}
+													discoverAudience();
+												}}
+												disabled={!environmentId || environmentId.trim() === '' || isDiscoveringAudience}
 												$variant="secondary"
 												style={{
 													padding: '0.25rem 0.5rem',
@@ -794,13 +810,13 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 													display: 'flex',
 													alignItems: 'center',
 													gap: '0.25rem',
-													backgroundColor: '#10b981',
+													backgroundColor: environmentId && environmentId.trim() !== '' ? '#10b981' : '#6b7280',
 													color: '#ffffff',
 													border: 'none',
-													cursor: environmentId ? 'pointer' : 'not-allowed',
-													opacity: !environmentId ? 0.5 : 1
+													cursor: environmentId && environmentId.trim() !== '' ? 'pointer' : 'not-allowed',
+													opacity: !environmentId || environmentId.trim() === '' ? 0.5 : 1
 												}}
-												title={environmentId ? 'Auto-discover audience from OIDC endpoint' : 'Enter Environment ID first'}
+												title={environmentId && environmentId.trim() !== '' ? 'Auto-discover audience from OIDC endpoint' : 'Enter Environment ID first'}
 											>
 												{isDiscoveringAudience ? (
 													<>
@@ -1253,11 +1269,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 	// Main render
 	return (
 		<Container>
-			<FlowHeader
-				title="OAuth 2.0 JWT Bearer Token Flow (Mock)"
-				subtitle="RFC 7523 - Server-to-Server Authentication with JWT Assertions"
-				flowType="jwt-bearer"
-			/>
+			<FlowHeader flowId="jwt-bearer-token-v7" />
 
 			<ContentWrapper>
 				{/* Mock Implementation Warning */}

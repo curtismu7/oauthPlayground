@@ -1496,6 +1496,7 @@ export const useAuthorizationCodeFlowController = (
 				authEndpoint: credentials.authEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
 				userInfoEndpoint: credentials.userInfoEndpoint,
+				tokenAuthMethod: credentials.tokenEndpointAuthMethod || credentials.authMethod?.value,
 			});
 			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved to authz flow storage for callback');
 

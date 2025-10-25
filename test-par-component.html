@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced PAR Component Demo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-list {
+            background: #f0f9ff;
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .feature-list h3 {
+            margin: 0 0 12px 0;
+            color: #0c4a6e;
+        }
+
+        .feature-list ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .feature-list li {
+            margin: 8px 0;
+            color: #0c4a6e;
+        }
+
+        .code-example {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 16px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        .success-box {
+            background: #f0fdf4;
+            border: 1px solid #16a34a;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 16px 0;
+        }
+
+        .success-box h3 {
+            margin: 0 0 8px 0;
+            color: #16a34a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="demo-container">
+        <h1>🔐 Enhanced PAR (Pushed Authorization Request) Component</h1>
+
+        <p>The PAR component has been significantly enhanced to provide a comprehensive learning and implementation
+            experience for OAuth 2.0 PAR (RFC 9126).</p>
+
+        <div class="feature-list">
+            <h3>✨ New Features Added</h3>
+            <ul>
+                <li><strong>Three-Tab Interface:</strong> Use Existing PAR, Build PAR Request, Learn PAR</li>
+                <li><strong>Real Examples:</strong> Pre-filled with actual PingOne formats and UUIDs</li>
+                <li><strong>Quick Fill Options:</strong> Production, Sandbox, High Security, Extended Session examples
+                </li>
+                <li><strong>Interactive PAR Builder:</strong> Configure OAuth parameters and see the generated request
+                </li>
+                <li><strong>Educational Content:</strong> Step-by-step guide explaining PAR concepts and benefits</li>
+                <li><strong>Copy-to-Clipboard:</strong> Easy copying of URLs, requests, and code examples</li>
+                <li><strong>Real-World Examples:</strong> Banking application scenario showing PAR benefits</li>
+                <li><strong>PingOne-Specific Notes:</strong> Implementation details for PingOne environments</li>
+            </ul>
+        </div>
+
+        <h2>🎯 Tab 1: Use Existing PAR</h2>
+        <p>Enhanced input form with:</p>
+        <ul>
+            <li>Quick-fill examples for different scenarios</li>
+            <li>Real PingOne format explanations</li>
+            <li>Live authorization URL generation</li>
+            <li>Detailed helper text for each field</li>
+        </ul>
+
+        <div class="code-example">Example PAR Request URI:
+            urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+
+            Generated Authorization URL:
+            https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize?client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&request_uri=urn%3Aietf%3Aparams%3Aoauth%3Arequest_uri%3Apingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+        </div>
+
+        <h2>🔧 Tab 2: Build PAR Request</h2>
+        <p>Interactive PAR request builder showing:</p>
+        <ul>
+            <li>All OAuth/OIDC parameters (response_type, scope, redirect_uri, etc.)</li>
+            <li>Generated HTTP request with headers and body</li>
+            <li>Expected response format</li>
+            <li>Copy buttons for easy testing</li>
+        </ul>
+
+        <div class="code-example">POST https://auth.pingone.com/{env-id}/as/par
+            Content-Type: application/x-www-form-urlencoded
+            Authorization: Basic &lt;base64(client_id:client_secret)&gt;
+
+            response_type=code&client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f&scope=openid%20profile%20email&redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fcallback&state=abc123xyz789&nonce=n-0S6_WzA2Mj&code_challenge=E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM&code_challenge_method=S256
+        </div>
+
+        <h2>📚 Tab 3: Learn PAR</h2>
+        <p>Comprehensive educational content including:</p>
+        <ul>
+            <li>Step-by-step explanation of how PAR works</li>
+            <li>Security benefits and use cases</li>
+            <li>Real-world banking application example</li>
+            <li>PingOne-specific implementation notes</li>
+        </ul>
+
+        <div class="success-box">
+            <h3>🎉 Enhancement Complete!</h3>
+            <p>The PAR component now provides a complete learning and implementation experience, helping users
+                understand PAR concepts, see real examples, and build their own PAR requests with confidence.</p>
+        </div>
+
+        <h2>🔗 Key Improvements</h2>
+        <ul>
+            <li><strong>Better Explanations:</strong> Clear descriptions of what PAR is and why it's useful</li>
+            <li><strong>Real Examples:</strong> Actual PingOne URLs and formats instead of generic placeholders</li>
+            <li><strong>Interactive Learning:</strong> Users can experiment with different configurations</li>
+            <li><strong>Security Focus:</strong> Emphasizes the security benefits of PAR over traditional OAuth</li>
+            <li><strong>Practical Guidance:</strong> Step-by-step instructions for implementation</li>
+        </ul>
+    </div>
+</body>
+
+</html>

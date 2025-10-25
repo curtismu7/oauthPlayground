@@ -46,7 +46,7 @@ import FlowCredentialService from '../../services/flowCredentialService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
@@ -2305,15 +2305,19 @@ const [currentStep, setCurrentStep] = useState(
 
 									<SectionDivider />
 
-									{UnifiedTokenDisplayService.showTokens(
-										tokens,
-										'oidc',
-										'oidc-authorization-code-v6',
-										{
-											showCopyButtons: true,
-											showDecodeButtons: true,
-										}
-									)}
+									<UltimateTokenDisplay
+										tokens={tokens}
+										flowType="oidc"
+										flowKey="oidc-authorization-code-v6"
+										displayMode="detailed"
+										title="OpenID Connect Tokens"
+										subtitle="ID token and access token from OIDC Authorization Code flow"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										showMetadata={true}
+									/>
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>

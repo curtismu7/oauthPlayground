@@ -85,7 +85,7 @@ export interface AuthorizationCodeFlowController {
 	clearStepResults: () => void;
 }
 
-const DEFAULT_FLOW_KEY = 'authorization-code-v5';
+const DEFAULT_FLOW_KEY = 'oauth-authorization-code-v7-1';
 
 const getSafeOrigin = (): string => {
 	if (typeof window === 'undefined') return 'https://localhost:3000';
