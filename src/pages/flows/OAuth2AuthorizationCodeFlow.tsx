@@ -1507,6 +1507,18 @@ const OAuth2AuthorizationCodeFlow: React.FC = () => {
 				return;
 			}
 
+			// PRIORITY 3: Check if this is a fresh navigation (no URL params, no code)
+			// If so, always start from step 0 to ensure flows reset when accessed from menu
+			const isFreshNavigation = !step && !code && window.location.pathname.includes('/flows/');
+			
+			if (isFreshNavigation) {
+				console.log(
+					' [EnhancedAuthorizationCodeFlowV2] InitializeStepIndex - Fresh navigation detected, starting from step 0'
+				);
+				setCurrentStepIndex(0);
+				return;
+			}
+
 			if (storedStep) {
 				const stepIndex = parseInt(storedStep, 10);
 				console.log(

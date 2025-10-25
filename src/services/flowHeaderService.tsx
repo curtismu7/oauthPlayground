@@ -219,6 +219,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '📱',
 		version: 'V7',
 	},
+	'ciba-v7': {
+		flowType: 'oidc',
+		title: 'OIDC CIBA Flow (V7) - Client Initiated Backchannel Authentication',
+		subtitle:
+			'🛡️ V7: Enhanced CIBA implementation with V7 services - Client Initiated Backchannel Authentication for secure, user-friendly authentication without redirects. Perfect for mobile apps, IoT devices, and scenarios requiring seamless user experience.',
+		icon: '🛡️',
+		version: 'V7',
+	},
 	'client-credentials-v5': {
 		flowType: 'oauth',
 		title: 'Client Credentials Flow - Server-to-Server Authentication',
@@ -300,6 +308,22 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '⚙️',
 		version: 'V5',
 	},
+	'worker-token-v7': {
+		flowType: 'pingone',
+		title: 'Worker Token Flow (V7) - Enhanced Administrative API Access',
+		subtitle:
+			'🚀 V7: Enhanced PingOne worker token flow with comprehensive training, API examples, and best practices. Generate worker tokens for machine-to-machine authentication with PingOne Management APIs. Includes JavaScript examples, cURL commands, Postman collections, and security best practices.',
+		icon: '⚙️',
+		version: 'V7',
+	},
+	'redirectless-v7': {
+		flowType: 'oauth',
+		title: 'Redirectless Flow (V7) - Enhanced Server-to-Server Authentication',
+		subtitle:
+			'🚀 V7: Enhanced redirectless authentication with fresh PKCE generation, improved error handling, and comprehensive educational content - Perfect for embedded login experiences and mobile apps.',
+		icon: '🚀',
+		version: 'V7',
+	},
 	'pingone-par-v5': {
 		flowType: 'pingone',
 		title: 'PAR (Pushed Authorization Requests) Flow - Enhanced Security',
@@ -307,6 +331,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 			'🔒 RFC 9126 - Authorization Code Flow + PAR enhancement. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits. Perfect for production OIDC clients with sensitive scopes.',
 		icon: '🔒',
 		version: 'V5',
+	},
+	'pingone-par-v7': {
+		flowType: 'pingone',
+		title: 'PAR (Pushed Authorization Requests) Flow V7 - Enhanced Security',
+		subtitle:
+			'🔒 V7: Enhanced PAR implementation with authorization details support - RFC 9126 Pushed Authorization Requests with comprehensive authorization details configuration. Pushes authorization parameters via secure back-channel POST to /par endpoint before redirecting. Returns request_uri for compact authorization URL. ✅ Benefits: Parameters hidden from browser URLs, prevents tampering, no URL length limits, fine-grained authorization details. Perfect for production OIDC clients with sensitive scopes and complex authorization requirements.',
+		icon: '🔒',
+		version: 'V7',
 	},
 	'rar-flow-v5': {
 		flowType: 'pingone',
@@ -547,6 +579,14 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		icon: '🎯',
 		version: 'V5',
 	},
+	'rar-v7': {
+		flowType: 'oauth',
+		title: 'RAR Flow (V7) - Rich Authorization Requests',
+		subtitle:
+			'🎯 V7: Enhanced RAR implementation with V7 services - Fine-grained authorization using structured JSON (RFC 9396). Enables detailed permission specifications beyond simple scopes with comprehensive credential management and modern UI.',
+		icon: '🎯',
+		version: 'V7',
+	},
 	'jwt-bearer': {
 		flowType: 'oauth',
 		title: 'OAuth 2.0 JWT Bearer Flow',
@@ -571,6 +611,16 @@ export const FLOW_CONFIGS: Record<string, FlowHeaderConfig> = {
 		subtitle:
 			'Create and configure OAuth 2.0 and OpenID Connect applications in your PingOne environment. Generate clients for web apps, native apps, SPAs, workers, and services.',
 		icon: '📚',
+	},
+
+	// Login Page
+	login: {
+		flowType: 'pingone',
+		title: 'PingOne Authentication',
+		subtitle:
+			'🔐 V7: Dedicated authentication page with inline and popup modes - Modern PingOne authentication interface with comprehensive user management and security features.',
+		icon: '🔐',
+		version: 'V7',
 	},
 
 	// SAML Bearer Assertion Flow

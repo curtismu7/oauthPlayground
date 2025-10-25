@@ -1,10 +1,11 @@
 // src/pages/flows/PingOneCompleteMFAFlowV7.tsx
 // PingOne Complete MFA Flow V7 Page
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import CompleteMFAFlowV7 from '../../components/CompleteMFAFlowV7';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { FlowCredentialService } from '../../services/flowCredentialService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -13,6 +14,29 @@ const PageContainer = styled.div`
 
 const PingOneCompleteMFAFlowV7: React.FC = () => {
   const { credentials } = useAuth();
+  const [v7Credentials, setV7Credentials] = useState<any>(null);
+
+  // Load credentials using V7 standardized storage
+  useEffect(() => {
+    const loadCredentials = async () => {
+      console.log('🔄 [MFA-V7] Loading credentials on mount...');
+      
+      const { credentials: loadedCredentials } = await FlowCredentialService.loadFlowCredentials({
+        flowKey: 'pingone-complete-mfa-v7',
+        defaultCredentials: {},
+      });
+
+      if (loadedCredentials && Object.keys(loadedCredentials).length > 0) {
+        console.log('✅ [MFA-V7] Loaded V7 credentials:', loadedCredentials);
+        setV7Credentials(loadedCredentials);
+      } else {
+        console.log('ℹ️ [MFA-V7] No V7 credentials found, using auth context');
+        setV7Credentials(credentials);
+      }
+    };
+
+    loadCredentials();
+  }, [credentials]);
 
   const handleFlowComplete = (result: any) => {
     console.log('MFA Flow completed:', result);
@@ -39,6 +63,7 @@ const PingOneCompleteMFAFlowV7: React.FC = () => {
   return (
     <PageContainer>
       <CompleteMFAFlowV7
+        credentials={v7Credentials || credentials}
         requireMFA={true}
         maxRetries={3}
         onFlowComplete={handleFlowComplete}
