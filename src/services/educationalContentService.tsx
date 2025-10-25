@@ -492,6 +492,50 @@ export const EDUCATIONAL_CONTENT: Record<string, EducationalContent> = {
 			icon: <FiInfo />,
 			text: '**Best Practice: Combine MFA with risk-based authentication for optimal security and user experience**'
 		}
+	},
+	'pingone-par': {
+		title: 'PAR (Pushed Authorization Requests) = Enhanced Security',
+		description: 'This flow provides **enhanced security** by pushing authorization parameters via secure back-channel POST to the authorization server before redirecting. It prevents parameter tampering and reduces URL size for complex requests.',
+		characteristics: {
+			positive: [
+				{ icon: <FiCheck />, text: 'Enhanced Security: Parameters hidden from browser URLs' },
+				{ icon: <FiCheck />, text: 'Parameter Protection: Prevents tampering and interception' },
+				{ icon: <FiCheck />, text: 'Compact URLs: No URL length limits for complex requests' },
+				{ icon: <FiCheck />, text: 'Authorization Details: Support for fine-grained authorization' }
+			],
+			negative: [
+				{ icon: <FiX />, text: 'Complex Setup: Requires PAR endpoint configuration' },
+				{ icon: <FiX />, text: 'Server Support: Not all authorization servers support PAR' }
+			]
+		},
+		useCases: [
+			'Production OIDC clients with sensitive scopes',
+			'Applications requiring complex authorization parameters',
+			'High-security environments with parameter protection needs',
+			'Mobile apps with detailed authorization requirements'
+		]
+	},
+	'oidc-par': {
+		title: 'OIDC PAR (Pushed Authorization Requests) = Enhanced OIDC Security',
+		description: 'This flow combines **OpenID Connect authentication** with **PAR security enhancements** - providing both user identity AND enhanced security through pushed authorization parameters. Perfect for high-security OIDC applications.',
+		characteristics: {
+			positive: [
+				{ icon: <FiCheck />, text: 'Full OIDC: ID Token (user identity) + Access Token (for API calls)' },
+				{ icon: <FiCheck />, text: 'Enhanced Security: Authorization parameters pushed via secure back-channel' },
+				{ icon: <FiCheck />, text: 'User Profile: Complete user information via UserInfo endpoint' },
+				{ icon: <FiCheck />, text: 'Parameter Protection: Prevents tampering and URL length limits' }
+			],
+			negative: [
+				{ icon: <FiX />, text: 'Requires: \'openid\' scope (mandatory for OIDC)' },
+				{ icon: <FiX />, text: 'Complex Setup: PAR endpoint + OIDC configuration required' }
+			]
+		},
+		useCases: [
+			'High-security OIDC applications',
+			'Financial services with user authentication',
+			'Healthcare applications with identity requirements',
+			'Government systems with enhanced security'
+		]
 	}
 };
 

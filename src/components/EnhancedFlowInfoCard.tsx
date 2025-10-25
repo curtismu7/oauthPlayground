@@ -272,6 +272,12 @@ const EnhancedFlowInfoCard: React.FC<EnhancedFlowInfoCardProps> = ({
 	const [flowInfoCard, setFlowInfoCard] = useState<FlowInfoCardData | null>(null);
 
 	useEffect(() => {
+		if (!flowType) {
+			console.warn('EnhancedFlowInfoCard: flowType is undefined or empty');
+			setFlowInfoCard(null);
+			return;
+		}
+		
 		const cardData = FlowInfoService.generateFlowInfoCard(flowType);
 		setFlowInfoCard(cardData);
 	}, [flowType]);
