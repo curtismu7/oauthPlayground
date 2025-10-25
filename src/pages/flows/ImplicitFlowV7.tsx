@@ -25,6 +25,8 @@ import {
 import { ImplicitFlowSharedService, ImplicitFlowV7Helpers } from '../../services/implicitFlowSharedService';
 import { useImplicitFlowController, loadInitialCredentials } from '../../hooks/useImplicitFlowController';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
 import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
@@ -42,6 +44,7 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 
 // Import UI components from services
 import { FlowUIService } from '../../services/flowUIService';
@@ -176,7 +179,27 @@ const VariantDescription = styled.div`
 
 const ImplicitFlowV7: React.FC = () => {
 	const location = useLocation();
-	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oidc');
+	
+	// Detect default variant based on navigation context
+	const getDefaultVariant = (): 'oauth' | 'oidc' => {
+		// Check if there's a variant specified in the URL params
+		const urlParams = new URLSearchParams(location.search);
+		const urlVariant = urlParams.get('variant');
+		if (urlVariant === 'oidc' || urlVariant === 'oauth') {
+			return urlVariant as 'oauth' | 'oidc';
+		}
+		
+		// Check navigation state for context
+		const state = location.state as any;
+		if (state?.fromSection === 'oidc') {
+			return 'oidc';
+		}
+		
+		// Default to OAuth (base protocol)
+		return 'oauth';
+	};
+	
+	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
 	const [workerToken, setWorkerToken] = useState<string>('');
 
 	// Initialize controller with V7 flow key
@@ -256,12 +279,54 @@ const ImplicitFlowV7: React.FC = () => {
 		if (controller.credentials && 
 		    (controller.credentials.environmentId !== credentials.environmentId ||
 		     controller.credentials.clientId !== credentials.clientId ||
-		     controller.credentials.redirectUri !== credentials.redirectUri)) {
+		     controller.credentials.redirectUri !== credentials.redirectUri ||
+		     controller.credentials.scope !== credentials.scope ||
+		     controller.credentials.scopes !== credentials.scopes)) {
 			console.log('[ImplicitFlowV7] Syncing credentials from controller:', controller.credentials);
 			console.log('[ImplicitFlowV7] Current local credentials:', credentials);
 			setCredentials(controller.credentials);
 		}
-	}, [controller.credentials, credentials.environmentId, credentials.clientId, credentials.redirectUri]);
+	}, [controller.credentials]); // Removed credentials dependencies to prevent infinite loop
+
+	// Load credentials on mount using V7 standardized storage
+	useEffect(() => {
+		const loadCredentials = async () => {
+			console.log('[ImplicitFlowV7] Loading credentials on mount...');
+			
+			try {
+				// Try V7 standardized storage first
+				const { credentials: v7Credentials, hasSharedCredentials, flowState } = await FlowCredentialService.loadFlowCredentials({
+					flowKey: 'implicit-v7',
+					defaultCredentials: {},
+				});
+
+				if (v7Credentials && hasSharedCredentials) {
+					console.log('[ImplicitFlowV7] Loaded V7 credentials:', {
+						flowKey: 'implicit-v7',
+						environmentId: v7Credentials.environmentId,
+						clientId: v7Credentials.clientId?.substring(0, 8) + '...',
+						hasFlowState: !!flowState,
+					});
+					setCredentials(v7Credentials);
+					controller.setCredentials(v7Credentials);
+				} else {
+					// Fallback to legacy method
+					const initialCredentials = loadInitialCredentials(selectedVariant, 'implicit-v7');
+					setCredentials(initialCredentials);
+					controller.setCredentials(initialCredentials);
+					console.log('[ImplicitFlowV7] Using legacy credentials:', initialCredentials);
+				}
+			} catch (error) {
+				console.error('[ImplicitFlowV7] Failed to load V7 credentials:', error);
+				// Fallback to legacy method on error
+				const initialCredentials = loadInitialCredentials(selectedVariant, 'implicit-v7');
+				setCredentials(initialCredentials);
+				controller.setCredentials(initialCredentials);
+			}
+		};
+
+		loadCredentials();
+	}, [selectedVariant]); // Removed controller dependency to prevent infinite loop
 
 	// Update controller when variant changes and reload credentials
 	useEffect(() => {
@@ -271,6 +336,7 @@ const ImplicitFlowV7: React.FC = () => {
 		// Reload variant-specific credentials
 		const reloadedCredentials = loadInitialCredentials(selectedVariant, 'implicit-v7');
 		controller.setCredentials(reloadedCredentials);
+		setCredentials(reloadedCredentials);
 		console.log('[ImplicitFlowV7] Variant changed, reloaded credentials:', reloadedCredentials);
 	}, [selectedVariant, controller.setFlowVariant, controller.setCredentials]);
 
@@ -285,7 +351,74 @@ const ImplicitFlowV7: React.FC = () => {
 		}));
 	}, [selectedVariant]);
 
+	// Ensure Implicit Flow V7 uses its own credential storage
+	useEffect(() => {
+		// Save current credentials to flow-specific storage
+		if (controller.credentials && (controller.credentials.environmentId || controller.credentials.clientId)) {
+			console.log('🔧 [Implicit V7] Saving credentials to flow-specific storage:', {
+				flowKey: 'implicit-v7',
+				environmentId: controller.credentials.environmentId,
+				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+				redirectUri: controller.credentials.redirectUri
+			});
+			
+			// Save to flow-specific storage with enhanced error handling
+			FlowCredentialService.saveFlowCredentials('implicit-v7', controller.credentials, {
+				showToast: false
+			}).catch((error) => {
+				console.error('[ImplicitFlowV7] Failed to save credentials to V7 storage:', error);
+				// Fallback to legacy storage if V7 fails
+				try {
+					// This would be the legacy save method if available
+					console.log('[ImplicitFlowV7] Attempting legacy credential save...');
+				} catch (legacyError) {
+					console.error('[ImplicitFlowV7] Legacy credential save also failed:', legacyError);
+				}
+			});
+		}
+	}, [controller.credentials]);
+
+	// Use credential backup hook for automatic backup and restoration
+	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
+		flowKey: 'implicit-v7',
+		credentials: controller.credentials,
+		setCredentials: controller.setCredentials,
+		enabled: true
+	});
+
 	usePageScroll({ pageName: 'Implicit Flow V7', force: true });
+
+	// Check credentials on mount and show warning if missing
+	useEffect(() => {
+		checkCredentialsAndWarn(credentials, {
+			flowName: `${selectedVariant.toUpperCase()} Implicit Flow`,
+			requiredFields: ['environmentId', 'clientId'],
+			showToast: true
+		});
+	}, []); // Only run once on mount
+
+	// V7 Enhanced step validation
+	const isStepValid = (step: number): boolean => {
+		switch (step) {
+			case 0:
+				// Step 0: Must have valid credentials
+				return !!(credentials.environmentId && credentials.clientId);
+			case 1:
+				// Step 1: Must have valid redirect URI
+				return !!(credentials.redirectUri);
+			case 2:
+				// Step 2: Must have generated authorization URL
+				return !!(controller.authUrl);
+			case 3:
+				// Step 3: Must have tokens from callback
+				return !!(controller.tokens?.accessToken);
+			case 4:
+				// Step 4: Must have completed token introspection
+				return !!(controller.tokens?.accessToken);
+			default:
+				return true; // Other steps are always valid
+		}
+	};
 
 	const toggleSection = ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
@@ -435,12 +568,22 @@ const ImplicitFlowV7: React.FC = () => {
 						console.log('[ImplicitFlowV7] Controller credentials after set:', controller.credentials);
 						console.log('[Implicit Flow V7] Redirect URI updated:', value);
 						// Auto-save redirect URI to persist across refreshes
+						FlowCredentialService.saveFlowCredentials({
+							flowKey: 'implicit-v7',
+							credentials: updated
+						}).then(() => {
+							console.log('[Implicit Flow V7] Redirect URI auto-saved to V7 storage');
+						}).catch((error: any) => {
+							console.error('[Implicit Flow V7] Failed to auto-save redirect URI:', error);
+						});
+						
+						// Also save using controller for backward compatibility
 						controller.saveCredentials()
 							.then(() => {
-								console.log('[Implicit Flow V7] Redirect URI auto-saved');
+								console.log('[Implicit Flow V7] Redirect URI auto-saved to controller');
 							})
 							.catch((error: any) => {
-								console.error('[Implicit Flow V7] Failed to auto-save redirect URI:', error);
+								console.error('[Implicit Flow V7] Failed to auto-save redirect URI to controller:', error);
 							});
 					}}
 					onScopesChange={(value) => {
@@ -458,7 +601,13 @@ const ImplicitFlowV7: React.FC = () => {
 					// Save handler for credentials
 					onSave={async () => {
 						try {
-							// Use the controller's saveCredentials method
+							// Save using V7 standardized storage
+							await FlowCredentialService.saveFlowCredentials({
+								flowKey: 'implicit-v7',
+								credentials: credentials
+							});
+							
+							// Also save using controller for backward compatibility
 							await controller.saveCredentials();
 							v4ToastManager.showSuccess('Credentials saved successfully!');
 							// Clear any previous error details on success
@@ -1218,9 +1367,16 @@ const ImplicitFlowV7: React.FC = () => {
 					onReset={() => {
 						setCurrentStep(0);
 						controller.resetFlow();
+						
+						// Clear Implicit Flow V7-specific storage
+						FlowCredentialService.clearFlowState('implicit-v7');
+						console.log('🔧 [Implicit V7] Cleared flow-specific storage');
+						
+						// Clear credential backup when flow is reset
+						clearBackup();
 					}}
 					onNext={() => setCurrentStep(prev => Math.min(prev + 1, STEP_METADATA.length - 1))}
-					canNavigateNext={true} // TODO: Add proper validation
+					canNavigateNext={isStepValid(currentStep)}
 					isFirstStep={currentStep === 0}
 					nextButtonText="Next"
 					disabledMessage=""

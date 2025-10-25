@@ -354,8 +354,10 @@ export class PingOneAppCreationService {
 
 			const payload = {
 				...updates,
+				protocol: 'OPENID_CONNECT', // Ensure protocol is always set
 				grantTypes: normalizeArray(updates.grantTypes),
 				responseTypes: normalizeArray(updates.responseTypes),
+				redirectUris: updates.redirectUris, // Keep redirectUris as-is (don't normalize to uppercase)
 				tokenEndpointAuthMethod: updates.tokenEndpointAuthMethod
 					? updates.tokenEndpointAuthMethod.toUpperCase()
 					: undefined,
