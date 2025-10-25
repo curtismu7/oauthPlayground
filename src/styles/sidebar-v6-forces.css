@@ -23,11 +23,31 @@ body .ps-sidebar .ps-menu-button:hover[style] {
 /* Active/Selected state - light green with border */
 body .ps-sidebar .ps-menu-button.ps-active,
 body .ps-sidebar .ps-menu-button.ps-active[style],
+body .ps-sidebar .ps-menu-button.ps-active[style*="background"],
 body .ps-sidebar .ps-menu-button.ps-active:hover,
 body .ps-sidebar .ps-menu-button.ps-active:hover[style] {
     background: #dcfce7 !important;
     color: #166534 !important;
     border-left: 3px solid #22c55e !important;
+    font-weight: 600 !important;
+    transform: translateX(3px) !important;
+}
+
+/* IMPLICIT FLOW ORANGE HIGHLIGHTING - Added Oct 25 2025 */
+.implicit-flow-menu-item,
+body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active,
+body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active[style],
+body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active[style*="background"],
+body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active:hover,
+body .ps-sidebar .ps-menu-button[data-menu-id="implicit-v7"].ps-active:hover[style],
+body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active,
+body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active[style],
+body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active[style*="background"],
+body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active:hover,
+body .ps-sidebar .ps-menu-button[data-menu-id="oidc-implicit-v7"].ps-active:hover[style] {
+    background: #fed7aa !important; /* Light orange background */
+    color: #9a3412 !important; /* Dark orange text */
+    border-left: 3px solid #f97316 !important; /* Orange border */
     font-weight: 600 !important;
     transform: translateX(3px) !important;
 }
@@ -105,4 +125,40 @@ html body .ps-sidebar .ps-menu-button.v6-flow.ps-active:hover {
     color: #15803d !important;
     border-right: 3px solid #22c55e !important;
     border-left: 3px solid #22c55e !important;
+}
+
+.ps-submenu-content {
+    background: #f9fafb !important;
+    border-left: 2px solid #e5e7eb;
+    margin-left: 10px;
+}
+
+.ps-open > .ps-submenu-content {
+    background: #f3f4f6 !important;
+}
+
+/* Style submenu headers with light blue background */
+.ps-submenu-root > .ps-menu-button {
+    background: linear-gradient(135deg, #bfdbfe 0%, #93c5fd 100%);
+    color: #1e40af;
+    font-weight: 600;
+    border-bottom: 1px solid #93c5fd;
+
+    &:hover {
+        background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+    }
+
+    svg {
+        color: #1e40af !important;
+    }
+}
+
+/* Chevron icon styling - dark blue arrows */
+.ps-submenu-expand-icon {
+    color: #1e40af !important;
+    transition: transform 0.2s ease;
+}
+
+.ps-open > .ps-menu-button .ps-submenu-expand-icon {
+    transform: rotate(180deg);
 }
