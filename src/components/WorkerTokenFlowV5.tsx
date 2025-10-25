@@ -622,6 +622,21 @@ const WorkerTokenFlowV5: React.FC<WorkerTokenFlowV5Props> = ({
 			controller.credentials.clientSecret
 	);
 
+	// Debug logging for credential validation
+	useEffect(() => {
+		console.log('🔍 [WorkerTokenFlowV5] Credential validation check:', {
+			environmentId: controller.credentials.environmentId ? '✅ Present' : '❌ Missing',
+			clientId: controller.credentials.clientId ? '✅ Present' : '❌ Missing', 
+			clientSecret: controller.credentials.clientSecret ? '✅ Present' : '❌ Missing',
+			canRequestToken,
+			actualValues: {
+				environmentId: controller.credentials.environmentId,
+				clientId: controller.credentials.clientId,
+				clientSecret: controller.credentials.clientSecret ? '[HIDDEN]' : undefined
+			}
+		});
+	}, [controller.credentials, canRequestToken]);
+
 	// Update step completion when step becomes valid
 	useEffect(() => {
 		const newCompletion = { ...stepCompletion };

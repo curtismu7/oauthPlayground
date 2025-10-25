@@ -346,16 +346,25 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				body: params.toString(),
 			});
 
-			console.log(`${LOG_PREFIX} [INFO] Token response status: ${response.status} ${response.statusText} ${response.status === 400 ? '(Expected for authorization_pending)' : ''}`);
+			// Only log non-400 responses as they're expected for authorization_pending
+			if (response.status !== 400) {
+				console.log(`${LOG_PREFIX} [INFO] Token response status: ${response.status} ${response.statusText}`);
+			}
 
 			const data = await response.json();
 			
-			// Log the full response for debugging
-			console.log(`${LOG_PREFIX} [INFO] Token response data:`, data);
+			// Only log response data for non-authorization_pending cases to reduce noise
+			if (data.error !== 'authorization_pending') {
+				console.log(`${LOG_PREFIX} [INFO] Token response data:`, data);
+			}
 
 			// Handle Device Authorization Flow specific responses
 			if (data.error === 'authorization_pending') {
-				console.log(`${LOG_PREFIX} [INFO] Authorization pending, will continue polling... (This is normal - user hasn't authorized yet)`);
+				// This is normal behavior - user hasn't authorized yet
+				// Only log every 10th attempt to reduce console noise
+				if (currentAttempt % 10 === 0) {
+					console.log(`${LOG_PREFIX} [INFO] Authorization pending (attempt ${currentAttempt}/${pollingStatus.maxAttempts}) - waiting for user authorization...`);
+				}
 				return false;
 			} else if (data.error === 'slow_down') {
 				console.log(`${LOG_PREFIX} [WARN] Slow down requested by server`);
@@ -520,6 +529,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			v4ToastManager.showError('Failed to poll for tokens - check console for details');
 			return true; // Stop polling
 		}
+		
+		// Default return for any unhandled cases
+		return false;
 	}, [deviceCodeData, credentials, pollingStatus.attempts, pollingStatus.maxAttempts]);
 
 	// Start polling for tokens

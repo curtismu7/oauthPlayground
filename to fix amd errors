@@ -1,2 +1,20 @@
 1) Need to ask what redirect URI and what Token auth they want to use
 2) If there is only 1 TOken auth allowed (liek implicit only does None) then do not ask. 
+
+
+
+Jwt Bearer flow, not using standard header like implicit
+JWT bearer needs to be upgraded to V7
+JWT Bearer needs to have defaults so the user does not have to type, like audience
+JWT Bearer Issuer I don't thik should be clientID
+JWT Bearer - Token Endpoint Configuration needs to be moved above "Worker Token Required for Config Checker" section
+
+------
+
+OIDC overview is not fitting on the screen, I thought we fixed this. Do we need to rewrite the page to better fit?
+RAR - is talking about SAML Bearer flow, focus on RAR: SAML Bearer Assertion Flow - Educational Mock
+This flow is a mock/educational implementation because PingOne does not support SAML Bearer assertions. However, this flow is widely used in enterprise OAuth servers and is valuable to understand for real-world OAuth implementations.
+
+Where it's used: Enterprise OAuth servers like Okta, Auth0, Azure AD, and Google Cloud support this flow for enterprise SSO scenarios.
+
+RAR - OIDC discovery is not filling in environment ID on compreshensivecredentials. 

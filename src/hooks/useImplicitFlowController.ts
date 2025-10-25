@@ -155,10 +155,13 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 	const urlScope = urlParams.get('scope');
 	const urlRedirect = urlParams.get('redirect');
 
+	// Load implicit flow credentials first
 	const primaryImplicitCredentials = credentialManager.loadImplicitFlowCredentials(variant);
 	const preservedImplicitRedirect = primaryImplicitCredentials.redirectUri ?? '';
 
 	let loaded = primaryImplicitCredentials;
+	
+	// If implicit credentials are incomplete, try config credentials
 	if (!loaded.environmentId || !loaded.clientId) {
 		const configCredentials = credentialManager.loadConfigCredentials();
 		loaded = {
@@ -166,13 +169,25 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 			// Preserve implicit redirect if it existed, otherwise use config redirect
 			redirectUri: preservedImplicitRedirect || configCredentials.redirectUri,
 		};
+		console.log('🔄 [useImplicitFlowController] Fallback to config credentials:', {
+			hasEnvId: !!loaded.environmentId,
+			hasClientId: !!loaded.clientId,
+			redirectUri: loaded.redirectUri
+		});
 	}
+	
+	// If still incomplete, try permanent credentials
 	if (!loaded.environmentId || !loaded.clientId) {
 		const permanentCredentials = credentialManager.loadPermanentCredentials();
 		loaded = {
 			...permanentCredentials,
 			redirectUri: preservedImplicitRedirect || permanentCredentials.redirectUri,
 		};
+		console.log('🔄 [useImplicitFlowController] Fallback to permanent credentials:', {
+			hasEnvId: !!loaded.environmentId,
+			hasClientId: !!loaded.clientId,
+			redirectUri: loaded.redirectUri
+		});
 	}
 
 	const mergedScopes =
@@ -634,6 +649,11 @@ export const useImplicitFlowController = (
 		setIsSavingCredentials(true);
 
 		try {
+			// Validate required fields before saving
+			if (!credentials.environmentId || !credentials.clientId) {
+				throw new Error('Environment ID and Client ID are required to save credentials');
+			}
+
 			const normalizedScopes = (() => {
 				if (typeof credentials.scopes === 'string' && credentials.scopes.trim()) {
 					return credentials.scopes.split(' ').filter(Boolean);
@@ -646,17 +666,30 @@ export const useImplicitFlowController = (
 				}
 				return ['openid'];
 			})();
+			
 			const credsToSave = {
 				...credentials,
 				scopes: normalizedScopes,
 				scope: credentials.scope || normalizedScopes.join(' '),
+				// Ensure all required fields are included
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				redirectUri: credentials.redirectUri,
+				responseType: credentials.responseType,
+				clientAuthMethod: credentials.clientAuthMethod || 'none',
 			};
-			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
-			await credentialManager.saveImplicitFlowCredentials(credsToSave as any, flowVariant);
 			
+			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
+			const saveResult = await credentialManager.saveImplicitFlowCredentials(credsToSave as any, flowVariant);
+			
+			if (!saveResult) {
+				throw new Error('Failed to save implicit flow credentials');
+			}
+			
+			// Also save to authz flow credentials for callback compatibility
 			const authzPayload: Partial<PermanentCredentials> = {
-				environmentId: credentials.environmentId || '',
-				clientId: credentials.clientId || '',
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
 				redirectUri: credentials.redirectUri,
 				scopes: normalizedScopes,
 			};
@@ -672,6 +705,10 @@ export const useImplicitFlowController = (
 			if (credentials.userInfoEndpoint) {
 				authzPayload.userInfoEndpoint = credentials.userInfoEndpoint;
 			}
+			if (credentials.tokenEndpointAuthMethod || credentials.authMethod?.value) {
+				authzPayload.tokenAuthMethod = credentials.tokenEndpointAuthMethod || credentials.authMethod?.value;
+			}
+			
 			credentialManager.saveAuthzFlowCredentials(authzPayload);
 			console.log('✅ [useImplicitFlowController] Credentials saved to authz flow storage for callback');
 			
@@ -685,6 +722,7 @@ export const useImplicitFlowController = (
 			// Dispatch events to notify dashboard and other components
 			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
 			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+			window.dispatchEvent(new CustomEvent('implicit-flow-credentials-changed'));
 			console.log('📢 [useImplicitFlowController] Configuration change events dispatched');
 
 			saveStepResult('save-credentials', {
@@ -698,7 +736,7 @@ export const useImplicitFlowController = (
 		} finally {
 			setIsSavingCredentials(false);
 		}
-	}, [credentials, saveStepResult]);
+	}, [credentials, saveStepResult, flowVariant]);
 
 	// Handle copy
 	const handleCopy = useCallback((text: string, label: string) => {
@@ -752,11 +790,28 @@ export const useImplicitFlowController = (
 		setCredentialsState(newCredentials);
 	}, []);
 
+	// Memoize the credentials object to prevent unnecessary re-renders
+	const memoizedCredentials = useMemo(() => credentials, [
+		credentials.environmentId,
+		credentials.clientId,
+		credentials.clientSecret,
+		credentials.redirectUri,
+		credentials.scope,
+		credentials.scopes,
+		credentials.responseType,
+		credentials.grantType,
+		credentials.clientAuthMethod,
+		credentials.loginHint,
+		credentials.authorizationEndpoint,
+		credentials.tokenEndpoint,
+		credentials.userInfoEndpoint,
+	]);
+
 	return useMemo(() => ({
 		flowVariant,
 		setFlowVariant,
 		persistKey,
-		credentials,
+		credentials: memoizedCredentials,
 		setCredentials,
 		setFlowConfig,
 		flowConfig,
@@ -792,7 +847,7 @@ export const useImplicitFlowController = (
 		flowVariant,
 		setFlowVariant,
 		persistKey,
-		credentials,
+		memoizedCredentials,
 		setCredentials,
 		setFlowConfig,
 		flowConfig,

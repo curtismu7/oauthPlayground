@@ -351,7 +351,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 		try {
 			const params = new URLSearchParams({
 				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri || 'https://localhost:3000/hybrid-callback',
+				redirect_uri: credentials.redirectUri || 'https://localhost:3002/hybrid-callback',
 				response_type: flowConfig.responseType,
 				scope: credentials.scope || 'openid profile email',
 				response_mode: flowConfig.responseMode,
@@ -381,7 +381,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 
 			// ✅ CRITICAL: Store the EXACT redirect_uri from the URL for token exchange
 			storeRedirectUriFromAuthUrl(url, flowKey);
-			const redirectUri = credentials.redirectUri || 'https://localhost:3000/hybrid-callback';
+			const redirectUri = credentials.redirectUri || 'https://localhost:3002/hybrid-callback';
 			auditRedirectUri('authorization', redirectUri, flowKey);
 
 			log.success('Authorization URL generated', {

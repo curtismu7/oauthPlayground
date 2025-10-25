@@ -42,6 +42,7 @@ export type FlowId =
   | 'par-v6'
   | 'rar-v6'
   | 'redirectless-v6'
+  | 'redirectless-v7'
   | 'oauth-hybrid-v6'
   | 'oidc-hybrid-v6';
 
@@ -878,6 +879,8 @@ export const FlowStorageService = {
       'pingone-par-flow-v6': 'par-v6',
       'rar-flow-v6': 'rar-v6',
       'redirectless-flow-v6': 'redirectless-v6',
+      'redirectless-flow-v7': 'redirectless-v7',
+      'redirectless-v7-real': 'redirectless-v7',
       'oauth-hybrid-v6': 'oauth-hybrid-v6',
       'oidc-hybrid-v6': 'oidc-hybrid-v6',
     };

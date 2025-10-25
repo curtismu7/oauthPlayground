@@ -19,7 +19,7 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
@@ -1613,50 +1613,26 @@ const OIDCDeviceAuthorizationFlowV6: React.FC = () => {
 						{deviceFlow.tokens && (
 							<>
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
-									<ResultsHeading>
-										<FiKey size={18} /> Access Token
-									</ResultsHeading>
-									<GeneratedContentBox>
-										{/* JWT Token Display with decoding capabilities */}
-										<JWTTokenDisplay
-											token={deviceFlow.tokens.access_token}
-											tokenType="access_token"
-											onCopy={(tokenValue, label) => handleCopy(tokenValue, label)}
-											copyLabel="Access Token"
-											showTokenType={true}
-											showExpiry={true}
-											{...(deviceFlow.tokens.expires_in && { expiresIn: Number(deviceFlow.tokens.expires_in) })}
-											{...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })}
-										/>
-
-										<ActionRow>
-											<Button onClick={navigateToTokenManagement} $variant="primary">
-												<FiExternalLink /> Open Token Management
-											</Button>
-										</ActionRow>
-									</GeneratedContentBox>
+									<UltimateTokenDisplay
+										tokens={{
+											access_token: deviceFlow.tokens.access_token,
+											...(deviceFlow.tokens.id_token && { id_token: deviceFlow.tokens.id_token }),
+											...(deviceFlow.tokens.expires_in && { expires_in: Number(deviceFlow.tokens.expires_in) }),
+											...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })
+										}}
+										flowType="oidc"
+										flowKey="device-authorization-v6"
+										displayMode="detailed"
+										title="OIDC Device Authorization Tokens"
+										subtitle="Tokens obtained via Device Authorization Grant flow"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										showMetadata={true}
+										defaultMasked={false}
+									/>
 								</ResultsSection>
-
-								{deviceFlow.tokens.id_token && (
-									<ResultsSection>
-										<ResultsHeading>
-											<FiShield size={18} /> ID Token
-										</ResultsHeading>
-										<GeneratedContentBox>
-											{/* JWT Token Display with decoding capabilities */}
-											<JWTTokenDisplay
-												token={deviceFlow.tokens.id_token}
-												tokenType="id_token"
-												onCopy={(tokenValue, label) => handleCopy(tokenValue, label)}
-												copyLabel="ID Token"
-												showTokenType={true}
-												showExpiry={true}
-												{...(deviceFlow.tokens.expires_in && { expiresIn: Number(deviceFlow.tokens.expires_in) })}
-												{...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })}
-											/>
-										</GeneratedContentBox>
-									</ResultsSection>
-								)}
 
 								{deviceFlow.tokens.refresh_token && (
 									<ResultsSection>

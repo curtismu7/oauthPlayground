@@ -522,6 +522,10 @@ const flowSequences: Record<FlowType, FlowSequence> = {
  * Normalize extended flow type identifiers to known FlowType keys
  */
 function normalizeFlowType(flowType: string): FlowType | null {
+    if (!flowType || typeof flowType !== 'string') {
+        return null;
+    }
+
     const normalizedMap: Record<string, FlowType> = {
         'oauth-authorization-code': 'authorization-code',
         'oidc-authorization-code': 'authorization-code',
