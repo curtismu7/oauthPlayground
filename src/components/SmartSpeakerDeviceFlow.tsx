@@ -2,7 +2,7 @@
 // Smart Speaker Style Device Authorization Flow Interface
 
 import React from 'react';
-import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiCheckCircle, FiAlertTriangle, FiVolume2, FiMusic, FiMic } from 'react-icons/fi';
+import { FiCopy, FiExternalLink, FiRefreshCw, FiXCircle, FiCheckCircle, FiAlertTriangle, FiVolume2, FiMusic, FiMic, FiPause } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';

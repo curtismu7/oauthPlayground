@@ -9,6 +9,7 @@ export interface PermanentCredentials {
 	clientId: string;
 	clientSecret?: string;
 	redirectUri: string;
+	postLogoutRedirectUri?: string;
 	scopes: string[];
 	authEndpoint?: string;
 	tokenEndpoint?: string;
@@ -1054,6 +1055,7 @@ class CredentialManager {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			redirectUri: credentials.redirectUri,
+			postLogoutRedirectUri: credentials.postLogoutRedirectUri,
 			scopes: credentials.scopes,
 			authEndpoint: credentials.authEndpoint,
 			tokenEndpoint: credentials.tokenEndpoint,

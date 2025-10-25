@@ -1775,6 +1775,7 @@ export class CodeExamplesService {
 	getExamplesForStep(flowType: string, stepId: string): FlowStepCodeExamples | null {
 		const flowSteps = FLOW_STEPS[flowType as keyof typeof FLOW_STEPS];
 		if (!flowSteps || !flowSteps[stepId as keyof typeof flowSteps]) {
+			console.warn(`[CodeExamplesService] No step found for flowType: ${flowType}, stepId: ${stepId}`);
 			return null;
 		}
 
@@ -1783,14 +1784,221 @@ export class CodeExamplesService {
 			name: string;
 			description: string;
 		};
-		let examples: CodeExample[] = [
-			...getJavaScriptExamples(this.config),
-			...getTypeScriptExamples(this.config),
-			...getGoExamples(this.config),
-			...getRubyExamples(this.config),
-			...getPythonExamples(this.config),
-			...getPingSDKExamples(this.config),
-		];
+
+		// Get step-specific examples based on flow type and step
+		let examples: CodeExample[] = [];
+
+		// Step-specific examples for authorization-code flow
+		if (flowType === 'authorization-code') {
+			switch (stepId) {
+				case 'step1':
+					examples = [
+						...getJavaScriptExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+						...getTypeScriptExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+						...getGoExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+						...getRubyExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+						...getPythonExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+						...getPingSDKExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+					];
+					break;
+				case 'step2':
+					examples = [
+						...getJavaScriptExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+						...getTypeScriptExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+						...getGoExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+						...getRubyExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+						...getPythonExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+						...getPingSDKExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+					];
+					break;
+				case 'step3':
+					examples = [
+						...getJavaScriptExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+						...getTypeScriptExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+						...getGoExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+						...getRubyExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+						...getPythonExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+						...getPingSDKExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+					];
+					break;
+				case 'step4':
+					// Step 4: Use Access Token - API calls with the token
+					examples = [
+						// JavaScript examples for API calls
+						{
+							language: 'javascript',
+							title: 'Make API Call with Access Token',
+							code: `// Use the access token to make authenticated API calls
+const accessToken = '${this.config.clientId}_access_token_12345';
+
+// Example: Get user profile
+async function getUserProfile() {
+  try {
+    const response = await fetch('${this.config.baseUrl}/${this.config.environmentId}/as/userinfo', {
+      method: 'GET',
+      headers: {
+        'Authorization': \`Bearer \${accessToken}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    const userInfo = await response.json();
+    console.log('User Info:', userInfo);
+    return userInfo;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+  }
+}
+
+// Example: Call protected resource
+async function callProtectedAPI() {
+  try {
+    const response = await fetch('https://api.example.com/protected-resource', {
+      method: 'GET',
+      headers: {
+        'Authorization': \`Bearer \${accessToken}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const data = await response.json();
+    console.log('Protected Resource Data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error calling protected API:', error);
+  }
+}
+
+// Call the functions
+getUserProfile();
+callProtectedAPI();`,
+							dependencies: [],
+						},
+						// TypeScript examples for API calls
+						{
+							language: 'typescript',
+							title: 'TypeScript API Call with Access Token',
+							code: `// TypeScript implementation for API calls with access token
+interface UserInfo {
+  sub: string;
+  name: string;
+  email: string;
+  email_verified: boolean;
+}
+
+interface ApiResponse<T> {
+  data: T;
+  status: number;
+  message?: string;
+}
+
+const accessToken: string = '${this.config.clientId}_access_token_12345';
+
+// Get user profile with proper typing
+async function getUserProfile(): Promise<UserInfo | null> {
+  try {
+    const response = await fetch('${this.config.baseUrl}/${this.config.environmentId}/as/userinfo', {
+      method: 'GET',
+      headers: {
+        'Authorization': \`Bearer \${accessToken}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(\`HTTP error! status: \${response.status}\`);
+    }
+    
+    const userInfo: UserInfo = await response.json();
+    console.log('User Info:', userInfo);
+    return userInfo;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+}
+
+// Call protected resource with error handling
+async function callProtectedAPI<T>(url: string): Promise<ApiResponse<T> | null> {
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Authorization': \`Bearer \${accessToken}\`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    const data: T = await response.json();
+    return {
+      data,
+      status: response.status,
+      message: response.ok ? 'Success' : 'Error'
+    };
+  } catch (error) {
+    console.error('Error calling protected API:', error);
+    return null;
+  }
+}
+
+// Usage
+getUserProfile();
+callProtectedAPI<any>('https://api.example.com/protected-resource');`,
+							dependencies: [],
+						},
+						// cURL example
+						{
+							language: 'javascript',
+							title: 'cURL Command for API Call',
+							code: `# Use the access token to make authenticated API calls
+
+# Get user information
+curl -X GET \\
+  "${this.config.baseUrl}/${this.config.environmentId}/as/userinfo" \\
+  -H "Authorization: Bearer ${this.config.clientId}_access_token_12345" \\
+  -H "Content-Type: application/json"
+
+# Call protected resource
+curl -X GET \\
+  "https://api.example.com/protected-resource" \\
+  -H "Authorization: Bearer ${this.config.clientId}_access_token_12345" \\
+  -H "Content-Type: application/json"
+
+# Example with additional headers
+curl -X POST \\
+  "https://api.example.com/data" \\
+  -H "Authorization: Bearer ${this.config.clientId}_access_token_12345" \\
+  -H "Content-Type: application/json" \\
+  -d '{"action": "getData", "scope": "read"}'`,
+							dependencies: [],
+						},
+					];
+					break;
+				default:
+					examples = [
+						...getJavaScriptExamples(this.config),
+						...getTypeScriptExamples(this.config),
+						...getGoExamples(this.config),
+						...getRubyExamples(this.config),
+						...getPythonExamples(this.config),
+						...getPingSDKExamples(this.config),
+					];
+			}
+		} else {
+			// For other flow types, return all examples
+			examples = [
+				...getJavaScriptExamples(this.config),
+				...getTypeScriptExamples(this.config),
+				...getGoExamples(this.config),
+				...getRubyExamples(this.config),
+				...getPythonExamples(this.config),
+				...getPingSDKExamples(this.config),
+			];
+		}
 
 		// Add flow-specific examples
 		if (flowType === 'rar') {
@@ -1799,6 +2007,7 @@ export class CodeExamplesService {
 			examples = [...examples, ...getPARExamples(this.config)];
 		}
 
+		console.log(`[CodeExamplesService] Found ${examples.length} examples for ${flowType}/${stepId}`);
 		return {
 			stepId: step.id,
 			stepName: step.name,
