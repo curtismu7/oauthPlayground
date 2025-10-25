@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import {
 	FiBook,
 	FiBookOpen,
@@ -26,11 +27,14 @@ import {
 	FiZap,
 	FiCheckCircle,
 	FiCode,
+	FiMove,
 } from 'react-icons/fi';
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import DragDropSidebar from './DragDropSidebar';
+import SidebarSearch from './SidebarSearch';
 
 // Colored icon wrapper component for sidebar menu
 const ColoredIcon = styled.span<{ $color?: string }>`
@@ -82,6 +86,8 @@ const SidebarContainer = styled.div<{ $isOpen: boolean; $width: number }>`
 	width: ${({ $width }) => $width}px;
 	transform: ${({ $isOpen }) => ($isOpen ? 'translateX(0)' : 'translateX(-100%)')};
 	transition: transform 0.3s ease;
+	background: #ffffff;
+	overflow: hidden;
 
 	@media (min-width: 768px) {
 		position: fixed;
@@ -95,6 +101,8 @@ const SidebarContainer = styled.div<{ $isOpen: boolean; $width: number }>`
 		overflow-y: auto;
 		scroll-behavior: smooth;
 		padding-bottom: 2rem; /* Add padding at bottom for better UX */
+		position: relative;
+		z-index: 1;
 	}
 
 	.ps-menu-button {
@@ -289,6 +297,51 @@ const SidebarHeader = styled.div`
 	font-size: 1.125rem;
 	font-weight: 600;
 	color: #111827;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+`;
+
+const DragHandle = styled.div`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0.25rem;
+	margin-right: 0.5rem;
+	cursor: grab;
+	color: #9ca3af;
+	transition: color 0.2s;
+	
+	&:hover {
+		color: #4b5563;
+	}
+	
+	&:active {
+		cursor: grabbing;
+	}
+`;
+
+const DragModeToggle = styled.button<{ $isActive?: boolean }>`
+	border: 1px solid #e5e7eb;
+	border-radius: 0.375rem;
+	padding: 0.375rem 0.75rem;
+	font-size: 0.75rem;
+	cursor: pointer;
+	transition: all 0.2s;
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	
+	/* Dynamic styling based on active state */
+	background: ${props => props.$isActive ? '#22c55e' : '#6b7280'};
+	color: ${props => props.$isActive ? 'white' : 'white'};
+	border-color: ${props => props.$isActive ? '#16a34a' : '#4b5563'};
+	
+	&:hover {
+		background: ${props => props.$isActive ? '#16a34a' : '#4b5563'};
+		transform: translateY(-1px);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
 `;
 
 const ResizeHandle = styled.div`
@@ -317,6 +370,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const [sidebarWidth, setSidebarWidth] = useState(450); // Increased to fit widest menu items with mock badges
 	const isResizing = useRef(false);
 	
+	// Search functionality
+	const [searchQuery, setSearchQuery] = useState('');
+	
 	// Force re-render timestamp for CSS updates
 	const renderTimestamp = Date.now();
 	
@@ -333,6 +389,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 	// Helper function to get V6 flow hover styles
 	const getV6FlowHoverStyles = () => ({
+		background: '#bbf7d0', // Light green hover
+		color: '#15803d', // Dark green text
+		transform: 'translateX(2px)',
+		boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)' // Green shadow
+	});
+
+	// Helper function to get V7 flow styles
+	const getV7FlowStyles = (isActive: boolean) => ({
+		background: '#dcfce7', // Light green for all V7 flows
+		color: '#166534', // Dark green text
+		borderLeft: '3px solid #22c55e',
+		borderRight: isActive ? '3px solid #22c55e' : undefined, // Green border for active
+		fontWeight: isActive ? '700' : '600',
+		transition: 'all 0.2s ease',
+		cursor: 'pointer'
+	});
+
+	// Helper function to get V7 flow hover styles
+	const getV7FlowHoverStyles = () => ({
 		background: '#bbf7d0', // Light green hover
 		color: '#15803d', // Dark green text
 		transform: 'translateX(2px)',
@@ -392,15 +467,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/implicit-v7': 'Implicit Flow V7',
 			'/flows/token-exchange-v7': 'Token Exchange V7',
 			'/flows/device-authorization-v7': 'Device Authorization V7',
-			'/oidc-overview': 'OIDC Overview',
-			'/auto-discover': 'Auto Discover',
-			'/flows/oidc-ciba-v6': 'OIDC CIBA Flow V6',
+			'/documentation/oidc-overview': 'OIDC Overview',
+			'/auto-discover': 'OIDC Discovery',
+			'/flows/ciba-v7': 'OIDC CIBA Flow V7',
+			'/flows/ciba-v6': 'OIDC CIBA Flow V6',
 			'/flows/client-credentials-v6': 'Client Credentials',
 			'/flows/client-credentials-v7': 'OAuth Client Credentials (V7)',
 			'/flows/oauth-ropc-v7': 'OAuth Resource Owner Password (V7)',
 			'/flows/device-authorization-v6': 'Device Authorization',
 			'/flows/oidc-device-authorization-v6': 'OIDC Device Authorization',
-			'/flows/worker-token-v6': 'Worker Token',
+			'/flows/worker-token-v6': 'Worker Token (V6)',
+			'/flows/worker-token-v7': 'Worker Token (V7)',
 			'/flows/jwt-bearer-token-v6': 'JWT Bearer Token',
 			'/flows/jwt-bearer-token-v7': 'JWT Bearer Token V7',
 			'/flows/saml-bearer-assertion-v7': 'SAML Bearer Assertion V7',
@@ -409,6 +486,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/redirectless-v6-real': 'Redirectless Flow V6',
 			'/flows/pingone-mfa-v6': 'PingOne MFA V6',
 			'/flows/rar-v6': 'Rich Authorization Request',
+			'/flows/rar-v7': 'RAR Flow V7',
 			'/flows/resource-owner-password-v6': 'Resource Owner Password',
 			'/flows/pingone-complete-mfa-v7': 'PingOne Complete MFA Flow V7',
 			'/pingone-authentication': 'PingOne Authentication',
@@ -417,8 +495,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return flowNames[path];
 	};
 
-	const handleNavigation = (path: string) => {
-		console.log('Navigating to:', path);
+	const handleNavigation = (path: string, state?: any) => {
+		console.log('Navigating to:', path, 'with state:', state);
 		
 		// Don't show toast if navigating to same page
 		if (location.pathname !== path) {
@@ -435,12 +513,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		}
 		
 		// Navigate immediately without scrolling the menu
-		navigate(path);
+		navigate(path, { state });
 		// Close sidebar after navigation
 		setTimeout(() => {
 			onClose();
 		}, 150);
 	};
+
+	// Handle search
+	const handleSearch = useCallback((query: string) => {
+		setSearchQuery(query);
+		// The DragDropSidebar will handle the actual search filtering
+	}, []);
 
 
 	const handleMouseDown = (e: React.MouseEvent) => {
@@ -464,6 +548,281 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 			return newState;
 		});
+	};
+	
+	// Define menu item structure for drag and drop
+	interface MenuItem {
+		id: string;
+		path: string;
+		label: string;
+		icon: React.ReactNode;
+		className?: string;
+		badge?: React.ReactNode;
+	}
+
+	interface MenuGroup {
+		id: string;
+		label: string;
+		icon: React.ReactNode;
+		items: MenuItem[];
+		isOpen: boolean;
+	}
+
+	// Initialize menu structure with drag and drop support
+	const [menuGroups, setMenuGroups] = useState<MenuGroup[]>(() => {
+		const savedOrder = localStorage.getItem('sidebar.menuOrder');
+		if (savedOrder) {
+			try {
+				return JSON.parse(savedOrder);
+			} catch (error) {
+				console.warn('Failed to parse saved menu order:', error);
+			}
+		}
+
+		// Default menu structure
+		return [
+			{
+				id: 'main',
+				label: 'Main',
+				icon: <ColoredIcon $color="#6366f1"><FiHome /></ColoredIcon>,
+				isOpen: openMenus['Main'] || false,
+				items: [
+					{
+						id: 'dashboard',
+						path: '/dashboard',
+						label: 'Dashboard',
+						icon: <ColoredIcon $color="#6366f1"><FiHome /></ColoredIcon>,
+					},
+					{
+						id: 'configuration',
+						path: '/configuration',
+						label: 'Setup & Configuration',
+						icon: <ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>,
+					},
+				],
+			},
+			{
+				id: 'oauth-flows',
+				label: 'OAuth 2.0 Flows',
+				icon: <ColoredIcon $color="#ef4444"><FiShield /></ColoredIcon>,
+				isOpen: openMenus['OAuth 2.0 Flows'] || false,
+				items: [
+					{
+						id: 'oauth-authorization-code-v7',
+						path: '/flows/oauth-authorization-code-v7',
+						label: 'Authorization Code (V7)',
+						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'implicit-v7',
+						path: '/flows/implicit-v7',
+						label: 'Implicit Flow (V7)',
+						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'device-authorization-v7',
+						path: '/flows/device-authorization-v7',
+						label: 'Device Authorization (V7)',
+						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'client-credentials-v7',
+						path: '/flows/client-credentials-v7',
+						label: 'OAuth Client Credentials (V7)',
+						icon: <ColoredIcon $color="#10b981"><FiKey /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Enhanced client credentials with comprehensive auth methods"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'oauth-ropc-v7',
+						path: '/flows/oauth-ropc-v7',
+						label: 'OAuth Resource Owner Password (V7)',
+						icon: <ColoredIcon $color="#8b5cf6"><FiLock /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Resource Owner Password Credentials with enhanced security"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'token-exchange-v7',
+						path: '/flows/token-exchange-v7',
+						label: 'Token Exchange (V7)',
+						icon: <ColoredIcon $color="#7c3aed"><FiRefreshCw /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: RFC 8693 Token Exchange for A2A scenarios"><FiCheckCircle /></MigrationBadge>,
+					},
+				],
+			},
+			{
+				id: 'oidc-flows',
+				label: 'OpenID Connect',
+				icon: <ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>,
+				isOpen: openMenus['OpenID Connect'] || false,
+				items: [
+					{
+						id: 'oidc-authorization-code-v7',
+						path: '/flows/oauth-authorization-code-v7',
+						label: 'Authorization Code (V7)',
+						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'oidc-implicit-v7',
+						path: '/flows/implicit-v7',
+						label: 'Implicit Flow (V7)',
+						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'oidc-device-authorization-v7',
+						path: '/flows/device-authorization-v7',
+						label: 'Device Authorization (V7)',
+						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'oidc-hybrid-v7',
+						path: '/flows/oidc-hybrid-v7',
+						label: 'Hybrid Flow (V7)',
+						icon: <ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC hybrid flow implementation"><FiCheckCircle /></MigrationBadge>,
+					},
+				],
+			},
+		];
+	});
+
+	// Handle drag and drop
+	const handleDragEnd = (result: DropResult) => {
+		const { destination, source, type } = result;
+
+		// If dropped outside a valid drop zone
+		if (!destination) {
+			return;
+		}
+
+		// If dropped in the same position
+		if (destination.droppableId === source.droppableId && destination.index === source.index) {
+			return;
+		}
+
+		if (type === 'group') {
+			// Reordering groups
+			const newGroups = Array.from(menuGroups);
+			const [reorderedGroup] = newGroups.splice(source.index, 1);
+			newGroups.splice(destination.index, 0, reorderedGroup);
+
+			setMenuGroups(newGroups);
+			localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
+			
+			v4ToastManager.showSuccess('Menu section reordered successfully!');
+		} else {
+			// Moving items between groups
+			const sourceGroupIndex = menuGroups.findIndex(group => group.id === source.droppableId);
+			const destGroupIndex = menuGroups.findIndex(group => group.id === destination.droppableId);
+
+			if (sourceGroupIndex === -1 || destGroupIndex === -1) {
+				return;
+			}
+
+			const newGroups = Array.from(menuGroups);
+			const sourceGroup = { ...newGroups[sourceGroupIndex] };
+			const destGroup = { ...newGroups[destGroupIndex] };
+
+			// Remove item from source group
+			const [movedItem] = sourceGroup.items.splice(source.index, 1);
+
+			// Add item to destination group
+			destGroup.items.splice(destination.index, 0, movedItem);
+
+			// Update the groups
+			newGroups[sourceGroupIndex] = sourceGroup;
+			newGroups[destGroupIndex] = destGroup;
+
+			setMenuGroups(newGroups);
+			localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
+
+			v4ToastManager.showSuccess(
+				`Moved "${movedItem.label}" to ${destGroup.label}`,
+				{},
+				{ duration: 3000 }
+			);
+		}
+	};
+
+	// Update group open state
+	const toggleMenuGroup = (groupId: string) => {
+		setMenuGroups(prevGroups => {
+			const newGroups = prevGroups.map(group => 
+				group.id === groupId 
+					? { ...group, isOpen: !group.isOpen }
+					: group
+			);
+
+			// Update the openMenus state for persistence
+			const newOpenState = newGroups.reduce((acc, group) => {
+				acc[group.label] = group.isOpen;
+				return acc;
+			}, {} as Record<string, boolean>);
+
+			setOpenMenus(newOpenState);
+			localStorage.setItem('nav.openSections', JSON.stringify(newOpenState));
+
+			return newGroups;
+		});
+	};
+
+	// Drag and drop mode toggle
+	const [isDragDropMode, setIsDragDropMode] = useState(() => {
+		const saved = localStorage.getItem('sidebar.dragDropMode');
+		return saved === 'true';
+	});
+
+	// Debug log for drag mode state
+	React.useEffect(() => {
+		console.log('🎯 Sidebar isDragDropMode state:', isDragDropMode);
+		console.log('🔍 localStorage value:', localStorage.getItem('sidebar.dragDropMode'));
+	}, [isDragDropMode]);
+
+	// Function to reset drag mode (for debugging)
+	const resetDragMode = () => {
+		console.log('🔄 Resetting drag mode');
+		localStorage.removeItem('sidebar.dragDropMode');
+		setIsDragDropMode(false);
+	};
+
+	const toggleDragDropMode = () => {
+		const newMode = !isDragDropMode;
+		console.log('🔄 Toggling drag mode from', isDragDropMode, 'to', newMode);
+		setIsDragDropMode(newMode);
+		localStorage.setItem('sidebar.dragDropMode', newMode.toString());
+		
+		if (newMode) {
+			v4ToastManager.showSuccess(
+				'Drag & Drop Mode Enabled',
+				{
+					description: 'You can now drag menu items between sections and reorder sections!'
+				},
+				{ duration: 3000 }
+			);
+		} else {
+			v4ToastManager.showSuccess(
+				'Standard View Mode',
+				{
+					description: 'Your customizations are preserved but drag handles are hidden.'
+				},
+				{ duration: 3000 }
+			);
+		}
+	};
+
+	// Show drag instructions
+	const showDragInstructions = () => {
+		v4ToastManager.showSuccess(
+			'Drag & Drop Menu Items',
+			{
+				description: 'Drag menu items between sections or reorder sections by dragging the section headers. Your layout will be saved automatically!'
+			},
+			{ duration: 4000 }
+		);
 	};
 
 	useEffect(() => {
@@ -494,875 +853,33 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			<ResizeHandle onMouseDown={handleMouseDown} />
 			<ProSidebar key={`sidebar-${renderTimestamp}`} width={`${sidebarWidth}px`}>
 				<SidebarHeader>
-					PingOne OAuth Playground
-					<CloseButton onClick={onClose}>
-						<FiX size={20} />
-					</CloseButton>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						PingOne OAuth Playground
+					</div>
+					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<DragModeToggle 
+							onClick={toggleDragDropMode}
+							title={isDragDropMode ? "Switch to standard menu" : "Enable drag & drop mode"}
+							$isActive={isDragDropMode}
+						>
+							<FiMove size={14} />
+							{isDragDropMode ? 'Drag Mode' : 'Enable Drag'}
+						</DragModeToggle>
+						<CloseButton onClick={onClose}>
+							<FiX size={20} />
+						</CloseButton>
+					</div>
 				</SidebarHeader>
 
-				<Menu
-					menuItemStyles={{
-						button: ({ active, className }) => {
-							const isV6 = className?.includes('v6-flow');
-							if (isV6) {
-								// Debug: Log V6 flow detection
-								console.log('🎯 [Sidebar] V6 Flow detected:', {
-									className,
-									active,
-									path: window.location.pathname
-								});
-								// V6 flows - minimal inline styles, let CSS handle the rest
-								return {
-									fontSize: '0.875rem',
-									padding: '10px 16px',
-									// Don't override background, color, or borders - let CSS handle it
-								};
-							}
-							// V5 flows - use inline styles for non-V6 flows
-							return {
-								backgroundColor: active ? '#dbeafe' : undefined,
-								color: active ? '#1e40af' : '#4b5563',
-								borderRight: active ? '3px solid #3b82f6' : undefined,
-								fontSize: '0.875rem',
-								padding: '10px 16px',
-								fontWeight: active ? '700' : '500',
-								transition: 'all 0.2s ease',
-								'&:hover': {
-									backgroundColor: '#f3f4f6',
-									transform: 'translateX(2px)',
-								},
-							};
-						},
-						subMenuContent: {
-							backgroundColor: '#f9fafb',
-						},
-						label: {
-							fontSize: '0.875rem',
-						},
-						icon: {
-							fontSize: '1rem',
-						},
-					}}
-				>
-					{/* Core Overview Section */}
-					<SubMenu
-						label="Core Overview"
-						icon={<ColoredIcon $color="#8b5cf6"><FiHome /></ColoredIcon>}
-						open={openMenus['Core Overview']}
-						onOpenChange={() => toggleMenu('Core Overview')}
-					>
-						<MenuItem
-							icon={<ColoredIcon $color="#8b5cf6"><FiHome /></ColoredIcon>}
-							active={isActive('/dashboard')}
-							onClick={() => handleNavigation('/dashboard')}
-						>
-							Dashboard
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>}
-							active={isActive('/configuration')}
-							onClick={() => handleNavigation('/configuration')}
-						>
-							Setup & Configuration
-						</MenuItem>
-					</SubMenu>
+				<SidebarSearch 
+					onSearch={handleSearch}
+					placeholder="Search flows and pages..."
+				/>
 
-					{/* OAuth 2.0 Flows - OAuth-only flows */}
-					<SubMenu
-						label="OAuth 2.0 Flows"
-						icon={<ColoredIcon $color="#ef4444"><FiShield /></ColoredIcon>}
-						open={openMenus['OAuth 2.0 Flows']}
-						onOpenChange={() => toggleMenu('OAuth 2.0 Flows')}
-					>
-					{/* Authorization Code (V7) - Unified OAuth/OIDC */}
-					<MenuItem
-						icon={<ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>}
-						active={isActive('/flows/oauth-authorization-code-v7')}
-						onClick={() => handleNavigation('/flows/oauth-authorization-code-v7')}
-						{...createV6MenuItemProps('/flows/oauth-authorization-code-v7')}
-					>
-						<MenuItemContent>
-							<span>Authorization Code (V7)</span>
-							<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-
-					{/* Implicit Flow (V7) - Unified OAuth/OIDC */}
-					<MenuItem
-						icon={<ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>}
-						active={isActive('/flows/implicit-v7')}
-						onClick={() => handleNavigation('/flows/implicit-v7')}
-						className="v6-flow"
-						style={getV6FlowStyles(isActive('/flows/implicit-v7'))}
-					>
-						<MenuItemContent>
-							<span>Implicit Flow (V7)</span>
-							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					{/* Device Authorization (V7) - Unified OAuth/OIDC */}
-					<MenuItem
-						icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
-						active={isActive('/flows/device-authorization-v7')}
-						onClick={() => handleNavigation('/flows/device-authorization-v7')}
-						className="v6-flow"
-						style={getV6FlowStyles(isActive('/flows/device-authorization-v7'))}
-					>
-						<MenuItemContent>
-							<span>Device Authorization (V7)</span>
-							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-
-					{/* V7 OAuth Flows */}
-					<MenuItem
-						icon={<ColoredIcon $color="#10b981"><FiKey /></ColoredIcon>}
-						active={isActive('/flows/client-credentials-v7')}
-						onClick={() => handleNavigation('/flows/client-credentials-v7')}
-					>
-						<MenuItemContent>
-							<span>OAuth Client Credentials (V7)</span>
-							<MigrationBadge 
-								title="V7: Enhanced OAuth Client Credentials with modern UI"
-								style={{
-									backgroundColor: '#10b981',
-									color: 'white',
-									border: 'none',
-									fontWeight: 'normal',
-								}}
-							>
-								V7
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					<MenuItem
-						icon={<ColoredIcon $color="#10b981"><FiLock /></ColoredIcon>}
-						active={isActive('/flows/oauth-ropc-v7')}
-						onClick={() => handleNavigation('/flows/oauth-ropc-v7')}
-					>
-						<MenuItemContent>
-							<span>OAuth Resource Owner Password (V7)</span>
-							<MigrationBadge 
-								title="V7: OAuth Resource Owner Password Credentials with enhanced UI"
-								style={{
-									backgroundColor: '#10b981',
-									color: 'white',
-									border: 'none',
-									fontWeight: 'normal',
-								}}
-							>
-								V7
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-					{/* Token Exchange (V7) - RFC 8693 OAuth Extension */}
-					<MenuItem
-						icon={<ColoredIcon $color="#7c3aed"><FiRefreshCw /></ColoredIcon>}
-						active={isActive('/flows/token-exchange-v7')}
-						onClick={() => handleNavigation('/flows/token-exchange-v7')}
-						className="v6-flow"
-						style={getV6FlowStyles(isActive('/flows/token-exchange-v7'))}
-					>
-						<MenuItemContent>
-							<span>Token Exchange (V7)</span>
-							<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-								<MigrationBadge title="V7: RFC 8693 Token Exchange for A2A Security">
-									<FiCheckCircle />
-								</MigrationBadge>
-								<span style={{ 
-									background: '#f59e0b', 
-									color: 'white', 
-									padding: '2px 6px', 
-									borderRadius: '4px', 
-									fontSize: '10px', 
-									fontWeight: 'bold' 
-								}}>
-									🎭 MOCK
-								</span>
-							</div>
-						</MenuItemContent>
-					</MenuItem>
-				</SubMenu>
-
-
-				{/* OpenID Connect */}
-				<SubMenu
-					label="OpenID Connect"
-					icon={<ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>}
-					open={openMenus['OpenID Connect']}
-					onOpenChange={() => toggleMenu('OpenID Connect')}
-				>
-						<MenuItem
-							icon={<ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>}
-							active={isActive('/flows/oauth-authorization-code-v7')}
-							onClick={() => handleNavigation('/flows/oauth-authorization-code-v7')}
-							{...createV6MenuItemProps('/flows/oauth-authorization-code-v7')}
-						>
-						<MenuItemContent>
-							<span>Authorization Code (V7)</span>
-							<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-
-						<MenuItem
-							icon={<ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>}
-							active={isActive('/flows/implicit-v7')}
-							onClick={() => handleNavigation('/flows/implicit-v7')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/implicit-v7'))}
-						>
-						<MenuItemContent>
-							<span>Implicit Flow (V7)</span>
-							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>}
-							active={isActive('/flows/oidc-hybrid-v7')}
-							onClick={() => handleNavigation('/flows/oidc-hybrid-v7')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/oidc-hybrid-v7'))}
-						>
-						<MenuItemContent>
-							<span>Hybrid Flow (V7)</span>
-							<MigrationBadge title="V7: Unified OAuth/OIDC hybrid flow implementation">
-								<FiCheckCircle />
-							</MigrationBadge>
-						</MenuItemContent>
-					</MenuItem>
-						{/* V3 Hybrid Flow - Hidden, use V5 instead */}
-						{/* <MenuItem
-							active={isActive('/flows/oidc-hybrid-v3')}
-							onClick={() => handleNavigation('/flows/oidc-hybrid-v3')}
-						>
-							Hybrid Flow (V3)
-						</MenuItem> */}
-
-						<MenuItem
-							icon={<ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>}
-							active={isActive('/flows/jwt-bearer-token-v7')}
-							onClick={() => handleNavigation('/flows/jwt-bearer-token-v7')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/jwt-bearer-token-v7'))}
-						>
-							<MenuItemContent>
-								<span>JWT Bearer Token (V7)</span>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-									<MigrationBadge title="V7: JWT Bearer with PingFederate/PingOne AIS examples">
-										<FiCheckCircle />
-									</MigrationBadge>
-									<span style={{ 
-										background: '#f59e0b', 
-										color: 'white', 
-										padding: '2px 6px', 
-										borderRadius: '4px', 
-										fontSize: '10px', 
-										fontWeight: 'bold' 
-									}}>
-										🎭 MOCK
-									</span>
-								</div>
-							</MenuItemContent>
-						</MenuItem>
-
-						{/* OIDC Documentation & Discovery */}
-						<MenuItem
-							icon={<ColoredIcon $color="#10b981"><FiBook /></ColoredIcon>}
-							active={isActive('/oidc-overview')}
-							onClick={() => handleNavigation('/oidc-overview')}
-						>
-							<MenuItemContent>
-								<span>OIDC Overview</span>
-								<MigrationBadge title="OpenID Connect specification overview and fundamentals">
-									<FiBook />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-
-						<MenuItem
-							icon={<ColoredIcon $color="#06b6d4"><FiSearch /></ColoredIcon>}
-							active={isActive('/auto-discover')}
-							onClick={() => handleNavigation('/auto-discover')}
-						>
-							<MenuItemContent>
-								<span>Auto Discover</span>
-								<MigrationBadge title="OIDC Discovery - Well-known configuration endpoint">
-									<FiSearch />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-
-						<MenuItem
-							icon={<ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>}
-							active={isActive('/flows/oidc-ciba-v6')}
-							onClick={() => handleNavigation('/flows/oidc-ciba-v6')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/oidc-ciba-v6'))}
-						>
-							<MenuItemContent>
-								<span>OIDC CIBA Flow (V6)</span>
-								<MigrationBadge title="V6: Client Initiated Backchannel Authentication">
-									<FiCheckCircle />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-					</SubMenu>
-
-					{/* PingOne */}
-					<SubMenu
-						label="PingOne"
-						icon={<ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>}
-						open={openMenus['PingOne']}
-						onOpenChange={() => toggleMenu('PingOne')}
-					>
-						<MenuItem
-							icon={<ColoredIcon $color="#fb923c"><FiKey /></ColoredIcon>}
-							active={isActive('/flows/worker-token-v6')}
-							onClick={() => handleNavigation('/flows/worker-token-v6')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/worker-token-v6'))}
-							onMouseEnter={(e) => Object.assign(e.currentTarget.style, getV6FlowHoverStyles(isActive('/flows/worker-token-v6')))}
-							onMouseLeave={(e) => Object.assign(e.currentTarget.style, getV6FlowStyles(isActive('/flows/worker-token-v6')))}
-						>
-							<span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-								Worker Token (V6)
-								<MigrationBadge>
-									<FiUsers size={12} />
-									V6: PingOne Worker App
-								</MigrationBadge>
-							</span>
-						</MenuItem>
-							<MenuItem
-								icon={<ColoredIcon $color="#ea580c"><FiLock /></ColoredIcon>}
-								active={isActive('/flows/pingone-par-v6') || isActive('/flows/pingone-par-v5')}
-								onClick={() => handleNavigation('/flows/pingone-par-v6')}
-								className="v6-flow"
-								style={getV6FlowStyles(isActive('/flows/pingone-par-v6') || isActive('/flows/pingone-par-v5'))}
-							>
-							<MenuItemContent>
-								<span>PAR (V6)</span>
-								<MigrationBadge title="V6: Service Architecture + PAR Education">
-									<FiCheckCircle />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-							<MenuItem
-								icon={<ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>}
-								active={isActive('/flows/redirectless-v6-real') || isActive('/flows/redirectless-flow-v5') || isActive('/flows/redirectless-v6')}
-								onClick={() => handleNavigation('/flows/redirectless-v6-real')}
-								className="v6-flow"
-								style={getV6FlowStyles(isActive('/flows/redirectless-v6-real') || isActive('/flows/redirectless-flow-v5') || isActive('/flows/redirectless-v6'))}
-							>
-							<MenuItemContent>
-								<span>Redirectless Flow V6</span>
-								<MigrationBadge title="V6: Service Architecture + pi.flow Education">
-									<FiCheckCircle />
-								</MigrationBadge>
-							</MenuItemContent>
-							</MenuItem>
-
-						<MenuItem
-							icon={<ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>}
-							active={isActive('/flows/pingone-mfa-v6')}
-							onClick={() => handleNavigation('/flows/pingone-mfa-v6')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/pingone-mfa-v6'))}
-						>
-							<MenuItemContent>
-								<span>PingOne MFA (V6)</span>
-								<MigrationBadge title="V6: Modern MFA flow with enhanced UX and comprehensive educational content">
-									<FiCheckCircle />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#f59e0b"><FiBookOpen /></ColoredIcon>}
-							active={isActive('/pingone-mock-features')}
-							onClick={() => handleNavigation('/pingone-mock-features')}
-						>
-							<MenuItemContent>
-								<span>Mock & Educational Features</span>
-								<span style={{ 
-									background: '#f59e0b', 
-									color: 'white', 
-									padding: '2px 6px', 
-									borderRadius: '4px', 
-									fontSize: '10px', 
-									fontWeight: 'bold' 
-								}}>
-									🎭 MOCK
-								</span>
-							</MenuItemContent>
-						</MenuItem>
-
-						{/* V7 PingOne Flows */}
-						<MenuItem
-							icon={<ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>}
-							active={isActive('/flows/pingone-complete-mfa-v7')}
-							onClick={() => handleNavigation('/flows/pingone-complete-mfa-v7')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/pingone-complete-mfa-v7'))}
-						>
-							<MenuItemContent>
-								<span>PingOne Complete MFA Flow (V7)</span>
-								<MigrationBadge title="V7: Complete MFA authentication flow with V6 architecture, comprehensive device management, security monitoring, and accessibility features">
-									<FiCheckCircle />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-
-						<MenuItem
-							icon={<ColoredIcon $color="#f59e0b"><FiUser /></ColoredIcon>}
-							active={isActive('/pingone-authentication')}
-							onClick={() => handleNavigation('/pingone-authentication')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/pingone-authentication'))}
-						>
-							<MenuItemContent>
-								<span>PingOne Authentication</span>
-								<MigrationBadge title="V7: Dedicated authentication page with inline and popup modes">
-									<FiCheckCircle />
-								</MigrationBadge>
-							</MenuItemContent>
-						</MenuItem>
-
-						{/* Enterprise SAML Flow */}
-						<MenuItem
-							icon={<ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>}
-							active={isActive('/flows/saml-bearer-assertion-v7')}
-							onClick={() => handleNavigation('/flows/saml-bearer-assertion-v7')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/saml-bearer-assertion-v7'))}
-						>
-							<MenuItemContent>
-								<span>SAML Bearer Assertion (V7)</span>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-									<MigrationBadge title="V7: SAML Bearer with PingFederate/PingOne AIS examples">
-										<FiCheckCircle />
-									</MigrationBadge>
-									<span style={{ 
-										background: '#f59e0b', 
-										color: 'white', 
-										padding: '2px 6px', 
-										borderRadius: '4px', 
-										fontSize: '10px', 
-										fontWeight: 'bold' 
-									}}>
-										🎭 MOCK
-									</span>
-								</div>
-							</MenuItemContent>
-						</MenuItem>
-					</SubMenu>
-
-					{/* Mock & Demo Flows */}
-					<SubMenu
-						label="Mock & Demo Flows"
-						icon={<ColoredIcon $color="#a78bfa"><FiEye /></ColoredIcon>}
-						open={openMenus['Mock & Demo Flows']}
-						onOpenChange={() => toggleMenu('Mock & Demo Flows')}
-					>
-						<MenuItem
-							icon={<ColoredIcon $color="#3b82f6"><FiSettings /></ColoredIcon>}
-							active={isActive('/flows/advanced-oauth-params-demo')}
-							onClick={() => handleNavigation('/flows/advanced-oauth-params-demo')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/advanced-oauth-params-demo'))}
-						>
-							<MenuItemContent>
-								<span>Advanced OAuth Parameters Demo</span>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-									<MigrationBadge title="Demonstrates all OAuth/OIDC advanced parameters with mock responses">
-										<FiBookOpen />
-									</MigrationBadge>
-									<span style={{ 
-										background: '#f59e0b', 
-										color: 'white', 
-										padding: '2px 6px', 
-										borderRadius: '4px', 
-										fontSize: '10px', 
-										fontWeight: 'bold' 
-									}}>
-										🎭 MOCK
-									</span>
-								</div>
-							</MenuItemContent>
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#dc2626"><FiKey /></ColoredIcon>}
-							active={isActive('/flows/oauth2-resource-owner-password-v6')}
-							onClick={() => handleNavigation('/flows/oauth2-resource-owner-password-v6')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/oauth2-resource-owner-password-v6'))}
-						>
-							<MenuItemContent>
-								<span>ROPC (Mock) (V6)</span>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-									<MigrationBadge title="V6: Hybrid implementation - V5 controller with V6 layout and styling">
-										<FiCheckCircle />
-									</MigrationBadge>
-									<span style={{ 
-										background: '#f59e0b', 
-										color: 'white', 
-										padding: '2px 6px', 
-										borderRadius: '4px', 
-										fontSize: '10px', 
-										fontWeight: 'bold' 
-									}}>
-										🎭 MOCK
-									</span>
-								</div>
-							</MenuItemContent>
-						</MenuItem>
-						<MenuItem
-							icon={<ColoredIcon $color="#fbbf24"><FiSmartphone /></ColoredIcon>}
-							active={isActive('/flows/ciba-v6')}
-							onClick={() => handleNavigation('/flows/ciba-v6')}
-							className="v6-flow"
-							style={getV6FlowStyles(isActive('/flows/ciba-v6'))}
-						>
-							<MenuItemContent>
-								<span>CIBA Flow (Mock) (V6)</span>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-									<MigrationBadge title="V6: Educational CIBA implementation - PingOne does not support CIBA">
-										<FiBookOpen />
-									</MigrationBadge>
-									<span style={{ 
-										background: '#f59e0b', 
-										color: 'white', 
-										padding: '2px 6px', 
-										borderRadius: '4px', 
-										fontSize: '10px', 
-										fontWeight: 'bold' 
-									}}>
-										🎭 MOCK
-									</span>
-								</div>
-							</MenuItemContent>
-						</MenuItem>
-							<MenuItem
-								icon={<FiEye />}
-								active={isActive('/flows/rar-v6') || isActive('/flows/rar-v5')}
-								onClick={() => handleNavigation('/flows/rar-v6')}
-								className="v6-flow"
-								style={getV6FlowStyles(isActive('/flows/rar-v6') || isActive('/flows/rar-v5'))}
-							>
-							<MenuItemContent>
-								<span>RAR (V6)</span>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-									<MigrationBadge title="V6: Service Architecture + RAR Education">
-										<FiCheckCircle />
-									</MigrationBadge>
-									<span style={{ 
-										background: '#f59e0b', 
-										color: 'white', 
-										padding: '2px 6px', 
-										borderRadius: '4px', 
-										fontSize: '10px', 
-										fontWeight: 'bold' 
-									}}>
-										🎭 MOCK
-									</span>
-								</div>
-							</MenuItemContent>
-						</MenuItem>
-						<MenuItem
-							icon={<FiEye />}
-							active={isActive('/code-examples-demo')}
-							onClick={() => handleNavigation('/code-examples-demo')}
-						>
-							Code Examples
-						</MenuItem>
-						<MenuItem
-							icon={<FiSmartphone />}
-							active={isActive('/flows/redirectless-flow-mock')}
-							onClick={() => handleNavigation('/flows/redirectless-flow-mock')}
-						>
-							<MenuItemContent>
-								<span>Redirectless Flow V5 (Educational)</span>
-								<span style={{ 
-									background: '#f59e0b', 
-									color: 'white', 
-									padding: '2px 6px', 
-									borderRadius: '4px', 
-									fontSize: '10px', 
-									fontWeight: 'bold' 
-								}}>
-									🎭 MOCK
-								</span>
-							</MenuItemContent>
-						</MenuItem>
-					</SubMenu>
-
-					{/* Artificial Intelligence */}
-					<SubMenu
-						label="Artificial Intelligence"
-						icon={<ColoredIcon $color="#06b6d4"><FiCpu /></ColoredIcon>}
-						open={openMenus['Artificial Intelligence']}
-						onOpenChange={() => toggleMenu('Artificial Intelligence')}
-					>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/ai-glossary')}
-							onClick={() => handleNavigation('/ai-glossary')}
-						>
-							AI Glossary
-						</MenuItem>
-						<MenuItem
-							icon={<FiGitBranch />}
-							active={isActive('/emerging-ai-standards')}
-							onClick={() => handleNavigation('/emerging-ai-standards')}
-						>
-							Emerging AI Standards
-						</MenuItem>
-						<MenuItem
-							icon={<FiCpu />}
-							active={isActive('/ai-agent-overview')}
-							onClick={() => handleNavigation('/ai-agent-overview')}
-						>
-							AI Agent Overview for PingOne
-						</MenuItem>
-						<MenuItem
-							icon={<FiShield />}
-							active={isActive('/competitive-analysis')}
-							onClick={() => handleNavigation('/competitive-analysis')}
-						>
-							Competitive Analysis
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/comprehensive-oauth-education')}
-							onClick={() => handleNavigation('/comprehensive-oauth-education')}
-						>
-							Comprehensive OAuth AI Education
-						</MenuItem>
-						<MenuItem
-							icon={<FiFileText />}
-							active={isActive('/docs/oidc-for-ai')}
-							onClick={() => handleNavigation('/docs/oidc-for-ai')}
-						>
-							OIDC for AI
-						</MenuItem>
-						<MenuItem
-							icon={<FiCpu />}
-							active={isActive('/docs/ping-view-on-ai')}
-							onClick={() => handleNavigation('/docs/ping-view-on-ai')}
-						>
-							Ping View on AI
-						</MenuItem>
-						<MenuItem
-							icon={<FiShield />}
-							active={isActive('/docs/oauth2-security-best-practices')}
-							onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
-						>
-							OAuth 2.0 Security Best Practices
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/oauth-oidc-training')}
-							onClick={() => handleNavigation('/oauth-oidc-training')}
-						>
-							OAuth/OIDC Training
-						</MenuItem>
-						<MenuItem
-							icon={<FiBookOpen />}
-							active={isActive('/tutorials')}
-							onClick={() => handleNavigation('/tutorials')}
-						>
-							Interactive Tutorials
-						</MenuItem>
-						<MenuItem
-							icon={<FiExternalLink />}
-							onClick={() => {
-								window.open('https://docs.google.com/presentation/d/1xiLl0VdrlNMAei8pmaX4ojIOfej6lhvZbOIK7Z6C-Go/edit?usp=sharing', '_blank');
-								onClose();
-							}}
-						>
-							State of AI Report - 2025 ONLINE
-						</MenuItem>
-					</SubMenu>
-					<SubMenu
-						label="Security & Management"
-						icon={<ColoredIcon $color="#dc2626"><FiShield /></ColoredIcon>}
-						open={openMenus['Security & Management']}
-						onOpenChange={() => toggleMenu('Security & Management')}
-					>
-						<MenuItem
-							icon={<FiShield />}
-							active={isActive('/oauth-2-1')}
-							onClick={() => handleNavigation('/oauth-2-1')}
-						>
-							OAuth 2.1
-						</MenuItem>
-						<MenuItem
-							icon={<FiDatabase />}
-							active={isActive('/token-management')}
-							onClick={() => handleNavigation('/token-management')}
-						>
-							Token Management
-						</MenuItem>
-						<MenuItem
-							icon={<FiClock />}
-							active={isActive('/oidc-session-management')}
-							onClick={() => handleNavigation('/oidc-session-management')}
-						>
-							Session Management
-						</MenuItem>
-						<MenuItem
-							icon={<FiSearch />}
-							active={isActive('/auto-discover')}
-							onClick={() => handleNavigation('/auto-discover')}
-						>
-							OIDC Discovery
-						</MenuItem>
-					</SubMenu>
-
-					{/* Tools & Utilities Section */}
-					<SubMenu
-						label="Tools & Utilities"
-						icon={<ColoredIcon $color="#8b5cf6"><FiTool /></ColoredIcon>}
-						open={openMenus['Tools & Utilities']}
-						onOpenChange={() => toggleMenu('Tools & Utilities')}
-					>
-						<MenuItem
-							icon={<FiGitBranch />}
-							active={isActive('/flows/compare')}
-							onClick={() => handleNavigation('/flows/compare')}
-						>
-							Flow Comparison
-						</MenuItem>
-						<MenuItem
-							icon={<FiLayers />}
-							active={isActive('/flows/diagrams')}
-							onClick={() => handleNavigation('/flows/diagrams')}
-						>
-							Interactive Diagrams
-						</MenuItem>
-						<MenuItem
-							icon={<FiSettings />}
-							active={isActive('/advanced-config')}
-							onClick={() => handleNavigation('/advanced-config')}
-						>
-							Advanced Configuration
-						</MenuItem>
-					</SubMenu>
-
-					{/* Documentation */}
-					<SubMenu
-						label="Documentation"
-						icon={<ColoredIcon $color="#3b82f6"><FiFileText /></ColoredIcon>}
-						open={openMenus['Documentation']}
-						onOpenChange={() => toggleMenu('Documentation')}
-					>
-						<MenuItem
-							icon={<FiFileText />}
-							active={isActive('/documentation')}
-							onClick={() => handleNavigation('/documentation')}
-						>
-							Local Documentation
-						</MenuItem>
-						<MenuItem
-							icon={<FiFileText />}
-							active={isActive('/docs/oidc-specs')}
-							onClick={() => handleNavigation('/docs/oidc-specs')}
-						>
-							OIDC Specs
-						</MenuItem>
-						<MenuItem
-							icon={<FiFileText />}
-							active={isActive('/docs/oidc-for-ai')}
-							onClick={() => handleNavigation('/docs/oidc-for-ai')}
-						>
-							OIDC for AI
-						</MenuItem>
-						<MenuItem
-							icon={<FiShield />}
-							active={isActive('/docs/oauth2-security-best-practices')}
-							onClick={() => handleNavigation('/docs/oauth2-security-best-practices')}
-						>
-							OAuth 2.0 Security Best Practices
-						</MenuItem>
-						<MenuItem
-							icon={<FiExternalLink />}
-							onClick={() => {
-								window.open(
-									'https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2',
-									'_blank'
-								);
-								onClose();
-							}}
-						>
-							PingOne API Docs
-						</MenuItem>
-						<MenuItem
-							icon={<FiExternalLink />}
-							onClick={() => {
-								window.open('https://docs.pingidentity.com/sdks/latest/sdks/index.html', '_blank');
-								onClose();
-							}}
-						>
-							PingOne SDKs
-						</MenuItem>
-					</SubMenu>
-
-{/* Developers */}
-<SubMenu
-label="Developers"
-icon={<ColoredIcon $color="#06b6d4"><FiCode /></ColoredIcon>}
-open={openMenus['Developers']}
-onOpenChange={() => toggleMenu('Developers')}
->
-<MenuItem
-icon={<FiPackage />}
-onClick={() => {
-window.open('https://apidocs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2', '_blank');
-onClose();
-}}
->
-PingOne API Docs
-</MenuItem>
-<MenuItem
-icon={<FiExternalLink />}
-onClick={() => {
-window.open('https://docs.pingidentity.com/sdks/latest/sdks/index.html', '_blank');
-onClose();
-}}
->
-PingOne SDKs
-</MenuItem>
-<MenuItem
-icon={<FiExternalLink />}
-onClick={() => {
-window.open('https://developer.pingidentity.com/ai/', '_blank');
-onClose();
-}}
->
-Ping Identity AI for Developers
-</MenuItem>
-<MenuItem
-icon={<FiEye />}
-active={isActive('/code-examples-demo')}
-onClick={() => handleNavigation('/code-examples-demo')}
->
-Code Examples
-</MenuItem>
-</SubMenu>
-				</Menu>
+				<DragDropSidebar 
+					dragMode={isDragDropMode} 
+					searchQuery={searchQuery}
+				/>
 			</ProSidebar>
 		</SidebarContainer>
 	);

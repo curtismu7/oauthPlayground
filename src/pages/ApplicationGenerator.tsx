@@ -533,6 +533,17 @@ const ApplicationGenerator: React.FC = () => {
 
   const [currentStep, setCurrentStep] = useState(1); // Always start on step 1
 
+  // Clear all tokens and reset to step 1 on component mount
+  useEffect(() => {
+    console.log('🧹 [App Generator] Clearing all tokens and resetting to step 1');
+    clearAllTokens();
+    setCurrentStep(1);
+    setCreationResult(null);
+    setCreationErrorDetails(null);
+    setIsSavedIndicator(false);
+    setValidationErrors(new Set());
+  }, []); // Empty dependency array ensures this runs only on mount
+
   // Save currentStep to localStorage
   useEffect(() => {
     try {
