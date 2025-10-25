@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { FiBook, FiSettings, FiZap, FiTarget, FiChevronDown, FiCheckCircle, FiInfo, FiShield } from 'react-icons/fi';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -147,15 +148,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	}
 `;
 
-const TokenDisplay = styled.div`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	font-family: 'Monaco', 'Menlo', monospace;
-	font-size: 0.875rem;
-	margin: 1rem 0;
-`;
+
 
 const OAuthAuthorizationCodeFlowV7_Condensed_Mock = () => {
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>('oauth');
@@ -374,21 +367,25 @@ const OAuthAuthorizationCodeFlowV7_Condensed_Mock = () => {
 				<SectionContent $show={expandedSections.results}>
 					{hasTokens ? (
 						<>
-							<h4>🎉 Tokens Received</h4>
-							<TokenDisplay>
-								{selectedVariant === 'oidc' ? (
-									<>
-										<div><strong>Access Token:</strong> eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</div>
-										<div><strong>ID Token:</strong> eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</div>
-										<div><strong>Refresh Token:</strong> rt_abc123def456...</div>
-									</>
-								) : (
-									<>
-										<div><strong>Access Token:</strong> eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...</div>
-										<div><strong>Refresh Token:</strong> rt_abc123def456...</div>
-									</>
-								)}
-							</TokenDisplay>
+							<UltimateTokenDisplay
+								tokens={{
+									access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRlZmF1bHQifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJleHAiOjE1MTYyNDI2MjIsImF1ZCI6InRlc3QtYXVkaWVuY2UiLCJpc3MiOiJodHRwczovL2F1dGgucGluZ29uZS5jb20ifQ.mock_signature_for_demo_purposes_only',
+									...(selectedVariant === 'oidc' && {
+										id_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImRlZmF1bHQifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSIsImlhdCI6MTUxNjIzOTAyMiwiZXhwIjoxNTE2MjQyNjIyLCJhdWQiOiJ0ZXN0LWF1ZGllbmNlIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnBpbmdvbmUuY29tIn0.mock_id_token_signature'
+									}),
+									refresh_token: 'rt_abc123def456ghi789jkl012mno345pqr678stu901vwx234yz'
+								}}
+								flowType={selectedVariant === 'oidc' ? 'oidc' : 'oauth'}
+								flowKey="condensed-mock-v7"
+								displayMode="compact"
+								title={selectedVariant === 'oidc' ? '🎉 OpenID Connect Tokens' : '🎉 OAuth 2.0 Tokens'}
+								subtitle={selectedVariant === 'oidc' ? 'ID token, access token, and refresh token from Authorization Code flow' : 'Access token and refresh token from Authorization Code flow'}
+								showCopyButtons={true}
+								showDecodeButtons={true}
+								showMaskToggle={true}
+								showTokenManagement={false}
+								defaultMasked={false}
+							/>
 
 							<QuickInfoGrid>
 								<InfoCard $variant="success">

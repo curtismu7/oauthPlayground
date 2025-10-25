@@ -73,6 +73,142 @@ const HighlightBadge = styled.span`
 	margin-left: 0.5rem;
 `;
 
+// Custom Login Form Styled Components
+const LoginFormOverlay = styled.div`
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 1000;
+`;
+
+const LoginFormModal = styled.div`
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	width: 90%;
+	max-width: 400px;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+`;
+
+const LoginFormTitle = styled.h3`
+	margin: 0 0 1.5rem 0;
+	color: #1f2937;
+	text-align: center;
+	font-size: 1.5rem;
+	font-weight: 600;
+`;
+
+const LoginFormField = styled.div`
+	margin-bottom: 1rem;
+`;
+
+const LoginFormLabel = styled.label`
+	display: block;
+	margin-bottom: 0.5rem;
+	color: #374151;
+	font-weight: 500;
+	font-size: 0.875rem;
+`;
+
+const LoginFormInput = styled.input`
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	transition: border-color 0.2s ease;
+	
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+`;
+
+const LoginFormButtons = styled.div`
+	display: flex;
+	gap: 0.75rem;
+	margin-top: 1.5rem;
+`;
+
+const LoginFormButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+	flex: 1;
+	padding: 0.75rem 1rem;
+	border: none;
+	border-radius: 0.5rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
+	
+	${props => props.$variant === 'primary' ? `
+		background: #3b82f6;
+		color: white;
+		
+		&:hover:not(:disabled) {
+			background: #2563eb;
+		}
+	` : `
+		background: #f3f4f6;
+		color: #374151;
+		
+		&:hover:not(:disabled) {
+			background: #e5e7eb;
+		}
+	`}
+	
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+`;
+
+const SignInButton = styled.button`
+	background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+	color: white;
+	border: none;
+	padding: 1rem 2rem;
+	border-radius: 0.75rem;
+	font-size: 1.1rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin: 1.5rem auto;
+	box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+	
+	&:hover:not(:disabled) {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+	}
+	
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		transform: none;
+	}
+	
+	.animate-spin {
+		animation: spin 1s linear infinite;
+	}
+	
+	@keyframes spin {
+		from { transform: rotate(0deg); }
+		to { transform: rotate(360deg); }
+	}
+`;
+
 // V5Stepper components - using NavigationButton for consistent V7 styling
 const { NavigationButton } = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
 
@@ -110,6 +246,14 @@ const RedirectlessFlowV7Real: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [tokens, setTokens] = useState<any>(null);
+    
+    // Custom login form state
+    const [showLoginForm, setShowLoginForm] = useState(false);
+    const [loginCredentials, setLoginCredentials] = useState({
+        username: 'demo.user@example.com',
+        password: 'P@ssw0rd123'
+    });
+    const [isAuthenticating, setIsAuthenticating] = useState(false);
 
     // Scroll to top on step change
     useEffect(() => {
@@ -232,14 +376,24 @@ const RedirectlessFlowV7Real: React.FC = () => {
         AuthorizationCodeSharedService.Authorization.generateAuthUrl('oidc', controller.credentials, controller);
     }, [controller]);
 
-    // V7 Enhanced Redirectless Authentication and Token Exchange
-    const handleRedirectlessTokenExchange = useCallback(async () => {
+    // Show custom login form
+    const handleShowLoginForm = useCallback(() => {
         if (!controller.credentials.clientId || !controller.credentials.environmentId) {
             v4ToastManager.showError('Complete above actions: Ensure credentials are set.');
             return;
         }
+        
+        if (!controller.pkceCodes.codeVerifier) {
+            v4ToastManager.showError('Generate PKCE codes first.');
+            return;
+        }
+        
+        setShowLoginForm(true);
+    }, [controller.credentials, controller.pkceCodes]);
 
-        setIsLoading(true);
+    // V7 Enhanced Redirectless Authentication and Token Exchange
+    const handleRedirectlessTokenExchange = useCallback(async () => {
+        setIsAuthenticating(true);
         setError(null);
 
         try {
@@ -287,8 +441,8 @@ const RedirectlessFlowV7Real: React.FC = () => {
                 code_challenge: freshPkceCodes.codeChallenge,
                 code_challenge_method: 'S256',
                 response_mode: 'pi.flow',
-                username: 'testuser', // TODO: Get from user input
-                password: 'testpass'  // TODO: Get from user input
+                username: loginCredentials.username,
+                password: loginCredentials.password
             });
 
             console.log('🔐 [Redirectless V7] Authorization request body:', authRequestBody.toString());
@@ -467,14 +621,31 @@ const RedirectlessFlowV7Real: React.FC = () => {
                 expires_in: tokenData.expires_in,
                 scope: tokenData.scope
             });
+            
+            // Also set in controller for consistency
+            controller.setTokens({
+                accessToken: tokenData.access_token,
+                refreshToken: tokenData.refresh_token,
+                idToken: tokenData.id_token,
+                tokenType: tokenData.token_type,
+                expiresIn: tokenData.expires_in,
+                scope: tokenData.scope
+            });
+            
+            // Show success message explaining what happened
+            v4ToastManager.showSuccess(
+                `🎉 Redirectless authentication successful! Received tokens directly via POST request with response_mode=pi.flow - no browser redirect needed!`
+            );
 
         } catch (error: any) {
             console.error('🔐 [Redirectless V7] Real token exchange failed:', error);
             setError(error.message);
-            setIsLoading(false);
             v4ToastManager.showError(`❌ Real token exchange failed: ${error.message}`);
+        } finally {
+            setIsAuthenticating(false);
+            setShowLoginForm(false);
         }
-    }, [controller]);
+    }, [controller, loginCredentials]);
 
     // Open authorization URL handler
     const handleOpenAuthUrl = useCallback(() => {
@@ -880,27 +1051,43 @@ const RedirectlessFlowV7Real: React.FC = () => {
 				>
 					<div style={{ marginBottom: '1rem' }}>
                                 <p>
-                                    For Redirectless flow, tokens are returned directly in the API response 
-                                    without requiring a separate token exchange call. V7 ensures fresh PKCE codes every time for maximum security.
+                                    <strong>Redirectless Authentication:</strong> Experience a real authorization code flow without browser redirects! 
+                                    You'll see a custom login form (not PingOne's UI), enter credentials, and receive tokens directly via API calls with <code>response_mode=pi.flow</code>.
                                 </p>
                             </div>
 
-                            <NavigationButton
-                                onClick={handleRedirectlessTokenExchange}
-                                disabled={!controller.authUrl || isLoading}
-                                title={!controller.authUrl ? 'Generate authorization URL first' : 'Get real tokens from PingOne V7'}
-                            >
-                                {isLoading ? (
-                                    <>
-                                        <FiRefreshCw className="animate-spin" /> Exchanging Tokens...
-                                    </>
-                                ) : (
-                                    <>
-                                        <FiSend /> Get Real Tokens (V7)
-                                    </>
-                                )}
-                                <HighlightBadge>2</HighlightBadge>
-                            </NavigationButton>
+                            <div style={{ textAlign: 'center' }}>
+                                <SignInButton
+                                    onClick={handleShowLoginForm}
+                                    disabled={!controller.authUrl || isAuthenticating}
+                                    title={!controller.authUrl ? 'Generate authorization URL first' : 'Sign in with custom form'}
+                                >
+                                    {isAuthenticating ? (
+                                        <>
+                                            <FiRefreshCw className="animate-spin" />
+                                            Authenticating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FiShield />
+                                            Sign In
+                                        </>
+                                    )}
+                                </SignInButton>
+                                
+                                <div style={{ 
+                                    marginTop: '1rem', 
+                                    padding: '1rem', 
+                                    background: '#eff6ff', 
+                                    borderRadius: '0.5rem',
+                                    border: '1px solid #bfdbfe',
+                                    fontSize: '0.875rem',
+                                    color: '#1e40af'
+                                }}>
+                                    <strong>🚀 Behind the Scenes:</strong><br/>
+                                    When you click "Sign In", your app makes a POST request to PingOne's authorization endpoint with <code>response_mode=pi.flow</code> and receives tokens directly - no redirect needed! Fresh PKCE codes generated every time.
+                                </div>
+                            </div>
 
                             {controller.tokens?.accessToken && (
                                 <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0fdf4', borderRadius: '0.5rem', border: '1px solid #bbf7d0' }}>
@@ -987,7 +1174,7 @@ const RedirectlessFlowV7Real: React.FC = () => {
     return (
         <Container>
             <ContentWrapper>
-                <FlowHeader flowId="redirectless-v7-real" />
+                <FlowHeader flowId="redirectless-v7" />
                 
                 {/* V7 Educational Flow Info Card */}
                 <EnhancedFlowInfoCard
@@ -1070,6 +1257,91 @@ const RedirectlessFlowV7Real: React.FC = () => {
                     {renderStepContent()}
                 </StepSection>
             </ContentWrapper>
+            
+            {/* Custom Login Form Modal */}
+            {showLoginForm && (
+                <LoginFormOverlay>
+                    <LoginFormModal>
+                        <LoginFormTitle>
+                            <FiShield style={{ marginRight: '0.5rem' }} />
+                            Sign In to Continue
+                        </LoginFormTitle>
+                        
+                        <div style={{ 
+                            background: '#f0f9ff', 
+                            padding: '1rem', 
+                            borderRadius: '0.5rem', 
+                            marginBottom: '1.5rem',
+                            border: '1px solid #bae6fd'
+                        }}>
+                            <div style={{ fontSize: '0.875rem', color: '#0c4a6e' }}>
+                                <strong>🔒 Redirectless Flow Demo</strong><br/>
+                                Enter your credentials below. Behind the scenes, we'll make a POST request to PingOne's authorization endpoint with <code>response_mode=pi.flow</code> and receive tokens directly - no redirect needed!
+                            </div>
+                        </div>
+                        
+                        <LoginFormField>
+                            <LoginFormLabel>Username / Email</LoginFormLabel>
+                            <LoginFormInput
+                                type="email"
+                                value={loginCredentials.username}
+                                onChange={(e) => setLoginCredentials(prev => ({ ...prev, username: e.target.value }))}
+                                placeholder="Enter your username or email"
+                                disabled={isAuthenticating}
+                            />
+                        </LoginFormField>
+                        
+                        <LoginFormField>
+                            <LoginFormLabel>Password</LoginFormLabel>
+                            <LoginFormInput
+                                type="password"
+                                value={loginCredentials.password}
+                                onChange={(e) => setLoginCredentials(prev => ({ ...prev, password: e.target.value }))}
+                                placeholder="Enter your password"
+                                disabled={isAuthenticating}
+                            />
+                        </LoginFormField>
+                        
+                        <div style={{ 
+                            background: '#fef3c7', 
+                            padding: '0.75rem', 
+                            borderRadius: '0.375rem', 
+                            marginBottom: '1rem',
+                            fontSize: '0.75rem',
+                            color: '#92400e'
+                        }}>
+                            💡 <strong>Demo Note:</strong> These are demo credentials for testing. The flow will make real API calls to PingOne with <code>response_mode=pi.flow</code> to demonstrate redirectless authentication.
+                        </div>
+                        
+                        <LoginFormButtons>
+                            <LoginFormButton
+                                $variant="secondary"
+                                onClick={() => setShowLoginForm(false)}
+                                disabled={isAuthenticating}
+                            >
+                                Cancel
+                            </LoginFormButton>
+                            <LoginFormButton
+                                $variant="primary"
+                                onClick={handleRedirectlessTokenExchange}
+                                disabled={isAuthenticating || !loginCredentials.username || !loginCredentials.password}
+                            >
+                                {isAuthenticating ? (
+                                    <>
+                                        <FiRefreshCw className="animate-spin" />
+                                        Authenticating...
+                                    </>
+                                ) : (
+                                    <>
+                                        <FiKey />
+                                        Sign In
+                                    </>
+                                )}
+                            </LoginFormButton>
+                        </LoginFormButtons>
+                    </LoginFormModal>
+                </LoginFormOverlay>
+            )}
         </Container>
     );
 };

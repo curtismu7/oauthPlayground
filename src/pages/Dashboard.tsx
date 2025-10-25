@@ -181,38 +181,58 @@ const FlowCard = styled.div`
 const FlowButtonsContainer = styled.div`
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  align-items: stretch;
+  width: 100%;
+  
+  /* Ensure buttons have enough space */
+  & > a {
+    flex: 1;
+    min-width: 140px;
+    max-width: 200px;
+  }
 `;
 
 const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
   display: inline-block;
-  padding: 0.5rem 0.75rem;
-  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   transition: all 0.2s ease;
+  text-align: center;
+  min-height: 2.5rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 
   ${props => props.$variant === 'primary' ? `
+    background: #1e40af;
+    color: white;
+    border: 2px solid #1e3a8a;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      background: #1e3a8a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
+      color: white;
+    }
+  ` : `
     background: #3b82f6;
     color: white;
-    border: 1px solid #2563eb;
+    border: 2px solid #2563eb;
+    font-weight: 600;
 
     &:hover {
       background: #2563eb;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-    }
-  ` : `
-    background: #2563eb;
-    color: white;
-    border: 2px solid #1d4ed8;
-    font-weight: 700;
-
-    &:hover {
-      background: #1d4ed8;
-      border-color: #1e40af;
+      border-color: #1d4ed8;
       color: white;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
     }
   `}
 `;
@@ -429,6 +449,27 @@ const Dashboard = () => {
 
 		loadDashboardData();
 	}, [authTokens]);
+
+	// Listen for credential changes and refresh dashboard
+	useEffect(() => {
+		const handleCredentialChange = () => {
+			console.log('🔄 [Dashboard] Credential change detected, refreshing statuses...');
+			setFlowCredentialStatuses(getAllFlowCredentialStatuses());
+		};
+
+		// Listen for various credential change events
+		window.addEventListener('config-credentials-changed', handleCredentialChange);
+		window.addEventListener('pingone_config_changed', handleCredentialChange);
+		window.addEventListener('permanent-credentials-changed', handleCredentialChange);
+		window.addEventListener('pingone-config-changed', handleCredentialChange);
+
+		return () => {
+			window.removeEventListener('config-credentials-changed', handleCredentialChange);
+			window.removeEventListener('pingone_config_changed', handleCredentialChange);
+			window.removeEventListener('permanent-credentials-changed', handleCredentialChange);
+			window.removeEventListener('pingone-config-changed', handleCredentialChange);
+		};
+	}, []);
 
 	// Refresh dashboard data
 	const refreshDashboard = async () => {

@@ -54,6 +54,7 @@ export interface AuthContextType extends AuthState {
 	closeAuthModal: () => void;
 	updateTokens: (tokens: OAuthTokenResponse | null) => void;
 	dismissError: () => void;
+	saveCredentialsV7: (credentials: any) => Promise<boolean>;
 	// Flow context helper functions
 	initializeFlowContext: (
 		flowType: string,

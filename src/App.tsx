@@ -26,6 +26,7 @@ import ClientGenerator from './pages/ClientGenerator';
 import ApplicationGenerator from './pages/ApplicationGenerator';
 import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
+import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
 import Login from './pages/Login';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import { credentialManager } from './utils/credentialManager';
@@ -60,11 +61,18 @@ import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
 import Dashboard from './pages/Dashboard';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import OIDCForAI from './pages/docs/OIDCForAI';
-import OIDCOverview from './pages/docs/OIDCOverview';
+import OIDCOverview from './pages/docs/OIDCOverviewV7';
+import OIDCOverviewSimple from './pages/docs/OIDCOverview_Simple';
+import OIDCOverviewMinimal from './pages/docs/OIDCOverview_Minimal';
+import OIDCOverviewEnhanced from './pages/docs/OIDCOverview_Enhanced';
+// import OIDCOverviewEnhancedSimple from './pages/docs/OIDCOverview_Enhanced_Simple';
+// import OIDCOverviewTest from './pages/docs/OIDCOverview_Test';
+import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
 import PingViewOnAI from './pages/docs/PingViewOnAI';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
+import CIBAFlowV7 from './pages/flows/CIBAFlowV7';
 // Backed up V2/V3/V4 flows - moved to _backup folder
 import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
 import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
@@ -116,7 +124,9 @@ import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
+import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
 import RARFlowV6 from './pages/flows/RARFlowV6_New';
+import RARFlowV7 from './pages/flows/RARFlowV7';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
 import RedirectlessFlowV7Real from './pages/flows/RedirectlessFlowV7_Real';
@@ -138,6 +148,7 @@ import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import SDKSampleApp from './pages/SDKSampleApp';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
+import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
 
@@ -368,6 +379,7 @@ const AppRoutes = () => {
 							</Route>
 						{/* Tools & Utilities Routes */}
 						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
+						<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
 						{/* V6 OAuth/OIDC Flow Routes */}
 						<Route
 							path="/flows/oauth-authorization-code-v6"
@@ -458,8 +470,9 @@ const AppRoutes = () => {
 							<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
 							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
 							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
-							<Route path="/flows/ciba-v5" element={<Navigate to="/flows/ciba-v6" replace />} />
-							<Route path="/flows/ciba-v6" element={<CIBAFlowV6 />} />
+							<Route path="/flows/ciba-v5" element={<Navigate to="/flows/ciba-v7" replace />} />
+							<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
+							<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
 							{/* Advanced Parameters Route */}
 							<Route
 								path="/flows/advanced-parameters-v6/:flowType"
@@ -491,6 +504,8 @@ const AppRoutes = () => {
 							{/* PingOne PAR Flow - V6 (upgraded with services) */}
 							<Route path="/flows/pingone-par-v6" element={<PingOnePARFlowV6 />} />
 							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV6 />} /> {/* Redirect V5 to V6 */}
+							{/* PingOne PAR Flow - V7 (enhanced with modern services) */}
+							<Route path="/flows/pingone-par-v7" element={<PingOnePARFlowV7 />} />
 							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-mfa-v6" replace />} />
 							<Route path="/flows/pingone-mfa-v6" element={<PingOneMFAFlowV6 />} />
 							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
@@ -499,6 +514,7 @@ const AppRoutes = () => {
 							<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
 							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
 							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
+							<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
 							{/* Legacy route removed - use V5 */}
 							<Route
 								path="/flows/oauth2-resource-owner-password"
@@ -531,6 +547,7 @@ const AppRoutes = () => {
 							<Route path="/application-generator" element={<ApplicationGenerator />} />
 							<Route path="/configuration" element={<Configuration />} />
 							<Route path="/documentation" element={<Documentation />} />
+							<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
 							<Route path="/test-demo" element={<TestDemo />} />

@@ -20,9 +20,7 @@ import {
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
@@ -48,6 +46,7 @@ import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../servic
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
+import { PARConfigurationService, PARConfigurationServiceUtils } from '../../services/parConfigurationService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { CopyButtonService } from '../../services/copyButtonService';
@@ -1534,17 +1533,41 @@ const PingOnePARFlowV6: React.FC = () => {
 									hasUnsavedPingOneChanges={false}
 									isSavingPingOne={false}
 									
-									// UI config
-									title="OAuth Authorization Code Configuration"
-									subtitle="Configure your application settings and credentials"
-								showAdvancedConfig={true} // ✅ PAR is the PRIMARY feature of this flow
-								defaultCollapsed={shouldCollapseAll}
-							/>
+								// UI config
+								title="OAuth Authorization Code Configuration"
+								subtitle="Configure your application settings and credentials"
+							showAdvancedConfig={true} // ✅ PAR is the PRIMARY feature of this flow
+							defaultCollapsed={shouldCollapseAll}
+							
+							// Config Checker props
+							showConfigChecker={true}
+							workerToken={localStorage.getItem('worker_token') || ''}
+							region="NA"
+						/>
 
-						<EnhancedFlowWalkthrough flowId="oauth-authorization-code" />
-
-						<FlowSequenceDisplay flowType="authorization-code" />
-
+						{/* PAR Authorization Request Configuration */}
+						<PARConfigurationService
+							config={{
+								acrValues: pingOneConfig.acrValues || '',
+								prompt: pingOneConfig.prompt || '',
+								maxAge: pingOneConfig.maxAge,
+								uiLocales: pingOneConfig.uiLocales || '',
+								claims: pingOneConfig.claims
+							}}
+							onConfigChange={(parConfig) => {
+								setPingOneConfig({
+									...pingOneConfig,
+									acrValues: parConfig.acrValues,
+									prompt: parConfig.prompt,
+									maxAge: parConfig.maxAge,
+									uiLocales: parConfig.uiLocales,
+									claims: parConfig.claims
+								});
+							}}
+							defaultCollapsed={shouldCollapseAll}
+							title="PAR Authorization Request Configuration"
+							showEducationalContent={true}
+						/>
 
 					</>
 				);
