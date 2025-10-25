@@ -1,6 +1,7 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_Complete.tsx
 // V7 Complete OAuth Authorization Code Flow - Based on V6 with V7 enhancements
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
@@ -13,6 +14,7 @@ import {
 	FiGlobe,
 	FiInfo,
 	FiKey,
+	FiLock,
 	FiPackage,
 	FiRefreshCw,
 	FiSave,
@@ -20,6 +22,7 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
+
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -30,7 +33,9 @@ import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import {
 	HelperText,
 	ResultsHeading,
@@ -43,8 +48,14 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+
+// Import V7 Shared Service for compliance features
+import { V7SharedService } from '../../services/v7SharedService';
+import type { V7FlowName } from '../../services/v7SharedService';
+import PARInputInterface from '../../components/PARInputInterface';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
@@ -65,7 +76,6 @@ import {
 	type IntroSectionKey,
 	DEFAULT_APP_CONFIG,
 } from './config/OAuthAuthzCodeFlowV6.config';
-import FlowCredentialService from '../../services/flowCredentialService';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
 import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
 
@@ -760,20 +770,41 @@ const VariantToggleButton = styled.button<{ $active: boolean }>`
 `;
 
 const OAuthAuthorizationCodeFlowV7: React.FC = () => {
+	const location = useLocation();
+	
 	console.log('🚀 [OAuthAuthorizationCodeFlowV7] V7 Complete Flow loaded!', {
 		url: window.location.href,
 		search: window.location.search,
 		timestamp: new Date().toISOString(),
+		navigationState: location.state,
 	});
 
 	// Scroll to top on page load
 	usePageScroll({ pageName: 'OAuth Authorization Code Flow V7 - Complete', force: true });
+
+	// Check credentials on mount and show warning if missing
+	useEffect(() => {
+		checkCredentialsAndWarn(controller.credentials, {
+			flowName: 'OAuth Authorization Code Flow',
+			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
+			showToast: true
+		});
+	}, []); // Only run once on mount
 
 	const manualAuthCodeId = useId();
 	const controller = useAuthorizationCodeFlowController({
 		flowKey: 'oauth-authorization-code-v7',
 		defaultFlowVariant: 'oauth', // V7 defaults to OAuth 2.0
 		enableDebugger: true,
+	});
+
+	// Initialize V7 compliance features
+	const flowName: V7FlowName = 'oauth-authorization-code-v7';
+	const v7FlowConfig = V7SharedService.initializeFlow(flowName, {
+		enableIDTokenValidation: false, // OAuth flow
+		enableParameterValidation: true,
+		enableErrorHandling: true,
+		enableSecurityHeaders: true
 	});
 
 	const [currentStep, setCurrentStep] = useState(
@@ -789,13 +820,67 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const [localAuthCode, setLocalAuthCode] = useState<string | null>(null);
 	const [copiedField, setCopiedField] = useState<string | null>(null);
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
-	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(controller.flowVariant);
+	
+	// V7 compliance state
+	const [complianceStatus, setComplianceStatus] = useState(v7FlowConfig.compliance);
+	const [validationResults, setValidationResults] = useState<any>(null);
+	const [errorStats, setErrorStats] = useState(V7SharedService.ErrorHandling.getErrorStatistics());
+	
+	// PAR (Pushed Authorization Request) state
+	const [parRequestUri, setParRequestUri] = useState<string>('');
+	const [showPARModal, setShowPARModal] = useState<boolean>(false);
+	// Detect default variant based on navigation context
+	const getDefaultVariant = (): 'oauth' | 'oidc' => {
+		// Check if there's a variant specified in the URL params
+		const urlParams = new URLSearchParams(location.search);
+		const urlVariant = urlParams.get('variant');
+		if (urlVariant === 'oidc' || urlVariant === 'oauth') {
+			return urlVariant as 'oauth' | 'oidc';
+		}
+		
+		// Check navigation state for context
+		const state = location.state as any;
+		if (state?.fromSection === 'oidc') {
+			return 'oidc';
+		}
+		
+		// Default to controller's default or OAuth (base protocol)
+		return controller.flowVariant || 'oauth';
+	};
+	
+	const [flowVariant, setFlowVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
 	const [workerToken, setWorkerToken] = useState<string>('');
 
 	// Remove automatic sync - let user control the variant selection
 	// useEffect(() => {
 	// 	setFlowVariant(controller.flowVariant);
 	// }, [controller.flowVariant]);
+
+	// Ensure OAuth Authorization Code Flow V7 uses its own credential storage
+	useEffect(() => {
+		// Save current credentials to flow-specific storage
+		if (controller.credentials && (controller.credentials.environmentId || controller.credentials.clientId)) {
+			console.log('🔧 [OAuth Authorization Code V7] Saving credentials to flow-specific storage:', {
+				flowKey: 'oauth-authorization-code-v7',
+				environmentId: controller.credentials.environmentId,
+				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+				redirectUri: controller.credentials.redirectUri
+			});
+			
+			// Save to flow-specific storage
+			FlowCredentialService.saveFlowCredentials('oauth-authorization-code-v7', controller.credentials, {
+				showToast: false
+			});
+		}
+	}, [controller.credentials]);
+
+	// Use credential backup hook for automatic backup and restoration
+	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
+		flowKey: 'oauth-authorization-code-v7',
+		credentials: controller.credentials,
+		setCredentials: controller.setCredentials,
+		enabled: true
+	});
 
 	const ensureOidcScopes = useCallback((scopeValue: string | undefined) => {
 		const base = scopeValue?.split(' ').filter(Boolean) ?? [];
@@ -1274,7 +1359,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
-			redirectUri: 'https://localhost:3000/authz-callback',
+			redirectUri: 'https://localhost:3002/authz-callback',
 			scope: 'openid profile email',
 			responseType: 'code',
 			grantType: 'authorization_code',
@@ -1354,6 +1439,57 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			controller.credentials,
 			controller
 		);
+	}, [controller]);
+
+	const handleGenerateParAuthUrl = useCallback(() => {
+		if (!parRequestUri.trim()) {
+			v4ToastManager.showError('Please enter a PAR request URI');
+			return;
+		}
+
+		if (!controller.credentials.environmentId || !controller.credentials.clientId) {
+			v4ToastManager.showError('Please configure Environment ID and Client ID first');
+			return;
+		}
+
+		try {
+			// Generate authorization URL with PAR request_uri
+			const baseUrl = `https://auth.pingone.com/${controller.credentials.environmentId}/as/authorize`;
+			const params = new URLSearchParams({
+				client_id: controller.credentials.clientId,
+				request_uri: parRequestUri.trim()
+			});
+
+			const authUrl = `${baseUrl}?${params.toString()}`;
+			controller.setAuthUrl(authUrl);
+			
+			v4ToastManager.showSuccess('Authorization URL with PAR generated successfully!');
+			console.log('🔗 [PAR] Generated authorization URL with PAR:', authUrl);
+		} catch (error) {
+			console.error('❌ [PAR] Failed to generate PAR authorization URL:', error);
+			v4ToastManager.showError('Failed to generate PAR authorization URL');
+		}
+	}, [parRequestUri, controller]);
+
+	const handlePARDataSubmit = useCallback((parData: { requestUri: string; clientId: string; environmentId: string; expiresIn?: number }) => {
+		try {
+			// Generate authorization URL with PAR request_uri
+			const baseUrl = `https://auth.pingone.com/${parData.environmentId}/as/authorize`;
+			const params = new URLSearchParams({
+				client_id: parData.clientId,
+				request_uri: parData.requestUri
+			});
+
+			const authUrl = `${baseUrl}?${params.toString()}`;
+			controller.setAuthUrl(authUrl);
+			setShowPARModal(false);
+			
+			v4ToastManager.showSuccess('Authorization URL with PAR generated successfully!');
+			console.log('🔗 [PAR] Generated authorization URL with enhanced PAR:', authUrl);
+		} catch (error) {
+			console.error('❌ [PAR] Failed to generate PAR authorization URL:', error);
+			v4ToastManager.showError('Failed to generate PAR authorization URL');
+		}
 	}, [controller]);
 
 	const handleOpenAuthUrl = useCallback(() => {
@@ -1614,7 +1750,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const handleResetFlow = useCallback(() => {
 		controller.resetFlow();
 		setCurrentStep(0);
-	}, [controller]);
+		
+		// Clear OAuth Authorization Code Flow V7-specific storage
+		FlowCredentialService.clearFlowState('oauth-authorization-code-v7');
+		console.log('🔧 [OAuth Authorization Code V7] Cleared flow-specific storage');
+		
+		// Clear credential backup when flow is reset
+		clearBackup();
+	}, [controller, clearBackup]);
 
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
@@ -1950,10 +2093,10 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								environmentId={credentials.environmentId || ''}
 								clientId={credentials.clientId || ''}
 								clientSecret={credentials.clientSecret || ''}
-								redirectUri={credentials.redirectUri || 'https://localhost:3000/authz-callback'}
+								redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
 								scopes={credentials.scopes || credentials.scope || ''}
 								loginHint={credentials.loginHint || ''}
-								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'}
 								
 								// Change handlers
 								onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
@@ -2454,6 +2597,100 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							) : (
 								<HelperText>Generate an authorization URL above to continue to PingOne.</HelperText>
 							)}
+
+							{/* PAR (Pushed Authorization Request) Section - Enhanced */}
+							<SectionDivider />
+							<ResultsSection>
+								<ResultsHeading>
+									<FiShield size={18} /> Using PAR (Pushed Authorization Request)?
+								</ResultsHeading>
+								<HelperText>
+									PAR enhances OAuth security by pushing authorization parameters to the server via secure back-channel. 
+									Use the enhanced PAR assistant to learn about PAR, build requests, or input existing request URIs.
+								</HelperText>
+								
+								<div style={{ 
+									background: 'white', 
+									border: '1px solid #e5e7eb', 
+									borderRadius: '0.5rem', 
+									padding: '1.5rem',
+									marginTop: '1rem'
+								}}>
+									<div style={{ 
+										display: 'flex', 
+										gap: '1rem', 
+										alignItems: 'center',
+										marginBottom: '1rem'
+									}}>
+										<div style={{ flex: 1 }}>
+											<label style={{ 
+												display: 'block', 
+												fontSize: '0.875rem', 
+												fontWeight: '500', 
+												color: '#374151',
+												marginBottom: '0.5rem'
+											}}>
+												PAR Request URI (Quick Input)
+											</label>
+											<input
+												type="text"
+												placeholder="urn:ietf:params:oauth:request_uri:example"
+												value={parRequestUri}
+												onChange={(e) => setParRequestUri(e.target.value)}
+												style={{
+													width: '100%',
+													padding: '0.75rem',
+													border: '1px solid #d1d5db',
+													borderRadius: '0.375rem',
+													fontSize: '0.875rem',
+													fontFamily: 'Monaco, Menlo, Ubuntu Mono, monospace'
+												}}
+											/>
+										</div>
+										<div style={{ 
+											display: 'flex', 
+											flexDirection: 'column', 
+											gap: '0.5rem',
+											minWidth: '200px'
+										}}>
+											<HighlightedActionButton
+												onClick={handleGenerateParAuthUrl}
+												$priority="primary"
+												disabled={!parRequestUri.trim()}
+												title={!parRequestUri.trim() ? 'Enter a PAR request URI first' : 'Generate authorization URL with PAR'}
+												style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+											>
+												<FiLock /> Quick Generate
+											</HighlightedActionButton>
+											<HighlightedActionButton
+												onClick={() => setShowPARModal(true)}
+												$priority="secondary"
+												title="Open enhanced PAR assistant with learning tools and request builder"
+												style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}
+											>
+												<FiShield /> PAR Assistant
+											</HighlightedActionButton>
+										</div>
+									</div>
+									
+									<div style={{
+										padding: '1rem',
+										background: '#f0f9ff',
+										borderRadius: '0.5rem',
+										border: '1px solid #0ea5e9',
+										fontSize: '0.875rem'
+									}}>
+										<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+											<FiInfo size={16} color="#0ea5e9" />
+											<strong style={{ color: '#0c4a6e' }}>Enhanced PAR Assistant</strong>
+										</div>
+										<p style={{ margin: 0, color: '#0c4a6e', lineHeight: '1.4' }}>
+											Use the PAR Assistant for a comprehensive experience including real examples, 
+											interactive request builder, and educational content about PAR security benefits.
+										</p>
+									</div>
+								</div>
+							</ResultsSection>
 						</ResultsSection>
 					</>
 				);
@@ -2718,6 +2955,52 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										showCopyButtons: true,
 										showDecodeButtons: true,
 									}
+								)}
+
+								{/* Mock Token Display for Educational Purposes */}
+								{tokenExchangeApiCall && (
+									<CollapsibleSection>
+										<CollapsibleHeaderButton
+											onClick={() => toggleSection('mockTokenDisplay')}
+											aria-expanded={!collapsedSections.mockTokenDisplay}
+										>
+											<CollapsibleTitle>
+												<FiPackage /> Mock Token Response (Educational)
+											</CollapsibleTitle>
+											<CollapsibleToggleIcon $collapsed={collapsedSections.mockTokenDisplay}>
+												<FiChevronDown />
+											</CollapsibleToggleIcon>
+										</CollapsibleHeaderButton>
+										{!collapsedSections.mockTokenDisplay && (
+											<CollapsibleContent>
+												<ResultsSection>
+													<ResultsHeading>
+														<FiInfo size={18} /> Example Token Response
+													</ResultsHeading>
+													<HelperText>
+														This shows what a typical OAuth token response looks like. The actual tokens above are real and can be used for API calls.
+													</HelperText>
+													
+													{UnifiedTokenDisplayService.showTokens(
+														{
+															access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+															token_type: 'Bearer',
+															expires_in: 3600,
+															refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwicmVmcmVzaCI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.example_refresh_token_signature',
+															scope: 'openid profile email',
+															id_token: flowVariant === 'oidc' ? 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.example_id_token_signature' : undefined
+														},
+														flowVariant,
+														'oauth-authorization-code-v7-mock',
+														{
+															showCopyButtons: true,
+															showDecodeButtons: true,
+														}
+													)}
+												</ResultsSection>
+											</CollapsibleContent>
+										)}
+									</CollapsibleSection>
 								)}
 
 								{/* Code Examples Section */}
@@ -3066,6 +3349,19 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				title="Login Successful!"
 				message="You have been successfully authenticated with PingOne. Your authorization code has been received and you can now proceed to exchange it for tokens."
 				autoCloseDelay={5000}
+			/>
+
+			{/* Enhanced PAR Input Interface Modal */}
+			<PARInputInterface
+				isOpen={showPARModal}
+				onClose={() => setShowPARModal(false)}
+				onPARDataSubmit={handlePARDataSubmit}
+				initialData={{
+					clientId: controller.credentials.clientId,
+					environmentId: controller.credentials.environmentId,
+					redirectUri: controller.credentials.redirectUri,
+					expiresIn: 60
+				}}
 			/>
 		</Container>
 	);

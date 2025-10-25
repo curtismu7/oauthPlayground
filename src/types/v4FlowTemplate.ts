@@ -7,6 +7,7 @@ export interface StepCredentials {
 	redirectUri: string;
 	scopes: string;
 	authMethod: ClientAuthMethod;
+	tokenEndpointAuthMethod?: string; // Token endpoint authentication method
 }
 
 export interface ClientAuthMethod {

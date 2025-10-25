@@ -1076,9 +1076,55 @@ export class FlowInfoService {
 				},
 			],
 		},
+		'oidc-overview': {
+			flowType: 'documentation',
+			flowName: 'OpenID Connect Overview',
+			flowVersion: 'V7',
+			flowCategory: 'educational',
+			complexity: 'informational',
+			securityLevel: 'informational',
+			userInteraction: 'none',
+			backendRequired: false,
+			refreshTokenSupport: false,
+			idTokenSupport: true,
+			tokensReturned: 'Educational Content',
+			purpose: 'Learn about OIDC authentication flows and concepts',
+			specLayer: 'OpenID Connect Core 1.0',
+			nonceRequirement: 'Varies by flow',
+			validation: 'Educational content - no validation required',
+			securityNotes: [
+				'📚 Comprehensive OIDC flow comparison',
+				'🎯 Best practice recommendations',
+				'🔒 Security level explanations',
+				'⚡ Interactive flow navigation',
+			],
+			useCases: [
+				'Learning OIDC concepts',
+				'Comparing authentication flows',
+				'Understanding security implications',
+				'Choosing the right flow for your application',
+			],
+			relatedFlows: ['oidc-authorization-code', 'oidc-implicit', 'oidc-hybrid'],
+			documentationLinks: [
+				{
+					title: 'OpenID Connect Core 1.0',
+					url: 'https://openid.net/specs/openid-connect-core-1_0.html',
+				},
+				{
+					title: 'OIDC Discovery',
+					url: 'https://openid.net/specs/openid-connect-discovery-1_0.html',
+				},
+			],
+		},
 	};
 
 	private static normalizeFlowKey(flowType: string): string {
+		// Add null/undefined check
+		if (!flowType || typeof flowType !== 'string') {
+			console.warn('FlowInfoService.normalizeFlowKey called with invalid flowType:', flowType);
+			return 'unknown';
+		}
+
 		if (FlowInfoService.flowConfigs[flowType]) {
 			return flowType;
 		}
@@ -1088,6 +1134,8 @@ export class FlowInfoService {
 			'oidc-authorization-code-v7': 'oidc-authorization-code',
 			'oauth-device-authorization': 'device-code',
 			'oidc-device-authorization': 'device-code',
+			'ciba-v7': 'oidc-ciba-v6',
+			'oidc-ciba-v7': 'oidc-ciba-v6',
 		};
 
 		if (normalizedMap[flowType]) {
@@ -1102,6 +1150,11 @@ export class FlowInfoService {
 	 * Get detailed flow information for a specific flow type
 	 */
 	static getFlowInfo(flowType: string): DetailedFlowInfo | null {
+		if (!flowType || typeof flowType !== 'string') {
+			console.warn('FlowInfoService.getFlowInfo called with invalid flowType:', flowType);
+			return null;
+		}
+		
 		const key = FlowInfoService.normalizeFlowKey(flowType);
 		return FlowInfoService.flowConfigs[key] || null;
 	}
@@ -1110,6 +1163,11 @@ export class FlowInfoService {
 	 * Generate flow info card data for a specific flow type
 	 */
 	static generateFlowInfoCard(flowType: string): FlowInfoCardData | null {
+		if (!flowType || typeof flowType !== 'string') {
+			console.warn('FlowInfoService.generateFlowInfoCard called with invalid flowType:', flowType);
+			return null;
+		}
+		
 		const flowInfo = FlowInfoService.getFlowInfo(flowType);
 		if (!flowInfo) {
 			return null;
@@ -1178,6 +1236,7 @@ export class FlowInfoService {
 			'Client Credentials Flow': '🤖',
 			'Device Authorization Flow': '📱',
 			'OIDC CIBA Flow': '🔗',
+			'OpenID Connect Overview': '📚',
 			'Pushed Authorization Request (PAR)': '📤',
 			'Redirectless Flow': '⚡',
 		};

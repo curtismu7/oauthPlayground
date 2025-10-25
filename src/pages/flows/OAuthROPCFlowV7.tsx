@@ -27,7 +27,7 @@ import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import TokenDisplayService from '../../services/tokenDisplayService';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 
@@ -339,7 +339,7 @@ const ResultHeader = styled.h4`
 	font-size: 1.125rem;
 `;
 
-const TokenDisplay = styled.div`
+const UserInfoDisplay = styled.div`
 	background: #ffffff;
 	border: 2px solid #e5e7eb;
 	border-radius: 0.75rem;
@@ -388,6 +388,13 @@ const OAuthROPCFlowV7: React.FC = () => {
 	// Page scroll management
 	usePageScroll({ pageName: 'OAuthROPCFlowV7', force: true });
 
+	// Ensure flow starts on step 1 when navigating from menu
+	useEffect(() => {
+		// Reset flow to step 1 when component mounts to ensure fresh start
+		controller.stepManager.setStep(0, 'fresh start from menu');
+		console.log('[ROPC-V7] Initialized - starting on step 1');
+	}, []); // Empty dependency array ensures this runs only on mount
+
 	const handleCredentialChange = (field: string, value: string) => {
 		controller.setCredentials({
 			...controller.credentials,
@@ -395,10 +402,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 		});
 	};
 
-	const copyToClipboard = (text: string, label: string) => {
-		navigator.clipboard.writeText(text);
-		v4ToastManager.showSuccess(`${label} copied to clipboard`);
-	};
+
 
 	const renderStepContent = () => {
 		const currentStep = controller.stepManager.currentStepIndex;
@@ -581,31 +585,20 @@ const OAuthROPCFlowV7: React.FC = () => {
 										<FiCheckCircle />
 										Access Token Received
 									</ResultHeader>
-
-									<TokenDisplay>
-										<div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-											<strong>Access Token:</strong>
-											<ActionButton
-												variant="secondary"
-												style={{ padding: '0.375rem 0.75rem', fontSize: '0.75rem' }}
-												onClick={() => copyToClipboard(controller.tokens!.access_token, 'Access token')}
-											>
-												<FiCopy />
-											</ActionButton>
-										</div>
-										<div style={{ fontSize: '0.75rem' }}>
-											{controller.tokens.access_token}
-										</div>
-									</TokenDisplay>
-
-									<TokenMeta>
-										<div><strong>Token Type:</strong> {controller.tokens.token_type}</div>
-										<div><strong>Expires In:</strong> {controller.tokens.expires_in} seconds</div>
-										<div><strong>Scope:</strong> {controller.tokens.scope}</div>
-										{controller.tokens.refresh_token && (
-											<div><strong>Has Refresh Token:</strong> Yes</div>
-										)}
-									</TokenMeta>
+									
+									<UltimateTokenDisplay
+										tokens={controller.tokens}
+										flowType="oauth"
+										flowKey="oauth-ropc-v7"
+										displayMode="detailed"
+										title="OAuth ROPC Tokens"
+										subtitle="Access token obtained via Resource Owner Password Credentials flow"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										showMetadata={true}
+									/>
 								</ResultCard>
 							)}
 						</>
@@ -644,9 +637,9 @@ const OAuthROPCFlowV7: React.FC = () => {
 										User Information
 									</ResultHeader>
 
-									<TokenDisplay>
+									<UserInfoDisplay>
 										<pre>{JSON.stringify(controller.userInfo, null, 2)}</pre>
-									</TokenDisplay>
+									</UserInfoDisplay>
 								</ResultCard>
 							)}
 						</>
@@ -686,31 +679,19 @@ const OAuthROPCFlowV7: React.FC = () => {
 
 							{controller.refreshedTokens && (
 								<ResultCard>
-									<ResultHeader>
-										<FiCheckCircle />
-										New Access Token
-									</ResultHeader>
-
-									<TokenDisplay>
-										<div style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-											<strong>New Access Token:</strong>
-											<ActionButton
-												variant="secondary"
-												style={{ padding: '0.375rem 0.75rem', fontSize: '0.75rem' }}
-												onClick={() => copyToClipboard(controller.refreshedTokens!.access_token, 'New access token')}
-											>
-												<FiCopy />
-											</ActionButton>
-										</div>
-										<div style={{ fontSize: '0.75rem' }}>
-											{controller.refreshedTokens.access_token}
-										</div>
-									</TokenDisplay>
-
-									<TokenMeta>
-										<div><strong>Token Type:</strong> {controller.refreshedTokens.token_type}</div>
-										<div><strong>Expires In:</strong> {controller.refreshedTokens.expires_in} seconds</div>
-									</TokenMeta>
+									<UltimateTokenDisplay
+										tokens={controller.refreshedTokens}
+										flowType="oauth"
+										flowKey="oauth-ropc-v7-refresh"
+										displayMode="detailed"
+										title="🔄 Refreshed Tokens"
+										subtitle="New access token obtained using refresh token"
+										showCopyButtons={true}
+										showDecodeButtons={true}
+										showMaskToggle={true}
+										showTokenManagement={true}
+										showMetadata={true}
+									/>
 								</ResultCard>
 							)}
 						</>
