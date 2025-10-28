@@ -8,7 +8,6 @@ import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import pkg from './package.json' assert { type: 'json' };
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -20,7 +19,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const APP_VERSION = pkg.version ?? '0.0.0-dev';
+
+const packageJsonPath = path.join(__dirname, 'package.json');
+let APP_VERSION = '0.0.0-dev';
+try {
+	if (fs.existsSync(packageJsonPath)) {
+		const packageJsonRaw = fs.readFileSync(packageJsonPath, 'utf8');
+		const packageJson = JSON.parse(packageJsonRaw);
+		APP_VERSION = packageJson.version ?? APP_VERSION;
+	} else {
+		console.warn('[Server] package.json not found when deriving version metadata');
+	}
+} catch (error) {
+	console.warn('[Server] Unable to read package.json for version metadata:', error);
+}
 const PORT = process.env.PORT || 3001;
 const serverStartTime = new Date();
 const requestStats = {
