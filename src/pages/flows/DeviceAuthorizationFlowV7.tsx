@@ -999,13 +999,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			const current = deviceFlow.credentials ?? {
 				environmentId: '',
 				clientId: '',
-				scopes: selectedVariant === 'oidc' ? 'openid profile email' : 'read write',
+				scopes: selectedVariant === 'oidc' ? 'openid profile email' : 'openid',
 			};
 
 			const next: DeviceAuthCredentials = {
 				environmentId: updates.environmentId ?? current.environmentId ?? '',
 				clientId: updates.clientId ?? current.clientId ?? '',
-				scopes: updates.scopes ?? current.scopes ?? (selectedVariant === 'oidc' ? 'openid profile email' : 'read write'),
+				scopes: updates.scopes ?? current.scopes ?? (selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 			};
 
 			const optionalFields: Array<keyof Pick<DeviceAuthCredentials, 'clientSecret' | 'loginHint' | 'postLogoutRedirectUri'>> = [
@@ -1037,7 +1037,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		const currentCredentials = deviceFlow.credentials || { environmentId: '', clientId: '', scopes: '' };
 		const updatedScopes = variant === 'oidc' 
 			? 'openid profile email' // OIDC MUST include 'openid' scope per spec
-			: 'openid read write'; // PingOne requires 'openid' scope even for OAuth 2.0
+			: 'openid'; // PingOne requires 'openid' scope even for OAuth 2.0
 			
 		ensureCredentials({
 			...currentCredentials,
@@ -2099,7 +2099,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				environmentId={deviceFlow.credentials?.environmentId || ''}
 				clientId={deviceFlow.credentials?.clientId || ''}
 				clientSecret={deviceFlow.credentials?.clientSecret || ''}
-				scopes={deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'read write')}
+				scopes={deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid')}
 				
 				// Change handlers
 				onEnvironmentIdChange={(newEnvId) => {
@@ -2276,7 +2276,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											},
 											body: {
 												client_id: deviceFlow.credentials?.clientId || '[clientId]',
-												scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'read write')
+												scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid')
 											},
 											response: deviceFlow.deviceCodeData ? {
 												status: 200,
