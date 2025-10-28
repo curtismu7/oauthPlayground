@@ -432,10 +432,10 @@ const ImplicitFlowV7: React.FC = () => {
 				return !!(controller.authUrl);
 			case 3:
 				// Step 3: Must have tokens from callback
-				return !!(controller.tokens?.accessToken);
+				return !!(controller.tokens?.access_token || (controller.tokens as any)?.accessToken);
 			case 4:
 				// Step 4: Must have completed token introspection
-				return !!(controller.tokens?.accessToken);
+				return !!(controller.tokens?.access_token || (controller.tokens as any)?.accessToken);
 			default:
 				return true; // Other steps are always valid
 		}
