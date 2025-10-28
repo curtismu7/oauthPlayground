@@ -25,7 +25,7 @@ import {
 
 import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import FlowTrackingDisplay from '../../components/FlowTrackingDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import ConfigurationBackup from '../../components/ConfigurationBackup';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
@@ -3242,6 +3242,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		<Container>
 			<ContentWrapper>
 				<FlowHeader flowId="oauth-authorization-code-v7" />
+
+				{/* Flow Tracking Display - Development Only */}
+				{process.env.NODE_ENV === 'development' && <FlowTrackingDisplay />}
 
 				<EnhancedFlowInfoCard
 					flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'}
