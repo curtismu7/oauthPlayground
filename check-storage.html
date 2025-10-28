@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Authorization Storage</title>
+</head>
+<body>
+    <h1>Authorization Storage Check</h1>
+    <div id="output"></div>
+    
+    <script>
+        function checkStorage() {
+            const output = document.getElementById('output');
+            let html = '<h2>LocalStorage Contents:</h2>';
+            
+            // Check all localStorage keys
+            const keys = Object.keys(localStorage);
+            html += `<p>Total keys: ${keys.length}</p>`;
+            
+            // Look for logout-related keys
+            const logoutKeys = keys.filter(key => key.toLowerCase().includes('logout'));
+            html += `<h3>Logout-related keys (${logoutKeys.length}):</h3>`;
+            logoutKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                html += `<p><strong>${key}:</strong> ${value}</p>`;
+            });
+            
+            // Check comprehensive flow data service storage
+            const flowKeys = keys.filter(key => key.startsWith('pingone_flow_data'));
+            html += `<h3>Flow data keys (${flowKeys.length}):</h3>`;
+            flowKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                try {
+                    const parsed = JSON.parse(value);
+                    if (parsed.flowCredentials?.logoutUrl) {
+                        html += `<p><strong>${key} logoutUrl:</strong> ${parsed.flowCredentials.logoutUrl}</p>`;
+                    }
+                    if (parsed.flowCredentials) {
+                        html += `<p><strong>${key} flowCredentials:</strong> <pre>${JSON.stringify(parsed.flowCredentials, null, 2)}</pre></p>`;
+                    }
+                } catch (e) {
+                    html += `<p><strong>${key} (not JSON):</strong> ${value}</p>`;
+                }
+            });
+            
+            // Check shared environment data
+            const sharedEnv = localStorage.getItem('pingone_shared_environment');
+            if (sharedEnv) {
+                html += `<h3>Shared Environment Data:</h3>`;
+                html += `<pre>${JSON.stringify(JSON.parse(sharedEnv), null, 2)}</pre>`;
+            }
+            
+            // Check for any keys containing 'authz-logout-callback'
+            const authzKeys = keys.filter(key => key.includes('authz-logout-callback') || localStorage.getItem(key)?.includes('authz-logout-callback'));
+            html += `<h3>Keys containing 'authz-logout-callback' (${authzKeys.length}):</h3>`;
+            authzKeys.forEach(key => {
+                const value = localStorage.getItem(key);
+                html += `<p><strong>${key}:</strong> ${value}</p>`;
+            });
+            
+            output.innerHTML = html;
+        }
+        
+        // Run check when page loads
+        checkStorage();
+        
+        // Add refresh button
+        document.body.innerHTML += '<br><button onclick="checkStorage()">Refresh Check</button>';
+    </script>
+</body>
+</html>
