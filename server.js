@@ -8,6 +8,7 @@ import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import pkg from './package.json' assert { type: 'json' };
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -19,6 +20,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+const APP_VERSION = pkg.version ?? '0.0.0-dev';
 const PORT = process.env.PORT || 3001;
 const serverStartTime = new Date();
 const requestStats = {
@@ -121,7 +123,7 @@ app.get('/api/health', (_req, res) => {
 	res.json({
 		status: 'ok',
 		timestamp: new Date(now).toISOString(),
-		version: '6.0.0',
+		version: APP_VERSION,
 		pid: process.pid,
 		startTime: serverStartTime.toISOString(),
 		uptimeSeconds,
@@ -227,6 +229,7 @@ app.post('/api/token-exchange', async (req, res) => {
 			refresh_token,
 			scope,
 			environment_id,
+			token_endpoint,
 		} = req.body;
 
 		// Validate required parameters
@@ -268,15 +271,21 @@ app.post('/api/token-exchange', async (req, res) => {
 
 		// Get environment ID from request or environment (skip env fallback in test)
 		const environmentId = req.body.environment_id || (process.env.NODE_ENV !== 'test' ? process.env.PINGONE_ENVIRONMENT_ID : undefined);
-		if (!environmentId) {
-			return res.status(400).json({
-				error: 'invalid_request',
-				error_description: 'Missing environment_id',
-			});
+		
+		// Build token endpoint URL - use provided token_endpoint or construct from environment_id
+		let tokenEndpoint;
+		if (token_endpoint && token_endpoint.trim() !== '') {
+			tokenEndpoint = token_endpoint;
+			console.log('🔧 [Server] Using provided token endpoint:', tokenEndpoint);
+		} else {
+			if (!environmentId) {
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing environment_id (required when token_endpoint is not provided)',
+				});
+			}
+			tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
 		}
-
-		// Build token endpoint URL
-		const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
 
 		console.log('🔧 [Server] Token exchange configuration:', {
 			environmentId,
@@ -288,6 +297,8 @@ app.post('/api/token-exchange', async (req, res) => {
 			hasCodeVerifier: !!code_verifier,
 			redirectUri: redirect_uri,
 			clientAuthMethod: req.body.client_auth_method || 'client_secret_post',
+			scope: scope,
+			allParams: req.body,
 		});
 
 		// Prepare request body based on grant type
@@ -305,10 +316,12 @@ app.post('/api/token-exchange', async (req, res) => {
 		} else if (grant_type === 'client_credentials') {
 			// Client credentials grant - only include grant_type, client_id, and scope
 			console.log('🔑 [Server] Building client credentials request body');
+			const finalScope = scope || 'openid';
+			console.log('🔑 [Server] Using scope for client_credentials:', { providedScope: scope, finalScope });
 			tokenRequestBody = new URLSearchParams({
 				grant_type: 'client_credentials',
 				client_id: client_id,
-				scope: scope || 'p1:read:user p1:update:user p1:read:device p1:update:device',
+				scope: finalScope,
 			});
 		} else {
 			// Authorization code grant - include code, redirect_uri, code_verifier (only if PKCE is used)
@@ -459,10 +472,12 @@ app.post('/api/token-exchange', async (req, res) => {
 			message: error.message,
 			stack: error.stack,
 			error,
+			requestBody: req.body,
 		});
 		res.status(500).json({
 			error: 'server_error',
-			error_description: 'Internal server error during token exchange',
+			error_description: error.message || 'Internal server error during token exchange',
+			details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
 		});
 	}
 });
@@ -1758,6 +1773,9 @@ app.post('/api/pingone/resume', async (req, res) => {
 		if (flowState) resumeBody.append('state', flowState);
 		if (clientId) resumeBody.append('client_id', clientId);
 		if (clientSecret) resumeBody.append('client_secret', clientSecret);
+		if (req.body.environmentId) resumeBody.append('environmentId', req.body.environmentId);
+		if (req.body.redirectUri) resumeBody.append('redirect_uri', req.body.redirectUri);
+		if (req.body.codeVerifier) resumeBody.append('code_verifier', req.body.codeVerifier);
 		
 		console.log(`[PingOne Resume] Request body:`, resumeBody.toString());
 		
@@ -2007,6 +2025,156 @@ app.get('/api/playground-jwks', async (_req, res) => {
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error serving JWKS',
+		});
+	}
+});
+
+// OAuth Authorization Server Metadata Endpoint (proxy to PingOne)
+app.get('/api/oauth-metadata', async (req, res) => {
+	try {
+		const { environment_id, region = 'us' } = req.query;
+
+		console.log('[OAuth Metadata] Request received:', {
+			environment_id,
+			region,
+			query: req.query
+		});
+
+		if (!environment_id) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: environment_id',
+			});
+		}
+
+	// Determine the base URL based on region
+	const regionMap = {
+		us: 'https://auth.pingone.com',
+		na: 'https://auth.pingone.com', // North America -> US
+		eu: 'https://auth.pingone.eu',
+		ca: 'https://auth.pingone.ca',
+		ap: 'https://auth.pingone.asia',
+		asia: 'https://auth.pingone.asia',
+	};
+
+	const baseUrl = regionMap[region.toLowerCase()] || regionMap['us'];
+		const oauthMetadataUrl = `${baseUrl}/${environment_id}/.well-known/oauth-authorization-server`;
+
+		console.log(`[OAuth Metadata] Fetching OAuth metadata from: ${oauthMetadataUrl}`);
+
+		console.log('[OAuth Metadata] Fetching from PingOne...');
+		
+		const response = await global.fetch(oauthMetadataUrl, {
+			method: 'GET',
+			headers: {
+				'Accept': 'application/json',
+				'User-Agent': 'PingOne-OAuth-Playground/1.0',
+			},
+			timeout: 10000, // 10 second timeout
+		});
+
+		console.log(`[OAuth Metadata] PingOne response: ${response.status} ${response.statusText}`);
+
+		if (!response.ok) {
+			console.error(`[OAuth Metadata] PingOne error: ${response.status} ${response.statusText}`);
+			const errorBody = await response.text().catch(() => 'Unable to read error');
+			console.error('[OAuth Metadata] Error body:', errorBody);
+
+			// Return a fallback configuration based on known PingOne OAuth patterns
+			const fallbackConfig = {
+				issuer: `https://auth.pingone.com/${environment_id}`,
+				authorization_endpoint: `https://auth.pingone.com/${environment_id}/as/authorize`,
+				token_endpoint: `https://auth.pingone.com/${environment_id}/as/token`,
+				jwks_uri: `https://auth.pingone.com/${environment_id}/as/jwks`,
+				response_types_supported: [
+					'code',
+					'token',
+					'id_token',
+					'code token',
+					'code id_token',
+					'token id_token',
+					'code token id_token',
+				],
+				grant_types_supported: [
+					'authorization_code',
+					'implicit',
+					'client_credentials',
+					'refresh_token',
+					'urn:ietf:params:oauth:grant-type:device_code',
+				],
+				subject_types_supported: ['public'],
+				id_token_signing_alg_values_supported: ['RS256', 'RS384', 'RS512'],
+				token_endpoint_auth_methods_supported: [
+					'client_secret_basic',
+					'client_secret_post',
+					'private_key_jwt',
+					'client_secret_jwt',
+				],
+				claims_supported: [
+					'sub',
+					'iss',
+					'aud',
+					'exp',
+					'iat',
+					'auth_time',
+					'nonce',
+					'acr',
+					'amr',
+					'azp',
+					'at_hash',
+					'c_hash',
+				],
+				code_challenge_methods_supported: ['S256', 'plain'],
+				request_parameter_supported: true,
+				request_uri_parameter_supported: true,
+				require_request_uri_registration: false,
+				end_session_endpoint: `https://auth.pingone.com/${environment_id}/as/signoff`,
+				revocation_endpoint: `https://auth.pingone.com/${environment_id}/as/revoke`,
+				introspection_endpoint: `https://auth.pingone.com/${environment_id}/as/introspect`,
+				device_authorization_endpoint: `https://auth.pingone.com/${environment_id}/as/device`,
+				pushed_authorization_request_endpoint: `https://auth.pingone.com/${environment_id}/as/par`,
+			};
+
+			console.log(`[OAuth Metadata] Using fallback OAuth metadata configuration for environment: ${environment_id}`);
+
+			return res.json({
+				success: true,
+				configuration: fallbackConfig,
+				environmentId: environment_id,
+				server_timestamp: new Date().toISOString(),
+				fallback: true,
+			});
+		}
+
+		const configuration = await response.json();
+
+		// Validate required fields for OAuth metadata
+		if (
+			!configuration.issuer ||
+			!configuration.authorization_endpoint ||
+			!configuration.token_endpoint
+		) {
+			throw new Error('Invalid OAuth metadata configuration: missing required fields');
+		}
+
+		console.log(`[OAuth Metadata] Success for environment: ${environment_id}`);
+
+		res.json({
+			success: true,
+			configuration,
+			environmentId: environment_id,
+			server_timestamp: new Date().toISOString(),
+		});
+	} catch (error) {
+		console.error('[OAuth Metadata] Server error:', {
+			message: error.message,
+			stack: error.stack,
+			error
+		});
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during OAuth metadata discovery',
+			details: error.message,
 		});
 	}
 });
