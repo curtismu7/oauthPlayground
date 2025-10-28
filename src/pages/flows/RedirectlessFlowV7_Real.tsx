@@ -26,7 +26,7 @@ import { FlowHeader } from '../../services/flowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { V5StepperService } from '../../services/v5StepperService';
+import { V7StepperService } from '../../services/v7StepperService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { v4ToastManager } from '../../utils/v4ToastManager';
@@ -210,7 +210,7 @@ const SignInButton = styled.button`
 `;
 
 // V5Stepper components - using NavigationButton for consistent V7 styling
-const { NavigationButton } = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+const { NavigationButton } = V7StepperService.createStepLayout({ theme: 'blue', showProgress: true });
 
 /**
  * Redirectless Flow V7 Real - PingOne API-driven authentication without browser redirects
