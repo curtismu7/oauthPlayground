@@ -1280,7 +1280,7 @@ class CredentialManager {
 				redirectUri: credentials.redirectUri || getCallbackUrlForFlow('authorization-code'),
 				scopes: credentials.supportedScopes.includes('openid')
 					? ['openid', 'profile', 'email']
-					: ['read', 'write'],
+					: ['openid'],
 				authEndpoint: credentials.authorizationEndpoint,
 				tokenEndpoint: credentials.tokenEndpoint,
 				userInfoEndpoint: credentials.userInfoEndpoint,

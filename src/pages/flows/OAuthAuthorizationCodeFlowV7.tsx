@@ -1,5 +1,6 @@
-// src/pages/flows/OAuthAuthorizationCodeFlowV7_Complete.tsx
+	// src/pages/flows/OAuthAuthorizationCodeFlowV7_Complete.tsx
 // V7 Complete OAuth Authorization Code Flow - Based on V6 with V7 enhancements
+
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { usePageScroll } from '../../hooks/usePageScroll';
@@ -24,6 +25,8 @@ import {
 } from 'react-icons/fi';
 
 import { themeService } from '../../services/themeService';
+
+import { callbackUriService } from '../../services/callbackUriService';
 import styled from 'styled-components';
 import FlowTrackingDisplay from '../../components/FlowTrackingDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
@@ -52,6 +55,7 @@ import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorization
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import type { ClientAuthMethod } from '../../utils/clientAuthentication';
 
 // Import V7 Shared Service for compliance features
 import { V7SharedService } from '../../services/v7SharedService';
@@ -185,6 +189,9 @@ const VariantSelector = styled.div`
 	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
 	border-radius: 0.75rem;
 	border: 1px solid #cbd5e1;
+	position: relative;
+	z-index: 10;
+	pointer-events: auto;
 `;
 
 const VariantButton = styled.button<{ $selected: boolean }>`
@@ -197,6 +204,9 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	font-weight: ${props => props.$selected ? '600' : '500'};
 	transition: all 0.2s ease;
 	cursor: pointer;
+	position: relative;
+	z-index: 11;
+	pointer-events: auto;
 
 	&:hover {
 		border-color: #3b82f6;
@@ -805,6 +815,20 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		enableDebugger: true,
 	});
 
+	const resolvedClientAuthMethod = useMemo<ClientAuthMethod>(() => {
+		const method = controller.credentials.clientAuthMethod;
+		switch (method) {
+			case 'none':
+			case 'client_secret_basic':
+			case 'client_secret_post':
+			case 'client_secret_jwt':
+			case 'private_key_jwt':
+				return method;
+			default:
+				return 'client_secret_post';
+		}
+	}, [controller.credentials.clientAuthMethod]);
+
 	// Initialize V7 compliance features
 	const flowName: V7FlowName = 'oauth-authorization-code-v7';
 	const v7FlowConfig = V7SharedService.initializeFlow(flowName, {
@@ -898,6 +922,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const handleFlowVariantChange = useCallback(
 		(nextVariant: 'oauth' | 'oidc') => {
+			console.log('[OAuthAuthorizationCodeFlowV7] handleFlowVariantChange called with:', nextVariant);
+			console.log('[OAuthAuthorizationCodeFlowV7] Current flowVariant:', flowVariant);
+			
 			// Preserve current PKCE codes and auth state
 			const currentPkceCodes = controller.pkceCodes;
 			
@@ -962,24 +989,33 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	}, [controller.credentials.environmentId]);
 
 	// V7 Variant Selector Component
-	const renderVariantSelector = () => (
-		<VariantSelector>
-			<VariantButton
-				$selected={flowVariant === 'oauth'}
-				onClick={() => handleFlowVariantChange('oauth')}
-			>
-				<VariantTitle>OAuth 2.0 Authorization Code</VariantTitle>
-				<VariantDescription>Access token only - API authorization</VariantDescription>
-			</VariantButton>
-			<VariantButton
-				$selected={flowVariant === 'oidc'}
-				onClick={() => handleFlowVariantChange('oidc')}
-			>
-				<VariantTitle>OpenID Connect Authorization Code</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
-			</VariantButton>
-		</VariantSelector>
-	);
+	const renderVariantSelector = () => {
+		console.log('[OAuthAuthorizationCodeFlowV7] Rendering variant selector, current variant:', flowVariant);
+		return (
+			<VariantSelector>
+				<VariantButton
+					$selected={flowVariant === 'oauth'}
+					onClick={() => {
+						console.log('[OAuthAuthorizationCodeFlowV7] OAuth button clicked');
+						handleFlowVariantChange('oauth');
+					}}
+				>
+					<VariantTitle>OAuth 2.0 Authorization Code</VariantTitle>
+					<VariantDescription>Access token only - API authorization</VariantDescription>
+				</VariantButton>
+				<VariantButton
+					$selected={flowVariant === 'oidc'}
+					onClick={() => {
+						console.log('[OAuthAuthorizationCodeFlowV7] OIDC button clicked');
+						handleFlowVariantChange('oidc');
+					}}
+				>
+					<VariantTitle>OpenID Connect Authorization Code</VariantTitle>
+					<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+				</VariantButton>
+			</VariantSelector>
+		);
+	};
 	
 	// API call tracking for display
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
@@ -1299,14 +1335,14 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
 			const isScopeField = field === 'scope' || field === 'scopes';
-			const normalizedScope = isScopeField ? normalizeScopes(value) : undefined;
+			// Don't normalize scopes on every keystroke - let user type freely
 			const updatedCredentials: StepCredentials = {
 				...controller.credentials,
-				[field]: isScopeField ? normalizedScope! : value,
+				[field]: value,
 				...(isScopeField
 					? {
-						scope: normalizedScope!,
-						scopes: normalizedScope!,
+						scope: value,
+						scopes: value,
 					}
 					: {}),
 			};
@@ -1326,6 +1362,24 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			}
 		},
 		[controller]
+	);
+
+	const handleScopeBlur = useCallback(
+		(value: string) => {
+			// Normalize scopes only on blur to ensure openid is included
+			const normalizedScope = normalizeScopes(value);
+			const updatedCredentials: StepCredentials = {
+				...controller.credentials,
+				scope: normalizedScope,
+				scopes: normalizedScope,
+			};
+			controller.setCredentials(updatedCredentials);
+			// Save credentials with variant-specific key for better isolation
+			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
+			// Also save to the main key for backward compatibility
+			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
+		},
+		[controller, normalizeScopes, flowVariant]
 	);
 
 	const handleSaveConfiguration = useCallback(async () => {
@@ -1369,7 +1423,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			environmentId: '',
 			clientId: '',
 			clientSecret: '',
-			redirectUri: 'https://localhost:3002/authz-callback',
+			redirectUri: callbackUriService.getCallbackUri('authzCallback'),
 			scope: 'openid profile email',
 			responseType: 'code',
 			grantType: 'authorization_code',
@@ -1778,9 +1832,12 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			const credentials = controller.credentials;
 
 			console.log('🔍 [V5 Flow] Using flow credentials for introspection:', {
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
+				credentials: credentials,
+				environmentId: credentials.environmentId || '',
+				clientId: credentials.clientId || '',
+				clientSecret: credentials.clientSecret || '',
+				redirectUri: credentials.redirectUri || callbackUriService.getCallbackUri('authzCallback'),
+				clientAuthMethod: resolvedClientAuthMethod as ClientAuthMethod
 			});
 
 			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
@@ -2087,6 +2144,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							<ComprehensiveCredentialsService
 								// Flow identification
 								flowType="oauth-authorization-code-v7"
+								isOIDC={flowVariant === 'oidc'}
 								
 								// Discovery props
 								onDiscoveryComplete={(result) => {
@@ -2102,14 +2160,16 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
 								showProviderInfo={true}
 								
-								// Credentials props
-								environmentId={credentials.environmentId || ''}
-								clientId={credentials.clientId || ''}
-								clientSecret={credentials.clientSecret || ''}
-								redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
-								scopes={credentials.scopes || credentials.scope || ''}
-								loginHint={credentials.loginHint || ''}
-								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'}
+								// Credentials props - PASS THE ACTUAL VALUES
+								environmentId={controller.credentials.environmentId || ''}
+								clientId={controller.credentials.clientId || ''}
+								clientSecret={controller.credentials.clientSecret || ''}
+								redirectUri={controller.credentials.redirectUri || callbackUriService.getCallbackUri('authzCallback')}
+								scopes={controller.credentials.scopes || controller.credentials.scope || 'openid'}
+								loginHint={controller.credentials.loginHint || ''}
+								postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || callbackUriService.getCallbackUri('logoutCallback')}
+								clientAuthMethod={controller.credentials.clientAuthMethod || 'client_secret_post'}
+								responseType={controller.credentials.responseType || 'code'}
 								
 								// Change handlers
 								onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
@@ -2124,20 +2184,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										normalizedValue = value.split(',').map(s => s.trim()).join(' ');
 									}
 									
-									// Ensure openid is always included (PingOne requirement)
-									const scopes = normalizedValue.split(/\s+/).filter(s => s.length > 0);
-									if (!scopes.includes('openid')) {
-										scopes.unshift('openid');
-										const finalScopes = scopes.join(' ');
-										handleFieldChange('scopes', finalScopes);
-										v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
-									} else {
-										handleFieldChange('scopes', normalizedValue);
-									}
+									// Don't normalize on every keystroke - let user type freely
+									handleFieldChange('scopes', normalizedValue);
+								}}
+								onScopesBlur={(value) => {
+									// Normalize scopes only on blur to ensure openid is included
+									handleScopeBlur(value);
 								}}
 								onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
 								onPostLogoutRedirectUriChange={(value) => handleFieldChange('postLogoutRedirectUri', value)}
 								onClientAuthMethodChange={(method) => handleFieldChange('clientAuthMethod', method)}
+								onResponseTypeChange={(responseType) => handleFieldChange('responseType', responseType)}
 								
 								// Save handler
 								onSave={handleSaveConfiguration}
