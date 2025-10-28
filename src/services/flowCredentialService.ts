@@ -165,16 +165,35 @@ export const saveFlowCredentials = async <T = unknown>(
 	options: { showToast?: boolean } = { showToast: true }
 ): Promise<boolean> => {
 	try {
+		// 🔍 INSTRUMENTATION: Track credential saving behavior
+		console.group(`🔍 [CREDENTIAL AUDIT] Saving credentials for flow: ${flowKey}`);
+		console.log(`📋 Flow Key: ${flowKey}`);
+		console.log(`📋 Credentials to Save:`, credentials);
+		console.log(`📋 Flow Config:`, flowConfig);
+		
+		// 🔍 INSTRUMENTATION: Check localStorage before saving
+		const beforeKeys = Object.keys(localStorage).filter(key => key.includes('pingone'));
+		console.log(`📋 localStorage Keys BEFORE Save:`, beforeKeys);
+		
 		// Save to credentialManager (shared across flows)
+		console.log(`📋 Saving to shared credentialManager...`);
 		const sharedSaved = await saveSharedCredentials(flowKey, credentials, { showToast: false });
+		console.log(`📋 Shared Save Result:`, sharedSaved);
 		
 		// Save flow-specific state to localStorage
+		console.log(`📋 Saving to flow-specific localStorage...`);
 		const flowState: FlowPersistentState<T> = {
 			credentials,
 			flowConfig,
 			...additionalState,
 		};
 		const flowStateSaved = saveFlowState(flowKey, flowState);
+		console.log(`📋 Flow State Save Result:`, flowStateSaved);
+		
+		// 🔍 INSTRUMENTATION: Check localStorage after saving
+		const afterKeys = Object.keys(localStorage).filter(key => key.includes('pingone'));
+		console.log(`📋 localStorage Keys AFTER Save:`, afterKeys);
+		console.log(`📋 New Keys Added:`, afterKeys.filter(key => !beforeKeys.includes(key)));
 		
 		const success = sharedSaved && flowStateSaved;
 		
@@ -183,6 +202,9 @@ export const saveFlowCredentials = async <T = unknown>(
 		} else if (!success && options.showToast) {
 			showGlobalError('Failed to save credentials and configuration');
 		}
+		
+		console.log(`📋 Overall Save Success:`, success);
+		console.groupEnd();
 		
 		return success;
 	} catch (error) {
@@ -208,25 +230,46 @@ export const loadFlowCredentials = async <T = unknown>(
 }> => {
 	const { flowKey, defaultCredentials } = config;
 	
+	// 🔍 INSTRUMENTATION: Track credential loading behavior
+	console.group(`🔍 [CREDENTIAL AUDIT] Loading credentials for flow: ${flowKey}`);
+	console.log(`📋 Flow Key: ${flowKey}`);
+	console.log(`📋 Default Credentials:`, defaultCredentials);
+	
 	// Load flow-specific state from localStorage - PRIMARY SOURCE
 	const flowState = loadFlowState<T>(flowKey);
+	console.log(`📋 Flow State Found:`, !!flowState);
+	console.log(`📋 Flow State Credentials:`, flowState?.credentials);
 	
 	// Load from credentialManager (shared across flows) - FALLBACK ONLY
 	const sharedCredentials = await loadSharedCredentials(flowKey, defaultCredentials);
+	console.log(`📋 Shared Credentials Found:`, !!sharedCredentials);
+	console.log(`📋 Shared Credentials:`, sharedCredentials);
+	
+	// 🔍 INSTRUMENTATION: Check all localStorage keys for this flow
+	const allKeys = Object.keys(localStorage).filter(key => key.includes('pingone') || key.includes(flowKey));
+	console.log(`📋 All PingOne/Flow Keys:`, allKeys);
 	
 	// Priority: flow-specific credentials take precedence over shared credentials
 	// This ensures each flow maintains its own credentials on refresh
 	let finalCredentials: StepCredentials | null = null;
+	let credentialSource = 'none';
 	
 	if (flowState?.credentials && (flowState.credentials.environmentId || flowState.credentials.clientId)) {
 		// Use flow-specific credentials if they exist and have data
 		finalCredentials = flowState.credentials;
-		console.log(`[FlowCredentialService:${flowKey}] Using flow-specific credentials from localStorage`);
+		credentialSource = 'flow-specific';
+		console.log(`✅ [FlowCredentialService:${flowKey}] Using flow-specific credentials from localStorage`);
 	} else if (sharedCredentials) {
 		// Fall back to shared credentials only if no flow-specific credentials exist
 		finalCredentials = sharedCredentials;
-		console.log(`[FlowCredentialService:${flowKey}] Using shared credentials (no flow-specific credentials found)`);
+		credentialSource = 'shared-fallback';
+		console.log(`⚠️ [FlowCredentialService:${flowKey}] Using shared credentials (no flow-specific credentials found)`);
+		console.log(`🚨 POTENTIAL CREDENTIAL BLEEDING DETECTED! Flow ${flowKey} is using shared credentials`);
 	}
+	
+	console.log(`📋 Final Credentials Source: ${credentialSource}`);
+	console.log(`📋 Final Credentials:`, finalCredentials);
+	console.groupEnd();
 	
 	return {
 		credentials: finalCredentials,
