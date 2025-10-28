@@ -147,7 +147,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 	const [clientId, setClientId] = useState('');
 	const [tokenEndpoint, setTokenEndpoint] = useState('https://auth.pingone.com/as/token');
 	const [audience, setAudience] = useState('https://auth.pingone.com/as/token');
-	const [scopes, setScopes] = useState('read write');
+	const [scopes, setScopes] = useState('openid');
 
 	// JWT Claims with better defaults
 	const [jwtClaims, setJwtClaims] = useState<JWTClaims>({
@@ -207,7 +207,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 				if (flowData.flowCredentials.clientId) setClientId(flowData.flowCredentials.clientId);
 				if (flowData.flowCredentials.scopes) {
 					const scopesValue = Array.isArray(flowData.flowCredentials.scopes) ? flowData.flowCredentials.scopes.join(' ') : flowData.flowCredentials.scopes;
-					setScopes(scopesValue || 'read write');
+					setScopes(scopesValue || 'openid');
 				}
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [JWTBearerTokenFlowV7] Using shared environment data only');
@@ -475,7 +475,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 				client_id: clientId,
 				iss: tokenEndpoint.replace('/token', ''), // issuer is the base URL
 				aud: audience || tokenEndpoint.replace('/token', ''),
-				scope: scopes || 'read write',
+				scope: scopes || 'openid',
 				iat: now,
 				exp: exp,
 				jti: 'mock_jti_' + Math.random().toString(36).substr(2, 16),
@@ -495,7 +495,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 				access_token: mockAccessToken, // Now a proper JWT that can be decoded
 				token_type: 'Bearer',
 				expires_in: 3600,
-				scope: scopes || 'read write',
+				scope: scopes || 'openid',
 				_mock: true, // Indicator that this is a mock response
 				_note: 'This is a simulated response for educational purposes. PingOne does not support JWT Bearer assertions.'
 			};

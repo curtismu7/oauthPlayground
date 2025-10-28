@@ -15,6 +15,7 @@ import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService';
+import { scopeValidationService } from '../services/scopeValidationService';
 
 // FlowConfig type (simplified for Implicit flow)
 interface FlowConfig {
