@@ -6,6 +6,7 @@ import styled from 'styled-components';
 import CompleteMFAFlowV7 from '../../components/CompleteMFAFlowV7';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 
 const PageContainer = styled.div`
   min-height: 100vh;
@@ -16,21 +17,34 @@ const PingOneCompleteMFAFlowV7: React.FC = () => {
   const { credentials } = useAuth();
   const [v7Credentials, setV7Credentials] = useState<any>(null);
 
-  // Load credentials using V7 standardized storage
+  // Load credentials using comprehensive service
   useEffect(() => {
     const loadCredentials = async () => {
-      console.log('🔄 [MFA-V7] Loading credentials on mount...');
+      console.log('🔄 [MFA-V7] Loading credentials with comprehensive service...');
       
-      const { credentials: loadedCredentials } = await FlowCredentialService.loadFlowCredentials({
+      const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
         flowKey: 'pingone-complete-mfa-v7',
-        defaultCredentials: {},
+        useSharedEnvironment: true,
+        useSharedDiscovery: true
       });
 
-      if (loadedCredentials && Object.keys(loadedCredentials).length > 0) {
-        console.log('✅ [MFA-V7] Loaded V7 credentials:', loadedCredentials);
-        setV7Credentials(loadedCredentials);
+      if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+        console.log('✅ [MFA-V7] Found flow-specific credentials');
+        setV7Credentials({
+          environmentId: flowData.sharedEnvironment?.environmentId || '',
+          clientId: flowData.flowCredentials.clientId,
+          clientSecret: flowData.flowCredentials.clientSecret,
+          redirectUri: flowData.flowCredentials.redirectUri,
+          scopes: flowData.flowCredentials.scopes,
+        });
+      } else if (flowData.sharedEnvironment?.environmentId) {
+        console.log('ℹ️ [MFA-V7] Using shared environment data only');
+        setV7Credentials(prev => ({
+          ...prev,
+          environmentId: flowData.sharedEnvironment.environmentId,
+        }));
       } else {
-        console.log('ℹ️ [MFA-V7] No V7 credentials found, using auth context');
+        console.log('ℹ️ [MFA-V7] No saved credentials found, using auth context');
         setV7Credentials(credentials);
       }
     };
