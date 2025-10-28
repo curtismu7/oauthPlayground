@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { safeLocalStorageParse } from '../utils/secureJson';
+import { scopeValidationService } from '../services/scopeValidationService';
 
 export interface DeviceCodeResponse {
 	device_code: string;
@@ -196,10 +197,28 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		try {
 			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
 
-		const params = new URLSearchParams({
-			client_id: credentials.clientId,
-			scope: credentials.scopes || 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
-		});
+			// Use centralized scope validation service
+			const scopeValidation = scopeValidationService.validateForAuthorizationUrl(
+				credentials.scopes || credentials.scope,
+				'device'
+			);
+
+			if (!scopeValidation.isValid) {
+				throw new Error(scopeValidation.error || 'Invalid scopes configuration');
+			}
+
+			const scopes = scopeValidation.scopes;
+			console.log('🔍 [useDeviceAuthorizationFlow] Scope validation:', {
+				originalScopes: credentials.scopes,
+				originalScope: credentials.scope,
+				validatedScopes: scopes,
+				isValid: scopeValidation.isValid
+			});
+
+			const params = new URLSearchParams({
+				client_id: credentials.clientId,
+				scope: scopes,
+			});
 
 		// RFC 8628 Device Authorization Grant: ONLY client_id and scope are supported
 		// Do NOT add response_type, nonce, claims, or client_secret to device authorization endpoint
