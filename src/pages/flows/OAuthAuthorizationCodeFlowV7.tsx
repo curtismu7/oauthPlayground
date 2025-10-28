@@ -2075,6 +2075,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					{!collapsedSections.configuration && (
 						<CollapsibleContent>
 							<ComprehensiveCredentialsService
+								// Flow identification
+								flowType="oauth-authorization-code-v7"
+								
 								// Discovery props
 								onDiscoveryComplete={(result) => {
 									console.log('[OAuth Authz V6] Discovery completed:', result);
