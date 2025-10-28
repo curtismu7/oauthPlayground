@@ -9,6 +9,7 @@ import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/sidebar-v6-forces.css';
+import FieldEditingService from './services/fieldEditingService';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import DeviceMockFlow from './components/DeviceMockFlow';
@@ -760,7 +761,30 @@ function AppContent() {
 				console.log('  - CredentialDebugger.clearAllCredentials()');
 				console.log('  - CredentialDebugger.testCredentialIsolation("flow1", "flow2")');
 			});
+
+			// Import and initialize field editing diagnostic
+			import('./utils/fieldEditingDiagnostic').then(({ default: FieldEditingDiagnostic }) => {
+				// Make it available globally
+				(window as any).FieldEditingDiagnostic = FieldEditingDiagnostic;
+				console.log('🔧 FieldEditingDiagnostic initialized and available globally');
+				console.log('🔧 Available commands:');
+				console.log('  - diagnoseFields() - Analyze all fields for editing issues');
+				console.log('  - fixFields() - Apply common fixes to all fields');
+				console.log('  - monitorFields() - Start real-time monitoring');
+				console.log('  - stopMonitorFields() - Stop monitoring');
+			});
 		}
+
+		// Initialize field editing protection for all environments
+		const fieldEditingService = FieldEditingService.getInstance();
+		fieldEditingService.initialize({
+			preventDisabledState: true,
+			preventReadonlyState: true,
+			ensurePointerEvents: true,
+			monitorChanges: true,
+			autoFix: true
+		});
+		console.log('🛡️ Field Editing Protection initialized');
 	}, []);
 
 	return (

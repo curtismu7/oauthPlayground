@@ -769,6 +769,12 @@ const VariantToggleButton = styled.button<{ $active: boolean }>`
 	}
 `;
 
+const ensureOpenIdScope = (scopeValue?: string | null): string => {
+	const tokens = new Set((scopeValue ?? '').split(' ').filter(Boolean));
+	tokens.add('openid');
+	return Array.from(tokens).join(' ');
+};
+
 const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const location = useLocation();
 	
@@ -882,16 +888,12 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		enabled: true
 	});
 
-	const ensureOidcScopes = useCallback((scopeValue: string | undefined) => {
-		const base = scopeValue?.split(' ').filter(Boolean) ?? [];
-		const required = ['openid', 'profile', 'email']; // Consistent scopes for both OAuth 2.0 and OIDC variants
-		required.forEach((scope) => {
-			if (!base.includes(scope)) {
-				base.push(scope);
-			}
-		});
-		return base.join(' ');
+	const normalizeScopes = useCallback((scopeValue: string | undefined) => {
+		return ensureOpenIdScope(scopeValue);
 	}, []);
+
+	// Temporary alias for legacy references until hot reload settles
+	const ensureOidcScopes = normalizeScopes;
 
 	const handleFlowVariantChange = useCallback(
 		(nextVariant: 'oauth' | 'oidc') => {
@@ -916,8 +918,8 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					console.warn('[V7 AuthZ] Failed to load shared credentials:', error);
 				});
 
-			// PingOne requires openid scope for both OAuth and OIDC variants
-			const updatedScope = ensureOidcScopes(controller.credentials.scope || controller.credentials.scopes);
+			// Ensure openid is always present regardless of variant
+			const updatedScope = normalizeScopes(controller.credentials.scope || controller.credentials.scopes);
 			controller.setCredentials({
 				...controller.credentials,
 				scope: updatedScope,
@@ -944,8 +946,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			
 			// Show success message
 			v4ToastManager.showSuccess(`Switched to ${nextVariant.toUpperCase()} variant`);
-		},
-		[controller, ensureOidcScopes]
+		}, [controller, normalizeScopes]
 	);
 
 	// Load worker token from localStorage on mount
@@ -1296,9 +1297,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
-			const updatedCredentials = {
+			const isScopeField = field === 'scope' || field === 'scopes';
+			const normalizedScope = isScopeField ? normalizeScopes(value) : undefined;
+			const updatedCredentials: StepCredentials = {
 				...controller.credentials,
-				[field]: value,
+				[field]: isScopeField ? normalizedScope! : value,
+				...(isScopeField
+					? {
+						scope: normalizedScope!,
+						scopes: normalizedScope!,
+					}
+					: {}),
 			};
 			controller.setCredentials(updatedCredentials);
 			// Save credentials with variant-specific key for better isolation

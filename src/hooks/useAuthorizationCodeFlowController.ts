@@ -179,9 +179,23 @@ const loadStoredConfig = (storageKey: string, variant: FlowVariant): FlowConfig 
 	}
 };
 
+const ensureOpenIdScope = (scopeValue: string | null | undefined): string => {
+	const scopes = new Set((scopeValue ?? '').split(' ').filter(Boolean));
+	if (!scopes.has('openid')) {
+		scopes.add('openid');
+	}
+	return Array.from(scopes).join(' ').trim();
+};
+
 const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 	if (typeof window === 'undefined') {
-		return createEmptyCredentials();
+		const defaults = createEmptyCredentials();
+		const ensuredScopes = ensureOpenIdScope(defaults.scope);
+		return {
+			...defaults,
+			scope: ensuredScopes,
+			scopes: ensuredScopes,
+		};
 	}
 
 	const urlParams = new URLSearchParams(window.location.search);
@@ -194,9 +208,8 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 	// Each flow should maintain its own credentials in flow-specific storage
 	const loaded: any = {}; // Empty object to prevent loading shared credentials
 
-	const mergedScopes =
-		urlScope ||
-		(variant === 'oidc' ? 'openid profile email' : 'read write');
+	const defaultScopes = variant === 'oidc' ? 'openid profile email' : 'openid';
+	const mergedScopes = ensureOpenIdScope(urlScope || defaultScopes);
 
 	return {
 		environmentId: urlEnv || '',
