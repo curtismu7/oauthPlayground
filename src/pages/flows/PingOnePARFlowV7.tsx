@@ -12,8 +12,7 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -276,10 +275,28 @@ const PingOnePARFlowV7: React.FC = () => {
 				redirectUri: controller.credentials.redirectUri
 			});
 			
-			// Save to flow-specific storage
-			FlowCredentialService.saveFlowCredentials('pingone-par-flow-v7', controller.credentials, {
-				showToast: false
+			// Save to comprehensive service with complete isolation
+			const success = comprehensiveFlowDataService.saveFlowDataComprehensive('pingone-par-flow-v7', {
+				...(controller.credentials.environmentId && {
+					sharedEnvironment: {
+						environmentId: controller.credentials.environmentId,
+						region: 'us', // Default region
+						issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`
+					}
+				}),
+				flowCredentials: {
+					clientId: controller.credentials.clientId,
+					clientSecret: controller.credentials.clientSecret,
+					redirectUri: controller.credentials.redirectUri,
+					scopes: Array.isArray(controller.credentials.scopes) ? controller.credentials.scopes : (controller.credentials.scopes ? [controller.credentials.scopes] : []),
+					tokenEndpointAuthMethod: 'client_secret_basic',
+					lastUpdated: Date.now()
+				}
 			});
+
+			if (!success) {
+				console.error('[PingOnePARFlowV7] Failed to save credentials to comprehensive service');
+			}
 		}
 	}, [controller.credentials]);
 
@@ -523,8 +540,8 @@ const PingOnePARFlowV7: React.FC = () => {
 		controller.resetFlow();
 		setCompletedActions({}); // Clear all completed actions
 		
-		// Clear PAR-specific storage
-		FlowCredentialService.clearFlowState('pingone-par-flow-v7');
+		// Clear PAR-specific storage using comprehensive service
+		comprehensiveFlowDataService.clearFlowData('pingone-par-flow-v7');
 		console.log('🔧 [PAR V7] Cleared PAR-specific storage');
 		
 		v4ToastManager.showInfo('PAR Flow V7 reset successfully');
@@ -691,7 +708,7 @@ const PingOnePARFlowV7: React.FC = () => {
 							workerToken={workerToken}
 						/>
 
-						<EducationalContentService flowType={selectedVariant === 'oidc' ? 'oidc-par' : 'oauth-par'} defaultCollapsed={false} />
+						{/* <EducationalContentService flowType={selectedVariant === 'oidc' ? 'oidc-par' : 'oauth-par'} defaultCollapsed={false} /> */}
 					</div>
 				);
 
