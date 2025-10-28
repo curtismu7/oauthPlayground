@@ -1163,7 +1163,7 @@ const OAuthImplicitFlowV6: React.FC = () => {
 													}
 												}}
 											>
-												<FiGlobe size={14} />
+												{isDiscoveringAudience ? <FiRefreshCw size={14} className="animate-spin" /> : <FiGlobe size={14} />}
 												{isDiscoveringAudience ? 'Discovering...' : 'Auto-Discover from OIDC'}
 											</button>
 										</div>
