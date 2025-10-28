@@ -1,6 +1,6 @@
 {
 	"name": "pingone-oauth-playground",
-	"version": "7.2.0",
+	"version": "7.3.0",
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
 	"main": "src/main.tsx",
 	"type": "module",
@@ -27,6 +27,10 @@
 		"test": "vitest",
 		"test:ui": "vitest --ui",
 		"test:run": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:unit": "vitest run src/services/__tests__/",
+		"test:integration": "vitest run src/services/__tests__/*.integration.test.ts",
+		"test:services": "vitest run src/services/__tests__/ --reporter=verbose",
 		"test:puppeteer": "node tests/puppeteer/sidebar-menu.test.js",
 		"test:e2e": "playwright test",
 		"test:e2e:ui": "playwright test --ui",
