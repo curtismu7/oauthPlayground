@@ -1,3 +1,21 @@
+/**
+ * ========================================================================
+ * MENU LOCKED - DO NOT MODIFY THIS FILE
+ * ========================================================================
+ * 
+ * This file contains the application menu structure and is LOCKED.
+ * Any menu changes must be implemented in a NEW VERSION of this file.
+ * 
+ * Current Version: V1 (Locked as of latest commit)
+ * 
+ * To modify the menu, create:
+ * - DragDropSidebar.tsx.V2.tsx (Next version)
+ * - Or create a new menu component in a different file
+ * 
+ * This ensures menu stability and prevents breaking changes.
+ * ========================================================================
+ */
+
 import React, { useState, useMemo } from 'react';
 import {
 	FiHome,
@@ -20,6 +38,7 @@ import {
 	FiChevronDown,
 	FiCpu,
 	FiCode,
+	FiServer,
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -80,48 +99,64 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 
 
 
-	const isActive = (path: string) => location.pathname === path;
+	const isActive = (path: string) => {
+		const currentPath = location.pathname + location.search; // Include query parameters
+		
+		// Exact match including query parameters
+		if (currentPath === path) {
+			return true;
+		}
+		
+		// Extract base path and query parameters
+		const basePath = path.split('?')[0];
+		const pathQuery = path.split('?')[1];
+		const currentBasePath = location.pathname;
+		const currentQuery = location.search;
+		
+		// Match base path and check query parameters
+		if (currentBasePath === basePath) {
+			// If the menu item has query parameters, they must match
+			if (pathQuery) {
+				if (currentQuery === '?' + pathQuery) {
+					return true;
+				}
+			} else {
+				// Special handling for implicit-v7: only match if variant matches or no variant in URL
+				if (basePath === '/flows/implicit-v7') {
+					const urlParams = new URLSearchParams(currentQuery);
+					const urlVariant = urlParams.get('variant');
+					// For implicit flow without query param, only the OAuth version should highlight by default
+					// For implicit flow with variant, only that specific variant should highlight
+					if (!urlVariant || urlVariant === 'oauth') {
+						// Only highlight if no variant specified in URL
+						return !currentQuery || currentQuery === '';
+					}
+					// If variant is specified in URL, don't highlight anything (will be handled by query matching)
+					return false;
+				}
+				
+				// If the menu item has no query parameters, current path should also have none
+				if (!currentQuery) {
+					return true;
+				}
+			}
+		}
+		
+		// Handle trailing slashes
+		if (currentBasePath === basePath + '/' || basePath === currentBasePath + '/') {
+			if (!pathQuery && !currentQuery) {
+				return true;
+			}
+		}
+		
+		return false;
+	};
 
 	const handleNavigation = (path: string, state?: any) => {
 		navigate(path, { state });
 		
-		// Smooth scroll to center the main content after navigation
-		setTimeout(() => {
-			// Try to find the main content area
-			const mainContent = document.querySelector('main') || 
-							   document.querySelector('[role="main"]') || 
-							   document.querySelector('.main-content') ||
-							   document.querySelector('div[style*="padding"]') ||
-							   document.body.children[0] as HTMLElement;
-			
-			if (mainContent) {
-				// Calculate position to center the content nicely
-				const rect = mainContent.getBoundingClientRect();
-				const viewportHeight = window.innerHeight;
-				const currentScrollTop = window.scrollY;
-				
-				// Target position: place content at 1/3 from top of viewport
-				const targetScrollTop = currentScrollTop + rect.top - (viewportHeight / 3);
-				
-				// Only scroll if we need to move more than 50px (avoid tiny jumps)
-				const scrollDifference = Math.abs(targetScrollTop - currentScrollTop);
-				
-				if (scrollDifference > 50) {
-					window.scrollTo({
-						top: Math.max(0, targetScrollTop), // Don't scroll above the top
-						behavior: 'smooth'
-					});
-				}
-			} else {
-				// Fallback: scroll to a reasonable position only if we're at the very top
-				if (window.scrollY < 50) {
-					window.scrollTo({
-						top: Math.min(200, window.innerHeight / 4),
-						behavior: 'smooth'
-					});
-				}
-			}
-		}, 200); // Longer delay to ensure page content has fully loaded
+		// Remove automatic scrolling behavior that causes menu to jump to top
+		// Keep the menu position stable - no automatic scrolling
 	};
 
 	// Helper functions for persistence
@@ -241,21 +276,21 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 				items: [
 					{
 						id: 'oauth-authorization-code-v7',
-						path: '/flows/oauth-authorization-code-v7?variant=oauth',
+						path: '/flows/oauth-authorization-code-v7',
 						label: 'Authorization Code (V7)',
 						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
 						id: 'oauth-implicit-v7',
-						path: '/flows/implicit-v7?variant=oauth',
+						path: '/flows/implicit-v7',
 						label: 'Implicit Flow (V7)',
 						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
 						id: 'oauth-device-authorization-v7',
-						path: '/flows/device-authorization-v7?variant=oauth',
+						path: '/flows/device-authorization-v7',
 						label: 'Device Authorization (V7)',
 						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization"><FiCheckCircle /></MigrationBadge>,
@@ -282,18 +317,25 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 						badge: <MigrationBadge title="V7: RFC 8693 Token Exchange"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'jwt-bearer-v7',
-						path: '/flows/jwt-bearer-v7',
+						id: 'jwt-bearer-token-v7',
+						path: '/flows/jwt-bearer-token-v7',
 						label: 'JWT Bearer Token (V7)',
 						icon: <ColoredIcon $color="#f59e0b"><FiKey /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: JWT Bearer Token Assertion"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'saml-bearer-v7',
-						path: '/flows/saml-bearer-v7',
+						id: 'saml-bearer-assertion-v7',
+						path: '/flows/saml-bearer-assertion-v7',
 						label: 'SAML Bearer Token (V7)',
 						icon: <ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: SAML Bearer Token Assertion"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'saml-sp-dynamic-acs-v1',
+						path: '/flows/saml-sp-dynamic-acs-v1',
+						label: 'SAML SP Dynamic ACS (V1)',
+						icon: <ColoredIcon $color="#f59e0b"><FiShield /></ColoredIcon>,
+						badge: <MigrationBadge title="V1: SAML SP with Dynamic ACS URL support - PingOne new feature"><FiCheckCircle /></MigrationBadge>,
 					},
 				],
 			},
@@ -303,23 +345,16 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 				icon: <ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>,
 				isOpen: true,
 				items: [
-					{
-						id: 'oidc-authorization-code-v7',
-						path: '/flows/oauth-authorization-code-v7?variant=oidc',
-						label: 'Authorization Code (V7)',
-						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'oidc-implicit-v7',
-						path: '/flows/implicit-v7?variant=oidc',
-						label: 'Implicit Flow (V7)',
-						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
-					},
+				{
+					id: 'oidc-implicit-v7',
+					path: '/flows/implicit-v7?variant=oidc',
+					label: 'Implicit Flow (V7)',
+					icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
+					badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
+				},
 					{
 						id: 'oidc-device-authorization-v7',
-						path: '/flows/device-authorization-v7?variant=oidc',
+						path: '/flows/device-authorization-v7',
 						label: 'Device Authorization (V7)',
 						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization"><FiCheckCircle /></MigrationBadge>,
@@ -351,7 +386,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 				id: 'pingone',
 				label: 'PingOne',
 				icon: <ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>,
-				isOpen: false,
+				isOpen: true,
 				items: [
 					{
 						id: 'worker-token-v7',
@@ -375,11 +410,11 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 						badge: <MigrationBadge title="V7: Enhanced Redirectless Authentication Flow"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'pingone-mfa-v6',
-						path: '/flows/pingone-mfa-v6',
-						label: 'PingOne MFA (V6)',
+						id: 'pingone-mfa-v7',
+						path: '/flows/pingone-complete-mfa-v7',
+						label: 'PingOne MFA (V7)',
 						icon: <ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="V6: PingOne Multi-Factor Authentication"><FiCheckCircle /></MigrationBadge>,
+						badge: <MigrationBadge title="V7: Enhanced PingOne Multi-Factor Authentication"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
 						id: 'pingone-authentication',
@@ -394,6 +429,20 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 						label: 'Mock & Educational Features',
 						icon: <ColoredIcon $color="#f59e0b"><FiBookOpen /></ColoredIcon>,
 						badge: <MigrationBadge title="Educational and Mock Features"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'pingone-webhook-viewer',
+						path: '/pingone-webhook-viewer',
+						label: 'Webhook Viewer',
+						icon: <ColoredIcon $color="#06b6d4"><FiServer /></ColoredIcon>,
+						badge: <MigrationBadge title="Real-time webhook event monitoring"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'organization-licensing',
+						path: '/organization-licensing',
+						label: 'Organization Licensing',
+						icon: <ColoredIcon $color="#22c55e"><FiShield /></ColoredIcon>,
+						badge: <MigrationBadge title="View organization licensing and usage information"><FiCheckCircle /></MigrationBadge>,
 					},
 				],
 			},
@@ -468,25 +517,25 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 				isOpen: false,
 				items: [
 					{
-						id: 'oauth-guide',
-						path: '/documentation/oauth-guide',
-						label: 'OAuth 2.0 Guide',
+						id: 'oidc-overview',
+						path: '/documentation/oidc-overview',
+						label: 'OIDC Overview',
 						icon: <ColoredIcon $color="#3b82f6"><FiBook /></ColoredIcon>,
-						badge: <MigrationBadge title="OAuth 2.0 Documentation and Guide"><FiCheckCircle /></MigrationBadge>,
+						badge: <MigrationBadge title="OIDC Overview and Guide"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'oidc-guide',
-						path: '/documentation/oidc-guide',
-						label: 'OIDC Guide',
+						id: 'oidc-specs',
+						path: '/docs/oidc-specs',
+						label: 'OIDC Specifications',
 						icon: <ColoredIcon $color="#3b82f6"><FiBookOpen /></ColoredIcon>,
-						badge: <MigrationBadge title="OpenID Connect Documentation and Guide"><FiCheckCircle /></MigrationBadge>,
+						badge: <MigrationBadge title="OIDC Technical Specifications"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'security-guide',
-						path: '/documentation/security-guide',
-						label: 'Security Best Practices',
+						id: 'oauth2-security-best-practices',
+						path: '/docs/oauth2-security-best-practices',
+						label: 'OAuth 2.0 Security Best Practices',
 						icon: <ColoredIcon $color="#dc2626"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="Security Best Practices and Guidelines"><FiCheckCircle /></MigrationBadge>,
+						badge: <MigrationBadge title="OAuth 2.0 Security Guidelines"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
 						id: 'ai-identity-architectures',
@@ -1042,10 +1091,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 											alignItems: 'center',
 											gap: '0.5rem',
 											padding: '0.5rem 0.75rem',
-											backgroundColor: isActive(item.path) ? '#f97316' : 'white',
-											color: isActive(item.path) ? 'white' : '#64748b',
+											backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
+											color: isActive(item.path) ? '#d97706' : '#64748b',
 											borderRadius: '0.375rem',
-											border: '1px solid #e2e8f0',
+											border: isActive(item.path) ? '3px solid #f59e0b' : '1px solid #e2e8f0',
+											fontWeight: isActive(item.path) ? '700' : '400',
+											boxShadow: isActive(item.path) ? '0 4px 8px rgba(245, 158, 11, 0.3)' : 'none',
+											transform: isActive(item.path) ? 'scale(1.02)' : 'scale(1)',
 											marginBottom: '0.25rem',
 											cursor: dragMode ? 'grab' : 'pointer',
 											userSelect: 'none',
