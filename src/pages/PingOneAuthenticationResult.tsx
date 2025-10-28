@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { RESULT_STORAGE_KEY, type PlaygroundResult, RESPONSE_TYPES } from './PingOneAuthentication';
-import TokenDisplay from '../components/TokenDisplay';
+import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 
 const Page = styled.div`
   background: white;
@@ -276,14 +276,13 @@ const PingOneAuthenticationResult: React.FC = () => {
               <code> token </code> or <code> id_token </code> and re-run the flow.
             </EmptyTokenNotice>
           ) : (
-            <TokenDisplay tokens={tokensForDisplay as Record<string, unknown> & {
-              access_token?: string;
-              id_token?: string;
-              token_type?: string;
-              expires_in?: number;
-              refresh_token?: string;
-              scope?: string;
-            }} />
+            <UnifiedTokenDisplayService
+              tokens={tokensForDisplay}
+              flowType="pingone-authentication"
+              showCopyButtons={true}
+              showTokenManagement={true}
+              enableTokenIntrospection={true}
+            />
           )}
         </TokenCard>
 
