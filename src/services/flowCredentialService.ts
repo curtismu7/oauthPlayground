@@ -6,6 +6,7 @@ import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialManager } from '../utils/credentialManager';
 import { safeJsonParse } from '../utils/secureJson';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
+import { flowCredentialIsolationService } from './flowCredentialIsolationService';
 
 export interface FlowCredentialConfig {
 	flowKey: string; // Unique key for this flow (e.g., 'client-credentials-v6', 'oidc-hybrid-v6')
@@ -291,6 +292,122 @@ export const clearFlowState = (flowKey: string): boolean => {
 		console.error(`[FlowCredentialService:${flowKey}] Failed to clear flow state:`, error);
 		return false;
 	}
+};
+
+// ============================================
+// ISOLATED CREDENTIAL METHODS (NEW)
+// ============================================
+
+/**
+ * Save credentials using isolated storage (per-flow-first, no shared contamination)
+ * This is the NEW recommended method for V7 flows
+ */
+export const saveFlowCredentialsIsolated = async <T = unknown>(
+	flowKey: string,
+	credentials: StepCredentials,
+	flowConfig?: T,
+	additionalState?: Partial<FlowPersistentState<T>>,
+	options: { 
+		showToast?: boolean;
+		useSharedFallback?: boolean;
+	} = { showToast: true, useSharedFallback: false }
+): Promise<boolean> => {
+	try {
+		console.group(`🔒 [ISOLATED CREDENTIALS] Saving credentials for flow: ${flowKey}`);
+		console.log(`📋 Flow Key: ${flowKey}`);
+		console.log(`📋 Credentials:`, credentials);
+		console.log(`📋 Use Shared Fallback: ${options.useSharedFallback}`);
+		
+		// Save to isolated storage (per-flow-first)
+		const isolatedSaved = flowCredentialIsolationService.saveFlowCredentials(
+			flowKey,
+			credentials,
+			{ showToast: false, useSharedFallback: options.useSharedFallback }
+		);
+		
+		// Save flow-specific state to localStorage (for backward compatibility)
+		const flowState: FlowPersistentState<T> = {
+			credentials,
+			flowConfig,
+			...additionalState,
+		};
+		const flowStateSaved = saveFlowState(flowKey, flowState);
+		
+		const success = isolatedSaved && flowStateSaved;
+		
+		if (success && options.showToast) {
+			showGlobalSuccess(`Credentials saved for ${flowKey} (isolated)`);
+		} else if (!success && options.showToast) {
+			showGlobalError(`Failed to save credentials for ${flowKey}`);
+		}
+		
+		console.log(`📋 Overall Save Success:`, success);
+		console.groupEnd();
+		
+		return success;
+	} catch (error) {
+		console.error(`[FlowCredentialService:${flowKey}] Failed to save isolated credentials:`, error);
+		if (options.showToast) {
+			showGlobalError('Failed to save credentials');
+		}
+		return false;
+	}
+};
+
+/**
+ * Load credentials using isolated storage (per-flow-first, optional shared fallback)
+ * This is the NEW recommended method for V7 flows
+ */
+export const loadFlowCredentialsIsolated = async <T = unknown>(
+	config: FlowCredentialConfig & { useSharedFallback?: boolean }
+): Promise<{
+	credentials: StepCredentials | null;
+	flowState: FlowPersistentState<T> | null;
+	hasSharedCredentials: boolean;
+	hasFlowState: boolean;
+	credentialSource: 'flow-specific' | 'shared-fallback' | 'none';
+}> => {
+	const { flowKey, defaultCredentials, useSharedFallback = false } = config;
+	
+	console.group(`🔒 [ISOLATED CREDENTIALS] Loading credentials for flow: ${flowKey}`);
+	console.log(`📋 Flow Key: ${flowKey}`);
+	console.log(`📋 Use Shared Fallback: ${useSharedFallback}`);
+	
+	// Load from isolated storage (per-flow-first)
+	const isolatedResult = flowCredentialIsolationService.loadFlowCredentials({
+		flowKey,
+		defaultCredentials,
+		useSharedFallback
+	});
+	
+	// Load flow-specific state from localStorage (for backward compatibility)
+	const flowState = loadFlowState<T>(flowKey);
+	
+	console.log(`📋 Isolated Result:`, isolatedResult);
+	console.log(`📋 Flow State:`, !!flowState);
+	console.groupEnd();
+	
+	return {
+		credentials: isolatedResult.credentials,
+		flowState,
+		hasSharedCredentials: isolatedResult.hasSharedCredentials,
+		hasFlowState: !!flowState,
+		credentialSource: isolatedResult.credentialSource,
+	};
+};
+
+/**
+ * Migrate existing shared credentials to isolated storage for a flow
+ */
+export const migrateFlowToIsolated = (flowKey: string): boolean => {
+	return flowCredentialIsolationService.migrateSharedToFlowSpecific(flowKey);
+};
+
+/**
+ * Clear isolated credentials for a flow
+ */
+export const clearFlowCredentialsIsolated = (flowKey: string): boolean => {
+	return flowCredentialIsolationService.clearFlowCredentials(flowKey);
 };
 
 /**
