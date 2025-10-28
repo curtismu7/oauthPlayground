@@ -249,6 +249,12 @@ export class CredentialDebugger {
 if (typeof window !== 'undefined') {
 	(window as any).CredentialDebugger = CredentialDebugger;
 	console.log(`🔧 CredentialDebugger available globally as window.CredentialDebugger`);
+	console.log(`🔧 Available commands:`);
+	console.log(`  - CredentialDebugger.auditAllFlows()`);
+	console.log(`  - CredentialDebugger.auditFlowCredentials("flow-key")`);
+	console.log(`  - CredentialDebugger.dumpAllStorage()`);
+	console.log(`  - CredentialDebugger.clearAllCredentials()`);
+	console.log(`  - CredentialDebugger.testCredentialIsolation("flow1", "flow2")`);
 }
 
 export default CredentialDebugger;
