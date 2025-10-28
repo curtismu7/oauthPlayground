@@ -102,6 +102,66 @@ const PingOneAuthenticationCallback: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Token exchange function for authorization code flow
+  const exchangeCodeForTokens = async (code: string, flowContext: any) => {
+    console.log('[PingOneAuthenticationCallback] Starting token exchange...');
+    
+    // Get the stored PKCE code verifier
+    const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+    if (!codeVerifier) {
+      throw new Error('PKCE code verifier not found. Please restart the flow.');
+    }
+    
+    const tokenEndpoint = `https://auth.pingone.com/${config.environmentId}/as/token`;
+    
+    const tokenRequest = {
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: config.redirectUri,
+      client_id: config.clientId,
+      client_secret: config.clientSecret,
+      code_verifier: codeVerifier
+    };
+    
+    console.log('[PingOneAuthenticationCallback] Token request:', {
+      tokenEndpoint,
+      grant_type: tokenRequest.grant_type,
+      client_id: tokenRequest.client_id,
+      has_code_verifier: !!tokenRequest.code_verifier,
+      redirect_uri: tokenRequest.redirect_uri
+    });
+    
+    const response = await fetch('/api/token-exchange', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        tokenEndpoint,
+        ...tokenRequest
+      })
+    });
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[PingOneAuthenticationCallback] Token exchange error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorText
+      });
+      throw new Error(`Token exchange failed: ${response.status} ${response.statusText}`);
+    }
+    
+    const tokenData = await response.json();
+    console.log('[PingOneAuthenticationCallback] Token exchange response:', tokenData);
+    
+    // Clean up PKCE data
+    sessionStorage.removeItem('pkce_code_verifier');
+    sessionStorage.removeItem('pkce_code_challenge');
+    
+    return tokenData;
+  };
+
   const config = useMemo(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -126,68 +186,111 @@ const PingOneAuthenticationCallback: React.FC = () => {
   }, [location.hash, location.search]);
 
   useEffect(() => {
-    const fragmentTokens = parseParams(location.hash, true);
-    const queryTokens = parseParams(location.search.startsWith('?') ? location.search.slice(1) : location.search);
-    const mergedTokens = { ...queryTokens, ...fragmentTokens };
+    const processTokens = async () => {
+      const fragmentTokens = parseParams(location.hash, true);
+      const queryTokens = parseParams(location.search.startsWith('?') ? location.search.slice(1) : location.search);
+      const mergedTokens = { ...queryTokens, ...fragmentTokens };
 
-    const flowContextRaw = sessionStorage.getItem(FLOW_CONTEXT_KEY);
-    let flowContext: { returnPath?: string; responseType?: string } | null = null;
-    
-    console.log('[PingOneAuthenticationCallback] Flow context lookup:', {
-      flowContextRaw,
-      hasFlowContext: !!flowContextRaw,
-      FLOW_CONTEXT_KEY
-    });
-    
-    if (flowContextRaw) {
-      try {
-        flowContext = JSON.parse(flowContextRaw);
-        console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
-      } catch (err) {
-        console.warn('[PingOneAuthenticationCallback] Failed to parse flow context:', err);
-      }
-    }
-
-    if (!flowContext) {
-      const savedContext = FlowContextService.getFlowContext();
-      if (savedContext) {
-        flowContext = {
-          returnPath: savedContext.returnPath,
-          responseType: savedContext.flowState?.responseType,
-        };
-        FlowContextService.clearFlowContext();
-      }
-    }
-
-    if (Object.keys(mergedTokens).length === 0) {
-      // Check for specific error types
-      const errorParam = mergedTokens.error;
-      const errorDescription = mergedTokens.error_description;
+      const flowContextRaw = sessionStorage.getItem(FLOW_CONTEXT_KEY);
+      let flowContext: { returnPath?: string; responseType?: string } | null = null;
       
-      if (errorParam === 'unsupported_response_type') {
-        v4ToastManager.showError('Response type not supported by your PingOne application. Try using "code" instead of hybrid flows.');
-        setError(`Unsupported response type: ${errorDescription || 'Your PingOne application does not support the selected response type. Please use "code" (Authorization Code) instead.'}`);
-      } else if (errorParam === 'invalid_client') {
-        v4ToastManager.showError('Invalid client configuration. Check your Client ID and Client Secret.');
-        setError(`Client error: ${errorDescription || 'Invalid client credentials or configuration.'}`);
-      } else if (errorParam === 'invalid_scope') {
-        v4ToastManager.showError('Invalid scope configuration. Check your scopes in PingOne application settings.');
-        setError(`Scope error: ${errorDescription || 'The requested scopes are not valid for this application.'}`);
-      } else if (errorParam) {
-        v4ToastManager.showError(`Authentication error: ${errorParam}`);
-        setError(`Authentication failed: ${errorDescription || errorParam}`);
-      } else {
-        v4ToastManager.showError('No tokens found on callback. Complete the flow and try again.');
-        setError('Missing tokens in callback response.');
-      }
+      console.log('[PingOneAuthenticationCallback] Flow context lookup:', {
+        flowContextRaw,
+        hasFlowContext: !!flowContextRaw,
+        FLOW_CONTEXT_KEY
+      });
       
-      setIsProcessing(false);
-      return;
-    }
+      if (flowContextRaw) {
+        try {
+          flowContext = JSON.parse(flowContextRaw);
+          console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
+        } catch (err) {
+          console.warn('[PingOneAuthenticationCallback] Failed to parse flow context:', err);
+        }
+      }
 
-    setTokens(mergedTokens);
+      if (!flowContext) {
+        const savedContext = FlowContextService.getFlowContext();
+        if (savedContext) {
+          flowContext = {
+            returnPath: savedContext.returnPath,
+            responseType: savedContext.flowState?.responseType,
+          };
+          FlowContextService.clearFlowContext();
+        }
+      }
 
-    const result: PlaygroundResult = {
+      if (Object.keys(mergedTokens).length === 0) {
+        // Check for specific error types
+        const errorParam = mergedTokens.error;
+        const errorDescription = mergedTokens.error_description;
+        
+        if (errorParam === 'unsupported_response_type') {
+          v4ToastManager.showError('Response type not supported by your PingOne application. Try using "code" instead of hybrid flows.');
+          setError(`Unsupported response type: ${errorDescription || 'Your PingOne application does not support the selected response type. Please use "code" (Authorization Code) instead.'}`);
+        } else if (errorParam === 'invalid_client') {
+          v4ToastManager.showError('Invalid client configuration. Check your Client ID and Client Secret.');
+          setError(`Client error: ${errorDescription || 'Invalid client credentials or configuration.'}`);
+        } else if (errorParam === 'invalid_scope') {
+          v4ToastManager.showError('Invalid scope configuration. Check your scopes in PingOne application settings.');
+          setError(`Scope error: ${errorDescription || 'The requested scopes are not valid for this application.'}`);
+        } else if (errorParam) {
+          v4ToastManager.showError(`Authentication error: ${errorParam}`);
+          setError(`Authentication failed: ${errorDescription || errorParam}`);
+        } else {
+          v4ToastManager.showError('No tokens found on callback. Complete the flow and try again.');
+          setError('Missing tokens in callback response.');
+        }
+        
+        setIsProcessing(false);
+        return;
+      }
+
+      // Check if we have an authorization code (for authorization code flow)
+      if (mergedTokens.code && !mergedTokens.access_token) {
+        console.log('[PingOneAuthenticationCallback] Authorization code received, exchanging for tokens...');
+        
+        try {
+          const tokenResponse = await exchangeCodeForTokens(mergedTokens.code, flowContext);
+          console.log('[PingOneAuthenticationCallback] Token exchange successful:', tokenResponse);
+          
+          // Merge the exchanged tokens with the original response
+          const finalTokens = { ...mergedTokens, ...tokenResponse };
+          setTokens(finalTokens);
+          
+          // Update the result with the final tokens
+          const result: PlaygroundResult = {
+            timestamp: Date.now(),
+            mode: 'redirect',
+            responseType: flowContext?.responseType || config.responseType,
+            tokens: finalTokens,
+            config,
+            authUrl: window.location.href,
+            context: {
+              isRedirectless: false,
+            },
+          };
+          
+          localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+          sessionStorage.removeItem(FLOW_CONTEXT_KEY);
+          
+          v4ToastManager.showSuccess('Authorization successful! Tokens received.');
+          navigate(flowContext?.returnPath || '/pingone-authentication/result');
+          return;
+          
+        } catch (tokenError) {
+          console.error('[PingOneAuthenticationCallback] Token exchange failed:', tokenError);
+          v4ToastManager.showError('Failed to exchange authorization code for tokens.');
+          setError(`Token exchange failed: ${tokenError instanceof Error ? tokenError.message : 'Unknown error'}`);
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      // For implicit flow or other flows that return tokens directly
+      setTokens(mergedTokens);
+
+      const result: PlaygroundResult = {
       timestamp: Date.now(),
       mode: 'redirect',
       responseType: flowContext?.responseType || config.responseType,
@@ -280,6 +383,9 @@ const PingOneAuthenticationCallback: React.FC = () => {
     
     setTimeout(() => navigate(targetPath), 900);
     setIsProcessing(false);
+    };
+
+    processTokens();
   }, [computeFallbackPath, config, location.hash, location.search, navigate]);
 
   return (
