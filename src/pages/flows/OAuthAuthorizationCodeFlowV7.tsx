@@ -28,6 +28,7 @@ import styled from 'styled-components';
 import FlowTrackingDisplay from '../../components/FlowTrackingDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import ConfigurationBackup from '../../components/ConfigurationBackup';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
