@@ -194,6 +194,16 @@ const PingOneAuthenticationCallback: React.FC = () => {
       const flowContextRaw = sessionStorage.getItem(FLOW_CONTEXT_KEY);
       let flowContext: { returnPath?: string; responseType?: string } | null = null;
       
+      console.log('[PingOneAuthenticationCallback] Processing tokens:', {
+        fragmentTokens,
+        queryTokens,
+        mergedTokens,
+        hasFlowContext: !!flowContextRaw,
+        flowContextRaw,
+        locationHash: location.hash,
+        locationSearch: location.search
+      });
+      
       console.log('[PingOneAuthenticationCallback] Flow context lookup:', {
         flowContextRaw,
         hasFlowContext: !!flowContextRaw,
@@ -220,10 +230,12 @@ const PingOneAuthenticationCallback: React.FC = () => {
         }
       }
 
-      if (Object.keys(mergedTokens).length === 0) {
-        // Check for specific error types
-        const errorParam = mergedTokens.error;
-        const errorDescription = mergedTokens.error_description;
+      // Check for errors FIRST (before checking if tokens are empty)
+      const errorParam = mergedTokens.error;
+      const errorDescription = mergedTokens.error_description;
+      
+      if (errorParam) {
+        console.log('[PingOneAuthenticationCallback] Error detected:', { errorParam, errorDescription });
         
         if (errorParam === 'unsupported_response_type') {
           v4ToastManager.showError('Response type not supported by your PingOne application. Try using "code" instead of hybrid flows.');
@@ -234,14 +246,21 @@ const PingOneAuthenticationCallback: React.FC = () => {
         } else if (errorParam === 'invalid_scope') {
           v4ToastManager.showError('Invalid scope configuration. Check your scopes in PingOne application settings.');
           setError(`Scope error: ${errorDescription || 'The requested scopes are not valid for this application.'}`);
-        } else if (errorParam) {
+        } else if (errorParam === 'invalid_request') {
+          v4ToastManager.showError('Invalid request parameters. Check your configuration.');
+          setError(`Request error: ${errorDescription || 'The request parameters are invalid. Please check your configuration.'}`);
+        } else {
           v4ToastManager.showError(`Authentication error: ${errorParam}`);
           setError(`Authentication failed: ${errorDescription || errorParam}`);
-        } else {
-          v4ToastManager.showError('No tokens found on callback. Complete the flow and try again.');
-          setError('Missing tokens in callback response.');
         }
         
+        setIsProcessing(false);
+        return;
+      }
+
+      if (Object.keys(mergedTokens).length === 0) {
+        v4ToastManager.showError('No tokens found on callback. Complete the flow and try again.');
+        setError('Missing tokens in callback response.');
         setIsProcessing(false);
         return;
       }
