@@ -33,6 +33,7 @@ import { CopyButtonService } from '../../services/copyButtonService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import type { StepCredentials } from '../../services/flowCredentialService';
 
 // Import V7 UI components
@@ -322,19 +323,26 @@ const RARFlowV7: React.FC = () => {
 	// Load credentials on mount
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [RAR-V7] Loading credentials on mount...');
-			const { credentials } = await FlowCredentialService.loadFlowCredentials({
+			console.log('🔄 [RAR-V7] Loading credentials with comprehensive service...');
+			
+			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
-				defaultCredentials: {},
+				useSharedEnvironment: true,
+				useSharedDiscovery: true
 			});
 
-			if (credentials) {
-				setEnvironmentId(credentials.environmentId || '');
-				setClientId(credentials.clientId || '');
-				setClientSecret(credentials.clientSecret || '');
-				setScopes(credentials.scopes || 'read write');
-				setRedirectUri(credentials.redirectUri || 'https://localhost:3000/rar-callback');
-				console.log('✅ [RAR-V7] Credentials loaded:', credentials);
+			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+				console.log('✅ [RAR-V7] Found flow-specific credentials');
+				setEnvironmentId(flowData.sharedEnvironment?.environmentId || '');
+				setClientId(flowData.flowCredentials.clientId || '');
+				setClientSecret(flowData.flowCredentials.clientSecret || '');
+				setScopes(Array.isArray(flowData.flowCredentials.scopes) ? flowData.flowCredentials.scopes.join(' ') : (flowData.flowCredentials.scopes || 'read write'));
+				setRedirectUri(flowData.flowCredentials.redirectUri || 'https://localhost:3000/rar-callback');
+			} else if (flowData.sharedEnvironment?.environmentId) {
+				console.log('ℹ️ [RAR-V7] Using shared environment data only');
+				setEnvironmentId(flowData.sharedEnvironment.environmentId);
+			} else {
+				console.log('ℹ️ [RAR-V7] No saved credentials found, using defaults');
 			}
 		};
 
@@ -352,10 +360,28 @@ const RARFlowV7: React.FC = () => {
 			...updates
 		};
 
-		await FlowCredentialService.saveFlowCredentials({
-			flowKey: FLOW_KEY,
-			credentials
+		// Save to comprehensive service with complete isolation
+		const success = comprehensiveFlowDataService.saveFlowDataComprehensive(FLOW_KEY, {
+			...(environmentId && {
+				sharedEnvironment: {
+					environmentId,
+					region: 'us', // Default region
+					issuerUrl: `https://auth.pingone.com/${environmentId}`
+				}
+			}),
+			flowCredentials: {
+				clientId,
+				clientSecret,
+				redirectUri,
+				scopes: Array.isArray(scopes) ? scopes : (scopes ? [scopes] : []),
+				tokenEndpointAuthMethod: 'client_secret_basic',
+				lastUpdated: Date.now()
+			}
 		});
+
+		if (!success) {
+			console.error('[RAR-V7] Failed to save credentials to comprehensive service');
+		}
 
 		console.log('💾 [RAR-V7] Credentials saved:', credentials);
 	}, [environmentId, clientId, clientSecret, scopes, redirectUri]);
