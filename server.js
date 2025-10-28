@@ -1705,8 +1705,10 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		// Debug: Log all parameters to check for duplicates
 		console.log(`[PingOne Redirectless] All URL parameters:`, Array.from(authParams.entries()));
 		
-		const authorizeUrl = `https://auth.pingone.com/${environmentId}/as/authorize?${authParams.toString()}`;
+		// For redirectless flow, send parameters in the POST body, NOT in URL query string
+		const authorizeUrl = `https://auth.pingone.com/${environmentId}/as/authorize`;
 		console.log(`[PingOne Redirectless] Authorization URL:`, authorizeUrl);
+		console.log(`[PingOne Redirectless] POST Body:`, authParams.toString());
 
 		// Make the authorization request with retry logic
 		let authResponse;
