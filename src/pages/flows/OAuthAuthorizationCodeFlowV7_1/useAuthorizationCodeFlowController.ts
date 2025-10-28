@@ -1,3 +1,27 @@
+/**
+ * ========================================================================
+ * AUTHORIZATION CODE FLOW CONTROLLER V7.1 LOCKED - DO NOT MODIFY THIS FILE
+ * ========================================================================
+ * 
+ * This file implements the V7.1 authorization code flow credential management
+ * and is LOCKED at Version 1 to prevent credential bleeding between flows.
+ * 
+ * Current Version: V1 (Locked - Credential isolation fixes applied)
+ * Locked Date: Latest commit
+ * 
+ * Key Features (DO NOT CHANGE):
+ * - Flow-specific credential isolation (disableSharedFallback: true)
+ * - No credential bleeding between flows
+ * - loadInitialCredentials returns empty defaults (no shared credentials)
+ * 
+ * To modify the flow logic, create:
+ * - useAuthorizationCodeFlowController.ts.V2.tsx
+ * - Or create a new controller in a different file
+ * 
+ * This ensures authorization flow stability and credential isolation.
+ * ========================================================================
+ */
+
 // src/hooks/useAuthorizationCodeFlowController.ts
 
 import {
@@ -164,39 +188,29 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 	const urlScope = urlParams.get('scope');
 	const urlRedirect = urlParams.get('redirect');
 
-	// Load credentials using credentialManager (FlowCredentialService will handle this in useEffect)
-	let loaded = credentialManager.getAllCredentials();
+	// DO NOT load from credentialManager - this causes credential bleeding between flows
+	// Each flow should maintain its own credentials in flow-specific storage
+	const loaded: any = {}; // Empty object to prevent loading shared credentials
 
 	const mergedScopes =
 		urlScope ||
-		(Array.isArray(loaded.scopes) ? loaded.scopes.join(' ') : loaded.scopes) ||
 		(variant === 'oidc' ? 'openid profile email' : 'read write');
 
 	return {
-		environmentId: urlEnv || loaded.environmentId || '',
-		clientId: urlClient || loaded.clientId || '',
-		clientSecret: loaded.clientSecret || '',
-		redirectUri: urlRedirect || loaded.redirectUri || getCallbackUrlForFlow('authorization-code'),
+		environmentId: urlEnv || '',
+		clientId: urlClient || '',
+		clientSecret: '', // Never load from shared credentials
+		redirectUri: urlRedirect || getCallbackUrlForFlow('authorization-code'),
 		scope: mergedScopes,
 		scopes: mergedScopes,
 		responseType: 'code',
 		grantType: 'authorization_code',
-		issuerUrl: loaded.environmentId
-			? `https://auth.pingone.com/${loaded.environmentId}`
-			: loaded.authEndpoint?.replace('/as/authorize', '') || '',
-		authorizationEndpoint: resolveAuthEndpoint({
-			environmentId: urlEnv || loaded.environmentId || '',
-			authorizationEndpoint: loaded.authEndpoint,
-		} as StepCredentials),
-		tokenEndpoint: resolveTokenEndpoint({
-			environmentId: urlEnv || loaded.environmentId || '',
-			tokenEndpoint: loaded.tokenEndpoint,
-		} as StepCredentials),
-		userInfoEndpoint:
-			loaded.userInfoEndpoint ||
-			(loaded.environmentId ? `https://auth.pingone.com/${loaded.environmentId}/as/userinfo` : ''),
-		clientAuthMethod: loaded.tokenAuthMethod || 'client_secret_post',
-		loginHint: loaded.loginHint || '',
+		issuerUrl: '',
+		authorizationEndpoint: '',
+		tokenEndpoint: '',
+		userInfoEndpoint: '',
+		clientAuthMethod: 'client_secret_post',
+		loginHint: '',
 	};
 };
 
@@ -344,15 +358,18 @@ export const useAuthorizationCodeFlowController = (
 					await FlowCredentialService.loadFlowCredentials<FlowConfig>({
 						flowKey: persistKey,
 						defaultCredentials: loadInitialCredentials(flowVariant),
+						disableSharedFallback: true, // CRITICAL: Prevent credential bleeding between flows
 					});
 
-				if (loadedCreds && hasSharedCredentials) {
-					console.log(' [useAuthorizationCodeFlowController] Found saved credentials', {
-					flowKey: persistKey,
-					environmentId: loadedCreds.environmentId,
-					clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
-					hasFlowState: !!flowState,
-				});
+				// Load credentials if we have ANY credentials (flow-specific OR shared)
+				if (loadedCreds && (loadedCreds.environmentId || loadedCreds.clientId)) {
+					console.log('✅ [useAuthorizationCodeFlowController] Found saved credentials', {
+						flowKey: persistKey,
+						environmentId: loadedCreds.environmentId,
+						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
+						hasFlowState: !!flowState,
+						hasSharedCredentials,
+					});
 					
 					setCredentials(loadedCreds);
 					setHasCredentialsSaved(true);
