@@ -146,6 +146,11 @@ export class ComprehensiveDiscoveryService {
 	 * Resolve input to provider and issuer URL
 	 */
 	private async resolveInput(input: string): Promise<{ provider: ProviderType; issuerUrl: string }> {
+		// Validate input
+		if (!input || typeof input !== 'string') {
+			throw new Error('Invalid input: input must be a non-empty string');
+		}
+		
 		// Remove leading slash if present
 		const cleanInput = input.startsWith('/') ? input.substring(1) : input;
 		
