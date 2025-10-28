@@ -257,8 +257,9 @@ const AppRoutes = () => {
 		
 		// Skip auto-scroll for certain flows to prevent menu jumping
 		const skipAutoScroll = [
-			'/flows/pingone-mfa-v6',
-			'/flows/ciba-v6',
+			// V6 flows disabled - no longer needed
+			// '/flows/pingone-mfa-v6',
+			// '/flows/ciba-v6',
 			// Add other flows that should preserve scroll position
 		];
 		
@@ -380,11 +381,7 @@ const AppRoutes = () => {
 						{/* Tools & Utilities Routes */}
 						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 						<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
-						{/* V6 OAuth/OIDC Flow Routes */}
-						<Route
-							path="/flows/oauth-authorization-code-v6"
-							element={<OAuthAuthorizationCodeFlowV6 />}
-						/>
+						{/* V7 OAuth/OIDC Flow Routes - V6 flows disabled */}
 						<Route
 							path="/flows/oauth-authorization-code-v7"
 							element={<OAuthAuthorizationCodeFlowV7 />}
@@ -415,68 +412,77 @@ const AppRoutes = () => {
 							path="/flows/oidc-compliant-authorization-code"
 							element={<OIDCCompliantAuthorizationCodeFlow />}
 						/>
-						<Route path="/flows/oauth-authorization-code-v5" element={<Navigate to="/flows/oauth-authorization-code-v6" replace />} />
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/oauth-authorization-code-v5" element={<Navigate to="/flows/oauth-authorization-code-v7" replace />} />
+						<Route path="/flows/oauth-authorization-code-v6" element={<Navigate to="/flows/oauth-authorization-code-v7" replace />} />
+						<Route path="/flows/oidc-authorization-code-v5" element={<Navigate to="/flows/oauth-authorization-code-v7" replace />} />
+						<Route path="/flows/oidc-authorization-code-v6" element={<Navigate to="/flows/oauth-authorization-code-v7" replace />} />
+						
+						{/* V7 Implicit Flow */}
+						<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/oauth-implicit-v6" element={<Navigate to="/flows/implicit-v7" replace />} />
+						<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/implicit-v7" replace />} />
+						<Route path="/flows/oidc-implicit-v6" element={<Navigate to="/flows/implicit-v7?variant=oidc" replace />} />
+						<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/implicit-v7?variant=oidc" replace />} />
 						<Route
-							path="/flows/oidc-authorization-code-v6"
-							element={<OIDCAuthorizationCodeFlowV6 />}
+							path="/flows/oauth-implicit-completion"
+							element={<OAuthImplicitFlowCompletion />}
 						/>
-						<Route path="/flows/oidc-authorization-code-v5" element={<Navigate to="/flows/oidc-authorization-code-v6" replace />} />
-							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
-							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
-							<Route
-								path="/flows/oauth-implicit-completion"
-								element={<OAuthImplicitFlowCompletion />}
-							/>
-							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
-							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
-							<Route
-								path="/flows/device-authorization-v6"
-								element={<DeviceAuthorizationFlowV6 />}
-							/>
-							<Route
-								path="/flows/oidc-device-authorization-v6"
-								element={<OIDCDeviceAuthorizationFlowV6 />}
-							/>
-							<Route
-								path="/flows/jwt-bearer-token-v6"
-								element={<JWTBearerTokenFlowV6 />}
-							/>
-							<Route
-								path="/flows/jwt-bearer-token-v7"
-								element={<JWTBearerTokenFlowV7 />}
-							/>
-							<Route
-								path="/flows/saml-bearer-assertion-v6"
-								element={<SAMLBearerAssertionFlowV6 />}
-							/>
-							<Route
-								path="/flows/saml-bearer-assertion-v7"
-								element={<SAMLBearerAssertionFlowV7 />}
-							/>
-							<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
-							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
-							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v7" replace />} />
-							<Route
-								path="/flows/client-credentials-v6"
-								element={<ClientCredentialsFlowV6 />}
-							/>
-							<Route
-								path="/flows/client-credentials-v7"
-								element={<ClientCredentialsFlowV7 />}
-							/>
-							<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v6" replace />} />
-							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
-							<Route path="/flows/oidc-hybrid-v6" element={<OIDCHybridFlowV6 />} />
-							<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
-							<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
-							<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
-							<Route path="/flows/ciba-v5" element={<Navigate to="/flows/ciba-v7" replace />} />
-							<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
-							<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
-							{/* Advanced Parameters Route */}
+						
+						{/* V7 Device Authorization Flow */}
+						<Route path="/flows/device-authorization-v7" element={<DeviceAuthorizationFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/device-authorization-v6" element={<Navigate to="/flows/device-authorization-v7" replace />} />
+						<Route path="/flows/oidc-device-authorization-v6" element={<Navigate to="/flows/device-authorization-v7" replace />} />
+						
+						{/* V7 JWT Bearer Token Flow */}
+						<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/jwt-bearer-token-v6" element={<Navigate to="/flows/jwt-bearer-token-v7" replace />} />
+						<Route path="/flows/jwt-bearer-v5" element={<Navigate to="/flows/jwt-bearer-token-v7" replace />} />
+						
+						{/* V7 SAML Bearer Assertion Flow */}
+						<Route path="/flows/saml-bearer-assertion-v7" element={<SAMLBearerAssertionFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/saml-bearer-assertion-v6" element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />} />
+						
+						{/* V7 Worker Token Flow */}
+						<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/worker-token-v6" element={<Navigate to="/flows/worker-token-v7" replace />} />
+						<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v7" replace />} />
+						
+						{/* V7 Client Credentials Flow */}
+						<Route path="/flows/client-credentials-v7" element={<ClientCredentialsFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/client-credentials-v6" element={<Navigate to="/flows/client-credentials-v7" replace />} />
+						<Route path="/flows/client-credentials-v5" element={<Navigate to="/flows/client-credentials-v7" replace />} />
+						
+						{/* V7 OIDC Hybrid Flow */}
+						<Route path="/flows/oidc-hybrid-v7" element={<OIDCHybridFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/oidc-hybrid-v6" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
+						<Route path="/flows/hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
+						<Route path="/flows/oidc-hybrid-v5" element={<Navigate to="/flows/oidc-hybrid-v7" replace />} />
+						
+						{/* V7 CIBA Flow */}
+						<Route path="/flows/ciba-v7" element={<CIBAFlowV7 />} />
+						
+						{/* V6 flows disabled - redirect to V7 equivalents */}
+						<Route path="/flows/ciba-v5" element={<Navigate to="/flows/ciba-v7" replace />} />
+						<Route path="/flows/ciba-v6" element={<Navigate to="/flows/ciba-v7" replace />} />
+							{/* V6 flows disabled - Advanced Parameters V6 */}
 							<Route
 								path="/flows/advanced-parameters-v6/:flowType"
-								element={<AdvancedParametersV6 />}
+								element={<Navigate to="/dashboard" replace />}
 							/>
 							{/* Advanced OAuth Parameters Demo (Mock Flow) */}
 							<Route
@@ -485,10 +491,13 @@ const AppRoutes = () => {
 							/>
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
 							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
-							<Route path="/flows/redirectless-v6" element={<RedirectlessFlowV6Real />} />
-							<Route path="/flows/redirectless-v6-real" element={<RedirectlessFlowV6Real />} />
+							{/* V7 Redirectless Flow */}
 							<Route path="/flows/redirectless-v7-real" element={<RedirectlessFlowV7Real />} />
-							<Route path="/flows/redirectless-flow-v5" element={<RedirectlessFlowV6Real />} /> {/* Redirect V5 to V6 */}
+							
+							{/* V6 flows disabled - redirect to V7 equivalents */}
+							<Route path="/flows/redirectless-v6" element={<Navigate to="/flows/redirectless-v7-real" replace />} />
+							<Route path="/flows/redirectless-v6-real" element={<Navigate to="/flows/redirectless-v7-real" replace />} />
+							<Route path="/flows/redirectless-flow-v5" element={<Navigate to="/flows/redirectless-v7-real" replace />} />
 							{/* V3/V4 routes backed up - use V5 versions instead */}
 							<Route path="/flows/par" element={<PARFlow />} />
 							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
@@ -501,20 +510,28 @@ const AppRoutes = () => {
 								path="/oidc/resource-owner-password"
 								element={<OIDCResourceOwnerPasswordFlowV5 />}
 							/>
-							{/* PingOne PAR Flow - V6 (upgraded with services) */}
-							<Route path="/flows/pingone-par-v6" element={<PingOnePARFlowV6 />} />
-							<Route path="/flows/pingone-par-v5" element={<PingOnePARFlowV6 />} /> {/* Redirect V5 to V6 */}
-							{/* PingOne PAR Flow - V7 (enhanced with modern services) */}
+							{/* V7 PingOne PAR Flow */}
 							<Route path="/flows/pingone-par-v7" element={<PingOnePARFlowV7 />} />
-							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-mfa-v6" replace />} />
-							<Route path="/flows/pingone-mfa-v6" element={<PingOneMFAFlowV6 />} />
+							
+							{/* V6 flows disabled - redirect to V7 equivalents */}
+							<Route path="/flows/pingone-par-v6" element={<Navigate to="/flows/pingone-par-v7" replace />} />
+							<Route path="/flows/pingone-par-v5" element={<Navigate to="/flows/pingone-par-v7" replace />} />
+							
+							{/* V7 PingOne MFA Flow */}
 							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
+							
+							{/* V6 flows disabled - redirect to V7 equivalents */}
+							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />} />
+							<Route path="/flows/pingone-mfa-v6" element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />} />
 							<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
 							<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
 							<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
-							<Route path="/flows/rar-v6" element={<RARFlowV6 />} />
-							<Route path="/flows/rar-v5" element={<RARFlowV6 />} /> {/* Redirect V5 to V6 */}
+							{/* V7 RAR Flow */}
 							<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
+							
+							{/* V6 flows disabled - redirect to V7 equivalents */}
+							<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v7" replace />} />
+							<Route path="/flows/rar-v5" element={<Navigate to="/flows/rar-v7" replace />} />
 							{/* Legacy route removed - use V5 */}
 							<Route
 								path="/flows/oauth2-resource-owner-password"
@@ -583,24 +600,6 @@ const AppRoutes = () => {
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
-							<Route path="/flows/oauth-implicit-v6" element={<OAuthImplicitFlowV6 />} />
-							<Route path="/flows/oauth-implicit-v5" element={<Navigate to="/flows/oauth-implicit-v6" replace />} />
-							<Route path="/flows/oidc-implicit-v6" element={<OIDCImplicitFlowV6 />} />
-							<Route path="/flows/oidc-implicit-v5" element={<Navigate to="/flows/oidc-implicit-v6" replace />} />
-							<Route path="/flows/implicit-v7" element={<ImplicitFlowV7 />} />
-							<Route path="/flows/token-exchange-v7" element={<TokenExchangeFlowV7 />} />
-							<Route path="/flows/device-authorization-v7" element={<DeviceAuthorizationFlowV7 />} />
-						<Route
-							path="/flows/oidc-authorization-code-v5"
-							element={<Navigate to="/flows/oidc-authorization-code-v6" replace />}
-						/>
-							<Route path="/flows/jwt-bearer-v5" element={<JWTBearerTokenFlowV5 />} />
-							<Route
-								path="/flows/oidc-device-authorization-v6"
-								element={<OIDCDeviceAuthorizationFlowV6 />}
-							/>
-							<Route path="/flows/worker-token-v6" element={<WorkerTokenFlowV6 />} />
-							<Route path="/flows/worker-token-v5" element={<Navigate to="/flows/worker-token-v6" replace />} />
 							<Route path="/:customCallback(p1-callback)" element={<PingOneAuthenticationCallback />} />
 			<Route path="*" element={<Navigate to="/dashboard" replace />} />
 				</Routes>
