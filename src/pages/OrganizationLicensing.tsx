@@ -38,7 +38,7 @@ import { useNavigate } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
-import V5StepperService from '../services/v5StepperService';
+import V7StepperService from '../services/v7StepperService';
 
 const pageConfig = {
 	flowType: 'documentation' as const,
@@ -154,7 +154,7 @@ const InfoValue = styled.span`
 `;
 
 // Create V5 stepper layout components
-const stepperComponents = V5StepperService.createStepLayout({ theme: 'purple', showProgress: true });
+const stepperComponents = V7StepperService.createStepLayout({ theme: 'purple', showProgress: true });
 
 const STEP_METADATA: Array<{ title: string; subtitle: string }> = [
 	{
