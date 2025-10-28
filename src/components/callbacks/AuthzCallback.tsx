@@ -166,6 +166,7 @@ const AuthzCallback: React.FC = () => {
 				let isOAuthV3 = false;
 				let isEnhancedV3 = false;
 				let isV5 = false;
+				let isV7 = false;
 				let isMFA = false;
 				let context = null;
 
@@ -178,6 +179,9 @@ const AuthzCallback: React.FC = () => {
 					isV5 =
 						context?.flow === 'oauth-authorization-code-v5' ||
 						context?.flow === 'oidc-authorization-code-v5';
+					isV7 =
+						context?.flow === 'oauth-authorization-code-v7' ||
+						context?.flow === 'oidc-authorization-code-v7';
 					isMFA = context?.flow === 'pingone-complete-mfa-v7';
 
 					console.log(' [AuthzCallback] Flow context parsing successful:', {
@@ -185,6 +189,7 @@ const AuthzCallback: React.FC = () => {
 						isOAuthV3,
 						isEnhancedV3,
 						isV5,
+						isV7,
 						isMFA,
 						contextExists: !!context,
 						rawFlowContext: flowContext,
@@ -392,6 +397,55 @@ const AuthzCallback: React.FC = () => {
 
 								setTimeout(() => {
 									navigate(fullReturnPath);
+								}, 1500);
+								return;
+							}
+						}
+
+						if (isV7) {
+							// For V7 full redirect, extract code and state, then redirect to V7 page
+							const urlParams = new URL(currentUrl).searchParams;
+							const code = urlParams.get('code');
+							const state = urlParams.get('state');
+							const error = urlParams.get('error');
+
+							if (error) {
+								console.error(' [AuthzCallback] V7 authorization error:', error);
+								setStatus('error');
+								// Determine correct V7 flow based on context
+								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v7';
+								const errorPath = isOIDCFlow
+									? `/flows/oauth-authorization-code-v7?error=${encodeURIComponent(error)}`
+									: `/flows/oauth-authorization-code-v7?error=${encodeURIComponent(error)}`;
+								setTimeout(() => {
+									navigate(errorPath);
+								}, 2000);
+								return;
+							}
+
+							if (code && state) {
+								console.log(
+									' [AuthzCallback] V7 authorization successful, storing code and redirecting'
+								);
+
+								// Store the authorization code and state for V7 flow
+								sessionStorage.setItem('oauth_v7_auth_code', code);
+								sessionStorage.setItem('oauth_v7_state', state);
+
+								setStatus('success');
+
+								// Determine correct V7 flow based on context
+								const isOIDCFlow = context?.flow === 'oidc-authorization-code-v7';
+								const flowName = isOIDCFlow ? 'OIDC V7' : 'OAuth V7';
+								setMessage(`Authorization successful! Redirecting back to ${flowName} flow...`);
+
+								// Redirect back to correct V7 flow at step 4 (token exchange)
+								const returnPath =
+									context?.returnPath ||
+									'/flows/oauth-authorization-code-v7?step=4';
+
+								setTimeout(() => {
+									navigate(returnPath);
 								}, 1500);
 								return;
 							}
