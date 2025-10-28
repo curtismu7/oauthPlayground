@@ -132,9 +132,17 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
     const flowContextRaw = sessionStorage.getItem(FLOW_CONTEXT_KEY);
     let flowContext: { returnPath?: string; responseType?: string } | null = null;
+    
+    console.log('[PingOneAuthenticationCallback] Flow context lookup:', {
+      flowContextRaw,
+      hasFlowContext: !!flowContextRaw,
+      FLOW_CONTEXT_KEY
+    });
+    
     if (flowContextRaw) {
       try {
         flowContext = JSON.parse(flowContextRaw);
+        console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
       } catch (err) {
         console.warn('[PingOneAuthenticationCallback] Failed to parse flow context:', err);
       }
@@ -152,8 +160,27 @@ const PingOneAuthenticationCallback: React.FC = () => {
     }
 
     if (Object.keys(mergedTokens).length === 0) {
-      v4ToastManager.showError('No tokens found on callback. Complete the flow and try again.');
-      setError('Missing tokens in callback response.');
+      // Check for specific error types
+      const errorParam = mergedTokens.error;
+      const errorDescription = mergedTokens.error_description;
+      
+      if (errorParam === 'unsupported_response_type') {
+        v4ToastManager.showError('Response type not supported by your PingOne application. Try using "code" instead of hybrid flows.');
+        setError(`Unsupported response type: ${errorDescription || 'Your PingOne application does not support the selected response type. Please use "code" (Authorization Code) instead.'}`);
+      } else if (errorParam === 'invalid_client') {
+        v4ToastManager.showError('Invalid client configuration. Check your Client ID and Client Secret.');
+        setError(`Client error: ${errorDescription || 'Invalid client credentials or configuration.'}`);
+      } else if (errorParam === 'invalid_scope') {
+        v4ToastManager.showError('Invalid scope configuration. Check your scopes in PingOne application settings.');
+        setError(`Scope error: ${errorDescription || 'The requested scopes are not valid for this application.'}`);
+      } else if (errorParam) {
+        v4ToastManager.showError(`Authentication error: ${errorParam}`);
+        setError(`Authentication failed: ${errorDescription || errorParam}`);
+      } else {
+        v4ToastManager.showError('No tokens found on callback. Complete the flow and try again.');
+        setError('Missing tokens in callback response.');
+      }
+      
       setIsProcessing(false);
       return;
     }
@@ -176,10 +203,24 @@ const PingOneAuthenticationCallback: React.FC = () => {
     sessionStorage.removeItem(FLOW_CONTEXT_KEY);
 
     const popupDetected = window.name === 'PingOneLoginWindow' || (window.opener && window.opener !== window);
+    
+    console.log('[PingOneAuthenticationCallback] Popup detection:', {
+      windowName: window.name,
+      hasOpener: !!window.opener,
+      openerSameWindow: window.opener === window,
+      popupDetected
+    });
 
     if (popupDetected) {
+      console.log('[PingOneAuthenticationCallback] Detected popup - sending message to opener');
       try {
         if (window.opener && window.opener !== window) {
+          console.log('[PingOneAuthenticationCallback] Sending message to opener:', {
+            type: 'PINGONE_PLAYGROUND_RESULT',
+            result: result,
+            origin: window.location.origin
+          });
+          
           window.opener.postMessage(
             {
               type: 'PINGONE_PLAYGROUND_RESULT',
@@ -187,18 +228,56 @@ const PingOneAuthenticationCallback: React.FC = () => {
             },
             window.location.origin
           );
+          
+          console.log('[PingOneAuthenticationCallback] Message sent successfully');
+        } else {
+          console.log('[PingOneAuthenticationCallback] No valid opener found');
         }
       } catch (error) {
         console.warn('[PingOneAuthenticationCallback] Failed to post result to opener:', error);
       }
       setIsProcessing(false);
-      window.close();
+      console.log('[PingOneAuthenticationCallback] Closing popup window');
+      
+      // Add a small delay before closing to ensure message is sent
+      setTimeout(() => {
+        window.close();
+      }, 100);
       return;
+    }
+
+    // Fallback: If we're not in a popup but have tokens, try to detect if we should be in a popup
+    if (Object.keys(tokens).length > 0 && !popupDetected) {
+      console.log('[PingOneAuthenticationCallback] Not in popup but have tokens - checking if we should be');
+      
+      // Check if there's a parent window that might be expecting this
+      if (window.parent && window.parent !== window) {
+        console.log('[PingOneAuthenticationCallback] Found parent window - trying to communicate');
+        try {
+          window.parent.postMessage(
+            {
+              type: 'PINGONE_PLAYGROUND_RESULT',
+              result,
+            },
+            window.location.origin
+          );
+          console.log('[PingOneAuthenticationCallback] Message sent to parent window');
+        } catch (error) {
+          console.warn('[PingOneAuthenticationCallback] Failed to post result to parent:', error);
+        }
+      }
     }
 
     v4ToastManager.showSuccess('Tokens captured! Redirecting to the lounge…');
 
     const targetPath = flowContext?.returnPath || computeFallbackPath();
+    console.log('[PingOneAuthenticationCallback] Redirect decision:', {
+      hasFlowContext: !!flowContext,
+      returnPath: flowContext?.returnPath,
+      computedFallback: computeFallbackPath(),
+      finalTargetPath: targetPath
+    });
+    
     setTimeout(() => navigate(targetPath), 900);
     setIsProcessing(false);
   }, [computeFallbackPath, config, location.hash, location.search, navigate]);

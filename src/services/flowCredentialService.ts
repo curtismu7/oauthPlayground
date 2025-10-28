@@ -4,6 +4,7 @@
 
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { credentialManager } from '../utils/credentialManager';
+import type { AllCredentials } from '../utils/credentialManager';
 import { safeJsonParse } from '../utils/secureJson';
 import { showGlobalError, showGlobalSuccess } from '../hooks/useNotifications';
 import { flowCredentialIsolationService } from './flowCredentialIsolationService';
@@ -34,18 +35,79 @@ export const loadSharedCredentials = async (
 		const savedCreds = credentialManager.getAllCredentials();
 		
 		if (savedCreds.environmentId && savedCreds.clientId) {
-			const mergedCreds: StepCredentials = {
+			const clientAuthMethod =
+				(savedCreds as Partial<StepCredentials>).clientAuthMethod ??
+				savedCreds.tokenAuthMethod ??
+				(defaultCredentials?.clientAuthMethod as string | undefined) ??
+				'client_secret_post';
+			const scopesValue = Array.isArray(savedCreds.scopes)
+				? savedCreds.scopes.join(' ')
+				: typeof savedCreds.scopes === 'string'
+					? savedCreds.scopes
+					: defaultCredentials?.scopes ?? defaultCredentials?.scope ?? '';
+			const mergedCreds: Partial<StepCredentials> = {
 				...defaultCredentials,
-				...savedCreds,
+				environmentId: savedCreds.environmentId ?? defaultCredentials?.environmentId ?? '',
+				clientId: savedCreds.clientId ?? defaultCredentials?.clientId ?? '',
+				clientSecret: savedCreds.clientSecret ?? defaultCredentials?.clientSecret ?? '',
+				redirectUri: savedCreds.redirectUri ?? defaultCredentials?.redirectUri ?? '',
+				postLogoutRedirectUri:
+					savedCreds.postLogoutRedirectUri ?? defaultCredentials?.postLogoutRedirectUri,
+				scope: scopesValue || defaultCredentials?.scope || '',
+				scopes: scopesValue || defaultCredentials?.scopes || '',
+				authorizationEndpoint:
+					savedCreds.authEndpoint ?? defaultCredentials?.authorizationEndpoint,
+				tokenEndpoint: savedCreds.tokenEndpoint ?? defaultCredentials?.tokenEndpoint,
+				userInfoEndpoint:
+					savedCreds.userInfoEndpoint ?? defaultCredentials?.userInfoEndpoint,
+				clientAuthMethod,
+				loginHint: savedCreds.loginHint ?? defaultCredentials?.loginHint,
+			};
+			const normalized: StepCredentials = {
+				clientId: mergedCreds.clientId ?? '',
+				clientSecret: mergedCreds.clientSecret ?? '',
+				environmentId: mergedCreds.environmentId,
+				redirectUri: mergedCreds.redirectUri ?? '',
+				scope: mergedCreds.scope ?? '',
+				scopes: mergedCreds.scopes ?? '',
+				postLogoutRedirectUri: mergedCreds.postLogoutRedirectUri,
+				authorizationEndpoint: mergedCreds.authorizationEndpoint,
+				tokenEndpoint: mergedCreds.tokenEndpoint,
+				userInfoEndpoint: mergedCreds.userInfoEndpoint,
+				clientAuthMethod: mergedCreds.clientAuthMethod ?? 'client_secret_post',
+				loginHint: mergedCreds.loginHint,
+				grantType: mergedCreds.grantType,
+				responseType: mergedCreds.responseType,
+				responseMode: mergedCreds.responseMode,
+				issuerUrl: mergedCreds.issuerUrl,
+				introspectionEndpoint: mergedCreds.introspectionEndpoint,
+				privateKey: mergedCreds.privateKey,
+				keyId: mergedCreds.keyId,
+				initiateLoginUri: mergedCreds.initiateLoginUri,
+				targetLinkUri: mergedCreds.targetLinkUri,
+				signoffUrls: mergedCreds.signoffUrls,
+				requestParameterSignatureRequirement:
+					mergedCreds.requestParameterSignatureRequirement,
+				additionalRefreshTokenReplayProtection:
+					mergedCreds.additionalRefreshTokenReplayProtection,
+				includeX5tParameter: mergedCreds.includeX5tParameter,
+				oidcSessionManagement: mergedCreds.oidcSessionManagement,
+				requestScopesForMultipleResources:
+					mergedCreds.requestScopesForMultipleResources,
+				terminateUserSessionByIdToken:
+					mergedCreds.terminateUserSessionByIdToken,
+				corsOrigins: mergedCreds.corsOrigins,
+				corsAllowAnyOrigin: mergedCreds.corsAllowAnyOrigin,
 			};
 			
 			console.log(`[FlowCredentialService:${flowKey}] Loaded shared credentials from credentialManager:`, {
 				environmentId: savedCreds.environmentId,
 				clientId: savedCreds.clientId,
 				hasClientSecret: !!savedCreds.clientSecret,
+				clientAuthMethod: normalized.clientAuthMethod,
 			});
 			
-			return mergedCreds;
+			return normalized;
 		}
 		
 		console.log(`[FlowCredentialService:${flowKey}] No shared credentials found in credentialManager`);
@@ -101,8 +163,51 @@ export const saveSharedCredentials = async (
 			redirectUri: credentials.redirectUri,
 		});
 		
+		const scopesForStorage = Array.isArray(credentials.scopes)
+			? credentials.scopes
+			: typeof credentials.scopes === 'string'
+				? credentials.scopes.split(/\s+/).filter(Boolean)
+				: typeof credentials.scope === 'string'
+					? credentials.scope.split(/\s+/).filter(Boolean)
+					: undefined;
+		const credentialsForStorage: Partial<AllCredentials> = {};
+		if (credentials.environmentId) {
+			credentialsForStorage.environmentId = credentials.environmentId;
+		}
+		if (credentials.clientId) {
+			credentialsForStorage.clientId = credentials.clientId;
+		}
+		if (credentials.clientSecret) {
+			credentialsForStorage.clientSecret = credentials.clientSecret;
+		}
+		if (credentials.redirectUri) {
+			credentialsForStorage.redirectUri = credentials.redirectUri;
+		}
+		if (credentials.postLogoutRedirectUri) {
+			credentialsForStorage.postLogoutRedirectUri = credentials.postLogoutRedirectUri;
+		}
+		if (scopesForStorage && scopesForStorage.length > 0) {
+			credentialsForStorage.scopes = scopesForStorage;
+		}
+		credentialsForStorage.tokenAuthMethod =
+			(credentials as any).tokenAuthMethod ?? credentials.clientAuthMethod ?? 'client_secret_post';
+		if (credentials.authorizationEndpoint) {
+			credentialsForStorage.authEndpoint = credentials.authorizationEndpoint;
+		}
+		if (credentials.tokenEndpoint) {
+			credentialsForStorage.tokenEndpoint = credentials.tokenEndpoint;
+		}
+		if (credentials.userInfoEndpoint) {
+			credentialsForStorage.userInfoEndpoint = credentials.userInfoEndpoint;
+		}
+		if (credentials.postLogoutRedirectUri) {
+			credentialsForStorage.endSessionEndpoint = credentials.postLogoutRedirectUri;
+		}
+		if (credentials.loginHint) {
+			credentialsForStorage.loginHint = credentials.loginHint;
+		}
 		// Use saveAllCredentials to save to all credential stores
-		const success = credentialManager.saveAllCredentials(credentials);
+		const success = credentialManager.saveAllCredentials(credentialsForStorage);
 		
 		console.log(`[FlowCredentialService:${flowKey}] credentialManager.saveAllCredentials result:`, success);
 		
