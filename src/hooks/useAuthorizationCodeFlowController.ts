@@ -42,6 +42,7 @@ import { enhancedDebugger } from '../utils/enhancedDebug';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
+import { flowTrackingService, FlowContext } from '../services/flowTrackingService';
 import { safeJsonParse, safeSessionStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
@@ -376,6 +377,27 @@ export const useAuthorizationCodeFlowController = (
 		
 		console.log('✅ [useAuthorizationCodeFlowController] PKCE codes cleared on flow load');
 	}, []); // Only run once on mount
+
+	// Track current flow for error handling
+	useEffect(() => {
+		const flowContext: FlowContext = {
+			flowKey,
+			flowName: `Authorization Code Flow (${flowVariant.toUpperCase()})`,
+			flowType: flowVariant === 'oidc' ? 'oidc' : 'oauth',
+			currentStep: 0,
+			timestamp: Date.now(),
+			userAgent: navigator.userAgent,
+			sessionId: sessionStorage.getItem('sessionId') || undefined
+		};
+		
+		flowTrackingService.setCurrentFlow(flowContext);
+		console.log('🔄 [useAuthorizationCodeFlowController] Flow tracking initialized:', flowContext);
+		
+		// Cleanup on unmount
+		return () => {
+			flowTrackingService.clearCurrentFlow();
+		};
+	}, [flowKey, flowVariant]);
 
 	// Load flow-specific credentials on mount using FlowCredentialService
 	useEffect(() => {
@@ -1289,6 +1311,19 @@ export const useAuthorizationCodeFlowController = (
 		} catch (error) {
 			console.error('[useAuthorizationCodeFlowController] Token exchange failed:', error);
 
+			// Track the error for flow recovery
+			flowTrackingService.trackFlowError({
+				flowKey,
+				flowName: `Authorization Code Flow (${flowVariant.toUpperCase()})`,
+				flowType: flowVariant === 'oidc' ? 'oidc' : 'oauth',
+				currentStep: 4, // Token exchange step
+				timestamp: Date.now(),
+				errorType: 'token-exchange',
+				errorMessage: error instanceof Error ? error.message : 'Token exchange failed',
+				errorCode: (error as any)?.code,
+				redirectUri: credentials.redirectUri
+			});
+
 			// Track failed token exchange
 			trackTokenOperation(
 				'Exchange',
@@ -1304,17 +1339,28 @@ export const useAuthorizationCodeFlowController = (
 				showGlobalError('Authentication failed', {
 					description:
 						'The client credentials are invalid or the authentication method is not supported. Please check your Client ID and Client Secret configuration in PingOne.',
-					meta: { phase: 'tokenExchange', errorCode: 'invalid_client' },
+					meta: { 
+						phase: 'tokenExchange', 
+						errorCode: 'invalid_client',
+						returnUrl: flowTrackingService.getFlowReturnUrl()
+					},
 				});
 			} else if (errorMessage.includes('401')) {
 				showGlobalError('Unauthorized', {
 					description: 'Authentication failed. Please verify your PingOne credentials and application configuration.',
-					meta: { phase: 'tokenExchange', errorCode: 'unauthorized' },
+					meta: { 
+						phase: 'tokenExchange', 
+						errorCode: 'unauthorized',
+						returnUrl: flowTrackingService.getFlowReturnUrl()
+					},
 				});
 			} else {
 				showGlobalError('Token exchange failed', {
 					description: errorMessage,
-					meta: { phase: 'tokenExchange' },
+					meta: { 
+						phase: 'tokenExchange',
+						returnUrl: flowTrackingService.getFlowReturnUrl()
+					},
 				});
 			}
 
