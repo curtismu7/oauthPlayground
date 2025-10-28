@@ -2127,6 +2127,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 								}}
 								onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
 								onPostLogoutRedirectUriChange={(value) => handleFieldChange('postLogoutRedirectUri', value)}
+								onClientAuthMethodChange={(method) => handleFieldChange('clientAuthMethod', method)}
 								
 								// Save handler
 								onSave={handleSaveConfiguration}
