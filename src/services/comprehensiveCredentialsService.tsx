@@ -28,11 +28,15 @@ const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {
 		case 'implicit-oidc-v7':
 			return ['none'];
 		case 'authorization-code-v7':
+		case 'oauth-authorization-code-v7':
+		case 'oidc-authorization-code-v7':
 		case 'oidc-hybrid-v7':
 			return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
 		case 'device-authorization-v7':
+		case 'device-authorization-v6':
 			return ['none', 'client_secret_basic', 'client_secret_post'];
 		case 'client-credentials-v7':
+		case 'worker-token-v7':
 			return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
 		default:
 			return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
