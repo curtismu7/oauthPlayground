@@ -427,7 +427,7 @@ const PingOneAuthentication: React.FC = () => {
 			state: 'pi-flow-' + Date.now()
 		});
 		return `${base}?${params.toString()}`;
-	}, [config, mode]);
+	}, [config.environmentId, config.clientId, config.responseType, config.redirectUri, config.scopes]);
 
 	const generateRedirectPKCE = useCallback(async () => {
 		if (config.responseType === 'code') {
@@ -773,6 +773,24 @@ const PingOneAuthentication: React.FC = () => {
 				// Generate PKCE URL for authorization code flow
 				const finalAuthUrl = await generateRedirectPKCE();
 				
+				console.log('🔍 [PingOneAuthentication] Generated redirect URL:', finalAuthUrl);
+				console.log('🔍 [PingOneAuthentication] Config used:', {
+					environmentId: config.environmentId,
+					clientId: config.clientId,
+					responseType: config.responseType,
+					redirectUri: config.redirectUri,
+					scopes: config.scopes
+				});
+				
+				// Validate the URL before redirecting
+				try {
+					new URL(finalAuthUrl);
+					console.log('✅ [PingOneAuthentication] URL validation passed');
+				} catch (urlError) {
+					console.error('❌ [PingOneAuthentication] Invalid URL generated:', urlError);
+					throw new Error('Invalid authorization URL generated');
+				}
+				
 				// Store flow context for callback
 				sessionStorage.setItem(FLOW_CONTEXT_KEY, JSON.stringify({
 					environmentId: config.environmentId,
@@ -784,8 +802,11 @@ const PingOneAuthentication: React.FC = () => {
 				
 				v4ToastManager.showSuccess('Redirecting to PingOne for authentication...');
 				
-				// Redirect to PingOne (full page redirect, not popup)
-				window.location.href = finalAuthUrl;
+				// Add a small delay to prevent flash and allow user to see the message
+				setTimeout(() => {
+					console.log('🔍 [PingOneAuthentication] Executing redirect to:', finalAuthUrl);
+					window.location.href = finalAuthUrl;
+				}, 1000);
 			} catch (error) {
 				console.error('[PingOneAuthentication] Redirect flow error:', error);
 				v4ToastManager.showError('Failed to start redirect flow. Please try again.');
