@@ -1689,15 +1689,22 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			client_id: clientId,
 			redirect_uri: 'urn:pingidentity:redirectless',
 			scope: scopes || 'openid',
-			state: state || `pi-flow-${Date.now()}`,
-			code_challenge: codeChallenge,
-			code_challenge_method: codeChallengeMethod || 'S256'
+			state: state || `pi-flow-${Date.now()}`
 		});
+
+		// Add PKCE parameters only if they exist
+		if (codeChallenge) {
+			authParams.append('code_challenge', codeChallenge);
+			authParams.append('code_challenge_method', codeChallengeMethod || 'S256');
+		}
 
 		// Add username/password if provided
 		if (username) authParams.append('username', username);
 		if (password) authParams.append('password', password);
 
+		// Debug: Log all parameters to check for duplicates
+		console.log(`[PingOne Redirectless] All URL parameters:`, Array.from(authParams.entries()));
+		
 		const authorizeUrl = `https://auth.pingone.com/${environmentId}/as/authorize?${authParams.toString()}`;
 		console.log(`[PingOne Redirectless] Authorization URL:`, authorizeUrl);
 
