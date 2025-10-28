@@ -51,6 +51,7 @@ import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
@@ -1237,19 +1238,32 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	// Load credentials using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [DeviceAuth-V7] Loading credentials on mount...');
+			console.log('🔄 [DeviceAuth-V7] Loading credentials with comprehensive service...');
 			
-			const { credentials: v7Credentials } = await FlowCredentialService.loadFlowCredentials({
+			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: 'device-authorization-v7',
-				defaultCredentials: {},
+				useSharedEnvironment: true,
+				useSharedDiscovery: true
 			});
 
-			if (v7Credentials && Object.keys(v7Credentials).length > 0) {
-				console.log('✅ [DeviceAuth-V7] Loaded V7 credentials:', v7Credentials);
-				// Update device flow credentials
-				ensureCredentials(v7Credentials);
+			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+				console.log('✅ [DeviceAuth-V7] Found flow-specific credentials');
+				const updatedCredentials = {
+					environmentId: flowData.sharedEnvironment?.environmentId || '',
+					clientId: flowData.flowCredentials.clientId,
+					clientSecret: flowData.flowCredentials.clientSecret,
+					redirectUri: flowData.flowCredentials.redirectUri,
+					scopes: flowData.flowCredentials.scopes,
+				};
+				ensureCredentials(updatedCredentials);
+			} else if (flowData.sharedEnvironment?.environmentId) {
+				console.log('ℹ️ [DeviceAuth-V7] Using shared environment data only');
+				const updatedCredentials = {
+					environmentId: flowData.sharedEnvironment.environmentId,
+				};
+				ensureCredentials(updatedCredentials);
 			} else {
-				console.log('ℹ️ [DeviceAuth-V7] No V7 credentials found, using defaults');
+				console.log('ℹ️ [DeviceAuth-V7] No saved credentials found, using defaults');
 			}
 		};
 
@@ -1293,29 +1307,36 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	// Load credentials using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [DeviceAuth-V7] Loading credentials on mount...');
+			console.log('🔄 [DeviceAuth-V7] Loading credentials with comprehensive service...');
 			
 			try {
-				// Try V7 standardized storage first
-				const { credentials: v7Credentials, hasSharedCredentials, flowState } = await FlowCredentialService.loadFlowCredentials({
+				const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 					flowKey: 'device-authorization-v7',
-					defaultCredentials: {},
+					useSharedEnvironment: true,
+					useSharedDiscovery: true
 				});
 
-				if (v7Credentials && hasSharedCredentials) {
-					console.log('✅ [DeviceAuth-V7] Loaded V7 credentials:', {
-						flowKey: 'device-authorization-v7',
-						environmentId: v7Credentials.environmentId,
-						clientId: v7Credentials.clientId?.substring(0, 8) + '...',
-						hasFlowState: !!flowState,
-					});
-					// Update device flow credentials
-					deviceFlow.setCredentials(v7Credentials);
+				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+					console.log('✅ [DeviceAuth-V7] Found flow-specific credentials');
+					const updatedCredentials = {
+						environmentId: flowData.sharedEnvironment?.environmentId || '',
+						clientId: flowData.flowCredentials.clientId,
+						clientSecret: flowData.flowCredentials.clientSecret,
+						redirectUri: flowData.flowCredentials.redirectUri,
+						scopes: flowData.flowCredentials.scopes,
+					};
+					deviceFlow.setCredentials(updatedCredentials);
+				} else if (flowData.sharedEnvironment?.environmentId) {
+					console.log('ℹ️ [DeviceAuth-V7] Using shared environment data only');
+					const updatedCredentials = {
+						environmentId: flowData.sharedEnvironment.environmentId,
+					};
+					deviceFlow.setCredentials(updatedCredentials);
 				} else {
-					console.log('ℹ️ [DeviceAuth-V7] No V7 credentials found, using defaults');
+					console.log('ℹ️ [DeviceAuth-V7] No saved credentials found, using defaults');
 				}
 			} catch (error) {
-				console.error('[DeviceAuth-V7] Failed to load V7 credentials:', error);
+				console.error('[DeviceAuth-V7] Failed to load credentials:', error);
 			}
 		};
 
