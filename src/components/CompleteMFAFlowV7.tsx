@@ -68,7 +68,7 @@ import DeviceRegistrationModal from '../components/DeviceRegistrationModal';
 import TOTPQRCodeModal from '../components/TOTPQRCodeModal';
 import FIDO2RegistrationModal from '../components/FIDO2RegistrationModal';
 import { ClientCredentialsTokenRequest } from '../services/clientCredentialsSharedService';
-import { V5StepperService } from '../services/v5StepperService';
+import { V7StepperService } from '../services/v7StepperService';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../services/oauthErrorHandlingService';
 import OAuthErrorDisplay from './OAuthErrorDisplay';
 
@@ -139,7 +139,7 @@ const {
   StepContent, 
   StepProgress,
   NavigationButton 
-} = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+} = V7StepperService.createStepLayout({ theme: 'blue', showProgress: true });
 
 // Step metadata for V5Stepper
 const stepMetadata = [
