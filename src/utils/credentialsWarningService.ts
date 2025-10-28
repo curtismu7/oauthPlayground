@@ -21,16 +21,17 @@ export interface CredentialsWarningOptions {
  * Check if credentials are missing and show warning toast
  */
 export function checkCredentialsAndWarn(
-	credentials: CredentialsCheck,
+	credentials: CredentialsCheck | null | undefined,
 	options: CredentialsWarningOptions
 ): boolean {
 	const { flowName, requiredFields = ['environmentId', 'clientId'], showToast = true } = options;
+	const normalizedCredentials = credentials ?? {};
 	
 	// Check if any required fields are missing
 	const missingFields: string[] = [];
 	
 	requiredFields.forEach(field => {
-		const value = credentials[field as keyof CredentialsCheck];
+		const value = normalizedCredentials[field as keyof CredentialsCheck];
 		if (!value || value.trim() === '') {
 			missingFields.push(field);
 		}
@@ -49,10 +50,10 @@ export function checkCredentialsAndWarn(
 		console.warn(`[CredentialsWarning] ${flowName} started without credentials:`, {
 			missingFields,
 			credentials: {
-				hasEnvironmentId: !!credentials.environmentId,
-				hasClientId: !!credentials.clientId,
-				hasClientSecret: !!credentials.clientSecret,
-				hasRedirectUri: !!credentials.redirectUri,
+				hasEnvironmentId: !!normalizedCredentials.environmentId,
+				hasClientId: !!normalizedCredentials.clientId,
+				hasClientSecret: !!normalizedCredentials.clientSecret,
+				hasRedirectUri: !!normalizedCredentials.redirectUri,
 			}
 		});
 		
@@ -66,7 +67,7 @@ export function checkCredentialsAndWarn(
  * Check credentials on flow mount and show warning if missing
  */
 export function useCredentialsWarning(
-	credentials: CredentialsCheck,
+	credentials: CredentialsCheck | null | undefined,
 	flowName: string,
 	requiredFields?: string[]
 ) {
@@ -75,11 +76,10 @@ export function useCredentialsWarning(
 	
 	React.useEffect(() => {
 		if (!hasShownWarning.current) {
-			checkCredentialsAndWarn(credentials, {
-				flowName,
-				requiredFields,
-				showToast: true
-			});
+			const options: CredentialsWarningOptions = requiredFields
+				? { flowName, requiredFields, showToast: true }
+				: { flowName, showToast: true };
+			checkCredentialsAndWarn(credentials, options);
 			hasShownWarning.current = true;
 		}
 	}, [credentials, flowName, requiredFields]);
