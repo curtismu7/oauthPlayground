@@ -163,6 +163,14 @@ const ModalMessage = styled.p`
 	margin: 0;
 `;
 
+const PatienceMessage = styled.p<{ color: string }>`
+	color: ${props => props.color};
+	font-size: 0.875rem;
+	margin: 0.5rem 0 0 0;
+	font-weight: 500;
+	transition: color 0.3s ease;
+`;
+
 const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 	display: flex;
 	align-items: center;
@@ -338,6 +346,40 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [showResults, setShowResults] = useState(false);
 	const [showModal, setShowModal] = useState(false);
+	const [patienceMessage, setPatienceMessage] = useState('');
+	const [patienceColor, setPatienceColor] = useState('#6b7280');
+
+	// Patience messages with different colors
+	const patienceMessages = [
+		{ text: 'Please be patient, discovering OIDC configuration...', color: '#6b7280' },
+		{ text: 'Still working, fetching endpoints from server...', color: '#3b82f6' },
+		{ text: 'Almost there, validating configuration...', color: '#10b981' },
+		{ text: 'Finalizing discovery process...', color: '#f59e0b' },
+		{ text: 'Processing OIDC metadata...', color: '#ef4444' },
+		{ text: 'Connecting to authentication server...', color: '#8b5cf6' },
+		{ text: 'Retrieving authorization endpoints...', color: '#06b6d4' },
+		{ text: 'Loading token configuration...', color: '#84cc16' }
+	];
+
+	// Cycle through patience messages every 3 seconds when modal is showing
+	useEffect(() => {
+		if (!showModal) {
+			setPatienceMessage('');
+			return;
+		}
+
+		let messageIndex = 0;
+		setPatienceMessage(patienceMessages[0].text);
+		setPatienceColor(patienceMessages[0].color);
+
+		const interval = setInterval(() => {
+			messageIndex = (messageIndex + 1) % patienceMessages.length;
+			setPatienceMessage(patienceMessages[messageIndex].text);
+			setPatienceColor(patienceMessages[messageIndex].color);
+		}, 3000);
+
+		return () => clearInterval(interval);
+	}, [showModal]);
 
 	// Auto-restore last used discovery on mount
 	useEffect(() => {
@@ -617,6 +659,11 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 							<br />
 							This may take a few moments.
 						</ModalMessage>
+						{patienceMessage && (
+							<PatienceMessage color={patienceColor}>
+								{patienceMessage}
+							</PatienceMessage>
+						)}
 					</ModalContent>
 				</Modal>
 			)}
