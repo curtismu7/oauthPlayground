@@ -224,7 +224,7 @@ const RARFlowV7: React.FC = () => {
 	const [environmentId, setEnvironmentId] = useState('');
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
-	const [scopes, setScopes] = useState('read write');
+	const [scopes, setScopes] = useState('openid');
 	const [redirectUri, setRedirectUri] = useState('https://localhost:3000/rar-callback');
 
 	// RAR Authorization Details with enhanced examples
@@ -336,7 +336,7 @@ const RARFlowV7: React.FC = () => {
 				setEnvironmentId(flowData.sharedEnvironment?.environmentId || '');
 				setClientId(flowData.flowCredentials.clientId || '');
 				setClientSecret(flowData.flowCredentials.clientSecret || '');
-				setScopes(Array.isArray(flowData.flowCredentials.scopes) ? flowData.flowCredentials.scopes.join(' ') : (flowData.flowCredentials.scopes || 'read write'));
+				setScopes(Array.isArray(flowData.flowCredentials.scopes) ? flowData.flowCredentials.scopes.join(' ') : (flowData.flowCredentials.scopes || 'openid'));
 				setRedirectUri(flowData.flowCredentials.redirectUri || 'https://localhost:3000/rar-callback');
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [RAR-V7] Using shared environment data only');

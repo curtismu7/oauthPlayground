@@ -21,6 +21,35 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
 
+// Response Type Selector Component
+const ResponseTypeSelector = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+`;
+
+const ResponseTypeLabel = styled.label`
+	font-size: 0.875rem;
+	font-weight: 500;
+	color: #374151;
+	margin-bottom: 0.25rem;
+`;
+
+const ResponseTypeSelect = styled.select`
+	padding: 0.5rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.375rem;
+	font-size: 0.875rem;
+	background-color: white;
+	color: #374151;
+	
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+`;
+
 // Flow-specific authentication method configuration
 const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {
 	switch (flowType) {
@@ -121,9 +150,59 @@ const getFlowResponseTypes = (flowType?: string): string[] => {
 	return ['code'];
 };
 
+// Get allowed response types based on flow type and OAuth/OIDC mode
+const getAllowedResponseTypes = (flowType?: string, isOIDC: boolean = false): string[] => {
+	if (!flowType) return ['code'];
+	
+	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
+	
+	// Client credentials and device flows don't use response_type
+	if (normalizedFlowType.includes('client-credentials') || 
+		normalizedFlowType.includes('client_credentials') ||
+		normalizedFlowType.includes('device') || 
+		normalizedFlowType.includes('device-authorization')) {
+		return [];
+	}
+	
+	// Determine flow type
+	const isAuthorizationCode = normalizedFlowType.includes('authorization-code') || normalizedFlowType.includes('authorization_code');
+	const isImplicit = normalizedFlowType.includes('implicit');
+	const isHybrid = normalizedFlowType.includes('hybrid');
+	
+	// OAuth 2.0 Mode - API access only
+	if (!isOIDC) {
+		if (isAuthorizationCode) {
+			return ['code']; // Authorization Code Flow - access token only
+		}
+		if (isImplicit) {
+			return ['token']; // Implicit Flow - access token only
+		}
+		if (isHybrid) {
+			return ['code', 'token']; // Hybrid Flow - code + access token
+		}
+	}
+	
+	// OpenID Connect Mode - Authentication + API access
+	if (isOIDC) {
+		if (isAuthorizationCode) {
+			return ['code', 'code id_token']; // Authorization Code Flow - can include ID token
+		}
+		if (isImplicit) {
+			return ['id_token', 'token id_token']; // Implicit Flow - ID token + access token
+		}
+		if (isHybrid) {
+			return ['code', 'id_token', 'token id_token', 'code id_token', 'code token', 'code token id_token']; // All hybrid combinations
+		}
+	}
+	
+	// Default fallback
+	return ['code'];
+};
+
 export interface ComprehensiveCredentialsProps {
 	// Flow identification
 	flowType?: string; // Flow type for determining default redirect URI
+	isOIDC?: boolean; // Whether this is OIDC mode (true) or OAuth 2.0 mode (false)
 
 	// Unified credentials API (preferred)
 	credentials?: StepCredentials;
@@ -146,6 +225,7 @@ export interface ComprehensiveCredentialsProps {
 	loginHint?: string;
 	postLogoutRedirectUri?: string;
 	clientAuthMethod?: ClientAuthMethod;
+	responseType?: 'code' | 'token' | 'id_token' | 'token id_token' | 'code id_token' | 'code token' | 'code token id_token';
 	allowedAuthMethods?: ClientAuthMethod[];
 	onEnvironmentIdChange?: (newEnvId: string) => void;
 	onClientIdChange?: (newClientId: string) => void;
@@ -155,6 +235,7 @@ export interface ComprehensiveCredentialsProps {
 	onLoginHintChange?: (newLoginHint: string) => void;
 	onPostLogoutRedirectUriChange?: (newUri: string) => void;
 	onClientAuthMethodChange?: (method: ClientAuthMethod) => void;
+	onResponseTypeChange?: (responseType: string) => void;
 	requireClientSecret?: boolean;
 	onSave?: () => void;
 	hasUnsavedChanges?: boolean;
@@ -216,6 +297,7 @@ const ServiceContainer = styled.div`
 const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> = ({
 	// Flow identification
 	flowType,
+	isOIDC = false,
 	credentials,
 	onCredentialsChange,
 	onSaveCredentials,
@@ -232,10 +314,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	clientSecret = '',
 	redirectUri,
 	scopes,
-	defaultScopes = 'openid profile email',
+	defaultScopes = 'openid',
 	loginHint = '',
 	postLogoutRedirectUri,
 	clientAuthMethod = 'none',
+	responseType = 'code',
 	allowedAuthMethods,
 	onEnvironmentIdChange,
 	onClientIdChange,
@@ -245,6 +328,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	onLoginHintChange,
 	onPostLogoutRedirectUriChange,
 	onClientAuthMethodChange,
+	onResponseTypeChange,
 	requireClientSecret = true,
 	onSave,
 	hasUnsavedChanges = false,
@@ -424,7 +508,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			scopes: normalizedScope,
 			loginHint: credentials?.loginHint ?? loginHint ?? '',
 			postLogoutRedirectUri: credentials?.postLogoutRedirectUri !== undefined ? credentials.postLogoutRedirectUri : actualPostLogoutRedirectUri,
-			responseType: credentials?.responseType ?? 'code',
+			responseType: credentials?.responseType ?? responseType ?? 'code',
 			grantType: credentials?.grantType ?? 'authorization_code',
 			issuerUrl: credentials?.issuerUrl ?? '',
 			authorizationEndpoint: credentials?.authorizationEndpoint ?? '',
@@ -443,6 +527,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		scopes,
 		defaultScopes,
 		loginHint,
+		responseType,
 	]);
 
 	// 🔧 CRITICAL FIX: Initialize redirect URI with default value on mount if not set
@@ -506,6 +591,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			if (updates.clientAuthMethod !== undefined && onClientAuthMethodChange) {
 				onClientAuthMethodChange(updates.clientAuthMethod as ClientAuthMethod);
 			}
+			if (updates.responseType !== undefined && onResponseTypeChange) {
+				onResponseTypeChange(updates.responseType);
+			}
 		}
 
 		if (shouldSave && saveHandler) {
@@ -523,6 +611,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		onLoginHintChange,
 		onPostLogoutRedirectUriChange,
 		onClientAuthMethodChange,
+		onResponseTypeChange,
 		saveHandler,
 	]
 );
@@ -645,7 +734,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								fontSize: '0.875rem',
 								color: '#374151'
 							}}
-							defaultValue="default"
+							value="default"
+							onChange={(e) => {
+								// TODO: Add state management for req object policy
+								console.log('Req Object Policy changed:', e.target.value);
+							}}
 						>
 							<option value="default">default</option>
 							<option value="required">required</option>
@@ -667,6 +760,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						<input
 							type="text"
 							placeholder="Base64URL thumbprint"
+							value=""
+							onChange={(e) => {
+								// TODO: Add state management for x5t
+								console.log('x5t changed:', e.target.value);
+							}}
 							style={{
 								width: '100%',
 								padding: '0.75rem',
@@ -691,6 +789,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						}}>
 							<input
 								type="checkbox"
+								checked={false}
+								onChange={(e) => {
+									// TODO: Add state management for OP iframe monitoring
+									console.log('OP iframe monitoring changed:', e.target.checked);
+								}}
 								style={{
 									width: '1rem',
 									height: '1rem',
@@ -714,7 +817,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						</label>
 						<input
 							type="text"
-							defaultValue="openid profile email"
+							value="openid profile email"
+							onChange={(e) => {
+								// TODO: Add state management for resource scopes
+								console.log('Resource scopes changed:', e.target.value);
+							}}
 							style={{
 								width: '100%',
 								padding: '0.75rem',
@@ -739,7 +846,11 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						}}>
 							<input
 								type="checkbox"
-								defaultChecked
+								checked={true}
+								onChange={(e) => {
+									// TODO: Add state management for RP-initiated logout
+									console.log('RP-initiated logout changed:', e.target.checked);
+								}}
 								style={{
 									width: '1rem',
 									height: '1rem',
@@ -779,6 +890,112 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				disabled={false}
 				readOnly={false}
 			/>
+
+			{/* Response Type Selector */}
+			<div style={{ 
+				marginTop: '1rem', 
+				padding: '1rem', 
+				background: '#f9fafb', 
+				borderRadius: '0.5rem',
+				border: '1px solid #e5e7eb'
+			}}>
+				<ResponseTypeSelector>
+					<ResponseTypeLabel>Response Type</ResponseTypeLabel>
+					<ResponseTypeSelect
+						value={responseType}
+						onChange={(e) => {
+							const newResponseType = e.target.value;
+							onResponseTypeChange?.(newResponseType);
+							applyCredentialUpdates({ responseType: newResponseType }, { shouldSave: false });
+						}}
+					>
+						{(() => {
+							const allowedTypes = getAllowedResponseTypes(flowType, isOIDC);
+							console.log('[ComprehensiveCredentialsService] Allowed response types:', {
+								flowType,
+								isOIDC,
+								allowedTypes
+							});
+							
+							// If no allowed types, show a message
+							if (allowedTypes.length === 0) {
+								return <option value="">No response_type needed for this flow</option>;
+							}
+							
+							// Map response types to display names
+							const responseTypeMap: Record<string, string> = {
+								'code': 'code (Authorization Code)',
+								'token': 'token (Access Token)',
+								'id_token': 'id_token (ID Token)',
+								'token id_token': 'token id_token (Access + ID Token)',
+								'code id_token': 'code id_token (Code + ID Token)',
+								'code token': 'code token (Code + Access Token)',
+								'code token id_token': 'code token id_token (All Tokens)'
+							};
+							
+							return allowedTypes.map(type => (
+								<option key={type} value={type}>
+									{responseTypeMap[type] || type}
+								</option>
+							));
+						})()}
+					</ResponseTypeSelect>
+					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+						{isOIDC 
+							? 'OpenID Connect Mode: Authentication + API access' 
+							: 'OAuth 2.0 Mode: API access only'
+						}
+					</div>
+					
+					{/* Response Type Explanation */}
+					{responseType && responseType !== '' && (
+						<div style={{ 
+							marginTop: '0.75rem', 
+							padding: '0.75rem', 
+							background: '#f0f9ff', 
+							borderRadius: '0.375rem',
+							border: '1px solid #0ea5e9',
+							fontSize: '0.875rem'
+						}}>
+							<div style={{ fontWeight: '600', color: '#0c4a6e', marginBottom: '0.5rem' }}>
+								📋 What "{responseType}" means:
+							</div>
+							{(() => {
+								const explanations: Record<string, string> = {
+									'code': 'Authorization Code - A temporary code exchanged for an access token. Most secure method for server-side applications.',
+									'token': 'Access Token - Directly returns an access token in the URL fragment. Used for client-side applications.',
+									'id_token': 'ID Token - Returns an OpenID Connect ID token containing user identity information. Used for authentication.',
+									'token id_token': 'Access + ID Token - Returns both an access token and ID token. Provides both API access and user authentication.',
+									'code id_token': 'Code + ID Token - Returns an authorization code and ID token. Hybrid approach for secure authentication.',
+									'code token': 'Code + Access Token - Returns both an authorization code and access token. Rarely used combination.',
+									'code token id_token': 'All Tokens - Returns authorization code, access token, and ID token. Maximum information in one request.'
+								};
+								
+								const explanation = explanations[responseType] || 'Unknown response type';
+								const isOIDCType = responseType.includes('id_token');
+								
+								return (
+									<div>
+										<div style={{ color: '#0c4a6e', marginBottom: '0.25rem' }}>
+											{explanation}
+										</div>
+										{isOIDCType && (
+											<div style={{ 
+												color: '#7c2d12', 
+												fontSize: '0.75rem',
+												fontStyle: 'italic',
+												marginTop: '0.25rem'
+											}}>
+												🔐 This requires OpenID Connect mode and will include user identity information.
+											</div>
+										)}
+									</div>
+								);
+							})()}
+						</div>
+					)}
+				</ResponseTypeSelector>
+			</div>
 
 			{/* Token Endpoint Authentication Method - Inside Basic Credentials section */}
 			<div style={{ 
