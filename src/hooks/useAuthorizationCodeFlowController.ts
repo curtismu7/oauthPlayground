@@ -801,6 +801,26 @@ export const useAuthorizationCodeFlowController = (
 
 		const resolvedLoginHint = credentials.loginHint || pingOneConfig?.loginHint;
 
+		// Ensure we have valid scopes - do this early for both PAR and regular flows
+		const defaultScopes = flowVariant === 'oidc' ? 'openid profile email' : 'openid';
+		const resolvedScopes = credentials.scope || credentials.scopes || defaultScopes;
+		
+		// Validate scopes - ensure they're not empty and contain at least one valid scope
+		const scopeArray = resolvedScopes.split(/\s+/).filter(s => s.trim().length > 0);
+		if (scopeArray.length === 0) {
+			throw new Error('At least one scope must be specified. Please configure scopes in your credentials.');
+		}
+		
+		const finalScopes = scopeArray.join(' ');
+		console.log('🔍 [useAuthorizationCodeFlowController] Scope validation:', {
+			originalScope: credentials.scope,
+			originalScopes: credentials.scopes,
+			resolvedScopes,
+			scopeArray,
+			finalScopes,
+			flowVariant
+		});
+
 		// Check if PAR (Pushed Authorization Request) is required
 		if (pingOneConfig?.requirePushedAuthorizationRequest) {
 			console.log('🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request');
@@ -817,7 +837,7 @@ export const useAuthorizationCodeFlowController = (
 					environmentId: credentials.environmentId || '',
 					responseType: pingOneConfig.responseTypeCode !== false ? 'code' : 'token',
 					redirectUri: credentials.redirectUri,
-					scope: credentials.scope || 'openid',
+					scope: finalScopes, // Use the validated scopes
 					state,
 					nonce: pingOneConfig.nonce,
 					codeChallenge: currentPkceCodes.codeChallenge,
@@ -875,13 +895,13 @@ export const useAuthorizationCodeFlowController = (
 			if (credentials.responseTypeIdToken) responseTypes.push('id_token');
 			const responseType = responseTypes.length > 0 ? responseTypes.join(' ') : 'code';
 
-			const params = new URLSearchParams({
-				response_type: responseType,
-				client_id: credentials.clientId,
-				redirect_uri: credentials.redirectUri,
-				scope: credentials.scope || 'openid',
-				state,
-			});
+		const params = new URLSearchParams({
+			response_type: responseType,
+			client_id: credentials.clientId,
+			redirect_uri: credentials.redirectUri,
+			scope: finalScopes,
+			state,
+		});
 
 			// REDIRECT URI AUDIT - Log what will be sent to PingOne
 			console.log('🔍 [REDIRECT URI AUDIT] URL Params:', {
@@ -896,10 +916,11 @@ export const useAuthorizationCodeFlowController = (
 				params.set('code_challenge_method', currentPkceCodes.codeChallengeMethod || 'S256');
 			}
 
-			// Add OIDC-specific parameters
-			if (flowVariant === 'oidc') {
-				params.set('scope', pingOneConfig?.scope || credentials.scope || 'openid profile email');
-			}
+		// Add OIDC-specific parameters
+		if (flowVariant === 'oidc') {
+			// Scope is already set above with proper validation
+			// No need to override it here
+		}
 
 			// Add advanced OIDC parameters if configured
 			if (pingOneConfig?.initiateLoginUri) {
