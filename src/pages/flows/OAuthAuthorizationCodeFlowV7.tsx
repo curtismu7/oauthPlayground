@@ -52,7 +52,7 @@ import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeatu
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowV7Controller';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
