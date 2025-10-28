@@ -255,6 +255,15 @@ if (typeof window !== 'undefined') {
 	console.log(`  - CredentialDebugger.dumpAllStorage()`);
 	console.log(`  - CredentialDebugger.clearAllCredentials()`);
 	console.log(`  - CredentialDebugger.testCredentialIsolation("flow1", "flow2")`);
+	
+	// Also make it available as a simple global function
+	(window as any).auditCredentials = () => CredentialDebugger.auditAllFlows();
+	(window as any).dumpStorage = () => CredentialDebugger.dumpAllStorage();
+	(window as any).clearCredentials = () => CredentialDebugger.clearAllCredentials();
+	console.log(`🔧 Shortcut commands also available:`);
+	console.log(`  - auditCredentials()`);
+	console.log(`  - dumpStorage()`);
+	console.log(`  - clearCredentials()`);
 }
 
 export default CredentialDebugger;
