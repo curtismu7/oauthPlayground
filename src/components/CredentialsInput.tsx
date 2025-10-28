@@ -53,6 +53,9 @@ export interface CredentialsInputProps {
 	hasUnsavedChanges?: boolean;
 	isSaving?: boolean;
 	autoDiscover?: boolean;
+	// Field editing protection props
+	disabled?: boolean;
+	readOnly?: boolean;
 }
 
 const CollapsibleContainer = styled.div`
@@ -323,6 +326,9 @@ export const CredentialsInput = ({
 	hasUnsavedChanges = false,
 	isSaving = false,
 	autoDiscover = true,
+	// Field editing protection props
+	disabled = false,
+	readOnly = false,
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
@@ -398,8 +404,8 @@ export const CredentialsInput = ({
 							}
 							value={environmentId}
 							onChange={(e) => onEnvironmentIdChange(e.target.value)}
-							disabled={false}
-							readOnly={false}
+							disabled={disabled}
+							readOnly={readOnly}
 							$hasError={emptyRequiredFields.has('environmentId')}
 							style={{ flex: 1 }}
 						/>
@@ -454,8 +460,8 @@ export const CredentialsInput = ({
 							onChange={(e) => onClientIdChange(e.target.value)}
 							$hasError={emptyRequiredFields.has('clientId')}
 							style={{ flex: 1 }}
-							disabled={false}
-							readOnly={false}
+							disabled={disabled}
+							readOnly={readOnly}
 						/>
 						{clientId && (
 							<div style={{ 
@@ -621,8 +627,8 @@ export const CredentialsInput = ({
 							}}
 							$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
 							style={{ flex: 1 }}
-							disabled={false}
-							readOnly={false}
+							disabled={disabled}
+							readOnly={readOnly}
 						/>
 						{scopes && (
 							<div style={{ 
