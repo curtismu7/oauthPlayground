@@ -490,7 +490,8 @@ const AppRoutes = () => {
 								element={<AdvancedOAuthParametersDemoFlow />}
 							/>
 							<Route path="/hybrid-callback" element={<HybridCallback />} />
-							<Route path="/flows/redirectless-flow-mock" element={<RedirectlessFlowV5 />} />
+							{/* V5 flows disabled - redirect to V7 equivalents */}
+							<Route path="/flows/redirectless-flow-mock" element={<Navigate to="/flows/redirectless-v7-real" replace />} />
 							{/* V7 Redirectless Flow */}
 							<Route path="/flows/redirectless-v7-real" element={<RedirectlessFlowV7Real />} />
 							
@@ -502,13 +503,14 @@ const AppRoutes = () => {
 							<Route path="/flows/par" element={<PARFlow />} />
 							<Route path="/flows-old/jwt-bearer" element={<JWTBearerFlow />} />
 							{/* Unsupported by PingOne flows */}
+							{/* V5 flows disabled - redirect to V7 equivalents */}
 							<Route
 								path="/oauth/resource-owner-password"
-								element={<OAuthResourceOwnerPasswordFlowV5 />}
+								element={<Navigate to="/flows/oauth-ropc-v7" replace />}
 							/>
 							<Route
 								path="/oidc/resource-owner-password"
-								element={<OIDCResourceOwnerPasswordFlowV5 />}
+								element={<Navigate to="/flows/oauth-ropc-v7" replace />}
 							/>
 							{/* V7 PingOne PAR Flow */}
 							<Route path="/flows/pingone-par-v7" element={<PingOnePARFlowV7 />} />
@@ -552,9 +554,10 @@ const AppRoutes = () => {
 							<Route path="/oidc" element={<OIDC />}>
 								<Route path="userinfo" element={<UserInfoFlow />} />
 								<Route path="id-tokens" element={<IDTokensFlow />} />
+								{/* V5 flows disabled - redirect to V7 equivalents */}
 								<Route
 									path="resource-owner-password"
-									element={<OIDCResourceOwnerPasswordFlowV5 />}
+									element={<Navigate to="/flows/oauth-ropc-v7" replace />}
 								/>
 								<Route path="jwt-bearer" element={<JWTBearerFlow />} />
 							</Route>
