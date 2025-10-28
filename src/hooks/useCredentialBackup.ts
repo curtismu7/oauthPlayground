@@ -7,7 +7,7 @@ import { StepCredentials } from '../components/steps/CommonSteps';
 
 interface UseCredentialBackupProps {
 	flowKey: string;
-	credentials: StepCredentials;
+	credentials: StepCredentials | null | undefined;
 	setCredentials: (credentials: StepCredentials) => void;
 	enabled?: boolean;
 }
@@ -46,7 +46,8 @@ export const useCredentialBackup = ({
 		if (!enabled) return;
 		
 		// Check if we need to restore from backup (when storage is cleared)
-		if (!credentials.environmentId && !credentials.clientId) {
+		const normalizedCredentials = credentials ?? ({} as StepCredentials);
+		if (!normalizedCredentials.environmentId && !normalizedCredentials.clientId) {
 			const backupCredentials = credentialBackupService.restoreFromBackup(flowKey);
 			if (backupCredentials.environmentId || backupCredentials.clientId) {
 				console.log(`🔧 [CredentialBackup] Restoring credentials from backup for flow: ${flowKey}`, {
@@ -59,12 +60,12 @@ export const useCredentialBackup = ({
 				
 				// Update credentials with restored data
 				setCredentials({
-					...credentials,
+					...normalizedCredentials,
 					...backupCredentials
 				});
 			}
 		}
-	}, [flowKey, enabled]); // Only run on mount
+	}, [flowKey, enabled, credentials]); // Only run when flowKey/enabled change or credentials reset
 
 	// Clear backup when flow is reset
 	const clearBackup = () => {
