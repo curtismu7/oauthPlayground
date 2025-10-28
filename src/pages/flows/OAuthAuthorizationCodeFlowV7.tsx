@@ -16,6 +16,7 @@ import {
 	FiInfo,
 	FiKey,
 	FiLock,
+	FiLogOut,
 	FiPackage,
 	FiRefreshCw,
 	FiSave,
@@ -1434,6 +1435,37 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		v4ToastManager.showSuccess('Configuration cleared. Enter PingOne credentials to continue.');
 	}, [controller]);
 
+	const handleLogout = useCallback(() => {
+		if (!controller.credentials.postLogoutRedirectUri) {
+			v4ToastManager.showError('No logout URL configured. Please add a Post-Logout Redirect URI in the credentials section.');
+			return;
+		}
+
+		if (!controller.credentials.environmentId) {
+			v4ToastManager.showError('Environment ID is required for logout.');
+			return;
+		}
+
+		// Construct the logout URL
+		const logoutUrl = `https://auth.pingone.com/${controller.credentials.environmentId}/as/logout`;
+		const postLogoutRedirectUri = controller.credentials.postLogoutRedirectUri;
+		
+		// Add query parameters for logout
+		const logoutParams = new URLSearchParams({
+			post_logout_redirect_uri: postLogoutRedirectUri,
+			client_id: controller.credentials.clientId || '',
+		});
+
+		const fullLogoutUrl = `${logoutUrl}?${logoutParams.toString()}`;
+		
+		console.log('🚪 [handleLogout] Calling logout URL:', fullLogoutUrl);
+		
+		// Open logout URL in a new window/tab
+		window.open(fullLogoutUrl, '_blank');
+		
+		v4ToastManager.showSuccess('Logout URL opened in new tab. User session will be ended.');
+	}, [controller.credentials]);
+
 	const savePingOneConfig = useCallback(
 		(config: PingOneApplicationState) => {
 			setPingOneConfig(config);
@@ -2762,6 +2794,37 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 									</div>
 								</div>
 							</ResultsSection>
+						</ResultsSection>
+
+						{/* Logout Functionality Section */}
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiLogOut size={18} /> Logout Functionality
+							</ResultsHeading>
+							<HelperText>
+								Test logout functionality by calling the logout URL. This will end the user session and redirect to the post-logout redirect URI.
+							</HelperText>
+
+							{controller.credentials.postLogoutRedirectUri ? (
+								<ActionRow>
+									<HighlightedActionButton
+										onClick={handleLogout}
+										$priority="warning"
+										title="Call logout URL to end user session"
+									>
+										<FiLogOut /> Call Logout URL
+										<HighlightBadge>Logout</HighlightBadge>
+									</HighlightedActionButton>
+									<div style={{ fontSize: '0.75rem', color: '#6b7280', fontStyle: 'italic' }}>
+										Logout URL: {controller.credentials.postLogoutRedirectUri}
+									</div>
+								</ActionRow>
+							) : (
+								<HelperText style={{ color: '#f59e0b' }}>
+									⚠️ No logout URL configured. Add a Post-Logout Redirect URI in the credentials section above to enable logout functionality.
+								</HelperText>
+							)}
 						</ResultsSection>
 					</>
 				);
