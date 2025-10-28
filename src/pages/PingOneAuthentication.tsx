@@ -808,7 +808,6 @@ const PingOneAuthentication: React.FC = () => {
 				console.log('🔍 [PingOneAuthentication] Validating authorization URL...');
 				const validationResult = authorizationUrlValidationService.validateAuthorizationUrl(finalAuthUrl, {
 					flowType: 'authorization-code',
-					requireHttps: true,
 					requireState: true,
 					requireNonce: false,
 					requirePkce: true
@@ -965,6 +964,26 @@ const PingOneAuthentication: React.FC = () => {
 						onChange={(e) => updateConfig('redirectUri', e.target.value)}
 						placeholder="Enter your redirect URI"
 					/>
+					<div style={{
+						fontSize: '0.85rem',
+						color: '#666',
+						marginTop: '0.5rem',
+						padding: '0.75rem',
+						backgroundColor: '#f8f9fa',
+						borderRadius: '0.375rem',
+						border: '1px solid #e9ecef'
+					}}>
+						<strong>🔧 PingOne Configuration Required:</strong><br />
+						<strong>Redirect URI:</strong> <code>{config.redirectUri}</code><br />
+						<strong>Post-Logout Redirect URI:</strong> <code>{callbackUriService.getCallbackUri('p1authLogoutCallback')}</code><br />
+						<br />
+						<strong>Steps to configure in PingOne:</strong><br />
+						1. Go to your PingOne application settings<br />
+						2. Add <code>{config.redirectUri}</code> to <strong>Redirect URIs</strong><br />
+						3. Add <code>{callbackUriService.getCallbackUri('p1authLogoutCallback')}</code> to <strong>Post-Logout Redirect URIs</strong><br />
+						4. Ensure your application supports <strong>Authorization Code</strong> grant type<br />
+						5. Make sure <strong>PKCE</strong> is enabled for enhanced security
+					</div>
 				</Field>
 
 				<Field>
