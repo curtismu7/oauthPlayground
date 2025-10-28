@@ -26,6 +26,7 @@ import { useCibaFlowV7 } from '../../hooks/useCibaFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import EducationalContentService from '../../services/educationalContentService';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
@@ -328,28 +329,34 @@ const CIBAFlowV7: React.FC = () => {
 		setFormData(prev => ({ ...prev, [field]: value }));
 	}, []);
 
-	// Load credentials using V7 standardized storage
+	// Load credentials using V7 comprehensive service with complete isolation
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [CIBA-V7] Loading credentials on mount...');
+			console.log('🔄 [CIBA-V7] Loading credentials with comprehensive service...');
 			
-			const { credentials: v7Credentials } = await FlowCredentialService.loadFlowCredentials({
-				flowKey: 'ciba-v7',
-				defaultCredentials: {},
+			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
+				flowKey: 'ciba-flow-v7',
+				useSharedEnvironment: true,
+				useSharedDiscovery: true
 			});
 
-			if (v7Credentials && Object.keys(v7Credentials).length > 0) {
-				console.log('✅ [CIBA-V7] Loaded V7 credentials:', v7Credentials);
-				// Update form data with loaded credentials
+			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+				console.log('✅ [CIBA-V7] Found flow-specific credentials');
 				setFormData(prev => ({
 					...prev,
-					environmentId: v7Credentials.environmentId || '',
-					clientId: v7Credentials.clientId || '',
-					clientSecret: v7Credentials.clientSecret || '',
-					scope: v7Credentials.scope || v7Credentials.scopes || 'openid profile',
+					environmentId: flowData.sharedEnvironment?.environmentId || '',
+					clientId: flowData.flowCredentials.clientId,
+					clientSecret: flowData.flowCredentials.clientSecret,
+					scope: flowData.flowCredentials.scopes.join(' '),
+				}));
+			} else if (flowData.sharedEnvironment?.environmentId) {
+				console.log('ℹ️ [CIBA-V7] Using shared environment data only');
+				setFormData(prev => ({
+					...prev,
+					environmentId: flowData.sharedEnvironment.environmentId,
 				}));
 			} else {
-				console.log('ℹ️ [CIBA-V7] No V7 credentials found, using defaults');
+				console.log('ℹ️ [CIBA-V7] No saved credentials found, using defaults');
 			}
 		};
 
@@ -414,12 +421,30 @@ const CIBAFlowV7: React.FC = () => {
 				scopes: formData.scope,
 			};
 
-			await FlowCredentialService.saveFlowCredentials({
-				flowKey: 'ciba-v7',
-				credentials
+			// Save credentials using comprehensive service with complete isolation
+			const success = comprehensiveFlowDataService.saveFlowDataComprehensive('ciba-flow-v7', {
+				sharedEnvironment: formData.environmentId ? {
+					environmentId: formData.environmentId,
+					region: 'us', // Default region
+					issuerUrl: `https://auth.pingone.com/${formData.environmentId}`
+				} : undefined,
+				flowCredentials: {
+					clientId: formData.clientId,
+					clientSecret: formData.clientSecret,
+					redirectUri: formData.redirectUri || 'https://example.com/callback',
+					scopes: formData.scope.split(' ').filter(s => s.length > 0),
+					logoutUrl: formData.logoutUrl,
+					loginHint: formData.loginHint,
+					tokenEndpointAuthMethod: 'client_secret_basic',
+					lastUpdated: Date.now()
+				}
 			});
 
-			v4ToastManager.showSuccess('Credentials saved successfully!');
+			if (success) {
+				v4ToastManager.showSuccess('Credentials saved successfully!');
+			} else {
+				v4ToastManager.showError('Failed to save credentials');
+			}
 		} catch (error) {
 			console.error('[CIBA-V7] Failed to save credentials:', error);
 			v4ToastManager.showError('Failed to save credentials');
