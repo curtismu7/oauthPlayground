@@ -34,6 +34,7 @@ import { CopyButtonService } from '../../services/copyButtonService';
 import { OAuthFlowComparisonService } from '../../services/oauthFlowComparisonService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import type { StepCredentials } from '../../services/flowCredentialService';
 
 // Import V6 UI components
@@ -192,19 +193,27 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 	// Load credentials on mount
 	useEffect(() => {
 		const loadCredentials = async () => {
-			console.log('🔄 [JWTBearerTokenFlowV6] Loading credentials on mount...');
-			const { credentials } = await FlowCredentialService.loadFlowCredentials({
+			console.log('🔄 [JWTBearerTokenFlowV7] Loading credentials with comprehensive service...');
+			
+			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
-				defaultCredentials: {},
+				useSharedEnvironment: true,
+				useSharedDiscovery: true
 			});
 
-			if (credentials) {
-				console.log('✅ [JWTBearerTokenFlowV6] Loaded credentials:', credentials);
-				if (credentials.environmentId) setEnvironmentId(credentials.environmentId);
-				if (credentials.clientId) setClientId(credentials.clientId);
-				if (credentials.scopes || credentials.scope) setScopes(credentials.scopes || credentials.scope || 'read write');
+			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+				console.log('✅ [JWTBearerTokenFlowV7] Found flow-specific credentials');
+				if (flowData.sharedEnvironment?.environmentId) setEnvironmentId(flowData.sharedEnvironment.environmentId);
+				if (flowData.flowCredentials.clientId) setClientId(flowData.flowCredentials.clientId);
+				if (flowData.flowCredentials.scopes) {
+					const scopesValue = Array.isArray(flowData.flowCredentials.scopes) ? flowData.flowCredentials.scopes.join(' ') : flowData.flowCredentials.scopes;
+					setScopes(scopesValue || 'read write');
+				}
+			} else if (flowData.sharedEnvironment?.environmentId) {
+				console.log('ℹ️ [JWTBearerTokenFlowV7] Using shared environment data only');
+				setEnvironmentId(flowData.sharedEnvironment.environmentId);
 			} else {
-				console.log('ℹ️ [JWTBearerTokenFlowV6] No saved credentials found');
+				console.log('ℹ️ [JWTBearerTokenFlowV7] No saved credentials found');
 			}
 		};
 
@@ -220,15 +229,28 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 			...updatedCredentials,
 		};
 
-		await FlowCredentialService.saveFlowCredentials(
-			FLOW_KEY,
-			credentials,
-			{}, // No additional flow config
-			{}, // No additional state
-			{ showToast: false } // Don't show toast on every keystroke
-		);
+		// Save to comprehensive service with complete isolation
+		const success = comprehensiveFlowDataService.saveFlowDataComprehensive(FLOW_KEY, {
+			...(environmentId && {
+				sharedEnvironment: {
+					environmentId,
+					region: 'us', // Default region
+					issuerUrl: `https://auth.pingone.com/${environmentId}`
+				}
+			}),
+			flowCredentials: {
+				clientId,
+				scopes: Array.isArray(scopes) ? scopes : (scopes ? [scopes] : []),
+				tokenEndpointAuthMethod: 'client_secret_basic',
+				lastUpdated: Date.now()
+			}
+		});
+
+		if (!success) {
+			console.error('[JWTBearerTokenFlowV7] Failed to save credentials to comprehensive service');
+		}
 		
-		console.log('💾 [JWTBearerTokenFlowV6] Credentials saved:', credentials);
+		console.log('💾 [JWTBearerTokenFlowV7] Credentials saved:', credentials);
 	}, [environmentId, clientId, scopes]);
 
 	// Generate JWT ID
