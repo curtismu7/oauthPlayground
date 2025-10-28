@@ -151,6 +151,7 @@ import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
+import ServiceTestRunner from './pages/ServiceTestRunner';
 
 const AppContainer = styled.div`
   display: flex;
@@ -603,6 +604,7 @@ const AppRoutes = () => {
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
 							<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
+							<Route path="/service-test-runner" element={<ServiceTestRunner />} />
 							<Route path="/:customCallback(p1-callback)" element={<PingOneAuthenticationCallback />} />
 			<Route path="*" element={<Navigate to="/dashboard" replace />} />
 				</Routes>
