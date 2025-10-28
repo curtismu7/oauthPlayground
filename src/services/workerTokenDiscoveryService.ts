@@ -78,7 +78,7 @@ class WorkerTokenDiscoveryService {
 
 			// Use comprehensive discovery service for PingOne
 			const discoveryResult = await this.comprehensiveDiscovery.discover({
-				issuerUrl,
+				input: issuerUrl,
 				timeout,
 				enableCaching,
 			});
