@@ -1051,6 +1051,11 @@ class CredentialManager {
 	 * Save all credentials (permanent + session)
 	 */
 	saveAllCredentials(credentials: Partial<AllCredentials>): boolean {
+		// 🔍 INSTRUMENTATION: Track global credential contamination
+		console.group(`🚨 [CREDENTIAL CONTAMINATION] saveAllCredentials called`);
+		console.log(`📋 Credentials being saved globally:`, credentials);
+		console.log(`📋 This will overwrite pingone_permanent_credentials for ALL flows!`);
+		
 		const permanentSuccess = this.savePermanentCredentials({
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
@@ -1067,6 +1072,11 @@ class CredentialManager {
 		const sessionSuccess = this.saveSessionCredentials({
 			clientSecret: credentials.clientSecret,
 		});
+
+		console.log(`📋 Permanent Save Success:`, permanentSuccess);
+		console.log(`📋 Session Save Success:`, sessionSuccess);
+		console.log(`🚨 GLOBAL CREDENTIAL CONTAMINATION COMPLETE!`);
+		console.groupEnd();
 
 		return permanentSuccess && sessionSuccess;
 	}
