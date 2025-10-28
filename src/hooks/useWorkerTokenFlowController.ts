@@ -15,6 +15,7 @@ import { requestClientCredentialsToken, introspectToken } from '../utils/workerT
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
 import { FlowCredentialService } from '../services/flowCredentialService';
+import { scopeValidationService } from '../services/scopeValidationService';
 
 export interface WorkerTokenFlowControllerOptions {
 	flowKey?: string;
@@ -275,27 +276,27 @@ export const useWorkerTokenFlowController = (
 			const authUrl = `${baseUrl}/${credentials.environmentId}/as`;
 			const tokenEndpoint = `${authUrl}/token`;
 
-			// Prepare scopes - use proper PingOne worker token scopes
-			const defaultWorkerScopes = 'p1:read:user p1:update:user p1:read:device p1:update:device';
-			const scopes = credentials.scopes || credentials.scope || defaultWorkerScopes;
+			// Use centralized scope validation service
+			const scopeValidation = scopeValidationService.validateForAuthorizationUrl(
+				credentials.scopes || credentials.scope,
+				'client-credentials'
+			);
+
+			if (!scopeValidation.isValid) {
+				throw new Error(scopeValidation.error || 'Invalid scopes configuration');
+			}
+
+			const scopes = scopeValidation.scopes;
 			const scopeArray = scopes.split(' ').filter(Boolean);
 			
 			// Debug logging
-			console.log('🔍 [useWorkerTokenFlowController] Scope debugging:');
-			console.log('  - credentials.scopes:', credentials.scopes);
-			console.log('  - credentials.scope:', credentials.scope);
-			console.log('  - defaultWorkerScopes:', defaultWorkerScopes);
-			console.log('  - final scopes:', scopes);
-			console.log('  - scopeArray:', scopeArray);
-
-			// Safety check: Ensure we have valid scopes
-			if (!scopeArray || scopeArray.length === 0) {
-				console.error('❌ [useWorkerTokenFlowController] No valid scopes found!');
-				console.error('  - credentials.scopes:', credentials.scopes);
-				console.error('  - credentials.scope:', credentials.scope);
-				console.error('  - defaultWorkerScopes:', defaultWorkerScopes);
-				throw new Error('No valid scopes configured. Please set scopes for the worker token request.');
-			}
+			console.log('🔍 [useWorkerTokenFlowController] Scope validation:', {
+				originalScopes: credentials.scopes,
+				originalScope: credentials.scope,
+				validatedScopes: scopes,
+				scopeArray,
+				isValid: scopeValidation.isValid
+			});
 
 			// Get authentication method (default to client_secret_post)
 			const authMethod =

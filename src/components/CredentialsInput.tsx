@@ -6,6 +6,7 @@ import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 import EnvironmentIdInput from './EnvironmentIdInput';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
 import { CopyButtonVariants } from '../services/copyButtonService';
+import { callbackUriService } from '../services/callbackUriService';
 
 // CSS animation for loading spinner
 const spin = keyframes`
@@ -37,6 +38,7 @@ export interface CredentialsInputProps {
 	onClientSecretChange: (value: string) => void;
 	onRedirectUriChange?: (value: string) => void;
 	onScopesChange?: (value: string) => void;
+	onScopesBlur?: (value: string) => void;
 	onLoginHintChange?: (value: string) => void;
 	onPostLogoutRedirectUriChange?: (value: string) => void;
 	onRegionChange?: (value: 'us' | 'eu' | 'ap' | 'ca') => void;
@@ -310,6 +312,7 @@ export const CredentialsInput = ({
 	onClientSecretChange,
 	onRedirectUriChange,
 	onScopesChange,
+	onScopesBlur,
 	onLoginHintChange,
 	onPostLogoutRedirectUriChange,
 	onRegionChange,
@@ -343,7 +346,7 @@ export const CredentialsInput = ({
 	const handleScopesBlur = (value: string) => {
 		// Clean up multiple spaces and trim only on blur
 		const cleanedValue = value.replace(/\s+/g, ' ').trim();
-		onScopesChange?.(cleanedValue);
+		onScopesBlur?.(cleanedValue);
 	};
 
 	return (
@@ -563,8 +566,8 @@ export const CredentialsInput = ({
 						}}>
 							<FormInput
 								type="text"
-								placeholder="https://localhost:3000/authz-callback"
-								value={redirectUri || 'https://localhost:3000/authz-callback'}
+								placeholder={callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').redirectUri}
+								value={redirectUri || callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').redirectUri}
 								onChange={(e) => onRedirectUriChange?.(e.target.value)}
 								$hasError={emptyRequiredFields.has('redirectUri')}
 								style={{ flex: 1 }}
@@ -580,6 +583,26 @@ export const CredentialsInput = ({
 									{CopyButtonVariants.url(redirectUri, 'Redirect URI')}
 								</div>
 							)}
+						</div>
+						<div style={{ 
+							marginTop: '0.5rem', 
+							padding: '0.75rem', 
+							backgroundColor: '#f8fafc', 
+							border: '1px solid #e2e8f0', 
+							borderRadius: '0.375rem',
+							fontSize: '0.875rem',
+							color: '#475569'
+						}}>
+							<strong>📋 {callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').description}:</strong><br />
+							<code style={{ color: '#1e40af', backgroundColor: '#eff6ff', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>
+								{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').redirectUri}
+							</code><br />
+							<span style={{ fontSize: '0.8rem', color: '#64748b' }}>
+								{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').note}
+							</span><br />
+							<span style={{ fontSize: '0.8rem', color: '#dc2626', fontWeight: '500' }}>
+								⚠️ Add this exact URI to your PingOne application's "Redirect URIs" list
+							</span>
 						</div>
 					</FormField>
 				)}
@@ -615,7 +638,7 @@ export const CredentialsInput = ({
 					}}>
 						<FormInput
 							type="text"
-							placeholder="openid profile email"
+							placeholder="openid"
 							value={scopes}
 							onChange={(e) => handleScopesChange(e.target.value)}
 							onBlur={(e) => handleScopesBlur(e.target.value)}
@@ -687,7 +710,7 @@ export const CredentialsInput = ({
 				{showPostLogoutRedirectUri && (
 					<FormField style={{ gridColumn: '1 / -1' }}>
 						<FormLabel>
-							Post-Logout Redirect URI <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Optional)</span>
+							🚪 Post-Logout Redirect URI <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>(Required for Logout)</span>
 						</FormLabel>
 						<div style={{ 
 							position: 'relative', 
@@ -697,8 +720,8 @@ export const CredentialsInput = ({
 						}}>
 							<FormInput
 								type="text"
-								placeholder="https://localhost:3000/logout-callback"
-								value={postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
+								placeholder={callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutUri}
+								value={postLogoutRedirectUri || callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutUri}
 								onChange={(e) => onPostLogoutRedirectUriChange?.(e.target.value)}
 								style={{ flex: 1 }}
 								disabled={false}
@@ -709,11 +732,89 @@ export const CredentialsInput = ({
 								alignItems: 'center', 
 								height: '100%' 
 							}}>
-								{CopyButtonVariants.url(postLogoutRedirectUri || 'https://localhost:3000/logout-callback', 'Post-Logout Redirect URI')}
+								{CopyButtonVariants.url(postLogoutRedirectUri || callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutUri, 'Post-Logout Redirect URI')}
 							</div>
 						</div>
-						<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-							URL to redirect users after logout. Add this to your PingOne application's Post-Logout Redirect URIs.
+						
+						{/* Enhanced Logout URI Information Panel */}
+						<div style={{ 
+							marginTop: '0.75rem', 
+							padding: '1rem', 
+							backgroundColor: '#fef3c7', 
+							border: '2px solid #f59e0b', 
+							borderRadius: '0.5rem',
+							fontSize: '0.875rem',
+							color: '#92400e',
+							boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+						}}>
+							<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+								<span style={{ fontSize: '1.25rem', marginRight: '0.5rem' }}>🚪</span>
+								<strong style={{ fontSize: '1rem', color: '#92400e' }}>
+									{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').description} Logout URI
+								</strong>
+							</div>
+							
+							<div style={{ 
+								backgroundColor: '#eff6ff', 
+								padding: '0.75rem', 
+								borderRadius: '0.375rem',
+								marginBottom: '0.75rem',
+								border: '1px solid #dbeafe'
+							}}>
+								<div style={{ fontSize: '0.8rem', color: '#1e40af', marginBottom: '0.25rem', fontWeight: '500' }}>
+									Flow-Specific Logout URI:
+								</div>
+								<code style={{ 
+									color: '#1e40af', 
+									backgroundColor: '#dbeafe', 
+									padding: '0.25rem 0.5rem', 
+									borderRadius: '0.25rem',
+									fontSize: '0.875rem',
+									fontWeight: '600',
+									display: 'block',
+									wordBreak: 'break-all'
+								}}>
+									{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutUri}
+								</code>
+							</div>
+							
+							<div style={{ fontSize: '0.8rem', color: '#92400e', marginBottom: '0.5rem', lineHeight: '1.4' }}>
+								<strong>Purpose:</strong> {callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutNote}
+							</div>
+							
+							<div style={{ 
+								backgroundColor: '#fef2f2', 
+								border: '1px solid #fecaca', 
+								padding: '0.75rem', 
+								borderRadius: '0.375rem',
+								marginTop: '0.75rem'
+							}}>
+								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+									<span style={{ fontSize: '1rem', marginRight: '0.5rem', color: '#dc2626' }}>⚠️</span>
+									<strong style={{ fontSize: '0.875rem', color: '#dc2626' }}>PingOne Configuration Required</strong>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#dc2626', lineHeight: '1.4' }}>
+									Add this exact URI to your PingOne application's <strong>"Post Logout Redirect URIs"</strong> list. 
+									Each flow requires its own unique logout URI to prevent conflicts.
+								</div>
+							</div>
+							
+							<div style={{ 
+								backgroundColor: '#f0f9ff', 
+								border: '1px solid #bae6fd', 
+								padding: '0.75rem', 
+								borderRadius: '0.375rem',
+								marginTop: '0.75rem'
+							}}>
+								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+									<span style={{ fontSize: '1rem', marginRight: '0.5rem', color: '#0369a1' }}>📖</span>
+									<strong style={{ fontSize: '0.875rem', color: '#0369a1' }}>Documentation</strong>
+								</div>
+								<div style={{ fontSize: '0.8rem', color: '#0369a1', lineHeight: '1.4' }}>
+									For complete logout URI documentation and troubleshooting, see the 
+									<strong> Logout URIs Reference</strong> in the project documentation.
+								</div>
+							</div>
 						</div>
 					</FormField>
 				)}
