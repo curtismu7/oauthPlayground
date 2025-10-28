@@ -1,3 +1,5 @@
+import { APP_VERSION } from '../version';
+
 // Define types for window object properties injected by Vite
 interface WindowWithPingOne extends Window {
 	__PINGONE_ENVIRONMENT_ID__?: string;
@@ -66,7 +68,7 @@ export const appConfig = {
 	description:
 		typedWindow.__PINGONE_APP_DESCRIPTION__ ||
 		'Interactive playground for OAuth 2.0 and OpenID Connect with PingOne',
-	version: typedWindow.__PINGONE_APP_VERSION__ || '6.0.0',
+	version: typedWindow.__PINGONE_APP_VERSION__ || APP_VERSION,
 	defaultTheme: typedWindow.__PINGONE_APP_DEFAULT_THEME__ || 'light',
 	devServer: {
 		port: parseInt(typedWindow.__PINGONE_DEV_SERVER_PORT__ || '3000', 10),
