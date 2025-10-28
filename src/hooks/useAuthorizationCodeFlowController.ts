@@ -1,3 +1,27 @@
+/**
+ * ========================================================================
+ * AUTHORIZATION CODE FLOW CONTROLLER LOCKED - DO NOT MODIFY THIS FILE
+ * ========================================================================
+ * 
+ * This file implements the authorization code flow credential management
+ * and is LOCKED at Version 1 to prevent credential bleeding between flows.
+ * 
+ * Current Version: V1 (Locked - Credential isolation fixes applied)
+ * Locked Date: Latest commit
+ * 
+ * Key Features (DO NOT CHANGE):
+ * - Flow-specific credential isolation (disableSharedFallback: true)
+ * - No credential bleeding between flows
+ * - loadInitialCredentials returns empty defaults (no shared credentials)
+ * 
+ * To modify the flow logic, create:
+ * - useAuthorizationCodeFlowController.ts.V2.tsx
+ * - Or create a new controller in a different file
+ * 
+ * This ensures authorization flow stability and credential isolation.
+ * ========================================================================
+ */
+
 // src/hooks/useAuthorizationCodeFlowController.ts
 
 import {
@@ -165,39 +189,29 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 	const urlScope = urlParams.get('scope');
 	const urlRedirect = urlParams.get('redirect');
 
-	// Load credentials using credentialManager (FlowCredentialService will handle this in useEffect)
-	let loaded = credentialManager.getAllCredentials();
+	// DO NOT load from credentialManager - this causes credential bleeding between flows
+	// Each flow should maintain its own credentials in flow-specific storage
+	const loaded: any = {}; // Empty object to prevent loading shared credentials
 
 	const mergedScopes =
 		urlScope ||
-		(Array.isArray(loaded.scopes) ? loaded.scopes.join(' ') : loaded.scopes) ||
 		(variant === 'oidc' ? 'openid profile email' : 'read write');
 
 	return {
-		environmentId: urlEnv || loaded.environmentId || '',
-		clientId: urlClient || loaded.clientId || '',
-		clientSecret: loaded.clientSecret || '',
-		redirectUri: urlRedirect || loaded.redirectUri || getCallbackUrlForFlow('authorization-code'),
+		environmentId: urlEnv || '',
+		clientId: urlClient || '',
+		clientSecret: '', // Never load from shared credentials
+		redirectUri: urlRedirect || getCallbackUrlForFlow('authorization-code'),
 		scope: mergedScopes,
 		scopes: mergedScopes,
 		responseType: 'code',
 		grantType: 'authorization_code',
-		issuerUrl: loaded.environmentId
-			? `https://auth.pingone.com/${loaded.environmentId}`
-			: loaded.authEndpoint?.replace('/as/authorize', '') || '',
-		authorizationEndpoint: resolveAuthEndpoint({
-			environmentId: urlEnv || loaded.environmentId || '',
-			authorizationEndpoint: loaded.authEndpoint,
-		} as StepCredentials),
-		tokenEndpoint: resolveTokenEndpoint({
-			environmentId: urlEnv || loaded.environmentId || '',
-			tokenEndpoint: loaded.tokenEndpoint,
-		} as StepCredentials),
-		userInfoEndpoint:
-			loaded.userInfoEndpoint ||
-			(loaded.environmentId ? `https://auth.pingone.com/${loaded.environmentId}/as/userinfo` : ''),
-		clientAuthMethod: loaded.tokenAuthMethod || 'client_secret_post',
-		loginHint: loaded.loginHint || '',
+		issuerUrl: '',
+		authorizationEndpoint: '',
+		tokenEndpoint: '',
+		userInfoEndpoint: '',
+		clientAuthMethod: 'client_secret_post',
+		loginHint: '',
 	};
 };
 
@@ -345,15 +359,18 @@ export const useAuthorizationCodeFlowController = (
 					await FlowCredentialService.loadFlowCredentials<FlowConfig>({
 						flowKey: persistKey,
 						defaultCredentials: loadInitialCredentials(flowVariant),
+						disableSharedFallback: true, // CRITICAL: Prevent credential bleeding between flows
 					});
 
-				if (loadedCreds && hasSharedCredentials) {
-					console.log(' [useAuthorizationCodeFlowController] Found saved credentials', {
-					flowKey: persistKey,
-					environmentId: loadedCreds.environmentId,
-					clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
-					hasFlowState: !!flowState,
-				});
+				// Load credentials if we have ANY credentials (flow-specific OR shared)
+				if (loadedCreds && (loadedCreds.environmentId || loadedCreds.clientId)) {
+					console.log('✅ [useAuthorizationCodeFlowController] Found saved credentials', {
+						flowKey: persistKey,
+						environmentId: loadedCreds.environmentId,
+						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
+						hasFlowState: !!flowState,
+						hasSharedCredentials,
+					});
 					
 					setCredentials(loadedCreds);
 					setHasCredentialsSaved(true);
@@ -719,6 +736,8 @@ export const useAuthorizationCodeFlowController = (
 
 		let url: string;
 
+		const resolvedLoginHint = credentials.loginHint || pingOneConfig?.loginHint;
+
 		// Check if PAR (Pushed Authorization Request) is required
 		if (pingOneConfig?.requirePushedAuthorizationRequest) {
 			console.log('🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request');
@@ -745,6 +764,7 @@ export const useAuthorizationCodeFlowController = (
 					maxAge: pingOneConfig.maxAge,
 					uiLocales: pingOneConfig.uiLocales,
 					claims: pingOneConfig.claims,
+					loginHint: resolvedLoginHint,
 				};
 
 				// Determine authentication method for PAR
@@ -825,8 +845,8 @@ export const useAuthorizationCodeFlowController = (
 			if (pingOneConfig?.targetLinkUri) {
 				params.set('target_link_uri', pingOneConfig.targetLinkUri);
 			}
-			if (pingOneConfig?.loginHint) {
-				params.set('login_hint', pingOneConfig.loginHint);
+			if (resolvedLoginHint) {
+				params.set('login_hint', resolvedLoginHint);
 			}
 
 			// Add advanced OAuth/OIDC parameters from flowConfig
@@ -1517,19 +1537,8 @@ export const useAuthorizationCodeFlowController = (
 				throw new Error('Failed to save credentials via FlowCredentialService');
 			}
 			
-			// CRITICAL: Also save to authz flow credentials for callback page to load
-			credentialManager.saveAuthzFlowCredentials({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				redirectUri: credentials.redirectUri,
-				scopes: credentials.scopes,
-				authEndpoint: credentials.authEndpoint,
-				tokenEndpoint: credentials.tokenEndpoint,
-				userInfoEndpoint: credentials.userInfoEndpoint,
-				tokenAuthMethod: credentials.tokenEndpointAuthMethod || credentials.authMethod?.value,
-			});
-			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved to authz flow storage for callback');
+			// Credentials are already saved via FlowCredentialService above
+			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved via FlowCredentialService');
 
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
