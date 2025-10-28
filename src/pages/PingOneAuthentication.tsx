@@ -449,8 +449,15 @@ const PingOneAuthentication: React.FC = () => {
 			const codeChallenge = await generateCodeChallenge(codeVerifier);
 			
 			// Store PKCE codes for redirect flow
-			sessionStorage.setItem('redirect_pkce_verifier', codeVerifier);
-			sessionStorage.setItem('redirect_pkce_challenge', codeChallenge);
+			sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+			sessionStorage.setItem('pkce_code_challenge', codeChallenge);
+			
+			console.log('🔐 [PingOneAuthentication] Stored PKCE codes:', {
+				verifierKey: 'pkce_code_verifier',
+				challengeKey: 'pkce_code_challenge',
+				verifierLength: codeVerifier.length,
+				challengeLength: codeChallenge.length
+			});
 			
 			// Return URL with PKCE parameters
 			const base = `https://auth.pingone.com/${config.environmentId}/as/authorize`;
