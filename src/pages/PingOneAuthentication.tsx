@@ -694,13 +694,14 @@ const PingOneAuthentication: React.FC = () => {
 
 				if (tokenCount > 0) {
 					v4ToastManager.showSuccess('Redirectless login succeeded. Tokens captured without a redirect.');
+					navigate('/pingone-authentication/result');
 				} else if (redirectlessContext.resumeUrl) {
 					v4ToastManager.showInfo('Redirectless flow established. Continue the flow using the captured resume metadata.');
+					navigate('/pingone-authentication/result');
 				} else {
-					v4ToastManager.showWarning('PingOne did not return tokens or a resume URL. Double-check your configuration.');
+					v4ToastManager.showError('PingOne did not return tokens or a resume URL. Please check your configuration and try again.');
+					// Don't navigate to result page if no tokens were received
 				}
-
-				navigate('/pingone-authentication/result');
 			}
 		} catch (error) {
 			console.error('[PingOneAuthentication] Redirectless login error:', error);
