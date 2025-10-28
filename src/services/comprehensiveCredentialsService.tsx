@@ -775,6 +775,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				onSave={saveHandler || (() => {})}
 				hasUnsavedChanges={hasUnsavedChanges}
 				isSaving={isSaving}
+				// Field editing protection - ensure all fields remain editable
+				disabled={false}
+				readOnly={false}
 			/>
 
 			{/* Token Endpoint Authentication Method - Inside Basic Credentials section */}
