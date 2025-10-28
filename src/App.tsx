@@ -28,6 +28,7 @@ import Configuration from './pages/Configuration';
 import Documentation from './pages/Documentation';
 import AIIdentityArchitectures from './pages/AIIdentityArchitectures';
 import Login from './pages/Login';
+import CredentialDebugger from './utils/credentialDebugger';
 import OAuthFlowsNew from './pages/OAuthFlowsNew';
 import { credentialManager } from './utils/credentialManager';
 
@@ -742,6 +743,19 @@ function App() {
 function AppContent() {
 	const { settings } = useUISettings();
 	const theme = useMemo(() => buildTheme(settings), [settings]);
+
+	// Initialize credential debugger for development
+	useEffect(() => {
+		if (process.env.NODE_ENV === 'development') {
+			console.log('🔧 Credential Debugger initialized');
+			console.log('🔧 Available commands:');
+			console.log('  - CredentialDebugger.auditAllFlows()');
+			console.log('  - CredentialDebugger.auditFlowCredentials("flow-key")');
+			console.log('  - CredentialDebugger.dumpAllStorage()');
+			console.log('  - CredentialDebugger.clearAllCredentials()');
+			console.log('  - CredentialDebugger.testCredentialIsolation("flow1", "flow2")');
+		}
+	}, []);
 
 	return (
 		<ThemeProvider theme={theme}>
