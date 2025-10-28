@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // HEB Brand Colors
 const HEB_COLORS = {
@@ -62,6 +61,22 @@ const CloseButton = styled.button`
 
   &:hover {
     background-color: ${HEB_COLORS.lightGray};
+  }
+`;
+
+const CancelLink = styled.button`
+  background: none;
+  border: none;
+  color: ${HEB_COLORS.blue};
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 12px;
+  align-self: center;
+
+  &:hover {
+    color: ${HEB_COLORS.darkBlue};
   }
 `;
 
@@ -314,6 +329,9 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
               {isLoading && <LoadingSpinner />}
               {isLoading ? 'Signing In...' : 'Sign In'}
             </LoginButton>
+            <CancelLink type="button" onClick={onClose}>
+              Cancel
+            </CancelLink>
           </Form>
         </Content>
 

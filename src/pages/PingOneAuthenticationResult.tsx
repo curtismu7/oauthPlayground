@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { RESULT_STORAGE_KEY, type PlaygroundResult, RESPONSE_TYPES } from './PingOneAuthentication';
-import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
+import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 
 const Page = styled.div`
   background: white;
@@ -201,6 +201,13 @@ const PingOneAuthenticationResult: React.FC = () => {
     }, 200);
   };
 
+  const flowType = useMemo<'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless'>(() => {
+    if (!result) {
+      return 'oauth';
+    }
+    return result.mode === 'redirectless' ? 'redirectless' : 'oauth';
+  }, [result]);
+
   const tokensForDisplay = useMemo(() => {
     if (!result) {
       return null;
@@ -276,12 +283,10 @@ const PingOneAuthenticationResult: React.FC = () => {
               <code> token </code> or <code> id_token </code> and re-run the flow.
             </EmptyTokenNotice>
           ) : (
-            <UnifiedTokenDisplayService
+            <UnifiedTokenDisplay
               tokens={tokensForDisplay}
-              flowType="pingone-authentication"
-              showCopyButtons={true}
-              showTokenManagement={true}
-              enableTokenIntrospection={true}
+              flowType={flowType}
+              flowKey="pingone-authentication"
             />
           )}
         </TokenCard>
