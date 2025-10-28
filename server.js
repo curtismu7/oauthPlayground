@@ -1760,12 +1760,191 @@ app.post('/api/device/register', async (req, res) => {
 	}
 });
 
+// Network connectivity check endpoint
+app.get('/api/network/check', async (req, res) => {
+	try {
+		console.log(`[Network Check] Testing connectivity to PingOne...`);
+		
+		// Test DNS resolution and basic connectivity
+		const testUrl = 'https://auth.pingone.com';
+		const response = await fetch(testUrl, {
+			method: 'HEAD',
+			timeout: 5000
+		});
+		
+		console.log(`[Network Check] PingOne connectivity test result:`, {
+			status: response.status,
+			statusText: response.statusText,
+			headers: Object.fromEntries(response.headers.entries())
+		});
+		
+		res.json({
+			status: 'success',
+			message: 'Network connectivity to PingOne is working',
+			pingone_status: response.status,
+			timestamp: new Date().toISOString()
+		});
+		
+	} catch (error) {
+		console.error(`[Network Check] Connectivity test failed:`, error);
+		
+		res.status(500).json({
+			status: 'error',
+			message: 'Network connectivity to PingOne failed',
+			error: {
+				code: error.code,
+				message: error.message,
+				errno: error.errno,
+				syscall: error.syscall,
+				hostname: error.hostname
+			},
+			timestamp: new Date().toISOString()
+		});
+	}
+});
+
+// PingOne Redirectless Authorization Endpoint (for starting redirectless authentication)
+app.post('/api/pingone/redirectless/authorize', async (req, res) => {
+	try {
+		console.log(`[PingOne Redirectless] Received request body:`, JSON.stringify(req.body, null, 2));
+		
+		const { environmentId, clientId, clientSecret, scopes, codeChallenge, codeChallengeMethod, state, username, password } = req.body;
+
+		if (!environmentId || !clientId) {
+			console.log(`[PingOne Redirectless] Validation failed: Missing required parameters`);
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, clientId'
+			});
+		}
+
+		console.log(`[PingOne Redirectless] Starting authorization request`);
+		console.log(`[PingOne Redirectless] Environment ID:`, environmentId);
+		console.log(`[PingOne Redirectless] Client ID:`, clientId ? `${clientId.substring(0, 8)}...` : 'none');
+		console.log(`[PingOne Redirectless] Has Client Secret:`, !!clientSecret);
+		console.log(`[PingOne Redirectless] Scopes:`, scopes);
+		console.log(`[PingOne Redirectless] Has PKCE:`, !!codeChallenge);
+
+		// Build authorization request parameters
+		const authParams = new URLSearchParams({
+			response_type: 'code',
+			client_id: clientId,
+			redirect_uri: 'urn:pingidentity:redirectless',
+			scope: scopes || 'openid',
+			state: state || `pi-flow-${Date.now()}`,
+			code_challenge: codeChallenge,
+			code_challenge_method: codeChallengeMethod || 'S256'
+		});
+
+		// Add username/password if provided
+		if (username) authParams.append('username', username);
+		if (password) authParams.append('password', password);
+
+		const authorizeUrl = `https://auth.pingone.com/${environmentId}/as/authorize?${authParams.toString()}`;
+		console.log(`[PingOne Redirectless] Authorization URL:`, authorizeUrl);
+
+		// Make the authorization request with retry logic
+		let authResponse;
+		let lastError;
+		const maxRetries = 3;
+		
+		for (let attempt = 1; attempt <= maxRetries; attempt++) {
+			try {
+				console.log(`[PingOne Redirectless] Attempt ${attempt}/${maxRetries} to PingOne`);
+				authResponse = await fetch(authorizeUrl, {
+					method: 'POST',
+					headers: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/x-www-form-urlencoded',
+						'User-Agent': 'OAuth-Playground/1.0'
+					},
+					body: authParams.toString(),
+					timeout: 10000 // 10 second timeout
+				});
+				break; // Success, exit retry loop
+			} catch (error) {
+				lastError = error;
+				console.log(`[PingOne Redirectless] Attempt ${attempt} failed:`, error.message);
+				
+				if (attempt < maxRetries) {
+					const delay = attempt * 1000; // Exponential backoff: 1s, 2s, 3s
+					console.log(`[PingOne Redirectless] Retrying in ${delay}ms...`);
+					await new Promise(resolve => setTimeout(resolve, delay));
+				}
+			}
+		}
+		
+		if (!authResponse) {
+			throw lastError || new Error('All retry attempts failed');
+		}
+
+		const responseData = await authResponse.json();
+
+		if (!authResponse.ok) {
+			console.error(`[PingOne Redirectless] PingOne API Error:`, {
+				status: authResponse.status,
+				statusText: authResponse.statusText,
+				responseData: responseData,
+				requestUrl: authorizeUrl
+			});
+			return res.status(authResponse.status).json({
+				error: 'authorization_failed',
+				error_description: responseData.message || responseData.error || 'Failed to start authorization flow',
+				details: responseData
+			});
+		}
+
+		console.log(`[PingOne Redirectless] Success:`, {
+			hasResumeUrl: !!responseData.resumeUrl,
+			hasFlowId: !!responseData.id,
+			hasTokens: !!(responseData.access_token || responseData.id_token)
+		});
+
+		res.json(responseData);
+
+	} catch (error) {
+		console.error(`[PingOne Redirectless] Error:`, error);
+		
+		// Provide more specific error information
+		let errorDescription = 'Internal server error during redirectless authorization';
+		let errorCode = 'internal_server_error';
+		
+		if (error.code === 'ENOTFOUND') {
+			errorDescription = 'DNS resolution failed - cannot reach PingOne servers';
+			errorCode = 'dns_resolution_failed';
+		} else if (error.code === 'ECONNREFUSED') {
+			errorDescription = 'Connection refused - PingOne servers may be down';
+			errorCode = 'connection_refused';
+		} else if (error.code === 'ETIMEDOUT') {
+			errorDescription = 'Request timeout - PingOne servers are not responding';
+			errorCode = 'request_timeout';
+		} else if (error.message) {
+			errorDescription = error.message;
+		}
+		
+		res.status(500).json({
+			error: errorCode,
+			error_description: errorDescription,
+			details: {
+				message: error.message,
+				code: error.code,
+				errno: error.errno,
+				syscall: error.syscall,
+				hostname: error.hostname
+			}
+		});
+	}
+});
+
 // PingOne Resume URL Endpoint (for completing redirectless authentication)
 app.post('/api/pingone/resume', async (req, res) => {
 	try {
+		console.log(`[PingOne Resume] Received request body:`, JSON.stringify(req.body, null, 2));
+		
 		const { resumeUrl, flowId, flowState, clientId, clientSecret } = req.body;
 
 		if (!resumeUrl) {
+			console.log(`[PingOne Resume] Validation failed: Missing resumeUrl`);
 			return res.status(400).json({
 				error: 'invalid_request',
 				error_description: 'Missing resumeUrl parameter'
@@ -1785,11 +1964,13 @@ app.post('/api/pingone/resume', async (req, res) => {
 		if (flowState) resumeBody.append('state', flowState);
 		if (clientId) resumeBody.append('client_id', clientId);
 		if (clientSecret) resumeBody.append('client_secret', clientSecret);
-		if (req.body.environmentId) resumeBody.append('environmentId', req.body.environmentId);
+		// Note: environmentId is not needed for resume - it's already in the resumeUrl
+		// if (req.body.environmentId) resumeBody.append('environmentId', req.body.environmentId);
 		if (req.body.redirectUri) resumeBody.append('redirect_uri', req.body.redirectUri);
 		if (req.body.codeVerifier) resumeBody.append('code_verifier', req.body.codeVerifier);
 		
-		console.log(`[PingOne Resume] Request body:`, resumeBody.toString());
+		console.log(`[PingOne Resume] Request body being sent to PingOne:`, resumeBody.toString());
+		console.log(`[PingOne Resume] Resume URL:`, resumeUrl);
 		
 		const resumeResponse = await fetch(resumeUrl, {
 			method: 'POST',
@@ -1804,7 +1985,13 @@ app.post('/api/pingone/resume', async (req, res) => {
 		const responseData = await resumeResponse.json();
 
 		if (!resumeResponse.ok) {
-			console.error(`[PingOne Resume] Error:`, responseData);
+			console.error(`[PingOne Resume] PingOne API Error:`, {
+				status: resumeResponse.status,
+				statusText: resumeResponse.statusText,
+				responseData: responseData,
+				requestBody: resumeBody.toString(),
+				resumeUrl: resumeUrl
+			});
 			return res.status(resumeResponse.status).json({
 				error: 'resume_failed',
 				error_description: responseData.message || responseData.error || 'Failed to resume authentication flow',

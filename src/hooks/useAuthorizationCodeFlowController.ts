@@ -47,6 +47,8 @@ import { safeJsonParse, safeSessionStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
+import { scopeValidationService } from '../services/scopeValidationService';
+import { usePreSendUrlValidation } from './useAuthorizationUrlValidation';
 import { FlowCredentialService } from '../services/flowCredentialService';
 import { storeRedirectUriFromAuthUrl, getStoredRedirectUri, clearRedirectUri, auditRedirectUri } from '../utils/redirectUriHelpers';
 import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
@@ -242,6 +244,16 @@ export const useAuthorizationCodeFlowController = (
 	const persistKey = `${flowKey}`;
 	const stepResultKey = `${persistKey}-step-results`;
 	const configStorageKey = `${persistKey}-config`;
+
+	// Initialize URL validation
+	const { validateBeforeSend } = usePreSendUrlValidation({
+		flowType: 'authorization-code',
+		requireOpenId: true,
+		requireState: true,
+		requirePkce: true,
+		showModalOnError: true,
+		showModalOnWarning: true
+	});
 
 	const [flowVariant, setFlowVariant] = useState<FlowVariant>(options.defaultFlowVariant ?? 'oidc');
 
@@ -801,24 +813,23 @@ export const useAuthorizationCodeFlowController = (
 
 		const resolvedLoginHint = credentials.loginHint || pingOneConfig?.loginHint;
 
-		// Ensure we have valid scopes - do this early for both PAR and regular flows
-		const defaultScopes = flowVariant === 'oidc' ? 'openid profile email' : 'openid';
-		const resolvedScopes = credentials.scope || credentials.scopes || defaultScopes;
-		
-		// Validate scopes - ensure they're not empty and contain at least one valid scope
-		const scopeArray = resolvedScopes.split(/\s+/).filter(s => s.trim().length > 0);
-		if (scopeArray.length === 0) {
-			throw new Error('At least one scope must be specified. Please configure scopes in your credentials.');
+		// Use centralized scope validation service
+		const scopeValidation = scopeValidationService.validateForAuthorizationUrl(
+			credentials.scope || credentials.scopes,
+			flowVariant
+		);
+
+		if (!scopeValidation.isValid) {
+			throw new Error(scopeValidation.error || 'Invalid scopes configuration');
 		}
-		
-		const finalScopes = scopeArray.join(' ');
+
+		const finalScopes = scopeValidation.scopes;
 		console.log('🔍 [useAuthorizationCodeFlowController] Scope validation:', {
 			originalScope: credentials.scope,
 			originalScopes: credentials.scopes,
-			resolvedScopes,
-			scopeArray,
 			finalScopes,
-			flowVariant
+			flowVariant,
+			isValid: scopeValidation.isValid
 		});
 
 		// Check if PAR (Pushed Authorization Request) is required
@@ -899,9 +910,12 @@ export const useAuthorizationCodeFlowController = (
 			response_type: responseType,
 			client_id: credentials.clientId,
 			redirect_uri: credentials.redirectUri,
-			scope: finalScopes,
 			state,
 		});
+		
+		// Manually add scope to avoid URL encoding spaces as +
+		// PingOne expects space-separated scopes, not plus-separated
+		// We'll add it manually to the final URL instead of using URLSearchParams
 
 			// REDIRECT URI AUDIT - Log what will be sent to PingOne
 			console.log('🔍 [REDIRECT URI AUDIT] URL Params:', {
@@ -954,14 +968,36 @@ export const useAuthorizationCodeFlowController = (
 				}
 			}
 
-			url = `${authEndpoint}?${params.toString()}`;
+			// Construct URL with proper scope handling
+			// URLSearchParams encodes spaces as + but PingOne expects %20 for spaces in scopes
+			const baseUrl = `${authEndpoint}?${params.toString()}`;
+			// Manually add scope parameter with proper encoding
+			const scopeParam = `scope=${encodeURIComponent(finalScopes)}`;
+			url = `${baseUrl}&${scopeParam}`;
 		}
 
 		console.log('🔧 [useAuthorizationCodeFlowController] ===== FINAL AUTHORIZATION URL =====');
 		console.log('🔧 [useAuthorizationCodeFlowController] Generated URL:', url);
 		console.log('🔧 [useAuthorizationCodeFlowController] URL parameters:', Object.fromEntries(new URLSearchParams(url.split('?')[1] || '')));
 
-		setAuthUrl(url);
+		// Validate URL before setting it
+		const isValid = validateBeforeSend(
+			url,
+			() => {
+				// Proceed with setting the URL
+				setAuthUrl(url);
+				console.log('✅ [useAuthorizationCodeFlowController] URL validation passed, proceeding');
+			},
+			() => {
+				// Fix issues - don't set the URL
+				console.log('❌ [useAuthorizationCodeFlowController] URL validation failed, not setting URL');
+			}
+		);
+
+		// If validation passed immediately (no modal shown), set the URL
+		if (isValid) {
+			setAuthUrl(url);
+		}
 
 		// ✅ CRITICAL: Store the EXACT redirect_uri from the URL for token exchange
 		// This prevents mismatch errors when credentials change between steps
@@ -1040,6 +1076,13 @@ export const useAuthorizationCodeFlowController = (
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+		// Also store under the key that PingOne Authentication callback expects
+		sessionStorage.setItem('pingone_login_playground_context', JSON.stringify({
+			mode: 'redirect',
+			responseType: credentials.responseType || 'code',
+			returnPath: `/flows/${flowKey}?step=4`,
+			timestamp: Date.now(),
+		}));
 		console.log(
 			'🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:',
 			flowContext

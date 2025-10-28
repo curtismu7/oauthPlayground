@@ -10,6 +10,8 @@ import './styles/spec-cards.css';
 import './styles/ui-settings.css';
 import './styles/sidebar-v6-forces.css';
 import FieldEditingService from './services/fieldEditingService';
+import { AuthorizationUrlValidationModal } from './services/authorizationUrlValidationModalService';
+import { authorizationUrlValidationModalService } from './services/authorizationUrlValidationModalService';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import DeviceMockFlow from './components/DeviceMockFlow';
@@ -363,6 +365,13 @@ const AppRoutes = () => {
 							<Route path="/worker-token-callback" element={<WorkerTokenCallback />} />
 							<Route path="/device-code-status" element={<DeviceCodeStatus />} />
 							<Route path="/logout-callback" element={<LogoutCallback />} />
+							<Route path="/authz-logout-callback" element={<LogoutCallback />} />
+							<Route path="/implicit-logout-callback" element={<LogoutCallback />} />
+							<Route path="/hybrid-logout-callback" element={<LogoutCallback />} />
+							<Route path="/device-logout-callback" element={<LogoutCallback />} />
+							<Route path="/worker-token-logout-callback" element={<LogoutCallback />} />
+							<Route path="/p1auth-logout-callback" element={<LogoutCallback />} />
+							<Route path="/dashboard-logout-callback" element={<LogoutCallback />} />
 							<Route path="/dashboard-callback" element={<DashboardCallback />} />
 							{/* Dynamic callback route - handles any redirect URI the user configures */}
 							<Route path="/oauth-callback" element={<AuthzCallback />} />
@@ -530,6 +539,7 @@ const AppRoutes = () => {
 							<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
 							<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
 							<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
+							<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 							{/* V7 RAR Flow */}
 							<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
 							
@@ -745,6 +755,13 @@ function App() {
 function AppContent() {
 	const { settings } = useUISettings();
 	const theme = useMemo(() => buildTheme(settings), [settings]);
+	const [urlValidationModalState, setUrlValidationModalState] = useState({
+		isOpen: false,
+		validationResult: null,
+		url: '',
+		onProceed: undefined,
+		onFix: undefined
+	});
 
 	// Initialize credential debugger for development
 	useEffect(() => {
@@ -785,6 +802,17 @@ function AppContent() {
 			autoFix: true
 		});
 		console.log('🛡️ Field Editing Protection initialized');
+
+		// Listen for URL validation modal updates
+		const handleModalUpdate = (event: CustomEvent) => {
+			setUrlValidationModalState(event.detail);
+		};
+
+		window.addEventListener('urlValidationModalUpdate', handleModalUpdate as EventListener);
+		
+		return () => {
+			window.removeEventListener('urlValidationModalUpdate', handleModalUpdate as EventListener);
+		};
 	}, []);
 
 	return (
@@ -804,6 +832,16 @@ function AppContent() {
 					</AuthErrorBoundary>
 				</ServerStatusProvider>
 			</ErrorBoundary>
+			
+			{/* Global URL Validation Modal */}
+			<AuthorizationUrlValidationModal
+				isOpen={urlValidationModalState.isOpen}
+				onClose={() => authorizationUrlValidationModalService.hideModal()}
+				validationResult={urlValidationModalState.validationResult}
+				url={urlValidationModalState.url}
+				onProceed={urlValidationModalState.onProceed}
+				onFix={urlValidationModalState.onFix}
+			/>
 		</ThemeProvider>
 	);
 }

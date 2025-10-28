@@ -193,7 +193,7 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 
 	const mergedScopes =
 		urlScope ||
-		(variant === 'oidc' ? 'openid profile email' : 'read write');
+		(variant === 'oidc' ? 'openid profile email' : 'openid');
 
 	return {
 		environmentId: urlEnv || '',
@@ -983,6 +983,13 @@ export const useAuthorizationCodeFlowController = (
 			timestamp: Date.now(),
 		};
 		sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+		// Also store under the key that PingOne Authentication callback expects
+		sessionStorage.setItem('pingone_login_playground_context', JSON.stringify({
+			mode: 'redirect',
+			responseType: credentials.responseType || 'code',
+			returnPath: `/flows/${flowKey}?step=4`,
+			timestamp: Date.now(),
+		}));
 		console.log(
 			'🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:',
 			flowContext
