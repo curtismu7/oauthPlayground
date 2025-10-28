@@ -348,6 +348,34 @@ export const useAuthorizationCodeFlowController = (
 		};
 	}, [options.enableDebugger, flowVariant]);
 
+	// Clear PKCE codes when flow loads to ensure fresh start
+	useEffect(() => {
+		console.log('🚀 [useAuthorizationCodeFlowV7_1Controller] Flow loaded, clearing PKCE codes for fresh start...');
+		
+		// Clear PKCE codes from state
+		setPkceCodes({
+			codeVerifier: '',
+			codeChallenge: '',
+			codeChallengeMethod: 'S256',
+		});
+		
+		// Clear PKCE codes from sessionStorage
+		const pkceStorageKey = `${persistKey}-pkce-codes`;
+		sessionStorage.removeItem(pkceStorageKey);
+		
+		// Clear legacy PKCE storage keys
+		const legacyKeys = [
+			'code_verifier',
+			'oauth_v3_code_verifier', 
+			`${flowKey}_code_verifier`,
+			`${flowKey}_v3_code_verifier`,
+			'oauth_code_verifier'
+		];
+		legacyKeys.forEach(key => sessionStorage.removeItem(key));
+		
+		console.log('✅ [useAuthorizationCodeFlowV7_1Controller] PKCE codes cleared on flow load');
+	}, []); // Only run once on mount
+
 	// Load flow-specific credentials on mount using FlowCredentialService
 	useEffect(() => {
 		const loadData = async () => {
@@ -1616,6 +1644,37 @@ export const useAuthorizationCodeFlowController = (
 		[saveStepResult]
 	);
 
+	const clearPKCE = useCallback(() => {
+		console.log('🧹 [useAuthorizationCodeFlowV7_1Controller] Clearing PKCE codes...');
+		
+		// Clear PKCE codes from state
+		setPkceCodes({
+			codeVerifier: '',
+			codeChallenge: '',
+			codeChallengeMethod: 'S256',
+		});
+		
+		// Clear PKCE codes from sessionStorage
+		const pkceStorageKey = `${persistKey}-pkce-codes`;
+		sessionStorage.removeItem(pkceStorageKey);
+		
+		// Clear legacy PKCE storage keys
+		const legacyKeys = [
+			'code_verifier',
+			'oauth_v3_code_verifier', 
+			`${flowKey}_code_verifier`,
+			`${flowKey}_v3_code_verifier`,
+			'oauth_code_verifier'
+		];
+		legacyKeys.forEach(key => sessionStorage.removeItem(key));
+		
+		console.log('✅ [useAuthorizationCodeFlowV7_1Controller] PKCE codes cleared');
+		showGlobalSuccess('PKCE codes cleared', {
+			description: 'Generate new PKCE codes to start a fresh authorization flow.',
+			meta: { action: 'clearPKCE' },
+		});
+	}, [persistKey, flowKey]);
+
 	return {
 		flowVariant,
 		setFlowVariant,
@@ -1628,6 +1687,7 @@ export const useAuthorizationCodeFlowController = (
 		pkceCodes,
 		setPkceCodes,
 		generatePkceCodes,
+		clearPKCE,
 		authUrl,
 		generateAuthorizationUrl,
 		showUrlExplainer,
