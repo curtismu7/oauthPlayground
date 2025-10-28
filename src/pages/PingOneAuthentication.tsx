@@ -1,9 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { useAuth } from '../contexts/NewAuthContext';
 import { callbackUriService } from '../services/callbackUriService';
+import ModalPresentationService from '../services/modalPresentationService';
+import { CredentialGuardService } from '../services/credentialGuardService';
 import HEBLoginPopup, { type HEBLoginCredentials } from '../components/HEBLoginPopup';
 
 type LoginMode = 'redirect' | 'redirectless';
@@ -336,7 +338,8 @@ const PingOneAuthentication: React.FC = () => {
 	const [redirectlessCreds, setRedirectlessCreds] = useState(DEFAULT_REDIRECTLESS_CREDS);
 	const [redirectlessShown, setRedirectlessShown] = useState(false);
 	const [hebLoginOpen, setHebLoginOpen] = useState(false);
-	const popupRef = useRef<Window | null>(null);
+	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
+	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 
 	// Load saved config on mount
 	useEffect(() => {
@@ -745,43 +748,49 @@ const PingOneAuthentication: React.FC = () => {
 	const handleLaunch = useCallback(async () => {
 		if (loading) return;
 
-		// Redirect mode: open popup and navigate to results
+		// Validate required credentials before launching
+		const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(config, {
+			requiredFields: ['environmentId', 'clientId', 'clientSecret'],
+			fieldLabels: {
+				environmentId: 'Environment ID',
+				clientId: 'Client ID',
+				clientSecret: 'Client Secret',
+			},
+		});
+
+		if (!canProceed) {
+			setMissingCredentialFields(missingFields);
+			setShowMissingCredentialsModal(true);
+			console.warn('⚠️ [PingOneAuthentication] Missing required credentials', { missingFields });
+			return;
+		}
+
+		// Redirect mode: redirect to PingOne (not popup)
 		if (mode === 'redirect') {
 			setLoading(true);
 			
-			// Check for existing flow context
-			let returnPath = '/pingone-authentication/result'; // Use the proper PingOne Authentication result page
 			try {
-				const existingFlowContext = sessionStorage.getItem(FLOW_CONTEXT_KEY) || sessionStorage.getItem('pingone_login_playground_context');
-				if (existingFlowContext) {
-					const parsedContext = JSON.parse(existingFlowContext);
-					if (parsedContext.returnPath) {
-						returnPath = parsedContext.returnPath;
-						console.log('[PingOneAuthentication] Using existing flow context return path:', returnPath);
-					}
-				}
-			} catch (error) {
-				console.warn('[PingOneAuthentication] Failed to parse existing flow context:', error);
-			}
-			
-			try {
+				// Generate PKCE URL for authorization code flow
+				const finalAuthUrl = await generateRedirectPKCE();
+				
+				// Store flow context for callback
 				sessionStorage.setItem(FLOW_CONTEXT_KEY, JSON.stringify({
 					environmentId: config.environmentId,
 					clientId: config.clientId,
 					responseType: config.responseType,
-					returnPath: returnPath,
+					returnPath: '/pingone-authentication/result',
 					timestamp: Date.now(),
 				}));
+				
+				v4ToastManager.showSuccess('Redirecting to PingOne for authentication...');
+				
+				// Redirect to PingOne (full page redirect, not popup)
+				window.location.href = finalAuthUrl;
 			} catch (error) {
-				console.warn('[PingOneAuthentication] Failed to persist flow context:', error);
+				console.error('[PingOneAuthentication] Redirect flow error:', error);
+				v4ToastManager.showError('Failed to start redirect flow. Please try again.');
+				setLoading(false);
 			}
-			
-			// Generate PKCE URL for authorization code flow
-			const finalAuthUrl = await generateRedirectPKCE();
-			popupRef.current = window.open(finalAuthUrl, 'PingOneLoginWindow', 'width=480,height=720');
-			v4ToastManager.showSuccess(
-				'Launching PingOne hosted login – complete it and we\'ll capture tokens on the callback page.'
-			);
 		}
 
 		// Redirectless mode: run the flow immediately and navigate to results
@@ -797,32 +806,7 @@ const PingOneAuthentication: React.FC = () => {
 		}
 	}, [authUrl, config, config.responseType, loading, mode, runRedirectlessLogin]);
 
-	// Listen for messages from popup
-	useEffect(() => {
-		const handleMessage = (event: MessageEvent) => {
-			if (event.data.type === 'PINGONE_PLAYGROUND_RESULT') {
-				console.log('[PingOneAuthentication] Received result from popup:', event.data);
-				
-				// Store the result
-				localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(event.data.result));
-				
-				// Close the popup
-				if (popupRef.current) {
-					popupRef.current.close();
-					popupRef.current = null;
-				}
-				
-				// Navigate to results
-				const returnPath = event.data.result?.returnPath || '/pingone-authentication/result';
-				navigate(returnPath);
-			}
-		};
-
-		window.addEventListener('message', handleMessage);
-		return () => {
-			window.removeEventListener('message', handleMessage);
-		};
-	}, [navigate]);
+	// No popup communication needed for redirect flow
 
 	return (
 		<Page>
@@ -1002,6 +986,32 @@ const PingOneAuthentication: React.FC = () => {
 				title="HEB"
 				subtitle="Sign in to your HEB account"
 			/>
+
+			<ModalPresentationService
+				isOpen={showMissingCredentialsModal}
+				onClose={() => setShowMissingCredentialsModal(false)}
+				title="Credentials required"
+				description={
+					missingCredentialFields.length > 0
+						? `Please provide the following required credential${missingCredentialFields.length > 1 ? 's' : ''} before continuing:`
+						: 'Environment ID, Client ID, and Client Secret are required before launching the flow.'
+				}
+				actions={[
+					{
+						label: 'Back to configuration',
+						onClick: () => setShowMissingCredentialsModal(false),
+						variant: 'primary',
+					},
+				]}
+			>
+				{missingCredentialFields.length > 0 && (
+					<ul style={{ marginTop: '1rem', marginBottom: '1rem', paddingLeft: '1.5rem' }}>
+						{missingCredentialFields.map((field) => (
+							<li key={field} style={{ marginBottom: '0.5rem', fontWeight: 600 }}>{field}</li>
+						))}
+					</ul>
+				)}
+			</ModalPresentationService>
 		</Page>
 	);
 };
