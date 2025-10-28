@@ -267,15 +267,30 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
       // Check if we have an authorization code (for authorization code flow)
       if (mergedTokens.code && !mergedTokens.access_token) {
-        console.log('[PingOneAuthenticationCallback] Authorization code received, exchanging for tokens...');
+        console.log('[PingOneAuthenticationCallback] Authorization code detected:', {
+          code: mergedTokens.code.substring(0, 10) + '...',
+          state: mergedTokens.state,
+          hasAccessToken: !!mergedTokens.access_token
+        });
         
         try {
+          console.log('[PingOneAuthenticationCallback] Starting token exchange...');
           const tokenResponse = await exchangeCodeForTokens(mergedTokens.code, flowContext);
-          console.log('[PingOneAuthenticationCallback] Token exchange successful:', tokenResponse);
+          console.log('[PingOneAuthenticationCallback] Token exchange successful:', {
+            hasAccessToken: !!tokenResponse.access_token,
+            hasIdToken: !!tokenResponse.id_token,
+            hasRefreshToken: !!tokenResponse.refresh_token,
+            tokenKeys: Object.keys(tokenResponse)
+          });
           
           // Merge the exchanged tokens with the original response
           const finalTokens = { ...mergedTokens, ...tokenResponse };
           setTokens(finalTokens);
+          
+          console.log('[PingOneAuthenticationCallback] Final tokens prepared:', {
+            tokenCount: Object.keys(finalTokens).length,
+            tokenKeys: Object.keys(finalTokens)
+          });
           
           // Update the result with the final tokens
           const result: PlaygroundResult = {
@@ -290,11 +305,29 @@ const PingOneAuthenticationCallback: React.FC = () => {
             },
           };
           
+          console.log('[PingOneAuthenticationCallback] Saving result to localStorage:', {
+            key: RESULT_STORAGE_KEY,
+            hasTokens: !!result.tokens,
+            tokenCount: Object.keys(result.tokens).length
+          });
+          
           localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+          
+          // Verify storage
+          const storedResult = localStorage.getItem(RESULT_STORAGE_KEY);
+          console.log('[PingOneAuthenticationCallback] Verification - stored result:', {
+            exists: !!storedResult,
+            size: storedResult?.length || 0
+          });
+          
           sessionStorage.removeItem(FLOW_CONTEXT_KEY);
           
           v4ToastManager.showSuccess('Authorization successful! Tokens received.');
-          navigate(flowContext?.returnPath || '/pingone-authentication/result');
+          
+          const targetPath = flowContext?.returnPath || '/pingone-authentication/result';
+          console.log('[PingOneAuthenticationCallback] Navigating to:', targetPath);
+          
+          navigate(targetPath);
           return;
           
         } catch (tokenError) {
