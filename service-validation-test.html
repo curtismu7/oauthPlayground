@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Validation Test</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .results {
+            background: #1e1e1e;
+            border: 1px solid #444;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Comprehensive Service Validation Test</h1>
+            <p>Test the ComprehensiveFlowDataService API and functionality</p>
+        </div>
+
+        <div class="test-section">
+            <h2>🔍 API Interface Validation</h2>
+            <button class="test-button" onclick="runAPIValidation()">Run API Validation</button>
+            <div id="api-results" class="results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Comprehensive Test Suite</h2>
+            <button class="test-button" onclick="runTestSuite()">Run Test Suite</button>
+            <div id="test-results" class="results" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🚀 Complete Validation</h2>
+            <button class="test-button" onclick="runCompleteValidation()">Run Complete Validation</button>
+            <div id="complete-results" class="results" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Wait for the service to be available
+        function waitForService() {
+            return new Promise((resolve) => {
+                const checkService = () => {
+                    if (window.ComprehensiveFlowDataService) {
+                        resolve();
+                    } else {
+                        setTimeout(checkService, 100);
+                    }
+                };
+                checkService();
+            });
+        }
+
+        async function runAPIValidation() {
+            const button = event.target;
+            const resultsDiv = document.getElementById('api-results');
+            
+            button.disabled = true;
+            button.textContent = 'Running...';
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = 'Waiting for service to load...';
+            
+            try {
+                await waitForService();
+                
+                if (window.validateServiceAPI) {
+                    const results = window.validateServiceAPI();
+                    resultsDiv.innerHTML = `<span class="${results.success ? 'success' : 'error'}">${results.summary}</span>`;
+                } else {
+                    resultsDiv.innerHTML = '<span class="error">validateServiceAPI not available</span>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Run API Validation';
+            }
+        }
+
+        async function runTestSuite() {
+            const button = event.target;
+            const resultsDiv = document.getElementById('test-results');
+            
+            button.disabled = true;
+            button.textContent = 'Running...';
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = 'Waiting for service to load...';
+            
+            try {
+                await waitForService();
+                
+                if (window.runServiceTests) {
+                    const results = await window.runServiceTests();
+                    resultsDiv.innerHTML = `<span class="${results.success ? 'success' : 'error'}">${results.summary}</span>`;
+                } else {
+                    resultsDiv.innerHTML = '<span class="error">runServiceTests not available</span>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Run Test Suite';
+            }
+        }
+
+        async function runCompleteValidation() {
+            const button = event.target;
+            const resultsDiv = document.getElementById('complete-results');
+            
+            button.disabled = true;
+            button.textContent = 'Running...';
+            resultsDiv.style.display = 'block';
+            resultsDiv.textContent = 'Waiting for service to load...';
+            
+            try {
+                await waitForService();
+                
+                if (window.runComprehensiveValidation) {
+                    const results = await window.runComprehensiveValidation();
+                    resultsDiv.innerHTML = `<span class="${results.overallSuccess ? 'success' : 'error'}">${results.summary}</span>`;
+                } else {
+                    resultsDiv.innerHTML = '<span class="error">runComprehensiveValidation not available</span>';
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+            } finally {
+                button.disabled = false;
+                button.textContent = 'Run Complete Validation';
+            }
+        }
+
+        // Auto-run complete validation on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                runCompleteValidation();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>
