@@ -2,7 +2,7 @@
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
 import { QRCodeSVG } from 'qrcode.react';
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
 	FiAlertCircle,
