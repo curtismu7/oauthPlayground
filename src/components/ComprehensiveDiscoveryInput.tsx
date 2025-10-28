@@ -112,6 +112,57 @@ const ProviderDescription = styled.div`
 	line-height: 1.4;
 `;
 
+const Modal = styled.div`
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 9999;
+	backdrop-filter: blur(4px);
+`;
+
+const ModalContent = styled.div`
+	background: white;
+	border-radius: 1rem;
+	padding: 2rem;
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+	text-align: center;
+	min-width: 300px;
+	max-width: 500px;
+`;
+
+const Spinner = styled.div`
+	width: 60px;
+	height: 60px;
+	border: 4px solid #e5e7eb;
+	border-top-color: #3b82f6;
+	border-radius: 50%;
+	animation: spin 1s linear infinite;
+	margin: 0 auto 1.5rem;
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
+`;
+
+const ModalTitle = styled.h3`
+	font-size: 1.25rem;
+	font-weight: 600;
+	color: #1f2937;
+	margin-bottom: 0.5rem;
+`;
+
+const ModalMessage = styled.p`
+	color: #6b7280;
+	font-size: 0.875rem;
+	margin: 0;
+`;
+
 const StatusMessage = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 	display: flex;
 	align-items: center;
@@ -286,6 +337,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	const [status, setStatus] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
 	const [showResults, setShowResults] = useState(false);
+	const [showModal, setShowModal] = useState(false);
 
 	// Auto-restore last used discovery on mount
 	useEffect(() => {
@@ -308,6 +360,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 		}
 
 		setIsLoading(true);
+		setShowModal(true); // Show modal with spinner
 		setStatus(null);
 		setDiscoveryResult(null);
 		setShowResults(false);
@@ -382,6 +435,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 			});
 		} finally {
 			setIsLoading(false);
+			setShowModal(false); // Hide modal
 		}
 	}, [input, onDiscoveryComplete]);
 
@@ -551,6 +605,21 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					</ResultsContainer>
 				)}
 			</ResultsCollapsible>
+
+			{/* Loading Modal */}
+			{showModal && (
+				<Modal>
+					<ModalContent>
+						<Spinner />
+						<ModalTitle>Discovering OIDC Configuration</ModalTitle>
+						<ModalMessage>
+							Fetching configuration from {input}...
+							<br />
+							This may take a few moments.
+						</ModalMessage>
+					</ModalContent>
+				</Modal>
+			)}
 		</Container>
 	);
 };
