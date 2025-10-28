@@ -26,6 +26,7 @@ import { ImplicitFlowSharedService, ImplicitFlowV7Helpers } from '../../services
 import { useImplicitFlowController, loadInitialCredentials } from '../../hooks/useImplicitFlowController';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { FlowCredentialService } from '../../services/flowCredentialService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
@@ -295,26 +296,37 @@ const ImplicitFlowV7: React.FC = () => {
 			
 			try {
 				// Try V7 standardized storage first
-				const { credentials: v7Credentials, hasSharedCredentials, flowState } = await FlowCredentialService.loadFlowCredentials({
-					flowKey: 'implicit-v7',
-					defaultCredentials: {},
+				const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
+					flowKey: 'implicit-flow-v7',
+					useSharedEnvironment: true,
+					useSharedDiscovery: true
 				});
 
-				if (v7Credentials && hasSharedCredentials) {
-					console.log('[ImplicitFlowV7] Loaded V7 credentials:', {
-						flowKey: 'implicit-v7',
-						environmentId: v7Credentials.environmentId,
-						clientId: v7Credentials.clientId?.substring(0, 8) + '...',
-						hasFlowState: !!flowState,
-					});
-					setCredentials(v7Credentials);
-					controller.setCredentials(v7Credentials);
+				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
+					console.log('✅ [ImplicitFlowV7] Found flow-specific credentials');
+					const updatedCredentials = {
+						environmentId: flowData.sharedEnvironment?.environmentId || '',
+						clientId: flowData.flowCredentials.clientId,
+						clientSecret: flowData.flowCredentials.clientSecret,
+						redirectUri: flowData.flowCredentials.redirectUri,
+						scopes: flowData.flowCredentials.scopes,
+					};
+					
+					setCredentials(updatedCredentials);
+					controller.setCredentials(updatedCredentials);
+				} else if (flowData.sharedEnvironment?.environmentId) {
+					console.log('ℹ️ [ImplicitFlowV7] Using shared environment data only');
+					const updatedCredentials = {
+						...controller.credentials,
+						environmentId: flowData.sharedEnvironment.environmentId,
+					};
+					setCredentials(updatedCredentials);
+					controller.setCredentials(updatedCredentials);
 				} else {
-					// Fallback to legacy method
-					const initialCredentials = loadInitialCredentials(selectedVariant, 'implicit-v7');
+					console.log('ℹ️ [ImplicitFlowV7] No saved credentials found, using defaults');
+					const initialCredentials = loadInitialCredentials(selectedVariant, 'implicit-flow-v7');
 					setCredentials(initialCredentials);
 					controller.setCredentials(initialCredentials);
-					console.log('[ImplicitFlowV7] Using legacy credentials:', initialCredentials);
 				}
 			} catch (error) {
 				console.error('[ImplicitFlowV7] Failed to load V7 credentials:', error);
@@ -362,19 +374,28 @@ const ImplicitFlowV7: React.FC = () => {
 				redirectUri: controller.credentials.redirectUri
 			});
 			
-			// Save to flow-specific storage with enhanced error handling
-			FlowCredentialService.saveFlowCredentials('implicit-v7', controller.credentials, {
-				showToast: false
-			}).catch((error) => {
-				console.error('[ImplicitFlowV7] Failed to save credentials to V7 storage:', error);
-				// Fallback to legacy storage if V7 fails
-				try {
-					// This would be the legacy save method if available
-					console.log('[ImplicitFlowV7] Attempting legacy credential save...');
-				} catch (legacyError) {
-					console.error('[ImplicitFlowV7] Legacy credential save also failed:', legacyError);
+			// Save to comprehensive service with complete isolation
+			const success = comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
+				sharedEnvironment: controller.credentials.environmentId ? {
+					environmentId: controller.credentials.environmentId,
+					region: 'us', // Default region
+					issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`
+				} : undefined,
+				flowCredentials: {
+					clientId: controller.credentials.clientId,
+					clientSecret: controller.credentials.clientSecret,
+					redirectUri: controller.credentials.redirectUri,
+					scopes: controller.credentials.scopes,
+					logoutUrl: controller.credentials.logoutUrl,
+					loginHint: controller.credentials.loginHint,
+					tokenEndpointAuthMethod: 'client_secret_basic',
+					lastUpdated: Date.now()
 				}
 			});
+
+			if (!success) {
+				console.error('[ImplicitFlowV7] Failed to save credentials to comprehensive service');
+			}
 		}
 	}, [controller.credentials]);
 
@@ -568,13 +589,14 @@ const ImplicitFlowV7: React.FC = () => {
 						console.log('[ImplicitFlowV7] Controller credentials after set:', controller.credentials);
 						console.log('[Implicit Flow V7] Redirect URI updated:', value);
 						// Auto-save redirect URI to persist across refreshes
-						FlowCredentialService.saveFlowCredentials({
-							flowKey: 'implicit-v7',
-							credentials: updated
-						}).then(() => {
-							console.log('[Implicit Flow V7] Redirect URI auto-saved to V7 storage');
-						}).catch((error: any) => {
-							console.error('[Implicit Flow V7] Failed to auto-save redirect URI:', error);
+						comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
+							flowCredentials: {
+								clientId: updated.clientId,
+								clientSecret: updated.clientSecret,
+								redirectUri: updated.redirectUri,
+								scopes: updated.scopes,
+								lastUpdated: Date.now()
+							}
 						});
 						
 						// Also save using controller for backward compatibility
@@ -601,11 +623,28 @@ const ImplicitFlowV7: React.FC = () => {
 					// Save handler for credentials
 					onSave={async () => {
 						try {
-							// Save using V7 standardized storage
-							await FlowCredentialService.saveFlowCredentials({
-								flowKey: 'implicit-v7',
-								credentials: credentials
+							// Save using comprehensive service with complete isolation
+							const success = comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
+								sharedEnvironment: credentials.environmentId ? {
+									environmentId: credentials.environmentId,
+									region: 'us',
+									issuerUrl: `https://auth.pingone.com/${credentials.environmentId}`
+								} : undefined,
+								flowCredentials: {
+									clientId: credentials.clientId,
+									clientSecret: credentials.clientSecret,
+									redirectUri: credentials.redirectUri,
+									scopes: credentials.scopes,
+									logoutUrl: credentials.logoutUrl,
+									loginHint: credentials.loginHint,
+									tokenEndpointAuthMethod: 'client_secret_basic',
+									lastUpdated: Date.now()
+								}
 							});
+							
+							if (!success) {
+								throw new Error('Failed to save credentials to comprehensive service');
+							}
 							
 							// Also save using controller for backward compatibility
 							await controller.saveCredentials();
