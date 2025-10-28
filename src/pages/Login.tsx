@@ -28,7 +28,7 @@ import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { pingOneConfigService, type PingOneConfig } from '../services/pingoneConfigService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
+import { loadFlowCredentials, saveFlowCredentials, loadFlowCredentialsIsolated, saveFlowCredentialsIsolated } from '../services/flowCredentialService';
 
 // Define specific types for HMAC and signing algorithms
 type HMACAlgorithm = 'HS256' | 'HS384' | 'HS512';
@@ -347,8 +347,8 @@ const Login = () => {
 			console.log(' [Login] Loading credentials using V7 standardized system...');
 
 			try {
-				// Try V7 FlowCredentialService first (most recent)
-				const v7Credentials = await loadFlowCredentials({
+				// Use V7 FlowCredentialService with isolated storage (no shared fallback)
+				const v7Credentials = await loadFlowCredentialsIsolated({
 					flowKey: 'dashboard-login',
 					defaultCredentials: {
 						environmentId: '',
@@ -367,7 +367,8 @@ const Login = () => {
 						userInfoEndpoint: '',
 						clientAuthMethod: 'client_secret_post',
 						tokenEndpointAuthMethod: 'client_secret_post',
-					}
+					},
+					useSharedFallback: false // CRITICAL: Prevent credential bleeding
 				});
 
 				console.log(' [Login] V7 FlowCredentialService result:', v7Credentials);
@@ -557,12 +558,10 @@ const Login = () => {
 				tokenEndpointAuthMethod: credentials.tokenAuthMethod || 'client_secret_basic',
 			};
 
-			const v7Success = await saveFlowCredentials(
+			const v7Success = await saveFlowCredentialsIsolated(
 				'dashboard-login',
 				v7Credentials,
-				undefined, // flowConfig
-				undefined, // additionalState
-				{ showToast: false } // We'll show our own success message
+				{ showToast: false, useSharedFallback: false } // CRITICAL: Prevent credential bleeding
 			);
 
 			if (!v7Success) {
