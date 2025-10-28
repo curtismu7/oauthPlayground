@@ -23,7 +23,7 @@ import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { presetManagerService, type BuilderAppType, type FormDataState } from '../services/presetManagerService';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import V5StepperService, { type StepMetadata } from '../services/v5StepperService';
+import V7StepperService, { type StepMetadata } from '../services/v7StepperService';
 import { clearAllTokens } from '../utils/tokenCleaner';
 import '../utils/testPresets'; // Auto-run preset tests in development
 import '../utils/testExportImport'; // Auto-run export/import tests in development
@@ -384,7 +384,7 @@ type SavedAppConfiguration = FormDataState & {
 
 const APP_GENERATOR_STORAGE_KEY = 'app-generator-configuration';
 
-const stepperLayout = V5StepperService.createStepLayout({ theme: 'blue', showProgress: true });
+const stepperLayout = V7StepperService.createStepLayout({ theme: 'blue', showProgress: true });
 
 const createDefaultFormData = (): FormDataState => {
   // Generate default app name with PingOne and random 3-digit code
