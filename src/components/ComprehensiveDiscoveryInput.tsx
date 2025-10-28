@@ -327,6 +327,10 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					provider: cached.provider,
 					cached: true,
 				};
+				
+				// Add minimum delay to ensure spinner is visible
+				await new Promise(resolve => setTimeout(resolve, 500));
+				
 				setStatus({ 
 					type: 'success', 
 					message: `Using cached ${cached.provider} endpoints` 
