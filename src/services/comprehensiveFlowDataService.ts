@@ -62,6 +62,11 @@ export interface FlowSpecificCredentials {
 	redirectUri: string;
 	scopes: string[];
 	additionalParams?: Record<string, string>;
+	// Additional flow-specific fields
+	logoutUrl?: string;
+	loginHint?: string;
+	tokenEndpointAuthMethod?: string;
+	// Metadata
 	lastUpdated: number;
 }
 
@@ -573,6 +578,289 @@ class ComprehensiveFlowDataService {
 		});
 		console.log(`✅ Cleared ${flowKeys.length} flow-specific data stores`);
 	}
+	
+	// ============================================
+	// CREDENTIAL ISOLATION METHODS
+	// ============================================
+	
+	/**
+	 * Save credentials with COMPLETE isolation (no sharing, even if same values)
+	 * Each flow gets its own isolated credential store
+	 */
+	saveFlowCredentialsIsolated(
+		flowKey: string,
+		credentials: FlowSpecificCredentials,
+		options: { 
+			showToast?: boolean;
+			backupToEnv?: boolean;
+		} = { showToast: true, backupToEnv: false }
+	): boolean {
+		try {
+			console.group(`🔒 [CREDENTIAL ISOLATION] Saving isolated credentials for flow: ${flowKey}`);
+			console.log(`📋 Flow Key: ${flowKey}`);
+			console.log(`📋 Credentials:`, credentials);
+			console.log(`📋 Backup to .env: ${options.backupToEnv}`);
+			
+			// Save to flow-specific storage (ALWAYS isolated)
+			const success = this.saveFlowData(flowKey, {
+				credentials: {
+					...credentials,
+					lastUpdated: Date.now(),
+				}
+			}, { showToast: false });
+			
+			// Optional .env backup
+			if (options.backupToEnv && success) {
+				this.backupCredentialsToEnv(flowKey, credentials);
+			}
+			
+			if (options.showToast && success) {
+				showGlobalSuccess(`Credentials saved for ${flowKey} (isolated)`);
+			} else if (!success && options.showToast) {
+				showGlobalError(`Failed to save credentials for ${flowKey}`);
+			}
+			
+			console.log(`📋 Save Success: ${success}`);
+			console.groupEnd();
+			
+			return success;
+		} catch (error) {
+			console.error(`❌ Failed to save isolated credentials for ${flowKey}:`, error);
+			if (options.showToast) {
+				showGlobalError(`Failed to save credentials for ${flowKey}`);
+			}
+			return false;
+		}
+	}
+	
+	/**
+	 * Load credentials with COMPLETE isolation (no shared fallback)
+	 * Each flow only gets its own credentials
+	 */
+	loadFlowCredentialsIsolated(flowKey: string): FlowSpecificCredentials | null {
+		try {
+			console.group(`🔒 [CREDENTIAL ISOLATION] Loading isolated credentials for flow: ${flowKey}`);
+			console.log(`📋 Flow Key: ${flowKey}`);
+			
+			const flowData = this.loadFlowData(flowKey);
+			const credentials = flowData?.credentials || null;
+			
+			if (credentials) {
+				console.log(`✅ Found isolated credentials for ${flowKey}`);
+			} else {
+				console.log(`📋 No isolated credentials found for ${flowKey}`);
+			}
+			
+			console.log(`📋 Credentials:`, credentials);
+			console.groupEnd();
+			
+			return credentials;
+		} catch (error) {
+			console.error(`❌ Failed to load isolated credentials for ${flowKey}:`, error);
+			return null;
+		}
+	}
+	
+	/**
+	 * Backup credentials to .env format (for development/testing)
+	 */
+	private backupCredentialsToEnv(flowKey: string, credentials: FlowSpecificCredentials): void {
+		try {
+			console.group(`💾 [ENV BACKUP] Backing up credentials for flow: ${flowKey}`);
+			
+			const envContent = this.generateEnvContent(flowKey, credentials);
+			
+			// Create downloadable file
+			const blob = new Blob([envContent], { type: 'text/plain' });
+			const url = URL.createObjectURL(blob);
+			
+			// Create download link
+			const link = document.createElement('a');
+			link.href = url;
+			link.download = `.env.${flowKey}.backup`;
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+			
+			// Clean up
+			URL.revokeObjectURL(url);
+			
+			console.log(`✅ Credentials backed up to .env file for ${flowKey}`);
+			console.groupEnd();
+			
+		} catch (error) {
+			console.error(`❌ Failed to backup credentials to .env for ${flowKey}:`, error);
+		}
+	}
+	
+	/**
+	 * Generate .env content for credentials backup
+	 */
+	private generateEnvContent(flowKey: string, credentials: FlowSpecificCredentials): string {
+		const timestamp = new Date().toISOString();
+		const envKey = flowKey.toUpperCase().replace(/-/g, '_');
+		
+		return `# OAuth Playground Credentials Backup
+# Flow: ${flowKey}
+# Generated: ${timestamp}
+# 
+# IMPORTANT: This file contains sensitive credentials!
+# Keep this file secure and never commit it to version control.
+
+# Flow-specific credentials for ${flowKey}
+${envKey}_CLIENT_ID=${credentials.clientId}
+${envKey}_CLIENT_SECRET=${credentials.clientSecret}
+${envKey}_REDIRECT_URI=${credentials.redirectUri}
+${envKey}_SCOPES=${credentials.scopes.join(' ')}
+
+# Additional flow-specific fields
+${envKey}_LOGOUT_URL=${credentials.logoutUrl || ''}
+${envKey}_LOGIN_HINT=${credentials.loginHint || ''}
+${envKey}_TOKEN_ENDPOINT_AUTH_METHOD=${credentials.tokenEndpointAuthMethod || 'client_secret_basic'}
+
+# Additional parameters
+${Object.entries(credentials.additionalParams || {}).map(([key, value]) => 
+	`${envKey}_${key.toUpperCase()}=${value}`
+).join('\n')}
+
+# End of backup for ${flowKey}
+`;
+	}
+	
+	/**
+	 * Restore credentials from .env content
+	 */
+	restoreCredentialsFromEnv(flowKey: string, envContent: string): boolean {
+		try {
+			console.group(`🔄 [ENV RESTORE] Restoring credentials for flow: ${flowKey}`);
+			
+			const credentials = this.parseEnvContent(flowKey, envContent);
+			
+			if (credentials) {
+				const success = this.saveFlowCredentialsIsolated(flowKey, credentials, {
+					showToast: true,
+					backupToEnv: false
+				});
+				
+				console.log(`📋 Restore Success: ${success}`);
+				console.groupEnd();
+				
+				return success;
+			} else {
+				console.error(`❌ Failed to parse .env content for ${flowKey}`);
+				console.groupEnd();
+				return false;
+			}
+		} catch (error) {
+			console.error(`❌ Failed to restore credentials from .env for ${flowKey}:`, error);
+			console.groupEnd();
+			return false;
+		}
+	}
+	
+	/**
+	 * Parse .env content to extract credentials
+	 */
+	private parseEnvContent(flowKey: string, envContent: string): FlowSpecificCredentials | null {
+		try {
+			const envKey = flowKey.toUpperCase().replace(/-/g, '_');
+			const lines = envContent.split('\n');
+			const credentials: Partial<FlowSpecificCredentials> = {};
+			
+			for (const line of lines) {
+				const trimmed = line.trim();
+				if (trimmed.startsWith('#') || !trimmed.includes('=')) continue;
+				
+				const [key, value] = trimmed.split('=', 2);
+				if (!key || !value) continue;
+				
+				const cleanKey = key.replace(`${envKey}_`, '').toLowerCase();
+				const cleanValue = value.trim();
+				
+				switch (cleanKey) {
+					case 'client_id':
+						credentials.clientId = cleanValue;
+						break;
+					case 'client_secret':
+						credentials.clientSecret = cleanValue;
+						break;
+					case 'redirect_uri':
+						credentials.redirectUri = cleanValue;
+						break;
+					case 'scopes':
+						credentials.scopes = cleanValue.split(' ').filter(s => s.length > 0);
+						break;
+					case 'logout_url':
+						credentials.logoutUrl = cleanValue;
+						break;
+					case 'login_hint':
+						credentials.loginHint = cleanValue;
+						break;
+					case 'token_endpoint_auth_method':
+						credentials.tokenEndpointAuthMethod = cleanValue;
+						break;
+					default:
+						// Additional parameters
+						if (!credentials.additionalParams) {
+							credentials.additionalParams = {};
+						}
+						credentials.additionalParams[cleanKey] = cleanValue;
+						break;
+				}
+			}
+			
+			// Validate required fields
+			if (!credentials.clientId || !credentials.clientSecret || !credentials.redirectUri) {
+				console.error(`❌ Missing required credential fields`);
+				return null;
+			}
+			
+			return {
+				clientId: credentials.clientId,
+				clientSecret: credentials.clientSecret,
+				redirectUri: credentials.redirectUri,
+				scopes: credentials.scopes || [],
+				logoutUrl: credentials.logoutUrl,
+				loginHint: credentials.loginHint,
+				tokenEndpointAuthMethod: credentials.tokenEndpointAuthMethod,
+				additionalParams: credentials.additionalParams,
+				lastUpdated: Date.now(),
+			};
+		} catch (error) {
+			console.error(`❌ Failed to parse .env content:`, error);
+			return null;
+		}
+	}
+	
+	/**
+	 * Test credential isolation between flows
+	 */
+	testCredentialIsolation(flow1Key: string, flow2Key: string): boolean {
+		console.group(`🧪 [ISOLATION TEST] Testing credential isolation between ${flow1Key} and ${flow2Key}`);
+		
+		// Load credentials for both flows
+		const flow1Creds = this.loadFlowCredentialsIsolated(flow1Key);
+		const flow2Creds = this.loadFlowCredentialsIsolated(flow2Key);
+		
+		// Check if they're isolated
+		const isIsolated = !flow1Creds || !flow2Creds || 
+			flow1Creds.clientId !== flow2Creds.clientId ||
+			flow1Creds.clientSecret !== flow2Creds.clientSecret;
+		
+		console.log(`📋 Flow 1 (${flow1Key}) credentials:`, flow1Creds);
+		console.log(`📋 Flow 2 (${flow2Key}) credentials:`, flow2Creds);
+		console.log(`📋 Isolated: ${isIsolated}`);
+		
+		if (!isIsolated) {
+			console.warn(`🚨 CREDENTIAL BLEEDING DETECTED! Flows are sharing credentials`);
+		} else {
+			console.log(`✅ Credentials are properly isolated`);
+		}
+		
+		console.groupEnd();
+		
+		return isIsolated;
+	}
 }
 
 // Export singleton instance
@@ -586,6 +874,9 @@ if (typeof window !== 'undefined') {
 	console.log(`  - ComprehensiveFlowDataService.auditAllFlowData()`);
 	console.log(`  - ComprehensiveFlowDataService.loadFlowDataComprehensive({flowKey: "flow-key"})`);
 	console.log(`  - ComprehensiveFlowDataService.saveFlowDataComprehensive("flow-key", data)`);
+	console.log(`  - ComprehensiveFlowDataService.saveFlowCredentialsIsolated("flow-key", credentials, {backupToEnv: true})`);
+	console.log(`  - ComprehensiveFlowDataService.loadFlowCredentialsIsolated("flow-key")`);
+	console.log(`  - ComprehensiveFlowDataService.testCredentialIsolation("flow1", "flow2")`);
 	console.log(`  - ComprehensiveFlowDataService.clearAllFlowData()`);
 	console.log(`  - ComprehensiveFlowDataService.clearAllSharedData()`);
 }
