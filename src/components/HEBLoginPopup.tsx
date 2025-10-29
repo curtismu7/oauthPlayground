@@ -145,6 +145,10 @@ const Input = styled.input`
   }
 `;
 
+const PasswordInput = styled(Input)`
+  padding-right: 44px;
+`;
+
 const PasswordFieldWrapper = styled.div`
   position: relative;
 `;
@@ -152,12 +156,21 @@ const PasswordFieldWrapper = styled.div`
 const PasswordToggleButton = styled.button`
   position: absolute;
   top: 50%;
-  right: 16px;
+  right: 8px;
   transform: translateY(-50%);
   background: none;
   border: none;
   cursor: pointer;
   padding: 8px;
+  color: ${HEB_COLORS.darkGray};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: ${HEB_COLORS.blue};
+  }
 `;
 
 const LoginButton = styled.button`
@@ -336,7 +349,7 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
             <InputGroup>
               <Label htmlFor="heb-password">Password</Label>
               <PasswordFieldWrapper>
-                <Input
+                <PasswordInput
                   id="heb-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
