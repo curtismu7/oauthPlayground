@@ -562,9 +562,20 @@ const PingOneAuthentication: React.FC = () => {
 						errorMessage = 'PingOne servers are currently unavailable. Please try again later.';
 					} else if (errorBody?.error === 'request_timeout') {
 						errorMessage = 'PingOne servers are not responding. Please try again.';
+					} else if (errorBody?.error === 'invalid_response') {
+						errorMessage = `Invalid response from PingOne (${errorBody?.details?.contentType || 'unknown format'}). The authorization server may be having issues.`;
 					}
-				} catch {
-					// ignore
+				} catch (parseError) {
+					// If we can't parse as JSON, the error response is likely HTML (error page)
+					console.error('🔍 [PingOneAuthentication] Could not parse error response as JSON:', parseError);
+					try {
+						const errorText = await response.text();
+						if (errorText.includes('<!doctype') || errorText.includes('<html')) {
+							errorMessage = 'PingOne returned an HTML error page. This may indicate a server configuration issue. Check that your Environment ID and credentials are correct.';
+						}
+					} catch {
+						// ignore
+					}
 				}
 				throw new Error(errorMessage);
 			}
