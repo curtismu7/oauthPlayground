@@ -1751,6 +1751,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		// Check content-type to handle both JSON and HTML responses
 		const contentType = authResponse.headers.get('content-type') || '';
 		let responseData;
+		let parseError = null;
 		
 		try {
 			if (contentType.includes('application/json')) {
@@ -1760,20 +1761,26 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 				const responseText = await authResponse.text();
 				try {
 					responseData = JSON.parse(responseText);
-				} catch (parseError) {
-					// If it's HTML or other text, log it and return error
+				} catch (e) {
+					// If it's HTML or other text, log it
 					console.error(`[PingOne Redirectless] Response is not valid JSON:`, responseText.substring(0, 500));
-					throw new Error(`PingOne returned ${contentType || 'text/html'} instead of JSON`);
+					parseError = e;
 				}
 			}
-		} catch (parseError) {
-			console.error(`[PingOne Redirectless] Failed to parse response:`, parseError.message);
+		} catch (error) {
+			console.error(`[PingOne Redirectless] Failed to parse response:`, error.message);
+			parseError = error;
+		}
+		
+		// If we couldn't parse the response as JSON, return error now
+		if (parseError || !responseData) {
+			console.error(`[PingOne Redirectless] Invalid response format detected`);
 			return res.status(500).json({
 				error: 'invalid_response',
-				error_description: 'PingOne returned an invalid response format',
+				error_description: 'PingOne returned an invalid response format. This usually indicates a server configuration issue.',
 				details: {
-					message: parseError.message,
-					contentType: contentType
+					message: parseError?.message || 'Unable to parse response',
+					contentType: contentType || 'unknown'
 				}
 			});
 		}
