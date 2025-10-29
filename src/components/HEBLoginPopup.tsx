@@ -33,75 +33,100 @@ const PopupOverlay = styled.div`
 
 const PopupContainer = styled.div`
   background: ${HEB_COLORS.white};
-  border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 420px;
-  max-height: 90vh;
-  overflow-y: auto;
+  overflow: hidden;
   position: relative;
 `;
 
 const Header = styled.div`
   background: linear-gradient(135deg, ${HEB_COLORS.red} 0%, ${HEB_COLORS.darkRed} 100%);
-  padding: 32px 24px 28px;
-  border-radius: 16px 16px 0 0;
+  padding: 40px 24px;
   text-align: center;
   position: relative;
 `;
 
-const HEBLogo = styled.div`
-  font-size: 36px;
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+`;
+
+const LogoBox = styled.div`
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
   font-weight: 700;
   color: ${HEB_COLORS.white};
-  margin-bottom: 12px;
-  letter-spacing: 2px;
+`;
+
+const HEBLogo = styled.div`
+  font-size: 32px;
+  font-weight: 700;
+  color: ${HEB_COLORS.white};
+  letter-spacing: 3px;
 `;
 
 const Subtitle = styled.div`
-  font-size: 15px;
-  color: ${HEB_COLORS.white};
-  opacity: 0.95;
-  font-weight: 500;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 400;
 `;
 
 const Content = styled.div`
-  padding: 36px 28px 28px;
+  padding: 32px 28px;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
 `;
 
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 `;
 
 const Label = styled.label`
-  font-size: 13px;
-  font-weight: 600;
-  color: ${HEB_COLORS.darkGray};
+  font-size: 12px;
+  font-weight: 700;
+  color: #374151;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
 
+const InputWrapper = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+`;
+
 const Input = styled.input`
-  padding: 12px 16px;
-  border: 1.5px solid #d1d5db;
-  border-radius: 8px;
-  font-size: 15px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
   transition: all 0.2s ease;
   background: ${HEB_COLORS.white};
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+  box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: ${HEB_COLORS.blue};
-    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    border-color: ${HEB_COLORS.red};
+    box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.1);
     background: #fafbff;
   }
 
@@ -111,38 +136,24 @@ const Input = styled.input`
 `;
 
 const PasswordInput = styled(Input)`
-  padding-right: 44px;
-`;
-
-const PasswordFieldWrapper = styled.div`
-  position: relative;
-  display: flex;
-  align-items: center;
+  padding-right: 42px;
 `;
 
 const PasswordToggleButton = styled.button`
   position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
+  right: 12px;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 12px 14px;
+  padding: 6px;
   color: #6b7280;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.2s ease;
-  border-radius: 0 8px 8px 0;
+  transition: color 0.2s ease;
 
   &:hover {
-    background-color: #f3f4f6;
-    color: ${HEB_COLORS.blue};
-  }
-
-  &:active {
-    background-color: #e5e7eb;
+    color: ${HEB_COLORS.red};
   }
 `;
 
@@ -151,17 +162,17 @@ const LoginButton = styled.button`
   color: ${HEB_COLORS.white};
   border: none;
   padding: 13px 24px;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
+  letter-spacing: 0.5px;
   margin-top: 8px;
-  letter-spacing: 0.3px;
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 166, 81, 0.25);
+    box-shadow: 0 8px 16px rgba(0, 166, 81, 0.3);
   }
 
   &:active:not(:disabled) {
@@ -169,30 +180,29 @@ const LoginButton = styled.button`
   }
 
   &:disabled {
-    opacity: 0.65;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 `;
 
 const Footer = styled.div`
-  padding: 20px 28px 28px;
+  padding: 20px 28px;
   text-align: center;
   border-top: 1px solid #e5e7eb;
-  background: #fafbfc;
-  border-radius: 0 0 16px 16px;
+  background: #f9fafb;
 `;
 
 const FooterText = styled.div`
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 500;
 `;
 
 const ErrorMessage = styled.div`
   background: #fef2f2;
   border: 1px solid #fecaca;
-  border-radius: 8px;
+  border-radius: 6px;
   color: #dc2626;
   padding: 12px 14px;
   font-size: 13px;
@@ -204,12 +214,13 @@ const CancelLink = styled.button`
   background: none;
   border: none;
   color: ${HEB_COLORS.blue};
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   text-decoration: none;
   cursor: pointer;
   margin-top: 16px;
   transition: color 0.2s ease;
+  letter-spacing: 0.3px;
 
   &:hover {
     color: ${HEB_COLORS.darkBlue};
@@ -219,20 +230,20 @@ const CancelLink = styled.button`
 
 const CloseButton = styled.button`
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   background: rgba(255, 255, 255, 0.2);
   border: none;
   font-size: 24px;
   color: ${HEB_COLORS.white};
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
+  padding: 6px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   transition: all 0.2s ease;
 
   &:hover {
@@ -325,7 +336,10 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
         </CloseButton>
         
         <Header>
-          <HEBLogo>{title}</HEBLogo>
+          <LogoContainer>
+            <LogoBox>H</LogoBox>
+            <HEBLogo>{title}</HEBLogo>
+          </LogoContainer>
           <Subtitle>{subtitle}</Subtitle>
         </Header>
 
@@ -335,21 +349,23 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
           <Form onSubmit={handleSubmit}>
             <InputGroup>
               <Label htmlFor="heb-username">Username or Email</Label>
-              <Input
-                id="heb-username"
-                ref={usernameRef}
-                type="text"
-                placeholder="Enter your username or email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                disabled={isLoading}
-                autoComplete="username"
-              />
+              <InputWrapper>
+                <Input
+                  id="heb-username"
+                  ref={usernameRef}
+                  type="text"
+                  placeholder="Enter your username or email"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="username"
+                />
+              </InputWrapper>
             </InputGroup>
 
             <InputGroup>
               <Label htmlFor="heb-password">Password</Label>
-              <PasswordFieldWrapper>
+              <InputWrapper>
                 <PasswordInput
                   id="heb-password"
                   type={showPassword ? 'text' : 'password'}
@@ -366,7 +382,7 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
                 >
                   {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
                 </PasswordToggleButton>
-              </PasswordFieldWrapper>
+              </InputWrapper>
             </InputGroup>
 
             <LoginButton type="submit" disabled={isLoading}>
