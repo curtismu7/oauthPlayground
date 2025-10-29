@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -101,6 +101,9 @@ const PingOneAuthenticationCallback: React.FC = () => {
   const [tokens, setTokens] = useState<ParsedTokens>({});
   const [isProcessing, setIsProcessing] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ref to prevent double token exchange in React StrictMode (development)
+  const hasProcessedRef = useRef(false);
 
   // Token exchange function for authorization code flow
   const exchangeCodeForTokens = async (code: string, flowContext: any) => {
@@ -187,6 +190,13 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
   useEffect(() => {
     const processTokens = async () => {
+      // Prevent double execution in React StrictMode (development)
+      if (hasProcessedRef.current) {
+        console.log('[PingOneAuthenticationCallback] Already processed, skipping duplicate execution (StrictMode)');
+        return;
+      }
+      hasProcessedRef.current = true;
+      
       const fragmentTokens = parseParams(location.hash, true);
       const queryTokens = parseParams(location.search.startsWith('?') ? location.search.slice(1) : location.search);
       const mergedTokens = { ...queryTokens, ...fragmentTokens };

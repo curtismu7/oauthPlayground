@@ -2,7 +2,7 @@
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
 import { QRCodeSVG } from 'qrcode.react';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
 	FiAlertCircle,
@@ -1174,12 +1174,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		[selectedDevice]
 	);
 	const deviceApps = useMemo(() => deviceTypeService.getDeviceApps(selectedDevice), [selectedDevice]);
-	
+	const lastParsedErrorSignatureRef = useRef<string | null>(null);
+
 	// Monitor deviceFlow polling status for errors
 	React.useEffect(() => {
 		if (deviceFlow.pollingStatus.error) {
 			// Parse the error using OAuth Error Handling Service
-			const errorDetails = OAuthErrorHandlingService.parseOAuthError(
+			const parsedError = OAuthErrorHandlingService.parseOAuthError(
 				new Error(deviceFlow.pollingStatus.error),
 				{
 					flowType: 'device_authorization',
@@ -1199,12 +1200,25 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					}
 				}
 			);
-			setErrorDetails(errorDetails);
-		} else {
-			// Clear error details on success
+			const signature = JSON.stringify(parsedError);
+
+			if (lastParsedErrorSignatureRef.current !== signature) {
+				lastParsedErrorSignatureRef.current = signature;
+				setErrorDetails(parsedError);
+			}
+		} else if (lastParsedErrorSignatureRef.current !== null) {
+			// Clear error details on success (only when previously set)
+			lastParsedErrorSignatureRef.current = null;
 			setErrorDetails(null);
 		}
-	}, [deviceFlow.pollingStatus.error, deviceFlow.credentials, deviceFlow.deviceCodeData, selectedVariant]);
+	}, [
+		deviceFlow.pollingStatus.error,
+		deviceFlow.deviceCodeData?.device_code,
+		selectedVariant,
+		// Note: Removed credential dependencies to prevent infinite loop
+		// The credentials are only used for hasXXX checks in parsedError metadata
+		// and don't affect the core error parsing logic
+	]);
 	const deviceOptions = useMemo(() => deviceTypeService.getDeviceTypeOptions(), []);
 
 	React.useEffect(() => {
@@ -1345,6 +1359,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	}, [deviceFlow.setCredentials]);
 
 	// Ensure Device Authorization Flow V7 uses its own credential storage
+	// Use JSON.stringify to track actual credential changes, not object reference changes
 	useEffect(() => {
 		// Save current credentials to flow-specific storage
 		if (deviceFlow.credentials && (deviceFlow.credentials.environmentId || deviceFlow.credentials.clientId)) {
@@ -1355,16 +1370,28 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				scopes: deviceFlow.credentials.scopes
 			});
 			
-			// Save to flow-specific storage with enhanced error handling
-			FlowCredentialService.saveFlowCredentials('device-authorization-v7', deviceFlow.credentials, {
-				showToast: false
-			}).catch((error) => {
-				console.error('[Device Authorization V7] Failed to save credentials to V7 storage:', error);
-				// Show user-friendly error message
-				v4ToastManager.showError('Failed to save credentials. Please try again.');
-			});
+		// Save to flow-specific storage with enhanced error handling
+		// Note: saveFlowCredentials signature is (flowKey, credentials, flowConfig?, additionalState?, options?)
+		FlowCredentialService.saveFlowCredentials(
+			'device-authorization-v7', 
+			deviceFlow.credentials, 
+			undefined, // flowConfig
+			undefined, // additionalState
+			{ showToast: false } // options - this is the 5th parameter!
+		).catch((error) => {
+			console.error('[Device Authorization V7] Failed to save credentials to V7 storage:', error);
+			// Show user-friendly error message
+			v4ToastManager.showError('Failed to save credentials. Please try again.');
+		});
 		}
-	}, [deviceFlow.credentials]);
+	// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [
+		deviceFlow.credentials?.environmentId,
+		deviceFlow.credentials?.clientId,
+		deviceFlow.credentials?.clientSecret,
+		deviceFlow.credentials?.scopes,
+		deviceFlow.credentials?.redirectUri,
+	]);
 
 	const { clearBackup } = useCredentialBackup({
 		flowKey: 'device-authorization-v7',
