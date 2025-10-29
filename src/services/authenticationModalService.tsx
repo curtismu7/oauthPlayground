@@ -338,8 +338,8 @@ export const AuthenticationModal: React.FC<AuthenticationModalProps> = ({
 	description,
 	redirectMode = 'popup',
 }) => {
-	// Auto-redirect countdown timer (20 seconds)
-	const [countdown, setCountdown] = React.useState<number>(20);
+	// Auto-redirect countdown timer (45 seconds) - Increased from 20 to give users more time to read
+	const [countdown, setCountdown] = React.useState<number>(45);
 	const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
 	
 	// PAR input modal state

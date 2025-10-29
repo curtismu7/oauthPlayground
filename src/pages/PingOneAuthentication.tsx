@@ -9,6 +9,7 @@ import { CredentialGuardService } from '../services/credentialGuardService';
 import HEBLoginPopup, { type HEBLoginCredentials } from '../components/HEBLoginPopup';
 import AuthorizationUrlValidationModal from '../components/AuthorizationUrlValidationModal';
 import { authorizationUrlValidationService } from '../services/authorizationUrlValidationService';
+import { AuthenticationModalService } from '../services/authenticationModalService';
 import { FlowHeader } from '../services/flowHeaderService';
 
 type LoginMode = 'redirect' | 'redirectless';
@@ -344,6 +345,8 @@ const PingOneAuthentication: React.FC = () => {
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 	const [showUrlValidationModal, setShowUrlValidationModal] = useState(false);
+	const [showAuthenticationModal, setShowAuthenticationModal] = useState(false);
+	const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string>('');
 	const [urlValidationResult, setUrlValidationResult] = useState<{
 		isValid: boolean;
 		errors: string[];
@@ -830,24 +833,21 @@ const PingOneAuthentication: React.FC = () => {
 					return;
 				}
 				
-				console.log('✅ [PingOneAuthentication] Authorization URL validation passed');
-				
-				// Store flow context for callback
-				sessionStorage.setItem(FLOW_CONTEXT_KEY, JSON.stringify({
-					environmentId: config.environmentId,
-					clientId: config.clientId,
-					responseType: config.responseType,
-					returnPath: '/pingone-authentication/result',
-					timestamp: Date.now(),
-				}));
-				
-				v4ToastManager.showSuccess('Redirecting to PingOne for authentication...');
-				
-				// Add a small delay to prevent flash and allow user to see the message
-				setTimeout(() => {
-					console.log('🔍 [PingOneAuthentication] Executing redirect to:', finalAuthUrl);
-					window.location.href = finalAuthUrl;
-				}, 1000);
+			console.log('✅ [PingOneAuthentication] Authorization URL validation passed');
+			
+			// Store flow context for callback
+			sessionStorage.setItem(FLOW_CONTEXT_KEY, JSON.stringify({
+				environmentId: config.environmentId,
+				clientId: config.clientId,
+				responseType: config.responseType,
+				returnPath: '/pingone-authentication/result',
+				timestamp: Date.now(),
+			}));
+			
+			// Show authentication modal with URL details
+			setPendingRedirectUrl(finalAuthUrl);
+			setShowAuthenticationModal(true);
+			setLoading(false);
 			} catch (error) {
 				console.error('[PingOneAuthentication] Redirect flow error:', error);
 				v4ToastManager.showError('Failed to start redirect flow. Please try again.');
@@ -894,13 +894,35 @@ const PingOneAuthentication: React.FC = () => {
 
 	// No popup communication needed for redirect flow
 
+	// Authentication modal handlers
+	const handleAuthModalContinue = useCallback(() => {
+		console.log('🚀 [PingOneAuthentication] User confirmed authentication, redirecting to:', pendingRedirectUrl);
+		setShowAuthenticationModal(false);
+		v4ToastManager.showSuccess('Redirecting to PingOne for authentication...');
+		
+		// Execute the redirect
+		setTimeout(() => {
+			window.location.href = pendingRedirectUrl;
+		}, 500);
+	}, [pendingRedirectUrl]);
+
+	const handleAuthModalCancel = useCallback(() => {
+		console.log('🚫 [PingOneAuthentication] User cancelled authentication');
+		setShowAuthenticationModal(false);
+		setPendingRedirectUrl('');
+		v4ToastManager.showInfo('Authentication cancelled');
+	}, []);
+
 	return (
 		<Page>
-			<FlowHeader 
-				title="PingOne Authentication Playground"
-				subtitle="Test PingOne authentication flows with redirect and redirectless modes"
-				backgroundColor="#0ea5e9"
-			/>
+		<FlowHeader 
+			flowType="pingone"
+			customConfig={{
+				flowType: 'pingone',
+				title: 'PingOne Authentication Playground',
+				subtitle: 'Test PingOne authentication flows with redirect and redirectless modes',
+			}}
+		/>
 			<Card>
 
 				<Callout>
@@ -1120,15 +1142,29 @@ const PingOneAuthentication: React.FC = () => {
 				)}
 			</ModalPresentationService>
 
-			{/* Authorization URL Validation Modal */}
-			<AuthorizationUrlValidationModal
-				isOpen={showUrlValidationModal}
-				onClose={() => setShowUrlValidationModal(false)}
-				validationResult={urlValidationResult}
-				authUrl={pendingAuthUrl}
-				onProceed={handleUrlValidationProceed}
-				onFix={handleUrlValidationFix}
-			/>
+		{/* Authorization URL Validation Modal */}
+		<AuthorizationUrlValidationModal
+			isOpen={showUrlValidationModal}
+			onClose={() => setShowUrlValidationModal(false)}
+			validationResult={urlValidationResult}
+			authUrl={pendingAuthUrl}
+			onProceed={handleUrlValidationProceed}
+			onFix={handleUrlValidationFix}
+		/>
+
+		{/* Authentication Modal - Shows authorization URL with educational content */}
+		{AuthenticationModalService.showModal(
+			showAuthenticationModal,
+			handleAuthModalCancel,
+			handleAuthModalContinue,
+			pendingRedirectUrl,
+			'oauth',
+			'PingOne Authentication Playground',
+			{
+				description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authentication. This uses the Authorization Code Flow with PKCE for enhanced security. Take time to review the authorization URL and its parameters.',
+				redirectMode: 'redirect'
+			}
+		)}
 		</Page>
 	);
 };
