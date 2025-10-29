@@ -11,6 +11,7 @@ import AuthorizationUrlValidationModal from '../components/AuthorizationUrlValid
 import { authorizationUrlValidationService } from '../services/authorizationUrlValidationService';
 import { AuthenticationModalService } from '../services/authenticationModalService';
 import { FlowHeader } from '../services/flowHeaderService';
+import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 
 type LoginMode = 'redirect' | 'redirectless';
 
@@ -232,19 +233,6 @@ const LaunchButton = styled.button`
 		background: #6c757d;
 		cursor: not-allowed;
 	}
-`;
-
-const AuthUrlDisplay = styled.div`
-	background: #f8f9fa;
-	border: 1px solid #ddd;
-	border-radius: 6px;
-	padding: 1.25rem;
-	margin-top: 2rem;
-	font-family: monospace;
-	font-size: 0.9rem;
-	color: #333;
-	word-break: break-all;
-	line-height: 1.5;
 `;
 
 const ComedyLogin = styled.div`
@@ -1125,10 +1113,11 @@ const PingOneAuthentication: React.FC = () => {
 					</ComedyLogin>
 				)}
 
-				<AuthUrlDisplay>
-					<strong>Authorization URL:</strong><br />
-					{authUrl}
-				</AuthUrlDisplay>
+				<ColoredUrlDisplay
+					url={authUrl}
+					label="Authorization URL"
+					showOpenButton
+				/>
 			</Card>
 
 			<HEBLoginPopup
