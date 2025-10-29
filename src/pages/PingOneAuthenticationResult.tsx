@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import { RESULT_STORAGE_KEY, type PlaygroundResult, RESPONSE_TYPES } from './PingOneAuthentication';
 import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
+import LoginSuccessModal from '../components/LoginSuccessModal';
 
 const Page = styled.div`
   background: white;
@@ -167,12 +168,21 @@ const PingOneAuthenticationResult: React.FC = () => {
   const [result, setResult] = useState<PlaygroundResult | null>(null);
   const [isClearing, setIsClearing] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [modalShownRef] = useState<{ current: boolean }>({ current: false });
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(RESULT_STORAGE_KEY);
       if (stored) {
-        setResult(JSON.parse(stored) as PlaygroundResult);
+        const parsedResult = JSON.parse(stored) as PlaygroundResult;
+        setResult(parsedResult);
+        
+        // Show success modal on first load if we have tokens
+        if (!modalShownRef.current && Object.keys(parsedResult.tokens).length > 0) {
+          modalShownRef.current = true;
+          setShowSuccessModal(true);
+        }
       }
     } catch (error) {
       console.warn('[PingOneAuthenticationResult] Failed to load result:', error);
@@ -290,14 +300,6 @@ const PingOneAuthenticationResult: React.FC = () => {
             />
           )}
         </TokenCard>
-
-        <ContextCard>
-          <ContextTitle>Context Clues</ContextTitle>
-          <ContextText>
-            Make sure the client secret you entered belongs to a PingOne application that supports redirectless logins.
-            Run the flow again at any time, then use the Token Management button on each token card to dive deeper.
-          </ContextText>
-        </ContextCard>
       </Layout>
 
       <ButtonRow>
@@ -308,6 +310,14 @@ const PingOneAuthenticationResult: React.FC = () => {
           {isClearing ? 'Clearing…' : 'Clear Tokens'}
         </ActionButton>
       </ButtonRow>
+
+      <LoginSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        title="Login Successful!"
+        message="You have been successfully authenticated with PingOne. Your tokens have been received and are displayed below."
+        autoCloseDelay={5000}
+      />
     </Page>
   );
 };
