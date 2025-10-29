@@ -1223,7 +1223,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		// Handle OAuth callback with authorization code - PRIORITY 1
 		const finalAuthCode = authCode || sessionAuthCode;
 		if (finalAuthCode) {
-			console.log('🎉 [AuthorizationCodeFlowV5] Authorization code found!', {
+			console.log('🎉 [OAuthAuthorizationCodeFlowV7] Authorization code found!', {
 				source: authCode ? 'URL' : 'sessionStorage',
 				code: `${finalAuthCode.substring(0, 10)}...`,
 			});
@@ -1231,8 +1231,9 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 			// Also set it in the controller
 			controller.setAuthCodeManually(finalAuthCode);
 			// Show success modal
-			console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
+			console.log('🟢 [OAuthAuthorizationCodeFlowV7] SHOWING LoginSuccessModal NOW!');
 			setShowLoginSuccessModal(true);
+			console.log('🟢 [OAuthAuthorizationCodeFlowV7] showLoginSuccessModal state set to:', true);
 			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
 			// Navigate to step 4 and persist it
 			setCurrentStep(4);
@@ -1589,12 +1590,20 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	}, [controller]);
 
 	const handleOpenAuthUrl = useCallback(() => {
+		console.log('🎯 [OAuthAuthorizationCodeFlowV7] "Redirect to PingOne" button clicked!', {
+			hasAuthUrl: !!controller.authUrl,
+			authUrl: controller.authUrl?.substring(0, 100) + '...',
+			showRedirectModal
+		});
+		
 		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
-			console.log('🔧 [AuthorizationCodeFlowV5] Opening authentication modal...');
+			console.log('✅ [OAuthAuthorizationCodeFlowV7] Validation passed - Opening authentication modal...');
 			setShowRedirectModal(true);
 			// Modal will handle its own countdown and closing
+		} else {
+			console.error('❌ [OAuthAuthorizationCodeFlowV7] Validation failed - Modal will NOT show');
 		}
-	}, [controller]);
+	}, [controller, showRedirectModal]);
 
 	const handleExchangeTokens = useCallback(async () => {
 		const authCode = controller.authCode || localAuthCode;
