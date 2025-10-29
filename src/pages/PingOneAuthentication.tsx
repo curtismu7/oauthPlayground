@@ -9,6 +9,7 @@ import { CredentialGuardService } from '../services/credentialGuardService';
 import HEBLoginPopup, { type HEBLoginCredentials } from '../components/HEBLoginPopup';
 import AuthorizationUrlValidationModal from '../components/AuthorizationUrlValidationModal';
 import { authorizationUrlValidationService } from '../services/authorizationUrlValidationService';
+import { FlowHeader } from '../services/flowHeaderService';
 
 type LoginMode = 'redirect' | 'redirectless';
 
@@ -895,11 +896,12 @@ const PingOneAuthentication: React.FC = () => {
 
 	return (
 		<Page>
+			<FlowHeader 
+				title="PingOne Authentication Playground"
+				subtitle="Test PingOne authentication flows with redirect and redirectless modes"
+				backgroundColor="#0ea5e9"
+			/>
 			<Card>
-				<Title>PingOne Authentication Playground</Title>
-				<Subtitle>
-					Test PingOne authentication flows with different configurations and modes.
-				</Subtitle>
 
 				<Callout>
 					<strong>Authorization Code Flow:</strong> Uses PKCE for enhanced security. 
