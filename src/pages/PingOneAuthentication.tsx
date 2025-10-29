@@ -182,27 +182,34 @@ const Modes = styled.div`
 
 const ModeButton = styled.button<{ $active: boolean }>`
 	padding: 1rem;
-	border: 2px solid ${props => props.$active ? '#007bff' : '#ddd'};
+	border: 2px solid ${props => props.$active ? '#0ea5e9' : '#cbd5f5'};
 	border-radius: 8px;
-	background: ${props => props.$active ? '#f8f9ff' : 'white'};
-	color: ${props => props.$active ? '#007bff' : '#666'};
-	font-weight: ${props => props.$active ? '600' : '400'};
+	background: ${props => props.$active ? '#0ea5e9' : '#f1f5f9'};
+	color: ${props => props.$active ? '#ffffff' : '#334155'};
+	font-weight: ${props => props.$active ? '700' : '500'};
+	box-shadow: ${props => props.$active ? '0 8px 16px rgba(14, 165, 233, 0.25)' : 'none'};
 	cursor: pointer;
-	transition: all 0.2s ease;
-	
+	transition: all 0.25s ease;
+
 	&:hover {
-		border-color: #007bff;
-		background: #f8f9ff;
+		border-color: #0ea5e9;
+		background: ${props => props.$active ? '#0284c7' : '#e2e8f0'};
+		color: ${props => props.$active ? '#ffffff' : '#0f172a'};
+	}
+
+	&:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.35);
 	}
 `;
 
 const ModeDetails = styled.div`
 	grid-column: 2;
 	padding: 1rem;
-	background: #f8f9fa;
+	background: #e0f2fe;
 	border-radius: 8px;
-	color: #666;
-	font-size: 0.9rem;
+	color: #0f172a;
+	font-weight: 600;
 `;
 
 const LaunchButton = styled.button`
