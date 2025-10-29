@@ -931,6 +931,11 @@ const PingOneAuthentication: React.FC = () => {
 		v4ToastManager.showInfo('Authentication cancelled');
 	}, []);
 
+	// Scroll to top when component mounts or mode changes
+	useEffect(() => {
+		window.scrollTo(0, 0);
+	}, [mode]);
+
 	return (
 		<Page>
 		<FlowHeader 
