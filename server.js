@@ -1748,7 +1748,35 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			throw lastError || new Error('All retry attempts failed');
 		}
 
-		const responseData = await authResponse.json();
+		// Check content-type to handle both JSON and HTML responses
+		const contentType = authResponse.headers.get('content-type') || '';
+		let responseData;
+		
+		try {
+			if (contentType.includes('application/json')) {
+				responseData = await authResponse.json();
+			} else {
+				// If not JSON, try to get text and attempt JSON parse as fallback
+				const responseText = await authResponse.text();
+				try {
+					responseData = JSON.parse(responseText);
+				} catch (parseError) {
+					// If it's HTML or other text, log it and return error
+					console.error(`[PingOne Redirectless] Response is not valid JSON:`, responseText.substring(0, 500));
+					throw new Error(`PingOne returned ${contentType || 'text/html'} instead of JSON`);
+				}
+			}
+		} catch (parseError) {
+			console.error(`[PingOne Redirectless] Failed to parse response:`, parseError.message);
+			return res.status(500).json({
+				error: 'invalid_response',
+				error_description: 'PingOne returned an invalid response format',
+				details: {
+					message: parseError.message,
+					contentType: contentType
+				}
+			});
+		}
 
 		if (!authResponse.ok) {
 			console.error(`[PingOne Redirectless] PingOne API Error:`, {
