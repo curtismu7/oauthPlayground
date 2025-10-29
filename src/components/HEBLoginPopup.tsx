@@ -23,7 +23,7 @@ const PopupOverlay = styled.div`
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -33,8 +33,8 @@ const PopupOverlay = styled.div`
 
 const PopupContainer = styled.div`
   background: ${HEB_COLORS.white};
-  border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 10px 20px -5px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 420px;
   max-height: 90vh;
@@ -42,70 +42,31 @@ const PopupContainer = styled.div`
   position: relative;
 `;
 
-const CloseButton = styled.button`
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
-  font-size: 24px;
-  color: ${HEB_COLORS.darkGray};
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  transition: background-color 0.2s ease;
-
-  &:hover {
-    background-color: ${HEB_COLORS.lightGray};
-  }
-`;
-
-const CancelLink = styled.button`
-  background: none;
-  border: none;
-  color: ${HEB_COLORS.blue};
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: underline;
-  cursor: pointer;
-  margin-top: 12px;
-  align-self: center;
-
-  &:hover {
-    color: ${HEB_COLORS.darkBlue};
-  }
-`;
-
 const Header = styled.div`
   background: linear-gradient(135deg, ${HEB_COLORS.red} 0%, ${HEB_COLORS.darkRed} 100%);
-  padding: 24px 24px 20px;
-  border-radius: 12px 12px 0 0;
+  padding: 32px 24px 28px;
+  border-radius: 16px 16px 0 0;
   text-align: center;
   position: relative;
 `;
 
 const HEBLogo = styled.div`
-  font-size: 32px;
-  font-weight: bold;
+  font-size: 36px;
+  font-weight: 700;
   color: ${HEB_COLORS.white};
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   letter-spacing: 2px;
 `;
 
 const Subtitle = styled.div`
-  font-size: 14px;
+  font-size: 15px;
   color: ${HEB_COLORS.white};
-  opacity: 0.9;
+  opacity: 0.95;
   font-weight: 500;
 `;
 
 const Content = styled.div`
-  padding: 32px 24px 24px;
+  padding: 36px 28px 28px;
 `;
 
 const Form = styled.form`
@@ -117,31 +78,35 @@ const Form = styled.form`
 const InputGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 `;
 
 const Label = styled.label`
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   color: ${HEB_COLORS.darkGray};
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 `;
 
 const Input = styled.input`
   padding: 12px 16px;
-  border: 2px solid #E5E5E5;
+  border: 1.5px solid #d1d5db;
   border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  font-size: 15px;
+  transition: all 0.2s ease;
   background: ${HEB_COLORS.white};
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 
   &:focus {
     outline: none;
     border-color: ${HEB_COLORS.blue};
     box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    background: #fafbff;
   }
 
   &::placeholder {
-    color: #999;
+    color: #9ca3af;
   }
 `;
 
@@ -164,7 +129,7 @@ const PasswordToggleButton = styled.button`
   border: none;
   cursor: pointer;
   padding: 12px 14px;
-  color: ${HEB_COLORS.darkGray};
+  color: #6b7280;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -172,12 +137,12 @@ const PasswordToggleButton = styled.button`
   border-radius: 0 8px 8px 0;
 
   &:hover {
-    background-color: #F0F0F0;
+    background-color: #f3f4f6;
     color: ${HEB_COLORS.blue};
   }
 
   &:active {
-    background-color: #E5E5E5;
+    background-color: #e5e7eb;
   }
 `;
 
@@ -185,17 +150,18 @@ const LoginButton = styled.button`
   background: linear-gradient(135deg, ${HEB_COLORS.green} 0%, ${HEB_COLORS.darkGreen} 100%);
   color: ${HEB_COLORS.white};
   border: none;
-  padding: 14px 24px;
+  padding: 13px 24px;
   border-radius: 8px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   margin-top: 8px;
+  letter-spacing: 0.3px;
 
   &:hover:not(:disabled) {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 166, 81, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0, 166, 81, 0.25);
   }
 
   &:active:not(:disabled) {
@@ -203,47 +169,74 @@ const LoginButton = styled.button`
   }
 
   &:disabled {
-    opacity: 0.6;
+    opacity: 0.65;
     cursor: not-allowed;
   }
 `;
 
 const Footer = styled.div`
-  padding: 16px 24px 24px;
+  padding: 20px 28px 28px;
   text-align: center;
-  border-top: 1px solid #E5E5E5;
-  background: ${HEB_COLORS.lightGray};
-  border-radius: 0 0 12px 12px;
+  border-top: 1px solid #e5e7eb;
+  background: #fafbfc;
+  border-radius: 0 0 16px 16px;
 `;
 
 const FooterText = styled.div`
   font-size: 12px;
-  color: ${HEB_COLORS.darkGray};
-  line-height: 1.4;
+  color: #6b7280;
+  line-height: 1.5;
+  font-weight: 500;
 `;
 
 const ErrorMessage = styled.div`
-  background: #FEF2F2;
-  border: 1px solid #FECACA;
-  color: #DC2626;
-  padding: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
   border-radius: 8px;
-  font-size: 14px;
+  color: #dc2626;
+  padding: 12px 14px;
+  font-size: 13px;
   margin-bottom: 16px;
+  font-weight: 500;
 `;
 
-const LoadingSpinner = styled.div`
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 2px solid ${HEB_COLORS.white};
-  border-radius: 50%;
-  border-top-color: transparent;
-  animation: spin 1s ease-in-out infinite;
-  margin-right: 8px;
+const CancelLink = styled.button`
+  background: none;
+  border: none;
+  color: ${HEB_COLORS.blue};
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: color 0.2s ease;
 
-  @keyframes spin {
-    to { transform: rotate(360deg); }
+  &:hover {
+    color: ${HEB_COLORS.darkBlue};
+    text-decoration: underline;
+  }
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  font-size: 24px;
+  color: ${HEB_COLORS.white};
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
   }
 `;
 
