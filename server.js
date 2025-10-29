@@ -1683,27 +1683,30 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		console.log(`[PingOne Redirectless] Scopes:`, scopes);
 		console.log(`[PingOne Redirectless] Has PKCE:`, !!codeChallenge);
 
-		// Build authorization request parameters
-		const authParams = new URLSearchParams({
-			response_type: 'code',
-			client_id: clientId,
-			redirect_uri: 'urn:pingidentity:redirectless',
-			scope: scopes || 'openid',
-			state: state || `pi-flow-${Date.now()}`
-		});
+	// Build authorization request parameters
+	const authParams = new URLSearchParams();
+	authParams.set('response_type', 'code');
+	authParams.set('client_id', clientId);
+	authParams.set('redirect_uri', 'urn:pingidentity:redirectless');
+	authParams.set('scope', scopes || 'openid');
+	authParams.set('state', state || `pi-flow-${Date.now()}`);
 
-		// Add PKCE parameters only if they exist
-		if (codeChallenge) {
-			authParams.append('code_challenge', codeChallenge);
-			authParams.append('code_challenge_method', codeChallengeMethod || 'S256');
-		}
+	// Add PKCE parameters only if they exist
+	if (codeChallenge) {
+		authParams.set('code_challenge', codeChallenge);
+		authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
+	}
 
-		// Add username/password if provided
-		if (username) authParams.append('username', username);
-		if (password) authParams.append('password', password);
+	// Add username/password if provided
+	if (username) authParams.set('username', username);
+	if (password) authParams.set('password', password);
 
-		// Debug: Log all parameters to check for duplicates
-		console.log(`[PingOne Redirectless] All URL parameters:`, Array.from(authParams.entries()));
+	// Debug: Log all parameters to check for duplicates
+	console.log(`[PingOne Redirectless] All URL parameters:`, Array.from(authParams.entries()));
+	console.log(`[PingOne Redirectless] Checking for duplicate client_id:`, {
+		count: authParams.getAll('client_id').length,
+		values: authParams.getAll('client_id')
+	});
 		
 		// For redirectless flow, send parameters in the POST body, NOT in URL query string
 		const authorizeUrl = `https://auth.pingone.com/${environmentId}/as/authorize`;
