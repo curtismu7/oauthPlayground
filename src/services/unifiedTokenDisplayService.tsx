@@ -116,6 +116,11 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'manage
 
 const TokenContent = styled.div`
 	padding: 1.5rem;
+	min-height: 120px;
+	max-height: 400px;
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
 `;
 
 const TokenValue = styled.div`
@@ -129,6 +134,8 @@ const TokenValue = styled.div`
 	word-break: break-all;
 	white-space: pre-wrap;
 	margin-bottom: 1rem;
+	max-height: 300px;
+	overflow-y: auto;
 `;
 
 const DecodedContent = styled.pre`
@@ -139,9 +146,10 @@ const DecodedContent = styled.pre`
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 	font-size: 0.75rem;
 	color: #1f2937;
-	overflow: auto;
+	overflow-y: auto;
 	max-height: 300px;
 	margin-top: 0.5rem;
+	margin-bottom: 0;
 `;
 
 const OpaqueMessage = styled.div`
