@@ -151,25 +151,33 @@ const PasswordInput = styled(Input)`
 
 const PasswordFieldWrapper = styled.div`
   position: relative;
+  display: flex;
+  align-items: center;
 `;
 
 const PasswordToggleButton = styled.button`
   position: absolute;
-  top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
+  right: 0;
+  top: 0;
+  bottom: 0;
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px;
+  padding: 12px 14px;
   color: ${HEB_COLORS.darkGray};
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease;
+  transition: all 0.2s ease;
+  border-radius: 0 8px 8px 0;
 
   &:hover {
+    background-color: #F0F0F0;
     color: ${HEB_COLORS.blue};
+  }
+
+  &:active {
+    background-color: #E5E5E5;
   }
 `;
 
