@@ -22,6 +22,7 @@ import InteractiveFlowDiagram from './components/InteractiveFlowDiagram';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import SidebarTest from './components/SidebarTest';
+import { RouteRestorer } from './components/RouteRestorer';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import Callback from './pages/Callback';
@@ -346,6 +347,7 @@ const AppRoutes = () => {
 	return (
 		<>
 			<GlobalErrorDisplay />
+			<RouteRestorer />
 			<AppContainer>
 				<Navbar toggleSidebar={toggleSidebar} />
 				<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
