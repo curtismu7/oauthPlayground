@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import styled from 'styled-components';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 // HEB Brand Colors
 const HEB_COLORS = {
@@ -144,6 +145,21 @@ const Input = styled.input`
   }
 `;
 
+const PasswordFieldWrapper = styled.div`
+  position: relative;
+`;
+
+const PasswordToggleButton = styled.button`
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+`;
+
 const LoginButton = styled.button`
   background: linear-gradient(135deg, ${HEB_COLORS.green} 0%, ${HEB_COLORS.darkGreen} 100%);
   color: ${HEB_COLORS.white};
@@ -230,10 +246,14 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
   title = "HEB",
   subtitle = "Sign in to your account"
 }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const DEFAULT_USERNAME = 'curtis7';
+  const DEFAULT_PASSWORD = 'Wolverine7&';
+
+  const [username, setUsername] = useState(DEFAULT_USERNAME);
+  const [password, setPassword] = useState(DEFAULT_PASSWORD);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
 
   // Focus username field when popup opens
@@ -246,10 +266,11 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
   // Reset form when popup closes
   useEffect(() => {
     if (!isOpen) {
-      setUsername('');
-      setPassword('');
+      setUsername(DEFAULT_USERNAME);
+      setPassword(DEFAULT_PASSWORD);
       setError(null);
       setIsLoading(false);
+      setShowPassword(false);
     }
   }, [isOpen]);
 
@@ -314,15 +335,24 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
 
             <InputGroup>
               <Label htmlFor="heb-password">Password</Label>
-              <Input
-                id="heb-password"
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
-                autoComplete="current-password"
-              />
+              <PasswordFieldWrapper>
+                <Input
+                  id="heb-password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="current-password"
+                />
+                <PasswordToggleButton
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                </PasswordToggleButton>
+              </PasswordFieldWrapper>
             </InputGroup>
 
             <LoginButton type="submit" disabled={isLoading}>
