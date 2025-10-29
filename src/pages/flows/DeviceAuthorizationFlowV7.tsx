@@ -62,6 +62,7 @@ import AnalyticsDashboard from '../../components/AnalyticsDashboard';
 import PerformanceMonitor from '../../components/PerformanceMonitor';
 import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
 import InteractiveTutorial from '../../components/InteractiveTutorial';
+import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -1365,12 +1366,25 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 	}, [deviceFlow.credentials]);
 
-	// Use credential backup hook for automatic backup and restoration
-	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
+	const { clearBackup } = useCredentialBackup({
 		flowKey: 'device-authorization-v7',
 		credentials: deviceFlow.credentials,
 		setCredentials: deviceFlow.setCredentials,
-		enabled: true
+		enabled: true,
+	});
+
+	const {
+		validateCredentialsAndProceed,
+		CredentialValidationModal,
+		isValidForStep,
+		validationMessage,
+	} = useV7CredentialValidation({
+		flowKey: 'device-authorization-v7',
+		credentials: deviceFlow.credentials ?? {},
+		currentStep,
+		onValidationFailure: (missingFields) => {
+			logger.warn('[Device Authorization V7] Missing required credentials:', missingFields);
+		},
 	});
 
 	const navigateToTokenManagement = useCallback(() => {
@@ -3242,16 +3256,22 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 				{renderStepContent()}
 
+				<CredentialValidationModal />
+
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}
 					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
 					onReset={handleReset}
-					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
+					onNext={() =>
+						validateCredentialsAndProceed(() =>
+							setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))
+						)
+					}
 					canNavigateNext={isStepValid(currentStep + 1)}
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep + 1) ? 'Next' : 'Complete above action'}
-					disabledMessage={getStepValidationMessage(currentStep + 1) || "Complete the action above to continue"}
+					disabledMessage={getStepValidationMessage(currentStep + 1) || 'Complete the action above to continue'}
 				/>
 
 				<CollapsibleSection>
