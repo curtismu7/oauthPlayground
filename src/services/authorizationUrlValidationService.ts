@@ -14,6 +14,7 @@ export interface UrlValidationResult {
 export interface ParsedAuthorizationUrl {
   baseUrl: string;
   responseType: string[];
+  responseMode?: string;
   clientId: string;
   redirectUri: string;
   scope: string[];
@@ -22,6 +23,7 @@ export interface ParsedAuthorizationUrl {
   codeChallenge?: string;
   codeChallengeMethod?: string;
   loginHint?: string;
+  loginHintToken?: string;
   prompt?: string;
   maxAge?: string;
   acrValues?: string[];
@@ -122,6 +124,7 @@ class AuthorizationUrlValidationService {
       return {
         baseUrl: `${urlObj.protocol}//${urlObj.host}${urlObj.pathname}`,
         responseType: params.get('response_type')?.split(/\s+/) || [],
+        responseMode: params.get('response_mode') || undefined,
         clientId: params.get('client_id') || '',
         redirectUri: params.get('redirect_uri') || '',
         scope: params.get('scope')?.split(/\s+/) || [],
@@ -130,13 +133,14 @@ class AuthorizationUrlValidationService {
         codeChallenge: params.get('code_challenge') || undefined,
         codeChallengeMethod: params.get('code_challenge_method') || undefined,
         loginHint: params.get('login_hint') || undefined,
+        loginHintToken: params.get('login_hint_token') || undefined,
         prompt: params.get('prompt') || undefined,
         maxAge: params.get('max_age') || undefined,
         acrValues: params.get('acr_values')?.split(/\s+/) || [],
         customParams: Object.fromEntries(
           Array.from(params.entries()).filter(([key]) => 
-            !['response_type', 'client_id', 'redirect_uri', 'scope', 'state', 
-              'nonce', 'code_challenge', 'code_challenge_method', 'login_hint', 
+            !['response_type', 'response_mode', 'client_id', 'redirect_uri', 'scope', 'state', 
+              'nonce', 'code_challenge', 'code_challenge_method', 'login_hint', 'login_hint_token',
               'prompt', 'max_age', 'acr_values'].includes(key)
           )
         )
@@ -151,6 +155,13 @@ class AuthorizationUrlValidationService {
    */
   private detectFlowType(parsedUrl: ParsedAuthorizationUrl): UrlValidationResult['flowType'] {
     const responseTypes = parsedUrl.responseType;
+    const responseMode = parsedUrl.responseMode;
+    
+    // PingOne redirectless flow uses response_mode=pi.flow
+    if (responseMode === 'pi.flow') {
+      console.log('🔍 [URL Validation] Detected PingOne redirectless flow (response_mode=pi.flow)');
+      return 'authorization-code'; // Still authorization code flow, just redirectless mode
+    }
     
     if (responseTypes.includes('code') && responseTypes.includes('id_token')) {
       return 'hybrid';
@@ -209,8 +220,16 @@ class AuthorizationUrlValidationService {
       result.errors.push('URL_VALIDATION_ERROR: Missing required parameter: client_id');
     }
 
-    if (!redirectUri) {
+    // redirect_uri is not required for PingOne redirectless flows (response_mode=pi.flow)
+    const isRedirectlessFlow = parsedUrl.responseMode === 'pi.flow';
+    if (!redirectUri && !isRedirectlessFlow) {
       result.errors.push('URL_VALIDATION_ERROR: Missing required parameter: redirect_uri');
+    }
+    
+    // Log redirectless flow detection
+    if (isRedirectlessFlow) {
+      console.log('🔍 [URL Validation] Redirectless flow detected (response_mode=pi.flow), redirect_uri not required');
+      result.warnings.push('INFO: Using PingOne redirectless flow (response_mode=pi.flow). Tokens will be returned directly without redirect.');
     }
 
     if (responseType.length === 0 && config.flowType !== 'device') {
@@ -440,8 +459,9 @@ class AuthorizationUrlValidationService {
         issues.push('Missing required parameter: client_id');
       }
       
-      // Check for redirect_uri
-      if (!parsedUrl.redirectUri) {
+      // Check for redirect_uri (not required for redirectless flows)
+      const isRedirectlessFlow = parsedUrl.responseMode === 'pi.flow';
+      if (!parsedUrl.redirectUri && !isRedirectlessFlow) {
         issues.push('Missing required parameter: redirect_uri');
       }
       
