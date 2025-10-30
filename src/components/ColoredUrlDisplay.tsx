@@ -41,7 +41,7 @@ const UrlContent = styled.div`
 	background: #f0fdf4; /* Light green for generated content */
 	border: 1px solid #16a34a;
 	border-radius: 8px;
-	padding: 1rem 5rem 1rem 1rem; /* Increased right padding to accommodate buttons */
+	padding: 2.5rem 8rem 1rem 1rem; /* Extra space so buttons do not overlap URL text */
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
