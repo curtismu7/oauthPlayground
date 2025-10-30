@@ -7,9 +7,9 @@ import {
 	RESULT_STORAGE_KEY,
 	STORAGE_KEY,
 	FLOW_CONTEXT_KEY,
+	REDIRECT_FLOW_CONTEXT_KEY,
 	type PlaygroundResult,
 } from './PingOneAuthentication';
-import { FlowContextService } from '../services/flowContextService';
 
 const Page = styled.div`
   min-height: 100vh;
@@ -201,8 +201,15 @@ const PingOneAuthenticationCallback: React.FC = () => {
       const queryTokens = parseParams(location.search.startsWith('?') ? location.search.slice(1) : location.search);
       const mergedTokens = { ...queryTokens, ...fragmentTokens };
 
-      const flowContextRaw = sessionStorage.getItem(FLOW_CONTEXT_KEY);
-      let flowContext: { returnPath?: string; responseType?: string } | null = null;
+      // Check redirect flow context first (isolated from redirectless)
+      let flowContextRaw = sessionStorage.getItem(REDIRECT_FLOW_CONTEXT_KEY);
+      
+      // Fallback to legacy key for backward compatibility
+      if (!flowContextRaw) {
+        flowContextRaw = sessionStorage.getItem(FLOW_CONTEXT_KEY);
+      }
+      
+      let flowContext: { returnPath?: string; responseType?: string; mode?: string } | null = null;
       
       console.log('[PingOneAuthenticationCallback] Processing tokens:', {
         fragmentTokens,
@@ -217,27 +224,36 @@ const PingOneAuthenticationCallback: React.FC = () => {
       console.log('[PingOneAuthenticationCallback] Flow context lookup:', {
         flowContextRaw,
         hasFlowContext: !!flowContextRaw,
+        REDIRECT_FLOW_CONTEXT_KEY,
         FLOW_CONTEXT_KEY
       });
       
       if (flowContextRaw) {
         try {
           flowContext = JSON.parse(flowContextRaw);
-          console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
+          // Only use context if it's for redirect mode (not redirectless)
+          if (flowContext.mode && flowContext.mode !== 'redirect') {
+            console.warn('[PingOneAuthenticationCallback] Flow context is not for redirect mode, ignoring');
+            flowContext = null;
+          } else {
+            // Validate returnPath - reject dashboard or invalid paths
+            if (flowContext.returnPath && (flowContext.returnPath === '/dashboard' || !flowContext.returnPath.startsWith('/pingone-authentication'))) {
+              console.warn('[PingOneAuthenticationCallback] Flow context has invalid returnPath, clearing it:', {
+                invalidReturnPath: flowContext.returnPath
+              });
+              flowContext.returnPath = undefined; // Clear invalid returnPath but keep context
+            }
+            console.log('[PingOneAuthenticationCallback] Parsed flow context:', flowContext);
+          }
         } catch (err) {
           console.warn('[PingOneAuthenticationCallback] Failed to parse flow context:', err);
         }
       }
 
+      // Don't fall back to FlowContextService - it may contain context from other flows
+      // Always use PingOne redirect-specific context or default to result page
       if (!flowContext) {
-        const savedContext = FlowContextService.getFlowContext();
-        if (savedContext) {
-          flowContext = {
-            returnPath: savedContext.returnPath,
-            responseType: savedContext.flowState?.responseType,
-          };
-          FlowContextService.clearFlowContext();
-        }
+        console.log('[PingOneAuthenticationCallback] No redirect flow context found, will use default return path');
       }
 
       // Check for errors FIRST (before checking if tokens are empty)
@@ -330,12 +346,40 @@ const PingOneAuthenticationCallback: React.FC = () => {
             size: storedResult?.length || 0
           });
           
+          // Clean up redirect flow context
+          sessionStorage.removeItem(REDIRECT_FLOW_CONTEXT_KEY);
           sessionStorage.removeItem(FLOW_CONTEXT_KEY);
           
           v4ToastManager.showSuccess('Authorization successful! Tokens received.');
           
-          const targetPath = flowContext?.returnPath || '/pingone-authentication/result';
-          console.log('[PingOneAuthenticationCallback] Navigating to:', targetPath);
+          // Validate returnPath - never use dashboard for PingOne authentication
+          // CRITICAL: Always default to PingOne result page, never dashboard
+          let targetPath = flowContext?.returnPath || '/pingone-authentication/result';
+          
+          // Strict validation: reject dashboard or any non-PingOne paths
+          if (targetPath === '/dashboard' || 
+              targetPath.startsWith('/dashboard') ||
+              !targetPath.startsWith('/pingone-authentication')) {
+            console.warn('[PingOneAuthenticationCallback] Invalid returnPath detected, using PingOne result page:', {
+              invalidPath: targetPath,
+              flowContextReturnPath: flowContext?.returnPath
+            });
+            targetPath = '/pingone-authentication/result';
+          }
+          
+          // Final safety check - ensure we never navigate to dashboard
+          if (targetPath === '/dashboard' || targetPath.startsWith('/dashboard/')) {
+            console.error('[PingOneAuthenticationCallback] CRITICAL: Attempted dashboard redirect blocked (auth code flow)!', {
+              attemptedPath: targetPath,
+              flowContext
+            });
+            targetPath = '/pingone-authentication/result';
+          }
+          
+          console.log('[PingOneAuthenticationCallback] Navigating to:', {
+            targetPath,
+            validated: targetPath === '/pingone-authentication/result' || targetPath.startsWith('/pingone-authentication')
+          });
           
           navigate(targetPath);
           return;
@@ -365,6 +409,8 @@ const PingOneAuthenticationCallback: React.FC = () => {
     };
 
     localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+    // Clean up redirect flow context
+    sessionStorage.removeItem(REDIRECT_FLOW_CONTEXT_KEY);
     sessionStorage.removeItem(FLOW_CONTEXT_KEY);
 
     const popupDetected = window.name === 'PingOneLoginWindow' || (window.opener && window.opener !== window);
@@ -435,12 +481,37 @@ const PingOneAuthenticationCallback: React.FC = () => {
 
     v4ToastManager.showSuccess('Tokens captured! Redirecting to the lounge…');
 
-    const targetPath = flowContext?.returnPath || computeFallbackPath();
+    // Validate returnPath - never use dashboard for PingOne authentication
+    // CRITICAL: Always default to PingOne result page, never dashboard
+    let targetPath = flowContext?.returnPath || '/pingone-authentication/result';
+    
+    // Strict validation: reject dashboard or any non-PingOne paths
+    if (targetPath === '/dashboard' || 
+        targetPath.startsWith('/dashboard') ||
+        (!targetPath.startsWith('/pingone-authentication') && !targetPath.startsWith('/flows/oauth-authorization-code-v7') && !targetPath.startsWith('/flows/device-authorization-v7'))) {
+      console.warn('[PingOneAuthenticationCallback] Invalid returnPath detected, using PingOne result page:', {
+        invalidPath: targetPath,
+        flowContextReturnPath: flowContext?.returnPath,
+        computedFallback: computeFallbackPath()
+      });
+      targetPath = '/pingone-authentication/result';
+    }
+    
+    // Final safety check - ensure we never navigate to dashboard
+    if (targetPath === '/dashboard' || targetPath.startsWith('/dashboard/')) {
+      console.error('[PingOneAuthenticationCallback] CRITICAL: Attempted dashboard redirect blocked!', {
+        attemptedPath: targetPath,
+        flowContext
+      });
+      targetPath = '/pingone-authentication/result';
+    }
+    
     console.log('[PingOneAuthenticationCallback] Redirect decision:', {
       hasFlowContext: !!flowContext,
       returnPath: flowContext?.returnPath,
       computedFallback: computeFallbackPath(),
-      finalTargetPath: targetPath
+      finalTargetPath: targetPath,
+      validated: targetPath === '/pingone-authentication/result' || targetPath.startsWith('/pingone-authentication')
     });
     
     setTimeout(() => navigate(targetPath), 900);
