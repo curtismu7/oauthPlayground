@@ -1157,11 +1157,42 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					),
 				});
 
-				// Fallback to credential manager if config is not loaded
-				let clientId = config?.clientId || '';
-				let clientSecret = config?.clientSecret || '';
-				let environmentId = config?.environmentId || '';
+				// Try to get credentials from flow context first (most reliable for redirected flows)
+				let clientId = '';
+				let clientSecret = '';
+				let environmentId = '';
+				
+				// CRITICAL: Extract credentials from flow context FIRST (this is set when starting auth flow)
+				if (flowContext) {
+					try {
+						const parsedContext = safeJsonParse(flowContext);
+						if (parsedContext) {
+							clientId = parsedContext.clientId || parsedContext.client_id || '';
+							clientSecret = parsedContext.clientSecret || parsedContext.client_secret || '';
+							environmentId = parsedContext.environmentId || parsedContext.environment_id || '';
+							console.log(' [NewAuthContext] Extracted credentials from flow context:', {
+								hasClientId: !!clientId,
+								hasClientSecret: !!clientSecret,
+								hasEnvironmentId: !!environmentId,
+							});
+						}
+					} catch (error) {
+						console.warn(' [NewAuthContext] Failed to parse flow context for credentials:', error);
+					}
+				}
+				
+				// Fallback to config if flow context didn't have credentials
+				if (!clientId || !environmentId) {
+					clientId = clientId || config?.clientId || '';
+					clientSecret = clientSecret || config?.clientSecret || '';
+					environmentId = environmentId || config?.environmentId || '';
+					console.log(' [NewAuthContext] Using config credentials as fallback:', {
+						hasClientId: !!clientId,
+						hasEnvironmentId: !!environmentId,
+					});
+				}
 
+				// Final fallback to credential manager if still missing
 				if (!clientId || !environmentId) {
 					console.log(' [NewAuthContext] Config not loaded, trying credential manager fallback...');
 					try {
@@ -1193,10 +1224,20 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						clientId,
 						environmentId,
 						redirectUri,
+						hasFlowContext: !!flowContext,
+						hasConfig: !!config,
+						configClientId: config?.clientId,
 					});
-					throw new Error(
-						'Client ID is required for token exchange. Please configure your OAuth credentials first.'
-					);
+					
+					// Provide more helpful error message with troubleshooting steps
+					const errorMessage = 
+						'Client ID is required for token exchange. ' +
+						'This usually happens when:\n' +
+						'1. You accessed the authorization URL directly (not through the app flow)\n' +
+						'2. Your browser session was cleared between authorization and callback\n' +
+						'3. Credentials were not properly configured\n\n' +
+						'Please restart the flow through the application, or configure your OAuth credentials in the Configuration page.';
+					throw new Error(errorMessage);
 				}
 
 				if (!environmentId || environmentId.trim() === '') {

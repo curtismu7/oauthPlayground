@@ -8,6 +8,7 @@ import https from 'node:https';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { randomUUID } from 'node:crypto';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
@@ -76,6 +77,26 @@ app.use((_req, res, next) => {
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// In-memory cookie jar for PingOne redirectless flows (per-user session)
+// Keyed by sessionId returned to the frontend; values are arrays of "name=value" cookie strings
+const cookieJar = new Map();
+
+/**
+ * Merges two arrays of cookies (formatted as "name=value") with later values winning by name.
+ */
+const mergeCookieArrays = (existing = [], incoming = []) => {
+\tconst byName = new Map();
+\tfor (const c of existing) {
+\t\tconst [name] = c.split('=');
+\t\tbyName.set(name, c);
+\t}
+\tfor (const c of incoming) {
+\t\tconst [name] = c.split('=');
+\t\tbyName.set(name, c);
+\t}
+\treturn Array.from(byName.values());
+};
 
 // Request statistics tracking middleware
 app.use((req, res, next) => {
@@ -490,6 +511,139 @@ app.post('/api/token-exchange', async (req, res) => {
 			error: 'server_error',
 			error_description: error.message || 'Internal server error during token exchange',
 			details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
+		});
+	}
+});
+
+// PingOne Identity Metrics - Total Identity Counts
+app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
+	try {
+		console.log('[PingOne Identity Counts] Request body:', JSON.stringify(req.body, null, 2));
+
+		const {
+			environmentId,
+			region = 'na',
+			startDate,
+			endDate,
+			sampleSize,
+			workerToken,
+			clientId,
+			clientSecret,
+		} = req.body;
+
+		if (!environmentId) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: environmentId',
+			});
+		}
+
+		let tokenToUse = workerToken;
+		if (!tokenToUse) {
+			if (!clientId || !clientSecret) {
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing client credentials and no worker token provided',
+				});
+			}
+
+			console.log('[PingOne Identity Counts] Fetching worker token...');
+			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+			const controller = new AbortController();
+			const timeout = setTimeout(() => controller.abort(), 10000);
+
+			const tokenResponse = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: new URLSearchParams({
+					grant_type: 'client_credentials',
+					client_id: clientId,
+					client_secret: clientSecret,
+					scope: 'p1:read:metrics p1:read:environment p1:read:user',
+				}),
+				signal: controller.signal,
+			});
+
+			clearTimeout(timeout);
+
+			if (!tokenResponse.ok) {
+				const errorText = await tokenResponse.text();
+				console.error('[PingOne Identity Counts] Worker token request failed:', errorText);
+				return res.status(tokenResponse.status).json({
+					error: 'authentication_failed',
+					error_description: 'Failed to obtain worker token',
+					details: errorText,
+				});
+			}
+
+			const tokenData = await tokenResponse.json();
+			tokenToUse = tokenData.access_token;
+			console.log('[PingOne Identity Counts] Worker token obtained successfully');
+		} else {
+			console.log('[PingOne Identity Counts] Using provided worker token');
+		}
+
+		const regionMap = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+
+		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
+		const metricsUrl = new URL(`${baseUrl}/v1/environments/${environmentId}/metrics/totalIdentities`);
+
+		if (startDate) metricsUrl.searchParams.set('startDate', startDate);
+		if (endDate) metricsUrl.searchParams.set('endDate', endDate);
+		if (sampleSize) metricsUrl.searchParams.set('sampleSize', sampleSize);
+
+		console.log('[PingOne Identity Counts] Requesting metrics from:', metricsUrl.toString());
+
+		const metricsController = new AbortController();
+		const metricsTimeout = setTimeout(() => metricsController.abort(), 10000);
+
+		const metricsResponse = await fetch(metricsUrl, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${tokenToUse}`,
+				Accept: 'application/json',
+			},
+			signal: metricsController.signal,
+		});
+
+		clearTimeout(metricsTimeout);
+
+		if (!metricsResponse.ok) {
+			const errorText = await metricsResponse.text();
+			console.error('[PingOne Identity Counts] Metrics request failed:', errorText);
+			return res.status(metricsResponse.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to retrieve identity counts: ${metricsResponse.status} ${metricsResponse.statusText}`,
+				details: errorText,
+			});
+		}
+
+		const metricsData = await metricsResponse.json();
+		console.log('[PingOne Identity Counts] Metrics retrieved successfully');
+		res.json(metricsData);
+	} catch (error) {
+		if (error.name === 'AbortError') {
+			console.error('[PingOne Identity Counts] Request timed out');
+			return res.status(504).json({
+				error: 'timeout',
+				error_description: 'PingOne identity counts request timed out',
+			});
+		}
+
+		console.error('[PingOne Identity Counts] Unexpected server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error while retrieving identity counts',
+			details: error.message,
 		});
 	}
 });
@@ -1666,7 +1820,7 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 	try {
 		console.log(`[PingOne Redirectless] Received request body:`, JSON.stringify(req.body, null, 2));
 		
-		const { environmentId, clientId, clientSecret, scopes, codeChallenge, codeChallengeMethod, state, username, password } = req.body;
+		const { environmentId, clientId, clientSecret, redirectUri, scopes, codeChallenge, codeChallengeMethod, state, username, password } = req.body;
 
 		if (!environmentId || !clientId) {
 			console.log(`[PingOne Redirectless] Validation failed: Missing required parameters`);
@@ -1677,19 +1831,37 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		}
 
 		console.log(`[PingOne Redirectless] Starting authorization request`);
-		console.log(`[PingOne Redirectless] Environment ID:`, environmentId);
-		console.log(`[PingOne Redirectless] Client ID:`, clientId ? `${clientId.substring(0, 8)}...` : 'none');
-		console.log(`[PingOne Redirectless] Has Client Secret:`, !!clientSecret);
-		console.log(`[PingOne Redirectless] Scopes:`, scopes);
-		console.log(`[PingOne Redirectless] Has PKCE:`, !!codeChallenge);
+	console.log(`[PingOne Redirectless] Environment ID:`, environmentId);
+	console.log(`[PingOne Redirectless] Client ID:`, clientId ? `${clientId.substring(0, 8)}...` : 'none');
+	console.log(`[PingOne Redirectless] Has Client Secret:`, !!clientSecret);
+	console.log(`[PingOne Redirectless] Redirect URI:`, redirectUri || '(using default)');
+	console.log(`[PingOne Redirectless] Scopes:`, scopes);
+	console.log(`[PingOne Redirectless] Has PKCE:`, !!codeChallenge);
 
-	// Build authorization request parameters
+	// Build authorization request parameters (per PingOne pi.flow documentation)
 	const authParams = new URLSearchParams();
 	authParams.set('response_type', 'code');
+	authParams.set('response_mode', 'pi.flow'); // CRITICAL: Enable redirectless flow
 	authParams.set('client_id', clientId);
-	authParams.set('redirect_uri', 'urn:pingidentity:redirectless');
-	authParams.set('scope', scopes || 'openid');
+	// Ensure 'openid' is included in scopes for OIDC flows
+	const scopeList = (scopes || 'openid').trim().split(/\s+/);
+	if (!scopeList.includes('openid')) {
+		scopeList.unshift('openid'); // Add 'openid' at the beginning if missing
+	}
+	const finalScopes = scopeList.join(' ');
+	authParams.set('scope', finalScopes);
+	console.log(`[PingOne Redirectless] Final scopes: ${finalScopes}`);
 	authParams.set('state', state || `pi-flow-${Date.now()}`);
+	
+	// CRITICAL: Even though docs say redirect_uri is optional for pi.flow,
+	// PingOne may still require it for validation if it's registered in the app
+	// Include it if provided to match registered redirect URIs exactly
+	if (redirectUri) {
+		authParams.set('redirect_uri', redirectUri);
+		console.log(`[PingOne Redirectless] Including redirect_uri: ${redirectUri}`);
+	} else {
+		console.log(`[PingOne Redirectless] No redirect_uri provided - using pi.flow without redirect_uri`);
+	}
 
 	// Add PKCE parameters only if they exist
 	if (codeChallenge) {
@@ -1697,9 +1869,25 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 		authParams.set('code_challenge_method', codeChallengeMethod || 'S256');
 	}
 
-	// Add username/password if provided
-	if (username) authParams.set('username', username);
-	if (password) authParams.set('password', password);
+	// CORRECT pi.flow PATTERN (per documentation):
+	// 4-Step Pattern: Request flow WITHOUT credentials in Step 1, then use Flow API in Step 2
+	// - Step 1 (authorize): NO credentials - returns flow object with flowId
+	// - Step 2 (flows/{flowId}): Credentials sent DIRECTLY to PingOne Flow API (over HTTPS)
+	// - Step 3 (resume): Get authorization code
+	// - Step 4 (token): Exchange code for tokens (NO credentials here)
+	//
+	// IMPORTANT: Credentials are ONLY sent to PingOne's Flow API endpoint in Step 2.
+	// They are NEVER sent to /as/authorize, /as/token, or our backend.
+	
+	// Check if credentials provided - if yes, we allow it (legacy pattern)
+	// But per documentation, the 4-step pattern sends NO credentials in Step 1
+	if (username && password) {
+		console.log(`[PingOne Redirectless] WARNING: Credentials provided in Step 1. Per documentation, 4-step pattern should send credentials in Step 2 (Flow API) instead.`);
+		authParams.set('username', username);
+		authParams.set('password', password);
+	} else {
+		console.log(`[PingOne Redirectless] No credentials in Step 1 - following 4-step pattern (Flow API in Step 2)`);
+	}
 
 	// Debug: Log all parameters to check for duplicates
 	console.log(`[PingOne Redirectless] All URL parameters:`, Array.from(authParams.entries()));
@@ -1799,13 +1987,78 @@ app.post('/api/pingone/redirectless/authorize', async (req, res) => {
 			});
 		}
 
+		// Extract session tokens - check BOTH JSON response AND Set-Cookie headers
+		// PingOne may return tokens in JSON (interactionId/interactionToken) OR as Set-Cookie headers
+		const interactionId = responseData.interactionId;
+		const interactionToken = responseData.interactionToken;
+		
+		// Also check Set-Cookie headers
+		const setCookieHeaders = authResponse.headers.raw()['set-cookie'] || [];
+		
+		console.log(`\n🍪 ====== SESSION TOKEN ANALYSIS ======`);
+		console.log(`[PingOne Redirectless] Checking for session tokens...`);
+		console.log(`   JSON - Has interactionId:`, !!interactionId);
+		console.log(`   JSON - Has interactionToken:`, !!interactionToken);
+		console.log(`   Headers - Set-Cookie count:`, setCookieHeaders.length);
+		
+		if (setCookieHeaders.length > 0) {
+			console.log(`✅ Found Set-Cookie headers from PingOne:`);
+			setCookieHeaders.forEach((cookie, idx) => {
+				const cookieName = cookie.split('=')[0];
+				console.log(`   Cookie ${idx + 1}: ${cookieName}`);
+			});
+		}
+		
+		if (interactionId && interactionToken) {
+			console.log(`✅ Session tokens found in JSON response`);
+			console.log(`   interactionId: ${interactionId.substring(0, 8)}...`);
+			console.log(`   interactionToken: ${interactionToken.substring(0, 20)}...`);
+		}
+		
+		if (!interactionId && !interactionToken && setCookieHeaders.length === 0) {
+			console.log(`⚠️  No session tokens found in JSON or headers`);
+			console.log(`   This flow may use flowId-based authentication instead`);
+		}
+		console.log(`🍪 ======================================\n`);
+		
 		console.log(`[PingOne Redirectless] Success:`, {
 			hasResumeUrl: !!responseData.resumeUrl,
 			hasFlowId: !!responseData.id,
-			hasTokens: !!(responseData.access_token || responseData.id_token)
+			hasTokens: !!(responseData.access_token || responseData.id_token),
+			hasSessionTokens: !!(interactionId && interactionToken),
+			flowStatus: responseData.status
 		});
 
-		res.json(responseData);
+		// Format session tokens as cookies for Flow API calls
+		let sessionCookies = [];
+		
+		// First, check for JSON tokens (interactionId/interactionToken)
+		if (interactionId && interactionToken) {
+			sessionCookies = [
+				`interactionId=${interactionId}`,
+				`interactionToken=${interactionToken}`
+			];
+		}
+		
+		// Also include Set-Cookie headers if present (PingOne may send these instead)
+		if (setCookieHeaders.length > 0) {
+			const cookieStrings = setCookieHeaders.map(cookie => cookie.split(';')[0]); // Extract name=value only
+			sessionCookies = [...sessionCookies, ...cookieStrings];
+		}
+
+
+		// Store cookies server-side and return only a sessionId to the frontend
+		const sessionId = req.body.sessionId || randomUUID();
+		const existing = cookieJar.get(sessionId) || [];
+		const merged = mergeCookieArrays(existing, sessionCookies);
+		cookieJar.set(sessionId, merged);
+
+		const result = {
+			...responseData,
+			_sessionId: sessionId
+		};
+
+		res.json(result);
 
 	} catch (error) {
 		console.error(`[PingOne Redirectless] Error:`, error);
@@ -1846,7 +2099,7 @@ app.post('/api/pingone/resume', async (req, res) => {
 	try {
 		console.log(`[PingOne Resume] Received request body:`, JSON.stringify(req.body, null, 2));
 		
-		const { resumeUrl, flowId, flowState, clientId, clientSecret } = req.body;
+		const { resumeUrl, flowId, flowState, clientId, clientSecret, codeVerifier, cookies, sessionId } = req.body;
 
 		if (!resumeUrl) {
 			console.log(`[PingOne Resume] Validation failed: Missing resumeUrl`);
@@ -1861,41 +2114,237 @@ app.post('/api/pingone/resume', async (req, res) => {
 		console.log(`[PingOne Resume] Flow State:`, flowState);
 		console.log(`[PingOne Resume] Client ID:`, clientId ? `${clientId.substring(0, 8)}...` : 'none');
 		console.log(`[PingOne Resume] Has Client Secret:`, !!clientSecret);
+		console.log(`[PingOne Resume] Has Code Verifier:`, !!codeVerifier);
+		const storedCookies = sessionId ? (cookieJar.get(sessionId) || []) : [];
+		console.log(`[PingOne Resume] Using stored cookies:`, storedCookies.length);
 
-		// For redirectless flow, we need to POST to the resumeUrl with flow completion data
-		// PingOne expects form-encoded data with specific parameter names
-		const resumeBody = new URLSearchParams();
-		if (flowId) resumeBody.append('flowId', flowId);
-		if (flowState) resumeBody.append('state', flowState);
-		if (clientId) resumeBody.append('client_id', clientId);
-		if (clientSecret) resumeBody.append('client_secret', clientSecret);
-		// Note: environmentId is not needed for resume - it's already in the resumeUrl
-		// if (req.body.environmentId) resumeBody.append('environmentId', req.body.environmentId);
-		if (req.body.redirectUri) resumeBody.append('redirect_uri', req.body.redirectUri);
-		if (req.body.codeVerifier) resumeBody.append('code_verifier', req.body.codeVerifier);
+		// For redirectless flow (pi.flow), resume is a GET request
+		// The flowId is already in the resumeUrl query string
+		// Per PingOne docs: GET /as/resume?flowId={flowId}
+		// PingOne returns either:
+		// - JSON with authorization code (for pi.flow)
+		// - Redirect with Location header (for regular flows)
 		
-		console.log(`[PingOne Resume] Request body being sent to PingOne:`, resumeBody.toString());
-		console.log(`[PingOne Resume] Resume URL:`, resumeUrl);
+		// For pi.flow, we need to include additional params for code exchange
+		// But flowId should NOT be duplicated if already in URL
+		const resumeUrlObj = new URL(resumeUrl);
 		
-		const resumeResponse = await fetch(resumeUrl, {
-			method: 'POST',
-			headers: {
-				'Accept': 'application/json',
-				'Content-Type': 'application/x-www-form-urlencoded',
-				'User-Agent': 'OAuth-Playground/1.0'
-			},
-			body: resumeBody.toString()
+		// CRITICAL: Add response_mode=pi.flow to resume request for JSON response
+		// Per docs: "PingOne responds with either a 302 redirect with ?code=... or a JSON response (if you also set response_mode=pi.flow here)"
+		if (!resumeUrlObj.searchParams.has('response_mode')) {
+			resumeUrlObj.searchParams.set('response_mode', 'pi.flow');
+		}
+		
+		// Only add params that aren't already in the URL
+		// NOTE: redirect_uri is NOT required for pi.flow (redirectless flows)
+		// Per PingOne docs, redirect_uri can be omitted when using response_mode=pi.flow
+		if (!resumeUrlObj.searchParams.has('state') && flowState) {
+			resumeUrlObj.searchParams.set('state', flowState);
+		}
+		// Do NOT add redirect_uri for redirectless flows - PingOne doesn't need it
+		if (req.body.codeVerifier) {
+			resumeUrlObj.searchParams.set('code_verifier', req.body.codeVerifier);
+		}
+		
+		const finalResumeUrl = resumeUrlObj.toString();
+		console.log(`[PingOne Resume] Final resume URL:`, finalResumeUrl);
+		console.log(`[PingOne Resume] Resume URL parameters:`, {
+			hasFlowId: resumeUrlObj.searchParams.has('flowId'),
+			hasResponseMode: resumeUrlObj.searchParams.has('response_mode'),
+			responseMode: resumeUrlObj.searchParams.get('response_mode'),
+			hasState: resumeUrlObj.searchParams.has('state'),
+			hasCodeVerifier: resumeUrlObj.searchParams.has('code_verifier'),
+			codeVerifierLength: resumeUrlObj.searchParams.get('code_verifier')?.length || 0,
+			allParams: Array.from(resumeUrlObj.searchParams.entries())
+		});
+		
+		// CRITICAL: Include session cookies from Step 1/Step 2
+		// PingOne resume endpoint requires session cookies to maintain flow state
+		const resumeHeaders = {
+			'Accept': 'application/json',
+			'User-Agent': 'OAuth-Playground/1.0'
+		};
+
+		if (storedCookies && Array.isArray(storedCookies) && storedCookies.length > 0) {
+			// Convert Set-Cookie headers to Cookie header
+			const cookieString = storedCookies
+				.map(cookie => {
+					// Handle both full Set-Cookie format and simple name=value format
+					const nameValue = cookie.split(';')[0].trim();
+					return nameValue;
+				})
+				.filter(c => c) // Remove empty strings
+				.join('; ');
+			resumeHeaders['Cookie'] = cookieString;
+			console.log(`[PingOne Resume] ✅ Including ${storedCookies.length} cookies in request (REQUIRED for session continuity)`);
+			console.log(`[PingOne Resume] Cookie names:`, storedCookies.map(c => {
+				const [name] = c.split('=');
+				return name;
+			}).join(', '));
+			console.log(`[PingOne Resume] Cookie header preview:`, cookieString.substring(0, 150) + (cookieString.length > 150 ? '...' : ''));
+		} else {
+			console.error(`[PingOne Resume] ❌ NO COOKIES PROVIDED! This will likely cause "Session token cookie value does not match" error.`);
+			console.error(`[PingOne Resume] PingOne resume endpoint REQUIRES session cookies from Step 1/2.`);
+			console.error(`[PingOne Resume] Check that Step 1 stored cookies server-side and a valid sessionId is being used.`);
+		}
+
+		const resumeResponse = await fetch(finalResumeUrl, {
+			method: 'GET',
+			headers: resumeHeaders,
+			redirect: 'manual' // Don't follow redirects automatically
 		});
 
-		const responseData = await resumeResponse.json();
+		// Handle redirects (3xx) - PingOne may redirect with Location header containing code
+		if (resumeResponse.status >= 300 && resumeResponse.status < 400) {
+			const locationHeader = resumeResponse.headers.get('Location');
+			console.log(`[PingOne Resume] Redirect received:`, {
+				status: resumeResponse.status,
+				location: locationHeader
+			});
+			
+			if (locationHeader) {
+				// Extract code from Location header (e.g., ?code=abc123&state=xyz or /callback?code=abc123)
+				let code = null;
+				let state = null;
+				
+				try {
+					// Try parsing as absolute URL first
+					const locationUrl = new URL(locationHeader);
+					code = locationUrl.searchParams.get('code');
+					state = locationUrl.searchParams.get('state');
+				} catch (urlError) {
+					// If not absolute URL, try as relative URL (e.g., /callback?code=abc123)
+					try {
+						const baseUrl = new URL(finalResumeUrl);
+						const locationUrl = new URL(locationHeader, baseUrl.origin);
+						code = locationUrl.searchParams.get('code');
+						state = locationUrl.searchParams.get('state');
+					} catch (relativeError) {
+						// Fallback: try to extract code using regex
+						const codeMatch = locationHeader.match(/[?&]code=([^&]+)/);
+						const stateMatch = locationHeader.match(/[?&]state=([^&]+)/);
+						if (codeMatch && codeMatch[1]) {
+							code = decodeURIComponent(codeMatch[1]);
+						}
+						if (stateMatch && stateMatch[1]) {
+							state = decodeURIComponent(stateMatch[1]);
+						}
+						console.log(`[PingOne Resume] Extracted code using regex fallback:`, {
+							hasCode: !!code,
+							hasState: !!state
+						});
+					}
+				}
+				
+				console.log(`[PingOne Resume] Extracted from Location header:`, {
+					hasCode: !!code,
+					code: code ? `${code.substring(0, 20)}...` : null,
+					hasState: !!state,
+					state: state ? `${state.substring(0, 20)}...` : null,
+					location: locationHeader,
+					locationLength: locationHeader?.length || 0,
+					isErrorRedirect: locationHeader?.includes('error') || locationHeader?.includes('Error') || false
+				});
+				
+				// If Location header contains error, extract error details from URL
+				if (locationHeader && (locationHeader.includes('/error') || locationHeader.includes('error=') || locationHeader.includes('/signon/?error'))) {
+					console.error(`[PingOne Resume] Location header appears to be an error redirect:`, locationHeader);
+					
+					// Try to extract error details from the URL
+					let errorDetails = null;
+					try {
+						const errorUrl = new URL(locationHeader);
+						const errorParam = errorUrl.searchParams.get('error');
+						if (errorParam) {
+							try {
+								errorDetails = JSON.parse(decodeURIComponent(errorParam));
+							} catch {
+								// If not JSON, treat as string
+								errorDetails = { message: decodeURIComponent(errorParam) };
+							}
+						}
+					} catch (urlError) {
+						console.error(`[PingOne Resume] Failed to parse error URL:`, urlError);
+					}
+					
+					// Extract readable error message
+					const errorCode = errorDetails?.code || errorDetails?.error || 'UNKNOWN_ERROR';
+					const errorMessage = errorDetails?.message || errorDetails?.error_description || 'PingOne returned an error';
+					
+					console.error(`[PingOne Resume] PingOne error details:`, {
+						errorCode: errorCode,
+						errorMessage: errorMessage,
+						errorDetails: errorDetails
+					});
+					
+					return res.status(500).json({
+						error: 'resume_error',
+						error_code: errorCode,
+						error_description: `${errorCode}: ${errorMessage}`,
+						pingone_error: errorDetails,
+						redirect: true,
+						location: locationHeader,
+						code: null,
+						state: null
+					});
+				}
+				
+				return res.json({
+					code: code,
+					state: state,
+					redirect: true,
+					location: locationHeader
+				});
+			}
+		}
+		
+		// For pi.flow, PingOne returns JSON directly
+		// But check content type first - might be HTML error page
+		const contentType = resumeResponse.headers.get('content-type') || '';
+		const isJSON = contentType.includes('application/json') || contentType.includes('text/json');
+		const isHTML = contentType.includes('text/html') || contentType.includes('text/plain');
+		
+		let responseData;
+		try {
+			const text = await resumeResponse.text();
+			
+			if (isHTML && text.includes('<!DOCTYPE') || text.includes('<html')) {
+				console.error(`[PingOne Resume] Response is HTML instead of JSON - likely an error page`);
+				console.error(`[PingOne Resume] HTML preview:`, text.substring(0, 500));
+				return res.status(500).json({
+					error: 'html_response',
+					error_description: 'PingOne returned HTML instead of JSON. This usually indicates an error or misconfiguration.',
+					contentType: contentType,
+					htmlPreview: text.substring(0, 500)
+				});
+			}
+			
+			if (!isJSON && text.trim().length > 0 && !text.trim().startsWith('{') && !text.trim().startsWith('[')) {
+				console.warn(`[PingOne Resume] Response may not be JSON. Content-Type: ${contentType}`);
+				console.warn(`[PingOne Resume] Response preview:`, text.substring(0, 200));
+			}
+			
+			responseData = text ? JSON.parse(text) : {};
+			console.log(`[PingOne Resume] Successfully parsed response as JSON`);
+		} catch (parseError) {
+			console.error(`[PingOne Resume] Failed to parse response:`, parseError);
+			console.error(`[PingOne Resume] Content-Type:`, contentType);
+			// Note: text() can only be called once, so we can't get it here if we already called it above
+			// But the text variable should still be available from the try block
+			return res.status(500).json({
+				error: 'parse_error',
+				error_description: 'Failed to parse PingOne response as JSON',
+				contentType: contentType,
+				parseError: parseError.message
+			});
+		}
 
 		if (!resumeResponse.ok) {
 			console.error(`[PingOne Resume] PingOne API Error:`, {
 				status: resumeResponse.status,
 				statusText: resumeResponse.statusText,
 				responseData: responseData,
-				requestBody: resumeBody.toString(),
-				resumeUrl: resumeUrl
+				finalResumeUrl: finalResumeUrl
 			});
 			return res.status(resumeResponse.status).json({
 				error: 'resume_failed',
@@ -1904,11 +2353,169 @@ app.post('/api/pingone/resume', async (req, res) => {
 			});
 		}
 
-		console.log(`[PingOne Resume] Success:`, {
+		// Log ALL response keys and values first to see what we're working with
+		console.log(`[PingOne Resume] Response analysis (200 OK):`, {
+			status: resumeResponse.status,
+			statusText: resumeResponse.statusText,
+			contentType: resumeResponse.headers.get('content-type'),
+			responseKeys: Object.keys(responseData),
+			responseKeyCount: Object.keys(responseData).length,
+			responseIsEmpty: Object.keys(responseData).length === 0,
+			responseIsObject: typeof responseData === 'object',
+			responseType: typeof responseData,
+			hasCode: !!responseData.code,
+			codeValue: responseData.code,
+			hasRedirect: !!(responseData.redirect || responseData.location),
 			hasAccessToken: !!responseData.access_token,
 			hasIdToken: !!responseData.id_token,
-			hasUserId: !!responseData.userId
+			hasUserId: !!responseData.userId,
+			// Check ALL keys for common patterns
+			allStringValues: Object.entries(responseData)
+				.filter(([k, v]) => typeof v === 'string' && v.length > 0)
+				.map(([k, v]) => `${k}:${v.substring(0, 30)}...`)
+				.slice(0, 10)
 		});
+
+		// Log the full response data for debugging - THIS IS CRITICAL TO SEE WHAT PINGONE ACTUALLY RETURNS
+		console.log(`[PingOne Resume] Full response data (JSON):`, JSON.stringify(responseData, null, 2));
+		
+		// CRITICAL: If response is empty or only has metadata, this is suspicious
+		if (Object.keys(responseData).length === 0) {
+			console.error(`[PingOne Resume] ❌ CRITICAL: Response is completely empty!`);
+			console.error(`[PingOne Resume] This suggests PingOne didn't return any data. Possible causes:`);
+			console.error(`  - Missing ST cookie (Session Token cookie from Step 2)`);
+			console.error(`  - Invalid flowId or state parameter`);
+			console.error(`  - PingOne application not configured for pi.flow mode`);
+			console.error(`  - Resume URL parameters incorrect`);
+		} else if (!responseData.code && Object.keys(responseData).length > 0) {
+			console.warn(`[PingOne Resume] ⚠️  Response has ${Object.keys(responseData).length} keys but no 'code' field`);
+			console.warn(`[PingOne Resume] Available keys:`, Object.keys(responseData).join(', '));
+			console.warn(`[PingOne Resume] All key-value pairs:`, Object.entries(responseData).map(([k, v]) => {
+				if (typeof v === 'string') {
+					return `${k}: "${v.substring(0, 50)}${v.length > 50 ? '...' : ''}"`;
+				} else if (typeof v === 'object' && v !== null) {
+					return `${k}: ${JSON.stringify(v).substring(0, 100)}${JSON.stringify(v).length > 100 ? '...' : ''}`;
+				}
+				return `${k}: ${v}`;
+			}).join(', '));
+		}
+
+		// Check if response has Location header even for 200 status (PingOne might do this)
+		const locationHeader = resumeResponse.headers.get('Location');
+		if (locationHeader && !responseData.code && !responseData.location) {
+			console.log(`[PingOne Resume] Found Location header in 200 OK response (unusual):`, locationHeader);
+			// Extract code from Location header
+			try {
+				const locationUrl = new URL(locationHeader);
+				const codeFromLocation = locationUrl.searchParams.get('code');
+				if (codeFromLocation) {
+					console.log(`[PingOne Resume] Extracted code from Location header:`, `${codeFromLocation.substring(0, 20)}...`);
+					responseData.code = codeFromLocation;
+					responseData.location = locationHeader;
+					responseData.redirect = true;
+				}
+			} catch (urlError) {
+				console.warn(`[PingOne Resume] Could not parse Location header URL:`, urlError);
+			}
+		}
+
+		// If we still don't have a code, check if it's nested somewhere or in different field names
+		if (!responseData.code) {
+			console.warn(`[PingOne Resume] WARNING: Response does not contain 'code' field`);
+			console.warn(`[PingOne Resume] Response structure:`, Object.keys(responseData));
+			console.warn(`[PingOne Resume] Response type:`, typeof responseData);
+			console.warn(`[PingOne Resume] Response values preview:`, JSON.stringify(responseData, null, 2).substring(0, 1000));
+			
+			// Check for alternative field names that might contain the code
+			const possibleCodeFields = [
+				'authorization_code',
+				'authCode',
+				'auth_code',
+				'authorizationCode',
+				'token',
+				'access_code',
+				'authorization'
+			];
+			
+			for (const fieldName of possibleCodeFields) {
+				if (responseData[fieldName] && typeof responseData[fieldName] === 'string') {
+					console.log(`[PingOne Resume] Found code in alternative field '${fieldName}':`, `${responseData[fieldName].substring(0, 20)}...`);
+					responseData.code = responseData[fieldName];
+					break;
+				}
+			}
+			
+			// Check for nested code (e.g., in flow object, result object, data object)
+			const nestedPaths = [
+				['flow', 'code'],
+				['result', 'code'],
+				['data', 'code'],
+				['response', 'code'],
+				['body', 'code'],
+				['payload', 'code']
+			];
+			
+			for (const [parent, child] of nestedPaths) {
+				if (responseData[parent] && typeof responseData[parent] === 'object') {
+					const nestedCode = responseData[parent][child];
+					if (nestedCode && typeof nestedCode === 'string') {
+						console.log(`[PingOne Resume] Found code nested in ${parent}.${child}:`, `${nestedCode.substring(0, 20)}...`);
+						responseData.code = nestedCode;
+						break;
+					}
+				}
+			}
+			
+			// Check if the entire response is a redirect URL string
+			if (typeof responseData === 'string' && responseData.includes('code=')) {
+				console.log(`[PingOne Resume] Response appears to be a redirect URL string`);
+				try {
+					const urlObj = new URL(responseData);
+					const codeFromString = urlObj.searchParams.get('code');
+					if (codeFromString) {
+						console.log(`[PingOne Resume] Extracted code from string response:`, `${codeFromString.substring(0, 20)}...`);
+						responseData = { code: codeFromString, location: responseData, redirect: true };
+					}
+				} catch {
+					// If not a valid URL, try regex
+					const codeMatch = responseData.match(/[?&]code=([^&]+)/);
+					if (codeMatch && codeMatch[1]) {
+						const codeFromRegex = decodeURIComponent(codeMatch[1]);
+						console.log(`[PingOne Resume] Extracted code from string using regex:`, `${codeFromRegex.substring(0, 20)}...`);
+						responseData = { code: codeFromRegex, location: responseData, redirect: true };
+					}
+				}
+			}
+			
+			// Check if response is an error (might indicate why code is missing)
+			if (responseData.error || responseData.error_code || responseData.message) {
+				console.error(`[PingOne Resume] ERROR detected in response:`, {
+					error: responseData.error || responseData.error_code,
+					error_description: responseData.error_description || responseData.message,
+					details: responseData.details || responseData
+				});
+				
+				// If it's an error, make sure we're returning it properly so frontend can see it
+				// Don't overwrite if code was already found
+				if (!responseData.code) {
+					console.error(`[PingOne Resume] Response contains error and no code - this is a failed request`);
+				}
+			}
+			
+			// Final check: if we STILL don't have a code after all extraction attempts
+			if (!responseData.code) {
+				console.error(`[PingOne Resume] ❌ FINAL CHECK: No authorization code found after all extraction attempts`);
+				console.error(`[PingOne Resume] Response keys:`, Object.keys(responseData));
+				console.error(`[PingOne Resume] Response values:`, JSON.stringify(responseData, null, 2));
+				console.error(`[PingOne Resume] This may indicate:`);
+				console.error(`  1. PingOne requires additional parameters in resume URL`);
+				console.error(`  2. Session cookies (ST) are invalid or expired`);
+				console.error(`  3. Flow ID or state mismatch`);
+				console.error(`  4. PingOne application configuration issue`);
+			}
+		} else {
+			console.log(`[PingOne Resume] ✅ Code found in response:`, `${responseData.code.substring(0, 20)}...`);
+		}
 
 		res.json(responseData);
 
@@ -1917,6 +2524,189 @@ app.post('/api/pingone/resume', async (req, res) => {
 		res.status(500).json({
 			error: 'internal_server_error',
 			error_description: 'Internal server error during resume URL call',
+			details: error.message
+		});
+	}
+});
+
+// PingOne Flow Username/Password Check Endpoint
+// NOTE: This endpoint proxies credentials directly to PingOne's Flow API over HTTPS.
+// Credentials are NOT stored or used by our backend - they go ONLY to PingOne.
+// The backend proxy is used only to avoid CORS issues from the frontend.
+app.post('/api/pingone/flows/check-username-password', async (req, res) => {
+	try {
+		console.log(`[PingOne Flow Check] Received request body:`, JSON.stringify(req.body, null, 2));
+		
+		const { flowUrl, username, password, cookies, sessionId } = req.body;
+
+		if (!flowUrl) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing flowUrl parameter'
+			});
+		}
+
+		if (!username || !password) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing username or password'
+			});
+		}
+
+		// Extract client credentials (may be needed if no session cookies)
+		const { clientId, clientSecret } = req.body;
+
+		console.log(`[PingOne Flow Check] Calling flow URL:`, flowUrl);
+		console.log(`[PingOne Flow Check] Username (length):`, username ? `${username.substring(0, 3)}... (${username.length} chars)` : 'none');
+		console.log(`[PingOne Flow Check] Password (length):`, password ? `*** (${password.length} chars)` : 'none');
+		const storedCookies = sessionId ? (cookieJar.get(sessionId) || []) : [];
+		console.log(`[PingOne Flow Check] Using stored cookies:`, storedCookies.length);
+		console.log(`[PingOne Flow Check] Has client credentials:`, !!(clientId && clientSecret));
+
+		// POST to PingOne's Flow API with username/password
+		// Per documentation: POST /flows/{flowId} with action: "usernamePassword.check"
+		// CRITICAL: Credentials go DIRECTLY to PingOne (over HTTPS) - not stored or used by our backend
+		// Per documentation, this should be JSON:
+		// {
+		//   "action": "usernamePassword.check",
+		//   "username": "...",
+		//   "password": "..."
+		// }
+		// IMPORTANT: Do NOT trim or modify username/password - send exactly as received
+		const checkBody = JSON.stringify({
+			action: 'usernamePassword.check',
+			username: username, // Send as-is, no trimming
+			password: password // Send as-is, no trimming
+		});
+
+		console.log(`[PingOne Flow Check] Request body (credentials redacted):`, {
+			action: 'usernamePassword.check',
+			username: username ? `${username.substring(0, 3)}... (${username.length} chars)` : 'none',
+			password: `*** (${password ? password.length : 0} chars)`,
+			bodyLength: checkBody.length
+		});
+
+		const headers = {
+			'Accept': 'application/json',
+			'Content-Type': 'application/vnd.pingidentity.usernamePassword.check+json',
+			'User-Agent': 'OAuth-Playground/1.0'
+		};
+
+		// CRITICAL: Cookies/session from the initial /as/authorize call MUST be sent
+		// Flow API is stateful per flowId/session - cookies maintain the session state
+		// Per PingOne docs: credentials: 'include' in fetch, or manually forward Set-Cookie headers
+		if (storedCookies && Array.isArray(storedCookies) && storedCookies.length > 0) {
+			// Convert Set-Cookie headers to Cookie header
+			// Extract just the name=value part (before first semicolon)
+			const cookieString = storedCookies
+				.map(cookie => {
+					// Handle both full Set-Cookie format and simple name=value format
+					const nameValue = cookie.split(';')[0].trim();
+					return nameValue;
+				})
+				.filter(c => c) // Remove empty strings
+				.join('; ');
+			headers['Cookie'] = cookieString;
+			console.log(`[PingOne Flow Check] ✅ Including ${storedCookies.length} cookies in request (REQUIRED for stateful flow)`);
+			console.log(`[PingOne Flow Check] Cookie header preview:`, cookieString.substring(0, 100) + '...');
+		} else {
+			console.warn(`[PingOne Flow Check] ⚠️  NO COOKIES PROVIDED! PingOne Flow API requires cookies from Step 1's /as/authorize response.`);
+			console.warn(`[PingOne Flow Check] The flowId in URL is not sufficient - cookies maintain session state for stateful flows.`);
+		}
+
+		console.log(`[PingOne Flow Check] Making request to PingOne Flow API...`);
+		const checkResponse = await fetch(flowUrl, {
+			method: 'POST',
+			headers: headers,
+			body: checkBody
+		});
+
+		console.log(`[PingOne Flow Check] Response status:`, checkResponse.status, checkResponse.statusText);
+		
+		// Capture Set-Cookie headers from PingOne response (cookies may be updated after authentication)
+		// CRITICAL: The Step 2 response should include the ST (Session Token) cookie in Set-Cookie headers
+		// This ST cookie MUST be sent to the resume endpoint in Step 3
+		const setCookieHeaders = checkResponse.headers.raw()['set-cookie'] || [];
+		console.log(`[PingOne Flow Check] Response headers:`, {
+			contentType: checkResponse.headers.get('content-type'),
+			setCookieCount: setCookieHeaders.length
+		});
+
+		const responseData = await checkResponse.json();
+		
+		// Capture updated cookies and store in cookie jar for this session
+		let updatedCookies = [];
+		
+		// Check for interactionId/interactionToken in JSON (PingOne may return these instead of Set-Cookie)
+		const interactionId = responseData.interactionId;
+		const interactionToken = responseData.interactionToken;
+		if (interactionId && interactionToken) {
+			updatedCookies.push(`interactionId=${interactionId}`, `interactionToken=${interactionToken}`);
+			console.log(`[PingOne Flow Check] ✅ Found interactionId/interactionToken in JSON response`);
+		}
+		
+		// CRITICAL: Capture Set-Cookie headers - these should include the ST cookie
+		if (setCookieHeaders.length > 0) {
+			const cookieStrings = setCookieHeaders.map(cookie => cookie.split(';')[0]); // Extract name=value only
+			updatedCookies = [...updatedCookies, ...cookieStrings];
+			
+			// Log cookie names to identify ST cookie
+			const cookieNames = cookieStrings.map(c => {
+				const [name] = c.split('=');
+				return name;
+			});
+			const hasSTCookie = cookieNames.some(name => name === 'ST' || name.toLowerCase() === 'st' || name.includes('ST'));
+			
+			console.log(`[PingOne Flow Check] ✅ Captured ${cookieStrings.length} cookies from Set-Cookie headers`);
+			console.log(`[PingOne Flow Check] Cookie names:`, cookieNames.join(', '));
+			console.log(`[PingOne Flow Check] ${hasSTCookie ? '✅ FOUND ST cookie in response' : '⚠️  ST cookie NOT found in response'} - ${hasSTCookie ? 'Will be forwarded to resume endpoint' : 'This may cause "Session token cookie value does not match" error'}`);
+		} else {
+			console.warn(`[PingOne Flow Check] ⚠️  NO Set-Cookie headers in Step 2 response!`);
+			console.warn(`[PingOne Flow Check] This means no ST cookie was returned. Resume endpoint will likely fail.`);
+		}
+		
+		// Merge and persist cookies server-side
+		const prior = sessionId ? (cookieJar.get(sessionId) || []) : [];
+		const merged = mergeCookieArrays(prior, updatedCookies);
+		if (sessionId) cookieJar.set(sessionId, merged);
+		responseData._sessionId = sessionId || randomUUID();
+		
+		console.log(`[PingOne Flow Check] Response data:`, {
+			status: responseData.status,
+			hasId: !!responseData.id,
+			hasResumeUrl: !!responseData.resumeUrl,
+			hasError: !!responseData.error,
+			errorCode: responseData.code || responseData.error,
+			message: responseData.message || responseData.error_description,
+			hasUpdatedCookies: updatedCookies.length > 0
+		});
+
+		if (!checkResponse.ok) {
+			console.error(`[PingOne Flow Check] PingOne API Error:`, {
+				status: checkResponse.status,
+				statusText: checkResponse.statusText,
+				responseData: responseData
+			});
+			return res.status(checkResponse.status).json({
+				error: 'check_failed',
+				error_description: responseData.message || responseData.error || 'Failed to check username/password',
+				details: responseData
+			});
+		}
+
+		console.log(`[PingOne Flow Check] Success:`, {
+			status: responseData.status,
+			hasResumeUrl: !!responseData.resumeUrl,
+			hasUpdatedCookies: updatedCookies.length > 0
+		});
+
+		res.json(responseData);
+
+	} catch (error) {
+		console.error(`[PingOne Flow Check] Error:`, error);
+		res.status(500).json({
+			error: 'internal_server_error',
+			error_description: 'Internal server error during username/password check',
 			details: error.message
 		});
 	}

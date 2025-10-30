@@ -39,6 +39,7 @@ import {
 	FiCpu,
 	FiCode,
 	FiServer,
+	FiBarChart2,
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -91,9 +92,8 @@ interface SimpleDragDropSidebarProps {
 const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode = false, searchQuery = '' }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [draggedItem, setDraggedItem] = useState<{ type: 'group' | 'item', id: string, groupId?: string } | null>(null);
+	const [draggedItem, setDraggedItem] = useState<{ type: 'group' | 'item'; id: string; groupId?: string } | null>(null);
 	const [saveButtonState, setSaveButtonState] = useState<'default' | 'saving' | 'saved'>('default');
-	const [dropTarget, setDropTarget] = useState<{ groupId: string, index: number } | null>(null);
 
 
 
@@ -424,6 +424,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 						badge: <MigrationBadge title="PingOne Authentication Flow"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
+						id: 'pingone-identity-metrics',
+						path: '/pingone-identity-metrics',
+						label: 'PingOne Identity Metrics',
+						icon: <ColoredIcon $color="#10b981"><FiBarChart2 /></ColoredIcon>,
+						badge: <MigrationBadge title="PingOne Total Identities metrics explorer"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
 						id: 'pingone-mock-features',
 						path: '/pingone-mock-features',
 						label: 'Mock & Educational Features',
@@ -621,21 +628,20 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 
 	// Handle drag start
 	const handleDragStart = (e: React.DragEvent, type: 'group' | 'item', id: string, groupId?: string) => {
-		setDraggedItem({ type, id, groupId });
+		setDraggedItem(groupId ? { type, id, groupId } : { type, id });
 		e.dataTransfer.effectAllowed = 'move';
 		e.dataTransfer.setData('text/plain', JSON.stringify({ type, id, groupId }));
 		
 		// Make the dragged element slightly transparent
-		e.currentTarget.style.opacity = '0.5';
+		const target = e.currentTarget as HTMLElement;
+		target.style.opacity = '0.5';
 	};
 
 	// Handle drag end (for cleanup)
 	const handleDragEnd = (e: React.DragEvent) => {
 		// Restore opacity
-		e.currentTarget.style.opacity = '1';
-		
-		// Clear states
-		setDropTarget(null);
+		const target = e.currentTarget as HTMLElement;
+		target.style.opacity = '1';
 		
 		// Clear draggedItem after a short delay to ensure drop handlers can access it
 		setTimeout(() => {
