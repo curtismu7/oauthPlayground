@@ -88,6 +88,57 @@ const CollapsibleHeader = styled.button`
 	}
 `;
 
+const SecretInputWrapper = styled.div`
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+`;
+
+// Icon button for toggling visibility (must be declared before SecretToggleButton)
+const IconButton = styled.button`
+	position: absolute;
+	background: white;
+	border: 1px solid #d1d5db;
+	color: #374151;
+	padding: 0.375rem;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.2s ease;
+	border-radius: 0.375rem;
+	z-index: 10;
+	pointer-events: auto;
+	width: 2rem;
+	height: 2rem;
+	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+
+	&:hover {
+		background: #f9fafb;
+		border-color: #9ca3af;
+		color: #111827;
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+`;
+
+const SecretToggleButton = styled(IconButton)`
+	top: 50%;
+	right: 3.25rem;
+	transform: translateY(-50%);
+`;
+
+const SecretCopyButtonSlot = styled.div`
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	right: 0.5rem;
+	display: flex;
+	align-items: center;
+`;
+
 const CollapsibleHeaderLeft = styled.div`
 	display: flex;
 	align-items: center;
@@ -235,34 +286,6 @@ const FormSelect = styled.select`
 		color: #6b7280;
 		cursor: not-allowed;
 		pointer-events: none;
-	}
-`;
-
-const IconButton = styled.button`
-	position: absolute;
-	background: white;
-	border: 1px solid #d1d5db;
-	color: #374151;
-	padding: 0.375rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.2s ease;
-	border-radius: 0.375rem;
-	z-index: 10;
-	pointer-events: auto;
-	width: 2rem;
-	height: 2rem;
-	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-
-	&:hover {
-		background: #f9fafb;
-		border-color: #9ca3af;
-		color: #111827;
-	}
-
-	&:active {
-		transform: scale(0.95);
 	}
 `;
 
@@ -480,58 +503,39 @@ export const CredentialsInput = ({
 
 				{showClientSecret && (
 					<FormField style={{ gridColumn: '1 / -1' }}>
-						<FormLabel>
-							Client Secret <span style={{ color: '#ef4444' }}>*</span>
-						</FormLabel>
-						<div style={{ 
-							position: 'relative', 
-							display: 'flex', 
-							alignItems: 'stretch', 
-							gap: '0.5rem' 
-						}}>
-							<FormInput
-								type={showClientSecretValue ? 'text' : 'password'}
-								placeholder={
-									emptyRequiredFields.has('clientSecret')
-										? 'Required: Enter your PingOne Client Secret'
-										: 'Enter your PingOne Client Secret'
-								}
-								value={clientSecret}
-								onChange={(e) => onClientSecretChange(e.target.value)}
-								$hasError={emptyRequiredFields.has('clientSecret')}
-								style={{ flex: 1, paddingRight: '2.5rem' }}
-								disabled={false}
-								readOnly={false}
-								autoComplete="current-password"
-							/>
-							{clientSecret && (
-								<div style={{
-									display: 'flex',
-									alignItems: 'center',
-									height: '100%',
-									marginRight: '3rem' // Add space for the show/hide button
-								}}>
-									{CopyButtonVariants.identifier(clientSecret, 'Client Secret')}
-								</div>
-							)}
-							<IconButton
-								type="button"
-								onClick={() => setShowClientSecretValue(!showClientSecretValue)}
-								style={{
-									position: 'absolute',
-									right: '0.5rem',
-									top: '50%',
-									transform: 'translateY(-50%)',
-									width: '2rem',
-									height: '2rem',
-									zIndex: 10, // Ensure it's above other elements
-								}}
-								title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
-							>
-								{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-							</IconButton>
-						</div>
-					</FormField>
+					<FormLabel>
+						Client Secret <span style={{ color: '#ef4444' }}>*</span>
+					</FormLabel>
+					<SecretInputWrapper>
+						<FormInput
+							type={showClientSecretValue ? 'text' : 'password'}
+							placeholder={
+								emptyRequiredFields.has('clientSecret')
+									? 'Required: Enter your PingOne Client Secret'
+									: 'Enter your PingOne Client Secret'
+							}
+							value={clientSecret}
+							onChange={(e) => onClientSecretChange(e.target.value)}
+							$hasError={emptyRequiredFields.has('clientSecret')}
+							style={{ paddingRight: '6.5rem' }}
+							disabled={false}
+							readOnly={false}
+							autoComplete="current-password"
+						/>
+						{clientSecret && (
+							<SecretCopyButtonSlot>
+								{CopyButtonVariants.identifier(clientSecret, 'Client Secret')}
+							</SecretCopyButtonSlot>
+						)}
+						<SecretToggleButton
+							type="button"
+							onClick={() => setShowClientSecretValue(!showClientSecretValue)}
+							title={showClientSecretValue ? 'Hide client secret' : 'Show client secret'}
+						>
+							{showClientSecretValue ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+						</SecretToggleButton>
+					</SecretInputWrapper>
+				</FormField>
 				)}
 
 				{!showClientSecret && (
