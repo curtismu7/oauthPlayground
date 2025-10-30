@@ -57,6 +57,7 @@ export interface SharedUserSession {
 // ============================================
 
 export interface FlowSpecificCredentials {
+	environmentId?: string;
 	clientId: string;
 	clientSecret: string;
 	redirectUri: string;
@@ -87,6 +88,8 @@ export interface FlowSpecificConfig {
 	responseMode?: string;
 	grantType?: string;
 	authMethod?: string;
+	tokenEndpointAuthMethod?: string;
+	pkceEnforcement?: 'OPTIONAL' | 'REQUIRED' | 'S256_REQUIRED';
 	customParams?: Record<string, string>;
 	lastUpdated: number;
 }
@@ -670,22 +673,25 @@ class ComprehensiveFlowDataService {
 			
 			const envContent = this.generateEnvContent(flowKey, credentials);
 			
-			// Create downloadable file
+			// Log .env content to console instead of auto-downloading
+			// Users can manually copy this if needed
+			console.log(`📋 .env backup content for ${flowKey}:\n\n${envContent}\n`);
+			
+			// NOTE: Auto-download disabled to prevent unwanted file downloads on page load
+			// If you want to download, uncomment the code below:
+			/*
 			const blob = new Blob([envContent], { type: 'text/plain' });
 			const url = URL.createObjectURL(blob);
-			
-			// Create download link
 			const link = document.createElement('a');
 			link.href = url;
 			link.download = `.env.${flowKey}.backup`;
 			document.body.appendChild(link);
 			link.click();
 			document.body.removeChild(link);
-			
-			// Clean up
 			URL.revokeObjectURL(url);
+			*/
 			
-			console.log(`✅ Credentials backed up to .env file for ${flowKey}`);
+			console.log(`✅ Credentials backed up to console for ${flowKey}`);
 			console.groupEnd();
 			
 		} catch (error) {

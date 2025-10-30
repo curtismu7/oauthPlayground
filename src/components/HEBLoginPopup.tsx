@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiMove } from 'react-icons/fi';
 
 // HEB Brand Colors
 const HEB_COLORS = {
@@ -24,21 +24,21 @@ const PopupOverlay = styled.div`
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
   z-index: 10000;
   padding: 20px;
 `;
 
-const PopupContainer = styled.div`
+const PopupContainer = styled.div<{ $isDragging: boolean; $position: { x: number; y: number } }>`
   background: ${HEB_COLORS.white};
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
   max-width: 420px;
   overflow: hidden;
-  position: relative;
+  position: fixed;
+  left: ${({ $position }) => `${$position.x}px`};
+  top: ${({ $position }) => `${$position.y}px`};
+  transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'box-shadow 0.2s ease')};
 `;
 
 const Header = styled.div`
@@ -46,6 +46,40 @@ const Header = styled.div`
   padding: 40px 24px;
   text-align: center;
   position: relative;
+  cursor: move;
+`;
+
+const DragHandleBar = styled.div`
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 6px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+`;
+
+const DragHint = styled.div`
+  position: absolute;
+  top: 28px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.18);
+  color: ${HEB_COLORS.white};
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
 `;
 
 const LogoContainer = styled.div`
@@ -297,13 +331,73 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const usernameRef = useRef<HTMLInputElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragOffset = useRef({ x: 0, y: 0 });
+
+  const clampPosition = useCallback((x: number, y: number) => {
+    if (typeof window === 'undefined') {
+      return { x, y };
+    }
+
+    const width = popupRef.current?.offsetWidth || 420;
+    const height = popupRef.current?.offsetHeight || 520;
+    const padding = 16;
+    const maxX = Math.max(window.innerWidth - width - padding, padding);
+    const maxY = Math.max(window.innerHeight - height - padding, padding);
+    const clampedX = Math.min(Math.max(x, padding), maxX);
+    const clampedY = Math.min(Math.max(y, padding), maxY);
+    return { x: clampedX, y: clampedY };
+  }, []);
+
+  const handleDragStart = useCallback((event: React.MouseEvent) => {
+    if (!popupRef.current) return;
+    const rect = popupRef.current.getBoundingClientRect();
+    dragOffset.current = {
+      x: event.clientX - rect.left,
+      y: event.clientY - rect.top,
+    };
+    setIsDragging(true);
+  }, []);
+
+  const handleDragMove = useCallback((event: MouseEvent) => {
+    if (!isDragging) return;
+    const newPos = clampPosition(
+      event.clientX - dragOffset.current.x,
+      event.clientY - dragOffset.current.y
+    );
+    setPosition(newPos);
+  }, [clampPosition, isDragging]);
+
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   // Focus username field when popup opens
   useEffect(() => {
-    if (isOpen && usernameRef.current) {
-      setTimeout(() => usernameRef.current?.focus(), 100);
-    }
-  }, [isOpen]);
+    if (!isOpen || typeof window === 'undefined') return;
+
+    const centerModal = () => {
+      if (!popupRef.current) return;
+      const rect = popupRef.current.getBoundingClientRect();
+      const width = rect.width || popupRef.current.offsetWidth || 420;
+      const height = rect.height || popupRef.current.offsetHeight || 520;
+      const centeredPosition = clampPosition(
+        Math.round((window.innerWidth - width) / 2),
+        Math.round((window.innerHeight - height) / 2)
+      );
+      setPosition(centeredPosition);
+    };
+
+    // Allow the modal to render before measuring
+    requestAnimationFrame(() => {
+      centerModal();
+      if (usernameRef.current) {
+        usernameRef.current.focus();
+      }
+    });
+  }, [clampPosition, isOpen]);
 
   // Reset form when popup closes
   useEffect(() => {
@@ -316,8 +410,28 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isDragging) {
+      return;
+    }
+
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+    };
+  }, [handleDragEnd, handleDragMove, isDragging]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Prevent double-submission
+    if (isLoading) {
+      console.log('🔍 [HEBLoginPopup] Already processing, ignoring duplicate submission');
+      return;
+    }
     
     if (!username.trim() || !password.trim()) {
       setError('Please enter both username and password');
@@ -329,11 +443,13 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
 
     try {
       await onLogin({ username: username.trim(), password });
-      // Success - the parent component will handle closing
+      // Success - the parent component will handle closing and navigation
+      // Popup should stay closed (parent closes it before calling onLogin)
+      // Don't reset anything - parent handles all state
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
-    } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Only reset on error so user can try again
+      // Popup stays closed - user must use "Start Over" to restart flow
     }
   };
 
@@ -347,12 +463,21 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
 
   return (
     <PopupOverlay onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <PopupContainer onKeyDown={handleKeyDown}>
+      <PopupContainer
+        onKeyDown={handleKeyDown}
+        ref={popupRef}
+        $isDragging={isDragging}
+        $position={position}
+      >
         <CloseButton onClick={onClose} aria-label="Close">
           ×
         </CloseButton>
         
-        <Header>
+        <Header onMouseDown={handleDragStart}>
+          <DragHandleBar />
+          <DragHint>
+            <FiMove size={14} /> Drag Window
+          </DragHint>
           <LogoContainer>
             <LogoBox>H</LogoBox>
             <HEBLogo>{title}</HEBLogo>

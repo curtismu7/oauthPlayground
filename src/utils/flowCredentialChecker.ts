@@ -264,47 +264,114 @@ export const trackFlowCompletion = (flowType: string, success: boolean = true): 
  */
 export const getAllFlowCredentialStatuses = (): FlowCredentialStatus[] => {
 	const flows = [
-		// OAuth 2.0 V5 Flows
+		// OAuth 2.0 V7 Flows (Unified OAuth/OIDC)
 		{
-			flowType: 'oauth-authorization-code-v5',
-			flowName: 'Authorization Code Flow - Secure User Authentication',
+			flowType: 'oauth-authorization-code-v7',
+			flowName: 'Authorization Code (V7) - Unified OAuth/OIDC',
 		},
 		{
-			flowType: 'oauth-implicit-v5',
-			flowName: 'Implicit Flow - Legacy Browser-Based Authentication',
+			flowType: 'oauth-implicit-v7',
+			flowName: 'Implicit Flow (V7) - Unified OAuth/OIDC',
 		},
 		{
-			flowType: 'client-credentials-v5',
+			flowType: 'device-authorization-v7',
+			flowName: 'Device Authorization (V7) - Unified OAuth/OIDC',
+		},
+		{
+			flowType: 'client-credentials-v7',
 			flowName: 'Client Credentials Flow - Server-to-Server Authentication',
 		},
 		{
+			flowType: 'client-credentials-v7-enhanced',
+			flowName: 'Client Credentials Flow V7 - Enhanced Server-to-Server Authentication',
+		},
+
+		// OIDC V7 Flows
+		{
+			flowType: 'oidc-ciba-v7',
+			flowName: 'OIDC CIBA Flow (V7) - Client Initiated Backchannel Authentication',
+		},
+		{
+			flowType: 'oidc-authorization-code-federated-v7',
+			flowName: 'OIDC Authorization Code Flow - Federated Authentication',
+		},
+		{
+			flowType: 'oidc-implicit-legacy-v7',
+			flowName: 'Implicit Flow - Legacy Browser Authentication',
+		},
+		{
+			flowType: 'oidc-hybrid-v7',
+			flowName: 'Hybrid Flow (V7) - Unified OAuth/OIDC',
+		},
+		{
+			flowType: 'jwt-bearer-token-v7',
+			flowName: 'JWT Bearer Token (V7)',
+		},
+
+		// Enterprise & PingOne V7 Flows
+		{
+			flowType: 'worker-token-v7',
+			flowName: 'Worker Token Flow - Administrative API Access',
+		},
+		{
+			flowType: 'worker-token-v7-enhanced',
+			flowName: 'Worker Token Flow (V7) - Enhanced Administrative API Access',
+		},
+		{
+			flowType: 'par-v7',
+			flowName: 'PAR (Pushed Authorization Requests) Flow - Enhanced Security',
+		},
+		{
+			flowType: 'par-v7-enhanced',
+			flowName: 'PAR (Pushed Authorization Requests) Flow V7 - Enhanced Security',
+		},
+		{
+			flowType: 'rar-v7',
+			flowName: 'RAR (Rich Authorization Requests) Flow',
+		},
+		{
+			flowType: 'pingone-redirectless-v7',
+			flowName: 'PingOne Redirectless Flow (V7)',
+		},
+		{
+			flowType: 'pingone-worker-native-sdk',
+			flowName: 'PingOne Worker Native SDK Flow',
+		},
+
+		// Legacy & supplementary flows retained for compatibility
+		{
+			flowType: 'oauth-authorization-code-v5',
+			flowName: 'Authorization Code Flow (V5)',
+		},
+		{
+			flowType: 'oauth-implicit-v5',
+			flowName: 'Implicit Flow (V5)',
+		},
+		{ flowType: 'client-credentials-v5', flowName: 'Client Credentials Flow (V5)' },
+		{
 			flowType: 'device-authorization-v6',
-			flowName: 'Device Authorization Flow - Input-Constrained Devices',
+			flowName: 'Device Authorization Flow (V6)',
 		},
 		{
 			flowType: 'oauth-resource-owner-password-v5',
 			flowName: 'OAuth 2.0 Resource Owner Password Flow (V5)',
 		},
-		{ flowType: 'worker-token-v5', flowName: 'Worker Token Flow' },
-		{ flowType: 'rar-v5', flowName: 'Rich Authorization Requests (RAR) Flow' },
-
-		// OIDC V5 Flows
+		{ flowType: 'worker-token-v5', flowName: 'Worker Token Flow (V5)' },
+		{ flowType: 'rar-v5', flowName: 'Rich Authorization Requests (RAR) Flow (V5)' },
 		{
 			flowType: 'oidc-authorization-code-v5',
-			flowName: 'Authorization Code Flow - User Identity & Authentication',
+			flowName: 'Authorization Code Flow (V5) - User Identity & Authentication',
 		},
-		{ flowType: 'oidc-implicit-v5', flowName: 'Implicit Flow - Legacy Browser Authentication' },
-		{ flowType: 'hybrid-v5', flowName: 'Hybrid Flow - Combined Authorization Approach' },
+		{ flowType: 'oidc-implicit-v5', flowName: 'Implicit Flow (V5) - Legacy Browser Authentication' },
+		{ flowType: 'hybrid-v5', flowName: 'Hybrid Flow (V5) - Combined Authorization Approach' },
 		{
 			flowType: 'oidc-device-authorization-v6',
-			flowName: 'Device Authorization Flow - OIDC for Constrained Devices',
+			flowName: 'Device Authorization Flow (V6) - OIDC for Constrained Devices',
 		},
 		{ flowType: 'ciba-v6', flowName: 'OIDC CIBA Flow (Mock) (V6)' },
-
-		// Additional flows
 		{
 			flowType: 'jwt-bearer-token-v5',
-			flowName: 'JWT Bearer Token Flow - JWT Assertion Authentication',
+			flowName: 'JWT Bearer Token Flow (V5)',
 		},
 		{ flowType: 'dashboard', flowName: 'Dashboard' },
 		{ flowType: 'url-decoder', flowName: 'URL Decoder' },

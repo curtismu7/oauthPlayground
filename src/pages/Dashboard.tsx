@@ -219,7 +219,7 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
       background: #1e3a8a;
       transform: translateY(-1px);
       box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
-      color: white;
+      color: #ef4444;
     }
   ` : `
     background: #3b82f6;
@@ -230,7 +230,7 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
     &:hover {
       background: #2563eb;
       border-color: #1d4ed8;
-      color: white;
+      color: #ef4444;
       transform: translateY(-1px);
       box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
     }
