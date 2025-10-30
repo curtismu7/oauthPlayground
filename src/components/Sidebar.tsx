@@ -9,8 +9,6 @@ import {
 	FiExternalLink,
 	FiEye,
 	FiFileText,
-	FiGitBranch,
-	FiHome,
 	FiKey,
 	FiLayers,
 	FiLock,
@@ -20,14 +18,13 @@ import {
 	FiSettings,
 	FiShield,
 	FiSmartphone,
-	FiTool,
-	FiUser,
 	FiUsers,
 	FiX,
 	FiZap,
 	FiCheckCircle,
 	FiCode,
 	FiMove,
+	FiBarChart2,
 } from 'react-icons/fi';
 import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -489,8 +486,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/rar-v7': 'RAR Flow V7',
 			'/flows/resource-owner-password-v6': 'Resource Owner Password',
 			'/flows/pingone-complete-mfa-v7': 'PingOne Complete MFA Flow V7',
+			'/flows/pingone-mfa-v7': 'PingOne MFA V7',
 			'/pingone-authentication': 'PingOne Authentication',
 			'/pingone-mock-features': 'PingOne Mock Features',
+			'/pingone-identity-metrics': 'PingOne Identity Metrics',
 		};
 		return flowNames[path];
 	};
@@ -580,29 +579,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		}
 
 		// Default menu structure
-		return [
+ 		return [
 			{
 				id: 'main',
-				label: 'Main',
-				icon: <ColoredIcon $color="#6366f1"><FiHome /></ColoredIcon>,
-				isOpen: openMenus['Main'] || false,
-				items: [
-					{
-						id: 'dashboard',
-						path: '/dashboard',
-						label: 'Dashboard',
-						icon: <ColoredIcon $color="#6366f1"><FiHome /></ColoredIcon>,
-					},
-					{
-						id: 'configuration',
-						path: '/configuration',
-						label: 'Setup & Configuration',
-						icon: <ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>,
-					},
-				],
-			},
-			{
-				id: 'oauth-flows',
 				label: 'OAuth 2.0 Flows',
 				icon: <ColoredIcon $color="#ef4444"><FiShield /></ColoredIcon>,
 				isOpen: openMenus['OAuth 2.0 Flows'] || false,
@@ -652,38 +631,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				],
 			},
 			{
-				id: 'oidc-flows',
-				label: 'OpenID Connect',
-				icon: <ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>,
-				isOpen: openMenus['OpenID Connect'] || false,
+				id: 'pingone',
+				label: 'PingOne',
+				icon: <ColoredIcon $color="#0ea5e9"><FiShield /></ColoredIcon>,
+				isOpen: openMenus['PingOne'] || false,
 				items: [
 					{
-						id: 'oidc-authorization-code-v7',
-						path: '/flows/oauth-authorization-code-v7',
-						label: 'Authorization Code (V7)',
-						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
+						id: 'pingone-authentication',
+						path: '/pingone-authentication',
+						label: 'PingOne Authentication',
+						icon: <ColoredIcon $color="#2563eb"><FiKey /></ColoredIcon>,
 					},
 					{
-						id: 'oidc-implicit-v7',
-						path: '/flows/implicit-v7',
-						label: 'Implicit Flow (V7)',
-						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
+						id: 'pingone-identity-metrics',
+						path: '/pingone-identity-metrics',
+						label: 'PingOne Identity Metrics',
+						icon: <ColoredIcon $color="#10b981"><FiBarChart2 /></ColoredIcon>,
 					},
 					{
-						id: 'oidc-device-authorization-v7',
-						path: '/flows/device-authorization-v7',
-						label: 'Device Authorization (V7)',
-						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'oidc-hybrid-v7',
-						path: '/flows/oidc-hybrid-v7',
-						label: 'Hybrid Flow (V7)',
-						icon: <ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC hybrid flow implementation"><FiCheckCircle /></MigrationBadge>,
+						id: 'pingone-mock-features',
+						path: '/pingone-mock-features',
+						label: 'PingOne Mock Features',
+						icon: <ColoredIcon $color="#7c3aed"><FiCpu /></ColoredIcon>,
 					},
 				],
 			},
