@@ -1,17 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { FiBook } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import { useAuth } from '../contexts/NewAuthContext';
 import { callbackUriService } from '../services/callbackUriService';
 import ModalPresentationService from '../services/modalPresentationService';
 import { CredentialGuardService } from '../services/credentialGuardService';
 import HEBLoginPopup, { type HEBLoginCredentials } from '../components/HEBLoginPopup';
 import AuthorizationUrlValidationModal from '../components/AuthorizationUrlValidationModal';
 import { authorizationUrlValidationService } from '../services/authorizationUrlValidationService';
+import type { ParsedAuthorizationUrl } from '../services/authorizationUrlValidationService';
 import { AuthenticationModalService } from '../services/authenticationModalService';
 import { FlowHeader } from '../services/flowHeaderService';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 
 type LoginMode = 'redirect' | 'redirectless';
 
@@ -52,6 +54,8 @@ export const RESPONSE_TYPES = [
 export const STORAGE_KEY = 'pingone_login_playground_config';
 export const RESULT_STORAGE_KEY = 'pingone_login_playground_result';
 export const FLOW_CONTEXT_KEY = 'pingone_login_playground_context';
+export const REDIRECT_FLOW_CONTEXT_KEY = 'pingone_redirect_flow_context';
+export const REDIRECTLESS_FLOW_CONTEXT_KEY = 'pingone_redirectless_flow_context';
 export const REDIRECTLESS_CREDS_KEY = 'pingone_login_redirectless_creds';
 
 export const DEFAULT_CONFIG: PlaygroundConfig = {
@@ -81,6 +85,9 @@ const TOKEN_ENDPOINT_AUTH_METHODS = [
 
 // Styled Components
 const Page = styled.div`
+	max-width: 100%;
+	overflow-x: hidden;
+	box-sizing: border-box;
 	background: white;
 	min-height: 100vh;
 	padding: 2rem;
@@ -96,23 +103,12 @@ const Page = styled.div`
 `;
 
 const Card = styled.div`
+	max-width: 100%;
+	box-sizing: border-box;
 	background: white;
 	border-radius: 12px;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 	padding: 2rem;
-	margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-	color: #333;
-	font-size: 2rem;
-	font-weight: bold;
-	margin-bottom: 0.5rem;
-`;
-
-const Subtitle = styled.p`
-	color: #666;
-	font-size: 1.1rem;
 	margin-bottom: 2rem;
 `;
 
@@ -172,6 +168,250 @@ const Select = styled.select`
 		border-color: #007bff;
 		box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 	}
+`;
+
+// Flow log display components
+const FlowLogContainer = styled.div`
+	margin-top: 2rem;
+	padding: 1.5rem;
+	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	border-radius: 12px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+	overflow-x: auto;
+	max-width: 100%;
+	box-sizing: border-box;
+`;
+
+const FlowLogTitle = styled.h3`
+	color: white;
+	margin: 0 0 1.5rem 0;
+	font-size: 1.5rem;
+	font-weight: 700;
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+`;
+
+const FlowStep = styled.div<{ $status?: number }>`
+	overflow-x: auto;
+	max-width: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	background: white;
+	border-radius: 8px;
+	padding: 1.25rem;
+	margin-bottom: 1rem;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+	border-left: 4px solid ${props => {
+		if (!props.$status) return '#6c757d';
+		if (props.$status >= 200 && props.$status < 300) return '#28a745';
+		if (props.$status >= 400) return '#dc3545';
+		return '#ffc107';
+	}};
+`;
+
+const StepHeader = styled.div`
+	display: flex;
+	align-items: center;
+	gap: 0.75rem;
+	margin-bottom: 0.75rem;
+`;
+
+const StepNumber = styled.div<{ $status?: number }>`
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: ${props => {
+		if (!props.$status) return '#6c757d';
+		if (props.$status >= 200 && props.$status < 300) return '#28a745';
+		if (props.$status >= 400) return '#dc3545';
+		return '#ffc107';
+	}};
+	color: white;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-weight: 700;
+	font-size: 0.9rem;
+`;
+
+const StepTitle = styled.div`
+	font-weight: 600;
+	color: #2c3e50;
+	font-size: 1.1rem;
+	flex: 1;
+`;
+
+const StepMethod = styled.span<{ $method: string }>`
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	background: ${props => {
+		switch (props.$method) {
+			case 'POST': return '#007bff';
+			case 'GET': return '#28a745';
+			case 'UI': return '#ff9800';
+			default: return '#6c757d';
+		}
+	}};
+	color: white;
+`;
+
+const StepStatus = styled.span<{ $status: number }>`
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	background: ${props => {
+		if (props.$status >= 200 && props.$status < 300) return '#d4edda';
+		if (props.$status >= 400) return '#f8d7da';
+		return '#fff3cd';
+	}};
+	color: ${props => {
+		if (props.$status >= 200 && props.$status < 300) return '#155724';
+		if (props.$status >= 400) return '#721c24';
+		return '#856404';
+	}};
+`;
+
+const StepUrl = styled.div`
+	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+	font-size: 0.85rem;
+	color: #495057;
+	background: #f8f9fa;
+	padding: 0.75rem;
+	border-radius: 4px;
+	margin-bottom: 0.75rem;
+	word-break: break-all;
+	overflow-wrap: break-word;
+	overflow-x: auto;
+	max-width: 100%;
+`;
+
+const StepParams = styled.div`
+	margin-bottom: 0.75rem;
+	max-width: 100%;
+	overflow-x: auto;
+	box-sizing: border-box;
+`;
+
+const ParamItem = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	padding: 0.5rem;
+	background: #f8f9fa;
+	border-radius: 4px;
+	margin-bottom: 0.25rem;
+	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+	font-size: 0.85rem;
+	max-width: 100%;
+	overflow-x: auto;
+	box-sizing: border-box;
+`;
+
+const ParamKey = styled.span`
+	font-weight: 600;
+	color: #007bff;
+	min-width: 120px;
+	flex-shrink: 0;
+	@media (max-width: 768px) {
+		min-width: 100px;
+		font-size: 0.9rem;
+	}
+`;
+
+const ParamValue = styled.span`
+	color: #6c757d;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	flex: 1;
+	min-width: 0;
+`;
+
+const StepNote = styled.div`
+	background: #e7f3ff;
+	border-left: 3px solid #007bff;
+	padding: 0.75rem;
+	border-radius: 4px;
+	font-size: 0.9rem;
+	color: #004085;
+	margin-top: 0.75rem;
+	line-height: 1.6;
+	white-space: pre-wrap;
+	word-wrap: break-word;
+	overflow-wrap: break-word;
+	overflow-x: hidden;
+	max-width: 100%;
+	width: 100%;
+	box-sizing: border-box;
+`;
+
+const StepResponse = styled.div`
+	margin-top: 0.75rem;
+	padding: 0.75rem;
+	background: #d4edda;
+	border-radius: 4px;
+	border: 1px solid #c3e6cb;
+	overflow-x: auto;
+	max-width: 100%;
+`;
+
+const ResponseTitle = styled.div`
+	font-weight: 600;
+	color: #155724;
+	margin-bottom: 0.5rem;
+	font-size: 0.9rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+`;
+
+const ToggleButton = styled.button`
+	background: transparent;
+	border: 1px solid #155724;
+	color: #155724;
+	padding: 0.25rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: 600;
+	cursor: pointer;
+	
+	&:hover {
+		background: #155724;
+		color: white;
+	}
+`;
+
+const FullResponseContainer = styled.div`
+	overflow-x: auto;
+	max-width: 100%;
+	width: 100%;
+	box-sizing: border-box;
+	margin-top: 0.75rem;
+	padding: 1rem;
+	background: white;
+	border-radius: 4px;
+	border: 1px solid #e5e7eb;
+	font-family: 'SFMono-Regular', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+	font-size: 0.875rem;
+	line-height: 1.6;
+	max-height: 600px;
+	overflow-y: auto;
+	word-break: break-word;
+`;
+
+const JSONKeySpan = styled.span`
+	color: #dc2626; /* Red for keys - per user preference */
+	font-weight: 600;
+`;
+
+const JSONValueSpan = styled.span`
+	color: #3b82f6; /* Blue for values - per user preference */
+`;
+
+const JSONPunctuationSpan = styled.span`
+	color: #6b7280; /* Gray for punctuation */
 `;
 
 const Modes = styled.div`
@@ -255,16 +495,6 @@ const ComedyText = styled.p`
 	margin-bottom: 1rem;
 `;
 
-const ComedyInput = styled.input`
-	width: 100%;
-	padding: 0.75rem;
-	border: 1px solid #ffeaa7;
-	border-radius: 6px;
-	margin-bottom: 0.5rem;
-	color: #856404;
-	background: white;
-`;
-
 const ComedyButton = styled.button`
 	background: #ffc107;
 	color: #212529;
@@ -326,17 +556,86 @@ const CancelButton = styled.button`
 	}
 `;
 
-const PingOneAuthentication: React.FC = () => {
+	// Helper function to format JSON with red keys and blue values
+	const formatJSONForDisplay = (data: unknown, indent = 0): React.ReactNode => {
+		if (data === null) {
+			return <JSONValueSpan>null</JSONValueSpan>;
+		}
+		
+		if (typeof data === 'boolean') {
+			return <JSONValueSpan>{String(data)}</JSONValueSpan>;
+		}
+		
+		if (typeof data === 'number') {
+			return <JSONValueSpan>{String(data)}</JSONValueSpan>;
+		}
+		
+		if (typeof data === 'string') {
+			return <JSONValueSpan>&quot;{data}&quot;</JSONValueSpan>;
+		}
+		
+		if (Array.isArray(data)) {
+			if (data.length === 0) {
+				return <JSONPunctuationSpan>[]</JSONPunctuationSpan>;
+			}
+			
+			return (
+				<>
+					<JSONPunctuationSpan>[</JSONPunctuationSpan>
+					<br />
+					{data.map((item, index) => (
+						<React.Fragment key={index}>
+							{'  '.repeat(indent + 1)}
+							{formatJSONForDisplay(item, indent + 1)}
+							{index < data.length - 1 && <JSONPunctuationSpan>,</JSONPunctuationSpan>}
+							<br />
+						</React.Fragment>
+					))}
+					{'  '.repeat(indent)}
+					<JSONPunctuationSpan>]</JSONPunctuationSpan>
+				</>
+			);
+		}
+		
+		if (typeof data === 'object') {
+			const entries = Object.entries(data);
+			if (entries.length === 0) {
+				return <JSONPunctuationSpan>{}</JSONPunctuationSpan>;
+			}
+			
+			return (
+				<>
+					<JSONPunctuationSpan>{'{'}</JSONPunctuationSpan>
+					<br />
+					{entries.map(([key, value], index) => (
+						<React.Fragment key={key}>
+							{'  '.repeat(indent + 1)}
+							<JSONKeySpan>&quot;{key}&quot;</JSONKeySpan>
+							<JSONPunctuationSpan>: </JSONPunctuationSpan>
+							{formatJSONForDisplay(value, indent + 1)}
+							{index < entries.length - 1 && <JSONPunctuationSpan>,</JSONPunctuationSpan>}
+							<br />
+						</React.Fragment>
+					))}
+					{'  '.repeat(indent)}
+					<JSONPunctuationSpan>{'}'}</JSONPunctuationSpan>
+				</>
+			);
+		}
+		
+		return <span>{String(data)}</span>;
+	};
+
+	const PingOneAuthentication: React.FC = () => {
 	const navigate = useNavigate();
-	const { user } = useAuth();
 	const [config, setConfig] = useState<PlaygroundConfig>(DEFAULT_CONFIG);
 	const [mode, setMode] = useState<LoginMode>('redirect');
 	const [loading, setLoading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [hasLoadedConfig, setHasLoadedConfig] = useState(false);
 	const [redirectlessCreds, setRedirectlessCreds] = useState(DEFAULT_REDIRECTLESS_CREDS);
-	const [redirectlessShown, setRedirectlessShown] = useState(false);
 	const [hebLoginOpen, setHebLoginOpen] = useState(false);
+	const [expandedResponses, setExpandedResponses] = useState<Record<string | number, boolean>>({});
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 	const [showUrlValidationModal, setShowUrlValidationModal] = useState(false);
@@ -347,11 +646,36 @@ const PingOneAuthentication: React.FC = () => {
 		errors: string[];
 		warnings: string[];
 		suggestions: string[];
-		parsedUrl: any;
+		parsedUrl: ParsedAuthorizationUrl | null;
 		flowType: string;
 		severity: string;
 	} | null>(null);
 	const [pendingAuthUrl, setPendingAuthUrl] = useState<string>('');
+	
+	// Flow request log for educational display
+	const [flowRequestLog, setFlowRequestLog] = useState<Array<{
+		step: number;
+		title: string;
+		method: string;
+		url: string;
+		params: Record<string, string>;
+		requestBody?: Record<string, unknown>; // Full JSON request body sent to PingOne
+		response?: Record<string, string | number | boolean>;
+		fullResponse?: Record<string, unknown>; // Full PingOne JSON response
+		status?: number;
+		note: string;
+		timestamp: number;
+	}>>([]);
+	
+	// Store flow context when popup opens so we can continue after credentials are collected
+	const [pendingFlowContext, setPendingFlowContext] = useState<{
+		flowId: string;
+		flowLinks: Record<string, { href?: string }>;
+		sessionCookies: string[];
+		resumeUrl: string;
+		codeVerifier: string;
+		state: string;
+	} | null>(null);
 
 	// Load saved config on mount
 	useEffect(() => {
@@ -434,12 +758,23 @@ const PingOneAuthentication: React.FC = () => {
 		const params = new URLSearchParams({
 			response_type: config.responseType,
 			client_id: config.clientId,
-			redirect_uri: config.redirectUri,
 			scope: config.scopes,
 			state: 'pi-flow-' + Date.now()
 		});
+		
+		// Add response_mode=pi.flow for redirectless mode (pi.flow doesn't require redirect_uri)
+		// For redirect mode, include redirect_uri but NOT response_mode=pi.flow
+		if (mode === 'redirectless') {
+			params.set('response_mode', 'pi.flow');
+			// NOTE: redirect_uri is NOT required for pi.flow per PingOne docs
+			// When omitted, PingOne returns flow response directly without redirects
+		} else {
+			// Redirect mode: include redirect_uri but use standard OAuth flow
+			params.set('redirect_uri', config.redirectUri);
+		}
+		
 		return `${base}?${params.toString()}`;
-	}, [config.environmentId, config.clientId, config.responseType, config.redirectUri, config.scopes]);
+	}, [config.environmentId, config.clientId, config.responseType, config.redirectUri, config.scopes, mode]);
 
 	const generateRedirectPKCE = useCallback(async () => {
 		if (config.responseType === 'code') {
@@ -474,32 +809,36 @@ const PingOneAuthentication: React.FC = () => {
 		return authUrl;
 	}, [config, authUrl]);
 
-	const runRedirectlessLogin = useCallback(async () => {
+		const runRedirectlessLogin = useCallback(async (providedCredentials?: { username: string; password: string }) => {
+		// Use provided credentials if available, otherwise fall back to state
+		const creds = providedCredentials || redirectlessCreds;
+		
+		// HEB login should happen first - credentials must be collected before starting flow
+		if (!creds.username || !creds.password) {
+			console.log('🔍 [PingOneAuthentication] Credentials not available - HEB login should happen first', {
+				hasProvidedCredentials: !!providedCredentials,
+				hasStateCredentials: !!(redirectlessCreds.username && redirectlessCreds.password),
+				creds
+			});
+			v4ToastManager.showError('Please complete HEB login first');
+			return;
+		}
+		
+		// Debug: Log credential details (without exposing actual values)
+		console.log('🔍 [PingOneAuthentication] Using credentials:', {
+			usernameLength: creds.username.length,
+			usernamePreview: creds.username.substring(0, 3) + '...',
+			passwordLength: creds.password.length,
+			hasSpecialChars: /[^a-zA-Z0-9]/.test(creds.password),
+			source: providedCredentials ? 'provided' : 'state'
+		});
+
 		setLoading(true);
+		// Clear previous log and flow context
+		setFlowRequestLog([]);
+		setPendingFlowContext(null);
+		
 		try {
-			// First, check network connectivity
-			v4ToastManager.showInfo('Checking network connectivity to PingOne...');
-			
-			try {
-				const connectivityResponse = await fetch('/api/network/check', {
-					method: 'GET',
-					credentials: 'include'
-				});
-				
-				if (!connectivityResponse.ok) {
-					const errorData = await connectivityResponse.json();
-					throw new Error(errorData.message || 'Network connectivity check failed');
-				}
-				
-				const connectivityData = await connectivityResponse.json();
-				console.log('🔍 [PingOneAuthentication] Network check result:', connectivityData);
-				v4ToastManager.showSuccess('Network connectivity confirmed');
-			} catch (connectivityError) {
-				console.error('🔍 [PingOneAuthentication] Network check failed:', connectivityError);
-				v4ToastManager.showError('Network connectivity issue detected. Please check your internet connection.');
-				throw new Error('Network connectivity to PingOne failed. Please check your internet connection and try again.');
-			}
-			
 			const environmentId = config.environmentId.trim() || DEFAULT_CONFIG.environmentId;
 			const state = `pi-flow-${Date.now()}`;
 			
@@ -508,40 +847,69 @@ const PingOneAuthentication: React.FC = () => {
 			const codeVerifier = generateCodeVerifier();
 			const codeChallenge = await generateCodeChallenge(codeVerifier);
 			
-			// Store PKCE codes for later use
+			// Store PKCE codes and credentials for later use
 			setRedirectlessCreds(prev => ({
 				...prev,
+				username: creds.username,
+				password: creds.password,
 				codeVerifier,
 				codeChallenge
 			}));
 
-			// Step 1: Start authorization with PKCE via backend to avoid CORS
-			v4ToastManager.showInfo('Starting PingOne authorization request...');
-			const response = await fetch('/api/pingone/redirectless/authorize', {
+			// Step 1: Start Authorization Flow
+			// Per documentation: POST /as/authorize with response_mode=pi.flow (NO credentials)
+			// PingOne returns JSON flow object with flowId and status
+			v4ToastManager.showInfo('Starting PingOne authorization flow...');
+			
+			const step1RequestBody = {
+				environmentId: environmentId,
+				clientId: config.clientId.trim() || DEFAULT_CONFIG.clientId,
+				clientSecret: config.clientSecret.trim() || DEFAULT_CONFIG.clientSecret,
+				redirectUri: config.redirectUri.trim() || DEFAULT_CONFIG.redirectUri, // Include redirect_uri even for pi.flow
+				scopes: config.scopes.trim() || DEFAULT_CONFIG.scopes,
+				codeChallenge: codeChallenge,
+				codeChallengeMethod: 'S256',
+				state: state
+				// NO credentials in Step 1 per documentation
+			};
+			
+			setFlowRequestLog(prev => [...prev, {
+				step: 1,
+				title: 'Start Authorization Flow',
+				method: 'POST',
+				url: `https://auth.pingone.com/${environmentId}/as/authorize`,
+				params: {
+					response_type: 'code',
+					response_mode: 'pi.flow',
+					client_id: config.clientId.trim() || DEFAULT_CONFIG.clientId,
+					scope: config.scopes.trim() || DEFAULT_CONFIG.scopes,
+					code_challenge: codeChallenge.substring(0, 20) + '...',
+					code_challenge_method: 'S256',
+					state: state
+				},
+				requestBody: step1RequestBody, // Store full request body
+				note: `Step 1: POST /as/authorize with response_mode=pi.flow. NO username/password here. PingOne returns JSON flow object with flowId and status (e.g., USERNAME_PASSWORD_REQUIRED).
+
+💡 OPTIONAL: login_hint_token - You can optionally include a login_hint_token JWT parameter in this request. This is a signed JWT containing user identification (username, email, phone, sub) that helps PingOne identify the user. Since you've already authenticated the user in your app (HEB login), including login_hint_token can help PingOne pre-populate user information and potentially streamline the flow.`,
+				timestamp: Date.now()
+			}]);
+			
+			const authorizeResponse = await fetch('/api/pingone/redirectless/authorize', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
 				credentials: 'include',
-				body: JSON.stringify({
-					environmentId: environmentId,
-					clientId: config.clientId.trim() || DEFAULT_CONFIG.clientId,
-					clientSecret: config.clientSecret.trim() || DEFAULT_CONFIG.clientSecret,
-					scopes: config.scopes.trim() || DEFAULT_CONFIG.scopes,
-					codeChallenge: codeChallenge,
-					codeChallengeMethod: 'S256',
-					state: state,
-					username: redirectlessCreds.username,
-					password: redirectlessCreds.password
-				})
+				body: JSON.stringify(step1RequestBody)
 			});
 
-			if (!response.ok) {
-				let errorMessage = `Authorization request failed (status ${response.status})`;
+			if (!authorizeResponse.ok) {
+				let errorBody: Record<string, unknown> = {};
+				let errorMessage = `Authorization request failed (status ${authorizeResponse.status})`;
 				try {
-					const errorBody = await response.json();
+					errorBody = await authorizeResponse.json();
 					console.log('🔍 [PingOneAuthentication] Authorization error:', JSON.stringify(errorBody, null, 2));
-					errorMessage = errorBody?.error_description || errorBody?.message || errorBody?.error || errorMessage;
+					errorMessage = errorBody?.error_description as string || errorBody?.message as string || errorBody?.error as string || errorMessage;
 					
 					// Provide more specific error messages based on error type
 					if (errorBody?.error === 'dns_resolution_failed') {
@@ -551,13 +919,15 @@ const PingOneAuthentication: React.FC = () => {
 					} else if (errorBody?.error === 'request_timeout') {
 						errorMessage = 'PingOne servers are not responding. Please try again.';
 					} else if (errorBody?.error === 'invalid_response') {
-						errorMessage = `Invalid response from PingOne (${errorBody?.details?.contentType || 'unknown format'}). The authorization server may be having issues.`;
+						const details = errorBody?.details as { contentType?: string } | undefined;
+						errorMessage = `Invalid response from PingOne (${details?.contentType || 'unknown format'}). The authorization server may be having issues.`;
 					}
 				} catch (parseError) {
 					// If we can't parse as JSON, the error response is likely HTML (error page)
 					console.error('🔍 [PingOneAuthentication] Could not parse error response as JSON:', parseError);
 					try {
-						const errorText = await response.text();
+						const errorText = await authorizeResponse.text();
+						errorBody = { raw_response: errorText.substring(0, 500) };
 						if (errorText.includes('<!doctype') || errorText.includes('<html')) {
 							errorMessage = 'PingOne returned an HTML error page. This may indicate a server configuration issue. Check that your Environment ID and credentials are correct.';
 						}
@@ -565,177 +935,634 @@ const PingOneAuthentication: React.FC = () => {
 						// ignore
 					}
 				}
+				
+				// Log error response to flow log BEFORE throwing
+				setFlowRequestLog(prev => prev.map((log, idx) => 
+					idx === prev.length - 1 
+						? { 
+							...log, 
+							response: {
+								error: true,
+								status: authorizeResponse.status,
+								error_code: String(errorBody?.error || 'UNKNOWN_ERROR'),
+								error_description: errorMessage
+							},
+							fullResponse: errorBody, // Store full error response
+							status: authorizeResponse.status
+						}
+						: log
+				));
+				
 				throw new Error(errorMessage);
 			}
 
-			const data: Record<string, unknown> = await response.json();
-			console.log('🔍 [PingOneAuthentication] Authorization response data:', JSON.stringify(data, null, 2));
+			const flowData: Record<string, unknown> = await authorizeResponse.json();
+			console.log('🔍 [PingOneAuthentication] Step 1 Response (flow object):', JSON.stringify(flowData, null, 2));
 
-			// Check if we got a resumeUrl (for redirectless flow only)
-			const resumeUrl = data.resumeUrl as string;
-			const flowId = data.id as string;
+			// Extract flow information
+			const flowId = flowData.id as string | undefined;
+			const flowStatus = flowData.status as string | undefined;
+			const flowLinks = flowData._links as Record<string, { href?: string }> | undefined;
+			const sessionId = (flowData as { _sessionId?: string })._sessionId;
+			const resumeUrl = flowData.resumeUrl as string | undefined;
 			
-			if (resumeUrl && flowId && mode === 'redirectless') {
-				console.log('🔍 [PingOneAuthentication] Got resumeUrl for redirectless flow, calling resume endpoint...');
-				
-				// Step 2: Call the resume endpoint to get authorization code
-				const resumeResponse = await fetch('/api/pingone/resume', {
-					method: 'POST',
-					headers: {
-						'Content-Type': 'application/json',
-					},
-					credentials: 'include',
-					body: JSON.stringify({
-						resumeUrl: resumeUrl,
-						flowId: flowId,
-						flowState: state,
-						clientId: config.clientId.trim() || DEFAULT_CONFIG.clientId,
-						clientSecret: config.clientSecret.trim() || DEFAULT_CONFIG.clientSecret,
-						environmentId: config.environmentId.trim() || DEFAULT_CONFIG.environmentId,
-						redirectUri: config.redirectUri.trim() || DEFAULT_CONFIG.redirectUri,
-						codeVerifier: redirectlessCreds.codeVerifier || undefined
-					})
-				});
+			// CRITICAL: Log cookie details from Step 1
+			console.log('🔍 [PingOneAuthentication] Step 1 session:', {
+				hasSessionId: !!sessionId,
+				sessionId: sessionId || 'none',
+				hasFlowData: !!flowData,
+				flowDataKeys: Object.keys(flowData).join(', ')
+			});
+			
+			if (!sessionId) {
+				console.error('❌ [PingOneAuthentication] WARNING: Step 1 did NOT return a sessionId!');
+				console.error('❌ Backend must manage PingOne cookies server-side and return _sessionId.');
+			}
 
-				if (!resumeResponse.ok) {
-					let errorMessage = `Resume request failed (status ${resumeResponse.status})`;
-					try {
-						const errorBody = await resumeResponse.json();
-						console.log('🔍 [PingOneAuthentication] Resume error response:', JSON.stringify(errorBody, null, 2));
-						errorMessage = errorBody?.error_description || errorBody?.message || errorBody?.error || errorMessage;
-					} catch (parseError) {
-						console.log('🔍 [PingOneAuthentication] Could not parse error response:', parseError);
-					}
-					throw new Error(errorMessage);
-				}
-
-				const resumeData: Record<string, unknown> = await resumeResponse.json();
-				console.log('🔍 [PingOneAuthentication] Resume response data:', JSON.stringify(resumeData, null, 2));
-
-				// Check if we got an authorization code from resume
-				const authorizationCode = resumeData.code as string;
-				if (authorizationCode) {
-					console.log('🔍 [PingOneAuthentication] Got authorization code, exchanging for tokens...');
-					
-					// Step 3: Exchange authorization code for tokens
-					const tokenResponse = await fetch('/api/token-exchange', {
-						method: 'POST',
-						headers: {
-							'Content-Type': 'application/json'
+			// Log Step 1 response
+			setFlowRequestLog(prev => prev.map((log, idx) => 
+				idx === prev.length - 1 
+					? { 
+						...log, 
+						response: {
+							flowId: flowId ? `${flowId.substring(0, 8)}...` : 'N/A',
+							status: String(flowStatus || 'unknown'),
+							hasResumeUrl: !!resumeUrl
 						},
-						credentials: 'include',
-						body: JSON.stringify({
-							grant_type: 'authorization_code',
-							code: authorizationCode,
-							code_verifier: codeVerifier,
-							redirect_uri: 'urn:pingidentity:redirectless',
-							environment_id: environmentId,
-							client_id: config.clientId.trim() || DEFAULT_CONFIG.clientId,
-							client_secret: config.clientSecret.trim() || DEFAULT_CONFIG.clientSecret
-						})
-					});
+						fullResponse: flowData, // Store full response from PingOne
+						status: authorizeResponse.status
+					}
+					: log
+			));
 
-					if (!tokenResponse.ok) {
-						let errorMessage = `Token exchange failed (status ${tokenResponse.status})`;
-						try {
-							const errorBody = await tokenResponse.json();
-							console.log('🔍 [PingOneAuthentication] Token exchange error:', JSON.stringify(errorBody, null, 2));
-							errorMessage = errorBody?.message || errorBody?.error_description || errorBody?.error || errorMessage;
-						} catch {
-							// ignore
+			if (!flowId || flowStatus !== 'USERNAME_PASSWORD_REQUIRED') {
+				throw new Error(`Unexpected flow status: ${flowStatus || 'unknown'}. Expected USERNAME_PASSWORD_REQUIRED.`);
+			}
+
+			// Per docs: _links['usernamePassword.check'].href
+			const flowCheckUrl = flowLinks?.['usernamePassword.check']?.href;
+			if (!flowCheckUrl) {
+				throw new Error('Flow object missing usernamePassword.check link');
+			}
+
+			// Step 2: Present Login Form and Send Credentials to PingOne
+			// Per documentation: POST /flows/{flowId} with action: "usernamePassword.check"
+			// CRITICAL: Credentials sent DIRECTLY to PingOne Flow API (over HTTPS)
+			// NEVER sent to /as/token or your backend - only to PingOne
+			const step2RequestBody = {
+				flowUrl: flowCheckUrl,
+				username: creds.username, // Send as-is, no trimming
+				password: creds.password, // Send as-is, no trimming
+				sessionId: sessionId
+			};
+			
+			console.log('🔍 [PingOneAuthentication] Step 2 request details:', {
+				flowUrl: flowCheckUrl,
+				usernameLength: creds.username.length,
+				passwordLength: creds.password.length,
+				sessionIdPresent: !!sessionId
+			});
+			
+			// The actual body sent to PingOne Flow API (what goes to /flows/{flowId})
+			const step2PingOneBody = {
+				action: 'usernamePassword.check',
+				username: creds.username, // Exact value sent to PingOne
+				password: creds.password // Exact value sent to PingOne
+			};
+			
+			setFlowRequestLog(prev => [...prev, {
+				step: 2,
+				title: 'Present Login Form and Send Credentials to PingOne',
+				method: 'POST',
+				url: flowCheckUrl,
+				params: {
+					action: 'usernamePassword.check',
+					username: `${creds.username.substring(0, 3)}***`,
+					password: '***'
+				},
+				requestBody: step2PingOneBody, // Store actual JSON sent to PingOne Flow API
+				note: `Step 2: POST /flows/{flowId} with action: "usernamePassword.check". Credentials go ONLY to PingOne Flow API (over HTTPS). NEVER to /as/token or your backend. PingOne validates credentials and returns status (e.g., READY_TO_RESUME).
+
+📋 Required Headers:
+• Content-Type: application/vnd.pingidentity.usernamePassword.check+json (PingOne-specific media type)
+• Accept: application/json
+• Cookie: <session cookies from Step 1's /as/authorize response> - REQUIRED for stateful flows`,
+				timestamp: Date.now()
+			}]);
+
+			const flowCheckResponse = await fetch('/api/pingone/flows/check-username-password', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(step2RequestBody)
+			});
+
+			if (!flowCheckResponse.ok) {
+				const errorBody = await flowCheckResponse.json().catch(() => ({}));
+				
+				// Store error response in log
+				setFlowRequestLog(prev => prev.map((log, idx) => 
+					idx === prev.length - 1 
+						? { 
+							...log, 
+							response: {
+								error: true,
+								status: flowCheckResponse.status,
+								error_code: String(errorBody?.code || errorBody?.error || 'UNKNOWN_ERROR'),
+								error_description: errorBody?.error_description || errorBody?.message || `Flow execution failed (status ${flowCheckResponse.status})`
+							},
+							fullResponse: errorBody, // Store full error response from PingOne
+							status: flowCheckResponse.status
 						}
+						: log
+				));
+				
+				// Handle 401 specifically - usually means invalid credentials or expired flow
+				if (flowCheckResponse.status === 401) {
+					const errorMessage = errorBody?.error_description || errorBody?.message || 'Authentication failed - invalid credentials or flow expired';
+					
+					console.error('[PingOneAuthentication] Flow API 401 Error:', {
+						status: flowCheckResponse.status,
+						errorCode: errorBody?.code || errorBody?.error,
+						errorMessage: errorMessage,
+						flowId,
+						errorBody
+					});
+					
+					// Provide more specific error messages
+					if (errorBody?.code === 'INVALID_TOKEN' || errorBody?.error === 'INVALID_TOKEN') {
+						throw new Error('Invalid credentials - please check your username and password');
+					} else if (errorBody?.code === 'ACCESS_FAILED' || errorBody?.error === 'ACCESS_FAILED') {
+						throw new Error('Access denied - invalid username or password');
+					} else {
 						throw new Error(errorMessage);
 					}
+				}
+				
+				throw new Error(errorBody?.error_description || `Flow execution failed (status ${flowCheckResponse.status})`);
+			}
 
-					const tokenData: Record<string, unknown> = await tokenResponse.json();
-					console.log('🔍 [PingOneAuthentication] Token exchange successful:', JSON.stringify(tokenData, null, 2));
+			const flowCheckData: Record<string, unknown> = await flowCheckResponse.json();
+			console.log('🔍 [PingOneAuthentication] Step 2 Response:', JSON.stringify(flowCheckData, null, 2));
 
-					// Extract tokens from token exchange response
-					const tokens: Record<string, string> = {};
-					if (tokenData.access_token && typeof tokenData.access_token === 'string') {
-						tokens.access_token = tokenData.access_token;
+			// Server manages cookies; just use sessionId for subsequent steps
+
+			const updatedResumeUrl = flowCheckData.resumeUrl as string | undefined;
+			const updatedFlowId = flowCheckData.id as string | undefined || flowId;
+
+			// Log Step 2 response
+			setFlowRequestLog(prev => prev.map((log, idx) => 
+				idx === prev.length - 1 
+					? { 
+						...log, 
+						response: {
+							flowId: updatedFlowId ? `${updatedFlowId.substring(0, 8)}...` : 'N/A',
+							status: String(flowCheckData.status || 'unknown'),
+							hasResumeUrl: !!updatedResumeUrl
+						},
+						fullResponse: flowCheckData, // Store full response from PingOne
+						status: flowCheckResponse.status
 					}
-					if (tokenData.id_token && typeof tokenData.id_token === 'string') {
-						tokens.id_token = tokenData.id_token;
-					}
-					if (tokenData.refresh_token && typeof tokenData.refresh_token === 'string') {
-						tokens.refresh_token = tokenData.refresh_token;
-					}
+					: log
+			));
 
-					const redirectlessContext = {
-						isRedirectless: true,
-						redirectlessUsername: redirectlessCreds.username,
-						resumeUrl: null,
-						flowId: null
-					};
+			if (!updatedResumeUrl) {
+				throw new Error('Flow execution completed but no resumeUrl provided');
+			}
 
-					const result: PlaygroundResult = {
-						timestamp: Date.now(),
-						mode: 'redirectless',
-						responseType: config.responseType,
-						tokens,
-						config,
-						authUrl: `https://auth.pingone.com/${environmentId}/as/authorize`,
-						context: redirectlessContext
-					};
+			// Step 3: Resume to Obtain Authorization Code
+			// Per documentation: GET /as/resume?flowId={flowId}
+			// PingOne returns authorization code in JSON (response_mode=pi.flow) or redirect Location header
+			console.log('🔍 [PingOneAuthentication] Step 3 session:', {
+				sessionIdPresent: !!sessionId
+			});
+			
+			const step3RequestBody = {
+				resumeUrl: updatedResumeUrl,
+				flowId: updatedFlowId,
+				clientId: config.clientId.trim() || DEFAULT_CONFIG.clientId,
+				clientSecret: config.clientSecret.trim() || DEFAULT_CONFIG.clientSecret,
+				codeVerifier: codeVerifier, // Required for PKCE validation
+				flowState: state, // Required for state verification
+				sessionId: sessionId
+			};
+			
+			// Note: We POST to our backend proxy, but our backend sends GET to PingOne
+			// GET requests don't have bodies - all params are in the URL query string
+			const resumeUrlObj = new URL(updatedResumeUrl);
+			const queryParams: Record<string, string> = {};
+			resumeUrlObj.searchParams.forEach((value, key) => {
+				queryParams[key] = value;
+			});
+			// Add params that will be added by backend
+			if (codeVerifier) queryParams.code_verifier = '***'; // Masked
+			if (state) queryParams.state = state;
+			queryParams.response_mode = 'pi.flow';
 
-					sessionStorage.removeItem(FLOW_CONTEXT_KEY);
-					localStorage.removeItem(RESULT_STORAGE_KEY);
-					localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+			setFlowRequestLog(prev => [...prev, {
+				step: 3,
+				title: 'Resume to Obtain Authorization Code',
+				method: 'GET',
+				url: updatedResumeUrl,
+				params: queryParams, // Show actual query params that will be sent to PingOne
+				requestBody: {
+					note: 'Note: This is data sent to our backend proxy (POST /api/pingone/resume). The actual PingOne request is GET with query parameters only (no body).',
+					proxyRequest: step3RequestBody
+				},
+				note: 'Step 3: GET /as/resume?flowId={flowId}&response_mode=pi.flow&code_verifier=***&state=***. PingOne API requires GET (not POST) - all parameters are in the URL query string, not in a request body. PingOne returns authorization code in JSON (with response_mode=pi.flow) or redirect Location header. Extract code and state.',
+				timestamp: Date.now()
+			}]);
 
-					v4ToastManager.showSuccess('Redirectless login successful! Tokens obtained.');
-					navigate('/pingone-authentication/result');
-					return;
+			const resumeResponse = await fetch('/api/pingone/resume', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(step3RequestBody)
+			});
+
+			if (!resumeResponse.ok) {
+				const errorBody = await resumeResponse.json().catch(() => ({}));
+				
+				// Log error response to flow log BEFORE throwing
+				setFlowRequestLog(prev => prev.map((log, idx) => 
+					idx === prev.length - 1 
+						? { 
+							...log, 
+							response: {
+								error: true,
+								status: resumeResponse.status,
+								error_code: errorBody?.error_code || errorBody?.error || 'UNKNOWN_ERROR',
+								error_description: errorBody?.error_description || errorBody?.error || `Resume flow failed (status ${resumeResponse.status})`,
+								pingone_error: errorBody?.pingone_error || null,
+								location: errorBody?.location ? `${errorBody.location.substring(0, 100)}...` : 'N/A'
+							},
+							fullResponse: errorBody, // Store full error response
+							status: resumeResponse.status
+						}
+						: log
+				));
+				
+				// If PingOne returned a specific error, include it in the error message
+				if (errorBody?.pingone_error) {
+					const pingoneError = errorBody.pingone_error;
+					const errorCode = pingoneError.code || errorBody.error_code || 'UNKNOWN_ERROR';
+					const errorMessage = pingoneError.message || pingoneError.error_description || errorBody.error_description || 'Unknown error from PingOne';
+					throw new Error(`PingOne Resume Error (${errorCode}): ${errorMessage}`);
+				}
+				
+				throw new Error(errorBody?.error_description || errorBody?.error || `Resume flow failed (status ${resumeResponse.status})`);
+			}
+
+		const resumeData: Record<string, unknown> = await resumeResponse.json();
+		console.log('🔍 [PingOneAuthentication] Step 3 Response:', JSON.stringify(resumeData, null, 2));
+		
+		// Log Step 3 response IMMEDIATELY (before code extraction) so it's always visible
+		setFlowRequestLog(prev => prev.map((log, idx) => 
+			idx === prev.length - 1 
+				? { 
+					...log, 
+					response: {
+						status: 'Received',
+						hasCode: !!(resumeData.code && resumeData.code !== null),
+						hasLocation: !!(resumeData.location),
+						isRedirect: !!(resumeData.redirect),
+						keys: Object.keys(resumeData).join(', ')
+					},
+					fullResponse: resumeData, // Store full response immediately
+					status: resumeResponse.status
+				}
+				: log
+		));
+		
+		// Handle redirect response - PingOne may redirect with code in Location header
+		const isRedirect = resumeData.redirect === true || resumeData.redirect === 'true';
+		const locationUrl = resumeData.location as string | undefined;
+		
+		// Debug: Log the location URL to understand what we're working with
+		if (locationUrl) {
+			console.log('🔍 [PingOneAuthentication] Location URL details:', {
+				locationUrl: locationUrl,
+				locationLength: locationUrl.length,
+				hasCodeParam: locationUrl.includes('code='),
+				hasStateParam: locationUrl.includes('state='),
+				first200Chars: locationUrl.substring(0, 200)
+			});
+		}
+		
+		// Type guard for flow object structure
+		type FlowResponse = {
+			flow?: {
+				code?: string;
+				state?: string;
+				[key: string]: unknown;
+			};
+			code?: string | null;
+			state?: string | null;
+			redirect?: boolean | string;
+			location?: string;
+			[key: string]: unknown;
+		};
+		
+		const typedResumeData = resumeData as FlowResponse;
+		
+		// Log full response for debugging
+		const fullResponseStr = JSON.stringify(resumeData, null, 2);
+		console.log('🔍 [PingOneAuthentication] Step 3 Full Response:', fullResponseStr);
+		
+		console.log('🔍 [PingOneAuthentication] Step 3 Response structure:', {
+			hasCode: !!resumeData.code,
+			codeValue: resumeData.code,
+			codeType: typeof resumeData.code,
+			isRedirect: isRedirect,
+			hasLocation: !!locationUrl,
+			hasAccessToken: !!resumeData.access_token,
+			hasIdToken: !!resumeData.id_token,
+			keys: Object.keys(resumeData),
+			// Check if code is nested in a flow object
+			hasFlowObject: !!typedResumeData.flow,
+			flowHasCode: !!typedResumeData.flow?.code,
+			// Check for error fields
+			hasError: !!(resumeData.error || resumeData.error_code || resumeData.error_description),
+			errorCode: resumeData.error || resumeData.error_code,
+			errorMessage: resumeData.error_description || resumeData.message,
+			// Check for alternative field names
+			hasAuthorizationCode: !!resumeData.authorization_code,
+			hasAuthCode: !!resumeData.authCode,
+			// Response preview
+			responsePreview: fullResponseStr.substring(0, 500)
+		});
+
+		// Try to extract code from various possible locations
+		// PingOne might return code directly, or nested in a flow object for pi.flow, or in redirect Location
+		let authorizationCode: string | undefined;
+		
+		// First try: direct code field (non-null)
+		if (resumeData.code && typeof resumeData.code === 'string' && resumeData.code !== 'null') {
+			authorizationCode = resumeData.code;
+		}
+		// Second try: if redirect, extract code from Location URL
+		else if (isRedirect && locationUrl) {
+			console.log('🔍 [PingOneAuthentication] Attempting to extract code from Location URL:', {
+				locationUrl: locationUrl.substring(0, 300),
+				isAbsolute: locationUrl.startsWith('http://') || locationUrl.startsWith('https://'),
+				isRelative: locationUrl.startsWith('/'),
+				isQueryOnly: locationUrl.startsWith('?')
+			});
+			
+			try {
+				// Try parsing as absolute URL first
+				let location: URL;
+				try {
+					location = new URL(locationUrl);
+				} catch {
+					// If not absolute, try to resolve relative to a base URL
+					// Use the resume URL as base
+					const baseUrl = new URL(updatedResumeUrl || `https://auth.pingone.com/${environmentId}/as/resume`);
+					location = new URL(locationUrl, baseUrl.origin + baseUrl.pathname);
+				}
+				
+				const codeFromLocation = location.searchParams.get('code');
+				if (codeFromLocation) {
+					authorizationCode = codeFromLocation;
+					console.log('✅ [PingOneAuthentication] Extracted code from redirect Location URL:', {
+						codeLength: codeFromLocation.length,
+						codePreview: `${codeFromLocation.substring(0, 20)}...`
+					});
 				} else {
-					throw new Error('No authorization code received after calling resume endpoint');
+					console.warn('⚠️ [PingOneAuthentication] Redirect Location URL found but no code parameter in searchParams:', {
+						locationUrl: locationUrl,
+						searchParams: Array.from(location.searchParams.entries())
+					});
 				}
-			} else {
-				// Fallback: Check for direct tokens (for implicit flow)
-				const tokens: Record<string, string> = {};
-				if (data.access_token && typeof data.access_token === 'string') {
-					tokens.access_token = data.access_token;
-				}
-				if (data.id_token && typeof data.id_token === 'string') {
-					tokens.id_token = data.id_token;
-				}
-				if (data.refresh_token && typeof data.refresh_token === 'string') {
-					tokens.refresh_token = data.refresh_token;
-				}
-
-				const redirectlessContext = {
-					isRedirectless: true,
-					redirectlessUsername: redirectlessCreds.username,
-					resumeUrl: (data?.resumeUrl as string) || ((data?.flow as Record<string, unknown>)?.resumeUrl as string) || null,
-					flowId: (data?.id as string) || ((data?.flow as Record<string, unknown>)?.id as string) || null
-				};
-
-				const tokenCount = Object.keys(tokens).length;
-
-				const result: PlaygroundResult = {
-					timestamp: Date.now(),
-					mode: 'redirectless',
-					responseType: config.responseType,
-					tokens,
-					config,
-					authUrl: `https://auth.pingone.com/${environmentId}/as/authorize`,
-					context: redirectlessContext
-				};
-
-				sessionStorage.removeItem(FLOW_CONTEXT_KEY);
-				localStorage.removeItem(RESULT_STORAGE_KEY);
-				localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
-
-				if (tokenCount > 0) {
-					v4ToastManager.showSuccess('Redirectless login succeeded. Tokens captured without a redirect.');
-					navigate('/pingone-authentication/result');
-				} else if (redirectlessContext.resumeUrl) {
-					v4ToastManager.showInfo('Redirectless flow established. Continue the flow using the captured resume metadata.');
-					navigate('/pingone-authentication/result');
+			} catch (urlError) {
+				console.error('❌ [PingOneAuthentication] Failed to parse Location URL:', urlError);
+				// Try to extract code from location string using regex as fallback
+				// Match code=... followed by & or end of string
+				const codeMatch = locationUrl.match(/[?&]code=([^&'"<>#\s]+)/);
+				if (codeMatch && codeMatch[1]) {
+					authorizationCode = decodeURIComponent(codeMatch[1]);
+					console.log('✅ [PingOneAuthentication] Extracted code from Location URL using regex:', {
+						codeLength: authorizationCode.length,
+						codePreview: `${authorizationCode.substring(0, 20)}...`,
+						rawMatch: codeMatch[0]
+					});
 				} else {
-					v4ToastManager.showError('PingOne did not return tokens or a resume URL. Please check your configuration and try again.');
-					// Don't navigate to result page if no tokens were received
+					console.error('❌ [PingOneAuthentication] Regex extraction also failed. Location URL:', {
+						locationUrl: locationUrl.substring(0, 500),
+						matches: locationUrl.match(/code[=\s:]/g)
+					});
 				}
 			}
+		}
+		// Third try: nested in flow object (pi.flow response structure)
+		else if (typedResumeData.flow && typeof typedResumeData.flow.code === 'string') {
+			authorizationCode = typedResumeData.flow.code;
+		}
+		// Fourth try: alternative field names (authorization_code, authCode, etc.)
+		else if (resumeData.authorization_code && typeof resumeData.authorization_code === 'string') {
+			authorizationCode = resumeData.authorization_code;
+			console.log('✅ [PingOneAuthentication] Found code in authorization_code field');
+		}
+		else if (resumeData.authCode && typeof resumeData.authCode === 'string') {
+			authorizationCode = resumeData.authCode;
+			console.log('✅ [PingOneAuthentication] Found code in authCode field');
+		}
+		// Fifth try: check for nested paths (result.code, data.code, etc.)
+		else if (resumeData.result && typeof resumeData.result === 'object' && typeof (resumeData.result as { code?: string }).code === 'string') {
+			authorizationCode = (resumeData.result as { code: string }).code;
+			console.log('✅ [PingOneAuthentication] Found code in result.code');
+		}
+		else if (resumeData.data && typeof resumeData.data === 'object' && typeof (resumeData.data as { code?: string }).code === 'string') {
+			authorizationCode = (resumeData.data as { code: string }).code;
+			console.log('✅ [PingOneAuthentication] Found code in data.code');
+		}
+		// Sixth try: check if response itself is the code (unlikely but possible)
+		else if (typeof resumeData === 'string') {
+			authorizationCode = resumeData;
+		}
+		// Seventh try: check if response has tokens directly (unusual but might happen)
+		else if (resumeData.access_token || resumeData.id_token) {
+			console.warn('⚠️ [PingOneAuthentication] Response contains tokens but no authorization code. This is unusual for pi.flow.');
+			console.warn('⚠️ Response might have bypassed code exchange step.');
+		}
+
+		if (!authorizationCode) {
+			// Update Step 3 response log to show error state
+			setFlowRequestLog(prev => prev.map((log, idx) => 
+				idx === prev.length - 1 
+					? { 
+						...log, 
+						response: {
+							code: 'Not found',
+							error: 'No authorization code in response',
+							redirect: isRedirect ? 'Yes' : 'No',
+							location: locationUrl ? `${locationUrl.substring(0, 200)}...` : 'N/A',
+							hasCodeParam: locationUrl ? locationUrl.includes('code=') : false
+						},
+						fullResponse: resumeData,
+						status: resumeResponse.status
+					}
+					: log
+			));
+			
+			// Log full response details for debugging
+			const fullResponseStr = JSON.stringify(resumeData, null, 2);
+			console.error('❌ [PingOneAuthentication] No authorization code found in response:', {
+				responseKeys: Object.keys(resumeData),
+				responsePreview: fullResponseStr.substring(0, 1000),
+				responseType: typeof resumeData,
+				hasCodeField: !!resumeData.code,
+				codeValue: resumeData.code,
+				hasFlowObject: !!typedResumeData.flow,
+				isRedirect: isRedirect,
+				hasLocation: !!locationUrl,
+				locationUrl: locationUrl ? locationUrl.substring(0, 500) : null,
+				fullLocationUrl: locationUrl // Log full URL for debugging
+			});
+			
+			// Provide more detailed error message
+			let errorMessage = 'Resume flow completed but no authorization code provided.';
+			if (isRedirect && locationUrl) {
+				errorMessage += ` Redirect Location URL: ${locationUrl.substring(0, 200)}`;
+				if (!locationUrl.includes('code=')) {
+					errorMessage += ' Location URL does not contain a code parameter.';
+				}
+			} else if (!isRedirect) {
+				errorMessage += ' PingOne did not redirect and no code was returned in JSON response.';
+			}
+			
+			throw new Error(errorMessage);
+		}
+		
+		console.log('✅ [PingOneAuthentication] Authorization code extracted successfully:', {
+			codeLength: authorizationCode.length,
+			codePreview: `${authorizationCode.substring(0, 20)}...`
+		});
+
+			// Extract state from Location URL if redirect, otherwise use direct field
+			let extractedState: string | undefined;
+			if (isRedirect && locationUrl) {
+				try {
+					const location = new URL(locationUrl);
+					extractedState = location.searchParams.get('state') || undefined;
+				} catch {
+					const stateMatch = locationUrl.match(/[?&]state=([^&]+)/);
+					if (stateMatch && stateMatch[1]) {
+						extractedState = decodeURIComponent(stateMatch[1]);
+					}
+				}
+			}
+			const finalState = (extractedState || resumeData.state || typedResumeData.state) as string | undefined;
+
+			// Update Step 3 response log with extracted code (response already logged above)
+			setFlowRequestLog(prev => prev.map((log, idx) => 
+				idx === prev.length - 1 
+					? { 
+						...log, 
+						response: {
+							code: authorizationCode ? `${authorizationCode.substring(0, 20)}...` : 'Not found',
+							state: finalState || 'N/A',
+							redirect: isRedirect ? 'Yes' : 'No',
+							location: locationUrl ? `${locationUrl.substring(0, 100)}...` : 'N/A'
+						},
+						fullResponse: resumeData, // Already stored, but update reference
+						status: resumeResponse.status
+					}
+					: log
+			));
+
+			// Step 4: Backend Exchanges Code for Tokens
+			// Per documentation: POST /as/token with authorization code
+			// NOTE: NO username/password here - only code, client_id, code_verifier
+			const step4RequestBody = {
+				grant_type: 'authorization_code',
+				code: authorizationCode,
+				client_id: config.clientId.trim() || DEFAULT_CONFIG.clientId,
+				client_secret: config.clientSecret.trim() || DEFAULT_CONFIG.clientSecret,
+				code_verifier: codeVerifier,
+				redirect_uri: config.redirectUri.trim() || DEFAULT_CONFIG.redirectUri,
+				environment_id: environmentId,
+				token_endpoint_auth_method: config.tokenEndpointAuthMethod || 'client_secret_post'
+			};
+			
+			setFlowRequestLog(prev => [...prev, {
+				step: 4,
+				title: 'Backend Exchanges Code for Tokens',
+				method: 'POST',
+				url: `https://auth.pingone.com/${environmentId}/as/token`,
+				params: {
+					grant_type: 'authorization_code',
+					code: `${authorizationCode.substring(0, 20)}...`,
+					client_id: config.clientId.trim() || DEFAULT_CONFIG.clientId,
+					code_verifier: '***'
+				},
+				requestBody: step4RequestBody, // Store full request body
+				note: 'Step 4: POST /as/token to retrieve tokens. NO username/password here - only code, client_id, code_verifier. Your backend calls this - credentials were only sent to PingOne Flow API in Step 2.',
+				timestamp: Date.now()
+			}]);
+
+			const tokenResponse = await fetch('/api/token-exchange', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(step4RequestBody)
+			});
+
+			if (!tokenResponse.ok) {
+				const errorBody = await tokenResponse.json().catch(() => ({}));
+				throw new Error(errorBody?.error_description || `Token exchange failed (status ${tokenResponse.status})`);
+			}
+
+			const tokenData: Record<string, unknown> = await tokenResponse.json();
+			console.log('🔍 [PingOneAuthentication] Step 4 Response (tokens):', JSON.stringify(tokenData, null, 2));
+
+			const accessToken = tokenData.access_token as string | undefined;
+			const idToken = tokenData.id_token as string | undefined;
+			const refreshToken = tokenData.refresh_token as string | undefined;
+
+			// Log Step 4 response
+			setFlowRequestLog(prev => prev.map((log, idx) => 
+				idx === prev.length - 1 
+					? { 
+						...log, 
+						response: {
+							access_token: accessToken ? 'received' : 'N/A',
+							id_token: idToken ? 'received' : 'N/A',
+							refresh_token: refreshToken ? 'received' : 'N/A'
+						},
+						fullResponse: tokenData, // Store full response from PingOne
+						status: tokenResponse.status
+					}
+					: log
+			));
+
+			// Extract tokens
+			const tokens: Record<string, string> = {};
+			if (accessToken) tokens.access_token = accessToken;
+			if (idToken) tokens.id_token = idToken;
+			if (refreshToken) tokens.refresh_token = refreshToken;
+
+			const result: PlaygroundResult = {
+				timestamp: Date.now(),
+				mode: 'redirectless',
+				responseType: config.responseType,
+				tokens,
+				config,
+				authUrl: `https://auth.pingone.com/${environmentId}/as/authorize`,
+				context: { 
+					isRedirectless: true, 
+					redirectlessUsername: creds.username, 
+					resumeUrl: updatedResumeUrl, 
+					flowId: updatedFlowId 
+				}
+			};
+
+			localStorage.setItem(RESULT_STORAGE_KEY, JSON.stringify(result));
+			v4ToastManager.showSuccess('Redirectless authentication successful! Tokens obtained via 4-step flow.');
+			navigate('/pingone-authentication/result');
 		} catch (error) {
 			console.error('[PingOneAuthentication] Redirectless login error:', error);
 			v4ToastManager.showError(
@@ -747,33 +1574,66 @@ const PingOneAuthentication: React.FC = () => {
 	}, [config, mode, navigate, redirectlessCreds]);
 
 	const handleHEBLogin = useCallback(async (credentials: HEBLoginCredentials) => {
-		try {
-			setLoading(true);
-			v4ToastManager.showInfo('Processing HEB login credentials...');
-			
-			// Simulate processing the credentials
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			
-			// Update redirectless credentials with HEB login data
-			setRedirectlessCreds(prev => ({
-				...prev,
-				username: credentials.username,
-				password: credentials.password
-			}));
-			
-			v4ToastManager.showSuccess('HEB credentials captured! Starting authentication...');
-			
-			// Start the redirectless flow with the captured credentials
-			await runRedirectlessLogin();
-			
-		} catch (error) {
-			console.error('[PingOneAuthentication] HEB login error:', error);
-			v4ToastManager.showError('Failed to process HEB login. Please try again.');
-			throw error;
-		} finally {
-			setLoading(false);
+		// Prevent double-submission
+		if (loading) {
+			console.log('🔍 [PingOneAuthentication] Already processing, ignoring duplicate submission');
+			return;
 		}
-	}, [runRedirectlessLogin]);
+		
+		// Close popup immediately
+		setHebLoginOpen(false);
+		
+		// Store credentials
+		setRedirectlessCreds(prev => ({
+			...prev,
+			username: credentials.username,
+			password: credentials.password
+		}));
+		
+		// Clear pending flow context (we'll start fresh with credentials)
+		setPendingFlowContext(null);
+		
+		// Add log entry for HEB login completion (preparation step before OAuth flow)
+		setFlowRequestLog([{
+			step: 0,
+			title: 'HEB Login - Collect Credentials',
+			method: 'UI',
+			url: 'N/A (UI Interaction)',
+			params: {
+				username: `${credentials.username.substring(0, 3)}***`,
+				password: '***',
+				status: 'credentials collected'
+			},
+			note: 'Preparation: User authenticates in our app (HEB login). This is separate from PingOne authentication. Once authenticated, we proceed to the 4-step PingOne redirectless flow (pi.flow).',
+			timestamp: Date.now()
+		}]);
+		
+		// Start the authorization code flow with the collected credentials
+		// Pass credentials directly to avoid React state timing issues
+		v4ToastManager.showInfo('Starting PingOne authentication with collected credentials...');
+		void runRedirectlessLogin({
+			username: credentials.username,
+			password: credentials.password
+		});
+	}, [loading, runRedirectlessLogin]);
+
+	const handleStartOver = useCallback(() => {
+		// Reset everything
+		setFlowRequestLog([]);
+		setPendingFlowContext(null);
+		setRedirectlessCreds(DEFAULT_REDIRECTLESS_CREDS);
+		setHebLoginOpen(false);
+		setLoading(false);
+		setShowAuthenticationModal(false);
+		setPendingRedirectUrl('');
+		setMissingCredentialFields([]);
+		setShowMissingCredentialsModal(false);
+		setShowUrlValidationModal(false);
+		setUrlValidationResult(null);
+		setPendingAuthUrl('');
+		v4ToastManager.showInfo('Flow reset. Ready to start over.');
+		console.log('🔄 [PingOneAuthentication] Flow reset - ready to start over');
+	}, []);
 
 	const handleLaunch = useCallback(async () => {
 		if (loading) return;
@@ -841,14 +1701,18 @@ const PingOneAuthentication: React.FC = () => {
 				
 			console.log('✅ [PingOneAuthentication] Authorization URL validation passed');
 			
-			// Store flow context for callback
-			sessionStorage.setItem(FLOW_CONTEXT_KEY, JSON.stringify({
+			// Store flow context for redirect callback (isolated from redirectless)
+			sessionStorage.setItem(REDIRECT_FLOW_CONTEXT_KEY, JSON.stringify({
 				environmentId: config.environmentId,
 				clientId: config.clientId,
 				responseType: config.responseType,
 				returnPath: '/pingone-authentication/result',
 				timestamp: Date.now(),
+				mode: 'redirect'
 			}));
+			
+			// Clear redirectless context to avoid conflicts
+			sessionStorage.removeItem(REDIRECTLESS_FLOW_CONTEXT_KEY);
 			
 			// Show authentication modal with URL details
 			setPendingRedirectUrl(finalAuthUrl);
@@ -863,11 +1727,13 @@ const PingOneAuthentication: React.FC = () => {
 
 		// Redirectless mode: run the flow immediately and navigate to results
 		if (mode === 'redirectless') {
-			setRedirectlessShown(true);
 			try {
+				// Clear redirect flow context to avoid conflicts (redirectless doesn't use callbacks)
+				sessionStorage.removeItem(REDIRECT_FLOW_CONTEXT_KEY);
+				// Clear legacy context key if it exists
 				sessionStorage.removeItem(FLOW_CONTEXT_KEY);
 			} catch (error) {
-				console.warn('[PingOneAuthentication] Failed to clear flow context:', error);
+				console.warn('[PingOneAuthentication] Failed to clear redirect flow context:', error);
 			}
 			v4ToastManager.showInfo('Starting redirectless authentication with PingOne…');
 			void runRedirectlessLogin();
@@ -1105,11 +1971,26 @@ const PingOneAuthentication: React.FC = () => {
 					<ComedyLogin>
 						<ComedyHeading>HEB Grocery Login</ComedyHeading>
 						<ComedyText>
-							For redirectless flow testing, we'll use a simulated HEB grocery login page.
+							For redirectless flow testing, start by logging into your HEB account. 
+							After successful login, the authorization code flow will begin automatically.
 						</ComedyText>
-						<ComedyButton onClick={() => setHebLoginOpen(true)}>
-							Open HEB Login
-						</ComedyButton>
+						<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+							<ComedyButton onClick={() => setHebLoginOpen(true)} disabled={loading}>
+								{loading ? 'Processing...' : 'Start HEB Login'}
+							</ComedyButton>
+							{(flowRequestLog.length > 0 || pendingFlowContext || loading) && (
+								<ComedyButton 
+									onClick={handleStartOver} 
+									disabled={loading}
+									style={{ 
+										background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
+										border: 'none'
+									}}
+								>
+									🔄 Start Over
+								</ComedyButton>
+							)}
+						</div>
 					</ComedyLogin>
 				)}
 
@@ -1119,6 +2000,96 @@ const PingOneAuthentication: React.FC = () => {
 					showOpenButton
 				/>
 			</Card>
+
+			{/* Educational Sections - Moved Higher on Page */}
+			{mode === 'redirectless' && (
+				<>
+					<Card>
+						<CollapsibleHeader
+							title="PingOne pi.flow — Required Headers & Content-Types"
+							icon={<FiBook />}
+							theme="yellow"
+							defaultCollapsed={false}
+						>
+							<div style={{ padding: '1rem 0' }}>
+								<p style={{ marginBottom: '1rem' }}>
+									<strong>Must-have headers on Flow API action calls (POST /{`{envId}`}/flows/{`{flowId}`}):</strong>
+								</p>
+								<ul style={{ marginBottom: '1rem', paddingLeft: '1.5rem' }}>
+									<li style={{ marginBottom: '0.75rem' }}>
+										<strong>Content-Type:</strong>
+										<ul style={{ marginTop: '0.5rem', marginLeft: '1.5rem', listStyle: 'disc' }}>
+											<li><code>application/vnd.pingidentity.usernamePassword.check+json</code> for username/password checks</li>
+											<li><code>application/vnd.pingidentity.otp.check+json</code> for OTP checks (email/SMS/app OTP)</li>
+										</ul>
+										<div style={{ marginTop: '0.5rem', fontSize: '0.9rem', fontStyle: 'italic', color: '#856404' }}>
+											⚠️ These are PingOne-specific vendor media types, NOT standard <code>application/json</code>
+										</div>
+									</li>
+									<li style={{ marginBottom: '0.75rem' }}>
+										<strong>Accept:</strong> <code>application/json</code> (typical)
+									</li>
+									<li style={{ marginBottom: '0.75rem' }}>
+										<strong>Cookie:</strong> Session cookies from the initial <code>/as/authorize</code> call <strong>MUST be sent</strong>
+										<ul style={{ marginTop: '0.5rem', marginLeft: '1.5rem', listStyle: 'disc' }}>
+											<li>Flow API is <strong>stateful per flowId/session</strong> - cookies maintain the session state</li>
+											<li>Use <code>credentials: 'include'</code> in fetch, or manually forward Set-Cookie headers</li>
+											<li>The flowId in the URL alone is <strong>not sufficient</strong> - you need both flowId AND cookies</li>
+										</ul>
+									</li>
+								</ul>
+								<p style={{ marginTop: '1rem', padding: '0.75rem', backgroundColor: '#fff3cd', borderRadius: '4px', border: '1px solid #ffc107' }}>
+									<strong>Important:</strong> Cookies/session from the initial <code>/as/authorize</code> call are captured in Step 1 and automatically forwarded to Step 2. 
+									If cookies are missing, the Flow API will reject the request as the flow session cannot be maintained.
+								</p>
+								<p style={{ marginTop: '0.75rem', fontStyle: 'italic', color: '#664d03' }}>
+									📚 <strong>Reference:</strong> See <a href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#flows" target="_blank" rel="noopener noreferrer" style={{ color: '#0066cc', textDecoration: 'underline' }}>PingOne Flow API Documentation</a> for complete header requirements.
+								</p>
+							</div>
+						</CollapsibleHeader>
+					</Card>
+
+					<Card>
+						<CollapsibleHeader
+							title="About login_hint_token in Redirectless Flows"
+							icon={<FiBook />}
+							theme="green"
+							defaultCollapsed={true}
+						>
+							<div style={{ padding: '1rem 0' }}>
+								<p style={{ marginBottom: '0.75rem' }}>
+									<strong>What is login_hint_token?</strong><br />
+									The <code>login_hint_token</code> is an optional signed JWT that you can include in Step 1's authorization request to help PingOne identify the user. Since you've already authenticated the user in your app (via HEB login), this token can pre-populate user information in PingOne's authentication flow.
+								</p>
+								<p style={{ marginTop: '0.75rem', marginBottom: '0.5rem' }}>
+									<strong>When to Use It:</strong>
+								</p>
+								<ul style={{ marginBottom: '0.75rem', paddingLeft: '1.5rem' }}>
+									<li style={{ marginBottom: '0.5rem' }}><strong>Pre-authenticated users:</strong> When the user has already logged into your application (like HEB login), you can include their identity in the token</li>
+									<li style={{ marginBottom: '0.5rem' }}><strong>Improved UX:</strong> Helps PingOne skip unnecessary steps or pre-fill forms</li>
+									<li style={{ marginBottom: '0.5rem' }}><strong>Integration scenarios:</strong> Useful when integrating PingOne with existing authentication systems (like PingFederate)</li>
+									<li style={{ marginBottom: '0.5rem' }}><strong>MFA-only flows:</strong> When another system handles initial authentication and PingOne only needs to handle MFA</li>
+								</ul>
+								<p style={{ marginTop: '0.75rem', marginBottom: '0.5rem' }}>
+									<strong>Token Structure:</strong><br />
+									The JWT contains user identification claims such as:
+									<code>username</code>, <code>email</code>, <code>phone</code>, or <code>sub</code> (subject identifier).
+									The token must be signed with RS256 or ES256 using a key that PingOne can verify.
+								</p>
+								<p style={{ marginTop: '0.75rem', marginBottom: '0.5rem' }}>
+									<strong>In This Flow:</strong><br />
+									You <strong>can optionally</strong> add <code>login_hint_token</code> to Step 1's POST request to <code>/as/authorize</code>. 
+									If included, PingOne may use it to identify the user and potentially streamline the authentication process. 
+									For this redirectless flow demonstration, we're not including it, but you can add it in production if your application has already authenticated the user.
+								</p>
+								<p style={{ marginTop: '0.75rem', fontStyle: 'italic', color: '#664d03' }}>
+									📚 <strong>Documentation:</strong> See <a href="https://apidocs.pingidentity.com/pingone/auth/v1/api/#create-a-login_hint_token-jwt" target="_blank" rel="noopener noreferrer" style={{ color: '#0066cc', textDecoration: 'underline' }}>PingOne API Docs</a> for details on creating login_hint_token JWTs.
+								</p>
+							</div>
+						</CollapsibleHeader>
+					</Card>
+				</>
+			)}
 
 			<HEBLoginPopup
 				isOpen={hebLoginOpen}
@@ -1177,6 +2148,100 @@ const PingOneAuthentication: React.FC = () => {
 				redirectMode: 'redirect'
 			}
 		)}
+		
+		{/* Flow Request Log - Educational Display */}
+		{flowRequestLog.length > 0 && (
+			<FlowLogContainer>
+				<FlowLogTitle>
+					📋 pi.flow Request/Response Log
+				</FlowLogTitle>
+				
+				{flowRequestLog.map((log) => (
+					<FlowStep key={log.timestamp} $status={log.status || 0}>
+						<StepHeader>
+							<StepNumber $status={log.status || 0}>{log.step}</StepNumber>
+							<StepTitle>{log.title}</StepTitle>
+							<StepMethod $method={log.method}>{log.method}</StepMethod>
+							{log.status && <StepStatus $status={log.status || 0}>{log.status}</StepStatus>}
+						</StepHeader>
+						
+						<StepUrl>{log.url}</StepUrl>
+						
+						{Object.keys(log.params).length > 0 && (
+							<StepParams>
+								{Object.entries(log.params).map(([key, value]) => (
+									<ParamItem key={key}>
+										<ParamKey>{key}:</ParamKey>
+										<ParamValue>{value}</ParamValue>
+									</ParamItem>
+								))}
+							</StepParams>
+						)}
+						
+						{log.requestBody && (
+							<StepResponse>
+								<ResponseTitle>
+									<span>Request Body:</span>
+									<ToggleButton
+										onClick={() => {
+											setExpandedResponses(prev => ({
+												...prev,
+												[`request-${log.timestamp}`]: !prev[`request-${log.timestamp}`]
+											}));
+										}}
+									>
+										{expandedResponses[`request-${log.timestamp}`] ? 'Hide' : 'Show'} Request Body
+									</ToggleButton>
+								</ResponseTitle>
+								{expandedResponses[`request-${log.timestamp}`] && (
+									<FullResponseContainer>
+										{formatJSONForDisplay(log.requestBody)}
+									</FullResponseContainer>
+								)}
+							</StepResponse>
+						)}
+						
+						<StepNote>{log.note}</StepNote>
+						
+						{log.response && (
+							<StepResponse>
+								<ResponseTitle>
+									<span>Response Summary:</span>
+									{log.fullResponse && (
+										<ToggleButton
+											onClick={() => {
+												setExpandedResponses(prev => ({
+													...prev,
+													[log.timestamp]: !prev[log.timestamp]
+												}));
+											}}
+										>
+											{expandedResponses[log.timestamp] ? 'Hide' : 'Show'} Full Response
+										</ToggleButton>
+									)}
+								</ResponseTitle>
+								{Object.entries(log.response).map(([key, value]) => {
+									// Highlight error fields
+									const isErrorField = key.includes('error') || key === 'error_code' || key === 'error_description';
+									return (
+										<ParamItem key={key}>
+											<ParamKey style={isErrorField ? { color: '#dc3545', fontWeight: 600 } : {}}>{key}:</ParamKey>
+											<ParamValue style={isErrorField ? { color: '#dc3545', fontWeight: 600 } : {}}>{String(value)}</ParamValue>
+										</ParamItem>
+									);
+								})}
+								{log.fullResponse && expandedResponses[log.timestamp] && (
+									<FullResponseContainer>
+										{formatJSONForDisplay(log.fullResponse)}
+									</FullResponseContainer>
+								)}
+							</StepResponse>
+						)}
+					</FlowStep>
+				))}
+			</FlowLogContainer>
+		)}
+		
 		</Page>
 	);
 };
