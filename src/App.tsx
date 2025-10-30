@@ -155,6 +155,7 @@ import TokenManagement from './pages/TokenManagement';
 import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
+import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
 import ServiceTestRunner from './pages/ServiceTestRunner';
 
 const AppContainer = styled.div`
@@ -538,10 +539,12 @@ const AppRoutes = () => {
 							{/* V6 flows disabled - redirect to V7 equivalents */}
 							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />} />
 							<Route path="/flows/pingone-mfa-v6" element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />} />
-							<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
-							<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
-							<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
-							<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
+						<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
+						<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
+						<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
+						<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
+						<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
+						<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 							{/* V7 RAR Flow */}
 							<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
 							
