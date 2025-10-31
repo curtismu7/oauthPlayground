@@ -66,15 +66,9 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
   const [showEnvContent, setShowEnvContent] = useState(false);
 
   useEffect(() => {
-    const updateStatus = () => {
-      const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
-      console.log('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
-      setStatus(persistenceStatus);
-    };
-
-    updateStatus();
-    const interval = setInterval(updateStatus, 1000);
-    return () => clearInterval(interval);
+    const persistenceStatus = environmentIdPersistenceService.getPersistenceStatus();
+    console.log('[EnvironmentIdPersistenceStatus] Updated status:', persistenceStatus);
+    setStatus(persistenceStatus);
   }, [environmentId]);
 
   const handleCopyEnvContent = () => {
