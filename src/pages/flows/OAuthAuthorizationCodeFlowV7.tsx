@@ -1337,33 +1337,35 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
 			console.log('[OAuth Authorization Code V7] handleFieldChange called:', { field, value: field === 'clientSecret' ? '***HIDDEN***' : value });
-			console.log('[OAuth Authorization Code V7] Current controller.credentials:', {
-				environmentId: controller.credentials.environmentId,
-				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
-				hasClientSecret: !!controller.credentials.clientSecret,
-			});
 			const isScopeField = field === 'scope' || field === 'scopes';
 			// Don't normalize scopes on every keystroke - let user type freely
-			const updatedCredentials: StepCredentials = {
-				...controller.credentials,
-				[field]: value,
-				...(isScopeField
-					? {
-						scope: value,
-						scopes: value,
-					}
-					: {}),
-			};
-			console.log('[OAuth Authorization Code V7] Updated credentials:', {
-				environmentId: updatedCredentials.environmentId,
-				clientId: updatedCredentials.clientId?.substring(0, 8) + '...',
-				hasClientSecret: !!updatedCredentials.clientSecret,
+			controller.setCredentials((prevCredentials) => {
+				console.log('[OAuth Authorization Code V7] Current controller.credentials:', {
+					environmentId: prevCredentials.environmentId,
+					clientId: prevCredentials.clientId?.substring(0, 8) + '...',
+					hasClientSecret: !!prevCredentials.clientSecret,
+				});
+				const updatedCredentials: StepCredentials = {
+					...prevCredentials,
+					[field]: value,
+					...(isScopeField
+						? {
+							scope: value,
+							scopes: value,
+						}
+						: {}),
+				};
+				console.log('[OAuth Authorization Code V7] Updated credentials:', {
+					environmentId: updatedCredentials.environmentId,
+					clientId: updatedCredentials.clientId?.substring(0, 8) + '...',
+					hasClientSecret: !!updatedCredentials.clientSecret,
+				});
+				// Save credentials with variant-specific key for better isolation
+				FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
+				// Also save to the main key for backward compatibility
+				FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
+				return updatedCredentials;
 			});
-			controller.setCredentials(updatedCredentials);
-			// Save credentials with variant-specific key for better isolation
-			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
-			// Also save to the main key for backward compatibility
-			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
 			if (typeof value === 'string' && value.trim()) {
 				setEmptyRequiredFields((prevMissing) => {
 					const next = new Set(prevMissing);
@@ -1374,25 +1376,27 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 				setEmptyRequiredFields((prevMissing) => new Set(prevMissing).add(field as string));
 			}
 		},
-		[controller, flowVariant]
+		[controller.setCredentials, flowVariant]
 	);
 
 	const handleScopeBlur = useCallback(
 		(value: string) => {
 			// Normalize scopes only on blur to ensure openid is included
 			const normalizedScope = normalizeScopes(value);
-			const updatedCredentials: StepCredentials = {
-				...controller.credentials,
-				scope: normalizedScope,
-				scopes: normalizedScope,
-			};
-			controller.setCredentials(updatedCredentials);
-			// Save credentials with variant-specific key for better isolation
-			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
-			// Also save to the main key for backward compatibility
-			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
+			controller.setCredentials((prevCredentials) => {
+				const updatedCredentials: StepCredentials = {
+					...prevCredentials,
+					scope: normalizedScope,
+					scopes: normalizedScope,
+				};
+				// Save credentials with variant-specific key for better isolation
+				FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
+				// Also save to the main key for backward compatibility
+				FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
+				return updatedCredentials;
+			});
 		},
-		[controller, normalizeScopes, flowVariant]
+		[controller.setCredentials, normalizeScopes, flowVariant]
 	);
 
 	const handleSaveConfiguration = useCallback(async () => {
