@@ -150,6 +150,13 @@ REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
   }
 
   /**
+   * Generate .env content with newline (for appending to existing .env)
+   */
+  generateEnvContentWithNewline(): string {
+    return this.generateEnvContent();
+  }
+
+  /**
    * Clear stored Environment ID
    */
   clearEnvironmentId(): void {
