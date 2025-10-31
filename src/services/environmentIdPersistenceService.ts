@@ -138,22 +138,30 @@ After updating .env:
    * Generate .env content for the current Environment ID
    */
   generateEnvContent(): string {
+    console.log('[EnvironmentIdPersistenceService] Generating .env content');
     const currentId = this.loadEnvironmentId();
+    console.log('[EnvironmentIdPersistenceService] Current Environment ID:', currentId);
     if (!currentId) {
+      console.log('[EnvironmentIdPersistenceService] No Environment ID found');
       return '# No Environment ID found\n';
     }
 
-    return `# PingOne Environment ID
+    const content = `# PingOne Environment ID
 # Last updated: ${new Date().toISOString()}
 REACT_APP_PINGONE_ENVIRONMENT_ID=${currentId}
 `;
+    console.log('[EnvironmentIdPersistenceService] Generated .env content:', content);
+    return content;
   }
 
   /**
    * Generate .env content with newline (for appending to existing .env)
    */
   generateEnvContentWithNewline(): string {
-    return this.generateEnvContent();
+    console.log('[EnvironmentIdPersistenceService] Generating .env content with newline');
+    const content = this.generateEnvContent();
+    console.log('[EnvironmentIdPersistenceService] Generated .env content with newline:', content);
+    return content + '\n';
   }
 
   /**
