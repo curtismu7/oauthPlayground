@@ -1606,38 +1606,38 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			console.log('🚀 [Redirectless] Step 4 response data (tokens):', tokens);
 			controller.setTokens(tokens);
 			// Don't set the auth code since it's already been consumed
-			// The tokens are already obtained, so we can skip the manual token exchange step
-			console.log('🚀 [Redirectless] Tokens obtained successfully, advancing to step 5 (Token Results)...');
-			setCurrentStep(5); // proceed to token results step instead of token exchange
+			// The tokens are already obtained, so we show the token exchange step with tokens
+			console.log('🚀 [Redirectless] Tokens obtained successfully, advancing to step 4 (Token Exchange)...');
+			setCurrentStep(4); // proceed to token exchange step to show the tokens
 			// Persist step to avoid step-restoration effects jumping back
-			sessionStorage.setItem('oauth-authorization-code-v7-current-step', '5');
-			AuthorizationCodeSharedService.StepRestoration.storeStepForRestoration(5);
+			sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
+			AuthorizationCodeSharedService.StepRestoration.storeStepForRestoration(4);
 			// Reflect step in URL for any watchers and future restores
 			// Only update URL if no OAuth callback parameters are present
 			const currentUrl = new URL(window.location.href);
 			const hasOAuthCallback = currentUrl.searchParams.has('code') || currentUrl.searchParams.has('error');
 			if (!hasOAuthCallback) {
-				currentUrl.searchParams.set('step', '5');
+				currentUrl.searchParams.set('step', '4');
 				window.history.replaceState({}, '', currentUrl.toString());
-				console.log('🚀 [Redirectless] Step 5 set, URL updated:', currentUrl.toString());
+				console.log('🚀 [Redirectless] Step 4 set, URL updated:', currentUrl.toString());
 			} else {
-				console.log('🚀 [Redirectless] Step 5 set, but skipping URL update due to OAuth callback parameters');
+				console.log('🚀 [Redirectless] Step 4 set, but skipping URL update due to OAuth callback parameters');
 			}
 			// Multiple timeouts to ensure step advancement sticks
 			setTimeout(() => {
-				console.log('🚀 [Redirectless] Timeout 0ms: Setting step to 5');
-				setCurrentStep(5);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '5');
+				console.log('🚀 [Redirectless] Timeout 0ms: Setting step to 4');
+				setCurrentStep(4);
+				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
 			}, 0);
 			setTimeout(() => {
-				console.log('🚀 [Redirectless] Timeout 100ms: Setting step to 5');
-				setCurrentStep(5);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '5');
+				console.log('🚀 [Redirectless] Timeout 100ms: Setting step to 4');
+				setCurrentStep(4);
+				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
 			}, 100);
 			setTimeout(() => {
-				console.log('🚀 [Redirectless] Timeout 500ms: Setting step to 5');
-				setCurrentStep(5);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '5');
+				console.log('🚀 [Redirectless] Timeout 500ms: Setting step to 4');
+				setCurrentStep(4);
+				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
 			}, 500);
 			v4ToastManager.showSuccess('Redirectless flow complete: tokens received');
 		} catch (e) {
