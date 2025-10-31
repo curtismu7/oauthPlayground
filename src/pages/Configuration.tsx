@@ -29,10 +29,10 @@ import PingOneApplicationConfig, {
   type PingOneApplicationState,
 } from "../components/PingOneApplicationConfig";
 import { v4ToastManager } from "../utils/v4ToastMessages";
-import ComprehensiveCredentialsService from "../services/comprehensiveCredentialsService";
 import type { StepCredentials } from "../components/steps/CommonSteps";
 import packageJson from "../../package.json";
 import { WorkerTokenModal } from "../components/WorkerTokenModal";
+import ConfigurationURIChecker from "../components/ConfigurationURIChecker";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -390,12 +390,6 @@ const Configuration: React.FC = () => {
     setCredentialsSaved(false);
   };
 
-  // Handle comprehensive credentials changes
-  const handleCredentialsChange = (updatedCredentials: StepCredentials) => {
-    setCredentials(updatedCredentials);
-    setCredentialsSaved(false);
-  };
-
   const copyToClipboard = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -659,21 +653,115 @@ const Configuration: React.FC = () => {
       </CollapsibleHeader>
 
       {/* Credentials Configuration Section */}
-      <ComprehensiveCredentialsService
-        flowType="configuration"
-        credentials={credentials}
-        onCredentialsChange={handleCredentialsChange}
-        onSaveCredentials={saveCredentials}
-        hasUnsavedChanges={!credentialsSaved}
+      <CollapsibleHeader
         title="Application Configuration & Credentials"
         subtitle="Configure your PingOne environment credentials for the OAuth Playground"
-        showAdvancedConfig={true}
-        showConfigChecker={false}
-        requireClientSecret={true}
-        showRedirectUri={true}
-        showPostLogoutRedirectUri={false}
-        showLoginHint={false}
-        showClientAuthMethod={true}
+        icon={<FiSettings />}
+        defaultCollapsed={false}
+      >
+        <Card style={{ border: "none", boxShadow: "none", marginBottom: 0 }}>
+          {credentialsSaved && (
+            <InfoBox $type="success">
+              <FiCheckCircle size={16} />
+              <strong>Credentials saved!</strong> Your PingOne credentials are
+              now configured and will be used across all flows.
+            </InfoBox>
+          )}
+
+          <CredentialsInput
+            environmentId={credentials.environmentId}
+            clientId={credentials.clientId}
+            clientSecret={credentials.clientSecret}
+            redirectUri={credentials.redirectUri}
+            scopes={credentials.scopes}
+            onEnvironmentIdChange={(value) =>
+              handleCredentialChange("environmentId", value)
+            }
+            onClientIdChange={(value) =>
+              handleCredentialChange("clientId", value)
+            }
+            onClientSecretChange={(value) =>
+              handleCredentialChange("clientSecret", value)
+            }
+            onRedirectUriChange={(value) =>
+              handleCredentialChange("redirectUri", value)
+            }
+            onScopesChange={(value) =>
+              handleCredentialChange("scopes", value)
+            }
+            onCopy={copyToClipboard}
+            showEnvironmentIdInput={true}
+            onDiscoveryComplete={async (result) => {
+              if (result.success && result.document) {
+                console.log("OIDC Discovery completed successfully");
+                // Auto-populate environment ID if it's a PingOne issuer
+                const envId = result.document.issuer.split("/").pop();
+                if (envId) {
+                  handleCredentialChange("environmentId", envId);
+                }
+                // Set default redirect URI if not already set
+                if (!credentials.redirectUri) {
+                  handleCredentialChange(
+                    "redirectUri",
+                    "http://localhost:3000/callback",
+                  );
+                }
+              }
+            }}
+            copiedField={copiedText}
+          />
+
+          <div
+            style={{
+              marginTop: "1rem",
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <button
+              onClick={saveCredentials}
+              style={{
+                background: hasCredentials ? "#10b981" : "#3b82f6",
+                color: "white",
+                border: "1px solid #ffffff",
+                borderRadius: "0.5rem",
+                padding: "0.75rem 1.5rem",
+                fontSize: "0.875rem",
+                fontWeight: "600",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = hasCredentials
+                  ? "#059669"
+                  : "#2563eb";
+                e.currentTarget.style.borderColor = "#ffffff";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = hasCredentials
+                  ? "#10b981"
+                  : "#3b82f6";
+                e.currentTarget.style.borderColor = "#ffffff";
+              }}
+            >
+              <FiSave size={16} />
+              {hasCredentials ? "Update Credentials" : "Save Credentials"}
+            </button>
+          </div>
+        </Card>
+      </CollapsibleHeader>
+
+      {/* Configuration URI Checker */}
+      <ConfigurationURIChecker
+        flowType="configuration"
+        environmentId={credentials.environmentId}
+        clientId={credentials.clientId}
+        workerToken={workerToken}
+        redirectUri={credentials.redirectUri}
+        region="NA"
       />
 
       <CollapsibleHeader
