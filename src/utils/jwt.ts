@@ -1,4 +1,11 @@
-import { Buffer } from 'node:buffer';
+// Browser-compatible base64 encoding/decoding
+const base64Encode = (str: string): string => {
+	return btoa(unescape(encodeURIComponent(str)));
+};
+
+const base64Decode = (str: string): string => {
+	return decodeURIComponent(escape(atob(str)));
+};
 
 /**
  * JWT (JSON Web Token) utility functions
@@ -61,7 +68,7 @@ export const decodeJwt = (token: string | null | undefined): JwtPayload | null =
 
 		// Decode the payload (middle part)
 		const payload = parts[1];
-		const decoded = Buffer.from(payload, 'base64').toString('utf-8');
+		const decoded = base64Decode(payload);
 
 		return JSON.parse(decoded);
 	} catch (error) {
@@ -124,7 +131,7 @@ export const formatJwt = (token: string | null | undefined): FormattedJwt | null
 
 		const formatPart = <T>(part: string): T | string => {
 			try {
-				const decoded = Buffer.from(part, 'base64').toString('utf-8');
+				const decoded = base64Decode(part);
 				return JSON.parse(decoded) as T;
 			} catch {
 				return part;

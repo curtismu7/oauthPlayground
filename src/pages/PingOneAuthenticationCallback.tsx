@@ -157,6 +157,26 @@ const PingOneAuthenticationCallback: React.FC = () => {
     
     const tokenData = await response.json();
     console.log('[PingOneAuthenticationCallback] Token exchange response:', tokenData);
+    // Persist minimal flow log for redirect flow visibility on results page
+    try {
+      const miniLog = [
+        {
+          step: 'redirect-4',
+          title: 'Backend Exchanges Code for Tokens (redirect flow)',
+          method: 'POST',
+          url: tokenEndpoint,
+          params: { grant_type: 'authorization_code' },
+          requestBody: { ...tokenRequest, code: code ? `${String(code).substring(0, 20)}...` : undefined },
+          response: {
+            access_token: tokenData?.access_token ? 'received' : 'N/A',
+            id_token: tokenData?.id_token ? 'received' : 'N/A',
+            refresh_token: tokenData?.refresh_token ? 'received' : 'N/A'
+          },
+          fullResponse: tokenData
+        }
+      ];
+      localStorage.setItem('pingone_login_flow_log', JSON.stringify(miniLog));
+    } catch {}
     
     // Clean up PKCE data
     sessionStorage.removeItem('pkce_code_verifier');
@@ -170,6 +190,20 @@ const PingOneAuthenticationCallback: React.FC = () => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         return { ...DEFAULT_CONFIG, ...JSON.parse(stored) } as PlaygroundResult['config'];
+      }
+      // Fallback to permanent credentials saved by CredentialManager
+      const permanentRaw = localStorage.getItem('pingone_permanent_credentials');
+      if (permanentRaw) {
+        const p = JSON.parse(permanentRaw);
+        return {
+          environmentId: p.environmentId || DEFAULT_CONFIG.environmentId,
+          clientId: p.clientId || DEFAULT_CONFIG.clientId,
+          clientSecret: p.clientSecret || DEFAULT_CONFIG.clientSecret,
+          redirectUri: p.redirectUri || DEFAULT_CONFIG.redirectUri,
+          scopes: Array.isArray(p.scopes) ? p.scopes.join(' ') : (p.scopes || DEFAULT_CONFIG.scopes),
+          responseType: 'code',
+          tokenEndpointAuthMethod: p.tokenAuthMethod || 'client_secret_post'
+        } as PlaygroundResult['config'];
       }
     } catch (error) {
       console.warn('[PingOneAuthenticationCallback] Failed to load config:', error);
