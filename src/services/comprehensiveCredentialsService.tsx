@@ -677,6 +677,12 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod
 		});
 		console.log('[ComprehensiveCredentialsService] Current resolvedCredentials:', resolvedCredentials);
+		console.log('[ComprehensiveCredentialsService] Available handlers:', {
+			onCredentialsChange: !!onCredentialsChange,
+			onClientIdChange: !!onClientIdChange,
+			onClientSecretChange: !!onClientSecretChange,
+			onClientAuthMethodChange: !!onClientAuthMethodChange
+		});
 
 		// Auto-fill credentials from selected application
 		const updates: Partial<StepCredentials> = {
@@ -695,11 +701,13 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		}
 
 		console.log('[ComprehensiveCredentialsService] Updates to apply:', updates);
+		console.log('[ComprehensiveCredentialsService] Calling applyCredentialUpdates...');
 		applyCredentialUpdates(updates, { shouldSave: false });
+		console.log('[ComprehensiveCredentialsService] applyCredentialUpdates completed');
 
 		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
 		v4ToastManager.showSuccess(`Application "${application.name}" selected${logoutUriInfo}`);
-	}, [resolvedCredentials, applyCredentialUpdates]);
+	}, [resolvedCredentials, applyCredentialUpdates, onCredentialsChange, onClientIdChange, onClientSecretChange, onClientAuthMethodChange]);
 
 	// Handle discovery completion and update environment ID
 	const handleInternalDiscoveryComplete = useCallback(
