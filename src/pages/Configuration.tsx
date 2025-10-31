@@ -536,6 +536,13 @@ const Configuration: React.FC = () => {
     }
   }, [credentials.environmentId]);
 
+  // Calculate if worker token button should be disabled
+  const isWorkerTokenButtonDisabled =
+    workerTokenLoading ||
+    !credentials.environmentId ||
+    !credentials.clientId ||
+    !credentials.clientSecret;
+
   return (
     <Container>
       <FlowHeader flowId="configuration" />
@@ -577,12 +584,7 @@ const Configuration: React.FC = () => {
           <div style={{ marginBottom: "1rem" }}>
             <button
               onClick={getWorkerToken}
-              disabled={
-                workerTokenLoading ||
-                !credentials.environmentId ||
-                !credentials.clientId ||
-                !credentials.clientSecret
-              }
+              disabled={isWorkerTokenButtonDisabled}
               style={{
                 background: workerToken ? "#10b981" : "#3b82f6",
                 color: "white",
@@ -591,15 +593,15 @@ const Configuration: React.FC = () => {
                 padding: "0.75rem 1.5rem",
                 fontSize: "0.875rem",
                 fontWeight: "600",
-                cursor: workerTokenLoading ? "not-allowed" : "pointer",
+                cursor: isWorkerTokenButtonDisabled ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
                 transition: "all 0.2s ease",
-                opacity: workerTokenLoading ? 0.6 : 1,
+                opacity: isWorkerTokenButtonDisabled ? 0.6 : 1,
               }}
               onMouseEnter={(e) => {
-                if (!workerTokenLoading) {
+                if (!isWorkerTokenButtonDisabled) {
                   e.currentTarget.style.backgroundColor = workerToken
                     ? "#059669"
                     : "#2563eb";
@@ -607,7 +609,7 @@ const Configuration: React.FC = () => {
                 }
               }}
               onMouseLeave={(e) => {
-                if (!workerTokenLoading) {
+                if (!isWorkerTokenButtonDisabled) {
                   e.currentTarget.style.backgroundColor = workerToken
                     ? "#10b981"
                     : "#3b82f6";
