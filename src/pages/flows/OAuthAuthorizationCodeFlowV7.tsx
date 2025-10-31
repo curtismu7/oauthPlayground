@@ -1337,6 +1337,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
 			console.log('[OAuth Authorization Code V7] handleFieldChange called:', { field, value: field === 'clientSecret' ? '***HIDDEN***' : value });
+			console.log('[OAuth Authorization Code V7] Current controller.credentials:', {
+				environmentId: controller.credentials.environmentId,
+				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+				hasClientSecret: !!controller.credentials.clientSecret,
+			});
 			const isScopeField = field === 'scope' || field === 'scopes';
 			// Don't normalize scopes on every keystroke - let user type freely
 			const updatedCredentials: StepCredentials = {
@@ -1349,7 +1354,11 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 					}
 					: {}),
 			};
-			console.log('[OAuth Authorization Code V7] Updated credentials:', updatedCredentials);
+			console.log('[OAuth Authorization Code V7] Updated credentials:', {
+				environmentId: updatedCredentials.environmentId,
+				clientId: updatedCredentials.clientId?.substring(0, 8) + '...',
+				hasClientSecret: !!updatedCredentials.clientSecret,
+			});
 			controller.setCredentials(updatedCredentials);
 			// Save credentials with variant-specific key for better isolation
 			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
