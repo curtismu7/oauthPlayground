@@ -372,7 +372,18 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	// Retrieve worker token from localStorage if not provided
 	const [retrievedWorkerToken, setRetrievedWorkerToken] = useState<string>('');
 	
-	// Function to check and retrieve worker token from localStorage
+	// Retrieve worker credentials from localStorage
+	const [retrievedWorkerCredentials, setRetrievedWorkerCredentials] = useState<{
+		environmentId: string;
+		clientId: string;
+		clientSecret: string;
+	}>({
+		environmentId: '',
+		clientId: '',
+		clientSecret: ''
+	});
+	
+	// Function to check and retrieve worker token and credentials from localStorage
 	const checkWorkerToken = useCallback(() => {
 		const storedWorkerToken = localStorage.getItem('worker_token');
 		const expiresAt = localStorage.getItem('worker_token_expires_at');
@@ -399,6 +410,22 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			setRetrievedWorkerToken(storedWorkerToken);
 		} else {
 			setRetrievedWorkerToken('');
+		}
+		
+		// Load worker credentials
+		const workerCreds = localStorage.getItem('worker_credentials');
+		if (workerCreds) {
+			try {
+				const parsed = JSON.parse(workerCreds);
+				setRetrievedWorkerCredentials({
+					environmentId: parsed.environmentId || '',
+					clientId: parsed.clientId || '',
+					clientSecret: parsed.clientSecret || ''
+				});
+				console.log('[COMPREHENSIVE-CREDENTIALS] Loaded worker credentials from localStorage');
+			} catch (error) {
+				console.error('[COMPREHENSIVE-CREDENTIALS] Error parsing worker credentials:', error);
+			}
 		}
 	}, []);
 	
@@ -774,14 +801,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						</div>
 					)}
 					
-					<PingOneApplicationPicker
-						environmentId={resolvedCredentials.environmentId || ''}
-						clientId={resolvedCredentials.clientId || ''}
-						clientSecret={resolvedCredentials.clientSecret || ''}
-						workerToken={effectiveWorkerToken}
-						onApplicationSelect={handleApplicationSelect}
-						disabled={isSaving || !resolvedCredentials.environmentId || !effectiveWorkerToken}
-					/>
+				<PingOneApplicationPicker
+					environmentId={retrievedWorkerCredentials.environmentId || resolvedCredentials.environmentId || ''}
+					clientId={retrievedWorkerCredentials.clientId || ''}
+					clientSecret={retrievedWorkerCredentials.clientSecret || ''}
+					workerToken={effectiveWorkerToken}
+					onApplicationSelect={handleApplicationSelect}
+					disabled={isSaving || !retrievedWorkerCredentials.environmentId || !effectiveWorkerToken}
+				/>
 				</CollapsibleHeader>
 
 				<CollapsibleHeader
