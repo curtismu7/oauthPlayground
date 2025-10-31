@@ -3034,21 +3034,114 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 										/>
 									)}
 
-								{/* Only show tokens if they were exchanged in this session */}
-								{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
-									controller.tokens,
-									flowVariant,
-									'oauth-authorization-code-v7',
-									{
-										showCopyButtons: true,
-										showDecodeButtons: true,
-									}
-								)}
-								</CollapsibleContent>
+							{/* Only show tokens if they were exchanged in this session */}
+							{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
+								controller.tokens,
+								flowVariant,
+								'oauth-authorization-code-v7',
+								{
+									showCopyButtons: true,
+									showDecodeButtons: true,
+								}
 							)}
-						</CollapsibleSection>
-					</>
-				);
+
+							{/* Mock Token Display for Educational Purposes */}
+							{tokenExchangeApiCall && (
+								<CollapsibleSection>
+									<CollapsibleHeaderButton
+										onClick={() => toggleSection('mockTokenDisplay')}
+										aria-expanded={!collapsedSections.mockTokenDisplay}
+									>
+										<CollapsibleTitle>
+											<FiPackage /> Mock Token Response (Educational)
+										</CollapsibleTitle>
+										<CollapsibleToggleIcon $collapsed={collapsedSections.mockTokenDisplay}>
+											<FiChevronDown />
+										</CollapsibleToggleIcon>
+									</CollapsibleHeaderButton>
+									{!collapsedSections.mockTokenDisplay && (
+										<CollapsibleContent>
+											<ResultsSection>
+												<ResultsHeading>
+													<FiInfo size={18} /> Example Token Response
+												</ResultsHeading>
+												<HelperText>
+													This shows what a typical OAuth token response looks like. The actual tokens above are real and can be used for API calls.
+												</HelperText>
+												
+												{UnifiedTokenDisplayService.showTokens(
+													{
+														access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+														token_type: 'Bearer',
+														expires_in: 3600,
+														refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwicmVmcmVzaCI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.example_refresh_token_signature',
+														scope: 'openid profile email',
+														id_token: flowVariant === 'oidc' ? 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.example_id_token_signature' : undefined
+													},
+													flowVariant,
+													'oauth-authorization-code-v7-mock',
+													{
+														showCopyButtons: true,
+														showDecodeButtons: true,
+													}
+												)}
+											</ResultsSection>
+										</CollapsibleContent>
+									)}
+								</CollapsibleSection>
+							)}
+
+							{/* Code Examples Section */}
+							{controller.tokens?.access_token && (
+								<CollapsibleSection>
+									<CollapsibleHeaderButton
+										onClick={() => toggleSection('apiCallExamples')}
+										aria-expanded={!collapsedSections.apiCallExamples}
+									>
+										<CollapsibleTitle>
+											<FiCode /> Code Examples
+										</CollapsibleTitle>
+										<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
+											<FiChevronDown />
+										</CollapsibleToggleIcon>
+									</CollapsibleHeaderButton>
+									{!collapsedSections.apiCallExamples && (
+										<CollapsibleContent>
+											<ResultsSection>
+												<ResultsHeading>
+													<FiCode size={18} /> Test Your Access Token
+												</ResultsHeading>
+												<HelperText>
+													Use the access token to make authenticated API calls. Use the code examples
+													below to test your token with a PingOne API endpoint.
+												</HelperText>
+
+												<CodeExamplesDisplay
+													flowType="authorization-code"
+													stepId="step4"
+													config={{
+														baseUrl: 'https://auth.pingone.com',
+														clientId: controller.credentials.clientId || '',
+														clientSecret: controller.credentials.clientSecret || '',
+														redirectUri: controller.credentials.redirectUri || '',
+														scopes: typeof controller.credentials.scopes === 'string' 
+															? controller.credentials.scopes.split(' ') 
+															: Array.isArray(controller.credentials.scopes) 
+																? controller.credentials.scopes 
+																: ['openid', 'profile'],
+														environmentId: controller.credentials.environmentId || '',
+													}}
+												/>
+											</ResultsSection>
+										</CollapsibleContent>
+									)}
+								</CollapsibleSection>
+							)}
+							</CollapsibleContent>
+						)}
+					</CollapsibleSection>
+				</>
+			);
 
 			case 5:
 				return (
