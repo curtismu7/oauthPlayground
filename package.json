@@ -1,6 +1,6 @@
 {
 	"name": "pingone-oauth-playground",
-	"version": "7.3.9",
+	"version": "7.3.10",
 	"description": "Interactive playground for PingOne OAuth 2.0 and OpenID Connect",
 	"main": "src/main.tsx",
 	"type": "module",
