@@ -732,7 +732,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		console.log('[ComprehensiveCredentialsService] applyCredentialUpdates completed');
 
 		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
-		const toastMessage = `Application "${application.name}" selected${logoutUriInfo}`;
+		const secretInfo = !application.clientSecret ? ' - Please enter Client Secret manually' : '';
+		const toastMessage = `Application "${application.name}" selected${logoutUriInfo}${secretInfo}`;
 		console.log('[ComprehensiveCredentialsService] Showing toast message:', toastMessage);
 		// Use setTimeout to avoid React warning about updating NotificationProvider during render
 		setTimeout(() => {
