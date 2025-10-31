@@ -166,6 +166,12 @@ class FlowErrorServiceClass {
       if (errorKey) {
         return ERROR_MESSAGES[errorKey];
       }
+      
+      // Check for specific error patterns
+      const lowerDesc = config.description.toLowerCase();
+      if (lowerDesc.includes('client id is required') || lowerDesc.includes('client_id is required')) {
+        return ERROR_MESSAGES['client_id_is_required'];
+      }
     }
 
     // Categorize and return appropriate generic template
