@@ -32,7 +32,6 @@ import { v4ToastManager } from "../utils/v4ToastMessages";
 import type { StepCredentials } from "../components/steps/CommonSteps";
 import packageJson from "../../package.json";
 import { WorkerTokenModal } from "../components/WorkerTokenModal";
-import ConfigurationURIChecker from "../components/ConfigurationURIChecker";
 import ComprehensiveCredentialsService from "../services/comprehensiveCredentialsService";
 
 const Container = styled.div`
@@ -764,16 +763,6 @@ const Configuration: React.FC = () => {
         showConfigChecker={true}
         title="PingOne Application Picker"
         subtitle="Select an existing PingOne application to auto-fill credentials"
-        region="NA"
-      />
-
-      {/* Configuration URI Checker */}
-      <ConfigurationURIChecker
-        flowType="configuration"
-        environmentId={credentials.environmentId}
-        clientId={credentials.clientId}
-        workerToken={workerToken}
-        redirectUri={credentials.redirectUri}
         region="NA"
       />
 
