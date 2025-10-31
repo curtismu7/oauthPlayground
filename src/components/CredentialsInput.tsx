@@ -7,6 +7,7 @@ import EnvironmentIdInput from './EnvironmentIdInput';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
 import { CopyButtonVariants } from '../services/copyButtonService';
 import { callbackUriService } from '../services/callbackUriService';
+import LogoutUriInfoPanel from './LogoutUriInfoPanel';
 
 // CSS animation for loading spinner
 const spin = keyframes`
@@ -795,85 +796,10 @@ export const CredentialsInput = ({
 						</div>
 						
 						{/* Enhanced Logout URI Information Panel */}
-						<div style={{ 
-							marginTop: '0.75rem', 
-							padding: '1rem', 
-							backgroundColor: '#fef3c7', 
-							border: '2px solid #f59e0b', 
-							borderRadius: '0.5rem',
-							fontSize: '0.875rem',
-							color: '#92400e',
-							boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
-						}}>
-							<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-								<span style={{ fontSize: '1.25rem', marginRight: '0.5rem' }}>🚪</span>
-								<strong style={{ fontSize: '1rem', color: '#92400e' }}>
-									{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').description} Logout URI
-								</strong>
-							</div>
-							
-							<div style={{ 
-								backgroundColor: '#eff6ff', 
-								padding: '0.75rem', 
-								borderRadius: '0.375rem',
-								marginBottom: '0.75rem',
-								border: '1px solid #dbeafe'
-							}}>
-								<div style={{ fontSize: '0.8rem', color: '#1e40af', marginBottom: '0.25rem', fontWeight: '500' }}>
-									Flow-Specific Logout URI:
-								</div>
-								<code style={{ 
-									color: '#1e40af', 
-									backgroundColor: '#dbeafe', 
-									padding: '0.25rem 0.5rem', 
-									borderRadius: '0.25rem',
-									fontSize: '0.875rem',
-									fontWeight: '600',
-									display: 'block',
-									wordBreak: 'break-all'
-								}}>
-									{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutUri}
-								</code>
-							</div>
-							
-							<div style={{ fontSize: '0.8rem', color: '#92400e', marginBottom: '0.5rem', lineHeight: '1.4' }}>
-								<strong>Purpose:</strong> {callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').logoutNote}
-							</div>
-							
-							<div style={{ 
-								backgroundColor: '#fef2f2', 
-								border: '1px solid #fecaca', 
-								padding: '0.75rem', 
-								borderRadius: '0.375rem',
-								marginTop: '0.75rem'
-							}}>
-								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span style={{ fontSize: '1rem', marginRight: '0.5rem', color: '#dc2626' }}>⚠️</span>
-									<strong style={{ fontSize: '0.875rem', color: '#dc2626' }}>PingOne Configuration Required</strong>
-								</div>
-								<div style={{ fontSize: '0.8rem', color: '#dc2626', lineHeight: '1.4' }}>
-									Add this exact URI to your PingOne application's <strong>"Post Logout Redirect URIs"</strong> list. 
-									Each flow requires its own unique logout URI to prevent conflicts.
-								</div>
-							</div>
-							
-							<div style={{ 
-								backgroundColor: '#f0f9ff', 
-								border: '1px solid #bae6fd', 
-								padding: '0.75rem', 
-								borderRadius: '0.375rem',
-								marginTop: '0.75rem'
-							}}>
-								<div style={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
-									<span style={{ fontSize: '1rem', marginRight: '0.5rem', color: '#0369a1' }}>📖</span>
-									<strong style={{ fontSize: '0.875rem', color: '#0369a1' }}>Documentation</strong>
-								</div>
-								<div style={{ fontSize: '0.8rem', color: '#0369a1', lineHeight: '1.4' }}>
-									For complete logout URI documentation and troubleshooting, see the 
-									<strong> Logout URIs Reference</strong> in the project documentation.
-								</div>
-							</div>
-						</div>
+						<LogoutUriInfoPanel 
+							flowKey={flowKey || 'authorization_code'} 
+							compact={true}
+						/>
 					</FormField>
 				)}
 			</FormGrid>
