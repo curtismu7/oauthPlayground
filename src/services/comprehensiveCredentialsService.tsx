@@ -2,7 +2,7 @@
 // Comprehensive Credentials Service - All-in-one configuration for OAuth/OIDC flows
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { FiSettings, FiKey } from 'react-icons/fi';
+import { FiSettings, FiKey, FiCheckCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
 import { CredentialsInput } from '../components/CredentialsInput';
@@ -798,6 +798,24 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							>
 								Get Worker Token
 							</button>
+						</div>
+					)}
+					
+					{effectiveWorkerToken && (
+						<div style={{ 
+							padding: '1rem', 
+							backgroundColor: '#d4edda', 
+							borderRadius: '6px', 
+							border: '1px solid #c3e6cb',
+							marginBottom: '1rem',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.75rem'
+						}}>
+							<FiCheckCircle style={{ color: '#28a745', fontSize: '1.25rem', flexShrink: 0 }} />
+							<p style={{ margin: '0', fontSize: '0.9rem', color: '#155724', fontWeight: '500' }}>
+								Worker token obtained! Select an application below to auto-fill credentials.
+							</p>
 						</div>
 					)}
 					
