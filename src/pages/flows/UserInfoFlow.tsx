@@ -12,7 +12,7 @@ import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -1177,19 +1177,17 @@ console.log('Welcome, ' + user.name + '!');`,
 					)}
 
 					{accessToken && (
-						<UltimateTokenDisplay
-							tokens={{ access_token: accessToken, token_type: 'Bearer' }}
-							flowType="oauth"
-							flowKey="userinfo-flow"
-							displayMode="compact"
-							title="Access Token for UserInfo"
-							subtitle="Token used to access the UserInfo endpoint"
-							showCopyButtons={true}
-							showDecodeButtons={true}
-							showMaskToggle={true}
-							showTokenManagement={true}
-							defaultMasked={true}
-						/>
+						<>
+							{UnifiedTokenDisplayService.showTokens(
+								{ access_token: accessToken, token_type: 'Bearer' },
+								'oauth',
+								'userinfo-flow',
+								{
+									showCopyButtons: true,
+									showDecodeButtons: true,
+								}
+							)}
+						</>
 					)}
 
 					{/* Request/Response Section */}
