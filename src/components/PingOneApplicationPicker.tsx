@@ -518,7 +518,10 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 								</Table>
 								
 								<ButtonContainer>
-									<ApplyButton onClick={() => onApplicationSelect(selectedApp)}>
+									<ApplyButton onClick={() => {
+										console.log('[PingOneApplicationPicker] Apply Configuration clicked, calling onApplicationSelect with:', selectedApp);
+										onApplicationSelect(selectedApp);
+									}}>
 										<FiCheck size={14} />
 										Apply Configuration
 									</ApplyButton>
