@@ -8,6 +8,7 @@ import {
 	FiBook,
 	FiCheckCircle,
 	FiChevronDown,
+	FiCode,
 	FiExternalLink,
 	FiGlobe,
 	FiInfo,
@@ -51,6 +52,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { UISettingsService } from '../../services/uiSettingsService';
@@ -926,9 +928,6 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
 	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
 	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
-	// Downscoped token exchange (RFC 8693) state
-	const [limitedScopesInput, setLimitedScopesInput] = useState<string>('openid profile');
-	const [downscopedTokenJson, setDownscopedTokenJson] = useState<string | null>(null);
 	
 	// Advanced OAuth parameters
 	const [audience, setAudience] = useState<string>('');
@@ -1923,56 +1922,6 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		controller.resetFlow();
 		setCurrentStep(0);
 	}, [controller]);
-
-	// Exchange current access token for a limited-scope token (RFC 8693)
-	const handleDownscopeExchange = useCallback(async () => {
-		try {
-			setDownscopedTokenJson(null);
-			const subjectToken = (controller.tokens as any)?.access_token || (controller.tokens as any)?.accessToken;
-			if (!subjectToken) {
-				v4ToastManager.showError('No access token available to exchange');
-				return;
-			}
-
-			const envId = controller.credentials.environmentId;
-			const clientId = controller.credentials.clientId;
-			const clientSecret = controller.credentials.clientSecret;
-			if (!envId || !clientId || !clientSecret) {
-				v4ToastManager.showError('Missing environment or client credentials for token exchange');
-				return;
-			}
-
-			const body = {
-				grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
-				environment_id: envId,
-				client_id: clientId,
-				client_secret: clientSecret,
-				subject_token: subjectToken,
-				subject_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-				requested_token_type: 'urn:ietf:params:oauth:token-type:access_token',
-				scope: String(limitedScopesInput || '').trim()
-			};
-
-			const resp = await fetch('/api/token-exchange', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(body)
-			});
-
-			const data = await resp.json().catch(() => ({}));
-			if (!resp.ok) {
-				console.error('❌ Downscope exchange failed', resp.status, data);
-				v4ToastManager.showError(`Token exchange failed: ${data.error_description || data.error || resp.statusText}`);
-				return;
-			}
-
-			setDownscopedTokenJson(JSON.stringify(data, null, 2));
-			v4ToastManager.showSuccess('✅ Exchanged token issued with limited scopes');
-		} catch (e: any) {
-			console.error('Downscope exchange error', e);
-			v4ToastManager.showError(`Token exchange error: ${e?.message || 'Unknown error'}`);
-		}
-	}, [controller, limitedScopesInput]);
 
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
@@ -3158,48 +3107,52 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 							/>
 						)}
 
-					{/* RFC 8693: Exchange current access token for limited scopes */}
-					{controller.tokens?.access_token || (controller.tokens as any)?.accessToken ? (
-						<div style={{ marginTop: '1.5rem' }}>
-							<ResultsSection>
-								<ResultsHeading>
-									<FiKey size={18} /> Token Exchange (Downscope)
-								</ResultsHeading>
-								<HelperText>
-									Exchange the current access token for a new token with limited scopes. Useful for AI agent and
-									microservice calls that should run with least privilege. Real PingOne tokens will be returned.
-								</HelperText>
-								<div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginTop: '0.5rem' }}>
-									<label style={{ fontSize: '0.875rem', color: '#374151' }}>Requested scopes</label>
-									<input
-										type="text"
-										value={limitedScopesInput}
-										onChange={(e) => setLimitedScopesInput(e.target.value)}
-										placeholder="openid profile"
-										style={{ flex: 1, padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: 6 }}
-									/>
-									<Button $variant="primary" onClick={handleDownscopeExchange}>
-										<FiRefreshCw /> Exchange Token
-									</Button>
-								</div>
+						{/* Code Examples Section for Step 5 */}
+						{controller.tokens?.access_token && (
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('apiCallExamples')}
+									aria-expanded={!collapsedSections.apiCallExamples}
+								>
+									<CollapsibleTitle>
+										<FiCode /> Code Examples
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.apiCallExamples && (
+									<CollapsibleContent>
+										<ResultsSection>
+											<ResultsHeading>
+												<FiCode size={18} /> Test Your Access Token
+											</ResultsHeading>
+											<HelperText>
+												Use the access token to make authenticated API calls. Use the code examples
+												below to test your token with a PingOne API endpoint.
+											</HelperText>
 
-								{downscopedTokenJson && (
-									<GeneratedContentBox style={{ marginTop: '0.75rem' }}>
-										<GeneratedLabel>Exchanged Token (Limited Scopes)</GeneratedLabel>
-										<pre style={{
-											margin: 0,
-											background: '#ffffff',
-											color: '#111827',
-											padding: '0.75rem',
-											border: '1px solid #e5e7eb',
-											borderRadius: 6,
-											overflowX: 'auto'
-										}}>{downscopedTokenJson}</pre>
-									</GeneratedContentBox>
+											<CodeExamplesDisplay
+												flowType="authorization-code"
+												stepId="step5"
+												config={{
+													baseUrl: 'https://auth.pingone.com',
+													clientId: controller.credentials.clientId || '',
+													clientSecret: controller.credentials.clientSecret || '',
+													redirectUri: controller.credentials.redirectUri || '',
+													scopes: typeof controller.credentials.scopes === 'string' 
+														? controller.credentials.scopes.split(' ') 
+														: Array.isArray(controller.credentials.scopes) 
+															? controller.credentials.scopes 
+															: ['openid', 'profile'],
+													environmentId: controller.credentials.environmentId || '',
+												}}
+											/>
+										</ResultsSection>
+									</CollapsibleContent>
 								)}
-							</ResultsSection>
-						</div>
-					) : null}
+							</CollapsibleSection>
+						)}
 					</>
 				);
 
