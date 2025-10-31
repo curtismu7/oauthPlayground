@@ -223,13 +223,24 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			// Combine into JWT
 			const jwtToken = `${encodedHeader}.${encodedPayload}.${signature}`;
 			
-			const mockTokenData: ResourceOwnerPasswordTokens = {
-				access_token: jwtToken,
-				token_type: 'Bearer',
-				expires_in: 3600,
-				refresh_token: `mock_ropc_refresh_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
-				scope: credentials.scope,
-			};
+		// Generate a realistic refresh token (longer alphanumeric string like PingOne)
+		const generateRefreshToken = () => {
+			const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+			let token = '';
+			// PingOne refresh tokens are typically 40+ characters
+			for (let i = 0; i < 52; i++) {
+				token += chars.charAt(Math.floor(Math.random() * chars.length));
+			}
+			return token;
+		};
+
+		const mockTokenData: ResourceOwnerPasswordTokens = {
+			access_token: jwtToken,
+			token_type: 'Bearer',
+			expires_in: 3600,
+			refresh_token: generateRefreshToken(),
+			scope: credentials.scope,
+		};
 
 			if (enableDebugger) {
 				console.log('🎫 [ResourceOwnerPasswordV5] Mock tokens generated:', {
@@ -366,12 +377,56 @@ export const useResourceOwnerPasswordFlowV5 = ({
 			// Simulate network delay for realistic experience
 			await new Promise(resolve => setTimeout(resolve, 1200));
 
-			// Generate new mock tokens using the same credential values
+			// Generate realistic refreshed tokens
+			const now = Math.floor(Date.now() / 1000);
+			const exp = now + 3600;
+
+			// Create JWT header
+			const header = {
+				alg: 'RS256',
+				typ: 'JWT',
+				kid: 'default'
+			};
+
+			// Create JWT payload for refreshed token
+			const payload = {
+				iss: `https://auth.pingone.com/${credentials.environmentId}/as`,
+				sub: credentials.username,
+				aud: credentials.clientId,
+				exp: exp,
+				iat: now,
+				scope: credentials.scope,
+				client_id: credentials.clientId,
+				username: credentials.username,
+				flow: 'resource_owner_password_credentials',
+				environment_id: credentials.environmentId
+			};
+
+			// Encode header and payload
+			const encodedHeader = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+			const encodedPayload = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+			// Create mock signature
+			const signature = 'mock_signature_' + btoa(credentials.clientId + credentials.username + now).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+
+			// Combine into JWT
+			const refreshedJwtToken = `${encodedHeader}.${encodedPayload}.${signature}`;
+
+			// Generate realistic refresh token
+			const generateRefreshToken = () => {
+				const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+				let token = '';
+				for (let i = 0; i < 52; i++) {
+					token += chars.charAt(Math.floor(Math.random() * chars.length));
+				}
+				return token;
+			};
+
 			const newMockTokens: ResourceOwnerPasswordTokens = {
-				access_token: `mock_ropc_refreshed_access_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				access_token: refreshedJwtToken,
 				token_type: 'Bearer',
 				expires_in: 3600,
-				refresh_token: `mock_ropc_refreshed_refresh_token_${credentials.environmentId}_${credentials.clientId}_${Date.now()}`,
+				refresh_token: generateRefreshToken(),
 				scope: credentials.scope,
 			};
 
