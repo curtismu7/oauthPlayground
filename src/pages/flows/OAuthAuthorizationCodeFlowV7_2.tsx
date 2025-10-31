@@ -3178,9 +3178,9 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 										placeholder="openid profile"
 										style={{ flex: 1, padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: 6 }}
 									/>
-									<BlueActionButton onClick={handleDownscopeExchange}>
+									<Button $variant="primary" onClick={handleDownscopeExchange}>
 										<FiRefreshCw /> Exchange Token
-									</BlueActionButton>
+									</Button>
 								</div>
 
 								{downscopedTokenJson && (
