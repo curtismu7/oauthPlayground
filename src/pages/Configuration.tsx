@@ -33,6 +33,7 @@ import type { StepCredentials } from "../components/steps/CommonSteps";
 import packageJson from "../../package.json";
 import { WorkerTokenModal } from "../components/WorkerTokenModal";
 import ConfigurationURIChecker from "../components/ConfigurationURIChecker";
+import ComprehensiveCredentialsService from "../services/comprehensiveCredentialsService";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -753,6 +754,18 @@ const Configuration: React.FC = () => {
           </div>
         </Card>
       </CollapsibleHeader>
+
+      {/* PingOne Application Picker */}
+      <ComprehensiveCredentialsService
+        flowType="configuration"
+        isOIDC={false}
+        credentials={credentials}
+        onCredentialsChange={setCredentials}
+        showConfigChecker={true}
+        title="PingOne Application Picker"
+        subtitle="Select an existing PingOne application to auto-fill credentials"
+        region="NA"
+      />
 
       {/* Configuration URI Checker */}
       <ConfigurationURIChecker
