@@ -296,14 +296,19 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
     }, [environmentId, clientId, clientSecret, region, workerToken]);
 
 	const handleApplicationChange = useCallback((appId: string) => {
+		console.log('[PingOneApplicationPicker] Application changed:', appId);
 		setSelectedAppId(appId);
 		
 		// Auto-fill credentials when app is selected
 		if (appId && appId !== '') {
 			const selectedApp = applications.find(app => app.id === appId);
+			console.log('[PingOneApplicationPicker] Found application:', selectedApp);
 			if (selectedApp) {
+				console.log('[PingOneApplicationPicker] Calling onApplicationSelect with:', selectedApp);
 				onApplicationSelect(selectedApp);
 				setSuccess(`Selected application: ${selectedApp.name}`);
+			} else {
+				console.log('[PingOneApplicationPicker] No application found for ID:', appId);
 			}
 		}
 	}, [applications, onApplicationSelect]);

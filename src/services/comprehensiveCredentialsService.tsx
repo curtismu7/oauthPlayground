@@ -613,31 +613,40 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			} else {
 				console.log('[ComprehensiveCredentialsService] No onCredentialsChange, using individual handlers');
 				if (updates.environmentId !== undefined) {
+					console.log('[ComprehensiveCredentialsService] Calling onEnvironmentIdChange with:', updates.environmentId);
 					onEnvironmentIdChange?.(updates.environmentId);
 				}
 				if (updates.clientId !== undefined) {
+					console.log('[ComprehensiveCredentialsService] Calling onClientIdChange with:', updates.clientId);
 					onClientIdChange?.(updates.clientId);
 				}
 				if (updates.clientSecret !== undefined) {
+					console.log('[ComprehensiveCredentialsService] Calling onClientSecretChange with:', updates.clientSecret ? '***HIDDEN***' : '');
 					onClientSecretChange?.(updates.clientSecret);
 				}
 				if (updates.redirectUri !== undefined) {
+					console.log('[ComprehensiveCredentialsService] Calling onRedirectUriChange with:', updates.redirectUri);
 					onRedirectUriChange?.(updates.redirectUri);
 				}
 				if (updates.scope !== undefined || updates.scopes !== undefined) {
 					const scopedValue = updates.scope ?? updates.scopes ?? '';
+					console.log('[ComprehensiveCredentialsService] Calling onScopesChange with:', scopedValue);
 					onScopesChange?.(scopedValue);
 				}
 				if (updates.loginHint !== undefined) {
+					console.log('[ComprehensiveCredentialsService] Calling onLoginHintChange with:', updates.loginHint);
 					onLoginHintChange?.(updates.loginHint);
 				}
 				if (updates.postLogoutRedirectUri !== undefined) {
+					console.log('[ComprehensiveCredentialsService] Calling onPostLogoutRedirectUriChange with:', updates.postLogoutRedirectUri);
 					onPostLogoutRedirectUriChange?.(updates.postLogoutRedirectUri);
 				}
 				if (updates.clientAuthMethod !== undefined && onClientAuthMethodChange) {
+					console.log('[ComprehensiveCredentialsService] Calling onClientAuthMethodChange with:', updates.clientAuthMethod);
 					onClientAuthMethodChange(updates.clientAuthMethod as ClientAuthMethod);
 				}
 				if (updates.responseType !== undefined && onResponseTypeChange) {
+					console.log('[ComprehensiveCredentialsService] Calling onResponseTypeChange with:', updates.responseType);
 					onResponseTypeChange(updates.responseType);
 				}
 			}
