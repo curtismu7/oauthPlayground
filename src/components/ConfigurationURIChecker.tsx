@@ -101,7 +101,9 @@ const TableHeaderCell = styled.th`
 
 const URICell = styled(TableCell)`
   font-family: "Courier New", monospace;
-  word-break: break-all;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   max-width: 400px;
   display: flex;
   align-items: center;
