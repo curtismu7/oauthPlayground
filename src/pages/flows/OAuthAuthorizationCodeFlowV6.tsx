@@ -30,7 +30,7 @@ import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,
 	ResultsHeading,
@@ -2477,21 +2477,19 @@ const OAuthAuthorizationCodeFlowV6: React.FC = () => {
 									)}
 
 								{/* Only show tokens if they were exchanged in this session */}
-								{tokenExchangeApiCall && controller.tokens && (
-									<UltimateTokenDisplay
-										tokens={controller.tokens}
-										flowType="oauth"
-										flowKey="oauth-authorization-code-v6"
-										displayMode="detailed"
-										title="OAuth 2.0 Authorization Code Tokens"
-										subtitle="Access token obtained via Authorization Code flow"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										showMetadata={true}
-									/>
-								)}
+							{tokenExchangeApiCall && controller.tokens && (
+								<>
+									{UnifiedTokenDisplayService.showTokens(
+										controller.tokens,
+										'oauth',
+										'oauth-authorization-code-v6',
+										{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										}
+									)}
+								</>
+							)}
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
