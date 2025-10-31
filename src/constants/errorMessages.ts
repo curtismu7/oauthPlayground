@@ -294,6 +294,21 @@ export const ERROR_MESSAGES: Record<string, ErrorTemplate> = {
 		severity: 'error',
 	},
 
+	// Missing Credentials Error
+	'client_id_is_required': {
+		title: 'Missing OAuth Credentials',
+		message: 'OAuth credentials are required to complete this flow.',
+		suggestions: [
+			'Navigate to an OAuth flow page (e.g., /flows/oauth-authorization-code-v7)',
+			'Configure your OAuth credentials in Step 0',
+			'Do not access authorization callback URLs directly',
+			'Restart the flow from the beginning if you cleared your browser session',
+		],
+		icon: 'FiKey',
+		category: ErrorCategory.CONFIGURATION,
+		severity: 'error',
+	},
+
 	// Generic catch-all
 	'unknown_error': {
 		title: 'Unknown Error',
