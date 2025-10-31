@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiBook } from 'react-icons/fi';
+import { FiBook, FiCheck, FiSettings } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { callbackUriService } from '../services/callbackUriService';
 import ModalPresentationService from '../services/modalPresentationService';
 import { CredentialGuardService } from '../services/credentialGuardService';
-import HEBLoginPopup, { type HEBLoginCredentials } from '../components/HEBLoginPopup';
+import HEBLoginPopup, { type HEBLoginCredentials, type HEBBrandingOverrides } from '../components/HEBLoginPopup';
+import { useDavinciBranding } from '../hooks/useDavinciBranding';
 import AuthorizationUrlValidationModal from '../components/AuthorizationUrlValidationModal';
 import { authorizationUrlValidationService } from '../services/authorizationUrlValidationService';
 import type { ParsedAuthorizationUrl } from '../services/authorizationUrlValidationService';
@@ -14,6 +15,9 @@ import { AuthenticationModalService } from '../services/authenticationModalServi
 import { FlowHeader } from '../services/flowHeaderService';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import UnifiedTokenDisplayService from '../services/unifiedTokenDisplayService';
+import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
+import { getWorkerToken as getPingOneWorkerToken, type PingOneApplication } from '../services/pingOneApplicationService';
 
 type LoginMode = 'redirect' | 'redirectless';
 
@@ -57,6 +61,7 @@ export const FLOW_CONTEXT_KEY = 'pingone_login_playground_context';
 export const REDIRECT_FLOW_CONTEXT_KEY = 'pingone_redirect_flow_context';
 export const REDIRECTLESS_FLOW_CONTEXT_KEY = 'pingone_redirectless_flow_context';
 export const REDIRECTLESS_CREDS_KEY = 'pingone_login_redirectless_creds';
+export const WORKER_CREDENTIALS_KEY = 'pingone_worker_credentials';
 
 export const DEFAULT_CONFIG: PlaygroundConfig = {
 	environmentId: 'b9817c16-9910-4415-b67e-4ac687da74d9',
@@ -640,7 +645,8 @@ const CancelButton = styled.button`
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
 	const [showUrlValidationModal, setShowUrlValidationModal] = useState(false);
 	const [showAuthenticationModal, setShowAuthenticationModal] = useState(false);
-	const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string>('');
+	const [pendingRedirectUrl, setPendingRedirectUrl] = useState<string | null>(null);
+	const [pendingAuthUrl, setPendingAuthUrl] = useState<string>('');
 	const [urlValidationResult, setUrlValidationResult] = useState<{
 		isValid: boolean;
 		errors: string[];
@@ -650,8 +656,80 @@ const CancelButton = styled.button`
 		flowType: string;
 		severity: string;
 	} | null>(null);
-	const [pendingAuthUrl, setPendingAuthUrl] = useState<string>('');
-	
+	const { branding, hasBranding, openDesignStudio } = useDavinciBranding();
+	// Store latest real tokens to render with Decode/Copy
+	const [latestTokens, setLatestTokens] = useState<Record<string, string> | null>(null);
+	// Worker token for PingOne API access
+	const [workerToken, setWorkerToken] = useState<string | null>(null);
+	// Track selected application to detect grant types
+	const [selectedApplication, setSelectedApplication] = useState<PingOneApplication | null>(null);
+	// Separate worker credentials for Application Picker
+	const [workerCredentials, setWorkerCredentials] = useState({
+		environmentId: '',
+		clientId: '',
+		clientSecret: '',
+		tokenEndpointAuthMethod: 'client_secret_post' as 'client_secret_post' | 'client_secret_basic'
+	});
+	const [showWorkerCredentialsModal, setShowWorkerCredentialsModal] = useState(false);
+	const [hasLoadedWorkerCredentials, setHasLoadedWorkerCredentials] = useState(false);
+
+	const hebBrandingOverrides = useMemo<HEBBrandingOverrides>(() => {
+		const overrides: HEBBrandingOverrides = {
+			title: 'HEB',
+			subtitle: 'Sign in to your HEB account',
+		};
+
+		if (!branding || !hasBranding) {
+			return overrides;
+		}
+
+		if (branding.modalTitle && branding.modalTitle.trim()) {
+			overrides.title = branding.modalTitle.trim();
+		} else if (branding.wordmarkText && branding.wordmarkText.trim()) {
+			overrides.title = branding.wordmarkText.trim();
+		}
+		if (branding.subtitleText && branding.subtitleText.trim()) {
+			overrides.subtitle = branding.subtitleText.trim();
+		}
+		if (branding.primaryColor) {
+			overrides.primaryColor = branding.primaryColor;
+		}
+		if (branding.secondaryColor) {
+			overrides.secondaryColor = branding.secondaryColor;
+		}
+		if (branding.headerBackgroundImage) {
+			overrides.headerBackgroundImage = branding.headerBackgroundImage;
+		}
+		if (branding.logoUrl) {
+			overrides.logoUrl = branding.logoUrl;
+		}
+		if (branding.wordmarkText && branding.wordmarkText.trim()) {
+			overrides.logoText = branding.wordmarkText.trim();
+		}
+		if (branding.wordmarkColor) {
+			overrides.wordmarkColor = branding.wordmarkColor;
+		}
+		if (branding.subtitleColor) {
+			overrides.subtitleColor = branding.subtitleColor;
+		}
+		if (branding.logoBackgroundColor) {
+			overrides.logoBackgroundColor = branding.logoBackgroundColor;
+		}
+		if (branding.logoBorderColor) {
+			overrides.logoBorderColor = branding.logoBorderColor;
+		}
+		if (branding.contentBackground) {
+			overrides.contentBackground = branding.contentBackground;
+		}
+		if (branding.contentTextColor) {
+			overrides.contentTextColor = branding.contentTextColor;
+		}
+		if (branding.formAccentColor) {
+			overrides.formAccentColor = branding.formAccentColor;
+		}
+
+		return overrides;
+	}, [branding, hasBranding]);
 	// Flow request log for educational display
 	const [flowRequestLog, setFlowRequestLog] = useState<Array<{
 		step: number;
@@ -697,6 +775,38 @@ const CancelButton = styled.button`
 		}
 	}, []);
 
+	// Load saved worker credentials on mount
+	useEffect(() => {
+		try {
+			const saved = localStorage.getItem(WORKER_CREDENTIALS_KEY);
+			if (saved) {
+				const parsed = JSON.parse(saved);
+				setWorkerCredentials({
+					environmentId: parsed.environmentId || '',
+					clientId: parsed.clientId || '',
+					clientSecret: parsed.clientSecret || '',
+					tokenEndpointAuthMethod: parsed.tokenEndpointAuthMethod || 'client_secret_post'
+				});
+			}
+		} catch (error) {
+			console.warn('[PingOneAuthentication] Failed to load worker credentials:', error);
+		} finally {
+			setHasLoadedWorkerCredentials(true);
+		}
+	}, []);
+
+	// Auto-save worker credentials changes
+	useEffect(() => {
+		if (!hasLoadedWorkerCredentials) {
+			return;
+		}
+		try {
+			localStorage.setItem(WORKER_CREDENTIALS_KEY, JSON.stringify(workerCredentials));
+		} catch (error) {
+			console.warn('[PingOneAuthentication] Failed to persist worker credentials:', error);
+		}
+	}, [workerCredentials, hasLoadedWorkerCredentials]);
+
 	// Auto-save config changes
 	useEffect(() => {
 		if (!hasLoadedConfig) {
@@ -739,6 +849,73 @@ const CancelButton = styled.button`
 	const updateConfig = useCallback((field: keyof PlaygroundConfig, value: string) => {
 		setConfig(prev => ({ ...prev, [field]: value }));
 	}, []);
+
+	// Check if selected application is Client Credentials only
+	const isClientCredentialsOnly = useMemo(() => {
+		if (!selectedApplication?.grantTypes) return false;
+		const grantTypes = selectedApplication.grantTypes;
+		return grantTypes.length === 1 && grantTypes.includes('client_credentials');
+	}, [selectedApplication]);
+
+	const handleApplicationSelect = useCallback((application: PingOneApplication) => {
+		console.log('🔍 [PingOneAuthentication] Application selected:', {
+			name: application.name,
+			clientId: application.clientId,
+			hasClientSecret: !!application.clientSecret,
+			redirectUris: application.redirectUris,
+			scopes: application.scopes,
+			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod
+		});
+
+		// Auto-fill credentials from selected application
+		setConfig(prev => ({
+			...prev,
+			clientId: application.clientId,
+			clientSecret: application.clientSecret || prev.clientSecret, // Keep existing if no secret
+			redirectUri: application.redirectUris?.[0] || prev.redirectUri, // Use first redirect URI
+			scopes: application.scopes?.join(' ') || prev.scopes, // Join scopes with spaces
+			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod || prev.tokenEndpointAuthMethod
+		}));
+
+		// Store selected application for grant type detection
+		setSelectedApplication(application);
+
+		// Store logout URI for display/use (not part of PlaygroundConfig but useful info)
+		if (application.postLogoutRedirectUris?.[0]) {
+			console.log('🔍 [PingOneAuthentication] Application has logout URI:', application.postLogoutRedirectUris[0]);
+			// You could store this in a separate state or localStorage if needed for other flows
+		}
+
+		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
+		v4ToastManager.showSuccess(`Application "${application.name}" selected and credentials filled${logoutUriInfo}`);
+	}, []);
+
+    const handleGetWorkerToken = useCallback(async () => {
+        // If no worker credentials are saved, show modal to collect them
+        if (!workerCredentials.environmentId || !workerCredentials.clientId || !workerCredentials.clientSecret) {
+            setShowWorkerCredentialsModal(true);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const token = await getPingOneWorkerToken({
+                environmentId: workerCredentials.environmentId,
+                clientId: workerCredentials.clientId,
+                clientSecret: workerCredentials.clientSecret,
+                tokenEndpointAuthMethod: workerCredentials.tokenEndpointAuthMethod,
+            });
+            setWorkerToken(token);
+            v4ToastManager.showSuccess('Worker token obtained! You can now select applications.');
+        } catch (error) {
+            console.error('[PingOneAuthentication] Error getting worker token:', error);
+            v4ToastManager.showError(
+                error instanceof Error ? error.message : 'Failed to get worker token'
+            );
+        } finally {
+            setLoading(false);
+        }
+    }, [workerCredentials]);
 
 	const handleSaveConfig = useCallback(async () => {
 		setIsSaving(true);
@@ -1258,6 +1435,11 @@ const CancelButton = styled.button`
 				state?: string;
 				[key: string]: unknown;
 			};
+			authorizeResponse?: {
+				code?: string;
+				state?: string;
+				[key: string]: unknown;
+			};
 			code?: string | null;
 			state?: string | null;
 			redirect?: boolean | string;
@@ -1283,6 +1465,10 @@ const CancelButton = styled.button`
 			// Check if code is nested in a flow object
 			hasFlowObject: !!typedResumeData.flow,
 			flowHasCode: !!typedResumeData.flow?.code,
+			// Check for authorizeResponse.code (pi.flow format)
+			hasAuthorizeResponse: !!typedResumeData.authorizeResponse,
+			authorizeResponseHasCode: !!typedResumeData.authorizeResponse?.code,
+			authorizeResponseCode: typedResumeData.authorizeResponse?.code,
 			// Check for error fields
 			hasError: !!(resumeData.error || resumeData.error_code || resumeData.error_description),
 			errorCode: resumeData.error || resumeData.error_code,
@@ -1302,7 +1488,15 @@ const CancelButton = styled.button`
 		if (resumeData.code && typeof resumeData.code === 'string' && resumeData.code !== 'null') {
 			authorizationCode = resumeData.code;
 		}
-		// Second try: if redirect, extract code from Location URL
+		// Second try: authorizeResponse.code (pi.flow format)
+		else if (typedResumeData.authorizeResponse?.code && typeof typedResumeData.authorizeResponse.code === 'string') {
+			authorizationCode = typedResumeData.authorizeResponse.code;
+			console.log('✅ [PingOneAuthentication] Found code in authorizeResponse.code:', {
+				codeLength: authorizationCode.length,
+				codePreview: `${authorizationCode.substring(0, 20)}...`
+			});
+		}
+		// Third try: if redirect, extract code from Location URL
 		else if (isRedirect && locationUrl) {
 			console.log('🔍 [PingOneAuthentication] Attempting to extract code from Location URL:', {
 				locationUrl: locationUrl.substring(0, 300),
@@ -1356,11 +1550,11 @@ const CancelButton = styled.button`
 				}
 			}
 		}
-		// Third try: nested in flow object (pi.flow response structure)
+		// Fourth try: nested in flow object (pi.flow response structure)
 		else if (typedResumeData.flow && typeof typedResumeData.flow.code === 'string') {
 			authorizationCode = typedResumeData.flow.code;
 		}
-		// Fourth try: alternative field names (authorization_code, authCode, etc.)
+		// Fifth try: alternative field names (authorization_code, authCode, etc.)
 		else if (resumeData.authorization_code && typeof resumeData.authorization_code === 'string') {
 			authorizationCode = resumeData.authorization_code;
 			console.log('✅ [PingOneAuthentication] Found code in authorization_code field');
@@ -1369,7 +1563,7 @@ const CancelButton = styled.button`
 			authorizationCode = resumeData.authCode;
 			console.log('✅ [PingOneAuthentication] Found code in authCode field');
 		}
-		// Fifth try: check for nested paths (result.code, data.code, etc.)
+		// Sixth try: check for nested paths (result.code, data.code, etc.)
 		else if (resumeData.result && typeof resumeData.result === 'object' && typeof (resumeData.result as { code?: string }).code === 'string') {
 			authorizationCode = (resumeData.result as { code: string }).code;
 			console.log('✅ [PingOneAuthentication] Found code in result.code');
@@ -1378,11 +1572,11 @@ const CancelButton = styled.button`
 			authorizationCode = (resumeData.data as { code: string }).code;
 			console.log('✅ [PingOneAuthentication] Found code in data.code');
 		}
-		// Sixth try: check if response itself is the code (unlikely but possible)
+		// Seventh try: check if response itself is the code (unlikely but possible)
 		else if (typeof resumeData === 'string') {
 			authorizationCode = resumeData;
 		}
-		// Seventh try: check if response has tokens directly (unusual but might happen)
+		// Eighth try: check if response has tokens directly (unusual but might happen)
 		else if (resumeData.access_token || resumeData.id_token) {
 			console.warn('⚠️ [PingOneAuthentication] Response contains tokens but no authorization code. This is unusual for pi.flow.');
 			console.warn('⚠️ Response might have bypassed code exchange step.');
@@ -1416,6 +1610,8 @@ const CancelButton = styled.button`
 				hasCodeField: !!resumeData.code,
 				codeValue: resumeData.code,
 				hasFlowObject: !!typedResumeData.flow,
+				hasAuthorizeResponse: !!typedResumeData.authorizeResponse,
+				authorizeResponseHasCode: !!typedResumeData.authorizeResponse?.code,
 				isRedirect: isRedirect,
 				hasLocation: !!locationUrl,
 				locationUrl: locationUrl ? locationUrl.substring(0, 500) : null,
@@ -1454,7 +1650,7 @@ const CancelButton = styled.button`
 					}
 				}
 			}
-			const finalState = (extractedState || resumeData.state || typedResumeData.state) as string | undefined;
+			const finalState = (extractedState || resumeData.state || typedResumeData.state || typedResumeData.authorizeResponse?.state) as string | undefined;
 
 			// Update Step 3 response log with extracted code (response already logged above)
 			setFlowRequestLog(prev => prev.map((log, idx) => 
@@ -1544,6 +1740,9 @@ const CancelButton = styled.button`
 			if (accessToken) tokens.access_token = accessToken;
 			if (idToken) tokens.id_token = idToken;
 			if (refreshToken) tokens.refresh_token = refreshToken;
+
+			// Update local state so we can render real tokens with decode
+			setLatestTokens(tokens);
 
 			const result: PlaygroundResult = {
 				timestamp: Date.now(),
@@ -1774,6 +1973,7 @@ const CancelButton = styled.button`
 		
 		// Execute the redirect
 		setTimeout(() => {
+			if (!pendingRedirectUrl) return;
 			window.location.href = pendingRedirectUrl;
 		}, 500);
 	}, [pendingRedirectUrl]);
@@ -1833,7 +2033,107 @@ const CancelButton = styled.button`
 					</ModeButton>
 				</Modes>
 
-				<SectionTitle>Configuration</SectionTitle>
+			<SectionTitle>Configuration</SectionTitle>
+			
+			{/* PingOne Application Picker */}
+			<CollapsibleHeader
+				title="PingOne Application Picker"
+				subtitle="Auto-fill configuration from your PingOne environment"
+				defaultCollapsed={true}
+				icon={<FiSettings />}
+				theme="orange"
+			>
+				{!workerToken ? (
+					<>
+						<div style={{ 
+							padding: '1rem', 
+							backgroundColor: '#f8f9fa', 
+							borderRadius: '6px', 
+							border: '1px solid #e9ecef',
+							marginBottom: '1rem'
+						}}>
+							<p style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#495057' }}>
+								<strong>🔧 How it works:</strong> Get a worker token using the Client Credentials grant (no redirect URI or response type needed). 
+								Then select an application from your PingOne environment to auto-fill all configuration fields.
+							</p>
+							{workerCredentials.environmentId && workerCredentials.clientId && (
+								<p style={{ margin: '0', fontSize: '0.85rem', color: '#28a745', fontWeight: '500' }}>
+									✓ Worker credentials saved
+								</p>
+							)}
+						</div>
+						
+						<button
+							onClick={handleGetWorkerToken}
+							disabled={loading}
+							style={{
+								background: '#007bff',
+								color: 'white',
+								border: 'none',
+								padding: '0.75rem 1.5rem',
+								borderRadius: '6px',
+								fontWeight: '600',
+								cursor: loading ? 'not-allowed' : 'pointer',
+								opacity: loading ? 0.6 : 1,
+								marginBottom: '1rem'
+							}}
+						>
+							{loading ? 'Getting Worker Token...' : 'Get Worker Token'}
+						</button>
+					</>
+				) : (
+					<div style={{ 
+						padding: '1rem', 
+						backgroundColor: '#d4edda', 
+						borderRadius: '6px', 
+						border: '1px solid #c3e6cb',
+						marginBottom: '1rem'
+					}}>
+						<div style={{ 
+							display: 'flex', 
+							alignItems: 'center', 
+							justifyContent: 'space-between',
+							gap: '0.5rem'
+						}}>
+							<div style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								color: '#155724',
+								fontWeight: '500'
+							}}>
+								<FiCheck size={16} />
+								Worker token obtained! You can now select applications below.
+							</div>
+							<button
+								onClick={() => setWorkerToken(null)}
+								style={{
+									background: '#dc3545',
+									color: 'white',
+									border: 'none',
+									padding: '0.5rem 1rem',
+									borderRadius: '4px',
+									fontWeight: '500',
+									cursor: 'pointer',
+									fontSize: '0.875rem'
+								}}
+							>
+								Clear Token
+							</button>
+						</div>
+					</div>
+				)}
+				
+				<PingOneApplicationPicker
+					environmentId={workerCredentials.environmentId}
+					clientId={workerCredentials.clientId}
+					clientSecret={workerCredentials.clientSecret}
+					workerToken={workerToken || undefined}
+					onApplicationSelect={handleApplicationSelect}
+					disabled={loading || !workerCredentials.environmentId || !workerToken}
+				/>
+			</CollapsibleHeader>
+
 				<Field>
 					<Label>Environment ID</Label>
 					<Input
@@ -1841,6 +2141,7 @@ const CancelButton = styled.button`
 						value={config.environmentId}
 						onChange={(e) => updateConfig('environmentId', e.target.value)}
 						placeholder="Enter your PingOne environment ID"
+						autoComplete="off"
 					/>
 				</Field>
 
@@ -1851,6 +2152,7 @@ const CancelButton = styled.button`
 						value={config.clientId}
 						onChange={(e) => updateConfig('clientId', e.target.value)}
 						placeholder="Enter your PingOne client ID"
+						autoComplete="username"
 					/>
 				</Field>
 
@@ -1861,38 +2163,59 @@ const CancelButton = styled.button`
 						value={config.clientSecret}
 						onChange={(e) => updateConfig('clientSecret', e.target.value)}
 						placeholder="Enter your PingOne client secret"
+						autoComplete="current-password"
 					/>
 				</Field>
 
-				<Field>
-					<Label>Redirect URI</Label>
-					<Input
-						type="text"
-						value={config.redirectUri}
-						onChange={(e) => updateConfig('redirectUri', e.target.value)}
-						placeholder="Enter your redirect URI"
-					/>
-					<div style={{
-						fontSize: '0.85rem',
-						color: '#666',
-						marginTop: '0.5rem',
-						padding: '0.75rem',
-						backgroundColor: '#f8f9fa',
-						borderRadius: '0.375rem',
-						border: '1px solid #e9ecef'
-					}}>
-						<strong>🔧 PingOne Configuration Required:</strong><br />
-						<strong>Redirect URI:</strong> <code>{config.redirectUri}</code><br />
-						<strong>Post-Logout Redirect URI:</strong> <code>{callbackUriService.getCallbackUri('p1authLogoutCallback')}</code><br />
-						<br />
-						<strong>Steps to configure in PingOne:</strong><br />
-						1. Go to your PingOne application settings<br />
-						2. Add <code>{config.redirectUri}</code> to <strong>Redirect URIs</strong><br />
-						3. Add <code>{callbackUriService.getCallbackUri('p1authLogoutCallback')}</code> to <strong>Post-Logout Redirect URIs</strong><br />
-						4. Ensure your application supports <strong>Authorization Code</strong> grant type<br />
-						5. Make sure <strong>PKCE</strong> is enabled for enhanced security
-					</div>
-				</Field>
+				{isClientCredentialsOnly ? (
+					<Field>
+						<Label>Redirect URI</Label>
+						<div style={{ 
+							padding: '0.75rem',
+							backgroundColor: '#fff3cd',
+							border: '1px solid #ffc107',
+							borderRadius: '0.375rem',
+							color: '#856404',
+							fontSize: '0.9rem'
+						}}>
+							<strong>ℹ️ Not Applicable for Client Credentials Flow</strong><br />
+							The Client Credentials flow does not use <code>redirect_uri</code>.
+						</div>
+					</Field>
+				) : (
+					<Field>
+						<Label>Redirect URI</Label>
+						<Input
+							type="text"
+							value={config.redirectUri}
+							onChange={(e) => updateConfig('redirectUri', e.target.value)}
+							placeholder="Enter your redirect URI"
+							autoComplete="url"
+						/>
+						<div style={{
+							fontSize: '0.85rem',
+							color: '#666',
+							marginTop: '0.5rem',
+							padding: '0.75rem',
+							backgroundColor: '#f8f9fa',
+							borderRadius: '0.375rem',
+							border: '1px solid #e9ecef'
+						}}>
+							<strong>🔧 PingOne Configuration Required:</strong><br />
+							<strong>Redirect URI:</strong> <code>{config.redirectUri}</code><br />
+							<strong>Post-Logout Redirect URI:</strong> <code>{callbackUriService.getCallbackUri('p1authLogoutCallback')}</code><br />
+							<br />
+							<strong>Steps to configure in PingOne:</strong><br />
+							1. Go to your PingOne application settings<br />
+							2. Add <code>{config.redirectUri}</code> to <strong>Redirect URIs</strong><br />
+							3. Add <code>{callbackUriService.getCallbackUri('p1authLogoutCallback')}</code> to <strong>Post-Logout Redirect URIs</strong><br />
+							4. Ensure your application supports <strong>Authorization Code</strong> grant type<br />
+							5. Make sure <strong>PKCE</strong> is enabled for enhanced security<br />
+							<br />
+							<strong>💡 Pro Tip:</strong> Use the <strong>PingOne Application Picker</strong> above to automatically fill these URIs from an existing application!
+						</div>
+					</Field>
+				)}
 
 				<Field>
 					<Label>Scopes</Label>
@@ -1901,39 +2224,59 @@ const CancelButton = styled.button`
 						value={config.scopes}
 						onChange={(e) => updateConfig('scopes', e.target.value)}
 						placeholder="e.g., openid profile email"
+						autoComplete="off"
 					/>
 				</Field>
 
-				<Field>
-					<Label>Response Type</Label>
-					<Select
-						value={config.responseType}
-						onChange={(e) => updateConfig('responseType', e.target.value)}
-					>
-						<option value="code">code (Authorization Code)</option>
-						<option value="token">token (Implicit)</option>
-						<option value="id_token">id_token (Implicit)</option>
-						<option value="code id_token">code id_token (Hybrid)</option>
-						<option value="code token">code token (Hybrid)</option>
-						<option value="code id_token token">code id_token token (Hybrid)</option>
-					</Select>
-					<div style={{ 
-						fontSize: '0.85rem', 
-						color: '#666', 
-						marginTop: '0.5rem',
-						padding: '0.75rem',
-						backgroundColor: '#f8f9fa',
-						borderRadius: '0.375rem',
-						border: '1px solid #e9ecef'
-					}}>
-						<strong>⚠️ Response Type Compatibility:</strong><br />
-						• <strong>code</strong>: Most compatible, works with all PingOne applications<br />
-						• <strong>Hybrid flows</strong> (code id_token, code token): Require PingOne application to support hybrid response types<br />
-						• <strong>Implicit flows</strong> (token, id_token): Legacy, not recommended for new applications<br />
-						<br />
-						<em>If you get "unsupported_response_type" errors, try using "code" instead.</em>
-					</div>
-				</Field>
+				{isClientCredentialsOnly ? (
+					<Field>
+						<Label>Response Type</Label>
+						<div style={{ 
+							padding: '0.75rem',
+							backgroundColor: '#fff3cd',
+							borderRadius: '0.375rem',
+							border: '1px solid #ffc107',
+							fontSize: '0.9rem',
+							color: '#856404'
+						}}>
+							<strong>ℹ️ Not Applicable for Client Credentials Flow</strong><br />
+							The Client Credentials flow does not use a <code>response_type</code> parameter. 
+							This flow goes directly to the token endpoint with <code>grant_type=client_credentials</code> 
+							and does not involve the authorization endpoint or user interaction.
+						</div>
+					</Field>
+				) : (
+					<Field>
+						<Label>Response Type</Label>
+						<Select
+							value={config.responseType}
+							onChange={(e) => updateConfig('responseType', e.target.value)}
+						>
+							<option value="code">code (Authorization Code)</option>
+							<option value="token">token (Implicit)</option>
+							<option value="id_token">id_token (Implicit)</option>
+							<option value="code id_token">code id_token (Hybrid)</option>
+							<option value="code token">code token (Hybrid)</option>
+							<option value="code id_token token">code id_token token (Hybrid)</option>
+						</Select>
+						<div style={{ 
+							fontSize: '0.85rem', 
+							color: '#666', 
+							marginTop: '0.5rem',
+							padding: '0.75rem',
+							backgroundColor: '#f8f9fa',
+							borderRadius: '0.375rem',
+							border: '1px solid #e9ecef'
+						}}>
+							<strong>⚠️ Response Type Compatibility:</strong><br />
+							• <strong>code</strong>: Most compatible, works with all PingOne applications<br />
+							• <strong>Hybrid flows</strong> (code id_token, code token): Require PingOne application to support hybrid response types<br />
+							• <strong>Implicit flows</strong> (token, id_token): Legacy, not recommended for new applications<br />
+							<br />
+							<em>If you get "unsupported_response_type" errors, try using "code" instead.</em>
+						</div>
+					</Field>
+				)}
 
 				<Field>
 					<Label>Token Endpoint Authentication Method</Label>
@@ -2095,8 +2438,8 @@ const CancelButton = styled.button`
 				isOpen={hebLoginOpen}
 				onClose={() => setHebLoginOpen(false)}
 				onLogin={handleHEBLogin}
-				title="HEB"
-				subtitle="Sign in to your HEB account"
+				overrides={hebBrandingOverrides}
+				onOpenDavinciStudio={openDesignStudio}
 			/>
 
 			<ModalPresentationService
@@ -2125,6 +2468,71 @@ const CancelButton = styled.button`
 				)}
 			</ModalPresentationService>
 
+		{/* Worker Credentials Modal */}
+		<ModalPresentationService
+			isOpen={showWorkerCredentialsModal}
+			onClose={() => setShowWorkerCredentialsModal(false)}
+			title="Worker Token Credentials"
+			description="Provide credentials for a worker application to access PingOne APIs and list applications. These credentials use the Client Credentials grant (no redirect URI or response type needed)."
+			actions={[
+				{
+					label: 'Cancel',
+					onClick: () => setShowWorkerCredentialsModal(false),
+					variant: 'secondary',
+				},
+				{
+					label: 'Save & Get Token',
+					onClick: () => {
+						if (!workerCredentials.environmentId || !workerCredentials.clientId || !workerCredentials.clientSecret) {
+							v4ToastManager.showError('Please provide all required credentials');
+							return;
+						}
+						// Credentials are saved via useEffect hook on state change
+						// Now get the token
+						setShowWorkerCredentialsModal(false);
+						// Trigger token fetch
+						setTimeout(() => {
+							handleGetWorkerToken();
+						}, 100);
+					},
+					variant: 'primary',
+				},
+			]}
+		>
+			<Field style={{ marginTop: '1rem' }}>
+				<Label>Worker Environment ID *</Label>
+				<Input
+					type="text"
+					value={workerCredentials.environmentId}
+					onChange={(e) => setWorkerCredentials({ ...workerCredentials, environmentId: e.target.value })}
+					placeholder="Enter worker environment ID"
+					autoComplete="off"
+				/>
+			</Field>
+			
+			<Field>
+				<Label>Worker Client ID *</Label>
+				<Input
+					type="text"
+					value={workerCredentials.clientId}
+					onChange={(e) => setWorkerCredentials({ ...workerCredentials, clientId: e.target.value })}
+					placeholder="Enter worker client ID"
+					autoComplete="username"
+				/>
+			</Field>
+			
+			<Field>
+				<Label>Worker Client Secret *</Label>
+				<Input
+					type="password"
+					value={workerCredentials.clientSecret}
+					onChange={(e) => setWorkerCredentials({ ...workerCredentials, clientSecret: e.target.value })}
+					placeholder="Enter worker client secret"
+					autoComplete="current-password"
+				/>
+			</Field>
+		</ModalPresentationService>
+
 		{/* Authorization URL Validation Modal */}
 		<AuthorizationUrlValidationModal
 			isOpen={showUrlValidationModal}
@@ -2140,7 +2548,7 @@ const CancelButton = styled.button`
 			showAuthenticationModal,
 			handleAuthModalCancel,
 			handleAuthModalContinue,
-			pendingRedirectUrl,
+			pendingRedirectUrl || '',
 			'oauth',
 			'PingOne Authentication Playground',
 			{
@@ -2240,6 +2648,19 @@ const CancelButton = styled.button`
 					</FlowStep>
 				))}
 			</FlowLogContainer>
+		)}
+
+		{/* Latest Tokens - Real tokens with Decode/Copy using UnifiedTokenDisplay */}
+		{latestTokens && (
+			<Card>
+				<SectionTitle>Latest Tokens</SectionTitle>
+				{UnifiedTokenDisplayService.showTokens(
+					latestTokens,
+					config.scopes.includes('openid') ? 'oidc' : 'oauth',
+					'pingone-authentication',
+					{ showCopyButtons: true, showDecodeButtons: true }
+				)}
+			</Card>
 		)}
 		
 		</Page>

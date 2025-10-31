@@ -450,8 +450,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
               background: 'rgba(0, 0, 0, 0.2)',
               padding: '1rem',
               borderRadius: '0.5rem',
-              marginTop: '1rem',
-              border: '1px solid rgba(255, 255, 255, 0.2)'
+              marginTop: '1rem'
             }}>
               {state.tokens.access_token && (
                 <InlineTokenDisplay
