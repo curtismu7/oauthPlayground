@@ -1,4 +1,7 @@
-import { Buffer } from 'node:buffer';
+// Browser-compatible base64 encoding
+const base64Encode = (str: string): string => {
+	return btoa(unescape(encodeURIComponent(str)));
+};
 
 /**
  * PingOne API Client
@@ -23,7 +26,7 @@ class PingOneAPI {
 	 * @returns {Promise<Object>} The authentication response
 	 */
 	async authenticate(clientId, clientSecret, environmentId) {
-		const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+		const credentials = base64Encode(`${clientId}:${clientSecret}`);
 		const response = await fetch(`${this.config.authUrl}/${environmentId}/as/token`, {
 			method: 'POST',
 			headers: {

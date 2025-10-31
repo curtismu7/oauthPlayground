@@ -671,8 +671,7 @@ const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
           <div style={{
             background: '#ffffff',
             padding: '1rem',
-            borderRadius: '0.5rem',
-            border: '1px solid #cbd5e1'
+            borderRadius: '0.5rem'
           }}>
             {state.tokens.access_token && (
               <InlineTokenDisplay

@@ -16,6 +16,12 @@ import fetch from 'node-fetch';
 
 dotenv.config();
 
+// Ensure fetch is available globally for server handlers that reference global.fetch
+if (typeof globalThis.fetch !== 'function') {
+  // @ts-ignore
+  globalThis.fetch = fetch;
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -86,16 +92,16 @@ const cookieJar = new Map();
  * Merges two arrays of cookies (formatted as "name=value") with later values winning by name.
  */
 const mergeCookieArrays = (existing = [], incoming = []) => {
-\tconst byName = new Map();
-\tfor (const c of existing) {
-\t\tconst [name] = c.split('=');
-\t\tbyName.set(name, c);
-\t}
-\tfor (const c of incoming) {
-\t\tconst [name] = c.split('=');
-\t\tbyName.set(name, c);
-\t}
-\treturn Array.from(byName.values());
+	const byName = new Map();
+	for (const c of existing) {
+		const [name] = c.split('=');
+		byName.set(name, c);
+	}
+	for (const c of incoming) {
+		const [name] = c.split('=');
+		byName.set(name, c);
+	}
+	return Array.from(byName.values());
 };
 
 // Request statistics tracking middleware
@@ -187,6 +193,21 @@ app.get('/api/health', (_req, res) => {
 			errorRate: Number(errorRatePercent.toFixed(2)),
 		},
 	});
+});
+
+// Ensure errors are returned as JSON (prevents empty/plain 500s)
+app.use((err, _req, res, _next) => {
+  try {
+    console.error('[Server] Unhandled error:', err);
+    if (res.headersSent) return; 
+    const message = (err && err.message) ? err.message : 'Internal Server Error';
+    res.status(500).json({
+      error: 'internal_server_error',
+      error_description: message
+    });
+  } catch {
+    try { res.status(500).json({ error: 'internal_server_error' }); } catch {}
+  }
 });
 
 // Generic OAuth callback handler - redirects to frontend callback component
@@ -2665,11 +2686,12 @@ app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 			console.warn(`[PingOne Flow Check] This means no ST cookie was returned. Resume endpoint will likely fail.`);
 		}
 		
-		// Merge and persist cookies server-side
-		const prior = sessionId ? (cookieJar.get(sessionId) || []) : [];
+		// Merge and persist cookies server-side (create session if missing)
+		const sid = sessionId || randomUUID();
+		const prior = cookieJar.get(sid) || [];
 		const merged = mergeCookieArrays(prior, updatedCookies);
-		if (sessionId) cookieJar.set(sessionId, merged);
-		responseData._sessionId = sessionId || randomUUID();
+		cookieJar.set(sid, merged);
+		responseData._sessionId = sid;
 		
 		console.log(`[PingOne Flow Check] Response data:`, {
 			status: responseData.status,

@@ -96,6 +96,7 @@ export interface AuthorizationCodeFlowController {
 	isExchangingTokens: boolean;
 	exchangeTokens: () => Promise<void>;
 	tokens: AuthorizationTokens | null;
+	setTokens: (tokens: AuthorizationTokens | null) => void;
 	userInfo: Record<string, unknown> | null;
 	isFetchingUserInfo: boolean;
 	fetchUserInfo: () => Promise<void>;
@@ -1819,6 +1820,7 @@ export const useAuthorizationCodeFlowController = (
 		isExchangingTokens,
 		exchangeTokens,
 		tokens,
+		setTokens,
 		userInfo,
 		isFetchingUserInfo,
 		fetchUserInfo,

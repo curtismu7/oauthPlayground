@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import styled, { type DefaultTheme, ThemeProvider } from 'styled-components';
 import { AuthProvider } from './contexts/NewAuthContext';
 import { PageStyleProvider } from './contexts/PageStyleContext';
@@ -12,6 +12,7 @@ import './styles/sidebar-v6-forces.css';
 import FieldEditingService from './services/fieldEditingService';
 import { AuthorizationUrlValidationModal } from './services/authorizationUrlValidationModalService';
 import { authorizationUrlValidationModalService } from './services/authorizationUrlValidationModalService';
+import ModalPresentationService from './services/modalPresentationService';
 import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import DeviceMockFlow from './components/DeviceMockFlow';
@@ -87,6 +88,7 @@ import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
 import SAMLBearerAssertionFlowV6 from './pages/flows/SAMLBearerAssertionFlowV6';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
+import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
 import AdvancedParametersV6 from './pages/flows/AdvancedParametersV6';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 // Backed up legacy flows
@@ -114,10 +116,12 @@ import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
+import OAuthAuthorizationCodeFlowV7_2 from './pages/flows/OAuthAuthorizationCodeFlowV7_2';
 import OAuthAuthorizationCodeFlowV7_Condensed_Mock from './pages/flows/OAuthAuthorizationCodeFlowV7_Condensed_Mock';
 import V7CondensedMock from './pages/flows/V7CondensedMock';
 import TestMock from './pages/flows/TestMock';
 import TokenExchangeFlowV7 from './pages/flows/TokenExchangeFlowV7';
+import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
 import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
 import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
@@ -250,7 +254,39 @@ const DARK_MODE_OVERRIDES: Partial<DefaultTheme['colors']> = {
 // including the sidebar, causing menu jumps. Now we only scroll the
 // main content area in the useEffect below.
 
-const AppRoutes = () => {
+function NotFoundRedirect() {
+	const navigate = useNavigate();
+	const location = useLocation();
+	const [isOpen, setIsOpen] = useState(true);
+
+	const goToDashboard = useCallback(() => {
+		setIsOpen(false);
+		navigate('/dashboard', { replace: true });
+	}, [navigate]);
+
+	useEffect(() => {
+		const timeout = window.setTimeout(goToDashboard, 7000);
+		return () => window.clearTimeout(timeout);
+	}, [goToDashboard]);
+
+	return (
+		<ModalPresentationService
+			isOpen={isOpen}
+			onClose={goToDashboard}
+			title="App Not Found"
+			description={`We couldn't find anything at "${location.pathname}". Redirecting you to the dashboard.`}
+			actions={[
+				{
+					label: 'Go to Dashboard',
+					onClick: goToDashboard,
+					variant: 'primary',
+				},
+			]}
+		/>
+	);
+}
+
+const AppRoutes: React.FC = () => {
 	const [sidebarOpen, setSidebarOpen] = useState(false);
 	const [showCredentialModal, setShowCredentialModal] = useState(false);
 	const [showPageSpinner, setShowPageSpinner] = useState(false);
@@ -396,10 +432,14 @@ const AppRoutes = () => {
 						<Route path="/sdk-sample-app" element={<SDKSampleApp />} />
 						<Route path="/ultimate-token-display-demo" element={<UltimateTokenDisplayDemo />} />
 						{/* V7 OAuth/OIDC Flow Routes - V6 flows disabled */}
-						<Route
-							path="/flows/oauth-authorization-code-v7"
-							element={<OAuthAuthorizationCodeFlowV7 />}
-						/>
+					<Route
+						path="/flows/oauth-authorization-code-v7"
+						element={<OAuthAuthorizationCodeFlowV7 />}
+					/>
+					<Route
+						path="/flows/oauth-authorization-code-v7-2"
+						element={<OAuthAuthorizationCodeFlowV7_2 />}
+					/>
 						<Route
 							path="/flows/oauth-authorization-code-v7-mock"
 							element={<TestMock />}
@@ -453,17 +493,20 @@ const AppRoutes = () => {
 						<Route path="/flows/oidc-device-authorization-v6" element={<Navigate to="/flows/device-authorization-v7" replace />} />
 						
 						{/* V7 JWT Bearer Token Flow */}
-						<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+					<Route path="/flows/jwt-bearer-token-v7" element={<JWTBearerTokenFlowV7 />} />
+					{/* V7 Token Exchange Flow */}
+					<Route path="/flows/token-exchange-v7" element={<TokenExchangeFlowV7 />} />
 						
 						{/* V6 flows disabled - redirect to V7 equivalents */}
 						<Route path="/flows/jwt-bearer-token-v6" element={<Navigate to="/flows/jwt-bearer-token-v7" replace />} />
 						<Route path="/flows/jwt-bearer-v5" element={<Navigate to="/flows/jwt-bearer-token-v7" replace />} />
 						
 						{/* V7 SAML Bearer Assertion Flow */}
-						<Route path="/flows/saml-bearer-assertion-v7" element={<SAMLBearerAssertionFlowV7 />} />
-						
-						{/* V6 flows disabled - redirect to V7 equivalents */}
-						<Route path="/flows/saml-bearer-assertion-v6" element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />} />
+					<Route path="/flows/saml-bearer-assertion-v7" element={<SAMLBearerAssertionFlowV7 />} />
+					<Route path="/flows/saml-sp-dynamic-acs-v1" element={<SAMLServiceProviderFlowV1 />} />
+					
+					{/* V6 flows disabled - redirect to V7 equivalents */}
+					<Route path="/flows/saml-bearer-assertion-v6" element={<Navigate to="/flows/saml-bearer-assertion-v7" replace />} />
 						
 						{/* V7 Worker Token Flow */}
 						<Route path="/flows/worker-token-v7" element={<WorkerTokenFlowV7 />} />
@@ -543,6 +586,7 @@ const AppRoutes = () => {
 						<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
 						<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
 						<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
+					<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
 						<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
 						<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 							{/* V7 RAR Flow */}
@@ -622,7 +666,7 @@ const AppRoutes = () => {
 							<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
 							<Route path="/service-test-runner" element={<ServiceTestRunner />} />
 							<Route path="/:customCallback(p1-callback)" element={<PingOneAuthenticationCallback />} />
-			<Route path="*" element={<Navigate to="/dashboard" replace />} />
+					<Route path="*" element={<NotFoundRedirect />} />
 				</Routes>
 					</MainContent>
 					<PageFooter />

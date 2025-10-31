@@ -327,14 +327,14 @@ export const saveFlowCredentials = async <T = unknown>(
  * This is the recommended method for loading all flow data on mount
  */
 export const loadFlowCredentials = async <T = unknown>(
-	config: FlowCredentialConfig
+	config: FlowCredentialConfig & { disableSharedFallback?: boolean }
 ): Promise<{
 	credentials: StepCredentials | null;
 	flowState: FlowPersistentState<T> | null;
 	hasSharedCredentials: boolean;
 	hasFlowState: boolean;
 }> => {
-	const { flowKey, defaultCredentials } = config;
+	const { flowKey, defaultCredentials, disableSharedFallback } = config;
 	
 	// 🔍 INSTRUMENTATION: Track credential loading behavior
 	console.group(`🔍 [CREDENTIAL AUDIT] Loading credentials for flow: ${flowKey}`);
@@ -347,7 +347,9 @@ export const loadFlowCredentials = async <T = unknown>(
 	console.log(`📋 Flow State Credentials:`, flowState?.credentials);
 	
 	// Load from credentialManager (shared across flows) - FALLBACK ONLY
-	const sharedCredentials = await loadSharedCredentials(flowKey, defaultCredentials);
+	const sharedCredentials = disableSharedFallback
+		? null
+		: await loadSharedCredentials(flowKey, defaultCredentials);
 	console.log(`📋 Shared Credentials Found:`, !!sharedCredentials);
 	console.log(`📋 Shared Credentials:`, sharedCredentials);
 	

@@ -9,9 +9,9 @@ import { secureLog, secureErrorLog } from '../utils/secureLogging';
 
 // Container
 const Container = styled.div`
-  max-width: 1400px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1.5rem 3rem;
 `;
 
 const Header = styled.div`
