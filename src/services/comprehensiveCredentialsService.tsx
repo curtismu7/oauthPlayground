@@ -631,14 +631,15 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				if (updates.loginHint !== undefined) {
 					onLoginHintChange?.(updates.loginHint);
 				}
-			if (updates.postLogoutRedirectUri !== undefined) {
-				onPostLogoutRedirectUriChange?.(updates.postLogoutRedirectUri);
-			}
-			if (updates.clientAuthMethod !== undefined && onClientAuthMethodChange) {
-				onClientAuthMethodChange(updates.clientAuthMethod as ClientAuthMethod);
-			}
-			if (updates.responseType !== undefined && onResponseTypeChange) {
-				onResponseTypeChange(updates.responseType);
+				if (updates.postLogoutRedirectUri !== undefined) {
+					onPostLogoutRedirectUriChange?.(updates.postLogoutRedirectUri);
+				}
+				if (updates.clientAuthMethod !== undefined && onClientAuthMethodChange) {
+					onClientAuthMethodChange(updates.clientAuthMethod as ClientAuthMethod);
+				}
+				if (updates.responseType !== undefined && onResponseTypeChange) {
+					onResponseTypeChange(updates.responseType);
+				}
 			}
 		}
 
