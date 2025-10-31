@@ -599,9 +599,11 @@ const Configuration: React.FC = () => {
               setCopiedText(label);
               setTimeout(() => setCopiedText(""), 2000);
             }}
-            emptyRequiredFields={
-              !credentials.environmentId || !credentials.clientId || !credentials.clientSecret
-            }
+            emptyRequiredFields={new Set([
+              ...(!credentials.environmentId ? ['environmentId'] : []),
+              ...(!credentials.clientId ? ['clientId'] : []),
+              ...(!credentials.clientSecret ? ['clientSecret'] : []),
+            ])}
             copiedField={copiedText}
             showClientSecret={true}
           />
