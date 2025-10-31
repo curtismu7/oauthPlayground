@@ -145,8 +145,12 @@ const TableRow = styled.tr`
 		border-bottom: none;
 	}
 	
-	&:hover {
+	&:nth-child(even) {
 		background: #f8f9fa;
+	}
+	
+	&:hover {
+		background: #e9ecef;
 	}
 `;
 
@@ -158,7 +162,7 @@ const TableCell = styled.td`
 const FieldLabel = styled.span`
 	font-weight: 500;
 	color: #333;
-	font-size: 0.6875rem;
+	font-size: 0.625rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 `;
@@ -166,7 +170,7 @@ const FieldLabel = styled.span`
 const FieldValue = styled.span`
 	color: #495057;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-	font-size: 0.6875rem;
+	font-size: 0.625rem;
 	font-weight: 500;
 	word-break: break-all;
 `;
