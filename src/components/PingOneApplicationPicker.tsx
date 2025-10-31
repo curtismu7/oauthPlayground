@@ -100,9 +100,9 @@ const SuccessMessage = styled.div`
 `;
 
 const ApplicationDetails = styled.div`
-	margin-top: 1rem;
+	margin-top: 0.75rem;
 	background: white;
-	border-radius: 8px;
+	border-radius: 6px;
 	border: 1px solid #dee2e6;
 	overflow: hidden;
 `;
@@ -118,11 +118,11 @@ const TableHeader = styled.thead`
 `;
 
 const TableHeaderCell = styled.th`
-	padding: 0.75rem 1rem;
+	padding: 0.5rem 0.75rem;
 	text-align: left;
 	font-weight: 600;
 	color: #495057;
-	font-size: 0.75rem;
+	font-size: 0.6875rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	
@@ -151,14 +151,14 @@ const TableRow = styled.tr`
 `;
 
 const TableCell = styled.td`
-	padding: 0.75rem 1rem;
+	padding: 0.5rem 0.75rem;
 	vertical-align: middle;
 `;
 
 const FieldLabel = styled.span`
 	font-weight: 500;
 	color: #333;
-	font-size: 0.875rem;
+	font-size: 0.75rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 `;
@@ -166,7 +166,7 @@ const FieldLabel = styled.span`
 const FieldValue = styled.span`
 	color: #495057;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-	font-size: 0.875rem;
+	font-size: 0.75rem;
 	font-weight: 500;
 	word-break: break-all;
 `;
@@ -174,8 +174,8 @@ const FieldValue = styled.span`
 const CopyButton = styled.button`
 	background: none;
 	border: 1px solid #dee2e6;
-	border-radius: 4px;
-	padding: 0.375rem;
+	border-radius: 3px;
+	padding: 0.25rem;
 	color: #6c757d;
 	cursor: pointer;
 	display: flex;
@@ -198,15 +198,16 @@ const RefreshButton = styled.button`
 	background: #007bff;
 	color: white;
 	border: none;
-	padding: 0.5rem 1rem;
-	border-radius: 4px;
-	font-size: 0.875rem;
-	font-weight: 500;
+	padding: 0.5rem 0.75rem;
+	border-radius: 0.375rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	margin-top: 0.5rem;
+	justify-content: center;
+	gap: 0.375rem;
+	flex: 1;
 	
 	&:hover:not(:disabled) {
 		background: #0056b3;
@@ -222,16 +223,16 @@ const ApplyButton = styled.button`
 	background: #28a745;
 	color: white;
 	border: none;
-	padding: 0.5rem 1rem;
-	border-radius: 4px;
-	font-size: 0.875rem;
-	font-weight: 500;
+	padding: 0.5rem 0.75rem;
+	border-radius: 0.375rem;
+	font-size: 0.8125rem;
+	font-weight: 600;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
-	gap: 0.5rem;
-	flex: 1;
 	justify-content: center;
+	gap: 0.375rem;
+	flex: 1;
 	
 	&:hover:not(:disabled) {
 		background: #218838;
@@ -246,7 +247,7 @@ const ApplyButton = styled.button`
 const ButtonContainer = styled.div`
 	display: flex;
 	gap: 0.5rem;
-	margin-top: 1rem;
+	margin-top: 0.75rem;
 `;
 
 const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
