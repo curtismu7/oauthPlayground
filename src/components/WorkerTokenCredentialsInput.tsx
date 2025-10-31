@@ -414,7 +414,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
                 value={credentials.environmentId}
                 onChange={(e) => handleFieldChange('environmentId', e.target.value)}
                 placeholder="Enter your PingOne Environment ID"
-                disabled={disabled}
+                disabled={false}
                 data-error={validation?.errors.some(e => e.includes('Environment ID'))}
               />
             </FormField>
@@ -427,7 +427,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
               <Select
                 value={credentials.region || 'us'}
                 onChange={(e) => handleFieldChange('region', e.target.value as 'us' | 'eu' | 'ap' | 'ca')}
-                disabled={disabled}
+                disabled={false}
               >
                 {availableRegions.map(region => (
                   <option key={region.value} value={region.value}>
@@ -447,7 +447,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
                 value={credentials.clientId}
                 onChange={(e) => handleFieldChange('clientId', e.target.value)}
                 placeholder="Enter your PingOne Client ID"
-                disabled={disabled}
+                disabled={false}
                 data-error={validation?.errors.some(e => e.includes('Client ID'))}
               />
             </FormField>
@@ -463,13 +463,13 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
                   value={credentials.clientSecret}
                   onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
                   placeholder="Enter your PingOne Client Secret"
-                  disabled={disabled}
+                  disabled={false}
                   data-error={validation?.errors.some(e => e.includes('Client Secret'))}
                 />
                 <PasswordToggle
                   type="button"
                   onClick={() => setShowClientSecret(!showClientSecret)}
-                  disabled={disabled}
+                  disabled={false}
                 >
                   {showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
                 </PasswordToggle>
@@ -495,7 +495,7 @@ export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputPr
                             : currentScopes.filter(s => s !== scope);
                           handleFieldChange('scopes', newScopes);
                         }}
-                        disabled={disabled}
+                        disabled={false}
                       />
                       <ScopeLabel htmlFor={`scope-${scope}`}>
                         {scope}

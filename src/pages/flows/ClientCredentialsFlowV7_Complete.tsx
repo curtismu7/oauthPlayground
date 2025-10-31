@@ -305,6 +305,14 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 		flowKey: 'client-credentials-v7',
 	});
 
+	// Use credential backup hook for automatic backup and restoration
+	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
+		flowKey: 'client-credentials-v7',
+		credentials: controller.credentials,
+		setCredentials: controller.setCredentials,
+		enabled: true
+	});
+
 	const toggleSection = useCallback((key: string) => {
 		setCollapsedSections(prev => ({
 			...prev,
@@ -422,13 +430,6 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 		}
 	}, [controller.credentials]);
 
-	// Use credential backup hook for automatic backup and restoration
-	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
-		flowKey: 'client-credentials-v7',
-		credentials: controller.credentials,
-		setCredentials: controller.setCredentials,
-		enabled: true
-	});
 
 	// Render step content
 	const renderStepContent = useCallback(() => {

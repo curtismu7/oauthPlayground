@@ -11,7 +11,7 @@ import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import FlowStorageService from '../services/flowStorageService';
 import FlowContextUtils from '../services/flowContextUtils';
 import { pingOneConfigService } from '../services/pingOneConfigService';
-import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
+import { loadFlowCredentialsIsolated, saveFlowCredentials } from '../services/flowCredentialService';
 
 // Define window interface for PingOne environment variables
 interface WindowWithPingOne extends Window {
@@ -218,14 +218,14 @@ async function loadConfiguration(): Promise<AppConfig> {
 		console.log(' [NewAuthContext] Loading credentials using V7 standardized system...');
 		
 		// Try to load from V7 FlowCredentialService first (most recent)
-		try {
-			const v7Credentials = await loadFlowCredentials({
-				flowKey: 'dashboard-login',
-				defaultCredentials: {
+        try {
+            const v7Credentials = await loadFlowCredentialsIsolated({
+                flowKey: 'dashboard-login',
+                defaultCredentials: {
 					environmentId: '',
 					clientId: '',
 					clientSecret: '',
-					redirectUri: `${window.location.origin}/dashboard-callback`,
+                    redirectUri: `${window.location.origin}/dashboard-callback`,
 					scope: 'openid profile email',
 					scopes: 'openid profile email',
 					loginHint: '',
@@ -238,7 +238,8 @@ async function loadConfiguration(): Promise<AppConfig> {
 					userInfoEndpoint: '',
 					clientAuthMethod: 'client_secret_post',
 					tokenEndpointAuthMethod: 'client_secret_post',
-				}
+                },
+                useSharedFallback: false
 			});
 			
 			console.log(' [NewAuthContext] V7 FlowCredentialService result:', v7Credentials);
@@ -714,10 +715,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 					configKeys: config ? Object.keys(config) : []
 				});
 				
-				const redirectUri = configuredRedirectUri || (
+				// Force dashboard callback when explicitly requested to avoid stale config bleed-through
+				const redirectUri = (
 					callbackType === 'dashboard'
 						? `${window.location.origin}/dashboard-callback`
-						: `${window.location.origin}/authz-callback`
+						: (configuredRedirectUri || `${window.location.origin}/authz-callback`)
 				);
 				
 				console.log('🔍 [NewAuthContext] FINAL REDIRECT URI DECISION:', {
@@ -794,7 +796,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				const authUrl = new URL(authEndpoint);
 				authUrl.searchParams.set('response_type', 'code');
 				authUrl.searchParams.set('client_id', clientId);
-				authUrl.searchParams.set('redirect_uri', redirectUri);
+				// Enforce correct redirect_uri for dashboard flows
+				const enforcedRedirectUri = (callbackType === 'dashboard')
+					? `${window.location.origin}/dashboard-callback`
+					: redirectUri;
+				authUrl.searchParams.set('redirect_uri', enforcedRedirectUri);
 				
 				// Use configured scopes or fallback to default
 				const scopes = config?.scopes || ['openid', 'profile', 'email'];
@@ -812,7 +818,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					params: {
 						response_type: 'code',
 						client_id: clientId,
-						redirect_uri: redirectUri,
+						redirect_uri: enforcedRedirectUri,
 						scope: scopeString,
 						state: `${state.substring(0, 8)}...`,
 						nonce: `${nonce.substring(0, 8)}...`,
@@ -820,8 +826,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						code_challenge_method: 'S256',
 					},
 					debugInfo: {
-						redirectUriSource: configuredRedirectUri ? 'configured' : 'fallback',
-						redirectUriExact: redirectUri,
+						redirectUriSource: callbackType === 'dashboard' ? 'forced-dashboard' : (configuredRedirectUri ? 'configured' : 'fallback'),
+						redirectUriExact: enforcedRedirectUri,
 						scopeSource: config?.scopes ? 'configured' : 'default',
 						scopeExact: scopeString,
 						clientIdSource: config?.clientId ? 'direct' : (config?.pingone?.clientId ? 'pingone' : 'unknown'),
