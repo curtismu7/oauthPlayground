@@ -25,6 +25,7 @@ import { environmentIdPersistenceService } from './environmentIdPersistenceServi
 import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersistenceStatus';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
+import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`
@@ -901,6 +902,17 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					disabled={isSaving || !retrievedWorkerCredentials.environmentId || !effectiveWorkerToken}
 				/>
 				</CollapsibleHeader>
+
+				{/* Configuration URI Checker - Check redirect and logout URIs against PingOne */}
+				<ConfigurationURIChecker
+					flowType={flowType}
+					environmentId={resolvedCredentials.environmentId}
+					clientId={resolvedCredentials.clientId}
+					workerToken={effectiveWorkerToken}
+					redirectUri={actualRedirectUri}
+					postLogoutRedirectUri={actualPostLogoutRedirectUri}
+					region={region}
+				/>
 
 				<CollapsibleHeader
 					title={title}
