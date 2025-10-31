@@ -101,42 +101,73 @@ const SuccessMessage = styled.div`
 
 const ApplicationDetails = styled.div`
 	margin-top: 1rem;
-	padding: 1rem;
-	background: #f8f9fa;
-	border-radius: 6px;
-	border: 1px solid #e9ecef;
+	background: white;
+	border-radius: 8px;
+	border: 1px solid #dee2e6;
+	overflow: hidden;
 `;
 
-const DetailRow = styled.div`
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	margin-bottom: 0.75rem;
-	padding-bottom: 0.75rem;
-	border-bottom: 1px solid #e9ecef;
+const Table = styled.table`
+	width: 100%;
+	border-collapse: collapse;
+`;
+
+const TableHeader = styled.thead`
+	background: #f8f9fa;
+	border-bottom: 2px solid #dee2e6;
+`;
+
+const TableHeaderCell = styled.th`
+	padding: 0.75rem 1rem;
+	text-align: left;
+	font-weight: 600;
+	color: #495057;
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	
+	&:first-child {
+		width: 30%;
+	}
 	
 	&:last-child {
-		margin-bottom: 0;
-		padding-bottom: 0;
-		border-bottom: none;
+		width: 50px;
+		text-align: center;
 	}
 `;
 
-const DetailLabel = styled.span`
-	font-weight: 600;
+const TableBody = styled.tbody``;
+
+const TableRow = styled.tr`
+	border-bottom: 1px solid #e9ecef;
+	
+	&:last-child {
+		border-bottom: none;
+	}
+	
+	&:hover {
+		background: #f8f9fa;
+	}
+`;
+
+const TableCell = styled.td`
+	padding: 0.75rem 1rem;
+	vertical-align: middle;
+`;
+
+const FieldLabel = styled.span`
+	font-weight: 500;
 	color: #333;
 	font-size: 0.875rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 `;
 
-const DetailValue = styled.span`
+const FieldValue = styled.span`
 	color: #495057;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 	font-size: 0.875rem;
 	font-weight: 500;
-	flex: 1;
-	margin-right: 0.5rem;
 	word-break: break-all;
 `;
 
@@ -150,7 +181,6 @@ const CopyButton = styled.button`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-shrink: 0;
 	transition: all 0.2s ease;
 	
 	&:hover {
@@ -304,67 +334,118 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 						if (!selectedApp) return null;
 
 						return (
-							<>
-								<DetailRow>
-									<DetailLabel>Client ID</DetailLabel>
-									<DetailValue>{selectedApp.clientId}</DetailValue>
-									<CopyButton onClick={() => handleCopy(selectedApp.clientId, 'Client ID')} title="Copy Client ID">
-										<FiCopy size={14} />
-									</CopyButton>
-								</DetailRow>
-								<DetailRow>
-									<DetailLabel>Grant Types</DetailLabel>
-									<DetailValue>{selectedApp.grantTypes?.join(', ') || 'None'}</DetailValue>
-									{selectedApp.grantTypes && selectedApp.grantTypes.length > 0 && (
-										<CopyButton onClick={() => handleCopy(selectedApp.grantTypes!.join(', '), 'Grant Types')} title="Copy Grant Types">
-											<FiCopy size={14} />
-										</CopyButton>
+							<Table>
+								<TableHeader>
+									<tr>
+										<TableHeaderCell>Field</TableHeaderCell>
+										<TableHeaderCell>Value</TableHeaderCell>
+										<TableHeaderCell></TableHeaderCell>
+									</tr>
+								</TableHeader>
+								<TableBody>
+									<TableRow>
+										<TableCell>
+											<FieldLabel>Client ID</FieldLabel>
+										</TableCell>
+										<TableCell>
+											<FieldValue>{selectedApp.clientId}</FieldValue>
+										</TableCell>
+										<TableCell style={{ textAlign: 'center' }}>
+											<CopyButton onClick={() => handleCopy(selectedApp.clientId, 'Client ID')} title="Copy Client ID">
+												<FiCopy size={14} />
+											</CopyButton>
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell>
+											<FieldLabel>Grant Types</FieldLabel>
+										</TableCell>
+										<TableCell>
+											<FieldValue>{selectedApp.grantTypes?.join(', ') || 'None'}</FieldValue>
+										</TableCell>
+										<TableCell style={{ textAlign: 'center' }}>
+											{selectedApp.grantTypes && selectedApp.grantTypes.length > 0 && (
+												<CopyButton onClick={() => handleCopy(selectedApp.grantTypes!.join(', '), 'Grant Types')} title="Copy Grant Types">
+													<FiCopy size={14} />
+												</CopyButton>
+											)}
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell>
+											<FieldLabel>Redirect URIs</FieldLabel>
+										</TableCell>
+										<TableCell>
+											<FieldValue>{selectedApp.redirectUris?.join(', ') || 'None'}</FieldValue>
+										</TableCell>
+										<TableCell style={{ textAlign: 'center' }}>
+											{selectedApp.redirectUris && selectedApp.redirectUris.length > 0 && (
+												<CopyButton onClick={() => handleCopy(selectedApp.redirectUris!.join(', '), 'Redirect URIs')} title="Copy Redirect URIs">
+													<FiCopy size={14} />
+												</CopyButton>
+											)}
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell>
+											<FieldLabel>Post-Logout URIs</FieldLabel>
+										</TableCell>
+										<TableCell>
+											<FieldValue>{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}</FieldValue>
+										</TableCell>
+										<TableCell style={{ textAlign: 'center' }}>
+											{selectedApp.postLogoutRedirectUris && selectedApp.postLogoutRedirectUris.length > 0 && (
+												<CopyButton onClick={() => handleCopy(selectedApp.postLogoutRedirectUris!.join(', '), 'Post-Logout URIs')} title="Copy Post-Logout URIs">
+													<FiCopy size={14} />
+												</CopyButton>
+											)}
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell>
+											<FieldLabel>Scopes</FieldLabel>
+										</TableCell>
+										<TableCell>
+											<FieldValue>{selectedApp.scopes?.join(', ') || 'None'}</FieldValue>
+										</TableCell>
+										<TableCell style={{ textAlign: 'center' }}>
+											{selectedApp.scopes && selectedApp.scopes.length > 0 && (
+												<CopyButton onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')} title="Copy Scopes">
+													<FiCopy size={14} />
+												</CopyButton>
+											)}
+										</TableCell>
+									</TableRow>
+									<TableRow>
+										<TableCell>
+											<FieldLabel>Token Auth Method</FieldLabel>
+										</TableCell>
+										<TableCell>
+											<FieldValue>{selectedApp.tokenEndpointAuthMethod || 'client_secret_post'}</FieldValue>
+										</TableCell>
+										<TableCell style={{ textAlign: 'center' }}>
+											<CopyButton onClick={() => handleCopy(selectedApp.tokenEndpointAuthMethod || 'client_secret_post', 'Token Auth Method')} title="Copy Token Auth Method">
+												<FiCopy size={14} />
+											</CopyButton>
+										</TableCell>
+									</TableRow>
+									{selectedApp.pkceEnforcement && (
+										<TableRow>
+											<TableCell>
+												<FieldLabel>PKCE Enforcement</FieldLabel>
+											</TableCell>
+											<TableCell>
+												<FieldValue>{selectedApp.pkceEnforcement}</FieldValue>
+											</TableCell>
+											<TableCell style={{ textAlign: 'center' }}>
+												<CopyButton onClick={() => handleCopy(selectedApp.pkceEnforcement || '', 'PKCE Enforcement')} title="Copy PKCE Enforcement">
+													<FiCopy size={14} />
+												</CopyButton>
+											</TableCell>
+										</TableRow>
 									)}
-								</DetailRow>
-								<DetailRow>
-									<DetailLabel>Redirect URIs</DetailLabel>
-									<DetailValue>{selectedApp.redirectUris?.join(', ') || 'None'}</DetailValue>
-									{selectedApp.redirectUris && selectedApp.redirectUris.length > 0 && (
-										<CopyButton onClick={() => handleCopy(selectedApp.redirectUris!.join(', '), 'Redirect URIs')} title="Copy Redirect URIs">
-											<FiCopy size={14} />
-										</CopyButton>
-									)}
-								</DetailRow>
-								<DetailRow>
-									<DetailLabel>Post-Logout URIs</DetailLabel>
-									<DetailValue>{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}</DetailValue>
-									{selectedApp.postLogoutRedirectUris && selectedApp.postLogoutRedirectUris.length > 0 && (
-										<CopyButton onClick={() => handleCopy(selectedApp.postLogoutRedirectUris!.join(', '), 'Post-Logout URIs')} title="Copy Post-Logout URIs">
-											<FiCopy size={14} />
-										</CopyButton>
-									)}
-								</DetailRow>
-								<DetailRow>
-									<DetailLabel>Scopes</DetailLabel>
-									<DetailValue>{selectedApp.scopes?.join(', ') || 'None'}</DetailValue>
-									{selectedApp.scopes && selectedApp.scopes.length > 0 && (
-										<CopyButton onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')} title="Copy Scopes">
-											<FiCopy size={14} />
-										</CopyButton>
-									)}
-								</DetailRow>
-								<DetailRow>
-									<DetailLabel>Token Auth Method</DetailLabel>
-									<DetailValue>{selectedApp.tokenEndpointAuthMethod || 'client_secret_post'}</DetailValue>
-									<CopyButton onClick={() => handleCopy(selectedApp.tokenEndpointAuthMethod || 'client_secret_post', 'Token Auth Method')} title="Copy Token Auth Method">
-										<FiCopy size={14} />
-									</CopyButton>
-								</DetailRow>
-								{selectedApp.pkceEnforcement && (
-									<DetailRow>
-										<DetailLabel>PKCE Enforcement</DetailLabel>
-										<DetailValue>{selectedApp.pkceEnforcement}</DetailValue>
-										<CopyButton onClick={() => handleCopy(selectedApp.pkceEnforcement || '', 'PKCE Enforcement')} title="Copy PKCE Enforcement">
-											<FiCopy size={14} />
-										</CopyButton>
-									</DetailRow>
-								)}
-							</>
+								</TableBody>
+							</Table>
 						);
 					})()}
 				</ApplicationDetails>
