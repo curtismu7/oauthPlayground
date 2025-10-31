@@ -238,6 +238,32 @@ const ExampleItem = styled.div`
 	}
 `;
 
+const LastEnvironmentIdCard = styled.div`
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	background: #f0fdf4;
+	border: 1px solid #bbf7d0;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	color: #065f46;
+`;
+
+const LastEnvironmentIdLabel = styled.span`
+	font-weight: 600;
+	color: #047857;
+`;
+
+const LastEnvironmentIdValue = styled.span`
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+	word-break: break-all;
+`;
+
 const ResultsToggleContainer = styled.div`
 	display: flex;
 	align-items: center;
@@ -348,6 +374,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 	const [showModal, setShowModal] = useState(false);
 	const [patienceMessage, setPatienceMessage] = useState('');
 	const [patienceColor, setPatienceColor] = useState('#6b7280');
+	const [lastEnvironmentId, setLastEnvironmentId] = useState<string | null>(null);
 
 	// Patience messages with different colors
 	const patienceMessages = [
@@ -383,17 +410,21 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 
 	// Auto-restore last used discovery on mount
 	useEffect(() => {
-		if (!input) {
-			const lastUsed = discoveryPersistenceService.getLastUsedDiscovery();
-			if (lastUsed) {
-				setInput(lastUsed.environmentId);
-				setStatus({ 
-					type: 'info', 
-					message: `Restored last used: ${lastUsed.provider} (${lastUsed.environmentId.substring(0, 8)}...)` 
-				});
-			}
+		const lastUsed = discoveryPersistenceService.getLastUsedDiscovery();
+		if (!lastUsed) {
+			return;
 		}
-	}, [input]);
+
+		setLastEnvironmentId(lastUsed.environmentId);
+
+		if (!initialInput?.trim()) {
+			setInput(lastUsed.environmentId);
+			setStatus({
+				type: 'info',
+				message: `Restored last used: ${lastUsed.provider} (${lastUsed.environmentId.substring(0, 8)}...)`
+			});
+		}
+	}, [initialInput]);
 
 	const handleDiscover = useCallback(async () => {
 		if (!input.trim()) {
@@ -431,6 +462,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					message: `Using cached ${cached.provider} endpoints` 
 				});
 				setDiscoveryResult(cachedResult);
+				setLastEnvironmentId(cached.environmentId);
 				onDiscoveryComplete(cachedResult);
 				setIsLoading(false);
 				return;
@@ -463,6 +495,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					message: `Successfully discovered and saved ${result.provider} endpoints` 
 				});
 				setDiscoveryResult(result);
+				setLastEnvironmentId(envId);
 				onDiscoveryComplete(result);
 			} else {
 				setStatus({ 
@@ -516,6 +549,16 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 					{isLoading ? 'Discovering...' : 'OIDC Discovery'}
 				</SearchButton>
 			</InputGroup>
+
+			{lastEnvironmentId && (
+				<LastEnvironmentIdCard>
+					<LastEnvironmentIdLabel>Last Environment ID</LastEnvironmentIdLabel>
+					<LastEnvironmentIdValue>
+						{lastEnvironmentId}
+						{CopyButtonVariants.identifier(lastEnvironmentId, 'Last Environment ID')}
+					</LastEnvironmentIdValue>
+				</LastEnvironmentIdCard>
+			)}
 
 			{status && (
 				<StatusMessage $type={status.type}>

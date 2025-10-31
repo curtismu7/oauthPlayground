@@ -46,7 +46,7 @@ import { safeJsonParse, safeSessionStorageParse } from '../utils/secureJson';
 import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { FlowCredentialService } from '../services/flowCredentialService';
+import { loadFlowCredentialsIsolated, saveFlowCredentialsIsolated } from '../../../services/flowCredentialService';
 import { storeRedirectUriFromAuthUrl, getStoredRedirectUri, clearRedirectUri, auditRedirectUri } from '../utils/redirectUriHelpers';
 import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
 
@@ -376,17 +376,17 @@ export const useAuthorizationCodeFlowController = (
 		console.log('✅ [useAuthorizationCodeFlowV7_1Controller] PKCE codes cleared on flow load');
 	}, []); // Only run once on mount
 
-	// Load flow-specific credentials on mount using FlowCredentialService
+	// Load flow-specific credentials on mount using isolated storage
 	useEffect(() => {
 		const loadData = async () => {
 			try {
 				console.log('🔄 [useAuthorizationCodeFlowController] Loading flow-specific credentials on mount...');
 				
-				const { credentials: loadedCreds, hasSharedCredentials, flowState } = 
-					await FlowCredentialService.loadFlowCredentials<FlowConfig>({
+				const { credentials: loadedCreds, flowState, credentialSource } =
+					await loadFlowCredentialsIsolated<FlowConfig>({
 						flowKey: persistKey,
 						defaultCredentials: loadInitialCredentials(flowVariant),
-						disableSharedFallback: true, // CRITICAL: Prevent credential bleeding between flows
+						useSharedFallback: false,
 					});
 
 				// Load credentials if we have ANY credentials (flow-specific OR shared)
@@ -396,7 +396,7 @@ export const useAuthorizationCodeFlowController = (
 						environmentId: loadedCreds.environmentId,
 						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
 						hasFlowState: !!flowState,
-						hasSharedCredentials,
+						credentialSource,
 					});
 					
 					setCredentials(loadedCreds);
@@ -409,7 +409,7 @@ export const useAuthorizationCodeFlowController = (
 						console.log('✅ [useAuthorizationCodeFlowController] Loaded flow config from saved state');
 					}
 				} else {
-					console.log('ℹ️ [useAuthorizationCodeFlowController] No saved credentials found, using initial credentials');
+					console.log('ℹ️ [useAuthorizationCodeFlowController] No isolated credentials found, using initial defaults');
 				}
 			} catch (error) {
 				console.error('❌ [useAuthorizationCodeFlowController] Failed to load credentials:', error);
@@ -1538,42 +1538,28 @@ export const useAuthorizationCodeFlowController = (
 			});
 			
 		// Save using FlowCredentialService
-		const success = await FlowCredentialService.saveFlowCredentials(
-			persistKey,
-			credentials,
-			flowConfig,
-			{
-				flowVariant,
-				pkce: pkceCodes,
-				authorizationCode: authCode, // Fixed: was authorizationCode (undefined), now authCode
-				tokens: {
-					accessToken: tokens?.access_token,
-					refreshToken,
-					idToken: tokens?.id_token,
+			const success = await saveFlowCredentialsIsolated(
+				persistKey,
+				credentials,
+				flowConfig,
+				{
+					flowVariant,
+					pkce: pkceCodes,
+					authorizationCode: authCode,
+					tokens: {
+						accessToken: tokens?.access_token,
+						refreshToken,
+						idToken: tokens?.id_token,
+					},
 				},
-			},
-			{ showToast: false } // Don't show toast, calling component handles it
-		);
-		
-		console.log('💾 [useAuthorizationCodeFlowController] FlowCredentialService.saveFlowCredentials result:', success);
+				{ showToast: false, useSharedFallback: false }
+			);
+			console.log('💾 [useAuthorizationCodeFlowController] saveFlowCredentialsIsolated result:', success);
 
 			if (!success) {
-				throw new Error('Failed to save credentials via FlowCredentialService');
+				throw new Error('Failed to save credentials via saveFlowCredentialsIsolated');
 			}
 			
-			// CRITICAL: Also save to authz flow credentials for callback page to load
-			credentialManager.saveAuthzFlowCredentials({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				redirectUri: credentials.redirectUri,
-				scopes: credentials.scopes,
-				authEndpoint: credentials.authEndpoint,
-				tokenEndpoint: credentials.tokenEndpoint,
-				userInfoEndpoint: credentials.userInfoEndpoint,
-			});
-			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved to authz flow storage for callback');
-
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
 			originalCredentialsRef.current = { ...credentials };

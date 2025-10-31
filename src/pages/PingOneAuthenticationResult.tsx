@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { RESULT_STORAGE_KEY, type PlaygroundResult, RESPONSE_TYPES } from './PingOneAuthentication';
 import { UnifiedTokenDisplay } from '../services/unifiedTokenDisplayService';
 import LoginSuccessModal from '../components/LoginSuccessModal';
+import { FiChevronLeft, FiPackage } from 'react-icons/fi';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import V7StepperService from '../services/v7StepperService';
 
 const Page = styled.div`
   background: white;
@@ -142,11 +145,55 @@ const TokenCard = styled.div`
   padding: 2rem;
 `;
 
+const FlowItem = styled.div`
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #ffffff;
+`;
+
+const FlowLabel = styled.div`
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.25rem;
+`;
+
+const FlowMono = styled.pre`
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  margin: 0 0 0.5rem 0;
+`;
+
 const ContextCard = styled.div`
   background: #fff3cd;
   border: 1px solid #ffeaa7;
   border-radius: 12px;
   padding: 2rem;
+`;
+
+const TopNav = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 1rem;
+`;
+
+const PrevButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #f3f4f6;
+  color: #374151;
+  cursor: pointer;
+  font-weight: 600;
+  &:hover { background: #e5e7eb; }
 `;
 
 const ContextTitle = styled.h3`
@@ -170,6 +217,32 @@ const PingOneAuthenticationResult: React.FC = () => {
   const [isRestarting, setIsRestarting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [modalShownRef] = useState<{ current: boolean }>({ current: false });
+  const [flowLogCollapsed, setFlowLogCollapsed] = useState(true);
+  const [flowLog, setFlowLog] = useState<any[] | null>(null);
+
+  // V7 Stepper components
+  const {
+    StepContainer,
+    StepHeader,
+    StepHeaderLeft,
+    StepHeaderRight,
+    VersionBadge,
+    StepHeaderTitle,
+    StepHeaderSubtitle,
+    StepContent,
+    StepNavigation,
+    NavigationButton
+  } = V7StepperService.createStepLayout({ theme: 'blue', showProgress: false });
+
+  // Small brand logo (same shield mark used in the login popup)
+  const BrandLogo: React.FC<{ size?: number }> = ({ size = 28 }) => (
+    <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: size, height: size, borderRadius: 8, background: '#fff', boxShadow: '0 2px 6px rgba(0,0,0,0.15)', marginRight: 10 }}>
+      <svg width={Math.round(size * 0.75)} height={Math.round(size * 0.75)} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill="#E31837"/>
+        <path d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z" fill="#ffffff"/>
+      </svg>
+    </span>
+  );
 
   useEffect(() => {
     try {
@@ -183,6 +256,10 @@ const PingOneAuthenticationResult: React.FC = () => {
           modalShownRef.current = true;
           setShowSuccessModal(true);
         }
+      }
+      const savedFlowLog = localStorage.getItem('pingone_login_flow_log');
+      if (savedFlowLog) {
+        try { setFlowLog(JSON.parse(savedFlowLog)); } catch { setFlowLog(null); }
       }
     } catch (error) {
       console.warn('[PingOneAuthenticationResult] Failed to load result:', error);
@@ -215,10 +292,12 @@ const PingOneAuthenticationResult: React.FC = () => {
   };
 
   const flowType = useMemo<'oauth' | 'oidc' | 'par' | 'rar' | 'redirectless'>(() => {
-    if (!result) {
-      return 'oauth';
-    }
-    return result.mode === 'redirectless' ? 'redirectless' : 'oauth';
+    if (!result) return 'oauth';
+    if (result.mode === 'redirectless') return 'redirectless';
+    const scopes = (result.config.scopes || '').toLowerCase();
+    const hasIdToken = !!result.tokens?.id_token;
+    const isOidc = hasIdToken || scopes.split(/\s+/).includes('openid');
+    return isOidc ? 'oidc' : 'oauth';
   }, [result]);
 
   const tokensForDisplay = useMemo(() => {
@@ -251,11 +330,29 @@ const PingOneAuthenticationResult: React.FC = () => {
 
   return (
     <Page>
-      <Title>PingOne Tokens Lounge</Title>
-      <Subtitle>
-        Welcome back, token wrangler. Here's what your latest {result.mode === 'redirectless' ? 'redirectless' : 'redirect'}
-        {' '}adventure produced.
-      </Subtitle>
+      <StepContainer>
+        <StepHeader>
+          <StepHeaderLeft>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <BrandLogo />
+              <StepHeaderTitle>PingOne Tokens Lounge</StepHeaderTitle>
+            </div>
+            <StepHeaderSubtitle>
+              Latest {result.mode === 'redirectless' ? 'redirectless' : 'redirect'} run summary and tokens
+            </StepHeaderSubtitle>
+          </StepHeaderLeft>
+          <StepHeaderRight>
+            <VersionBadge>V7</VersionBadge>
+          </StepHeaderRight>
+        </StepHeader>
+        <StepContent>
+          <TopNav>
+            <PrevButton onClick={() => navigate('/pingone-authentication')}>
+              <FiChevronLeft size={16} /> Previous
+            </PrevButton>
+          </TopNav>
+          <Title style={{ display: 'none' }}>Hidden</Title>
+          <Subtitle style={{ display: 'none' }}>Hidden</Subtitle>
 
       <Card>
         <SectionTitle>Session Summary</SectionTitle>
@@ -304,6 +401,73 @@ const PingOneAuthenticationResult: React.FC = () => {
           )}
         </TokenCard>
       </Layout>
+
+      <CollapsibleHeader
+        title="Flow Requests & Responses (latest session)"
+        subtitle="Detailed requests and responses for the latest run"
+        icon={<FiPackage />}
+        defaultCollapsed={true}
+        theme="highlight"
+        onToggle={(c) => setFlowLogCollapsed(c)}
+      >
+            {Array.isArray(flowLog) && flowLog.length > 0 ? (
+              flowLog.map((item, idx) => (
+                <FlowItem key={idx}>
+                  <FlowLabel>Step {item.step ?? idx + 1}: {item.title || item.url}</FlowLabel>
+                  {item.method && <div style={{ marginBottom: '0.25rem', color: '#6b7280' }}>Method: {item.method}</div>}
+                  {item.url && (
+                    <>
+                      <div style={{ color: '#6b7280' }}>URL:</div>
+                      <FlowMono>{item.url}</FlowMono>
+                    </>
+                  )}
+                  {item.params && (
+                    <>
+                      <div style={{ color: '#6b7280' }}>Params:</div>
+                      <FlowMono>{JSON.stringify(item.params, null, 2)}</FlowMono>
+                    </>
+                  )}
+                  {item.requestBody && (
+                    <>
+                      <div style={{ color: '#6b7280' }}>Request Body:</div>
+                      <FlowMono>{JSON.stringify(item.requestBody, null, 2)}</FlowMono>
+                    </>
+                  )}
+                  {item.response && (
+                    <>
+                      <div style={{ color: '#6b7280' }}>Response:</div>
+                      <FlowMono>{JSON.stringify(item.response, null, 2)}</FlowMono>
+                    </>
+                  )}
+                  {item.fullResponse && (
+                    <>
+                      <div style={{ color: '#6b7280' }}>Full Response:</div>
+                      <FlowMono>{JSON.stringify(item.fullResponse, null, 2)}</FlowMono>
+                    </>
+                  )}
+                  {typeof item.status !== 'undefined' && (
+                    <div style={{ color: '#6b7280' }}>HTTP Status: {item.status}</div>
+                  )}
+                  {item.note && (
+                    <>
+                      <div style={{ color: '#6b7280', marginTop: '0.25rem' }}>Note:</div>
+                      <FlowMono>{item.note}</FlowMono>
+                    </>
+                  )}
+                </FlowItem>
+              ))
+            ) : (
+              <div style={{ color: '#6b7280' }}>No flow requests were recorded for this session.</div>
+            )}
+      </CollapsibleHeader>
+        </StepContent>
+        <StepNavigation>
+          <NavigationButton $variant="secondary" onClick={() => navigate('/pingone-authentication')}>
+            <FiChevronLeft size={16} /> Previous
+          </NavigationButton>
+          <div />
+        </StepNavigation>
+      </StepContainer>
 
       <ButtonRow>
         <ActionButton onClick={handleStartOver} disabled={isRestarting}>

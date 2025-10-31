@@ -1,6 +1,12 @@
 // src/utils/jwksConverter.ts
 import { logger } from './logger';
 
+// Browser-compatible base64 encoding
+const base64Encode = (bytes: number[]): string => {
+	const binaryString = String.fromCharCode(...bytes);
+	return btoa(binaryString);
+};
+
 export interface JWKSKey {
 	kty: string;
 	kid: string;
@@ -77,7 +83,7 @@ function generateValidRSAJWKSKey(kid: string): JWKSKey {
 	bytes[0] |= 0x80;
 
 	// Convert to base64url without padding
-	const base64 = Buffer.from(bytes).toString('base64');
+	const base64 = base64Encode(bytes);
 	const modulus = base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 
 	return {

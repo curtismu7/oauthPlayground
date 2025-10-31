@@ -24,7 +24,7 @@ import { AuthorizationCodeSharedService } from '../../services/authorizationCode
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService';
+import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { V7StepperService } from '../../services/v7StepperService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';

@@ -28,7 +28,7 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { FlowCredentialService } from '../../services/flowCredentialService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import EducationalContentService from '../../services/educationalContentService';
+import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';

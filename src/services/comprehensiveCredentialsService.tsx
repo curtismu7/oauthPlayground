@@ -20,6 +20,10 @@ import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
 import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { environmentIdPersistenceService } from './environmentIdPersistenceService';
+import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersistenceStatus';
+import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
+import type { PingOneApplication } from '../services/pingOneApplicationService';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`
@@ -497,8 +501,12 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		const fallbackScope = scopes || defaultScopes;
 		const normalizedScope = normalizeScopes(credentials?.scope ?? credentials?.scopes ?? fallbackScope);
 		
+		// Try to load Environment ID from persistence service
+		const persistedEnvId = environmentIdPersistenceService.loadEnvironmentId();
+		const finalEnvironmentId = credentials?.environmentId ?? environmentId ?? persistedEnvId ?? '';
+		
 		return {
-			environmentId: credentials?.environmentId ?? environmentId ?? '',
+			environmentId: finalEnvironmentId,
 			clientId: credentials?.clientId ?? clientId ?? '',
 			clientSecret: credentials?.clientSecret ?? clientSecret ?? '',
 			// Use credentials.redirectUri if available, otherwise use actualRedirectUri
@@ -563,6 +571,12 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				...updates,
 			};
 
+			// Persist Environment ID changes
+			if (updates.environmentId !== undefined && updates.environmentId !== resolvedCredentials.environmentId) {
+				console.log(`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`);
+				environmentIdPersistenceService.saveEnvironmentId(updates.environmentId, 'manual');
+			}
+
 			if (onCredentialsChange) {
 				onCredentialsChange(merged);
 			} else {
@@ -620,6 +634,39 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	// 	setIsAdvancedConfigCollapsed(prev => !prev);
 	// }, []);
 
+	// Handle application selection from PingOne Application Picker
+	const handleApplicationSelect = useCallback((application: PingOneApplication) => {
+		console.log('[ComprehensiveCredentialsService] Application selected:', {
+			name: application.name,
+			clientId: application.clientId,
+			hasClientSecret: !!application.clientSecret,
+			redirectUris: application.redirectUris,
+			scopes: application.scopes,
+			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod
+		});
+
+		// Auto-fill credentials from selected application
+		const updates: Partial<StepCredentials> = {
+			clientId: application.clientId,
+			clientSecret: application.clientSecret || resolvedCredentials.clientSecret, // Keep existing if no secret
+			redirectUri: application.redirectUris?.[0] || resolvedCredentials.redirectUri, // Use first redirect URI
+			scope: application.scopes?.join(' ') || resolvedCredentials.scope,
+			scopes: application.scopes?.join(' ') || resolvedCredentials.scopes,
+			// Map tokenEndpointAuthMethod to clientAuthMethod
+			clientAuthMethod: application.tokenEndpointAuthMethod || resolvedCredentials.clientAuthMethod,
+		};
+
+		// Update post-logout redirect URI if available
+		if (application.postLogoutRedirectUris?.[0]) {
+			updates.postLogoutRedirectUri = application.postLogoutRedirectUris[0];
+		}
+
+		applyCredentialUpdates(updates, { shouldSave: false });
+
+		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
+		v4ToastManager.showSuccess(`Application "${application.name}" selected and credentials filled${logoutUriInfo}`);
+	}, [resolvedCredentials, applyCredentialUpdates]);
+
 	// Handle discovery completion and update environment ID
 	const handleInternalDiscoveryComplete = useCallback(
 		(result: DiscoveryResult) => {
@@ -651,6 +698,13 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 			if (updates) {
 				console.log('[ComprehensiveCredentialsService] Auto-populating credentials from discovery:', updates);
+				
+				// Persist Environment ID from OIDC discovery
+				if (updates.environmentId) {
+					console.log(`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${updates.environmentId}`);
+					environmentIdPersistenceService.saveEnvironmentId(updates.environmentId, 'oidc_discovery');
+				}
+				
 				applyCredentialUpdates(updates, { shouldSave: true });
 			}
 
@@ -681,6 +735,55 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			/>
 			
 			<ServiceContainer>
+				{/* PingOne Application Picker - Top of service */}
+				<CollapsibleHeader
+					title="PingOne Application Picker"
+					subtitle="Auto-fill configuration from your PingOne environment"
+					defaultCollapsed={true}
+					icon={<FiSettings />}
+					theme="orange"
+				>
+					{!effectiveWorkerToken && (
+						<div style={{ 
+							padding: '1rem', 
+							backgroundColor: '#f8f9fa', 
+							borderRadius: '6px', 
+							border: '1px solid #e9ecef',
+							marginBottom: '1rem'
+						}}>
+							<p style={{ margin: '0 0 1rem 0', fontSize: '0.9rem', color: '#495057' }}>
+								<strong>🔧 How it works:</strong> Get a worker token using the Client Credentials grant (no redirect URI or response type needed). 
+								Then select an application from your PingOne environment to auto-fill all configuration fields.
+							</p>
+							<button
+								onClick={() => setShowWorkerTokenModal(true)}
+								disabled={!resolvedCredentials.environmentId}
+								style={{
+									background: '#007bff',
+									color: 'white',
+									border: 'none',
+									padding: '0.75rem 1.5rem',
+									borderRadius: '6px',
+									fontWeight: '600',
+									cursor: !resolvedCredentials.environmentId ? 'not-allowed' : 'pointer',
+									opacity: !resolvedCredentials.environmentId ? 0.6 : 1
+								}}
+							>
+								Get Worker Token
+							</button>
+						</div>
+					)}
+					
+					<PingOneApplicationPicker
+						environmentId={resolvedCredentials.environmentId || ''}
+						clientId={resolvedCredentials.clientId || ''}
+						clientSecret={resolvedCredentials.clientSecret || ''}
+						workerToken={effectiveWorkerToken}
+						onApplicationSelect={handleApplicationSelect}
+						disabled={isSaving || !resolvedCredentials.environmentId || !effectiveWorkerToken}
+					/>
+				</CollapsibleHeader>
+
 				<CollapsibleHeader
 					title={title}
 				subtitle={subtitle}
@@ -890,6 +993,17 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				disabled={false}
 				readOnly={false}
 			/>
+
+			{/* Environment ID Persistence Status */}
+			{resolvedCredentials.environmentId && (
+				<EnvironmentIdPersistenceStatus
+					environmentId={resolvedCredentials.environmentId}
+					onRefresh={() => {
+						// Trigger a re-render to refresh the status
+						window.location.reload();
+					}}
+				/>
+			)}
 
 			{/* Response Type Selector */}
 			<div style={{ 

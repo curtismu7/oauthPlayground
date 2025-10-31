@@ -16,7 +16,7 @@
  * ========================================================================
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
 	FiHome,
 	FiSettings,
@@ -93,6 +93,7 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 	const location = useLocation();
 	const navigate = useNavigate();
 	const [draggedItem, setDraggedItem] = useState<{ type: 'group' | 'item'; id: string; groupId?: string } | null>(null);
+	const [dropTarget, setDropTarget] = useState<{ groupId: string; index: number } | null>(null);
 	const [saveButtonState, setSaveButtonState] = useState<'default' | 'saving' | 'saved'>('default');
 
 
@@ -173,12 +174,12 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 		}));
 	};
 
-	const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) => {
-		return serializedGroups.map(serializedGroup => {
+const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) => {
+    const restored = serializedGroups.map(serializedGroup => {
 			const defaultGroup = defaultGroups.find(g => g.id === serializedGroup.id);
 			if (!defaultGroup) return null;
 
-			return {
+        return {
 				...defaultGroup,
 				isOpen: serializedGroup.isOpen,
 				items: serializedGroup.items.map((serializedItem: any) => {
@@ -195,8 +196,25 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 						icon: <ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>, // fallback icon
 					};
 				}).filter(Boolean)
-			};
-		}).filter(Boolean) as MenuGroup[];
+        };
+    }).filter(Boolean) as MenuGroup[];
+
+    // Ensure new default items (e.g., V7.2) appear even if not in saved layout
+    const presentIds = new Set<string>();
+    restored.forEach(g => g.items.forEach(i => presentIds.add(i.id)));
+    defaultGroups.forEach(defGroup => {
+        defGroup.items.forEach(defItem => {
+            if (!presentIds.has(defItem.id)) {
+                const target = restored.find(g => g.id === defGroup.id);
+                if (target) {
+                    target.items.push(defItem);
+                    presentIds.add(defItem.id);
+                }
+            }
+        });
+    });
+
+    return restored;
 	};
 
 	const saveMenuGroups = (groups: MenuGroup[]) => {
@@ -281,6 +299,13 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
 					},
+				{
+					id: 'oauth-authorization-code-v7-2',
+					path: '/flows/oauth-authorization-code-v7-2',
+					label: 'Authorization Code (V7.2)',
+					icon: <ColoredIcon $color="#06b6d4"><FiKey /></ColoredIcon>,
+					badge: <MigrationBadge title="V7.2: Adds optional redirectless (pi.flow) with Custom Login"><FiCheckCircle /></MigrationBadge>,
+				},
 					{
 						id: 'oauth-implicit-v7',
 						path: '/flows/implicit-v7',
@@ -354,8 +379,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 				},
 					{
 						id: 'oidc-device-authorization-v7',
-						path: '/flows/device-authorization-v7',
-						label: 'Device Authorization (V7)',
+						path: '/flows/device-authorization-v7?variant=oidc',
+						label: 'Device Authorization (V7 – OIDC)',
 						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization"><FiCheckCircle /></MigrationBadge>,
 					},
@@ -597,6 +622,16 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 
 		return defaultGroups;
 	});
+
+	// Persist menu layout whenever it changes
+	useEffect(() => {
+		try {
+			const serializable = createSerializableGroups(menuGroups);
+			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
+		} catch (error) {
+			console.warn('❌ Failed to persist menu layout:', error);
+		}
+	}, [menuGroups]);
 
 	// Filter menu groups based on search query
 	const filteredMenuGroups = useMemo(() => {

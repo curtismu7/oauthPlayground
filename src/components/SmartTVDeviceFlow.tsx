@@ -403,8 +403,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.4)',
                   padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  borderRadius: '0.5rem'
                 }}>
                   <InlineTokenDisplay
                     label="Access Token"
@@ -421,8 +420,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.4)',
                   padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  borderRadius: '0.5rem'
                 }}>
                   <InlineTokenDisplay
                     label="ID Token"
@@ -439,8 +437,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.4)',
                   padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
+                  borderRadius: '0.5rem'
                 }}>
                   <InlineTokenDisplay
                     label="Refresh Token"

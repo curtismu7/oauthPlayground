@@ -37,7 +37,7 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService';
+import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import { FlowCredentialService } from '../../services/flowCredentialService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
@@ -65,7 +65,7 @@ import PARInputInterface from '../../components/PARInputInterface';
 import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
 import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
 import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
-import CollapsibleHeaderService from '../../services/collapsibleHeaderService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
@@ -2079,19 +2079,17 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 		case 0:
 			return (
 				<>
-					{/* CONDENSED V7: Quick Start & Overview - Always Expanded */}
-						
-				{/* 1. QUICK START & OVERVIEW - Always Expanded */}
-				<Section style={{ border: '2px solid #10b981', borderRadius: '0.75rem', marginBottom: '1.5rem' }}>
-					<SectionHeader style={{ background: '#10b981', color: 'white', padding: '1rem 1.5rem', fontWeight: '600' }}>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-							<FiBook />
-							<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
-								📚 Quick Start & Overview - {flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code
-							</span>
-						</div>
-					</SectionHeader>
-					<div style={{ padding: 'clamp(1rem, 3vw, 1.5rem)' }}>
+				{/* CONDENSED V7: Quick Start & Overview - Collapsible */}
+					
+				{/* 1. QUICK START & OVERVIEW - Collapsible */}
+				<CollapsibleHeader
+					title={`Quick Start & Overview - ${flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code`}
+					subtitle="Learn the fundamentals of this flow"
+					defaultCollapsed={false}
+					icon={<FiBook />}
+					theme="green"
+				>
+					<div style={{ padding: '0' }}>
 						{/* Compact Overview */}
 						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
 							<InfoBox $variant="info">
@@ -2161,7 +2159,7 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							</div>
 						</GeneratedContentBox>
 					</div>
-				</Section>
+				</CollapsibleHeader>
 
 				{/* 2. CONFIGURATION & SETUP - Collapsible */}
 				<CollapsibleSection>

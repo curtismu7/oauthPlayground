@@ -55,9 +55,6 @@ export interface CredentialsInputProps {
 	hasUnsavedChanges?: boolean;
 	isSaving?: boolean;
 	autoDiscover?: boolean;
-	// Field editing protection props
-	disabled?: boolean;
-	readOnly?: boolean;
 }
 
 const CollapsibleContainer = styled.div`
@@ -241,17 +238,17 @@ const FormInput = styled.input<{ $hasError?: boolean }>`
 	}
 
 	&:disabled {
-		background: #f9fafb !important;
-		color: #6b7280;
-		cursor: not-allowed !important;
-		pointer-events: none !important;
+		background: #ffffff !important;
+		color: #111827 !important;
+		cursor: text !important;
+		pointer-events: auto !important;
 	}
 
 	&[readonly] {
-		background: #f9fafb !important;
-		color: #6b7280;
-		cursor: not-allowed !important;
-		pointer-events: none !important;
+		background: #ffffff !important;
+		color: #111827 !important;
+		cursor: text !important;
+		pointer-events: auto !important;
 	}
 `;
 
@@ -352,9 +349,6 @@ export const CredentialsInput = ({
 	hasUnsavedChanges = false,
 	isSaving = false,
 	autoDiscover = true,
-	// Field editing protection props
-	disabled = false,
-	readOnly = false,
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
@@ -430,10 +424,25 @@ export const CredentialsInput = ({
 							}
 							value={environmentId}
 							onChange={(e) => onEnvironmentIdChange(e.target.value)}
-							disabled={disabled}
-							readOnly={readOnly}
+							disabled={false}
+							readOnly={false}
 							$hasError={emptyRequiredFields.has('environmentId')}
-							style={{ flex: 1 }}
+							style={{ 
+								flex: 1,
+								pointerEvents: 'auto',
+								userSelect: 'text',
+								cursor: 'text'
+							}}
+							onFocus={(e) => {
+								console.log('Environment ID focused');
+								e.target.style.pointerEvents = 'auto';
+								e.target.style.userSelect = 'text';
+								e.target.style.cursor = 'text';
+							}}
+							onClick={(e) => {
+								console.log('Environment ID clicked');
+								e.target.focus();
+							}}
 						/>
 						{environmentId && (
 							<div style={{ 
@@ -485,9 +494,24 @@ export const CredentialsInput = ({
 							value={clientId}
 							onChange={(e) => onClientIdChange(e.target.value)}
 							$hasError={emptyRequiredFields.has('clientId')}
-							style={{ flex: 1 }}
-							disabled={disabled}
-							readOnly={readOnly}
+							style={{ 
+								flex: 1,
+								pointerEvents: 'auto',
+								userSelect: 'text',
+								cursor: 'text'
+							}}
+							disabled={false}
+							readOnly={false}
+							onFocus={(e) => {
+								console.log('Client ID focused');
+								e.target.style.pointerEvents = 'auto';
+								e.target.style.userSelect = 'text';
+								e.target.style.cursor = 'text';
+							}}
+							onClick={(e) => {
+								console.log('Client ID clicked');
+								e.target.focus();
+							}}
 						/>
 						{clientId && (
 							<div style={{ 
@@ -517,10 +541,25 @@ export const CredentialsInput = ({
 							value={clientSecret}
 							onChange={(e) => onClientSecretChange(e.target.value)}
 							$hasError={emptyRequiredFields.has('clientSecret')}
-							style={{ paddingRight: '6.5rem' }}
+							style={{ 
+								paddingRight: '6.5rem',
+								pointerEvents: 'auto',
+								userSelect: 'text',
+								cursor: 'text'
+							}}
 							disabled={false}
 							readOnly={false}
 							autoComplete="current-password"
+							onFocus={(e) => {
+								console.log('Client Secret focused');
+								e.target.style.pointerEvents = 'auto';
+								e.target.style.userSelect = 'text';
+								e.target.style.cursor = 'text';
+							}}
+							onClick={(e) => {
+								console.log('Client Secret clicked');
+								e.target.focus();
+							}}
 						/>
 						{clientSecret && (
 							<SecretCopyButtonSlot>
@@ -653,9 +692,24 @@ export const CredentialsInput = ({
 								}
 							}}
 							$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
-							style={{ flex: 1 }}
-							disabled={disabled}
-							readOnly={readOnly}
+							style={{ 
+								flex: 1,
+								pointerEvents: 'auto',
+								userSelect: 'text',
+								cursor: 'text'
+							}}
+							disabled={false}
+							readOnly={false}
+							onFocus={(e) => {
+								console.log('Scopes focused');
+								e.target.style.pointerEvents = 'auto';
+								e.target.style.userSelect = 'text';
+								e.target.style.cursor = 'text';
+							}}
+							onClick={(e) => {
+								console.log('Scopes clicked');
+								e.target.focus();
+							}}
 						/>
 						{scopes && (
 							<div style={{ 
