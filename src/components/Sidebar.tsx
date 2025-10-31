@@ -364,7 +364,14 @@ const ResizeHandle = styled.div`
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [sidebarWidth, setSidebarWidth] = useState(450); // Increased to fit widest menu items with mock badges
+	const [sidebarWidth, setSidebarWidth] = useState(() => {
+		try {
+			const saved = localStorage.getItem('sidebar.width');
+			const parsed = saved ? parseInt(saved, 10) : NaN;
+			if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) return parsed;
+		} catch {}
+		return 450; // Default width
+	}); // Increased to fit widest menu items with mock badges
 	const isResizing = useRef(false);
 	
 	// Search functionality
@@ -523,7 +530,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const handleSearch = useCallback((query: string) => {
 		setSearchQuery(query);
 		// The DragDropSidebar will handle the actual search filtering
-	}, []);
+	}, [sidebarWidth]);
 
 
 	const handleMouseDown = (e: React.MouseEvent) => {
@@ -806,6 +813,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
 		const handleMouseUp = () => {
 			isResizing.current = false;
+			try {
+				localStorage.setItem('sidebar.width', String(sidebarWidth));
+			} catch {}
 		};
 
 		document.addEventListener('mousemove', handleMouseMove);

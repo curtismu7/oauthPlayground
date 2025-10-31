@@ -452,11 +452,20 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 
 		setIsSyncingPingOne(true);
 		try {
-			const app = await syncDynamicAcsWithPingOne({
+			const syncPayload: {
+				applicationId: string;
+				allowOverride: boolean;
+				signingCertificate?: string;
+			} = {
 				applicationId: pingOneAppIdInput.trim(),
 				allowOverride: samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest,
-				signingCertificate: samlConfig.signingCertificate,
-			});
+			};
+
+			if (samlConfig.signingCertificate) {
+				syncPayload.signingCertificate = samlConfig.signingCertificate;
+			}
+
+			const app = await syncDynamicAcsWithPingOne(syncPayload);
 			if (app) {
 				v4ToastManager.showSuccess('PingOne application updated successfully.');
 				updateConfig(prev => ({
@@ -679,6 +688,158 @@ const SAMLServiceProviderFlowV1: React.FC = () => {
 				</div>
 			</CollapsibleHeader>
 		</>
+	);
+
+	const renderPingOneSetup = () => (
+		<CollapsibleHeader
+			title="PingOne Console Setup"
+			icon={<FiShield />}
+			defaultCollapsed={collapsedSections.pingoneSetup}
+			showArrow={true}
+		>
+			<InfoBox $variant="info">
+				<FiInfo size={20} />
+				<div>
+					<InfoTitle>Sync with PingOne SAML Application</InfoTitle>
+					<InfoText>
+						Use your PingOne admin credentials to load or update the SAML application that should always accept
+						dynamic ACS URLs in signed AuthnRequests.
+					</InfoText>
+				</div>
+			</InfoBox>
+
+			<FormGroup>
+				<Label>PingOne Environment ID</Label>
+				<Input
+					type="text"
+					value={pingOneAdminCredentials.environmentId}
+					onChange={(event) => handlePingOneAdminChange('environmentId', event.target.value)}
+					placeholder="b9817c16-9910-4415-b67e-4ac687da74d9"
+				/>
+				<Helper>Required to call PingOne Admin APIs.</Helper>
+			</FormGroup>
+
+			<FormGroup>
+				<Label>PingOne Admin Client ID</Label>
+				<Input
+					type="text"
+					value={pingOneAdminCredentials.clientId}
+					onChange={(event) => handlePingOneAdminChange('clientId', event.target.value)}
+					placeholder="your-admin-client-id"
+				/>
+				<Helper>Client ID from your PingOne admin worker application.</Helper>
+			</FormGroup>
+
+			<FormGroup>
+				<Label>PingOne Admin Client Secret</Label>
+				<Input
+					type="password"
+					value={pingOneAdminCredentials.clientSecret}
+					onChange={(event) => handlePingOneAdminChange('clientSecret', event.target.value)}
+					placeholder="********"
+				/>
+				<Helper>The client secret is stored locally for this demo only.</Helper>
+			</FormGroup>
+
+			<Button
+				onClick={handleSavePingOneAdmin}
+				$variant="primary"
+				disabled={isSavingAdmin}
+			>
+				{isSavingAdmin ? (
+					<>
+						<FiRefreshCw className="rotate" /> Saving…
+					</>
+				) : (
+					<>
+						<FiSave /> Save Admin Credentials
+					</>
+				)}
+			</Button>
+
+			<SectionDivider />
+
+			<InfoBox $variant="warning">
+				<FiAlertTriangle size={20} />
+				<div>
+					<InfoTitle>PingOne Application</InfoTitle>
+					<InfoText>
+						Enter the SAML application ID you want to manage. Once loaded you can verify or toggle the
+						<em>Always accept ACS URL</em> capability.
+					</InfoText>
+					{hasSavedConfig && lastSavedAt && (
+						<Helper>
+							Configuration last saved {new Date(lastSavedAt).toLocaleString()}.
+						</Helper>
+					)}
+				</div>
+			</InfoBox>
+
+			<FormGroup>
+				<Label>PingOne Application ID</Label>
+				<Input
+					type="text"
+					value={pingOneAppIdInput}
+					onChange={(event) => setPingOneAppIdInput(event.target.value)}
+					placeholder="e.g. 1a2b3c4d-xxxx-xxxx-xxxx-0123456789ab"
+				/>
+			</FormGroup>
+
+			<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+				<Button
+					onClick={handleFetchPingOneApplication}
+					$variant="secondary"
+					disabled={!isAdminConfigured || isFetchingPingOneApp}
+				>
+					{isFetchingPingOneApp ? (
+						<>
+							<FiRefreshCw className="rotate" /> Loading…
+						</>
+					) : (
+						<>
+							<FiGlobe /> Load Application
+						</>
+					)}
+				</Button>
+				<Button
+					onClick={handleSyncDynamicAcs}
+					$variant="primary"
+					disabled={!isAdminConfigured || isSyncingPingOne}
+				>
+					{isSyncingPingOne ? (
+						<>
+							<FiRefreshCw className="rotate" /> Updating…
+						</>
+					) : (
+						<>
+							<FiSend /> Sync Dynamic ACS Toggle
+						</>
+					)}
+				</Button>
+			</div>
+
+			{!isAdminConfigured && (
+				<Helper style={{ color: '#dc2626', marginTop: '0.75rem' }}>
+					Provide all PingOne admin credentials above before attempting to load or sync the application.
+				</Helper>
+			)}
+
+			{pingOneAdmin && pingOneAdmin.environmentId && pingOneAdmin.clientId && (
+				<GeneratedContentBox>
+					<strong>PingOne Admin Summary</strong>
+					<ParameterGrid style={{ marginTop: '0.75rem' }}>
+						<ParameterLabel>Env ID</ParameterLabel>
+						<ParameterValue>{pingOneAdmin.environmentId}</ParameterValue>
+						<ParameterLabel>Client ID</ParameterLabel>
+						<ParameterValue>{pingOneAdmin.clientId}</ParameterValue>
+						<ParameterLabel>Dynamic ACS Enabled</ParameterLabel>
+						<ParameterValue>
+							{samlConfig.enableAlwaysAcceptAcsUrlInSignedAuthnRequest ? 'Yes' : 'No'}
+						</ParameterValue>
+					</ParameterGrid>
+				</GeneratedContentBox>
+			)}
+		</CollapsibleHeader>
 	);
 
 	const renderAuthnRequest = () => (
