@@ -734,7 +734,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
 		const toastMessage = `Application "${application.name}" selected${logoutUriInfo}`;
 		console.log('[ComprehensiveCredentialsService] Showing toast message:', toastMessage);
-		v4ToastManager.showSuccess(toastMessage);
+		// Use setTimeout to avoid React warning about updating NotificationProvider during render
+		setTimeout(() => {
+			v4ToastManager.showSuccess(toastMessage);
+		}, 0);
 	}, [resolvedCredentials, applyCredentialUpdates, onCredentialsChange, onClientIdChange, onClientSecretChange, onClientAuthMethodChange]);
 
 	// Handle discovery completion and update environment ID
