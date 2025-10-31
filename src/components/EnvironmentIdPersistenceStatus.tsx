@@ -1,25 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FiSave, FiRefreshCw, FiInfo, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
+import { FiSave, FiRefreshCw, FiInfo, FiCheckCircle, FiAlertCircle, FiEdit } from 'react-icons/fi';
 import styled from 'styled-components';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
-
-const StatusContainer = styled.div`
-  background: #f0f9ff;
-  border: 1px solid #0ea5e9;
-  border-radius: 0.5rem;
-  padding: 0.75rem;
-  margin: 0.5rem 0;
-  font-size: 0.875rem;
-`;
-
-const StatusHeader = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  color: #0c4a6e;
-`;
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { v4ToastManager } from '../services/v4ToastManager';
 
 const StatusContent = styled.div`
   color: #075985;
@@ -95,7 +79,14 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
   const handleCopyEnvContent = () => {
     const envContent = environmentIdPersistenceService.generateEnvContent();
     navigator.clipboard.writeText(envContent).then(() => {
-      alert('Environment content copied to clipboard!');
+      v4ToastManager.showSuccess('Environment content copied to clipboard!');
+    });
+  };
+
+  const handleUpdateEnv = () => {
+    const envContent = environmentIdPersistenceService.generateEnvContentWithNewline();
+    navigator.clipboard.writeText(envContent).then(() => {
+      v4ToastManager.showSuccess('Environment content copied! Paste into your .env file on a new line.');
     });
   };
 
@@ -107,12 +98,13 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
   if (!status) return null;
 
   return (
-    <StatusContainer>
-      <StatusHeader>
-        <FiInfo size={16} />
-        Environment ID Persistence
-      </StatusHeader>
-      
+    <CollapsibleHeader
+      title="Environment ID Persistence"
+      icon={<FiInfo />}
+      theme="blue"
+      defaultCollapsed={true}
+      variant="compact"
+    >
       <StatusContent>
         <StatusItem>
           {status.hasStoredId ? (
@@ -161,6 +153,11 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
             Copy .env Content
           </ActionButton>
 
+          <ActionButton onClick={handleUpdateEnv}>
+            <FiEdit size={12} />
+            Update .env
+          </ActionButton>
+
           <ActionButton onClick={handleClearPersistence}>
             <FiRefreshCw size={12} />
             Clear Storage
@@ -182,7 +179,7 @@ export const EnvironmentIdPersistenceStatus: React.FC<EnvironmentIdPersistenceSt
           </div>
         )}
       </StatusContent>
-    </StatusContainer>
+    </CollapsibleHeader>
   );
 };
 
