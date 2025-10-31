@@ -532,7 +532,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		const persistedEnvId = environmentIdPersistenceService.loadEnvironmentId();
 		const finalEnvironmentId = credentials?.environmentId ?? environmentId ?? persistedEnvId ?? '';
 		
-		return {
+		const resolved: StepCredentials = {
 			environmentId: finalEnvironmentId,
 			clientId: credentials?.clientId ?? clientId ?? '',
 			clientSecret: credentials?.clientSecret ?? clientSecret ?? '',
@@ -552,6 +552,23 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			clientAuthMethod: credentials?.clientAuthMethod ?? 'client_secret_post',
 			tokenEndpointAuthMethod: credentials?.tokenEndpointAuthMethod ?? (typeof credentials?.clientAuthMethod === 'string' ? credentials.clientAuthMethod : credentials?.clientAuthMethod?.value) ?? 'client_secret_post',
 		};
+		
+		console.log('[ComprehensiveCredentialsService] resolvedCredentials computed:', {
+			fromCredentials: {
+				clientId: credentials?.clientId,
+				clientSecret: credentials?.clientSecret ? '***HIDDEN***' : '',
+			},
+			fromProps: {
+				clientId,
+				clientSecret: clientSecret ? '***HIDDEN***' : '',
+			},
+			resolved: {
+				clientId: resolved.clientId,
+				clientSecret: resolved.clientSecret ? '***HIDDEN***' : '',
+			}
+		});
+		
+		return resolved;
 	}, [
 		credentials,
 		environmentId,
