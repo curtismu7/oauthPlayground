@@ -1,7 +1,7 @@
 // src/components/PingOneApplicationPicker.tsx
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiRefreshCw, FiChevronDown, FiCheck, FiAlertCircle, FiCopy } from 'react-icons/fi';
+import { FiRefreshCw, FiChevronDown, FiCheck, FiAlertCircle, FiCopy, FiEye, FiEyeOff } from 'react-icons/fi';
 import { fetchApplications as fetchPingOneApplications, type PingOneApplication } from '../services/pingOneApplicationService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
@@ -258,6 +258,7 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [success, setSuccess] = useState<string | null>(null);
+	const [showClientSecret, setShowClientSecret] = useState(false);
 
     const fetchApplications = useCallback(async () => {
         if (!environmentId || (!clientId && !clientSecret) || !workerToken) {
@@ -378,6 +379,31 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 										</TableRow>
 										<TableRow>
 											<TableCell>
+												<FieldLabel>Client Secret</FieldLabel>
+											</TableCell>
+											<TableCell>
+												<FieldValue>
+													{selectedApp.clientSecret 
+														? (showClientSecret ? selectedApp.clientSecret : '••••••••••••••••') 
+														: 'None'
+													}
+												</FieldValue>
+											</TableCell>
+											<TableCell style={{ textAlign: 'center' }}>
+												{selectedApp.clientSecret && (
+													<div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', justifyContent: 'center' }}>
+														<CopyButton onClick={() => handleCopy(selectedApp.clientSecret!, 'Client Secret')} title="Copy Client Secret">
+															<FiCopy size={14} />
+														</CopyButton>
+														<CopyButton onClick={() => setShowClientSecret(!showClientSecret)} title={showClientSecret ? 'Hide' : 'Show'}>
+															{showClientSecret ? <FiEyeOff size={14} /> : <FiEye size={14} />}
+														</CopyButton>
+													</div>
+												)}
+											</TableCell>
+										</TableRow>
+										<TableRow>
+											<TableCell>
 												<FieldLabel>Grant Types</FieldLabel>
 											</TableCell>
 											<TableCell>
@@ -399,11 +425,6 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 												<FieldValue>{selectedApp.redirectUris?.join(', ') || 'None'}</FieldValue>
 											</TableCell>
 											<TableCell style={{ textAlign: 'center' }}>
-												{selectedApp.redirectUris && selectedApp.redirectUris.length > 0 && (
-													<CopyButton onClick={() => handleCopy(selectedApp.redirectUris!.join(', '), 'Redirect URIs')} title="Copy Redirect URIs">
-														<FiCopy size={14} />
-													</CopyButton>
-												)}
 											</TableCell>
 										</TableRow>
 										<TableRow>
