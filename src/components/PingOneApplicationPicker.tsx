@@ -1,8 +1,9 @@
 // src/components/PingOneApplicationPicker.tsx
 import React, { useState, useCallback, useEffect } from 'react';
 import styled from 'styled-components';
-import { FiRefreshCw, FiChevronDown, FiCheck, FiAlertCircle } from 'react-icons/fi';
+import { FiRefreshCw, FiChevronDown, FiCheck, FiAlertCircle, FiCopy } from 'react-icons/fi';
 import { fetchApplications as fetchPingOneApplications, type PingOneApplication } from '../services/pingOneApplicationService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface PingOneApplicationPickerProps {
     environmentId: string;
@@ -110,22 +111,57 @@ const DetailRow = styled.div`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	margin-bottom: 0.5rem;
+	margin-bottom: 0.75rem;
+	padding-bottom: 0.75rem;
+	border-bottom: 1px solid #e9ecef;
 	
 	&:last-child {
 		margin-bottom: 0;
+		padding-bottom: 0;
+		border-bottom: none;
 	}
 `;
 
 const DetailLabel = styled.span`
-	font-weight: 500;
-	color: #495057;
+	font-weight: 600;
+	color: #333;
+	font-size: 0.875rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
 `;
 
 const DetailValue = styled.span`
-	color: #6c757d;
+	color: #495057;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 	font-size: 0.875rem;
+	font-weight: 500;
+	flex: 1;
+	margin-right: 0.5rem;
+	word-break: break-all;
+`;
+
+const CopyButton = styled.button`
+	background: none;
+	border: 1px solid #dee2e6;
+	border-radius: 4px;
+	padding: 0.375rem;
+	color: #6c757d;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	transition: all 0.2s ease;
+	
+	&:hover {
+		background: #f8f9fa;
+		border-color: #007bff;
+		color: #007bff;
+	}
+	
+	&:active {
+		transform: scale(0.95);
+	}
 `;
 
 const RefreshButton = styled.button`
@@ -208,6 +244,11 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 			}
 		}
 	}, [applications, onApplicationSelect]);
+	
+	const handleCopy = useCallback((text: string, label: string) => {
+		navigator.clipboard.writeText(text);
+		v4ToastManager.showSuccess(`${label} copied to clipboard`);
+	}, []);
 
 	// Auto-fetch applications when credentials are available
 	useEffect(() => {
@@ -265,33 +306,62 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 						return (
 							<>
 								<DetailRow>
-									<DetailLabel>Client ID:</DetailLabel>
+									<DetailLabel>Client ID</DetailLabel>
 									<DetailValue>{selectedApp.clientId}</DetailValue>
+									<CopyButton onClick={() => handleCopy(selectedApp.clientId, 'Client ID')} title="Copy Client ID">
+										<FiCopy size={14} />
+									</CopyButton>
 								</DetailRow>
 								<DetailRow>
-									<DetailLabel>Grant Types:</DetailLabel>
+									<DetailLabel>Grant Types</DetailLabel>
 									<DetailValue>{selectedApp.grantTypes?.join(', ') || 'None'}</DetailValue>
+									{selectedApp.grantTypes && selectedApp.grantTypes.length > 0 && (
+										<CopyButton onClick={() => handleCopy(selectedApp.grantTypes!.join(', '), 'Grant Types')} title="Copy Grant Types">
+											<FiCopy size={14} />
+										</CopyButton>
+									)}
 								</DetailRow>
 								<DetailRow>
-									<DetailLabel>Redirect URIs:</DetailLabel>
+									<DetailLabel>Redirect URIs</DetailLabel>
 									<DetailValue>{selectedApp.redirectUris?.join(', ') || 'None'}</DetailValue>
+									{selectedApp.redirectUris && selectedApp.redirectUris.length > 0 && (
+										<CopyButton onClick={() => handleCopy(selectedApp.redirectUris!.join(', '), 'Redirect URIs')} title="Copy Redirect URIs">
+											<FiCopy size={14} />
+										</CopyButton>
+									)}
 								</DetailRow>
 								<DetailRow>
-									<DetailLabel>Post-Logout URIs:</DetailLabel>
+									<DetailLabel>Post-Logout URIs</DetailLabel>
 									<DetailValue>{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}</DetailValue>
+									{selectedApp.postLogoutRedirectUris && selectedApp.postLogoutRedirectUris.length > 0 && (
+										<CopyButton onClick={() => handleCopy(selectedApp.postLogoutRedirectUris!.join(', '), 'Post-Logout URIs')} title="Copy Post-Logout URIs">
+											<FiCopy size={14} />
+										</CopyButton>
+									)}
 								</DetailRow>
 								<DetailRow>
-									<DetailLabel>Scopes:</DetailLabel>
+									<DetailLabel>Scopes</DetailLabel>
 									<DetailValue>{selectedApp.scopes?.join(', ') || 'None'}</DetailValue>
+									{selectedApp.scopes && selectedApp.scopes.length > 0 && (
+										<CopyButton onClick={() => handleCopy(selectedApp.scopes!.join(', '), 'Scopes')} title="Copy Scopes">
+											<FiCopy size={14} />
+										</CopyButton>
+									)}
 								</DetailRow>
 								<DetailRow>
-									<DetailLabel>Token Auth Method:</DetailLabel>
+									<DetailLabel>Token Auth Method</DetailLabel>
 									<DetailValue>{selectedApp.tokenEndpointAuthMethod || 'client_secret_post'}</DetailValue>
+									<CopyButton onClick={() => handleCopy(selectedApp.tokenEndpointAuthMethod || 'client_secret_post', 'Token Auth Method')} title="Copy Token Auth Method">
+										<FiCopy size={14} />
+									</CopyButton>
 								</DetailRow>
 								{selectedApp.pkceEnforcement && (
 									<DetailRow>
-										<DetailLabel>PKCE Enforcement:</DetailLabel>
+										<DetailLabel>PKCE Enforcement</DetailLabel>
 										<DetailValue>{selectedApp.pkceEnforcement}</DetailValue>
+										<CopyButton onClick={() => handleCopy(selectedApp.pkceEnforcement || '', 'PKCE Enforcement')} title="Copy PKCE Enforcement">
+											<FiCopy size={14} />
+										</CopyButton>
 									</DetailRow>
 								)}
 							</>
