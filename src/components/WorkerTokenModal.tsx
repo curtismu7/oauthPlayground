@@ -12,9 +12,9 @@ import { DraggableModal } from './DraggableModal';
 const InfoBox = styled.div<{ $variant: 'info' | 'warning' }>`
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
-  border-radius: 0.5rem;
+  gap: 0.5rem;
+  padding: 0.625rem;
+  border-radius: 0.375rem;
   background: ${({ $variant }) => 
     $variant === 'warning' ? 'rgba(251, 191, 36, 0.1)' : 'rgba(59, 130, 246, 0.1)'
   };
@@ -34,24 +34,24 @@ const InfoTitle = styled.div`
 `;
 
 const InfoText = styled.div`
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   color: #6b7280;
-  line-height: 1.5;
+  line-height: 1.4;
 `;
 
 const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
+  gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
   border: none;
   background: ${({ $variant }) => ($variant === 'secondary' ? '#e5e7eb' : '#2563eb')};
   color: ${({ $variant }) => ($variant === 'secondary' ? '#1f2937' : '#ffffff')};
   font-weight: 600;
   cursor: pointer;
   transition: background 120ms ease;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
   text-decoration: none;
 
   &:hover {
@@ -66,8 +66,9 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 
 const ButtonGroup = styled.div`
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
+  margin-top: 0.5rem;
 `;
 
 const StepList = styled.ol`
@@ -85,27 +86,27 @@ const StepItem = styled.li`
 const FormSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin: 1rem 0;
+  gap: 0.75rem;
+  margin: 0.75rem 0;
 `;
 
 const FormField = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.375rem;
 `;
 
 const FormLabel = styled.label`
   font-weight: 600;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: 0.8125rem;
 `;
 
 const FormInput = styled.input`
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem 0.625rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
   transition: border-color 0.2s ease;
   
@@ -118,9 +119,9 @@ const FormInput = styled.input`
 
 const FormSelect = styled.select`
   width: 100%;
-  padding: 0.75rem;
+  padding: 0.5rem 0.625rem;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
+  border-radius: 0.375rem;
   font-size: 0.875rem;
   background-color: #ffffff;
   transition: border-color 0.2s ease;
@@ -145,7 +146,7 @@ const PasswordInput = styled.div`
   
   input {
     width: 100%;
-    padding-right: 3rem; /* Make room for the toggle button */
+    padding-right: 2.5rem; /* Make room for the toggle button */
   }
 `;
 
@@ -407,21 +408,16 @@ export const WorkerTokenModal: React.FC<Props> = ({
       isOpen={isOpen}
       onClose={onClose}
       title="Worker Token Required"
-      headerContent={
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <FiKey />
-          <span>Worker Token Required</span>
-        </div>
-      }
+      maxHeight="calc(100vh - 2rem)"
+      width="min(600px, calc(100vw - 2rem))"
     >
-
+      <div style={{ margin: '-0.5rem -0.5rem 0 -0.5rem' }}>
         <InfoBox $variant="warning">
-          <FiAlertTriangle size={20} style={{ flexShrink: 0, color: '#f59e0b' }} />
+          <FiAlertTriangle size={16} style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }} />
           <InfoContent>
-            <InfoTitle>Config Checker Requires Worker Token</InfoTitle>
+            <InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>Config Checker Requires Worker Token</InfoTitle>
             <InfoText>
-              The Config Checker functionality requires a PingOne Management API worker token to compare 
-              configurations and create applications. You can get a worker token using one of the options below.
+              Worker token needed for Config Checker. Generate one below or use Client Generator.
             </InfoText>
           </InfoContent>
         </InfoBox>
@@ -429,12 +425,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
         {!showForm ? (
           <>
             <InfoBox $variant="info">
-              <FiInfo size={20} style={{ flexShrink: 0, color: '#3b82f6' }} />
+              <FiInfo size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
               <InfoContent>
-                <InfoTitle>How to Get a Worker Token</InfoTitle>
+                <InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>Get Worker Token</InfoTitle>
                 <InfoText>
-                  You can generate a worker token directly here or use the Client Generator. 
-                  A worker token is required for the Config Checker to compare configurations and create applications.
+                  Generate here or use Client Generator.
                 </InfoText>
               </InfoContent>
             </InfoBox>
@@ -456,12 +451,11 @@ export const WorkerTokenModal: React.FC<Props> = ({
         ) : (
           <>
             <InfoBox $variant="info">
-              <FiInfo size={20} style={{ flexShrink: 0, color: '#3b82f6' }} />
+              <FiInfo size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
               <InfoContent>
-                <InfoTitle>Generate Worker Token</InfoTitle>
+                <InfoTitle style={{ fontSize: '0.875rem', marginBottom: '0.125rem' }}>Generate Worker Token</InfoTitle>
                 <InfoText>
-                  Enter your PingOne environment credentials to generate a worker token. 
-                  This token will be used for Config Checker functionality.
+                  Enter PingOne credentials below.
                 </InfoText>
               </InfoContent>
             </InfoBox>
@@ -514,9 +508,8 @@ export const WorkerTokenModal: React.FC<Props> = ({
                   <option value="client_secret_jwt">Client Secret JWT</option>
                   <option value="private_key_jwt">Private Key JWT</option>
                 </FormSelect>
-                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                  💡 <strong>Tip:</strong> Use "Client Secret Post" for most PingOne applications. 
-                  Check your application's "Token Endpoint Authentication Method" in PingOne Admin.
+                <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.125rem', lineHeight: '1.3' }}>
+                  💡 Use "Client Secret Post" for most PingOne applications.
                 </div>
               </FormField>
 
@@ -544,6 +537,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
             </ButtonGroup>
           </>
         )}
+      </div>
     </DraggableModal>
   );
 };
