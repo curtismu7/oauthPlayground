@@ -464,8 +464,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.2)',
                   padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  borderRadius: '0.5rem'
                 }}>
                   <InlineTokenDisplay
                     label="Access Token"
@@ -482,8 +481,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.2)',
                   padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  borderRadius: '0.5rem'
                 }}>
                   <InlineTokenDisplay
                     label="ID Token"
@@ -500,8 +498,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
                 <div style={{
                   background: 'rgba(0, 0, 0, 0.2)',
                   padding: '1rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid rgba(255, 255, 255, 0.2)'
+                  borderRadius: '0.5rem'
                 }}>
                   <InlineTokenDisplay
                     label="Refresh Token"
