@@ -27,9 +27,9 @@ import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 // V7 Styled Components with enhanced styling
 const Container = styled.div`
@@ -320,13 +320,44 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 	`}
 `;
 
-const ResultCard = styled.div`
+const ResultCard = styled.div<{ style?: React.CSSProperties }>`
 	background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
 	border: 2px solid #22c55e;
 	border-radius: 1rem;
 	padding: 2rem;
 	margin-top: 2rem;
 	box-shadow: 0 4px 6px rgba(34, 197, 94, 0.1);
+`;
+
+const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
+	background: ${props => 
+		props.$variant === 'success' ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' :
+		props.$variant === 'warning' ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' :
+		'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
+	};
+	border: 2px solid ${props =>
+		props.$variant === 'success' ? '#22c55e' :
+		props.$variant === 'warning' ? '#f59e0b' :
+		'#3b82f6'
+	};
+	border-radius: 0.75rem;
+	padding: 1.5rem;
+	display: flex;
+	align-items: flex-start;
+	gap: 1rem;
+`;
+
+const InfoTitle = styled.div`
+	font-weight: 700;
+	font-size: 1.125rem;
+	color: ${props => props.theme || '#1f2937'};
+	margin-bottom: 0.5rem;
+`;
+
+const InfoText = styled.div`
+	font-size: 0.875rem;
+	color: #4b5563;
+	line-height: 1.6;
 `;
 
 const ResultHeader = styled.h4`
@@ -586,19 +617,15 @@ const OAuthROPCFlowV7: React.FC = () => {
 										Access Token Received
 									</ResultHeader>
 									
-									<UltimateTokenDisplay
-										tokens={controller.tokens}
-										flowType="oauth"
-										flowKey="oauth-ropc-v7"
-										displayMode="detailed"
-										title="OAuth ROPC Tokens"
-										subtitle="Access token obtained via Resource Owner Password Credentials flow"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										showMetadata={true}
-									/>
+								{UnifiedTokenDisplayService.showTokens(
+									controller.tokens,
+									'oauth',
+									'oauth-ropc-v7',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+									}
+								)}
 								</ResultCard>
 							)}
 						</>
@@ -678,21 +705,50 @@ const OAuthROPCFlowV7: React.FC = () => {
 							</FormSection>
 
 							{controller.refreshedTokens && (
-								<ResultCard>
-									<UltimateTokenDisplay
-										tokens={controller.refreshedTokens}
-										flowType="oauth"
-										flowKey="oauth-ropc-v7-refresh"
-										displayMode="detailed"
-										title="🔄 Refreshed Tokens"
-										subtitle="New access token obtained using refresh token"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										showMetadata={true}
-									/>
-								</ResultCard>
+								<>
+									{controller.tokens && (
+										<ResultCard style={{ marginBottom: '1.5rem' }}>
+											<InfoBox $variant="info" style={{ marginBottom: '1rem' }}>
+												<FiInfo size={20} />
+												<div>
+													<InfoTitle>🔄 Before Refresh</InfoTitle>
+													<InfoText>
+														These are your current tokens before the refresh exchange.
+													</InfoText>
+												</div>
+											</InfoBox>
+											{UnifiedTokenDisplayService.showTokens(
+												controller.tokens,
+												'oauth',
+												'oauth-ropc-v7-before',
+												{
+													showCopyButtons: true,
+													showDecodeButtons: true,
+												}
+											)}
+										</ResultCard>
+									)}
+									<ResultCard>
+										<InfoBox $variant="success" style={{ marginBottom: '1rem' }}>
+											<FiCheckCircle size={20} />
+											<div>
+												<InfoTitle>✅ After Refresh</InfoTitle>
+												<InfoText>
+													New tokens issued after the refresh token exchange. The refresh token is typically opaque (references server-side state) unless your authorization server issues JWT refresh tokens.
+												</InfoText>
+											</div>
+										</InfoBox>
+										{UnifiedTokenDisplayService.showTokens(
+											controller.refreshedTokens,
+											'oauth',
+											'oauth-ropc-v7-refresh',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
+									</ResultCard>
+								</>
 							)}
 						</>
 					)}

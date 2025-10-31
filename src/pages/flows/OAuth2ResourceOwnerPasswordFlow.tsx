@@ -18,7 +18,7 @@ import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 const PageContainer = styled.div`
 	max-width: 1200px;
@@ -543,7 +543,32 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 							</p>
 						)}
 
-						{controller.refreshedTokens && (
+					{controller.refreshedTokens && (
+						<>
+							{controller.tokens && (
+								<div style={{ marginTop: '2rem' }}>
+									<h4
+										style={{
+											marginBottom: '1rem',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+										}}
+									>
+										<FiInfo color="#3b82f6" />
+										Before Refresh
+									</h4>
+									{UnifiedTokenDisplayService.showTokens(
+										controller.tokens,
+										'oauth',
+										'oauth-resource-owner-password-before',
+										{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										}
+									)}
+								</div>
+							)}
 							<div style={{ marginTop: '2rem' }}>
 								<h4
 									style={{
@@ -554,24 +579,29 @@ const OAuth2ResourceOwnerPasswordFlow: React.FC = () => {
 									}}
 								>
 									<FiCheckCircle color="#059669" />
-									New Access Token
+									After Refresh
 								</h4>
-
-								<UltimateTokenDisplay
-									tokens={controller.refreshedTokens}
-									flowType="oauth"
-									flowKey="oauth-resource-owner-password-refresh"
-									displayMode="detailed"
-									title="🔄 Refreshed Tokens"
-									subtitle="New access token obtained using refresh token"
-									showCopyButtons={true}
-									showDecodeButtons={true}
-									showMaskToggle={true}
-									showTokenManagement={true}
-									showMetadata={true}
-								/>
+								<InfoCard style={{ marginBottom: '1rem', padding: '1rem' }}>
+									<FiInfo style={{ flexShrink: 0 }} />
+									<CardText style={{ margin: 0, fontSize: '0.875rem' }}>
+										Whether a refresh token is opaque or JWT depends on the authorization server's design:
+										<br />• <strong>PingOne</strong> → typically opaque (refresh token references state stored server-side)
+										<br />• <strong>PingFederate/PingAM/AIC</strong> → can issue JWT refresh tokens (optional setting)
+										<br />• <strong>Custom OIDC servers</strong> → often use JWT refresh tokens to avoid DB lookups
+									</CardText>
+								</InfoCard>
+								{UnifiedTokenDisplayService.showTokens(
+									controller.refreshedTokens,
+									'oauth',
+									'oauth-resource-owner-password-refresh',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+									}
+								)}
 							</div>
-						)}
+						</>
+					)}
 					</FormContainer>
 				);
 
