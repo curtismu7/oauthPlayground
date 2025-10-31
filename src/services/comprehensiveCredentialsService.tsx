@@ -713,7 +713,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		// Auto-fill credentials from selected application
 		const updates: Partial<StepCredentials> = {
 			clientId: application.clientId,
-			clientSecret: application.clientSecret || '', // Don't keep existing - explicitly set from app
+			// Only update clientSecret if the API returns it (for security, PingOne API typically doesn't)
+			...(application.clientSecret && { clientSecret: application.clientSecret }),
 			// Don't update redirectUri - let user keep their flow-specific URI
 			scope: application.scopes?.join(' ') || '',
 			scopes: application.scopes?.join(' ') || '',
