@@ -661,7 +661,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									value={getFieldValue('environmentId')}
 									onChange={(e) => handleFieldChange('environmentId', e.target.value)}
 									placeholder="e.g., abc12345-6789-4abc-def0-1234567890ab"
-									disabled={useGlobalDefaults}
+									disabled={false}
 									className={errors.environmentId ? 'is-invalid' : ''}
 								/>
 								<div className="button-group">
@@ -670,7 +670,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										onClick={() =>
 											handleCopyToClipboard(getFieldValue('environmentId'), 'Environment ID')
 										}
-										disabled={useGlobalDefaults || !getFieldValue('environmentId')}
+										disabled={!getFieldValue('environmentId')}
 										aria-label="Copy Environment ID"
 										title="Copy Environment ID"
 									>
@@ -693,14 +693,14 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									value={getFieldValue('clientId')}
 									onChange={(e) => handleFieldChange('clientId', e.target.value)}
 									placeholder="e.g., 12345678-1234-1234-1234-123456789012"
-									disabled={useGlobalDefaults}
+									disabled={false}
 									className={errors.clientId ? 'is-invalid' : ''}
 								/>
 								<div className="button-group">
 									<Button
 										type="button"
 										onClick={() => handleCopyToClipboard(getFieldValue('clientId'), 'Client ID')}
-										disabled={useGlobalDefaults || !getFieldValue('clientId')}
+										disabled={!getFieldValue('clientId')}
 										aria-label="Copy Client ID"
 										title="Copy Client ID"
 									>
@@ -759,7 +759,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										value={getFieldValue('clientSecret')}
 										onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
 										placeholder="Enter your client secret"
-										disabled={useGlobalDefaults}
+										disabled={false}
 										className={errors.clientSecret ? 'is-invalid' : ''}
 										style={{
 											fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
@@ -770,7 +770,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										<Button
 											type="button"
 											onClick={() => setShowSecret(!showSecret)}
-											disabled={useGlobalDefaults}
+											disabled={false}
 											aria-label={showSecret ? 'Hide client secret' : 'Show client secret'}
 											title={showSecret ? 'Hide client secret' : 'Show client secret'}
 										>
@@ -781,7 +781,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											onClick={() =>
 												handleCopyToClipboard(getFieldValue('clientSecret'), 'Client Secret')
 											}
-											disabled={useGlobalDefaults || !getFieldValue('clientSecret')}
+											disabled={!getFieldValue('clientSecret')}
 											aria-label="Copy Client Secret"
 											title="Copy Client Secret"
 										>
@@ -805,7 +805,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										value={getFieldValue('redirectUri')}
 										onChange={(e) => handleFieldChange('redirectUri', e.target.value)}
 										placeholder="e.g., https://localhost:3000/callback"
-										disabled={useGlobalDefaults}
+										disabled={false}
 										className={errors.redirectUri ? 'is-invalid' : ''}
 									/>
 									<div className="button-group">
@@ -814,7 +814,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 											onClick={() =>
 												handleCopyToClipboard(getFieldValue('redirectUri'), 'Redirect URI')
 											}
-											disabled={useGlobalDefaults || !getFieldValue('redirectUri')}
+											disabled={!getFieldValue('redirectUri')}
 											aria-label="Copy Redirect URI"
 											title="Copy Redirect URI"
 										>
@@ -838,7 +838,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									value={getFieldValue('additionalScopes')}
 									onChange={(e) => handleFieldChange('additionalScopes', e.target.value)}
 									placeholder="e.g., api:read api:write"
-									disabled={useGlobalDefaults}
+									disabled={false}
 									className={errors.additionalScopes ? 'is-invalid' : ''}
 								/>
 								<div className="button-group">
@@ -847,7 +847,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										onClick={() =>
 											handleCopyToClipboard(getFieldValue('additionalScopes'), 'Additional Scopes')
 										}
-										disabled={useGlobalDefaults || !getFieldValue('additionalScopes')}
+										disabled={!getFieldValue('additionalScopes')}
 										aria-label="Copy Additional Scopes"
 										title="Copy Additional Scopes"
 									>
@@ -868,7 +868,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 									id="clientAuthMethod"
 									value={clientAuthMethod || 'client_secret_post'}
 									onChange={(e) => onClientAuthMethodChange?.(e.target.value)}
-									disabled={useGlobalDefaults}
+									disabled={false}
 									style={{
 										width: '100%',
 										padding: '0.75rem',
@@ -876,7 +876,7 @@ const FlowCredentials: React.FC<FlowCredentialsProps> = ({
 										borderRadius: '0.5rem',
 										fontSize: '0.875rem',
 										backgroundColor: 'white',
-										cursor: useGlobalDefaults ? 'not-allowed' : 'pointer',
+										cursor: 'pointer',
 									}}
 								>
 									<option value="client_secret_post">Client Secret (POST)</option>

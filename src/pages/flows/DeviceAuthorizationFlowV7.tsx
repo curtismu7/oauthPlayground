@@ -1027,7 +1027,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 			deviceFlow.setCredentials(next);
 		},
-		[deviceFlow]
+		[deviceFlow.credentials, selectedVariant]
 	);
 
 	// V7 Variant Change Handler
@@ -1283,7 +1283,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		};
 
 		loadCredentials();
-	}, [ensureCredentials]);
+	}, []); // Empty dependency array - only run once on mount
 
 	// Show polling prompt modal when device code is received
 	React.useEffect(() => {
@@ -1757,7 +1757,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 															fontFamily: 'monospace',
 															fontSize: '0.75rem',
 															backgroundColor: '#f0f9ff',
-															border: '1px solid #0ea5e9',
 														}}
 													>
 														{deviceFlow.tokens.id_token}

@@ -140,8 +140,9 @@ const Input = styled.input<{ $hasError?: boolean }>`
     color: #6b7280;
     cursor: not-allowed;
   }
-`;con
-st Select = styled.select<{ $hasError?: boolean }>`
+`;
+
+const Select = styled.select<{ $hasError?: boolean }>`
   width: 100%;
   padding: 0.75rem 1rem;
   border: 1px solid ${props => props.$hasError ? '#ef4444' : '#d1d5db'};
@@ -279,8 +280,9 @@ const StepText = styled.div<{ $active?: boolean; $completed?: boolean }>`
     if (props.$active) return '#3b82f6';
     return '#6b7280';
   }};
-`;expor
-t const FIDORegistrationFormV6: React.FC<FIDORegistrationFormProps> = ({
+`;
+
+export const FIDORegistrationFormV6: React.FC<FIDORegistrationFormProps> = ({
   credentials,
   onRegistrationComplete,
   onCancel,
