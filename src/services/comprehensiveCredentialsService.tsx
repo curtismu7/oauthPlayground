@@ -593,10 +593,13 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 	const applyCredentialUpdates = useCallback(
 		(updates: Partial<StepCredentials>, { shouldSave } = { shouldSave: false }) => {
+			console.log('[ComprehensiveCredentialsService] applyCredentialUpdates called:', { updates, shouldSave });
 			const merged: StepCredentials = {
 				...resolvedCredentials,
 				...updates,
 			};
+
+			console.log('[ComprehensiveCredentialsService] Merged credentials:', merged);
 
 			// Persist Environment ID changes
 			if (updates.environmentId !== undefined && updates.environmentId !== resolvedCredentials.environmentId) {
@@ -605,8 +608,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			}
 
 			if (onCredentialsChange) {
+				console.log('[ComprehensiveCredentialsService] Calling onCredentialsChange with:', merged);
 				onCredentialsChange(merged);
 			} else {
+				console.log('[ComprehensiveCredentialsService] No onCredentialsChange, using individual handlers');
 				if (updates.environmentId !== undefined) {
 					onEnvironmentIdChange?.(updates.environmentId);
 				}
@@ -671,16 +676,17 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			scopes: application.scopes,
 			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod
 		});
+		console.log('[ComprehensiveCredentialsService] Current resolvedCredentials:', resolvedCredentials);
 
 		// Auto-fill credentials from selected application
 		const updates: Partial<StepCredentials> = {
 			clientId: application.clientId,
-			clientSecret: application.clientSecret || resolvedCredentials.clientSecret, // Keep existing if no secret
-			redirectUri: application.redirectUris?.[0] || resolvedCredentials.redirectUri, // Use first redirect URI
-			scope: application.scopes?.join(' ') || resolvedCredentials.scope,
-			scopes: application.scopes?.join(' ') || resolvedCredentials.scopes,
+			clientSecret: application.clientSecret || '', // Don't keep existing - explicitly set from app
+			redirectUri: application.redirectUris?.[0] || '', // Use first redirect URI
+			scope: application.scopes?.join(' ') || '',
+			scopes: application.scopes?.join(' ') || '',
 			// Map tokenEndpointAuthMethod to clientAuthMethod
-			clientAuthMethod: application.tokenEndpointAuthMethod || resolvedCredentials.clientAuthMethod,
+			clientAuthMethod: application.tokenEndpointAuthMethod as ClientAuthMethod || 'client_secret_post',
 		};
 
 		// Update post-logout redirect URI if available
@@ -688,6 +694,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			updates.postLogoutRedirectUri = application.postLogoutRedirectUris[0];
 		}
 
+		console.log('[ComprehensiveCredentialsService] Updates to apply:', updates);
 		applyCredentialUpdates(updates, { shouldSave: false });
 
 		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
