@@ -732,12 +732,17 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		console.log('[ComprehensiveCredentialsService] applyCredentialUpdates completed');
 
 		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
-		const secretInfo = !application.clientSecret ? ' - Please enter Client Secret manually' : '';
-		const toastMessage = `Application "${application.name}" selected${logoutUriInfo}${secretInfo}`;
+		const toastMessage = `Application "${application.name}" selected${logoutUriInfo}`;
 		console.log('[ComprehensiveCredentialsService] Showing toast message:', toastMessage);
+		
 		// Use setTimeout to avoid React warning about updating NotificationProvider during render
 		setTimeout(() => {
 			v4ToastManager.showSuccess(toastMessage);
+			
+			// Show separate warning if client secret is not available
+			if (!application.clientSecret) {
+				v4ToastManager.showWarning('⚠️ Client Secret not returned by PingOne API for security reasons. Please enter it manually.');
+			}
 		}, 0);
 	}, [resolvedCredentials, applyCredentialUpdates, onCredentialsChange, onClientIdChange, onClientSecretChange, onClientAuthMethodChange]);
 
