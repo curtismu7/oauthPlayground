@@ -14,6 +14,7 @@ export interface PingOneApplication {
 	grantTypes?: string[];
 	pkceEnforcement?: string;
 	parStatus?: string;
+	type?: string;
 }
 
 export interface GetWorkerTokenParams {
@@ -92,6 +93,7 @@ export async function fetchApplications(params: FetchApplicationsParams): Promis
 		grantTypes: app.grantTypes || [],
 		pkceEnforcement: app.pkceEnforcement,
 		parStatus: app.parStatus,
+		type: app.type,
 	})) as PingOneApplication[];
 }
 
