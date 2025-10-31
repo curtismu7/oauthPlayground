@@ -120,9 +120,9 @@ const TableHeader = styled.thead`
 const TableHeaderCell = styled.th`
 	padding: 0.5rem 0.75rem;
 	text-align: left;
-	font-weight: 600;
+	font-weight: 700;
 	color: #495057;
-	font-size: 0.6875rem;
+	font-size: 0.875rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 	
@@ -158,7 +158,7 @@ const TableCell = styled.td`
 const FieldLabel = styled.span`
 	font-weight: 500;
 	color: #333;
-	font-size: 0.75rem;
+	font-size: 0.6875rem;
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 `;
@@ -166,7 +166,7 @@ const FieldLabel = styled.span`
 const FieldValue = styled.span`
 	color: #495057;
 	font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-	font-size: 0.75rem;
+	font-size: 0.6875rem;
 	font-weight: 500;
 	word-break: break-all;
 `;
