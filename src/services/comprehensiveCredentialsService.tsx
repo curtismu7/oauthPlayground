@@ -835,8 +835,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				environmentId={resolvedCredentials.environmentId || ''}
 			/>
 			
-			<ServiceContainer>
-				{/* PingOne Application Picker - Top of service */}
+		<ServiceContainer>
+			{/* PingOne Application Picker - Top of service */}
+			{showConfigChecker && (
 				<CollapsibleHeader
 					title="PingOne Application Picker"
 					subtitle="Auto-fill configuration from your PingOne environment"
@@ -902,8 +903,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					disabled={isSaving || !retrievedWorkerCredentials.environmentId || !effectiveWorkerToken}
 				/>
 				</CollapsibleHeader>
+			)}
 
-				{/* Configuration URI Checker - Check redirect and logout URIs against PingOne */}
+			{/* Configuration URI Checker - Check redirect and logout URIs against PingOne */}
+			{showConfigChecker && (
 				<ConfigurationURIChecker
 					flowType={flowType}
 					environmentId={resolvedCredentials.environmentId}
@@ -913,6 +916,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					postLogoutRedirectUri={actualPostLogoutRedirectUri}
 					region={region}
 				/>
+			)}
 
 				<CollapsibleHeader
 					title={title}
