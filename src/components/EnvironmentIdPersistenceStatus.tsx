@@ -3,7 +3,7 @@ import { FiSave, FiRefreshCw, FiInfo, FiCheckCircle, FiAlertCircle, FiEdit } fro
 import styled from 'styled-components';
 import { environmentIdPersistenceService } from '../services/environmentIdPersistenceService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
-import { v4ToastManager } from '../services/v4ToastManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const StatusContent = styled.div`
   color: #075985;
