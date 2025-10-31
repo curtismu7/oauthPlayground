@@ -258,6 +258,16 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 	onApplicationSelect,
 	disabled = false
 }) => {
+	console.log('[PingOneApplicationPicker] Component initialized with props:', {
+		hasEnvironmentId: !!environmentId,
+		hasClientId: !!clientId,
+		hasClientSecret: !!clientSecret,
+		hasWorkerToken: !!workerToken,
+		hasOnApplicationSelect: !!onApplicationSelect,
+		disabled,
+		onApplicationSelectType: typeof onApplicationSelect
+	});
+	
 	const [applications, setApplications] = useState<PingOneApplication[]>([]);
 	const [selectedAppId, setSelectedAppId] = useState<string>('');
 	const [loading, setLoading] = useState(false);
