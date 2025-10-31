@@ -644,7 +644,7 @@ export const CredentialsInput = ({
 							<span style={{ fontSize: '0.8rem', color: '#64748b' }}>
 								{callbackUriService.getRedirectUriForFlow(flowKey || 'authorization_code').note}
 							</span><br />
-							<span style={{ fontSize: '0.8rem', color: '#dc2626', fontWeight: '500' }}>
+							<span style={{ fontSize: '1rem', color: '#dc2626', fontWeight: '600' }}>
 								⚠️ Add this exact URI to your PingOne application's "Redirect URIs" list
 							</span>
 						</div>

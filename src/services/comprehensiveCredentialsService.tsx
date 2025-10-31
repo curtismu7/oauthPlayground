@@ -682,7 +682,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		const updates: Partial<StepCredentials> = {
 			clientId: application.clientId,
 			clientSecret: application.clientSecret || '', // Don't keep existing - explicitly set from app
-			redirectUri: application.redirectUris?.[0] || '', // Use first redirect URI
+			// Don't update redirectUri - let user keep their flow-specific URI
 			scope: application.scopes?.join(' ') || '',
 			scopes: application.scopes?.join(' ') || '',
 			// Map tokenEndpointAuthMethod to clientAuthMethod
@@ -698,7 +698,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		applyCredentialUpdates(updates, { shouldSave: false });
 
 		const logoutUriInfo = application.postLogoutRedirectUris?.[0] ? ' (including logout URI)' : '';
-		v4ToastManager.showSuccess(`Application "${application.name}" selected and credentials filled${logoutUriInfo}`);
+		v4ToastManager.showSuccess(`Application "${application.name}" selected${logoutUriInfo}`);
 	}, [resolvedCredentials, applyCredentialUpdates]);
 
 	// Handle discovery completion and update environment ID
