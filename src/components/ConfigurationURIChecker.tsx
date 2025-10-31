@@ -10,6 +10,7 @@ import {
   FiInfo,
   FiKey,
   FiCopy,
+  FiAlertTriangle,
 } from "react-icons/fi";
 import {
   fetchApplications,
@@ -376,14 +377,28 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
   const getFlowDisplayName = () => {
     if (!flowType) return "OAuth";
 
+    // Handle v7 flow types
     if (flowType.includes("authorization-code"))
       return "Authorization Code Flow";
     if (flowType.includes("implicit")) return "Implicit Flow";
     if (flowType.includes("hybrid")) return "Hybrid Flow";
-    if (flowType.includes("device")) return "Device Authorization Flow";
+    if (flowType.includes("device") || flowType.includes("device-authorization"))
+      return "Device Authorization Flow";
     if (flowType.includes("client-credentials"))
       return "Client Credentials Flow";
     if (flowType.includes("worker-token")) return "Worker Token Flow";
+    if (flowType.includes("par") || flowType.includes("pushed-auth"))
+      return "Pushed Authorization Request (PAR) Flow";
+    if (flowType.includes("rar") || flowType.includes("resource-authorization"))
+      return "Rich Authorization Request (RAR) Flow";
+    if (flowType.includes("ciba"))
+      return "Client Initiated Backchannel Authentication (CIBA) Flow";
+    if (flowType.includes("redirectless"))
+      return "Redirectless Flow";
+    if (flowType.includes("oauth"))
+      return "OAuth Flow";
+    if (flowType.includes("oidc"))
+      return "OIDC Flow";
 
     return "OAuth Flow";
   };
