@@ -1,0 +1,911 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner "Main navigation" [ref=e4]:
+    - button "Toggle navigation menu" [ref=e5]:
+      - img [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e8]: PingOne OAuth/OIDC Playground
+      - generic [ref=e9]: Version 7.3.2
+    - navigation "Main navigation" [ref=e10]:
+      - link "View documentation and help" [ref=e11] [cursor=pointer]:
+        - /url: /documentation
+        - img [ref=e12] [cursor=pointer]
+      - link "Configure OAuth settings" [ref=e15] [cursor=pointer]:
+        - /url: /configuration
+        - img [ref=e16] [cursor=pointer]
+      - link "OIDC Discovery tool" [ref=e19] [cursor=pointer]:
+        - /url: /auto-discover
+        - img [ref=e20] [cursor=pointer]
+      - link "Generate PingOne applications" [ref=e23] [cursor=pointer]:
+        - /url: /client-generator
+        - img [ref=e24] [cursor=pointer]
+      - link "Login to the application" [ref=e27] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e28] [cursor=pointer]
+  - complementary [ref=e33]:
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]: PingOne OAuth Playground
+        - generic [ref=e37]:
+          - button "Enable Drag" [ref=e38] [cursor=pointer]:
+            - img [ref=e39] [cursor=pointer]
+            - text: Enable Drag
+          - button [ref=e44] [cursor=pointer]:
+            - img [ref=e45] [cursor=pointer]
+      - generic [ref=e49]:
+        - generic:
+          - img
+        - textbox "Search flows and pages... (⌘K)" [ref=e50]
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53] [cursor=pointer]:
+            - img [ref=e56] [cursor=pointer]
+            - generic [ref=e59] [cursor=pointer]: Main
+            - button [ref=e60] [cursor=pointer]:
+              - img [ref=e61] [cursor=pointer]
+          - generic [ref=e63]:
+            - generic [ref=e66] [cursor=pointer]:
+              - img [ref=e68] [cursor=pointer]
+              - generic [ref=e71] [cursor=pointer]: Dashboard
+              - img [ref=e73] [cursor=pointer]
+            - generic [ref=e78] [cursor=pointer]:
+              - img [ref=e80] [cursor=pointer]
+              - generic [ref=e83] [cursor=pointer]: Setup & Configuration
+              - img [ref=e85] [cursor=pointer]
+        - generic [ref=e88]:
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e92] [cursor=pointer]
+            - generic [ref=e94] [cursor=pointer]: OAuth 2.0 Flows
+            - button [ref=e95] [cursor=pointer]:
+              - img [ref=e96] [cursor=pointer]
+          - generic [ref=e98]:
+            - generic [ref=e101] [cursor=pointer]:
+              - img [ref=e103] [cursor=pointer]
+              - generic [ref=e105] [cursor=pointer]: Authorization Code (V7)
+              - img [ref=e107] [cursor=pointer]
+            - generic [ref=e112] [cursor=pointer]:
+              - img [ref=e114] [cursor=pointer]
+              - generic [ref=e116] [cursor=pointer]: Implicit Flow (V7)
+              - img [ref=e118] [cursor=pointer]
+            - generic [ref=e123] [cursor=pointer]:
+              - img [ref=e125] [cursor=pointer]
+              - generic [ref=e127] [cursor=pointer]: Device Authorization (V7)
+              - img [ref=e129] [cursor=pointer]
+            - generic [ref=e134] [cursor=pointer]:
+              - img [ref=e136] [cursor=pointer]
+              - generic [ref=e138] [cursor=pointer]: Client Credentials (V7)
+              - img [ref=e140] [cursor=pointer]
+            - generic [ref=e145] [cursor=pointer]:
+              - img [ref=e147] [cursor=pointer]
+              - generic [ref=e150] [cursor=pointer]: Resource Owner Password (V7)
+              - img [ref=e152] [cursor=pointer]
+            - generic [ref=e157] [cursor=pointer]:
+              - img [ref=e159] [cursor=pointer]
+              - generic [ref=e163] [cursor=pointer]: Token Exchange (V7)
+              - img [ref=e165] [cursor=pointer]
+            - generic [ref=e170] [cursor=pointer]:
+              - img [ref=e172] [cursor=pointer]
+              - generic [ref=e174] [cursor=pointer]: JWT Bearer Token (V7)
+              - img [ref=e176] [cursor=pointer]
+            - generic [ref=e181] [cursor=pointer]:
+              - img [ref=e183] [cursor=pointer]
+              - generic [ref=e185] [cursor=pointer]: SAML Bearer Token (V7)
+              - img [ref=e187] [cursor=pointer]
+            - generic [ref=e192] [cursor=pointer]:
+              - img [ref=e194] [cursor=pointer]
+              - generic [ref=e196] [cursor=pointer]: SAML SP Dynamic ACS (V1)
+              - img [ref=e198] [cursor=pointer]
+        - generic [ref=e201]:
+          - generic [ref=e202] [cursor=pointer]:
+            - img [ref=e205] [cursor=pointer]
+            - generic [ref=e208] [cursor=pointer]: OpenID Connect
+            - button [ref=e209] [cursor=pointer]:
+              - img [ref=e210] [cursor=pointer]
+          - generic [ref=e212]:
+            - generic [ref=e215] [cursor=pointer]:
+              - img [ref=e217] [cursor=pointer]
+              - generic [ref=e219] [cursor=pointer]: Implicit Flow (V7)
+              - img [ref=e221] [cursor=pointer]
+            - generic [ref=e226] [cursor=pointer]:
+              - img [ref=e228] [cursor=pointer]
+              - generic [ref=e230] [cursor=pointer]: Device Authorization (V7)
+              - img [ref=e232] [cursor=pointer]
+            - generic [ref=e237] [cursor=pointer]:
+              - img [ref=e239] [cursor=pointer]
+              - generic [ref=e243] [cursor=pointer]: Hybrid Flow (V7)
+              - img [ref=e245] [cursor=pointer]
+            - generic [ref=e250] [cursor=pointer]:
+              - img [ref=e252] [cursor=pointer]
+              - generic [ref=e255] [cursor=pointer]: OIDC Overview
+              - img [ref=e257] [cursor=pointer]
+            - generic [ref=e262] [cursor=pointer]:
+              - img [ref=e264] [cursor=pointer]
+              - generic [ref=e266] [cursor=pointer]: OIDC CIBA Flow (V7)
+              - img [ref=e268] [cursor=pointer]
+        - generic [ref=e271]:
+          - generic [ref=e272] [cursor=pointer]:
+            - img [ref=e275] [cursor=pointer]
+            - generic [ref=e277] [cursor=pointer]: PingOne
+            - button [ref=e278] [cursor=pointer]:
+              - img [ref=e279] [cursor=pointer]
+          - generic [ref=e281]:
+            - generic [ref=e284] [cursor=pointer]:
+              - img [ref=e286] [cursor=pointer]
+              - generic [ref=e288] [cursor=pointer]: Worker Token (V7)
+              - img [ref=e290] [cursor=pointer]
+            - generic [ref=e295] [cursor=pointer]:
+              - img [ref=e297] [cursor=pointer]
+              - generic [ref=e300] [cursor=pointer]: Pushed Authorization Request (V7)
+              - img [ref=e302] [cursor=pointer]
+            - generic [ref=e307] [cursor=pointer]:
+              - img [ref=e309] [cursor=pointer]
+              - generic [ref=e311] [cursor=pointer]: Redirectless Flow (V7)
+              - img [ref=e313] [cursor=pointer]
+            - generic [ref=e318] [cursor=pointer]:
+              - img [ref=e320] [cursor=pointer]
+              - generic [ref=e322] [cursor=pointer]: PingOne MFA (V7)
+              - img [ref=e324] [cursor=pointer]
+            - generic [ref=e329] [cursor=pointer]:
+              - img [ref=e331] [cursor=pointer]
+              - generic [ref=e333] [cursor=pointer]: PingOne Authentication
+              - img [ref=e335] [cursor=pointer]
+            - generic [ref=e340] [cursor=pointer]:
+              - img [ref=e342] [cursor=pointer]
+              - generic [ref=e343] [cursor=pointer]: PingOne Identity Metrics
+              - img [ref=e345] [cursor=pointer]
+            - generic [ref=e350] [cursor=pointer]:
+              - img [ref=e352] [cursor=pointer]
+              - generic [ref=e355] [cursor=pointer]: Mock & Educational Features
+              - img [ref=e357] [cursor=pointer]
+            - generic [ref=e362] [cursor=pointer]:
+              - img [ref=e364] [cursor=pointer]
+              - generic [ref=e367] [cursor=pointer]: Webhook Viewer
+              - img [ref=e369] [cursor=pointer]
+            - generic [ref=e374] [cursor=pointer]:
+              - img [ref=e376] [cursor=pointer]
+              - generic [ref=e378] [cursor=pointer]: Organization Licensing
+              - img [ref=e380] [cursor=pointer]
+        - generic [ref=e384] [cursor=pointer]:
+          - img [ref=e387] [cursor=pointer]
+          - generic [ref=e389] [cursor=pointer]: Tools & Utilities
+          - button [ref=e390] [cursor=pointer]:
+            - img [ref=e391] [cursor=pointer]
+        - generic [ref=e394] [cursor=pointer]:
+          - img [ref=e397] [cursor=pointer]
+          - generic [ref=e400] [cursor=pointer]: Documentation
+          - button [ref=e401] [cursor=pointer]:
+            - img [ref=e402] [cursor=pointer]
+  - generic [ref=e404]:
+    - main [ref=e405]:
+      - generic [ref=e406]:
+        - generic [ref=e407]:
+          - generic [ref=e408]:
+            - generic [ref=e409]: ⚙️
+            - text: PINGONE
+          - heading "Settings" [level=1] [ref=e410]
+          - paragraph [ref=e411]: Configure your PingOne environment credentials, OAuth clients, and application settings. Manage flow-specific configurations and customize your playground experience.
+          - generic [ref=e412]: PingOne OAuth/OIDC Playground v7.3.2
+        - generic [ref=e413]:
+          - heading "Setup & Config" [level=1] [ref=e414]:
+            - img [ref=e415]
+            - text: Setup & Config
+          - paragraph [ref=e418]: Complete setup guide for the PingOne OAuth/OIDC Playground. Get your environment configured and start exploring OAuth flows in minutes.
+        - generic [ref=e419]:
+          - button "Worker Token Credentials Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows" [expanded] [ref=e420] [cursor=pointer]:
+            - generic [ref=e421] [cursor=pointer]:
+              - img [ref=e423] [cursor=pointer]
+              - generic [ref=e425] [cursor=pointer]:
+                - heading "Worker Token Credentials" [level=3] [ref=e426] [cursor=pointer]
+                - paragraph [ref=e427] [cursor=pointer]: Obtain a PingOne Management API worker token to enable Config Checker functionality across all flows
+            - img [ref=e429] [cursor=pointer]
+          - generic [ref=e432]:
+            - button "Get Worker Token" [disabled] [ref=e434] [cursor=pointer]:
+              - img [ref=e435] [cursor=pointer]
+              - text: Get Worker Token
+            - generic [ref=e437]:
+              - strong [ref=e438]: "What this enables:"
+              - text: The worker token allows the Config Checker to compare your flow configurations with existing PingOne applications and create new applications automatically. This is available in all flows that support Config Checker functionality.
+        - generic [ref=e440]:
+          - button "Application Configuration & Credentials Configure your PingOne environment credentials for the OAuth Playground" [expanded] [ref=e441] [cursor=pointer]:
+            - generic [ref=e442] [cursor=pointer]:
+              - img [ref=e444] [cursor=pointer]
+              - generic [ref=e447] [cursor=pointer]:
+                - heading "Application Configuration & Credentials" [level=3] [ref=e448] [cursor=pointer]
+                - paragraph [ref=e449] [cursor=pointer]: Configure your PingOne environment credentials for the OAuth Playground
+            - img [ref=e451] [cursor=pointer]
+          - generic [ref=e453]:
+            - generic [ref=e454]:
+              - generic [ref=e455]:
+                - textbox "Enter Environment ID, issuer URL, or provider..." [ref=e456]: persistent-env-123
+                - button "Copy Discovery Input" [ref=e458] [cursor=pointer]:
+                  - img [ref=e459] [cursor=pointer]
+                - button "OIDC Discovery" [ref=e462] [cursor=pointer]:
+                  - img [ref=e463] [cursor=pointer]
+                  - text: OIDC Discovery
+              - generic [ref=e466]:
+                - generic [ref=e467]:
+                  - generic [ref=e468]: PingOne
+                  - generic [ref=e469]: "Environment ID or issuer URL (e.g., https://auth.pingone.com/{env-id}/as)"
+                - generic [ref=e470]:
+                  - generic [ref=e471]: Google OAuth
+                  - generic [ref=e472]: Google issuer URL (e.g., https://accounts.google.com)
+                - generic [ref=e473]:
+                  - generic [ref=e474]: Microsoft Entra ID
+                  - generic [ref=e475]: "Microsoft tenant ID or common (e.g., https://login.microsoftonline.com/{tenant-id}/v2.0)"
+                - generic [ref=e476]:
+                  - generic [ref=e477]: Generic OIDC
+                  - generic [ref=e478]: Any RFC 8414 compliant OIDC provider
+              - generic [ref=e479]:
+                - generic [ref=e480]: "Examples:"
+                - generic [ref=e481]:
+                  - generic [ref=e482] [cursor=pointer]: "PingOne Environment ID: 12345678-1234-1234-1234-123456789012"
+                  - generic [ref=e483] [cursor=pointer]: "PingOne Issuer: https://auth.pingone.com/12345678-1234-1234-1234-123456789012/as"
+                  - generic [ref=e484] [cursor=pointer]: "Google OAuth: https://accounts.google.com"
+                  - generic [ref=e485] [cursor=pointer]: "Auth0 Domain: https://your-domain.auth0.com"
+                  - generic [ref=e486] [cursor=pointer]: "Microsoft: https://login.microsoftonline.com/your-tenant-id/v2.0"
+            - generic [ref=e487]:
+              - button "Advanced Configuration Advanced OIDC and OAuth configuration options" [ref=e488] [cursor=pointer]:
+                - generic [ref=e489] [cursor=pointer]:
+                  - img [ref=e491] [cursor=pointer]
+                  - generic [ref=e494] [cursor=pointer]:
+                    - heading "Advanced Configuration" [level=3] [ref=e495] [cursor=pointer]
+                    - paragraph [ref=e496] [cursor=pointer]: Advanced OIDC and OAuth configuration options
+                - img [ref=e498] [cursor=pointer]
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: Req Object Policy
+                    - combobox [ref=e500]:
+                      - option "default" [selected]
+                      - option "required"
+                      - option "optional"
+                  - generic:
+                    - generic: x5t (JWT hdr)
+                    - textbox "Base64URL thumbprint" [ref=e501]
+                  - generic:
+                    - generic:
+                      - checkbox "Enable OP iframe monitoring"
+                      - generic: Enable OP iframe monitoring
+                  - generic:
+                    - generic: Resource Scopes
+                    - textbox [ref=e502]: openid profile email
+                  - generic:
+                    - generic:
+                      - checkbox "Use RP-initiated logout with id_token_hint" [checked]
+                      - generic: Use RP-initiated logout with id_token_hint
+            - generic [ref=e503]:
+              - button "Application Configuration & Credentials" [expanded] [ref=e504] [cursor=pointer]:
+                - generic [ref=e505] [cursor=pointer]:
+                  - img [ref=e506] [cursor=pointer]
+                  - generic [ref=e509] [cursor=pointer]: Application Configuration & Credentials
+                - img [ref=e511] [cursor=pointer]
+              - generic [ref=e514]:
+                - generic [ref=e515]:
+                  - generic [ref=e516]:
+                    - generic [ref=e517]:
+                      - text: Environment ID
+                      - generic [ref=e518]: "*"
+                    - textbox "Enter your PingOne Environment ID" [ref=e520]
+                  - generic [ref=e521]:
+                    - generic [ref=e522]: Region
+                    - combobox [ref=e523] [cursor=pointer]:
+                      - option "US (North America)" [selected]
+                      - option "EU (Europe)"
+                      - option "AP (Asia Pacific)"
+                      - option "CA (Canada)"
+                    - generic [ref=e524]: The region where your PingOne environment is hosted.
+                  - generic [ref=e525]:
+                    - generic [ref=e526]:
+                      - text: Client ID
+                      - generic [ref=e527]: "*"
+                    - generic [ref=e528]:
+                      - textbox "Enter your PingOne Client ID" [active] [ref=e529]: persistent-client-abc
+                      - button "Copy Client ID" [ref=e532] [cursor=pointer]:
+                        - img [ref=e533] [cursor=pointer]
+                  - generic [ref=e536]:
+                    - generic [ref=e537]:
+                      - text: Client Secret
+                      - generic [ref=e538]: "*"
+                    - generic [ref=e539]:
+                      - textbox "Enter your PingOne Client Secret" [ref=e540]
+                      - button "Show client secret" [ref=e541]:
+                        - img [ref=e542]
+                  - generic [ref=e545]:
+                    - generic [ref=e546]:
+                      - text: Redirect URI
+                      - generic [ref=e547]: "*"
+                    - generic [ref=e548]:
+                      - textbox "https://localhost:3000/authz-callback" [ref=e549]
+                      - button "Copy Redirect URI" [ref=e552] [cursor=pointer]:
+                        - img [ref=e553] [cursor=pointer]
+                        - text: Redirect URI
+                    - generic [ref=e556]:
+                      - strong [ref=e557]: "📋 Authorization Code Flow:"
+                      - code [ref=e558]: https://localhost:3000/authz-callback
+                      - generic [ref=e559]: Handles authorization code exchange for tokens. Required for OAuth Authorization Code Flow.
+                      - generic [ref=e560]: ⚠️ Add this exact URI to your PingOne application's "Redirect URIs" list
+                  - generic [ref=e561]:
+                    - generic [ref=e562]:
+                      - text: Scopes
+                      - generic [ref=e563]: "*"
+                    - generic [ref=e564]:
+                      - textbox "openid" [ref=e565]: openid profile email
+                      - button "Copy Scopes" [ref=e568] [cursor=pointer]:
+                        - img [ref=e569] [cursor=pointer]
+                    - generic [ref=e572]:
+                      - text: Space-separated list of scopes.
+                      - strong [ref=e573]: openid
+                      - text: is always required and will be automatically added.
+                - button "Save Changes" [ref=e575] [cursor=pointer]:
+                  - img [ref=e576] [cursor=pointer]
+                  - text: Save Changes
+            - generic [ref=e581]:
+              - generic [ref=e582]: Response Type
+              - combobox [ref=e583]:
+                - option "code (Authorization Code)" [selected]
+              - generic [ref=e584]: "OAuth 2.0 Mode: API access only"
+              - generic [ref=e585]:
+                - generic [ref=e586]: "📋 What \"code\" means:"
+                - generic [ref=e588]: Authorization Code - A temporary code exchanged for an access token. Most secure method for server-side applications.
+            - generic [ref=e590]:
+              - generic [ref=e591]:
+                - img [ref=e592]
+                - text: Token Endpoint Authentication Method
+              - combobox [ref=e594] [cursor=pointer]:
+                - option "Client Secret Basic" [selected]
+                - option "Client Secret Post"
+                - option "Client Secret JWT"
+                - option "Private Key JWT"
+              - generic [ref=e595]:
+                - generic [ref=e597]: Low Security
+                - generic [ref=e598]: No client authentication. Relies on PKCE for security. Suitable for public clients that cannot store secrets.
+              - generic [ref=e599]:
+                - img [ref=e600]
+                - generic [ref=e602]: Specifies how the client authenticates with the token endpoint. Public clients (SPAs, mobile apps) use "None". Confidential clients use secret or JWT-based methods.
+            - generic [ref=e603]:
+              - generic [ref=e604]: 🔑 Worker Token Required for Config Checker
+              - generic [ref=e605]: Generate a worker token to use Config Checker and create PingOne applications.
+              - button "Generate Worker Token" [ref=e606] [cursor=pointer]:
+                - img [ref=e607] [cursor=pointer]
+                - text: Generate Worker Token
+        - generic [ref=e609]:
+          - button "Application Information Current version and system requirements for the OAuth Playground" [expanded] [ref=e610] [cursor=pointer]:
+            - generic [ref=e611] [cursor=pointer]:
+              - img [ref=e613] [cursor=pointer]
+              - generic [ref=e617] [cursor=pointer]:
+                - heading "Application Information" [level=3] [ref=e618] [cursor=pointer]
+                - paragraph [ref=e619] [cursor=pointer]: Current version and system requirements for the OAuth Playground
+            - img [ref=e621] [cursor=pointer]
+          - generic [ref=e624]:
+            - generic [ref=e625]:
+              - generic [ref=e626]:
+                - generic [ref=e627]: 7.3.2
+                - generic [ref=e628]: Version
+              - generic [ref=e629]:
+                - generic [ref=e630]: Node.js 16+
+                - generic [ref=e631]: Requirement
+              - generic [ref=e632]:
+                - generic [ref=e633]: React + Vite
+                - generic [ref=e634]: Framework
+            - generic [ref=e635]:
+              - generic [ref=e636]:
+                - img [ref=e637]
+                - generic [ref=e640]: Interactive OAuth Flows
+              - generic [ref=e641]:
+                - img [ref=e642]
+                - generic [ref=e645]: Real PingOne Integration
+              - generic [ref=e646]:
+                - img [ref=e647]
+                - generic [ref=e650]: Token Management
+              - generic [ref=e651]:
+                - img [ref=e652]
+                - generic [ref=e655]: Educational Content
+              - generic [ref=e656]:
+                - img [ref=e657]
+                - generic [ref=e660]: Flow Comparison Tools
+              - generic [ref=e661]:
+                - img [ref=e662]
+                - generic [ref=e665]: Interactive Diagrams
+        - generic [ref=e666]:
+          - button "Quick Start Setup Get the OAuth Playground running in minutes with these simple steps" [expanded] [ref=e667] [cursor=pointer]:
+            - generic [ref=e668] [cursor=pointer]:
+              - img [ref=e670] [cursor=pointer]
+              - generic [ref=e672] [cursor=pointer]:
+                - heading "Quick Start Setup" [level=3] [ref=e673] [cursor=pointer]
+                - paragraph [ref=e674] [cursor=pointer]: Get the OAuth Playground running in minutes with these simple steps
+            - img [ref=e676] [cursor=pointer]
+          - generic [ref=e679]:
+            - generic [ref=e680]:
+              - generic [ref=e681]:
+                - generic [ref=e682]: "1"
+                - heading "Clone the Repository" [level=3] [ref=e683]
+              - paragraph [ref=e684]: Clone the OAuth Playground repository to your local machine.
+              - generic [ref=e685]:
+                - button "Copy" [ref=e686] [cursor=pointer]:
+                  - img [ref=e687] [cursor=pointer]
+                  - text: Copy
+                - text: git clone https://github.com/curtismu7/oauthPlayground.git cd oauthPlayground
+            - generic [ref=e690]:
+              - generic [ref=e691]:
+                - generic [ref=e692]: "2"
+                - heading "Install Dependencies" [level=3] [ref=e693]
+              - paragraph [ref=e694]: Install all required Node.js dependencies.
+              - generic [ref=e695]:
+                - button "Copy" [ref=e696] [cursor=pointer]:
+                  - img [ref=e697] [cursor=pointer]
+                  - text: Copy
+                - text: npm install
+              - generic [ref=e700]:
+                - strong [ref=e701]: "Note:"
+                - text: This project requires Node.js version 16.0 or higher. Check your version with
+                - code [ref=e702]: node --version
+                - text: .
+            - generic [ref=e703]:
+              - generic [ref=e704]:
+                - generic [ref=e705]: "3"
+                - heading "Configure PingOne Credentials" [level=3] [ref=e706]
+              - paragraph [ref=e707]: Set up your PingOne application credentials once, and they'll be available across all OAuth flows. You only need to configure this once!
+              - generic [ref=e708]:
+                - button "Application Configuration & Credentials" [expanded] [ref=e709] [cursor=pointer]:
+                  - generic [ref=e710] [cursor=pointer]:
+                    - img [ref=e711] [cursor=pointer]
+                    - generic [ref=e714] [cursor=pointer]: Application Configuration & Credentials
+                  - img [ref=e716] [cursor=pointer]
+                - generic [ref=e719]:
+                  - generic [ref=e720]:
+                    - generic [ref=e721]:
+                      - img [ref=e722]
+                      - heading "🌍 PingOne Environment Configuration" [level=3] [ref=e725]
+                    - generic [ref=e726]:
+                      - generic [ref=e727]:
+                        - img [ref=e728]
+                        - heading "PingOne Environment Configuration" [level=3] [ref=e731]
+                      - paragraph [ref=e732]: Enter your PingOne environment ID and select your region. We'll construct the issuer URL and discover all available OIDC endpoints automatically.
+                      - generic [ref=e733]:
+                        - generic [ref=e734]: Environment ID
+                        - generic [ref=e735]:
+                          - combobox [ref=e736]:
+                            - option "US - North America" [selected]
+                            - option "EU - Europe"
+                            - option "AP - Asia Pacific"
+                            - option "CA - Canada"
+                          - textbox "Environment ID" [ref=e737]
+                          - button "Discover OIDC endpoints" [disabled] [ref=e738]:
+                            - img [ref=e739]
+                      - generic [ref=e742]:
+                        - img [ref=e743]
+                        - generic [ref=e745]:
+                          - text: "Selected region:"
+                          - strong [ref=e746]: US (North America)
+                          - text: "- https://auth.pingone.com"
+                  - generic [ref=e748]:
+                    - generic [ref=e749]:
+                      - generic [ref=e750]:
+                        - text: Environment ID
+                        - generic [ref=e751]: "*"
+                      - textbox "Enter your PingOne Environment ID" [ref=e753]
+                    - generic [ref=e754]:
+                      - generic [ref=e755]: Region
+                      - combobox [ref=e756] [cursor=pointer]:
+                        - option "US (North America)" [selected]
+                        - option "EU (Europe)"
+                        - option "AP (Asia Pacific)"
+                        - option "CA (Canada)"
+                      - generic [ref=e757]: The region where your PingOne environment is hosted.
+                    - generic [ref=e758]:
+                      - generic [ref=e759]:
+                        - text: Client ID
+                        - generic [ref=e760]: "*"
+                      - generic [ref=e761]:
+                        - textbox "Enter your PingOne Client ID" [ref=e762]: persistent-client-abc
+                        - button "Copy Client ID" [ref=e765] [cursor=pointer]:
+                          - img [ref=e766] [cursor=pointer]
+                    - generic [ref=e769]:
+                      - generic [ref=e770]:
+                        - text: Client Secret
+                        - generic [ref=e771]: "*"
+                      - generic [ref=e772]:
+                        - textbox "Enter your PingOne Client Secret" [ref=e773]
+                        - button "Show client secret" [ref=e774]:
+                          - img [ref=e775]
+                    - generic [ref=e778]:
+                      - generic [ref=e779]:
+                        - text: Redirect URI
+                        - generic [ref=e780]: "*"
+                      - generic [ref=e781]:
+                        - textbox "https://localhost:3000/authz-callback" [ref=e782]
+                        - button "Copy Redirect URI" [ref=e785] [cursor=pointer]:
+                          - img [ref=e786] [cursor=pointer]
+                          - text: Redirect URI
+                      - generic [ref=e789]:
+                        - strong [ref=e790]: "📋 Authorization Code Flow:"
+                        - code [ref=e791]: https://localhost:3000/authz-callback
+                        - generic [ref=e792]: Handles authorization code exchange for tokens. Required for OAuth Authorization Code Flow.
+                        - generic [ref=e793]: ⚠️ Add this exact URI to your PingOne application's "Redirect URIs" list
+                    - generic [ref=e794]:
+                      - generic [ref=e795]:
+                        - text: Scopes
+                        - generic [ref=e796]: "*"
+                      - generic [ref=e797]:
+                        - textbox "openid" [ref=e798]: openid profile email
+                        - button "Copy Scopes" [ref=e801] [cursor=pointer]:
+                          - img [ref=e802] [cursor=pointer]
+                      - generic [ref=e805]:
+                        - text: Space-separated list of scopes.
+                        - strong [ref=e806]: openid
+                        - text: is always required and will be automatically added.
+                    - generic [ref=e807]:
+                      - generic [ref=e808]:
+                        - text: Login Hint
+                        - generic [ref=e809]: (Optional)
+                      - textbox "user@example.com or username" [ref=e811]
+                      - generic [ref=e812]: Hint about the user identifier (email, username). Helps pre-fill the login form or skip account selection.
+              - button "Save Credentials" [ref=e814] [cursor=pointer]:
+                - img [ref=e815] [cursor=pointer]
+                - text: Save Credentials
+            - generic [ref=e819]:
+              - generic [ref=e820]:
+                - generic [ref=e821]: "4"
+                - heading "Configure PAR (Pushed Authorization Request)" [level=3] [ref=e822]
+              - paragraph [ref=e823]: Configure PAR settings for enhanced security. PAR allows you to push authorization requests to PingOne via back-channel, safeguarding sensitive data from end-user devices.
+              - generic [ref=e824]:
+                - heading "PingOne Advanced Configuration" [level=3] [ref=e825]:
+                  - img [ref=e826]
+                  - text: PingOne Advanced Configuration
+                - generic [ref=e829]:
+                  - heading "Pushed Authorization Request (PAR)" [level=3] [ref=e830]:
+                    - img [ref=e831]
+                    - text: Pushed Authorization Request (PAR)
+                  - generic [ref=e834]:
+                    - generic [ref=e835] [cursor=pointer]:
+                      - checkbox "Require Pushed Authorization Request" [ref=e836]
+                      - text: Require Pushed Authorization Request
+                    - paragraph [ref=e837]: Requires authorization requests to be pushed via PAR endpoint before the authorization flow begins, providing better security for SPA applications
+                    - generic [ref=e838]:
+                      - heading "🔄 PAR Flow Process" [level=4] [ref=e839]
+                      - list [ref=e840]:
+                        - listitem [ref=e841]:
+                          - strong [ref=e842]: "Step 1:"
+                          - text: Client sends POST request to
+                          - code [ref=e843]: /as/par
+                          - text: with all authorization parameters
+                        - listitem [ref=e844]:
+                          - strong [ref=e845]: "Step 2:"
+                          - text: PingOne validates the request and returns a
+                          - code [ref=e846]: request_uri
+                        - listitem [ref=e847]:
+                          - strong [ref=e848]: "Step 3:"
+                          - text: Client redirects user to
+                          - code [ref=e849]: /as/authorize
+                          - text: with only the
+                          - code [ref=e850]: request_uri
+                        - listitem [ref=e851]:
+                          - strong [ref=e852]: "Step 4:"
+                          - text: PingOne retrieves the original parameters using the
+                          - code [ref=e853]: request_uri
+                        - listitem [ref=e854]:
+                          - strong [ref=e855]: "Step 5:"
+                          - text: Normal OAuth flow continues with user authentication
+                      - generic [ref=e856]:
+                        - strong [ref=e857]: "Benefits:"
+                        - text: Keeps sensitive parameters off the browser URL, prevents tampering, and provides better security for SPAs.
+                    - generic [ref=e858]:
+                      - heading "✅ PingOne PAR Compatibility" [level=4] [ref=e859]
+                      - strong [ref=e861]: "Supported Application Types:"
+                      - list [ref=e862]:
+                        - listitem [ref=e863]:
+                          - strong [ref=e864]: "OIDC Web App:"
+                          - text: Authorization Code grant type ✅
+                        - listitem [ref=e865]:
+                          - strong [ref=e866]: "Native App:"
+                          - text: Authorization Code or Implicit grant types ✅
+                        - listitem [ref=e867]:
+                          - strong [ref=e868]: "Single-page App:"
+                          - text: Implicit grant type ✅
+                        - listitem [ref=e869]:
+                          - strong [ref=e870]: "Worker App:"
+                          - text: Only if configured for user-based grant types ✅
+                      - generic [ref=e871]:
+                        - strong [ref=e872]: "PingOne Limits:"
+                        - text: Max 1MB request size, 60-second default lifetime, HTTP POST only, request_uri can only be used once.
+                    - generic [ref=e873]:
+                      - generic [ref=e874]:
+                        - generic [ref=e875]: "Without PAR (Traditional Flow):"
+                        - generic [ref=e876]:
+                          - generic [ref=e877]:
+                            - text: Generated Authorization URL
+                            - button "Explain URL" [ref=e878] [cursor=pointer]:
+                              - img [ref=e879] [cursor=pointer]
+                              - text: Explain URL
+                          - generic [ref=e881]:
+                            - generic [ref=e882]:
+                              - button "Copy Authorization URL" [ref=e884] [cursor=pointer]:
+                                - img [ref=e885] [cursor=pointer]
+                              - button "Decode" [ref=e888] [cursor=pointer]:
+                                - img [ref=e889] [cursor=pointer]
+                                - text: Decode
+                            - generic [ref=e892]: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+                            - generic [ref=e893]: "?"
+                            - generic [ref=e894]: response_type=code
+                            - generic [ref=e895]: "&"
+                            - generic [ref=e896]: client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f
+                            - generic [ref=e897]: "&"
+                            - generic [ref=e898]: redirect_uri=https%3A%2F%2Flocalhost%3A3000%2Fauthz-callback
+                            - generic [ref=e899]: "&"
+                            - generic [ref=e900]: scope=openid%20profile%20email
+                            - generic [ref=e901]: "&"
+                            - generic [ref=e902]: state=af0ifjsldkj
+                            - generic [ref=e903]: "&"
+                            - generic [ref=e904]: code_challenge=4Ey6Qpryp0Z_5BEDPVQf
+                            - generic [ref=e905]: "&"
+                            - generic [ref=e906]: code_challenge_method=S256
+                            - generic [ref=e907]: "&"
+                            - generic [ref=e908]: nonce=n-0S6_WzA2Mj
+                      - generic [ref=e909]:
+                        - generic [ref=e910]: "With PAR (Step 1 - PAR Request):"
+                        - generic [ref=e911]:
+                          - generic [ref=e912]:
+                            - text: Generated Authorization URL
+                            - button "Explain URL" [ref=e913] [cursor=pointer]:
+                              - img [ref=e914] [cursor=pointer]
+                              - text: Explain URL
+                          - generic [ref=e916]:
+                            - generic [ref=e917]:
+                              - button "Copy Authorization URL" [ref=e919] [cursor=pointer]:
+                                - img [ref=e920] [cursor=pointer]
+                              - button "Decode" [ref=e923] [cursor=pointer]:
+                                - img [ref=e924] [cursor=pointer]
+                                - text: Decode
+                            - generic [ref=e927]: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/par
+                        - group [ref=e928]
+                      - generic [ref=e930]:
+                        - generic [ref=e931]: "With PAR (Step 2 - Authorization URL):"
+                        - generic [ref=e932]:
+                          - generic [ref=e933]:
+                            - text: Generated Authorization URL
+                            - button "Explain URL" [ref=e934] [cursor=pointer]:
+                              - img [ref=e935] [cursor=pointer]
+                              - text: Explain URL
+                          - generic [ref=e937]:
+                            - generic [ref=e938]:
+                              - button "Copy Authorization URL" [ref=e940] [cursor=pointer]:
+                                - img [ref=e941] [cursor=pointer]
+                              - button "Decode" [ref=e944] [cursor=pointer]:
+                                - img [ref=e945] [cursor=pointer]
+                                - text: Decode
+                            - generic [ref=e948]: https://auth.pingone.com/b9817c16-9910-4415-b67e-4ac687da74d9/as/authorize
+                            - generic [ref=e949]: "?"
+                            - generic [ref=e950]: request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+                            - generic [ref=e951]: "&"
+                            - generic [ref=e952]: client_id=a4f963ea-0736-456a-be72-b1fa4f63f81f
+                        - generic [ref=e953]:
+                          - strong [ref=e954]: "Response from Step 1:"
+                          - text: request_uri=urn:ietf:params:oauth:request_uri:pingone-abc123def456ghi789jkl012mno345pqr678stu901vwx234yz
+                - generic [ref=e955]:
+                  - heading "Client Authentication" [level=3] [ref=e956]:
+                    - img [ref=e957]
+                    - text: Client Authentication
+                  - generic [ref=e960]:
+                    - generic [ref=e961]:
+                      - generic [ref=e962]: Client Authentication Method
+                      - combobox "Client Authentication Method" [ref=e963]:
+                        - option "Client Secret Post"
+                        - option "Client Secret Basic" [selected]
+                        - option "Client Secret JWT"
+                        - option "Private Key JWT"
+                        - option "None (Public Client)"
+                      - paragraph [ref=e964]: How the client authenticates with the token endpoint
+                    - generic [ref=e965]:
+                      - generic [ref=e966]: PKCE Enforcement
+                      - combobox "PKCE Enforcement" [ref=e967]:
+                        - option "Optional"
+                        - option "Required" [selected]
+                        - option "S256 Required"
+                      - paragraph [ref=e968]: ⚙️ Configured in PingOne → Enable PKCE enforcement in your PingOne application settings to see this feature in the flow
+                - generic [ref=e969]:
+                  - heading "JSON Web Key Set (JWKS)" [level=3] [ref=e970]:
+                    - img [ref=e971]
+                    - text: JSON Web Key Set (JWKS)
+                  - generic [ref=e974]:
+                    - generic [ref=e975]: Enable JWKS
+                    - switch "Enable JWKS" [ref=e976] [cursor=pointer]
+                    - paragraph [ref=e978]: 🔧 Enable JWKS to configure JWT signature validation features
+                - generic [ref=e979]:
+                  - heading "Advanced Security Settings" [level=3] [ref=e980]:
+                    - img [ref=e981]
+                    - text: Advanced Security Settings
+                  - generic [ref=e984]:
+                    - generic [ref=e985]:
+                      - generic [ref=e986]: Request Parameter Signature Requirement
+                      - combobox "Request Parameter Signature Requirement" [ref=e987]:
+                        - option "Default" [selected]
+                        - option "Require Signed"
+                        - option "Allow Unsigned"
+                      - paragraph [ref=e988]:
+                        - text: Controls whether request parameters must be cryptographically signed for enhanced security and integrity
+                        - strong [ref=e989]: "Default:"
+                        - text: Uses PingOne's default signature requirements
+                        - strong [ref=e990]: "Require Signed:"
+                        - text: All requests must include valid signatures
+                        - strong [ref=e991]: "Allow Unsigned:"
+                        - text: Permits requests without signatures (less secure)
+                    - generic [ref=e992]:
+                      - generic [ref=e993] [cursor=pointer]:
+                        - checkbox "Additional Refresh Token Replay Protection" [ref=e994]
+                        - text: Additional Refresh Token Replay Protection
+                      - paragraph [ref=e995]:
+                        - text: Prevents refresh tokens from being used multiple times, enhancing security by ensuring each token can only be used once
+                        - strong [ref=e996]: "Benefit:"
+                        - text: Prevents token replay attacks where stolen refresh tokens could be reused
+                    - generic [ref=e997]:
+                      - generic [ref=e998] [cursor=pointer]:
+                        - checkbox "Include x5t Parameter" [ref=e999]
+                        - text: Include x5t Parameter
+                      - paragraph [ref=e1000]:
+                        - text: Includes the x5t (X.509 certificate thumbprint) parameter in JWT tokens for certificate-based authentication validation
+                        - strong [ref=e1001]: "Purpose:"
+                        - text: Allows clients to validate that JWTs were signed with the expected certificate
+                    - generic [ref=e1002]:
+                      - generic [ref=e1003] [cursor=pointer]:
+                        - checkbox "OpenID Connect Session Management" [ref=e1004]
+                        - text: OpenID Connect Session Management
+                      - paragraph [ref=e1005]:
+                        - text: Enables OIDC session management features including session state and logout functionality for better user session handling
+                        - strong [ref=e1006]: "Features:"
+                        - text: Session state tracking, logout redirection, and improved session lifecycle management
+                    - generic [ref=e1007]:
+                      - generic [ref=e1008] [cursor=pointer]:
+                        - checkbox "Request Scopes for Multiple Resources" [ref=e1009]
+                        - text: Request Scopes for Multiple Resources
+                      - paragraph [ref=e1010]:
+                        - text: Allows requesting permissions across multiple resource servers in a single authorization request, useful for microservices architectures
+                        - strong [ref=e1011]: "Use Case:"
+                        - text: Applications that need access to multiple APIs/services can request all permissions in one authorization flow
+                    - generic [ref=e1012]:
+                      - generic [ref=e1013] [cursor=pointer]:
+                        - checkbox "Terminate User Session by ID Token" [ref=e1014]
+                        - text: Terminate User Session by ID Token
+                      - paragraph [ref=e1015]:
+                        - text: Allows terminating user sessions using the ID token, providing a way to logout users across all applications
+                        - strong [ref=e1016]: "Benefit:"
+                        - text: Enables single logout (SLO) functionality where logging out from one application logs the user out from all related applications
+                - button "Saved" [disabled] [ref=e1018]:
+                  - img [ref=e1019]
+                  - text: Saved
+              - button "Save PAR Configuration" [ref=e1022] [cursor=pointer]:
+                - img [ref=e1023] [cursor=pointer]
+                - text: Save PAR Configuration
+            - generic [ref=e1027]:
+              - generic [ref=e1028]:
+                - generic [ref=e1029]: "5"
+                - heading "Start the Application" [level=3] [ref=e1030]
+              - paragraph [ref=e1031]: Start the full-stack application with frontend and backend services.
+              - generic [ref=e1032]:
+                - button "Copy" [ref=e1033] [cursor=pointer]:
+                  - img [ref=e1034] [cursor=pointer]
+                  - text: Copy
+                - text: npm start
+              - generic [ref=e1037]:
+                - strong [ref=e1038]: "What happens:"
+                - text: This command starts both the frontend (React/Vite) and backend (Express) servers, performs health checks, and automatically opens your browser to
+                - code [ref=e1039]: https://localhost:3000
+                - text: .
+        - generic [ref=e1040]:
+          - button "Alternative Startup Options Different ways to start the application depending on your needs" [ref=e1041] [cursor=pointer]:
+            - generic [ref=e1042] [cursor=pointer]:
+              - img [ref=e1044] [cursor=pointer]
+              - generic [ref=e1046] [cursor=pointer]:
+                - heading "Alternative Startup Options" [level=3] [ref=e1047] [cursor=pointer]
+                - paragraph [ref=e1048] [cursor=pointer]: Different ways to start the application depending on your needs
+            - img [ref=e1050] [cursor=pointer]
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading "Development Mode" [level=3]
+                  - paragraph: For active development with hot reloading and detailed error messages.
+                  - generic:
+                    - button "Copy":
+                      - img
+                      - text: Copy
+                    - text: npm run dev
+                - generic:
+                  - heading "Simple Start" [level=3]
+                  - paragraph: Quick start without advanced monitoring or health checks.
+                  - generic:
+                    - button "Copy":
+                      - img
+                      - text: Copy
+                    - text: npm run start:simple
+                - generic:
+                  - heading "Individual Servers" [level=3]
+                  - paragraph: Start frontend and backend servers separately.
+                  - generic:
+                    - generic:
+                      - button "Copy":
+                        - img
+                        - text: Copy
+                      - text: npm run start:frontend
+                    - generic:
+                      - button "Copy":
+                        - img
+                        - text: Copy
+                      - text: npm run start:backend
+              - generic:
+                - heading "Redirect Server Launcher" [level=3]
+                - paragraph: Runs both redirect-friendly servers with the project defaults.
+                - generic:
+                  - button "Copy":
+                    - img
+                    - text: Copy
+                  - text: ./redirect-servers.sh
+                - paragraph: "If the script is not executable, run:"
+                - generic:
+                  - button "Copy":
+                    - img
+                    - text: Copy
+                  - text: chmod +x redirect-servers.sh
+        - generic [ref=e1052]:
+          - button "Troubleshooting Common issues and their solutions" [ref=e1053] [cursor=pointer]:
+            - generic [ref=e1054] [cursor=pointer]:
+              - img [ref=e1056] [cursor=pointer]
+              - generic [ref=e1058] [cursor=pointer]:
+                - heading "Troubleshooting" [level=3] [ref=e1059] [cursor=pointer]
+                - paragraph [ref=e1060] [cursor=pointer]: Common issues and their solutions
+            - img [ref=e1062] [cursor=pointer]
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - strong: "Port Already in Use:"
+                  - text: The restart script automatically handles this, but if issues persist, check what's using ports 3000 and 3001 with
+                  - code: lsof -i :3000
+                  - text: and
+                  - code: lsof -i :3001
+                  - text: .
+                - generic:
+                  - strong: "Dependencies Issues:"
+                  - text: Try a clean reinstall with
+                  - code: rm -rf node_modules package-lock.json && npm install
+                  - text: .
+                - generic:
+                  - strong: "SSL Certificate Warnings:"
+                  - text: Click "Advanced" → "Proceed to localhost (unsafe)" in Chrome, or set
+                  - code: VITE_DEV_SERVER_HTTPS=false
+                  - text: in
+                  - code: .env
+                  - text: for HTTP-only mode.
+                - generic:
+                  - strong: "Environment Variables:"
+                  - text: The application uses environment variables for PingOne configuration. Check the
+                  - code: .env
+                  - text: file exists and contains the required variables.
+        - generic [ref=e1064]:
+          - button "Additional Resources Explore more resources to get the most out of the OAuth Playground" [ref=e1065] [cursor=pointer]:
+            - generic [ref=e1066] [cursor=pointer]:
+              - img [ref=e1068] [cursor=pointer]
+              - generic [ref=e1072] [cursor=pointer]:
+                - heading "Additional Resources" [level=3] [ref=e1073] [cursor=pointer]
+                - paragraph [ref=e1074] [cursor=pointer]: Explore more resources to get the most out of the OAuth Playground
+            - img [ref=e1076] [cursor=pointer]
+          - generic:
+            - generic:
+              - generic:
+                - link "View on GitHub":
+                  - /url: https://github.com/curtismu7/oauthPlayground
+                  - img
+                  - text: View on GitHub
+                - link "PingOne API Docs":
+                  - /url: https://docs.pingidentity.com/pingone/auth/v1/api/#openid-connectoauth-2
+                  - img
+                  - text: PingOne API Docs
+                - link "PingOne SDKs":
+                  - /url: https://docs.pingidentity.com/sdks/latest/sdks/index.html
+                  - img
+                  - text: PingOne SDKs
+    - contentinfo "Application footer" [ref=e1078]:
+      - generic [ref=e1079]: PingOne OAuth/OIDC Playground v7.3.2
+      - generic [ref=e1080]: This is not supported. Use at your own risk.
+```

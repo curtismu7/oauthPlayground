@@ -1,0 +1,673 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner "Main navigation" [ref=e4]:
+    - button "Toggle navigation menu" [ref=e5]:
+      - img [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e8]: PingOne OAuth/OIDC Playground
+      - generic [ref=e9]: Version 7.3.2
+    - navigation "Main navigation" [ref=e10]:
+      - link "View documentation and help" [ref=e11] [cursor=pointer]:
+        - /url: /documentation
+        - img [ref=e12] [cursor=pointer]
+      - link "Configure OAuth settings" [ref=e15] [cursor=pointer]:
+        - /url: /configuration
+        - img [ref=e16] [cursor=pointer]
+      - link "OIDC Discovery tool" [ref=e19] [cursor=pointer]:
+        - /url: /auto-discover
+        - img [ref=e20] [cursor=pointer]
+      - link "Generate PingOne applications" [ref=e23] [cursor=pointer]:
+        - /url: /client-generator
+        - img [ref=e24] [cursor=pointer]
+      - link "Login to the application" [ref=e27] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e28] [cursor=pointer]
+  - complementary [ref=e33]:
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]: PingOne OAuth Playground
+        - generic [ref=e37]:
+          - button "Enable Drag" [ref=e38] [cursor=pointer]:
+            - img [ref=e39] [cursor=pointer]
+            - text: Enable Drag
+          - button [ref=e44] [cursor=pointer]:
+            - img [ref=e45] [cursor=pointer]
+      - generic [ref=e49]:
+        - generic:
+          - img
+        - textbox "Search flows and pages... (⌘K)" [ref=e50]
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53] [cursor=pointer]:
+            - img [ref=e56] [cursor=pointer]
+            - generic [ref=e59] [cursor=pointer]: Main
+            - button [ref=e60] [cursor=pointer]:
+              - img [ref=e61] [cursor=pointer]
+          - generic [ref=e63]:
+            - generic [ref=e66] [cursor=pointer]:
+              - img [ref=e68] [cursor=pointer]
+              - generic [ref=e71] [cursor=pointer]: Dashboard
+              - img [ref=e73] [cursor=pointer]
+            - generic [ref=e78] [cursor=pointer]:
+              - img [ref=e80] [cursor=pointer]
+              - generic [ref=e83] [cursor=pointer]: Setup & Configuration
+              - img [ref=e85] [cursor=pointer]
+        - generic [ref=e88]:
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e92] [cursor=pointer]
+            - generic [ref=e94] [cursor=pointer]: OAuth 2.0 Flows
+            - button [ref=e95] [cursor=pointer]:
+              - img [ref=e96] [cursor=pointer]
+          - generic [ref=e98]:
+            - generic [ref=e101] [cursor=pointer]:
+              - img [ref=e103] [cursor=pointer]
+              - generic [ref=e105] [cursor=pointer]: Authorization Code (V7)
+              - img [ref=e107] [cursor=pointer]
+            - generic [ref=e112] [cursor=pointer]:
+              - img [ref=e114] [cursor=pointer]
+              - generic [ref=e116] [cursor=pointer]: Implicit Flow (V7)
+              - img [ref=e118] [cursor=pointer]
+            - generic [ref=e123] [cursor=pointer]:
+              - img [ref=e125] [cursor=pointer]
+              - generic [ref=e127] [cursor=pointer]: Device Authorization (V7)
+              - img [ref=e129] [cursor=pointer]
+            - generic [ref=e134] [cursor=pointer]:
+              - img [ref=e136] [cursor=pointer]
+              - generic [ref=e138] [cursor=pointer]: Client Credentials (V7)
+              - img [ref=e140] [cursor=pointer]
+            - generic [ref=e145] [cursor=pointer]:
+              - img [ref=e147] [cursor=pointer]
+              - generic [ref=e150] [cursor=pointer]: Resource Owner Password (V7)
+              - img [ref=e152] [cursor=pointer]
+            - generic [ref=e157] [cursor=pointer]:
+              - img [ref=e159] [cursor=pointer]
+              - generic [ref=e163] [cursor=pointer]: Token Exchange (V7)
+              - img [ref=e165] [cursor=pointer]
+            - generic [ref=e170] [cursor=pointer]:
+              - img [ref=e172] [cursor=pointer]
+              - generic [ref=e174] [cursor=pointer]: JWT Bearer Token (V7)
+              - img [ref=e176] [cursor=pointer]
+            - generic [ref=e181] [cursor=pointer]:
+              - img [ref=e183] [cursor=pointer]
+              - generic [ref=e185] [cursor=pointer]: SAML Bearer Token (V7)
+              - img [ref=e187] [cursor=pointer]
+            - generic [ref=e192] [cursor=pointer]:
+              - img [ref=e194] [cursor=pointer]
+              - generic [ref=e196] [cursor=pointer]: SAML SP Dynamic ACS (V1)
+              - img [ref=e198] [cursor=pointer]
+        - generic [ref=e201]:
+          - generic [ref=e202] [cursor=pointer]:
+            - img [ref=e205] [cursor=pointer]
+            - generic [ref=e208] [cursor=pointer]: OpenID Connect
+            - button [ref=e209] [cursor=pointer]:
+              - img [ref=e210] [cursor=pointer]
+          - generic [ref=e212]:
+            - generic [ref=e215] [cursor=pointer]:
+              - img [ref=e217] [cursor=pointer]
+              - generic [ref=e219] [cursor=pointer]: Implicit Flow (V7)
+              - img [ref=e221] [cursor=pointer]
+            - generic [ref=e226] [cursor=pointer]:
+              - img [ref=e228] [cursor=pointer]
+              - generic [ref=e230] [cursor=pointer]: Device Authorization (V7)
+              - img [ref=e232] [cursor=pointer]
+            - generic [ref=e237] [cursor=pointer]:
+              - img [ref=e239] [cursor=pointer]
+              - generic [ref=e243] [cursor=pointer]: Hybrid Flow (V7)
+              - img [ref=e245] [cursor=pointer]
+            - generic [ref=e250] [cursor=pointer]:
+              - img [ref=e252] [cursor=pointer]
+              - generic [ref=e255] [cursor=pointer]: OIDC Overview
+              - img [ref=e257] [cursor=pointer]
+            - generic [ref=e262] [cursor=pointer]:
+              - img [ref=e264] [cursor=pointer]
+              - generic [ref=e266] [cursor=pointer]: OIDC CIBA Flow (V7)
+              - img [ref=e268] [cursor=pointer]
+        - generic [ref=e271]:
+          - generic [ref=e272] [cursor=pointer]:
+            - img [ref=e275] [cursor=pointer]
+            - generic [ref=e277] [cursor=pointer]: PingOne
+            - button [ref=e278] [cursor=pointer]:
+              - img [ref=e279] [cursor=pointer]
+          - generic [ref=e281]:
+            - generic [ref=e284] [cursor=pointer]:
+              - img [ref=e286] [cursor=pointer]
+              - generic [ref=e288] [cursor=pointer]: Worker Token (V7)
+              - img [ref=e290] [cursor=pointer]
+            - generic [ref=e295] [cursor=pointer]:
+              - img [ref=e297] [cursor=pointer]
+              - generic [ref=e300] [cursor=pointer]: Pushed Authorization Request (V7)
+              - img [ref=e302] [cursor=pointer]
+            - generic [ref=e307] [cursor=pointer]:
+              - img [ref=e309] [cursor=pointer]
+              - generic [ref=e311] [cursor=pointer]: Redirectless Flow (V7)
+              - img [ref=e313] [cursor=pointer]
+            - generic [ref=e318] [cursor=pointer]:
+              - img [ref=e320] [cursor=pointer]
+              - generic [ref=e322] [cursor=pointer]: PingOne MFA (V7)
+              - img [ref=e324] [cursor=pointer]
+            - generic [ref=e329] [cursor=pointer]:
+              - img [ref=e331] [cursor=pointer]
+              - generic [ref=e333] [cursor=pointer]: PingOne Authentication
+              - img [ref=e335] [cursor=pointer]
+            - generic [ref=e340] [cursor=pointer]:
+              - img [ref=e342] [cursor=pointer]
+              - generic [ref=e343] [cursor=pointer]: PingOne Identity Metrics
+              - img [ref=e345] [cursor=pointer]
+            - generic [ref=e350] [cursor=pointer]:
+              - img [ref=e352] [cursor=pointer]
+              - generic [ref=e355] [cursor=pointer]: Mock & Educational Features
+              - img [ref=e357] [cursor=pointer]
+            - generic [ref=e362] [cursor=pointer]:
+              - img [ref=e364] [cursor=pointer]
+              - generic [ref=e367] [cursor=pointer]: Webhook Viewer
+              - img [ref=e369] [cursor=pointer]
+            - generic [ref=e374] [cursor=pointer]:
+              - img [ref=e376] [cursor=pointer]
+              - generic [ref=e378] [cursor=pointer]: Organization Licensing
+              - img [ref=e380] [cursor=pointer]
+        - generic [ref=e384] [cursor=pointer]:
+          - img [ref=e387] [cursor=pointer]
+          - generic [ref=e389] [cursor=pointer]: Tools & Utilities
+          - button [ref=e390] [cursor=pointer]:
+            - img [ref=e391] [cursor=pointer]
+        - generic [ref=e394] [cursor=pointer]:
+          - img [ref=e397] [cursor=pointer]
+          - generic [ref=e400] [cursor=pointer]: Documentation
+          - button [ref=e401] [cursor=pointer]:
+            - img [ref=e402] [cursor=pointer]
+  - generic [ref=e404]:
+    - main [ref=e405]:
+      - generic [ref=e406]:
+        - generic [ref=e407]:
+          - generic [ref=e408]:
+            - generic [ref=e409]:
+              - generic [ref=e410]: 🔐
+              - text: OAUTH V7
+            - heading "Authorization Code (V7) - Unified OAuth/OIDC" [level=1] [ref=e411]
+            - paragraph [ref=e412]: "🔐 V7: Unified OAuth/OIDC authorization code experience - Modern implementation supporting both OAuth 2.0 and OpenID Connect variants with enhanced security, PKCE, and comprehensive educational content."
+            - generic [ref=e413]: PingOne OAuth/OIDC Playground v7.3.2
+          - generic [ref=e414]:
+            - heading "🔄 Flow Tracking Status" [level=3] [ref=e415]
+            - generic [ref=e416]:
+              - generic [ref=e417]: "Current Flow:"
+              - generic [ref=e418]: No active flow
+            - generic [ref=e419]:
+              - generic [ref=e420]: "Flow History:"
+              - generic [ref=e421]: "Total flows: 0"
+            - generic [ref=e422]:
+              - button "Return to Flow" [disabled] [ref=e423] [cursor=pointer]
+              - button "Clear Current Flow" [disabled] [ref=e424] [cursor=pointer]
+              - button "Clear History" [ref=e425] [cursor=pointer]
+          - generic [ref=e426]:
+            - button "🔐 Authorization Code Flow Standard" [ref=e427] [cursor=pointer]:
+              - generic [ref=e429] [cursor=pointer]:
+                - generic [ref=e430] [cursor=pointer]: 🔐
+                - text: Authorization Code Flow
+                - generic [ref=e431] [cursor=pointer]: Standard
+              - img [ref=e433] [cursor=pointer]
+            - generic [ref=e435]:
+              - generic [ref=e436]:
+                - generic [ref=e437]:
+                  - img [ref=e438]
+                  - text: Tokens Returned
+                - generic [ref=e440]: Access Token + Refresh Token
+              - generic [ref=e441]:
+                - generic [ref=e442]:
+                  - img [ref=e443]
+                  - text: Purpose
+                - generic [ref=e445]: Authorization (API access)
+              - generic [ref=e446]:
+                - generic [ref=e447]:
+                  - img [ref=e448]
+                  - text: Spec Layer
+                - generic [ref=e452]: Defined in OAuth 2.0
+              - generic [ref=e453]:
+                - generic [ref=e454]:
+                  - img [ref=e455]
+                  - text: Nonce Requirement
+                - generic [ref=e457]: Not required (but recommended with PKCE)
+              - generic [ref=e458]:
+                - generic [ref=e459]:
+                  - img [ref=e460]
+                  - text: Validation
+                - generic [ref=e462]: Validate access token with resource server, exchange code for tokens
+              - generic [ref=e463]:
+                - generic [ref=e464]:
+                  - img [ref=e465]
+                  - text: Security Notes
+                - generic [ref=e467]:
+                  - generic [ref=e468]: ✅ Most secure OAuth 2.0 flow
+                  - generic [ref=e469]: ℹ️ Use PKCE for public clients
+                  - generic [ref=e470]: ℹ️ Requires secure backend for confidential clients
+                  - generic [ref=e471]: ℹ️ Always validate state parameter (CSRF protection)
+              - generic [ref=e472]:
+                - generic [ref=e473]:
+                  - img [ref=e474]
+                  - text: Best Use Cases
+                - generic [ref=e479]:
+                  - generic [ref=e480]: "\"✨\" Web applications with secure backend"
+                  - generic [ref=e481]: "\"✨\" Mobile apps with PKCE"
+                  - generic [ref=e482]: "\"✨\" Server-side applications"
+                  - generic [ref=e483]: "\"✨\" Any application needing refresh tokens"
+              - generic [ref=e484]:
+                - generic [ref=e485]:
+                  - img [ref=e486]
+                  - text: Additional Information
+                - generic [ref=e488]:
+                  - generic [ref=e489]:
+                    - generic [ref=e490]: "Complexity:"
+                    - generic [ref=e491]: Moderate
+                  - generic [ref=e492]:
+                    - generic [ref=e493]: "Security:"
+                    - generic [ref=e494]: High Security
+                  - generic [ref=e495]:
+                    - generic [ref=e496]: "User Interaction:"
+                    - generic [ref=e497]: User Interaction Required
+                  - generic [ref=e498]:
+                    - generic [ref=e499]: "Backend Required:"
+                    - generic [ref=e500]: "Yes"
+              - generic [ref=e501]:
+                - generic [ref=e502]:
+                  - img [ref=e503]
+                  - text: Documentation
+                - generic [ref=e507]:
+                  - link "OAuth 2.0 Authorization Code Flow" [ref=e509]:
+                    - /url: https://tools.ietf.org/html/rfc6749#section-4.1
+                    - text: OAuth 2.0 Authorization Code Flow
+                    - img [ref=e510]
+                  - link "PKCE Extension" [ref=e515]:
+                    - /url: https://tools.ietf.org/html/rfc7636
+                    - text: PKCE Extension
+                    - img [ref=e516]
+          - generic [ref=e520]:
+            - generic [ref=e521]:
+              - generic [ref=e522]:
+                - generic [ref=e523]: Authorization Code Flow · V7 Unified
+                - 'heading "OAuth 2.0 Step 1: Introduction & Setup" [level=2] [ref=e524]'
+                - paragraph [ref=e525]: API Authorization with Access token only
+              - generic [ref=e526]:
+                - generic [ref=e527]: "01"
+                - generic [ref=e528]: of 07
+            - generic [ref=e529]:
+              - button "OAuth 2.0 Authorization Code Access token only - API authorization" [ref=e530] [cursor=pointer]:
+                - generic [ref=e531] [cursor=pointer]: OAuth 2.0 Authorization Code
+                - generic [ref=e532] [cursor=pointer]: Access token only - API authorization
+              - button "OpenID Connect Authorization Code ID token + Access token - Authentication + Authorization" [ref=e533] [cursor=pointer]:
+                - generic [ref=e534] [cursor=pointer]: OpenID Connect Authorization Code
+                - generic [ref=e535] [cursor=pointer]: ID token + Access token - Authentication + Authorization
+            - generic [ref=e536]:
+              - generic [ref=e537]:
+                - generic [ref=e539]:
+                  - img [ref=e540]
+                  - generic [ref=e543]: 📚 Quick Start & Overview - OAuth 2.0 Authorization Code
+                - generic [ref=e544]:
+                  - generic [ref=e545]:
+                    - generic [ref=e546]:
+                      - img [ref=e547]
+                      - generic [ref=e549]:
+                        - heading "What You'll Get" [level=3] [ref=e550]
+                        - paragraph [ref=e551]: 🔑 API authorization with access token (PingOne requires openid scope)
+                    - generic [ref=e552]:
+                      - img [ref=e553]
+                      - generic [ref=e556]:
+                        - heading "Perfect For" [level=3] [ref=e557]
+                        - paragraph [ref=e558]:
+                          - text: • Web apps with secure backends
+                          - text: • SPAs using PKCE
+                          - text: • Apps needing refresh tokens
+                  - generic [ref=e559]:
+                    - img [ref=e560]
+                    - generic [ref=e562]:
+                      - heading "⚠️ Required for Full Functionality" [level=3] [ref=e563]
+                      - paragraph [ref=e564]:
+                        - strong [ref=e565]: "Client Secret:"
+                        - text: Required for token introspection and refresh
+                        - strong [ref=e566]: "Scopes:"
+                        - text: Include "profile" scope for user info endpoint
+                        - strong [ref=e567]: "Environment ID:"
+                        - text: Must match your PingOne environment
+                  - generic [ref=e568]:
+                    - generic [ref=e569]: OAuth vs OIDC - Key Differences
+                    - generic [ref=e570]:
+                      - generic [ref=e571]:
+                        - heading "OAuth 2.0 Mode" [level=4] [ref=e572]
+                        - paragraph [ref=e573]:
+                          - strong [ref=e574]: "Tokens:"
+                          - text: Access + Refresh
+                        - paragraph [ref=e575]:
+                          - strong [ref=e576]: "Purpose:"
+                          - text: API access only
+                        - paragraph [ref=e577]:
+                          - strong [ref=e578]: "PingOne:"
+                          - text: Requires openid scope
+                      - generic [ref=e579]:
+                        - heading "OpenID Connect Mode" [level=4] [ref=e580]
+                        - paragraph [ref=e581]:
+                          - strong [ref=e582]: "Tokens:"
+                          - text: Access + ID + Refresh
+                        - paragraph [ref=e583]:
+                          - strong [ref=e584]: "Purpose:"
+                          - text: Authentication + API access
+                        - paragraph [ref=e585]:
+                          - strong [ref=e586]: "Standard:"
+                          - text: Requires openid scope
+              - generic [ref=e587]:
+                - button "🔧 Configuration & Setup - All Settings in One Place" [expanded] [ref=e588] [cursor=pointer]:
+                  - generic [ref=e589] [cursor=pointer]:
+                    - img [ref=e590] [cursor=pointer]
+                    - generic [ref=e593] [cursor=pointer]: 🔧 Configuration & Setup - All Settings in One Place
+                  - img [ref=e595] [cursor=pointer]
+                - generic [ref=e597]:
+                  - generic [ref=e599]:
+                    - button "Application Configuration & Credentials Configure your application settings and credentials" [expanded] [ref=e600] [cursor=pointer]:
+                      - generic [ref=e601] [cursor=pointer]:
+                        - img [ref=e603] [cursor=pointer]
+                        - generic [ref=e606] [cursor=pointer]:
+                          - heading "Application Configuration & Credentials" [level=3] [ref=e607] [cursor=pointer]
+                          - paragraph [ref=e608] [cursor=pointer]: Configure your application settings and credentials
+                      - img [ref=e610] [cursor=pointer]
+                    - generic [ref=e612]:
+                      - generic [ref=e613]:
+                        - generic [ref=e614]:
+                          - textbox "Enter Environment ID, issuer URL, or provider..." [ref=e615]
+                          - button "OIDC Discovery" [disabled] [ref=e616]:
+                            - img [ref=e617]
+                            - text: OIDC Discovery
+                        - generic [ref=e620]:
+                          - generic [ref=e621]:
+                            - generic [ref=e622]: PingOne
+                            - generic [ref=e623]: "Environment ID or issuer URL (e.g., https://auth.pingone.com/{env-id}/as)"
+                          - generic [ref=e624]:
+                            - generic [ref=e625]: Google OAuth
+                            - generic [ref=e626]: Google issuer URL (e.g., https://accounts.google.com)
+                          - generic [ref=e627]:
+                            - generic [ref=e628]: Microsoft Entra ID
+                            - generic [ref=e629]: "Microsoft tenant ID or common (e.g., https://login.microsoftonline.com/{tenant-id}/v2.0)"
+                          - generic [ref=e630]:
+                            - generic [ref=e631]: Generic OIDC
+                            - generic [ref=e632]: Any RFC 8414 compliant OIDC provider
+                        - generic [ref=e633]:
+                          - generic [ref=e634]: "Examples:"
+                          - generic [ref=e635]:
+                            - generic [ref=e636] [cursor=pointer]: "PingOne Environment ID: 12345678-1234-1234-1234-123456789012"
+                            - generic [ref=e637] [cursor=pointer]: "PingOne Issuer: https://auth.pingone.com/12345678-1234-1234-1234-123456789012/as"
+                            - generic [ref=e638] [cursor=pointer]: "Google OAuth: https://accounts.google.com"
+                            - generic [ref=e639] [cursor=pointer]: "Auth0 Domain: https://your-domain.auth0.com"
+                            - generic [ref=e640] [cursor=pointer]: "Microsoft: https://login.microsoftonline.com/your-tenant-id/v2.0"
+                      - generic [ref=e641]:
+                        - button "Advanced Configuration Advanced OIDC and OAuth configuration options" [ref=e642] [cursor=pointer]:
+                          - generic [ref=e643] [cursor=pointer]:
+                            - img [ref=e645] [cursor=pointer]
+                            - generic [ref=e648] [cursor=pointer]:
+                              - heading "Advanced Configuration" [level=3] [ref=e649] [cursor=pointer]
+                              - paragraph [ref=e650] [cursor=pointer]: Advanced OIDC and OAuth configuration options
+                          - img [ref=e652] [cursor=pointer]
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic: Req Object Policy
+                              - combobox [ref=e654]:
+                                - option "default" [selected]
+                                - option "required"
+                                - option "optional"
+                            - generic:
+                              - generic: x5t (JWT hdr)
+                              - textbox "Base64URL thumbprint" [ref=e655]
+                            - generic:
+                              - generic:
+                                - checkbox "Enable OP iframe monitoring" [ref=e656]
+                                - generic: Enable OP iframe monitoring
+                            - generic:
+                              - generic: Resource Scopes
+                              - textbox [ref=e657]: openid profile email
+                            - generic:
+                              - generic:
+                                - checkbox "Use RP-initiated logout with id_token_hint" [checked] [ref=e658]
+                                - generic: Use RP-initiated logout with id_token_hint
+                      - generic [ref=e659]:
+                        - button "Application Configuration & Credentials" [expanded] [ref=e660] [cursor=pointer]:
+                          - generic [ref=e661] [cursor=pointer]:
+                            - img [ref=e662] [cursor=pointer]
+                            - generic [ref=e665] [cursor=pointer]: Application Configuration & Credentials
+                          - img [ref=e667] [cursor=pointer]
+                        - generic [ref=e670]:
+                          - generic [ref=e671]:
+                            - generic [ref=e672]:
+                              - generic [ref=e673]:
+                                - text: Environment ID
+                                - generic [ref=e674]: "*"
+                              - textbox "Enter your PingOne Environment ID" [ref=e676]
+                            - generic [ref=e677]:
+                              - generic [ref=e678]: Region
+                              - combobox [ref=e679] [cursor=pointer]:
+                                - option "US (North America)" [selected]
+                                - option "EU (Europe)"
+                                - option "AP (Asia Pacific)"
+                                - option "CA (Canada)"
+                              - generic [ref=e680]: The region where your PingOne environment is hosted.
+                            - generic [ref=e681]:
+                              - generic [ref=e682]:
+                                - text: Client ID
+                                - generic [ref=e683]: "*"
+                              - textbox "Enter your PingOne Client ID" [ref=e685]
+                            - generic [ref=e686]:
+                              - generic [ref=e687]:
+                                - text: Client Secret
+                                - generic [ref=e688]: "*"
+                              - generic [ref=e689]:
+                                - textbox "Enter your PingOne Client Secret" [ref=e690]
+                                - button "Show client secret" [ref=e691]:
+                                  - img [ref=e692]
+                            - generic [ref=e695]:
+                              - generic [ref=e696]:
+                                - text: Redirect URI
+                                - generic [ref=e697]: "*"
+                              - generic [ref=e698]:
+                                - textbox "https://localhost:3000/authz-callback" [ref=e699]
+                                - button "Copy Redirect URI" [ref=e702] [cursor=pointer]:
+                                  - img [ref=e703] [cursor=pointer]
+                                  - text: Redirect URI
+                              - generic [ref=e706]:
+                                - strong [ref=e707]: "📋 Authorization Code Flow:"
+                                - code [ref=e708]: https://localhost:3000/authz-callback
+                                - generic [ref=e709]: Handles authorization code exchange for tokens. Required for OAuth Authorization Code Flow.
+                                - generic [ref=e710]: ⚠️ Add this exact URI to your PingOne application's "Redirect URIs" list
+                            - generic [ref=e711]:
+                              - generic [ref=e712]:
+                                - text: Scopes
+                                - generic [ref=e713]: "*"
+                              - generic [ref=e714]:
+                                - textbox "openid" [ref=e715]
+                                - button "Copy Scopes" [ref=e718] [cursor=pointer]:
+                                  - img [ref=e719] [cursor=pointer]
+                              - generic [ref=e722]:
+                                - text: Space-separated list of scopes.
+                                - strong [ref=e723]: openid
+                                - text: is always required and will be automatically added.
+                            - generic [ref=e724]:
+                              - generic [ref=e725]:
+                                - text: Login Hint
+                                - generic [ref=e726]: (Optional)
+                              - textbox "user@example.com or username" [ref=e728]
+                              - generic [ref=e729]: Hint about the user identifier (email, username). Helps pre-fill the login form or skip account selection.
+                            - generic [ref=e730]:
+                              - generic [ref=e731]:
+                                - text: 🚪 Post-Logout Redirect URI
+                                - generic [ref=e732]: (Required for Logout)
+                              - generic [ref=e733]:
+                                - textbox "https://localhost:3000/authz-logout-callback" [ref=e734]: https://localhost:3000/logout-callback
+                                - button "Copy Post-Logout Redirect URI" [ref=e737] [cursor=pointer]:
+                                  - img [ref=e738] [cursor=pointer]
+                                  - text: Post-Logout Redirect URI
+                              - generic [ref=e741]:
+                                - generic [ref=e742]:
+                                  - generic [ref=e743]: 🚪
+                                  - strong [ref=e744]: Authorization Code Flow Logout URI
+                                - generic [ref=e745]:
+                                  - generic [ref=e746]: "Flow-Specific Logout URI:"
+                                  - code [ref=e747]: https://localhost:3000/authz-logout-callback
+                                - generic [ref=e748]:
+                                  - strong [ref=e749]: "Purpose:"
+                                  - text: Handles logout redirects for Authorization Code Flow. Required for proper logout handling.
+                                - generic [ref=e750]:
+                                  - generic [ref=e751]:
+                                    - generic [ref=e752]: ⚠️
+                                    - strong [ref=e753]: PingOne Configuration Required
+                                  - generic [ref=e754]:
+                                    - text: Add this exact URI to your PingOne application's
+                                    - strong [ref=e755]: "\"Post Logout Redirect URIs\""
+                                    - text: list. Each flow requires its own unique logout URI to prevent conflicts.
+                                - generic [ref=e756]:
+                                  - generic [ref=e757]:
+                                    - generic [ref=e758]: 📖
+                                    - strong [ref=e759]: Documentation
+                                  - generic [ref=e760]:
+                                    - text: For complete logout URI documentation and troubleshooting, see the
+                                    - strong [ref=e761]: Logout URIs Reference
+                                    - text: in the project documentation.
+                          - button "Save Credentials" [ref=e763] [cursor=pointer]:
+                            - img [ref=e764] [cursor=pointer]
+                            - text: Save Credentials
+                      - generic [ref=e769]:
+                        - generic [ref=e770]: Response Type
+                        - combobox [ref=e771]:
+                          - option "code (Authorization Code)" [selected]
+                        - generic [ref=e772]: "OAuth 2.0 Mode: API access only"
+                        - generic [ref=e773]:
+                          - generic [ref=e774]: "📋 What \"code id_token\" means:"
+                          - generic [ref=e775]:
+                            - generic [ref=e776]: Code + ID Token - Returns an authorization code and ID token. Hybrid approach for secure authentication.
+                            - generic [ref=e777]: 🔐 This requires OpenID Connect mode and will include user identity information.
+                      - generic [ref=e779]:
+                        - generic [ref=e780]:
+                          - img [ref=e781]
+                          - text: Token Endpoint Authentication Method
+                        - combobox [ref=e783] [cursor=pointer]:
+                          - option "Client Secret Basic"
+                          - option "Client Secret Post" [selected]
+                          - option "Client Secret JWT"
+                          - option "Private Key JWT"
+                        - generic [ref=e784]:
+                          - generic [ref=e786]: Medium Security
+                          - generic [ref=e787]: Client secret sent in POST body. Simple but secret is visible in request body.
+                        - generic [ref=e788]:
+                          - img [ref=e789]
+                          - generic [ref=e791]: Specifies how the client authenticates with the token endpoint. Public clients (SPAs, mobile apps) use "None". Confidential clients use secret or JWT-based methods.
+                      - generic [ref=e792]:
+                        - generic [ref=e793]: 🔑 Worker Token Required for Config Checker
+                        - generic [ref=e794]: Generate a worker token to use Config Checker and create PingOne applications.
+                        - button "Generate Worker Token" [ref=e795] [cursor=pointer]:
+                          - img [ref=e796] [cursor=pointer]
+                          - text: Generate Worker Token
+                  - generic [ref=e798]:
+                    - heading "💡 Advanced Options" [level=4] [ref=e799]
+                    - paragraph [ref=e800]: PKCE, custom parameters, and response modes are auto-configured based on your variant selection. Advanced OAuth parameters (audience, resources) can be configured in the flow execution steps.
+                  - generic [ref=e801]:
+                    - button "Save Configuration" [ref=e802] [cursor=pointer]:
+                      - img [ref=e803] [cursor=pointer]
+                      - text: Save Configuration
+                    - button "Clear Configuration" [ref=e806] [cursor=pointer]:
+                      - img [ref=e807] [cursor=pointer]
+                      - text: Clear Configuration
+              - generic [ref=e811]:
+                - button "🔐 Authorization Code Flow Standard" [ref=e812] [cursor=pointer]:
+                  - generic [ref=e814] [cursor=pointer]:
+                    - generic [ref=e815] [cursor=pointer]: 🔐
+                    - text: Authorization Code Flow
+                    - generic [ref=e816] [cursor=pointer]: Standard
+                  - img [ref=e818] [cursor=pointer]
+                - generic [ref=e820]:
+                  - generic [ref=e821]:
+                    - generic [ref=e822]:
+                      - img [ref=e823]
+                      - text: Tokens Returned
+                    - generic [ref=e825]: Access Token + Refresh Token
+                  - generic [ref=e826]:
+                    - generic [ref=e827]:
+                      - img [ref=e828]
+                      - text: Purpose
+                    - generic [ref=e830]: Authorization (API access)
+                  - generic [ref=e831]:
+                    - generic [ref=e832]:
+                      - img [ref=e833]
+                      - text: Spec Layer
+                    - generic [ref=e837]: Defined in OAuth 2.0
+                  - generic [ref=e838]:
+                    - generic [ref=e839]:
+                      - img [ref=e840]
+                      - text: Nonce Requirement
+                    - generic [ref=e842]: Not required (but recommended with PKCE)
+                  - generic [ref=e843]:
+                    - generic [ref=e844]:
+                      - img [ref=e845]
+                      - text: Validation
+                    - generic [ref=e847]: Validate access token with resource server, exchange code for tokens
+                  - generic [ref=e848]:
+                    - generic [ref=e849]:
+                      - img [ref=e850]
+                      - text: Security Notes
+                    - generic [ref=e852]:
+                      - generic [ref=e853]: ✅ Most secure OAuth 2.0 flow
+                      - generic [ref=e854]: ℹ️ Use PKCE for public clients
+                      - generic [ref=e855]: ℹ️ Requires secure backend for confidential clients
+                      - generic [ref=e856]: ℹ️ Always validate state parameter (CSRF protection)
+                  - generic [ref=e857]:
+                    - generic [ref=e858]:
+                      - img [ref=e859]
+                      - text: Best Use Cases
+                    - generic [ref=e864]:
+                      - generic [ref=e865]: "\"✨\" Web applications with secure backend"
+                      - generic [ref=e866]: "\"✨\" Mobile apps with PKCE"
+                      - generic [ref=e867]: "\"✨\" Server-side applications"
+                      - generic [ref=e868]: "\"✨\" Any application needing refresh tokens"
+                  - generic [ref=e869]:
+                    - generic [ref=e870]:
+                      - img [ref=e871]
+                      - text: Additional Information
+                    - generic [ref=e873]:
+                      - generic [ref=e874]:
+                        - generic [ref=e875]: "Complexity:"
+                        - generic [ref=e876]: Moderate
+                      - generic [ref=e877]:
+                        - generic [ref=e878]: "Security:"
+                        - generic [ref=e879]: High Security
+                      - generic [ref=e880]:
+                        - generic [ref=e881]: "User Interaction:"
+                        - generic [ref=e882]: User Interaction Required
+                      - generic [ref=e883]:
+                        - generic [ref=e884]: "Backend Required:"
+                        - generic [ref=e885]: "Yes"
+                  - generic [ref=e886]:
+                    - generic [ref=e887]:
+                      - img [ref=e888]
+                      - text: Documentation
+                    - generic [ref=e892]:
+                      - link "OAuth 2.0 Authorization Code Flow" [ref=e894]:
+                        - /url: https://tools.ietf.org/html/rfc6749#section-4.1
+                        - text: OAuth 2.0 Authorization Code Flow
+                        - img [ref=e895]
+                      - link "PKCE Extension" [ref=e900]:
+                        - /url: https://tools.ietf.org/html/rfc7636
+                        - text: PKCE Extension
+                        - img [ref=e901]
+        - generic [ref=e905]:
+          - generic:
+            - img
+          - button "Compact stepper" [ref=e906] [cursor=pointer]:
+            - img [ref=e907] [cursor=pointer]
+          - generic [ref=e921]:
+            - button "Previous" [disabled] [ref=e922]:
+              - img [ref=e923]
+              - text: Previous
+            - button "Reset Flow" [ref=e925] [cursor=pointer]:
+              - img [ref=e926] [cursor=pointer]
+              - text: Reset Flow
+            - button "Next" [ref=e928] [cursor=pointer]:
+              - text: Next
+              - img [ref=e929] [cursor=pointer]
+    - contentinfo "Application footer" [ref=e931]:
+      - generic [ref=e932]: PingOne OAuth/OIDC Playground v7.3.2
+      - generic [ref=e933]: This is not supported. Use at your own risk.
+```

@@ -1,0 +1,510 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner "Main navigation" [ref=e4]:
+    - button "Toggle navigation menu" [ref=e5]:
+      - img [ref=e6]
+    - generic [ref=e7]:
+      - generic [ref=e8]: PingOne OAuth/OIDC Playground
+      - generic [ref=e9]: Version 7.3.2
+    - navigation "Main navigation" [ref=e10]:
+      - link "View documentation and help" [ref=e11] [cursor=pointer]:
+        - /url: /documentation
+        - img [ref=e12] [cursor=pointer]
+      - link "Configure OAuth settings" [ref=e15] [cursor=pointer]:
+        - /url: /configuration
+        - img [ref=e16] [cursor=pointer]
+      - link "OIDC Discovery tool" [ref=e19] [cursor=pointer]:
+        - /url: /auto-discover
+        - img [ref=e20] [cursor=pointer]
+      - link "Generate PingOne applications" [ref=e23] [cursor=pointer]:
+        - /url: /client-generator
+        - img [ref=e24] [cursor=pointer]
+      - link "Login to the application" [ref=e27] [cursor=pointer]:
+        - /url: /login
+        - img [ref=e28] [cursor=pointer]
+  - complementary [ref=e33]:
+    - generic [ref=e34]:
+      - generic [ref=e35]:
+        - generic [ref=e36]: PingOne OAuth Playground
+        - generic [ref=e37]:
+          - button "Enable Drag" [ref=e38] [cursor=pointer]:
+            - img [ref=e39] [cursor=pointer]
+            - text: Enable Drag
+          - button [ref=e44] [cursor=pointer]:
+            - img [ref=e45] [cursor=pointer]
+      - generic [ref=e49]:
+        - generic:
+          - img
+        - textbox "Search flows and pages... (⌘K)" [ref=e50]
+      - generic [ref=e51]:
+        - generic [ref=e52]:
+          - generic [ref=e53] [cursor=pointer]:
+            - img [ref=e56] [cursor=pointer]
+            - generic [ref=e59] [cursor=pointer]: Main
+            - button [ref=e60] [cursor=pointer]:
+              - img [ref=e61] [cursor=pointer]
+          - generic [ref=e63]:
+            - generic [ref=e66] [cursor=pointer]:
+              - img [ref=e68] [cursor=pointer]
+              - generic [ref=e71] [cursor=pointer]: Dashboard
+              - img [ref=e73] [cursor=pointer]
+            - generic [ref=e78] [cursor=pointer]:
+              - img [ref=e80] [cursor=pointer]
+              - generic [ref=e83] [cursor=pointer]: Setup & Configuration
+              - img [ref=e85] [cursor=pointer]
+        - generic [ref=e88]:
+          - generic [ref=e89] [cursor=pointer]:
+            - img [ref=e92] [cursor=pointer]
+            - generic [ref=e94] [cursor=pointer]: OAuth 2.0 Flows
+            - button [ref=e95] [cursor=pointer]:
+              - img [ref=e96] [cursor=pointer]
+          - generic [ref=e98]:
+            - generic [ref=e101] [cursor=pointer]:
+              - img [ref=e103] [cursor=pointer]
+              - generic [ref=e105] [cursor=pointer]: Authorization Code (V7)
+              - img [ref=e107] [cursor=pointer]
+            - generic [ref=e112] [cursor=pointer]:
+              - img [ref=e114] [cursor=pointer]
+              - generic [ref=e116] [cursor=pointer]: Implicit Flow (V7)
+              - img [ref=e118] [cursor=pointer]
+            - generic [ref=e123] [cursor=pointer]:
+              - img [ref=e125] [cursor=pointer]
+              - generic [ref=e127] [cursor=pointer]: Device Authorization (V7)
+              - img [ref=e129] [cursor=pointer]
+            - generic [ref=e134] [cursor=pointer]:
+              - img [ref=e136] [cursor=pointer]
+              - generic [ref=e138] [cursor=pointer]: Client Credentials (V7)
+              - img [ref=e140] [cursor=pointer]
+            - generic [ref=e145] [cursor=pointer]:
+              - img [ref=e147] [cursor=pointer]
+              - generic [ref=e150] [cursor=pointer]: Resource Owner Password (V7)
+              - img [ref=e152] [cursor=pointer]
+            - generic [ref=e157] [cursor=pointer]:
+              - img [ref=e159] [cursor=pointer]
+              - generic [ref=e163] [cursor=pointer]: Token Exchange (V7)
+              - img [ref=e165] [cursor=pointer]
+            - generic [ref=e170] [cursor=pointer]:
+              - img [ref=e172] [cursor=pointer]
+              - generic [ref=e174] [cursor=pointer]: JWT Bearer Token (V7)
+              - img [ref=e176] [cursor=pointer]
+            - generic [ref=e181] [cursor=pointer]:
+              - img [ref=e183] [cursor=pointer]
+              - generic [ref=e185] [cursor=pointer]: SAML Bearer Token (V7)
+              - img [ref=e187] [cursor=pointer]
+            - generic [ref=e192] [cursor=pointer]:
+              - img [ref=e194] [cursor=pointer]
+              - generic [ref=e196] [cursor=pointer]: SAML SP Dynamic ACS (V1)
+              - img [ref=e198] [cursor=pointer]
+        - generic [ref=e201]:
+          - generic [ref=e202] [cursor=pointer]:
+            - img [ref=e205] [cursor=pointer]
+            - generic [ref=e208] [cursor=pointer]: OpenID Connect
+            - button [ref=e209] [cursor=pointer]:
+              - img [ref=e210] [cursor=pointer]
+          - generic [ref=e212]:
+            - generic [ref=e215] [cursor=pointer]:
+              - img [ref=e217] [cursor=pointer]
+              - generic [ref=e219] [cursor=pointer]: Implicit Flow (V7)
+              - img [ref=e221] [cursor=pointer]
+            - generic [ref=e226] [cursor=pointer]:
+              - img [ref=e228] [cursor=pointer]
+              - generic [ref=e230] [cursor=pointer]: Device Authorization (V7)
+              - img [ref=e232] [cursor=pointer]
+            - generic [ref=e237] [cursor=pointer]:
+              - img [ref=e239] [cursor=pointer]
+              - generic [ref=e243] [cursor=pointer]: Hybrid Flow (V7)
+              - img [ref=e245] [cursor=pointer]
+            - generic [ref=e250] [cursor=pointer]:
+              - img [ref=e252] [cursor=pointer]
+              - generic [ref=e255] [cursor=pointer]: OIDC Overview
+              - img [ref=e257] [cursor=pointer]
+            - generic [ref=e262] [cursor=pointer]:
+              - img [ref=e264] [cursor=pointer]
+              - generic [ref=e266] [cursor=pointer]: OIDC CIBA Flow (V7)
+              - img [ref=e268] [cursor=pointer]
+        - generic [ref=e271]:
+          - generic [ref=e272] [cursor=pointer]:
+            - img [ref=e275] [cursor=pointer]
+            - generic [ref=e277] [cursor=pointer]: PingOne
+            - button [ref=e278] [cursor=pointer]:
+              - img [ref=e279] [cursor=pointer]
+          - generic [ref=e281]:
+            - generic [ref=e284] [cursor=pointer]:
+              - img [ref=e286] [cursor=pointer]
+              - generic [ref=e288] [cursor=pointer]: Worker Token (V7)
+              - img [ref=e290] [cursor=pointer]
+            - generic [ref=e295] [cursor=pointer]:
+              - img [ref=e297] [cursor=pointer]
+              - generic [ref=e300] [cursor=pointer]: Pushed Authorization Request (V7)
+              - img [ref=e302] [cursor=pointer]
+            - generic [ref=e307] [cursor=pointer]:
+              - img [ref=e309] [cursor=pointer]
+              - generic [ref=e311] [cursor=pointer]: Redirectless Flow (V7)
+              - img [ref=e313] [cursor=pointer]
+            - generic [ref=e318] [cursor=pointer]:
+              - img [ref=e320] [cursor=pointer]
+              - generic [ref=e322] [cursor=pointer]: PingOne MFA (V7)
+              - img [ref=e324] [cursor=pointer]
+            - generic [ref=e329] [cursor=pointer]:
+              - img [ref=e331] [cursor=pointer]
+              - generic [ref=e333] [cursor=pointer]: PingOne Authentication
+              - img [ref=e335] [cursor=pointer]
+            - generic [ref=e340] [cursor=pointer]:
+              - img [ref=e342] [cursor=pointer]
+              - generic [ref=e343] [cursor=pointer]: PingOne Identity Metrics
+              - img [ref=e345] [cursor=pointer]
+            - generic [ref=e350] [cursor=pointer]:
+              - img [ref=e352] [cursor=pointer]
+              - generic [ref=e355] [cursor=pointer]: Mock & Educational Features
+              - img [ref=e357] [cursor=pointer]
+            - generic [ref=e362] [cursor=pointer]:
+              - img [ref=e364] [cursor=pointer]
+              - generic [ref=e367] [cursor=pointer]: Webhook Viewer
+              - img [ref=e369] [cursor=pointer]
+            - generic [ref=e374] [cursor=pointer]:
+              - img [ref=e376] [cursor=pointer]
+              - generic [ref=e378] [cursor=pointer]: Organization Licensing
+              - img [ref=e380] [cursor=pointer]
+        - generic [ref=e384] [cursor=pointer]:
+          - img [ref=e387] [cursor=pointer]
+          - generic [ref=e389] [cursor=pointer]: Tools & Utilities
+          - button [ref=e390] [cursor=pointer]:
+            - img [ref=e391] [cursor=pointer]
+        - generic [ref=e394] [cursor=pointer]:
+          - img [ref=e397] [cursor=pointer]
+          - generic [ref=e400] [cursor=pointer]: Documentation
+          - button [ref=e401] [cursor=pointer]:
+            - img [ref=e402] [cursor=pointer]
+  - generic [ref=e404]:
+    - main [ref=e405]:
+      - generic [ref=e407]:
+        - generic [ref=e408]:
+          - button "System Status Frontend and backend server health monitoring" [expanded] [ref=e409] [cursor=pointer]:
+            - generic [ref=e410] [cursor=pointer]:
+              - img [ref=e412] [cursor=pointer]
+              - generic [ref=e415] [cursor=pointer]:
+                - heading "System Status" [level=3] [ref=e416] [cursor=pointer]
+                - paragraph [ref=e417] [cursor=pointer]: Frontend and backend server health monitoring
+            - img [ref=e419] [cursor=pointer]
+          - generic [ref=e422]:
+            - button "Refresh" [ref=e424] [cursor=pointer]:
+              - img [ref=e425] [cursor=pointer]
+              - text: Refresh
+            - generic [ref=e430]:
+              - img [ref=e431]
+              - text: Configuration Missing
+            - generic [ref=e434]:
+              - generic [ref=e435]:
+                - generic [ref=e436]:
+                  - generic [ref=e437]: Online
+                  - generic [ref=e438]: Frontend Server
+                - generic [ref=e439]:
+                  - img [ref=e440]
+                  - strong [ref=e443]: "URL:"
+                  - text: https://localhost:3000
+              - generic [ref=e444]:
+                - generic [ref=e445]:
+                  - generic [ref=e446]: Offline
+                  - generic [ref=e447]: Backend API
+                - generic [ref=e448]:
+                  - img [ref=e449]
+                  - strong [ref=e451]: "URL:"
+                  - text: https://localhost:3001
+        - generic [ref=e452]:
+          - button "V7 Flow Credential Status Configuration status for all OAuth and OIDC flows" [expanded] [ref=e453] [cursor=pointer]:
+            - generic [ref=e454] [cursor=pointer]:
+              - img [ref=e456] [cursor=pointer]
+              - generic [ref=e458] [cursor=pointer]:
+                - heading "V7 Flow Credential Status" [level=3] [ref=e459] [cursor=pointer]
+                - paragraph [ref=e460] [cursor=pointer]: Configuration status for all OAuth and OIDC flows
+            - img [ref=e462] [cursor=pointer]
+          - generic [ref=e466]:
+            - generic [ref=e467]:
+              - heading "OAuth 2.0 V7 Flows" [level=3] [ref=e468]
+              - generic [ref=e469]:
+                - generic [ref=e470]:
+                  - generic [ref=e471]: Authorization Code (V7) - Unified OAuth/OIDC
+                  - generic [ref=e472]: Missing
+                - generic [ref=e473]:
+                  - generic [ref=e474]: Implicit Flow (V7) - Unified OAuth/OIDC
+                  - generic [ref=e475]: Missing
+                - generic [ref=e476]:
+                  - generic [ref=e477]: Device Authorization (V7) - Unified OAuth/OIDC
+                  - generic [ref=e478]: Missing
+                - generic [ref=e479]:
+                  - generic [ref=e480]: Client Credentials Flow - Server-to-Server Authentication
+                  - generic [ref=e481]: Missing
+                - generic [ref=e482]:
+                  - generic [ref=e483]: Client Credentials Flow V7 - Enhanced Server-to-Server Authentication
+                  - generic [ref=e484]: Missing
+                - generic [ref=e485]:
+                  - generic [ref=e486]: OAuth 2.0 Resource Owner Password Flow (ROPC)
+                  - generic [ref=e487]: Missing
+                - generic [ref=e488]:
+                  - generic [ref=e489]: OAuth 2.0 Token Exchange V7 - RFC 8693
+                  - generic [ref=e490]: Missing
+                - generic [ref=e491]:
+                  - generic [ref=e492]: Redirectless Flow (V7) - Enhanced Server-to-Server Authentication
+                  - generic [ref=e493]: Missing
+                - generic [ref=e494]:
+                  - generic [ref=e495]: Dashboard
+                  - generic [ref=e496]: Configured
+                - generic [ref=e497]:
+                  - generic [ref=e498]: URL Decoder
+                  - generic [ref=e499]: Configured
+                - generic [ref=e500]:
+                  - generic [ref=e501]: OAuth 2.0 Security
+                  - generic [ref=e502]: Missing
+                - generic [ref=e503]:
+                  - generic [ref=e504]: Scopes Best Practices
+                  - generic [ref=e505]: Configured
+                - generic [ref=e506]:
+                  - generic [ref=e507]: OAuth 2.0 Resource Owner Password Credentials (V6)
+                  - generic [ref=e508]: Missing
+                - generic [ref=e509]:
+                  - generic [ref=e510]: OAuth ROPC (V7)
+                  - generic [ref=e511]: Missing
+                - generic [ref=e512]:
+                  - generic [ref=e513]: Rich Authorization Requests (RAR) Flow
+                  - generic [ref=e514]: Missing
+                - generic [ref=e515]:
+                  - generic [ref=e516]: RAR Flow (V7) - Rich Authorization Requests
+                  - generic [ref=e517]: Missing
+                - generic [ref=e518]:
+                  - generic [ref=e519]: OAuth 2.0 JWT Bearer Flow
+                  - generic [ref=e520]: Missing
+                - generic [ref=e521]:
+                  - generic [ref=e522]: JWT Bearer Token Flow - Assertion-Based Access
+                  - generic [ref=e523]: Missing
+            - generic [ref=e524]:
+              - heading "OIDC V7 Flows" [level=3] [ref=e525]
+              - generic [ref=e526]:
+                - generic [ref=e527]:
+                  - generic [ref=e528]: OIDC CIBA Flow (V7) - Client Initiated Backchannel Authentication
+                  - generic [ref=e529]: Missing
+                - generic [ref=e530]:
+                  - generic [ref=e531]: OIDC Authorization Code Flow - Federated Authentication
+                  - generic [ref=e532]: Missing
+                - generic [ref=e533]:
+                  - generic [ref=e534]: Implicit Flow - Legacy Browser Authentication
+                  - generic [ref=e535]: Missing
+                - generic [ref=e536]:
+                  - generic [ref=e537]: Hybrid Flow (V7) - Unified OAuth/OIDC
+                  - generic [ref=e538]: Missing
+                - generic [ref=e539]:
+                  - generic [ref=e540]: JWT Bearer Token (V7)
+                  - generic [ref=e541]: Missing
+                - generic [ref=e542]:
+                  - generic [ref=e543]: OIDC Overview
+                  - generic [ref=e544]: Configured
+                - generic [ref=e545]:
+                  - generic [ref=e546]: Auto Discover
+                  - generic [ref=e547]: Configured
+                - generic [ref=e548]:
+                  - generic [ref=e549]: OIDC for AI
+                  - generic [ref=e550]: Configured
+                - generic [ref=e551]:
+                  - generic [ref=e552]: OIDC Specs
+                  - generic [ref=e553]: Configured
+                - generic [ref=e554]:
+                  - generic [ref=e555]: OIDC CIBA Flow (Mock) (V6)
+                  - generic [ref=e556]: Missing
+                - generic [ref=e557]:
+                  - generic [ref=e558]: PingOne MFA Flow (V5)
+                  - generic [ref=e559]: Missing
+                - generic [ref=e560]:
+                  - generic [ref=e561]: PingOne MFA Flow (V6)
+                  - generic [ref=e562]: Missing
+            - generic [ref=e563]:
+              - heading "Enterprise & PingOne V7 Flows" [level=3] [ref=e564]
+              - generic [ref=e565]:
+                - generic [ref=e566]:
+                  - generic [ref=e567]: Worker Token Flow - Administrative API Access
+                  - generic [ref=e568]: Missing
+                - generic [ref=e569]:
+                  - generic [ref=e570]: Worker Token Flow (V7) - Enhanced Administrative API Access
+                  - generic [ref=e571]: Missing
+                - generic [ref=e572]:
+                  - generic [ref=e573]: PAR (Pushed Authorization Requests) Flow - Enhanced Security
+                  - generic [ref=e574]: Missing
+                - generic [ref=e575]:
+                  - generic [ref=e576]: PAR (Pushed Authorization Requests) Flow V7 - Enhanced Security
+                  - generic [ref=e577]: Missing
+                - generic [ref=e578]:
+                  - generic [ref=e579]: RAR (Rich Authorization Requests) Flow - Fine-Grained Permissions
+                  - generic [ref=e580]: Missing
+                - generic [ref=e581]:
+                  - generic [ref=e582]: PingOne Complete MFA Flow V7
+                  - generic [ref=e583]: Missing
+                - generic [ref=e584]:
+                  - generic [ref=e585]: PingOne Authentication
+                  - generic [ref=e586]: Missing
+                - generic [ref=e587]:
+                  - generic [ref=e588]: SAML Bearer Assertion (V7)
+                  - generic [ref=e589]: Missing
+                - generic [ref=e590]:
+                  - generic [ref=e591]: Redirectless Flow (response_mode=pi.flow) - API-Driven Auth
+                  - generic [ref=e592]: Missing
+                - generic [ref=e593]:
+                  - generic [ref=e594]: Redirectless Flow V6 (response_mode=pi.flow) - Real Implementation
+                  - generic [ref=e595]: Missing
+                - generic [ref=e596]:
+                  - generic [ref=e597]: Redirectless Flow V7 (response_mode=pi.flow) - Enhanced Implementation
+                  - generic [ref=e598]: Missing
+                - generic [ref=e599]:
+                  - generic [ref=e600]: Redirectless Flow V6 - PingOne Pi.Flow Authentication
+                  - generic [ref=e601]: Missing
+                - generic [ref=e602]:
+                  - generic [ref=e603]: Redirectless Flow V5 - Educational Demo (Mock)
+                  - generic [ref=e604]: Missing
+                - generic [ref=e605]:
+                  - generic [ref=e606]: Settings
+                  - generic [ref=e607]: Missing
+                - generic [ref=e608]:
+                  - generic [ref=e609]: Token Management
+                  - generic [ref=e610]: Missing
+                - generic [ref=e611]:
+                  - generic [ref=e612]: JWKS Troubleshooting Guide
+                  - generic [ref=e613]: Missing
+                - generic [ref=e614]:
+                  - generic [ref=e615]: PingOne Authentication
+                  - generic [ref=e616]: Missing
+                - generic [ref=e617]:
+                  - generic [ref=e618]: SAML Bearer Assertion Flow (Mock)
+                  - generic [ref=e619]: Missing
+        - generic [ref=e620]:
+          - button "Available API Endpoints Backend API endpoints for OAuth/OIDC operations" [ref=e621] [cursor=pointer]:
+            - generic [ref=e622] [cursor=pointer]:
+              - img [ref=e624] [cursor=pointer]
+              - generic [ref=e627] [cursor=pointer]:
+                - heading "Available API Endpoints" [level=3] [ref=e628] [cursor=pointer]
+                - paragraph [ref=e629] [cursor=pointer]: Backend API endpoints for OAuth/OIDC operations
+            - img [ref=e631] [cursor=pointer]
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: GET
+                    - code: /api/health
+                  - paragraph: Health check for backend status
+                - generic:
+                  - generic:
+                    - generic: GET
+                    - code: /api/env-config
+                  - paragraph: Retrieve environment defaults
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/token-exchange
+                  - paragraph: Exchange authorization codes for tokens
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/client-credentials
+                  - paragraph: Client credentials grant flow
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/introspect-token
+                  - paragraph: Introspect tokens via PingOne
+                - generic:
+                  - generic:
+                    - generic: GET
+                    - code: /api/userinfo
+                  - paragraph: Retrieve user information
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/validate-token
+                  - paragraph: Validate access tokens
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/device-authorization
+                  - paragraph: Device authorization flow
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/par
+                  - paragraph: Pushed Authorization Request
+                - generic:
+                  - generic:
+                    - generic: GET
+                    - code: /api/jwks
+                  - paragraph: Fetch PingOne JWKS
+                - generic:
+                  - generic:
+                    - generic: POST
+                    - code: /api/user-jwks
+                  - paragraph: Generate JWKS from user key
+        - generic [ref=e633]:
+          - button "Quick Access Flows Explore OAuth 2.0 and OpenID Connect flows" [expanded] [ref=e634] [cursor=pointer]:
+            - generic [ref=e635] [cursor=pointer]:
+              - img [ref=e637] [cursor=pointer]
+              - generic [ref=e639] [cursor=pointer]:
+                - heading "Quick Access Flows" [level=3] [ref=e640] [cursor=pointer]
+                - paragraph [ref=e641] [cursor=pointer]: Explore OAuth 2.0 and OpenID Connect flows
+            - img [ref=e643] [cursor=pointer]
+          - generic [ref=e646]:
+            - paragraph [ref=e648]: Explore OAuth 2.0 and OpenID Connect flows. Defaults are secure-by-default (Auth Code with PKCE).
+            - generic [ref=e649]:
+              - generic [ref=e650]:
+                - heading "OAuth 2.0" [level=3] [ref=e651]
+                - paragraph [ref=e652]: "Standards-based authorization flows. Recommended: Authorization Code (with PKCE for public clients)."
+                - generic [ref=e653]:
+                  - link "Authorization Code (V7)" [ref=e654]:
+                    - /url: /flows/oauth-authorization-code-v7
+                  - link "Implicit Flow (V7)" [ref=e655]:
+                    - /url: /flows/implicit-v7
+                  - link "Device Authorization (V7)" [ref=e656]:
+                    - /url: /flows/device-authorization-v7
+                  - link "Client Credentials (V7)" [ref=e657]:
+                    - /url: /flows/client-credentials-v7
+              - generic [ref=e658]:
+                - heading "OpenID Connect" [level=3] [ref=e659]
+                - paragraph [ref=e660]: Identity layer on top of OAuth 2.0.
+                - generic [ref=e661]:
+                  - link "Authorization Code (V7)" [ref=e662]:
+                    - /url: /flows/oauth-authorization-code-v7
+                  - link "Hybrid Flow (V7)" [ref=e663]:
+                    - /url: /flows/oidc-hybrid-v7
+                  - link "Implicit Flow (V7)" [ref=e664]:
+                    - /url: /flows/implicit-v7
+                  - link "OIDC Overview" [ref=e665]:
+                    - /url: /oidc-overview
+              - generic [ref=e666]:
+                - heading "PingOne Flows" [level=3] [ref=e667]
+                - paragraph [ref=e668]: PingOne-specific authentication and authorization flows.
+                - generic [ref=e669]:
+                  - link "Worker Token (V6)" [ref=e670]:
+                    - /url: /flows/worker-token-v6
+                  - link "PAR (V6)" [ref=e671]:
+                    - /url: /flows/pingone-par-v6
+                  - link "Redirectless Flow (V6)" [ref=e672]:
+                    - /url: /flows/redirectless-v6-real
+        - generic [ref=e673]:
+          - button "Recent Activity Latest OAuth flow runs, credential updates, and API interactions" [expanded] [ref=e674] [cursor=pointer]:
+            - generic [ref=e675] [cursor=pointer]:
+              - img [ref=e677] [cursor=pointer]
+              - generic [ref=e679] [cursor=pointer]:
+                - heading "Recent Activity" [level=3] [ref=e680] [cursor=pointer]
+                - paragraph [ref=e681] [cursor=pointer]: Latest OAuth flow runs, credential updates, and API interactions
+            - img [ref=e683] [cursor=pointer]
+          - list [ref=e688]:
+            - listitem [ref=e689]:
+              - generic [ref=e690]: ✓
+              - generic [ref=e691]:
+                - generic [ref=e692]: Completed Authorization Code Flow
+                - generic [ref=e693]: 10/30/2025, 5:56:46 AM
+            - listitem [ref=e694]:
+              - generic [ref=e695]: ✓
+              - generic [ref=e696]:
+                - generic [ref=e697]: Updated PingOne Credentials
+                - generic [ref=e698]: 10/30/2025, 5:51:46 AM
+    - contentinfo "Application footer" [ref=e699]:
+      - generic [ref=e700]: PingOne OAuth/OIDC Playground v7.3.2
+      - generic [ref=e701]: This is not supported. Use at your own risk.
+```
