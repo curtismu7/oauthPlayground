@@ -32,6 +32,7 @@ import { v4ToastManager } from "../utils/v4ToastMessages";
 import ComprehensiveCredentialsService from "../services/comprehensiveCredentialsService";
 import type { StepCredentials } from "../components/steps/CommonSteps";
 import packageJson from "../../package.json";
+import { WorkerTokenModal } from "../components/WorkerTokenModal";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -298,6 +299,7 @@ const Configuration: React.FC = () => {
   const [workerTokenLoading, setWorkerTokenLoading] = useState(false);
   const [workerTokenError, setWorkerTokenError] = useState<string | null>(null);
   const [showWorkerToken, setShowWorkerToken] = useState(false);
+  const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
   // Load existing credentials on mount
   useEffect(() => {
@@ -420,114 +422,6 @@ const Configuration: React.FC = () => {
     </CodeBlock>
   );
 
-  // Get Worker Token functionality
-  const getWorkerToken = async () => {
-    if (
-      !credentials.environmentId ||
-      !credentials.clientId ||
-      !credentials.clientSecret
-    ) {
-      v4ToastManager.showError(
-        "Please enter Environment ID, Client ID, and Client Secret first",
-      );
-      return;
-    }
-
-    setWorkerTokenLoading(true);
-    setWorkerTokenError(null);
-
-    try {
-      // Build token endpoint URL
-      const baseUrl = "https://auth.pingone.com";
-      const tokenEndpoint = `${baseUrl}/${credentials.environmentId}/as/token`;
-
-      // Prepare request body
-      const bodyParams = {
-        grant_type: "client_credentials",
-        client_id: credentials.clientId,
-        client_secret: credentials.clientSecret,
-        scope:
-          "p1:read:user p1:update:user p1:read:device p1:update:device p1:read:application p1:update:application",
-      };
-
-      console.log("🔍 [Configuration] Worker token request:", {
-        endpoint: tokenEndpoint,
-        clientId: `${credentials.clientId.substring(0, 8)}...`,
-        scope: bodyParams.scope,
-      });
-
-      // Make the request
-      const response = await fetch(tokenEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "application/json",
-        },
-        body: new URLSearchParams(bodyParams),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("❌ [Configuration] Worker token request failed:", {
-          status: response.status,
-          statusText: response.statusText,
-          error: errorData,
-        });
-
-        // Try to parse the error response for better error messages
-        try {
-          const errorJson = JSON.parse(errorData);
-          if (errorJson.error === "invalid_client") {
-            throw new Error(
-              `Authentication failed: ${errorJson.error_description || "Invalid client credentials"}`,
-            );
-          } else {
-            throw new Error(
-              `Token request failed: ${errorJson.error_description || errorData}`,
-            );
-          }
-        } catch (parseError) {
-          throw new Error(
-            `Token request failed: ${response.status} ${errorData}`,
-          );
-        }
-      }
-
-      const tokenData = await response.json();
-
-      if (tokenData.access_token) {
-        setWorkerToken(tokenData.access_token);
-        v4ToastManager.showSuccess("Worker token obtained successfully!");
-
-        // Save to localStorage for use across the app
-        localStorage.setItem("worker_token", tokenData.access_token);
-        localStorage.setItem("worker_token_env", credentials.environmentId);
-
-        // Calculate expiration time (default to 1 hour if not provided)
-        const expiresIn = tokenData.expires_in || 3600; // seconds
-        const expiresAt = Date.now() + expiresIn * 1000; // convert to milliseconds
-        localStorage.setItem("worker_token_expires_at", expiresAt.toString());
-        setWorkerTokenExpiresAt(expiresAt);
-
-        console.log("✅ [Configuration] Worker token saved:", {
-          tokenType: tokenData.token_type,
-          expiresIn: tokenData.expires_in,
-          scopes: tokenData.scope,
-        });
-      } else {
-        throw new Error("No access token received");
-      }
-    } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : "Failed to get worker token";
-      setWorkerTokenError(errorMessage);
-      v4ToastManager.showError(`Failed to get worker token: ${errorMessage}`);
-      console.error("❌ [Configuration] Worker token error:", error);
-    } finally {
-      setWorkerTokenLoading(false);
-    }
-  };
-
   // Load existing worker token on mount
   useEffect(() => {
     const savedToken = localStorage.getItem("worker_token");
@@ -542,12 +436,6 @@ const Configuration: React.FC = () => {
     }
   }, [credentials.environmentId]);
 
-  // Calculate if worker token button should be disabled
-  const isWorkerTokenButtonDisabled =
-    workerTokenLoading ||
-    !credentials.environmentId ||
-    !credentials.clientId ||
-    !credentials.clientSecret;
 
   return (
     <Container>
@@ -563,52 +451,6 @@ const Configuration: React.FC = () => {
           environment configured and start exploring OAuth flows in minutes.
         </p>
       </Header>
-
-      {/* Credentials Section - Required for Worker Token */}
-      <CollapsibleHeader
-        title="PingOne Credentials"
-        subtitle="Enter your PingOne Environment ID, Client ID, and Client Secret to obtain a worker token"
-        icon={<FiSettings />}
-        defaultCollapsed={false}
-        theme="orange"
-      >
-        <Card style={{ border: "none", boxShadow: "none", marginBottom: 0 }}>
-          <CredentialsInput
-            environmentId={credentials.environmentId}
-            clientId={credentials.clientId}
-            clientSecret={credentials.clientSecret}
-            redirectUri={credentials.redirectUri}
-            scopes={credentials.scopes}
-            onEnvironmentIdChange={(value) =>
-              setCredentials((prev) => ({ ...prev, environmentId: value }))
-            }
-            onClientIdChange={(value) =>
-              setCredentials((prev) => ({ ...prev, clientId: value }))
-            }
-            onClientSecretChange={(value) =>
-              setCredentials((prev) => ({ ...prev, clientSecret: value }))
-            }
-            onRedirectUriChange={(value) =>
-              setCredentials((prev) => ({ ...prev, redirectUri: value }))
-            }
-            onScopesChange={(value) =>
-              setCredentials((prev) => ({ ...prev, scopes: value }))
-            }
-            onCopy={(text, label) => {
-              navigator.clipboard.writeText(text);
-              setCopiedText(label);
-              setTimeout(() => setCopiedText(""), 2000);
-            }}
-            emptyRequiredFields={new Set([
-              ...(!credentials.environmentId ? ['environmentId'] : []),
-              ...(!credentials.clientId ? ['clientId'] : []),
-              ...(!credentials.clientSecret ? ['clientSecret'] : []),
-            ])}
-            copiedField={copiedText}
-            showClientSecret={true}
-          />
-        </Card>
-      </CollapsibleHeader>
 
       {/* Worker Token Section - First Step */}
       <CollapsibleHeader
@@ -642,8 +484,8 @@ const Configuration: React.FC = () => {
 
           <div style={{ marginBottom: "1rem" }}>
             <button
-              onClick={getWorkerToken}
-              disabled={isWorkerTokenButtonDisabled}
+              onClick={() => setShowWorkerTokenModal(true)}
+              disabled={workerTokenLoading}
               style={{
                 background: workerToken ? "#10b981" : "#3b82f6",
                 color: "white",
@@ -652,15 +494,15 @@ const Configuration: React.FC = () => {
                 padding: "0.75rem 1.5rem",
                 fontSize: "0.875rem",
                 fontWeight: "600",
-                cursor: isWorkerTokenButtonDisabled ? "not-allowed" : "pointer",
+                cursor: workerTokenLoading ? "not-allowed" : "pointer",
                 display: "flex",
                 alignItems: "center",
                 gap: "0.5rem",
                 transition: "all 0.2s ease",
-                opacity: isWorkerTokenButtonDisabled ? 0.6 : 1,
+                opacity: workerTokenLoading ? 0.6 : 1,
               }}
               onMouseEnter={(e) => {
-                if (!isWorkerTokenButtonDisabled) {
+                if (!workerTokenLoading) {
                   e.currentTarget.style.backgroundColor = workerToken
                     ? "#059669"
                     : "#2563eb";
@@ -668,7 +510,7 @@ const Configuration: React.FC = () => {
                 }
               }}
               onMouseLeave={(e) => {
-                if (!isWorkerTokenButtonDisabled) {
+                if (!workerTokenLoading) {
                   e.currentTarget.style.backgroundColor = workerToken
                     ? "#10b981"
                     : "#3b82f6";
@@ -1411,6 +1253,28 @@ cd oauthPlayground`}
           </div>
         </Card>
       </CollapsibleHeader>
+      {showWorkerTokenModal && (
+        <WorkerTokenModal
+          isOpen={showWorkerTokenModal}
+          onClose={() => setShowWorkerTokenModal(false)}
+          onContinue={() => {
+            // Re-check worker token after modal closes
+            const savedToken = localStorage.getItem("worker_token");
+            const savedEnv = localStorage.getItem("worker_token_env");
+            const savedExpiresAt = localStorage.getItem("worker_token_expires_at");
+
+            if (savedToken && savedEnv === credentials.environmentId) {
+              setWorkerToken(savedToken);
+              if (savedExpiresAt) {
+                setWorkerTokenExpiresAt(parseInt(savedExpiresAt, 10));
+              }
+            }
+            setShowWorkerTokenModal(false);
+          }}
+          flowType="configuration"
+          environmentId={credentials.environmentId || ""}
+        />
+      )}
     </Container>
   );
 };
