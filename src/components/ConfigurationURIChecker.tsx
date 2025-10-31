@@ -18,6 +18,7 @@ import {
 } from "../services/pingOneApplicationService";
 import { v4ToastManager } from "../utils/v4ToastMessages";
 import { WorkerTokenModal } from "./WorkerTokenModal";
+import { callbackUriService } from "../services/callbackUriService";
 
 export interface ConfigurationURICheckerProps {
   flowType?: string;
@@ -211,6 +212,7 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 }) => {
   const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
   const [retrievedWorkerToken, setRetrievedWorkerToken] = useState<string>("");
+  const [showAllFlowURIs, setShowAllFlowURIs] = useState(false);
 
   const [redirectURIStatus, setRedirectURIStatus] = useState<URIStatus>({
     uri: redirectUri || "",
@@ -565,6 +567,90 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
       </Table>
 
       {error && <ErrorMessage>{error}</ErrorMessage>}
+
+      {/* All V7 Flow URI Reference Table */}
+      <div style={{ marginTop: '2rem', paddingTop: '2rem', borderTop: '2px solid #e5e7eb' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div>
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 600, color: '#374151' }}>
+              All V7 Flow URIs Reference
+            </h3>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', color: '#6b7280' }}>
+              Complete list of redirect and logout URIs for all V7 flows
+            </p>
+            <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.75rem', color: '#9ca3af', fontStyle: 'italic' }}>
+              Note: Additional V7 flows (PAR, RAR, CIBA, Redirectless, Worker Token) use the Authorization Code or Implicit flow URIs above
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAllFlowURIs(!showAllFlowURIs)}
+            style={{
+              background: 'transparent',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.5rem',
+              padding: '0.5rem 1rem',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              color: '#6b7280',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              transition: 'all 0.2s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#f9fafb';
+              e.currentTarget.style.borderColor = '#9ca3af';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.borderColor = '#d1d5db';
+            }}
+          >
+            <FiRefreshCw size={14} style={{ transform: showAllFlowURIs ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s ease' }} />
+            {showAllFlowURIs ? 'Hide' : 'Show'} All Flows
+          </button>
+        </div>
+
+        {showAllFlowURIs && (
+          <Table style={{ marginTop: '1rem' }}>
+            <TableHeader>
+              <TableRow>
+                <TableHeaderCell style={{ width: '25%' }}>Flow Type</TableHeaderCell>
+                <TableHeaderCell style={{ width: '35%' }}>Redirect URI</TableHeaderCell>
+                <TableHeaderCell style={{ width: '35%' }}>Logout URI</TableHeaderCell>
+                <TableHeaderCell style={{ width: '5%' }}></TableHeaderCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {callbackUriService.getAllRedirectUriInfo().map((flowInfo, index) => (
+                <TableRow key={flowInfo.flowType} $isEven={index % 2 === 1}>
+                  <TableCell style={{ fontWeight: 500 }}>{flowInfo.description}</TableCell>
+                  <URICell>
+                    {flowInfo.redirectUri}
+                    <CopyButton onClick={() => handleCopy(flowInfo.redirectUri, `${flowInfo.description} Redirect URI`)}>
+                      <FiCopy size={12} />
+                    </CopyButton>
+                  </URICell>
+                  <URICell>
+                    {flowInfo.logoutUri}
+                    <CopyButton onClick={() => handleCopy(flowInfo.logoutUri, `${flowInfo.description} Logout URI`)}>
+                      <FiCopy size={12} />
+                    </CopyButton>
+                  </URICell>
+                  <TableCell style={{ textAlign: 'center' }}>
+                    <FiInfo 
+                      size={14} 
+                      style={{ color: '#9ca3af', cursor: 'help' }} 
+                      title={`${flowInfo.note} ${flowInfo.logoutNote}`}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
+      </div>
 
       <ActionBar>
         {!effectiveWorkerToken ? (
