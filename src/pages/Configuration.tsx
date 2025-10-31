@@ -564,6 +564,50 @@ const Configuration: React.FC = () => {
         </p>
       </Header>
 
+      {/* Credentials Section - Required for Worker Token */}
+      <CollapsibleHeader
+        title="PingOne Credentials"
+        subtitle="Enter your PingOne Environment ID, Client ID, and Client Secret to obtain a worker token"
+        icon={<FiSettings />}
+        defaultCollapsed={false}
+        theme="orange"
+      >
+        <Card style={{ border: "none", boxShadow: "none", marginBottom: 0 }}>
+          <CredentialsInput
+            environmentId={credentials.environmentId}
+            clientId={credentials.clientId}
+            clientSecret={credentials.clientSecret}
+            redirectUri={credentials.redirectUri}
+            scopes={credentials.scopes}
+            onEnvironmentIdChange={(value) =>
+              setCredentials((prev) => ({ ...prev, environmentId: value }))
+            }
+            onClientIdChange={(value) =>
+              setCredentials((prev) => ({ ...prev, clientId: value }))
+            }
+            onClientSecretChange={(value) =>
+              setCredentials((prev) => ({ ...prev, clientSecret: value }))
+            }
+            onRedirectUriChange={(value) =>
+              setCredentials((prev) => ({ ...prev, redirectUri: value }))
+            }
+            onScopesChange={(value) =>
+              setCredentials((prev) => ({ ...prev, scopes: value }))
+            }
+            onCopy={(text, label) => {
+              navigator.clipboard.writeText(text);
+              setCopiedText(label);
+              setTimeout(() => setCopiedText(""), 2000);
+            }}
+            emptyRequiredFields={
+              !credentials.environmentId || !credentials.clientId || !credentials.clientSecret
+            }
+            copiedField={copiedText}
+            showClientSecret={true}
+          />
+        </Card>
+      </CollapsibleHeader>
+
       {/* Worker Token Section - First Step */}
       <CollapsibleHeader
         title="Worker Token Credentials"
