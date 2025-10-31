@@ -19,8 +19,8 @@ import {
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
@@ -1613,25 +1613,20 @@ const OIDCDeviceAuthorizationFlowV6: React.FC = () => {
 						{deviceFlow.tokens && (
 							<>
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
-									<UltimateTokenDisplay
-										tokens={{
-											access_token: deviceFlow.tokens.access_token,
-											...(deviceFlow.tokens.id_token && { id_token: deviceFlow.tokens.id_token }),
-											...(deviceFlow.tokens.expires_in && { expires_in: Number(deviceFlow.tokens.expires_in) }),
-											...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })
-										}}
-										flowType="oidc"
-										flowKey="device-authorization-v6"
-										displayMode="detailed"
-										title="OIDC Device Authorization Tokens"
-										subtitle="Tokens obtained via Device Authorization Grant flow"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										showMetadata={true}
-										defaultMasked={false}
-									/>
+								{UnifiedTokenDisplayService.showTokens(
+									{
+										access_token: deviceFlow.tokens.access_token,
+										...(deviceFlow.tokens.id_token && { id_token: deviceFlow.tokens.id_token }),
+										...(deviceFlow.tokens.expires_in && { expires_in: Number(deviceFlow.tokens.expires_in) }),
+										...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })
+									},
+									'oidc',
+									'device-authorization-v6',
+									{
+										showCopyButtons: true,
+										showDecodeButtons: true,
+									}
+								)}
 								</ResultsSection>
 
 								{deviceFlow.tokens.refresh_token && (
