@@ -717,7 +717,7 @@ class ComprehensiveFlowDataService {
 ${envKey}_CLIENT_ID=${credentials.clientId}
 ${envKey}_CLIENT_SECRET=${credentials.clientSecret}
 ${envKey}_REDIRECT_URI=${credentials.redirectUri}
-${envKey}_SCOPES=${credentials.scopes.join(' ')}
+${envKey}_SCOPES=${Array.isArray(credentials.scopes) ? credentials.scopes.join(' ') : (credentials.scopes || '')}
 
 # Additional flow-specific fields
 ${envKey}_LOGOUT_URL=${credentials.logoutUrl || ''}
