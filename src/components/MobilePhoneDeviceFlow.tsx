@@ -508,8 +508,7 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
                 <div style={{
                   background: '#000000',
                   padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #333333'
+                  borderRadius: '0.5rem'
                 }}>
              <InlineTokenDisplay
                label="Access Token"
@@ -526,36 +525,34 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
                 <div style={{
                   background: '#000000',
                   padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #333333'
+                  borderRadius: '0.5rem'
                 }}>
-             <InlineTokenDisplay
-               label="ID Token"
-               token={state.tokens.id_token}
-               tokenType="id"
-               isOIDC={true}
-               flowKey="device-authorization"
-               defaultMasked={false}
-               allowMaskToggle={true}
-             />
+                  <InlineTokenDisplay
+                    label="ID Token"
+                    token={state.tokens.id_token}
+                    tokenType="id"
+                    isOIDC={true}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
                 </div>
               )}
               {state.tokens.refresh_token && (
                 <div style={{
                   background: '#000000',
                   padding: '0.75rem',
-                  borderRadius: '0.5rem',
-                  border: '1px solid #333333'
+                  borderRadius: '0.5rem'
                 }}>
-             <InlineTokenDisplay
-               label="Refresh Token"
-               token={state.tokens.refresh_token}
-               tokenType="refresh"
-               isOIDC={state.tokens.id_token ? true : false}
-               flowKey="device-authorization"
-               defaultMasked={false}
-               allowMaskToggle={true}
-             />
+                  <InlineTokenDisplay
+                    label="Refresh Token"
+                    token={state.tokens.refresh_token}
+                    tokenType="refresh"
+                    isOIDC={state.tokens.id_token ? true : false}
+                    flowKey="device-authorization"
+                    defaultMasked={false}
+                    allowMaskToggle={true}
+                  />
                 </div>
               )}
             </div>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import styled from 'styled-components';
 import { FiEye, FiEyeOff, FiMove } from 'react-icons/fi';
 
@@ -15,6 +15,48 @@ const HEB_COLORS = {
   lightGray: '#F5F5F5',
   darkGray: '#333333',
   black: '#000000'
+};
+
+const clampChannel = (value: number) => Math.min(255, Math.max(0, value));
+
+const normalizeHex = (color: string): string | null => {
+	if (!color || typeof color !== 'string') return null;
+	if (!color.startsWith('#')) return null;
+	const raw = color.slice(1);
+	if (raw.length === 3) {
+		return raw.split('').map((char) => char + char).join('');
+	}
+	if (raw.length === 6) {
+		return raw;
+	}
+	return null;
+};
+
+const hexToRgba = (color: string, alpha: number): string => {
+	const normalized = normalizeHex(color);
+	const clampedAlpha = Math.min(1, Math.max(0, alpha));
+	if (!normalized) {
+		return `rgba(0, 0, 0, ${clampedAlpha})`;
+	}
+	const numeric = parseInt(normalized, 16);
+	const r = (numeric >> 16) & 0xff;
+	const g = (numeric >> 8) & 0xff;
+	const b = numeric & 0xff;
+	return `rgba(${r}, ${g}, ${b}, ${clampedAlpha})`;
+};
+
+const adjustColor = (color: string, amount: number): string => {
+	const normalized = normalizeHex(color);
+	if (!normalized) return color;
+	const numeric = parseInt(normalized, 16);
+	let r = (numeric >> 16) & 0xff;
+	let g = (numeric >> 8) & 0xff;
+	let b = numeric & 0xff;
+	r = clampChannel(r + amount);
+	g = clampChannel(g + amount);
+	b = clampChannel(b + amount);
+	const adjusted = (r << 16) | (g << 8) | b;
+	return `#${adjusted.toString(16).padStart(6, '0')}`;
 };
 
 const PopupOverlay = styled.div`
@@ -41,12 +83,28 @@ const PopupContainer = styled.div<{ $isDragging: boolean; $position: { x: number
   transition: ${({ $isDragging }) => ($isDragging ? 'none' : 'box-shadow 0.2s ease')};
 `;
 
-const Header = styled.div`
-  background: linear-gradient(135deg, ${HEB_COLORS.red} 0%, ${HEB_COLORS.darkRed} 100%);
-  padding: 40px 24px;
-  text-align: center;
-  position: relative;
-  cursor: move;
+const Header = styled.div<{
+	$primaryColor?: string | undefined;
+	$secondaryColor?: string | undefined;
+	$backgroundImage?: string | undefined;
+}>`
+	background: ${({ $primaryColor, $secondaryColor, $backgroundImage }) => {
+		if ($backgroundImage) {
+			return `linear-gradient(135deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.35) 100%), url(${$backgroundImage}) center/cover no-repeat`;
+		}
+		if ($primaryColor && $secondaryColor) {
+			return `linear-gradient(135deg, ${$primaryColor} 0%, ${$secondaryColor} 100%)`;
+		}
+		if ($primaryColor) {
+			return $primaryColor;
+		}
+		return `linear-gradient(135deg, ${HEB_COLORS.red} 0%, ${HEB_COLORS.darkRed} 100%)`;
+	}};
+	padding: 40px 24px;
+	text-align: center;
+	position: relative;
+	cursor: move;
+	color: ${HEB_COLORS.white};
 `;
 
 const DragHandleBar = styled.div`
@@ -64,8 +122,8 @@ const DragHandleBar = styled.div`
 
 const DragHint = styled.div`
   position: absolute;
-  top: 28px;
-  right: 24px;
+  top: 12px;
+  left: 12px;
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -90,34 +148,42 @@ const LogoContainer = styled.div`
   margin-bottom: 16px;
 `;
 
-const LogoBox = styled.div`
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
+const LogoMark = styled.div<{ $backgroundColor?: string | undefined; $borderColor?: string | undefined }>`
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: ${({ $backgroundColor }) => $backgroundColor ?? '#ffffff'};
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+  border: ${({ $borderColor }) => ($borderColor ? `2px solid ${$borderColor}` : 'none')};
+  overflow: hidden;
+`;
+
+const LogoImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+`;
+
+const BrandWordmark = styled.div<{ $color?: string | undefined }>`
   font-size: 28px;
-  font-weight: 700;
-  color: ${HEB_COLORS.white};
+  font-weight: 800;
+  color: ${({ $color }) => $color ?? HEB_COLORS.white};
+  letter-spacing: 1px;
 `;
 
-const HEBLogo = styled.div`
-  font-size: 32px;
-  font-weight: 700;
-  color: ${HEB_COLORS.white};
-  letter-spacing: 3px;
-`;
-
-const Subtitle = styled.div`
+const Subtitle = styled.div<{ $color?: string | undefined }>`
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
+  color: ${({ $color }) => $color ?? 'rgba(255, 255, 255, 0.9)'};
   font-weight: 400;
 `;
 
-const Content = styled.div`
+const Content = styled.div<{ $contentBackground?: string | undefined; $contentTextColor?: string | undefined }>`
   padding: 32px 28px;
+  background: ${({ $contentBackground }) => $contentBackground ?? '#ffffff'};
+  color: ${({ $contentTextColor }) => $contentTextColor ?? '#1f2937'};
 `;
 
 const Form = styled.form`
@@ -146,7 +212,7 @@ const InputWrapper = styled.div`
   align-items: center;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $accentColor?: string | undefined }>`
   width: 100%;
   padding: 12px 14px;
   border: 1px solid #d1d5db;
@@ -159,8 +225,8 @@ const Input = styled.input`
 
   &:focus {
     outline: none;
-    border-color: ${HEB_COLORS.red};
-    box-shadow: 0 0 0 3px rgba(227, 24, 55, 0.1);
+    border-color: ${({ $accentColor }) => $accentColor ?? HEB_COLORS.red};
+    box-shadow: ${({ $accentColor }) => `0 0 0 3px ${$accentColor ? hexToRgba($accentColor, 0.18) : hexToRgba(HEB_COLORS.red, 0.1)}`};
     background: #fafbff;
   }
 
@@ -191,8 +257,8 @@ const PasswordToggleButton = styled.button`
   }
 `;
 
-const LoginButton = styled.button`
-  background: linear-gradient(135deg, ${HEB_COLORS.green} 0%, ${HEB_COLORS.darkGreen} 100%);
+const LoginButton = styled.button<{ $accentColor?: string | undefined }>`
+  background: ${({ $accentColor }) => $accentColor ?? `linear-gradient(135deg, ${HEB_COLORS.green} 0%, ${HEB_COLORS.darkGreen} 100%)`};
   color: ${HEB_COLORS.white};
   border: none;
   padding: 13px 24px;
@@ -206,7 +272,8 @@ const LoginButton = styled.button`
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 166, 81, 0.3);
+    box-shadow: ${({ $accentColor }) => `0 8px 16px ${$accentColor ? hexToRgba($accentColor, 0.35) : 'rgba(0, 166, 81, 0.3)'}`};
+    background: ${({ $accentColor }) => ($accentColor ? adjustColor($accentColor, -10) : `linear-gradient(135deg, ${HEB_COLORS.darkGreen} 0%, ${HEB_COLORS.green} 100%)`)};
   }
 
   &:active:not(:disabled) {
@@ -307,20 +374,37 @@ export interface HEBLoginCredentials {
   password: string;
 }
 
-export interface HEBLoginPopupProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onLogin: (credentials: HEBLoginCredentials) => Promise<void>;
-  title?: string;
-  subtitle?: string;
+export interface HEBBrandingOverrides {
+	title?: string;
+	subtitle?: string;
+	primaryColor?: string;
+	secondaryColor?: string;
+	headerBackgroundImage?: string;
+	logoUrl?: string;
+	logoText?: string;
+	wordmarkColor?: string;
+	subtitleColor?: string;
+	logoBackgroundColor?: string;
+	logoBorderColor?: string;
+	contentBackground?: string;
+	contentTextColor?: string;
+	formAccentColor?: string;
 }
 
-export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
+export interface HEBLoginPopupProps {
+	isOpen: boolean;
+	onClose: () => void;
+	onLogin: (credentials: HEBLoginCredentials) => Promise<void>;
+	overrides?: HEBBrandingOverrides;
+	onOpenDavinciStudio?: () => void;
+}
+
+const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
   isOpen,
   onClose,
   onLogin,
-  title = "HEB",
-  subtitle = "Sign in to your account"
+  overrides,
+  onOpenDavinciStudio,
 }) => {
   const DEFAULT_USERNAME = 'curtis7';
   const DEFAULT_PASSWORD = 'Wolverine7&';
@@ -459,6 +543,23 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
     }
   };
 
+  const branding = useMemo(() => ({
+    title: overrides?.title ?? 'Custom Login App',
+    subtitle: overrides?.subtitle ?? 'Sign in with your Custom Login App',
+    primaryColor: overrides?.primaryColor,
+    secondaryColor: overrides?.secondaryColor,
+    headerBackgroundImage: overrides?.headerBackgroundImage,
+    logoUrl: overrides?.logoUrl,
+    logoText: overrides?.logoText,
+    wordmarkColor: overrides?.wordmarkColor,
+    subtitleColor: overrides?.subtitleColor,
+    logoBackgroundColor: overrides?.logoBackgroundColor,
+    logoBorderColor: overrides?.logoBorderColor,
+    contentBackground: overrides?.contentBackground,
+    contentTextColor: overrides?.contentTextColor,
+    formAccentColor: overrides?.formAccentColor,
+  }), [overrides]);
+
   if (!isOpen) return null;
 
   return (
@@ -473,19 +574,64 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
           ×
         </CloseButton>
         
-        <Header onMouseDown={handleDragStart}>
+        <Header
+          onMouseDown={handleDragStart}
+          $primaryColor={branding.primaryColor}
+          $secondaryColor={branding.secondaryColor}
+          $backgroundImage={branding.headerBackgroundImage}
+        >
           <DragHandleBar />
           <DragHint>
             <FiMove size={14} /> Drag Window
           </DragHint>
           <LogoContainer>
-            <LogoBox>H</LogoBox>
-            <HEBLogo>{title}</HEBLogo>
+            <LogoMark $backgroundColor={branding.logoBackgroundColor} $borderColor={branding.logoBorderColor}>
+              {branding.logoUrl ? (
+                <LogoImage src={branding.logoUrl} alt="Brand logo" />
+              ) : (
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill={branding.primaryColor ?? HEB_COLORS.red}/>
+                  <path d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z" fill="#ffffff"/>
+                </svg>
+              )}
+            </LogoMark>
+            <BrandWordmark $color={branding.wordmarkColor}>{branding.logoText ?? branding.title}</BrandWordmark>
           </LogoContainer>
-          <Subtitle>{subtitle}</Subtitle>
+          <Subtitle $color={branding.subtitleColor}>{branding.subtitle}</Subtitle>
         </Header>
 
-        <Content>
+        <Content $contentBackground={branding.contentBackground} $contentTextColor={branding.contentTextColor}>
+          {onOpenDavinciStudio && (
+            <div
+              style={{
+                background: hexToRgba(branding.formAccentColor ?? HEB_COLORS.blue, 0.08),
+                border: `1px solid ${hexToRgba(branding.formAccentColor ?? HEB_COLORS.blue, 0.18)}`,
+                borderRadius: '10px',
+                padding: '1rem',
+                marginBottom: '1.5rem',
+              }}
+            >
+              <p style={{ margin: 0, fontWeight: 600 }}>🎨 Customize this experience in DaVinci Design Studio</p>
+              <p style={{ margin: '0.5rem 0 1rem', fontSize: '0.85rem' }}>
+                Launch the PingOne DaVinci Design Studio extension to change the logo, colors, and messaging in real time.
+              </p>
+              <button
+                type="button"
+                onClick={onOpenDavinciStudio}
+                style={{
+                  background: branding.formAccentColor ?? HEB_COLORS.blue,
+                  color: '#ffffff',
+                  border: 'none',
+                  padding: '0.55rem 1.1rem',
+                  borderRadius: '9999px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                }}
+              >
+                Open DaVinci Design Studio
+              </button>
+            </div>
+          )}
           {error && <ErrorMessage>{error}</ErrorMessage>}
           
           <Form onSubmit={handleSubmit}>
@@ -501,6 +647,7 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={isLoading}
                   autoComplete="username"
+                  $accentColor={branding.formAccentColor}
                 />
               </InputWrapper>
             </InputGroup>
@@ -516,6 +663,7 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
                   autoComplete="current-password"
+                  $accentColor={branding.formAccentColor}
                 />
                 <PasswordToggleButton
                   type="button"
@@ -527,7 +675,7 @@ export const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
               </InputWrapper>
             </InputGroup>
 
-            <LoginButton type="submit" disabled={isLoading}>
+            <LoginButton type="submit" disabled={isLoading} $accentColor={branding.formAccentColor}>
               {isLoading && <LoadingSpinner />}
               {isLoading ? 'Signing In...' : 'Sign In'}
             </LoginButton>
