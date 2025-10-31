@@ -284,6 +284,11 @@ app.post('/api/token-exchange', async (req, res) => {
 			scope,
 			environment_id,
 			token_endpoint,
+			subject_token,
+			subject_token_type,
+			requested_token_type,
+			audience,
+			resource,
 		} = req.body;
 
 		// Validate required parameters
@@ -321,6 +326,22 @@ app.post('/api/token-exchange', async (req, res) => {
 		} else if (grant_type === 'client_credentials') {
 			// Client credentials grant only needs client_id and client_secret (handled by auth method)
 			console.log('🔑 [Server] Validating client_credentials grant type');
+		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
+			// RFC 8693 Token Exchange
+			if (!subject_token || subject_token.trim() === '') {
+				console.error('❌ [Server] Missing subject_token for token-exchange grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: subject_token',
+				});
+			}
+			if (!subject_token_type || subject_token_type.trim() === '') {
+				console.error('❌ [Server] Missing subject_token_type for token-exchange grant');
+				return res.status(400).json({
+					error: 'invalid_request',
+					error_description: 'Missing required parameter: subject_token_type',
+				});
+			}
 		}
 
 		// Get environment ID from request or environment (skip env fallback in test)
@@ -377,6 +398,20 @@ app.post('/api/token-exchange', async (req, res) => {
 				client_id: client_id,
 				scope: finalScope,
 			});
+		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
+			// RFC 8693 Token Exchange
+			console.log('🔄 [Server] Building token exchange request body');
+			const params = {
+				grant_type: 'urn:ietf:params:oauth:grant-type:token-exchange',
+				client_id: client_id,
+				subject_token: subject_token,
+				subject_token_type: subject_token_type,
+			};
+			if (requested_token_type) params.requested_token_type = requested_token_type;
+			if (audience) params.audience = audience;
+			if (resource) params.resource = resource;
+			if (scope) params.scope = scope;
+			tokenRequestBody = new URLSearchParams(params);
 		} else {
 			// Authorization code grant - include code, redirect_uri, code_verifier (only if PKCE is used)
 			console.log('🔐 [Server] Building authorization code request body');
