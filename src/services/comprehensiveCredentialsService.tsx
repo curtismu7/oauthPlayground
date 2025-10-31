@@ -641,11 +641,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					onResponseTypeChange(updates.responseType);
 				}
 			}
-		}
 
-		if (shouldSave && saveHandler) {
-			void Promise.resolve(saveHandler());
-		}
+			if (shouldSave && saveHandler) {
+				void Promise.resolve(saveHandler());
+			}
 	},
 	[
 		resolvedCredentials,
