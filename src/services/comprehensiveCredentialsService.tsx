@@ -720,12 +720,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			scopes: application.scopes?.join(' ') || '',
 			// Map tokenEndpointAuthMethod to clientAuthMethod
 			clientAuthMethod: application.tokenEndpointAuthMethod as ClientAuthMethod || 'client_secret_post',
+			// Don't update postLogoutRedirectUri - let user keep their flow-specific logout URI
 		};
-
-		// Update post-logout redirect URI if available
-		if (application.postLogoutRedirectUris?.[0]) {
-			updates.postLogoutRedirectUri = application.postLogoutRedirectUris[0];
-		}
 
 		console.log('[ComprehensiveCredentialsService] Updates to apply:', updates);
 		console.log('[ComprehensiveCredentialsService] Calling applyCredentialUpdates...');
