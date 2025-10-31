@@ -103,6 +103,10 @@ const URICell = styled(TableCell)`
   font-family: "Courier New", monospace;
   word-break: break-all;
   max-width: 400px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
 `;
 
 const StatusCell = styled(TableCell)`
