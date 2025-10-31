@@ -222,16 +222,15 @@ const ApplyButton = styled.button`
 	background: #28a745;
 	color: white;
 	border: none;
-	padding: 0.625rem 1.25rem;
+	padding: 0.5rem 1rem;
 	border-radius: 4px;
 	font-size: 0.875rem;
-	font-weight: 600;
+	font-weight: 500;
 	cursor: pointer;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	margin-top: 1rem;
-	width: 100%;
+	flex: 1;
 	justify-content: center;
 	
 	&:hover:not(:disabled) {
@@ -242,6 +241,12 @@ const ApplyButton = styled.button`
 		background: #6c757d;
 		cursor: not-allowed;
 	}
+`;
+
+const ButtonContainer = styled.div`
+	display: flex;
+	gap: 0.5rem;
+	margin-top: 1rem;
 `;
 
 const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
@@ -292,8 +297,16 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 	const handleApplicationChange = useCallback((appId: string) => {
 		setSelectedAppId(appId);
-		// Don't auto-apply - user must click "Apply Configuration" button
-	}, []);
+		
+		// Auto-fill credentials when app is selected
+		if (appId && appId !== '') {
+			const selectedApp = applications.find(app => app.id === appId);
+			if (selectedApp) {
+				onApplicationSelect(selectedApp);
+				setSuccess(`Selected application: ${selectedApp.name}`);
+			}
+		}
+	}, [applications, onApplicationSelect]);
 	
 	const handleCopy = useCallback((text: string, label: string) => {
 		navigator.clipboard.writeText(text);
@@ -488,20 +501,28 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 									</TableBody>
 								</Table>
 								
-								<ApplyButton onClick={() => onApplicationSelect(selectedApp)}>
-									<FiCheck size={16} />
-									Apply Configuration
-								</ApplyButton>
+								<ButtonContainer>
+									<ApplyButton onClick={() => onApplicationSelect(selectedApp)}>
+										<FiCheck size={14} />
+										Apply Configuration
+									</ApplyButton>
+									<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
+										<FiRefreshCw size={14} />
+										{loading ? 'Loading...' : 'Refresh Applications'}
+									</RefreshButton>
+								</ButtonContainer>
 							</>
 						);
 					})()}
 				</ApplicationDetails>
 			)}
-
-			<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
-				<FiRefreshCw size={14} />
-				{loading ? 'Loading...' : 'Refresh Applications'}
-			</RefreshButton>
+			
+			{!selectedAppId && (
+				<RefreshButton onClick={fetchApplications} disabled={loading || disabled}>
+					<FiRefreshCw size={14} />
+					{loading ? 'Loading...' : 'Refresh Applications'}
+				</RefreshButton>
+			)}
 		</Container>
 	);
 };
