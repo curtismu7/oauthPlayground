@@ -294,6 +294,7 @@ const Configuration: React.FC = () => {
 
   // Worker Token state
   const [workerToken, setWorkerToken] = useState("");
+  const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | null>(null);
   const [workerTokenLoading, setWorkerTokenLoading] = useState(false);
   const [workerTokenError, setWorkerTokenError] = useState<string | null>(null);
   const [showWorkerToken, setShowWorkerToken] = useState(false);
@@ -506,6 +507,7 @@ const Configuration: React.FC = () => {
         const expiresIn = tokenData.expires_in || 3600; // seconds
         const expiresAt = Date.now() + expiresIn * 1000; // convert to milliseconds
         localStorage.setItem("worker_token_expires_at", expiresAt.toString());
+        setWorkerTokenExpiresAt(expiresAt);
 
         console.log("✅ [Configuration] Worker token saved:", {
           tokenType: tokenData.token_type,
@@ -530,9 +532,13 @@ const Configuration: React.FC = () => {
   useEffect(() => {
     const savedToken = localStorage.getItem("worker_token");
     const savedEnv = localStorage.getItem("worker_token_env");
+    const savedExpiresAt = localStorage.getItem("worker_token_expires_at");
 
     if (savedToken && savedEnv === credentials.environmentId) {
       setWorkerToken(savedToken);
+      if (savedExpiresAt) {
+        setWorkerTokenExpiresAt(parseInt(savedExpiresAt, 10));
+      }
     }
   }, [credentials.environmentId]);
 
@@ -576,8 +582,15 @@ const Configuration: React.FC = () => {
           {workerToken && (
             <InfoBox $type="success">
               <FiCheckCircle size={16} />
-              <strong>Worker token obtained!</strong> Config Checker is now
-              available in all flows.
+              <div>
+                <strong>Worker token obtained!</strong> Config Checker is now
+                available in all flows.
+                {workerTokenExpiresAt && (
+                  <div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#155724' }}>
+                    Expires: {new Date(workerTokenExpiresAt).toLocaleString()}
+                  </div>
+                )}
+              </div>
             </InfoBox>
           )}
 
