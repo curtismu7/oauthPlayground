@@ -16,6 +16,7 @@ import { DiscoveryResult } from './comprehensiveDiscoveryService';
 import { oidcDiscoveryService } from './oidcDiscoveryService';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { FlowRedirectUriService } from './flowRedirectUriService';
+import { callbackUriService } from './callbackUriService';
 import { ClientAuthMethod } from '../utils/clientAuthentication';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { ConfigCheckerButtons } from '../components/ConfigCheckerButtons';
@@ -502,9 +503,32 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			return postLogoutRedirectUri; // Use provided post-logout redirect URI
 		}
 		
-		// Default post-logout redirect URI
+		// Get flow-specific logout URI based on flowType
+		if (flowType) {
+			// Map flowType to callbackUriService flow type
+			let flowTypeForCallback = 'authorization_code'; // default
+			
+			if (flowType.includes('implicit')) {
+				flowTypeForCallback = 'implicit';
+			} else if (flowType.includes('hybrid')) {
+				flowTypeForCallback = 'hybrid';
+			} else if (flowType.includes('device')) {
+				flowTypeForCallback = 'device';
+			} else if (flowType.includes('worker-token') || flowType.includes('client-credentials')) {
+				flowTypeForCallback = 'client_credentials';
+			} else if (flowType.includes('authorization-code') || flowType.includes('authz')) {
+				flowTypeForCallback = 'authorization_code';
+			}
+			
+			const flowInfo = callbackUriService.getRedirectUriForFlow(flowTypeForCallback);
+			if (flowInfo.logoutUri) {
+				return flowInfo.logoutUri;
+			}
+		}
+		
+		// Fallback to generic logout callback
 		return `${window.location.origin}/logout-callback`;
-	}, [postLogoutRedirectUri]);
+	}, [postLogoutRedirectUri, flowType]);
 
 	// Get the actual redirect URIs to use
 	const actualRedirectUri = getDefaultRedirectUri();
