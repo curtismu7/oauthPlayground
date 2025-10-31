@@ -30,7 +30,7 @@ import {
 import { FlowHeader } from '../../services/flowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import { ConfigurationSummaryService } from '../../services/configurationSummaryService';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
 import { TokenIntrospectionService } from '../../services/tokenIntrospectionService';
@@ -1074,19 +1074,15 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
-					<UltimateTokenDisplay
-						tokens={controller.tokens}
-						flowType="oauth"
-						flowKey="client-credentials-v6"
-						displayMode="detailed"
-						title="Client Credentials Tokens"
-						subtitle="Machine-to-machine access token"
-						showCopyButtons={true}
-						showDecodeButtons={true}
-						showMaskToggle={true}
-						showTokenManagement={true}
-						showMetadata={true}
-					/>
+					{UnifiedTokenDisplayService.showTokens(
+						controller.tokens,
+						'oauth',
+						'client-credentials-v6',
+						{
+							showCopyButtons: true,
+							showDecodeButtons: true,
+						}
+					)}
 				</div>
 			)}
 		</div>
@@ -1136,19 +1132,15 @@ const ClientCredentialsFlowV6: React.FC<ClientCredentialsFlowV6Props> = ({
 
 			{controller.tokens && (
 				<div style={{ marginTop: '2rem' }}>
-					<UltimateTokenDisplay
-						tokens={controller.tokens}
-						flowType="oauth"
-						flowKey="client-credentials-v6-management"
-						displayMode="detailed"
-						title="Token Management"
-						subtitle="Manage and monitor your client credentials tokens"
-						showCopyButtons={true}
-						showDecodeButtons={true}
-						showMaskToggle={true}
-						showTokenManagement={true}
-						showMetadata={true}
-					/>
+					{UnifiedTokenDisplayService.showTokens(
+						controller.tokens,
+						'oauth',
+						'client-credentials-v6-management',
+						{
+							showCopyButtons: true,
+							showDecodeButtons: true,
+						}
+					)}
 					
 					<SectionDivider />
 					
