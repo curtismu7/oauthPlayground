@@ -636,6 +636,7 @@ const CancelButton = styled.button`
 	const [config, setConfig] = useState<PlaygroundConfig>(DEFAULT_CONFIG);
 	const [mode, setMode] = useState<LoginMode>('redirect');
 	const [loading, setLoading] = useState(false);
+	const [gettingWorkerToken, setGettingWorkerToken] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
 	const [hasLoadedConfig, setHasLoadedConfig] = useState(false);
 	const [redirectlessCreds, setRedirectlessCreds] = useState(DEFAULT_REDIRECTLESS_CREDS);
@@ -897,7 +898,7 @@ const CancelButton = styled.button`
             return;
         }
 
-        setLoading(true);
+        setGettingWorkerToken(true);
         try {
             const token = await getPingOneWorkerToken({
                 environmentId: workerCredentials.environmentId,
@@ -913,7 +914,7 @@ const CancelButton = styled.button`
                 error instanceof Error ? error.message : 'Failed to get worker token'
             );
         } finally {
-            setLoading(false);
+            setGettingWorkerToken(false);
         }
     }, [workerCredentials]);
 
@@ -2065,7 +2066,7 @@ const CancelButton = styled.button`
 						
 						<button
 							onClick={handleGetWorkerToken}
-							disabled={loading}
+							disabled={gettingWorkerToken}
 							style={{
 								background: '#007bff',
 								color: 'white',
@@ -2073,12 +2074,12 @@ const CancelButton = styled.button`
 								padding: '0.75rem 1.5rem',
 								borderRadius: '6px',
 								fontWeight: '600',
-								cursor: loading ? 'not-allowed' : 'pointer',
-								opacity: loading ? 0.6 : 1,
+								cursor: gettingWorkerToken ? 'not-allowed' : 'pointer',
+								opacity: gettingWorkerToken ? 0.6 : 1,
 								marginBottom: '1rem'
 							}}
 						>
-							{loading ? 'Getting Worker Token...' : 'Get Worker Token'}
+							{gettingWorkerToken ? 'Getting Worker Token...' : 'Get Worker Token'}
 						</button>
 					</>
 				) : (
