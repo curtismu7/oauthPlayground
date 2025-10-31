@@ -745,7 +745,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				v4ToastManager.showWarning('⚠️ Client Secret not returned by PingOne API for security reasons. Please enter it manually.');
 			}
 		}, 0);
-	}, [resolvedCredentials, applyCredentialUpdates, onCredentialsChange, onClientIdChange, onClientSecretChange, onClientAuthMethodChange]);
+	}, [resolvedCredentials, applyCredentialUpdates, onCredentialsChange, onEnvironmentIdChange, onClientIdChange, onClientSecretChange, onClientAuthMethodChange, onScopesChange, onRedirectUriChange, onLoginHintChange, onPostLogoutRedirectUriChange]);
 
 	// Handle discovery completion and update environment ID
 	const handleInternalDiscoveryComplete = useCallback(
