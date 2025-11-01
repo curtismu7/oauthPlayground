@@ -450,31 +450,36 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 												)}
 											</TableCell>
 										</TableRow>
-										<TableRow>
-											<TableCell>
-												<FieldLabel>Redirect URIs</FieldLabel>
-											</TableCell>
-											<TableCell>
-												<FieldValue>{selectedApp.redirectUris?.join(', ') || 'None'}</FieldValue>
-											</TableCell>
-											<TableCell style={{ textAlign: 'center' }}>
-											</TableCell>
-										</TableRow>
-										<TableRow>
-											<TableCell>
-												<FieldLabel>Post-Logout URIs</FieldLabel>
-											</TableCell>
-											<TableCell>
-												<FieldValue>{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}</FieldValue>
-											</TableCell>
-											<TableCell style={{ textAlign: 'center' }}>
-												{selectedApp.postLogoutRedirectUris && selectedApp.postLogoutRedirectUris.length > 0 && (
-													<CopyButton onClick={() => handleCopy(selectedApp.postLogoutRedirectUris!.join(', '), 'Post-Logout URIs')} title="Copy Post-Logout URIs">
-														<FiCopy size={14} />
-													</CopyButton>
-												)}
-											</TableCell>
-										</TableRow>
+										{/* Hide redirect URIs for SERVICE type applications (client credentials, worker tokens) */}
+										{selectedApp.type !== 'SERVICE' && (
+											<>
+												<TableRow>
+													<TableCell>
+														<FieldLabel>Redirect URIs</FieldLabel>
+													</TableCell>
+													<TableCell>
+														<FieldValue>{selectedApp.redirectUris?.join(', ') || 'None'}</FieldValue>
+													</TableCell>
+													<TableCell style={{ textAlign: 'center' }}>
+													</TableCell>
+												</TableRow>
+												<TableRow>
+													<TableCell>
+														<FieldLabel>Post-Logout URIs</FieldLabel>
+													</TableCell>
+													<TableCell>
+														<FieldValue>{selectedApp.postLogoutRedirectUris?.join(', ') || 'None'}</FieldValue>
+													</TableCell>
+													<TableCell style={{ textAlign: 'center' }}>
+														{selectedApp.postLogoutRedirectUris && selectedApp.postLogoutRedirectUris.length > 0 && (
+															<CopyButton onClick={() => handleCopy(selectedApp.postLogoutRedirectUris!.join(', '), 'Post-Logout URIs')} title="Copy Post-Logout URIs">
+																<FiCopy size={14} />
+															</CopyButton>
+														)}
+													</TableCell>
+												</TableRow>
+											</>
+										)}
 										<TableRow>
 											<TableCell>
 												<FieldLabel>Scopes</FieldLabel>
