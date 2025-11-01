@@ -1205,131 +1205,128 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				/>
 			)}
 
-			{/* Response Type Selector */}
-			<div style={{ 
-				marginTop: '1rem', 
-				padding: '1rem', 
-				background: '#f9fafb', 
-				borderRadius: '0.5rem',
-				border: '1px solid #e5e7eb'
-			}}>
-				<ResponseTypeSelector>
-					<ResponseTypeLabel>Response Type</ResponseTypeLabel>
-					<ResponseTypeSelect
-						value={responseType}
-						onChange={(e) => {
-							const newResponseType = e.target.value;
-							onResponseTypeChange?.(newResponseType);
-							applyCredentialUpdates({ responseType: newResponseType }, { shouldSave: false });
-						}}
-					>
-						{(() => {
-							const allowedTypes = getAllowedResponseTypes(flowType, isOIDC);
-							console.log('[ComprehensiveCredentialsService] Allowed response types:', {
-								flowType,
-								isOIDC,
-								allowedTypes
-							});
-							
-							// If no allowed types, show a message
-							if (allowedTypes.length === 0) {
-								return <option value="">No response_type needed for this flow</option>;
-							}
-							
-							// Map response types to display names
-							const responseTypeMap: Record<string, string> = {
-								'code': 'code (Authorization Code)',
-								'token': 'token (Access Token)',
-								'id_token': 'id_token (ID Token)',
-								'token id_token': 'token id_token (Access + ID Token)',
-								'code id_token': 'code id_token (Code + ID Token)',
-								'code token': 'code token (Code + Access Token)',
-								'code token id_token': 'code token id_token (All Tokens)'
-							};
-							
-							return allowedTypes.map(type => (
-								<option key={type} value={type}>
-									{responseTypeMap[type] || type}
-								</option>
-							));
-						})()}
-					</ResponseTypeSelect>
-					<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-						{isOIDC 
-							? 'OpenID Connect Mode: Authentication + API access' 
-							: 'OAuth 2.0 Mode: API access only'
-						}
-					</div>
-					
-					{/* Response Type Explanation */}
-					{responseType && responseType !== '' && (
-						<div style={{ 
-							marginTop: '0.75rem', 
-							padding: '0.75rem', 
-							background: '#f0f9ff', 
-							borderRadius: '0.375rem',
-							border: '1px solid #0ea5e9',
-							fontSize: '0.875rem'
-						}}>
-							<div style={{ fontWeight: '600', color: '#0c4a6e', marginBottom: '0.5rem' }}>
-								📋 What "{responseType}" means:
+			{/* Response Type Selector - Only show if flow uses response types */}
+			{(() => {
+				const allowedTypes = getAllowedResponseTypes(flowType, isOIDC);
+				return allowedTypes.length > 0 && (
+					<div style={{ 
+						marginTop: '1rem', 
+						padding: '1rem', 
+						background: '#f9fafb', 
+						borderRadius: '0.5rem',
+						border: '1px solid #e5e7eb'
+					}}>
+						<ResponseTypeSelector>
+							<ResponseTypeLabel>Response Type</ResponseTypeLabel>
+							<ResponseTypeSelect
+								value={responseType}
+								onChange={(e) => {
+									const newResponseType = e.target.value;
+									onResponseTypeChange?.(newResponseType);
+									applyCredentialUpdates({ responseType: newResponseType }, { shouldSave: false });
+								}}
+							>
+								{allowedTypes.map(type => {
+									const responseTypeMap: Record<string, string> = {
+										'code': 'code (Authorization Code)',
+										'token': 'token (Access Token)',
+										'id_token': 'id_token (ID Token)',
+										'token id_token': 'token id_token (Access + ID Token)',
+										'code id_token': 'code id_token (Code + ID Token)',
+										'code token': 'code token (Code + Access Token)',
+										'code token id_token': 'code token id_token (All Tokens)'
+									};
+									return (
+										<option key={type} value={type}>
+											{responseTypeMap[type] || type}
+										</option>
+									);
+								})}
+							</ResponseTypeSelect>
+							<div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+								{isOIDC 
+									? 'OpenID Connect Mode: Authentication + API access' 
+									: 'OAuth 2.0 Mode: API access only'
+								}
 							</div>
-							{(() => {
-								const explanations: Record<string, string> = {
-									'code': 'Authorization Code - A temporary code exchanged for an access token. Most secure method for server-side applications.',
-									'token': 'Access Token - Directly returns an access token in the URL fragment. Used for client-side applications.',
-									'id_token': 'ID Token - Returns an OpenID Connect ID token containing user identity information. Used for authentication.',
-									'token id_token': 'Access + ID Token - Returns both an access token and ID token. Provides both API access and user authentication.',
-									'code id_token': 'Code + ID Token - Returns an authorization code and ID token. Hybrid approach for secure authentication.',
-									'code token': 'Code + Access Token - Returns both an authorization code and access token. Rarely used combination.',
-									'code token id_token': 'All Tokens - Returns authorization code, access token, and ID token. Maximum information in one request.'
-								};
-								
-								const explanation = explanations[responseType] || 'Unknown response type';
-								const isOIDCType = responseType.includes('id_token');
-								
-								return (
-									<div>
-										<div style={{ color: '#0c4a6e', marginBottom: '0.25rem' }}>
-											{explanation}
-										</div>
-										{isOIDCType && (
-											<div style={{ 
-												color: '#7c2d12', 
-												fontSize: '0.75rem',
-												fontStyle: 'italic',
-												marginTop: '0.25rem'
-											}}>
-												🔐 This requires OpenID Connect mode and will include user identity information.
-											</div>
-										)}
+							
+							{/* Response Type Explanation */}
+							{responseType && responseType !== '' && (
+								<div style={{ 
+									marginTop: '0.75rem', 
+									padding: '0.75rem', 
+									background: '#f0f9ff', 
+									borderRadius: '0.375rem',
+									border: '1px solid #0ea5e9',
+									fontSize: '0.875rem'
+								}}>
+									<div style={{ fontWeight: '600', color: '#0c4a6e', marginBottom: '0.5rem' }}>
+										📋 What "{responseType}" means:
 									</div>
-								);
-							})()}
-						</div>
-					)}
-				</ResponseTypeSelector>
-			</div>
+									{(() => {
+										const explanations: Record<string, string> = {
+											'code': 'Authorization Code - A temporary code exchanged for an access token. Most secure method for server-side applications.',
+											'token': 'Access Token - Directly returns an access token in the URL fragment. Used for client-side applications.',
+											'id_token': 'ID Token - Returns an OpenID Connect ID token containing user identity information. Used for authentication.',
+											'token id_token': 'Access + ID Token - Returns both an access token and ID token. Provides both API access and user authentication.',
+											'code id_token': 'Code + ID Token - Returns an authorization code and ID token. Hybrid approach for secure authentication.',
+											'code token': 'Code + Access Token - Returns both an authorization code and access token. Rarely used combination.',
+											'code token id_token': 'All Tokens - Returns authorization code, access token, and ID token. Maximum information in one request.'
+										};
+										
+										const explanation = explanations[responseType] || 'Unknown response type';
+										const isOIDCType = responseType.includes('id_token');
+										
+										return (
+											<div>
+												<div style={{ color: '#0c4a6e', marginBottom: '0.25rem' }}>
+													{explanation}
+												</div>
+												{isOIDCType && (
+													<div style={{ 
+														color: '#7c2d12', 
+														fontSize: '0.75rem',
+														fontStyle: 'italic',
+														marginTop: '0.25rem'
+													}}>
+														🔐 This requires OpenID Connect mode and will include user identity information.
+													</div>
+												)}
+											</div>
+										);
+									})()}
+								</div>
+							)}
+						</ResponseTypeSelector>
+					</div>
+				);
+			})()}
 
-			{/* Token Endpoint Authentication Method - Inside Basic Credentials section */}
-			<div style={{ 
-				marginTop: '1rem', 
-				padding: '1rem 1.5rem', 
-				background: '#f8fafc', 
-				border: '1px solid #e2e8f0', 
-				borderRadius: '0.75rem',
-				marginBottom: '1.5rem'
-			}}>
-				<ClientAuthMethodSelector
-					value={clientAuthMethod}
-					onChange={(method) => {
-						applyCredentialUpdates({ clientAuthMethod: method }, { shouldSave: false });
-						onClientAuthMethodChange?.(method);
-					}}
-					allowedMethods={allowedAuthMethods || getFlowAuthMethods(flowType)}
-					showDescription={true}
-				/>
-			</div>
+			{/* Token Endpoint Authentication Method - Only show if flow uses auth methods */}
+			{(() => {
+				const flowAuthMethods = allowedAuthMethods || getFlowAuthMethods(flowType);
+				// Only show if there are allowed methods and it's not just 'none' for flows that don't need it
+				return flowAuthMethods.length > 0 && (
+					<div style={{ 
+						marginTop: '1rem', 
+						padding: '1rem 1.5rem', 
+						background: '#f8fafc', 
+						border: '1px solid #e2e8f0', 
+						borderRadius: '0.75rem',
+						marginBottom: '1.5rem'
+					}}>
+						<ClientAuthMethodSelector
+							value={clientAuthMethod}
+							onChange={(method) => {
+								applyCredentialUpdates({ clientAuthMethod: method }, { shouldSave: false });
+								onClientAuthMethodChange?.(method);
+							}}
+							allowedMethods={flowAuthMethods}
+							showDescription={true}
+						/>
+					</div>
+				);
+			})()}
 
 			{/* Worker Token Generation - Always show when no token */}
 			{!effectiveWorkerToken && (
