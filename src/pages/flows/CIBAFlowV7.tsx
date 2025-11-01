@@ -843,20 +843,38 @@ const CIBAFlowV7: React.FC = () => {
 					<FlowHeader flowId="ciba-v7" />
 					
 					<ComprehensiveCredentialsService
-						flowKey="ciba-v7"
-						flowType="oidc"
-						flowVersion="V7"
-						showConfigChecker={true}
-						showExportImport={true}
-						showAdvancedSettings={true}
-						onCredentialsUpdate={handleCredentialsUpdate}
-						onDiscoveryComplete={handleDiscoveryComplete}
-						initialCredentials={{
+						flowType="ciba-v7"
+						isOIDC={true}
+						workerToken={localStorage.getItem('worker_token') || ''}
+						region="NA"
+						credentials={{
 							environmentId: formData.environmentId,
 							clientId: formData.clientId,
 							clientSecret: formData.clientSecret,
 							scope: formData.scope,
 						}}
+						onCredentialsChange={(credentials) => {
+							console.log('[CIBA-V7] Credentials changed:', credentials);
+							if (credentials.environmentId) updateFormData('environmentId', credentials.environmentId);
+							if (credentials.clientId) updateFormData('clientId', credentials.clientId);
+							if (credentials.clientSecret) updateFormData('clientSecret', credentials.clientSecret);
+							if (credentials.scope) updateFormData('scope', credentials.scope);
+						}}
+						onDiscoveryComplete={(result) => {
+							console.log('🔍 [CIBA-V7] OIDC Discovery completed:', result);
+							if (result.success && result.document) {
+								const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+								if (extractedEnvId) {
+									console.log('✅ [CIBA-V7] Extracted environment ID:', extractedEnvId);
+									updateFormData('environmentId', extractedEnvId);
+								}
+							}
+						}}
+						requireClientSecret={true}
+						showConfigChecker={true}
+						defaultCollapsed={false}
+						title="CIBA Flow Configuration"
+						subtitle="Configure your client credentials for CIBA backchannel authentication"
 					/>
 					
 					{renderStepContent()}
