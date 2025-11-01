@@ -934,7 +934,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			)}
 
 			{/* Configuration URI Checker - Check redirect and logout URIs against PingOne */}
-			{showConfigChecker && (
+			{/* Hide for client-credentials flows (whether from flowType or selected application) */}
+			{showConfigChecker && !isClientCredentialsFlow && (
 				<ConfigurationURIChecker
 					flowType={flowType}
 					environmentId={resolvedCredentials.environmentId}
