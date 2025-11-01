@@ -371,6 +371,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	// const [isAdvancedConfigCollapsed, setIsAdvancedConfigCollapsed] = useState(true);
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	
+	// Store selected application to detect its type
+	const [selectedApplication, setSelectedApplication] = useState<PingOneApplication | null>(null);
+	
 	// Retrieve worker token from localStorage if not provided
 	const [retrievedWorkerToken, setRetrievedWorkerToken] = useState<string>('');
 	
@@ -469,10 +472,15 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 	// Auto-detect if this is a client-credentials flow to hide redirect/logout URIs
 	const isClientCredentialsFlow = useMemo(() => {
+		// First check if the selected application type is SERVICE (client credentials)
+		if (selectedApplication?.type === 'SERVICE') {
+			return true;
+		}
+		// Then check if flowType indicates client credentials
 		if (!flowType) return false;
 		const normalized = flowType.toLowerCase().replace(/[-_]/g, '-');
 		return normalized.includes('client-credentials') || normalized.includes('worker-token');
-	}, [flowType]);
+	}, [flowType, selectedApplication]);
 	
 	// Auto-hide redirect/logout URIs for client-credentials flows
 	const effectiveShowRedirectUri = useMemo(() => {
@@ -741,7 +749,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			hasClientSecret: !!application.clientSecret,
 			redirectUris: application.redirectUris,
 			scopes: application.scopes,
-			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod
+			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod,
+			type: application.type
 		});
 		console.log('[ComprehensiveCredentialsService] Current resolvedCredentials:', resolvedCredentials);
 		console.log('[ComprehensiveCredentialsService] Available handlers:', {
@@ -750,6 +759,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			onClientSecretChange: !!onClientSecretChange,
 			onClientAuthMethodChange: !!onClientAuthMethodChange
 		});
+		
+		// Store the selected application to enable type-based visibility
+		setSelectedApplication(application);
 
 		// Auto-fill credentials from selected application
 		const updates: Partial<StepCredentials> = {
