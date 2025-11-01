@@ -467,6 +467,22 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	// Use provided workerToken or retrieved one
 	const effectiveWorkerToken = workerToken || retrievedWorkerToken;
 
+	// Auto-detect if this is a client-credentials flow to hide redirect/logout URIs
+	const isClientCredentialsFlow = useMemo(() => {
+		if (!flowType) return false;
+		const normalized = flowType.toLowerCase().replace(/[-_]/g, '-');
+		return normalized.includes('client-credentials') || normalized.includes('worker-token');
+	}, [flowType]);
+	
+	// Auto-hide redirect/logout URIs for client-credentials flows
+	const effectiveShowRedirectUri = useMemo(() => {
+		return showRedirectUri && !isClientCredentialsFlow;
+	}, [showRedirectUri, isClientCredentialsFlow]);
+	
+	const effectiveShowPostLogoutRedirectUri = useMemo(() => {
+		return showPostLogoutRedirectUri && !isClientCredentialsFlow;
+	}, [showPostLogoutRedirectUri, isClientCredentialsFlow]);
+
 	// Determine default redirect URI based on flowType
 	// Note: This is only used for initial value, not during editing
 	const getDefaultRedirectUri = useCallback(() => {
@@ -1100,6 +1116,43 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				</div>
 			</CollapsibleHeader>
 
+			{/* Client Credentials Flow Educational Info */}
+			{isClientCredentialsFlow && (
+				<CollapsibleHeader
+					title="ℹ️ Why No Redirect/Logout URIs?"
+					subtitle="Client Credentials Flow - Machine-to-Machine Authentication"
+					icon={<FiKey />}
+					defaultCollapsed={true}
+					variant="compact"
+				>
+					<div style={{ padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem', border: '1px solid #bae6fd' }}>
+						<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e40af' }}>
+							<strong>⚙️ Client Credentials Flow Overview</strong>
+						</p>
+						<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
+							This flow is designed for <strong>machine-to-machine (M2M)</strong> communication — there's no end-user, no browser, and no front-channel redirects.
+						</p>
+						<ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.5rem', fontSize: '0.875rem', color: '#1e3a8a', lineHeight: '1.6' }}>
+							<li>✅ <strong>No user</strong> - Direct server-to-server authentication</li>
+							<li>✅ <strong>No browser</strong> - No redirects or callbacks</li>
+							<li>✅ <strong>No redirect URI</strong> - Client communicates directly with token endpoint</li>
+						</ul>
+						<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>
+							🚫 Redirect URI (Callback URI)
+						</p>
+						<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
+							Used only in flows that involve user interaction and redirects through a browser (Authorization Code, Implicit, Hybrid). Client Credentials Flow does not use redirect URIs.
+						</p>
+						<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>
+							🚫 Logout URI (Post-Logout Redirect URI)
+						</p>
+						<p style={{ margin: '0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
+							Only relevant when there's a session for an end-user (typically OIDC with ID tokens and login sessions). Client Credentials Flow does not involve ID tokens or browser sessions.
+						</p>
+					</div>
+				</CollapsibleHeader>
+			)}
+
 			{/* Basic Credentials */}
 			<CredentialsInput
 				environmentId={resolvedCredentials.environmentId}
@@ -1117,8 +1170,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				onLoginHintChange={(value) => applyCredentialUpdates({ loginHint: value }, { shouldSave: false })}
 				onPostLogoutRedirectUriChange={(value) => applyCredentialUpdates({ postLogoutRedirectUri: value }, { shouldSave: false })}
 				showClientSecret={requireClientSecret}
-				showRedirectUri={showRedirectUri}
-				showPostLogoutRedirectUri={showPostLogoutRedirectUri}
+				showRedirectUri={effectiveShowRedirectUri}
+				showPostLogoutRedirectUri={effectiveShowPostLogoutRedirectUri}
 				showLoginHint={showLoginHint}
 				onSave={saveHandler || (() => {})}
 				hasUnsavedChanges={hasUnsavedChanges}
