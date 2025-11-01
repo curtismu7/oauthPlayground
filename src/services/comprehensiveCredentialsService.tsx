@@ -470,26 +470,33 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	// Use provided workerToken or retrieved one
 	const effectiveWorkerToken = workerToken || retrievedWorkerToken;
 
-	// Auto-detect if this is a client-credentials flow to hide redirect/logout URIs
-	const isClientCredentialsFlow = useMemo(() => {
+	// Auto-detect if this flow doesn't use redirect URIs
+	const isNoRedirectUriFlow = useMemo(() => {
 		// First check if the selected application type is SERVICE (client credentials)
 		if (selectedApplication?.type === 'SERVICE') {
 			return true;
 		}
-		// Then check if flowType indicates client credentials
+		// Then check if flowType indicates no redirect URI
 		if (!flowType) return false;
 		const normalized = flowType.toLowerCase().replace(/[-_]/g, '-');
-		return normalized.includes('client-credentials') || normalized.includes('worker-token');
+		return normalized.includes('client-credentials') || 
+		       normalized.includes('worker-token') ||
+		       normalized.includes('ciba') ||
+		       normalized.includes('device') ||
+		       normalized.includes('jwt-bearer') ||
+		       normalized.includes('saml-bearer') ||
+		       normalized.includes('token-introspection') ||
+		       normalized.includes('token-revocation');
 	}, [flowType, selectedApplication]);
 	
-	// Auto-hide redirect/logout URIs for client-credentials flows
+	// Auto-hide redirect/logout URIs for flows that don't use them
 	const effectiveShowRedirectUri = useMemo(() => {
-		return showRedirectUri && !isClientCredentialsFlow;
-	}, [showRedirectUri, isClientCredentialsFlow]);
+		return showRedirectUri && !isNoRedirectUriFlow;
+	}, [showRedirectUri, isNoRedirectUriFlow]);
 	
 	const effectiveShowPostLogoutRedirectUri = useMemo(() => {
-		return showPostLogoutRedirectUri && !isClientCredentialsFlow;
-	}, [showPostLogoutRedirectUri, isClientCredentialsFlow]);
+		return showPostLogoutRedirectUri && !isNoRedirectUriFlow;
+	}, [showPostLogoutRedirectUri, isNoRedirectUriFlow]);
 
 	// Determine default redirect URI based on flowType
 	// Note: This is only used for initial value, not during editing
@@ -934,8 +941,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			)}
 
 			{/* Configuration URI Checker - Check redirect and logout URIs against PingOne */}
-			{/* Hide for client-credentials flows (whether from flowType or selected application) */}
-			{showConfigChecker && !isClientCredentialsFlow && (
+			{/* Hide for flows that don't use redirect URIs (whether from flowType or selected application) */}
+			{showConfigChecker && !isNoRedirectUriFlow && (
 				<ConfigurationURIChecker
 					flowType={flowType}
 					environmentId={resolvedCredentials.environmentId}
@@ -1129,38 +1136,38 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				</div>
 			</CollapsibleHeader>
 
-			{/* Client Credentials Flow Educational Info */}
-			{isClientCredentialsFlow && (
+			{/* Flows Without Redirect URIs Educational Info */}
+			{isNoRedirectUriFlow && (
 				<CollapsibleHeader
 					title="ℹ️ Why No Redirect/Logout URIs?"
-					subtitle="Client Credentials Flow - Machine-to-Machine Authentication"
+					subtitle="Machine-to-Machine & Backchannel Flows"
 					icon={<FiKey />}
 					defaultCollapsed={true}
 					variant="compact"
 				>
 					<div style={{ padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem', border: '1px solid #bae6fd' }}>
 						<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e40af' }}>
-							<strong>⚙️ Client Credentials Flow Overview</strong>
+							<strong>⚙️ Overview</strong>
 						</p>
 						<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
-							This flow is designed for <strong>machine-to-machine (M2M)</strong> communication — there's no end-user, no browser, and no front-channel redirects.
+							These flows are designed for <strong>machine-to-machine (M2M)</strong> or <strong>backchannel authentication</strong> — they don't use browser redirects or callbacks.
 						</p>
 						<ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.5rem', fontSize: '0.875rem', color: '#1e3a8a', lineHeight: '1.6' }}>
-							<li>✅ <strong>No user</strong> - Direct server-to-server authentication</li>
-							<li>✅ <strong>No browser</strong> - No redirects or callbacks</li>
-							<li>✅ <strong>No redirect URI</strong> - Client communicates directly with token endpoint</li>
+							<li>✅ <strong>No browser redirects</strong> - Authentication happens server-to-server</li>
+							<li>✅ <strong>No callbacks</strong> - Direct communication with token endpoint</li>
+							<li>✅ <strong>No redirect URI</strong> - Client authenticates directly</li>
 						</ul>
 						<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>
 							🚫 Redirect URI (Callback URI)
 						</p>
 						<p style={{ margin: '0 0 1rem 0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
-							Used only in flows that involve user interaction and redirects through a browser (Authorization Code, Implicit, Hybrid). Client Credentials Flow does not use redirect URIs.
+							Used only in flows that involve user interaction and redirects through a browser (Authorization Code, Implicit, Hybrid, RAR). These M2M and backchannel flows do not use redirect URIs.
 						</p>
 						<p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600', color: '#1e40af' }}>
 							🚫 Logout URI (Post-Logout Redirect URI)
 						</p>
 						<p style={{ margin: '0', fontSize: '0.875rem', lineHeight: '1.6', color: '#1e3a8a' }}>
-							Only relevant when there's a session for an end-user (typically OIDC with ID tokens and login sessions). Client Credentials Flow does not involve ID tokens or browser sessions.
+							Only relevant when there's a session for an end-user (typically OIDC with ID tokens and login sessions). These flows do not involve ID tokens or browser sessions.
 						</p>
 					</div>
 				</CollapsibleHeader>
