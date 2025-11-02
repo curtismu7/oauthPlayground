@@ -25,6 +25,7 @@ import styled from 'styled-components';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 import EnhancedApiCallDisplay from '../../components/EnhancedApiCallDisplay';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 type TokenExchangeScenario = 'delegation' | 'impersonation' | 'scope-reduction' | 'audience-restriction';
 
