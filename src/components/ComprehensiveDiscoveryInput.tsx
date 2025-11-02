@@ -465,6 +465,7 @@ const ComprehensiveDiscoveryInput: React.FC<ComprehensiveDiscoveryInputProps> = 
 				setLastEnvironmentId(cached.environmentId);
 				onDiscoveryComplete(cachedResult);
 				setIsLoading(false);
+				setShowModal(false); // Hide modal before returning
 				return;
 			}
 
