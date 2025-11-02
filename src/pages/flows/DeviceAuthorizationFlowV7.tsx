@@ -63,6 +63,8 @@ import PerformanceMonitor from '../../components/PerformanceMonitor';
 import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
 import InteractiveTutorial from '../../components/InteractiveTutorial';
 import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
+import { LearningTooltip } from '../../components/LearningTooltip';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -1917,12 +1919,21 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					<CollapsibleContent>
 						<ExplanationSection>
 							<ExplanationHeading>
-								<FiInfo /> What is Device Authorization Flow?
+								<FiInfo /> What is{' '}
+								<LearningTooltip variant="learning" title="Device Authorization Flow" content="OAuth 2.0 grant type (RFC 8628) for devices without browsers. Uses device_code and user_code for authorization." placement="top">
+									Device Authorization Flow
+								</LearningTooltip>?
 							</ExplanationHeading>
 							<InfoText>
-								The Device Authorization Grant (RFC 8628) enables OAuth clients on input-constrained
-								devices to obtain user authorization without a browser. Perfect for smart TVs, IoT
-								devices, CLI tools, and gaming consoles.
+								The{' '}
+								<LearningTooltip variant="learning" title="Device Authorization Grant" content="RFC 8628 - OAuth 2.0 extension for input-constrained devices. No browser required." placement="top">Device Authorization Grant (RFC 8628)</LearningTooltip> enables{' '}
+								<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access" placement="top">OAuth clients</LearningTooltip> on{' '}
+								<LearningTooltip variant="info" title="Input-Constrained Devices" content="Devices without keyboards or browsers (smart TVs, IoT, gaming consoles)" placement="top">input-constrained devices</LearningTooltip> to obtain{' '}
+								<LearningTooltip variant="info" title="User Authorization" content="User grants permission for app to access resources" placement="top">user authorization</LearningTooltip> without a browser. Perfect for{' '}
+								<LearningTooltip variant="info" title="Smart TVs" content="TVs with limited input capabilities" placement="top">smart TVs</LearningTooltip>,{' '}
+								<LearningTooltip variant="info" title="IoT Devices" content="Internet of Things devices without keyboards" placement="top">IoT devices</LearningTooltip>,{' '}
+								<LearningTooltip variant="info" title="CLI Tools" content="Command-line interface applications" placement="top">CLI tools</LearningTooltip>, and{' '}
+								<LearningTooltip variant="info" title="Gaming Consoles" content="Game consoles with limited input" placement="top">gaming consoles</LearningTooltip>.
 							</InfoText>
 
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
@@ -1942,22 +1953,41 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<FiShield size={20} />
 								<div>
-									<InfoTitle>RFC 8628 Specification:</InfoTitle>
+									<InfoTitle>
+										<LearningTooltip variant="info" title="RFC 8628" content="OAuth 2.0 Device Authorization Grant specification - defines device flow for input-constrained devices" placement="top">RFC 8628</LearningTooltip> Specification:
+									</InfoTitle>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 										<li>
-											<strong>Device Code</strong>: Short-lived code displayed to user
+											<strong>
+												<LearningTooltip variant="learning" title="Device Code" content="Long secret code used by device to poll token endpoint. Not shown to user." placement="top">Device Code</LearningTooltip>
+											</strong>: Short-lived code used for{' '}
+											<LearningTooltip variant="info" title="Polling" content="Device repeatedly requests tokens until user authorizes" placement="top">polling</LearningTooltip> token endpoint
 										</li>
 										<li>
-											<strong>User Code</strong>: Human-readable code for user verification
+											<strong>
+												<LearningTooltip variant="learning" title="User Code" content="Short, human-readable code displayed to user (e.g., 'WDJB-MJHT'). User enters this on verification URL." placement="top">User Code</LearningTooltip>
+											</strong>: Human-readable code for{' '}
+											<LearningTooltip variant="info" title="User Verification" content="User enters code on verification URL to authorize device" placement="top">user verification</LearningTooltip>
 										</li>
 										<li>
-											<strong>Verification URI</strong>: URL where user completes authorization
+											<strong>
+												<LearningTooltip variant="learning" title="Verification URI" content="URL where user visits and enters user_code to authorize the device" placement="top">Verification URI</LearningTooltip>
+											</strong>: URL where user completes{' '}
+											<LearningTooltip variant="info" title="Authorization" content="User grants permission" placement="top">authorization</LearningTooltip>
 										</li>
 										<li>
-											<strong>Polling</strong>: Client polls token endpoint until authorized
+											<strong>
+												<LearningTooltip variant="info" title="Polling" content="Device repeatedly requests tokens from token endpoint until user authorizes or codes expire" placement="top">Polling</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="info" title="OAuth Client" content="Device application" placement="top">Client</LearningTooltip> polls{' '}
+											<LearningTooltip variant="info" title="Token Endpoint" content="OAuth endpoint where tokens are requested" placement="top">token endpoint</LearningTooltip> until{' '}
+											<LearningTooltip variant="info" title="Authorized" content="User completes authorization on verification URL" placement="top">authorized</LearningTooltip>
 										</li>
 										<li>
-											<strong>Timeout</strong>: Codes expire after 10-15 minutes
+											<strong>
+												<LearningTooltip variant="info" title="Timeout" content="Device and user codes expire after specified time (typically 10-15 minutes)" placement="top">Timeout</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="learning" title="Codes Expire" content="Device and user codes have limited lifetime - typically 10-15 minutes" placement="top">Codes expire</LearningTooltip> after 10-15 minutes
 										</li>
 									</ul>
 								</div>
@@ -1988,24 +2018,56 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 								<FiShield size={20} />
 								<div>
-									<InfoTitle>OAuth vs OIDC Device Flow (PingOne Implementation):</InfoTitle>
+									<InfoTitle>
+										<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework" placement="top">OAuth</LearningTooltip> vs{' '}
+										<LearningTooltip variant="info" title="OIDC" content="OpenID Connect - authentication layer" placement="top">OIDC</LearningTooltip> Device Flow (PingOne Implementation):
+									</InfoTitle>
 									<InfoText style={{ marginTop: '0.5rem' }}>
-										<strong>Important:</strong> OIDC doesn't define a separate "Device Flow"
-										specification. It reuses the OAuth 2.0 Device Authorization Grant (RFC 8628) and
-										adds the usual OIDC semantics. <strong>PingOne requires the openid scope for both variants:</strong>
+										<strong>Important:</strong>{' '}
+										<LearningTooltip variant="info" title="OIDC" content="OpenID Connect specification" placement="top">OIDC</LearningTooltip> doesn't define a separate "Device Flow"
+										specification. It reuses the{' '}
+										<LearningTooltip variant="learning" title="OAuth 2.0 Device Authorization Grant" content="RFC 8628 - Device flow specification" placement="top">OAuth 2.0 Device Authorization Grant (RFC 8628)</LearningTooltip> and
+										adds the usual{' '}
+										<LearningTooltip variant="info" title="OIDC Semantics" content="OIDC adds ID token, userinfo endpoint, and openid scope requirements" placement="top">OIDC semantics</LearningTooltip>. <strong>
+											<LearningTooltip variant="info" title="PingOne" content="Identity platform" placement="top">PingOne</LearningTooltip> requires the{' '}
+											<LearningTooltip variant="info" title="openid scope" content="OIDC scope required by PingOne even for OAuth flows" placement="top">openid scope</LearningTooltip> for both variants:
+										</strong>
 									</InfoText>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 										<li>
-											<strong>OAuth Device Flow (PingOne)</strong>: Returns access_token and refresh_token
-											only, but still requires <code>openid</code> scope
+											<strong>
+												<LearningTooltip variant="info" title="OAuth 2.0" content="Authorization framework" placement="top">OAuth</LearningTooltip> Device Flow (PingOne)
+											</strong>: Returns{' '}
+											<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access_token</LearningTooltip> and{' '}
+											<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token for token refresh" placement="top">refresh_token</LearningTooltip>
+											{' '}only, but still requires{' '}
+											<code>
+												<LearningTooltip variant="info" title="openid scope" content="Required by PingOne even for OAuth flows" placement="top">openid</LearningTooltip>
+											</code> scope
 										</li>
 										<li>
-											<strong>OIDC Device Flow</strong>: Adds ID Token, UserInfo endpoint, and
-											requires <code>openid</code> scope (standard OIDC requirement)
+											<strong>
+												<LearningTooltip variant="info" title="OIDC Device Flow" content="Device flow with OIDC identity layer" placement="top">OIDC Device Flow</LearningTooltip>
+											</strong>: Adds{' '}
+											<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity" placement="top">ID Token</LearningTooltip>,{' '}
+											<LearningTooltip variant="info" title="UserInfo Endpoint" content="OIDC endpoint returning user profile" placement="top">UserInfo endpoint</LearningTooltip>, and
+											requires{' '}
+											<code>
+												<LearningTooltip variant="info" title="openid scope" content="Mandatory for OIDC flows" placement="top">openid</LearningTooltip>
+											</code> scope (standard{' '}
+											<LearningTooltip variant="info" title="OIDC Requirement" content="OIDC requires openid scope to receive ID token" placement="top">OIDC requirement</LearningTooltip>)
 										</li>
-										<li>Both flows use the same RFC 8628 device authorization mechanism</li>
-										<li>OIDC adds identity layer on top of OAuth's authorization framework</li>
-										<li><strong>PingOne Specific:</strong> Unlike standard OAuth 2.0, PingOne requires openid scope for all flows</li>
+										<li>Both flows use the same{' '}
+											<LearningTooltip variant="info" title="RFC 8628" content="Device Authorization Grant specification" placement="top">RFC 8628</LearningTooltip> device authorization mechanism</li>
+										<li>
+											<LearningTooltip variant="info" title="OIDC" content="OpenID Connect" placement="top">OIDC</LearningTooltip> adds{' '}
+											<LearningTooltip variant="info" title="Identity Layer" content="Authentication and user identity on top of OAuth authorization" placement="top">identity layer</LearningTooltip> on top of{' '}
+											<LearningTooltip variant="info" title="OAuth Authorization Framework" content="OAuth 2.0 provides authorization only" placement="top">OAuth's authorization framework</LearningTooltip>
+										</li>
+										<li><strong>PingOne Specific:</strong> Unlike standard{' '}
+											<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749" placement="top">OAuth 2.0</LearningTooltip>,{' '}
+											<LearningTooltip variant="info" title="PingOne" content="Identity platform" placement="top">PingOne</LearningTooltip> requires{' '}
+											<LearningTooltip variant="info" title="openid scope" content="OIDC scope" placement="top">openid scope</LearningTooltip> for all flows</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -2043,8 +2105,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 								<ol style={{ margin: 0, paddingLeft: '1.5rem', lineHeight: '2' }}>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>1. Device requests device code</strong> - Device calls the device
-										authorization endpoint with client_id and scopes
+										<strong>1. Device requests{' '}
+											<LearningTooltip variant="learning" title="Device Code" content="Secret code used for polling token endpoint" placement="top">device code</LearningTooltip>
+										</strong> -{' '}
+										<LearningTooltip variant="info" title="Device" content="Input-constrained device (TV, IoT, etc.)" placement="top">Device</LearningTooltip> calls the{' '}
+										<LearningTooltip variant="info" title="Device Authorization Endpoint" content="OAuth endpoint that issues device_code and user_code" placement="top">device authorization endpoint</LearningTooltip> with{' '}
+										<LearningTooltip variant="learning" title="client_id" content="Application identifier" placement="top">client_id</LearningTooltip> and{' '}
+										<LearningTooltip variant="learning" title="Scopes" content="Requested permissions" placement="top">scopes</LearningTooltip>
 										<br />
 										<code
 											style={{
@@ -2054,17 +2121,26 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												fontSize: '0.85em',
 											}}
 										>
-											POST /device_authorization
+											POST{' '}
+											<LearningTooltip variant="info" title="Device Authorization Endpoint" content="Endpoint that issues device and user codes" placement="top">/device_authorization</LearningTooltip>
 										</code>
 										<br />
 										<small style={{ color: '#64748b' }}>
-											Server responds with: device_code, user_code, verification_uri, expires_in,
-											interval
+											Server responds with:{' '}
+											<LearningTooltip variant="learning" title="device_code" content="Secret code for polling" placement="top">device_code</LearningTooltip>,{' '}
+											<LearningTooltip variant="learning" title="user_code" content="Human-readable code for user" placement="top">user_code</LearningTooltip>,{' '}
+											<LearningTooltip variant="info" title="verification_uri" content="URL for user to visit" placement="top">verification_uri</LearningTooltip>,{' '}
+											<LearningTooltip variant="info" title="expires_in" content="How long codes are valid (seconds)" placement="top">expires_in</LearningTooltip>,
+											{' '}
+											<LearningTooltip variant="info" title="interval" content="Polling interval in seconds" placement="top">interval</LearningTooltip>
 										</small>
 									</li>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>2. Display user code</strong> - Device shows user_code and
-										verification_uri to user on screen (e.g., "Visit example.com and enter code:
+										<strong>2. Display{' '}
+											<LearningTooltip variant="learning" title="User Code" content="Human-readable code shown to user" placement="top">user code</LearningTooltip>
+										</strong> - Device shows{' '}
+										<LearningTooltip variant="learning" title="User Code" content="Short code user enters on verification URL" placement="top">user_code</LearningTooltip> and{' '}
+										<LearningTooltip variant="info" title="Verification URI" content="URL where user enters code" placement="top">verification_uri</LearningTooltip> to user on screen (e.g., "Visit example.com and enter code:
 										ABCD-1234")
 										<br />
 										<small style={{ color: '#64748b' }}>
@@ -2073,20 +2149,36 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 										</small>
 									</li>
 									<li style={{ marginBottom: '1.5rem' }}>
-										<strong>3. User authorizes on secondary device</strong> - User visits URL on
-										phone/computer, enters code, and authorizes the application
+										<strong>3. User authorizes on{' '}
+											<LearningTooltip variant="info" title="Secondary Device" content="Phone, computer, or tablet with browser" placement="top">secondary device</LearningTooltip>
+										</strong> - User visits{' '}
+										<LearningTooltip variant="info" title="Verification URI" content="URL where user completes authorization" placement="top">URL</LearningTooltip> on
+										phone/computer, enters{' '}
+										<LearningTooltip variant="learning" title="User Code" content="Code displayed on device" placement="top">code</LearningTooltip>, and{' '}
+										<LearningTooltip variant="info" title="Authorizes" content="Grants permission for app to access resources" placement="top">authorizes</LearningTooltip> the{' '}
+										<LearningTooltip variant="info" title="Application" content="OAuth client requesting access" placement="top">application</LearningTooltip>
 										<br />
 										<small style={{ color: '#64748b' }}>
 											User sees: "Authorize 'Smart TV App' to access your account?"
 										</small>
 									</li>
 									<li style={{ marginBottom: '1rem' }}>
-										<strong>Device polls for tokens</strong> - Device continuously polls token
-										endpoint until user completes authorization
+										<strong>
+											<LearningTooltip variant="info" title="Device" content="Input-constrained device" placement="top">Device</LearningTooltip> polls for{' '}
+											<LearningTooltip variant="learning" title="Tokens" content="Access token, ID token, refresh token" placement="top">tokens</LearningTooltip>
+										</strong> - Device{' '}
+										<LearningTooltip variant="info" title="Continuously Polls" content="Repeatedly requests tokens at specified interval" placement="top">continuously polls</LearningTooltip>{' '}
+										<LearningTooltip variant="info" title="Token Endpoint" content="OAuth endpoint where tokens are requested" placement="top">token endpoint</LearningTooltip> until user{' '}
+										<LearningTooltip variant="info" title="Completes Authorization" content="User authorizes on verification URL" placement="top">completes authorization</LearningTooltip>
 									</li>
 									<li>
-										<strong>Tokens received</strong> - Device receives access token, ID token, and
-										optionally refresh token
+										<strong>
+											<LearningTooltip variant="learning" title="Tokens Received" content="Access token, ID token (OIDC), and optionally refresh token" placement="top">Tokens received</LearningTooltip>
+										</strong> - Device receives{' '}
+										<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access token</LearningTooltip>,{' '}
+										<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity (if OIDC flow)" placement="top">ID token</LearningTooltip>, and
+										optionally{' '}
+										<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token for getting new access tokens" placement="top">refresh token</LearningTooltip>
 									</li>
 								</ol>
 							</div>
@@ -2177,28 +2269,41 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					ensureCredentials({ scopes: finalScopes });
 				}}
 				
-				// Save handler - save to V7 standardized storage
+				// Save handler - save to V7 standardized storage only
 				onSave={async () => {
 					try {
 						if (deviceFlow.credentials) {
-							// Save using V7 standardized storage
-							await FlowCredentialService.saveFlowCredentials({
-								flowKey: 'device-authorization-v7',
-								credentials: deviceFlow.credentials
-							});
-							
-							// Also save to credential manager for backward compatibility
-							const success = credentialManager.saveDeviceFlowCredentials({
-								environmentId: deviceFlow.credentials.environmentId,
-								clientId: deviceFlow.credentials.clientId,
-								scopes: deviceFlow.credentials.scopes,
-								tokenAuthMethod: deviceFlow.credentials.tokenEndpointAuthMethod || deviceFlow.credentials.clientAuthMethod,
-							});
-							
-							if (success) {
-								v4ToastManager.showSuccess('Credentials saved successfully!');
-							} else {
-								throw new Error('Failed to save credentials to credential manager');
+							const credentialsForStorage: StepCredentials = {
+								clientId: deviceFlow.credentials.clientId ?? '',
+								clientSecret: deviceFlow.credentials.clientSecret ?? '',
+								redirectUri: '',
+								scope: deviceFlow.credentials.scopes ?? '',
+								scopes: deviceFlow.credentials.scopes ?? '',
+								clientAuthMethod: 'none',
+							};
+
+							if (deviceFlow.credentials.environmentId) {
+								credentialsForStorage.environmentId = deviceFlow.credentials.environmentId;
+							}
+
+							if (deviceFlow.credentials.loginHint) {
+								credentialsForStorage.loginHint = deviceFlow.credentials.loginHint;
+							}
+
+							if (deviceFlow.credentials.postLogoutRedirectUri) {
+								credentialsForStorage.postLogoutRedirectUri = deviceFlow.credentials.postLogoutRedirectUri;
+							}
+
+							const success = await FlowCredentialService.saveFlowCredentials(
+								'device-authorization-v7',
+								credentialsForStorage,
+								undefined,
+								undefined,
+								{ showToast: true }
+							);
+
+							if (!success) {
+								throw new Error('FlowCredentialService reported failure');
 							}
 						}
 					} catch (error) {
@@ -2237,14 +2342,19 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				<div>
 					<InfoTitle>Device Flow Requirements</InfoTitle>
 					<InfoText>
-						<strong>Redirect URI:</strong> Not required for Device Authorization Flow (designed for 
-						devices that cannot handle browser redirects like smart TVs, IoT devices, or CLI tools).
-						<br /><br />
-						<strong>Scopes (PingOne Implementation):</strong> 
-						{selectedVariant === 'oidc' 
-							? 'OpenID Connect REQUIRES the openid scope per OIDC Core 1.0 specification. Additional scopes like profile, email, offline_access are optional.'
-							: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'
-						}
+						<strong>Redirect URI:</strong>{' '}
+						<span>
+							Not required for Device Authorization Flow (designed for devices that cannot handle browser redirects like smart TVs, IoT devices, or CLI tools).
+						</span>
+					</InfoText>
+					<InfoText as="div" style={{ marginTop: '0.75rem' }}>
+						<strong>Scopes (PingOne Implementation):</strong>{' '}
+						<span>
+							{selectedVariant === 'oidc'
+								? 'OpenID Connect REQUIRES the openid scope per OIDC Core 1.0 specification. Additional scopes like profile, email, offline_access are optional.'
+								: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'
+							}
+						</span>
 					</InfoText>
 				</div>
 			</InfoBox>
