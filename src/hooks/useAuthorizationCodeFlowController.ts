@@ -638,6 +638,34 @@ export const useAuthorizationCodeFlowController = (
 		credentials.redirectUri,
 	]);
 
+	/**
+	 * Generate PKCE (Proof Key for Code Exchange) codes
+	 * 
+	 * EDUCATIONAL: PKCE is a security extension (RFC 7636) that enhances OAuth flows:
+	 * 
+	 * What is PKCE?
+	 * - PKCE protects against authorization code interception attacks
+	 * - Originally designed for mobile apps, now recommended for all OAuth clients
+	 * - Required by OAuth 2.1 for public clients (apps without client secrets)
+	 * 
+	 * How PKCE Works:
+	 * 1. Generate code_verifier: Random cryptographically secure string (43-128 chars)
+	 * 2. Generate code_challenge: SHA256 hash of code_verifier (base64url encoded)
+	 * 3. Send code_challenge in authorization URL
+	 * 4. Send code_verifier when exchanging authorization code for tokens
+	 * 5. Server validates: SHA256(code_verifier) === code_challenge
+	 * 
+	 * Security Benefits:
+	 * - Even if authorization code is intercepted, attacker can't use it without code_verifier
+	 * - code_verifier never sent over URL (only in POST body during token exchange)
+	 * - Prevents authorization code replay attacks
+	 * 
+	 * PKCE Flow:
+	 * Client → Auth Server: authorization request with code_challenge
+	 * Auth Server → Client: redirect with authorization_code
+	 * Client → Auth Server: token request with authorization_code + code_verifier
+	 * Auth Server: validates challenge matches verifier → returns tokens
+	 */
 	const generatePkceCodes = useCallback(async () => {
 		try {
 			// Check if PKCE codes already exist
@@ -646,6 +674,8 @@ export const useAuthorizationCodeFlowController = (
 				return;
 			}
 
+			// Generate code verifier: Random secure string (RFC 7636 Section 4.1)
+			// Must be 43-128 characters from unreserved characters: [A-Z] / [a-z] / [0-9] / "-" / "." / "_" / "~"
 			const codeVerifier = generateCodeVerifier();
 			const codeChallenge = await generateCodeChallenge(codeVerifier);
 
@@ -1116,6 +1146,51 @@ export const useAuthorizationCodeFlowController = (
 		[persistConfig]
 	);
 
+	/**
+	 * Exchange Authorization Code for Access Token (OAuth 2.0 Token Exchange - RFC 6749 Section 4.1.3)
+	 * 
+	 * EDUCATIONAL: This is Step 4 of the Authorization Code Flow
+	 * 
+	 * What is Token Exchange?
+	 * - Converts a short-lived authorization code into long-lived tokens
+	 * - Must happen server-side or via secure backend proxy (never expose client_secret to browser)
+	 * - Authorization code is single-use and expires quickly (typically 10 minutes)
+	 * 
+	 * OAuth 2.0 Token Exchange Flow:
+	 * 1. User authorizes app → Auth server returns authorization_code via redirect
+	 * 2. Client extracts code from callback URL
+	 * 3. Client sends code to token endpoint with:
+	 *    - grant_type: 'authorization_code' (indicates this is code exchange)
+	 *    - code: the authorization code from step 1
+	 *    - redirect_uri: MUST match exactly what was used in authorization request
+	 *    - client_id: identifies the application
+	 *    - client_secret: authenticates the application (or use client assertion)
+	 *    - code_verifier: PKCE verifier (if PKCE was used)
+	 * 4. Auth server validates code, redirect_uri, client credentials, and PKCE
+	 * 5. Auth server returns tokens:
+	 *    - access_token: used to call APIs on user's behalf
+	 *    - refresh_token: used to get new access tokens without re-authorization
+	 *    - id_token: JWT containing user identity (if OIDC scope 'openid' was requested)
+	 *    - expires_in: how long access_token is valid (typically 3600 seconds = 1 hour)
+	 *    - token_type: usually "Bearer"
+	 * 
+	 * Security Requirements:
+	 * - redirect_uri validation: Must EXACTLY match the one in authorization request (prevents code interception)
+	 * - PKCE validation: code_verifier must match code_challenge from authorization request
+	 * - Client authentication: client_id + client_secret (or client assertion) must match registered app
+	 * - Authorization code is single-use: Once exchanged, it cannot be used again
+	 * - Time-limited: Authorization codes expire quickly (typically 10 minutes)
+	 * 
+	 * Why Server-Side?
+	 * - Client secret must NEVER be exposed to browser/client
+	 * - Token exchange should happen on backend to protect credentials
+	 * - This implementation uses a backend proxy to avoid CORS and protect secrets
+	 * 
+	 * OIDC vs OAuth 2.0:
+	 * - OAuth 2.0: Returns access_token (and optionally refresh_token)
+	 * - OIDC: Returns access_token + id_token (JWT with user identity) when 'openid' scope is requested
+	 * - OIDC id_token is a signed JWT that can be validated without calling userinfo endpoint
+	 */
 	const exchangeTokens = useCallback(async () => {
 		if (!authCode) {
 			showGlobalError('Missing authorization code', {
