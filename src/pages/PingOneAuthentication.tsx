@@ -853,9 +853,16 @@ const CancelButton = styled.button`
 
 	// Check if selected application is Client Credentials only
 	const isClientCredentialsOnly = useMemo(() => {
-		if (!selectedApplication?.grantTypes) return false;
-		const grantTypes = selectedApplication.grantTypes;
-		return grantTypes.length === 1 && grantTypes.includes('client_credentials');
+		if (!selectedApplication) return false;
+		// First check if the application type is SERVICE (client credentials)
+		if (selectedApplication.type === 'SERVICE') {
+			return true;
+		}
+		// Also check if only client_credentials grant type is present (fallback detection)
+		if (selectedApplication.grantTypes && selectedApplication.grantTypes.length === 1 && selectedApplication.grantTypes.includes('client_credentials')) {
+			return true;
+		}
+		return false;
 	}, [selectedApplication]);
 
 	const handleApplicationSelect = useCallback((application: PingOneApplication) => {
