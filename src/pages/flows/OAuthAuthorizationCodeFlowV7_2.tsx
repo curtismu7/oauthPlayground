@@ -1055,6 +1055,32 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	}, [selectedResponseType]);
 
 	// Load PingOne configuration from sessionStorage on mount
+	// Load comprehensive flow data on mount to restore tokenEndpointAuthMethod
+	useEffect(() => {
+		const flowKey = `oauth-authorization-code-v7-2-${flowVariant}`;
+		const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
+			flowKey,
+			useSharedEnvironment: true,
+			useSharedDiscovery: true
+		});
+
+		// Restore tokenEndpointAuthMethod from flowConfig or flowCredentials
+		if (flowData.flowConfig?.tokenEndpointAuthMethod) {
+			console.log('✅ [V7.2] Restoring tokenEndpointAuthMethod from flowConfig:', flowData.flowConfig.tokenEndpointAuthMethod);
+			controller.setCredentials({
+				...controller.credentials,
+				clientAuthMethod: flowData.flowConfig.tokenEndpointAuthMethod as any,
+			});
+		} else if (flowData.flowCredentials?.tokenEndpointAuthMethod) {
+			console.log('✅ [V7.2] Restoring tokenEndpointAuthMethod from flowCredentials:', flowData.flowCredentials.tokenEndpointAuthMethod);
+			controller.setCredentials({
+				...controller.credentials,
+				clientAuthMethod: flowData.flowCredentials.tokenEndpointAuthMethod as any,
+			});
+		}
+	}, [flowVariant]); // Run when variant changes
+
+	// Load PingOne app config on mount
 	useEffect(() => {
 		const stored = sessionStorage.getItem('oauth-authorization-code-v7-app-config');
 		if (stored) {
@@ -1096,6 +1122,24 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		localAuthCode: localAuthCode ? `${localAuthCode.substring(0, 10)}...` : 'Not set',
 	});
 
+	// Handle successful authorization code reception
+	const handleAuthCodeSuccess = useCallback((code: string) => {
+		// Show success modal (guarded so it only shows once per auth code)
+		console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
+		if (loginModalGuardRef.current !== code && sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true') {
+			loginModalGuardRef.current = code;
+			setShowLoginSuccessModal(true);
+		}
+		v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
+		// Navigate to step 4 and persist it
+		setCurrentStep(4);
+		sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
+		// Clear URL parameters and sessionStorage
+		window.history.replaceState({}, '', window.location.pathname);
+		sessionStorage.removeItem('oauth_auth_code');
+		sessionStorage.removeItem('oauth_v7_auth_code');
+	}, []);
+
 	// Initialize current step and handle OAuth callback - runs only once on mount
 	useEffect(() => {
 		const urlParams = new URLSearchParams(window.location.search);
@@ -1105,7 +1149,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		const storedStep = sessionStorage.getItem('oauth-authorization-code-v7-current-step');
 
 		// Also check sessionStorage for auth code (from OAuth callback)
-		const sessionAuthCode = sessionStorage.getItem('oauth_auth_code');
+		// Check both V7.2 key and V7 key as fallback
+		const sessionAuthCode = sessionStorage.getItem('oauth_auth_code') || sessionStorage.getItem('oauth_v7_auth_code');
 
 		console.log('🚀 [AuthorizationCodeFlowV5] Initialization check:', {
 			hasCode: !!authCode,
@@ -1136,7 +1181,13 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				code: `${finalAuthCode.substring(0, 10)}...`,
 			});
 			
+			// Store the auth code immediately (credentials validation happens later)
+			setLocalAuthCode(finalAuthCode);
+			// Also set it in the controller
+			controller.setAuthCodeManually(finalAuthCode);
+			
 			// CRITICAL: Validate that we have the necessary credentials for token exchange
+			// But allow some time for credentials to load if they're being restored from storage
 			const hasRequiredCredentials = controller.credentials?.clientId && 
 				controller.credentials?.clientSecret && 
 				controller.credentials?.environmentId;
@@ -1145,35 +1196,55 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				hasClientId: !!controller.credentials?.clientId,
 				hasClientSecret: !!controller.credentials?.clientSecret,
 				hasEnvironmentId: !!controller.credentials?.environmentId,
-				hasRequiredCredentials
+				hasRequiredCredentials,
+				credentialsPreview: controller.credentials ? {
+					envId: controller.credentials.environmentId?.substring(0, 8) + '...',
+					clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+					hasSecret: !!controller.credentials.clientSecret
+				} : 'no credentials object'
 			});
 			
 			if (!hasRequiredCredentials) {
-				console.error('🚨 [AuthorizationCodeFlowV5] Missing required credentials for token exchange');
-				v4ToastManager.showError('Missing OAuth credentials. Please configure your application settings in Step 0 before proceeding.');
-				// Clear URL parameters and reset to step 0
+				console.warn('⚠️ [AuthorizationCodeFlowV5] Credentials not available yet - may need to load from storage');
+				console.log('⚠️ [AuthorizationCodeFlowV5] Waiting 500ms for credentials to load, then re-checking...');
+				
+				// Wait a bit for credentials to load, then re-check
+				setTimeout(() => {
+					const retryHasRequiredCredentials = controller.credentials?.clientId && 
+						controller.credentials?.clientSecret && 
+						controller.credentials?.environmentId;
+					
+					console.log('🔍 [AuthorizationCodeFlowV5] Credential re-validation after delay:', {
+						hasClientId: !!controller.credentials?.clientId,
+						hasClientSecret: !!controller.credentials?.clientSecret,
+						hasEnvironmentId: !!controller.credentials?.environmentId,
+						hasRequiredCredentials: retryHasRequiredCredentials
+					});
+					
+					if (!retryHasRequiredCredentials) {
+						console.error('🚨 [AuthorizationCodeFlowV5] Missing required credentials after retry');
+						v4ToastManager.showError('Missing OAuth credentials. Please configure your application settings in Step 0 before proceeding.');
+						// Clear URL parameters and reset to step 0
+						window.history.replaceState({}, '', window.location.pathname);
+						setCurrentStep(0);
+						sessionStorage.setItem('oauth-authorization-code-v7-current-step', '0');
+						return;
+					}
+					
+					// Credentials loaded successfully - proceed with normal flow
+					console.log('✅ [AuthorizationCodeFlowV5] Credentials loaded, proceeding with callback handling');
+					handleAuthCodeSuccess(finalAuthCode);
+				}, 500);
+				
+				// Still clear URL params and set step, but show modal after credentials load
 				window.history.replaceState({}, '', window.location.pathname);
-				setCurrentStep(0);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '0');
+				sessionStorage.removeItem('oauth_auth_code');
+				sessionStorage.removeItem('oauth_v7_auth_code');
 				return;
 			}
 			
-			setLocalAuthCode(finalAuthCode);
-			// Also set it in the controller
-			controller.setAuthCodeManually(finalAuthCode);
-			// Show success modal (guarded so it only shows once per auth code)
-			console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
-			if (loginModalGuardRef.current !== finalAuthCode && sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true') {
-				loginModalGuardRef.current = finalAuthCode;
-				setShowLoginSuccessModal(true);
-			}
-			v4ToastManager.showSuccess('Login Successful! You have been authenticated with PingOne.');
-			// Navigate to step 4 and persist it
-			setCurrentStep(4);
-			sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
-			// Clear URL parameters and sessionStorage
-			window.history.replaceState({}, '', window.location.pathname);
-			sessionStorage.removeItem('oauth_auth_code');
+			// Credentials available - proceed normally
+			handleAuthCodeSuccess(finalAuthCode);
 			return;
 		}
 
@@ -1333,6 +1404,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	const handleSaveConfiguration = useCallback(async () => {
 		console.log('🔧 [handleSaveConfiguration] Starting save process...');
 		console.log('🔧 [handleSaveConfiguration] Current credentials:', controller.credentials);
+		console.log('🔧 [handleSaveConfiguration] Current flowConfig:', controller.flowConfig);
 		
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
@@ -1359,12 +1431,52 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			console.log('🔧 [handleSaveConfiguration] Calling controller.saveCredentials()...');
 			await controller.saveCredentials();
 			console.log('🔧 [handleSaveConfiguration] Save completed successfully');
+			
+			// Also save to comprehensiveFlowDataService with tokenEndpointAuthMethod
+			const tokenEndpointAuthMethod = typeof controller.credentials.clientAuthMethod === 'string' 
+				? controller.credentials.clientAuthMethod 
+				: (controller.credentials.clientAuthMethod as any)?.value || 'client_secret_post';
+			
+			const flowKey = `oauth-authorization-code-v7-2-${flowVariant}`;
+			const success = comprehensiveFlowDataService.saveFlowDataComprehensive(flowKey, {
+				...(controller.credentials.environmentId && {
+					sharedEnvironment: {
+						environmentId: controller.credentials.environmentId,
+						region: 'us',
+						issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`
+					}
+				}),
+				flowCredentials: {
+					clientId: controller.credentials.clientId,
+					clientSecret: controller.credentials.clientSecret,
+					redirectUri: controller.credentials.redirectUri,
+					scopes: Array.isArray(controller.credentials.scopes) 
+						? controller.credentials.scopes 
+						: (typeof controller.credentials.scopes === 'string' 
+							? controller.credentials.scopes.split(/\s+/).filter(Boolean)
+							: []),
+					tokenEndpointAuthMethod: tokenEndpointAuthMethod,
+					lastUpdated: Date.now()
+				},
+				flowConfig: {
+					flowVariant: flowVariant,
+					responseType: controller.credentials.responseType || controller.flowConfig.responseType,
+					grantType: controller.credentials.grantType || controller.flowConfig.grantType,
+					tokenEndpointAuthMethod: tokenEndpointAuthMethod,
+					lastUpdated: Date.now()
+				}
+			}, { showToast: false });
+			
+			if (!success) {
+				console.error('🔧 [handleSaveConfiguration] Failed to save to comprehensiveFlowDataService');
+			}
+			
 			v4ToastManager.showSuccess('Configuration saved successfully!');
 		} catch (error) {
 			console.error('🔧 [handleSaveConfiguration] Save failed:', error);
 			v4ToastManager.showError('Failed to save configuration. Please try again.');
 		}
-	}, [controller]);
+	}, [controller, flowVariant]);
 
 	const handleClearConfiguration = useCallback(() => {
 		controller.setCredentials({
@@ -1604,8 +1716,11 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			const tokens = await tokenResp.json();
 			console.log('🚀 [Redirectless] Step 4 response data (tokens):', tokens);
 			controller.setTokens(tokens);
-			// Don't set the auth code since it's already been consumed
-			// The tokens are already obtained, so we show the token exchange step with tokens
+			// Set the auth code for UI display purposes (even though it's been consumed)
+			// This enables the "Exchange Authorization Code for Tokens" button to show it worked
+			console.log('🚀 [Redirectless] Setting authorization code in controller for UI display:', authorizationCode.substring(0, 20) + '...');
+			controller.setAuthCodeManually(authorizationCode);
+			setLocalAuthCode(authorizationCode);
 			console.log('🚀 [Redirectless] Tokens obtained successfully, advancing to step 4 (Token Exchange)...');
 			setCurrentStep(4); // proceed to token exchange step to show the tokens
 			// Persist step to avoid step-restoration effects jumping back
@@ -2259,6 +2374,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								scopes={credentials.scopes || credentials.scope || ''}
 								loginHint={credentials.loginHint || ''}
 								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'}
+								clientAuthMethod={credentials.clientAuthMethod || 'client_secret_post'}
+								onClientAuthMethodChange={(method) => handleFieldChange('clientAuthMethod', method)}
 								
 								// Change handlers
 								onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
@@ -2305,6 +2422,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								subtitle="Configure your application settings and credentials"
 								showAdvancedConfig={true}
 								defaultCollapsed={false}
+								showConfigChecker={true}
 							/>
 
 							{/* Inline Advanced Options */}

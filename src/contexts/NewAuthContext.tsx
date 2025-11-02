@@ -944,18 +944,20 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						
 						const isV7Flow =
 							parsed?.flow === 'oidc-authorization-code-v7' ||
-							parsed?.flow === 'oauth-authorization-code-v7';
+							parsed?.flow === 'oauth-authorization-code-v7' ||
+							parsed?.flow === 'oidc-authorization-code-v7-2' ||
+							parsed?.flow === 'oauth-authorization-code-v7-2';
 						
 						console.log('🔍 [NewAuthContext] Is V6 flow?', isV6Flow, 'Is V7 flow?', isV7Flow, 'Flow:', parsed?.flow);
 						
 					if (isV6Flow || isV7Flow) {
 						// For V6/V7 flows, skip state validation and redirect immediately
-						console.log(' [NewAuthContext] V6 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
+						console.log(' [NewAuthContext] V6/V7 FLOW DETECTED EARLY - Skipping state validation and redirecting to flow page');
 						
-						// Store auth code and state for the V6 flow page
+						// Store auth code and state for the flow page
 						// Use flow-specific key (oauth_auth_code or oidc_auth_code)
 						if (code) {
-							const isOIDCFlow = parsed?.flow === 'oidc-authorization-code-v6';
+							const isOIDCFlow = parsed?.flow?.includes('oidc');
 							const authCodeKey = isOIDCFlow ? 'oidc_auth_code' : 'oauth_auth_code';
 							sessionStorage.setItem(authCodeKey, code);
 							console.log(`🔑 [NewAuthContext] Stored auth code with key: ${authCodeKey}`);
@@ -964,8 +966,19 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							sessionStorage.setItem('oauth_state', state);
 						}
 						
-						const returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
-						console.log('🚀 [NewAuthContext] V6 FLOW REDIRECT - About to redirect to:', returnPath);
+						// Determine correct return path based on flow version
+						let returnPath;
+						if (isV7Flow) {
+							const isV7_2 = 
+								parsed?.flow === 'oauth-authorization-code-v7-2' ||
+								parsed?.flow === 'oidc-authorization-code-v7-2';
+							returnPath = parsed?.returnPath || (isV7_2 
+								? '/flows/oauth-authorization-code-v7-2?step=4' 
+								: '/flows/oauth-authorization-code-v7?step=4');
+						} else {
+							returnPath = parsed?.returnPath || '/flows/oidc-authorization-code-v6';
+						}
+						console.log('🚀 [NewAuthContext] V6/V7 FLOW REDIRECT - About to redirect to:', returnPath);
 							logger.info('NewAuthContext', 'V6 flow detected - redirecting to flow page', {
 								flow: parsed?.flow,
 								returnPath,
@@ -1313,20 +1326,23 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 						
 						const isV7Flow =
 							parsed?.flow === 'oidc-authorization-code-v7' ||
-							parsed?.flow === 'oauth-authorization-code-v7';
+							parsed?.flow === 'oauth-authorization-code-v7' ||
+							parsed?.flow === 'oidc-authorization-code-v7-2' ||
+							parsed?.flow === 'oauth-authorization-code-v7-2';
 
 						console.log(' [NewAuthContext] Flow type detection:', {
 							flowType: parsed?.flow,
 							isEnhancedV2,
 							isEnhancedV3,
 							isV6Flow,
+							isV7Flow,
 							hasReturnPath: !!parsed?.returnPath,
 							parsedReturnPath: parsed?.returnPath,
 						});
 
-						console.log(' [NewAuthContext] ENHANCED/V6 FLOW DETECTED?', isEnhancedV2 || isEnhancedV3 || isV6Flow);
+						console.log(' [NewAuthContext] ENHANCED/V6/V7 FLOW DETECTED?', isEnhancedV2 || isEnhancedV3 || isV6Flow || isV7Flow);
 
-						if (isEnhancedV2 || isEnhancedV3 || isV6Flow) {
+						if (isEnhancedV2 || isEnhancedV3 || isV6Flow || isV7Flow) {
 							// Persist auth code and state for the flow page
 							// Use flow-specific key (oauth_auth_code or oidc_auth_code)
 							if (code) {
@@ -1351,7 +1367,24 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 
 						// Determine correct return path based on flow version
 						let returnPath;
-						if (isV6Flow) {
+						if (isV7Flow) {
+							// For V7 flows, redirect directly to the flow page (they handle auth code themselves)
+							console.log(' [NewAuthContext] V7 FLOW DETECTED - Redirecting to flow page, it will handle the auth code');
+							logger.info(
+								'NewAuthContext',
+								'V7 flow detected - redirecting to flow page',
+								{ flow: parsed?.flow, returnPath: parsed?.returnPath }
+							);
+							// Determine if this is V7.2 or V7
+							const isV7_2 = 
+								parsed?.flow === 'oauth-authorization-code-v7-2' ||
+								parsed?.flow === 'oidc-authorization-code-v7-2';
+							if (isV7_2) {
+								returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v7-2?step=4';
+							} else {
+								returnPath = parsed?.returnPath || '/flows/oauth-authorization-code-v7?step=4';
+							}
+						} else if (isV6Flow) {
 							// For V6 flows, redirect directly to the flow page (they handle auth code themselves)
 							console.log(' [NewAuthContext] V6 FLOW DETECTED - Redirecting to flow page, it will handle the auth code');
 							logger.info(
@@ -1423,10 +1456,12 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					
 					// Determine redirect path based on active flow
 					let returnPath = '/flows/oauth-authorization-code-v6';
-					if (activeOAuthFlow.includes('oidc-authorization-code-v7')) {
-						returnPath = '/flows/oauth-authorization-code-v7'; // V7 unified flow handles both OAuth and OIDC
+					if (activeOAuthFlow.includes('oauth-authorization-code-v7-2') || activeOAuthFlow.includes('oidc-authorization-code-v7-2')) {
+						returnPath = '/flows/oauth-authorization-code-v7-2?step=4'; // V7.2 flow
+					} else if (activeOAuthFlow.includes('oidc-authorization-code-v7')) {
+						returnPath = '/flows/oauth-authorization-code-v7?step=4'; // V7 unified flow handles both OAuth and OIDC
 					} else if (activeOAuthFlow.includes('oauth-authorization-code-v7')) {
-						returnPath = '/flows/oauth-authorization-code-v7'; // V7 unified flow handles both OAuth and OIDC
+						returnPath = '/flows/oauth-authorization-code-v7?step=4'; // V7 unified flow handles both OAuth and OIDC
 					} else if (activeOAuthFlow.includes('oidc-authorization-code')) {
 						returnPath = '/flows/oidc-authorization-code-v6';
 					} else if (activeOAuthFlow.includes('oauth-authorization-code')) {
