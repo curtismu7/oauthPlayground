@@ -10,7 +10,7 @@ import { oauthStorage } from '../utils/storage';
 import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 import FlowStorageService from '../services/flowStorageService';
 import FlowContextUtils from '../services/flowContextUtils';
-import { pingOneConfigService } from '../services/pingOneConfigService';
+import { pingOneConfigService } from '../services/pingoneConfigService';
 import { loadFlowCredentialsIsolated, saveFlowCredentials } from '../services/flowCredentialService';
 
 // Define window interface for PingOne environment variables
