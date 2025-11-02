@@ -29,6 +29,7 @@ import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 import {
 	HybridFlowDefaults,
@@ -86,23 +87,59 @@ type CredentialsUpdater = Parameters<ReturnType<typeof useHybridFlowControllerV7
 
 const HYBRID_VARIANTS: Array<{
 	id: 'code-id-token' | 'code-token' | 'code-id-token-token';
-	title: string;
-	description: string;
+	title: string | React.ReactNode;
+	description: string | React.ReactNode;
 }> = [
 	{
 		id: 'code-id-token',
-		title: 'Code + ID Token',
-		description: 'Immediate ID token for authentication and a code for full token exchange.',
+		title: (
+			<>
+				<LearningTooltip variant="learning" title="Authorization Code" content="Short-lived credential returned in URL fragment for OIDC Hybrid flows" placement="top">Code</LearningTooltip>
+				{' + '}
+				<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity, returned immediately in URL fragment" placement="top">ID Token</LearningTooltip>
+			</>
+		),
+		description: (
+			<>Immediate{' '}
+			<LearningTooltip variant="learning" title="ID Token" content="JWT containing user identity - returned in URL fragment" placement="top">ID token</LearningTooltip>
+			{' '}for authentication and a{' '}
+			<LearningTooltip variant="learning" title="Authorization Code" content="Code exchanged for full token set including refresh token" placement="top">code</LearningTooltip>
+			{' '}for full token exchange.
+			</>
+		),
 	},
 	{
 		id: 'code-token',
-		title: 'Code + Access Token',
-		description: 'Immediate access token plus authorization code for refresh token delivery.',
+		title: (
+			<>
+				<LearningTooltip variant="learning" title="Authorization Code" content="Short-lived credential for token exchange" placement="top">Code</LearningTooltip>
+				{' + '}
+				<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access, returned immediately in fragment" placement="top">Access Token</LearningTooltip>
+			</>
+		),
+		description: (
+			<>Immediate{' '}
+			<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">access token</LearningTooltip>
+			{' '}plus{' '}
+			<LearningTooltip variant="learning" title="Authorization Code" content="Code used to get refresh token" placement="top">authorization code</LearningTooltip>
+			{' '}for{' '}
+			<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token to get new access tokens" placement="top">refresh token</LearningTooltip>
+			{' '}delivery.
+			</>
+		),
 	},
 	{
 		id: 'code-id-token-token',
 		title: 'Complete Hybrid',
-		description: 'Returns ID token and access token alongside the authorization code.',
+		description: (
+			<>Returns{' '}
+			<LearningTooltip variant="learning" title="ID Token" content="JWT with user identity" placement="top">ID token</LearningTooltip>
+			{' '}and{' '}
+			<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access token</LearningTooltip>
+			{' '}alongside the{' '}
+			<LearningTooltip variant="learning" title="Authorization Code" content="Code for full token exchange" placement="top">authorization code</LearningTooltip>.
+			</>
+		),
 	},
 ];
 
@@ -529,8 +566,17 @@ const OIDCHybridFlowV7: React.FC = () => {
 							<InfoBox $variant="info">
 								<FiInfo size={20} />
 								<div>
-									<InfoTitle>Hybrid Flow Overview</InfoTitle>
-									<InfoText>{educationalContent.description}</InfoText>
+									<InfoTitle>
+										<LearningTooltip variant="learning" title="OIDC Hybrid Flow" content="OIDC flow (OIDC Core 1.0) that combines Authorization Code and Implicit flows. Returns tokens in URL fragment AND allows code exchange for refresh tokens." placement="top">
+											Hybrid Flow
+										</LearningTooltip> Overview
+									</InfoTitle>
+									<InfoText>
+										<LearningTooltip variant="info" title="OIDC Hybrid Flow" content="OIDC flow returning tokens in URL fragment AND authorization code for exchange" placement="top">OIDC Hybrid Flow</LearningTooltip> combines elements of{' '}
+										<LearningTooltip variant="info" title="Authorization Code Flow" content="OAuth 2.0 flow using authorization code" placement="top">Authorization Code</LearningTooltip> and{' '}
+										<LearningTooltip variant="warning" title="Implicit Flow" content="Deprecated OAuth flow - tokens returned in URL fragment" placement="top">Implicit</LearningTooltip> flows.{' '}
+										{educationalContent.description}
+									</InfoText>
 								</div>
 							</InfoBox>
 
@@ -620,9 +666,17 @@ const OIDCHybridFlowV7: React.FC = () => {
 						<InfoBox $variant="info">
 							<FiInfo size={20} />
 							<div>
-								<InfoTitle>Hybrid Variant Selection</InfoTitle>
+								<InfoTitle>
+									<LearningTooltip variant="learning" title="Hybrid Variant" content="OIDC Hybrid flow variant (response_type) that determines which tokens are returned immediately in URL fragment" placement="top">
+										Hybrid Variant
+									</LearningTooltip> Selection
+								</InfoTitle>
 								<InfoText>
-									Choose the hybrid response type that best fits your application's authentication and authorization needs.
+									Choose the{' '}
+									<LearningTooltip variant="learning" title="response_type" content="OAuth parameter specifying which tokens to return. Hybrid uses combinations like 'code id_token', 'code token', 'code id_token token'." placement="top">hybrid response type</LearningTooltip>
+									{' '}that best fits your application's{' '}
+									<LearningTooltip variant="info" title="Authentication" content="Verifying user identity" placement="top">authentication</LearningTooltip> and{' '}
+									<LearningTooltip variant="info" title="Authorization" content="Granting access to resources" placement="top">authorization</LearningTooltip> needs.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -631,13 +685,21 @@ const OIDCHybridFlowV7: React.FC = () => {
 
 						<ParameterGrid>
 							<div>
-								<ParameterLabel>Response Type</ParameterLabel>
+								<ParameterLabel>
+									<LearningTooltip variant="learning" title="response_type" content="OAuth parameter specifying requested tokens. Hybrid uses: 'code id_token', 'code token', or 'code id_token token'." placement="top">
+										Response Type
+									</LearningTooltip>
+								</ParameterLabel>
 								<ParameterValue>
 									{HybridFlowDefaults.getFlowConfig(selectedVariant).responseType}
 								</ParameterValue>
 							</div>
 							<div>
-								<ParameterLabel>Requires Nonce</ParameterLabel>
+								<ParameterLabel>
+									<LearningTooltip variant="security" title="Nonce" content="Number used once - random value for replay protection. Required when ID token is returned in fragment." placement="top">
+										Requires Nonce
+									</LearningTooltip>
+								</ParameterLabel>
 								<ParameterValue>
 									{HybridFlowDefaults.getFlowConfig(selectedVariant).requiresNonce ? 'Yes' : 'No'}
 								</ParameterValue>
@@ -723,7 +785,12 @@ const OIDCHybridFlowV7: React.FC = () => {
 								</div>
 							</InfoBox>
 
-							<HelperText>Generate PKCE parameters, then build and launch the authorization request.</HelperText>
+							<HelperText>
+								Generate{' '}
+								<LearningTooltip variant="learning" title="PKCE" content="RFC 7636 - Proof Key for Code Exchange, security extension for OAuth flows" placement="top">PKCE</LearningTooltip>
+								{' '}parameters, then build and launch the{' '}
+								<LearningTooltip variant="learning" title="Authorization Request" content="OAuth request redirecting user to authorize app" placement="top">authorization request</LearningTooltip>.
+							</HelperText>
 
 							<ActionRow>
 								<Button variant="secondary" onClick={controller.generatePKCE} loading={controller.isLoading}>
@@ -826,11 +893,24 @@ const OIDCHybridFlowV7: React.FC = () => {
 						<InfoBox $variant="success">
 							<FiCheckCircle size={20} />
 							<div>
-								<InfoTitle>Hybrid Authorization Response</InfoTitle>
+								<InfoTitle>
+									<LearningTooltip variant="learning" title="Hybrid Authorization Response" content="OIDC Hybrid response with tokens in URL fragment (#) and authorization code for exchange" placement="top">
+										Hybrid Authorization Response
+									</LearningTooltip>
+								</InfoTitle>
 								<InfoText>
-									The hybrid flow delivers immediate tokens (ID token, access token) in the URL fragment 
-									alongside the authorization code, providing both immediate authentication and 
-									secure token exchange capabilities.
+									The{' '}
+									<LearningTooltip variant="learning" title="Hybrid Flow" content="OIDC flow combining Authorization Code and Implicit patterns" placement="top">hybrid flow</LearningTooltip> delivers immediate{' '}
+									<LearningTooltip variant="learning" title="Tokens" content="ID token and/or access token returned in URL fragment" placement="top">tokens</LearningTooltip> ({' '}
+									<LearningTooltip variant="learning" title="ID Token" content="JWT with user identity" placement="top">ID token</LearningTooltip>,{' '}
+									<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">access token</LearningTooltip>
+									{' '}) in the{' '}
+									<LearningTooltip variant="info" title="URL Fragment" content="Part of URL after # symbol - not sent to server, processed client-side. Used in OIDC Hybrid and Implicit flows." placement="top">URL fragment</LearningTooltip>
+									{' '}alongside the{' '}
+									<LearningTooltip variant="learning" title="Authorization Code" content="Code exchanged for full token set including refresh token" placement="top">authorization code</LearningTooltip>, providing both immediate{' '}
+									<LearningTooltip variant="info" title="Authentication" content="User identity verification" placement="top">authentication</LearningTooltip> and
+									{' '}secure{' '}
+									<LearningTooltip variant="learning" title="Token Exchange" content="Exchanging authorization code for tokens server-side" placement="top">token exchange</LearningTooltip> capabilities.
 								</InfoText>
 							</div>
 						</InfoBox>
