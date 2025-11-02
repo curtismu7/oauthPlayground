@@ -970,8 +970,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				/>
 			)}
 
-				<CollapsibleHeader
-					title={title}
+			<CollapsibleHeader
+				title={title}
 				subtitle={subtitle}
 				icon={<FiSettings />}
 				defaultCollapsed={defaultCollapsed}
@@ -984,6 +984,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					placeholder={discoveryPlaceholder}
 					showProviderInfo={showProviderInfo}
 				/>
+			</CollapsibleHeader>
 
 			{/* Advanced Configuration */}
 			<CollapsibleHeader
@@ -1708,8 +1709,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				/>
 			</CollapsibleHeader>
 		)}
-
-			</CollapsibleHeader>
 
 		</ServiceContainer>
 		</>
