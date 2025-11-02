@@ -26,6 +26,7 @@ import { PARConfigurationServiceUtils, type PARConfiguration, PARConfigurationSe
 import { RARService, type AuthorizationDetail } from '../../services/rarService';
 import { AuthorizationDetailsEditor } from '../../components/AuthorizationDetailsEditor';
 import { useCredentialBackup } from '../../hooks/useCredentialBackup';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 // V7 Styled Components - Enhanced with modern design
 const Container = styled.div`
@@ -488,14 +489,24 @@ const PingOnePARFlowV7: React.FC = () => {
 				$selected={selectedVariant === 'oauth'}
 				onClick={() => handleVariantChange('oauth')}
 			>
-				<VariantTitle>OAuth 2.0 PAR</VariantTitle>
-				<VariantDescription>Access token only - API authorization with enhanced security</VariantDescription>
+				<VariantTitle>
+					<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework" placement="top">OAuth 2.0</LearningTooltip>{' '}
+					<LearningTooltip variant="learning" title="PAR" content="RFC 9126 - Pushed Authorization Requests. Sends authorization parameters to secure endpoint instead of URL." placement="top">PAR</LearningTooltip>
+				</VariantTitle>
+				<VariantDescription>
+					<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">Access token</LearningTooltip> only - API{' '}
+					<LearningTooltip variant="info" title="Authorization" content="Granting access to resources" placement="top">authorization</LearningTooltip> with{' '}
+					<LearningTooltip variant="security" title="Enhanced Security" content="PAR prevents parameter tampering by sending params via secure back-channel" placement="top">enhanced security</LearningTooltip>
+				</VariantDescription>
 			</VariantButton>
 			<VariantButton
 				$selected={selectedVariant === 'oidc'}
 				onClick={() => handleVariantChange('oidc')}
 			>
-				<VariantTitle>OpenID Connect PAR</VariantTitle>
+				<VariantTitle>
+					<LearningTooltip variant="info" title="OpenID Connect" content="Authentication layer on OAuth 2.0" placement="top">OpenID Connect</LearningTooltip>{' '}
+					<LearningTooltip variant="learning" title="PAR" content="RFC 9126 - Pushed Authorization Requests" placement="top">PAR</LearningTooltip>
+				</VariantTitle>
 				<VariantDescription>ID token + Access token - Authentication + Authorization with PAR security</VariantDescription>
 			</VariantButton>
 		</VariantSelector>
@@ -592,33 +603,131 @@ const PingOnePARFlowV7: React.FC = () => {
 								gap: '0.5rem'
 							}}>
 								<FiShield size={20} />
-								{selectedVariant === 'oidc' ? 'OpenID Connect PAR' : 'OAuth 2.0 PAR'} Overview
+								{selectedVariant === 'oidc' ? (
+									<>
+										<LearningTooltip variant="info" title="OpenID Connect" content="Authentication layer on OAuth 2.0" placement="top">OpenID Connect</LearningTooltip>{' '}
+										<LearningTooltip variant="learning" title="PAR" content="RFC 9126 - Pushed Authorization Requests" placement="top">PAR</LearningTooltip>
+									</>
+								) : (
+									<>
+										<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework" placement="top">OAuth 2.0</LearningTooltip>{' '}
+										<LearningTooltip variant="learning" title="PAR" content="RFC 9126 - Pushed Authorization Requests" placement="top">PAR</LearningTooltip>
+									</>
+								)}{' '}Overview
 							</h4>
 
 							{selectedVariant === 'oidc' ? (
 								<div>
 									<p style={{ margin: '0 0 1rem 0', color: '#1e40af' }}>
-										<strong>OpenID Connect PAR</strong> extends OAuth 2.0 PAR to include OIDC-specific parameters like <code>nonce</code>, <code>claims</code>, and <code>id_token_hint</code> for secure authentication flows.
+										<strong>
+											<LearningTooltip variant="info" title="OpenID Connect PAR" content="OIDC version of PAR - adds authentication capabilities" placement="top">OpenID Connect PAR</LearningTooltip>
+										</strong> extends{' '}
+										<LearningTooltip variant="info" title="OAuth 2.0 PAR" content="RFC 9126 - Base PAR specification" placement="top">OAuth 2.0 PAR</LearningTooltip> to include OIDC-specific parameters like{' '}
+										<code>
+											<LearningTooltip variant="security" title="nonce" content="Number used once - replay protection for ID token" placement="top">nonce</LearningTooltip>
+										</code>,{' '}
+										<code>
+											<LearningTooltip variant="info" title="claims" content="Requested user identity information" placement="top">claims</LearningTooltip>
+										</code>, and{' '}
+										<code>
+											<LearningTooltip variant="info" title="id_token_hint" content="Hint for pre-existing authentication" placement="top">id_token_hint</LearningTooltip>
+										</code> for secure{' '}
+										<LearningTooltip variant="info" title="Authentication" content="User identity verification" placement="top">authentication</LearningTooltip> flows.
 									</p>
 									<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#1e40af' }}>
-										<li><strong>Tokens:</strong> Access Token + ID Token (+ optional Refresh Token)</li>
-										<li><strong>Audience:</strong> ID Token audience is the Client (OIDC RP)</li>
-										<li><strong>Scopes:</strong> Includes <code>openid</code> scope for identity claims</li>
-										<li><strong>Security:</strong> Includes <code>nonce</code> for replay protection</li>
-										<li><strong>Use Case:</strong> User authentication + API authorization</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="learning" title="Tokens" content="OIDC PAR returns access token, ID token, and optionally refresh token" placement="top">Tokens</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">Access Token</LearningTooltip> +{' '}
+											<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity" placement="top">ID Token</LearningTooltip> (+ optional{' '}
+											<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token for token refresh" placement="top">Refresh Token</LearningTooltip>)
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="info" title="Audience" content="Intended recipient of token" placement="top">Audience</LearningTooltip>
+											</strong>: ID Token audience is the{' '}
+											<LearningTooltip variant="info" title="Client (OIDC RP)" content="Relying Party - OIDC client application" placement="top">Client (OIDC RP)</LearningTooltip>
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="learning" title="Scopes" content="Requested permissions" placement="top">Scopes</LearningTooltip>
+											</strong>: Includes{' '}
+											<code>
+												<LearningTooltip variant="info" title="openid scope" content="Required for OIDC flows to receive ID token" placement="top">openid</LearningTooltip>
+											</code> scope for{' '}
+											<LearningTooltip variant="info" title="Identity Claims" content="User identity information in ID token" placement="top">identity claims</LearningTooltip>
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="security" title="Security" content="Security mechanisms in OIDC PAR" placement="top">Security</LearningTooltip>
+											</strong>: Includes{' '}
+											<code>
+												<LearningTooltip variant="security" title="nonce" content="Replay protection for ID token" placement="top">nonce</LearningTooltip>
+											</code> for{' '}
+											<LearningTooltip variant="security" title="Replay Protection" content="Prevents token replay attacks" placement="top">replay protection</LearningTooltip>
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="info" title="Use Case" content="When to use OIDC PAR" placement="top">Use Case</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="info" title="User Authentication" content="Verifying user identity" placement="top">User authentication</LearningTooltip> +{' '}
+											<LearningTooltip variant="info" title="API Authorization" content="Granting API access" placement="top">API authorization</LearningTooltip>
+										</li>
 									</ul>
 								</div>
 							) : (
 								<div>
 									<p style={{ margin: '0 0 1rem 0', color: '#166534' }}>
-										<strong>OAuth 2.0 PAR</strong> (RFC 9126) allows clients to send authorization parameters via authenticated HTTP POST request rather than exposing them in browser URLs.
+										<strong>
+											<LearningTooltip variant="info" title="OAuth 2.0 PAR" content="RFC 9126 - Pushed Authorization Requests" placement="top">OAuth 2.0 PAR</LearningTooltip>
+										</strong> (
+										<LearningTooltip variant="info" title="RFC 9126" content="OAuth 2.0 Pushed Authorization Requests specification" placement="top">RFC 9126</LearningTooltip>) allows{' '}
+										<LearningTooltip variant="info" title="OAuth Clients" content="Applications requesting access" placement="top">clients</LearningTooltip> to send{' '}
+										<LearningTooltip variant="learning" title="Authorization Parameters" content="OAuth request parameters like client_id, scope, redirect_uri" placement="top">authorization parameters</LearningTooltip> via{' '}
+										<LearningTooltip variant="security" title="Authenticated HTTP POST" content="Secure back-channel request requiring client authentication" placement="top">authenticated HTTP POST request</LearningTooltip> rather than exposing them in{' '}
+										<LearningTooltip variant="security" title="Browser URLs" content="URL parameters can be tampered with or logged" placement="top">browser URLs</LearningTooltip>.
 									</p>
 									<ul style={{ margin: '0', paddingLeft: '1.5rem', color: '#166534' }}>
-										<li><strong>Tokens:</strong> Access Token (for API access)</li>
-										<li><strong>Audience:</strong> API or Resource Server</li>
-										<li><strong>Scopes:</strong> API-specific scopes (e.g., <code>api.read</code>, <code>api.write</code>)</li>
-										<li><strong>Security:</strong> Client authentication required at request creation</li>
-										<li><strong>Use Case:</strong> Secure API authorization without user identity</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="learning" title="Tokens" content="OAuth PAR returns access token only" placement="top">Tokens</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">Access Token</LearningTooltip> (for{' '}
+											<LearningTooltip variant="info" title="API Access" content="Accessing protected APIs" placement="top">API access</LearningTooltip>)
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="info" title="Audience" content="Intended recipient of token" placement="top">Audience</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="info" title="API or Resource Server" content="Target API receiving the access token" placement="top">API or Resource Server</LearningTooltip>
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="learning" title="Scopes" content="Requested permissions" placement="top">Scopes</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="info" title="API-specific scopes" content="Permissions for API access (e.g., read, write)" placement="top">API-specific scopes</LearningTooltip> (e.g.,{' '}
+											<code>
+												<LearningTooltip variant="learning" title="api.read" content="Permission to read API resources" placement="top">api.read</LearningTooltip>
+											</code>,{' '}
+											<code>
+												<LearningTooltip variant="learning" title="api.write" content="Permission to write/update API resources" placement="top">api.write</LearningTooltip>
+											</code>)
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="security" title="Security" content="Security features of OAuth PAR" placement="top">Security</LearningTooltip>
+											</strong>:{' '}
+											<LearningTooltip variant="security" title="Client Authentication" content="Client must authenticate when pushing request to PAR endpoint" placement="top">Client authentication</LearningTooltip> required at{' '}
+											<LearningTooltip variant="info" title="Request Creation" content="When pushing authorization request to PAR endpoint" placement="top">request creation</LearningTooltip>
+										</li>
+										<li>
+											<strong>
+												<LearningTooltip variant="info" title="Use Case" content="When to use OAuth PAR" placement="top">Use Case</LearningTooltip>
+											</strong>: Secure{' '}
+											<LearningTooltip variant="info" title="API Authorization" content="Granting API access without user identity" placement="top">API authorization</LearningTooltip> without{' '}
+											<LearningTooltip variant="info" title="User Identity" content="User authentication information" placement="top">user identity</LearningTooltip>
+										</li>
 									</ul>
 								</div>
 							)}
@@ -630,13 +739,28 @@ const PingOnePARFlowV7: React.FC = () => {
 								borderRadius: '0.5rem'
 							}}>
 								<h5 style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', fontWeight: '600' }}>
-									🔐 PAR Security Benefits
+									🔐{' '}
+									<LearningTooltip variant="learning" title="PAR" content="RFC 9126 - Pushed Authorization Requests" placement="top">PAR</LearningTooltip> Security Benefits
 								</h5>
 								<ul style={{ margin: '0', paddingLeft: '1.5rem', fontSize: '0.875rem' }}>
-									<li>Prevents long or sensitive URLs</li>
-									<li>Reduces risk of parameter tampering</li>
-									<li>Enforces client authentication at request creation</li>
-									<li>Works with RAR (Rich Authorization Requests) and JAR (JWT-secured Auth Requests)</li>
+									<li>
+										Prevents{' '}
+										<LearningTooltip variant="security" title="Long URLs" content="URLs with many parameters can be truncated or logged" placement="top">long or sensitive URLs</LearningTooltip>
+									</li>
+									<li>
+										Reduces risk of{' '}
+										<LearningTooltip variant="security" title="Parameter Tampering" content="Attackers modifying URL parameters to change authorization" placement="top">parameter tampering</LearningTooltip>
+									</li>
+									<li>
+										Enforces{' '}
+										<LearningTooltip variant="security" title="Client Authentication" content="Client must authenticate when pushing to PAR endpoint" placement="top">client authentication</LearningTooltip> at{' '}
+										<LearningTooltip variant="info" title="Request Creation" content="When pushing authorization request" placement="top">request creation</LearningTooltip>
+									</li>
+									<li>
+										Works with{' '}
+										<LearningTooltip variant="learning" title="RAR" content="RFC 9396 - Rich Authorization Requests" placement="top">RAR (Rich Authorization Requests)</LearningTooltip> and{' '}
+										<LearningTooltip variant="learning" title="JAR" content="RFC 9101 - JWT-secured Authorization Requests" placement="top">JAR (JWT-secured Auth Requests)</LearningTooltip>
+									</li>
 								</ul>
 							</div>
 						</div>
@@ -743,9 +867,19 @@ const PingOnePARFlowV7: React.FC = () => {
 							</h4>
 							<div style={{ fontSize: '0.875rem', color: '#64748b', lineHeight: '1.6' }}>
 								<p style={{ margin: '0 0 1rem 0' }}>
-									<strong>Why PKCE is essential for PAR:</strong> PAR (RFC 9126) pushes authorization request parameters 
-									to the authorization server before the user is redirected. PKCE adds an extra layer of security 
-									by ensuring that only the client that initiated the request can exchange the authorization code.
+									<strong>Why{' '}
+										<LearningTooltip variant="learning" title="PKCE" content="RFC 7636 - Proof Key for Code Exchange" placement="top">PKCE</LearningTooltip> is essential for{' '}
+										<LearningTooltip variant="learning" title="PAR" content="RFC 9126 - Pushed Authorization Requests" placement="top">PAR</LearningTooltip>:
+									</strong>{' '}
+									<LearningTooltip variant="learning" title="PAR" content="RFC 9126" placement="top">PAR (RFC 9126)</LearningTooltip> pushes{' '}
+									<LearningTooltip variant="info" title="Authorization Request Parameters" content="OAuth parameters like client_id, scope, redirect_uri" placement="top">authorization request parameters</LearningTooltip>
+									{' '}to the{' '}
+									<LearningTooltip variant="info" title="Authorization Server" content="PingOne authorization server" placement="top">authorization server</LearningTooltip> before the user is redirected.{' '}
+									<LearningTooltip variant="learning" title="PKCE" content="RFC 7636 - Security extension" placement="top">PKCE</LearningTooltip> adds an extra layer of{' '}
+									<LearningTooltip variant="security" title="Security" content="Prevents authorization code interception" placement="top">security</LearningTooltip>
+									{' '}by ensuring that only the{' '}
+									<LearningTooltip variant="info" title="Client" content="Application that initiated the request" placement="top">client</LearningTooltip> that initiated the request can{' '}
+									<LearningTooltip variant="learning" title="Exchange Authorization Code" content="Server-side exchange of code for tokens" placement="top">exchange the authorization code</LearningTooltip>.
 								</p>
 								
 								<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
