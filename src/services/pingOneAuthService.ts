@@ -373,9 +373,10 @@ class PingOneAuthService {
       errors.push('Environment ID is required');
     }
 
-    // Basic email format validation for username
-    if (credentials.username && !this.isValidEmail(credentials.username)) {
-      errors.push('Username must be a valid email address');
+    // PingOne accepts both usernames and email addresses
+    // Only validate email format if the username contains @ (suggesting it should be an email)
+    if (credentials.username && credentials.username.includes('@') && !this.isValidEmail(credentials.username)) {
+      errors.push('Username appears to be an email address but format is invalid');
     }
 
     return {
@@ -389,6 +390,28 @@ class PingOneAuthService {
     return emailRegex.test(email);
   }
 
+  /**
+   * Perform authentication using OAuth 2.0 Resource Owner Password Credentials Grant
+   * 
+   * EDUCATIONAL NOTE: This uses the "password" grant type (grant_type: 'password'), which is:
+   * - Part of OAuth 2.0 (RFC 6749) - Section 4.3
+   * - Deprecated in OAuth 2.1 (removed for security reasons)
+   * - Still useful for learning: demonstrates direct credential exchange
+   * - NOT recommended for production: credentials sent directly to auth server
+   * - Better alternatives: Authorization Code Flow with PKCE (for interactive) or Client Credentials (for M2M)
+   * 
+   * How it works:
+   * 1. Client sends username + password directly to token endpoint
+   * 2. Auth server validates credentials
+   * 3. Auth server returns access token (and optionally refresh token)
+   * 
+   * Security concerns:
+   * - Credentials sent over network (even if HTTPS)
+   * - No authorization step - user can't control which resources app accesses
+   * - If compromised, attacker gets direct access to user account
+   * 
+   * This implementation is for TRAINING PURPOSES to teach OAuth 2.0 concepts.
+   */
   private static async performAuthentication(
     credentials: LoginCredentials, 
     envConfig: EnvironmentConfig
@@ -396,15 +419,22 @@ class PingOneAuthService {
     // This would make actual API calls to PingOne
     // For now, implementing a mock that simulates real behavior
     
+    // OAuth 2.0 Token Endpoint - where tokens are issued
+    // Format: https://auth.pingone.{region}/{environmentId}/as/token
     const authUrl = `${envConfig.authUrl}/${envConfig.environmentId}/as/token`;
     
+    // OAuth 2.0 Request Body - Resource Owner Password Credentials Grant (RFC 6749 Section 4.3)
+    // grant_type: 'password' - indicates we're using password grant flow
+    // username/password: User credentials (sent directly - security risk, hence deprecated)
+    // client_id/client_secret: App credentials (identifies which app is making request)
+    // scope: Requested permissions (openid = OIDC, profile = user profile, email = email address)
     const requestBody = {
-      grant_type: 'password',
+      grant_type: 'password', // OAuth 2.0 password grant (deprecated in OAuth 2.1)
       username: credentials.username,
       password: credentials.password,
       client_id: import.meta.env.VITE_PINGONE_CLIENT_ID,
       client_secret: import.meta.env.VITE_PINGONE_CLIENT_SECRET,
-      scope: 'openid profile email'
+      scope: 'openid profile email' // OIDC scopes: openid (required for OIDC), profile, email
     };
 
     const response = await fetch(authUrl, {
