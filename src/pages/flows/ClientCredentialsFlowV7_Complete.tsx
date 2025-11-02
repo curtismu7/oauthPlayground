@@ -29,6 +29,7 @@ import { useCredentialBackup } from '../../hooks/useCredentialBackup';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import { CopyButtonService } from '../../services/copyButtonService';
 import { ClientAuthMethod } from '../../services/clientCredentialsSharedService';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 // V7 Styled Components
 const Container = styled.div`
@@ -462,8 +463,20 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 											responseTypes: [], // Client credentials doesn't use response types
 											tokenEndpointAuthMethod: controller.credentials.clientAuthMethod || 'client_secret_post',
 										}}
-										title="Client Credentials Configuration"
-										subtitle="Configure your client credentials for machine-to-machine authentication"
+										title={
+											<>Client{' '}
+												<LearningTooltip variant="learning" title="Client Credentials" content="OAuth 2.0 grant type (RFC 6749 Section 4.4) for machine-to-machine authentication. No user interaction required - perfect for service-to-service API calls." placement="top">
+													Credentials
+												</LearningTooltip> Configuration
+											</>
+										}
+										subtitle={
+											<>Configure your client credentials for{' '}
+												<LearningTooltip variant="info" title="Machine-to-Machine (M2M)" content="Service-to-service authentication where no user is involved. Typically used for backend services, microservices, and automated systems." placement="top">
+													machine-to-machine authentication
+												</LearningTooltip>
+											</>
+										}
 										requireClientSecret={true}
 										showConfigChecker={true}
 										workerToken={localStorage.getItem('worker-token') || ''}
@@ -493,10 +506,17 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
-											<InfoTitle>Client Authentication Methods</InfoTitle>
+											<InfoTitle>
+												<LearningTooltip variant="learning" title="Client Authentication Methods" content="How the OAuth client proves its identity to the authorization server. Methods include client_secret_post, client_secret_basic, private_key_jwt, and none." placement="top">
+													Client Authentication Methods
+												</LearningTooltip>
+											</InfoTitle>
 											<InfoText>
-												Choose how your client will authenticate with the authorization server.
-												Client Credentials flow supports multiple authentication methods.
+												Choose how your{' '}
+												<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access to protected resources" placement="top">client</LearningTooltip> will authenticate with the{' '}
+												<LearningTooltip variant="learning" title="Authorization Server" content="OAuth server that issues tokens after validating client credentials." placement="top">authorization server</LearningTooltip>.
+												<LearningTooltip variant="learning" title="Client Credentials Flow" content="OAuth 2.0 grant type for M2M authentication - no user involved" placement="top">Client Credentials flow</LearningTooltip> supports multiple{' '}
+												<LearningTooltip variant="info" title="Authentication Methods" content="Ways to prove client identity: POST body, Basic Auth header, JWT assertion, or none" placement="top">authentication methods</LearningTooltip>.
 											</InfoText>
 											<div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6b7280' }}>
 												Current auth method: {controller.credentials.clientAuthMethod || 'none'}
@@ -512,7 +532,10 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 												controller.setCredentials({...controller.credentials, clientAuthMethod: 'client_secret_post'});
 											}}
 										>
-											<FiKey /> Client Secret POST
+											<FiKey />{' '}
+											<LearningTooltip variant="learning" title="client_secret_post" content="Client secret sent in POST body as form parameter. Most common method, simple to implement." placement="top">
+												Client Secret POST
+											</LearningTooltip>
 										</Button>
 										<Button
 											variant={controller.credentials.clientAuthMethod === 'client_secret_basic' ? 'primary' : 'secondary'}
@@ -521,7 +544,10 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 												controller.setCredentials({...controller.credentials, clientAuthMethod: 'client_secret_basic'});
 											}}
 										>
-											<FiShield /> Client Secret Basic
+											<FiShield />{' '}
+											<LearningTooltip variant="learning" title="client_secret_basic" content="Client secret sent in Authorization header using HTTP Basic Authentication (base64 encoded client_id:client_secret)." placement="top">
+												Client Secret Basic
+											</LearningTooltip>
 										</Button>
 									</div>
 								</CollapsibleContent>
@@ -548,9 +574,17 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
-											<InfoTitle>Client Credentials Token Request</InfoTitle>
+											<InfoTitle>
+												<LearningTooltip variant="learning" title="Client Credentials Token Request" content="OAuth 2.0 token request using client_credentials grant_type. Contains grant_type, scope (optional), and client authentication." placement="top">
+													Client Credentials Token Request
+												</LearningTooltip>
+											</InfoTitle>
 											<InfoText>
-												The client sends a token request to the authorization server using its credentials.
+												The{' '}
+												<LearningTooltip variant="info" title="OAuth Client" content="Application requesting tokens" placement="top">client</LearningTooltip> sends a{' '}
+												<LearningTooltip variant="learning" title="Token Request" content="POST request to /as/token endpoint with grant_type=client_credentials" placement="top">token request</LearningTooltip> to the{' '}
+												<LearningTooltip variant="learning" title="Authorization Server" content="Server that validates client and issues tokens" placement="top">authorization server</LearningTooltip> using its{' '}
+												<LearningTooltip variant="security" title="Client Credentials" content="client_id and client_secret used to authenticate the client" placement="top">credentials</LearningTooltip>.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -561,7 +595,10 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 											onClick={controller.requestToken}
 											loading={controller.isLoading}
 										>
-											<FiRefreshCw /> Request Access Token
+											<FiRefreshCw /> Request{' '}
+											<LearningTooltip variant="learning" title="Access Token" content="Bearer token used to authenticate API requests. Valid for specified expires_in seconds, sent in Authorization header." placement="top">
+												Access Token
+											</LearningTooltip>
 										</Button>
 									</ActionRow>
 
@@ -604,9 +641,16 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 											<InfoBox $variant="success">
 												<FiCheckCircle size={20} />
 												<div>
-													<InfoTitle>Access Token Received</InfoTitle>
+													<InfoTitle>
+														<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication. Contains permissions (scopes) and lifetime." placement="top">
+															Access Token
+														</LearningTooltip> Received
+													</InfoTitle>
 													<InfoText>
-														The authorization server has returned an access token for your client.
+														The{' '}
+														<LearningTooltip variant="learning" title="Authorization Server" content="OAuth server that validates client and issues tokens" placement="top">authorization server</LearningTooltip> has returned an{' '}
+														<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">access token</LearningTooltip> for your{' '}
+														<LearningTooltip variant="info" title="OAuth Client" content="Your application" placement="top">client</LearningTooltip>.
 													</InfoText>
 												</div>
 											</InfoBox>
@@ -656,9 +700,16 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
-											<InfoTitle>Using the Access Token</InfoTitle>
+											<InfoTitle>
+												Using the{' '}
+												<LearningTooltip variant="learning" title="Access Token" content="Bearer token sent in Authorization header to authenticate API requests" placement="top">
+													Access Token
+												</LearningTooltip>
+											</InfoTitle>
 											<InfoText>
-												Use the access token to make authenticated requests to protected APIs.
+												Use the{' '}
+												<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">access token</LearningTooltip> to make authenticated requests to{' '}
+												<LearningTooltip variant="info" title="Protected APIs" content="APIs that require authentication via access token in Authorization header" placement="top">protected APIs</LearningTooltip>.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -703,7 +754,10 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 										<div>
 											<InfoTitle>Token Validation</InfoTitle>
 											<InfoText>
-												Validate the access token to ensure it's still valid and check its claims.
+												<LearningTooltip variant="info" title="Token Introspection" content="RFC 7662 - Validating tokens by querying authorization server. Checks if token is active, valid, and returns claims." placement="top">
+													Validate the access token
+												</LearningTooltip> to ensure it's still valid and check its{' '}
+												<LearningTooltip variant="info" title="Claims" content="Token properties/attributes like scope, expiration, audience, etc." placement="top">claims</LearningTooltip>.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -743,9 +797,15 @@ const ClientCredentialsFlowV7Complete: React.FC = () => {
 						<InfoBox $variant="success">
 							<FiCheckCircle size={20} />
 							<div>
-								<InfoTitle>Client Credentials Flow Complete!</InfoTitle>
+								<InfoTitle>
+									<LearningTooltip variant="learning" title="Client Credentials Flow" content="OAuth 2.0 grant type for M2M authentication (RFC 6749 Section 4.4)" placement="top">
+										Client Credentials Flow
+									</LearningTooltip> Complete!
+								</InfoTitle>
 								<InfoText>
-									You have successfully completed the OAuth 2.0 Client Credentials flow.
+									You have successfully completed the{' '}
+									<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework for delegated access" placement="top">OAuth 2.0</LearningTooltip>{' '}
+									<LearningTooltip variant="learning" title="Client Credentials Flow" content="Grant type for machine-to-machine authentication" placement="top">Client Credentials flow</LearningTooltip>.
 									Your client can now authenticate and access protected resources.
 								</InfoText>
 							</div>
