@@ -852,6 +852,8 @@ const CancelButton = styled.button`
 	}, []);
 
 	// Check if selected application is Client Credentials only
+	// TODO: Future refactoring - This page should use ComprehensiveCredentialsService instead of manual detection
+	// ComprehensiveCredentialsService already handles this logic in a centralized way
 	const isClientCredentialsOnly = useMemo(() => {
 		if (!selectedApplication) return false;
 		// First check if the application type is SERVICE (client credentials)
