@@ -42,6 +42,7 @@ import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import ModalPresentationService from '../../services/modalPresentationService';
 import { CredentialGuardService } from '../../services/credentialGuardService';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
@@ -551,8 +552,16 @@ const RARFlowV7: React.FC = () => {
 						<InfoBox $variant="success" style={{ marginBottom: '1.5rem', background: '#dcfce7', borderColor: '#10b981' }}>
 							<FiCheckCircle size={24} style={{ color: '#047857' }} />
 							<div>
-								<InfoTitle style={{ color: '#065f46', fontSize: '1.125rem' }}>RAR = Fine-Grained Authorization with Structured JSON (RFC 9396)</InfoTitle>
+								<InfoTitle style={{ color: '#065f46', fontSize: '1.125rem' }}>
+									<LearningTooltip variant="learning" title="RAR (Rich Authorization Requests)" content="RFC 9396 - Fine-grained authorization using structured JSON. Specifies detailed resource and action permissions." placement="top">RAR</LearningTooltip>
+									{' '}= Fine-Grained Authorization with Structured JSON (
+									<LearningTooltip variant="info" title="RFC 9396" content="OAuth 2.0 Rich Authorization Requests specification" placement="top">RFC 9396</LearningTooltip>
+									)
+								</InfoTitle>
 								<InfoText style={{ color: '#064e3b', marginBottom: '0.75rem' }}>
+									<LearningTooltip variant="learning" title="RAR" content="RFC 9396 - Rich Authorization Requests" placement="top">RAR</LearningTooltip> enables{' '}
+									<LearningTooltip variant="info" title="Fine-Grained Authorization" content="Precise control over what resources and actions are authorized" placement="top">fine-grained authorization</LearningTooltip> using{' '}
+									<LearningTooltip variant="info" title="Structured JSON" content="JSON format specifying resources, actions, and conditions" placement="top">structured JSON</LearningTooltip>.{' '}
 									{RAR_EDUCATION.overview.description}
 								</InfoText>
 								<InfoText style={{ color: '#064e3b', marginBottom: '0.75rem', fontStyle: 'italic' }}>
