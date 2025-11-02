@@ -84,6 +84,7 @@ import {
 } from './config/OAuthAuthzCodeFlowV6.config';
 import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
 import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 type StepCompletionState = Record<number, boolean>;
 
@@ -2113,8 +2114,28 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 									<InfoTitle>What You'll Get</InfoTitle>
 									<InfoText>
 										{flowVariant === 'oidc' 
-											? '🎯 User authentication + API authorization with ID token and access token'
-											: '🔑 API authorization with access token (PingOne requires openid scope)'
+											? (
+												<>🎯 User authentication + API authorization with{' '}
+												<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT containing user identity information. Signed by authorization server, contains claims like sub, email, name. Validated client-side." placement="top">
+													ID token
+												</LearningTooltip>
+												{' '}and{' '}
+												<LearningTooltip variant="learning" title="Access Token" content="Bearer token used to authenticate API requests. Typically valid for 1 hour, sent in Authorization header." placement="top">
+													access token
+												</LearningTooltip>
+												</>
+											) : (
+												<>🔑 API authorization with{' '}
+												<LearningTooltip variant="learning" title="Access Token" content="Bearer token used to authenticate API requests. Typically valid for 1 hour, sent in Authorization header." placement="top">
+													access token
+												</LearningTooltip>
+												{' '}(PingOne requires{' '}
+												<LearningTooltip variant="info" title="openid scope" content="OpenID Connect scope that indicates this is an OIDC flow. Required to receive ID token." placement="top">
+													openid scope
+												</LearningTooltip>
+												)
+												</>
+											)
 										}
 									</InfoText>
 								</div>
@@ -2138,9 +2159,33 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 							<div>
 								<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
 								<InfoText>
-									<strong>Client Secret:</strong> Required for token introspection and refresh<br/>
-									<strong>Scopes:</strong> Include "profile" scope for user info endpoint<br/>
-									<strong>Environment ID:</strong> Must match your PingOne environment
+									<strong>
+										<LearningTooltip variant="security" title="Client Secret" content="Secret credential used to authenticate your application. NEVER expose to browser - keep server-side." placement="top">
+											Client Secret
+										</LearningTooltip>
+									:</strong> Required for{' '}
+									<LearningTooltip variant="info" title="Token Introspection" content="RFC 7662 - Validating tokens by querying the authorization server. Checks if token is active, valid, and not expired." placement="top">
+										token introspection
+									</LearningTooltip>
+									{' '}and{' '}
+									<LearningTooltip variant="learning" title="Token Refresh" content="Using refresh_token to get new access_token without re-authorization. Happens when access_token expires." placement="top">
+										refresh
+									</LearningTooltip>
+									<br/>
+									<strong>
+										<LearningTooltip variant="learning" title="Scopes" content="Space-separated list of permissions requested. Examples: 'openid', 'profile', 'email', 'read', 'write'." placement="top">
+											Scopes
+										</LearningTooltip>
+									:</strong> Include "profile" scope for{' '}
+									<LearningTooltip variant="info" title="UserInfo Endpoint" content="OIDC endpoint that returns user profile information. Accessed with access_token in Authorization header." placement="top">
+										user info endpoint
+									</LearningTooltip>
+									<br/>
+									<strong>
+										<LearningTooltip variant="info" title="Environment ID" content="Unique identifier for your PingOne environment. Found in PingOne Admin Console." placement="top">
+											Environment ID
+										</LearningTooltip>
+									:</strong> Must match your PingOne environment
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -2155,10 +2200,20 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 									borderRadius: '0.5rem',
 									background: flowVariant === 'oauth' ? '#eff6ff' : 'white'
 								}}>
-									<h4>OAuth 2.0 Mode</h4>
-									<p><strong>Tokens:</strong> Access + Refresh</p>
+									<h4>
+										<LearningTooltip variant="info" title="OAuth 2.0" content="RFC 6749 - Authorization framework for delegated access. Provides access tokens but NOT user identity." placement="top">
+											OAuth 2.0
+										</LearningTooltip> Mode
+									</h4>
+									<p><strong>Tokens:</strong>{' '}
+										<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">Access</LearningTooltip>
+										{' + '}
+										<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token to get new access tokens" placement="top">Refresh</LearningTooltip>
+									</p>
 									<p><strong>Purpose:</strong> API access only</p>
-									<p><strong>PingOne:</strong> Requires openid scope</p>
+									<p><strong>PingOne:</strong> Requires{' '}
+										<LearningTooltip variant="info" title="openid scope" content="OIDC scope required by PingOne even for OAuth flows" placement="top">openid scope</LearningTooltip>
+									</p>
 								</div>
 								<div style={{ 
 									padding: '1rem', 
@@ -2166,10 +2221,22 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 									borderRadius: '0.5rem',
 									background: flowVariant === 'oidc' ? '#eff6ff' : 'white'
 								}}>
-									<h4>OpenID Connect Mode</h4>
-									<p><strong>Tokens:</strong> Access + ID + Refresh</p>
+									<h4>
+										<LearningTooltip variant="info" title="OpenID Connect (OIDC)" content="Extension of OAuth 2.0 that adds authentication via ID token. Provides user identity + API access." placement="top">
+											OpenID Connect
+										</LearningTooltip> Mode
+									</h4>
+									<p><strong>Tokens:</strong>{' '}
+										<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API authentication" placement="top">Access</LearningTooltip>
+										{' + '}
+										<LearningTooltip variant="learning" title="ID Token" content="JWT with user identity information" placement="top">ID</LearningTooltip>
+										{' + '}
+										<LearningTooltip variant="learning" title="Refresh Token" content="Long-lived token to get new access tokens" placement="top">Refresh</LearningTooltip>
+									</p>
 									<p><strong>Purpose:</strong> Authentication + API access</p>
-									<p><strong>Standard:</strong> Requires openid scope</p>
+									<p><strong>Standard:</strong> Requires{' '}
+										<LearningTooltip variant="info" title="openid scope" content="Mandatory scope for OIDC flows to receive ID token" placement="top">openid scope</LearningTooltip>
+									</p>
 								</div>
 							</div>
 						</GeneratedContentBox>
@@ -2364,11 +2431,21 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										<InfoBox $variant="success">
 											<FiKey size={20} />
 											<div>
-												<InfoTitle>Code Verifier</InfoTitle>
+												<InfoTitle>
+													<LearningTooltip variant="learning" title="Code Verifier" content="RFC 7636 Section 4.1 - Random 43-128 character string, kept secret, sent only during token exchange to prove identity." placement="top">
+														Code Verifier
+													</LearningTooltip>
+												</InfoTitle>
 												<InfoText>
 													A high-entropy cryptographic random string (43-128 chars) that stays
 													secret in your app. Think of it as a temporary password that proves you're
-													the same client that started the OAuth flow.
+													the same{' '}
+													<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access to protected resources on behalf of user." placement="top">
+														client
+													</LearningTooltip> that started the{' '}
+													<LearningTooltip variant="info" title="OAuth Flow" content="The sequence of steps to obtain tokens and access resources." placement="top">
+														OAuth flow
+													</LearningTooltip>.
 												</InfoText>
 												<InfoList>
 													<li>Generated fresh for each OAuth request</li>
@@ -2382,10 +2459,20 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 										<InfoBox $variant="info">
 											<FiShield size={20} />
 											<div>
-												<InfoTitle>Code Challenge</InfoTitle>
+												<InfoTitle>
+													<LearningTooltip variant="learning" title="Code Challenge" content="RFC 7636 - SHA256 hash of code_verifier, base64url encoded. Sent in authorization URL, cannot be reversed." placement="top">
+														Code Challenge
+													</LearningTooltip>
+												</InfoTitle>
 												<InfoText>
-													A SHA256 hash of the code verifier, encoded in base64url format. This is
-													sent publicly in the authorization URL but can't be reversed to get the
+													A{' '}
+													<LearningTooltip variant="info" title="SHA256" content="Secure hash algorithm producing 256-bit hash. One-way function - cannot be reversed." placement="top">SHA256</LearningTooltip> hash of the{' '}
+													<LearningTooltip variant="learning" title="Code Verifier" content="Secret random string kept in app" placement="top">code verifier</LearningTooltip>, encoded in{' '}
+													<LearningTooltip variant="info" title="base64url" content="URL-safe base64 encoding (uses - and _ instead of + and /, no padding)" placement="top">base64url</LearningTooltip> format. This is
+													sent publicly in the{' '}
+													<LearningTooltip variant="info" title="Authorization URL" content="URL where user is redirected to authorize the application" placement="top">
+														authorization URL
+													</LearningTooltip> but can't be reversed to get the
 													original verifier.
 												</InfoText>
 												<InfoList>
@@ -2482,19 +2569,34 @@ const OAuthAuthorizationCodeFlowV7: React.FC = () => {
 											<InfoTitle>Critical Security Considerations</InfoTitle>
 											<InfoList>
 												<li>
-													<strong>State Parameter:</strong> Always include a unique state parameter
-													to prevent CSRF attacks
+													<strong>
+														<LearningTooltip variant="security" title="State Parameter" content="CSRF protection - Random value sent in auth request and returned in callback. Must match exactly." placement="top">
+															State Parameter
+														</LearningTooltip>
+													:</strong> Always include a unique{' '}
+													<LearningTooltip variant="security" title="state parameter" content="CSRF protection mechanism - must match exactly between request and callback" placement="top">state parameter</LearningTooltip>
+													{' '}to prevent{' '}
+													<LearningTooltip variant="security" title="CSRF Attack" content="Cross-Site Request Forgery - attacker tricks user into making unauthorized requests" placement="top">CSRF attacks</LearningTooltip>
 												</li>
 												<li>
-													<strong>HTTPS Only:</strong> Authorization requests must use HTTPS in
+													<strong>
+														<LearningTooltip variant="security" title="HTTPS" content="Secure HTTP over TLS - encrypts all data in transit" placement="top">HTTPS Only</LearningTooltip>
+													:</strong> Authorization requests must use{' '}
+													<LearningTooltip variant="security" title="HTTPS" content="HTTP Secure - required for all OAuth flows in production" placement="top">HTTPS</LearningTooltip> in
 													production
 												</li>
 												<li>
-													<strong>Validate Redirect URI:</strong> Ensure redirect_uri exactly
+													<strong>
+														<LearningTooltip variant="security" title="Redirect URI Validation" content="redirect_uri in request must exactly match registered URI to prevent code interception" placement="top">Validate Redirect URI</LearningTooltip>
+													:</strong> Ensure{' '}
+													<LearningTooltip variant="learning" title="redirect_uri" content="Callback URL where authorization server sends user after consent" placement="top">redirect_uri</LearningTooltip> exactly
 													matches what's registered in PingOne
 												</li>
 												<li>
-													<strong>Scope Limitation:</strong> Only request the minimum scopes your
+													<strong>
+														<LearningTooltip variant="info" title="Scope Limitation" content="Principle of least privilege - only request permissions you need" placement="top">Scope Limitation</LearningTooltip>
+													:</strong> Only request the minimum{' '}
+													<LearningTooltip variant="learning" title="Scopes" content="Permissions requested from user (e.g., 'read', 'write', 'openid', 'profile')" placement="top">scopes</LearningTooltip> your
 													application needs
 												</li>
 											</InfoList>

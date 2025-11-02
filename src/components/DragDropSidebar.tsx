@@ -293,20 +293,6 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 				isOpen: true,
 				items: [
 					{
-						id: 'oauth-authorization-code-v7',
-						path: '/flows/oauth-authorization-code-v7',
-						label: 'Authorization Code (V7)',
-						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
-					},
-				{
-					id: 'oauth-authorization-code-v7-2',
-					path: '/flows/oauth-authorization-code-v7-2',
-					label: 'Authorization Code (V7.2)',
-					icon: <ColoredIcon $color="#06b6d4"><FiKey /></ColoredIcon>,
-					badge: <MigrationBadge title="V7.2: Adds optional redirectless (pi.flow) with Custom Login"><FiCheckCircle /></MigrationBadge>,
-				},
-					{
 						id: 'oauth-implicit-v7',
 						path: '/flows/implicit-v7',
 						label: 'Implicit Flow (V7)',
@@ -370,8 +356,15 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 				icon: <ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>,
 				isOpen: true,
 				items: [
-				{
-					id: 'oidc-implicit-v7',
+					{
+						id: 'oauth-authorization-code-v7-2',
+						path: '/flows/oauth-authorization-code-v7-2',
+						label: 'Authorization Code (V7.2)',
+						icon: <ColoredIcon $color="#06b6d4"><FiKey /></ColoredIcon>,
+						badge: <MigrationBadge title="V7.2: Adds optional redirectless (pi.flow) with Custom Login"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'oidc-implicit-v7',
 					path: '/flows/implicit-v7?variant=oidc',
 					label: 'Implicit Flow (V7)',
 					icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,

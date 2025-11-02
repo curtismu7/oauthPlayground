@@ -51,6 +51,7 @@ import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { FlowUIService } from '../../services/flowUIService';
 import { CopyButtonService } from '../../services/copyButtonService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 // Get UI components
 const {
@@ -837,11 +838,23 @@ const ImplicitFlowV7: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiGlobe size={20} />
 										<div>
-											<InfoTitle>Building the Authorization URL</InfoTitle>
+											<InfoTitle>
+												Building the{' '}
+												<LearningTooltip variant="info" title="Authorization URL" content="URL where user is redirected to authorize the application" placement="top">
+													Authorization URL
+												</LearningTooltip>
+											</InfoTitle>
 											<InfoText>
-												The authorization URL includes all OAuth parameters. Unlike Authorization
-												Code flow, the response_type is 'token' or 'id_token token', telling PingOne
-												to return tokens directly instead of an authorization code.
+												The{' '}
+												<LearningTooltip variant="info" title="Authorization URL" content="URL for user authorization" placement="top">authorization URL</LearningTooltip> includes all{' '}
+												<LearningTooltip variant="info" title="OAuth Parameters" content="OAuth request parameters like client_id, redirect_uri, scope, state, response_type" placement="top">OAuth parameters</LearningTooltip>. Unlike{' '}
+												<LearningTooltip variant="learning" title="Authorization Code Flow" content="Secure OAuth flow using authorization code for token exchange" placement="top">Authorization Code flow</LearningTooltip>, the{' '}
+												<LearningTooltip variant="learning" title="response_type" content="OAuth parameter specifying requested tokens. Implicit uses 'token' or 'id_token token'." placement="top">response_type</LearningTooltip> is{' '}
+												<LearningTooltip variant="warning" title="Implicit response_type" content="'token' or 'id_token token' - returns tokens directly in URL fragment. DEPRECATED in OAuth 2.1." placement="top">'token' or 'id_token token'</LearningTooltip>, telling{' '}
+												<LearningTooltip variant="info" title="PingOne" content="Identity and access management platform" placement="top">PingOne</LearningTooltip>
+												{' '}to return{' '}
+												<LearningTooltip variant="security" title="Tokens in URL" content="SECURITY RISK: Tokens exposed in browser URL fragment. Deprecated for this reason." placement="top">tokens directly</LearningTooltip> instead of an{' '}
+												<LearningTooltip variant="learning" title="Authorization Code" content="Short-lived code exchanged for tokens server-side (safer)" placement="top">authorization code</LearningTooltip>.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -849,29 +862,78 @@ const ImplicitFlowV7: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
-											<InfoTitle>Implicit Flow Specific Parameters</InfoTitle>
+											<InfoTitle>
+												<LearningTooltip variant="warning" title="Implicit Flow" content="OAuth 2.0 flow (RFC 6749 Section 4.2) - DEPRECATED in OAuth 2.1. Tokens returned in URL fragment. Use Authorization Code + PKCE instead." placement="top">
+													Implicit Flow
+												</LearningTooltip> Specific Parameters
+											</InfoTitle>
 											<InfoList>
 												<li>
-													<StrongText>response_type:</StrongText> {selectedVariant === 'oidc' ? 'id_token token' : 'token'} ({selectedVariant === 'oidc' ? 'OIDC' : 'OAuth'} variant)
+													<StrongText>
+														<LearningTooltip variant="learning" title="response_type" content="OAuth parameter. Implicit uses 'token' (OAuth) or 'id_token token' (OIDC)" placement="top">response_type</LearningTooltip>
+														:
+													</StrongText> {selectedVariant === 'oidc' ? 'id_token token' : 'token'} ({selectedVariant === 'oidc' ? (
+														<LearningTooltip variant="info" title="OIDC" content="OpenID Connect - adds authentication via ID token" placement="top">OIDC</LearningTooltip>
+													) : (
+														<LearningTooltip variant="info" title="OAuth 2.0" content="Authorization framework" placement="top">OAuth</LearningTooltip>
+													)} variant)
 												</li>
 												<li>
-													<StrongText>nonce:</StrongText>{' '}
+													<StrongText>
+														<LearningTooltip variant="security" title="nonce" content="Number used once - random value for replay protection. Required for OIDC ID tokens." placement="top">nonce</LearningTooltip>
+														:
+													</StrongText>{' '}
 													<span style={{ color: selectedVariant === 'oidc' ? '#059669' : '#dc2626' }}>
 														{selectedVariant === 'oidc' ? 'Required' : 'Not used'}
 													</span>{' '}
-													({selectedVariant === 'oidc' ? 'ID token protection' : 'No ID token'})
+													({selectedVariant === 'oidc' ? (
+														<>
+															<LearningTooltip variant="security" title="ID Token Protection" content="Nonce prevents ID token replay attacks" placement="top">ID token protection</LearningTooltip>
+														</>
+													) : 'No ID token'})
 												</li>
 												<li>
-													<StrongText>state:</StrongText> CSRF protection (recommended)
+													<StrongText>
+														<LearningTooltip variant="security" title="state parameter" content="CSRF protection - random value that must match between request and callback" placement="top">state</LearningTooltip>
+														:
+													</StrongText>{' '}
+													<LearningTooltip variant="security" title="CSRF Protection" content="Cross-Site Request Forgery protection using state parameter" placement="top">CSRF protection</LearningTooltip> (recommended)
 												</li>
 												<li>
-													<StrongText>No PKCE:</StrongText> Implicit flow doesn't support PKCE
+													<StrongText>No{' '}
+														<LearningTooltip variant="warning" title="PKCE" content="Proof Key for Code Exchange - security extension. Implicit flow doesn't support PKCE because it doesn't use authorization codes." placement="top">PKCE</LearningTooltip>
+														:
+													</StrongText> Implicit flow doesn't support{' '}
+													<LearningTooltip variant="warning" title="PKCE" content="RFC 7636 - not supported in Implicit flow" placement="top">PKCE</LearningTooltip>
 												</li>
 												<li>
-													<StrongText>Tokens:</StrongText> {selectedVariant === 'oidc' ? 'Access Token + ID Token' : 'Access Token only'}
+													<StrongText>
+														<LearningTooltip variant="learning" title="Tokens" content="Access token and optionally ID token returned in URL fragment" placement="top">Tokens</LearningTooltip>
+														:
+													</StrongText> {selectedVariant === 'oidc' ? (
+														<>
+															<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">Access Token</LearningTooltip>
+															{' + '}
+															<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity" placement="top">ID Token</LearningTooltip>
+														</>
+													) : (
+														<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access only" placement="top">Access Token only</LearningTooltip>
+													)}
 												</li>
 												<li>
-													<StrongText>Scopes (PingOne):</StrongText> {selectedVariant === 'oidc' ? 'openid required (OIDC spec)' : 'openid required (PingOne-specific) + custom scopes'}
+													<StrongText>
+														<LearningTooltip variant="learning" title="Scopes" content="Permissions requested from user" placement="top">Scopes</LearningTooltip> (PingOne):
+													</StrongText> {selectedVariant === 'oidc' ? (
+														<>
+															<LearningTooltip variant="info" title="openid scope" content="Required for OIDC flows to receive ID token" placement="top">openid required</LearningTooltip>
+															{' '}(OIDC spec)
+														</>
+													) : (
+														<>
+															<LearningTooltip variant="info" title="openid scope" content="PingOne requires openid scope even for OAuth flows" placement="top">openid required</LearningTooltip>
+															{' '}(PingOne-specific) + custom scopes
+														</>
+													)}
 												</li>
 											</InfoList>
 										</div>
@@ -881,10 +943,17 @@ const ImplicitFlowV7: React.FC = () => {
 										<InfoBox $variant="warning">
 											<FiAlertCircle size={20} />
 											<div>
-												<InfoTitle>OIDC Requirements</InfoTitle>
+												<InfoTitle>
+													<LearningTooltip variant="info" title="OIDC" content="OpenID Connect - authentication layer on top of OAuth 2.0" placement="top">OIDC</LearningTooltip> Requirements
+												</InfoTitle>
 												<InfoText>
-													OIDC Implicit Flow requires the <StrongText>"openid"</StrongText> scope to receive an ID token.
-													Make sure your application is configured with the openid scope.
+													<LearningTooltip variant="warning" title="OIDC Implicit Flow" content="OIDC version of deprecated Implicit flow - returns ID token in URL fragment" placement="top">OIDC Implicit Flow</LearningTooltip> requires the{' '}
+													<StrongText>
+														<LearningTooltip variant="info" title="openid scope" content="Mandatory scope for OIDC flows to receive ID token" placement="top">"openid"</LearningTooltip>
+													</StrongText> scope to receive an{' '}
+													<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT containing user identity information" placement="top">ID token</LearningTooltip>.
+													Make sure your application is configured with the{' '}
+													<LearningTooltip variant="info" title="openid scope" content="Required OIDC scope" placement="top">openid scope</LearningTooltip>.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -895,8 +964,13 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Security Warning</InfoTitle>
 											<InfoText>
-												<StrongText>Implicit Flow is deprecated</StrongText> and should not be used in production.
-												Tokens are exposed in the URL and can be intercepted. Use Authorization Code + PKCE instead.
+												<StrongText>
+													<LearningTooltip variant="warning" title="Implicit Flow Deprecation" content="Removed from OAuth 2.1 (RFC 9207). Was part of OAuth 2.0 (RFC 6749 Section 4.2) but deprecated for security reasons." placement="top">Implicit Flow is deprecated</LearningTooltip>
+												</StrongText> and should not be used in production.
+												<LearningTooltip variant="security" title="Token Exposure" content="Tokens in URL fragment are visible in browser history, logs, and can be intercepted by malicious scripts" placement="top">Tokens are exposed in the URL</LearningTooltip> and can be intercepted. Use{' '}
+												<LearningTooltip variant="learning" title="Authorization Code Flow" content="Secure OAuth flow using authorization code" placement="top">Authorization Code</LearningTooltip>
+												{' '}+{' '}
+												<LearningTooltip variant="learning" title="PKCE" content="RFC 7636 - Proof Key for Code Exchange, security extension" placement="top">PKCE</LearningTooltip> instead.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -996,11 +1070,18 @@ const ImplicitFlowV7: React.FC = () => {
 									<InfoBox $variant="success">
 										<FiCheckCircle size={20} />
 										<div>
-											<InfoTitle>Tokens Received Directly</InfoTitle>
+											<InfoTitle>
+												<LearningTooltip variant="learning" title="Tokens" content="Access token and optionally ID token returned immediately" placement="top">Tokens</LearningTooltip> Received Directly
+											</InfoTitle>
 											<InfoText>
-												In Implicit Flow, tokens come back in the URL fragment (#) immediately after
-												authorization. No token exchange step is needed, making it simpler but
-												exposing tokens in the browser.
+												In{' '}
+												<LearningTooltip variant="warning" title="Implicit Flow" content="Deprecated OAuth flow - tokens in URL fragment" placement="top">Implicit Flow</LearningTooltip>,{' '}
+												<LearningTooltip variant="learning" title="Tokens" content="Access token and/or ID token" placement="top">tokens</LearningTooltip> come back in the{' '}
+												<LearningTooltip variant="security" title="URL Fragment" content="Part of URL after # - not sent to server but visible in browser. SECURITY RISK: tokens exposed here." placement="top">URL fragment (#)</LearningTooltip> immediately after
+												authorization. No{' '}
+												<LearningTooltip variant="learning" title="Token Exchange" content="Server-side step to exchange authorization code for tokens" placement="top">token exchange step</LearningTooltip> is needed, making it simpler but
+												exposing{' '}
+												<LearningTooltip variant="security" title="Tokens in Browser" content="Tokens visible in browser URL, history, and can be intercepted" placement="top">tokens in the browser</LearningTooltip>.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1026,10 +1107,18 @@ const ImplicitFlowV7: React.FC = () => {
 									<InfoBox $variant="info">
 										<FiInfo size={20} />
 										<div>
-											<InfoTitle>URL Fragment Response Format</InfoTitle>
+											<InfoTitle>
+												<LearningTooltip variant="info" title="URL Fragment" content="URL part after # symbol - processed client-side, not sent to server" placement="top">URL Fragment</LearningTooltip> Response Format
+											</InfoTitle>
 											<InfoText>
-												In Implicit Flow, tokens are returned in the URL fragment (#) as key-value pairs.
-												This allows the client to extract tokens without a server-side exchange.
+												In{' '}
+												<LearningTooltip variant="warning" title="Implicit Flow" content="Deprecated OAuth flow" placement="top">Implicit Flow</LearningTooltip>,{' '}
+												<LearningTooltip variant="learning" title="Tokens" content="Access token and optionally ID token" placement="top">tokens</LearningTooltip> are returned in the{' '}
+												<LearningTooltip variant="security" title="URL Fragment" content="Part after # - tokens exposed here is a security risk" placement="top">URL fragment (#)</LearningTooltip> as key-value pairs.
+												This allows the{' '}
+												<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access" placement="top">client</LearningTooltip> to extract{' '}
+												<LearningTooltip variant="learning" title="Tokens" content="Access token and/or ID token" placement="top">tokens</LearningTooltip> without a{' '}
+												<LearningTooltip variant="info" title="Server-side Exchange" content="Safer method - exchanging code for tokens on backend server" placement="top">server-side exchange</LearningTooltip>.
 											</InfoText>
 										</div>
 									</InfoBox>
