@@ -46,35 +46,6 @@ import { CredentialGuardService } from '../../services/credentialGuardService';
 
 // Get shared UI components from FlowUIService
 import { FlowUIService } from '../../services/flowUIService';
-const {
-	Container,
-	ContentWrapper,
-	MainCard,
-	StepContentWrapper,
-	CollapsibleSection,
-	CollapsibleHeaderButton,
-	CollapsibleTitle,
-	CollapsibleToggleIcon,
-	CollapsibleContent,
-	InfoBox,
-	InfoTitle,
-	InfoText,
-	InfoList,
-	FormGroup,
-	Label,
-	Input,
-	TextArea: Textarea,
-	Button,
-	CodeBlock,
-	GeneratedContentBox,
-	ParameterGrid,
-	ParameterLabel,
-	ParameterValue,
-	SectionDivider,
-	ResultsSection,
-	ResultsHeading,
-	HelperText,
-} = FlowUIService.getFlowUIComponents();
 
 // Step Metadata
 const STEP_METADATA = [
@@ -124,6 +95,37 @@ interface JWTSignature {
 
 // Main Component
 const JWTBearerTokenFlowV7: React.FC = () => {
+	// Get shared UI components from FlowUIService
+	const {
+		Container,
+		ContentWrapper,
+		MainCard,
+		StepContentWrapper,
+		CollapsibleSection,
+		CollapsibleHeaderButton,
+		CollapsibleTitle,
+		CollapsibleToggleIcon,
+		CollapsibleContent,
+		InfoBox,
+		InfoTitle,
+		InfoText,
+		InfoList,
+		FormGroup,
+		Label,
+		Input,
+		TextArea: Textarea,
+		Button,
+		CodeBlock,
+		GeneratedContentBox,
+		ParameterGrid,
+		ParameterLabel,
+		ParameterValue,
+		SectionDivider,
+		ResultsSection,
+		ResultsHeading,
+		HelperText,
+	} = FlowUIService.getFlowUIComponents();
+
 	// Scroll management
 	usePageScroll();
 
