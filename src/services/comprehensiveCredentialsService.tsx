@@ -476,6 +476,10 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		if (selectedApplication?.type === 'SERVICE') {
 			return true;
 		}
+		// Also check if only client_credentials grant type is present (fallback detection)
+		if (selectedApplication?.grantTypes && selectedApplication.grantTypes.length === 1 && selectedApplication.grantTypes.includes('client_credentials')) {
+			return true;
+		}
 		// Then check if flowType indicates no redirect URI
 		if (!flowType) return false;
 		const normalized = flowType.toLowerCase().replace(/[-_]/g, '-');
