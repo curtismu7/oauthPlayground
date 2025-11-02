@@ -450,8 +450,8 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 												)}
 											</TableCell>
 										</TableRow>
-										{/* Hide redirect URIs for SERVICE type applications (client credentials, worker tokens) */}
-										{selectedApp.type !== 'SERVICE' && (
+										{/* Hide redirect URIs for SERVICE type applications or if only client_credentials grant type is present */}
+										{selectedApp.type !== 'SERVICE' && !(selectedApp.grantTypes && selectedApp.grantTypes.length === 1 && selectedApp.grantTypes.includes('client_credentials')) && (
 											<>
 												<TableRow>
 													<TableCell>
