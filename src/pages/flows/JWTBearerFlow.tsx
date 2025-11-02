@@ -28,7 +28,11 @@ const Container = styled.div`
   padding: 1.5rem;
 `;
 
-const FlowSection = styled(Card)`
+const FlowSection = styled.div`
+  background-color: #f0f8ff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
   margin-bottom: 2rem;
 `;
 
