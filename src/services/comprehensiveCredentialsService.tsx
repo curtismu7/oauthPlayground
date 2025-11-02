@@ -303,7 +303,7 @@ const ServiceContainer = styled.div`
 const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> = ({
 	// Flow identification
 	flowType,
-	isOIDC = false,
+	isOIDC: providedIsOIDC,
 	credentials,
 	onCredentialsChange,
 	onSaveCredentials,
@@ -469,6 +469,18 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	
 	// Use provided workerToken or retrieved one
 	const effectiveWorkerToken = workerToken || retrievedWorkerToken;
+
+	// Auto-detect if this is OIDC based on flowType
+	const isOIDC = useMemo(() => {
+		// If explicitly provided, use that
+		if (providedIsOIDC !== undefined) return providedIsOIDC;
+		// Otherwise auto-detect from flowType
+		if (!flowType) return false;
+		const normalized = flowType.toLowerCase().replace(/[-_]/g, '-');
+		return normalized.includes('oidc') || 
+		       normalized.includes('ciba') || 
+		       normalized.includes('hybrid');
+	}, [providedIsOIDC, flowType]);
 
 	// Auto-detect if this flow doesn't use redirect URIs
 	const isNoRedirectUriFlow = useMemo(() => {
