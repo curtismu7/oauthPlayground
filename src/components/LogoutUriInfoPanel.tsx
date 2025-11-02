@@ -175,6 +175,12 @@ const LogoutUriInfoPanel: React.FC<LogoutUriInfoPanelProps> = ({
     }
   };
 
+  // Don't show logout URI panel for flows that don't use redirect/logout URIs
+  const flowsWithoutLogout = ['client_credentials', 'device'];
+  if (flowsWithoutLogout.includes(flowKey)) {
+    return null;
+  }
+
   return (
     <PanelContainer className={className} $compact={compact}>
       <Header $compact={compact}>
