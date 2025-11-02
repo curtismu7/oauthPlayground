@@ -858,12 +858,15 @@ const CancelButton = styled.button`
 		if (!selectedApplication) return false;
 		// First check if the application type is SERVICE (client credentials)
 		if (selectedApplication.type === 'SERVICE') {
+			console.log('🔍 [PingOneAuthentication] Detected SERVICE type app');
 			return true;
 		}
 		// Also check if only client_credentials grant type is present (fallback detection)
 		if (selectedApplication.grantTypes && selectedApplication.grantTypes.length === 1 && selectedApplication.grantTypes.includes('client_credentials')) {
+			console.log('🔍 [PingOneAuthentication] Detected single client_credentials grant');
 			return true;
 		}
+		console.log('🔍 [PingOneAuthentication] Not client credentials', { type: selectedApplication.type, grantTypes: selectedApplication.grantTypes });
 		return false;
 	}, [selectedApplication]);
 
@@ -874,7 +877,9 @@ const CancelButton = styled.button`
 			hasClientSecret: !!application.clientSecret,
 			redirectUris: application.redirectUris,
 			scopes: application.scopes,
-			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod
+			tokenEndpointAuthMethod: application.tokenEndpointAuthMethod,
+			type: application.type,
+			grantTypes: application.grantTypes
 		});
 
 		// Auto-fill credentials from selected application
