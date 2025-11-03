@@ -1,21 +1,13 @@
 // src/pages/flows/CIBAFlowV7.tsx
 // V7.0.0 OIDC Client Initiated Backchannel Authentication (CIBA) Flow - Enhanced Service Architecture
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
 	FiAlertTriangle,
 	FiInfo,
-	FiLock,
 	FiShield,
-	FiUser,
-	FiKey,
 	FiCheckCircle,
-	FiRefreshCw,
 	FiCopy,
-	FiEye,
-	FiEyeOff,
-	FiBook,
-	FiSave,
 	FiSmartphone,
 	FiZap,
 	FiClock,
@@ -25,210 +17,39 @@ import styled from 'styled-components';
 import { useCibaFlowV7 } from '../../hooks/useCibaFlowV7';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { FlowCredentialService } from '../../services/flowCredentialService';
 import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { EducationalContentService } from '../../services/educationalContentService.tsx';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { UnifiedTokenDisplay } from '../../services/unifiedTokenDisplayService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { FlowUIService } from '../../services/flowUIService';
+import { ClientAuthMethod } from '../../utils/clientAuthentication';
 
-// V7 Styled Components with enhanced styling
-const Container = styled.div`
-	min-height: 100vh;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	padding: 2rem 0 6rem;
-`;
+// Get UI components from FlowUIService (following Implicit flow pattern)
+const {
+	Container,
+	ContentWrapper,
+	MainCard,
+	StepHeader,
+	StepHeaderLeft,
+	VersionBadge,
+	StepHeaderTitle,
+	StepHeaderSubtitle,
+	StepHeaderRight,
+	StepNumber,
+	StepTotal,
+	StepContentWrapper,
+	InfoBox,
+	InfoTitle,
+	InfoText,
+	Button,
+	CodeBlock,
+} = FlowUIService.getFlowUIComponents();
 
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
-
-const MainCard = styled.div`
-	background-color: #ffffff;
-	border-radius: 1.5rem;
-	box-shadow: 0 25px 50px rgba(15, 23, 42, 0.15);
-	overflow: hidden;
-`;
-
-const StepCard = styled.section`
-	background: var(--surface-color, #ffffff);
-	border-radius: 1rem;
-	border: 1px solid var(--border-subtle, #e5e7eb);
-	box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
-	overflow: hidden;
-	margin-bottom: 1.5rem;
-`;
-
-const StepHeader = styled.header`
-	padding: clamp(1.5rem, 3vw, 2rem);
-	background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-	color: #ffffff;
-	display: grid;
-	gap: 0.75rem;
-`;
-
-const StepBadge = styled.div`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	border-radius: 999px;
-	padding: 0.375rem 0.9rem;
-	background: rgba(255, 255, 255, 0.16);
-	border: 1px solid rgba(255, 255, 255, 0.3);
-	font-size: 0.75rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.06em;
-`;
-
-const StepTitle = styled.h2`
-	margin: 0;
-	font-size: clamp(1.3rem, 2.6vw, 1.6rem);
-	font-weight: 700;
-	letter-spacing: -0.01em;
-`;
-
-const StepSubtitle = styled.p`
-	margin: 0;
-	font-size: clamp(0.95rem, 2.2vw, 1.05rem);
-	opacity: 0.9;
-	line-height: 1.6;
-`;
-
-const StepBody = styled.div`
-	padding: clamp(1.5rem, 3vw, 2rem);
-	display: grid;
-	gap: clamp(1.25rem, 3vw, 2rem);
-`;
-
-const FormGrid = styled.div`
-	display: grid;
-	gap: 1.5rem;
-	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-`;
-
-const FormField = styled.div`
-	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-`;
-
-const Label = styled.label`
-	font-weight: 600;
-	color: #374151;
-	font-size: 0.875rem;
-`;
-
-const Input = styled.input`
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	transition: all 0.2s ease;
-	
-	&:focus {
-		outline: none;
-		border-color: #8b5cf6;
-		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-	}
-`;
-
-const TextArea = styled.textarea`
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	min-height: 100px;
-	resize: vertical;
-	transition: all 0.2s ease;
-	
-	&:focus {
-		outline: none;
-		border-color: #8b5cf6;
-		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-	}
-`;
-
-const Select = styled.select`
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	background: white;
-	transition: all 0.2s ease;
-	
-	&:focus {
-		outline: none;
-		border-color: #8b5cf6;
-		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-	}
-`;
-
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' }>`
-	padding: 0.75rem 1.5rem;
-	border: none;
-	border-radius: 0.5rem;
-	font-weight: 600;
-	font-size: 0.875rem;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	display: inline-flex;
-	align-items: center;
-	gap: 0.5rem;
-	
-	${props => {
-		switch (props.$variant) {
-			case 'primary':
-				return `
-					background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-					color: white;
-					&:hover:not(:disabled) {
-						transform: translateY(-1px);
-						box-shadow: 0 10px 25px rgba(139, 92, 246, 0.3);
-					}
-				`;
-			case 'secondary':
-				return `
-					background: #f3f4f6;
-					color: #374151;
-					&:hover:not(:disabled) {
-						background: #e5e7eb;
-					}
-				`;
-			case 'danger':
-				return `
-					background: #ef4444;
-					color: white;
-					&:hover:not(:disabled) {
-						background: #dc2626;
-					}
-				`;
-			default:
-				return `
-					background: #8b5cf6;
-					color: white;
-					&:hover:not(:disabled) {
-						background: #7c3aed;
-					}
-				`;
-		}
-	}}
-	
-	&:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
-`;
-
+// Local styled components for CIBA-specific UI
 const StatusCard = styled.div<{ $status: 'pending' | 'approved' | 'completed' | 'failed' }>`
 	padding: 1.5rem;
 	border-radius: 0.75rem;
@@ -236,6 +57,7 @@ const StatusCard = styled.div<{ $status: 'pending' | 'approved' | 'completed' | 
 	display: flex;
 	align-items: center;
 	gap: 1rem;
+	margin-bottom: 1.5rem;
 	
 	${props => {
 		switch (props.$status) {
@@ -279,6 +101,7 @@ const ProgressBar = styled.div`
 	background: #e5e7eb;
 	border-radius: 4px;
 	overflow: hidden;
+	margin: 1rem 0;
 `;
 
 const ProgressFill = styled.div<{ $progress: number }>`
@@ -288,15 +111,73 @@ const ProgressFill = styled.div<{ $progress: number }>`
 	transition: width 0.3s ease;
 `;
 
-const CodeBlock = styled.pre`
-	background: #f8fafc;
-	border: 1px solid #e2e8f0;
-	border-radius: 0.5rem;
-	padding: 1rem;
-	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+const FormGrid = styled.div`
+	display: grid;
+	gap: 1.5rem;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	margin-top: 1.5rem;
+`;
+
+const FormField = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+`;
+
+const Label = styled.label`
+	font-weight: 600;
+	color: #374151;
 	font-size: 0.875rem;
-	overflow-x: auto;
-	margin: 0;
+`;
+
+const Input = styled.input`
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	transition: all 0.2s ease;
+	
+	&:focus {
+		outline: none;
+		border-color: #8b5cf6;
+		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+	}
+	
+	&:disabled {
+		background: #f3f4f6;
+		cursor: not-allowed;
+	}
+`;
+
+const TextArea = styled.textarea`
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	min-height: 100px;
+	resize: vertical;
+	transition: all 0.2s ease;
+	
+	&:focus {
+		outline: none;
+		border-color: #8b5cf6;
+		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+	}
+`;
+
+const Select = styled.select`
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	font-size: 0.875rem;
+	background: white;
+	transition: all 0.2s ease;
+	
+	&:focus {
+		outline: none;
+		border-color: #8b5cf6;
+		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+	}
 `;
 
 const CIBAFlowV7: React.FC = () => {
@@ -312,6 +193,9 @@ const CIBAFlowV7: React.FC = () => {
 		enableEducationalContent: true,
 	});
 
+	// Local currentStep state (following Implicit flow pattern)
+	const [currentStep, setCurrentStep] = useState(0);
+
 	// Local state for form inputs
 	const [formData, setFormData] = useState({
 		environmentId: '',
@@ -320,9 +204,11 @@ const CIBAFlowV7: React.FC = () => {
 		scope: 'openid profile',
 		loginHint: '',
 		bindingMessage: '',
-		authMethod: 'client_secret_post' as const,
 		requestContext: '',
 	});
+
+	// Track clientAuthMethod from ComprehensiveCredentialsService (syncs with Token Endpoint Auth Method)
+	const [clientAuthMethod, setClientAuthMethod] = useState<ClientAuthMethod>('client_secret_post');
 
 	// Update form data
 	const updateFormData = useCallback((field: string, value: string) => {
@@ -342,12 +228,26 @@ const CIBAFlowV7: React.FC = () => {
 
 			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
 				console.log('✅ [CIBA-V7] Found flow-specific credentials');
+				
+				// Load clientAuthMethod from saved credentials if available
+				if (flowData.flowCredentials.tokenEndpointAuthMethod || flowData.flowCredentials.clientAuthMethod) {
+					const savedAuthMethod = (flowData.flowCredentials.tokenEndpointAuthMethod || flowData.flowCredentials.clientAuthMethod) as ClientAuthMethod;
+					if (['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'].includes(savedAuthMethod)) {
+						setClientAuthMethod(savedAuthMethod);
+						console.log('✅ [CIBA-V7] Loaded clientAuthMethod:', savedAuthMethod);
+					}
+				}
+				
 				setFormData(prev => ({
 					...prev,
-					environmentId: flowData.sharedEnvironment?.environmentId || '',
-					clientId: flowData.flowCredentials.clientId,
-					clientSecret: flowData.flowCredentials.clientSecret,
-					scope: flowData.flowCredentials.scopes.join(' '),
+					environmentId: flowData.sharedEnvironment?.environmentId || prev.environmentId || '',
+					clientId: flowData.flowCredentials.clientId || prev.clientId || '',
+					clientSecret: flowData.flowCredentials.clientSecret || prev.clientSecret || '',
+					scope: flowData.flowCredentials.scopes?.join(' ') || prev.scope || 'openid profile',
+					// Preserve loginHint and other CIBA-specific fields (don't overwrite from credentials)
+					loginHint: prev.loginHint || '',
+					bindingMessage: prev.bindingMessage || '',
+					requestContext: prev.requestContext || '',
 				}));
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [CIBA-V7] Using shared environment data only');
@@ -373,92 +273,38 @@ const CIBAFlowV7: React.FC = () => {
 				scope: formData.scope,
 				loginHint: formData.loginHint,
 				bindingMessage: formData.bindingMessage || undefined,
-				authMethod: formData.authMethod,
+				authMethod: clientAuthMethod as 'client_secret_post' | 'client_secret_basic', // Use synced value from ComprehensiveCredentialsService
 				requestContext: formData.requestContext || undefined,
 			});
 		}
-	}, [formData, controller]);
+	}, [formData, clientAuthMethod, controller]);
 
-	// Handle credentials from ComprehensiveCredentialsService
-	const handleCredentialsUpdate = useCallback((credentials: any) => {
-		console.log('[CIBA-V7] Credentials updated from ComprehensiveCredentialsService:', credentials);
-		
-		// Update form data with credentials from the service
-		if (credentials.environmentId) {
-			updateFormData('environmentId', credentials.environmentId);
+	// Auto-advance to step 2 when auth request is created
+	useEffect(() => {
+		if (controller.authRequest && currentStep === 1) {
+			setCurrentStep(2);
 		}
-		if (credentials.clientId) {
-			updateFormData('clientId', credentials.clientId);
-		}
-		if (credentials.clientSecret) {
-			updateFormData('clientSecret', credentials.clientSecret);
-		}
-		if (credentials.scope) {
-			updateFormData('scope', credentials.scope);
-		}
-	}, [updateFormData]);
+	}, [controller.authRequest, currentStep]);
 
-	// Handle OIDC discovery completion
-	const handleDiscoveryComplete = useCallback((result: any) => {
-		console.log('🔍 [CIBA-V7] OIDC Discovery completed:', result);
-		if (result.success && result.document) {
-			const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
-			if (extractedEnvId) {
-				console.log('✅ [CIBA-V7] Extracted environment ID:', extractedEnvId);
-				updateFormData('environmentId', extractedEnvId);
-			}
+	// Auto-advance to step 3 when tokens are received
+	useEffect(() => {
+		if (controller.tokens && currentStep < 3) {
+			setCurrentStep(3);
 		}
-	}, [updateFormData]);
-
-	// Save credentials using V7 standardized storage
-	const saveCredentials = useCallback(async () => {
-		try {
-			const credentials = {
-				environmentId: formData.environmentId,
-				clientId: formData.clientId,
-				clientSecret: formData.clientSecret,
-				scope: formData.scope,
-				scopes: formData.scope,
-			};
-
-			// Save credentials using comprehensive service with complete isolation
-			const success = comprehensiveFlowDataService.saveFlowDataComprehensive('ciba-flow-v7', {
-				sharedEnvironment: formData.environmentId ? {
-					environmentId: formData.environmentId,
-					region: 'us', // Default region
-					issuerUrl: `https://auth.pingone.com/${formData.environmentId}`
-				} : undefined,
-				flowCredentials: {
-					clientId: formData.clientId,
-					clientSecret: formData.clientSecret,
-					redirectUri: formData.redirectUri || 'https://example.com/callback',
-					scopes: formData.scope.split(' ').filter(s => s.length > 0),
-					logoutUrl: formData.logoutUrl,
-					loginHint: formData.loginHint,
-					tokenEndpointAuthMethod: 'client_secret_basic',
-					lastUpdated: Date.now()
-				}
-			});
-
-			if (success) {
-				v4ToastManager.showSuccess('Credentials saved successfully!');
-			} else {
-				v4ToastManager.showError('Failed to save credentials');
-			}
-		} catch (error) {
-			console.error('[CIBA-V7] Failed to save credentials:', error);
-			v4ToastManager.showError('Failed to save credentials');
-		}
-	}, [formData]);
+	}, [controller.tokens, currentStep]);
 
 	// Handle form submission
 	const handleStartFlow = useCallback(() => {
 		controller.startFlow();
-	}, [controller]);
+		if (currentStep === 0) {
+			setCurrentStep(1);
+		}
+	}, [controller, currentStep]);
 
 	// Handle reset
 	const handleReset = useCallback(() => {
 		controller.resetFlow();
+		setCurrentStep(0);
 		setFormData({
 			environmentId: '',
 			clientId: '',
@@ -466,9 +312,9 @@ const CIBAFlowV7: React.FC = () => {
 			scope: 'openid profile',
 			loginHint: '',
 			bindingMessage: '',
-			authMethod: 'client_secret_post',
 			requestContext: '',
 		});
+		setClientAuthMethod('client_secret_post'); // Reset to default
 	}, [controller]);
 
 	// Copy to clipboard
@@ -477,142 +323,132 @@ const CIBAFlowV7: React.FC = () => {
 		v4ToastManager.showSuccess(`${label} copied to clipboard`);
 	}, []);
 
-	// Render step content
-	const renderStepContent = () => {
-		switch (controller.currentStep) {
+	// Step validation
+	const isStepValid = useCallback((step: number): boolean => {
+		switch (step) {
+			case 0:
+				// For step 0, we need: credentials (env ID, client ID, scope) from ComprehensiveCredentialsService AND loginHint
+				// The credentials come from ComprehensiveCredentialsService, so we check formData (populated by onCredentialsChange)
+				return !!(formData.environmentId && formData.clientId && formData.scope && formData.loginHint);
+			case 1:
+				// Step 1 is valid if we have an auth request (can navigate to step 2 to see polling)
+				return true; // Always allow navigation to step 1
+			case 2:
+				// Step 2 validation - allow navigation if we have an auth request
+				return !!controller.authRequest;
+			case 3:
+				// Step 3 validation - tokens available
+				return !!controller.tokens;
+			default:
+				return true;
+		}
+	}, [formData, controller]);
+
+	// Get step validation message for disabled button
+	const getStepValidationMessage = useCallback((step: number): string => {
+		if (isStepValid(step)) return '';
+		
+		switch (step) {
+			case 0:
+				const missing: string[] = [];
+				if (!formData.environmentId) missing.push('Environment ID');
+				if (!formData.clientId) missing.push('Client ID');
+				if (!formData.scope) missing.push('Scope');
+				if (!formData.loginHint) missing.push('Login Hint');
+				return missing.length > 0 ? `Missing: ${missing.join(', ')}` : '';
+			case 1:
+				return '';
+			case 2:
+				return !controller.authRequest ? 'Authentication request not created yet' : '';
+			case 3:
+				return !controller.tokens ? 'Tokens not received yet' : '';
+			default:
+				return '';
+		}
+	}, [formData, controller, isStepValid]);
+
+	// STEP_METADATA (following Implicit flow pattern)
+	const STEP_METADATA = [
+		{ title: 'Step 0: Configure CIBA Parameters', subtitle: 'Set up environment and authentication parameters' },
+		{ title: 'Step 1: Initiate Authentication Request', subtitle: 'Start the CIBA backchannel authentication' },
+		{ title: 'Step 2: User Approval Process', subtitle: 'Monitor user approval on their device' },
+		{ title: 'Step 3: Token Exchange & Results', subtitle: 'View authentication results and tokens' },
+	];
+
+	// Render step content (following Implicit flow pattern)
+	const renderStepContent = useMemo(() => {
+		switch (currentStep) {
 			case 0:
 				return (
-					<StepCard>
-						<StepHeader>
-							<StepBadge>
-								<FiShield />
-								Step 1 of {controller.totalSteps}
-							</StepBadge>
-							<StepTitle>Configure CIBA Parameters</StepTitle>
-							<StepSubtitle>
-								Set up your CIBA configuration with environment details and authentication parameters. 
-								Basic credentials are managed by the ComprehensiveCredentialsService above.
-							</StepSubtitle>
-						</StepHeader>
-						<StepBody>
-							{/* Enhanced CIBA Educational Content */}
-							<EnhancedFlowInfoCard
-								flowType="ciba-v7"
-							/>
+					<>
+						{/* Concise CIBA Educational Content */}
+						<InfoBox $variant="info" style={{ marginBottom: '1.5rem' }}>
+							<FiInfo />
+							<div>
+								<InfoTitle>What is CIBA?</InfoTitle>
+								<InfoText>
+									<strong>Client Initiated Backchannel Authentication (CIBA)</strong> is an OIDC extension (RFC 9436) 
+									that enables decoupled authentication. The client initiates authentication on one device (e.g., IoT device, 
+									smart TV), and the user approves it on a different device (e.g., their phone). Perfect for devices without 
+									keyboards or full browsers.
+								</InfoText>
+								<InfoText style={{ marginTop: '0.75rem' }}>
+									<strong>Key Steps:</strong> (1) Client sends backchannel request with login_hint (2) User receives notification 
+									on their device (3) User approves/denies (4) Client polls for tokens using auth_req_id.
+								</InfoText>
+							</div>
+						</InfoBox>
 
-							<FlowConfigurationRequirements
-								flowType="ciba"
-								requirements={[
-									"PingOne environment with CIBA support",
-									"Client credentials (ID and secret)",
-									"Proper redirect URI configuration",
-									"CIBA-specific authentication parameters"
-								]}
-							/>
+						<FlowConfigurationRequirements
+							flowType="ciba"
+							requirements={[
+								"PingOne environment with CIBA support enabled",
+								"Client ID and secret (client authentication required)",
+								"Login hint (email, phone, or user ID) to identify the user",
+								"Scope: 'openid' required for OIDC; add 'profile', 'email' as needed"
+							]}
+						/>
 
-							<EnhancedFlowWalkthrough
-								flowType="ciba"
-								steps={[
-									"Configure CIBA parameters and credentials",
-									"Initiate backchannel authentication request",
-									"Monitor authentication status",
-									"Exchange tokens upon successful authentication"
-								]}
-							/>
-							{formData.environmentId && formData.clientId && (
-								<StatusCard $status="completed">
-									<FiCheckCircle />
-									<div>
-										<strong>Credentials Loaded</strong>
-										<p>Basic credentials have been loaded from ComprehensiveCredentialsService. You can now configure CIBA-specific parameters below.</p>
-									</div>
-								</StatusCard>
-							)}
-							
+						{formData.environmentId && formData.clientId ? (
+							<StatusCard $status="completed" style={{ marginTop: '1.5rem' }}>
+								<FiCheckCircle />
+								<div>
+									<strong>Credentials Ready</strong>
+									<p>Basic credentials are configured above. Configure CIBA-specific parameters below.</p>
+								</div>
+							</StatusCard>
+						) : (
+							<StatusCard $status="pending" style={{ marginTop: '1.5rem' }}>
+								<FiInfo />
+								<div>
+									<strong>Configure Credentials First</strong>
+									<p>Please configure Environment ID, Client ID, and Scope in the credentials section above before proceeding.</p>
+								</div>
+							</StatusCard>
+						)}
+						
+						<div style={{ marginTop: '2rem' }}>
+							<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#1e293b' }}>
+								CIBA-Specific Parameters
+							</h3>
 							<FormGrid>
-								<FormField>
-									<Label>Environment ID *</Label>
-									<Input
-										type="text"
-										value={formData.environmentId}
-										onChange={(e) => updateFormData('environmentId', e.target.value)}
-										placeholder="Enter your PingOne environment ID"
-										disabled={!!formData.environmentId}
-									/>
-									{formData.environmentId && (
-										<small style={{ color: '#10b981', fontSize: '0.75rem' }}>
-											✓ Loaded from ComprehensiveCredentialsService
-										</small>
-									)}
-								</FormField>
-								
-								<FormField>
-									<Label>Client ID *</Label>
-									<Input
-										type="text"
-										value={formData.clientId}
-										onChange={(e) => updateFormData('clientId', e.target.value)}
-										placeholder="Enter your application client ID"
-										disabled={!!formData.clientId}
-									/>
-									{formData.clientId && (
-										<small style={{ color: '#10b981', fontSize: '0.75rem' }}>
-											✓ Loaded from ComprehensiveCredentialsService
-										</small>
-									)}
-								</FormField>
-								
-								<FormField>
-									<Label>Client Secret</Label>
-									<Input
-										type="password"
-										value={formData.clientSecret}
-										onChange={(e) => updateFormData('clientSecret', e.target.value)}
-										placeholder="Enter your client secret (optional for public clients)"
-										disabled={!!formData.clientSecret}
-									/>
-									{formData.clientSecret && (
-										<small style={{ color: '#10b981', fontSize: '0.75rem' }}>
-											✓ Loaded from ComprehensiveCredentialsService
-										</small>
-									)}
-								</FormField>
-								
-								<FormField>
-									<Label>Scope *</Label>
-									<Input
-										type="text"
-										value={formData.scope}
-										onChange={(e) => updateFormData('scope', e.target.value)}
-										placeholder="openid profile email"
-										disabled={!!formData.scope}
-									/>
-									{formData.scope && (
-										<small style={{ color: '#10b981', fontSize: '0.75rem' }}>
-											✓ Loaded from ComprehensiveCredentialsService
-										</small>
-									)}
-								</FormField>
-								
 								<FormField>
 									<Label>Login Hint *</Label>
 									<Input
 										type="text"
-										value={formData.loginHint}
-										onChange={(e) => updateFormData('loginHint', e.target.value)}
-										placeholder="user@example.com or user_id"
+										value={formData.loginHint || ''}
+										onChange={(e) => {
+											console.log('[CIBA-V7] Login Hint changed:', e.target.value);
+											updateFormData('loginHint', e.target.value);
+										}}
+										placeholder="user@example.com"
+										disabled={false}
+										readOnly={false}
+										autoComplete="off"
 									/>
-								</FormField>
-								
-								<FormField>
-									<Label>Authentication Method *</Label>
-									<Select
-										value={formData.authMethod}
-										onChange={(e) => updateFormData('authMethod', e.target.value)}
-									>
-										<option value="client_secret_post">Client Secret Post</option>
-										<option value="client_secret_basic">Client Secret Basic</option>
-									</Select>
+									<small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+										💡 Examples: user@example.com, +1234567890, or user_id_12345
+									</small>
 								</FormField>
 								
 								<FormField>
@@ -621,8 +457,11 @@ const CIBAFlowV7: React.FC = () => {
 										type="text"
 										value={formData.bindingMessage}
 										onChange={(e) => updateFormData('bindingMessage', e.target.value)}
-										placeholder="Optional binding message for user"
+										placeholder="Please approve login to Smart TV in Living Room"
 									/>
+									<small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+										💡 Example: "Sign in request from your Smart TV" - displayed to user during approval (optional)
+									</small>
 								</FormField>
 								
 								<FormField>
@@ -630,265 +469,259 @@ const CIBAFlowV7: React.FC = () => {
 									<TextArea
 										value={formData.requestContext}
 										onChange={(e) => updateFormData('requestContext', e.target.value)}
-										placeholder="Optional request context (JSON format)"
+										placeholder='{"device": "Smart TV", "location": "Living Room", "ip": "192.168.1.100"}'
+										rows={4}
 									/>
+									<small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
+										💡 Example: Additional context in JSON format (optional) - helps user identify the request source
+									</small>
 								</FormField>
 							</FormGrid>
-							
-							{controller.error && (
-								<StatusCard $status="failed">
-									<FiAlertTriangle />
-									<div>
-										<strong>Configuration Error:</strong> {controller.error}
-									</div>
-								</StatusCard>
-							)}
-						</StepBody>
-					</StepCard>
+						</div>
+						
+						{controller.error && (
+							<StatusCard $status="failed" style={{ marginTop: '1.5rem' }}>
+								<FiAlertTriangle />
+								<div>
+									<strong>Configuration Error:</strong> {controller.error}
+								</div>
+							</StatusCard>
+						)}
+					</>
 				);
 
 			case 1:
 				return (
-					<StepCard>
-						<StepHeader>
-							<StepBadge>
-								<FiZap />
-								Step 2 of {controller.totalSteps}
-							</StepBadge>
-							<StepTitle>Initiate Authentication Request</StepTitle>
-							<StepSubtitle>
-								Start the CIBA authentication process and generate the authentication request
-							</StepSubtitle>
-						</StepHeader>
-						<StepBody>
-							{controller.isInProgress ? (
-								<StatusCard $status="pending">
-									<FiActivity />
+					<>
+						{controller.isInProgress ? (
+							<StatusCard $status="pending">
+								<FiActivity />
+								<div>
+									<strong>Initiating CIBA Request...</strong>
+									<p>Please wait while we initiate the authentication request.</p>
+								</div>
+							</StatusCard>
+						) : controller.authRequest ? (
+							<>
+								<StatusCard $status="approved">
+									<FiCheckCircle />
 									<div>
-										<strong>Initiating CIBA Request...</strong>
-										<p>Please wait while we initiate the authentication request.</p>
+										<strong>Authentication Request Created</strong>
+										<p>Request ID: {controller.authRequest.stateId}</p>
 									</div>
 								</StatusCard>
-							) : controller.authRequest ? (
-								<>
-									<StatusCard $status="approved">
-										<FiCheckCircle />
-										<div>
-											<strong>Authentication Request Created</strong>
-											<p>Request ID: {controller.authRequest.stateId}</p>
-										</div>
-									</StatusCard>
-									
-									<div>
-										<h4>Request Details:</h4>
-										<CodeBlock>
-											{JSON.stringify(controller.authRequest, null, 2)}
-										</CodeBlock>
-									</div>
-									
-									<div>
-										<h4>User Code:</h4>
-										<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-											<CodeBlock style={{ margin: 0, flex: 1 }}>
-												{controller.authRequest.userCode}
-											</CodeBlock>
-											<Button onClick={() => handleCopy(controller.authRequest!.userCode, 'User Code')}>
-												<FiCopy />
-												Copy
-											</Button>
-										</div>
-									</div>
-								</>
-							) : (
-								<div>
-									<p>Click the button below to initiate the CIBA authentication request.</p>
-									<Button onClick={handleStartFlow} disabled={!controller.canStart}>
-										<FiZap />
-										Start CIBA Flow
-									</Button>
+								
+								<div style={{ marginTop: '1.5rem' }}>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>Request Details:</h4>
+									<CodeBlock>
+										{JSON.stringify(controller.authRequest, null, 2)}
+									</CodeBlock>
 								</div>
-							)}
-						</StepBody>
-					</StepCard>
+								
+								<div style={{ marginTop: '1.5rem' }}>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>User Code:</h4>
+									<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+										<CodeBlock style={{ margin: 0, flex: 1 }}>
+											{controller.authRequest.userCode}
+										</CodeBlock>
+										<Button onClick={() => handleCopy(controller.authRequest!.userCode, 'User Code')}>
+											<FiCopy />
+											Copy
+										</Button>
+									</div>
+								</div>
+							</>
+						) : (
+							<div>
+								<InfoText>Click the button below to initiate the CIBA authentication request.</InfoText>
+								<Button onClick={handleStartFlow} disabled={!controller.canStart} style={{ marginTop: '1rem' }}>
+									<FiZap />
+									Start CIBA Flow
+								</Button>
+							</div>
+						)}
+					</>
 				);
 
 			case 2:
 				return (
-					<StepCard>
-						<StepHeader>
-							<StepBadge>
-								<FiSmartphone />
-								Step 3 of {controller.totalSteps}
-							</StepBadge>
-							<StepTitle>User Approval Process</StepTitle>
-							<StepSubtitle>
-								Monitor the user approval process and wait for authentication completion
-							</StepSubtitle>
-						</StepHeader>
-						<StepBody>
-							{/* CIBA User Approval Educational Content */}
-							<FlowSequenceDisplay
-								title="CIBA User Approval Process"
-								description="The user approval process is a critical part of CIBA authentication, ensuring secure backchannel communication."
-								steps={[
-									{
-										title: "Authentication Request Sent",
-										description: "The client initiates a backchannel authentication request to PingOne",
-										status: "completed"
-									},
-									{
-										title: "User Notification",
-										description: "PingOne notifies the user through their preferred method (push notification, SMS, etc.)",
-										status: "completed"
-									},
-									{
-										title: "User Approval",
-										description: "The user reviews and approves the authentication request on their device",
-										status: controller.authRequest?.status === 'approved' ? 'completed' : 'pending'
-									},
-									{
-										title: "Token Exchange",
-										description: "Upon approval, tokens are exchanged and returned to the client",
-										status: controller.authRequest?.status === 'approved' ? 'completed' : 'pending'
-									}
-								]}
-							/>
+					<>
+						<FlowSequenceDisplay
+							title="CIBA User Approval Process"
+							description="The user approval process is a critical part of CIBA authentication, ensuring secure backchannel communication."
+							steps={[
+								{
+									title: "Authentication Request Sent",
+									description: "The client initiates a backchannel authentication request to PingOne",
+									status: "completed"
+								},
+								{
+									title: "User Notification",
+									description: "PingOne notifies the user through their preferred method (push notification, SMS, etc.)",
+									status: "completed"
+								},
+								{
+									title: "User Approval",
+									description: "The user reviews and approves the authentication request on their device",
+									status: controller.authRequest?.status === 'approved' ? 'completed' : 'pending'
+								},
+								{
+									title: "Token Exchange",
+									description: "Upon approval, tokens are exchanged and returned to the client",
+									status: controller.authRequest?.status === 'approved' ? 'completed' : 'pending'
+								}
+							]}
+						/>
 
-							{controller.authRequest && (
-								<>
-									<StatusCard $status={controller.authRequest.status === 'approved' ? 'approved' : 'pending'}>
-										{controller.authRequest.status === 'approved' ? <FiCheckCircle /> : <FiClock />}
-										<div>
-											<strong>
-												{controller.authRequest.status === 'approved' ? 'User Approved' : 'Waiting for User Approval'}
-											</strong>
-											<p>
-												{controller.authRequest.status === 'approved' 
-													? 'The user has approved the authentication request.'
-													: 'Please wait for the user to approve the authentication request on their device.'
-												}
-											</p>
-										</div>
-									</StatusCard>
-									
-									{controller.timeRemaining > 0 && (
-										<div>
-											<h4>Time Remaining: {Math.floor(controller.timeRemaining / 60)}:{(controller.timeRemaining % 60).toString().padStart(2, '0')}</h4>
-											<ProgressBar>
-												<ProgressFill $progress={controller.progressPercentage} />
-											</ProgressBar>
-										</div>
-									)}
-									
+						{controller.authRequest && (
+							<>
+								<StatusCard $status={controller.authRequest.status === 'approved' ? 'approved' : 'pending'}>
+									{controller.authRequest.status === 'approved' ? <FiCheckCircle /> : <FiClock />}
 									<div>
-										<h4>Binding Message:</h4>
-										<CodeBlock>{controller.authRequest.bindingMessage}</CodeBlock>
+										<strong>
+											{controller.authRequest.status === 'approved' ? 'User Approved' : 'Waiting for User Approval'}
+										</strong>
+										<p>
+											{controller.authRequest.status === 'approved' 
+												? 'The user has approved the authentication request.'
+												: 'Please wait for the user to approve the authentication request on their device.'
+											}
+										</p>
 									</div>
-								</>
-							)}
-						</StepBody>
-					</StepCard>
+								</StatusCard>
+								
+								{controller.timeRemaining > 0 && (
+									<div style={{ marginTop: '1.5rem' }}>
+										<h4 style={{ marginBottom: '0.5rem', fontSize: '1rem', fontWeight: '600' }}>
+											Time Remaining: {Math.floor(controller.timeRemaining / 60)}:{(controller.timeRemaining % 60).toString().padStart(2, '0')}
+										</h4>
+										<ProgressBar>
+											<ProgressFill $progress={controller.progressPercentage} />
+										</ProgressBar>
+									</div>
+								)}
+								
+								<div style={{ marginTop: '1.5rem' }}>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>Binding Message:</h4>
+									<CodeBlock>{controller.authRequest.bindingMessage}</CodeBlock>
+								</div>
+							</>
+						)}
+					</>
 				);
 
 			case 3:
 				return (
-					<StepCard>
-						<StepHeader>
-							<StepBadge>
-								<FiCheckCircle />
-								Step 4 of {controller.totalSteps}
-							</StepBadge>
-							<StepTitle>Token Exchange & Results</StepTitle>
-							<StepSubtitle>
-								View the authentication results and access tokens
-							</StepSubtitle>
-						</StepHeader>
-						<StepBody>
-							{controller.tokens ? (
-								<>
-									<StatusCard $status="completed">
-										<FiCheckCircle />
-										<div>
-											<strong>Authentication Successful</strong>
-											<p>CIBA flow completed successfully. Access tokens have been issued.</p>
-										</div>
-									</StatusCard>
-									
-									<UnifiedTokenDisplay
-										tokens={controller.tokens}
-										flowType="oidc"
-										flowKey="ciba-v7"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-									/>
-								</>
-							) : (
-								<div>
-									<p>No tokens available yet. Complete the previous steps to receive tokens.</p>
-								</div>
-							)}
-						</StepBody>
-					</StepCard>
+					<>
+						{controller.tokens ? (
+							<>
+								<StatusCard $status="completed">
+									<FiCheckCircle />
+									<div>
+										<strong>Authentication Successful</strong>
+										<p>CIBA flow completed successfully. Access tokens have been issued.</p>
+									</div>
+								</StatusCard>
+								
+								<UnifiedTokenDisplay
+									tokens={controller.tokens}
+									flowType="oidc"
+									flowKey="ciba-v7"
+									showCopyButtons={true}
+									showDecodeButtons={true}
+								/>
+							</>
+						) : (
+							<div>
+								<InfoText>No tokens available yet. Complete the previous steps to receive tokens.</InfoText>
+							</div>
+						)}
+					</>
 				);
 
 			default:
-				return null;
+				return <div>Step not implemented</div>;
 		}
-	};
+	}, [currentStep, formData, controller, updateFormData, handleCopy, handleStartFlow]);
 
 	return (
 		<Container>
 			<ContentWrapper>
-				<MainCard>
-					<FlowHeader flowId="ciba-v7" />
-					
-					<ComprehensiveCredentialsService
-						flowType="ciba-v7"
-						isOIDC={true}
-						workerToken={localStorage.getItem('worker_token') || ''}
-						region="NA"
-						credentials={{
-							environmentId: formData.environmentId,
-							clientId: formData.clientId,
-							clientSecret: formData.clientSecret,
-							scope: formData.scope,
-						}}
-						onCredentialsChange={(credentials) => {
-							console.log('[CIBA-V7] Credentials changed:', credentials);
-							if (credentials.environmentId) updateFormData('environmentId', credentials.environmentId);
-							if (credentials.clientId) updateFormData('clientId', credentials.clientId);
-							if (credentials.clientSecret) updateFormData('clientSecret', credentials.clientSecret);
-							if (credentials.scope) updateFormData('scope', credentials.scope);
-						}}
-						onDiscoveryComplete={(result) => {
-							console.log('🔍 [CIBA-V7] OIDC Discovery completed:', result);
-							if (result.success && result.document) {
-								const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
-								if (extractedEnvId) {
-									console.log('✅ [CIBA-V7] Extracted environment ID:', extractedEnvId);
-									updateFormData('environmentId', extractedEnvId);
-								}
+				<FlowHeader flowId="ciba-v7" />
+				
+				<ComprehensiveCredentialsService
+					flowType="ciba-v7"
+					isOIDC={true}
+					workerToken={localStorage.getItem('worker_token') || ''}
+					region="NA"
+					credentials={{
+						environmentId: formData.environmentId,
+						clientId: formData.clientId,
+						clientSecret: formData.clientSecret,
+						scope: formData.scope,
+					}}
+					onCredentialsChange={(credentials) => {
+						console.log('[CIBA-V7] Credentials changed:', credentials);
+						if (credentials.environmentId) updateFormData('environmentId', credentials.environmentId);
+						if (credentials.clientId) updateFormData('clientId', credentials.clientId);
+						if (credentials.clientSecret) updateFormData('clientSecret', credentials.clientSecret);
+						if (credentials.scope) updateFormData('scope', credentials.scope);
+						// Don't update loginHint from ComprehensiveCredentialsService - it's CIBA-specific
+					}}
+					onClientAuthMethodChange={(method) => {
+						console.log('[CIBA-V7] Client Auth Method changed:', method);
+						setClientAuthMethod(method);
+					}}
+					clientAuthMethod={clientAuthMethod}
+					onDiscoveryComplete={(result) => {
+						console.log('🔍 [CIBA-V7] OIDC Discovery completed:', result);
+						if (result.success && result.document) {
+							const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+							if (extractedEnvId) {
+								console.log('✅ [CIBA-V7] Extracted environment ID:', extractedEnvId);
+								updateFormData('environmentId', extractedEnvId);
 							}
-						}}
-						requireClientSecret={true}
-						showConfigChecker={true}
-						defaultCollapsed={false}
-						title="CIBA Flow Configuration"
-						subtitle="Configure your client credentials for CIBA backchannel authentication"
-					/>
-					
-					{renderStepContent()}
-					
-					<StepNavigationButtons
-						onNext={controller.stepManager.next}
-						onPrevious={controller.stepManager.previous}
-						onReset={handleReset}
-						canNavigateNext={controller.currentStep < controller.totalSteps - 1}
-						isFirstStep={controller.currentStep === 0}
-						nextButtonText={controller.currentStep === controller.totalSteps - 1 ? 'Complete' : 'Next'}
-						disabledMessage={controller.error || ''}
-					/>
+						}
+					}}
+					requireClientSecret={true}
+					showConfigChecker={true}
+					defaultCollapsed={false}
+					showLoginHint={false}
+					title="CIBA Flow Configuration"
+					subtitle="Configure your client credentials for CIBA backchannel authentication"
+				/>
+
+				<MainCard>
+					<StepHeader>
+						<StepHeaderLeft>
+							<VersionBadge>V7</VersionBadge>
+							<div>
+								<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+								<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+							</div>
+						</StepHeaderLeft>
+						<StepHeaderRight>
+							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
+							<StepTotal>of {STEP_METADATA.length}</StepTotal>
+						</StepHeaderRight>
+					</StepHeader>
+
+					<StepContentWrapper>
+						{renderStepContent}
+					</StepContentWrapper>
 				</MainCard>
+
+				<StepNavigationButtons
+					currentStep={currentStep}
+					totalSteps={STEP_METADATA.length}
+					onPrevious={() => setCurrentStep(prev => Math.max(prev - 1, 0))}
+					onReset={handleReset}
+					onNext={() => setCurrentStep(prev => Math.min(prev + 1, STEP_METADATA.length - 1))}
+					canNavigateNext={isStepValid(currentStep)}
+					isFirstStep={currentStep === 0}
+					nextButtonText="Next"
+					disabledMessage={getStepValidationMessage(currentStep)}
+				/>
 			</ContentWrapper>
 		</Container>
 	);
