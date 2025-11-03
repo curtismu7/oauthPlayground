@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Vizio TV Main Container - Authentic Vizio Design
 const SmartTVContainer = styled.div`
@@ -322,6 +323,7 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <SmartTVContainer>
       {/* TV Screen */}
       <TVScreen>
@@ -340,19 +342,21 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
         </UserCodeDisplay>
 
         {/* QR Code Section */}
-        <QRCodeSection>
-          <QRCodeLabel>QR Code (for mobile apps)</QRCodeLabel>
-          <QRCodeContainer>
-            <QRCodeSVG
-              value={state.verificationUriComplete}
-              size={180}
-              bgColor="#ffffff"
-              fgColor="#000000"
-              level="M"
-              includeMargin={true}
-            />
-          </QRCodeContainer>
-        </QRCodeSection>
+        {state.verificationUriComplete && (
+          <QRCodeSection>
+            <QRCodeLabel>QR Code (for mobile apps)</QRCodeLabel>
+            <QRCodeContainer>
+              <QRCodeSVG
+                value={state.verificationUriComplete}
+                size={180}
+                bgColor="#ffffff"
+                fgColor="#000000"
+                level="M"
+                includeMargin={true}
+              />
+            </QRCodeContainer>
+          </QRCodeSection>
+        )}
 
         {/* Status Display */}
         <StatusDisplay $status={state.status}>
@@ -360,6 +364,36 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
           <StatusText>{getStatusText()}</StatusText>
           <StatusMessage>{getStatusMessage()}</StatusMessage>
         </StatusDisplay>
+
+        {/* Authorization Action - Prominent */}
+        {state.verificationUri && (
+          <div style={{ 
+            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+            borderRadius: '0.75rem',
+            padding: '0.75rem 1rem',
+            marginBottom: '1rem',
+            textAlign: 'center',
+            boxShadow: '0 8px 16px rgba(59, 130, 246, 0.3)',
+            border: '2px solid #1e40af'
+          }}>
+            <ControlButton 
+              $variant="primary" 
+              onClick={handleOpenVerificationUri}
+              style={{
+                fontSize: '1rem',
+                padding: '0.75rem 1.5rem',
+                minWidth: '200px',
+                background: 'white',
+                color: '#2563eb',
+                border: '2px solid white',
+                fontWeight: '700',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+              }}
+            >
+              <FiExternalLink size={18} /> Open in Browser
+            </ControlButton>
+          </div>
+        )}
 
         {/* Control Buttons */}
         <ControlButtons>
@@ -369,87 +403,25 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
           <ControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
             <FiCopy /> Copy URI
           </ControlButton>
-          <ControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open Authorization
-          </ControlButton>
         </ControlButtons>
 
-        {/* Success Display */}
+        {/* Success Message in TV Screen */}
         {state.status === 'authorized' && state.tokens && (
           <div style={{ 
-            background: '#1a1a1a', 
+            background: 'rgba(0, 255, 0, 0.1)', 
             border: '2px solid #00ff00', 
-            borderRadius: '0.75rem', 
-            padding: '1.5rem',
+            borderRadius: '0.5rem', 
+            padding: '1rem',
             marginTop: '1rem'
           }}>
             <div style={{ 
-              fontSize: '1.25rem', 
-              fontWeight: '700', 
+              fontSize: '1rem', 
+              fontWeight: '600', 
               color: '#00ff00', 
-              textAlign: 'center',
-              marginBottom: '1rem'
+              textAlign: 'center'
             }}>
               <FiCheckCircle style={{ marginRight: '0.5rem' }} />
               Authorization Successful!
-            </div>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem',
-              marginTop: '1rem'
-            }}>
-              {state.tokens.access_token && (
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="Access Token"
-                    token={state.tokens.access_token}
-                    tokenType="access"
-                    isOIDC={state.tokens.id_token ? true : false}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-              {state.tokens.id_token && (
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="ID Token"
-                    token={state.tokens.id_token}
-                    tokenType="id"
-                    isOIDC={true}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-              {state.tokens.refresh_token && (
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.4)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="Refresh Token"
-                    token={state.tokens.refresh_token}
-                    tokenType="refresh"
-                    isOIDC={state.tokens.id_token ? true : false}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -458,6 +430,15 @@ const SmartTVDeviceFlow: React.FC<SmartTVDeviceFlowProps> = ({
       {/* TV Stand */}
       <TVStand />
     </SmartTVContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.4)"
+      borderColor="#3a3a3c"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 

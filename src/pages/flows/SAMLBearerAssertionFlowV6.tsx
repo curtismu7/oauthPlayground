@@ -856,7 +856,7 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 				defaultCollapsed={collapsedSections.tokenRequest}
 				showArrow={true}
 			>
-						<InfoBox $variant="warning">
+						<InfoBox $variant="error">
 							<FiAlertTriangle size={20} />
 							<div>
 								<InfoTitle>🎓 Mock SAML Bearer Token Request</InfoTitle>
@@ -865,8 +865,16 @@ const SAMLBearerAssertionFlowV6: React.FC = () => {
 									would be sent to an OAuth 2.0 server that supports RFC 7522. The assertion parameter 
 									contains the Base64-encoded SAML assertion that proves the user's identity.
 								</InfoText>
-								<InfoText style={{ marginTop: '0.5rem' }}>
-									<strong>Note:</strong> PingOne does not support SAML Bearer assertions, so this is a 
+								<InfoText style={{ 
+									marginTop: '0.5rem',
+									color: '#dc2626',
+									fontWeight: '600',
+									backgroundColor: '#fee2e2',
+									padding: '0.75rem',
+									borderRadius: '0.5rem',
+									border: '2px solid #ef4444'
+								}}>
+									<strong>⚠️ SIMULATION WARNING:</strong> PingOne does not support SAML Bearer assertions, so this is a 
 									simulated request for learning purposes.
 								</InfoText>
 							</div>

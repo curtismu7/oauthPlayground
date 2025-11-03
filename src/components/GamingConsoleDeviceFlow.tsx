@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sony PlayStation 5 Console Main Container - Authentic PS5 Design
 const GamingConsoleContainer = styled.div<{ $authorized?: boolean }>`
@@ -364,6 +365,7 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
   const isAuthorized = state.status === 'authorized';
 
   return (
+    <>
     <GamingConsoleContainer $authorized={isAuthorized}>
       {/* Console Header */}
       <ConsoleHeader $authorized={isAuthorized}>
@@ -455,63 +457,6 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
             borderRadius: '0.5rem',
             border: '1px solid #333333'
           }}>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}>
-              {state.tokens.access_token && (
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="Access Token"
-                    token={state.tokens.access_token}
-                    tokenType="access"
-                    isOIDC={state.tokens.id_token ? true : false}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-              {state.tokens.id_token && (
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="ID Token"
-                    token={state.tokens.id_token}
-                    tokenType="id"
-                    isOIDC={true}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-              {state.tokens.refresh_token && (
-                <div style={{
-                  background: 'rgba(0, 0, 0, 0.2)',
-                  padding: '1rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="Refresh Token"
-                    token={state.tokens.refresh_token}
-                    tokenType="refresh"
-                    isOIDC={state.tokens.id_token ? true : false}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-            </div>
           </div>
         </div>
       )}
@@ -519,6 +464,15 @@ const GamingConsoleDeviceFlow: React.FC<GamingConsoleDeviceFlowProps> = ({
       {/* Console Base */}
       <ConsoleBase />
     </GamingConsoleContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.2)"
+      borderColor="#333333"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 

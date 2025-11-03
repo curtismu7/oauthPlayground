@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Fitbit Main Container - Authentic Fitbit Design
 const FitnessTrackerContainer = styled.div`
@@ -306,6 +306,7 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <FitnessTrackerContainer>
       {/* Watch Face */}
       <WatchFace>
@@ -357,7 +358,7 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
       </StatusDisplay>
 
       {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
+      {state.status === 'authorized' && (
         <div style={{ 
           background: '#1a1a1a', 
           border: '2px solid #00ff96', 
@@ -377,21 +378,21 @@ const FitnessTrackerDeviceFlow: React.FC<FitnessTrackerDeviceFlowProps> = ({
             <FiCheckCircle style={{ marginRight: '0.5rem' }} />
             Authorization Complete!
           </div>
-          <div style={{
-            background: '#000000',
-            padding: '0.75rem',
-            borderRadius: '0.5rem',
-            border: '1px solid #333333',
-            fontSize: '0.75rem'
-          }}>
-            <JSONHighlighter data={state.tokens} />
-          </div>
         </div>
       )}
 
       {/* Watch Band */}
       <WatchBand />
     </FitnessTrackerContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.4)"
+      borderColor="#374151"
+      headerTextColor="#00ff96"
+    />
+    </>
   );
 };
 

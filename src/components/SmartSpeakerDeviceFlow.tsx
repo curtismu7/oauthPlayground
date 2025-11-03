@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Smart Speaker Main Container - Audio/Speaker aesthetics
 const SmartSpeakerContainer = styled.div`
@@ -326,6 +327,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <SmartSpeakerContainer>
       {/* Speaker Header */}
       <SpeakerHeader>
@@ -385,7 +387,7 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
           <FiCopy /> Copy URI
         </SpeakerControlButton>
         <SpeakerControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-          <FiExternalLink /> Authorize
+          <FiExternalLink /> Open in Browser
         </SpeakerControlButton>
       </SpeakerControlPanel>
 
@@ -715,6 +717,15 @@ const SmartSpeakerDeviceFlow: React.FC<SmartSpeakerDeviceFlowProps> = ({
       {/* Speaker Base */}
       <SpeakerBase />
     </SmartSpeakerContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(255, 255, 255, 0.1)"
+      borderColor="#475569"
+      headerTextColor="#e2e8f0"
+    />
+    </>
   );
 };
 

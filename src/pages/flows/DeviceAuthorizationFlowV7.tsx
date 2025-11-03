@@ -873,14 +873,19 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	}
 `;
 
-const ModalContent = styled.div`
+const ModalContent = styled.div<{ $position?: { x: number; y: number }; $isDragging?: boolean }>`
 	background: white;
 	border-radius: 1rem;
-	padding: 2rem;
+	padding: 0;
 	max-width: 500px;
 	width: 100%;
 	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 	animation: slideUp 0.3s ease;
+	position: ${props => props.$position ? 'fixed' : 'relative'};
+	top: ${props => props.$position ? `${props.$position.y}px` : 'auto'};
+	left: ${props => props.$position ? `${props.$position.x}px` : 'auto'};
+	cursor: ${props => props.$isDragging ? 'grabbing' : 'default'};
+	transition: ${props => props.$isDragging ? 'none' : 'all 0.2s ease'};
 
 	@keyframes slideUp {
 		from {
@@ -898,8 +903,17 @@ const ModalHeader = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	margin-bottom: 1rem;
-	color: #1e293b;
+	margin: 0;
+	padding: 1.25rem 2rem;
+	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+	color: white;
+	border-radius: 1rem 1rem 0 0;
+	cursor: grab;
+	user-select: none;
+	
+	&:active {
+		cursor: grabbing;
+	}
 `;
 
 const ModalTitle = styled.h3`
@@ -912,13 +926,15 @@ const ModalBody = styled.div`
 	color: #475569;
 	font-size: 1rem;
 	line-height: 1.6;
-	margin-bottom: 1.5rem;
+	margin: 0;
+	padding: 2rem;
 `;
 
 const ModalActions = styled.div`
 	display: flex;
 	gap: 0.75rem;
 	justify-content: flex-end;
+	padding: 0 2rem 2rem 2rem;
 `;
 
 const QRSection = styled.div`
@@ -1177,6 +1193,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	);
 	const deviceApps = useMemo(() => deviceTypeService.getDeviceApps(selectedDevice), [selectedDevice]);
 	const lastParsedErrorSignatureRef = useRef<string | null>(null);
+	
+	// Modal drag state
+	const [modalPosition, setModalPosition] = useState<{ x: number; y: number } | null>(null);
+	const [isDragging, setIsDragging] = useState(false);
+	const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+	const modalRef = useRef<HTMLDivElement>(null);
 
 	// Monitor deviceFlow polling status for errors
 	React.useEffect(() => {
@@ -1334,14 +1356,22 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				});
 
 				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
-					console.log('✅ [DeviceAuth-V7] Found flow-specific credentials');
+					console.log('✅ [DeviceAuth-V7] Found flow-specific credentials:', {
+						hasClientId: !!flowData.flowCredentials.clientId,
+						hasEnvironmentId: !!flowData.sharedEnvironment?.environmentId,
+						clientIdLength: flowData.flowCredentials.clientId?.length || 0
+					});
 					const updatedCredentials = {
-						environmentId: flowData.sharedEnvironment?.environmentId || '',
-						clientId: flowData.flowCredentials.clientId,
-						clientSecret: flowData.flowCredentials.clientSecret,
-						redirectUri: flowData.flowCredentials.redirectUri,
-						scopes: flowData.flowCredentials.scopes,
+						environmentId: flowData.sharedEnvironment?.environmentId || flowData.flowCredentials.environmentId || '',
+						clientId: flowData.flowCredentials.clientId || '',
+						clientSecret: flowData.flowCredentials.clientSecret || '',
+						redirectUri: flowData.flowCredentials.redirectUri || '',
+						scopes: flowData.flowCredentials.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid'),
 					};
+					console.log('🔧 [DeviceAuth-V7] Setting loaded credentials:', {
+						environmentId: updatedCredentials.environmentId ? '***' : '',
+						clientId: updatedCredentials.clientId ? updatedCredentials.clientId.substring(0, 8) + '...' : 'MISSING',
+					});
 					deviceFlow.setCredentials(updatedCredentials);
 				} else if (flowData.sharedEnvironment?.environmentId) {
 					console.log('ℹ️ [DeviceAuth-V7] Using shared environment data only');
@@ -1363,28 +1393,49 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	// Ensure Device Authorization Flow V7 uses its own credential storage
 	// Use JSON.stringify to track actual credential changes, not object reference changes
 	useEffect(() => {
-		// Save current credentials to flow-specific storage
+		// Save current credentials to flow-specific storage using comprehensiveFlowDataService
 		if (deviceFlow.credentials && (deviceFlow.credentials.environmentId || deviceFlow.credentials.clientId)) {
-			console.log('🔧 [Device Authorization V7] Saving credentials to flow-specific storage:', {
+			console.log('🔧 [Device Authorization V7] Saving credentials to comprehensive service:', {
 				flowKey: 'device-authorization-v7',
 				environmentId: deviceFlow.credentials.environmentId,
 				clientId: deviceFlow.credentials.clientId?.substring(0, 8) + '...',
 				scopes: deviceFlow.credentials.scopes
 			});
 			
-		// Save to flow-specific storage with enhanced error handling
-		// Note: saveFlowCredentials signature is (flowKey, credentials, flowConfig?, additionalState?, options?)
-		FlowCredentialService.saveFlowCredentials(
-			'device-authorization-v7', 
-			deviceFlow.credentials, 
-			undefined, // flowConfig
-			undefined, // additionalState
-			{ showToast: false } // options - this is the 5th parameter!
-		).catch((error) => {
-			console.error('[Device Authorization V7] Failed to save credentials to V7 storage:', error);
-			// Show user-friendly error message
-			v4ToastManager.showError('Failed to save credentials. Please try again.');
-		});
+			// Save to comprehensive service with complete isolation (same pattern as other V7 flows)
+			try {
+				const success = comprehensiveFlowDataService.saveFlowDataComprehensive('device-authorization-v7', {
+					...(deviceFlow.credentials.environmentId && {
+						sharedEnvironment: {
+							environmentId: deviceFlow.credentials.environmentId,
+							region: 'us',
+							issuerUrl: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}`
+						}
+					}),
+					flowCredentials: {
+						clientId: deviceFlow.credentials.clientId,
+						clientSecret: deviceFlow.credentials.clientSecret,
+						redirectUri: deviceFlow.credentials.redirectUri,
+						scopes: Array.isArray(deviceFlow.credentials.scopes) 
+							? deviceFlow.credentials.scopes 
+							: (typeof deviceFlow.credentials.scopes === 'string' 
+								? deviceFlow.credentials.scopes.split(/\s+/).filter(Boolean)
+								: []),
+						tokenEndpointAuthMethod: 'client_secret_basic',
+						lastUpdated: Date.now()
+					}
+				}, { showToast: false });
+
+				if (!success) {
+					console.error('[Device Authorization V7] Failed to save credentials to comprehensive service');
+					v4ToastManager.showError('Failed to save credentials. Please try again.');
+				} else {
+					console.log('✅ [Device Authorization V7] Credentials saved successfully');
+				}
+			} catch (error) {
+				console.error('[Device Authorization V7] Failed to save credentials:', error);
+				v4ToastManager.showError('Failed to save credentials. Please try again.');
+			}
 		}
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [
@@ -1491,7 +1542,73 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 	const handleDismissModal = useCallback(() => {
 		setShowPollingModal(false);
+		setModalPosition(null);
 	}, []);
+
+	// Modal drag handlers
+	const handleModalMouseDown = useCallback((e: React.MouseEvent) => {
+		// Only start drag if clicking on the header, not on buttons or interactive elements
+		if ((e.target as HTMLElement).closest('button') || (e.target as HTMLElement).closest('select')) {
+			return;
+		}
+		
+		if (!modalRef.current) return;
+		
+		const rect = modalRef.current.getBoundingClientRect();
+		setDragOffset({
+			x: e.clientX - rect.left,
+			y: e.clientY - rect.top
+		});
+		setIsDragging(true);
+		
+		// Initialize position if not set
+		if (!modalPosition) {
+			const centerX = (window.innerWidth - rect.width) / 2;
+			const centerY = (window.innerHeight - rect.height) / 2;
+			setModalPosition({ x: centerX, y: centerY });
+		}
+	}, [modalPosition]);
+
+	useEffect(() => {
+		const handleMouseMove = (e: MouseEvent) => {
+			if (!isDragging || !modalPosition) return;
+			
+			const newX = e.clientX - dragOffset.x;
+			const newY = e.clientY - dragOffset.y;
+			
+			// Keep modal within viewport bounds
+			const maxX = window.innerWidth - (modalRef.current?.offsetWidth || 500);
+			const maxY = window.innerHeight - (modalRef.current?.offsetHeight || 400);
+			
+			setModalPosition({
+				x: Math.max(0, Math.min(newX, maxX)),
+				y: Math.max(0, Math.min(newY, maxY))
+			});
+		};
+
+		const handleMouseUp = () => {
+			setIsDragging(false);
+		};
+
+		if (isDragging) {
+			document.addEventListener('mousemove', handleMouseMove);
+			document.addEventListener('mouseup', handleMouseUp);
+			return () => {
+				document.removeEventListener('mousemove', handleMouseMove);
+				document.removeEventListener('mouseup', handleMouseUp);
+			};
+		}
+	}, [isDragging, dragOffset, modalPosition]);
+
+	// Center modal when it opens
+	useEffect(() => {
+		if (showPollingModal && !modalPosition && modalRef.current) {
+			const rect = modalRef.current.getBoundingClientRect();
+			const centerX = (window.innerWidth - rect.width) / 2;
+			const centerY = (window.innerHeight - rect.height) / 2;
+			setModalPosition({ x: centerX, y: centerY });
+		}
+	}, [showPollingModal, modalPosition]);
 
 	const handleReset = useCallback(() => {
 		deviceFlow.reset();
@@ -1527,8 +1644,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					// Step 0: Introduction is always valid
 					return true;
 				case 1:
-					// Step 1: Must have valid credentials
-					return !!deviceFlow.credentials;
+					// Step 1: Must have valid credentials with required fields
+					if (!deviceFlow.credentials) return false;
+					const creds = deviceFlow.credentials;
+					// Check for required fields: environmentId and clientId
+					return !!(creds.environmentId && creds.environmentId.trim() !== '' && 
+					          creds.clientId && creds.clientId.trim() !== '');
 				case 2:
 					// Step 2: Must have device code data
 					return !!deviceFlow.deviceCodeData;
@@ -3442,10 +3563,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 			{/* Polling Prompt Modal */}
 			<ModalOverlay $isOpen={showPollingModal}>
-				<ModalContent>
-					<ModalHeader>
-						<FiClock size={32} color="#3b82f6" />
-						<ModalTitle>Ready to Start Polling?</ModalTitle>
+				<ModalContent
+					ref={modalRef}
+					$position={modalPosition || undefined}
+					$isDragging={isDragging}
+				>
+					<ModalHeader onMouseDown={handleModalMouseDown}>
+						<FiClock size={32} color="white" />
+						<ModalTitle style={{ color: 'white' }}>Ready to Start Polling?</ModalTitle>
 					</ModalHeader>
 					<ModalBody>
 						<p>
@@ -3457,7 +3582,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							user has completed authorization. The app will automatically check every{' '}
 							{deviceFlow.deviceCodeData?.interval || 5} seconds.
 						</p>
-						<p
+						<div
 							style={{
 								marginTop: '1rem',
 								padding: '0.75rem',
@@ -3466,10 +3591,22 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								border: '1px solid #bfdbfe',
 							}}
 						>
-							{deviceConfig.emoji}{' '}
-							<strong>Watch the {deviceConfig.name} display update in real-time</strong> as the user
-							authorizes on their phone!
-						</p>
+							<div style={{ marginBottom: '0.75rem' }}>
+								<DeviceTypeSelector
+									selectedDevice={selectedDevice}
+									onDeviceChange={(deviceType) => {
+										setSelectedDevice(deviceType);
+										localStorage.setItem('device_flow_selected_device', deviceType);
+									}}
+									variant="compact"
+								/>
+							</div>
+							<p style={{ margin: 0 }}>
+								{deviceConfig.emoji}{' '}
+								<strong>Watch the {deviceConfig.name} display update in real-time</strong> as the user
+								authorizes on their phone!
+							</p>
+						</div>
 						<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 							<FiInfo size={18} />
 							<div>

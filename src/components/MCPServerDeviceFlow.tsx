@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import JSONHighlighter from './JSONHighlighter';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // MCP Server Main Container - Server/Infrastructure aesthetics
 const MCPServerContainer = styled.div`
@@ -344,6 +345,7 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <MCPServerContainer>
       {/* Server Header */}
       <ServerHeader>
@@ -397,7 +399,7 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
           <FiCopy /> Copy URI
         </ServerControlButton>
         <ServerControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-          <FiExternalLink /> Authorize
+          <FiExternalLink /> Open in Browser
         </ServerControlButton>
       </ServerControlPanel>
 
@@ -409,7 +411,7 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
       </StatusDisplay>
 
       {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
+      {state.status === 'authorized' && (
         <div style={{ 
           background: '#1e293b', 
           border: '2px solid #06b6d4', 
@@ -429,20 +431,21 @@ const MCPServerDeviceFlow: React.FC<MCPServerDeviceFlowProps> = ({
             <FiLink style={{ marginRight: '0.5rem' }} />
             MCP Server Authorized!
           </div>
-          <div style={{
-            background: '#000000',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            border: '1px solid #374151'
-          }}>
-            <JSONHighlighter data={state.tokens} />
-          </div>
         </div>
       )}
 
       {/* Server Base */}
       <ServerBase />
     </MCPServerContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.4)"
+      borderColor="#374151"
+      headerTextColor="#06b6d4"
+    />
+    </>
   );
 };
 
