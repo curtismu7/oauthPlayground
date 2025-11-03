@@ -293,7 +293,7 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 	const navigate = useNavigate();
 
 	return (
-		<div>
+		<div style={{ maxWidth: '800px', margin: '0 auto' }}>
 			{/* Access Token */}
 			{tokens.access_token && renderToken(
 				String(tokens.access_token),

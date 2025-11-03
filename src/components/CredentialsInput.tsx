@@ -354,6 +354,7 @@ export const CredentialsInput = ({
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
 	const [isSaved, setIsSaved] = useState(false);
+	const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string | null>(null);
 
 	// Handle scopes change - allow spaces while typing, clean up on blur
 	const handleScopesChange = (value: string) => {
@@ -365,6 +366,29 @@ export const CredentialsInput = ({
 		// Clean up multiple spaces and trim only on blur
 		const cleanedValue = value.replace(/\s+/g, ' ').trim();
 		onScopesBlur?.(cleanedValue);
+	};
+
+	// Format timestamp as "11/2/2025, 5:23:20 PM"
+	const formatTimestamp = (date: Date): string => {
+		const month = date.getMonth() + 1;
+		const day = date.getDate();
+		const year = date.getFullYear();
+		let hours = date.getHours();
+		const minutes = date.getMinutes().toString().padStart(2, '0');
+		const seconds = date.getSeconds().toString().padStart(2, '0');
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		hours = hours % 12;
+		hours = hours ? hours : 12; // the hour '0' should be '12'
+		return `${month}/${day}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
+	};
+
+	// Wrap onSave to update timestamp
+	const handleSave = () => {
+		if (onSave) {
+			const timestamp = formatTimestamp(new Date());
+			setLastSavedTimestamp(timestamp);
+			onSave();
+		}
 	};
 
 	return (
@@ -829,69 +853,81 @@ export const CredentialsInput = ({
 					paddingTop: '1rem', 
 					borderTop: '1px solid #e5e7eb',
 					display: 'flex',
-					justifyContent: 'flex-start'
+					flexDirection: 'column',
+					gap: '0.5rem'
 				}}>
-					<button
-						type="button"
-						onClick={onSave}
-						disabled={isSaving}
-						style={{
-							display: 'flex',
-							alignItems: 'center',
-							gap: '0.5rem',
-							padding: '0.75rem 1.5rem',
-							backgroundColor: '#10b981',
-							color: 'white',
-							border: '1px solid #10b981',
-							borderRadius: '0.5rem',
-							fontSize: '0.875rem',
-							fontWeight: '600',
-							cursor: isSaving ? 'not-allowed' : 'pointer',
-							opacity: isSaving ? 0.7 : 1,
-							transition: 'all 0.2s ease',
-						}}
-						onMouseEnter={(e) => {
-							if (!isSaving) {
-								e.currentTarget.style.backgroundColor = '#059669';
-								e.currentTarget.style.borderColor = '#059669';
-							}
-						}}
-						onMouseLeave={(e) => {
-							if (!isSaving) {
-								e.currentTarget.style.backgroundColor = '#10b981';
-								e.currentTarget.style.borderColor = '#10b981';
-							}
-						}}
-					>
-						{isSaving ? (
-							<>
-								<div style={{
-									width: '16px',
-									height: '16px',
-									border: '2px solid #ffffff',
-									borderTop: '2px solid transparent',
-									borderRadius: '50%',
-									animation: 'spin 1s linear infinite'
-								}} />
-								<style>{`
-									@keyframes spin {
-										0% { transform: rotate(0deg); }
-										100% { transform: rotate(360deg); }
-									}
-								`}</style>
-								Saving...
-							</>
-						) : (
-							<>
-								<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-									<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-									<polyline points="17,21 17,13 7,13 7,21" />
-									<polyline points="7,3 7,8 15,8" />
-								</svg>
-								{hasUnsavedChanges ? 'Save Changes' : 'Save Credentials'}
-							</>
-						)}
-					</button>
+					<div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+						<button
+							type="button"
+							onClick={handleSave}
+							disabled={isSaving}
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								padding: '0.75rem 1.5rem',
+								backgroundColor: '#10b981',
+								color: 'white',
+								border: '1px solid #10b981',
+								borderRadius: '0.5rem',
+								fontSize: '0.875rem',
+								fontWeight: '600',
+								cursor: isSaving ? 'not-allowed' : 'pointer',
+								opacity: isSaving ? 0.7 : 1,
+								transition: 'all 0.2s ease',
+							}}
+							onMouseEnter={(e) => {
+								if (!isSaving) {
+									e.currentTarget.style.backgroundColor = '#059669';
+									e.currentTarget.style.borderColor = '#059669';
+								}
+							}}
+							onMouseLeave={(e) => {
+								if (!isSaving) {
+									e.currentTarget.style.backgroundColor = '#10b981';
+									e.currentTarget.style.borderColor = '#10b981';
+								}
+							}}
+						>
+							{isSaving ? (
+								<>
+									<div style={{
+										width: '16px',
+										height: '16px',
+										border: '2px solid #ffffff',
+										borderTop: '2px solid transparent',
+										borderRadius: '50%',
+										animation: 'spin 1s linear infinite'
+									}} />
+									<style>{`
+										@keyframes spin {
+											0% { transform: rotate(0deg); }
+											100% { transform: rotate(360deg); }
+										}
+									`}</style>
+									Saving...
+								</>
+							) : (
+								<>
+									<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+										<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+										<polyline points="17,21 17,13 7,13 7,21" />
+										<polyline points="7,3 7,8 15,8" />
+									</svg>
+									{hasUnsavedChanges ? 'Save Changes' : 'Save Credentials'}
+								</>
+							)}
+						</button>
+					</div>
+					{lastSavedTimestamp && (
+						<div style={{
+							fontSize: '0.75rem',
+							color: '#6b7280',
+							fontStyle: 'italic'
+						}}>
+							Last saved {lastSavedTimestamp}
+						</div>
+					)}
 				</div>
 			)}
 				</form>
