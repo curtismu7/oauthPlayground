@@ -58,7 +58,13 @@ const ResponseTypeSelect = styled.select`
 
 // Flow-specific authentication method configuration
 const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {
-	switch (flowType) {
+	if (!flowType) {
+		return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
+	}
+	
+	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
+	
+	switch (normalizedFlowType) {
 		case 'implicit-oauth-v7':
 		case 'implicit-oidc-v7':
 			return ['none'];
@@ -74,6 +80,10 @@ const getFlowAuthMethods = (flowType?: string): ClientAuthMethod[] => {
 		case 'worker-token-v7':
 			return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
 		default:
+			// Check for CIBA flow (requires client authentication, cannot use 'none')
+			if (normalizedFlowType.includes('ciba')) {
+				return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
+			}
 			return ['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'];
 	}
 };
@@ -132,12 +142,24 @@ const getFlowResponseTypes = (flowType?: string): string[] => {
 	
 	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
 	
-	// Check for specific patterns
+	// Check for specific patterns - flows that don't use response_type
 	if (normalizedFlowType.includes('client-credentials') || normalizedFlowType.includes('client_credentials')) {
 		return []; // Client credentials flow doesn't use response_type
 	}
 	if (normalizedFlowType.includes('device') || normalizedFlowType.includes('device-authorization')) {
 		return []; // Device authorization flow doesn't use response_type
+	}
+	if (normalizedFlowType.includes('jwt-bearer') || normalizedFlowType.includes('jwt_bearer')) {
+		return []; // JWT Bearer flow doesn't use response_type (direct token endpoint call)
+	}
+	if (normalizedFlowType.includes('saml-bearer') || normalizedFlowType.includes('saml_bearer')) {
+		return []; // SAML Bearer flow doesn't use response_type (direct token endpoint call)
+	}
+	if (normalizedFlowType.includes('ropc') || normalizedFlowType.includes('resource-owner-password')) {
+		return []; // Resource Owner Password Credentials flow doesn't use response_type
+	}
+	if (normalizedFlowType.includes('ciba')) {
+		return []; // CIBA flow doesn't use response_type (uses backchannel endpoint, not authorization endpoint)
 	}
 	if (normalizedFlowType.includes('implicit') && normalizedFlowType.includes('oidc')) {
 		return ['token', 'id_token'];
@@ -162,11 +184,18 @@ const getAllowedResponseTypes = (flowType?: string, isOIDC: boolean = false): st
 	
 	const normalizedFlowType = flowType.toLowerCase().replace(/[-_]/g, '-');
 	
-	// Client credentials and device flows don't use response_type
+	// Client credentials, device, JWT Bearer, SAML Bearer, ROPC, and CIBA flows don't use response_type
 	if (normalizedFlowType.includes('client-credentials') || 
 		normalizedFlowType.includes('client_credentials') ||
 		normalizedFlowType.includes('device') || 
-		normalizedFlowType.includes('device-authorization')) {
+		normalizedFlowType.includes('device-authorization') ||
+		normalizedFlowType.includes('jwt-bearer') ||
+		normalizedFlowType.includes('jwt_bearer') ||
+		normalizedFlowType.includes('saml-bearer') ||
+		normalizedFlowType.includes('saml_bearer') ||
+		normalizedFlowType.includes('ropc') ||
+		normalizedFlowType.includes('resource-owner-password') ||
+		normalizedFlowType.includes('ciba')) {
 		return [];
 	}
 	
@@ -438,10 +467,15 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	useEffect(() => {
 		checkWorkerToken();
 		
+		// Also check after a short delay to catch any tokens stored just before mount
+		const immediateCheck = setTimeout(() => {
+			checkWorkerToken();
+		}, 100);
+		
 		// Listen for storage events (when token is updated in another tab/window)
 		const handleStorageChange = (e: StorageEvent) => {
-			if (e.key === 'worker_token' || e.key === 'worker_token_expires_at') {
-				console.log('[COMPREHENSIVE-CREDENTIALS] Worker token changed in storage, re-checking');
+			if (e.key === 'worker_token' || e.key === 'worker_token_expires_at' || e.key === 'worker_credentials') {
+				console.log('[COMPREHENSIVE-CREDENTIALS] Worker token/credentials changed in storage, re-checking');
 				checkWorkerToken();
 			}
 		};
@@ -461,6 +495,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		}, 30000); // 30 seconds
 		
 		return () => {
+			clearTimeout(immediateCheck);
 			window.removeEventListener('storage', handleStorageChange);
 			window.removeEventListener('workerTokenUpdated', handleWorkerTokenUpdate);
 			clearInterval(intervalId);
@@ -621,8 +656,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			authorizationEndpoint: credentials?.authorizationEndpoint ?? '',
 			tokenEndpoint: credentials?.tokenEndpoint ?? '',
 			userInfoEndpoint: credentials?.userInfoEndpoint ?? '',
-			clientAuthMethod: credentials?.clientAuthMethod ?? 'client_secret_post',
-			tokenEndpointAuthMethod: credentials?.tokenEndpointAuthMethod ?? (typeof credentials?.clientAuthMethod === 'string' ? credentials.clientAuthMethod : credentials?.clientAuthMethod?.value) ?? 'client_secret_post',
+			clientAuthMethod: credentials?.clientAuthMethod ?? clientAuthMethod ?? 'client_secret_post',
+			tokenEndpointAuthMethod: credentials?.tokenEndpointAuthMethod ?? (typeof credentials?.clientAuthMethod === 'string' ? credentials.clientAuthMethod : credentials?.clientAuthMethod?.value) ?? clientAuthMethod ?? 'client_secret_post',
 		};
 		
 		console.log('[ComprehensiveCredentialsService] resolvedCredentials computed:', {
@@ -910,7 +945,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							</p>
 							<button
 								onClick={() => setShowWorkerTokenModal(true)}
-								disabled={!resolvedCredentials.environmentId}
+								disabled={false}
 								style={{
 									background: '#007bff',
 									color: 'white',
@@ -918,8 +953,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									padding: '0.75rem 1.5rem',
 									borderRadius: '6px',
 									fontWeight: '600',
-									cursor: !resolvedCredentials.environmentId ? 'not-allowed' : 'pointer',
-									opacity: !resolvedCredentials.environmentId ? 0.6 : 1
+									cursor: 'pointer',
+									opacity: 1
 								}}
 							>
 								Get Worker Token
@@ -1330,6 +1365,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			{(() => {
 				const flowAuthMethods = allowedAuthMethods || getFlowAuthMethods(flowType);
 				// Only show if there are allowed methods and it's not just 'none' for flows that don't need it
+				// For JWT Bearer flow, show selector but disable it (only 'none' is valid)
+				const isDisabled = flowAuthMethods.length === 1 && flowAuthMethods[0] === 'none' && flowType?.includes('jwt-bearer');
 				return flowAuthMethods.length > 0 && (
 					<div style={{ 
 						marginTop: '1rem', 
@@ -1342,11 +1379,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						<ClientAuthMethodSelector
 							value={clientAuthMethod}
 							onChange={(method) => {
+								// Prevent changes if disabled (JWT Bearer must use 'none')
+								if (isDisabled) return;
 								applyCredentialUpdates({ clientAuthMethod: method }, { shouldSave: false });
 								onClientAuthMethodChange?.(method);
 							}}
 							allowedMethods={flowAuthMethods}
 							showDescription={true}
+							disabled={isDisabled}
 						/>
 					</div>
 				);

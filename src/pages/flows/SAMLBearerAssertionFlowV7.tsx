@@ -16,6 +16,7 @@ import {
 	FiEye,
 	FiEyeOff,
 	FiUsers,
+	FiExternalLink,
 } from 'react-icons/fi';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
@@ -26,6 +27,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { credentialManager } from '../../utils/credentialManager';
 import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 // Styled Components (reusing from JWT Bearer Flow)
 const Container = styled.div`
@@ -131,7 +133,7 @@ const Helper = styled.div`
 	line-height: 1.4;
 `;
 
-const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'success' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
@@ -141,27 +143,47 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
+	border: none;
 	
-	${props => props.$variant === 'primary' ? `
-		background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-		color: white;
-		border: none;
-		
-		&:hover {
-			background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-			transform: translateY(-1px);
-			box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+	${props => {
+		if (props.$variant === 'primary') {
+			return `
+				background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+				color: white;
+				
+				&:hover:not(:disabled) {
+					background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+					transform: translateY(-1px);
+					box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+				}
+			`;
+		} else if (props.$variant === 'success') {
+			return `
+				background-color: #22c55e;
+				color: white;
+				
+				&:hover:not(:disabled) {
+					background-color: #16a34a;
+				}
+			`;
+		} else {
+			return `
+				background: white;
+				color: #374151;
+				border: 1px solid #d1d5db;
+				
+				&:hover {
+					background: #f9fafb;
+					border-color: #9ca3af;
+				}
+			`;
 		}
-	` : `
-		background: white;
-		color: #374151;
-		border: 1px solid #d1d5db;
-		
-		&:hover {
-			background: #f9fafb;
-			border-color: #9ca3af;
-		}
-	`}
+	}}
+	
+	&:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
 `;
 
 const GeneratedContentBox = styled.div`
@@ -511,11 +533,66 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 			console.log('[SAML Bearer Mock] Simulating token request...');
 			await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
 
+			// MOCK IMPLEMENTATION - Generate mock JWT access token (real-looking format)
+			// In real life, the authorization server extracts user attributes from the SAML assertion
+			// and includes them in the access token (especially with scopes like 'profile' and 'email')
+			const now = Math.floor(Date.now() / 1000);
+			const exp = now + 3600; // 1 hour from now
+			
+			// Extract user attributes from SAML assertion to include in access token
+			// This simulates what a real authorization server would do: parse SAML attributes and map them to token claims
+			const samlAttributes = samlAssertion.attributes || {};
+			const subjectEmail = samlAssertion.subject || samlAttributes.email || '';
+			const userName = samlAttributes.given_name && samlAttributes.family_name 
+				? `${samlAttributes.given_name} ${samlAttributes.family_name}`
+				: samlAttributes.name || samlAttributes.email || '';
+			
+			// Create JWT header and payload
+			const header = {
+				alg: 'RS256',
+				typ: 'JWT',
+				kid: 'saml-bearer-mock-key-id'
+			};
+			
+			// Build payload with SAML assertion attributes translated into token claims
+			// In real implementations, the authorization server extracts these from the SAML assertion
+			const payload = {
+				sub: subjectEmail || samlAssertion.subject || clientId || 'saml-bearer-client',
+				client_id: clientId || 'saml-bearer-client',
+				iss: tokenEndpoint ? tokenEndpoint.replace('/token', '').replace('/as', '') : 'https://auth.pingone.com',
+				aud: tokenEndpoint ? tokenEndpoint.replace('/token', '').replace('/as', '') : 'https://auth.pingone.com',
+				scope: 'openid profile email',
+				iat: now,
+				exp: exp,
+				jti: 'saml_bearer_' + Math.random().toString(36).substr(2, 16),
+				token_use: 'access',
+				authn_method: 'saml_bearer',
+				// Include user attributes from SAML assertion (real authorization servers do this)
+				email: samlAttributes.email || subjectEmail || undefined,
+				name: userName || undefined,
+				given_name: samlAttributes.given_name || undefined,
+				family_name: samlAttributes.family_name || undefined,
+				...(samlAttributes.role && { role: samlAttributes.role }),
+				// Include other SAML attributes as custom claims
+				...(Object.keys(samlAttributes).length > 0 && {
+					saml_attributes: samlAttributes
+				}),
+				_mock: true,
+				_note: 'Mock SAML Bearer access token for educational purposes. User attributes extracted from SAML assertion.'
+			};
+			
+			// Encode to create mock JWT (base64url encoding)
+			const encodedHeader = btoa(JSON.stringify(header)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+			const encodedPayload = btoa(JSON.stringify(payload)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+			const mockSignature = 'saml_mock_sig_' + Math.random().toString(36).substr(2, 43);
+			const mockAccessToken = `${encodedHeader}.${encodedPayload}.${mockSignature}`;
+
 			// MOCK IMPLEMENTATION - Generate mock token response
 			const mockTokenResponse = {
-				access_token: 'mock_saml_bearer_token_' + Math.random().toString(36).substr(2, 32),
+				access_token: mockAccessToken, // Real-looking JWT that can be decoded
 				token_type: 'Bearer',
 				expires_in: 3600,
+				scope: 'openid profile email',
 				_mock: true, // Indicator that this is a mock response
 				_note: 'This is a simulated response for educational purposes. PingOne does not support SAML Bearer assertions.'
 			};
@@ -529,7 +606,7 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 		} finally {
 			setIsLoading(false);
 		}
-	}, [generatedSAML, clientId, tokenEndpoint]);
+	}, [generatedSAML, clientId, tokenEndpoint, samlAssertion]);
 
 	// Step content renderers
 	const renderCredentials = () => (
@@ -856,15 +933,23 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				defaultCollapsed={collapsedSections.tokenRequest}
 				showArrow={true}
 			>
-				<InfoBox $variant="warning">
+				<InfoBox $variant="error">
 					<FiAlertTriangle size={20} />
 					<div>
 						<InfoTitle>🎓 Mock SAML Bearer Token Request</InfoTitle>
 						<InfoText>
 							The SAML Bearer Assertion flow enables OAuth clients to authenticate using SAML assertions from an identity provider. This is commonly used in enterprise environments where SAML-based SSO is already established.
 						</InfoText>
-						<InfoText style={{ marginTop: '0.5rem' }}>
-							<strong>Note:</strong> PingOne does not support SAML Bearer assertions, so this is a simulated request for learning purposes.
+						<InfoText style={{ 
+							marginTop: '0.5rem',
+							color: '#dc2626',
+							fontWeight: '600',
+							backgroundColor: '#fee2e2',
+							padding: '0.75rem',
+							borderRadius: '0.5rem',
+							border: '2px solid #ef4444'
+						}}>
+							<strong>⚠️ SIMULATION WARNING:</strong> PingOne does not support SAML Bearer assertions, so this is a simulated request for learning purposes.
 						</InfoText>
 					</div>
 				</InfoBox>
@@ -893,14 +978,10 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 				<div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
 					<Button 
 						onClick={makeTokenRequest} 
-						$variant="primary" 
+						$variant="success" 
 						disabled={!generatedSAML || isLoading}
-						style={{ 
-							opacity: !generatedSAML ? 0.5 : 1,
-							cursor: !generatedSAML ? 'not-allowed' : 'pointer'
-						}}
 					>
-						{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiGlobe />}
+						{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiExternalLink />}
 						{isLoading ? 'Requesting Token...' : 'Make Token Request'}
 					</Button>
 					{!generatedSAML && (
@@ -932,45 +1013,35 @@ const SAMLBearerAssertionFlowV7: React.FC = () => {
 					<InfoBox $variant="success">
 						<FiCheckCircle size={20} />
 						<div>
-							<InfoTitle>Access Token Received!</InfoTitle>
+							<InfoTitle>Access token from SAML Assertion</InfoTitle>
 							<InfoText>
 								The SAML Bearer Assertion flow has completed successfully. You now have an access token
 								that can be used to access protected resources.
 							</InfoText>
+							<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic', color: '#1e40af' }}>
+								<strong>💡 Real-World Behavior:</strong> In production systems, the authorization server extracts user 
+								attributes from the SAML assertion (email, name, roles, etc.) and includes them in the access token 
+								claims. This allows APIs to identify the user and make authorization decisions. Decode the access token 
+								above to see how SAML attributes were translated into token claims (email, name, given_name, family_name, role).
+							</InfoText>
 						</div>
 					</InfoBox>
 
-					<GeneratedContentBox>
-						<ParameterGrid>
-							<ParameterLabel>access_token</ParameterLabel>
-							<ParameterValue style={{ wordBreak: 'break-all', fontSize: '0.75rem' }}>
-								{tokenResponse.access_token}
-							</ParameterValue>
-							
-							<ParameterLabel>token_type</ParameterLabel>
-							<ParameterValue>{tokenResponse.token_type}</ParameterValue>
-							
-							<ParameterLabel>expires_in</ParameterLabel>
-							<ParameterValue>{tokenResponse.expires_in} seconds</ParameterValue>
-						</ParameterGrid>
-					</GeneratedContentBox>
-
-					<div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-						<Button 
-							onClick={() => copyToClipboard(tokenResponse.access_token, 'access token')} 
-							$variant="secondary"
-							disabled={!tokenResponse?.access_token}
-						>
-							<FiCopy /> Copy Access Token
-						</Button>
-						<Button 
-							onClick={() => copyToClipboard(JSON.stringify(tokenResponse, null, 2), 'token response JSON')} 
-							$variant="secondary"
-							disabled={!tokenResponse}
-						>
-							<FiCopy /> Copy Full Response
-						</Button>
-					</div>
+					{/* Use UnifiedTokenDisplayService for token display with decode capability */}
+					{UnifiedTokenDisplayService.showTokens(
+						{
+							access_token: tokenResponse.access_token,
+							token_type: tokenResponse.token_type,
+							expires_in: tokenResponse.expires_in,
+							scope: tokenResponse.scope
+						},
+						'oauth',
+						'saml-bearer-v7',
+						{
+							showCopyButtons: true,
+							showDecodeButtons: true
+						}
+					)}
 				</CollapsibleHeader>
 			)}
 		</>

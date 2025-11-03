@@ -590,13 +590,24 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										</div>
 									</InfoBox>
 
-									<InfoBox $variant="warning">
+									<InfoBox $variant="error">
 										<FiAlertCircle size={20} />
 										<div>
 											<InfoTitle>Educational Mock Implementation</InfoTitle>
 											<InfoText>
 												This is a mock implementation for educational purposes. PingOne does not currently
 												support JWT Bearer assertions for client authentication.
+											</InfoText>
+											<InfoText style={{ 
+												marginTop: '0.5rem',
+												color: '#dc2626',
+												fontWeight: '600',
+												backgroundColor: '#fee2e2',
+												padding: '0.75rem',
+												borderRadius: '0.5rem',
+												border: '2px solid #ef4444'
+											}}>
+												<strong>⚠️ SIMULATION WARNING:</strong> This is a simulated/mock implementation for learning purposes only.
 											</InfoText>
 										</div>
 									</InfoBox>
