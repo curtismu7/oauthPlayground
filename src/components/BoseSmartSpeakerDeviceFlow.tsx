@@ -8,7 +8,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Sonos 3 Speaker Physical Housing - Authentic Sonos 3 Design
 const BoseSpeakerContainer = styled.div`
@@ -376,6 +376,7 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
   ];
 
   return (
+    <>
     <BoseSpeakerContainer>
       {/* Bose Branding */}
       <BoseBranding>
@@ -465,7 +466,7 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
       </QRCodeSection>
 
       {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
+      {state.status === 'authorized' && (
         <SuccessDisplay>
           <SuccessTitle>
             <FiCheckCircle />
@@ -474,70 +475,19 @@ const BoseSmartSpeakerDeviceFlow: React.FC<BoseSmartSpeakerDeviceFlowProps> = ({
           <SuccessMessage>
             Your Bose Smart Speaker is now connected and ready to play your favorite music.
           </SuccessMessage>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            marginTop: '1rem'
-          }}>
-            {state.tokens.access_token && (
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <InlineTokenDisplay
-                  label="Access Token"
-                  token={state.tokens.access_token}
-                  tokenType="access"
-                  isOIDC={state.tokens.id_token ? true : false}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              </div>
-            )}
-            {state.tokens.id_token && (
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <InlineTokenDisplay
-                  label="ID Token"
-                  token={state.tokens.id_token}
-                  tokenType="id"
-                  isOIDC={true}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              </div>
-            )}
-            {state.tokens.refresh_token && (
-              <div style={{
-                background: 'rgba(0, 0, 0, 0.2)',
-                padding: '1rem',
-                borderRadius: '0.5rem',
-                border: '1px solid rgba(255, 255, 255, 0.2)'
-              }}>
-                <InlineTokenDisplay
-                  label="Refresh Token"
-                  token={state.tokens.refresh_token}
-                  tokenType="refresh"
-                  isOIDC={state.tokens.id_token ? true : false}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              </div>
-            )}
-          </div>
         </SuccessDisplay>
       )}
+
     </BoseSpeakerContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.2)"
+      borderColor="#333333"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 

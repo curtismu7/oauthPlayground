@@ -368,7 +368,7 @@ export const DeviceDisplayTemplate: React.FC<DeviceDisplayTemplateProps> = ({
         )}
         {onOpenURI && (
           <ActionButton $variant="primary" onClick={onOpenURI}>
-            <FiExternalLink /> Authorize
+            <FiExternalLink /> Open in Browser
           </ActionButton>
         )}
       </ActionButtons>
