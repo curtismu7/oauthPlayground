@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Ring Doorbell Physical Housing
 const RingDoorbellContainer = styled.div`
@@ -354,6 +355,7 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <RingDoorbellContainer>
       {/* Ring Branding */}
       <RingBranding>
@@ -444,49 +446,19 @@ const RingDoorbellDeviceFlow: React.FC<RingDoorbellDeviceFlowProps> = ({
           <SuccessMessage>
             Your Ring Video Doorbell is now connected and ready to monitor your front door.
           </SuccessMessage>
-          <div style={{
-            background: 'rgba(0, 0, 0, 0.2)',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            marginTop: '1rem'
-          }}>
-            {state.tokens.access_token && (
-              <InlineTokenDisplay
-                label="Access Token"
-                token={state.tokens.access_token}
-                tokenType="access"
-                isOIDC={state.tokens.id_token ? true : false}
-                flowKey="device-authorization"
-                defaultMasked={true}
-                allowMaskToggle={true}
-              />
-            )}
-            {state.tokens.id_token && (
-              <InlineTokenDisplay
-                label="ID Token"
-                token={state.tokens.id_token}
-                tokenType="id"
-                isOIDC={true}
-                flowKey="device-authorization"
-                defaultMasked={true}
-                allowMaskToggle={true}
-              />
-            )}
-            {state.tokens.refresh_token && (
-              <InlineTokenDisplay
-                label="Refresh Token"
-                token={state.tokens.refresh_token}
-                tokenType="refresh"
-                isOIDC={state.tokens.id_token ? true : false}
-                flowKey="device-authorization"
-                defaultMasked={true}
-                allowMaskToggle={true}
-              />
-            )}
-          </div>
         </SuccessDisplay>
       )}
+
     </RingDoorbellContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.2)"
+      borderColor="#374151"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 
