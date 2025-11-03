@@ -243,7 +243,7 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 			flowCredentials: {
 				clientId,
 				scopes: Array.isArray(scopes) ? scopes : (scopes ? [scopes] : []),
-				tokenEndpointAuthMethod: 'client_secret_basic',
+				tokenEndpointAuthMethod: 'none', // JWT Bearer uses the assertion itself for authentication (RFC 7523)
 				lastUpdated: Date.now()
 			}
 		});
@@ -291,8 +291,11 @@ const JWTBearerTokenFlowV7: React.FC = () => {
 				throw new Error('Invalid issuer URL constructed');
 			}
 			
-			// Perform OIDC discovery
-			const result = await oidcDiscoveryService.discover(issuerUrl);
+			// Perform OIDC discovery with validated issuer URL
+			if (!issuerUrl || issuerUrl.trim() === '') {
+				throw new Error('Issuer URL is required and must be a string');
+			}
+			const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
 			
 			if (result.document?.issuer) {
 				const discoveredAudience = result.document.issuer;
@@ -619,13 +622,24 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 										</div>
 									</InfoBox>
 
-									<InfoBox $variant="warning">
+									<InfoBox $variant="error">
 										<FiAlertCircle size={20} />
 										<div>
 											<InfoTitle>Educational Mock Implementation</InfoTitle>
 											<InfoText>
 												This is a mock implementation for educational purposes. PingOne does not currently
 												support JWT Bearer assertions for client authentication.
+											</InfoText>
+											<InfoText style={{ 
+												marginTop: '0.5rem',
+												color: '#dc2626',
+												fontWeight: '600',
+												backgroundColor: '#fee2e2',
+												padding: '0.75rem',
+												borderRadius: '0.5rem',
+												border: '2px solid #ef4444'
+											}}>
+												<strong>⚠️ SIMULATION WARNING:</strong> This is a simulated/mock implementation for learning purposes only.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -675,7 +689,7 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 
 				{/* Credentials Configuration */}
 				<ComprehensiveCredentialsService
-						flowType="jwt-bearer-v6"
+						flowType="jwt-bearer-token-v7"  // Used to detect JWT Bearer and disable auth method selector
 						
 				// Discovery props
 				onDiscoveryComplete={(result) => {
@@ -756,7 +770,9 @@ AcwfLwFEGF35oCsfE6oSQx+GFzapC1amj/ELy+SqlNHzYBd6iReVMV6i/bwUGFxrx
 					showRedirectUri={false}
 					showPostLogoutRedirectUri={false}
 					showLoginHint={false}
-					showClientAuthMethod={false}  // No need for client auth selector in JWT Bearer
+					// Show auth method selector with "none" but disabled (JWT Bearer uses assertion for auth)
+					clientAuthMethod="none"
+					allowedAuthMethods={['none']}
 					
 					// Display config
 					title="JWT Bearer Configuration"
@@ -955,7 +971,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 											padding: '0.75rem 1.5rem'
 										}}
 									>
-										<FiKey /> Generate JWT
+										<FiKey /> Generate Access Token from JWT
 									</Button>
 								</div>
 						</CollapsibleHeader>
@@ -1180,7 +1196,7 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 
 									<Button
 										onClick={makeTokenRequest}
-										$variant="primary"
+										variant="success"
 										disabled={!generatedJWT || isLoading}
 									>
 										{isLoading ? <FiRefreshCw className="animate-spin" /> : <FiExternalLink />}
@@ -1297,13 +1313,24 @@ MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC..."
 
 			<ContentWrapper>
 				{/* Mock Implementation Warning */}
-				<InfoBox $variant="warning" style={{ marginBottom: '2rem' }}>
+				<InfoBox $variant="error" style={{ marginBottom: '2rem' }}>
 					<FiAlertTriangle size={24} />
 					<div>
 						<InfoTitle>🎓 Educational Mock Implementation</InfoTitle>
 						<InfoText>
 							This is a <strong>mock/educational implementation</strong> of the JWT Bearer Token flow.
 							PingOne does not currently support JWT Bearer assertions for client authentication.
+						</InfoText>
+						<InfoText style={{ 
+							marginTop: '0.75rem',
+							color: '#dc2626',
+							fontWeight: '600',
+							backgroundColor: '#fee2e2',
+							padding: '0.75rem',
+							borderRadius: '0.5rem',
+							border: '2px solid #ef4444'
+						}}>
+							<strong>⚠️ SIMULATION WARNING:</strong> This is a simulated/mock implementation for learning purposes only.
 						</InfoText>
 						<InfoText style={{ marginTop: '0.5rem' }}>
 							<strong>What you'll learn:</strong>
