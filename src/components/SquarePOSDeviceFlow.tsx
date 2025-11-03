@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
@@ -453,6 +454,7 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
   const isAuthorized = state.status === 'authorized';
 
   return (
+    <>
     <SquarePOSContainer $authorized={isAuthorized}>
       {/* Square POS Header */}
       <SquareHeader $authorized={isAuthorized}>
@@ -568,49 +570,18 @@ const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
           <SuccessMessage>
             Your Square POS terminal is now connected and ready to process payments.
           </SuccessMessage>
-          <div style={{
-            background: 'rgba(0, 0, 0, 0.2)',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            marginTop: '1rem'
-          }}>
-            {state.tokens.access_token && (
-              <InlineTokenDisplay
-                label="Access Token"
-                token={state.tokens.access_token}
-                tokenType="access"
-                isOIDC={state.tokens.id_token ? true : false}
-                flowKey="device-authorization"
-                defaultMasked={false}
-                allowMaskToggle={true}
-              />
-            )}
-            {state.tokens.id_token && (
-              <InlineTokenDisplay
-                label="ID Token"
-                token={state.tokens.id_token}
-                tokenType="id"
-                isOIDC={true}
-                flowKey="device-authorization"
-                defaultMasked={false}
-                allowMaskToggle={true}
-              />
-            )}
-            {state.tokens.refresh_token && (
-              <InlineTokenDisplay
-                label="Refresh Token"
-                token={state.tokens.refresh_token}
-                tokenType="refresh"
-                isOIDC={state.tokens.id_token ? true : false}
-                flowKey="device-authorization"
-                defaultMasked={false}
-                allowMaskToggle={true}
-              />
-            )}
-          </div>
         </SuccessDisplay>
       )}
     </SquarePOSContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.2)"
+      borderColor="#333333"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 
