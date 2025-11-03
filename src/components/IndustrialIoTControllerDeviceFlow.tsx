@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Industrial IoT Controller Main Container - Metallic gray with industrial design
 const IndustrialContainer = styled.div`
@@ -320,6 +320,7 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
   };
 
   return (
+    <>
     <IndustrialContainer>
       {/* Control Panel Header */}
       <ControlPanelHeader>
@@ -387,7 +388,7 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
       </SystemStatus>
 
       {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
+      {state.status === 'authorized' && (
         <div style={{ 
           background: '#1a1a1a', 
           border: '2px solid #00ff00', 
@@ -396,17 +397,19 @@ const IndustrialIoTControllerDeviceFlow: React.FC<IndustrialIoTControllerDeviceF
           marginTop: '1rem'
         }}>
           <IndustrialLabel>Authorization Successful</IndustrialLabel>
-          <div style={{
-            background: '#000000',
-            padding: '1rem',
-            borderRadius: '0.25rem',
-            border: '1px solid #333333'
-          }}>
-            <JSONHighlighter data={state.tokens} />
-          </div>
         </div>
       )}
+
     </IndustrialContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.4)"
+      borderColor="#374151"
+      headerTextColor="#00ff00"
+    />
+    </>
   );
 };
 
