@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Tesla Screen Main Container - Automotive Display
 const SmartVehicleContainer = styled.div`
@@ -139,8 +140,8 @@ const VehicleDisplayScreen = styled.div`
   background: linear-gradient(135deg, #000000 0%, #1e293b 100%);
   border: 3px solid #f87171;
   border-radius: 0.75rem;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
   text-align: center;
   position: relative;
   box-shadow: 
@@ -161,11 +162,11 @@ const UserCodeDisplay = styled.div`
   background: #000000;
   color: #22c55e;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 2.5rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  padding: 1.5rem;
+  padding: 0.75rem 1rem;
   border-radius: 0.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   letter-spacing: 0.2em;
   text-shadow: 0 0 10px #22c55e;
   border: 2px solid #22c55e;
@@ -179,16 +180,16 @@ const QRCodeSection = styled.div`
   background: #1e293b;
   border: 2px solid #f87171;
   border-radius: 0.75rem;
-  padding: 1.5rem;
+  padding: 0.75rem;
   text-align: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 `;
 
 const QRCodeLabel = styled.div`
-  font-size: 1rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #f87171;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -196,7 +197,7 @@ const QRCodeLabel = styled.div`
 const QRCodeContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0;
 `;
 
 // Vehicle Control Panel
@@ -368,6 +369,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <SmartVehicleContainer>
       {/* Vehicle Header */}
       <VehicleHeader>
@@ -395,22 +397,24 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
       </VehicleDisplayScreen>
 
       {/* QR Code Section */}
-      <QRCodeSection>
-        <QRCodeLabel>
-          <FiNavigation style={{ marginRight: '0.5rem' }} />
-          Telematics Scanner
-        </QRCodeLabel>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={180}
-            bgColor="#ffffff"
-            fgColor="#000000"
-            level="M"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-      </QRCodeSection>
+      {state.verificationUriComplete && (
+        <QRCodeSection>
+          <QRCodeLabel>
+            <FiNavigation style={{ marginRight: '0.5rem' }} />
+            Telematics Scanner
+          </QRCodeLabel>
+          <QRCodeContainer>
+            <QRCodeSVG
+              value={state.verificationUriComplete}
+              size={120}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="M"
+              includeMargin={true}
+            />
+          </QRCodeContainer>
+        </QRCodeSection>
+      )}
 
       {/* Vehicle Control Panel */}
       <VehicleControlPanel>
@@ -421,7 +425,7 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
           <FiCopy /> Copy URI
         </VehicleControlButton>
         <VehicleControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-          <FiExternalLink /> Authorize
+          <FiExternalLink /> Open in Browser
         </VehicleControlButton>
       </VehicleControlPanel>
 
@@ -432,13 +436,14 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
         <StatusMessage>{getStatusMessage()}</StatusMessage>
       </StatusDisplay>
 
+
       {/* Success Display - Realistic Car Dashboard */}
       {state.status === 'authorized' && state.tokens && (
         <div style={{ 
           background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
           border: '3px solid #f97316', 
           borderRadius: '1rem', 
-          padding: '2rem',
+          padding: '1.5rem',
           marginTop: '1rem',
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
           color: 'white'
@@ -676,6 +681,15 @@ const SmartVehicleDeviceFlow: React.FC<SmartVehicleDeviceFlowProps> = ({
       {/* Vehicle Base */}
       <VehicleBase />
     </SmartVehicleContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.4)"
+      borderColor="#374151"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 
