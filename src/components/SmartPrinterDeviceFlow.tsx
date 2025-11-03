@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // HP Smart App Interface - Authentic HP Design with Green Theme
 const SmartPrinterContainer = styled.div<{ $authorized?: boolean }>`
@@ -103,18 +104,17 @@ const PrinterSubtitle = styled.div`
 
 // HP Floating Toolbar - matches HP Smart App interface
 const HPFloatingToolbar = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  position: relative;
   background: rgba(255, 255, 255, 0.95);
   border-radius: 1rem;
   padding: 0.5rem 1rem;
   display: flex;
   gap: 0.75rem;
   align-items: center;
+  justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+  margin: 1rem auto;
+  max-width: fit-content;
   backdrop-filter: blur(10px);
 `;
 
@@ -235,18 +235,20 @@ const UserCodeDisplay = styled.div`
 
 // QR Code Section
 const QRCodeSection = styled.div`
-  background: #1e293b;
-  border: 2px solid #22d3ee;
+  background: #ffffff;
+  border: 2px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
 `;
 
 const QRCodeLabel = styled.div`
   font-size: 1rem;
   font-weight: 600;
-  color: #22d3ee;
+  color: #1e293b;
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -256,6 +258,8 @@ const QRCodeContainer = styled.div`
   display: flex;
   justify-content: center;
   margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
 `;
 
 // Printer Control Panel
@@ -429,6 +433,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
   const isAuthorized = state.status === 'authorized';
 
   return (
+    <>
     <SmartPrinterContainer $authorized={isAuthorized}>
       {/* Printer Header */}
       <PrinterHeader $authorized={isAuthorized}>
@@ -467,7 +472,7 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
       </HPFloatingToolbar>
 
       {/* Printer Display Screen */}
-      <PrinterDisplayScreen>
+      <PrinterDisplayScreen style={{ position: 'relative', zIndex: 2 }}>
         <ScreenLabel>Document Authorization Code</ScreenLabel>
         <UserCodeDisplay>
           {deviceFlowService.formatUserCode(state.userCode)}
@@ -475,22 +480,54 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
       </PrinterDisplayScreen>
 
       {/* QR Code Section */}
-      <QRCodeSection>
-        <QRCodeLabel>
-          <FiFileText style={{ marginRight: '0.5rem' }} />
-          Document Scanner
-        </QRCodeLabel>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={180}
-            bgColor="#ffffff"
-            fgColor="#000000"
-            level="M"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-      </QRCodeSection>
+      {state.verificationUriComplete && (
+        <QRCodeSection>
+          <QRCodeLabel>
+            <FiFileText style={{ marginRight: '0.5rem' }} />
+            Document Scanner
+          </QRCodeLabel>
+          <QRCodeContainer>
+            <QRCodeSVG
+              value={state.verificationUriComplete}
+              size={180}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="M"
+              includeMargin={true}
+            />
+          </QRCodeContainer>
+        </QRCodeSection>
+      )}
+
+      {/* Authorization Action - Prominent */}
+      {state.verificationUri && (
+        <div style={{ 
+          background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+          borderRadius: '0.75rem',
+          padding: '0.75rem 1rem',
+          marginBottom: '1rem',
+          textAlign: 'center',
+          boxShadow: '0 8px 16px rgba(59, 130, 246, 0.3)',
+          border: '2px solid #1e40af'
+        }}>
+          <PrinterControlButton 
+            $variant="primary" 
+            onClick={handleOpenVerificationUri}
+            style={{
+              fontSize: '1rem',
+              padding: '0.75rem 1.5rem',
+              minWidth: '200px',
+              background: 'white',
+              color: '#2563eb',
+              border: '2px solid white',
+              fontWeight: '700',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+            }}
+          >
+            <FiExternalLink size={18} /> Open in Browser
+          </PrinterControlButton>
+        </div>
+      )}
 
       {/* Printer Control Panel */}
       <PrinterControlPanel>
@@ -499,9 +536,6 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
         </PrinterControlButton>
         <PrinterControlButton $variant="secondary" onClick={handleCopyVerificationUri}>
           <FiCopy /> Copy URI
-        </PrinterControlButton>
-        <PrinterControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-          <FiExternalLink /> Authorize
         </PrinterControlButton>
       </PrinterControlPanel>
 
@@ -745,6 +779,15 @@ const SmartPrinterDeviceFlow: React.FC<SmartPrinterDeviceFlowProps> = ({
       {/* Printer Base */}
       <PrinterBase />
     </SmartPrinterContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(255, 255, 255, 0.95)"
+      borderColor="#e2e8f0"
+      headerTextColor="#1e293b"
+    />
+    </>
   );
 };
 
