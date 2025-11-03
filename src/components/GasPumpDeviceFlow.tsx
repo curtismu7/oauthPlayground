@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Kroger Gas Pump Main Container - Red and White Design
 const GasPumpContainer = styled.div`
@@ -516,6 +516,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <GasPumpContainer>
       {/* Top Screen - Advertisement Area */}
       <TopScreen>
@@ -647,7 +648,7 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
       </VerificationSection>
 
       {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
+      {state.status === 'authorized' && (
         <div style={{ 
           background: 'white', 
           border: '3px solid #10b981', 
@@ -665,14 +666,6 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
             <FiCheckCircle style={{ marginRight: '0.5rem' }} />
             Authorization Successful!
           </div>
-          <div style={{
-            background: '#f0fdf4',
-            padding: '1rem',
-            borderRadius: '0.5rem',
-            border: '1px solid #bbf7d0'
-          }}>
-            <JSONHighlighter data={state.tokens} />
-          </div>
         </div>
       )}
 
@@ -683,6 +676,15 @@ const GasPumpDeviceFlow: React.FC<GasPumpDeviceFlowProps> = ({
         </BrandLogo>
       </BrandArea>
     </GasPumpContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(255, 255, 255, 0.95)"
+      borderColor="#e2e8f0"
+      headerTextColor="#1e293b"
+    />
+    </>
   );
 };
 
