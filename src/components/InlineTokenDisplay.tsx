@@ -20,13 +20,14 @@ interface InlineTokenDisplayProps {
 
 const TokenContainer = styled.div`
   background: #ffffff;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  margin-bottom: 1rem;
-  overflow: hidden;
+  margin-bottom: 0;
+  overflow: visible;
   max-width: 100%;
   width: 100%;
+  box-sizing: border-box;
 `;
 
 const TokenHeader = styled.div`
@@ -35,7 +36,7 @@ const TokenHeader = styled.div`
   align-items: center;
   padding: 0.75rem 1rem;
   background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e5e7eb;
 `;
 
 const TokenLabel = styled.div`
@@ -138,23 +139,31 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 
 const TokenContent = styled.div`
   padding: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: visible;
 `;
 
 const TokenPreview = styled.div`
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
   font-size: 0.875rem;
-  line-height: 1.5;
+  line-height: 1.8;
   color: #374151;
   background: #f0fdf4;
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
   margin-bottom: 1rem;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-all;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  width: 100%;
   max-width: 100%;
+  box-sizing: border-box;
+  letter-spacing: 0.02em;
+  word-wrap: break-word;
 `;
 
 const DecodedContent = styled.div`
@@ -165,7 +174,7 @@ const DecodedContent = styled.div`
   background: #f8fafc;
   padding: 1rem;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
   overflow-x: auto;
   white-space: pre-wrap;
   word-break: break-all;
@@ -246,7 +255,28 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
     window.open(tokenManagementUrl, '_blank');
   };
 
-  const preview = masked ? TokenDisplayService.maskToken(token) : token;
+  // Format token for better readability - break into chunks
+  const formatTokenForDisplay = (tokenString: string): string => {
+    if (!tokenString) return '';
+    // If masked, return masked version as-is
+    if (masked) return TokenDisplayService.maskToken(tokenString);
+    
+    // Break long tokens into readable chunks (every 80 characters)
+    // This makes them easier to read without breaking in the middle of words where possible
+    const chunkSize = 80;
+    if (tokenString.length <= chunkSize) {
+      return tokenString;
+    }
+    
+    // Split token into chunks
+    const chunks: string[] = [];
+    for (let i = 0; i < tokenString.length; i += chunkSize) {
+      chunks.push(tokenString.slice(i, i + chunkSize));
+    }
+    return chunks.join('\n');
+  };
+
+  const preview = formatTokenForDisplay(token);
   const displayLabel = label || TokenDisplayService.getTokenLabel(tokenType, isOIDC);
 
   return (

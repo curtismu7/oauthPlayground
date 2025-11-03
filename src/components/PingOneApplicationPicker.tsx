@@ -335,10 +335,16 @@ const PingOneApplicationPicker: React.FC<PingOneApplicationPickerProps> = ({
 
 	// Auto-fetch applications when credentials are available
 	useEffect(() => {
-		if (environmentId && (clientId || clientSecret) && workerToken && applications.length === 0) {
+		if (environmentId && (clientId || clientSecret) && workerToken && applications.length === 0 && !loading) {
+			console.log('[PingOneApplicationPicker] Auto-fetching applications with:', {
+				hasEnvironmentId: !!environmentId,
+				hasClientId: !!clientId,
+				hasClientSecret: !!clientSecret,
+				hasWorkerToken: !!workerToken
+			});
 			fetchApplications();
 		}
-	}, [environmentId, clientId, clientSecret, workerToken, applications.length, fetchApplications]);
+	}, [environmentId, clientId, clientSecret, workerToken, applications.length, loading, fetchApplications]);
 
 	return (
 		<Container>
