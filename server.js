@@ -2589,9 +2589,30 @@ app.post('/api/pingone/resume', async (req, res) => {
 // NOTE: This endpoint proxies credentials directly to PingOne's Flow API over HTTPS.
 // Credentials are NOT stored or used by our backend - they go ONLY to PingOne.
 // The backend proxy is used only to avoid CORS issues from the frontend.
+// Helper function to sanitize sensitive data from request body for logging
+const sanitizeRequestBody = (body) => {
+	const sanitized = { ...body };
+	// Redact sensitive fields
+	if (sanitized.password) sanitized.password = '***REDACTED***';
+	if (sanitized.clientSecret) sanitized.clientSecret = '***REDACTED***';
+	if (sanitized.client_secret) sanitized.client_secret = '***REDACTED***';
+	if (sanitized.access_token) sanitized.access_token = '***REDACTED***';
+	if (sanitized.refresh_token) sanitized.refresh_token = '***REDACTED***';
+	if (sanitized.id_token) sanitized.id_token = '***REDACTED***';
+	if (sanitized.code) sanitized.code = '***REDACTED***';
+	// Redact username but show partial
+	if (sanitized.username) {
+		sanitized.username = sanitized.username.length > 3 
+			? `${sanitized.username.substring(0, 3)}... (${sanitized.username.length} chars)` 
+			: '***REDACTED***';
+	}
+	return sanitized;
+};
+
 app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 	try {
-		console.log(`[PingOne Flow Check] Received request body:`, JSON.stringify(req.body, null, 2));
+		// SECURITY: Sanitize sensitive data before logging
+		console.log(`[PingOne Flow Check] Received request body:`, JSON.stringify(sanitizeRequestBody(req.body), null, 2));
 		
 		const { flowUrl, username, password, cookies, sessionId } = req.body;
 

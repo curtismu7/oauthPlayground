@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // AI Assistant Main Container - Modern AI Interface Design
 const AIAgentContainer = styled.div`
@@ -366,6 +366,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <AIAgentContainer>
       {/* AI Header */}
       <AIHeader>
@@ -419,7 +420,7 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
           <FiCopy /> Copy URI
         </AIControlButton>
         <AIControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-          <FiExternalLink /> Authorize
+          <FiExternalLink /> Open in Browser
         </AIControlButton>
       </AIControlPanel>
 
@@ -780,6 +781,15 @@ const AIAgentDeviceFlow: React.FC<AIAgentDeviceFlowProps> = ({
       {/* AI Base */}
       <AIBase />
     </AIAgentContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(15, 23, 42, 0.4)"
+      borderColor="#374151"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 
