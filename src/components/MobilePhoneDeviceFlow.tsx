@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // iPhone 17 Pro Main Container - Authentic Titanium Frame Design
 const MobilePhoneContainer = styled.div`
@@ -426,6 +427,7 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <MobilePhoneContainer>
       {/* iPhone 17 Pro Screen */}
       <PhoneScreen>
@@ -499,63 +501,6 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
               <FiCheckCircle style={{ marginRight: '0.5rem' }} />
               Authorization Complete!
             </div>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1rem'
-            }}>
-              {state.tokens.access_token && (
-                <div style={{
-                  background: '#000000',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem'
-                }}>
-             <InlineTokenDisplay
-               label="Access Token"
-               token={state.tokens.access_token}
-               tokenType="access"
-               isOIDC={state.tokens.id_token ? true : false}
-               flowKey="device-authorization"
-               defaultMasked={false}
-               allowMaskToggle={true}
-             />
-                </div>
-              )}
-              {state.tokens.id_token && (
-                <div style={{
-                  background: '#000000',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="ID Token"
-                    token={state.tokens.id_token}
-                    tokenType="id"
-                    isOIDC={true}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-              {state.tokens.refresh_token && (
-                <div style={{
-                  background: '#000000',
-                  padding: '0.75rem',
-                  borderRadius: '0.5rem'
-                }}>
-                  <InlineTokenDisplay
-                    label="Refresh Token"
-                    token={state.tokens.refresh_token}
-                    tokenType="refresh"
-                    isOIDC={state.tokens.id_token ? true : false}
-                    flowKey="device-authorization"
-                    defaultMasked={false}
-                    allowMaskToggle={true}
-                  />
-                </div>
-              )}
-            </div>
           </div>
         )}
       </PhoneScreen>
@@ -563,6 +508,15 @@ const MobilePhoneDeviceFlow: React.FC<MobilePhoneDeviceFlowProps> = ({
       {/* Home Button */}
       <HomeButton>🏠</HomeButton>
     </MobilePhoneContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="#000000"
+      borderColor="#1f2937"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 

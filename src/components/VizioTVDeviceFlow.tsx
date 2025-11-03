@@ -9,6 +9,7 @@ import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
 import InlineTokenDisplay from './InlineTokenDisplay';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // VIZIO TV Physical Housing
 const VizioTVContainer = styled.div`
@@ -365,6 +366,7 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
   ];
 
   return (
+    <>
     <VizioTVContainer>
       {/* VIZIO TV Screen */}
       <TVScreen $showContent={true}>
@@ -446,50 +448,20 @@ const VizioTVDeviceFlow: React.FC<VizioTVDeviceFlowProps> = ({
             <SuccessMessage>
               Your VIZIO TV is now connected and ready to stream your favorite content.
             </SuccessMessage>
-            <div style={{
-              background: 'rgba(0, 0, 0, 0.2)',
-              padding: '1rem',
-              borderRadius: '0.5rem',
-              marginTop: '1rem'
-            }}>
-              {state.tokens.access_token && (
-                <InlineTokenDisplay
-                  label="Access Token"
-                  token={state.tokens.access_token}
-                  tokenType="access"
-                  isOIDC={state.tokens.id_token ? true : false}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              )}
-              {state.tokens.id_token && (
-                <InlineTokenDisplay
-                  label="ID Token"
-                  token={state.tokens.id_token}
-                  tokenType="id"
-                  isOIDC={true}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              )}
-              {state.tokens.refresh_token && (
-                <InlineTokenDisplay
-                  label="Refresh Token"
-                  token={state.tokens.refresh_token}
-                  tokenType="refresh"
-                  isOIDC={state.tokens.id_token ? true : false}
-                  flowKey="device-authorization"
-                  defaultMasked={true}
-                  allowMaskToggle={true}
-                />
-              )}
-            </div>
           </SuccessDisplay>
         )}
       </TVScreen>
+
     </VizioTVContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.2)"
+      borderColor="#3a3a3c"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 
