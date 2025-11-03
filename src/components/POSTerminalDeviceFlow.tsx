@@ -7,7 +7,7 @@ import { QRCodeSVG } from 'qrcode.react';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import JSONHighlighter from './JSONHighlighter';
+import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const POSTerminalContainer = styled.div`
@@ -363,6 +363,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
   };
 
   return (
+    <>
     <POSTerminalContainer>
       {/* POS Header */}
       <POSHeader>
@@ -416,7 +417,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
           <FiCopy /> Copy URI
         </POSControlButton>
         <POSControlButton $variant="primary" onClick={handleOpenVerificationUri}>
-          <FiExternalLink /> Authorize
+          <FiExternalLink /> Open in Browser
         </POSControlButton>
       </POSControlPanel>
 
@@ -428,7 +429,7 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
       </StatusDisplay>
 
       {/* Success Display - Realistic POS Terminal Interface */}
-      {state.status === 'authorized' && state.tokens && (
+      {state.status === 'authorized' && (
         <div style={{ 
           background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)', 
           border: '3px solid #f97316', 
@@ -693,6 +694,15 @@ const POSTerminalDeviceFlow: React.FC<POSTerminalDeviceFlowProps> = ({
       {/* POS Base */}
       <POSBase />
     </POSTerminalContainer>
+
+    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+    <StandardizedTokenDisplay 
+      tokens={state.tokens}
+      backgroundColor="rgba(0, 0, 0, 0.2)"
+      borderColor="#333333"
+      headerTextColor="#ffffff"
+    />
+    </>
   );
 };
 

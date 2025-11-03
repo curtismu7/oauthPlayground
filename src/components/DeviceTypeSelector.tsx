@@ -8,19 +8,19 @@ import { FiPrinter, FiSpeaker } from 'react-icons/fi';
 import { MdOutlineAirportShuttle, MdPointOfSale } from 'react-icons/md';
 import { IoIosPhonePortrait } from 'react-icons/io';
 
-const DeviceSelectorContainer = styled.div`
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+const DeviceSelectorContainer = styled.div<{ $isCompact?: boolean }>`
+  background: ${props => props.$isCompact ? 'transparent' : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'};
   border-radius: 0.75rem;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  border: 1px solid #cbd5e1;
+  padding: ${props => props.$isCompact ? '0' : '1.5rem'};
+  margin-bottom: ${props => props.$isCompact ? '0' : '2rem'};
+  border: ${props => props.$isCompact ? 'none' : '1px solid #cbd5e1'};
 `;
 
 const SelectorTitle = styled.div`
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 `;
 
 const DropdownContainer = styled.div`
@@ -160,15 +160,19 @@ export const DEVICE_TYPES: DeviceType[] = [
 interface DeviceTypeSelectorProps {
   selectedDevice: string;
   onDeviceChange: (deviceType: string) => void;
+  variant?: 'default' | 'compact';
 }
 
 const DeviceTypeSelector: React.FC<DeviceTypeSelectorProps> = ({
   selectedDevice,
   onDeviceChange,
+  variant = 'default',
 }) => {
+  const isCompact = variant === 'compact';
+  
   return (
-    <DeviceSelectorContainer>
-      <SelectorTitle>Simulate Device View</SelectorTitle>
+    <DeviceSelectorContainer $isCompact={isCompact}>
+      {!isCompact && <SelectorTitle>Simulate Device View</SelectorTitle>}
       <DropdownContainer>
         <DeviceDropdown
           value={selectedDevice}
