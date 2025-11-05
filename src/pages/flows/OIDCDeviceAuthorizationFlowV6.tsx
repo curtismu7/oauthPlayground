@@ -34,7 +34,7 @@ import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';

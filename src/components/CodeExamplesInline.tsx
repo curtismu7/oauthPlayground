@@ -1,10 +1,10 @@
 // src/components/CodeExamplesInline.tsx
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { FiCheck, FiChevronDown, FiCode, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
-import { CodeExamplesConfig, SupportedLanguage } from '../services/codeExamplesService';
-import { CodeExamplesDisplay } from './CodeExamplesDisplay';
+import { CodeExample, CodeExamplesConfig, CodeExamplesService, SupportedLanguage } from '../services/codeExamplesService';
+import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
 interface CodeExamplesInlineProps {
 	flowType: string;
@@ -56,7 +56,34 @@ const QuickCodePreview = styled.div`
 	font-size: 0.875rem;
 	line-height: 1.5;
 	overflow-x: auto;
+	overflow-y: auto;
+	max-height: 300px;
 	position: relative;
+
+	/* Custom scrollbar styling */
+	&::-webkit-scrollbar {
+		width: 12px;
+		height: 12px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #2d3748;
+		border-radius: 6px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #4a5568;
+		border-radius: 6px;
+		border: 2px solid #2d3748;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background: #718096;
+	}
+
+	&::-webkit-scrollbar-corner {
+		background: #2d3748;
+	}
 `;
 
 const CopyButton = styled.button`
@@ -97,9 +124,12 @@ const LanguageTab = styled.button<{ $active: boolean }>`
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
+	opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
+	cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 
 	&:hover {
-		background: ${({ $active }) => ($active ? '#2563eb' : '#f3f4f6')};
+		background: ${({ $active, disabled }) =>
+			disabled ? '#ffffff' : $active ? '#2563eb' : '#f3f4f6'};
 	}
 `;
 
@@ -110,6 +140,7 @@ const getLanguageDisplayName = (language: SupportedLanguage): string => {
 		go: 'Go',
 		ruby: 'Ruby',
 		python: 'Python',
+		'ping-sdk': 'Ping SDK',
 	};
 	return names[language];
 };
@@ -121,6 +152,7 @@ const getLanguageIcon = (language: SupportedLanguage): string => {
 		go: '🐹',
 		ruby: '💎',
 		python: '🐍',
+		'ping-sdk': '🔐',
 	};
 	return icons[language];
 };
@@ -136,7 +168,27 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 	const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('javascript');
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
-	// Get a quick preview of the code
+	const codeExamplesService = useMemo(() => new CodeExamplesService(config), [config]);
+	const stepData = useMemo(() => {
+		return codeExamplesService.getExamplesForStep(flowType, stepId);
+	}, [codeExamplesService, flowType, stepId]);
+
+	const availableLanguages = useMemo<SupportedLanguage[]>(() => {
+		if (!stepData) {
+			return [];
+		}
+		return stepData.examples.map((example) => example.language);
+	}, [stepData]);
+
+	const currentExample = useMemo<CodeExample | null>(() => {
+		if (!stepData) return null;
+		return (
+			stepData.examples.find((example) => example.language === selectedLanguage) ||
+			stepData.examples[0] ||
+			null
+		);
+	}, [stepData, selectedLanguage]);
+
 	const getQuickPreview = (code: string): string => {
 		const lines = code.split('\n');
 		return (
@@ -172,29 +224,39 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 
 				<ToggleContent $isOpen={isOpen}>
 					<LanguageTabs>
-						{['javascript', 'typescript', 'go', 'ruby', 'python'].map((lang) => (
-							<LanguageTab
-								key={lang}
-								$active={selectedLanguage === lang}
-								onClick={() => setSelectedLanguage(lang as SupportedLanguage)}
-							>
-								{getLanguageIcon(lang as SupportedLanguage)}{' '}
-								{getLanguageDisplayName(lang as SupportedLanguage)}
-							</LanguageTab>
-						))}
+						{(codeExamplesService.getSupportedLanguages() as SupportedLanguage[]).map((lang) => {
+							const isAvailable = availableLanguages.includes(lang);
+							return (
+								<LanguageTab
+									key={lang}
+									$active={selectedLanguage === lang}
+									onClick={() => isAvailable && setSelectedLanguage(lang)}
+									disabled={!isAvailable}
+								>
+									{getLanguageIcon(lang)} {getLanguageDisplayName(lang)}
+								</LanguageTab>
+							);
+						})}
 					</LanguageTabs>
 
 					<QuickCodePreview>
 						<CopyButton
-							onClick={() => handleCopyCode('// Code preview - click to see full examples')}
+							onClick={() =>
+								handleCopyCode(
+									currentExample?.code ||
+									'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
+								)
+							}
 						>
 							{copiedCode ? <FiCheck /> : <FiCopy />}
 							{copiedCode ? 'Copied!' : 'Copy'}
 						</CopyButton>
 						<pre>
-							{getQuickPreview(
-								'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
-							)}
+							{currentExample
+								? getQuickPreview(currentExample.code)
+								: getQuickPreview(
+									'// Code examples will be loaded here\n// Select a language tab above\n// Click "Show Code Examples" to see full implementation'
+								)}
 						</pre>
 					</QuickCodePreview>
 				</ToggleContent>
@@ -218,7 +280,12 @@ export const CodeExamplesInline: React.FC<CodeExamplesInlineProps> = ({
 			</ToggleButton>
 
 			<ToggleContent $isOpen={isOpen}>
-				<CodeExamplesDisplay flowType={flowType} stepId={stepId} config={config || {}} />
+				<VSCodeCodeDisplay
+					flowType={flowType}
+					stepId={stepId}
+					config={config ?? {}}
+					className="inline-vscode-display"
+				/>
 			</ToggleContent>
 		</Container>
 	);

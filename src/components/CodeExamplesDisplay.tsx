@@ -121,8 +121,36 @@ const CodeBlock = styled.pre`
 	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
 	font-size: 0.875rem;
 	line-height: 1.5;
-	overflow-x: auto;
+	overflow: auto;
+	max-height: 600px;
 	white-space: pre;
+	word-wrap: normal;
+	overflow-wrap: normal;
+
+	/* Custom scrollbar styling for better visibility */
+	&::-webkit-scrollbar {
+		width: 12px;
+		height: 12px;
+	}
+
+	&::-webkit-scrollbar-track {
+		background: #2d3748;
+		border-radius: 6px;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		background: #4a5568;
+		border-radius: 6px;
+		border: 2px solid #2d3748;
+	}
+
+	&::-webkit-scrollbar-thumb:hover {
+		background: #718096;
+	}
+
+	&::-webkit-scrollbar-corner {
+		background: #2d3748;
+	}
 `;
 
 const DependenciesList = styled.div`

@@ -82,6 +82,8 @@ const ModalHeader = styled.div<{ $isMinimized: boolean }>`
   cursor: grab;
   user-select: none;
   flex-shrink: 0;
+  position: relative;
+  z-index: 10;
   
   &:active {
     cursor: grabbing;

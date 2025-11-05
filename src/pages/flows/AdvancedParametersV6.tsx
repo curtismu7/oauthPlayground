@@ -12,7 +12,7 @@ import { AudienceParameterInput } from '../../components/AudienceParameterInput'
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 
 // Import services
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import flowHeaderService from '../../services/flowHeaderService';
 import { UISettingsService } from '../../services/uiSettingsService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
