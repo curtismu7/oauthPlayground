@@ -46,6 +46,7 @@ import {
 	getFlowDisplayName,
 } from '../utils/flowNavigation';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { createClientAssertion } from '../utils/clientAuthentication';
 
 type TokenIntrospectionResult = {
 	active?: boolean;
@@ -1448,38 +1449,47 @@ const TokenManagement = () => {
 
 			// For JWT-based methods, we need to generate a client assertion
 			if (tokenAuthMethod === 'client_secret_jwt' || tokenAuthMethod === 'private_key_jwt') {
-				if (tokenAuthMethod === 'private_key_jwt') {
-					// For private key JWT, we need the private key
-					if (!allCredentials.privateKey) {
-						throw new Error(
-							'Private key not available for private_key_jwt introspection. Please configure your credentials first.'
+				const assertionType = 'urn:ietf:params:oauth:client-assertion-type:jwt-bearer';
+				try {
+					if (tokenAuthMethod === 'private_key_jwt') {
+						if (!allCredentials.privateKey) {
+							throw new Error(
+								'Private key not available for private_key_jwt introspection. Please configure your credentials first.'
+							);
+						}
+						const assertion = await createClientAssertion(
+							allCredentials.clientId!,
+							introspectionEndpoint,
+							allCredentials.privateKey,
+							'RS256'
 						);
-					}
-					// TODO: Generate JWT assertion with private key
-					// For now, fall back to client_secret_post if available
-					if (allCredentials.clientSecret) {
-						console.log(
-							' [TokenManagement] Private key JWT not fully implemented, falling back to client_secret_post'
-						);
-						introspectionBody.client_secret = allCredentials.clientSecret;
+						console.log(' [TokenManagement] Generated private_key_jwt assertion for introspection', {
+							assertionLength: assertion.length,
+						});
+						introspectionBody.client_assertion_type = assertionType;
+						introspectionBody.client_assertion = assertion;
 					} else {
-						throw new Error(
-							'Neither private key nor client secret available for JWT introspection.'
+						if (!allCredentials.clientSecret) {
+							throw new Error(
+								'Client secret not available for client_secret_jwt introspection. Please configure your credentials first.'
+							);
+						}
+						const assertion = await createClientAssertion(
+							allCredentials.clientId!,
+							introspectionEndpoint,
+							allCredentials.clientSecret,
+							'HS256'
 						);
+						console.log(' [TokenManagement] Generated client_secret_jwt assertion for introspection', {
+							assertionLength: assertion.length,
+						});
+						introspectionBody.client_assertion_type = assertionType;
+						introspectionBody.client_assertion = assertion;
 					}
-				} else {
-					// For client_secret_jwt, we need the client secret
-					if (!allCredentials.clientSecret) {
-						throw new Error(
-							'Client secret not available for client_secret_jwt introspection. Please configure your credentials first.'
-						);
-					}
-					// TODO: Generate JWT assertion with client secret
-					// For now, fall back to client_secret_post
-					console.log(
-						' [TokenManagement] Client secret JWT not fully implemented, falling back to client_secret_post'
-					);
-					introspectionBody.client_secret = allCredentials.clientSecret;
+				} catch (assertionError) {
+					console.error(' [TokenManagement] Failed to generate client assertion for introspection', assertionError);
+					v4ToastManager.showError('Failed to generate client assertion for introspection.');
+					return;
 				}
 			}
 

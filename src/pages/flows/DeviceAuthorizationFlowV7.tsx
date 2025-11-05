@@ -74,7 +74,7 @@ const FlowContainer = styled.div`
 `;
 
 const FlowContent = styled.div`
-	max-width: 64rem;
+	max-width: 80rem;
 	margin: 0 auto;
 	padding: 0 1rem;
 `;
@@ -94,7 +94,7 @@ const FlowHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
 		? '0 10px 25px rgba(59, 130, 246, 0.2)' 
 		: '0 10px 25px rgba(22, 163, 74, 0.2)'
 	};
-	max-width: 64rem;
+	max-width: 80rem;
 	margin: 0 auto;
 `;
 
@@ -1406,11 +1406,21 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			try {
 				const success = comprehensiveFlowDataService.saveFlowDataComprehensive('device-authorization-v7', {
 					...(deviceFlow.credentials.environmentId && {
-						sharedEnvironment: {
-							environmentId: deviceFlow.credentials.environmentId,
-							region: 'us',
-							issuerUrl: `https://auth.pingone.com/${deviceFlow.credentials.environmentId}`
-						}
+					sharedEnvironment: {
+						environmentId: deviceFlow.credentials.environmentId,
+						region: deviceFlow.credentials.region || 'us',
+						issuerUrl: (() => {
+							const regionDomains: Record<string, string> = {
+								us: 'auth.pingone.com',
+								eu: 'auth.pingone.eu',
+								ap: 'auth.pingone.asia',
+								ca: 'auth.pingone.ca',
+								na: 'auth.pingone.com'
+							};
+							const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
+							return `https://${domain}/${deviceFlow.credentials.environmentId}`;
+						})()
+					}
 					}),
 					flowCredentials: {
 						clientId: deviceFlow.credentials.clientId,
@@ -1784,18 +1794,28 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<>
 								{/* Enhanced API Call Display for Token Exchange */}
 								<div style={{ marginTop: '1.5rem' }}>
-									<EnhancedApiCallDisplay
-										apiCall={{
-											method: 'POST',
-											url: `https://auth.pingone.com/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/token`,
-											headers: {
-												'Content-Type': 'application/x-www-form-urlencoded'
-											},
-											body: {
-												grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
-												device_code: '[device_code_from_step_1]',
-												client_id: deviceFlow.credentials?.clientId || '[clientId]'
-											},
+								<EnhancedApiCallDisplay
+									apiCall={{
+										method: 'POST',
+										url: (() => {
+											const regionDomains: Record<string, string> = {
+												us: 'auth.pingone.com',
+												eu: 'auth.pingone.eu',
+												ap: 'auth.pingone.asia',
+												ca: 'auth.pingone.ca',
+												na: 'auth.pingone.com'
+											};
+											const domain = regionDomains[deviceFlow.credentials?.region || 'us'] || 'auth.pingone.com';
+											return `https://${domain}/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/token`;
+										})(),
+										headers: {
+											'Content-Type': 'application/x-www-form-urlencoded'
+										},
+										body: {
+											grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+											device_code: '[device_code_from_step_1]',
+											client_id: deviceFlow.credentials?.clientId || '[clientId]'
+										},
 											response: {
 												status: 200,
 												statusText: 'OK',
@@ -1861,7 +1881,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												<ParameterLabel>Access Token</ParameterLabel>
 												<ParameterValue
 													style={{
-														wordBreak: 'break-all',
 														fontFamily: 'monospace',
 														fontSize: '0.75rem',
 													}}
@@ -1876,7 +1895,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													<ParameterLabel>ID Token (OIDC)</ParameterLabel>
 													<ParameterValue
 														style={{
-															wordBreak: 'break-all',
 															fontFamily: 'monospace',
 															fontSize: '0.75rem',
 															backgroundColor: '#f0f9ff',
@@ -1893,7 +1911,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													<ParameterLabel>Refresh Token</ParameterLabel>
 													<ParameterValue
 														style={{
-															wordBreak: 'break-all',
 															fontFamily: 'monospace',
 															fontSize: '0.75rem',
 														}}
@@ -1977,7 +1994,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													<ParameterLabel>Refresh Token</ParameterLabel>
 													<ParameterValue
 														style={{
-															wordBreak: 'break-all',
 															fontFamily: 'monospace',
 															fontSize: '0.75rem',
 														}}
@@ -2538,17 +2554,27 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									1
 								</div>
 								<div style={{ width: '100%' }}>
-									<EnhancedApiCallDisplay
-										apiCall={{
-											method: 'POST',
-											url: `https://auth.pingone.com/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/device_authorization`,
-											headers: {
-												'Content-Type': 'application/x-www-form-urlencoded'
-											},
-											body: {
-												client_id: deviceFlow.credentials?.clientId || '[clientId]',
-												scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid')
-											},
+								<EnhancedApiCallDisplay
+									apiCall={{
+										method: 'POST',
+										url: (() => {
+											const regionDomains: Record<string, string> = {
+												us: 'auth.pingone.com',
+												eu: 'auth.pingone.eu',
+												ap: 'auth.pingone.asia',
+												ca: 'auth.pingone.ca',
+												na: 'auth.pingone.com'
+											};
+											const domain = regionDomains[deviceFlow.credentials?.region || 'us'] || 'auth.pingone.com';
+											return `https://${domain}/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/device_authorization`;
+										})(),
+										headers: {
+											'Content-Type': 'application/x-www-form-urlencoded'
+										},
+										body: {
+											client_id: deviceFlow.credentials?.clientId || '[clientId]',
+											scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'openid')
+										},
 											response: deviceFlow.deviceCodeData ? {
 												status: 200,
 												statusText: 'OK',
@@ -2741,7 +2767,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											<ParameterLabel>Device Code (Internal - Do Not Display)</ParameterLabel>
 											<ParameterValue
 												style={{
-													wordBreak: 'break-all',
 													fontFamily: 'monospace',
 													fontSize: '0.75rem',
 													color: '#64748b',
@@ -3237,29 +3262,51 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 		try {
 			// Use the reusable service to create API call data and execute introspection
-			const result = await TokenIntrospectionService.introspectToken(
-				request,
-				'device-code',
-				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
-			);
+		// Construct region-aware introspection endpoint
+		const regionDomains: Record<string, string> = {
+			us: 'auth.pingone.com',
+			eu: 'auth.pingone.eu',
+			ap: 'auth.pingone.asia',
+			ca: 'auth.pingone.ca',
+			na: 'auth.pingone.com'
+		};
+		const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
+		const introspectionEndpoint = `https://${domain}/${deviceFlow.credentials.environmentId}/as/introspect`;
 
-			// Set the API call data for display
-			setIntrospectionApiCall(result.apiCall);
+		const result = await TokenIntrospectionService.introspectToken(
+			request,
+			'device-code',
+			introspectionEndpoint
+		);
 
-			return result.response;
-		} catch (error) {
-			// Create error API call using reusable service
-			const errorApiCall = TokenIntrospectionService.createErrorApiCall(
-				request,
-				'device-code',
-				error instanceof Error ? error.message : 'Unknown error',
-				500,
-				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
-			);
+		// Set the API call data for display
+		setIntrospectionApiCall(result.apiCall);
 
-			setIntrospectionApiCall(errorApiCall);
-			throw error;
-		}
+		return result.response;
+	} catch (error) {
+		// Construct region-aware introspection endpoint for error
+		const regionDomains: Record<string, string> = {
+			us: 'auth.pingone.com',
+			eu: 'auth.pingone.eu',
+			ap: 'auth.pingone.asia',
+			ca: 'auth.pingone.ca',
+			na: 'auth.pingone.com'
+		};
+		const domain = regionDomains[deviceFlow.credentials.region || 'us'] || 'auth.pingone.com';
+		const introspectionEndpoint = `https://${domain}/${deviceFlow.credentials.environmentId}/as/introspect`;
+
+		// Create error API call using reusable service
+		const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+			request,
+			'device-code',
+			error instanceof Error ? error.message : 'Unknown error',
+			500,
+			introspectionEndpoint
+		);
+
+		setIntrospectionApiCall(errorApiCall);
+		throw error;
+	}
 	};
 
 	const renderIntrospection = () => (

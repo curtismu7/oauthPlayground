@@ -6,6 +6,7 @@ import { CodeExamplesConfig } from '../services/codeExamplesService';
 import { FlowHeader } from '../services/flowHeaderService';
 import { CodeExamplesDisplay } from './CodeExamplesDisplay';
 import { CodeExamplesInline } from './CodeExamplesInline';
+import VSCodeCodeDisplay from './VSCodeCodeDisplay';
 
 const Container = styled.div`
 	padding: 2rem;
@@ -289,8 +290,8 @@ export const CodeExamplesDemo: React.FC = () => {
 			</DemoSection>
 
 			<DemoSection>
-				<SectionTitle>Full Code Examples Display</SectionTitle>
-				<CodeExamplesDisplay flowType={selectedFlow} stepId={selectedStep} config={config} />
+				<SectionTitle>Full Code Examples Display (VS Code Style)</SectionTitle>
+				<VSCodeCodeDisplay flowType={selectedFlow} stepId={selectedStep} config={config} />
 			</DemoSection>
 
 			<DemoSection>

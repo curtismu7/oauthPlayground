@@ -1,7 +1,7 @@
 // src/pages/flows/CIBAFlowV7.tsx
 // V7.0.0 OIDC Client Initiated Backchannel Authentication (CIBA) Flow - Enhanced Service Architecture
 
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react';
 import {
 	FiAlertTriangle,
 	FiInfo,
@@ -27,6 +27,7 @@ import { usePageScroll } from '../../hooks/usePageScroll';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { FlowUIService } from '../../services/flowUIService';
 import { ClientAuthMethod } from '../../utils/clientAuthentication';
+import { LearningTooltip } from '../../components/LearningTooltip';
 
 // Get UI components from FlowUIService (following Implicit flow pattern)
 const {
@@ -196,6 +197,14 @@ const CIBAFlowV7: React.FC = () => {
 	// Local currentStep state (following Implicit flow pattern)
 	const [currentStep, setCurrentStep] = useState(0);
 
+	// Scroll to top when step changes (ensures each step appears as a separate page)
+	useEffect(() => {
+		window.scrollTo({
+			top: 0,
+			behavior: 'smooth',
+		});
+	}, [currentStep]);
+
 	// Local state for form inputs
 	const [formData, setFormData] = useState({
 		environmentId: '',
@@ -204,7 +213,7 @@ const CIBAFlowV7: React.FC = () => {
 		scope: 'openid profile',
 		loginHint: '',
 		bindingMessage: '',
-		requestContext: '',
+		requestContext: JSON.stringify({"device":"Smart TV", "location": "living Room", "ip": "192.168.1.1"}, null, 2),
 	});
 
 	// Track clientAuthMethod from ComprehensiveCredentialsService (syncs with Token Endpoint Auth Method)
@@ -244,10 +253,10 @@ const CIBAFlowV7: React.FC = () => {
 					clientId: flowData.flowCredentials.clientId || prev.clientId || '',
 					clientSecret: flowData.flowCredentials.clientSecret || prev.clientSecret || '',
 					scope: flowData.flowCredentials.scopes?.join(' ') || prev.scope || 'openid profile',
-					// Preserve loginHint and other CIBA-specific fields (don't overwrite from credentials)
-					loginHint: prev.loginHint || '',
-					bindingMessage: prev.bindingMessage || '',
-					requestContext: prev.requestContext || '',
+					// Load CIBA-specific fields from flowConfig if available
+					loginHint: (flowData.flowConfig as any)?.loginHint || prev.loginHint || '',
+					bindingMessage: (flowData.flowConfig as any)?.bindingMessage || prev.bindingMessage || '',
+					requestContext: (flowData.flowConfig as any)?.requestContext || prev.requestContext || JSON.stringify({"device":"Smart TV", "location": "living Room", "ip": "192.168.1.1"}, null, 2),
 				}));
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [CIBA-V7] Using shared environment data only');
@@ -263,21 +272,149 @@ const CIBAFlowV7: React.FC = () => {
 		loadCredentials();
 	}, []);
 
-	// Update configuration when form data changes
+	// Update configuration when form data changes - with debounce to prevent infinite loops
+	const updateConfigTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	
 	useEffect(() => {
-		if (formData.environmentId && formData.clientId && formData.scope && formData.loginHint) {
-			controller.updateConfig({
-				environmentId: formData.environmentId,
-				clientId: formData.clientId,
-				clientSecret: formData.clientSecret || undefined,
-				scope: formData.scope,
-				loginHint: formData.loginHint,
-				bindingMessage: formData.bindingMessage || undefined,
-				authMethod: clientAuthMethod as 'client_secret_post' | 'client_secret_basic', // Use synced value from ComprehensiveCredentialsService
-				requestContext: formData.requestContext || undefined,
-			});
+		// Clear any pending update
+		if (updateConfigTimeoutRef.current) {
+			clearTimeout(updateConfigTimeoutRef.current);
 		}
-	}, [formData, clientAuthMethod, controller]);
+		
+		// Only update if we have all required fields
+		if (formData.environmentId && formData.clientId && formData.scope && formData.loginHint) {
+			// Debounce updates to prevent infinite loops
+			updateConfigTimeoutRef.current = setTimeout(() => {
+				controller.updateConfig({
+					environmentId: formData.environmentId,
+					clientId: formData.clientId,
+					clientSecret: formData.clientSecret || undefined,
+					scope: formData.scope,
+					loginHint: formData.loginHint,
+					bindingMessage: formData.bindingMessage || undefined,
+					authMethod: clientAuthMethod as 'client_secret_post' | 'client_secret_basic',
+					requestContext: formData.requestContext || undefined,
+				});
+			}, 150); // Small debounce to prevent rapid updates
+		}
+		
+		return () => {
+			if (updateConfigTimeoutRef.current) {
+				clearTimeout(updateConfigTimeoutRef.current);
+			}
+		};
+		// Only depend on the actual values, not the objects themselves
+	}, [formData.environmentId, formData.clientId, formData.clientSecret, formData.scope, formData.loginHint, formData.bindingMessage, formData.requestContext, clientAuthMethod, controller.updateConfig]);
+
+	// Save credentials when form data changes (similar to Device Authorization Flow)
+	// Use a ref to track the previous values to prevent unnecessary saves
+	const previousCredentialsRef = useRef<{
+		environmentId?: string;
+		clientId?: string;
+		clientSecret?: string;
+		scope?: string;
+		loginHint?: string;
+		bindingMessage?: string;
+		requestContext?: string;
+		clientAuthMethod?: ClientAuthMethod;
+	}>({});
+	const saveCredentialsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+	
+	useEffect(() => {
+		// Only save if we have required credentials and values have actually changed
+		if (formData.environmentId && formData.clientId) {
+			const prev = previousCredentialsRef.current;
+			const hasChanged = 
+				prev.environmentId !== formData.environmentId ||
+				prev.clientId !== formData.clientId ||
+				prev.clientSecret !== formData.clientSecret ||
+				prev.scope !== formData.scope ||
+				prev.loginHint !== formData.loginHint ||
+				prev.bindingMessage !== formData.bindingMessage ||
+				prev.requestContext !== formData.requestContext ||
+				prev.clientAuthMethod !== clientAuthMethod;
+			
+			if (hasChanged) {
+				// Clear any pending save
+				if (saveCredentialsTimeoutRef.current) {
+					clearTimeout(saveCredentialsTimeoutRef.current);
+				}
+				
+				// Debounce the save to prevent excessive writes
+				saveCredentialsTimeoutRef.current = setTimeout(() => {
+					console.log('🔧 [CIBA-V7] Saving credentials to comprehensive service:', {
+						flowKey: 'ciba-flow-v7',
+						environmentId: formData.environmentId,
+						clientId: formData.clientId?.substring(0, 8) + '...',
+						hasClientSecret: !!formData.clientSecret,
+						scope: formData.scope,
+						hasLoginHint: !!formData.loginHint,
+					});
+					
+					// Save to comprehensive service with complete isolation (same pattern as other V7 flows)
+					try {
+						const success = comprehensiveFlowDataService.saveFlowDataComprehensive('ciba-flow-v7', {
+							...(formData.environmentId && {
+							sharedEnvironment: {
+								environmentId: formData.environmentId,
+								region: formData.region || 'us',
+								issuerUrl: (() => {
+									const regionDomains: Record<string, string> = {
+										us: 'auth.pingone.com',
+										eu: 'auth.pingone.eu',
+										ap: 'auth.pingone.asia',
+										ca: 'auth.pingone.ca',
+										na: 'auth.pingone.com'
+									};
+									const domain = regionDomains[formData.region || 'us'] || 'auth.pingone.com';
+									return `https://${domain}/${formData.environmentId}`;
+								})()
+							}
+							}),
+							flowCredentials: {
+								clientId: formData.clientId,
+								clientSecret: formData.clientSecret,
+								scopes: formData.scope ? formData.scope.split(/\s+/).filter(Boolean) : [],
+								tokenEndpointAuthMethod: clientAuthMethod,
+								lastUpdated: Date.now()
+							},
+							// Save CIBA-specific fields in flowConfig
+							flowConfig: {
+								loginHint: formData.loginHint || undefined,
+								bindingMessage: formData.bindingMessage || undefined,
+								requestContext: formData.requestContext || undefined,
+							}
+						}, { showToast: false });
+
+						if (!success) {
+							console.error('[CIBA-V7] Failed to save credentials to comprehensive service');
+						} else {
+							console.log('✅ [CIBA-V7] Credentials saved successfully');
+							// Update ref with current values
+							previousCredentialsRef.current = {
+								environmentId: formData.environmentId,
+								clientId: formData.clientId,
+								clientSecret: formData.clientSecret,
+								scope: formData.scope,
+								loginHint: formData.loginHint,
+								bindingMessage: formData.bindingMessage,
+								requestContext: formData.requestContext,
+								clientAuthMethod: clientAuthMethod,
+							};
+						}
+					} catch (error) {
+						console.error('[CIBA-V7] Failed to save credentials:', error);
+					}
+				}, 500); // 500ms debounce
+			}
+		}
+		
+		return () => {
+			if (saveCredentialsTimeoutRef.current) {
+				clearTimeout(saveCredentialsTimeoutRef.current);
+			}
+		};
+	}, [formData.environmentId, formData.clientId, formData.clientSecret, formData.scope, formData.loginHint, formData.bindingMessage, formData.requestContext, clientAuthMethod]);
 
 	// Auto-advance to step 2 when auth request is created
 	useEffect(() => {
@@ -312,7 +449,7 @@ const CIBAFlowV7: React.FC = () => {
 			scope: 'openid profile',
 			loginHint: '',
 			bindingMessage: '',
-			requestContext: '',
+			requestContext: JSON.stringify({"device":"Smart TV", "location": "living Room", "ip": "192.168.1.1"}, null, 2),
 		});
 		setClientAuthMethod('client_secret_post'); // Reset to default
 	}, [controller]);
@@ -381,20 +518,36 @@ const CIBAFlowV7: React.FC = () => {
 			case 0:
 				return (
 					<>
-						{/* Concise CIBA Educational Content */}
+						{/* Comprehensive CIBA Educational Content */}
 						<InfoBox $variant="info" style={{ marginBottom: '1.5rem' }}>
 							<FiInfo />
 							<div>
-								<InfoTitle>What is CIBA?</InfoTitle>
+								<InfoTitle>
+									What is <LearningTooltip variant="learning" title="CIBA (Client Initiated Backchannel Authentication)" content="An OIDC extension (RFC 9436) that enables decoupled authentication. The client initiates authentication on one device, and the user approves it on a different trusted device (e.g., phone)." placement="top">CIBA</LearningTooltip>? (Client Initiated Backchannel Authentication)
+								</InfoTitle>
 								<InfoText>
-									<strong>Client Initiated Backchannel Authentication (CIBA)</strong> is an OIDC extension (RFC 9436) 
-									that enables decoupled authentication. The client initiates authentication on one device (e.g., IoT device, 
-									smart TV), and the user approves it on a different device (e.g., their phone). Perfect for devices without 
-									keyboards or full browsers.
+									<strong><LearningTooltip variant="info" title="RFC 9436" content="OpenID Connect specification for Client Initiated Backchannel Authentication" placement="top">CIBA (RFC 9436)</LearningTooltip></strong> is an <LearningTooltip variant="info" title="OIDC Extension" content="OpenID Connect extension that adds new capabilities beyond the base OIDC specification" placement="top">OIDC extension</LearningTooltip> that enables <strong><LearningTooltip variant="learning" title="Decoupled Authentication" content="Authentication where the client and user interact on different devices. The client starts authentication, and the user approves on their trusted device." placement="top">decoupled authentication</LearningTooltip></strong>. 
+									Unlike traditional OAuth flows where the user interacts directly with the authorization server, CIBA allows 
+									the client to initiate authentication on one device while the user approves it on a completely different device.
 								</InfoText>
 								<InfoText style={{ marginTop: '0.75rem' }}>
-									<strong>Key Steps:</strong> (1) Client sends backchannel request with login_hint (2) User receives notification 
-									on their device (3) User approves/denies (4) Client polls for tokens using auth_req_id.
+									<strong>Why Use CIBA?</strong>
+								</InfoText>
+								<InfoText style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
+									• <strong>IoT Devices:</strong> Smart TVs, printers, smart speakers that can't display a full browser<br/>
+									• <strong>Kiosks & Terminals:</strong> Public-facing devices without keyboards or secure input methods<br/>
+									• <strong>Better UX:</strong> User approves on their trusted device (phone) with full security controls<br/>
+									• <strong>Security:</strong> No redirect URIs needed, reduces phishing risks, enables device binding
+								</InfoText>
+								<InfoText style={{ marginTop: '0.75rem' }}>
+									<strong>How CIBA Works:</strong>
+								</InfoText>
+								<InfoText style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
+									1. <strong>Client sends <LearningTooltip variant="learning" title="Backchannel Request" content="A server-to-server request from the client to the authorization server. Unlike front-channel flows, this happens without user interaction in the browser." placement="top">backchannel request</LearningTooltip></strong> with <LearningTooltip variant="info" title="Login Hint" content="Parameter (login_hint) that identifies the user (email, phone, or user ID). Required to tell the authorization server which user should receive the notification." placement="top"><code>login_hint</code></LearningTooltip> to identify the user<br/>
+									2. <strong><LearningTooltip variant="info" title="Authorization Server" content="The OAuth/OIDC server (like PingOne) that handles authentication and authorization" placement="top">Authorization server</LearningTooltip></strong> validates the request and sends a notification to the user's device<br/>
+									3. <strong>User approves/denies</strong> on their trusted device (phone, tablet)<br/>
+									4. <strong>Client <LearningTooltip variant="learning" title="Polling" content="The client repeatedly requests tokens from the token endpoint using auth_req_id until the user completes authentication. Uses grant_type=urn:openid:params:grant-type:ciba." placement="top">polls</LearningTooltip></strong> the <LearningTooltip variant="info" title="Token Endpoint" content="OAuth/OIDC endpoint where clients exchange credentials for tokens" placement="top">token endpoint</LearningTooltip> with <LearningTooltip variant="learning" title="Auth Request ID" content="Unique identifier (auth_req_id) returned from the backchannel authentication request. Used in polling to check if user has approved." placement="top"><code>auth_req_id</code></LearningTooltip> until user completes authentication<br/>
+									5. <strong><LearningTooltip variant="info" title="Tokens" content="Access tokens and ID tokens returned after successful authentication" placement="top">Tokens are returned</LearningTooltip></strong> to the client once user approves
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -433,7 +586,9 @@ const CIBAFlowV7: React.FC = () => {
 							</h3>
 							<FormGrid>
 								<FormField>
-									<Label>Login Hint *</Label>
+									<Label>
+										<LearningTooltip variant="learning" title="Login Hint (login_hint)" content="Required parameter (RFC 9436) that identifies which user should receive the authentication notification. Can be an email address, phone number, or user ID." placement="top">Login Hint</LearningTooltip> *
+									</Label>
 									<Input
 										type="text"
 										value={formData.loginHint || ''}
@@ -446,35 +601,140 @@ const CIBAFlowV7: React.FC = () => {
 										readOnly={false}
 										autoComplete="off"
 									/>
-									<small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-										💡 Examples: user@example.com, +1234567890, or user_id_12345
-									</small>
+									<div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+										<div style={{ fontSize: '0.75rem', color: '#475569' }}>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>What is Login Hint?</strong>
+											</p>
+											<p style={{ margin: '0 0 0.75rem 0' }}>
+												The <code>login_hint</code> parameter identifies which user should receive the authentication notification. 
+												This tells the authorization server who to send the approval request to.
+											</p>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>Why it's Required:</strong>
+											</p>
+											<p style={{ margin: '0 0 0.75rem 0' }}>
+												Without a login hint, the authorization server wouldn't know which user's device to send the notification to. 
+												The user must already be registered in PingOne with this identifier.
+											</p>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>Copyable Examples:</strong>
+											</p>
+											<p style={{ margin: 0 }}>
+												• Email: <code style={{ background: '#e2e8f0', padding: '0.125rem 0.25rem', borderRadius: '0.25rem', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); updateFormData('loginHint', 'user@example.com'); }}>user@example.com</code>
+												<br/>• Phone: <code style={{ background: '#e2e8f0', padding: '0.125rem 0.25rem', borderRadius: '0.25rem', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); updateFormData('loginHint', '+1234567890'); }}>+1234567890</code>
+												<br/>• User ID: <code style={{ background: '#e2e8f0', padding: '0.125rem 0.25rem', borderRadius: '0.25rem', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); updateFormData('loginHint', 'user_id_12345'); }}>user_id_12345</code>
+											</p>
+										</div>
+									</div>
 								</FormField>
 								
 								<FormField>
-									<Label>Binding Message</Label>
+									<Label>
+										<LearningTooltip variant="info" title="Binding Message (binding_message)" content="Optional parameter (RFC 9436) - Short text displayed to the user during approval to help verify they're approving the correct request." placement="top">Binding Message</LearningTooltip>
+									</Label>
 									<Input
 										type="text"
 										value={formData.bindingMessage}
 										onChange={(e) => updateFormData('bindingMessage', e.target.value)}
-										placeholder="Please approve login to Smart TV in Living Room"
+										placeholder="Sign in request from your Smart TV"
 									/>
-									<small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-										💡 Example: "Sign in request from your Smart TV" - displayed to user during approval (optional)
-									</small>
+									<div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+										<div style={{ fontSize: '0.75rem', color: '#475569' }}>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>What is Binding Message?</strong>
+											</p>
+											<p style={{ margin: '0 0 0.75rem 0' }}>
+												The <code>binding_message</code> is a short text displayed to the user during the approval process. 
+												It helps the user verify they're approving the correct request.
+											</p>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>Why Use It?</strong>
+											</p>
+											<p style={{ margin: '0 0 0.75rem 0' }}>
+												In enterprise environments or when multiple devices are present, the binding message helps prevent 
+												users from accidentally approving the wrong device's authentication request.
+											</p>
+											<p style={{ margin: 0 }}>
+												<strong style={{ color: '#1e293b' }}>Copyable Example:</strong>
+												<br/><code style={{ background: '#e2e8f0', padding: '0.125rem 0.25rem', borderRadius: '0.25rem', cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); updateFormData('bindingMessage', 'Sign in request from your Smart TV'); }}>Sign in request from your Smart TV</code>
+											</p>
+										</div>
+									</div>
 								</FormField>
 								
 								<FormField>
-									<Label>Request Context</Label>
+									<Label>
+										<LearningTooltip variant="info" title="Request Context (requested_context)" content="Optional parameter (RFC 9436) - JSON object with additional context (device info, location, IP) to help users identify the authentication request." placement="top">Request Context</LearningTooltip>
+									</Label>
 									<TextArea
 										value={formData.requestContext}
 										onChange={(e) => updateFormData('requestContext', e.target.value)}
 										placeholder='{"device": "Smart TV", "location": "Living Room", "ip": "192.168.1.100"}'
-										rows={4}
+										rows={6}
 									/>
-									<small style={{ color: '#6b7280', fontSize: '0.75rem', marginTop: '0.25rem' }}>
-										💡 Example: Additional context in JSON format (optional) - helps user identify the request source
-									</small>
+									<div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+										<div style={{ fontSize: '0.75rem', color: '#475569' }}>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>What is Request Context?</strong>
+											</p>
+											<p style={{ margin: '0 0 0.75rem 0' }}>
+												The <code>requested_context</code> is a JSON object containing additional context about the authentication request. 
+												This helps the user identify the source device and verify the request is legitimate.
+											</p>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>Why Use It?</strong>
+											</p>
+											<p style={{ margin: '0 0 0.75rem 0' }}>
+												Provides device identification (name, model), location, IP address, or other metadata that helps users 
+												make informed approval decisions. This is especially important for security-conscious organizations.
+											</p>
+											<p style={{ margin: '0 0 0.5rem 0' }}>
+												<strong style={{ color: '#1e293b' }}>Copyable Example (Click to Fill):</strong>
+											</p>
+											<div style={{ 
+												background: '#ffffff', 
+												padding: '0.75rem', 
+												borderRadius: '0.5rem', 
+												border: '1px solid #cbd5e1',
+												cursor: 'pointer',
+												marginTop: '0.5rem',
+												transition: 'all 0.2s ease'
+											}} 
+											onClick={(e) => { 
+												e.stopPropagation(); 
+												updateFormData('requestContext', JSON.stringify({ 
+													device: 'Smart TV', 
+													location: 'Living Room', 
+													ip: '192.168.1.100' 
+												}, null, 2)); 
+											}}
+											onMouseEnter={(e) => {
+												e.currentTarget.style.background = '#f1f5f9';
+												e.currentTarget.style.borderColor = '#94a3b8';
+											}}
+											onMouseLeave={(e) => {
+												e.currentTarget.style.background = '#ffffff';
+												e.currentTarget.style.borderColor = '#cbd5e1';
+											}}
+											>
+												<pre style={{ 
+													margin: 0, 
+													fontFamily: 'monospace', 
+													fontSize: '0.875rem', 
+													color: '#1e293b',
+													whiteSpace: 'pre-wrap',
+													wordBreak: 'break-word'
+												}}>
+{JSON.stringify({ 
+	device: 'Smart TV', 
+	location: 'Living Room', 
+	ip: '192.168.1.100' 
+}, null, 2)}
+												</pre>
+											</div>
+										</div>
+									</div>
 								</FormField>
 							</FormGrid>
 						</div>
@@ -507,24 +767,82 @@ const CIBAFlowV7: React.FC = () => {
 									<FiCheckCircle />
 									<div>
 										<strong>Authentication Request Created</strong>
-										<p>Request ID: {controller.authRequest.stateId}</p>
+										<p>Auth Request ID: {controller.authRequest.auth_req_id.substring(0, 20)}...</p>
 									</div>
 								</StatusCard>
 								
+								{/* Educational: Show what the actual API request would look like */}
 								<div style={{ marginTop: '1.5rem' }}>
-									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>Request Details:</h4>
-									<CodeBlock>
-										{JSON.stringify(controller.authRequest, null, 2)}
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>
+										<LearningTooltip variant="learning" title="Backchannel Authentication Request" content="The actual HTTP POST request sent to the /backchannel-authentication endpoint (RFC 9436). This shows what parameters are required." placement="top">Backchannel Authentication Request (RFC 9436)</LearningTooltip>:
+									</h4>
+									<CodeBlock style={{ fontSize: '0.75rem' }}>
+{`POST /backchannel-authentication HTTP/1.1
+Host: ${(() => {
+	const regionDomains: Record<string, string> = { us: 'auth.pingone.com', eu: 'auth.pingone.eu', ap: 'auth.pingone.asia', ca: 'auth.pingone.ca', na: 'auth.pingone.com' };
+	return regionDomains[formData.region || 'us'] || 'auth.pingone.com';
+})()}/${formData.environmentId}/as
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic ${btoa(`${formData.clientId}:${formData.clientSecret}`)}
+
+client_id=${formData.clientId}
+&scope=${formData.scope}
+&login_hint=${formData.loginHint}${formData.bindingMessage ? `
+&binding_message=${encodeURIComponent(formData.bindingMessage)}` : ''}${formData.requestContext ? `
+&requested_context=${encodeURIComponent(formData.requestContext)}` : ''}`}
 									</CodeBlock>
 								</div>
 								
 								<div style={{ marginTop: '1.5rem' }}>
-									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>User Code:</h4>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>
+										Response (with <LearningTooltip variant="learning" title="Auth Request ID" content="Unique identifier returned from the backchannel request. Used in polling to check if user has approved." placement="top">auth_req_id</LearningTooltip>):
+									</h4>
+									<CodeBlock style={{ fontSize: '0.75rem' }}>
+{`HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  "auth_req_id": "${controller.authRequest.stateId}",
+  "expires_in": ${controller.authRequest.expiresIn},
+  "interval": ${controller.authRequest.interval},
+  "binding_message": "${controller.authRequest.bindingMessage}"
+}`}
+									</CodeBlock>
+								</div>
+								
+								<div style={{ marginTop: '1.5rem' }}>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>
+										Response Details (RFC 9436):
+									</h4>
+									<CodeBlock>
+										{JSON.stringify({
+											auth_req_id: controller.authRequest.auth_req_id,
+											expires_in: controller.authRequest.expiresIn,
+											interval: controller.authRequest.interval,
+											...(controller.authRequest.bindingMessage && { binding_message: controller.authRequest.bindingMessage }),
+										}, null, 2)}
+									</CodeBlock>
+								</div>
+								
+								<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
+									<FiInfo />
+									<div>
+										<InfoTitle>📚 RFC 9436 Reference</InfoTitle>
+										<InfoText>
+											<strong>Learn More:</strong> Read the <a href="https://openid.net/specs/openid-client-initiated-backchannel-authentication-core-1_0.html" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6' }}>official CIBA specification (RFC 9436)</a> for complete details on backchannel authentication requests and polling mechanisms.
+										</InfoText>
+									</div>
+								</InfoBox>
+								
+								<div style={{ marginTop: '1.5rem' }}>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>
+										<LearningTooltip variant="learning" title="Auth Request ID (auth_req_id)" content="RFC 9436: Unique identifier returned from the backchannel request. Used in polling to check if user has approved. Required for token endpoint requests." placement="top">Auth Request ID (auth_req_id)</LearningTooltip>:
+									</h4>
 									<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
 										<CodeBlock style={{ margin: 0, flex: 1 }}>
-											{controller.authRequest.userCode}
+											{controller.authRequest.auth_req_id}
 										</CodeBlock>
-										<Button onClick={() => handleCopy(controller.authRequest!.userCode, 'User Code')}>
+										<Button onClick={() => handleCopy(controller.authRequest!.auth_req_id, 'Auth Request ID')}>
 											<FiCopy />
 											Copy
 										</Button>
@@ -600,6 +918,36 @@ const CIBAFlowV7: React.FC = () => {
 										</ProgressBar>
 									</div>
 								)}
+								
+								<div style={{ marginTop: '1.5rem' }}>
+									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>
+										<LearningTooltip variant="learning" title="Token Polling Request" content="The client polls the token endpoint using grant_type=urn:openid:params:grant-type:ciba with the auth_req_id from the backchannel request. Continues until user approves." placement="top">Token Polling Request (RFC 9436)</LearningTooltip>:
+									</h4>
+									<CodeBlock style={{ fontSize: '0.75rem' }}>
+{`POST /token HTTP/1.1
+Host: ${(() => {
+	const regionDomains: Record<string, string> = { us: 'auth.pingone.com', eu: 'auth.pingone.eu', ap: 'auth.pingone.asia', ca: 'auth.pingone.ca', na: 'auth.pingone.com' };
+	return regionDomains[formData.region || 'us'] || 'auth.pingone.com';
+})()}/${formData.environmentId}/as
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic ${btoa(`${formData.clientId}:${formData.clientSecret}`)}
+
+grant_type=urn:openid:params:grant-type:ciba
+&client_id=${formData.clientId}
+&auth_req_id=${controller.authRequest.auth_req_id}`}
+									</CodeBlock>
+								</div>
+								
+								<div style={{ marginTop: '1.5rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+									<InfoText style={{ margin: 0, fontSize: '0.75rem', color: '#475569' }}>
+										<strong style={{ color: '#1e293b' }}>Polling Behavior (RFC 9436):</strong>
+										<br/>• If user hasn't approved: Returns <code>400</code> with <code>error=authorization_pending</code> → continue polling
+										<br/>• If polling too fast: Returns <code>400</code> with <code>error=slow_down</code> → increase interval
+										<br/>• If expired: Returns <code>400</code> with <code>error=expired_token</code> → stop polling
+										<br/>• If denied: Returns <code>400</code> with <code>error=access_denied</code> → stop polling
+										<br/>• If approved: Returns <code>200</code> with tokens → success!
+									</InfoText>
+								</div>
 								
 								<div style={{ marginTop: '1.5rem' }}>
 									<h4 style={{ marginBottom: '0.75rem', fontSize: '1rem', fontWeight: '600' }}>Binding Message:</h4>
