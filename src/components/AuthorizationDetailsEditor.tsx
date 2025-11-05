@@ -42,33 +42,33 @@ const ViewModeToggle = styled.div`
   overflow: hidden;
 `;
 
-const ViewModeButton = styled.button<{ active: boolean }>`
+const ViewModeButton = styled.button<{ $active: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.75rem;
   border: none;
-  background: ${props => props.active ? '#3b82f6' : 'white'};
-  color: ${props => props.active ? 'white' : '#6b7280'};
+  background: ${props => props.$active ? '#3b82f6' : 'white'};
+  color: ${props => props.$active ? 'white' : '#6b7280'};
   font-size: 0.875rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.active ? '#2563eb' : '#f9fafb'};
+    background: ${props => props.$active ? '#2563eb' : '#f9fafb'};
   }
 `;
 
-const ValidationStatus = styled.div<{ isValid: boolean }>`
+const ValidationStatus = styled.div<{ $isValid: boolean }>`
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem;
   border-radius: 6px;
   margin-bottom: 1rem;
-  background: ${props => props.isValid ? '#f0fdf4' : '#fef2f2'};
-  border: 1px solid ${props => props.isValid ? '#bbf7d0' : '#fecaca'};
-  color: ${props => props.isValid ? '#166534' : '#991b1b'};
+  background: ${props => props.$isValid ? '#f0fdf4' : '#fef2f2'};
+  border: 1px solid ${props => props.$isValid ? '#bbf7d0' : '#fecaca'};
+  color: ${props => props.$isValid ? '#166534' : '#991b1b'};
   font-size: 0.875rem;
 `;
 
@@ -456,14 +456,14 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
         <Title>Authorization Details (RAR)</Title>
         <ViewModeToggle>
           <ViewModeButton
-            active={viewMode === 'visual'}
+            $active={viewMode === 'visual'}
             onClick={() => setViewMode('visual')}
           >
             <FiEdit3 size={14} />
             Visual Editor
           </ViewModeButton>
           <ViewModeButton
-            active={viewMode === 'json'}
+            $active={viewMode === 'json'}
             onClick={() => setViewMode('json')}
           >
             <FiCode size={14} />
@@ -472,7 +472,7 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
         </ViewModeToggle>
       </Header>
 
-      <ValidationStatus isValid={validation.valid}>
+      <ValidationStatus $isValid={validation.valid}>
         {validation.valid ? (
           <>
             <FiCheckCircle size={16} />

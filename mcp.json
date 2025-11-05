@@ -1,0 +1,15 @@
+// .windsurf/mcp.json
+{
+  "mcpServers": {
+    "pingone-mcp-server": {
+      "type": "stdio",
+      "command": "npm",
+      "args": [
+        "run",
+        "dev",
+        "--prefix",
+        "/Users/cmuir/P1Import-apps/oauth-playground/pingone-mcp-server"
+      ]
+    }
+  }
+}

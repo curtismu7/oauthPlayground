@@ -1,5 +1,5 @@
 // src/pages/URLDecoder.tsx - URL Decoder Utility
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheck,
@@ -17,16 +17,41 @@ import { copyToClipboard } from '../utils/clipboard';
 import { FlowHeader } from '../services/flowHeaderService';
 
 // Styled components
-const Container = styled.div`
+const Container = styled.div<{ $sidebarWidth?: number }>`
   min-height: 100vh;
   background: #f8fafc;
-  padding: 2rem 1rem;
+  padding-top: 100px; /* Account for fixed Navbar (80px height + 20px spacing) */
+  padding-bottom: 4rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  
+  /* Ensure content doesn't get cut off by sidebar on desktop */
+  @media (min-width: 768px) {
+    /* Account for sidebar width when open */
+    margin-left: ${({ $sidebarWidth }) => ($sidebarWidth && $sidebarWidth > 0) ? `${$sidebarWidth}px` : '0'};
+    transition: margin-left 0.3s ease;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+  
+  /* Responsive padding for mobile */
+  @media (max-width: 767px) {
+    padding-top: 100px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-left: 0;
+  }
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 3rem;
+  margin: 0 auto 3rem auto;
+  max-width: 72rem;
   color: #1f2937;
+  
+  @media (min-width: 768px) {
+    width: calc(100% - 2rem);
+  }
 `;
 
 const Title = styled.h1`
@@ -55,8 +80,16 @@ const ContentCard = styled.div`
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-  margin-bottom: 2rem;
+  margin: 0 auto 2rem auto;
+  max-width: 72rem;
   border: 1px solid #e5e7eb;
+  
+  /* Ensure content is visible even when sidebar is open */
+  @media (min-width: 768px) {
+    margin-left: auto;
+    margin-right: auto;
+    width: calc(100% - 2rem);
+  }
 `;
 
 const CardHeader = styled.div`
@@ -234,6 +267,38 @@ const URLDecoder: React.FC = () => {
 	const [inputUrl, setInputUrl] = useState('');
 	const [decodedResult, setDecodedResult] = useState<string>('');
 	const [isDecoding, setIsDecoding] = useState(false);
+	const [sidebarWidth, setSidebarWidth] = useState(0);
+
+	// Monitor sidebar width from localStorage
+	useEffect(() => {
+		const checkSidebarWidth = () => {
+			try {
+				const saved = localStorage.getItem('sidebar.width');
+				const parsed = saved ? parseInt(saved, 10) : NaN;
+				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
+					setSidebarWidth(parsed);
+				} else {
+					setSidebarWidth(0);
+				}
+			} catch {
+				setSidebarWidth(0);
+			}
+		};
+
+		// Check on mount
+		checkSidebarWidth();
+
+		// Listen for storage events
+		window.addEventListener('storage', checkSidebarWidth);
+		
+		// Poll for same-tab updates (since storage event only fires cross-tab)
+		const interval = setInterval(checkSidebarWidth, 500);
+
+		return () => {
+			window.removeEventListener('storage', checkSidebarWidth);
+			clearInterval(interval);
+		};
+	}, []);
 
 	// Decode URL function
 	const decodeUrl = useCallback(() => {
@@ -324,7 +389,7 @@ const URLDecoder: React.FC = () => {
 	}, []);
 
 	return (
-		<Container>
+		<Container $sidebarWidth={sidebarWidth}>
 			<FlowHeader flowType="url-decoder" />
 
 			<ContentCard>

@@ -26,7 +26,7 @@ import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { FlowHeader } from '../../services/flowHeaderService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { EducationalContentService } from '../../services/educationalContentService';
+import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import { HybridFlowDefaults, HybridFlowStepRestoration, HybridFlowCollapsibleSectionsManager, log } from '../../services/hybridFlowSharedService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
