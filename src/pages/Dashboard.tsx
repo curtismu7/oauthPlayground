@@ -193,7 +193,99 @@ const FlowButtonsContainer = styled.div`
   }
 `;
 
-const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
+type FlowPalette = 'oauth' | 'oidc' | 'pingone';
+
+const FLOW_BUTTON_THEMES: Record<FlowPalette, {
+	primary: {
+		bg: string;
+		border: string;
+		color: string;
+		hoverBg: string;
+		hoverBorder: string;
+		hoverColor: string;
+		shadow: string;
+		hoverShadow: string;
+	};
+	secondary: {
+		bg: string;
+		border: string;
+		color: string;
+		hoverBg: string;
+		hoverBorder: string;
+		hoverColor: string;
+		shadow: string;
+		hoverShadow: string;
+	};
+}> = {
+	oauth: {
+		primary: {
+			bg: '#047857',
+			border: '#065f46',
+			color: '#ffffff',
+			hoverBg: '#065f46',
+			hoverBorder: '#047857',
+			hoverColor: '#ecfdf5',
+			shadow: '0 2px 4px rgba(4, 120, 87, 0.25)',
+			hoverShadow: '0 4px 10px rgba(4, 120, 87, 0.35)',
+		},
+		secondary: {
+			bg: '#10b981',
+			border: '#059669',
+			color: '#ffffff',
+			hoverBg: '#059669',
+			hoverBorder: '#047857',
+			hoverColor: '#ecfdf5',
+			shadow: '0 2px 4px rgba(16, 185, 129, 0.2)',
+			hoverShadow: '0 4px 8px rgba(16, 185, 129, 0.3)',
+		},
+	},
+	oidc: {
+		primary: {
+			bg: '#5b21b6',
+			border: '#4c1d95',
+			color: '#ffffff',
+			hoverBg: '#4c1d95',
+			hoverBorder: '#3b1680',
+			hoverColor: '#ede9fe',
+			shadow: '0 2px 4px rgba(91, 33, 182, 0.25)',
+			hoverShadow: '0 4px 10px rgba(91, 33, 182, 0.35)',
+		},
+		secondary: {
+			bg: '#7c3aed',
+			border: '#6d28d9',
+			color: '#ffffff',
+			hoverBg: '#6d28d9',
+			hoverBorder: '#5b21b6',
+			hoverColor: '#ede9fe',
+			shadow: '0 2px 4px rgba(124, 58, 237, 0.2)',
+			hoverShadow: '0 4px 8px rgba(124, 58, 237, 0.3)',
+		},
+	},
+	pingone: {
+		primary: {
+			bg: '#c2410c',
+			border: '#9a3412',
+			color: '#ffffff',
+			hoverBg: '#9a3412',
+			hoverBorder: '#7c2d12',
+			hoverColor: '#fff7ed',
+			shadow: '0 2px 4px rgba(194, 65, 12, 0.25)',
+			hoverShadow: '0 4px 10px rgba(194, 65, 12, 0.35)',
+		},
+		secondary: {
+			bg: '#f97316',
+			border: '#ea580c',
+			color: '#ffffff',
+			hoverBg: '#ea580c',
+			hoverBorder: '#c2410c',
+			hoverColor: '#fff7ed',
+			shadow: '0 2px 4px rgba(249, 115, 22, 0.2)',
+			hoverShadow: '0 4px 8px rgba(249, 115, 22, 0.3)',
+		},
+	},
+};
+
+const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary'; $palette?: FlowPalette }>`
   display: inline-block;
   padding: 0.75rem 1rem;
   border-radius: 8px;
@@ -209,32 +301,24 @@ const FlowLink = styled.a<{ $variant?: 'primary' | 'secondary' }>`
   text-overflow: ellipsis;
   max-width: 100%;
 
-  ${props => props.$variant === 'primary' ? `
-    background: #1e40af;
-    color: white;
-    border: 2px solid #1e3a8a;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  ${({ $variant = 'secondary', $palette = 'oauth' }) => {
+    const palette = FLOW_BUTTON_THEMES[$palette];
+    const theme = palette[$variant];
+    return `
+      background: ${theme.bg};
+      color: ${theme.color};
+      border: 2px solid ${theme.border};
+      box-shadow: ${theme.shadow};
 
-    &:hover {
-      background: #1e3a8a;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 8px rgba(30, 64, 175, 0.3);
-      color: #ef4444;
-    }
-  ` : `
-    background: #3b82f6;
-    color: white;
-    border: 2px solid #2563eb;
-    font-weight: 600;
-
-    &:hover {
-      background: #2563eb;
-      border-color: #1d4ed8;
-      color: #ef4444;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
-    }
-  `}
+      &:hover {
+        background: ${theme.hoverBg};
+        border-color: ${theme.hoverBorder};
+        color: ${theme.hoverColor};
+        box-shadow: ${theme.hoverShadow};
+        transform: translateY(-1px);
+      }
+    `;
+  }}
 `;
 
 const ActivityList = styled.div`
@@ -794,16 +878,16 @@ const Dashboard = () => {
 							public clients).
 						</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/oauth-authorization-code-v7" $variant="primary">
+						<FlowLink href="/flows/oauth-authorization-code-v7" $variant="primary" $palette="oauth">
 								Authorization Code (V7)
 							</FlowLink>
-							<FlowLink href="/flows/implicit-v7" $variant="secondary">
+						<FlowLink href="/flows/implicit-v7" $variant="secondary" $palette="oauth">
 								Implicit Flow (V7)
 							</FlowLink>
-							<FlowLink href="/flows/device-authorization-v7" $variant="secondary">
+						<FlowLink href="/flows/device-authorization-v7" $variant="secondary" $palette="oauth">
 								Device Authorization (V7)
 							</FlowLink>
-							<FlowLink href="/flows/client-credentials-v7" $variant="secondary">
+						<FlowLink href="/flows/client-credentials-v7" $variant="secondary" $palette="oauth">
 								Client Credentials (V7)
 							</FlowLink>
 						</FlowButtonsContainer>
@@ -813,16 +897,16 @@ const Dashboard = () => {
 						<h3>OpenID Connect</h3>
 						<p>Identity layer on top of OAuth 2.0.</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/oauth-authorization-code-v7" $variant="primary">
+						<FlowLink href="/flows/oauth-authorization-code-v7" $variant="primary" $palette="oidc">
 								Authorization Code (V7)
 							</FlowLink>
-							<FlowLink href="/flows/oidc-hybrid-v7" $variant="secondary">
+						<FlowLink href="/flows/oidc-hybrid-v7" $variant="secondary" $palette="oidc">
 								Hybrid Flow (V7)
 							</FlowLink>
-							<FlowLink href="/flows/implicit-v7" $variant="secondary">
+						<FlowLink href="/flows/implicit-v7" $variant="secondary" $palette="oidc">
 								Implicit Flow (V7)
 							</FlowLink>
-							<FlowLink href="/oidc-overview" $variant="secondary">
+						<FlowLink href="/oidc-overview" $variant="secondary" $palette="oidc">
 								OIDC Overview
 							</FlowLink>
 						</FlowButtonsContainer>
@@ -832,13 +916,13 @@ const Dashboard = () => {
 						<h3>PingOne Flows</h3>
 						<p>PingOne-specific authentication and authorization flows.</p>
 						<FlowButtonsContainer>
-							<FlowLink href="/flows/worker-token-v6" $variant="primary">
+						<FlowLink href="/flows/worker-token-v6" $variant="primary" $palette="pingone">
 								Worker Token (V6)
 							</FlowLink>
-							<FlowLink href="/flows/pingone-par-v6" $variant="secondary">
+						<FlowLink href="/flows/pingone-par-v6" $variant="secondary" $palette="pingone">
 								PAR (V6)
 							</FlowLink>
-							<FlowLink href="/flows/redirectless-v6-real" $variant="secondary">
+						<FlowLink href="/flows/redirectless-v6-real" $variant="secondary" $palette="pingone">
 								Redirectless Flow (V6)
 							</FlowLink>
 						</FlowButtonsContainer>

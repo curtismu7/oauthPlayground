@@ -29,7 +29,7 @@ import {
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 
 // Import components
 import { ClaimsRequestBuilder, ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';

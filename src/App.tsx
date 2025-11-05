@@ -26,6 +26,7 @@ import SidebarTest from './components/SidebarTest';
 import { RouteRestorer } from './components/RouteRestorer';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
+import { ApiRequestModalProvider } from './services/apiRequestModalService';
 import Callback from './pages/Callback';
 import ClientGenerator from './pages/ClientGenerator';
 import ApplicationGenerator from './pages/ApplicationGenerator';
@@ -74,7 +75,10 @@ import OIDCOverviewEnhanced from './pages/docs/OIDCOverview_Enhanced';
 // import OIDCOverviewTest from './pages/docs/OIDCOverview_Test';
 import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
+import OAuthForAI from './pages/docs/OAuthForAI';
 import PingViewOnAI from './pages/docs/PingViewOnAI';
+import PingAIResources from './pages/PingAIResources';
+import PingOneUserProfile from './pages/PingOneUserProfile';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
 import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
 import CIBAFlowV7 from './pages/flows/CIBAFlowV7';
@@ -135,6 +139,7 @@ import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
 import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
 import RARFlowV6 from './pages/flows/RARFlowV6_New';
 import RARFlowV7 from './pages/flows/RARFlowV7';
+import DPoPFlow from './pages/flows/DPoPFlow';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
 import RedirectlessFlowV7Real from './pages/flows/RedirectlessFlowV7_Real';
@@ -153,6 +158,7 @@ import OAuth21 from './pages/OAuth21';
 import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
+import PARvsRAR from './pages/PARvsRAR';
 import SDKSampleApp from './pages/SDKSampleApp';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
@@ -160,7 +166,9 @@ import UltimateTokenDisplayDemo from './pages/UltimateTokenDisplayDemo';
 import URLDecoder from './pages/URLDecoder';
 import PingOneMockFeatures from './pages/PingOneMockFeatures';
 import PingOneIdentityMetrics from './pages/PingOneIdentityMetrics';
+import PingOneAuditActivities from './pages/PingOneAuditActivities';
 import ServiceTestRunner from './pages/ServiceTestRunner';
+import OrganizationLicensing from './pages/OrganizationLicensing';
 
 const AppContainer = styled.div`
   display: flex;
@@ -386,7 +394,11 @@ const AppRoutes: React.FC = () => {
 			<GlobalErrorDisplay />
 			<RouteRestorer />
 			<AppContainer>
-				<Navbar toggleSidebar={toggleSidebar} />
+				<Navbar 
+					toggleSidebar={toggleSidebar} 
+					sidebarOpen={sidebarOpen}
+					sidebarWidth={undefined}
+				/>
 				<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 				<ContentColumn>
 					<MainContent>
@@ -585,12 +597,17 @@ const AppRoutes: React.FC = () => {
 						<Route path="/pingone-authentication" element={<PingOneAuthentication />} />
 						<Route path="/pingone-authentication/result" element={<PingOneAuthenticationResult />} />
 						<Route path="/pingone-mock-features" element={<PingOneMockFeatures />} />
-						<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
-					<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
+					<Route path="/pingone-identity-metrics" element={<PingOneIdentityMetrics />} />
+					<Route path="/pingone-audit-activities" element={<PingOneAuditActivities />} />
+				<Route path="/pingone-webhook-viewer" element={<PingOneWebhookViewer />} />
+					<Route path="/organization-licensing" element={<OrganizationLicensing />} />
 						<Route path="/p1-callback" element={<PingOneAuthenticationCallback />} />
 						<Route path="/p1auth-callback" element={<PingOneAuthenticationCallback />} />
 							{/* V7 RAR Flow */}
 							<Route path="/flows/rar-v7" element={<RARFlowV7 />} />
+							
+							{/* DPoP Flow (Educational/Mock) */}
+							<Route path="/flows/dpop" element={<DPoPFlow />} />
 							
 							{/* V6 flows disabled - redirect to V7 equivalents */}
 							<Route path="/flows/rar-v6" element={<Navigate to="/flows/rar-v7" replace />} />
@@ -628,12 +645,15 @@ const AppRoutes: React.FC = () => {
 							<Route path="/application-generator" element={<ApplicationGenerator />} />
 							<Route path="/configuration" element={<Configuration />} />
 							<Route path="/documentation" element={<Documentation />} />
+							<Route path="/ping-ai-resources" element={<PingAIResources />} />
+							<Route path="/pingone-user-profile" element={<PingOneUserProfile />} />
 							<Route path="/ai-identity-architectures" element={<AIIdentityArchitectures />} />
 							<Route path="/about" element={<About />} />
 							<Route path="/flow-header-demo" element={<FlowHeaderDemo />} />
 							<Route path="/test-demo" element={<TestDemo />} />
 							<Route path="/environment-id-demo" element={<EnvironmentIdInputDemo />} />
 							<Route path="/docs/oidc-specs" element={<OIDCSpecs />} />
+							<Route path="/docs/oauth-for-ai" element={<OAuthForAI />} />
 							<Route path="/docs/oidc-for-ai" element={<OIDCForAI />} />
 							<Route path="/docs/ping-view-on-ai" element={<PingViewOnAI />} />
 							<Route
@@ -644,6 +664,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/token-management" element={<TokenManagement />} />
 							<Route path="/oauth-2-1" element={<OAuth21 />} />
 							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
+							<Route path="/par-vs-rar" element={<PARvsRAR />} />
 							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples" element={<CodeExamplesDemo />} />
@@ -872,9 +893,10 @@ function AppContent() {
 						<NotificationProvider>
 							<AuthProvider>
 								<PageStyleProvider>
-									<GlobalStyle />
-									<NotificationContainer />
-									<AppRoutes />
+					<GlobalStyle />
+					<NotificationContainer />
+					<ApiRequestModalProvider />
+					<AppRoutes />
 								</PageStyleProvider>
 							</AuthProvider>
 						</NotificationProvider>

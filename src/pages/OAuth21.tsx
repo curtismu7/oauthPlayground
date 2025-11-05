@@ -141,13 +141,23 @@ const OAuth21 = () => {
 		flowId: 'oauth-2-1', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
+	const { PageContainer, ContentWrapper, PageHeader } = 
 		PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>
+			{PageHeader ? (
+				<PageHeader>
+					<h1>OAuth 2.1</h1>
+					<p>Evolution of OAuth 2.0 with built-in security improvements and best practices</p>
+				</PageHeader>
+			) : (
+				<header style={{ padding: '2rem', background: '#1d4ed8', color: 'white', borderRadius: '1rem 1rem 0 0' }}>
+					<h1>OAuth 2.1</h1>
+					<p>Evolution of OAuth 2.0 with built-in security improvements and best practices</p>
+				</header>
+			)}
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
 
 			<CollapsibleHeader
 				title="What is OAuth 2.1?"

@@ -76,18 +76,25 @@ const OIDCSpecs = () => {
 		flowType: 'documentation' as const,
 		theme: 'blue' as const,
 		maxWidth: '1200px',
-		showHeader: true,
+		showHeader: false, // We handle the header manually with FlowHeader
 		showFooter: false,
 		responsive: true,
-		flowId: 'oidc-specs',
 	};
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+	const { PageContainer, ContentWrapper } =
 		PageLayoutService.createPageLayout(pageConfig);
 
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				{LayoutFlowHeader && <LayoutFlowHeader />}
+				<FlowHeader 
+					flowId="oidc-specs"
+					customConfig={{
+						flowType: 'oidc',
+						title: 'OIDC Specs',
+						subtitle: 'Official OpenID Connect specifications and related standards from the OpenID Foundation. Access core specs, security considerations, and implementation guides.',
+						icon: '📋',
+					}}
+				/>
 
 			<CollapsibleHeader
 				title="Core Specifications"

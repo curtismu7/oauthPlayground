@@ -119,7 +119,7 @@ export const applyClientAuthentication = async (
  * @param algorithm - Signing algorithm (HS256 for secret, RS256 for private key)
  * @returns JWT assertion string
  */
-const createClientAssertion = async (
+export const createClientAssertion = async (
 	clientId: string,
 	tokenEndpoint: string,
 	secret: string,
