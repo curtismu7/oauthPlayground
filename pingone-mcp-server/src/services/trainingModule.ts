@@ -44,22 +44,18 @@ function registerResources(server: McpServer, logger: Logger) {
 
 function registerPrompts(server: McpServer, logger: Logger) {
   trainingPrompts.forEach((prompt) => {
-    const argsSchemaEntries = prompt.args.reduce<Record<string, z.ZodString | z.ZodOptional<z.ZodString>>>(
-      (acc, arg) => {
-        const baseSchema = promptArgSchemas[arg.zod] ?? z.string();
-        if (!z.string().safeParse('').success) {
-          // placeholder to appease compiler but not executed
-        }
-        acc[arg.name] = arg.optional ? baseSchema.optional() : baseSchema;
-        return acc;
-      },
-      {}
-    );
+    const argsShape: Record<string, z.ZodTypeAny> = {};
+    prompt.args.forEach((arg) => {
+      const baseSchema = promptArgSchemas[arg.zod] ?? z.string();
+      argsShape[arg.name] = arg.optional ? baseSchema.optional() : baseSchema;
+    });
 
-    server.prompt(
+    server.registerPrompt(
       prompt.name,
-      prompt.description,
-      argsSchemaEntries,
+      {
+        description: prompt.description,
+        argsSchema: argsShape as Record<string, z.ZodTypeAny>,
+      },
       async (args) => {
         logger.info('Serving training prompt', {
           prompt: prompt.name,
@@ -77,7 +73,10 @@ function registerPrompts(server: McpServer, logger: Logger) {
           messages: [
             {
               role: 'assistant',
-              content: content.map((text) => ({ type: 'text' as const, text })),
+              content: {
+                type: 'text' as const,
+                text: content.join('\n\n'),
+              },
             },
           ],
         };
@@ -87,16 +86,26 @@ function registerPrompts(server: McpServer, logger: Logger) {
 }
 
 function registerPracticeTools(server: McpServer, logger: Logger) {
+  const practiceOutputSchema = z.object({
+    scenario: z.string(),
+    guidance: z.array(z.string()),
+  });
+
   practiceTools.forEach((tool) => {
-    server.tool(
+    server.registerTool(
       tool.name,
-      tool.description,
       {
-        scenario: z.string(),
-        guidance: z.array(z.string()),
+        description: tool.description,
+        outputSchema: practiceOutputSchema.shape,
       },
       async () => {
         logger.info('Simulating practice tool', { tool: tool.name });
+
+        const structured = practiceOutputSchema.parse({
+          scenario: tool.scenario,
+          guidance: tool.guidance,
+        });
+
         return {
           content: [
             {
@@ -108,10 +117,7 @@ function registerPracticeTools(server: McpServer, logger: Logger) {
               text: tool.guidance.map((line) => `• ${line}`).join('\n'),
             },
           ],
-          data: {
-            scenario: tool.scenario,
-            guidance: tool.guidance,
-          },
+          structuredContent: structured,
         };
       }
     );

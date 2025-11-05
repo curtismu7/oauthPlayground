@@ -210,11 +210,9 @@ const MenuSearch: React.FC<MenuSearchProps> = ({ menuItems, onNavigate, currentP
 					onFocus={() => setIsSearchFocused(true)}
 					onKeyDown={handleKeyDown}
 				/>
-				{searchQuery && (
-					<ClearButton onClick={clearSearch} title="Clear search">
-						<FiX size={16} />
-					</ClearButton>
-				)}
+				<ClearButton onClick={clearSearch} title="Clear search">
+					<FiX size={16} />
+				</ClearButton>
 			</SearchInputWrapper>
 
 			{showResults && (
