@@ -1,7 +1,7 @@
 // src/services/comprehensiveCredentialsService.tsx
 // Comprehensive Credentials Service - All-in-one configuration for OAuth/OIDC flows
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiSettings, FiKey, FiCheckCircle } from 'react-icons/fi';
 import styled from 'styled-components';
 import ComprehensiveDiscoveryInput from '../components/ComprehensiveDiscoveryInput';
@@ -25,7 +25,6 @@ import { environmentIdPersistenceService } from './environmentIdPersistenceServi
 import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersistenceStatus';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
-import ConfigurationURIChecker from '../components/ConfigurationURIChecker';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`
@@ -121,6 +120,10 @@ const getFlowGrantTypes = (flowType?: string): string[] => {
 	if (normalizedFlowType.includes('device') || normalizedFlowType.includes('device-authorization')) {
 		console.log('[CONFIG-CHECKER] Matched device pattern, returning device_code');
 		return ['urn:ietf:params:oauth:grant-type:device_code'];
+	}
+	if (normalizedFlowType.includes('ciba')) {
+		console.log('[CONFIG-CHECKER] Matched CIBA pattern, returning urn:openid:params:grant-type:ciba');
+		return ['urn:openid:params:grant-type:ciba']; // RFC 9436: CIBA grant type
 	}
 	if (normalizedFlowType.includes('hybrid')) {
 		console.log('[CONFIG-CHECKER] Matched hybrid pattern, returning authorization_code');
@@ -284,7 +287,7 @@ export interface ComprehensiveCredentialsProps {
 	// isSavingPingOne?: boolean;
 
 	// Service configuration
-	title?: string;
+	title?: string | React.ReactNode;
 	subtitle?: string;
 	// showAdvancedConfig?: boolean;
 	defaultCollapsed?: boolean;
@@ -428,19 +431,20 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			
 			// Check if token is expired (with 5 minute buffer)
 			const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-			if (now < (expirationTime - bufferTime)) {
+			const isExpired = now >= (expirationTime - bufferTime);
+			if (!isExpired) {
 				const minutesRemaining = Math.floor((expirationTime - now) / 60000);
-				console.log(`[COMPREHENSIVE-CREDENTIALS] Worker token valid, expires in ${minutesRemaining} minutes`);
+				console.log(`[COMPREHENSIVE-CREDENTIALS] ✅ Worker token valid, expires in ${minutesRemaining} minutes`);
 				setRetrievedWorkerToken(storedWorkerToken);
 			} else {
-				console.log('[COMPREHENSIVE-CREDENTIALS] Worker token expired, clearing from storage');
+				console.warn(`[COMPREHENSIVE-CREDENTIALS] ⚠️ Worker token EXPIRED (expired at ${new Date(expirationTime).toLocaleString()}). Clearing from storage.`);
 				localStorage.removeItem('worker_token');
 				localStorage.removeItem('worker_token_expires_at');
 				setRetrievedWorkerToken('');
 			}
 		} else if (storedWorkerToken) {
 			// Token exists but no expiration data - assume it might be expired
-			console.log('[COMPREHENSIVE-CREDENTIALS] Worker token found but no expiration data, using it anyway');
+			console.warn('[COMPREHENSIVE-CREDENTIALS] ⚠️ Worker token found but no expiration data - token may be expired');
 			setRetrievedWorkerToken(storedWorkerToken);
 		} else {
 			setRetrievedWorkerToken('');
@@ -618,6 +622,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	const actualPostLogoutRedirectUri = getDefaultPostLogoutRedirectUri();
 
 	const saveHandler = onSaveCredentials ?? onSave;
+	
+	// Ref for debouncing environment ID saves (avoid excessive localStorage writes)
+	const environmentIdSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	// Normalize scopes to be space-separated
 	const normalizeScopes = (scopeValue: string | undefined): string => {
@@ -713,6 +720,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				}
 			}
 		}
+		
+		// Cleanup function for debounce timeout
+		return () => {
+			if (environmentIdSaveTimeoutRef.current) {
+				clearTimeout(environmentIdSaveTimeoutRef.current);
+				environmentIdSaveTimeoutRef.current = null;
+			}
+		};
 	}, []); // Run only on mount - we want to set defaults once, not on every change
 
 	const applyCredentialUpdates = useCallback(
@@ -725,10 +740,33 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 			console.log('[ComprehensiveCredentialsService] Merged credentials:', merged);
 
-			// Persist Environment ID changes
-			if (updates.environmentId !== undefined && updates.environmentId !== resolvedCredentials.environmentId) {
-				console.log(`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`);
-				environmentIdPersistenceService.saveEnvironmentId(updates.environmentId, 'manual');
+			// Persist Environment ID changes - debounced to avoid saving on every keystroke
+			// Only save when the value is complete and valid UUID format
+			if (updates.environmentId !== undefined && 
+				updates.environmentId !== resolvedCredentials.environmentId &&
+				updates.environmentId.trim() !== '') {
+				
+				// Validate UUID format (36 chars with hyphens)
+				const isValidUUID = /^[a-f0-9-]{36}$/i.test(updates.environmentId.trim());
+				
+				if (isValidUUID) {
+					console.log(`🔧 [EnvironmentIdPersistence] Environment ID changed: ${resolvedCredentials.environmentId} → ${updates.environmentId}`);
+					// Use debounced save to avoid excessive saves
+					// Clear any existing timeout
+					if (environmentIdSaveTimeoutRef.current) {
+						clearTimeout(environmentIdSaveTimeoutRef.current);
+					}
+					
+					// Set new debounced save
+					environmentIdSaveTimeoutRef.current = setTimeout(() => {
+						const currentEnvId = resolvedCredentials.environmentId;
+						// Double-check the value hasn't changed during debounce period
+						if (updates.environmentId && /^[a-f0-9-]{36}$/i.test(updates.environmentId.trim())) {
+							environmentIdPersistenceService.saveEnvironmentId(updates.environmentId.trim(), 'manual');
+							console.log(`✅ [EnvironmentIdPersistence] Saved environment ID after debounce`);
+						}
+					}, 1500); // 1.5 second debounce
+				}
 			}
 
 			if (onCredentialsChange) {
@@ -981,28 +1019,14 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					)}
 					
 				<PingOneApplicationPicker
-					environmentId={retrievedWorkerCredentials.environmentId || resolvedCredentials.environmentId || ''}
-					clientId={retrievedWorkerCredentials.clientId || ''}
-					clientSecret={retrievedWorkerCredentials.clientSecret || ''}
+					environmentId={resolvedCredentials.environmentId || retrievedWorkerCredentials.environmentId || ''}
+					clientId={resolvedCredentials.clientId || retrievedWorkerCredentials.clientId || ''}
+					clientSecret={resolvedCredentials.clientSecret || retrievedWorkerCredentials.clientSecret || ''}
 					workerToken={effectiveWorkerToken}
 					onApplicationSelect={handleApplicationSelect}
 					disabled={isSaving || !retrievedWorkerCredentials.environmentId || !effectiveWorkerToken}
 				/>
 				</CollapsibleHeader>
-			)}
-
-			{/* Configuration URI Checker - Check redirect and logout URIs against PingOne */}
-			{/* Hide for flows that don't use redirect URIs (whether from flowType or selected application) */}
-			{showConfigChecker && !isNoRedirectUriFlow && (
-				<ConfigurationURIChecker
-					flowType={flowType}
-					environmentId={resolvedCredentials.environmentId}
-					clientId={resolvedCredentials.clientId}
-					workerToken={effectiveWorkerToken}
-					redirectUri={actualRedirectUri}
-					postLogoutRedirectUri={actualPostLogoutRedirectUri}
-					region={region}
-				/>
 			)}
 
 			<CollapsibleHeader
@@ -1450,8 +1474,19 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					<ConfigCheckerButtons
 						formData={(() => {
 							// Helper: Determine if flow uses redirects
-							const flowUsesRedirects = !flowType?.toLowerCase().includes('client-credentials') && 
-								!flowType?.toLowerCase().includes('ropc');
+							// CIBA (RFC 9436), Client Credentials, ROPC, Device, JWT Bearer, and SAML Bearer flows don't use redirect URIs
+							const normalizedFlowTypeForRedirects = flowType?.toLowerCase().replace(/[-_]/g, '-') || '';
+							const flowUsesRedirects = !normalizedFlowTypeForRedirects.includes('client-credentials') && 
+								!normalizedFlowTypeForRedirects.includes('client_credentials') &&
+								!normalizedFlowTypeForRedirects.includes('ropc') &&
+								!normalizedFlowTypeForRedirects.includes('resource-owner-password') &&
+								!normalizedFlowTypeForRedirects.includes('ciba') &&
+								!normalizedFlowTypeForRedirects.includes('device') &&
+								!normalizedFlowTypeForRedirects.includes('device-authorization') &&
+								!normalizedFlowTypeForRedirects.includes('jwt-bearer') &&
+								!normalizedFlowTypeForRedirects.includes('jwt_bearer') &&
+								!normalizedFlowTypeForRedirects.includes('saml-bearer') &&
+								!normalizedFlowTypeForRedirects.includes('saml_bearer');
 							
 							// Load worker credentials for Config Checker (needed for PingOne Management API)
 							let workerCredentials = null;
@@ -1505,6 +1540,15 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 								baseFormData.redirectUris = [resolvedCredentials.redirectUri];
 							}
 							
+							// For CIBA flows: Remove responseTypes from comparison (RFC 9436 - CIBA doesn't use response_type)
+							// Also ensure redirectUris are not included
+							const normalizedFlowTypeForCiba = flowType?.toLowerCase().replace(/[-_]/g, '-') || '';
+							if (normalizedFlowTypeForCiba.includes('ciba')) {
+								delete baseFormData.responseTypes;
+								delete baseFormData.redirectUris;
+								console.log('[CONFIG-CHECKER] CIBA flow detected - removing responseTypes and redirectUris from comparison');
+							}
+							
 							return baseFormData;
 						})()}
 						selectedAppType={(() => {
@@ -1535,7 +1579,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									v4ToastManager.showSuccess('Configuration imported from PingOne!');
 								});
 							}}
-							onCreateApplication={async (appData?: { name: string; description: string; redirectUri?: string; tokenEndpointAuthMethod?: string; responseTypes?: string[]; grantTypes?: string[] }) => {
+							onCreateApplication={async (appData?: { name: string; description: string; redirectUri?: string; tokenEndpointAuthMethod?: string; responseTypes?: string[]; grantTypes?: string[]; refreshTokenEnabled?: boolean }) => {
 								// Create a new PingOne application using the current flow configuration
 								try {
 									const { pingOneAppCreationService } = await import('../services/pingOneAppCreationService');
@@ -1547,31 +1591,69 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									const appType = flowType?.includes('implicit') ? 'OIDC_NATIVE_APP' : 'OIDC_WEB_APP';
 									
 									// Generate app name with PingOne and flow type
-									const generateAppName = (flowType: string | undefined) => {
-										// Extract the actual flow name from flowType (e.g., "implicit-oidc-v7" -> "implicit")
+									// Intelligently uses grant types to determine the best app name
+									const generateAppName = (flowType: string | undefined, grantTypes?: string[]) => {
+										const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
+										
+										// Priority 1: Check grant types first (most accurate)
+										if (grantTypes && grantTypes.length > 0) {
+											// CIBA (RFC 9436)
+											if (grantTypes.includes('urn:openid:params:grant-type:ciba')) {
+												return `pingone-ciba-${uniqueId}`;
+											}
+											
+											// Device Authorization (RFC 8628)
+											if (grantTypes.includes('urn:ietf:params:oauth:grant-type:device_code')) {
+												return `pingone-device-auth-${uniqueId}`;
+											}
+											
+											// Client Credentials (machine-to-machine)
+											if (grantTypes.includes('client_credentials') || grantTypes.some(gt => gt.toLowerCase() === 'client_credentials')) {
+												return `pingone-client-credentials-${uniqueId}`;
+											}
+											
+											// Implicit Flow
+											if (grantTypes.includes('implicit') || grantTypes.some(gt => gt.toLowerCase() === 'implicit')) {
+												return `pingone-implicit-${uniqueId}`;
+											}
+											
+											// Authorization Code (most common)
+											if (grantTypes.includes('authorization_code') || grantTypes.some(gt => gt.toLowerCase() === 'authorization_code')) {
+												return `pingone-authz-code-${uniqueId}`;
+											}
+											
+											// Resource Owner Password Credentials (ROPC - deprecated)
+											if (grantTypes.some(gt => gt.toLowerCase().includes('password'))) {
+												return `pingone-ropc-${uniqueId}`;
+											}
+										}
+										
+										// Priority 2: Extract from flowType if grant types not provided
 										let flowName = flowType?.replace(/[-_]/g, '-').toLowerCase() || 'oauth-flow';
 										
 										// For specific flow types, use the main flow name
-										if (flowName.includes('implicit')) {
-											flowName = 'implicit';
+										if (flowName.includes('ciba')) {
+											return `pingone-ciba-${uniqueId}`;
+										} else if (flowName.includes('device-authorization') || flowName.includes('device-authorization')) {
+											return `pingone-device-auth-${uniqueId}`;
+										} else if (flowName.includes('client-credentials') || flowName.includes('client_credentials')) {
+											return `pingone-client-credentials-${uniqueId}`;
+										} else if (flowName.includes('implicit')) {
+											return `pingone-implicit-${uniqueId}`;
 										} else if (flowName.includes('par-v7') || flowName.includes('par_v7')) {
-											flowName = 'par'; // Use PAR instead of authorization-code for PAR flows
-										} else if (flowName.includes('authorization-code')) {
-											flowName = 'authorization-code';
-										} else if (flowName.includes('device-authorization')) {
-											flowName = 'device-authorization';
-										} else if (flowName.includes('client-credentials')) {
-											flowName = 'client-credentials';
+											return `pingone-par-${uniqueId}`;
+										} else if (flowName.includes('authorization-code') || flowName.includes('authorization_code')) {
+											return `pingone-authz-code-${uniqueId}`;
 										} else if (flowName.includes('hybrid')) {
-											flowName = 'hybrid';
+											return `pingone-hybrid-${uniqueId}`;
 										}
 										
-										const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
+										// Default fallback
 										return `pingone-${flowName}-${uniqueId}`;
 									};
 									
 									// Use provided app data or fallback to generated name
-									const appName = appData?.name || generateAppName(flowType);
+									const appName = appData?.name || generateAppName(flowType, appData?.grantTypes);
 									const appDescription = appData?.description || `Created via OAuth Playground - ${flowType || 'Flow'}`;
 									
 									// Use provided redirect URI or generate one
@@ -1599,9 +1681,23 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									})();
 									
 									// Use provided values or fallback to flow defaults
-									const grantTypes = appData?.grantTypes || getFlowGrantTypes(flowType) as string[];
+									let grantTypes = appData?.grantTypes || getFlowGrantTypes(flowType) as string[];
 									const responseTypes = appData?.responseTypes || getFlowResponseTypes(flowType) as string[];
 									const tokenAuthMethod = appData?.tokenEndpointAuthMethod || clientAuthMethod || 'none';
+									
+									// Add refresh_token to grant types if refresh token is enabled
+									// NOTE: refresh_token is not a grant type in OAuth spec, but PingOne requires it in the grantTypes array
+									// to configure the app to support refresh tokens
+									if (appData?.refreshTokenEnabled !== false) {
+										// Only add refresh_token if we have authorization_code or client_credentials (which can return refresh tokens)
+										const canHaveRefreshToken = grantTypes.some(gt => 
+											gt.toLowerCase() === 'authorization_code' || 
+											gt.toLowerCase() === 'client_credentials'
+										);
+										if (canHaveRefreshToken && !grantTypes.includes('refresh_token')) {
+											grantTypes = [...grantTypes, 'refresh_token'];
+										}
+									}
 									
 									// Helper function to safely get scopes array
 									const getScopesArray = (scopeOrScopes: string | string[] | undefined): string[] => {

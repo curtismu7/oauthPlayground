@@ -31,7 +31,7 @@ export interface PracticeTool {
 export const trainingResources: TrainingResource[] = [
   {
     name: 'pingone-training.overview',
-    uri: 'training/pingone/overview',
+    uri: 'mcp://training/pingone/overview',
     title: 'PingOne MCP Server Overview',
     summary: 'High-level walkthrough of the dual educational and operational PingOne MCP server.',
     body: `# PingOne MCP Server Overview
@@ -46,7 +46,7 @@ The server lives entirely in the \`pingone-mcp-server\` folder so it never inter
   },
   {
     name: 'pingone-training.auth-flow',
-    uri: 'training/pingone/auth-flow',
+    uri: 'mcp://training/pingone/auth-flow',
     title: 'Authorization & Token Exchange',
     summary: 'Explains PingOne authentication, token exchange, and how the MCP login tool wraps these APIs.',
     body: `# PingOne Authorization & Token Exchange
@@ -62,7 +62,7 @@ The MCP server exposes tools such as \`pingone.auth.login\` and \`pingone.auth.r
   },
   {
     name: 'pingone-training.worker-token',
-    uri: 'training/pingone/worker-token',
+    uri: 'mcp://training/pingone/worker-token',
     title: 'Worker Token & Application Discovery',
     summary: 'Shows how client credentials map to worker tokens and application listing APIs.',
     body: `# Worker Token & Application Discovery
@@ -79,7 +79,7 @@ Practice tools mirror these operations so you can experiment without real secret
   },
   {
     name: 'pingone-training.mfa-redirectless',
-    uri: 'training/pingone/mfa-redirectless',
+    uri: 'mcp://training/pingone/mfa-redirectless',
     title: 'MFA & Redirectless Login',
     summary: 'Guides learners through MFA challenge handling and redirectless authorization flows.',
     body: `# MFA & Redirectless Login
