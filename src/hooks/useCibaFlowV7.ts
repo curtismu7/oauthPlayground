@@ -18,14 +18,15 @@ export interface CibaConfig {
 }
 
 export interface CibaAuthRequest {
-	stateId: string;
+	auth_req_id: string; // RFC 9436: auth_req_id from backchannel response
+	stateId: string; // Internal tracking ID
 	status: 'pending' | 'approved' | 'denied';
-	interval: number;
-	expiresIn: number;
+	interval: number; // Polling interval in seconds
+	expiresIn: number; // Expiration time in seconds
 	launchMode: 'poll';
-	bindingMessage: string;
-	userCode: string;
-	expiresAt: number;
+	bindingMessage?: string;
+	userCode?: string; // May not be present in CIBA
+	expiresAt: number; // Timestamp when request expires
 	requestContext?: string;
 }
 
@@ -156,22 +157,40 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 	// V7 Enhanced configuration update
 	const updateConfig = useCallback((updates: Partial<CibaConfig>) => {
 		setConfig(prev => {
+			// Prevent unnecessary updates if values haven't actually changed
 			const newConfig = { ...prev, ...updates } as CibaConfig;
+			
+			// Check if anything actually changed to prevent infinite loops
+			if (prev && 
+				prev.environmentId === newConfig.environmentId &&
+				prev.clientId === newConfig.clientId &&
+				prev.clientSecret === newConfig.clientSecret &&
+				prev.scope === newConfig.scope &&
+				prev.loginHint === newConfig.loginHint &&
+				prev.bindingMessage === newConfig.bindingMessage &&
+				prev.requestContext === newConfig.requestContext &&
+				prev.authMethod === newConfig.authMethod) {
+				// Nothing changed, return previous config
+				return prev;
+			}
+			
 			const errors = validateConfig(newConfig);
 			
 			if (errors.length === 0) {
 				setError(null);
-				v4ToastManager.showSuccess('Configuration updated successfully');
+				// Don't show toast on every config update - only on explicit save
+				// v4ToastManager.showSuccess('Configuration updated successfully');
 			} else {
 				setError(errors.join(', '));
-				v4ToastManager.showError(`Configuration errors: ${errors.join(', ')}`);
+				// Only show error toast if it's a real error (not just incomplete form)
+				// v4ToastManager.showError(`Configuration errors: ${errors.join(', ')}`);
 			}
 			
 			return newConfig;
 		});
 	}, [validateConfig]);
 
-	// V7 Enhanced authentication request initiation
+	// V7 Enhanced authentication request initiation - Real API call
 	const initiateAuthRequest = useCallback(async (config: CibaConfig) => {
 		if (isLoading) return;
 		
@@ -180,28 +199,73 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 		setStage('initiating');
 		
 		try {
-			// V7 Enhanced: Simulate realistic CIBA flow
-			console.log('[CIBA-V7] Initiating CIBA authentication request...');
+			console.log('[CIBA-V7] Initiating CIBA backchannel authentication request...');
+			console.log('[CIBA-V7] Config:', {
+				environmentId: config.environmentId,
+				clientId: config.clientId,
+				hasClientSecret: !!config.clientSecret,
+				scope: config.scope,
+				loginHint: config.loginHint,
+				hasBindingMessage: !!config.bindingMessage,
+				hasRequestContext: !!config.requestContext,
+				authMethod: config.authMethod,
+			});
 			
-			// Generate realistic mock data
-			const stateId = `ciba_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-			const userCode = Math.random().toString(36).substr(2, 8).toUpperCase();
-			const expiresIn = 300; // 5 minutes
-			const interval = 2; // 2 seconds
+			// Call real backend endpoint
+			const response = await fetch('/api/ciba-backchannel', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					environment_id: config.environmentId,
+					client_id: config.clientId,
+					client_secret: config.clientSecret,
+					scope: config.scope,
+					login_hint: config.loginHint,
+					binding_message: config.bindingMessage,
+					requested_context: config.requestContext ? (typeof config.requestContext === 'string' ? JSON.parse(config.requestContext) : config.requestContext) : undefined,
+					auth_method: config.authMethod,
+				}),
+			});
 			
-			// Simulate API call delay
-			await new Promise(resolve => setTimeout(resolve, 1500));
+			const data = await response.json();
 			
+			if (!response.ok) {
+				const errorMsg = data.error_description || data.error || 'Failed to initiate CIBA request';
+				console.error('[CIBA-V7] Backchannel request failed:', data);
+				setError(errorMsg);
+				setStage('failed');
+				v4ToastManager.showError(errorMsg);
+				return;
+			}
+			
+			// Extract auth_req_id and other response data (RFC 9436)
+			const auth_req_id = data.auth_req_id;
+			const expires_in = data.expires_in || 300; // Default 5 minutes
+			const interval = data.interval || 2; // Default 2 seconds
+			
+			if (!auth_req_id) {
+				throw new Error('Missing auth_req_id in backchannel response');
+			}
+			
+			console.log('[CIBA-V7] Backchannel request successful:', {
+				auth_req_id: auth_req_id.substring(0, 20) + '...',
+				expires_in,
+				interval,
+			});
+			
+			// Create auth request object for tracking
 			const authRequest: CibaAuthRequest = {
-				stateId,
+				auth_req_id, // RFC 9436: required for polling
+				stateId: `ciba_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, // Internal tracking
 				status: 'pending',
 				interval,
-				expiresIn,
+				expiresIn: expires_in,
 				launchMode: 'poll',
-				bindingMessage: config.bindingMessage || `CIBA Authentication Request - ${userCode}`,
-				userCode,
-				expiresAt: Date.now() + (expiresIn * 1000),
-				requestContext: config.requestContext
+				bindingMessage: data.binding_message || config.bindingMessage,
+				expiresAt: Date.now() + (expires_in * 1000),
+				requestContext: config.requestContext,
 			};
 			
 			setAuthRequest(authRequest);
@@ -210,11 +274,12 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 			
 			v4ToastManager.showSuccess('CIBA authentication request initiated successfully');
 			
-			// Start polling simulation
-			startPolling(authRequest);
+			// Start real polling
+			startPolling(authRequest, config);
 			
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Failed to initiate CIBA request';
+			console.error('[CIBA-V7] Error initiating request:', err);
 			setError(errorMessage);
 			setStage('failed');
 			v4ToastManager.showError(errorMessage);
@@ -223,73 +288,176 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 		}
 	}, [isLoading, stepManager]);
 
-	// V7 Enhanced polling simulation
-	const startPolling = useCallback((authRequest: CibaAuthRequest) => {
+	// V7 Enhanced polling - Real API calls with proper error handling (RFC 9436)
+	const startPolling = useCallback((authRequest: CibaAuthRequest, config: CibaConfig) => {
 		if (pollingIntervalRef.current) {
 			clearInterval(pollingIntervalRef.current);
 		}
 		
 		setStage('polling');
+		let currentInterval = authRequest.interval; // Track current polling interval
 		
-		// Simulate user approval process
-		const pollInterval = setInterval(() => {
+		const pollForTokens = async () => {
 			const now = Date.now();
 			const timeRemaining = authRequest.expiresAt - now;
 			
+			// Check if request expired
 			if (timeRemaining <= 0) {
-				clearInterval(pollInterval);
+				if (pollingIntervalRef.current) {
+					clearInterval(pollingIntervalRef.current);
+					pollingIntervalRef.current = null;
+				}
 				setStage('expired');
-				v4ToastManager.showError('CIBA request expired');
+				setError('CIBA authentication request expired');
+				v4ToastManager.showError('CIBA request expired. Please initiate again.');
 				return;
 			}
 			
-			// Simulate random approval (for demo purposes)
-			if (Math.random() < 0.1) { // 10% chance per poll
-				clearInterval(pollingIntervalRef.current!);
-				simulateUserApproval(authRequest);
+			try {
+				console.log('[CIBA-V7] Polling for tokens with auth_req_id:', authRequest.auth_req_id.substring(0, 20) + '...');
+				
+				// Call real token endpoint with CIBA grant type
+				const response = await fetch('/api/ciba-token', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({
+						environment_id: config.environmentId,
+						client_id: config.clientId,
+						client_secret: config.clientSecret,
+						auth_req_id: authRequest.auth_req_id,
+						auth_method: config.authMethod,
+					}),
+				});
+				
+				const data = await response.json();
+				
+				// Handle CIBA-specific errors (RFC 9436)
+				if (!response.ok) {
+					const errorCode = data.error;
+					
+					if (errorCode === 'authorization_pending') {
+						// User hasn't approved yet - continue polling
+						const recommendedInterval = data.interval || authRequest.interval;
+						console.log(`[CIBA-V7] Authorization pending, continue polling with interval: ${recommendedInterval}s`);
+						currentInterval = recommendedInterval;
+						// Update interval and reschedule
+						if (pollingIntervalRef.current) {
+							clearInterval(pollingIntervalRef.current);
+						}
+						pollingIntervalRef.current = setInterval(pollForTokens, currentInterval * 1000);
+						return;
+					}
+					
+					if (errorCode === 'slow_down') {
+						// Polling too fast - increase interval
+						const newInterval = (data.interval || currentInterval) + 5;
+						console.log(`[CIBA-V7] Slow down - increasing interval to ${newInterval}s`);
+						currentInterval = newInterval;
+						if (pollingIntervalRef.current) {
+							clearInterval(pollingIntervalRef.current);
+						}
+						pollingIntervalRef.current = setInterval(pollForTokens, currentInterval * 1000);
+						return;
+					}
+					
+					if (errorCode === 'expired_token') {
+						// Request expired
+						console.error('[CIBA-V7] Request expired');
+						if (pollingIntervalRef.current) {
+							clearInterval(pollingIntervalRef.current);
+							pollingIntervalRef.current = null;
+						}
+						setStage('expired');
+						setError(data.error_description || 'CIBA authentication request expired');
+						v4ToastManager.showError('CIBA request expired. Please initiate again.');
+						return;
+					}
+					
+					if (errorCode === 'access_denied') {
+						// User denied the request
+						console.error('[CIBA-V7] Access denied by user');
+						if (pollingIntervalRef.current) {
+							clearInterval(pollingIntervalRef.current);
+							pollingIntervalRef.current = null;
+						}
+						setStage('failed');
+						setError(data.error_description || 'User denied the authentication request');
+						v4ToastManager.showError('User denied the authentication request.');
+						setAuthRequest(prev => prev ? { ...prev, status: 'denied' } : null);
+						return;
+					}
+					
+					// Other errors
+					console.error('[CIBA-V7] Token polling error:', data);
+					const errorMsg = data.error_description || data.error || 'Token polling failed';
+					if (pollingIntervalRef.current) {
+						clearInterval(pollingIntervalRef.current);
+						pollingIntervalRef.current = null;
+					}
+					setStage('failed');
+					setError(errorMsg);
+					v4ToastManager.showError(errorMsg);
+					return;
+				}
+				
+				// Success - tokens received!
+				console.log('[CIBA-V7] Tokens received successfully');
+				if (pollingIntervalRef.current) {
+					clearInterval(pollingIntervalRef.current);
+					pollingIntervalRef.current = null;
+				}
+				
+				const tokens: CibaTokens = {
+					access_token: data.access_token,
+					refresh_token: data.refresh_token,
+					id_token: data.id_token,
+					token_type: data.token_type || 'Bearer',
+					expires_in: data.expires_in,
+					scope: data.scope,
+					client_id: config.clientId,
+					sub: data.sub,
+					aud: data.aud,
+					iss: data.iss,
+					iat: data.iat,
+					exp: data.exp,
+					issued_at: Date.now(),
+					server_timestamp: data.server_timestamp,
+				};
+				
+				setTokens(tokens);
+				setAuthRequest(prev => prev ? { ...prev, status: 'approved' } : null);
+				setStage('completed');
+				stepManager.next();
+				v4ToastManager.showSuccess('CIBA authentication successful! Tokens received.');
+				
+			} catch (err) {
+				console.error('[CIBA-V7] Polling error:', err);
+				// Don't stop polling on network errors - retry next interval
+				const errorMsg = err instanceof Error ? err.message : 'Polling error';
+				console.warn(`[CIBA-V7] Polling error (will retry): ${errorMsg}`);
 			}
-		}, authRequest.interval * 1000);
+		};
 		
-		pollingIntervalRef.current = pollInterval;
+		// Start polling immediately, then at intervals
+		pollForTokens();
+		pollingIntervalRef.current = setInterval(pollForTokens, currentInterval * 1000);
 		
-		// Set timeout for demo purposes
+		// Set timeout to stop polling if expired
 		timeoutRef.current = setTimeout(() => {
 			if (pollingIntervalRef.current) {
 				clearInterval(pollingIntervalRef.current);
-				simulateUserApproval(authRequest);
+				pollingIntervalRef.current = null;
 			}
-		}, 10000); // Auto-approve after 10 seconds for demo
-	}, []);
-
-	// V7 Enhanced user approval simulation
-	const simulateUserApproval = useCallback(async (authRequest: CibaAuthRequest) => {
-		console.log('[CIBA-V7] Simulating user approval...');
-		
-		setAuthRequest(prev => prev ? { ...prev, status: 'approved' } : null);
-		setStage('completed');
-		
-		// Generate mock tokens
-		const mockTokens: CibaTokens = {
-			access_token: `ciba_access_token_${Date.now()}_${Math.random().toString(36).substr(2, 16)}`,
-			refresh_token: `ciba_refresh_token_${Date.now()}_${Math.random().toString(36).substr(2, 16)}`,
-			token_type: 'Bearer',
-			expires_in: 3600,
-			scope: config?.scope || 'openid profile',
-			client_id: config?.clientId,
-			sub: 'user123',
-			aud: config?.clientId,
-			iss: `https://auth.pingone.com/${config?.environmentId}/as`,
-			iat: Math.floor(Date.now() / 1000),
-			exp: Math.floor(Date.now() / 1000) + 3600,
-			issued_at: Date.now(),
-			server_timestamp: new Date().toISOString()
-		};
-		
-		setTokens(mockTokens);
-		stepManager.next();
-		
-		v4ToastManager.showSuccess('User approved CIBA authentication');
-	}, [config, stepManager]);
+			if (Date.now() < authRequest.expiresAt) {
+				// Not expired yet, but timeout reached - continue polling
+				return;
+			}
+			setStage('expired');
+			v4ToastManager.showError('CIBA request expired');
+		}, authRequest.expiresIn * 1000);
+	}, [stepManager]);
 
 	// V7 Enhanced flow control
 	const startFlow = useCallback(async () => {

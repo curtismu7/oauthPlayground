@@ -1,5 +1,5 @@
 // src/pages/PingOneIdentityMetrics.tsx
-// Visual explorer for PingOne Total Identity Counts metrics API
+// Visual explorer for PingOne Identity Counts API (totalIdentities & activeIdentityCounts)
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
@@ -8,15 +8,19 @@ import {
 	FiCalendar,
 	FiClock,
 	FiDatabase,
-	FiEye,
-	FiEyeOff,
 	FiInfo,
 	FiRefreshCw,
-	FiShield
+	FiShield,
+	FiKey,
+	FiAlertCircle,
+	FiCheckCircle,
+	FiX
 } from 'react-icons/fi';
 import JSONHighlighter, { type JSONData } from '../components/JSONHighlighter';
-import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { apiRequestModalService } from '../services/apiRequestModalService';
 
 const PageContainer = styled.div`
 	max-width: 1100px;
@@ -126,34 +130,15 @@ const Select = styled.select`
 	border-radius: 0.75rem;
 	border: 1px solid #cbd5f5;
 	background: #f8fafc;
+	transition: all 0.2s ease;
 	font-size: 0.92rem;
-	transition: border-color 0.2s ease;
+	cursor: pointer;
 
 	&:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
 	}
-`;
-
-const ToggleSecretButton = styled.button`
-	position: absolute;
-	right: 0.75rem;
-	top: 50%;
-	transform: translateY(-50%);
-	border: none;
-	background: none;
-	color: #64748b;
-	cursor: pointer;
-	padding: 0.25rem;
-
-	&:hover {
-		color: #111827;
-	}
-`;
-
-const SecretFieldWrapper = styled.div`
-	position: relative;
 `;
 
 const Hint = styled.p`
@@ -185,6 +170,43 @@ const PrimaryButton = styled.button<{ disabled?: boolean }>`
 		transform: ${({ disabled }) => (disabled ? 'none' : 'translateY(-1px)')};
 		box-shadow: ${({ disabled }) => (disabled ? 'none' : '0 10px 22px -12px rgba(37, 99, 235, 0.65)')};
 	}
+
+	.spin {
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
+`;
+
+const DangerButton = styled.button`
+	border: none;
+	border-radius: 0.75rem;
+	padding: 0.85rem 1.35rem;
+	background: #ef4444;
+	color: white;
+	font-weight: 600;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.5rem;
+	cursor: pointer;
+	transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+	&:hover {
+		transform: translateY(-1px);
+		box-shadow: 0 10px 22px -12px rgba(239, 68, 68, 0.65);
+		background: #dc2626;
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
 `;
 
 const SecondaryButton = styled.button`
@@ -204,18 +226,31 @@ const SecondaryButton = styled.button`
 		background: #f8fafc;
 		color: #1d4ed8;
 	}
+
+	.spin {
+		animation: spin 1s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+	}
 `;
 
-const TokenBadge = styled.div`
-	display: inline-flex;
-	align-items: center;
-	gap: 0.35rem;
-	padding: 0.4rem 0.75rem;
-	background: rgba(16, 185, 129, 0.12);
-	color: #047857;
-	border-radius: 999px;
-	font-size: 0.8rem;
-	font-weight: 600;
+const WarningBanner = styled.div`
+	padding: 1rem 1.25rem;
+	border-radius: 0.85rem;
+	border: 2px solid #fbbf24;
+	background: #fef3c7;
+	color: #92400e;
+	display: flex;
+	flex-direction: column;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
 `;
 
 const ResultContainer = styled.div`
@@ -247,13 +282,122 @@ const ErrorBanner = styled.div`
 	gap: 0.75rem;
 `;
 
+const PermissionsModalOverlay = styled.div`
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.6);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	z-index: 10000;
+	backdrop-filter: blur(4px);
+`;
+
+const PermissionsModalContent = styled.div`
+	background: white;
+	border-radius: 0.75rem;
+	padding: 1.25rem 1.5rem;
+	max-width: 800px;
+	width: calc(100vw - 4rem);
+	margin: 1rem;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	border: 3px solid #dc2626;
+	max-height: calc(100vh - 4rem);
+	overflow-y: auto;
+`;
+
+const PermissionsModalTitle = styled.h2`
+	font-size: 1.1rem;
+	font-weight: 700;
+	color: #1f2937;
+	margin: 0 0 0.65rem 0;
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+`;
+
+const PermissionsModalMessage = styled.p`
+	font-size: 0.8rem;
+	color: #374151;
+	line-height: 1.35;
+	margin: 0 0 0.65rem 0;
+`;
+
+const PermissionsModalInstructions = styled.div`
+	font-size: 0.75rem;
+	color: #374151;
+	line-height: 1.35;
+	margin: 0 0 0.75rem 0;
+	padding: 0.75rem;
+	background: #f3f4f6;
+	border-radius: 0.5rem;
+	border-left: 4px solid #dc2626;
+
+	strong {
+		color: #1f2937;
+		display: block;
+		margin-bottom: 0.4rem;
+		font-size: 0.8rem;
+	}
+
+	ul {
+		margin: 0;
+		padding-left: 1.25rem;
+	}
+
+	li {
+		margin-bottom: 0.25rem;
+	}
+
+	code {
+		background: #1f2937;
+		color: #f59e0b;
+		padding: 0.15rem 0.35rem;
+		border-radius: 0.25rem;
+		font-family: 'Monaco', 'Courier New', monospace;
+		font-size: 0.7rem;
+		font-weight: 600;
+	}
+`;
+
+const PermissionsModalActions = styled.div`
+	display: flex;
+	justify-content: flex-end;
+	gap: 0.75rem;
+`;
+
+const PermissionsModalButton = styled.button`
+	padding: 0.55rem 1.25rem;
+	background: #3b82f6;
+	color: white;
+	border: none;
+	border-radius: 0.5rem;
+	font-size: 0.85rem;
+	font-weight: 600;
+	cursor: pointer;
+	transition: all 200ms ease;
+
+	&:hover {
+		background: #2563eb;
+		transform: translateY(-1px);
+		box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	}
+
+	&:active {
+		transform: translateY(0);
+	}
+`;
+
+interface ActiveIdentityCount {
+	startDate: string;
+	count: number;
+	[key: string]: unknown;
+}
+
 interface IdentityCountResponse {
 	_embedded?: {
-		totalIdentities?: Array<{
-			date: string;
-			totalIdentities?: number;
-			count?: number;
-		}>;
+		activeIdentityCounts?: ActiveIdentityCount[];
+		[key: string]: unknown;
 	};
 	count?: number;
 	links?: Record<string, unknown>;
@@ -273,71 +417,118 @@ const defaultDateRange = () => {
 	};
 };
 
+type EndpointType = 'byDateRange' | 'byLicense' | 'simple';
+
 const PingOneIdentityMetrics: React.FC = () => {
-	const storedCreds = useMemo(() => workerTokenCredentialsService.loadCredentials(), []);
-	const [environmentId, setEnvironmentId] = useState<string>(storedCreds?.environmentId || '');
-	const [region, setRegion] = useState<string>((storedCreds?.region as string) || 'na');
-	const [clientId, setClientId] = useState<string>(storedCreds?.clientId || '');
-	const [clientSecret, setClientSecret] = useState<string>(storedCreds?.clientSecret || '');
-	const [{ start, end }, setDateRange] = useState(defaultDateRange);
-	const [sampleSize, setSampleSize] = useState<string>('');
-	const [showSecret, setShowSecret] = useState<boolean>(false);
+	const [{ start }, setDateRange] = useState(defaultDateRange);
+	const [samplingPeriod, setSamplingPeriod] = useState<string>('24'); // For activeIdentityCounts
+	const [endpointType, setEndpointType] = useState<EndpointType>('byDateRange');
+	const [licenseId, setLicenseId] = useState<string>('');
 	const [loading, setLoading] = useState<boolean>(false);
 	const [error, setError] = useState<string | null>(null);
 	const [metrics, setMetrics] = useState<IdentityCountResponse | null>(null);
 	const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+	const [workerToken, setWorkerToken] = useState<string>(() => localStorage.getItem('worker_token_metrics') || '');
+	const hasWorkerToken = !!workerToken;
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [showPermissionsErrorModal, setShowPermissionsErrorModal] = useState(false);
 
-	const workerToken = useMemo(() => localStorage.getItem('worker_token') || '', []);
-
+	// Listen for worker token updates (using dedicated metrics token)
 	useEffect(() => {
-		if (!storedCreds) return;
-		// ensure region stored matches select value (service stores 'us'/'eu' etc)
-		if (storedCreds.region && storedCreds.region !== region) {
-			setRegion(storedCreds.region);
-		}
-	}, [storedCreds, region]);
+		const checkWorkerToken = () => {
+			const token = localStorage.getItem('worker_token_metrics') || '';
+			setWorkerToken(token);
+		};
+
+		// Check on mount
+		checkWorkerToken();
+
+		// Listen for storage events (token updated in another tab/window)
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key === 'worker_token_metrics' || e.key === 'worker_token_metrics_expires_at') {
+				checkWorkerToken();
+			}
+		};
+
+		// Listen for custom event (token updated in same tab)
+		const handleWorkerTokenUpdate = () => {
+			checkWorkerToken();
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('workerTokenMetricsUpdated', handleWorkerTokenUpdate);
+
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('workerTokenMetricsUpdated', handleWorkerTokenUpdate);
+		};
+	}, []);
 
 	const resetDates = () => setDateRange(defaultDateRange());
 
-	const hasRequiredInputs = environmentId.trim().length > 0;
-
-	const handleFetch = useCallback(async () => {
-		if (!hasRequiredInputs) {
-			setError('Environment ID is required');
-			return;
+	// Get worker token using credentials on the page
+	const handleGetWorkerToken = useCallback(() => {
+		if (localStorage.getItem('worker_token_metrics')) {
+			v4ToastManager.showInfo('Worker token already available. Opening modal in case you want to refresh it.');
 		}
+		setError(null);
+		setShowWorkerTokenModal(true);
+	}, []);
 
-		const effectiveWorkerToken = localStorage.getItem('worker_token') || undefined;
-		const effectiveClientId = clientId.trim() || undefined;
-		const effectiveClientSecret = clientSecret.trim() || undefined;
+	// Clear the metrics-specific worker token
+	const handleClearWorkerToken = useCallback(() => {
+		localStorage.removeItem('worker_token_metrics');
+		localStorage.removeItem('worker_token_metrics_expires_at');
+		setWorkerToken('');
+		v4ToastManager.showSuccess('Worker token cleared successfully.');
+	}, []);
 
-		if (!effectiveWorkerToken && (!effectiveClientId || !effectiveClientSecret)) {
-			setError('Provide either a valid worker token in local storage or client credentials to mint a token.');
-			return;
-		}
+	// Execute the actual API call (called after user confirms in modal)
+	const executeApiCall = useCallback(async () => {
+		// Load credentials from worker_credentials (the same key WorkerTokenModal uses)
+		const workerCredsStr = localStorage.getItem('worker_credentials');
+		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
+		const environmentId = workerCreds?.environmentId || '';
+		const region = (workerCreds?.region as string) || 'us';
+		const effectiveWorkerToken = localStorage.getItem('worker_token_metrics') || '';
 
 		setLoading(true);
 		setError(null);
 
+		console.log('[Identity Metrics] 🌍 Making API request with region:', region);
+		console.log('[Identity Metrics] 📦 Environment ID:', environmentId.trim());
+
 		try {
-			const response = await fetch('/api/pingone/metrics/identity-counts', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify({
-					environmentId: environmentId.trim(),
-					region,
-					startDate: start || undefined,
-					endDate: end || undefined,
-					sampleSize: sampleSize || undefined,
-					workerToken: effectiveWorkerToken,
-					clientId: effectiveClientId,
-					clientSecret: effectiveClientSecret,
-				}),
+			// Active Identity Counts - uses GET with query parameters
+			const queryParams = new URLSearchParams({
+				environmentId: environmentId.trim(),
+				region: region,
+				workerToken: effectiveWorkerToken,
+				limit: '100',
 			});
+			
+			// Add parameters based on endpoint type
+			if (endpointType === 'byDateRange') {
+				if (start) queryParams.append('startDate', start);
+				if (samplingPeriod) queryParams.append('samplingPeriod', samplingPeriod);
+			} else if (endpointType === 'byLicense') {
+				if (licenseId) queryParams.append('licenseId', licenseId);
+				if (samplingPeriod) queryParams.append('samplingPeriod', samplingPeriod);
+			}
+			// 'simple' endpoint type uses no additional parameters beyond limit
+
+			const apiUrl = `/api/pingone/active-identity-counts?${queryParams.toString()}`;
+			const fetchOptions: RequestInit = {
+				method: 'GET',
+			};
+
+			const response = await fetch(apiUrl, fetchOptions);
 
 			if (!response.ok) {
+				if (response.status === 403) {
+					setShowPermissionsErrorModal(true);
+					throw new Error('PERMISSIONS_ERROR');
+				}
 				const problem = await response.json().catch(() => ({}));
 				throw new Error(problem.error_description || response.statusText);
 			}
@@ -345,22 +536,159 @@ const PingOneIdentityMetrics: React.FC = () => {
 			const data: IdentityCountResponse = await response.json();
 			setMetrics(data);
 			setLastUpdated(new Date().toISOString());
-			v4ToastManager.showSuccess('Total identity counts retrieved successfully!');
+			v4ToastManager.showSuccess('Identity metrics retrieved successfully!');
 		} catch (err) {
 			console.error('[PingOne Identity Metrics] Fetch failed:', err);
 			setMetrics(null);
 			setLastUpdated(null);
-			setError(err instanceof Error ? err.message : 'Unexpected error querying PingOne metrics');
-		} finally {
+			// Don't show error message for permissions errors as we show a modal instead
+			if (err instanceof Error && err.message === 'PERMISSIONS_ERROR') {
+				setError('Worker token lacks required permissions. Click the error modal for details.');
+			} else {
+				setError(err instanceof Error ? err.message : 'Unexpected error querying PingOne metrics');
+			}
+		} finally{
 			setLoading(false);
 		}
-	}, [environmentId, region, start, end, sampleSize, clientId, clientSecret, hasRequiredInputs]);
+		}, [start, samplingPeriod, endpointType, licenseId]);
 
-	const embeddedCounts = metrics?._embedded?.totalIdentities;
+	// Show educational modal before making the API call
+	const handleFetch = useCallback(async () => {
+		// Load credentials from worker_credentials (the same key WorkerTokenModal uses)
+		const workerCredsStr = localStorage.getItem('worker_credentials');
+		const workerCreds = workerCredsStr ? JSON.parse(workerCredsStr) : null;
+		const environmentId = workerCreds?.environmentId || '';
+		const region = (workerCreds?.region as string) || 'us';
+
+		if (!environmentId.trim()) {
+			setError('Environment ID is required. Please generate a worker token first.');
+			return;
+		}
+
+		const effectiveWorkerToken = localStorage.getItem('worker_token_metrics') || undefined;
+
+		console.log('[Identity Metrics] 🔍 Using token for API call:', {
+			hasToken: !!effectiveWorkerToken,
+			tokenPreview: effectiveWorkerToken ? effectiveWorkerToken.substring(0, 20) + '...' : 'none',
+			environmentId: environmentId.substring(0, 20) + '...',
+		});
+
+		if (!effectiveWorkerToken) {
+			setError('Worker token required. Click "Get Worker Token" to generate one.');
+			return;
+		}
+
+		// Build API URL for display
+		const regionMap: Record<string, string> = {
+			us: 'https://api.pingone.com',
+			na: 'https://api.pingone.com',
+			eu: 'https://api.pingone.eu',
+			ca: 'https://api.pingone.ca',
+			ap: 'https://api.pingone.asia',
+			asia: 'https://api.pingone.asia',
+		};
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap.na;
+		
+		// Build API URL for activeIdentityCounts based on endpoint type
+		const queryParams = new URLSearchParams();
+		queryParams.append('limit', '100');
+		
+		let pingOneApiUrl: string;
+		let educationalNotes: string[];
+		
+		if (endpointType === 'byDateRange') {
+			const filters: string[] = [];
+			if (start) filters.push(`startDate ge "${start.includes('T') ? start : `${start}T00:00:00Z`}"`);
+			if (samplingPeriod) filters.push(`samplingPeriod eq "${samplingPeriod}"`);
+			if (filters.length > 0) {
+				queryParams.append('filter', filters.join(' and '));
+			}
+			
+			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activeIdentityCounts?${queryParams.toString()}`;
+			
+			educationalNotes = [
+				'This endpoint returns time-series identity count data with specified sampling periods',
+				'The sampling period determines the granularity (hourly, daily, weekly)',
+				'Uses OData filtering syntax for startDate and samplingPeriod',
+				'Returns up to 100 data points (configurable with limit parameter)',
+				'Requires Identity Data Admin or Environment Admin role in PingOne'
+			];
+		} else if (endpointType === 'byLicense') {
+			if (licenseId) {
+				queryParams.append('licenseId', licenseId);
+			}
+			if (samplingPeriod) {
+				queryParams.append('samplingPeriod', samplingPeriod);
+			}
+			
+			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activeIdentityCounts?${queryParams.toString()}`;
+			
+			educationalNotes = [
+				'This endpoint returns active identity counts filtered by license',
+				'Requires a licenseId parameter to filter counts for a specific license',
+				'The sampling period determines the granularity (hourly, daily, weekly)',
+				'Returns up to 100 data points (configurable with limit parameter)',
+				'Requires Identity Data Admin or Environment Admin role in PingOne'
+			];
+		} else {
+			// Simple endpoint - no filters
+			pingOneApiUrl = `${baseUrl}/v1/environments/${environmentId.trim()}/activeIdentityCounts?${queryParams.toString()}`;
+			
+			educationalNotes = [
+				'This endpoint returns active identity counts without filters',
+				'Returns the most recent data points (up to limit)',
+				'Returns up to 100 data points (configurable with limit parameter)',
+				'Requires Identity Data Admin or Environment Admin role in PingOne'
+			];
+		}
+
+		// Show educational modal
+		apiRequestModalService.showModal({
+			type: 'data_api_get',
+			method: 'GET',
+			url: pingOneApiUrl,
+			headers: {
+				'Authorization': `Bearer ${effectiveWorkerToken}`,
+				'Accept': 'application/json',
+			},
+			description: 'Retrieve time-series active identity counts with sampling periods',
+			educationalNotes,
+			onProceed: executeApiCall,
+		});
+	}, [start, samplingPeriod, endpointType, licenseId, executeApiCall]);
+
+	// Extract active identity counts from response
+	const activeIdentityCounts = metrics?._embedded?.activeIdentityCounts || [];
 	const formattedMetrics = useMemo<JSONData | null>(() => {
 		if (!metrics) return null;
 		return JSON.parse(JSON.stringify(metrics)) as JSONData;
 	}, [metrics]);
+
+	// Calculate summary statistics
+	const summary = useMemo(() => {
+		if (!activeIdentityCounts || activeIdentityCounts.length === 0) return null;
+		
+		const counts = activeIdentityCounts.map((item: ActiveIdentityCount) => item.count || 0).filter((c: number) => c > 0);
+		if (counts.length === 0) return null;
+
+		const total = counts.reduce((sum: number, c: number) => sum + c, 0);
+		const average = Math.round(total / counts.length);
+		const min = Math.min(...counts);
+		const max = Math.max(...counts);
+		const latest = counts[counts.length - 1];
+		const oldest = counts[0];
+
+		return {
+			total,
+			average,
+			min,
+			max,
+			latest,
+			oldest,
+			dataPoints: counts.length,
+			period: samplingPeriod === '1' ? 'hourly' : samplingPeriod === '24' ? 'daily' : 'weekly'
+		};
+	}, [activeIdentityCounts, samplingPeriod]);
 
 	return (
 		<PageContainer>
@@ -369,107 +697,156 @@ const PingOneIdentityMetrics: React.FC = () => {
 					<FiBarChart2 size={24} />
 					<Title>PingOne Identity Counts</Title>
 				</TitleRow>
-				<Subtitle>
-					Query the PingOne <strong>Total Identities</strong> metrics endpoint using your worker credentials. This reports daily totals of unique identities in a PingOne environment for the selected date range.
-				</Subtitle>
+			<Subtitle>
+				Query PingOne active identity counts with time-series data and sampling periods. Requires <strong>Identity Data Admin</strong> role.
+			</Subtitle>
+			{!hasWorkerToken && (
+				<WarningBanner>
+					<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+						<FiAlertCircle size={20} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
+						<div style={{ flex: 1 }}>
+							<strong>Worker Token Required</strong>
+							<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+								Click "Get Worker Token" below to generate a token with your PingOne credentials.
+							</p>
+						</div>
+					</div>
+				</WarningBanner>
+			)}
 			</HeaderCard>
 
 			<LayoutGrid>
 				<Card>
 					<SectionTitle>
-						<FiShield /> Authentication
+						<FiShield /> Authentication & Worker Token
 					</SectionTitle>
 
-					<FieldGroup>
-						<Label>Environment ID</Label>
-						<Input
-							value={environmentId}
-							onChange={(e) => setEnvironmentId(e.target.value)}
-							placeholder="b987c16-..."
-							$hasError={!!error && !environmentId}
+					{hasWorkerToken ? (
+						<WorkerTokenDetectedBanner 
+							token={workerToken} 
+							tokenExpiryKey="worker_token_metrics_expires_at"
 						/>
-					</FieldGroup>
+					) : (
+						<WarningBanner style={{ marginBottom: '1rem' }}>
+							<div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem' }}>
+								<FiAlertCircle size={18} style={{ marginTop: '0.1rem', flexShrink: 0 }} />
+								<div style={{ flex: 1 }}>
+									<strong>No Worker Token Found</strong>
+									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+										Click the button below to open the Worker Token modal and generate a token with the required credentials.
+									</p>
+								</div>
+							</div>
+						</WarningBanner>
+					)}
 
-					<FieldGroup>
-						<Label>Region</Label>
-						<Select value={region} onChange={(e) => setRegion(e.target.value)}>
-							<option value="na">North America (na)</option>
-							<option value="us">US (auth.pingone.com)</option>
-							<option value="eu">Europe (auth.pingone.eu)</option>
-							<option value="ap">Asia Pacific (auth.pingone.asia)</option>
-							<option value="ca">Canada (auth.pingone.ca)</option>
-						</Select>
-					</FieldGroup>
-
-					<FieldGroup>
-						<Label>Client ID (fallback)</Label>
-						<Input
-							value={clientId}
-							onChange={(e) => setClientId(e.target.value)}
-							placeholder="Optional if worker token present"
-						/>
-					</FieldGroup>
-
-					<FieldGroup>
-						<Label>Client Secret (fallback)</Label>
-						<SecretFieldWrapper>
-							<Input
-								type={showSecret ? 'text' : 'password'}
-								value={clientSecret}
-								onChange={(e) => setClientSecret(e.target.value)}
-								placeholder="Optional if worker token present"
-							/>
-							<ToggleSecretButton onClick={() => setShowSecret((prev) => !prev)} type="button" aria-label="Toggle secret visibility">
-								{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-							</ToggleSecretButton>
-						</SecretFieldWrapper>
-						<Hint>
-							If a worker token exists in local storage it will be re-used. Otherwise the API will mint a temporary token using these credentials.
-						</Hint>
-					</FieldGroup>
-
-					<div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-						<Label>
-							<FiInfo size={14} /> Active Worker Token
-						</Label>
-						{workerToken ? (
-							<TokenBadge>
-								<FiDatabase size={14} /> Token cached • {workerToken.substring(0, 16)}…
-							</TokenBadge>
-						) : (
-							<Hint>No worker token detected in local storage.</Hint>
+					<ButtonRow>
+						<PrimaryButton 
+							onClick={handleGetWorkerToken}
+							type="button"
+							style={{
+								background: hasWorkerToken ? '#9ca3af' : undefined,
+								cursor: 'pointer',
+								color: 'white',
+							}}
+						>
+							{hasWorkerToken ? (
+								<>
+									<FiCheckCircle /> Worker Token Ready
+								</>
+							) : (
+								<>
+									<FiKey /> Get Worker Token
+								</>
+							)}
+						</PrimaryButton>
+						{hasWorkerToken && (
+							<DangerButton 
+								onClick={handleClearWorkerToken}
+								type="button"
+							>
+								<FiX /> Clear Token
+							</DangerButton>
 						)}
-					</div>
+					</ButtonRow>
 				</Card>
 
 				<Card>
 					<SectionTitle>
-						<FiCalendar /> Date Range & Sample Size
+						<FiCalendar /> Metrics Configuration
 					</SectionTitle>
 
 					<FieldGroup>
-						<Label>Start date</Label>
-						<Input type="date" value={start} onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))} />
+						<Label>Endpoint Type</Label>
+						<Select value={endpointType} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setEndpointType(e.target.value as EndpointType)}>
+							<option value="byDateRange">By Date Range</option>
+							<option value="byLicense">By License</option>
+							<option value="simple">Simple (No Filters)</option>
+						</Select>
+						<Hint>
+							{endpointType === 'byDateRange' && 'Filter by date range and sampling period'}
+							{endpointType === 'byLicense' && 'Filter by license ID and sampling period'}
+							{endpointType === 'simple' && 'Get recent counts without filters'}
+						</Hint>
 					</FieldGroup>
 
-					<FieldGroup>
-						<Label>End date</Label>
-						<Input type="date" value={end} onChange={(e) => setDateRange((prev) => ({ ...prev, end: e.target.value }))} />
-					</FieldGroup>
+					{endpointType === 'byDateRange' && (
+						<>
+							<FieldGroup>
+								<Label>Start date</Label>
+								<Input type="date" value={start} onChange={(e) => setDateRange((prev) => ({ ...prev, start: e.target.value }))} />
+							</FieldGroup>
+							<FieldGroup>
+								<Label>Sampling Period</Label>
+								<Select value={samplingPeriod} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSamplingPeriod(e.target.value)}>
+									<option value="1">1 hour (hourly)</option>
+									<option value="24">24 hours (daily)</option>
+									<option value="168">168 hours (weekly)</option>
+								</Select>
+								<Hint>Time interval for data points in the time-series response.</Hint>
+							</FieldGroup>
+						</>
+					)}
 
-					<FieldGroup>
-						<Label>Sample size (optional)</Label>
-						<Input
-							type="number"
-							value={sampleSize}
-							onChange={(e) => setSampleSize(e.target.value)}
-							placeholder="Default = PingOne decision"
-						/>
-						<Hint>Controls how many days of history PingOne returns (per SCIM sampleSize semantics).</Hint>
-					</FieldGroup>
+					{endpointType === 'byLicense' && (
+						<>
+							<FieldGroup>
+								<Label>License ID</Label>
+								<Input 
+									type="text" 
+									value={licenseId} 
+									onChange={(e) => setLicenseId(e.target.value)}
+									placeholder="Enter license ID"
+								/>
+								<Hint>License ID to filter identity counts by.</Hint>
+							</FieldGroup>
+							<FieldGroup>
+								<Label>Sampling Period</Label>
+								<Select value={samplingPeriod} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSamplingPeriod(e.target.value)}>
+									<option value="1">1 hour (hourly)</option>
+									<option value="24">24 hours (daily)</option>
+									<option value="168">168 hours (weekly)</option>
+								</Select>
+								<Hint>Time interval for data points in the time-series response.</Hint>
+							</FieldGroup>
+						</>
+					)}
 
-					<ButtonRow>
-						<PrimaryButton onClick={handleFetch} disabled={!hasRequiredInputs || loading}>
+					{endpointType === 'simple' && (
+						<FieldGroup>
+							<Label>Limit</Label>
+							<Input 
+								type="number" 
+								value="100" 
+								readOnly
+								style={{ background: '#f1f5f9', cursor: 'not-allowed' }}
+							/>
+							<Hint>Returns up to 100 most recent data points.</Hint>
+						</FieldGroup>
+					)}
+
+				<ButtonRow>
+					<PrimaryButton onClick={handleFetch} disabled={!hasWorkerToken || loading}>
 							{loading ? (
 								<>
 									<FiRefreshCw className="spin" /> Fetching…
@@ -496,49 +873,146 @@ const PingOneIdentityMetrics: React.FC = () => {
 					<ResultContainer>
 						{metrics ? (
 							<>
-								{embeddedCounts && embeddedCounts.length > 0 && (
-									<Card style={{ border: '1px solid #bbf7d0', background: '#f0fdf4' }}>
+								{summary && (
+									<Card style={{ border: '1px solid #10b981', background: 'linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)' }}>
 										<SectionTitle>
-											<FiDatabase /> Daily totals
+											<FiBarChart2 /> Summary Statistics
 										</SectionTitle>
-										<div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-											{embeddedCounts.map((row) => (
-												<div
-													key={`${row.date}-${row.totalIdentities ?? row.count}`}
-													style={{
-														display: 'flex',
-														justifyContent: 'space-between',
-														fontFamily: 'monospace',
-														fontSize: '0.9rem',
-													}}
-												>
-													<span>{row.date}</span>
-													<span>{row.totalIdentities ?? row.count ?? '—'}</span>
-												</div>
-											))}
+										<div style={{ 
+											display: 'grid', 
+											gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
+											gap: '1rem',
+											marginTop: '1rem'
+										}}>
+											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
+												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Latest Count</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.latest.toLocaleString()}</div>
+											</div>
+											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
+												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Average</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.average.toLocaleString()}</div>
+											</div>
+											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
+												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Maximum</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.max.toLocaleString()}</div>
+											</div>
+											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
+												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Minimum</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.min.toLocaleString()}</div>
+											</div>
+											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
+												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Data Points</div>
+												<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#059669' }}>{summary.dataPoints}</div>
+											</div>
+											<div style={{ padding: '0.75rem', background: 'white', borderRadius: '0.5rem', border: '1px solid #d1fae5' }}>
+												<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Period</div>
+												<div style={{ fontSize: '1.1rem', fontWeight: 600, color: '#059669', textTransform: 'capitalize' }}>{summary.period}</div>
+											</div>
 										</div>
+										{lastUpdated && (
+											<Hint style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #d1fae5' }}>
+												Last updated: {new Date(lastUpdated).toLocaleString()}
+											</Hint>
+										)}
 									</Card>
 								)}
 
-								<Card style={{ border: '1px solid #dbeafe', background: '#f8fbff' }}>
+								<Card style={{ border: '1px solid #dbeafe', background: '#ffffff' }}>
 									<SectionTitle>
-										<FiInfo /> Raw response
+										<FiDatabase /> Full API Response
 									</SectionTitle>
-									{formattedMetrics && <JSONHighlighter data={formattedMetrics} />}
-									{lastUpdated && (
-										<Hint>Last updated {new Date(lastUpdated).toLocaleString()}</Hint>
+									{formattedMetrics && (
+										<div style={{ maxHeight: '600px', overflow: 'auto' }}>
+											<JSONHighlighter data={formattedMetrics} />
+										</div>
 									)}
 								</Card>
 							</>
 						) : (
 							<EmptyState>
 								<FiBarChart2 size={22} />
-								<span>Run the request to see identity totals returned by PingOne.</span>
+								<span>Run the request to see active identity counts returned by PingOne.</span>
 							</EmptyState>
 						)}
 					</ResultContainer>
 				</Card>
 			</LayoutGrid>
+		<WorkerTokenModal
+			isOpen={showWorkerTokenModal}
+			onClose={() => setShowWorkerTokenModal(false)}
+			onContinue={() => {
+				const token = localStorage.getItem('worker_token_metrics') || '';
+				setWorkerToken(token);
+				setShowWorkerTokenModal(false);
+				if (token) {
+					v4ToastManager.showSuccess('Worker token generated successfully. Ready to query metrics.');
+				} else {
+					v4ToastManager.showError('Worker token was not detected. Please try generating again.');
+				}
+			}}
+			flowType="pingone-identity-metrics"
+			environmentId={(() => {
+				const creds = localStorage.getItem('worker_credentials');
+				return creds ? JSON.parse(creds).environmentId : '';
+			})()}
+			skipCredentialsStep={true}
+          prefillCredentials={(() => {
+				const credsStr = localStorage.getItem('worker_credentials');
+				const creds = credsStr ? JSON.parse(credsStr) : null;
+				return {
+					environmentId: creds?.environmentId || '',
+					clientId: creds?.clientId || '',
+					clientSecret: creds?.clientSecret || '',
+					region: (creds?.region as string) || 'us',
+					scopes: 'p1:read:users', // Metrics API uses roles (Environment Admin/Identity Data Admin), not scopes
+				};
+			})()}
+			tokenStorageKey="worker_token_metrics"
+			tokenExpiryKey="worker_token_metrics_expires_at"
+		/>
+
+			{/* Permissions Error Modal */}
+			{showPermissionsErrorModal && (
+				<PermissionsModalOverlay onClick={() => setShowPermissionsErrorModal(false)}>
+					<PermissionsModalContent onClick={(e) => e.stopPropagation()}>
+						<PermissionsModalTitle>
+							<FiAlertCircle size={24} style={{ color: '#dc2626' }} />
+							403 Forbidden - Missing Roles
+						</PermissionsModalTitle>
+						<PermissionsModalMessage>
+							<strong>⚠️ The Metrics API uses ROLES, not scopes!</strong> Your Worker App needs a role assigned at the <strong>Environment</strong> level.
+						</PermissionsModalMessage>
+						<PermissionsModalMessage style={{ marginTop: '0.5rem', padding: '0.5rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '0.5rem', fontSize: '0.7rem' }}>
+							💡 <strong>Tip:</strong> After assigning a role, you must generate a <strong>NEW</strong> worker token to pick up the permissions.
+						</PermissionsModalMessage>
+						<PermissionsModalInstructions>
+							<strong>🔧 Fix in PingOne Admin Console:</strong>
+							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
+								<li>Applications → Your Worker App → <strong>Roles</strong> tab</li>
+								<li>Click <strong>"Grant Roles"</strong></li>
+								<li><strong style={{color: '#dc2626'}}>Select your Environment</strong> (not Organization) from dropdown</li>
+								<li>Assign the <code><strong>Identity Data Admin</strong></code> role<br/>
+									<span style={{ fontSize: '0.65rem', color: '#6b7280', marginTop: '0.25rem', display: 'inline-block' }}>
+										(Or <code>Environment Admin</code> which includes Identity Data Admin permissions)
+									</span>
+								</li>
+								<li>Click <strong>"Save"</strong></li>
+							</ol>
+							<strong style={{ marginTop: '0.75rem', display: 'block', color: '#059669' }}>✅ After assigning role:</strong>
+							<ol style={{ marginLeft: '1.25rem', marginTop: '0.35rem' }}>
+								<li>Click "Clear Token" on this page</li>
+								<li>Click "Get Worker Token" (scopes don't matter for metrics)</li>
+								<li>Retry "Fetch Total Identity Counts"</li>
+							</ol>
+						</PermissionsModalInstructions>
+						<PermissionsModalActions>
+							<PermissionsModalButton onClick={() => setShowPermissionsErrorModal(false)}>
+								Close
+							</PermissionsModalButton>
+						</PermissionsModalActions>
+					</PermissionsModalContent>
+				</PermissionsModalOverlay>
+			)}
 		</PageContainer>
 	);
 };

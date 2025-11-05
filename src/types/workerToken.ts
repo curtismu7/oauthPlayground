@@ -285,25 +285,25 @@ export const COMMON_API_ENDPOINTS: ApiEndpoint[] = [
 		path: '/users',
 		method: 'GET',
 		description: 'List users',
-		requiredScope: 'p1:read:user',
+		requiredScope: 'p1:read:users',
 	},
 	{
 		path: '/applications',
 		method: 'GET',
 		description: 'List applications',
-		requiredScope: 'p1:read:application',
+		requiredScope: 'p1:read:applications',
 	},
 	{
 		path: '/userGroups',
 		method: 'GET',
 		description: 'List user groups',
-		requiredScope: 'p1:read:userGroup',
+		requiredScope: 'p1:read:groups',
 	},
 	{
 		path: '',
 		method: 'GET',
 		description: 'Environment info',
-		requiredScope: 'p1:read:environment',
+		requiredScope: 'p1:read:environments',
 	},
 ];
 

@@ -27,7 +27,7 @@ import {
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowSequenceDisplay } from '../../components/FlowSequenceDisplay';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import TokenDisplayService from '../../services/tokenDisplayService';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
