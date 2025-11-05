@@ -334,7 +334,10 @@ export class ConfigComparisonService {
       'resource-owner-password',
       'ropc',
       'jwt-bearer',
-      'saml-bearer'
+      'saml-bearer',
+      'ciba', // RFC 9436: CIBA uses backchannel endpoint, not redirect URIs
+      'device',
+      'device-authorization'
     ];
     
     return !noRedirectFlows.some(type => flowType.toLowerCase().includes(type));
@@ -354,7 +357,10 @@ export class ConfigComparisonService {
       'resource-owner-password',
       'ropc',
       'jwt-bearer',
-      'saml-bearer'
+      'saml-bearer',
+      'ciba', // RFC 9436: CIBA uses backchannel endpoint, not authorization endpoint (no response_type)
+      'device',
+      'device-authorization'
     ];
     
     const result = !noResponseTypeFlows.some(type => flowType.toLowerCase().includes(type));

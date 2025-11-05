@@ -255,10 +255,10 @@ export async function testApiAccess(
 
 	// Test common endpoints based on scopes
 	const testEndpoints = [
-		{ endpoint: '/applications', scope: 'p1:read:application', description: 'Applications' },
-		{ endpoint: '/users', scope: 'p1:read:user', description: 'Users' },
-		{ endpoint: '/userGroups', scope: 'p1:read:userGroup', description: 'User Groups' },
-		{ endpoint: '/environments', scope: 'p1:read:environment', description: 'Environment' },
+		{ endpoint: '/applications', scope: 'p1:read:applications', description: 'Applications' },
+		{ endpoint: '/users', scope: 'p1:read:users', description: 'Users' },
+		{ endpoint: '/userGroups', scope: 'p1:read:groups', description: 'User Groups' },
+		{ endpoint: '/environments', scope: 'p1:read:environments', description: 'Environment' },
 	];
 
 	for (const test of testEndpoints) {

@@ -116,6 +116,116 @@ const PingViewOnAI: React.FC = () => {
       </Header>
 
       <CollapsibleHeader
+        title="AI Resources & Documentation"
+        subtitle="Comprehensive resources for implementing AI-powered identity solutions"
+        icon={<FiBookOpen />}
+        theme="highlight"
+        defaultCollapsed={false}
+      >
+        <Card style={{ backgroundColor: '#f8fafc', border: '2px solid #3b82f6', padding: '2rem' }}>
+          <ul style={{ 
+            listStyle: 'disc', 
+            paddingLeft: '2rem', 
+            fontSize: '1.1rem',
+            lineHeight: '2',
+            margin: 0
+          }}>
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://docs.pingidentity.com/bundle/pingone/page/ai-powered-identity.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiBookOpen />
+                PingOne AI Documentation
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://www.pingidentity.com/en/resources/identity-fundamentals/agentic-ai.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiCpu />
+                Agentic AI Guide
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://docs.pingidentity.com/bundle/pingone/page/adaptive-authentication.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiShield />
+                Adaptive Authentication
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://www.pingidentity.com/en/resources/blog/post/ai-identity-security.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiExternalLink />
+                AI Security Best Practices
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://pingidentity.atlassian.net/wiki/x/NwA7bQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiCpu />
+                Ping on AI Group (Atlassian Wiki)
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://lucid.app/lucidchart/09ba5245-acf3-4b29-8974-5ecd8f91294b/edit?viewport_loc=-832%2C-207%2C3034%2C1574%2C0_0&invitationId=inv_e47f786c-4f65-4673-897a-2f207e205f45"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiCpu />
+                AI Identity Architecture Diagram (Lucidchart)
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://lucid.app/lucidchart/2be69334-7596-4681-93f4-9403a201398d/edit?viewport_loc=-821%2C-195%2C2992%2C1552%2C0_0&invitationId=inv_87c5ac77-3255-437b-9f7e-d5713b3b7d07"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiCpu />
+                AI Identity Flow Diagram (Lucidchart)
+              </ExternalLink>
+            </li>
+          </ul>
+
+          <InfoBox $variant="info" style={{ marginTop: '2rem', padding: '1.5rem' }}>
+            <FiCpu size={24} />
+            <div style={{ fontSize: '1.1rem' }}>
+              <strong>Getting Started:</strong> Begin with our AI readiness assessment to understand your 
+              organization's current capabilities and identify the best starting point for AI implementation.
+            </div>
+          </InfoBox>
+        </Card>
+      </CollapsibleHeader>
+
+      <CollapsibleHeader
         title="AI in Identity & Access Management"
         subtitle="How AI is transforming the identity landscape and Ping's strategic approach"
         icon={<FiShield />}
@@ -344,60 +454,6 @@ const PingViewOnAI: React.FC = () => {
         </Card>
       </CollapsibleHeader>
 
-      <CollapsibleHeader
-        title="AI Resources & Documentation"
-        subtitle="Comprehensive resources for implementing AI-powered identity solutions"
-        icon={<FiBookOpen />}
-        defaultCollapsed={false}
-      >
-        <Card>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <ExternalLink
-              href="https://docs.pingidentity.com/bundle/pingone/page/ai-powered-identity.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FiBookOpen />
-              PingOne AI Documentation
-            </ExternalLink>
-
-            <ExternalLink
-              href="https://www.pingidentity.com/en/resources/identity-fundamentals/agentic-ai.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FiCpu />
-              Agentic AI Guide
-            </ExternalLink>
-
-            <ExternalLink
-              href="https://docs.pingidentity.com/bundle/pingone/page/adaptive-authentication.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FiShield />
-              Adaptive Authentication
-            </ExternalLink>
-
-            <ExternalLink
-              href="https://www.pingidentity.com/en/resources/blog/post/ai-identity-security.html"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <FiExternalLink />
-              AI Security Best Practices
-            </ExternalLink>
-          </div>
-
-          <InfoBox $variant="info">
-            <FiCpu size={20} />
-            <div>
-              <strong>Getting Started:</strong> Begin with our AI readiness assessment to understand your 
-              organization's current capabilities and identify the best starting point for AI implementation.
-            </div>
-          </InfoBox>
-        </Card>
-      </CollapsibleHeader>
       </ContentWrapper>
     </PageContainer>
   );

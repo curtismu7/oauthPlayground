@@ -25,7 +25,7 @@ import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlo
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,

@@ -22,7 +22,7 @@ import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPass
 import { FlowHeader } from '../../services/flowHeaderService';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';

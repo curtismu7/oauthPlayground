@@ -1,8 +1,8 @@
 // src/pages/PingOneWebhookViewer.tsx
 // PingOne Webhook Viewer - Real-time webhook event monitoring
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { FiServer, FiClock, FiTag, FiAlertCircle, FiCheckCircle, FiTrash2, FiFilter, FiRefreshCw, FiDownload, FiActivity, FiCopy } from 'react-icons/fi';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { FiServer, FiClock, FiTag, FiAlertCircle, FiCheckCircle, FiTrash2, FiFilter, FiRefreshCw, FiDownload, FiActivity, FiCopy, FiCalendar, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import { secureLog, secureErrorLog } from '../utils/secureLogging';
@@ -170,6 +170,7 @@ const FilterBar = styled.div`
   background: #f8fafc;
   border-radius: 0.5rem;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
 `;
 
 const FilterSelect = styled.select`
@@ -179,6 +180,35 @@ const FilterSelect = styled.select`
   background: white;
   font-size: 0.875rem;
   color: #1e293b;
+  min-width: 150px;
+`;
+
+const FilterLabel = styled.label`
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+`;
+
+const ClearFiltersButton = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  background: white;
+  font-size: 0.875rem;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f1f5f9;
+    color: #475569;
+  }
 `;
 
 interface WebhookEvent {
@@ -194,50 +224,64 @@ interface WebhookEvent {
 const PingOneWebhookViewer: React.FC = () => {
   const [webhooks, setWebhooks] = useState<WebhookEvent[]>([]);
   const [filter, setFilter] = useState<string>('all');
+  const [typeFilter, setTypeFilter] = useState<string>('all');
+  const [timeFilter, setTimeFilter] = useState<string>('all');
   const [isActive, setIsActive] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Simulate incoming webhooks
+  // Fetch webhook events from backend
+  const fetchWebhookEvents = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/webhooks/events?limit=1000');
+      if (!response.ok) {
+        throw new Error('Failed to fetch webhook events');
+      }
+      const data = await response.json();
+      
+      // Transform backend events to frontend format
+      const transformedEvents: WebhookEvent[] = data.events.map((event: any) => ({
+        id: event.id,
+        timestamp: new Date(event.timestamp),
+        type: event.type || event.event || 'unknown',
+        event: event.event || 'webhook.event',
+        data: event.data || event.rawBody || {},
+        status: event.status || 'success',
+        source: event.source || 'pingone-api',
+      }));
+      
+      setWebhooks(transformedEvents);
+      console.log(`[Webhook Viewer] Loaded ${transformedEvents.length} webhook events`);
+    } catch (error) {
+      console.error('[Webhook Viewer] Error fetching events:', error);
+      v4ToastManager.showError('Failed to load webhook events');
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Load webhook events on mount
+  useEffect(() => {
+    fetchWebhookEvents();
+  }, [fetchWebhookEvents]);
+
+  // Poll for new webhook events when monitoring is active
   useEffect(() => {
     if (!isActive) return;
 
     const interval = setInterval(() => {
-      const eventTypes = [
-        'user.created',
-        'user.updated',
-        'group.created',
-        'application.created',
-        'environment.updated',
-        'authorization.success',
-        'authorization.error',
-      ];
-
-      const statuses: Array<'success' | 'error' | 'pending'> = ['success', 'error', 'pending'];
-      
-      const newWebhook: WebhookEvent = {
-        id: `webhook-${Date.now()}`,
-        timestamp: new Date(),
-        type: eventTypes[Math.floor(Math.random() * eventTypes.length)],
-        event: 'webhook.event',
-        data: {
-          resource_id: `res_${Math.random().toString(36).substr(2, 9)}`,
-          environment_id: 'env_default',
-          data: { test: 'sample data', timestamp: new Date().toISOString() }
-        },
-        status: statuses[Math.floor(Math.random() * statuses.length)],
-        source: 'pingone-api'
-      };
-
-      setWebhooks(prev => [newWebhook, ...prev].slice(0, 50)); // Keep last 50
-    }, 5000); // Simulate new webhook every 5 seconds
+      fetchWebhookEvents();
+    }, 3000); // Poll every 3 seconds
 
     return () => clearInterval(interval);
-  }, [isActive]);
+  }, [isActive, fetchWebhookEvents]);
 
   const handleStartMonitoring = useCallback(() => {
     setIsActive(true);
-    v4ToastManager.showSuccess('Webhook monitoring started');
+    fetchWebhookEvents(); // Immediately fetch events
+    v4ToastManager.showSuccess('Webhook monitoring started - polling for new events every 3 seconds');
     secureLog('PingOneWebhookViewer', 'Started webhook monitoring');
-  }, []);
+  }, [fetchWebhookEvents]);
 
   const handleStopMonitoring = useCallback(() => {
     setIsActive(false);
@@ -245,9 +289,21 @@ const PingOneWebhookViewer: React.FC = () => {
     secureLog('PingOneWebhookViewer', 'Stopped webhook monitoring');
   }, []);
 
-  const handleClearWebhooks = useCallback(() => {
-    setWebhooks([]);
-    v4ToastManager.showInfo('Webhook history cleared');
+  const handleClearWebhooks = useCallback(async () => {
+    try {
+      const response = await fetch('/api/webhooks/events', {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to clear webhook events');
+      }
+      setWebhooks([]);
+      v4ToastManager.showSuccess('Webhook history cleared');
+      secureLog('PingOneWebhookViewer', 'Cleared webhook history');
+    } catch (error) {
+      console.error('[Webhook Viewer] Error clearing events:', error);
+      v4ToastManager.showError('Failed to clear webhook events');
+    }
   }, []);
 
   const handleExportWebhooks = useCallback(() => {
@@ -261,9 +317,57 @@ const PingOneWebhookViewer: React.FC = () => {
     v4ToastManager.showSuccess('Webhooks exported');
   }, [webhooks]);
 
-  const filteredWebhooks = filter === 'all' 
-    ? webhooks 
-    : webhooks.filter(w => w.status === filter);
+  // Get unique event types from webhooks
+  const eventTypes = useMemo(() => {
+    const types = new Set(webhooks.map(w => w.type));
+    return Array.from(types).sort();
+  }, [webhooks]);
+
+  // Calculate time filter cutoff
+  const getTimeCutoff = useCallback(() => {
+    const now = Date.now();
+    switch (timeFilter) {
+      case '1h':
+        return now - 60 * 60 * 1000;
+      case '24h':
+        return now - 24 * 60 * 60 * 1000;
+      case '7d':
+        return now - 7 * 24 * 60 * 60 * 1000;
+      case '30d':
+        return now - 30 * 24 * 60 * 60 * 1000;
+      default:
+        return 0;
+    }
+  }, [timeFilter]);
+
+  // Apply all filters
+  const filteredWebhooks = useMemo(() => {
+    let filtered = webhooks;
+
+    // Filter by status
+    if (filter !== 'all') {
+      filtered = filtered.filter(w => w.status === filter);
+    }
+
+    // Filter by type
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(w => w.type === typeFilter);
+    }
+
+    // Filter by time
+    if (timeFilter !== 'all') {
+      const cutoff = getTimeCutoff();
+      filtered = filtered.filter(w => w.timestamp.getTime() >= cutoff);
+    }
+
+    return filtered;
+  }, [webhooks, filter, typeFilter, timeFilter, getTimeCutoff]);
+
+  const handleClearFilters = useCallback(() => {
+    setFilter('all');
+    setTypeFilter('all');
+    setTimeFilter('all');
+  }, []);
 
   const formatTimestamp = (timestamp: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -360,19 +464,56 @@ const PingOneWebhookViewer: React.FC = () => {
 
       <div style={{ marginBottom: '1rem' }}>
         <p style={{ color: '#64748b', fontSize: '0.875rem' }}>
-          Monitor PingOne webhook events in real-time. Start monitoring to begin receiving simulated webhook events.
+          Monitor PingOne webhook events in real-time. Configure the webhook URL above in PingOne, then start monitoring to see events as they arrive.
         </p>
+        {isActive && (
+          <p style={{ color: '#10b981', fontSize: '0.875rem', marginTop: '0.5rem', fontWeight: 500 }}>
+            ✓ Monitoring active - Polling for new events every 3 seconds
+          </p>
+        )}
       </div>
 
       {webhooks.length > 0 && (
         <FilterBar>
           <FiFilter size={20} color="#64748b" />
-          <FilterSelect value={filter} onChange={(e) => setFilter(e.target.value)}>
-            <option value="all">All Events ({webhooks.length})</option>
-            <option value="success">Success ({webhooks.filter(w => w.status === 'success').length})</option>
-            <option value="error">Errors ({webhooks.filter(w => w.status === 'error').length})</option>
-            <option value="pending">Pending ({webhooks.filter(w => w.status === 'pending').length})</option>
-          </FilterSelect>
+          <FilterLabel>
+            Status:
+            <FilterSelect value={filter} onChange={(e) => setFilter(e.target.value)}>
+              <option value="all">All ({webhooks.length})</option>
+              <option value="success">Success ({webhooks.filter(w => w.status === 'success').length})</option>
+              <option value="error">Errors ({webhooks.filter(w => w.status === 'error').length})</option>
+              <option value="pending">Pending ({webhooks.filter(w => w.status === 'pending').length})</option>
+            </FilterSelect>
+          </FilterLabel>
+          <FilterLabel>
+            <FiCalendar />
+            Time:
+            <FilterSelect value={timeFilter} onChange={(e) => setTimeFilter(e.target.value)}>
+              <option value="all">All Time</option>
+              <option value="1h">Last Hour</option>
+              <option value="24h">Last 24 Hours</option>
+              <option value="7d">Last 7 Days</option>
+              <option value="30d">Last 30 Days</option>
+            </FilterSelect>
+          </FilterLabel>
+          <FilterLabel>
+            <FiTag />
+            Type:
+            <FilterSelect value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+              <option value="all">All Types ({eventTypes.length})</option>
+              {eventTypes.map(type => (
+                <option key={type} value={type}>
+                  {type} ({webhooks.filter(w => w.type === type).length})
+                </option>
+              ))}
+            </FilterSelect>
+          </FilterLabel>
+          {(filter !== 'all' || typeFilter !== 'all' || timeFilter !== 'all') && (
+            <ClearFiltersButton onClick={handleClearFilters}>
+              <FiX />
+              Clear Filters
+            </ClearFiltersButton>
+          )}
         </FilterBar>
       )}
 
@@ -380,11 +521,17 @@ const PingOneWebhookViewer: React.FC = () => {
         {filteredWebhooks.length === 0 ? (
           <EmptyState>
             <FiServer size={48} />
-            <h3>No webhooks yet</h3>
+            <h3>
+              {webhooks.length === 0 
+                ? 'No webhooks yet' 
+                : 'No webhooks match your filters'}
+            </h3>
             <p>
-              {isActive 
-                ? 'Waiting for webhook events...' 
-                : 'Click "Start Monitoring" to begin receiving webhook events.'}
+              {webhooks.length === 0 
+                ? (isActive 
+                    ? 'Waiting for webhook events...' 
+                    : 'Click "Start Monitoring" to begin receiving webhook events.')
+                : 'Try adjusting your filters to see more results.'}
             </p>
           </EmptyState>
         ) : (

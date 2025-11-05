@@ -1,5 +1,5 @@
-// src/pages/OrganizationLicensing_V2.tsx
-// Multi-step Organization Licensing flow: Creds → Token → License Info
+// src/pages/OrganizationLicensing.tsx
+// Organization Licensing: Get Worker Token & License Information
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -7,20 +7,12 @@ import {
 	FiAlertTriangle,
 	FiRefreshCw,
 	FiInfo,
-	FiUsers,
-	FiLayers,
-	FiCalendar,
 	FiShield,
-	FiActivity,
 	FiKey,
-	FiArrowRight,
-	FiArrowLeft,
-	FiSettings,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import {
 	getOrganizationLicensingInfo,
-	getEnvironmentLicensingInfo,
 	getAllLicenses,
 	type OrganizationInfo,
 	type OrganizationLicense,
@@ -29,16 +21,23 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { useAuth } from '../contexts/NewAuthContext';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import ComprehensiveCredentialsService from '../services/comprehensiveCredentialsService';
-import type { StepCredentials } from '../types/common';
 import { getOAuthTokens } from '../utils/tokenStorage';
-import { FlowHeader } from '../services/flowHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
-import { useNavigate } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
-import { FlowCredentialService } from '../services/flowCredentialService';
 import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import V7StepperService from '../services/v7StepperService';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { getValidWorkerToken } from '../services/tokenExpirationService';
+
+type CredentialsState = {
+	environmentId: string;
+	clientId: string;
+	clientSecret: string;
+	redirectUri: string;
+	scope: string;
+	scopes: string;
+};
 
 const pageConfig = {
 	flowType: 'documentation' as const,
@@ -98,8 +97,10 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	}
 	
 	&:disabled {
-		opacity: 0.5;
+		opacity: 1;
 		cursor: not-allowed;
+		background: #9ca3af;
+		color: #f8fafc;
 	}
 `;
 
@@ -112,12 +113,6 @@ const ErrorMessage = styled.div`
 	margin: 1rem 0;
 `;
 
-const LoadingMessage = styled.div`
-	text-align: center;
-	padding: 2rem;
-	color: #6b7280;
-`;
-
 const LicenseGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -125,12 +120,96 @@ const LicenseGrid = styled.div`
 	margin-top: 1rem;
 `;
 
-const LicenseCard = styled.div`
+const LicenseCard = styled.div<{ $borderColor?: string }>`
 	background: white;
 	border: 2px solid ${({ $borderColor }) => $borderColor || '#e5e7eb'};
 	border-radius: 8px;
 	padding: 1.5rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+`;
+
+const FeatureBadge = styled.span`
+	display: inline-flex;
+	align-items: center;
+	padding: 0.35rem 0.75rem;
+	margin: 0.25rem;
+	border-radius: 9999px;
+	background: #e0f2fe;
+	color: #0369a1;
+	font-size: 0.75rem;
+	font-weight: 600;
+`;
+
+const EnvironmentTable = styled.div`
+	border: 1px solid #e2e8f0;
+	border-radius: 0.75rem;
+	overflow: hidden;
+	margin-top: 1rem;
+`;
+
+const EnvironmentHeader = styled.div`
+	display: grid;
+	grid-template-columns: 2fr 1fr 2fr 1.5fr;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	background: #f1f5f9;
+	font-weight: 600;
+	font-size: 0.85rem;
+	color: #475569;
+`;
+
+const EnvironmentRow = styled.div`
+	display: grid;
+	grid-template-columns: 2fr 1fr 2fr 1.5fr;
+	gap: 0.75rem;
+	padding: 0.75rem 1rem;
+	border-top: 1px solid #e2e8f0;
+	font-size: 0.85rem;
+
+	&:nth-child(even) {
+		background: #f8fafc;
+	}
+`;
+
+const EnvironmentName = styled.span`
+	font-weight: 600;
+	color: #1e293b;
+`;
+
+const EnvironmentRegion = styled.span`
+	display: inline-flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 0.35rem;
+	font-weight: 600;
+	color: #0f172a;
+`;
+
+const EnvironmentId = styled.code`
+	font-family: 'SFMono-Regular', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+	font-size: 0.75rem;
+	color: #475569;
+	word-break: break-all;
+`;
+
+const EnvironmentLicense = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	font-size: 0.8rem;
+	color: #1f2937;
+
+	strong {
+		font-weight: 600;
+	}
+`;
+
+const EnvironmentLicenseMeta = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+	font-size: 0.75rem;
+	color: #64748b;
 `;
 
 const InfoRow = styled.div`
@@ -153,30 +232,46 @@ const InfoValue = styled.span`
 	color: #111827;
 `;
 
+const Input = styled.input`
+	width: 100%;
+	padding: 0.75rem;
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	font-size: 1rem;
+	margin-bottom: 1rem;
+	
+	&:focus {
+		outline: none;
+		border-color: #3b82f6;
+		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+	}
+`;
+
+const InputLabel = styled.label`
+	display: block;
+	font-weight: 600;
+	color: #374151;
+	margin-bottom: 0.5rem;
+	font-size: 0.875rem;
+`;
+
 // Create V5 stepper layout components
 const stepperComponents = V7StepperService.createStepLayout({ theme: 'purple', showProgress: true });
 
 const STEP_METADATA: Array<{ title: string; subtitle: string }> = [
 	{
-		title: 'Step 1: Configure Credentials',
-		subtitle: 'Enter your PingOne environment details',
-	},
-	{
-		title: 'Step 2: Get Worker Token',
-		subtitle: 'Obtain a worker token for API access',
-	},
-	{
-		title: 'Step 3: Get License Information',
-		subtitle: 'Fetch organization and license details',
+		title: 'Get Worker Token & License Information',
+		subtitle: 'Obtain a worker token and fetch organization licensing details',
 	},
 ];
+
+const ORGANIZATION_ID_STORAGE_KEY = 'organizationLicensing.organizationId';
 
 const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
 	const { tokens } = useAuth();
-	const navigate = useNavigate();
 	
-	// Step management
+	// Step management - only one step now (combined worker token + license info)
 	const [currentStep, setCurrentStep] = useState(0);
 	
 	// Create stepper components dynamically
@@ -190,10 +285,24 @@ const OrganizationLicensingV2: React.FC = () => {
 	const StepperTotal = stepperComponents.StepTotal;
 	const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
 	const [allLicenses, setAllLicenses] = useState<OrganizationLicense[]>([]);
-	const [loading, setLoading] = useState(false);
+	const [isFetchingOrgInfo, setIsFetchingOrgInfo] = useState(false);
+	const [isFetchingAllLicenses, setIsFetchingAllLicenses] = useState(false);
+	const isBusy = isFetchingOrgInfo || isFetchingAllLicenses;
 	const [error, setError] = useState<string | null>(null);
 	const [storedTokens, setStoredTokens] = useState<{ access_token?: string } | null>(null);
-	const [credentials, setCredentials] = useState<StepCredentials>({
+	const [organizationId, setOrganizationId] = useState<string>(() => {
+		if (typeof window === 'undefined') {
+			return '';
+		}
+
+		try {
+			return localStorage.getItem(ORGANIZATION_ID_STORAGE_KEY) || '';
+		} catch (error) {
+			console.warn('[OrganizationLicensing] Unable to load stored organization ID:', error);
+			return '';
+		}
+	});
+	const [credentials, setCredentials] = useState<CredentialsState>({
 		environmentId: '',
 		clientId: '',
 		clientSecret: '',
@@ -201,33 +310,29 @@ const OrganizationLicensingV2: React.FC = () => {
 		scope: 'openid profile email',
 		scopes: 'openid profile email',
 	});
-	const [credentialsSaved, setCredentialsSaved] = useState(false);
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 
 	// Get access token from all possible sources
 	const getAccessToken = (): string | null => {
-		// 1. Check auth context tokens
-		if (tokens?.access_token) {
-			console.log('[OrganizationLicensing] Access token found in auth context');
-			return tokens.access_token;
-		}
-		
-		// 2. Check stored OAuth tokens
-		if (storedTokens?.access_token) {
-			console.log('[OrganizationLicensing] Access token found in stored tokens');
-			return storedTokens.access_token;
-		}
-		
-		// 3. Check localStorage worker_token
-		try {
-			const localWorkerToken = localStorage.getItem('worker_token');
-			if (localWorkerToken) {
-				console.log('[OrganizationLicensing] Worker token found in localStorage');
-				return localWorkerToken;
+		// Use token expiration service to check dedicated worker token
+		const tokenCheck = getValidWorkerToken(
+			'worker_token_org_licensing',
+			'worker_token_org_licensing_expires_at',
+			{
+				clearExpired: true,
+				showToast: false, // We'll show toast in the calling function
+				requiredScopes: ['p1:read:organization', 'p1:read:licensing'],
 			}
-		} catch (e) {
-			console.warn('[OrganizationLicensing] Error checking localStorage:', e);
+		);
+
+		if (tokenCheck.isValid && tokenCheck.token) {
+			console.log('[OrganizationLicensing] ✅ Valid worker token found in dedicated storage');
+			return tokenCheck.token;
 		}
-		
+
+		// Don't use fallback tokens for organization licensing - they might not have the right scopes
+		// and could cause 401 errors
+		console.warn('[OrganizationLicensing] ⚠️ No valid dedicated worker token found. Please generate a new token with required scopes.');
 		return null;
 	};
 
@@ -239,14 +344,34 @@ const OrganizationLicensingV2: React.FC = () => {
 		if (hasInitialized) return;
 		
 		const loadAllTokens = () => {
-			// Check secure storage
+			// Check dedicated worker token storage first (with expiration check)
+			try {
+				const workerToken = localStorage.getItem('worker_token_org_licensing');
+				const expiresAt = localStorage.getItem('worker_token_org_licensing_expires_at');
+				
+				if (workerToken && expiresAt) {
+					const isExpired = Date.now() > parseInt(expiresAt);
+					if (!isExpired) {
+						setStoredTokens({ access_token: workerToken });
+						return { access_token: workerToken };
+					} else {
+						console.log('[OrganizationLicensing] Worker token expired, clearing');
+						localStorage.removeItem('worker_token_org_licensing');
+						localStorage.removeItem('worker_token_org_licensing_expires_at');
+					}
+				}
+			} catch (e) {
+				console.warn('[OrganizationLicensing] Error loading worker token:', e);
+			}
+			
+			// Check secure storage (fallback)
 			const secureTokens = getOAuthTokens();
 			if (secureTokens?.access_token) {
 				setStoredTokens(secureTokens);
 				return secureTokens;
 			}
 			
-			// Check localStorage
+			// Check localStorage (fallback)
 			try {
 				const localToken = localStorage.getItem('worker_token');
 				if (localToken) {
@@ -262,41 +387,28 @@ const OrganizationLicensingV2: React.FC = () => {
 		};
 		
 		const initializeFlow = () => {
-			const authToken = tokens?.access_token;
-			const hasToken = !!getAccessToken();
+			// Start at step 0 (combined worker token + license info)
+			console.log('[OrganizationLicensing] Starting at step 0 (Get Worker Token & License Information)');
 			
-			// If we already have a token, skip directly to step 2 (getting license info)
-			if (hasToken || authToken) {
-				console.log('[OrganizationLicensing] Worker token found, skipping to step 2 (License Information)');
-				const tokens = loadAllTokens();
-				if (tokens) {
-					setStoredTokens(tokens);
-				}
-				setCurrentStep(2);
-				setHasInitialized(true);
-				return;
+			// Load any existing tokens
+			const loadedTokens = loadAllTokens();
+			if (loadedTokens) {
+				setStoredTokens(loadedTokens);
 			}
 			
-			// Check for saved credentials
+			// Load saved credentials from credential manager
 			const savedCreds = credentialManager.getAllCredentials();
 			if (savedCreds && savedCreds.environmentId && savedCreds.clientId) {
-				console.log('[OrganizationLicensing] Credentials found, advancing to step 1 (Get Token)');
 				setCredentials({
 					environmentId: savedCreds.environmentId || '',
 					clientId: savedCreds.clientId || '',
 					clientSecret: savedCreds.clientSecret || '',
 					redirectUri: savedCreds.redirectUri || '',
-					scope: 'openid profile email',
-					scopes: 'openid profile email',
+					scope: 'p1:read:organization p1:read:licensing',
+					scopes: 'p1:read:organization p1:read:licensing',
 				});
-				setCredentialsSaved(true);
-				setCurrentStep(1);
-				setHasInitialized(true);
-				return;
 			}
 			
-			// No token or credentials, start at step 0
-			console.log('[OrganizationLicensing] No token or credentials, starting at step 0 (Credentials)');
 			setCurrentStep(0);
 			setHasInitialized(true);
 		};
@@ -306,71 +418,126 @@ const OrganizationLicensingV2: React.FC = () => {
 	
 	// Handle reset - go back to step 0 and reset initialized flag
 	const handleReset = () => {
-		setCurrentStep(0);
 		setOrgInfo(null);
 		setAllLicenses([]);
 		setError(null);
-		setHasInitialized(false); // Allow re-initialization
-	};
-
-	const handleCredentialsChange = (creds: StepCredentials) => {
-		setCredentials(creds);
-		setCredentialsSaved(false);
-	};
-
-	const saveCredentials = async () => {
-		try {
-			const configSuccess = credentialManager.saveConfigCredentials({
-				environmentId: credentials.environmentId,
-				clientId: credentials.clientId,
-				clientSecret: credentials.clientSecret,
-				redirectUri: credentials.redirectUri,
-				scopes: ['p1:read:organization', 'p1:read:licensing'],
-			});
-			
-			await FlowCredentialService.saveFlowCredentials('worker-token-v7', {
-				...credentials,
+		// Reload credentials and tokens
+		const savedCreds = credentialManager.getAllCredentials();
+		if (savedCreds) {
+			setCredentials({
+				environmentId: savedCreds.environmentId || '',
+				clientId: savedCreds.clientId || '',
+				clientSecret: savedCreds.clientSecret || '',
+				redirectUri: savedCreds.redirectUri || '',
 				scope: 'p1:read:organization p1:read:licensing',
 				scopes: 'p1:read:organization p1:read:licensing',
 			});
-
-			if (configSuccess) {
-				setCredentialsSaved(true);
-				v4ToastManager.showSuccess('Credentials saved!');
-				setCurrentStep(1); // Move to next step
-			}
-		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to save credentials';
-			v4ToastManager.showError(errorMsg);
+		}
+		const loadedTokens = getOAuthTokens();
+		if (loadedTokens) {
+			setStoredTokens(loadedTokens);
 		}
 	};
 
 	const handleGetWorkerToken = () => {
-		navigate('/flows/worker-token-v7');
+		if (getAccessToken()) {
+			v4ToastManager.showInfo('Worker token already available. Opening modal so you can refresh it if needed.');
+		}
+		setShowWorkerTokenModal(true);
 	};
 
-	const fetchOrganizationInfo = async () => {
-		const accessToken = getAccessToken();
-		if (!accessToken) {
-			setError('No access token available.');
+	const handleWorkerTokenModalContinue = () => {
+		setShowWorkerTokenModal(false);
+		// Re-check for token after modal closes (check dedicated storage first)
+		const token = localStorage.getItem('worker_token_org_licensing') || getAccessToken();
+		if (token) {
+			setStoredTokens({ access_token: token });
+			window.dispatchEvent(new Event('workerTokenUpdated'));
+			v4ToastManager.showSuccess('Worker token saved. You can fetch organization licensing details now.');
+			return;
+		}
+		v4ToastManager.showError('Worker token was not detected. Please try generating it again.');
+	};
+
+	const persistOrganizationId = (value: string) => {
+		setOrganizationId(value);
+
+		if (typeof window === 'undefined') {
 			return;
 		}
 
-		setLoading(true);
+		try {
+			if (value.trim()) {
+				localStorage.setItem(ORGANIZATION_ID_STORAGE_KEY, value);
+			} else {
+				localStorage.removeItem(ORGANIZATION_ID_STORAGE_KEY);
+			}
+		} catch (error) {
+			console.warn('[OrganizationLicensing] Unable to persist organization ID:', error);
+		}
+	};
+
+	const fetchOrganizationInfo = async () => {
+		const tokenCheck = getValidWorkerToken(
+			'worker_token_org_licensing',
+			'worker_token_org_licensing_expires_at',
+			{
+				clearExpired: true,
+				showToast: true,
+				requiredScopes: ['p1:read:organization', 'p1:read:licensing'],
+			}
+		);
+
+		if (!tokenCheck.isValid || !tokenCheck.token) {
+			const errorMsg = tokenCheck.errorMessage || 'No valid worker token available. Please click "Get Worker Token" to generate one with the required scopes (p1:read:organization p1:read:licensing).';
+			setError(errorMsg);
+			if (!tokenCheck.errorMessage) {
+				v4ToastManager.showError(errorMsg);
+			}
+			return;
+		}
+
+		const accessToken = tokenCheck.token;
+
+		if (!organizationId.trim()) {
+			setError('Please enter an Organization ID.');
+			v4ToastManager.showError('Please enter an Organization ID.');
+			return;
+		}
+
+		setIsFetchingOrgInfo(true);
 		setError(null);
+		setOrgInfo(null); // Clear previous results
 
 		try {
-			const info = await getOrganizationLicensingInfo(accessToken);
+			console.log('[OrganizationLicensing] Fetching organization info with access token and org ID:', organizationId.trim());
+			const info = await getOrganizationLicensingInfo(accessToken, organizationId.trim());
+			
 			if (info) {
+				console.log('[OrganizationLicensing] Organization info received:', info);
 				setOrgInfo(info);
 				v4ToastManager.showSuccess('Organization licensing information loaded!');
+			} else {
+				const errorMsg = 'Failed to fetch organization information. The API returned no data. This usually means:\n1. The worker token is expired or invalid\n2. The Organization ID is incorrect\n3. The worker app lacks required permissions (p1:read:organization p1:read:licensing)\n\nPlease click "Get Worker Token" to generate a new token and try again.';
+				setError(errorMsg);
+				v4ToastManager.showError('Failed to fetch organization information. Check the error message for details.');
+				console.error('[OrganizationLicensing] getOrganizationLicensingInfo returned null');
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
-			setError(errorMessage);
-			v4ToastManager.showError(`Failed to load licensing information: ${errorMessage}`);
+			console.error('[OrganizationLicensing] Error fetching organization info:', err);
+			
+			// Check if it's a 401 error
+			if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+				const errorMsg = 'Worker token is expired or invalid. Please click "Get Worker Token" to generate a new token with the required scopes (p1:read:organization p1:read:licensing).';
+				setError(errorMsg);
+				v4ToastManager.showError('Token expired or invalid. Please generate a new worker token.');
+			} else {
+				setError(errorMessage);
+				v4ToastManager.showError(`Failed to load licensing information: ${errorMessage}`);
+			}
 		} finally {
-			setLoading(false);
+			setIsFetchingOrgInfo(false);
 		}
 	};
 
@@ -378,9 +545,9 @@ const OrganizationLicensingV2: React.FC = () => {
 		const accessToken = getAccessToken();
 		if (!accessToken) return;
 
-		setLoading(true);
+		setIsFetchingAllLicenses(true);
 		try {
-			const licenses = await getAllLicenses(accessToken);
+			const licenses = await getAllLicenses(accessToken, organizationId.trim() || undefined);
 			setAllLicenses(licenses);
 			v4ToastManager.showSuccess(`Successfully fetched ${licenses.length} licenses`);
 		} catch (err) {
@@ -388,176 +555,284 @@ const OrganizationLicensingV2: React.FC = () => {
 			setError(errorMessage);
 			v4ToastManager.showError(`Failed to fetch licenses: ${errorMessage}`);
 		} finally {
-			setLoading(false);
+			setIsFetchingAllLicenses(false);
 		}
 	};
 
 	const renderStep = () => {
-		switch (currentStep) {
-			case 0: // Credentials
-				return (
-					<StepContainer>
-						<StepTitle>
-							<FiSettings /> Step 1: Configure Credentials
-						</StepTitle>
-						<HelperText>
-							Enter your PingOne environment ID, client ID, and client secret.
-							These will be saved for the worker token flow.
-						</HelperText>
-						<ComprehensiveCredentialsService
-							flowType="organization-licensing"
-							credentials={credentials}
-							onCredentialsChange={handleCredentialsChange}
-							onSaveCredentials={saveCredentials}
-							hasUnsavedChanges={!credentialsSaved}
-							title=""
-							subtitle=""
-							showAdvancedConfig={false}
-							showConfigChecker={false}
-							requireClientSecret={true}
-							showRedirectUri={false}
-							showPostLogoutRedirectUri={false}
-							showLoginHint={false}
-							showClientAuthMethod={false}
-							showEnvironmentIdInput={true}
-						/>
-						{error && (
-							<ErrorMessage>
-								<FiAlertTriangle /> {error}
-							</ErrorMessage>
-						)}
-					</StepContainer>
-				);
+		const workerToken = getAccessToken();
+		const hasWorkerToken = Boolean(workerToken);
+		// Combined step: Get Worker Token + Get License Information
+		return (
+			<StepContainer>
+				<StepTitle>
+					<FiShield /> Get Worker Token & License Information
+				</StepTitle>
+				<HelperText>
+					First, get a worker token using your saved credentials. Then fetch your organization's licensing information.
+				</HelperText>
 
-			case 1: // Get Worker Token
-				return (
-					<StepContainer>
-						<StepTitle>
-							<FiKey /> Step 2: Get Worker Token
-						</StepTitle>
-						<HelperText>
-							Navigate to the worker token flow to obtain an access token.
-						</HelperText>
+				{/* Worker Token Section */}
+			<div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+				<h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1.125rem', fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<FiKey /> Get Worker Token
+				</h3>
+				{hasWorkerToken ? (
+					<WorkerTokenDetectedBanner 
+						token={workerToken} 
+						tokenExpiryKey="worker_token_org_licensing_expires_at"
+						message="Your existing worker token will be used automatically. You can generate a new one if needed, or proceed to fetch license information below."
+					/>
+				) : (
+					<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
+						Click the button below to open the worker token modal and obtain a token using your saved credentials.
+					</p>
+				)}
+				<Button 
+					$variant="primary" 
+					onClick={handleGetWorkerToken}
+					style={{
+						backgroundColor: hasWorkerToken ? '#9ca3af' : '#059669',
+						cursor: 'pointer',
+						opacity: hasWorkerToken ? 0.95 : 1,
+					}}
+					id="get-worker-token-button"
+				>
+					{hasWorkerToken ? (
+						<>
+							<FiCheckCircle /> Worker Token Ready
+						</>
+					) : (
+						<>
+							<FiKey /> Get Worker Token
+						</>
+					)}
+				</Button>
+			</div>
+
+				{/* License Information Section */}
+				<div style={{ marginBottom: '1rem' }}>
+					<h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1.125rem', fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<FiShield /> Get License Information
+					</h3>
+					<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
+						Enter your Organization ID to fetch organization information including region and number of environments.
+					</p>
+					<InputLabel htmlFor="organization-id">Organization ID</InputLabel>
+					<Input
+						id="organization-id"
+						type="text"
+						value={organizationId}
+						onChange={(e) => persistOrganizationId(e.target.value)}
+						placeholder="e.g., 97ba44f2-f7ee-4144-aa95-9e636b57c096"
+						disabled={isBusy || !hasWorkerToken}
+					/>
+					<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
 						<Button 
 							$variant="primary" 
-							onClick={handleGetWorkerToken}
-							style={{ backgroundColor: '#059669' }}
+							onClick={fetchOrganizationInfo}
+							disabled={isBusy || !hasWorkerToken || !organizationId.trim()}
+							id="fetch-organization-info-button"
 						>
-							<FiKey /> Get Worker Token
+							<FiRefreshCw style={{ animation: isFetchingOrgInfo ? 'spin 1s linear infinite' : 'none' }} />
+							{isFetchingOrgInfo ? 'Loading...' : 'Get Organization Info'}
 						</Button>
-					</StepContainer>
-				);
+					</div>
+					{error && (
+						<ErrorMessage>
+							<FiAlertTriangle /> {error}
+						</ErrorMessage>
+					)}
+				</div>
 
-			case 2: // Get License Info
-				return (
-					<StepContainer>
-						<StepTitle>
-							<FiShield /> Step 3: Get License Information
-						</StepTitle>
-						<HelperText>
-							Fetch your organization's licensing information using the worker token.
-						</HelperText>
-						<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
-							<Button 
-								$variant="primary" 
-								onClick={fetchOrganizationInfo}
-								disabled={loading || !getAccessToken()}
-							>
-								<FiRefreshCw style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-								{loading ? 'Loading...' : 'Get Organization Info'}
-							</Button>
-							<Button 
-								$variant="secondary" 
-								onClick={fetchAllLicenses}
-								disabled={loading || !getAccessToken()}
-							>
-								<FiRefreshCw style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
-								Get All Licenses
-							</Button>
-						</div>
-						{error && (
-							<ErrorMessage>
-								<FiAlertTriangle /> {error}
-							</ErrorMessage>
-						)}
-						{orgInfo && (
-							<CollapsibleHeader title="Organization Information" icon={<FiInfo />} theme="blue">
-								<LicenseGrid>
-									<LicenseCard $borderColor="#3b82f6">
-										<InfoRow>
-											<InfoLabel>Name:</InfoLabel>
-											<InfoValue>{orgInfo.name}</InfoValue>
-										</InfoRow>
-										<InfoRow>
-											<InfoLabel>Region:</InfoLabel>
-											<InfoValue>{orgInfo.region}</InfoValue>
-										</InfoRow>
-										<InfoRow>
-											<InfoLabel>Created:</InfoLabel>
-											<InfoValue>{new Date(orgInfo.createdAt).toLocaleDateString()}</InfoValue>
-										</InfoRow>
-										<InfoRow>
-											<InfoLabel>Environments:</InfoLabel>
-											<InfoValue>{orgInfo.environments.length}</InfoValue>
-										</InfoRow>
-									</LicenseCard>
-								</LicenseGrid>
-							</CollapsibleHeader>
-						)}
-						{allLicenses.length > 0 && (
-							<CollapsibleHeader title={`All Licenses (${allLicenses.length})`} icon={<FiShield />} theme="green">
-								<LicenseGrid>
-									{allLicenses.map((license) => (
-										<LicenseCard 
-											key={license.id} 
-											$borderColor={
-												license.status === 'active' ? '#10b981' :
-												license.status === 'expired' ? '#ef4444' :
-												license.status === 'trial' ? '#f59e0b' : '#e5e7eb'
-											}
-										>
-											<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-												<h3 style={{ margin: 0 }}>{license.name}</h3>
-												<span style={{ 
-													padding: '0.25rem 0.75rem',
-													borderRadius: '9999px',
-													fontSize: '0.75rem',
-													fontWeight: 600,
-													background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
-													color: license.status === 'active' ? '#065f46' : '#991b1b',
-												}}>
-													{license.status.toUpperCase()}
-												</span>
-											</div>
-											<InfoRow>
-												<InfoLabel>Type:</InfoLabel>
-												<InfoValue>{license.type}</InfoValue>
-											</InfoRow>
-											<InfoRow>
-												<InfoLabel>Start Date:</InfoLabel>
-												<InfoValue>{new Date(license.startDate).toLocaleDateString()}</InfoValue>
-											</InfoRow>
-										</LicenseCard>
-									))}
-								</LicenseGrid>
-							</CollapsibleHeader>
-						)}
-					</StepContainer>
-				);
+				{/* Results */}
+				{orgInfo && (
+					<CollapsibleHeader title="Organization Information" icon={<FiInfo />} theme="blue">
+						<LicenseGrid>
+							<LicenseCard $borderColor="#3b82f6">
+								<InfoRow>
+									<InfoLabel>Name:</InfoLabel>
+									<InfoValue>{orgInfo.name}</InfoValue>
+								</InfoRow>
+								<InfoRow>
+									<InfoLabel>Region:</InfoLabel>
+									<InfoValue>{orgInfo.region}</InfoValue>
+								</InfoRow>
+								<InfoRow>
+									<InfoLabel>Created:</InfoLabel>
+									<InfoValue>{new Date(orgInfo.createdAt).toLocaleDateString()}</InfoValue>
+								</InfoRow>
+								<InfoRow>
+									<InfoLabel>Updated:</InfoLabel>
+									<InfoValue>{new Date(orgInfo.updatedAt).toLocaleDateString()}</InfoValue>
+								</InfoRow>
+								<InfoRow>
+									<InfoLabel>Total Environments:</InfoLabel>
+									<InfoValue>{orgInfo.environments.length}</InfoValue>
+								</InfoRow>
+							</LicenseCard>
+						</LicenseGrid>
+					</CollapsibleHeader>
+				)}
+				{orgInfo && (
+					<CollapsibleHeader title="Applied License" icon={<FiShield />} theme="green">
+						<LicenseCard $borderColor="#10b981">
+							<InfoRow>
+								<InfoLabel>License Name:</InfoLabel>
+								<InfoValue>{orgInfo.license.name}</InfoValue>
+							</InfoRow>
+							<InfoRow>
+								<InfoLabel>Status:</InfoLabel>
+								<InfoValue style={{ fontWeight: 700, color: orgInfo.license.status === 'active' ? '#047857' : '#b45309' }}>
+									{orgInfo.license.status.toUpperCase()}
+								</InfoValue>
+							</InfoRow>
+							<InfoRow>
+								<InfoLabel>Type:</InfoLabel>
+								<InfoValue>{orgInfo.license.type}</InfoValue>
+							</InfoRow>
+							<InfoRow>
+								<InfoLabel>Start Date:</InfoLabel>
+								<InfoValue>{new Date(orgInfo.license.startDate).toLocaleDateString()}</InfoValue>
+							</InfoRow>
+							{orgInfo.license.endDate && (
+								<InfoRow>
+									<InfoLabel>End Date:</InfoLabel>
+									<InfoValue>{new Date(orgInfo.license.endDate).toLocaleDateString()}</InfoValue>
+								</InfoRow>
+							)}
+							{orgInfo.license.users && (
+								<InfoRow>
+									<InfoLabel>User Capacity:</InfoLabel>
+									<InfoValue>{`${orgInfo.license.users.used}/${orgInfo.license.users.total} used`}</InfoValue>
+								</InfoRow>
+							)}
+							{orgInfo.license.applications && (
+								<InfoRow>
+									<InfoLabel>Applications:</InfoLabel>
+									<InfoValue>{`${orgInfo.license.applications.used}/${orgInfo.license.applications.total} used`}</InfoValue>
+								</InfoRow>
+							)}
+							{orgInfo.license.features && orgInfo.license.features.length > 0 && (
+								<div style={{ marginTop: '1rem' }}>
+									<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#1f2937' }}>Included Features</p>
+									<div style={{ display: 'flex', flexWrap: 'wrap' }}>
+										{orgInfo.license.features.map((feature) => (
+											<FeatureBadge key={feature}>{feature}</FeatureBadge>
+										))}
+									</div>
+								</div>
+							)}
+						</LicenseCard>
+					</CollapsibleHeader>
+				)}
+				{orgInfo && (
+					<CollapsibleHeader
+						title={`Environments (${Math.min(5, orgInfo.environments.length)} of ${orgInfo.environments.length})`}
+						icon={<FiInfo />}
+						theme="highlight"
+					>
+						{orgInfo.environments.length === 0 ? (
+							<p style={{ margin: 0, color: '#64748b' }}>No environments were returned for this organization.</p>
+						) : (
+							<EnvironmentTable>
+								<EnvironmentHeader>
+									<span>Environment Name</span>
+									<span>Region</span>
+									<span>Environment ID</span>
+									<span>Applied License</span>
+								</EnvironmentHeader>
+								<div style={{ maxHeight: '360px', overflowY: 'auto' }}>
+									{orgInfo.environments.slice(0, 5).map((environment) => {
+										const appliedLicenseName = environment.licenseName || 'Not Assigned';
+										const appliedLicenseStatus = environment.licenseStatus;
+										const appliedLicenseId = environment.licenseId;
+										const appliedLicenseType = environment.licenseType;
+										const isInheritedLicense = false;
 
-			default:
-				return null;
-		}
+										return (
+											<EnvironmentRow key={environment.id}>
+												<EnvironmentName>{environment.name}</EnvironmentName>
+												<EnvironmentRegion>
+													{environment.region || 'unknown'}
+												</EnvironmentRegion>
+												<EnvironmentId>{environment.id}</EnvironmentId>
+												<EnvironmentLicense>
+													<strong>{appliedLicenseName}</strong>
+													{appliedLicenseStatus && (
+														<FeatureBadge
+															style={{
+																background: appliedLicenseStatus === 'active' ? '#dcfce7' : '#fee2e2',
+																color: appliedLicenseStatus === 'active' ? '#166534' : '#b91c1c',
+															}}
+														>
+															{appliedLicenseStatus.toUpperCase()}
+														</FeatureBadge>
+													)}
+													{(appliedLicenseId || appliedLicenseType || isInheritedLicense) && (
+														<EnvironmentLicenseMeta>
+															{appliedLicenseId && <span>License ID: {appliedLicenseId}</span>}
+															{appliedLicenseType && <span>License Type: {appliedLicenseType}</span>}
+															{isInheritedLicense && <span>Inherited from organization license</span>}
+														</EnvironmentLicenseMeta>
+													)}
+												</EnvironmentLicense>
+											</EnvironmentRow>
+										);
+									})}
+								</div>
+							</EnvironmentTable>
+						)}
+					</CollapsibleHeader>
+				)}
+				{allLicenses.length > 0 && (
+					<CollapsibleHeader title={`All Licenses (${allLicenses.length})`} icon={<FiShield />} theme="green">
+						<LicenseGrid>
+							{allLicenses.map((license) => (
+								<LicenseCard 
+									key={license.id} 
+									$borderColor={
+										license.status === 'active' ? '#10b981' :
+										license.status === 'expired' ? '#ef4444' :
+										license.status === 'trial' ? '#f59e0b' : '#e5e7eb'
+									}
+								>
+									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+										<h3 style={{ margin: 0 }}>{license.name}</h3>
+										<span style={{ 
+											padding: '0.25rem 0.75rem',
+											borderRadius: '9999px',
+											fontSize: '0.75rem',
+											fontWeight: 600,
+											background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
+											color: license.status === 'active' ? '#065f46' : '#991b1b',
+										}}>
+											{license.status.toUpperCase()}
+										</span>
+									</div>
+									<InfoRow>
+										<InfoLabel>Type:</InfoLabel>
+										<InfoValue>{license.type}</InfoValue>
+									</InfoRow>
+									<InfoRow>
+										<InfoLabel>Start Date:</InfoLabel>
+										<InfoValue>{new Date(license.startDate).toLocaleDateString()}</InfoValue>
+									</InfoRow>
+								</LicenseCard>
+							))}
+						</LicenseGrid>
+					</CollapsibleHeader>
+				)}
+			</StepContainer>
+		);
 	};
 
 	const canGoNext = () => {
-		if (currentStep === 0) return credentialsSaved;
-		if (currentStep === 1) return !!getAccessToken();
-		if (currentStep === 2) return true;
+		// Only one step now, so navigation buttons are not needed
 		return false;
 	};
 
-	const canGoPrevious = () => currentStep > 0;
+	const canGoPrevious = () => false;
 
 	const handleNext = () => {
 		if (canGoNext()) {
@@ -600,7 +875,7 @@ const OrganizationLicensingV2: React.FC = () => {
 						fontSize: '0.875rem',
 						fontWeight: 600,
 					}}>
-						Step {currentStep + 1} of {STEP_METADATA.length}
+						Step 1 of 1
 					</div>
 				</div>
 				<StepperHeader>
@@ -616,15 +891,32 @@ const OrganizationLicensingV2: React.FC = () => {
 				{renderStep()}
 				<StepNavigationButtons
 					currentStep={currentStep}
-					totalSteps={3}
+					totalSteps={STEP_METADATA.length}
 					onNext={handleNext}
 					onPrevious={handlePrevious}
 					onReset={handleReset}
 					canNavigateNext={canGoNext()}
-					isFirstStep={currentStep === 0}
-					canGoPrevious={canGoPrevious()}
+					isFirstStep
 				/>
 			</ContentWrapper>
+
+			{/* Worker Token Modal - starts at Step 2 (token generation) */}
+			<WorkerTokenModal
+				isOpen={showWorkerTokenModal}
+				onClose={() => setShowWorkerTokenModal(false)}
+				onContinue={handleWorkerTokenModalContinue}
+				flowType="organization-licensing"
+				environmentId={credentials.environmentId}
+				skipCredentialsStep={true}
+				prefillCredentials={{
+					environmentId: credentials.environmentId,
+					clientId: credentials.clientId,
+					clientSecret: credentials.clientSecret,
+					scopes: 'p1:read:organization p1:read:licensing',
+				}}
+				tokenStorageKey="worker_token_org_licensing"
+				tokenExpiryKey="worker_token_org_licensing_expires_at"
+			/>
 		</PageContainer>
 	);
 };
