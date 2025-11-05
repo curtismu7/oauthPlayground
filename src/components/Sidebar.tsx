@@ -853,6 +853,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 				<SidebarSearch 
 					onSearch={handleSearch}
 					placeholder="Search flows and pages..."
+					activeSearchQuery={searchQuery}
 				/>
 
 				<DragDropSidebar 

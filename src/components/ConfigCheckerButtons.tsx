@@ -425,7 +425,7 @@ interface Props {
   environmentId: string;
   region?: string;
   isCreating?: boolean;
-  onCreateApplication?: (appData?: { name: string; description: string }) => void;
+  onCreateApplication?: (appData?: { name: string; description: string; redirectUri?: string; tokenEndpointAuthMethod?: string; responseTypes?: string[]; grantTypes?: string[]; refreshTokenEnabled?: boolean }) => void;
   onImportConfig?: (config: Record<string, unknown>) => void;
   onGenerateWorkerToken?: () => void;
 }
@@ -505,6 +505,7 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
       tokenEndpointAuthMethod: formData.tokenEndpointAuthMethod as string || 'client_secret_basic',
       responseTypes: formData.responseTypes as string[] || ['code'],
       grantTypes: formData.grantTypes as string[] || ['authorization_code'],
+      refreshTokenEnabled: true, // Default to enabled (refresh tokens are commonly used)
     };
   });
 
@@ -594,66 +595,91 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
 
   // Get allowed response types for the selected app type
   const getAllowedResponseTypes = (appType: string) => {
-    switch (appType) {
-      case 'OIDC_WEB_APP':
-        return ['code', 'id_token']; // Authorization Code flow
-      case 'OIDC_NATIVE_APP':
-        return ['code', 'id_token']; // Authorization Code flow
-      case 'SINGLE_PAGE_APP':
-        return ['token', 'id_token']; // Implicit flow
-      case 'WORKER':
-        return []; // No response types for worker apps
-      case 'SERVICE':
-        return []; // No response types for service apps
-      default:
-        return ['code', 'token', 'id_token'];
-    }
+    // For create app modal, allow all response types for maximum flexibility
+    // Users should be able to create apps with any combination they need
+    // Note: Some combinations may not be valid (e.g., 'token' alone without 'id_token' in implicit flow)
+    // but we allow selection here and let PingOne API validate
+    return ['code', 'token', 'id_token'];
   };
 
   // Get allowed grant types for the selected app type
   const getAllowedGrantTypes = (appType: string) => {
-    switch (appType) {
-      case 'OIDC_WEB_APP':
-        return ['authorization_code', 'refresh_token']; // Authorization Code flow
-      case 'OIDC_NATIVE_APP':
-        return ['authorization_code', 'refresh_token']; // Authorization Code flow
-      case 'SINGLE_PAGE_APP':
-        return ['implicit']; // Implicit flow
-      case 'WORKER':
-        return ['client_credentials']; // Client Credentials flow
-      case 'SERVICE':
-        return ['client_credentials']; // Client Credentials flow
-      default:
-        return ['authorization_code', 'implicit', 'client_credentials', 'refresh_token'];
-    }
+    // For create app modal, allow all grant types for maximum flexibility
+    // Users should be able to create apps with any combination they need
+    // NOTE: refresh_token is NOT a grant type - it's a token returned by the authorization server
+    // Refresh tokens are automatically returned when using authorization_code or client_credentials grant types
+    const allGrantTypes = [
+      'authorization_code',
+      'implicit',
+      'client_credentials',
+      'urn:ietf:params:oauth:grant-type:device_code', // RFC 8628: Device Authorization Flow
+      'urn:openid:params:grant-type:ciba' // RFC 9436: CIBA
+    ];
+    
+    // Return all grant types - allow maximum flexibility in create app modal
+    // Users can select any combination they need for their use case
+    return allGrantTypes;
   };
 
   const allowedTokenAuthMethods = getAllowedTokenAuthMethods(selectedAppType);
   const shouldShowTokenAuthSelector = allowedTokenAuthMethods.length > 1;
   
   // Determine if the flow type needs redirect URIs
+  // Grant types that REQUIRE redirect URIs: authorization_code, implicit
+  // Grant types that DON'T use redirect URIs: client_credentials, device_code, ciba, password (ROPC)
+  // NOTE: refresh_token is NOT a grant type - it's a token type returned by the authorization server
+  // Refresh tokens are automatically returned when using authorization_code or client_credentials grant types
   const flowNeedsRedirectUri = useMemo(() => {
-    // Check selectedAppType
+    // Check selectedAppType - WORKER and SERVICE apps don't use redirect URIs
     if (selectedAppType === 'WORKER' || selectedAppType === 'SERVICE') {
       return false;
     }
     
-    // Check grant types in formData
-    const grantTypes = formData.grantTypes as string[] | undefined;
-    if (grantTypes) {
-      const hasClientCredentials = grantTypes.some(gt => 
-        gt.toLowerCase() === 'client_credentials'
-      );
-      const hasROPC = grantTypes.some(gt => 
-        gt.toLowerCase().includes('password')
-      );
-      if (hasClientCredentials && !hasROPC) {
-        return false;
-      }
+    // Check grant types - use createFormData if available (modal), otherwise formData
+    const grantTypes = createFormData.grantTypes || (formData.grantTypes as string[] | undefined);
+    if (!grantTypes || grantTypes.length === 0) {
+      // Default: show redirect URI if no grant types specified (safer default)
+      return true;
     }
     
+    // Grant types that REQUIRE redirect URIs (user interaction via browser)
+    const grantTypesRequiringRedirect = [
+      'authorization_code',
+      'implicit'
+    ];
+    
+    // Grant types that DON'T use redirect URIs (no browser redirect)
+    const grantTypesWithoutRedirect = [
+      'client_credentials',
+      'urn:ietf:params:oauth:grant-type:device_code', // RFC 8628: Device Authorization
+      'urn:openid:params:grant-type:ciba', // RFC 9436: CIBA
+      'password' // ROPC (deprecated, but still valid)
+    ];
+    
+    // Check if any grant type requires redirect URI
+    const hasRedirectRequired = grantTypes.some(gt => 
+      grantTypesRequiringRedirect.includes(gt.toLowerCase())
+    );
+    
+    // Check if ONLY grant types without redirect are selected
+    const hasOnlyNoRedirect = grantTypes.every(gt => 
+      grantTypesWithoutRedirect.includes(gt) || 
+      grantTypesWithoutRedirect.some(noRedirect => gt.toLowerCase().includes(noRedirect.toLowerCase()))
+    );
+    
+    // If we have grant types that require redirect, show redirect URI
+    if (hasRedirectRequired) {
+      return true;
+    }
+    
+    // If ONLY grant types that don't need redirect are selected, hide redirect URI
+    if (hasOnlyNoRedirect && grantTypes.length > 0) {
+      return false;
+    }
+    
+    // Default: show redirect URI (safer for edge cases)
     return true;
-  }, [selectedAppType, formData.grantTypes]);
+  }, [selectedAppType, formData.grantTypes, createFormData.grantTypes]);
 
   // Toggle selection of a specific diff
   const toggleDiffSelection = (path: string) => {
@@ -1852,46 +1878,75 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
                     color: '#374151',
                     fontSize: '0.875rem'
                   }}>
-                    Response Type
+                    Response Type *
                   </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {['code', 'token', 'id_token'].map((type) => {
-                      const isAllowed = getAllowedResponseTypes(selectedAppType).includes(type);
-                      return (
-                        <label key={type} style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          padding: '0.5rem',
-                          borderRadius: '0.5rem',
-                          background: isAllowed ? 'white' : '#f3f4f6',
-                          border: isAllowed ? '1px solid #d1d5db' : '1px solid #e5e7eb',
-                          cursor: isAllowed ? 'pointer' : 'not-allowed',
-                          opacity: isAllowed ? 1 : 0.5
-                        }}>
-                          <input
-                            type="checkbox"
-                            checked={createFormData.responseTypes.includes(type)}
-                            onChange={(e) => {
-                              if (!isAllowed) return;
-                              const newResponseTypes = e.target.checked
-                                ? [...createFormData.responseTypes, type]
-                                : createFormData.responseTypes.filter(t => t !== type);
-                              setCreateFormData(prev => ({ ...prev, responseTypes: newResponseTypes }));
-                            }}
-                            disabled={!isAllowed}
-                            style={{ margin: 0 }}
-                          />
-                          <span style={{ 
-                            textTransform: 'capitalize',
-                            fontSize: '0.875rem',
-                            fontWeight: '500'
-                          }}>
-                            {type === 'id_token' ? 'ID Token' : type}
-                          </span>
-                        </label>
-                      );
-                    })}
+                  <select
+                    value={createFormData.responseTypes.length > 0 ? createFormData.responseTypes[0] : 'code'}
+                    onChange={(e) => {
+                      setCreateFormData(prev => ({ ...prev, responseTypes: [e.target.value] }));
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.5rem',
+                      fontSize: '0.875rem',
+                      outline: 'none',
+                      background: 'white',
+                      transition: 'border-color 0.2s',
+                    }}
+                    onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                    onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
+                  >
+                    <option value="code">code (Authorization Code)</option>
+                    <option value="token">token (Implicit OAuth)</option>
+                    <option value="id_token">id_token (Implicit OIDC)</option>
+                    <option value="id_token token">id_token token (Implicit OIDC)</option>
+                    <option value="code id_token">code id_token (Hybrid)</option>
+                    <option value="code token">code token (Hybrid)</option>
+                    <option value="code id_token token">code id_token token (Hybrid)</option>
+                  </select>
+                  <div style={{ 
+                    marginTop: '0.5rem', 
+                    fontSize: '0.75rem', 
+                    color: '#6b7280',
+                    fontStyle: 'italic'
+                  }}>
+                    Select the OAuth/OIDC response type for this application
+                  </div>
+                </div>
+
+                {/* Refresh Token Configuration */}
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    marginBottom: '0.75rem',
+                    fontWeight: '600',
+                    color: '#374151',
+                    fontSize: '0.875rem'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={createFormData.refreshTokenEnabled}
+                      onChange={(e) => {
+                        setCreateFormData(prev => ({ ...prev, refreshTokenEnabled: e.target.checked }));
+                      }}
+                      style={{ margin: 0 }}
+                    />
+                    <span>Enable Refresh Token</span>
+                  </label>
+                  <div style={{ 
+                    marginTop: '0.5rem',
+                    padding: '0.75rem',
+                    background: '#f8fafc',
+                    borderRadius: '0.5rem',
+                    border: '1px solid #e2e8f0',
+                    fontSize: '0.75rem',
+                    color: '#475569'
+                  }}>
+                    <strong>Note:</strong> Refresh tokens are not a grant type. They are automatically returned by the authorization server when using <code>authorization_code</code> or <code>client_credentials</code> grant types. This setting controls whether your app configuration supports refresh tokens.
                   </div>
                 </div>
 
@@ -1920,8 +1975,12 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
                       cursor: 'help'
                     }}>?</span>
                   </label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                    {['authorization_code', 'implicit', 'client_credentials', 'device_authorization', 'refresh_token'].map((type) => {
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '0.5rem'
+                  }}>
+                    {['authorization_code', 'implicit', 'client_credentials', 'urn:ietf:params:oauth:grant-type:device_code', 'urn:openid:params:grant-type:ciba'].map((type) => {
                       const isAllowed = getAllowedGrantTypes(selectedAppType).includes(type);
                       return (
                         <label key={type} style={{
@@ -1951,11 +2010,16 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
                           <span style={{ 
                             textTransform: 'capitalize',
                             fontSize: '0.875rem',
-                            fontWeight: '500'
+                            fontWeight: '500',
+                            flex: 1
                           }}>
-                            {type.replace('_', ' ')}
+                            {type === 'urn:openid:params:grant-type:ciba' 
+                              ? 'CIBA'
+                              : type === 'urn:ietf:params:oauth:grant-type:device_code'
+                              ? 'Device Authorization'
+                              : type.replace('_', ' ')}
                           </span>
-                          {type === 'device_authorization' && (
+                          {(type === 'urn:ietf:params:oauth:grant-type:device_code' || type === 'urn:openid:params:grant-type:ciba') && (
                             <span style={{ 
                               background: '#f3f4f6',
                               color: '#6b7280',
@@ -1966,8 +2030,13 @@ export const ConfigCheckerButtons: React.FC<Props> = ({
                               alignItems: 'center',
                               justifyContent: 'center',
                               fontSize: '0.75rem',
-                              cursor: 'help'
-                            }}>?</span>
+                              cursor: 'help',
+                              flexShrink: 0
+                            }} 
+                            title={type === 'urn:openid:params:grant-type:ciba' 
+                              ? 'CIBA (RFC 9436): Client Initiated Backchannel Authentication - Enables decoupled authentication where the user approves on a different device'
+                              : 'Device Authorization Flow (RFC 8628): For input-constrained devices like smart TVs, printers, IoT devices, gaming consoles, etc.'}
+                            >?</span>
                           )}
                         </label>
                       );

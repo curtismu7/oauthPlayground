@@ -246,14 +246,19 @@ const ConfigurationURIChecker: React.FC<ConfigurationURICheckerProps> = ({
 
         // Check if token is expired (with 5 minute buffer)
         const bufferTime = 5 * 60 * 1000; // 5 minutes in milliseconds
-        if (now < expirationTime - bufferTime) {
+        const isExpired = now >= expirationTime - bufferTime;
+        if (!isExpired) {
+          const minutesRemaining = Math.floor((expirationTime - now) / 60000);
+          console.log(`[Config URI Checker] ✅ Worker token valid, expires in ${minutesRemaining} minutes`);
           setRetrievedWorkerToken(storedWorkerToken);
         } else {
+          console.warn(`[Config URI Checker] ⚠️ Worker token EXPIRED (expired at ${new Date(expirationTime).toLocaleString()}). Clearing token.`);
           localStorage.removeItem("worker_token");
           localStorage.removeItem("worker_token_expires_at");
           setRetrievedWorkerToken("");
         }
       } else if (storedWorkerToken) {
+        console.warn('[Config URI Checker] ⚠️ Worker token found but no expiration data - token may be expired');
         setRetrievedWorkerToken(storedWorkerToken);
       }
     };

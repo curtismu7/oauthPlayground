@@ -423,9 +423,11 @@ const createDefaultFormData = (): FormDataState => {
   };
 };
 
-const WEB_APP_GRANT_OPTIONS = ['authorization_code', 'implicit', 'refresh_token', 'client_credentials'] as const;
-const NATIVE_APP_GRANT_OPTIONS = ['authorization_code', 'implicit', 'refresh_token'] as const;
-const SPA_GRANT_OPTIONS = ['authorization_code', 'implicit', 'refresh_token'] as const;
+// NOTE: refresh_token is NOT a grant type - it's a token type returned by the authorization server
+// Refresh tokens are automatically returned when using authorization_code or client_credentials grant types
+const WEB_APP_GRANT_OPTIONS = ['authorization_code', 'implicit', 'client_credentials'] as const;
+const NATIVE_APP_GRANT_OPTIONS = ['authorization_code', 'implicit'] as const;
+const SPA_GRANT_OPTIONS = ['authorization_code', 'implicit'] as const;
 const WORKER_GRANT_OPTIONS = ['client_credentials', 'authorization_code', 'implicit'] as const;
 const SERVICE_GRANT_OPTIONS = ['client_credentials', 'authorization_code'] as const;
 
