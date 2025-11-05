@@ -29,6 +29,7 @@ export interface PlaygroundConfig {
 	scopes: string;
 	responseType: string;
 	tokenEndpointAuthMethod: string;
+	region?: string; // PingOne region (us, eu, ap, ca, na)
 }
 
 export interface PlaygroundResult {
@@ -946,7 +947,16 @@ const CancelButton = styled.button`
 	}, [config]);
 
 	const authUrl = useMemo(() => {
-		const base = `https://auth.pingone.com/${config.environmentId}/as/authorize`;
+		// Construct region-aware authorization endpoint
+		const regionDomains: Record<string, string> = {
+			us: 'auth.pingone.com',
+			eu: 'auth.pingone.eu',
+			ap: 'auth.pingone.asia',
+			ca: 'auth.pingone.ca',
+			na: 'auth.pingone.com'
+		};
+		const domain = regionDomains[config.region || 'us'] || 'auth.pingone.com';
+		const base = `https://${domain}/${config.environmentId}/as/authorize`;
 		const params = new URLSearchParams({
 			response_type: config.responseType,
 			client_id: config.clientId,
@@ -2011,7 +2021,7 @@ const CancelButton = styled.button`
 			flowType="pingone"
 			customConfig={{
 				flowType: 'pingone',
-				title: 'PingOne Authentication Playground',
+				title: 'PingOne Authentication Playground – Authorization Code Flow',
 				subtitle: 'Test PingOne authentication flows with redirect and redirectless modes',
 			}}
 		/>

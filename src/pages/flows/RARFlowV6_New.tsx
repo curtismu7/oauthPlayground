@@ -43,7 +43,7 @@ import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
 import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
