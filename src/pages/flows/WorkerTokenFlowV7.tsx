@@ -459,46 +459,16 @@ const WorkerTokenFlowV7: React.FC = () => {
 					</TokenSection>
 				)}
 
-				{/* PingOne Configuration Checker */}
+				{/* Note: PingOne Configuration Checker is available in Step 0 via ComprehensiveCredentialsService */}
 				<StyledSectionDivider />
 				<ImportedResultsSection>
 					<ResultsHeading>
-						<FiAlertCircle size={18} /> PingOne Configuration Checker
+						<FiAlertCircle size={18} /> Configuration Management
 					</ResultsHeading>
 					<StyledHelperText>
-						<strong>Check Config:</strong> Compare your current flow settings with existing PingOne applications to identify differences.<br/>
-						<strong>Create App:</strong> Automatically create a new PingOne application with your current configuration.
+						To use the Config Checker features (Check Config, Create App, Get New Worker Token), return to Step 0 
+						where these tools are integrated into the credentials configuration section.
 					</StyledHelperText>
-					
-					<ActionRow>
-						<HighlightedActionButton
-							onClick={() => {
-								v4ToastManager.showInfo('Check Config functionality coming soon!');
-							}}
-							$priority="primary"
-							title="Compare current settings with existing PingOne applications"
-						>
-							<FiSettings /> Check Config
-						</HighlightedActionButton>
-						
-						<HighlightedActionButton
-							onClick={() => {
-								v4ToastManager.showInfo('Create App functionality coming soon!');
-							}}
-							$priority="success"
-							title="Create a new PingOne application with current configuration"
-						>
-							<FiCheckCircle /> Create App
-						</HighlightedActionButton>
-						
-						<HighlightedActionButton
-							onClick={handleRequestToken}
-							$priority="warning"
-							title="Generate a new worker token"
-						>
-							<FiKey /> Get New Worker Token
-						</HighlightedActionButton>
-					</ActionRow>
 				</ImportedResultsSection>
 
 				<StyledSectionDivider />

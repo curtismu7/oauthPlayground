@@ -45,7 +45,7 @@ export async function getWorkerToken(params: GetWorkerTokenParams): Promise<stri
 			client_secret: params.clientSecret,
 			environment_id: params.environmentId,
 			token_endpoint_auth_method: params.tokenEndpointAuthMethod,
-			scope: 'p1:read:environment p1:read:application p1:read:resource'
+			scope: 'p1:read:environments p1:read:applications p1:read:connections'
 		})
 	});
 

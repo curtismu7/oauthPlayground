@@ -388,16 +388,24 @@ app.post('/api/token-exchange', async (req, res) => {
 				refresh_token: refresh_token,
 				scope: scope || 'openid profile email',
 			});
-		} else if (grant_type === 'client_credentials') {
-			// Client credentials grant - only include grant_type, client_id, and scope
-			console.log('🔑 [Server] Building client credentials request body');
-			const finalScope = scope || 'openid';
-			console.log('🔑 [Server] Using scope for client_credentials:', { providedScope: scope, finalScope });
-			tokenRequestBody = new URLSearchParams({
-				grant_type: 'client_credentials',
-				client_id: client_id,
-				scope: finalScope,
-			});
+	} else if (grant_type === 'client_credentials') {
+		// Client credentials grant - only include grant_type, client_id, and scope
+		// NOTE: Worker tokens use p1:* scopes (Management API), NEVER openid (which is for OIDC user auth)
+		console.log('🔑 [Server] Building client credentials request body');
+		
+		// If no scope provided, require it - don't default to invalid 'openid'
+		if (!scope) {
+			console.error('❌ [Server] No scope provided for client_credentials grant - this will likely fail');
+			console.error('❌ [Server] Worker tokens require p1:* scopes (e.g., p1:read:user, p1:read:environment)');
+		}
+		
+		const finalScope = scope || '';
+		console.log('🔑 [Server] Using scope for client_credentials:', { providedScope: scope, finalScope, warning: !scope ? 'NO SCOPE PROVIDED' : null });
+		tokenRequestBody = new URLSearchParams({
+			grant_type: 'client_credentials',
+			client_id: client_id,
+			...(finalScope ? { scope: finalScope } : {}),  // Only include scope if provided
+		});
 		} else if (grant_type === 'urn:ietf:params:oauth:grant-type:token-exchange') {
 			// RFC 8693 Token Exchange
 			console.log('🔄 [Server] Building token exchange request body');
@@ -571,30 +579,21 @@ app.post('/api/token-exchange', async (req, res) => {
 	}
 });
 
-// PingOne Identity Metrics - Total Identity Counts
-app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
+// PingOne Active Identity Counts API (time-series with sampling periods)
+app.get('/api/pingone/active-identity-counts', async (req, res) => {
 	try {
-		console.log('[PingOne Identity Counts] Request body:', JSON.stringify(req.body, null, 2));
-
-		const {
-			environmentId,
-			region = 'na',
-			startDate,
-			endDate,
-			sampleSize,
-			workerToken,
-			clientId,
-			clientSecret,
-		} = req.body;
+		const { environmentId, region, startDate, samplingPeriod, limit, licenseId, clientId, clientSecret, workerToken } = req.query;
 
 		if (!environmentId) {
 			return res.status(400).json({
 				error: 'invalid_request',
-				error_description: 'Missing required parameter: environmentId',
+				error_description: 'environmentId is required',
 			});
 		}
 
 		let tokenToUse = workerToken;
+
+		// If no worker token provided, generate one using client credentials
 		if (!tokenToUse) {
 			if (!clientId || !clientSecret) {
 				return res.status(400).json({
@@ -603,8 +602,22 @@ app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
 				});
 			}
 
-			console.log('[PingOne Identity Counts] Fetching worker token...');
-			const tokenEndpoint = `https://auth.pingone.com/${environmentId}/as/token`;
+			console.log('[PingOne Active Identity Counts] Fetching worker token...');
+			
+			// Map region to auth domain
+			const authDomainMap = {
+				us: 'auth.pingone.com',
+				na: 'auth.pingone.com',
+				eu: 'auth.pingone.eu',
+				ca: 'auth.pingone.ca',
+				ap: 'auth.pingone.asia',
+				asia: 'auth.pingone.asia',
+			};
+			const authDomain = authDomainMap[String(region).toLowerCase()] || 'auth.pingone.com';
+			const tokenEndpoint = `https://${authDomain}/${environmentId}/as/token`;
+			
+			console.log('[PingOne Active Identity Counts] Using token endpoint:', tokenEndpoint);
+			
 			const controller = new AbortController();
 			const timeout = setTimeout(() => controller.abort(), 10000);
 
@@ -617,7 +630,8 @@ app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
 					grant_type: 'client_credentials',
 					client_id: clientId,
 					client_secret: clientSecret,
-					scope: 'p1:read:metrics p1:read:environment p1:read:user',
+					// Note: Metrics API uses roles, not scopes. Any valid token will work.
+					scope: 'p1:read:users',
 				}),
 				signal: controller.signal,
 			});
@@ -626,7 +640,7 @@ app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
 
 			if (!tokenResponse.ok) {
 				const errorText = await tokenResponse.text();
-				console.error('[PingOne Identity Counts] Worker token request failed:', errorText);
+				console.error('[PingOne Active Identity Counts] Worker token request failed:', errorText);
 				return res.status(tokenResponse.status).json({
 					error: 'authentication_failed',
 					error_description: 'Failed to obtain worker token',
@@ -636,9 +650,9 @@ app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
 
 			const tokenData = await tokenResponse.json();
 			tokenToUse = tokenData.access_token;
-			console.log('[PingOne Identity Counts] Worker token obtained successfully');
+			console.log('[PingOne Active Identity Counts] Worker token obtained successfully');
 		} else {
-			console.log('[PingOne Identity Counts] Using provided worker token');
+			console.log('[PingOne Active Identity Counts] Using provided worker token');
 		}
 
 		const regionMap = {
@@ -651,13 +665,40 @@ app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
 		};
 
 		const baseUrl = regionMap[String(region).toLowerCase()] || regionMap.na;
-		const metricsUrl = new URL(`${baseUrl}/v1/environments/${environmentId}/metrics/totalIdentities`);
+		const metricsUrl = new URL(`${baseUrl}/v1/environments/${environmentId}/activeIdentityCounts`);
 
-		if (startDate) metricsUrl.searchParams.set('startDate', startDate);
-		if (endDate) metricsUrl.searchParams.set('endDate', endDate);
-		if (sampleSize) metricsUrl.searchParams.set('sampleSize', sampleSize);
+		// Build filter for activeIdentityCounts (following PingOne API docs format)
+		// Support two modes: byDateRange (with filter) or byLicense (with licenseId parameter)
+		const filters = [];
+		if (startDate) {
+			// Ensure ISO 8601 format with Z suffix
+			const formattedDate = startDate.includes('T') ? startDate : `${startDate}T00:00:00Z`;
+			filters.push(`startDate ge "${formattedDate}"`);
+		}
+		if (samplingPeriod) {
+			filters.push(`samplingPeriod eq "${samplingPeriod}"`);
+		}
 
-		console.log('[PingOne Identity Counts] Requesting metrics from:', metricsUrl.toString());
+		if (filters.length > 0) {
+			metricsUrl.searchParams.set('filter', filters.join(' and '));
+		}
+
+		// Add licenseId parameter if provided (for byLicense endpoint type)
+		if (licenseId) {
+			metricsUrl.searchParams.set('licenseId', licenseId);
+		}
+
+		// Add samplingPeriod as query param if not in filter (for byLicense endpoint)
+		if (samplingPeriod && !startDate) {
+			metricsUrl.searchParams.set('samplingPeriod', samplingPeriod);
+		}
+
+		// Add limit parameter (default to 100, max from query or 100)
+		metricsUrl.searchParams.set('limit', limit || '100');
+
+		console.log('[PingOne Active Identity Counts] Requesting metrics from:', metricsUrl.toString());
+		console.log('[PingOne Active Identity Counts] Using region:', region, '| Base URL:', baseUrl);
+		console.log('[PingOne Active Identity Counts] Token preview:', tokenToUse ? tokenToUse.substring(0, 20) + '...' : 'NONE');
 
 		const metricsController = new AbortController();
 		const metricsTimeout = setTimeout(() => metricsController.abort(), 10000);
@@ -675,30 +716,33 @@ app.post('/api/pingone/metrics/identity-counts', async (req, res) => {
 
 		if (!metricsResponse.ok) {
 			const errorText = await metricsResponse.text();
-			console.error('[PingOne Identity Counts] Metrics request failed:', errorText);
+			console.error('[PingOne Active Identity Counts] ❌ Metrics request failed:', metricsResponse.status, metricsResponse.statusText);
+			console.error('[PingOne Active Identity Counts] ❌ URL:', metricsUrl.toString());
+			console.error('[PingOne Active Identity Counts] ❌ Region:', region);
+			console.error('[PingOne Active Identity Counts] ❌ Error details:', errorText);
 			return res.status(metricsResponse.status).json({
 				error: 'api_request_failed',
-				error_description: `Failed to retrieve identity counts: ${metricsResponse.status} ${metricsResponse.statusText}`,
+				error_description: `Failed to retrieve active identity counts: ${metricsResponse.status} ${metricsResponse.statusText}`,
 				details: errorText,
 			});
 		}
 
 		const metricsData = await metricsResponse.json();
-		console.log('[PingOne Identity Counts] Metrics retrieved successfully');
+		console.log('[PingOne Active Identity Counts] Metrics retrieved successfully');
 		res.json(metricsData);
 	} catch (error) {
 		if (error.name === 'AbortError') {
-			console.error('[PingOne Identity Counts] Request timed out');
+			console.error('[PingOne Active Identity Counts] Request timed out');
 			return res.status(504).json({
 				error: 'timeout',
-				error_description: 'PingOne identity counts request timed out',
+				error_description: 'PingOne active identity counts request timed out',
 			});
 		}
 
-		console.error('[PingOne Identity Counts] Unexpected server error:', error);
+		console.error('[PingOne Active Identity Counts] Unexpected server error:', error);
 		res.status(500).json({
 			error: 'server_error',
-			error_description: 'Internal server error while retrieving identity counts',
+			error_description: 'Internal server error while retrieving active identity counts',
 			details: error.message,
 		});
 	}
@@ -908,6 +952,683 @@ app.post('/api/introspect-token', async (req, res) => {
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during token introspection',
+		});
+	}
+});
+
+// PingOne User Profile Endpoint
+app.get('/api/pingone/user/:userId', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken',
+			});
+		}
+
+		const userEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}`;
+
+		const response = await global.fetch(userEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error(`[PingOne User] API error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		console.log(`[PingOne User] Successfully fetched user profile for: ${userId}`);
+		console.log(`[PingOne User] Profile structure:`, {
+			hasAuthoritativeIdentityProfile: !!data.authoritativeIdentityProfile,
+			hasIdentityProvider: !!data.identityProvider,
+			authoritativeIdentityProfileKeys: data.authoritativeIdentityProfile ? Object.keys(data.authoritativeIdentityProfile) : [],
+			identityProviderKeys: data.identityProvider ? Object.keys(data.identityProvider) : [],
+			hasMfaEnabled: 'mfaEnabled' in data,
+			mfaEnabled: data.mfaEnabled,
+			hasMfaStatus: 'mfaStatus' in data,
+			mfaStatus: data.mfaStatus,
+			allKeys: Object.keys(data).filter(k => k.toLowerCase().includes('mfa') || k.toLowerCase().includes('auth') || k.toLowerCase().includes('identity')),
+		});
+		res.json(data);
+	} catch (error) {
+		console.error('[PingOne User] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during user profile fetch',
+			details: error.message,
+		});
+	}
+});
+
+app.post('/api/pingone/users/lookup', async (req, res) => {
+	try {
+		const { environmentId, accessToken, identifier } = req.body || {};
+
+		if (!environmentId || !accessToken || !identifier) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken, identifier',
+			});
+		}
+
+		// Use Management API for direct ID lookups
+		const apiBaseUrl = `https://api.pingone.com/v1/environments/${environmentId}/users`;
+		
+		const headers = {
+			Authorization: `Bearer ${accessToken}`,
+			Accept: 'application/json',
+		};
+
+		// Escape identifier for SCIM filter (escape quotes and backslashes)
+		const escapeIdentifier = (value) => {
+			return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+		};
+		const escapedIdentifier = escapeIdentifier(identifier);
+
+		// 1. Direct lookup by ID (use Management API)
+		try {
+			const directResponse = await global.fetch(`${apiBaseUrl}/${encodeURIComponent(identifier)}`, {
+				headers,
+			});
+			if (directResponse.ok) {
+				const user = await directResponse.json();
+				console.log('[PingOne User Lookup] ✅ Direct ID match found');
+				return res.json({ user, matchType: 'id' });
+			}
+			if (directResponse.status !== 404) {
+				const errorBody = await directResponse.json().catch(() => ({}));
+				return res.status(directResponse.status).json(errorBody);
+			}
+		} catch (error) {
+			console.warn('[PingOne User Lookup] Direct lookup failed:', error);
+		}
+
+		// 2. Management API filter-based searches for username and email
+		// PingOne Management API uses OData filter syntax (not SCIM)
+		// Reference: The endpoint /v1/environments/{envId}/users uses OData filters
+		const filters = [];
+		
+		if (typeof identifier === 'string' && identifier.includes('@')) {
+			// Email filter - Management API OData syntax: email eq "email@example.com" or emails.value eq "email@example.com"
+			filters.push({ 
+				filter: `email eq "${escapedIdentifier}"`, 
+				matchType: 'email' 
+			});
+			filters.push({ 
+				filter: `emails.value eq "${escapedIdentifier}"`, 
+				matchType: 'email' 
+			});
+		}
+		
+		// Username filter - Management API OData syntax: username eq "username" (lowercase)
+		filters.push({ 
+			filter: `username eq "${escapedIdentifier}"`, 
+			matchType: 'username' 
+		});
+
+		console.log(`[PingOne User Lookup] Attempting Management API filter searches for: ${identifier}`);
+
+		for (const { filter, matchType } of filters) {
+			try {
+				// Use Management API endpoint with OData filter parameter
+				const queryUrl = `${apiBaseUrl}?filter=${encodeURIComponent(filter)}`;
+				console.log(`[PingOne User Lookup] Trying OData filter: ${filter}`);
+				
+				const searchResponse = await global.fetch(queryUrl, { headers });
+				const payloadText = await searchResponse.text();
+				const searchData = payloadText ? JSON.parse(payloadText) : {};
+
+				if (searchResponse.ok) {
+					// Management API returns users in _embedded.users
+					let users = [];
+					
+					if (searchData?._embedded?.users && Array.isArray(searchData._embedded.users)) {
+						users = searchData._embedded.users;
+					} else if (searchData?.Resources && Array.isArray(searchData.Resources)) {
+						// SCIM format (fallback)
+						users = searchData.Resources;
+					} else if (Array.isArray(searchData)) {
+						// Direct array response
+						users = searchData;
+					}
+
+					if (users.length > 0) {
+						console.log(`[PingOne User Lookup] ✅ Match found via ${matchType}: ${users[0].id || users[0].username || users[0].userName || 'unknown'}`);
+						return res.json({ user: users[0], matchType });
+					}
+					console.log(`[PingOne User Lookup] Filter returned no results: ${filter}`);
+				} else if (searchResponse.status === 400) {
+					const errorMsg = searchData?.detail || searchData?.message || searchData?.error_description || searchData?.error || 'Invalid filter syntax';
+					console.warn(`[PingOne User Lookup] Filter ${filter} returned 400:`, errorMsg, JSON.stringify(searchData, null, 2));
+					// Continue to next filter
+					continue;
+				} else if (searchResponse.status === 404) {
+					console.log(`[PingOne User Lookup] Filter returned 404: ${filter}`);
+					continue;
+				} else {
+					console.error(`[PingOne User Lookup] Filter returned ${searchResponse.status}:`, searchData);
+					return res.status(searchResponse.status).json(searchData);
+				}
+			} catch (error) {
+				console.warn(`[PingOne User Lookup] Filter lookup failed for ${filter}:`, error);
+			}
+		}
+
+		console.log(`[PingOne User Lookup] No user found for identifier: ${identifier}`);
+
+		// Return a more helpful error message
+		return res.status(404).json({
+			error: 'not_found',
+			error_description: `No user found matching identifier: ${identifier}. Please verify the user ID, username, or email address is correct.`,
+			identifier: identifier,
+			triedFilters: filters.map(f => f.filter),
+			note: 'Used Management API OData filter syntax (username eq "value" and email eq "value")',
+		});
+	} catch (error) {
+		console.error('[PingOne User Lookup] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during user lookup',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne Population Endpoint
+app.get('/api/pingone/population/:populationId', async (req, res) => {
+	try {
+		const { populationId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken',
+			});
+		}
+
+		const populationEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/populations/${populationId}`;
+
+		const response = await global.fetch(populationEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error(`[PingOne Population] API error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		console.log(`[PingOne Population] Successfully fetched population: ${populationId}`);
+		res.json(data);
+	} catch (error) {
+		console.error('[PingOne Population] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during population fetch',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne User Groups Endpoint
+app.get('/api/pingone/user/:userId/groups', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken',
+			});
+		}
+
+		const groupsEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/memberOfGroups`;
+
+		const response = await global.fetch(groupsEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error(`[PingOne User Groups] API error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		// Expand memberOfGroups or groupMemberships to extract group details
+		let expandedData = { ...data };
+		let groups = [];
+		
+		// Check for both memberOfGroups and groupMemberships (PingOne uses both)
+		const groupMembershipData = data._embedded?.memberOfGroups || data._embedded?.groupMemberships;
+		
+		if (groupMembershipData && Array.isArray(groupMembershipData)) {
+			// Extract group objects from memberOfGroups/groupMemberships
+			groups = groupMembershipData
+				.map((item) => {
+					// Check if item has a nested group object (most common case)
+					if (item.group && typeof item.group === 'object' && item.group !== null) {
+						return item.group;
+					}
+					// Check if item itself is the group (has name/id/displayName)
+					if (item.id && (item.name || item.displayName || item.description)) {
+						return item;
+					}
+					// Check if item has _links.group.href for expansion
+					if (item._links && item._links.group && item._links.group.href) {
+						// Extract group ID from href or mark for fetching via href
+						const href = item._links.group.href;
+						const groupIdMatch = href.match(/\/groups\/([^\/\?]+)/);
+						if (groupIdMatch) {
+							return { id: groupIdMatch[1], _needsFetch: true, _href: href };
+						}
+					}
+					// If we only have a group ID reference (string), mark for fetching
+					if (item.group && typeof item.group === 'string') {
+						return { id: item.group, _needsFetch: true };
+					}
+					// Check for group ID in the item itself but no name
+					if (item.id && typeof item.id === 'string' && !item.name && !item.displayName) {
+						return { ...item, _needsFetch: true };
+					}
+					// Return item as-is if it has any structure
+					return item;
+				})
+				.filter(Boolean);
+			
+			// Fetch group details for any groups that only have IDs
+			const groupsNeedingFetch = groups.filter(g => g._needsFetch);
+			if (groupsNeedingFetch.length > 0) {
+				console.log(`[PingOne User Groups] Fetching details for ${groupsNeedingFetch.length} groups with only IDs`);
+				const fetchedGroups = await Promise.all(
+					groupsNeedingFetch.map(async (group) => {
+						try {
+							const groupResponse = await global.fetch(
+								`https://api.pingone.com/v1/environments/${environmentId}/groups/${group.id}`,
+								{
+									method: 'GET',
+									headers: {
+										Authorization: `Bearer ${accessToken}`,
+										Accept: 'application/json',
+									},
+								}
+							);
+							if (groupResponse.ok) {
+								return await groupResponse.json();
+							}
+						} catch (err) {
+							console.warn(`[PingOne User Groups] Failed to fetch group ${group.id}:`, err);
+						}
+						return group; // Return original if fetch fails
+					})
+				);
+				// Replace groups that needed fetching with fetched ones
+				groups = groups.map(g => {
+					if (g._needsFetch) {
+						const fetched = fetchedGroups.find(fg => fg.id === g.id);
+						return fetched || g;
+					}
+					return g;
+				});
+			}
+			
+			expandedData._embedded = {
+				...data._embedded,
+				groups: groups,
+				memberOfGroups: groupMembershipData, // Keep original for reference
+			};
+		} else if (data._embedded?.groups && Array.isArray(data._embedded.groups)) {
+			groups = data._embedded.groups;
+			// Ensure expandedData._embedded exists and has groups
+			if (!expandedData._embedded) {
+				expandedData._embedded = {};
+			}
+			expandedData._embedded.groups = groups;
+		} else if (data._embedded?.items && Array.isArray(data._embedded.items)) {
+			groups = data._embedded.items;
+			// Ensure expandedData._embedded exists and has groups
+			if (!expandedData._embedded) {
+				expandedData._embedded = {};
+			}
+			expandedData._embedded.groups = groups;
+		}
+
+		// Ensure groups are always in the response, even if we found them in memberOfGroups
+		// This handles edge cases where groups might be empty or _embedded might not exist
+		if (!expandedData._embedded) {
+			expandedData._embedded = {};
+		}
+		// Always set groups array in the response (even if empty)
+		expandedData._embedded.groups = groups;
+
+		console.log(`[PingOne User Groups] Successfully fetched groups for user: ${userId}`);
+		console.log(`[PingOne User Groups] Raw API response:`, JSON.stringify(data, null, 2).substring(0, 2000)); // First 2000 chars
+		console.log(`[PingOne User Groups] Response structure:`, {
+			hasEmbedded: !!data._embedded,
+			embeddedKeys: data._embedded ? Object.keys(data._embedded) : [],
+			rootKeys: Object.keys(data),
+			groupsCount: groups.length,
+			memberOfGroupsCount: data._embedded?.memberOfGroups?.length || 0,
+			groupMembershipsCount: data._embedded?.groupMemberships?.length || 0,
+			usedGroupMembershipData: groupMembershipData ? 'found' : 'not found',
+			sampleGroup: groups[0] || null,
+			sampleMemberOfGroup: groupMembershipData?.[0] || null,
+			sampleGroupKeys: groups[0] ? Object.keys(groups[0]) : [],
+			sampleGroupName: groups[0]?.name || groups[0]?.displayName || groups[0]?.id,
+			fullMemberOfGroupSample: groupMembershipData?.[0] ? JSON.stringify(groupMembershipData[0], null, 2) : null,
+			expandedDataHasGroups: !!expandedData._embedded?.groups,
+			expandedDataGroupsCount: expandedData._embedded?.groups?.length || 0,
+		});
+		res.json(expandedData);
+	} catch (error) {
+		console.error('[PingOne User Groups] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during user groups fetch',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne User Roles Endpoint
+app.get('/api/pingone/user/:userId/roles', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken',
+			});
+		}
+
+		const rolesEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/roleAssignments`;
+
+		const response = await global.fetch(rolesEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error(`[PingOne User Roles] API error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		// Expand roleAssignments to extract role details
+		let expandedData = { ...data };
+		let roles = [];
+		
+		if (data._embedded?.roleAssignments && Array.isArray(data._embedded.roleAssignments)) {
+			// Extract role objects from roleAssignments
+			roles = data._embedded.roleAssignments
+				.map((assignment) => {
+					// Check if assignment has a nested role object (most common case)
+					if (assignment.role && typeof assignment.role === 'object' && assignment.role !== null) {
+						return assignment.role;
+					}
+					// Check if assignment itself is the role (has name/id/displayName)
+					if (assignment.id && (assignment.name || assignment.displayName || assignment.description)) {
+						return assignment;
+					}
+					// Check if assignment has _links.role.href for expansion
+					if (assignment._links && assignment._links.role && assignment._links.role.href) {
+						const href = assignment._links.role.href;
+						const roleIdMatch = href.match(/\/roles\/([^\/\?]+)/);
+						if (roleIdMatch) {
+							return { id: roleIdMatch[1], _needsFetch: true, _href: href };
+						}
+					}
+					// If we only have a role ID reference (string), mark for fetching
+					if (assignment.role && typeof assignment.role === 'string') {
+						return { id: assignment.role, _needsFetch: true };
+					}
+					// Check for role ID in the assignment itself but no name
+					if (assignment.id && typeof assignment.id === 'string' && !assignment.name && !assignment.displayName) {
+						return { ...assignment, _needsFetch: true };
+					}
+					return assignment;
+				})
+				.filter(Boolean);
+			
+			// Fetch role details for any roles that only have IDs
+			const rolesNeedingFetch = roles.filter(r => r._needsFetch);
+			if (rolesNeedingFetch.length > 0) {
+				console.log(`[PingOne User Roles] Fetching details for ${rolesNeedingFetch.length} roles with only IDs`);
+				const fetchedRoles = await Promise.all(
+					rolesNeedingFetch.map(async (role) => {
+						try {
+							const roleResponse = await global.fetch(
+								`https://api.pingone.com/v1/environments/${environmentId}/roles/${role.id}`,
+								{
+									method: 'GET',
+									headers: {
+										Authorization: `Bearer ${accessToken}`,
+										Accept: 'application/json',
+									},
+								}
+							);
+							if (roleResponse.ok) {
+								return await roleResponse.json();
+							}
+						} catch (err) {
+							console.warn(`[PingOne User Roles] Failed to fetch role ${role.id}:`, err);
+						}
+						return role; // Return original if fetch fails
+					})
+				);
+				// Replace roles that needed fetching with fetched ones
+				roles = roles.map(r => {
+					if (r._needsFetch) {
+						const fetched = fetchedRoles.find(fr => fr.id === r.id);
+						return fetched || r;
+					}
+					return r;
+				});
+			}
+			
+			expandedData._embedded = {
+				...data._embedded,
+				roles: roles,
+				roleAssignments: data._embedded.roleAssignments, // Keep original for reference
+			};
+		} else if (data._embedded?.roles && Array.isArray(data._embedded.roles)) {
+			roles = data._embedded.roles;
+		} else if (data._embedded?.items && Array.isArray(data._embedded.items)) {
+			roles = data._embedded.items;
+		}
+
+		console.log(`[PingOne User Roles] Successfully fetched roles for user: ${userId}`);
+		console.log(`[PingOne User Roles] Raw API response:`, JSON.stringify(data, null, 2).substring(0, 2000)); // First 2000 chars
+		console.log(`[PingOne User Roles] Response structure:`, {
+			hasEmbedded: !!data._embedded,
+			embeddedKeys: data._embedded ? Object.keys(data._embedded) : [],
+			rootKeys: Object.keys(data),
+			rolesCount: roles.length,
+			roleAssignmentsCount: data._embedded?.roleAssignments?.length || 0,
+			sampleRoleAssignment: data._embedded?.roleAssignments?.[0] || null,
+			sampleRole: roles[0] || null,
+			sampleRoleKeys: roles[0] ? Object.keys(roles[0]) : [],
+			sampleRoleName: roles[0]?.name || roles[0]?.displayName || roles[0]?.id,
+			fullRoleAssignmentSample: data._embedded?.roleAssignments?.[0] ? JSON.stringify(data._embedded.roleAssignments[0], null, 2) : null,
+			allRoleNames: roles.slice(0, 5).map(r => ({ id: r.id, name: r.name, displayName: r.displayName, keys: Object.keys(r) })),
+		});
+		res.json(expandedData);
+	} catch (error) {
+		console.error('[PingOne User Roles] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during user roles fetch',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne User Consents Endpoint
+app.get('/api/pingone/user/:userId/consents', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken',
+			});
+		}
+
+		const consentsEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/consents?limit=200`;
+
+		const response = await global.fetch(consentsEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			// If worker token doesn't have permission to access consents (403), return empty array gracefully
+			if (response.status === 403) {
+				console.log(`[PingOne User Consents] Worker token lacks consent permissions (403). Returning empty consents.`);
+				return res.json({ _embedded: { consents: [] } });
+			}
+			console.error(`[PingOne User Consents] API error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		console.log(`[PingOne User Consents] Successfully fetched consents for user: ${userId}`);
+		res.json(data);
+	} catch (error) {
+		console.error('[PingOne User Consents] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during user consents fetch',
+			details: error.message,
+		});
+	}
+});
+
+// PingOne User MFA Status Endpoint
+// Uses correct PingOne MFA API: /mfaEnabled and /devices
+app.get('/api/pingone/user/:userId/mfa', async (req, res) => {
+	try {
+		const { userId } = req.params;
+		const { environmentId, accessToken } = req.query;
+
+		if (!environmentId || !accessToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, accessToken',
+			});
+		}
+
+		// Step 1: Check if MFA is enabled for the user (correct endpoint per PingOne API docs)
+		const mfaEnabledEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/mfaEnabled`;
+
+		const mfaEnabledResponse = await global.fetch(mfaEnabledEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		let mfaEnabled = false;
+		let mfaEnabledData = null;
+		
+		if (mfaEnabledResponse.ok) {
+			mfaEnabledData = await mfaEnabledResponse.json();
+			mfaEnabled = mfaEnabledData.mfaEnabled === true;
+			console.log(`[PingOne User MFA] MFA enabled status: ${mfaEnabled}`, mfaEnabledData);
+		} else {
+			console.warn(`[PingOne User MFA] Could not fetch mfaEnabled status (${mfaEnabledResponse.status})`);
+		}
+
+		// Step 2: Get all MFA devices for the user (correct endpoint per PingOne API docs)
+		const devicesEndpoint = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/devices`;
+
+		const devicesResponse = await global.fetch(devicesEndpoint, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				Accept: 'application/json',
+			},
+		});
+
+		let devices = [];
+		let devicesData = null;
+
+		if (devicesResponse.ok) {
+			devicesData = await devicesResponse.json();
+			devices = devicesData._embedded?.devices || devicesData.devices || [];
+			console.log(`[PingOne User MFA] Found ${devices.length} devices:`, devices.map(d => ({
+				id: d.id,
+				type: d.type,
+				status: d.status,
+				enabled: d.enabled,
+				name: d.name
+			})));
+		} else {
+			console.warn(`[PingOne User MFA] Could not fetch devices (${devicesResponse.status})`);
+			if (devicesResponse.status !== 404) {
+				const errorData = await devicesResponse.json().catch(() => ({}));
+				console.error(`[PingOne User MFA] Devices API error:`, errorData);
+			}
+		}
+
+		// Determine final MFA status
+		// MFA is enabled if: mfaEnabled is true OR if there are active devices
+		const hasActiveDevices = devices.some((device) => {
+			const status = typeof device.status === 'string' ? device.status.toUpperCase() : '';
+			return status === 'ACTIVE' || device.enabled === true;
+		});
+
+		const finalEnabled = mfaEnabled || hasActiveDevices;
+		const status = mfaEnabled ? 'ENABLED' : (hasActiveDevices ? 'ACTIVE_DEVICES' : 'DISABLED');
+
+		console.log(`[PingOne User MFA] Final status for user ${userId}: enabled=${finalEnabled}, status=${status}, deviceCount=${devices.length}`);
+
+		res.json({
+			enabled: finalEnabled,
+			status: status,
+			deviceCount: devices.length,
+			devices: devices,
+			mfaEnabled: mfaEnabled, // From mfaEnabled endpoint
+		});
+	} catch (error) {
+		console.error('[PingOne User MFA] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during MFA status fetch',
+			details: error.message,
 		});
 	}
 });
@@ -1263,7 +1984,7 @@ app.post('/api/pingone/mfa/register-device', async (req, res) => {
 			},
 			body: new URLSearchParams({
 				grant_type: 'client_credentials',
-				scope: 'p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device',
+				scope: 'p1:read:users p1:update:users p1:read:authenticators p1:update:authenticators',
 			}),
 		});
 
@@ -1429,7 +2150,7 @@ app.post('/api/pingone/mfa/initiate-challenge', async (req, res) => {
 			},
 			body: new URLSearchParams({
 				grant_type: 'client_credentials',
-				scope: 'p1:read:user p1:update:user p1:create:device p1:read:device p1:update:device',
+				scope: 'p1:read:users p1:update:users p1:read:authenticators p1:update:authenticators',
 			}),
 		});
 
@@ -2790,6 +3511,249 @@ app.post('/api/pingone/flows/check-username-password', async (req, res) => {
 	}
 });
 
+// CIBA Backchannel Authentication Endpoint (RFC 9436)
+app.post('/api/ciba-backchannel', async (req, res) => {
+	try {
+		const {
+			environment_id,
+			client_id,
+			client_secret,
+			scope,
+			login_hint,
+			binding_message,
+			requested_context,
+			auth_method = 'client_secret_post',
+		} = req.body;
+
+		console.log(`[CIBA Backchannel] Received request:`, {
+			hasEnvironmentId: !!environment_id,
+			hasClientId: !!client_id,
+			hasClientSecret: !!client_secret,
+			hasScope: !!scope,
+			hasLoginHint: !!login_hint,
+			hasBindingMessage: !!binding_message,
+			hasRequestedContext: !!requested_context,
+			authMethod: auth_method,
+		});
+
+		if (!environment_id || !client_id || !scope || !login_hint) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environment_id, client_id, scope, login_hint',
+			});
+		}
+
+		// Validate client_secret is provided (required for authentication)
+		if (!client_secret) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: client_secret. Client secret is required for CIBA backchannel authentication.',
+			});
+		}
+
+		const backchannelEndpoint = `https://auth.pingone.com/${environment_id}/as/bc-authorize`;
+
+		// Build form data for backchannel request
+		const formData = new URLSearchParams();
+		formData.append('client_id', client_id);
+		formData.append('scope', scope);
+		formData.append('login_hint', login_hint);
+		if (binding_message) formData.append('binding_message', binding_message);
+		if (requested_context) {
+			// requested_context should be JSON string if provided as object
+			const contextValue = typeof requested_context === 'string' 
+				? requested_context 
+				: JSON.stringify(requested_context);
+			formData.append('requested_context', contextValue);
+		}
+
+		// Prepare headers with client authentication
+		const headers = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Accept: 'application/json',
+		};
+
+		// Handle client authentication based on auth_method
+		// CIBA requires client authentication, so we must have client_secret
+		if (auth_method === 'client_secret_basic') {
+			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+			headers.Authorization = `Basic ${credentials}`;
+			console.log(`[CIBA Backchannel] Using Basic authentication (credentials length: ${credentials.length})`);
+		} else {
+			// Default to client_secret_post if not specified or method is post
+			formData.append('client_secret', client_secret);
+			console.log(`[CIBA Backchannel] Using client_secret_post authentication`);
+		}
+
+		console.log(`[CIBA Backchannel] Calling PingOne endpoint: ${backchannelEndpoint}`);
+		console.log(`[CIBA Backchannel] Request body:`, {
+			client_id: formData.get('client_id'),
+			scope: formData.get('scope'),
+			login_hint: formData.get('login_hint'),
+			hasBindingMessage: !!formData.get('binding_message'),
+			hasRequestedContext: !!formData.get('requested_context'),
+			hasClientSecret: !!formData.get('client_secret'),
+		});
+
+		const response = await global.fetch(backchannelEndpoint, {
+			method: 'POST',
+			headers,
+			body: formData,
+		});
+
+		const data = await response.json();
+
+		if (!response.ok) {
+			console.error(`[CIBA Backchannel] PingOne error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		console.log(`[CIBA Backchannel] Success - auth_req_id: ${data.auth_req_id?.substring(0, 20)}...`);
+
+		// Add server metadata
+		data.server_timestamp = new Date().toISOString();
+
+		res.json(data);
+	} catch (error) {
+		console.error('[CIBA Backchannel] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during CIBA backchannel authentication',
+			details: error.message,
+		});
+	}
+});
+
+// CIBA Token Endpoint (RFC 9436) - Polling for tokens
+app.post('/api/ciba-token', async (req, res) => {
+	try {
+		const {
+			environment_id,
+			client_id,
+			client_secret,
+			auth_req_id,
+			auth_method = 'client_secret_post',
+		} = req.body;
+
+		console.log(`[CIBA Token] Received polling request:`, {
+			hasEnvironmentId: !!environment_id,
+			hasClientId: !!client_id,
+			hasClientSecret: !!client_secret,
+			hasAuthReqId: !!auth_req_id,
+			authMethod: auth_method,
+			authReqIdPreview: auth_req_id ? `${auth_req_id.substring(0, 20)}...` : 'none',
+		});
+
+		if (!environment_id || !client_id || !auth_req_id) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environment_id, client_id, auth_req_id',
+			});
+		}
+
+		const tokenEndpoint = `https://auth.pingone.com/${environment_id}/as/token`;
+
+		// Build form data for token request (RFC 9436)
+		const formData = new URLSearchParams();
+		formData.append('grant_type', 'urn:openid:params:grant-type:ciba');
+		formData.append('client_id', client_id);
+		formData.append('auth_req_id', auth_req_id);
+
+		// Prepare headers with client authentication
+		const headers = {
+			'Content-Type': 'application/x-www-form-urlencoded',
+			Accept: 'application/json',
+		};
+
+		// Handle client authentication based on auth_method
+		if (auth_method === 'client_secret_basic' && client_secret) {
+			const credentials = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
+			headers.Authorization = `Basic ${credentials}`;
+		} else if (auth_method === 'client_secret_post' && client_secret) {
+			formData.append('client_secret', client_secret);
+		}
+
+		console.log(`[CIBA Token] Calling PingOne token endpoint: ${tokenEndpoint}`);
+		console.log(`[CIBA Token] Grant type: urn:openid:params:grant-type:ciba`);
+		console.log(`[CIBA Token] Auth req ID: ${auth_req_id.substring(0, 20)}...`);
+
+		const response = await global.fetch(tokenEndpoint, {
+			method: 'POST',
+			headers,
+			body: formData,
+		});
+
+		const data = await response.json();
+
+		// CIBA-specific error handling (RFC 9436)
+		if (!response.ok) {
+			const errorCode = data.error;
+			
+			// Handle CIBA-specific errors
+			if (response.status === 400 || response.status === 401) {
+				if (errorCode === 'authorization_pending') {
+					console.log(`[CIBA Token] Authorization pending - continue polling`);
+					// Return the interval if provided
+					return res.status(400).json({
+						error: 'authorization_pending',
+						error_description: data.error_description || 'The authorization request is still pending',
+						interval: data.interval || 2, // Default interval if not provided
+					});
+				}
+				
+				if (errorCode === 'slow_down') {
+					console.log(`[CIBA Token] Slow down - increase polling interval`);
+					return res.status(400).json({
+						error: 'slow_down',
+						error_description: data.error_description || 'Polling too frequently, please slow down',
+						interval: data.interval || 5, // Recommended slower interval
+					});
+				}
+				
+				if (errorCode === 'expired_token') {
+					console.log(`[CIBA Token] Request expired`);
+					return res.status(400).json({
+						error: 'expired_token',
+						error_description: data.error_description || 'The authorization request has expired',
+					});
+				}
+				
+				if (errorCode === 'access_denied') {
+					console.log(`[CIBA Token] Access denied by user`);
+					return res.status(400).json({
+						error: 'access_denied',
+						error_description: data.error_description || 'The user denied the authentication request',
+					});
+				}
+			}
+			
+			// For other errors, return as-is
+			console.error(`[CIBA Token] PingOne error (${response.status}):`, data);
+			return res.status(response.status).json(data);
+		}
+
+		console.log(`[CIBA Token] Success - tokens issued`);
+		console.log(`[CIBA Token] Token preview:`, {
+			hasAccessToken: !!data.access_token,
+			hasIdToken: !!data.id_token,
+			hasRefreshToken: !!data.refresh_token,
+		});
+
+		// Add server metadata
+		data.server_timestamp = new Date().toISOString();
+		data.grant_type = 'urn:openid:params:grant-type:ciba';
+
+		res.json(data);
+	} catch (error) {
+		console.error('[CIBA Token] Server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error during CIBA token polling',
+			details: error.message,
+		});
+	}
+});
+
 // User-Configured JWKS Endpoint (serves user's public key for private_key_jwt)
 app.post('/api/user-jwks', async (req, res) => {
 	try {
@@ -3342,7 +4306,7 @@ app.get('/api/pingone/applications', async (req, res) => {
 					grant_type: 'client_credentials',
 					client_id: clientId,
 					client_secret: clientSecret,
-					scope: 'p1:read:environment p1:read:application p1:read:resource'
+					scope: 'p1:read:environments p1:read:applications p1:read:connections'
 					}),
 				signal: controller1.signal,
 				});
@@ -3458,7 +4422,7 @@ app.get('/api/pingone/applications/:appId/resources', async (req, res) => {
 					grant_type: 'client_credentials',
 					client_id: clientId,
 					client_secret: clientSecret,
-					scope: 'p1:read:environment p1:read:application p1:read:resource'
+					scope: 'p1:read:environments p1:read:applications p1:read:connections'
 					}),
 				signal: controller1.signal,
 				});
@@ -3534,6 +4498,444 @@ app.get('/api/pingone/applications/:appId/resources', async (req, res) => {
 				error_description: 'Internal server error while fetching resources'
 			});
 		}
+	}
+});
+
+// PingOne Organization Licensing Endpoints
+app.post('/api/pingone/organization-licensing', async (req, res) => {
+	try {
+		console.log('[PingOne Org Licensing] Request received');
+		const { workerToken, organizationId } = req.body;
+
+		if (!workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: workerToken',
+			});
+		}
+
+		const baseUrl = 'https://api.pingone.com/v1';
+		
+		// Get organization details
+		let organizationInfo;
+		if (organizationId) {
+			const orgResponse = await fetch(`${baseUrl}/organizations/${organizationId}`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+			});
+
+			if (!orgResponse.ok) {
+				const errorText = await orgResponse.text().catch(() => '');
+				console.error('[PingOne Org Licensing] Failed to fetch organization:', errorText);
+				return res.status(orgResponse.status).json({
+					error: 'api_request_failed',
+					error_description: `Failed to fetch organization: ${orgResponse.status} ${orgResponse.statusText}`,
+					details: errorText,
+				});
+			}
+
+			organizationInfo = await orgResponse.json();
+		} else {
+			// Get first organization if ID not provided
+			const organizations = await fetch(`${baseUrl}/organizations?limit=1`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+			});
+
+			if (!organizations.ok) {
+				const errorText = await organizations.text().catch(() => '');
+				console.error('[PingOne Org Licensing] Failed to fetch organizations:', errorText);
+				return res.status(organizations.status).json({
+					error: 'api_request_failed',
+					error_description: `Failed to fetch organizations: ${organizations.status} ${organizations.statusText}`,
+					details: errorText,
+				});
+			}
+
+			const orgsData = await organizations.json();
+			const orgsList = orgsData._embedded?.organizations || [];
+			
+			if (orgsList.length === 0) {
+				return res.status(404).json({
+					error: 'not_found',
+					error_description: 'No organizations found',
+				});
+			}
+
+			organizationInfo = orgsList[0];
+		}
+
+		if (!organizationInfo || !organizationInfo.id) {
+			return res.status(500).json({
+				error: 'invalid_data',
+				error_description: 'Invalid organization data received',
+			});
+		}
+
+		// Log organization info structure for debugging
+		console.log('[PingOne Org Licensing] Organization info received:', {
+			id: organizationInfo.id,
+			name: organizationInfo.name,
+			region: organizationInfo.region,
+			hasRegion: 'region' in organizationInfo,
+			keys: Object.keys(organizationInfo),
+			fullResponse: JSON.stringify(organizationInfo, null, 2).substring(0, 500), // First 500 chars for debugging
+		});
+
+		// Try to extract region from worker token JWT (if not in organization response)
+		let regionFromToken = null;
+		try {
+			if (workerToken && workerToken.includes('.')) {
+				const parts = workerToken.split('.');
+				if (parts.length >= 2) {
+					// Decode base64url (PingOne uses base64url, not standard base64)
+					const payloadBase64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+					const payload = JSON.parse(Buffer.from(payloadBase64, 'base64').toString('utf-8'));
+					
+					console.log('[PingOne Org Licensing] Token payload claims:', {
+						iss: payload.iss,
+						env: payload.env,
+						org: payload.org,
+						aud: payload.aud,
+					});
+					
+					// Extract region from issuer URL: https://auth.pingone.{region}/{envId}/as
+					if (payload.iss && payload.iss.includes('auth.pingone.')) {
+						const issMatch = payload.iss.match(/auth\.pingone\.([a-z0-9-]+)/);
+						if (issMatch && issMatch[1]) {
+							regionFromToken = issMatch[1];
+							console.log('[PingOne Org Licensing] Extracted region from token issuer:', regionFromToken);
+						}
+					}
+					
+					// Alternative: Check if env claim has region info (unlikely but possible)
+					if (!regionFromToken && payload.env) {
+						console.log('[PingOne Org Licensing] Found env claim in token:', payload.env);
+					}
+				}
+			}
+		} catch (err) {
+			console.warn('[PingOne Org Licensing] Could not parse token for region:', err.message);
+		}
+
+		// Get license information
+		let licenses = [];
+		const environmentLicenseMap = {};
+		try {
+			const licenseResponse = await fetch(
+				`${baseUrl}/organizations/${organizationInfo.id}/licenses`,
+				{
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${workerToken}`,
+						'Content-Type': 'application/json',
+						Accept: 'application/json',
+					},
+				}
+			);
+
+			if (licenseResponse.ok) {
+				const licensesData = await licenseResponse.json();
+				licenses = licensesData._embedded?.licenses || [];
+
+				await Promise.all(
+					licenses.map(async (licenseItem) => {
+						const licenseId = licenseItem.id;
+						if (!licenseId) return;
+
+						try {
+							const assignedResponse = await fetch(
+								`${baseUrl}/licenses/${licenseId}/environments?limit=200`,
+								{
+									method: 'GET',
+									headers: {
+										Authorization: `Bearer ${workerToken}`,
+										'Content-Type': 'application/json',
+										Accept: 'application/json',
+									},
+								}
+							);
+
+							if (assignedResponse.ok) {
+								const assignedData = await assignedResponse.json();
+								const assignedEnvs = assignedData._embedded?.environments || [];
+								assignedEnvs.forEach((assignedEnv) => {
+									const assignedEnvId = assignedEnv.id || assignedEnv.environment?.id;
+									if (!assignedEnvId) {
+										return;
+									}
+
+									environmentLicenseMap[assignedEnvId] = {
+										licenseId,
+										licenseName: licenseItem.name || 'Unknown License',
+										licenseStatus: licenseItem.status || 'unknown',
+										licenseType: licenseItem.type,
+									};
+								});
+							} else {
+								const assignedError = await assignedResponse.text().catch(() => '');
+								console.warn('[PingOne Org Licensing] Failed to fetch license assignments:', {
+									licenseId,
+									status: assignedResponse.status,
+									error: assignedError.substring(0, 200),
+								});
+							}
+						} catch (assignmentErr) {
+							console.warn('[PingOne Org Licensing] Error fetching license assignments:', assignmentErr.message);
+						}
+					})
+				);
+			} else {
+				console.warn('[PingOne Org Licensing] Failed to fetch licenses:', licenseResponse.status);
+			}
+		} catch (err) {
+			console.warn('[PingOne Org Licensing] Error fetching licenses:', err.message);
+		}
+
+		// Get environments
+		let environments = [];
+		try {
+			const envResponse = await fetch(
+				`${baseUrl}/organizations/${organizationInfo.id}/environments?limit=100`,
+				{
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${workerToken}`,
+						'Content-Type': 'application/json',
+						Accept: 'application/json',
+					},
+				}
+			);
+
+			if (envResponse.ok) {
+				const envData = await envResponse.json();
+				environments = envData._embedded?.environments || [];
+				console.log('[PingOne Org Licensing] Environments fetched:', {
+					count: environments.length,
+					status: envResponse.status,
+					hasEmbedded: !!envData._embedded,
+					responseStructure: Object.keys(envData),
+				});
+			} else {
+				const errorText = await envResponse.text().catch(() => '');
+				const errorJson = errorText ? (() => { try { return JSON.parse(errorText); } catch { return null; } })() : null;
+				console.error('[PingOne Org Licensing] Failed to fetch environments:', {
+					status: envResponse.status,
+					statusText: envResponse.statusText,
+					error: errorText.substring(0, 200),
+					errorDetails: errorJson,
+					url: `${baseUrl}/organizations/${organizationInfo.id}/environments?limit=100`,
+				});
+				
+				// Try alternative endpoint: direct environments list (not scoped to organization)
+				console.log('[PingOne Org Licensing] Attempting alternative: direct environments endpoint');
+				try {
+					const altEnvResponse = await fetch(`${baseUrl}/environments?limit=100`, {
+						method: 'GET',
+						headers: {
+							Authorization: `Bearer ${workerToken}`,
+							'Content-Type': 'application/json',
+							Accept: 'application/json',
+						},
+					});
+					
+					if (altEnvResponse.ok) {
+						const altEnvData = await altEnvResponse.json();
+						const allEnvs = altEnvData._embedded?.environments || [];
+						// Filter to only environments belonging to this organization
+						environments = allEnvs.filter((env) => {
+							// Check if environment belongs to this organization (may need orgId field)
+							return env.organizationId === organizationInfo.id || 
+							       env.organization?.id === organizationInfo.id ||
+							       !env.organizationId; // If no org filter, include all
+						});
+						console.log('[PingOne Org Licensing] Alternative endpoint worked:', {
+							totalEnvs: allEnvs.length,
+							filteredEnvs: environments.length,
+						});
+					} else {
+						const altErrorText = await altEnvResponse.text().catch(() => '');
+						console.warn('[PingOne Org Licensing] Alternative endpoint also failed:', altEnvResponse.status, altErrorText.substring(0, 200));
+					}
+				} catch (altErr) {
+					console.warn('[PingOne Org Licensing] Alternative endpoint error:', altErr.message);
+				}
+			}
+		} catch (err) {
+			console.error('[PingOne Org Licensing] Error fetching environments:', err.message);
+		}
+
+		// Map the license data
+		const license = licenses[0] ? {
+			id: licenses[0].id || 'unknown',
+			name: licenses[0].name || 'Unknown License',
+			type: licenses[0].type || 'standard',
+			status: licenses[0].status || 'pending',
+			startDate: licenses[0].startsAt || new Date().toISOString(),
+			endDate: licenses[0].endsAt,
+			features: licenses[0].features || [],
+			users: licenses[0].users ? {
+				total: licenses[0].users.total || 0,
+				used: licenses[0].users.used || 0,
+				available: (licenses[0].users.total || 0) - (licenses[0].users.used || 0),
+			} : undefined,
+			applications: licenses[0].applications ? {
+				total: licenses[0].applications.total || 0,
+				used: licenses[0].applications.used || 0,
+				available: (licenses[0].applications.total || 0) - (licenses[0].applications.used || 0),
+			} : undefined,
+		} : {
+			id: 'no-license',
+			name: 'No License Found',
+			type: 'none',
+			status: 'pending',
+			startDate: new Date().toISOString(),
+			features: [],
+		};
+
+		// Try to extract region from various possible locations
+		let region = 'unknown';
+		if (organizationInfo.region) {
+			region = organizationInfo.region;
+			console.log('[PingOne Org Licensing] Using region from organizationInfo.region:', region);
+		} else if (organizationInfo.organization && organizationInfo.organization.region) {
+			region = organizationInfo.organization.region;
+			console.log('[PingOne Org Licensing] Using region from organizationInfo.organization.region:', region);
+		} else if (regionFromToken) {
+			region = regionFromToken;
+			console.log('[PingOne Org Licensing] Using region from token:', region);
+		} else if (environments.length > 0 && environments[0].region) {
+			// Use region from first environment as fallback
+			region = environments[0].region;
+			console.log('[PingOne Org Licensing] Using region from first environment:', region);
+		} else {
+			console.warn('[PingOne Org Licensing] Could not determine region from any source');
+		}
+
+		const orgInfo = {
+			id: organizationInfo.id,
+			name: organizationInfo.name,
+			region: region,
+			license,
+			environments: environments.map((env) => ({
+				id: env.id,
+				name: env.name,
+				region: env.region || region,
+				licenseName: environmentLicenseMap[env.id]?.licenseName || env.license?.name,
+				licenseStatus: environmentLicenseMap[env.id]?.licenseStatus || env.license?.status,
+				licenseId: environmentLicenseMap[env.id]?.licenseId || env.license?.id,
+				licenseType: environmentLicenseMap[env.id]?.licenseType || env.license?.type,
+			})),
+			createdAt: organizationInfo.createdAt || organizationInfo.created_at || new Date().toISOString(),
+			updatedAt: organizationInfo.updatedAt || organizationInfo.updated_at || new Date().toISOString(),
+		};
+
+		console.log('[PingOne Org Licensing] Successfully retrieved organization info:', {
+			id: orgInfo.id,
+			name: orgInfo.name,
+			region: orgInfo.region,
+			environmentsCount: orgInfo.environments.length,
+		});
+		res.json(orgInfo);
+	} catch (error) {
+		console.error('[PingOne Org Licensing] Unexpected server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error while retrieving organization licensing',
+			details: error.message,
+		});
+	}
+});
+
+app.post('/api/pingone/all-licenses', async (req, res) => {
+	try {
+		const { workerToken, organizationId } = req.body;
+
+		if (!workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameter: workerToken',
+			});
+		}
+
+		const baseUrl = 'https://api.pingone.com/v1';
+		let licenseUrl = `${baseUrl}/licenses`;
+
+		if (organizationId) {
+			licenseUrl = `${baseUrl}/organizations/${organizationId}/licenses`;
+			console.log('[PingOne All Licenses] Using organization-specific endpoint:', licenseUrl);
+		} else {
+			console.log('[PingOne All Licenses] Using global licenses endpoint');
+		}
+
+		const response = await fetch(
+			`${licenseUrl}?limit=200`,
+			{
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${workerToken}`,
+					'Content-Type': 'application/json',
+					Accept: 'application/json',
+				},
+			}
+		);
+		
+		if (!response.ok) {
+			const errorText = await response.text().catch(() => '');
+			console.error('[PingOne All Licenses] Failed to fetch licenses:', {
+				status: response.status,
+				statusText: response.statusText,
+				url: licenseUrl,
+				error: errorText,
+			});
+			return res.status(response.status).json({
+				error: 'api_request_failed',
+				error_description: `Failed to fetch licenses: ${response.status} ${response.statusText}`,
+				details: errorText,
+			});
+		}
+		
+		const data = await response.json();
+		const licenses = data._embedded?.licenses || [];
+		
+		console.log(`[PingOne All Licenses] Retrieved ${licenses.length} licenses`);
+		
+		const mappedLicenses = licenses.map((license) => ({
+			id: license.id || 'unknown',
+			name: license.name || 'Unknown License',
+			type: license.type || 'standard',
+			status: license.status || 'pending',
+			startDate: license.startsAt || new Date().toISOString(),
+			endDate: license.endsAt,
+			features: license.features || [],
+			users: license.users ? {
+				total: license.users.total || 0,
+				used: license.users.used || 0,
+				available: (license.users.total || 0) - (license.users.used || 0),
+			} : undefined,
+			applications: license.applications ? {
+				total: license.applications.total || 0,
+				used: license.applications.used || 0,
+				available: (license.applications.total || 0) - (license.applications.used || 0),
+			} : undefined,
+		}));
+		
+		res.json(mappedLicenses);
+	} catch (error) {
+		console.error('[PingOne All Licenses] Unexpected server error:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error while retrieving licenses',
+			details: error.message,
+		});
 	}
 });
 
@@ -3688,6 +5090,111 @@ if (certs) {
 		console.log('🔄 Continuing with HTTP server only...');
 	}
 }
+
+// In-memory storage for webhook events (for demo purposes)
+// In production, you'd want to use a database or persistent storage
+const webhookEvents = [];
+const MAX_WEBHOOK_EVENTS = 1000; // Keep last 1000 events
+
+/**
+ * Webhook Receiver Endpoint - Receives POST requests from PingOne webhooks
+ * POST /api/webhooks/pingone
+ */
+app.post('/api/webhooks/pingone', express.json({ limit: '10mb' }), async (req, res) => {
+	try {
+		const timestamp = new Date();
+		const eventId = randomUUID();
+		
+		console.log(`[Webhook Receiver] Received webhook event ${eventId} at ${timestamp.toISOString()}`);
+		
+		// Store the webhook event
+		const webhookEvent = {
+			id: eventId,
+			timestamp: timestamp.toISOString(),
+			timestampMs: timestamp.getTime(),
+			type: req.body?.type || req.body?.event || 'unknown',
+			event: req.body?.event || 'webhook.event',
+			data: req.body,
+			headers: req.headers,
+			status: 'success',
+			source: 'pingone-api',
+			rawBody: req.body,
+		};
+		
+		// Add to beginning of array (newest first)
+		webhookEvents.unshift(webhookEvent);
+		
+		// Keep only the last MAX_WEBHOOK_EVENTS
+		if (webhookEvents.length > MAX_WEBHOOK_EVENTS) {
+			webhookEvents.splice(MAX_WEBHOOK_EVENTS);
+		}
+		
+		console.log(`[Webhook Receiver] Stored webhook event ${eventId}, total events: ${webhookEvents.length}`);
+		
+		// Return 200 OK to PingOne
+		res.status(200).json({
+			success: true,
+			eventId: eventId,
+			receivedAt: timestamp.toISOString(),
+		});
+	} catch (error) {
+		console.error('[Webhook Receiver] Error processing webhook:', error);
+		res.status(500).json({
+			success: false,
+			error: 'Internal server error processing webhook',
+			details: error.message,
+		});
+	}
+});
+
+/**
+ * Webhook Events API - Get all stored webhook events
+ * GET /api/webhooks/events
+ */
+app.get('/api/webhooks/events', (req, res) => {
+	try {
+		const { limit = 100, offset = 0 } = req.query;
+		const limitNum = Math.min(parseInt(limit, 10) || 100, 1000);
+		const offsetNum = parseInt(offset, 10) || 0;
+		
+		const events = webhookEvents.slice(offsetNum, offsetNum + limitNum);
+		
+		res.json({
+			events: events,
+			total: webhookEvents.length,
+			limit: limitNum,
+			offset: offsetNum,
+		});
+	} catch (error) {
+		console.error('[Webhook Events API] Error fetching events:', error);
+		res.status(500).json({
+			error: 'Failed to fetch webhook events',
+			details: error.message,
+		});
+	}
+});
+
+/**
+ * Clear Webhook Events API
+ * DELETE /api/webhooks/events
+ */
+app.delete('/api/webhooks/events', (req, res) => {
+	try {
+		const clearedCount = webhookEvents.length;
+		webhookEvents.length = 0; // Clear array
+		console.log(`[Webhook Events API] Cleared ${clearedCount} webhook events`);
+		res.json({
+			success: true,
+			cleared: clearedCount,
+		});
+	} catch (error) {
+		console.error('[Webhook Events API] Error clearing events:', error);
+		res.status(500).json({
+			error: 'Failed to clear webhook events',
+			details: error.message,
+		});
+	}
+});
 
 // Add error handling for both servers
 httpServer.on('error', (err) => {
