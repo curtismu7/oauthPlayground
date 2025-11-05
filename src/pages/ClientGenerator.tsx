@@ -39,6 +39,7 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialsInput } from '../components/CredentialsInput';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
 import { FlowHeader } from '../services/flowHeaderService';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -637,45 +638,44 @@ const ClientGenerator: React.FC = () => {
 			{/* Success indicator when we have a token */}
 			{workerToken && (
 				<div>
-					<SuccessMessage>
-						<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-							<FiCheckCircle /> Worker token obtained successfully!
-						</div>
-						<div style={{ marginTop: '0.5rem' }}>
-							<WorkerActions
-								onNext={() => {
-									navigate('/application-generator', {
-										state: {
-											workerToken,
-											environmentId: workerCredentials.environmentId,
-										},
-									});
-								}}
-								onClearToken={() => {
-									setWorkerToken(null);
-									setTokenError(null);
-									setWorkerTokenRequest(null);
-									setTokenDecodeStates({});
-									v4ToastManager.showSuccess('Token cleared - credentials preserved');
-								}}
-								onClearAll={() => {
-									localStorage.removeItem('app-generator-worker-credentials');
-									setWorkerToken(null);
-									setTokenError(null);
-									setWorkerTokenRequest(null);
-									setTokenDecodeStates({});
-									setWorkerCredentials({
-										environmentId: '',
-										clientId: '',
-										clientSecret: '',
-										scopes: 'openid p1:create:application p1:read:application p1:update:application',
-										tokenEndpointAuthMethod: 'client_secret_post',
-									});
-									v4ToastManager.showSuccess('All credentials and data cleared');
-								}}
-							/>
-						</div>
-					</SuccessMessage>
+					<WorkerTokenDetectedBanner 
+						token={workerToken} 
+						message="Worker token obtained successfully! Ready to create PingOne applications."
+					/>
+					<div style={{ marginTop: '1rem' }}>
+						<WorkerActions
+							onNext={() => {
+								navigate('/application-generator', {
+									state: {
+										workerToken,
+										environmentId: workerCredentials.environmentId,
+									},
+								});
+							}}
+							onClearToken={() => {
+								setWorkerToken(null);
+								setTokenError(null);
+								setWorkerTokenRequest(null);
+								setTokenDecodeStates({});
+								v4ToastManager.showSuccess('Token cleared - credentials preserved');
+							}}
+							onClearAll={() => {
+								localStorage.removeItem('app-generator-worker-credentials');
+								setWorkerToken(null);
+								setTokenError(null);
+								setWorkerTokenRequest(null);
+								setTokenDecodeStates({});
+								setWorkerCredentials({
+									environmentId: '',
+									clientId: '',
+									clientSecret: '',
+									scopes: 'openid p1:create:application p1:read:application p1:update:application',
+									tokenEndpointAuthMethod: 'client_secret_post',
+								});
+								v4ToastManager.showSuccess('All credentials and data cleared');
+							}}
+						/>
+					</div>
 				</div>
 			)}
 

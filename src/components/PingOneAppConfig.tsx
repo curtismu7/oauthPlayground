@@ -186,6 +186,7 @@ export interface PingOneConfig {
 		clientCredentials: boolean;
 		deviceAuthorization: boolean;
 		refreshToken: boolean;
+		ciba: boolean; // RFC 9436: Client Initiated Backchannel Authentication
 	};
 	pkceEnforcement: 'required' | 'optional' | 'not_required';
 	refreshTokenDuration: number;
@@ -219,6 +220,7 @@ const defaultConfig: PingOneConfig = {
 		clientCredentials: false,
 		deviceAuthorization: false,
 		refreshToken: true,
+		ciba: false,
 	},
 	pkceEnforcement: 'required',
 	refreshTokenDuration: 30,
@@ -482,6 +484,16 @@ export const PingOneAppConfig: React.FC<PingOneAppConfigProps> = ({
 									}
 								/>
 								Refresh Token
+							</CheckboxItem>
+							<CheckboxItem>
+								<Checkbox
+									type="checkbox"
+									checked={config.grantTypes.ciba}
+									onChange={(e) =>
+										handleNestedChange('grantTypes', 'ciba', e.target.checked)
+									}
+								/>
+								CIBA (Client Initiated Backchannel Authentication)
 							</CheckboxItem>
 						</CheckboxGroup>
 					</div>

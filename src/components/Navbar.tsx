@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiHelpCircle, FiLogIn, FiLogOut, FiMenu, FiSearch, FiSettings } from 'react-icons/fi';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -6,7 +6,7 @@ import { useAuth } from '../contexts/NewAuthContext';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { APP_VERSION } from '../version';
 
-const NavbarContainer = styled.nav`
+const NavbarContainer = styled.nav<{ $sidebarOpen?: boolean; $sidebarWidth?: number }>`
   position: fixed;
   top: 0;
   left: 0;
@@ -17,8 +17,20 @@ const NavbarContainer = styled.nav`
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
-  z-index: 1000;
+  z-index: 999;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: left 0.3s ease;
+  
+  /* On desktop (768px+), adjust for sidebar if it's open */
+  @media (min-width: 768px) {
+    left: ${({ $sidebarOpen, $sidebarWidth }) => {
+      // On desktop, sidebar is always visible when open, so always adjust
+      if ($sidebarOpen && $sidebarWidth && $sidebarWidth > 0) {
+        return `${$sidebarWidth}px`;
+      }
+      return '0';
+    }};
+  }
 `;
 
 const Logo = styled.div`
@@ -91,12 +103,52 @@ const MenuButton = styled.button`
 
 interface NavbarProps {
 	toggleSidebar: () => void;
+	sidebarOpen?: boolean;
+	sidebarWidth?: number;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
+const Navbar: React.FC<NavbarProps> = ({ toggleSidebar, sidebarOpen = false, sidebarWidth: propSidebarWidth }) => {
 	const { isAuthenticated, logout, user } = useAuth();
 	const navigate = useNavigate();
 	const { announce } = useAccessibility();
+	const [sidebarWidth, setSidebarWidth] = useState(() => {
+		try {
+			const saved = localStorage.getItem('sidebar.width');
+			const parsed = saved ? parseInt(saved, 10) : NaN;
+			if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) return parsed;
+		} catch {}
+		return 450; // Default width, matching Sidebar component
+	});
+
+	// Listen for sidebar width changes from localStorage
+	useEffect(() => {
+		const handleStorageChange = () => {
+			try {
+				const saved = localStorage.getItem('sidebar.width');
+				const parsed = saved ? parseInt(saved, 10) : NaN;
+				if (Number.isFinite(parsed) && parsed >= 300 && parsed <= 600) {
+					setSidebarWidth(parsed);
+				}
+			} catch {}
+		};
+
+		// Check on mount and when sidebar opens/closes
+		handleStorageChange();
+		
+		// Listen for storage events (in case sidebar updates localStorage)
+		window.addEventListener('storage', handleStorageChange);
+		
+		// Also poll occasionally for same-tab updates (since storage event only fires cross-tab)
+		const interval = setInterval(handleStorageChange, 500);
+		
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+			clearInterval(interval);
+		};
+	}, [sidebarOpen]);
+
+	// Use prop if provided, otherwise use local state
+	const effectiveSidebarWidth = propSidebarWidth ?? sidebarWidth;
 
 	const handleLogout = () => {
 		logout();
@@ -110,7 +162,12 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
 	};
 
 	return (
-		<NavbarContainer role="banner" aria-label="Main navigation">
+		<NavbarContainer 
+			role="banner" 
+			aria-label="Main navigation"
+			$sidebarOpen={sidebarOpen}
+			$sidebarWidth={effectiveSidebarWidth}
+		>
 			<MenuButton
 				onClick={handleMenuToggle}
 				aria-label="Toggle navigation menu"

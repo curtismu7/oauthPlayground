@@ -209,6 +209,7 @@ export interface StepCredentials {
 	clientSecret: string;
 	environmentId?: string; // Optional for OAuth flows
 	issuerUrl?: string; // Used by OAuth flows instead of environmentId
+	region?: string; // PingOne region (us, eu, ap, ca, na)
 	redirectUri: string;
 	postLogoutRedirectUri?: string; // Post-logout redirect URI for logout flows
 	scopes?: string; // Should be optional

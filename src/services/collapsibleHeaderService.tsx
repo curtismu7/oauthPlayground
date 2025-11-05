@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 export interface CollapsibleHeaderConfig {
-  title: string;
+  title: string | React.ReactNode;
   subtitle?: string;
   icon?: React.ReactNode;
   defaultCollapsed?: boolean;
@@ -288,6 +288,22 @@ const DefaultArrowIcon: React.FC<{ collapsed: boolean }> = ({ collapsed }) => (
   </svg>
 );
 
+// Helper function to extract string representation from React.ReactNode for aria attributes
+const extractStringFromReactNode = (node: string | React.ReactNode): string => {
+  if (typeof node === 'string') {
+    return node;
+  }
+  if (React.isValidElement(node)) {
+    // For React elements, try to get text content from children
+    const children = React.Children.toArray(node.props.children);
+    return children.map(child => extractStringFromReactNode(child)).join('');
+  }
+  if (Array.isArray(node)) {
+    return node.map(child => extractStringFromReactNode(child)).join('');
+  }
+  return String(node || '');
+};
+
 // Main collapsible header component
 export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
   title,
@@ -321,6 +337,10 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
     onToggle?.(next);
   };
 
+  // Extract string representation for aria attributes
+  const titleString = extractStringFromReactNode(title);
+  const ariaId = titleString.replace(/\s+/g, '-').toLowerCase();
+
   return (
     <CollapsibleHeaderContainer $variant={variant} className={className}>
       <HeaderButton
@@ -328,7 +348,7 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
         $theme={theme}
         onClick={toggleCollapsed}
         aria-expanded={!resolvedCollapsed}
-        aria-controls={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+        aria-controls={`content-${ariaId}`}
       >
         <HeaderContent>
           {icon && <IconContainer>{icon}</IconContainer>}
@@ -346,8 +366,8 @@ export const CollapsibleHeader: React.FC<CollapsibleHeaderProps> = ({
       <ContentArea
         $collapsed={resolvedCollapsed}
         $variant={variant}
-        id={`content-${title?.replace(/\s+/g, '-').toLowerCase()}`}
-        aria-labelledby={`header-${title?.replace(/\s+/g, '-').toLowerCase()}`}
+        id={`content-${ariaId}`}
+        aria-labelledby={`header-${ariaId}`}
       >
         {children}
       </ContentArea>

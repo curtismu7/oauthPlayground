@@ -3,6 +3,9 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { Logger } from './services/logger.js';
 import { registerAuthTools } from './actions/auth.js';
+import { registerWorkerTools } from './actions/worker.js';
+import { registerMfaTools } from './actions/mfa.js';
+import { registerRedirectlessTools } from './actions/redirectless.js';
 import { registerTrainingModule } from './services/trainingModule.js';
 
 async function main() {
@@ -12,6 +15,9 @@ async function main() {
   const server = new McpServer({ name: 'pingone-mcp-server', version: '0.1.0' });
   registerAuthTools(server, logger);
   registerTrainingModule(server, logger);
+  registerWorkerTools(server, logger);
+  registerMfaTools(server, logger);
+  registerRedirectlessTools(server, logger);
 
   const transport = new StdioServerTransport();
   await server.connect(transport);
