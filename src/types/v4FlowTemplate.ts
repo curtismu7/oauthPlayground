@@ -6,6 +6,7 @@ export interface StepCredentials {
 	clientSecret: string;
 	redirectUri: string;
 	scopes: string;
+	region?: string; // PingOne region (us, eu, ap, ca)
 	authMethod: ClientAuthMethod;
 	tokenEndpointAuthMethod?: string; // Token endpoint authentication method
 }

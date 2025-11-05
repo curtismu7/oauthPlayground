@@ -40,6 +40,9 @@ import {
 	FiCode,
 	FiServer,
 	FiBarChart2,
+	FiActivity,
+	FiBox,
+	FiAlertTriangle,
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -81,6 +84,7 @@ interface MenuGroup {
 	label: string;
 	icon: React.ReactNode;
 	items: MenuItem[];
+	subGroups?: MenuGroup[]; // Optional nested submenus
 	isOpen: boolean;
 }
 
@@ -170,7 +174,8 @@ const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode 
 				id: item.id,
 				path: item.path,
 				label: item.label,
-			}))
+			})),
+			subGroups: group.subGroups ? createSerializableGroups(group.subGroups) : undefined
 		}));
 	};
 
@@ -179,15 +184,29 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 			const defaultGroup = defaultGroups.find(g => g.id === serializedGroup.id);
 			if (!defaultGroup) return null;
 
-        return {
-				...defaultGroup,
-				isOpen: serializedGroup.isOpen,
-				items: serializedGroup.items.map((serializedItem: any) => {
+        // Restore items and deduplicate by ID (keep first occurrence)
+			const seenIds = new Set<string>();
+			const restoredItems = serializedGroup.items
+				.map((serializedItem: any) => {
+					// Skip duplicates
+					if (seenIds.has(serializedItem.id)) {
+						return null;
+					}
+					seenIds.add(serializedItem.id);
+					
 					// Find the item in any of the default groups (since items can move between groups)
 					let defaultItem = null;
 					for (const group of defaultGroups) {
 						defaultItem = group.items.find(i => i.id === serializedItem.id);
 						if (defaultItem) break;
+						// Also check subGroups if they exist
+						if (group.subGroups) {
+							for (const subGroup of group.subGroups) {
+								defaultItem = subGroup.items.find(i => i.id === serializedItem.id);
+								if (defaultItem) break;
+							}
+							if (defaultItem) break;
+						}
 					}
 					return defaultItem || {
 						id: serializedItem.id,
@@ -195,32 +214,106 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						label: serializedItem.label,
 						icon: <ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>, // fallback icon
 					};
-				}).filter(Boolean)
+				})
+				.filter(Boolean);
+
+			// Restore subGroups if they exist
+			let restoredSubGroups: MenuGroup[] | undefined = undefined;
+			if (defaultGroup.subGroups && serializedGroup.subGroups) {
+				restoredSubGroups = restoreMenuGroups(serializedGroup.subGroups, defaultGroup.subGroups);
+			} else if (defaultGroup.subGroups) {
+				// If default has subGroups but saved doesn't, use default
+				restoredSubGroups = defaultGroup.subGroups;
+			}
+
+        return {
+				...defaultGroup,
+				isOpen: serializedGroup.isOpen,
+				items: restoredItems,
+				subGroups: restoredSubGroups
         };
     }).filter(Boolean) as MenuGroup[];
 
     // Ensure new default items (e.g., V7.2) appear even if not in saved layout
     const presentIds = new Set<string>();
-    restored.forEach(g => g.items.forEach(i => presentIds.add(i.id)));
-    defaultGroups.forEach(defGroup => {
-        defGroup.items.forEach(defItem => {
-            if (!presentIds.has(defItem.id)) {
-                const target = restored.find(g => g.id === defGroup.id);
-                if (target) {
-                    target.items.push(defItem);
-                    presentIds.add(defItem.id);
+    const collectItemIds = (groups: MenuGroup[]) => {
+        groups.forEach(g => {
+            g.items.forEach(i => presentIds.add(i.id));
+            if (g.subGroups) {
+                collectItemIds(g.subGroups);
+            }
+        });
+    };
+    collectItemIds(restored);
+    
+    const addMissingItems = (savedGroups: MenuGroup[], defaultGroups: MenuGroup[]) => {
+        defaultGroups.forEach(defGroup => {
+            defGroup.items.forEach(defItem => {
+                if (!presentIds.has(defItem.id)) {
+                    const target = savedGroups.find(g => g.id === defGroup.id);
+                    if (target) {
+                        target.items.push(defItem);
+                        presentIds.add(defItem.id);
+                    }
+                }
+            });
+            // Handle subGroups recursively
+            if (defGroup.subGroups) {
+                const savedGroup = savedGroups.find(g => g.id === defGroup.id);
+                if (savedGroup && savedGroup.subGroups) {
+                    addMissingItems(savedGroup.subGroups, defGroup.subGroups);
                 }
             }
         });
+    };
+    addMissingItems(restored, defaultGroups);
+
+    // Add any new default groups that don't exist in the saved layout
+    const restoredGroupIds = new Set(restored.map(g => g.id));
+    defaultGroups.forEach(defGroup => {
+        if (!restoredGroupIds.has(defGroup.id)) {
+            restored.push(defGroup);
+            restoredGroupIds.add(defGroup.id);
+        }
     });
 
-    return restored;
+    // Preserve the user's saved group order, but ensure new groups are added at the end
+    // First, build a map of restored groups for quick lookup
+    const restoredMap = new Map(restored.map(g => [g.id, g]));
+    
+    // Create ordered list: first use saved order, then add any new groups in default order
+    const orderedRestored: MenuGroup[] = [];
+    const addedGroupIds = new Set<string>();
+    
+    // First, add groups in the order they were saved (preserving user's custom order)
+    serializedGroups.forEach(serializedGroup => {
+        const restoredGroup = restoredMap.get(serializedGroup.id);
+        if (restoredGroup) {
+            orderedRestored.push(restoredGroup);
+            addedGroupIds.add(serializedGroup.id);
+        }
+    });
+    
+    // Then, add any new groups that weren't in the saved layout (in default order)
+    defaultGroups.forEach(defGroup => {
+        if (!addedGroupIds.has(defGroup.id)) {
+            const restoredGroup = restoredMap.get(defGroup.id);
+            if (restoredGroup) {
+                orderedRestored.push(restoredGroup);
+                addedGroupIds.add(defGroup.id);
+            }
+        }
+    });
+
+    return orderedRestored;
 	};
 
 	const saveMenuGroups = (groups: MenuGroup[]) => {
 		try {
 			const serializable = createSerializableGroups(groups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
+			// Ensure menu version is also saved when menu is modified
+			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
 			console.log('💾 Menu layout saved to localStorage:', serializable);
 			
 			// Show visual confirmation
@@ -284,6 +377,13 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						icon: <ColoredIcon $color="#6366f1"><FiSettings /></ColoredIcon>,
 						badge: <MigrationBadge title="Application Configuration & Credentials"><FiCheckCircle /></MigrationBadge>,
 					},
+					{
+						id: 'ping-ai-resources',
+						path: '/ping-ai-resources',
+						label: 'Ping AI Resources',
+						icon: <ColoredIcon $color="#8b5cf6"><FiCpu /></ColoredIcon>,
+						badge: <MigrationBadge title="Ping Identity AI Resources & Documentation"><FiCheckCircle /></MigrationBadge>,
+					},
 				],
 			},
 			{
@@ -321,39 +421,11 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						badge: <MigrationBadge title="V7: Enhanced client credentials"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'oauth-ropc-v7',
-						path: '/flows/oauth-ropc-v7',
-						label: 'Resource Owner Password (V7)',
-						icon: <ColoredIcon $color="#8b5cf6"><FiLock /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Resource Owner Password Credentials"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
 						id: 'token-exchange-v7',
 						path: '/flows/token-exchange-v7',
 						label: 'Token Exchange (V7)',
 						icon: <ColoredIcon $color="#7c3aed"><FiRefreshCw /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: RFC 8693 Token Exchange"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'jwt-bearer-token-v7',
-						path: '/flows/jwt-bearer-token-v7',
-						label: 'JWT Bearer Token (V7)',
-						icon: <ColoredIcon $color="#f59e0b"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: JWT Bearer Token Assertion"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'saml-bearer-assertion-v7',
-						path: '/flows/saml-bearer-assertion-v7',
-						label: 'SAML Bearer Token (V7)',
-						icon: <ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: SAML Bearer Token Assertion"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'saml-sp-dynamic-acs-v1',
-						path: '/flows/saml-sp-dynamic-acs-v1',
-						label: 'SAML SP Dynamic ACS (V1)',
-						icon: <ColoredIcon $color="#f59e0b"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="V1: SAML SP with Dynamic ACS URL support - PingOne new feature"><FiCheckCircle /></MigrationBadge>,
 					},
 				],
 			},
@@ -372,11 +444,11 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 					},
 					{
 						id: 'oidc-implicit-v7',
-					path: '/flows/implicit-v7?variant=oidc',
-					label: 'Implicit Flow (V7)',
-					icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
-					badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
-				},
+						path: '/flows/implicit-v7?variant=oidc',
+						label: 'Implicit Flow (V7)',
+						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
+					},
 					{
 						id: 'oidc-device-authorization-v7',
 						path: '/flows/device-authorization-v7?variant=oidc',
@@ -391,25 +463,11 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						icon: <ColoredIcon $color="#22c55e"><FiGitBranch /></ColoredIcon>,
 						badge: <MigrationBadge title="V7: Unified OAuth/OIDC hybrid flow implementation"><FiCheckCircle /></MigrationBadge>,
 					},
-					{
-						id: 'oidc-overview',
-						path: '/documentation/oidc-overview',
-						label: 'OIDC Overview',
-						icon: <ColoredIcon $color="#3b82f6"><FiSettings /></ColoredIcon>,
-						badge: <MigrationBadge title="OpenID Connect Overview and Concepts"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'ciba-v7',
-						path: '/flows/ciba-v7',
-						label: 'OIDC CIBA Flow (V7)',
-						icon: <ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Enhanced CIBA implementation"><FiCheckCircle /></MigrationBadge>,
-					},
 				],
 			},
 			{
 				id: 'pingone',
-				label: 'PingOne',
+				label: 'PingOne Flows',
 				icon: <ColoredIcon $color="#f97316"><FiKey /></ColoredIcon>,
 				isOpen: true,
 				items: [
@@ -428,13 +486,6 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						badge: <MigrationBadge title="V7: Enhanced Pushed Authorization Request with Authorization Details"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'redirectless-v7',
-						path: '/flows/redirectless-v7-real',
-						label: 'Redirectless Flow (V7)',
-						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Enhanced Redirectless Authentication Flow"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
 						id: 'pingone-mfa-v7',
 						path: '/flows/pingone-complete-mfa-v7',
 						label: 'PingOne MFA (V7)',
@@ -448,63 +499,221 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						icon: <ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>,
 						badge: <MigrationBadge title="PingOne Authentication Flow"><FiCheckCircle /></MigrationBadge>,
 					},
+				],
+			},
+			{
+				id: 'mock-educational-flows',
+				label: 'Mock & Educational Flows',
+				icon: <ColoredIcon $color="#f59e0b"><FiAlertTriangle /></ColoredIcon>,
+				isOpen: false,
+				items: [],
+				subGroups: [
 					{
-						id: 'pingone-identity-metrics',
-						path: '/pingone-identity-metrics',
-						label: 'PingOne Identity Metrics',
-						icon: <ColoredIcon $color="#10b981"><FiBarChart2 /></ColoredIcon>,
-						badge: <MigrationBadge title="PingOne Total Identities metrics explorer"><FiCheckCircle /></MigrationBadge>,
+						id: 'oauth-mock-flows',
+						label: 'OAuth Mock Flows',
+						icon: <ColoredIcon $color="#f59e0b"><FiAlertTriangle /></ColoredIcon>,
+						isOpen: false,
+						items: [
+							{
+								id: 'jwt-bearer-token-v7',
+								path: '/flows/jwt-bearer-token-v7',
+								label: 'JWT Bearer Token (V7)',
+								icon: <ColoredIcon $color="#f59e0b"><FiKey /></ColoredIcon>,
+								badge: <MigrationBadge title="Educational/Mock: JWT Bearer Token Assertion (RFC 7523)"><FiAlertTriangle /></MigrationBadge>,
+							},
+							{
+								id: 'saml-bearer-assertion-v7',
+								path: '/flows/saml-bearer-assertion-v7',
+								label: 'SAML Bearer Assertion (V7)',
+								icon: <ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>,
+								badge: <MigrationBadge title="Educational/Mock: SAML Bearer Token Assertion (RFC 7522)"><FiAlertTriangle /></MigrationBadge>,
+							},
+							{
+								id: 'oauth-ropc-v7',
+								path: '/flows/oauth-ropc-v7',
+								label: 'Resource Owner Password (V7)',
+								icon: <ColoredIcon $color="#8b5cf6"><FiLock /></ColoredIcon>,
+								badge: <MigrationBadge title="Educational/Mock: Resource Owner Password Credentials (RFC 6749 - deprecated)"><FiAlertTriangle /></MigrationBadge>,
+							},
+							{
+								id: 'advanced-oauth-params-demo',
+								path: '/flows/advanced-oauth-params-demo',
+								label: 'Advanced OAuth Parameters Demo',
+								icon: <ColoredIcon $color="#f59e0b"><FiSettings /></ColoredIcon>,
+								badge: (
+									<MigrationBadge
+										title="Mock flow that builds auth URLs and tokens with advanced OAuth/OIDC parameters (audience, resource, acr_values, display, claims, etc.) to visualize unsupported features"
+									>
+										<FiAlertTriangle />
+									</MigrationBadge>
+								),
+							},
+						],
 					},
 					{
-						id: 'pingone-mock-features',
-						path: '/pingone-mock-features',
-						label: 'Mock & Educational Features',
-						icon: <ColoredIcon $color="#f59e0b"><FiBookOpen /></ColoredIcon>,
-						badge: <MigrationBadge title="Educational and Mock Features"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'pingone-webhook-viewer',
-						path: '/pingone-webhook-viewer',
-						label: 'Webhook Viewer',
-						icon: <ColoredIcon $color="#06b6d4"><FiServer /></ColoredIcon>,
-						badge: <MigrationBadge title="Real-time webhook event monitoring"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'organization-licensing',
-						path: '/organization-licensing',
-						label: 'Organization Licensing',
-						icon: <ColoredIcon $color="#22c55e"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="View organization licensing and usage information"><FiCheckCircle /></MigrationBadge>,
+						id: 'advanced-mock-flows',
+						label: 'Advanced Mock Flows',
+						icon: <ColoredIcon $color="#8b5cf6"><FiAlertTriangle /></ColoredIcon>,
+						isOpen: false,
+						items: [
+							{
+								id: 'dpop-flow',
+								path: '/flows/dpop',
+								label: 'DPoP (Educational/Mock)',
+								icon: <ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>,
+								badge: <MigrationBadge title="Educational: DPoP (RFC 9449) Demonstration of Proof-of-Possession"><FiAlertTriangle /></MigrationBadge>,
+							},
+							{
+								id: 'rar-flow-v7',
+								path: '/flows/rar-v7',
+								label: 'RAR Flow (V7)',
+								icon: <ColoredIcon $color="#8b5cf6"><FiFileText /></ColoredIcon>,
+								badge: <MigrationBadge title="Educational/Mock: RAR (RFC 9396) Rich Authorization Requests"><FiAlertTriangle /></MigrationBadge>,
+							},
+							{
+								id: 'ciba-v7',
+								path: '/flows/ciba-v7',
+								label: 'CIBA Flow (V7)',
+								icon: <ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>,
+								badge: <MigrationBadge title="Educational/Mock: CIBA (RFC 9436) Client Initiated Backchannel Authentication"><FiAlertTriangle /></MigrationBadge>,
+							},
+						],
 					},
 				],
 			},
 			{
-				id: 'tools-utilities',
-				label: 'Tools & Utilities',
+				id: 'pingone-tools',
+				label: 'PingOne Tools',
+				icon: <ColoredIcon $color="#3b82f6"><FiTool /></ColoredIcon>,
+				isOpen: false,
+				items: [],
+				subGroups: [
+					{
+						id: 'pingone-user-identity',
+						label: 'PingOne User & Identity',
+						icon: <ColoredIcon $color="#06b6d4"><FiUser /></ColoredIcon>,
+						isOpen: false,
+						items: [
+							{
+								id: 'pingone-user-profile',
+								path: '/pingone-user-profile',
+								label: 'User Profile',
+								icon: <ColoredIcon $color="#06b6d4"><FiUser /></ColoredIcon>,
+								badge: <MigrationBadge title="PingOne User Profile & Information"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'pingone-identity-metrics',
+								path: '/pingone-identity-metrics',
+								label: 'Identity Metrics',
+								icon: <ColoredIcon $color="#10b981"><FiBarChart2 /></ColoredIcon>,
+								badge: <MigrationBadge title="PingOne Total Identities metrics explorer"><FiCheckCircle /></MigrationBadge>,
+							},
+						],
+					},
+					{
+						id: 'pingone-monitoring',
+						label: 'PingOne Monitoring',
+						icon: <ColoredIcon $color="#3b82f6"><FiBarChart2 /></ColoredIcon>,
+						isOpen: false,
+						items: [
+							{
+								id: 'pingone-audit-activities',
+								path: '/pingone-audit-activities',
+								label: 'Audit Activities',
+								icon: <ColoredIcon $color="#667eea"><FiActivity /></ColoredIcon>,
+								badge: <MigrationBadge title="Query and analyze PingOne audit events"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'pingone-webhook-viewer',
+								path: '/pingone-webhook-viewer',
+								label: 'Webhook Viewer',
+								icon: <ColoredIcon $color="#06b6d4"><FiServer /></ColoredIcon>,
+								badge: <MigrationBadge title="Real-time webhook event monitoring"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'organization-licensing',
+								path: '/organization-licensing',
+								label: 'Organization Licensing',
+								icon: <ColoredIcon $color="#22c55e"><FiShield /></ColoredIcon>,
+								badge: <MigrationBadge title="View organization licensing and usage information"><FiCheckCircle /></MigrationBadge>,
+							},
+						],
+					},
+				],
+			},
+			{
+				id: 'developer-tools',
+				label: 'Developer Tools',
 				icon: <ColoredIcon $color="#8b5cf6"><FiTool /></ColoredIcon>,
 				isOpen: false,
+				items: [],
+				subGroups: [
+					{
+						id: 'core-tools',
+						label: 'Core Developer Tools',
+						icon: <ColoredIcon $color="#8b5cf6"><FiTool /></ColoredIcon>,
+						isOpen: false,
+						items: [
+							{
+								id: 'oidc-discovery',
+								path: '/auto-discover',
+								label: 'OIDC Discovery',
+								icon: <ColoredIcon $color="#06b6d4"><FiSearch /></ColoredIcon>,
+								badge: <MigrationBadge title="OIDC Discovery and Configuration"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'token-management',
+								path: '/token-management',
+								label: 'Token Management',
+								icon: <ColoredIcon $color="#8b5cf6"><FiKey /></ColoredIcon>,
+								badge: <MigrationBadge title="Token Analysis and Management"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'advanced-config',
+								path: '/advanced-configuration',
+								label: 'Advanced Configuration',
+								icon: <ColoredIcon $color="#8b5cf6"><FiSettings /></ColoredIcon>,
+								badge: <MigrationBadge title="Advanced Configuration Options"><FiCheckCircle /></MigrationBadge>,
+							},
+						],
+					},
+					{
+						id: 'developer-utilities',
+						label: 'Developer Utilities',
+						icon: <ColoredIcon $color="#f59e0b"><FiTool /></ColoredIcon>,
+						isOpen: false,
+						items: [
+							{
+								id: 'jwks-troubleshooting',
+								path: '/jwks-troubleshooting',
+								label: 'JWKS Troubleshooting',
+								icon: <ColoredIcon $color="#f59e0b"><FiTool /></ColoredIcon>,
+								badge: <MigrationBadge title="JWKS Troubleshooting Guide"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'url-decoder',
+								path: '/url-decoder',
+								label: 'URL Decoder',
+								icon: <ColoredIcon $color="#8b5cf6"><FiTool /></ColoredIcon>,
+								badge: <MigrationBadge title="URL Decoder Utility"><FiCheckCircle /></MigrationBadge>,
+							},
+							{
+								id: 'postman-generator',
+								path: '/tools/postman-generator',
+								label: 'Postman Collection Generator',
+								icon: <ColoredIcon $color="#f97316"><FiBox /></ColoredIcon>,
+								badge: <MigrationBadge title="Generate PingOne-ready Postman collection & environment files"><FiCheckCircle /></MigrationBadge>,
+							},
+						],
+					},
+				],
+			},
+			{
+				id: 'security-guides',
+				label: 'Security Guides',
+				icon: <ColoredIcon $color="#3b82f6"><FiShield /></ColoredIcon>,
+				isOpen: false,
 				items: [
-					{
-						id: 'oidc-discovery',
-						path: '/auto-discover',
-						label: 'OIDC Discovery',
-						icon: <ColoredIcon $color="#06b6d4"><FiSearch /></ColoredIcon>,
-						badge: <MigrationBadge title="OIDC Discovery and Configuration"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'token-management',
-						path: '/token-management',
-						label: 'Token Management',
-						icon: <ColoredIcon $color="#8b5cf6"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="Token Analysis and Management"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'advanced-config',
-						path: '/advanced-configuration',
-						label: 'Advanced Configuration',
-						icon: <ColoredIcon $color="#8b5cf6"><FiSettings /></ColoredIcon>,
-						badge: <MigrationBadge title="Advanced Configuration Options"><FiCheckCircle /></MigrationBadge>,
-					},
 					{
 						id: 'oauth-2-1',
 						path: '/oauth-2-1',
@@ -519,32 +728,40 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						icon: <ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>,
 						badge: <MigrationBadge title="OIDC Session Management"><FiCheckCircle /></MigrationBadge>,
 					},
+				],
+			},
+			{
+				id: 'reference-materials',
+				label: 'Reference Materials',
+				icon: <ColoredIcon $color="#16a34a"><FiBook /></ColoredIcon>,
+				isOpen: false,
+				items: [
 					{
-						id: 'jwks-troubleshooting',
-						path: '/jwks-troubleshooting',
-						label: 'JWKS Troubleshooting',
-						icon: <ColoredIcon $color="#f59e0b"><FiTool /></ColoredIcon>,
-						badge: <MigrationBadge title="JWKS Troubleshooting Guide"><FiCheckCircle /></MigrationBadge>,
+						id: 'par-vs-rar',
+						path: '/par-vs-rar',
+						label: 'RAR vs PAR and DPoP Guide',
+						icon: <ColoredIcon $color="#16a34a"><FiBook /></ColoredIcon>,
+						badge: <MigrationBadge title="RAR vs PAR and DPoP Comparison and Examples"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'url-decoder',
-						path: '/url-decoder',
-						label: 'URL Decoder',
-						icon: <ColoredIcon $color="#8b5cf6"><FiTool /></ColoredIcon>,
-						badge: <MigrationBadge title="URL Decoder Utility"><FiCheckCircle /></MigrationBadge>,
+						id: 'pingone-mock-features',
+						path: '/pingone-mock-features',
+						label: 'Mock & Educational Features',
+						icon: <ColoredIcon $color="#f59e0b"><FiBookOpen /></ColoredIcon>,
+						badge: <MigrationBadge title="Educational and Mock Features"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
-						id: 'code-examples',
-						path: '/code-examples',
-						label: 'Code Examples',
-						icon: <ColoredIcon $color="#3b82f6"><FiCode /></ColoredIcon>,
-						badge: <MigrationBadge title="Code Examples and Samples"><FiCheckCircle /></MigrationBadge>,
+						id: 'pingone-scopes-reference',
+						path: '/pingone-scopes-reference',
+						label: 'OAuth Scopes Reference',
+						icon: <ColoredIcon $color="#6366f1"><FiBook /></ColoredIcon>,
+						badge: <MigrationBadge title="Educational guide to PingOne OAuth 2.0 and OIDC scopes"><FiCheckCircle /></MigrationBadge>,
 					},
 				],
 			},
 			{
-				id: 'documentation',
-				label: 'Documentation',
+				id: 'oauth-oidc-docs',
+				label: 'OAuth/OIDC Documentation',
 				icon: <ColoredIcon $color="#3b82f6"><FiFileText /></ColoredIcon>,
 				isOpen: false,
 				items: [
@@ -569,19 +786,20 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						icon: <ColoredIcon $color="#dc2626"><FiShield /></ColoredIcon>,
 						badge: <MigrationBadge title="OAuth 2.0 Security Guidelines"><FiCheckCircle /></MigrationBadge>,
 					},
+				],
+			},
+			{
+				id: 'ai-documentation',
+				label: 'AI Documentation',
+				icon: <ColoredIcon $color="#8b5cf6"><FiCpu /></ColoredIcon>,
+				isOpen: false,
+				items: [
 					{
 						id: 'ai-identity-architectures',
 						path: '/ai-identity-architectures',
 						label: 'AI Identity Architectures',
 						icon: <ColoredIcon $color="#8b5cf6"><FiCpu /></ColoredIcon>,
 						badge: <MigrationBadge title="AI Identity Architectures and Patterns"><FiCheckCircle /></MigrationBadge>,
-					},
-					{
-						id: 'oidc-specs',
-						path: '/docs/oidc-specs',
-						label: 'OIDC Specifications',
-						icon: <ColoredIcon $color="#3b82f6"><FiFileText /></ColoredIcon>,
-						badge: <MigrationBadge title="OIDC Technical Specifications"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
 						id: 'oidc-for-ai',
@@ -591,22 +809,34 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						badge: <MigrationBadge title="OIDC for AI Applications"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
+						id: 'oauth-for-ai',
+						path: '/docs/oauth-for-ai',
+						label: 'OAuth for AI',
+						icon: <ColoredIcon $color="#f97316"><FiCpu /></ColoredIcon>,
+						badge: <MigrationBadge title="OAuth specifications and PingOne compatibility matrix for AI systems"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
 						id: 'ping-view-on-ai',
 						path: '/docs/ping-view-on-ai',
 						label: 'PingOne AI Perspective',
 						icon: <ColoredIcon $color="#16a34a"><FiShield /></ColoredIcon>,
 						badge: <MigrationBadge title="PingOne's View on AI Identity"><FiCheckCircle /></MigrationBadge>,
 					},
-					{
-						id: 'oauth2-security-best-practices',
-						path: '/docs/oauth2-security-best-practices',
-						label: 'OAuth 2.0 Security Best Practices',
-						icon: <ColoredIcon $color="#dc2626"><FiShield /></ColoredIcon>,
-						badge: <MigrationBadge title="OAuth 2.0 Security Guidelines"><FiCheckCircle /></MigrationBadge>,
-					},
 				],
 			},
 		];
+
+		// Menu structure version - increment when menu structure changes significantly
+		const MENU_VERSION = '2.2'; // Updated for additional submenu groupings
+		const savedVersion = localStorage.getItem('simpleDragDropSidebar.menuVersion');
+		
+		// If version changed, clear old menu layout and use new structure
+		if (savedVersion !== MENU_VERSION) {
+			console.log(`🔄 Menu structure updated (v${savedVersion} → v${MENU_VERSION}), resetting to default layout`);
+			localStorage.removeItem('simpleDragDropSidebar.menuOrder');
+			localStorage.setItem('simpleDragDropSidebar.menuVersion', MENU_VERSION);
+			return defaultGroups;
+		}
 
 		// Try to restore from localStorage
 		const savedOrder = localStorage.getItem('simpleDragDropSidebar.menuOrder');
@@ -626,39 +856,74 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 	// Persist menu layout whenever it changes
 	useEffect(() => {
 		try {
-			const serializable = createSerializableGroups(menuGroups);
+			// Deduplicate menuGroups before saving (remove any duplicates by ID, including subGroups)
+			const deduplicateGroups = (groups: MenuGroup[]): MenuGroup[] => {
+				return groups.map(group => {
+					const seenIds = new Set<string>();
+					const uniqueItems = group.items.filter(item => {
+						if (seenIds.has(item.id)) {
+							console.warn(`[DragDropSidebar] Removing duplicate menu item: ${item.id}`);
+							return false;
+						}
+						seenIds.add(item.id);
+						return true;
+					});
+					const deduplicatedSubGroups = group.subGroups ? deduplicateGroups(group.subGroups) : undefined;
+					return { ...group, items: uniqueItems, subGroups: deduplicatedSubGroups };
+				});
+			};
+			const deduplicatedGroups = deduplicateGroups(menuGroups);
+			
+			const serializable = createSerializableGroups(deduplicatedGroups);
 			localStorage.setItem('simpleDragDropSidebar.menuOrder', JSON.stringify(serializable));
+			// Ensure menu version is also saved when menu is modified
+			localStorage.setItem('simpleDragDropSidebar.menuVersion', '2.2');
 		} catch (error) {
 			console.warn('❌ Failed to persist menu layout:', error);
 		}
 	}, [menuGroups]);
 
-	// Filter menu groups based on search query
+	// Filter menu groups based on search query (recursive for subGroups)
+	const filterGroupsRecursive = (groups: MenuGroup[], query: string): MenuGroup[] => {
+		return groups
+			.map(group => {
+				// Filter items in this group
+				const filteredItems = group.items.filter(item =>
+					item.label.toLowerCase().includes(query) ||
+					item.path.toLowerCase().includes(query)
+				);
+
+				// Filter subGroups recursively if they exist
+				let filteredSubGroups: MenuGroup[] | undefined = undefined;
+				if (group.subGroups) {
+					filteredSubGroups = filterGroupsRecursive(group.subGroups, query);
+				}
+
+				const groupMatches = group.label.toLowerCase().includes(query);
+				const hasMatchingSubGroups = filteredSubGroups && filteredSubGroups.length > 0;
+
+				return {
+					...group,
+					items: groupMatches ? group.items : filteredItems,
+					subGroups: filteredSubGroups,
+					isOpen: groupMatches || filteredItems.length > 0 || (hasMatchingSubGroups || false)
+				};
+			})
+			.filter(group => {
+				const hasItems = group.items.length > 0;
+				const hasSubGroups = group.subGroups && group.subGroups.length > 0;
+				const matchesLabel = group.label.toLowerCase().includes(query);
+				return hasItems || hasSubGroups || matchesLabel;
+			});
+	};
+
 	const filteredMenuGroups = useMemo(() => {
 		if (!searchQuery.trim()) {
 			return menuGroups;
 		}
 
 		const query = searchQuery.toLowerCase();
-		return menuGroups
-			.map(group => {
-				const filteredItems = group.items.filter(item =>
-					item.label.toLowerCase().includes(query) ||
-					item.path.toLowerCase().includes(query)
-				);
-
-				const groupMatches = group.label.toLowerCase().includes(query);
-
-				return {
-					...group,
-					items: groupMatches ? group.items : filteredItems,
-					isOpen: groupMatches || filteredItems.length > 0
-				};
-			})
-			.filter(group =>
-				group.items.length > 0 ||
-				group.label.toLowerCase().includes(query)
-			);
+		return filterGroupsRecursive(menuGroups, query);
 	}, [menuGroups, searchQuery]);
 
 	// Handle drag start
@@ -694,6 +959,7 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 	const handleDropOnItem = (e: React.DragEvent, targetGroupId: string, targetItemIndex: number) => {
 		e.preventDefault();
 		e.stopPropagation();
+		setDropTarget(null);
 		
 		if (!draggedItem) {
 			return;
@@ -710,6 +976,11 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 				
 				const sourceItemIndex = sourceGroup.items.findIndex(i => i.id === draggedItem.id);
 				if (sourceItemIndex !== -1) {
+					// Don't do anything if dropping on the same position
+					if (draggedItem.groupId === targetGroupId && sourceItemIndex === targetItemIndex) {
+						return;
+					}
+					
 					const [movedItem] = sourceGroup.items.splice(sourceItemIndex, 1);
 					
 					// Calculate the correct insertion index
@@ -717,7 +988,10 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 					
 					// If moving within the same group and the source is before target, adjust index
 					if (draggedItem.groupId === targetGroupId && sourceItemIndex < targetItemIndex) {
-						insertIndex = targetItemIndex - 1;
+						insertIndex = targetItemIndex;
+					} else if (draggedItem.groupId === targetGroupId && sourceItemIndex > targetItemIndex) {
+						// If moving backward within the same group, use target index directly
+						insertIndex = targetItemIndex;
 					}
 					
 					targetGroup.items.splice(insertIndex, 0, movedItem);
@@ -783,13 +1057,23 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 		}
 	};
 
-	const toggleMenuGroup = (groupId: string) => {
+	const toggleMenuGroup = (groupId: string, parentGroupId?: string) => {
 		setMenuGroups(prevGroups => {
-			const newGroups = prevGroups.map(group => 
-				group.id === groupId 
-					? { ...group, isOpen: !group.isOpen }
-					: group
-			);
+			const updateGroup = (groups: MenuGroup[]): MenuGroup[] => {
+				return groups.map(group => {
+					if (group.id === groupId) {
+						return { ...group, isOpen: !group.isOpen };
+					}
+					if (group.subGroups) {
+						return {
+							...group,
+							subGroups: updateGroup(group.subGroups)
+						};
+					}
+					return group;
+				});
+			};
+			const newGroups = updateGroup(prevGroups);
 			saveWithFeedback(newGroups);
 			return newGroups;
 		});
@@ -1016,8 +1300,92 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 							onDragOver={dragMode ? handleDragOver : undefined}
 							onDrop={dragMode ? (e) => handleDropOnGroup(e, group.id) : undefined}
 						>
-							{/* Drop zone at the very top of the group */}
-							{dragMode && group.items.length > 0 && (
+							{/* Render subGroups if they exist - show them first */}
+							{group.subGroups && group.subGroups.length > 0 && group.subGroups.map((subGroup) => (
+								<div key={subGroup.id} style={{ marginBottom: '0.75rem' }}>
+									{/* SubGroup Header */}
+									<div
+										onClick={() => toggleMenuGroup(subGroup.id, group.id)}
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											padding: '0.5rem 0.75rem',
+											background: 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)',
+											borderRadius: '0.375rem',
+											marginBottom: '0.25rem',
+											cursor: 'pointer',
+											border: '1px solid rgba(255,255,255,0.2)',
+											boxShadow: '0 1px 3px rgba(59, 130, 246, 0.2)',
+											transition: 'all 0.2s ease',
+										}}
+										onMouseEnter={(e) => {
+											e.currentTarget.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+											e.currentTarget.style.transform = 'translateY(-1px)';
+											e.currentTarget.style.boxShadow = '0 2px 4px rgba(59, 130, 246, 0.3)';
+										}}
+										onMouseLeave={(e) => {
+											e.currentTarget.style.background = 'linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%)';
+											e.currentTarget.style.transform = 'translateY(0px)';
+											e.currentTarget.style.boxShadow = '0 1px 3px rgba(59, 130, 246, 0.2)';
+										}}
+									>
+										<div style={{ color: 'white' }}>{subGroup.icon}</div>
+										<span style={{ fontWeight: '600', color: 'white', flex: 1 }}>
+											{subGroup.label}
+										</span>
+										<FiChevronDown 
+											size={14} 
+											style={{ 
+												transform: subGroup.isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
+												transition: 'transform 0.2s',
+												color: 'white'
+											}} 
+										/>
+									</div>
+									{/* SubGroup Items */}
+									{subGroup.isOpen && (
+										<div
+											style={{
+												paddingLeft: '0.75rem',
+												backgroundColor: '#f1f5f9',
+												borderRadius: '0.375rem',
+												padding: '0.5rem',
+											}}
+										>
+											{subGroup.items.map((item) => (
+												<div
+													key={item.id}
+													onClick={() => handleNavigation(item.path)}
+													className={item.id.includes('implicit') ? 'implicit-flow-menu-item' : ''}
+													style={{
+														display: 'flex',
+														alignItems: 'center',
+														gap: '0.5rem',
+														padding: '0.5rem 0.75rem',
+														backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
+														color: isActive(item.path) ? '#d97706' : '#64748b',
+														borderRadius: '0.375rem',
+														border: isActive(item.path) ? '3px solid #f59e0b' : '1px solid #e2e8f0',
+														fontWeight: isActive(item.path) ? '700' : '400',
+														boxShadow: isActive(item.path) ? '0 4px 8px rgba(245, 158, 11, 0.3)' : 'none',
+														transform: isActive(item.path) ? 'scale(1.02)' : 'scale(1)',
+														marginBottom: '0.25rem',
+														cursor: 'pointer',
+													}}
+												>
+													{item.icon}
+													<span style={{ flex: 1 }}>{item.label}</span>
+													{item.badge}
+												</div>
+											))}
+										</div>
+									)}
+								</div>
+							))}
+							
+							{/* Drop zone at the very top of the group - only show if group has direct items */}
+							{dragMode && group.items.length > 0 && (!group.subGroups || group.subGroups.length === 0) && (
 								<div
 									style={{
 										height: '24px',
@@ -1039,24 +1407,34 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 										e.preventDefault();
 										e.stopPropagation();
 										setDropTarget({ groupId: group.id, index: 0 });
-										e.currentTarget.style.backgroundColor = '#dcfce7';
-										e.currentTarget.style.borderColor = '#22c55e';
+										e.currentTarget.style.backgroundColor = '#fef2f2';
+										e.currentTarget.style.borderColor = '#ef4444';
 										e.currentTarget.style.borderStyle = 'solid';
-										e.currentTarget.style.borderWidth = '2px';
-										e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.3)';
+										e.currentTarget.style.borderWidth = '3px';
+										e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
 									}}
 									onDragLeave={(e) => {
-										setDropTarget(null);
-										e.currentTarget.style.backgroundColor = 'transparent';
-										e.currentTarget.style.borderColor = 'transparent';
-										e.currentTarget.style.borderStyle = 'dashed';
-										e.currentTarget.style.borderWidth = '2px';
-										e.currentTarget.style.boxShadow = 'none';
+										const rect = e.currentTarget.getBoundingClientRect();
+										const x = e.clientX;
+										const y = e.clientY;
+										if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+											setDropTarget(prev => {
+												if (prev && prev.groupId === group.id && prev.index === 0) {
+													return null;
+												}
+												return prev;
+											});
+											e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.12)';
+											e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+											e.currentTarget.style.borderStyle = 'dashed';
+											e.currentTarget.style.borderWidth = '2px';
+											e.currentTarget.style.boxShadow = 'none';
+										}
 									}}
 									onDrop={(e) => {
 										setDropTarget(null);
-										e.currentTarget.style.backgroundColor = 'transparent';
-										e.currentTarget.style.borderColor = 'transparent';
+										e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.12)';
+										e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.4)';
 										e.currentTarget.style.borderStyle = 'dashed';
 										e.currentTarget.style.borderWidth = '2px';
 										e.currentTarget.style.boxShadow = 'none';
@@ -1069,8 +1447,8 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 							
 							{group.items.map((item, itemIndex) => (
 								<div key={item.id}>
-									{/* Drop zone before item */}
-									{dragMode && itemIndex > 0 && (
+									{/* Drop zone before item - show for all items when dragging */}
+									{dragMode && draggedItem && draggedItem.type === 'item' && (
 										<div
 											style={{
 												height: '24px',
@@ -1086,26 +1464,36 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 												e.preventDefault();
 												e.stopPropagation();
 												setDropTarget({ groupId: group.id, index: itemIndex });
-												e.currentTarget.style.backgroundColor = '#dcfce7';
-												e.currentTarget.style.borderColor = '#22c55e';
+												e.currentTarget.style.backgroundColor = '#fef2f2';
+												e.currentTarget.style.borderColor = '#ef4444';
 												e.currentTarget.style.borderStyle = 'solid';
-												e.currentTarget.style.borderWidth = '2px';
-												e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.3)';
-												e.currentTarget.style.height = '32px';
+												e.currentTarget.style.borderWidth = '3px';
+												e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+												e.currentTarget.style.height = '36px';
 											}}
 											onDragLeave={(e) => {
-												setDropTarget(null);
-												e.currentTarget.style.backgroundColor = 'transparent';
-												e.currentTarget.style.borderColor = 'transparent';
-												e.currentTarget.style.borderStyle = 'dashed';
-												e.currentTarget.style.borderWidth = '2px';
-												e.currentTarget.style.boxShadow = 'none';
-												e.currentTarget.style.height = '24px';
+												const rect = e.currentTarget.getBoundingClientRect();
+												const x = e.clientX;
+												const y = e.clientY;
+												if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+													setDropTarget(prev => {
+														if (prev && prev.groupId === group.id && prev.index === itemIndex) {
+															return null;
+														}
+														return prev;
+													});
+													e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.12)';
+													e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+													e.currentTarget.style.borderStyle = 'dashed';
+													e.currentTarget.style.borderWidth = '2px';
+													e.currentTarget.style.boxShadow = 'none';
+													e.currentTarget.style.height = '24px';
+												}
 											}}
 											onDrop={(e) => {
 												setDropTarget(null);
-												e.currentTarget.style.backgroundColor = 'transparent';
-												e.currentTarget.style.borderColor = 'transparent';
+												e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.12)';
+												e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.4)';
 												e.currentTarget.style.borderStyle = 'dashed';
 												e.currentTarget.style.borderWidth = '2px';
 												e.currentTarget.style.boxShadow = 'none';
@@ -1124,7 +1512,14 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 										} : undefined}
 										onDragEnd={dragMode ? (e) => {
 											handleDragEnd(e);
+											setDropTarget(null);
 											e.currentTarget.style.cursor = 'grab';
+										} : undefined}
+										onDragOver={dragMode ? (e) => {
+											e.preventDefault();
+											e.stopPropagation();
+											// Set drop target to after this item
+											setDropTarget({ groupId: group.id, index: itemIndex + 1 });
 										} : undefined}
 										className={item.id.includes('implicit') ? 'implicit-flow-menu-item' : ''}
 										style={{
@@ -1135,12 +1530,17 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 											backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
 											color: isActive(item.path) ? '#d97706' : '#64748b',
 											borderRadius: '0.375rem',
-											border: isActive(item.path) ? '3px solid #f59e0b' : '1px solid #e2e8f0',
+											border: dropTarget && dropTarget.groupId === group.id && dropTarget.index === itemIndex + 1
+												? '3px solid #ef4444'
+												: isActive(item.path) ? '3px solid #f59e0b' : '1px solid #e2e8f0',
 											fontWeight: isActive(item.path) ? '700' : '400',
-											boxShadow: isActive(item.path) ? '0 4px 8px rgba(245, 158, 11, 0.3)' : 'none',
+											boxShadow: dropTarget && dropTarget.groupId === group.id && dropTarget.index === itemIndex + 1
+												? '0 0 0 3px rgba(239, 68, 68, 0.2)'
+												: isActive(item.path) ? '0 4px 8px rgba(245, 158, 11, 0.3)' : 'none',
 											transform: isActive(item.path) ? 'scale(1.02)' : 'scale(1)',
 											marginBottom: '0.25rem',
 											cursor: dragMode ? 'grab' : 'pointer',
+											transition: 'all 0.2s ease',
 											userSelect: 'none',
 											WebkitUserSelect: 'none',
 											MozUserSelect: 'none',
@@ -1195,26 +1595,36 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 												e.preventDefault();
 												e.stopPropagation();
 												setDropTarget({ groupId: group.id, index: group.items.length });
-												e.currentTarget.style.backgroundColor = '#dcfce7';
-												e.currentTarget.style.borderColor = '#22c55e';
+												e.currentTarget.style.backgroundColor = '#fef2f2';
+												e.currentTarget.style.borderColor = '#ef4444';
 												e.currentTarget.style.borderStyle = 'solid';
-												e.currentTarget.style.borderWidth = '2px';
-												e.currentTarget.style.boxShadow = '0 0 0 2px rgba(34, 197, 94, 0.3)';
-												e.currentTarget.style.height = '32px';
+												e.currentTarget.style.borderWidth = '3px';
+												e.currentTarget.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.3)';
+												e.currentTarget.style.height = '36px';
 											}}
 											onDragLeave={(e) => {
-												setDropTarget(null);
-												e.currentTarget.style.backgroundColor = 'transparent';
-												e.currentTarget.style.borderColor = 'transparent';
-												e.currentTarget.style.borderStyle = 'dashed';
-												e.currentTarget.style.borderWidth = '2px';
-												e.currentTarget.style.boxShadow = 'none';
-												e.currentTarget.style.height = '24px';
+												const rect = e.currentTarget.getBoundingClientRect();
+												const x = e.clientX;
+												const y = e.clientY;
+												if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+													setDropTarget(prev => {
+														if (prev && prev.groupId === group.id && prev.index === group.items.length) {
+															return null;
+														}
+														return prev;
+													});
+													e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.12)';
+													e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+													e.currentTarget.style.borderStyle = 'dashed';
+													e.currentTarget.style.borderWidth = '2px';
+													e.currentTarget.style.boxShadow = 'none';
+													e.currentTarget.style.height = '24px';
+												}
 											}}
 											onDrop={(e) => {
 												setDropTarget(null);
-												e.currentTarget.style.backgroundColor = 'transparent';
-												e.currentTarget.style.borderColor = 'transparent';
+												e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.12)';
+												e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.4)';
 												e.currentTarget.style.borderStyle = 'dashed';
 												e.currentTarget.style.borderWidth = '2px';
 												e.currentTarget.style.boxShadow = 'none';
@@ -1225,7 +1635,8 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 									)}
 								</div>
 							))}
-							{group.items.length === 0 && (
+							{/* Show empty message only if no items AND no subGroups */}
+							{group.items.length === 0 && (!group.subGroups || group.subGroups.length === 0) && (
 								<div 
 									style={{ 
 										padding: '2rem 1rem', 

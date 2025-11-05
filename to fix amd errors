@@ -18,3 +18,13 @@ This flow is a mock/educational implementation because PingOne does not support 
 Where it's used: Enterprise OAuth servers like Okta, Auth0, Azure AD, and Google Cloud support this flow for enterprise SSO scenarios.
 
 RAR - OIDC discovery is not filling in environment ID on compreshensivecredentials. 
+RAR - compreshensivecredentials fields are not editable
+Rar - Make sure RAR HAS good education for this Mock flow.  Make sure its showing mock tokens
+RAR - Make sure its storing and retrieving creds correctly
+
+CIBA - OIDC discovery is not filling in environment ID on compreshensivecredentials
+CIBA - compreshensivecredentials fields are not editable
+CIBA - Make sure its storing and retrieving creds correctly
+CIBA - Make sure has good eductation for CIBA with PingOne
+
+I found

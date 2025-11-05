@@ -265,7 +265,13 @@ export class PingOneAppCreationService {
 					? values
 						.map((value) => value?.toString().trim())
 						.filter((value): value is string => !!value)
-						.map((value) => value.toUpperCase())
+						.map((value) => {
+							// URIs/URNs (device_code, ciba) should remain as-is (case-sensitive)
+							if (value.toLowerCase().startsWith('urn:') || value.toLowerCase().includes('urn:')) {
+								return value;
+							}
+							return value.toUpperCase(); // Uppercase standard grant types
+						})
 					: undefined;
 
 			const payload = {
@@ -349,7 +355,13 @@ export class PingOneAppCreationService {
 					? values
 						.map((value) => value?.toString().trim())
 						.filter((value): value is string => !!value)
-						.map((value) => value.toUpperCase())
+						.map((value) => {
+							// URIs/URNs (device_code, ciba) should remain as-is (case-sensitive)
+							if (value.toLowerCase().startsWith('urn:') || value.toLowerCase().includes('urn:')) {
+								return value;
+							}
+							return value.toUpperCase(); // Uppercase standard grant types
+						})
 					: undefined;
 
 			const payload = {
