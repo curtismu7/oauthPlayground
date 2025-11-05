@@ -920,7 +920,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 
 					<ParameterGrid>
 						<ParameterGroup>
-							<ParameterLabel>Grant Type</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="learning" title="Grant Type" content="OAuth 2.0 grant type determines how the client obtains tokens. Token Exchange (RFC 8693) is used for exchanging one token for another." placement="top">Grant Type</LearningTooltip>
+							</ParameterLabel>
 							<ParameterSelect 
 								value={exchangeParams.grantType}
 								onChange={(e) => handleParameterChange('grantType', e.target.value)}
@@ -936,7 +938,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 						</ParameterGroup>
 
 						<ParameterGroup>
-							<ParameterLabel>Subject Token Type</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="learning" title="Subject Token Type" content="The type of token you're providing as input to the exchange (access token, ID token, refresh token, or generic JWT)." placement="top">Subject Token Type</LearningTooltip>
+							</ParameterLabel>
 							<ParameterSelect 
 								value={exchangeParams.subjectTokenType}
 								onChange={(e) => handleParameterChange('subjectTokenType', e.target.value)}
@@ -952,7 +956,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 						</ParameterGroup>
 
 						<ParameterGroup>
-							<ParameterLabel>Requested Token Type</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="learning" title="Requested Token Type" content="The type of token you want to receive from the exchange. Usually matches subject token type but can be different for delegation scenarios." placement="top">Requested Token Type</LearningTooltip>
+							</ParameterLabel>
 							<ParameterSelect 
 								value={exchangeParams.requestedTokenType}
 								onChange={(e) => handleParameterChange('requestedTokenType', e.target.value)}
@@ -968,7 +974,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 						</ParameterGroup>
 
 						<ParameterGroup>
-							<ParameterLabel>Client Authentication Method</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="learning" title="Client Authentication Method" content="How the client authenticates with the token endpoint. Private Key JWT is recommended for A2A scenarios as it doesn't require sharing secrets." placement="top">Client Authentication Method</LearningTooltip>
+							</ParameterLabel>
 							<ParameterSelect 
 								value={exchangeParams.clientAuthMethod}
 								onChange={(e) => handleParameterChange('clientAuthMethod', e.target.value)}
@@ -985,7 +993,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 						</ParameterGroup>
 
 						<ParameterGroup>
-							<ParameterLabel>Audience / Resource</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="info" title="Audience / Resource" content="The intended recipient of the exchanged token (URI of the target API/service). Restricts token validity to specific services, enhancing security." placement="top">Audience / Resource</LearningTooltip>
+							</ParameterLabel>
 							<ParameterInput 
 								value={exchangeParams.audience}
 								onChange={(e) => handleParameterChange('audience', e.target.value)}
@@ -1013,7 +1023,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 
 					<ParameterGrid>
 						<ParameterGroup>
-							<ParameterLabel>Claims (OIDC) - JSON</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="info" title="Claims (OIDC)" content="Claims are pieces of information about the user (email, name, groups) or the token itself. Requested via the 'claims' parameter in JSON format." placement="top">Claims (OIDC)</LearningTooltip> - JSON
+							</ParameterLabel>
 							<ParameterTextarea 
 								value={exchangeParams.claims}
 								onChange={(e) => handleParameterChange('claims', e.target.value)}
@@ -1028,7 +1040,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 						</ParameterGroup>
 
 						<ParameterGroup>
-							<ParameterLabel>Authorization Details (RAR) - JSON</ParameterLabel>
+							<ParameterLabel>
+								<LearningTooltip variant="learning" title="Authorization Details (RAR)" content="Rich Authorization Requests (RFC 9396) - Structured JSON for fine-grained authorization beyond simple scopes. Enables specifying exact resources, actions, and conditions." placement="top">Authorization Details (RAR)</LearningTooltip> - JSON
+							</ParameterLabel>
 							<ParameterTextarea 
 								value={exchangeParams.authorizationDetails}
 								onChange={(e) => handleParameterChange('authorizationDetails', e.target.value)}
@@ -1046,7 +1060,9 @@ const TokenExchangeFlowV7Enhanced: React.FC = () => {
 					<EducationalBox $type="info">
 						<FiGlobe size={20} />
 						<div>
-							<InfoTitle>Claims vs Authorization Details vs Scopes</InfoTitle>
+							<InfoTitle>
+								<LearningTooltip variant="info" title="Claims" content="User attributes and token properties requested from the authorization server (email, name, groups)." placement="top">Claims</LearningTooltip> vs <LearningTooltip variant="learning" title="Authorization Details (RAR)" content="Rich Authorization Requests - Structured JSON for fine-grained permissions specifying resources, actions, and conditions (RFC 9396)." placement="top">Authorization Details (RAR)</LearningTooltip> vs <LearningTooltip variant="info" title="Scopes" content="Simple string-based permissions (e.g., 'read write delete'). Limited expressiveness compared to RAR." placement="top">Scopes</LearningTooltip>
+							</InfoTitle>
 							<InfoText>
 								• <strong>Scopes:</strong> Broad permission categories (read, write, admin)<br/>
 								• <strong>Claims:</strong> Specific user attributes in tokens (email, name, roles)<br/>
@@ -1486,7 +1502,7 @@ function TokenExchangeComponent() {
 	const renderScopeSelector = () => (
 		<ScopeSelector>
 			<ScopeSelectorTitle>
-				<FiLock /> Select Scopes for Exchanged Token
+				<FiLock /> Select <LearningTooltip variant="info" title="Scopes" content="String-based permissions that define what resources and actions the token allows (e.g., 'read:profile write:contacts')." placement="top">Scopes</LearningTooltip> for Exchanged Token
 			</ScopeSelectorTitle>
 			<p style={{ fontSize: '0.875rem', color: '#6b7280', margin: '0 0 1rem 0' }}>
 				Choose which scopes you want to include in the exchanged token. This allows you to implement 
@@ -1867,7 +1883,7 @@ function TokenExchangeComponent() {
 		<CollapsibleSection>
 			<CollapsibleHeaderButton onClick={() => toggleSection('request')}>
 				<CollapsibleTitle>
-					<FiZap /> Token Exchange Request (RFC 8693)
+					<FiZap /> <LearningTooltip variant="learning" title="Token Exchange Request" content="The HTTP POST request to the token endpoint using grant_type=urn:ietf:params:oauth:grant-type:token-exchange with subject_token and requested_token_type parameters (RFC 8693)." placement="top">Token Exchange Request</LearningTooltip> (<LearningTooltip variant="info" title="RFC 8693" content="OAuth 2.0 Token Exchange specification" placement="top">RFC 8693</LearningTooltip>)
 				</CollapsibleTitle>
 				<FiChevronDown />
 			</CollapsibleHeaderButton>
@@ -2024,9 +2040,15 @@ function TokenExchangeComponent() {
 			<ContentWrapper>
 				<MainCard>
 					<Header>
-						<VersionBadge>V7.0 - RFC 8693</VersionBadge>
-						<Title>OAuth 2.0 Token Exchange</Title>
-						<Subtitle>Secure A2A Communication with Scope Reduction & Audience Restriction</Subtitle>
+						<VersionBadge>
+							V7.0 - <LearningTooltip variant="learning" title="RFC 8693: OAuth 2.0 Token Exchange" content="OAuth 2.0 extension specification for exchanging tokens. Enables delegation, impersonation, scope reduction, and audience restriction for secure application-to-application (A2A) communication." placement="top">RFC 8693</LearningTooltip>
+						</VersionBadge>
+						<Title>
+							<LearningTooltip variant="learning" title="OAuth 2.0 Token Exchange" content="A grant type that allows clients to exchange one token for another with different properties (scope, audience, lifetime). Used for delegation, impersonation, and implementing the principle of least privilege." placement="top">OAuth 2.0 Token Exchange</LearningTooltip>
+						</Title>
+						<Subtitle>
+							Secure <LearningTooltip variant="info" title="A2A Communication" content="Application-to-Application: Secure communication between backend services without user interaction." placement="top">A2A Communication</LearningTooltip> with <LearningTooltip variant="security" title="Scope Reduction" content="Principle of least privilege: Reducing token permissions to only what's necessary for the specific operation." placement="top">Scope Reduction</LearningTooltip> & <LearningTooltip variant="security" title="Audience Restriction" content="Limiting token validity to specific services or APIs. Prevents token reuse across different systems." placement="top">Audience Restriction</LearningTooltip>
+						</Subtitle>
 					</Header>
 
 					<ContentSection>

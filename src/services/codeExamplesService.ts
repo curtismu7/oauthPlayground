@@ -1792,33 +1792,36 @@ export class CodeExamplesService {
 		if (flowType === 'authorization-code') {
 			switch (stepId) {
 				case 'step1':
+					// Step 1: Generate Authorization URL - include all examples that show auth URL generation
 					examples = [
-						...getJavaScriptExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
-						...getTypeScriptExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
-						...getGoExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
-						...getRubyExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
-						...getPythonExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
-						...getPingSDKExamples(this.config).filter(ex => ex.title.includes('Authorization URL') || ex.title.includes('Generate')),
+						...getJavaScriptExamples(this.config),
+						...getTypeScriptExamples(this.config),
+						...getGoExamples(this.config),
+						...getRubyExamples(this.config),
+						...getPythonExamples(this.config),
+						...getPingSDKExamples(this.config),
 					];
 					break;
 				case 'step2':
+					// Step 2: Handle Callback - include examples that show callback handling
 					examples = [
-						...getJavaScriptExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
-						...getTypeScriptExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
-						...getGoExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
-						...getRubyExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
-						...getPythonExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
-						...getPingSDKExamples(this.config).filter(ex => ex.title.includes('Callback') || ex.title.includes('Handle')),
+						...getJavaScriptExamples(this.config),
+						...getTypeScriptExamples(this.config),
+						...getGoExamples(this.config),
+						...getRubyExamples(this.config),
+						...getPythonExamples(this.config),
+						...getPingSDKExamples(this.config),
 					];
 					break;
 				case 'step3':
+					// Step 3: Exchange Code - include examples that show token exchange
 					examples = [
-						...getJavaScriptExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
-						...getTypeScriptExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
-						...getGoExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
-						...getRubyExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
-						...getPythonExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
-						...getPingSDKExamples(this.config).filter(ex => ex.title.includes('Exchange') || ex.title.includes('Token')),
+						...getJavaScriptExamples(this.config),
+						...getTypeScriptExamples(this.config),
+						...getGoExamples(this.config),
+						...getRubyExamples(this.config),
+						...getPythonExamples(this.config),
+						...getPingSDKExamples(this.config),
 					];
 					break;
 				case 'step4':

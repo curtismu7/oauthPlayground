@@ -26,7 +26,7 @@ import styled from 'styled-components';
 import { FlowHeader } from '../../services/flowHeaderService';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import EducationalContentService from '../../services/educationalContentService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import { usePageScroll } from '../../hooks/usePageScroll';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { v4ToastManager } from '../../utils/v4ToastMessages';

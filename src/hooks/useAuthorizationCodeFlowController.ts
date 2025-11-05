@@ -121,13 +121,16 @@ const getSafeOrigin = (): string => {
 	return window.location.origin;
 };
 
+const DEFAULT_OAUTH_SCOPES = 'openid p1:consents:read';
+const DEFAULT_OIDC_SCOPES = 'openid profile email p1:consents:read';
+
 const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
 	clientId: '',
 	clientSecret: '',
 	redirectUri: `${getSafeOrigin()}/authz-callback`,
-	scope: 'openid',
-	scopes: 'openid',
+	scope: DEFAULT_OAUTH_SCOPES,
+	scopes: DEFAULT_OAUTH_SCOPES,
 	responseType: 'code',
 	grantType: 'authorization_code',
 	issuerUrl: '',
@@ -140,7 +143,15 @@ const createEmptyCredentials = (): StepCredentials => ({
 const resolveAuthEndpoint = (creds: StepCredentials): string => {
 	if (creds.authorizationEndpoint) return creds.authorizationEndpoint;
 	if (creds.environmentId) {
-		return `https://auth.pingone.com/${creds.environmentId}/as/authorize`;
+		const regionDomains: Record<string, string> = {
+			us: 'auth.pingone.com',
+			eu: 'auth.pingone.eu',
+			ap: 'auth.pingone.asia',
+			ca: 'auth.pingone.ca',
+			na: 'auth.pingone.com'
+		};
+		const domain = regionDomains[creds.region || 'us'] || 'auth.pingone.com';
+		return `https://${domain}/${creds.environmentId}/as/authorize`;
 	}
 	return '';
 };
@@ -148,7 +159,15 @@ const resolveAuthEndpoint = (creds: StepCredentials): string => {
 const resolveTokenEndpoint = (creds: StepCredentials): string => {
 	if (creds.tokenEndpoint) return creds.tokenEndpoint;
 	if (creds.environmentId) {
-		return `https://auth.pingone.com/${creds.environmentId}/as/token`;
+		const regionDomains: Record<string, string> = {
+			us: 'auth.pingone.com',
+			eu: 'auth.pingone.eu',
+			ap: 'auth.pingone.asia',
+			ca: 'auth.pingone.ca',
+			na: 'auth.pingone.com'
+		};
+		const domain = regionDomains[creds.region || 'us'] || 'auth.pingone.com';
+		return `https://${domain}/${creds.environmentId}/as/token`;
 	}
 	return '';
 };
@@ -182,18 +201,17 @@ const loadStoredConfig = (storageKey: string, variant: FlowVariant): FlowConfig 
 	}
 };
 
-const ensureOpenIdScope = (scopeValue: string | null | undefined): string => {
+const ensureRequiredScopes = (scopeValue: string | null | undefined, variant: FlowVariant): string => {
 	const scopes = new Set((scopeValue ?? '').split(' ').filter(Boolean));
-	if (!scopes.has('openid')) {
-		scopes.add('openid');
-	}
+	const required = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
+	required.split(' ').forEach((scope) => scopes.add(scope));
 	return Array.from(scopes).join(' ').trim();
 };
 
 const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 	if (typeof window === 'undefined') {
 		const defaults = createEmptyCredentials();
-		const ensuredScopes = ensureOpenIdScope(defaults.scope);
+		const ensuredScopes = ensureRequiredScopes(defaults.scope, variant);
 		return {
 			...defaults,
 			scope: ensuredScopes,
@@ -211,8 +229,8 @@ const loadInitialCredentials = (variant: FlowVariant): StepCredentials => {
 	// Each flow should maintain its own credentials in flow-specific storage
 	const loaded: any = {}; // Empty object to prevent loading shared credentials
 
-	const defaultScopes = variant === 'oidc' ? 'openid profile email' : 'openid';
-	const mergedScopes = ensureOpenIdScope(urlScope || defaultScopes);
+	const defaultScopes = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
+	const mergedScopes = ensureRequiredScopes(urlScope || defaultScopes, variant);
 
 	return {
 		environmentId: urlEnv || '',
@@ -1324,7 +1342,7 @@ export const useAuthorizationCodeFlowController = (
 				console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} authentication`);
 
 				try {
-					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					const tokenEndpoint = resolveTokenEndpoint(credentials);
 					const baseParams = new URLSearchParams();
 
 					const authResult = await applyClientAuthentication(
@@ -1545,7 +1563,15 @@ export const useAuthorizationCodeFlowController = (
 		
 		// Fallback: construct from environment ID if not provided
 		if (!userInfoEndpoint && credentials.environmentId) {
-			userInfoEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/userinfo`;
+			const regionDomains: Record<string, string> = {
+				us: 'auth.pingone.com',
+				eu: 'auth.pingone.eu',
+				ap: 'auth.pingone.asia',
+				ca: 'auth.pingone.ca',
+				na: 'auth.pingone.com'
+			};
+			const domain = regionDomains[credentials.region || 'us'] || 'auth.pingone.com';
+			userInfoEndpoint = `https://${domain}/${credentials.environmentId}/as/userinfo`;
 			console.log('ℹ️ [fetchUserInfo] UserInfo endpoint not in credentials, constructed from environment ID:', userInfoEndpoint);
 		}
 		
@@ -1638,7 +1664,7 @@ export const useAuthorizationCodeFlowController = (
 				console.log(`🔐 [useAuthorizationCodeFlowController] Using ${authMethod} for refresh`);
 
 				try {
-					const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+					const tokenEndpoint = resolveTokenEndpoint(credentials);
 					const baseParams = new URLSearchParams();
 
 					const authResult = await applyClientAuthentication(

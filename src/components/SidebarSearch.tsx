@@ -16,7 +16,7 @@ const SearchInputWrapper = styled.div`
 
 const SearchInput = styled.input`
 	width: 100%;
-	padding: 0.5rem 2rem 0.5rem 2rem;
+	padding: 0.5rem 2.5rem 0.5rem 2rem;
 	border: 1px solid #d1d5db;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
@@ -43,6 +43,28 @@ const SearchIcon = styled.div`
 	pointer-events: none;
 `;
 
+const SearchButton = styled.button`
+	position: absolute;
+	right: 0.5rem;
+	background: #3b82f6;
+	border: none;
+	color: white;
+	cursor: pointer;
+	padding: 0.375rem 0.5rem;
+	border-radius: 0.25rem;
+	display: flex;
+	align-items: center;
+	transition: all 0.2s ease;
+
+	&:hover {
+		background: #2563eb;
+	}
+
+	&:active {
+		transform: scale(0.95);
+	}
+`;
+
 const ClearButton = styled.button`
 	position: absolute;
 	right: 0.5rem;
@@ -65,27 +87,31 @@ const ClearButton = styled.button`
 interface SidebarSearchProps {
 	onSearch: (query: string) => void;
 	placeholder?: string;
+	activeSearchQuery?: string; // Track the active search query from parent
 }
 
 const SidebarSearch: React.FC<SidebarSearchProps> = ({ 
 	onSearch, 
-	placeholder = "Search flows..." 
+	placeholder = "Search flows...",
+	activeSearchQuery = ''
 }) => {
-	const searchQueryRef = React.useRef('');
 	const [displayQuery, setDisplayQuery] = React.useState('');
+	const [activeQuery, setActiveQuery] = React.useState('');
 	const inputRef = React.useRef<HTMLInputElement>(null);
 
-	// Debounce search to avoid too many calls
+	// Sync with parent's active search query
 	React.useEffect(() => {
-		const timeoutId = setTimeout(() => {
-			if (searchQueryRef.current !== displayQuery) {
-				searchQueryRef.current = displayQuery;
-				onSearch(displayQuery);
-			}
-		}, 300);
+		if (activeSearchQuery !== activeQuery) {
+			setActiveQuery(activeSearchQuery);
+			setDisplayQuery(activeSearchQuery);
+		}
+	}, [activeSearchQuery, activeQuery]);
 
-		return () => clearTimeout(timeoutId);
-	}, [displayQuery, onSearch]);
+	// Trigger search function
+	const triggerSearch = () => {
+		setActiveQuery(displayQuery);
+		onSearch(displayQuery);
+	};
 
 	// Add keyboard shortcut (Ctrl/Cmd + K) to focus search
 	useEffect(() => {
@@ -101,8 +127,14 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 	}, []);
 
 	const handleKeyDown = (event: React.KeyboardEvent) => {
-		if (event.key === 'Escape') {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			triggerSearch();
+		} else if (event.key === 'Escape') {
 			setDisplayQuery('');
+			setActiveQuery('');
+			onSearch('');
+			inputRef.current?.blur();
 		}
 	};
 
@@ -118,6 +150,9 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 
 	const clearSearch = () => {
 		setDisplayQuery('');
+		setActiveQuery('');
+		onSearch('');
+		inputRef.current?.focus();
 	};
 
 	return (
@@ -127,20 +162,23 @@ const SidebarSearch: React.FC<SidebarSearchProps> = ({
 					<FiSearch size={14} />
 				</SearchIcon>
 				<SearchInput
-					key="sidebar-search-input"
 					ref={inputRef}
 					type="text"
-					placeholder={`${placeholder} (⌘K)`}
+					placeholder={`${placeholder} (⌘K, Enter to search)`}
 					value={displayQuery}
 					onChange={(e) => setDisplayQuery(e.target.value)}
 					onKeyDown={handleKeyDown}
 					onBlur={handleBlur}
 				/>
-				{displayQuery && (
+				{displayQuery && displayQuery !== activeQuery ? (
+					<SearchButton onClick={triggerSearch} title="Search (Enter)">
+						<FiSearch size={14} />
+					</SearchButton>
+				) : (displayQuery || activeQuery) ? (
 					<ClearButton onClick={clearSearch} title="Clear search">
 						<FiX size={14} />
 					</ClearButton>
-				)}
+				) : null}
 			</SearchInputWrapper>
 		</SearchContainer>
 	);

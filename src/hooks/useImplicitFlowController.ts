@@ -35,7 +35,15 @@ interface FlowConfig {
 const resolveAuthEndpoint = (creds: StepCredentials): string => {
 	if (creds.authorizationEndpoint) return creds.authorizationEndpoint;
 	if (creds.environmentId) {
-		return `https://auth.pingone.com/${creds.environmentId}/as/authorize`;
+		const regionDomains: Record<string, string> = {
+			us: 'auth.pingone.com',
+			eu: 'auth.pingone.eu',
+			ap: 'auth.pingone.asia',
+			ca: 'auth.pingone.ca',
+			na: 'auth.pingone.com'
+		};
+		const domain = regionDomains[creds.region || 'us'] || 'auth.pingone.com';
+		return `https://${domain}/${creds.environmentId}/as/authorize`;
 	}
 	return '';
 };
@@ -239,6 +247,16 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		hasLoadedRedirectUri: loaded.redirectUri !== undefined
 	});
 
+	// Helper to get region-aware domain
+	const regionDomains: Record<string, string> = {
+		us: 'auth.pingone.com',
+		eu: 'auth.pingone.eu',
+		ap: 'auth.pingone.asia',
+		ca: 'auth.pingone.ca',
+		na: 'auth.pingone.com'
+	};
+	const domain = regionDomains[loaded.region || 'us'] || 'auth.pingone.com';
+
 	return {
 		environmentId: urlEnv || loaded.environmentId || '',
 		clientId: urlClient || loaded.clientId || '',
@@ -248,14 +266,16 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		scopes: mergedScopes,
 		responseType: variant === 'oidc' ? 'id_token token' : 'token',
 		grantType: '',
-		issuerUrl: loaded.environmentId ? `https://auth.pingone.com/${loaded.environmentId}` : '',
+		region: loaded.region || 'us',
+		issuerUrl: loaded.environmentId ? `https://${domain}/${loaded.environmentId}` : '',
 		authorizationEndpoint: resolveAuthEndpoint({
 			environmentId: urlEnv || loaded.environmentId || '',
 			authorizationEndpoint: loaded.authEndpoint,
+			region: loaded.region,
 		} as StepCredentials),
 		userInfoEndpoint:
 			loaded.userInfoEndpoint ||
-			(loaded.environmentId ? `https://auth.pingone.com/${loaded.environmentId}/as/userinfo` : ''),
+			(loaded.environmentId ? `https://${domain}/${loaded.environmentId}/as/userinfo` : ''),
 		clientAuthMethod: 'none',
 		loginHint: loaded.loginHint || '',
 	};
@@ -600,11 +620,22 @@ export const useImplicitFlowController = (
 		enhancedDebugger.logStep('fetch-userinfo', 'Fetching user information', 'executing');
 
 		try {
-			const userInfoEndpoint =
-				credentials.userInfoEndpoint ||
-				`https://auth.pingone.com/${credentials.environmentId}/as/userinfo`;
+			let userInfoEndpoint = credentials.userInfoEndpoint;
+			
+			// Construct region-aware userinfo endpoint if not provided
+			if (!userInfoEndpoint && credentials.environmentId) {
+				const regionDomains: Record<string, string> = {
+					us: 'auth.pingone.com',
+					eu: 'auth.pingone.eu',
+					ap: 'auth.pingone.asia',
+					ca: 'auth.pingone.ca',
+					na: 'auth.pingone.com'
+				};
+				const domain = regionDomains[credentials.region || 'us'] || 'auth.pingone.com';
+				userInfoEndpoint = `https://${domain}/${credentials.environmentId}/as/userinfo`;
+			}
 
-			const response = await fetch(userInfoEndpoint, {
+			const response = await fetch(userInfoEndpoint!, {
 				headers: {
 					Authorization: `Bearer ${tokens.access_token}`,
 				},

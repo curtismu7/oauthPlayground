@@ -24,7 +24,6 @@ import { CollapsibleHeader } from "../services/collapsibleHeaderService";
 import { FlowUIService } from "../services/flowUIService";
 import { usePageScroll } from "../hooks/usePageScroll";
 import { credentialManager } from "../utils/credentialManager";
-import { CredentialsInput } from "../components/CredentialsInput";
 import PingOneApplicationConfig, {
   type PingOneApplicationState,
 } from "../components/PingOneApplicationConfig";
@@ -33,6 +32,8 @@ import type { StepCredentials } from "../components/steps/CommonSteps";
 import packageJson from "../../package.json";
 import { WorkerTokenModal } from "../components/WorkerTokenModal";
 import ComprehensiveCredentialsService from "../services/comprehensiveCredentialsService";
+import ConfigurationURIChecker from "../components/ConfigurationURIChecker";
+import { WorkerTokenDetectedBanner } from "../components/WorkerTokenDetectedBanner";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -249,6 +250,7 @@ const Configuration: React.FC = () => {
     redirectUri: "http://localhost:3000/callback",
     scope: "openid profile email",
     scopes: "openid profile email",
+    region: "us",
     responseType: "code",
     grantType: "authorization_code",
     clientAuthMethod: "client_secret_post",
@@ -260,8 +262,6 @@ const Configuration: React.FC = () => {
     loginHint: "",
     postLogoutRedirectUri: "",
   });
-  const [hasCredentials, setHasCredentials] = useState(false);
-  const [credentialsSaved, setCredentialsSaved] = useState(false);
 
   // PingOne Application Configuration state
   const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
@@ -344,29 +344,6 @@ const Configuration: React.FC = () => {
     loadPingOneConfig();
   }, []);
 
-  // Save credentials to config storage
-  const saveCredentials = async () => {
-    try {
-      const credentialsToSave = {
-        environmentId: credentials.environmentId,
-        clientId: credentials.clientId,
-        clientSecret: credentials.clientSecret,
-        redirectUri: credentials.redirectUri,
-        scopes: credentials.scopes.split(" ").filter((s) => s.trim()),
-        loginHint: "",
-      };
-
-      credentialManager.saveConfigCredentials(credentialsToSave);
-      setHasCredentials(true);
-      setCredentialsSaved(true);
-
-      // Show success message
-      setTimeout(() => setCredentialsSaved(false), 3000);
-    } catch (error) {
-      console.error("Failed to save credentials:", error);
-    }
-  };
-
   // Save PingOne Application Configuration
   const savePingOneConfig = async () => {
     try {
@@ -382,12 +359,6 @@ const Configuration: React.FC = () => {
     } catch (error) {
       console.error("Failed to save PingOne configuration:", error);
     }
-  };
-
-  // Handle credential changes
-  const handleCredentialChange = (field: string, value: string) => {
-    setCredentials((prev) => ({ ...prev, [field]: value }));
-    setCredentialsSaved(false);
   };
 
   const copyToClipboard = async (text: string, label: string) => {
@@ -462,18 +433,14 @@ const Configuration: React.FC = () => {
           )}
 
           {workerToken && (
-            <InfoBox $type="success">
-              <FiCheckCircle size={16} />
-              <div>
-                <strong>Worker token obtained!</strong> Config Checker is now
-                available in all flows.
-                {workerTokenExpiresAt && (
-                  <div style={{ fontSize: '0.875rem', marginTop: '0.5rem', color: '#155724' }}>
-                    Expires: {new Date(workerTokenExpiresAt).toLocaleString()}
-                  </div>
-                )}
-              </div>
-            </InfoBox>
+            <WorkerTokenDetectedBanner 
+              token={workerToken} 
+              tokenExpiryKey="worker_token_expires_at"
+              message={workerTokenExpiresAt 
+                ? `Worker token obtained! Config Checker is now available in all flows. Token expires at ${new Date(workerTokenExpiresAt).toLocaleString()}.`
+                : 'Worker token obtained! Config Checker is now available in all flows.'
+              }
+            />
           )}
 
           <div style={{ marginBottom: "1rem" }}>
@@ -652,119 +619,31 @@ const Configuration: React.FC = () => {
         </Card>
       </CollapsibleHeader>
 
-      {/* Credentials Configuration Section */}
-      <CollapsibleHeader
-        title="Application Configuration & Credentials"
-        subtitle="Configure your PingOne environment credentials for the OAuth Playground"
-        icon={<FiSettings />}
-        defaultCollapsed={false}
-      >
-        <Card style={{ border: "none", boxShadow: "none", marginBottom: 0 }}>
-          {credentialsSaved && (
-            <InfoBox $type="success">
-              <FiCheckCircle size={16} />
-              <strong>Credentials saved!</strong> Your PingOne credentials are
-              now configured and will be used across all flows.
-            </InfoBox>
-          )}
-
-          <CredentialsInput
-            environmentId={credentials.environmentId}
-            clientId={credentials.clientId}
-            clientSecret={credentials.clientSecret}
-            redirectUri={credentials.redirectUri}
-            scopes={credentials.scopes}
-            onEnvironmentIdChange={(value) =>
-              handleCredentialChange("environmentId", value)
-            }
-            onClientIdChange={(value) =>
-              handleCredentialChange("clientId", value)
-            }
-            onClientSecretChange={(value) =>
-              handleCredentialChange("clientSecret", value)
-            }
-            onRedirectUriChange={(value) =>
-              handleCredentialChange("redirectUri", value)
-            }
-            onScopesChange={(value) =>
-              handleCredentialChange("scopes", value)
-            }
-            onCopy={copyToClipboard}
-            showEnvironmentIdInput={true}
-            onDiscoveryComplete={async (result) => {
-              if (result.success && result.document) {
-                console.log("OIDC Discovery completed successfully");
-                // Auto-populate environment ID if it's a PingOne issuer
-                const envId = result.document.issuer.split("/").pop();
-                if (envId) {
-                  handleCredentialChange("environmentId", envId);
-                }
-                // Set default redirect URI if not already set
-                if (!credentials.redirectUri) {
-                  handleCredentialChange(
-                    "redirectUri",
-                    "http://localhost:3000/callback",
-                  );
-                }
-              }
-            }}
-            copiedField={copiedText}
-          />
-
-          <div
-            style={{
-              marginTop: "1rem",
-              display: "flex",
-              justifyContent: "flex-end",
-            }}
-          >
-            <button
-              onClick={saveCredentials}
-              style={{
-                background: hasCredentials ? "#10b981" : "#3b82f6",
-                color: "white",
-                border: "1px solid #ffffff",
-                borderRadius: "0.5rem",
-                padding: "0.75rem 1.5rem",
-                fontSize: "0.875rem",
-                fontWeight: "600",
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                transition: "all 0.2s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = hasCredentials
-                  ? "#059669"
-                  : "#2563eb";
-                e.currentTarget.style.borderColor = "#ffffff";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = hasCredentials
-                  ? "#10b981"
-                  : "#3b82f6";
-                e.currentTarget.style.borderColor = "#ffffff";
-              }}
-            >
-              <FiSave size={16} />
-              {hasCredentials ? "Update Credentials" : "Save Credentials"}
-            </button>
-          </div>
-        </Card>
-      </CollapsibleHeader>
-
-      {/* PingOne Application Picker */}
+      {/* Application Configuration & Credentials - Using Modern Service */}
       <ComprehensiveCredentialsService
         flowType="configuration"
         isOIDC={false}
         credentials={credentials}
         onCredentialsChange={setCredentials}
         showConfigChecker={true}
-        title="PingOne Application Picker"
-        subtitle="Select an existing PingOne application to auto-fill credentials"
-        region="NA"
+        title="Application Configuration & Credentials"
+        subtitle="Configure your PingOne environment credentials and optionally auto-fill from existing applications"
+        region={credentials.region || "us"}
+        defaultCollapsed={false}
       />
+
+      {/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
+      {workerToken && credentials.environmentId && credentials.clientId && (
+        <ConfigurationURIChecker
+          flowType="configuration"
+          environmentId={credentials.environmentId}
+          clientId={credentials.clientId}
+          workerToken={workerToken}
+          redirectUri={credentials.redirectUri}
+          postLogoutRedirectUri={credentials.postLogoutRedirectUri}
+          region={credentials.region || "us"}
+        />
+      )}
 
       <CollapsibleHeader
         title="Application Information"
@@ -898,103 +777,16 @@ cd oauthPlayground`}
               <div className="step-number">3</div>
               <h3>Configure PingOne Credentials</h3>
             </StepHeader>
-            <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
-              Set up your PingOne application credentials once, and they'll be
-              available across all OAuth flows. You only need to configure this
-              once!
-            </p>
-
-            {credentialsSaved && (
-              <InfoBox $type="success">
-                <FiCheckCircle size={16} />
-                <strong>Credentials saved!</strong> Your PingOne credentials are
-                now configured and will be used across all flows.
-              </InfoBox>
-            )}
-
-            <CredentialsInput
-              environmentId={credentials.environmentId}
-              clientId={credentials.clientId}
-              clientSecret={credentials.clientSecret}
-              redirectUri={credentials.redirectUri}
-              scopes={credentials.scopes}
-              onEnvironmentIdChange={(value) =>
-                handleCredentialChange("environmentId", value)
-              }
-              onClientIdChange={(value) =>
-                handleCredentialChange("clientId", value)
-              }
-              onClientSecretChange={(value) =>
-                handleCredentialChange("clientSecret", value)
-              }
-              onRedirectUriChange={(value) =>
-                handleCredentialChange("redirectUri", value)
-              }
-              onScopesChange={(value) =>
-                handleCredentialChange("scopes", value)
-              }
-              onCopy={copyToClipboard}
-              showEnvironmentIdInput={true}
-              onDiscoveryComplete={async (result) => {
-                if (result.success && result.document) {
-                  console.log("OIDC Discovery completed successfully");
-                  // Auto-populate environment ID if it's a PingOne issuer
-                  const envId = result.document.issuer.split("/").pop();
-                  if (envId) {
-                    handleCredentialChange("environmentId", envId);
-                  }
-                  // Set default redirect URI if not already set
-                  if (!credentials.redirectUri) {
-                    handleCredentialChange(
-                      "redirectUri",
-                      "http://localhost:3000/callback",
-                    );
-                  }
-                }
-              }}
-              copiedField={copiedText}
-            />
-
-            <div
-              style={{
-                marginTop: "1rem",
-                display: "flex",
-                justifyContent: "flex-end",
-              }}
-            >
-              <button
-                onClick={saveCredentials}
-                style={{
-                  background: hasCredentials ? "#10b981" : "#3b82f6",
-                  color: "white",
-                  border: "1px solid #ffffff",
-                  borderRadius: "0.5rem",
-                  padding: "0.75rem 1.5rem",
-                  fontSize: "0.875rem",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem",
-                  transition: "all 0.2s ease",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = hasCredentials
-                    ? "#059669"
-                    : "#2563eb";
-                  e.currentTarget.style.borderColor = "#ffffff";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = hasCredentials
-                    ? "#10b981"
-                    : "#3b82f6";
-                  e.currentTarget.style.borderColor = "#ffffff";
-                }}
-              >
-                <FiSave size={16} />
-                {hasCredentials ? "Update Credentials" : "Save Credentials"}
-              </button>
-            </div>
+            <InfoBox $type="info">
+              <FiCheckCircle size={16} />
+              <div>
+                <strong>Credentials are configured in the section above!</strong>
+                <p style={{ margin: "0.5rem 0 0 0", fontSize: "0.875rem" }}>
+                  Use the "Application Configuration & Credentials" section above to set up your PingOne application credentials. 
+                  They'll be saved automatically and available across all OAuth flows.
+                </p>
+              </div>
+            </InfoBox>
           </StepCard>
 
           <StepCard>

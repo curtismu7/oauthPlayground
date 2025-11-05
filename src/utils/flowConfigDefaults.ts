@@ -12,7 +12,7 @@ const generateRandomString = (length: number) => {
 
 // Default configuration for Authorization Code Flow
 export const getAuthorizationCodeConfig = (): FlowConfig => ({
-	scopes: ['openid', 'profile', 'email'],
+	scopes: ['openid', 'profile', 'email', 'p1:consents:read'],
 	responseType: 'code',
 	grantType: 'authorization_code',
 	enablePKCE: true,
@@ -37,7 +37,7 @@ export const getAuthorizationCodeConfig = (): FlowConfig => ({
 
 // Default configuration for PKCE Flow
 export const getPKCEConfig = (): FlowConfig => ({
-	scopes: ['openid', 'profile', 'email'],
+	scopes: ['openid', 'profile', 'email', 'p1:consents:read'],
 	responseType: 'code',
 	grantType: 'authorization_code',
 	enablePKCE: true,
@@ -62,7 +62,7 @@ export const getPKCEConfig = (): FlowConfig => ({
 
 // Default configuration for Implicit Flow
 export const getImplicitConfig = (): FlowConfig => ({
-	scopes: ['openid', 'profile', 'email'],
+	scopes: ['openid', 'profile', 'email', 'p1:consents:read'],
 	responseType: 'token',
 	grantType: 'implicit',
 	enablePKCE: false,
@@ -112,7 +112,7 @@ export const getClientCredentialsConfig = (): FlowConfig => ({
 
 // Default configuration for Device Code Flow
 export const getDeviceCodeConfig = (): FlowConfig => ({
-	scopes: ['openid', 'profile', 'email'],
+	scopes: ['openid', 'profile', 'email', 'p1:consents:read'],
 	responseType: '',
 	grantType: 'urn:ietf:params:oauth:grant-type:device_code',
 	enablePKCE: false,
@@ -137,7 +137,7 @@ export const getDeviceCodeConfig = (): FlowConfig => ({
 
 // Default configuration for Refresh Token Flow
 export const getRefreshTokenConfig = (): FlowConfig => ({
-	scopes: ['openid', 'profile', 'email'],
+	scopes: ['openid', 'profile', 'email', 'p1:consents:read'],
 	responseType: '',
 	grantType: 'refresh_token',
 	enablePKCE: false,
@@ -162,7 +162,7 @@ export const getRefreshTokenConfig = (): FlowConfig => ({
 
 // Default configuration for Password Grant Flow
 export const getPasswordGrantConfig = (): FlowConfig => ({
-	scopes: ['openid', 'profile', 'email'],
+	scopes: ['openid', 'profile', 'email', 'p1:consents:read'],
 	responseType: '',
 	grantType: 'password',
 	enablePKCE: false,

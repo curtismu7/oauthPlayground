@@ -1,4 +1,4 @@
-# 🚀 OAuth Authorization Code Flow V7 - Refactoring Plan
+CleanShot 2025-10-19 at 21.13.26.png# 🚀 OAuth Authorization Code Flow V7 - Refactoring Plan
 
 ## 📋 Overview
 

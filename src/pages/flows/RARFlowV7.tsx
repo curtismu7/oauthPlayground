@@ -693,7 +693,9 @@ const RARFlowV7: React.FC = () => {
 
 									<ResponsiveFormGrid>
 										<FormGroup>
-											<Label>Resource *</Label>
+											<Label>
+												<LearningTooltip variant="learning" title="Resource" content="The target resource URI that the authorization applies to (e.g., 'https://api.example.com/accounts'). Specifies what data or service is being accessed." placement="top">Resource</LearningTooltip> *
+											</Label>
 											<Input
 												type="text"
 												value={rarDetails.resource}
@@ -704,7 +706,9 @@ const RARFlowV7: React.FC = () => {
 										</FormGroup>
 
 										<FormGroup>
-											<Label>Actions *</Label>
+											<Label>
+												<LearningTooltip variant="learning" title="Actions" content="The specific operations allowed on the resource (e.g., 'read', 'write', 'delete'). Provides fine-grained control beyond simple scope strings." placement="top">Actions</LearningTooltip> *
+											</Label>
 											<Input
 												type="text"
 												value={rarDetails.actions.join(', ')}
@@ -715,7 +719,9 @@ const RARFlowV7: React.FC = () => {
 										</FormGroup>
 
 										<FormGroup>
-											<Label>Locations (Optional)</Label>
+											<Label>
+												<LearningTooltip variant="info" title="Locations" content="Optional URIs specifying where the resource can be accessed from. Used for data residency or compliance requirements (e.g., EU-only data access)." placement="top">Locations</LearningTooltip> (Optional)
+											</Label>
 											<Input
 												type="text"
 												value={rarDetails.locations?.join(', ') || ''}
@@ -726,7 +732,9 @@ const RARFlowV7: React.FC = () => {
 										</FormGroup>
 
 										<FormGroup>
-											<Label>Data Types (Optional)</Label>
+											<Label>
+												<LearningTooltip variant="info" title="Data Types" content="Optional identifiers for specific types of data within the resource (e.g., 'account_info', 'transaction_history'). Enables even more granular authorization." placement="top">Data Types</LearningTooltip> (Optional)
+											</Label>
 											<Input
 												type="text"
 												value={rarDetails.datatypes?.join(', ') || ''}
@@ -737,7 +745,9 @@ const RARFlowV7: React.FC = () => {
 										</FormGroup>
 
 										<FormGroup>
-											<Label>Identifier (Optional)</Label>
+											<Label>
+												<LearningTooltip variant="info" title="Identifier" content="Optional specific identifier for the resource (e.g., user ID, account number). Enables authorization for specific instances rather than all resources of a type." placement="top">Identifier</LearningTooltip> (Optional)
+											</Label>
 											<Input
 												type="text"
 												value={rarDetails.identifier || ''}
@@ -748,7 +758,9 @@ const RARFlowV7: React.FC = () => {
 										</FormGroup>
 
 										<FormGroup>
-											<Label>Privileges (Optional)</Label>
+											<Label>
+												<LearningTooltip variant="info" title="Privileges" content="Optional higher-level privileges or capabilities beyond basic actions (e.g., 'view_balance', 'transfer_funds'). Used for business logic authorization." placement="top">Privileges</LearningTooltip> (Optional)
+											</Label>
 											<Input
 												type="text"
 												value={rarDetails.privileges?.join(', ') || ''}
@@ -824,7 +836,7 @@ const RARFlowV7: React.FC = () => {
 								aria-expanded={!collapsedSections.authorization}
 							>
 								<CollapsibleTitle>
-									<FiKey /> Generate RAR Authorization URL
+									<FiKey /> Generate <LearningTooltip variant="learning" title="RAR Authorization URL" content="The authorization endpoint URL with RAR parameters. Includes 'authorization_details' parameter containing the structured JSON with resource, actions, and other fine-grained authorization requirements (RFC 9396)." placement="top">RAR Authorization URL</LearningTooltip>
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.authorization}>
 									<FiArrowRight />
@@ -833,7 +845,9 @@ const RARFlowV7: React.FC = () => {
 							{!collapsedSections.authorization && (
 								<CollapsibleContent>
 									<FormGroup>
-										<Label>RAR Authorization Details</Label>
+										<Label>
+											<LearningTooltip variant="learning" title="RAR Authorization Details" content="Structured JSON object containing resource, actions, locations, datatypes, and other fine-grained authorization parameters. Sent as 'authorization_details' parameter in the authorization request (RFC 9396)." placement="top">RAR Authorization Details</LearningTooltip>
+										</Label>
 										<CodeBlock>
 											{JSON.stringify(rarDetails, null, 2)}
 										</CodeBlock>
@@ -874,7 +888,7 @@ const RARFlowV7: React.FC = () => {
 								aria-expanded={!collapsedSections.tokenExchange}
 							>
 								<CollapsibleTitle>
-									<FiRefreshCw /> Token Exchange
+									<FiRefreshCw /> <LearningTooltip variant="learning" title="Token Exchange" content="The process of exchanging an authorization code for access and ID tokens at the token endpoint. The server validates the code and returns tokens that include the approved RAR authorization details." placement="top">Token Exchange</LearningTooltip>
 								</CollapsibleTitle>
 								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchange}>
 									<FiArrowRight />
@@ -883,7 +897,9 @@ const RARFlowV7: React.FC = () => {
 							{!collapsedSections.tokenExchange && (
 								<CollapsibleContent>
 									<FormGroup>
-										<Label>Authorization Code</Label>
+										<Label>
+											<LearningTooltip variant="learning" title="Authorization Code" content="A short-lived credential (typically 10 minutes) returned from the authorization server after user consent. Single-use and must be exchanged server-side for tokens." placement="top">Authorization Code</LearningTooltip>
+										</Label>
 										<Input
 											type="text"
 											value={authCode}
