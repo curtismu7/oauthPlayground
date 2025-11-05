@@ -1301,21 +1301,28 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			}
 		};
 
-		// Check immediately
+		// Check immediately on mount
 		checkUrlStep();
 
-		// Set up interval to check for URL changes (for redirectless flow completion)
-		// Only run for a short time to avoid interfering with normal flows
-		const interval = setInterval(checkUrlStep, 100);
-		
-		// Clean up interval after 3 seconds (redirectless flow should complete quickly)
-		const timeout = setTimeout(() => {
-			clearInterval(interval);
-		}, 3000);
+		// Event-based URL monitoring (replaces polling interval for better performance)
+		// Listen for browser navigation (back/forward buttons)
+		const handlePopState = () => {
+			console.log('🔄 [V7.2] Browser navigation detected, checking URL step');
+			checkUrlStep();
+		};
+
+		// Listen for hash changes (in case of hash-based routing)
+		const handleHashChange = () => {
+			console.log('🔄 [V7.2] Hash change detected, checking URL step');
+			checkUrlStep();
+		};
+
+		window.addEventListener('popstate', handlePopState);
+		window.addEventListener('hashchange', handleHashChange);
 
 		return () => {
-			clearInterval(interval);
-			clearTimeout(timeout);
+			window.removeEventListener('popstate', handlePopState);
+			window.removeEventListener('hashchange', handleHashChange);
 		};
 	}, []); // Run once on mount
 
@@ -1379,16 +1386,30 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
-			const updatedCredentials = {
+			const normalizedValue = typeof value === 'string' ? value.trim() : value;
+			const updatedCredentials: StepCredentials = {
 				...controller.credentials,
-				[field]: value,
+				[field]: normalizedValue,
 			};
+
 			controller.setCredentials(updatedCredentials);
-			// Save credentials with variant-specific key for better isolation
-			FlowCredentialService.saveSharedCredentials(`oauth-authorization-code-v7-${flowVariant}`, updatedCredentials);
-			// Also save to the main key for backward compatibility
-			FlowCredentialService.saveSharedCredentials('oauth-authorization-code-v7', updatedCredentials);
-			if (typeof value === 'string' && value.trim()) {
+			setCredentials(updatedCredentials);
+
+			const snapshot = {
+				hasClientId: !!updatedCredentials.clientId,
+				hasClientSecret: !!updatedCredentials.clientSecret,
+				hasEnvironmentId: !!updatedCredentials.environmentId,
+			};
+
+			console.log('[OAuth AuthZ V7.2] Credentials updated', {
+				field,
+				valuePreview: field === 'clientSecret'
+					? (normalizedValue ? '***MASKED***' : '(empty)')
+					: normalizedValue,
+				snapshot,
+			});
+
+			if (normalizedValue) {
 				setEmptyRequiredFields((prevMissing) => {
 					const next = new Set(prevMissing);
 					next.delete(field as string);
@@ -1788,20 +1809,38 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			return;
 		}
 
-		// CRITICAL: Validate credentials before attempting token exchange
-		const hasRequiredCredentials = controller.credentials?.clientId && 
-			controller.credentials?.clientSecret && 
-			controller.credentials?.environmentId;
-		
-		if (!hasRequiredCredentials) {
+		// Normalize credentials before validation to avoid whitespace mismatches
+		const normalizedCredentials = {
+			...controller.credentials,
+			clientId: controller.credentials?.clientId?.trim?.() ?? '',
+			clientSecret: controller.credentials?.clientSecret?.trim?.() ?? '',
+			environmentId: controller.credentials?.environmentId?.trim?.() ?? '',
+		};
+
+		const missingFields: string[] = [];
+		if (!normalizedCredentials.clientId) missingFields.push('Client ID');
+		if (!normalizedCredentials.clientSecret) missingFields.push('Client Secret');
+		if (!normalizedCredentials.environmentId) missingFields.push('Environment ID');
+
+		if (missingFields.length > 0) {
 			console.error('🚨 [TokenExchange] Missing required credentials:', {
-				hasClientId: !!controller.credentials?.clientId,
-				hasClientSecret: !!controller.credentials?.clientSecret,
-				hasEnvironmentId: !!controller.credentials?.environmentId,
-				credentials: controller.credentials
+				normalizedCredentials,
+				missingFields,
 			});
-			v4ToastManager.showError('Missing OAuth credentials. Please configure your application settings in Step 0 before exchanging tokens.');
+			controller.setCredentials(normalizedCredentials);
+			setCredentials(normalizedCredentials);
+			v4ToastManager.showError(`Missing OAuth credentials: ${missingFields.join(', ')}. Update Step 0 before exchanging tokens.`);
 			return;
+		}
+
+		// Persist normalized credentials if trimming changed values
+		if (
+			normalizedCredentials.clientId !== controller.credentials.clientId ||
+			normalizedCredentials.clientSecret !== controller.credentials.clientSecret ||
+			normalizedCredentials.environmentId !== controller.credentials.environmentId
+		) {
+			controller.setCredentials(normalizedCredentials);
+			setCredentials(normalizedCredentials);
 		}
 
 		// If we have a local auth code but not in controller, set it first
