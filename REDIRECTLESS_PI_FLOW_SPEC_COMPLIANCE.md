@@ -209,7 +209,7 @@ Without Redirectless enabled:
 
 ### After Configuration:
 
-Test the HEB login button and check backend logs:
+Test the Kroger login button and check backend logs:
 
 ```bash
 tail -f /tmp/oauth-backend.log | grep "Received.*cookies"

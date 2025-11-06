@@ -47,7 +47,7 @@ Updated `authorizationUrlValidationService.ts` to:
 ## 🧪 How to Test
 
 1. Fill in the credentials on PingOne Authentication page
-2. Click HEB Login
+2. Click Kroger Login
 3. Enter username/password
 4. **If credentials are invalid**, you'll now see:
    - 🎯 **Diagnostic Modal** with full details

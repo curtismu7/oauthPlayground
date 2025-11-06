@@ -1,7 +1,7 @@
 // src/components/CredentialsInput.tsx
 import { useState } from 'react';
 import { FiEye, FiEyeOff, FiGlobe, FiChevronRight, FiChevronDown, FiSettings } from 'react-icons/fi';
-import styled, { keyframes } from 'styled-components';
+import styled, { createGlobalStyle } from 'styled-components';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 import EnvironmentIdInput from './EnvironmentIdInput';
 import ResponseModeSelector, { type ResponseMode } from './response-modes/ResponseModeSelector';
@@ -9,11 +9,36 @@ import { CopyButtonVariants } from '../services/copyButtonService';
 import { callbackUriService } from '../services/callbackUriService';
 import LogoutUriInfoPanel from './LogoutUriInfoPanel';
 
-// CSS animation for loading spinner
-const spin = keyframes`
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
+// Global style to force all credential inputs to be editable
+export const GlobalInputFix = createGlobalStyle`
+	/* CRITICAL: Force all credential inputs to be editable */
+	form[data-credentials-form] input[type="text"],
+	form[data-credentials-form] input[type="password"],
+	form[data-credentials-form] textarea,
+	form[data-credentials-form] select {
+		pointer-events: auto !important;
+		cursor: text !important;
+		user-select: text !important;
+		-webkit-user-select: text !important;
+		z-index: 99999 !important;
+		position: relative !important;
+		background-color: #ffffff !important;
+		opacity: 1 !important;
+	}
+	
+	form[data-credentials-form] input:disabled,
+	form[data-credentials-form] input[readonly] {
+		pointer-events: auto !important;
+		cursor: text !important;
+		background-color: #ffffff !important;
+	}
 `;
+
+// CSS animation for loading spinner (unused - kept for potential future use)
+// const spin = keyframes`
+// 	0% { transform: rotate(0deg); }
+// 	100% { transform: rotate(360deg); }
+// `;
 
 export interface CredentialsInputProps {
 	environmentId: string;
@@ -64,6 +89,10 @@ const CollapsibleContainer = styled.div`
 	border-radius: 0.75rem;
 	margin-bottom: 1.5rem;
 	overflow: hidden;
+	/* Ensure container allows interactions */
+	pointer-events: auto;
+	position: relative;
+	z-index: 1;
 `;
 
 const CollapsibleHeader = styled.button`
@@ -170,6 +199,21 @@ const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
 	max-height: ${({ $collapsed }) => ($collapsed ? '0' : 'none')};
 	overflow: hidden;
 	transition: all 0.3s ease;
+	/* CRITICAL: Ensure content is interactive when expanded */
+	pointer-events: ${({ $collapsed }) => ($collapsed ? 'none' : 'auto')};
+	position: relative;
+	z-index: 1;
+	
+	/* Ensure all child elements can receive pointer events when not collapsed */
+	* {
+		pointer-events: ${({ $collapsed }) => ($collapsed ? 'none' : 'auto')};
+	}
+	
+	/* Force inputs to always be interactive */
+	input, textarea, select {
+		pointer-events: auto !important;
+		cursor: text !important;
+	}
 `;
 
 const FormGrid = styled.div`
@@ -181,6 +225,10 @@ const FormGrid = styled.div`
 	background: transparent;
 	border-radius: 0;
 	border: none;
+	/* Ensure grid is interactive */
+	pointer-events: auto;
+	position: relative;
+	z-index: 1;
 
 	@media (max-width: 768px) {
 		grid-template-columns: 1fr;
@@ -194,6 +242,12 @@ const FormField = styled.div`
 	position: relative;
 	z-index: 5;
 	pointer-events: auto;
+	
+	/* Ensure all inputs in form fields are interactive */
+	input, textarea, select {
+		pointer-events: auto !important;
+		cursor: text !important;
+	}
 `;
 
 const FormLabel = styled.label`
@@ -353,7 +407,6 @@ export const CredentialsInput = ({
 }: CredentialsInputProps) => {
 	const [showClientSecretValue, setShowClientSecretValue] = useState(false);
 	const [isCollapsed, setIsCollapsed] = useState(false);
-	const [isSaved, setIsSaved] = useState(false);
 	const [lastSavedTimestamp, setLastSavedTimestamp] = useState<string | null>(null);
 
 	// Handle scopes change - allow spaces while typing, clean up on blur
@@ -392,22 +445,35 @@ export const CredentialsInput = ({
 	};
 
 	return (
-		<CollapsibleContainer>
-			<CollapsibleHeader
-				onClick={() => setIsCollapsed(!isCollapsed)}
-				aria-expanded={!isCollapsed}
-			>
-			<CollapsibleHeaderLeft>
-				<FiSettings size={18} />
-				<span>Application Configuration & Credentials</span>
-			</CollapsibleHeaderLeft>
-			<CollapsibleToggleIcon $collapsed={isCollapsed}>
-				{isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
-			</CollapsibleToggleIcon>
-			</CollapsibleHeader>
-			
-			<CollapsibleContent $collapsed={isCollapsed}>
-				<form>
+		<>
+			<GlobalInputFix />
+			<CollapsibleContainer>
+				<CollapsibleHeader
+					onClick={() => setIsCollapsed(!isCollapsed)}
+					aria-expanded={!isCollapsed}
+				>
+				<CollapsibleHeaderLeft>
+					<FiSettings size={18} />
+					<span>Application Configuration & Credentials</span>
+				</CollapsibleHeaderLeft>
+				<CollapsibleToggleIcon $collapsed={isCollapsed}>
+					{isCollapsed ? <FiChevronRight /> : <FiChevronDown />}
+				</CollapsibleToggleIcon>
+				</CollapsibleHeader>
+				
+				<CollapsibleContent $collapsed={isCollapsed}>
+					<form 
+					data-credentials-form="true"
+					style={{ pointerEvents: 'auto', position: 'relative', zIndex: 1 }}
+					onMouseDown={(e) => {
+						// Prevent form from blocking input interactions
+						if ((e.target as HTMLElement).tagName === 'INPUT' || 
+							(e.target as HTMLElement).tagName === 'TEXTAREA' ||
+							(e.target as HTMLElement).tagName === 'SELECT') {
+							e.stopPropagation();
+						}
+					}}
+				>
 					{showEnvironmentIdInput && (
 						<>
 							<EnvironmentSection>
@@ -448,15 +514,29 @@ export const CredentialsInput = ({
 									: 'Enter your PingOne Environment ID'
 							}
 							value={environmentId}
-							onChange={(e) => onEnvironmentIdChange(e.target.value)}
+							onChange={(e) => {
+								console.log('Environment ID onChange triggered:', e.target.value);
+								onEnvironmentIdChange(e.target.value);
+							}}
 							disabled={false}
 							readOnly={false}
 							$hasError={emptyRequiredFields.has('environmentId')}
 							style={{ 
 								flex: 1,
-								pointerEvents: 'auto',
+								pointerEvents: 'auto' as React.CSSProperties['pointerEvents'],
 								userSelect: 'text',
-								cursor: 'text'
+								cursor: 'text',
+								position: 'relative',
+								zIndex: 9999,
+								backgroundColor: '#ffffff'
+							}}
+							onMouseDown={(e) => {
+								e.stopPropagation();
+								console.log('Environment ID onMouseDown');
+							}}
+							onMouseUp={(e) => {
+								e.stopPropagation();
+								console.log('Environment ID onMouseUp');
 							}}
 							onFocus={(e) => {
 								console.log('Environment ID focused');
@@ -466,7 +546,7 @@ export const CredentialsInput = ({
 							}}
 							onClick={(e) => {
 								console.log('Environment ID clicked');
-								e.target.focus();
+								(e.target as HTMLInputElement).focus();
 							}}
 						/>
 						{environmentId && (
@@ -517,16 +597,30 @@ export const CredentialsInput = ({
 									: 'Enter your PingOne Client ID'
 							}
 							value={clientId}
-							onChange={(e) => onClientIdChange(e.target.value)}
+							onChange={(e) => {
+								console.log('Client ID onChange triggered:', e.target.value);
+								onClientIdChange(e.target.value);
+							}}
 							$hasError={emptyRequiredFields.has('clientId')}
 							style={{ 
 								flex: 1,
-								pointerEvents: 'auto',
+								pointerEvents: 'auto' as React.CSSProperties['pointerEvents'],
 								userSelect: 'text',
-								cursor: 'text'
+								cursor: 'text',
+								position: 'relative',
+								zIndex: 9999,
+								backgroundColor: '#ffffff'
 							}}
 							disabled={false}
 							readOnly={false}
+							onMouseDown={(e) => {
+								e.stopPropagation();
+								console.log('Client ID onMouseDown');
+							}}
+							onMouseUp={(e) => {
+								e.stopPropagation();
+								console.log('Client ID onMouseUp');
+							}}
 							onFocus={(e) => {
 								console.log('Client ID focused');
 								e.target.style.pointerEvents = 'auto';
@@ -534,8 +628,9 @@ export const CredentialsInput = ({
 								e.target.style.cursor = 'text';
 							}}
 							onClick={(e) => {
+								e.stopPropagation();
 								console.log('Client ID clicked');
-								e.target.focus();
+								(e.target as HTMLInputElement).focus();
 							}}
 						/>
 						{clientId && (
@@ -564,17 +659,31 @@ export const CredentialsInput = ({
 									: 'Enter your PingOne Client Secret'
 							}
 							value={clientSecret}
-							onChange={(e) => onClientSecretChange(e.target.value)}
+							onChange={(e) => {
+								console.log('Client Secret onChange triggered');
+								onClientSecretChange(e.target.value);
+							}}
 							$hasError={emptyRequiredFields.has('clientSecret')}
 							style={{ 
 								paddingRight: '6.5rem',
-								pointerEvents: 'auto',
+								pointerEvents: 'auto' as React.CSSProperties['pointerEvents'],
 								userSelect: 'text',
-								cursor: 'text'
+								cursor: 'text',
+								position: 'relative',
+								zIndex: 9999,
+								backgroundColor: '#ffffff'
 							}}
 							disabled={false}
 							readOnly={false}
 							autoComplete="current-password"
+							onMouseDown={(e) => {
+								e.stopPropagation();
+								console.log('Client Secret onMouseDown');
+							}}
+							onMouseUp={(e) => {
+								e.stopPropagation();
+								console.log('Client Secret onMouseUp');
+							}}
 							onFocus={(e) => {
 								console.log('Client Secret focused');
 								e.target.style.pointerEvents = 'auto';
@@ -582,8 +691,9 @@ export const CredentialsInput = ({
 								e.target.style.cursor = 'text';
 							}}
 							onClick={(e) => {
+								e.stopPropagation();
 								console.log('Client Secret clicked');
-								e.target.focus();
+								(e.target as HTMLInputElement).focus();
 							}}
 						/>
 						{clientSecret && (
@@ -708,7 +818,10 @@ export const CredentialsInput = ({
 							type="text"
 							placeholder="openid"
 							value={scopes}
-							onChange={(e) => handleScopesChange(e.target.value)}
+							onChange={(e) => {
+								console.log('Scopes onChange triggered:', e.target.value);
+								handleScopesChange(e.target.value);
+							}}
 							onBlur={(e) => handleScopesBlur(e.target.value)}
 							onKeyDown={(e) => {
 								// Ensure space key works
@@ -719,21 +832,29 @@ export const CredentialsInput = ({
 							$hasError={emptyRequiredFields.has('scopes') || !scopes.includes('openid')}
 							style={{ 
 								flex: 1,
-								pointerEvents: 'auto',
+								pointerEvents: 'auto' as React.CSSProperties['pointerEvents'],
 								userSelect: 'text',
-								cursor: 'text'
+								cursor: 'text',
+								position: 'relative',
+								zIndex: 9999,
+								backgroundColor: '#ffffff'
 							}}
 							disabled={false}
 							readOnly={false}
+							onMouseDown={(e) => {
+								e.stopPropagation();
+								console.log('Scopes onMouseDown');
+							}}
+							onClick={(e) => {
+								e.stopPropagation();
+								console.log('Scopes clicked');
+								(e.target as HTMLInputElement).focus();
+							}}
 							onFocus={(e) => {
 								console.log('Scopes focused');
 								e.target.style.pointerEvents = 'auto';
 								e.target.style.userSelect = 'text';
 								e.target.style.cursor = 'text';
-							}}
-							onClick={(e) => {
-								console.log('Scopes clicked');
-								e.target.focus();
 							}}
 						/>
 						{scopes && (
@@ -930,9 +1051,10 @@ export const CredentialsInput = ({
 					)}
 				</div>
 			)}
-				</form>
-			</CollapsibleContent>
-		</CollapsibleContainer>
+					</form>
+				</CollapsibleContent>
+			</CollapsibleContainer>
+		</>
 	);
 };
 

@@ -86,8 +86,8 @@ Click **Save**
 Cmd+Shift+R (Mac) or Ctrl+Shift+R (Windows)
 ```
 
-### 2. Try the HEB Login Button
-Click the **"HEB Login"** button in the OAuth Playground
+### 2. Try the Kroger Login Button
+Click the **"Kroger Login"** button in the OAuth Playground
 
 ### 3. Watch Backend Logs
 ```bash

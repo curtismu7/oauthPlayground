@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import styled from 'styled-components';
 import { FiEye, FiEyeOff, FiMove } from 'react-icons/fi';
 
-// HEB Brand Colors
-const HEB_COLORS = {
+// Kroger Brand Colors
+const KROGER_COLORS = {
   red: '#E31837',
   darkRed: '#C41E3A',
   blue: '#0066CC',
@@ -71,7 +71,7 @@ const PopupOverlay = styled.div`
 `;
 
 const PopupContainer = styled.div<{ $isDragging: boolean; $position: { x: number; y: number } }>`
-  background: ${HEB_COLORS.white};
+  background: ${KROGER_COLORS.white};
   border-radius: 12px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   width: 100%;
@@ -98,13 +98,13 @@ const Header = styled.div<{
 		if ($primaryColor) {
 			return $primaryColor;
 		}
-		return `linear-gradient(135deg, ${HEB_COLORS.red} 0%, ${HEB_COLORS.darkRed} 100%)`;
+		return `linear-gradient(135deg, ${KROGER_COLORS.red} 0%, ${KROGER_COLORS.darkRed} 100%)`;
 	}};
 	padding: 40px 24px;
 	text-align: center;
 	position: relative;
 	cursor: move;
-	color: ${HEB_COLORS.white};
+	color: ${KROGER_COLORS.white};
 `;
 
 const DragHandleBar = styled.div`
@@ -130,7 +130,7 @@ const DragHint = styled.div`
   padding: 0.35rem 0.75rem;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.18);
-  color: ${HEB_COLORS.white};
+  color: ${KROGER_COLORS.white};
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -170,7 +170,7 @@ const LogoImage = styled.img`
 const BrandWordmark = styled.div<{ $color?: string | undefined }>`
   font-size: 28px;
   font-weight: 800;
-  color: ${({ $color }) => $color ?? HEB_COLORS.white};
+  color: ${({ $color }) => $color ?? KROGER_COLORS.white};
   letter-spacing: 1px;
 `;
 
@@ -219,14 +219,14 @@ const Input = styled.input<{ $accentColor?: string | undefined }>`
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.2s ease;
-  background: ${HEB_COLORS.white};
+  background: ${KROGER_COLORS.white};
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   box-sizing: border-box;
 
   &:focus {
     outline: none;
-    border-color: ${({ $accentColor }) => $accentColor ?? HEB_COLORS.red};
-    box-shadow: ${({ $accentColor }) => `0 0 0 3px ${$accentColor ? hexToRgba($accentColor, 0.18) : hexToRgba(HEB_COLORS.red, 0.1)}`};
+    border-color: ${({ $accentColor }) => $accentColor ?? KROGER_COLORS.red};
+    box-shadow: ${({ $accentColor }) => `0 0 0 3px ${$accentColor ? hexToRgba($accentColor, 0.18) : hexToRgba(KROGER_COLORS.red, 0.1)}`};
     background: #fafbff;
   }
 
@@ -253,13 +253,13 @@ const PasswordToggleButton = styled.button`
   transition: color 0.2s ease;
 
   &:hover {
-    color: ${HEB_COLORS.red};
+    color: ${KROGER_COLORS.red};
   }
 `;
 
 const LoginButton = styled.button<{ $accentColor?: string | undefined }>`
-  background: ${({ $accentColor }) => $accentColor ?? `linear-gradient(135deg, ${HEB_COLORS.green} 0%, ${HEB_COLORS.darkGreen} 100%)`};
-  color: ${HEB_COLORS.white};
+  background: ${({ $accentColor }) => $accentColor ?? `linear-gradient(135deg, ${KROGER_COLORS.green} 0%, ${KROGER_COLORS.darkGreen} 100%)`};
+  color: ${KROGER_COLORS.white};
   border: none;
   padding: 13px 24px;
   border-radius: 6px;
@@ -273,7 +273,7 @@ const LoginButton = styled.button<{ $accentColor?: string | undefined }>`
   &:hover:not(:disabled) {
     transform: translateY(-2px);
     box-shadow: ${({ $accentColor }) => `0 8px 16px ${$accentColor ? hexToRgba($accentColor, 0.35) : 'rgba(0, 166, 81, 0.3)'}`};
-    background: ${({ $accentColor }) => ($accentColor ? adjustColor($accentColor, -10) : `linear-gradient(135deg, ${HEB_COLORS.darkGreen} 0%, ${HEB_COLORS.green} 100%)`)};
+    background: ${({ $accentColor }) => ($accentColor ? adjustColor($accentColor, -10) : `linear-gradient(135deg, ${KROGER_COLORS.darkGreen} 0%, ${KROGER_COLORS.green} 100%)`)};
   }
 
   &:active:not(:disabled) {
@@ -314,7 +314,7 @@ const ErrorMessage = styled.div`
 const CancelLink = styled.button`
   background: none;
   border: none;
-  color: ${HEB_COLORS.blue};
+  color: ${KROGER_COLORS.blue};
   font-size: 13px;
   font-weight: 700;
   text-decoration: none;
@@ -324,7 +324,7 @@ const CancelLink = styled.button`
   letter-spacing: 0.3px;
 
   &:hover {
-    color: ${HEB_COLORS.darkBlue};
+    color: ${KROGER_COLORS.darkBlue};
     text-decoration: underline;
   }
 `;
@@ -336,7 +336,7 @@ const CloseButton = styled.button`
   background: rgba(255, 255, 255, 0.2);
   border: none;
   font-size: 24px;
-  color: ${HEB_COLORS.white};
+  color: ${KROGER_COLORS.white};
   cursor: pointer;
   padding: 6px;
   border-radius: 4px;
@@ -369,12 +369,12 @@ const LoadingSpinner = styled.span`
   }
 `;
 
-export interface HEBLoginCredentials {
+export interface KrogerLoginCredentials {
   username: string;
   password: string;
 }
 
-export interface HEBBrandingOverrides {
+export interface KrogerBrandingOverrides {
 	title?: string;
 	subtitle?: string;
 	primaryColor?: string;
@@ -391,15 +391,15 @@ export interface HEBBrandingOverrides {
 	formAccentColor?: string;
 }
 
-export interface HEBLoginPopupProps {
+export interface KrogerLoginPopupProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onLogin: (credentials: HEBLoginCredentials) => Promise<void>;
-	overrides?: HEBBrandingOverrides;
+	onLogin: (credentials: KrogerLoginCredentials) => Promise<void>;
+	overrides?: KrogerBrandingOverrides;
 	onOpenDavinciStudio?: () => void;
 }
 
-const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
+const KrogerLoginPopup: React.FC<KrogerLoginPopupProps> = ({
   isOpen,
   onClose,
   onLogin,
@@ -513,7 +513,7 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
     
     // Prevent double-submission
     if (isLoading) {
-      console.log('🔍 [HEBLoginPopup] Already processing, ignoring duplicate submission');
+      console.log('🔍 [KrogerLoginPopup] Already processing, ignoring duplicate submission');
       return;
     }
     
@@ -590,7 +590,7 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
                 <LogoImage src={branding.logoUrl} alt="Brand logo" />
               ) : (
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill={branding.primaryColor ?? HEB_COLORS.red}/>
+                  <path d="M12 2l7 3v5c0 5.25-3.5 9.75-7 11-3.5-1.25-7-5.75-7-11V5l7-3z" fill={branding.primaryColor ?? KROGER_COLORS.red}/>
                   <path d="M12 5l4 1.7V10.5c0 3.2-2.1 6.1-4 7-1.9-.9-4-3.8-4-7V6.7L12 5z" fill="#ffffff"/>
                 </svg>
               )}
@@ -604,8 +604,8 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
           {onOpenDavinciStudio && (
             <div
               style={{
-                background: hexToRgba(branding.formAccentColor ?? HEB_COLORS.blue, 0.08),
-                border: `1px solid ${hexToRgba(branding.formAccentColor ?? HEB_COLORS.blue, 0.18)}`,
+                background: hexToRgba(branding.formAccentColor ?? KROGER_COLORS.blue, 0.08),
+                border: `1px solid ${hexToRgba(branding.formAccentColor ?? KROGER_COLORS.blue, 0.18)}`,
                 borderRadius: '10px',
                 padding: '1rem',
                 marginBottom: '1.5rem',
@@ -619,7 +619,7 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
                 type="button"
                 onClick={onOpenDavinciStudio}
                 style={{
-                  background: branding.formAccentColor ?? HEB_COLORS.blue,
+                  background: branding.formAccentColor ?? KROGER_COLORS.blue,
                   color: '#ffffff',
                   border: 'none',
                   padding: '0.55rem 1.1rem',
@@ -636,10 +636,10 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
           
           <Form onSubmit={handleSubmit}>
             <InputGroup>
-              <Label htmlFor="heb-username">Username or Email</Label>
+              <Label htmlFor="kroger-username">Username or Email</Label>
               <InputWrapper>
                 <Input
-                  id="heb-username"
+                  id="kroger-username"
                   ref={usernameRef}
                   type="text"
                   placeholder="Enter your username or email"
@@ -653,10 +653,10 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
             </InputGroup>
 
             <InputGroup>
-              <Label htmlFor="heb-password">Password</Label>
+              <Label htmlFor="kroger-password">Password</Label>
               <InputWrapper>
                 <PasswordInput
-                  id="heb-password"
+                  id="kroger-password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="Enter your password"
                   value={password}
@@ -696,4 +696,4 @@ const HEBLoginPopup: React.FC<HEBLoginPopupProps> = ({
   );
 };
 
-export default HEBLoginPopup;
+export default KrogerLoginPopup;
