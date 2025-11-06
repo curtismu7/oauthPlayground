@@ -88,7 +88,7 @@ body: JSON.stringify({
 
 ## 🧪 Testing Instructions
 
-### Test 1: HEB Login Popup with Valid Credentials ✅
+### Test 1: Kroger Login Popup with Valid Credentials ✅
 
 **Steps:**
 1. Navigate to: `https://localhost:3000/pingone-authentication`
@@ -101,13 +101,13 @@ body: JSON.stringify({
 4. Authentication Method: **Username & Password**
 5. Leave username/password fields empty
 6. Click **Launch Redirectless Flow**
-7. In HEB popup:
+7. In Kroger popup:
    - Username: `curtis7`
    - Password: `Wolverine7&`
    - Click **Sign In**
 
 **Expected Results:**
-- ✅ HEB popup opens
+- ✅ Kroger popup opens
 - ✅ Network tab shows POST to `/api/pingone/flows/check-username-password` with 200 OK
 - ✅ Backend logs show:
   ```
@@ -129,7 +129,7 @@ body: JSON.stringify({
 2. Click **Launch Redirectless Flow**
 
 **Expected Results:**
-- ✅ No HEB popup (credentials already provided)
+- ✅ No Kroger popup (credentials already provided)
 - ✅ Direct authentication to PingOne
 - ✅ Successful token response
 
@@ -226,7 +226,7 @@ Run this checklist to confirm the fix:
 - [ ] Server starts without errors
 - [ ] Frontend loads without console errors
 - [ ] Configuration form accepts all fields
-- [ ] HEB login popup displays correctly
+- [ ] Kroger login popup displays correctly
 - [ ] Network request includes `clientId` and `clientSecret`
 - [ ] Backend logs show client credentials
 - [ ] Backend logs show Authorization header creation

@@ -131,7 +131,7 @@ location.reload();
 
 ### Step 4: Test Redirectless Flow
 1. Scroll to "Redirectless Flow Configuration"
-2. Enter username and password (or use HEB login)
+2. Enter username and password (or use Kroger login)
 3. Click "Launch Redirectless Flow"
 4. Check console for diagnostic logs:
    ```
