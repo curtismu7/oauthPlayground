@@ -1,6 +1,8 @@
 // src/services/pingOneUserProfileService.ts
 // Helper utilities for resolving PingOne users by identifier (ID, username, email)
 
+import { trackedFetch } from '../utils/trackedFetch';
+
 export type LookupMatchType = 'id' | 'username' | 'email';
 
 interface LookupPingOneUserParams {
@@ -27,7 +29,7 @@ export const lookupPingOneUser = async ({
 	accessToken,
 	identifier,
 }: LookupPingOneUserParams): Promise<LookupPingOneUserResult> => {
-	const response = await fetch('/api/pingone/users/lookup', {
+	const response = await trackedFetch('/api/pingone/users/lookup', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
