@@ -6,7 +6,7 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { callbackUriService } from '../services/callbackUriService';
 import ModalPresentationService from '../services/modalPresentationService';
 import { CredentialGuardService } from '../services/credentialGuardService';
-import HEBLoginPopup, { type HEBLoginCredentials, type HEBBrandingOverrides } from '../components/HEBLoginPopup';
+import KrogerLoginPopup, { type KrogerLoginCredentials, type KrogerBrandingOverrides } from '../components/KrogerLoginPopup';
 import { useDavinciBranding } from '../hooks/useDavinciBranding';
 import AuthorizationUrlValidationModal from '../components/AuthorizationUrlValidationModal';
 import { authorizationUrlValidationService } from '../services/authorizationUrlValidationService';
@@ -641,7 +641,7 @@ const CancelButton = styled.button`
 	const [isSaving, setIsSaving] = useState(false);
 	const [hasLoadedConfig, setHasLoadedConfig] = useState(false);
 	const [redirectlessCreds, setRedirectlessCreds] = useState(DEFAULT_REDIRECTLESS_CREDS);
-	const [hebLoginOpen, setHebLoginOpen] = useState(false);
+	const [krogerLoginOpen, setKrogerLoginOpen] = useState(false);
 	const [expandedResponses, setExpandedResponses] = useState<Record<string | number, boolean>>({});
 	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
 	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
@@ -675,10 +675,10 @@ const CancelButton = styled.button`
 	const [showWorkerCredentialsModal, setShowWorkerCredentialsModal] = useState(false);
 	const [hasLoadedWorkerCredentials, setHasLoadedWorkerCredentials] = useState(false);
 
-	const hebBrandingOverrides = useMemo<HEBBrandingOverrides>(() => {
-		const overrides: HEBBrandingOverrides = {
-			title: 'HEB',
-			subtitle: 'Sign in to your HEB account',
+	const krogerBrandingOverrides = useMemo<KrogerBrandingOverrides>(() => {
+		const overrides: KrogerBrandingOverrides = {
+			title: 'Kroger',
+			subtitle: 'Sign in to your Kroger account',
 		};
 
 		if (!branding || !hasBranding) {
@@ -1015,14 +1015,14 @@ const CancelButton = styled.button`
 		// Use provided credentials if available, otherwise fall back to state
 		const creds = providedCredentials || redirectlessCreds;
 		
-		// HEB login should happen first - credentials must be collected before starting flow
+		// Kroger login should happen first - credentials must be collected before starting flow
 		if (!creds.username || !creds.password) {
-			console.log('🔍 [PingOneAuthentication] Credentials not available - HEB login should happen first', {
+			console.log('🔍 [PingOneAuthentication] Credentials not available - Kroger login should happen first', {
 				hasProvidedCredentials: !!providedCredentials,
 				hasStateCredentials: !!(redirectlessCreds.username && redirectlessCreds.password),
 				creds
 			});
-			v4ToastManager.showError('Please complete HEB login first');
+			v4ToastManager.showError('Please complete Kroger login first');
 			return;
 		}
 		
@@ -1092,7 +1092,7 @@ const CancelButton = styled.button`
 				requestBody: step1RequestBody, // Store full request body
 				note: `Step 1: POST /as/authorize with response_mode=pi.flow. NO username/password here. PingOne returns JSON flow object with flowId and status (e.g., USERNAME_PASSWORD_REQUIRED).
 
-💡 OPTIONAL: login_hint_token - You can optionally include a login_hint_token JWT parameter in this request. This is a signed JWT containing user identification (username, email, phone, sub) that helps PingOne identify the user. Since you've already authenticated the user in your app (HEB login), including login_hint_token can help PingOne pre-populate user information and potentially streamline the flow.`,
+💡 OPTIONAL: login_hint_token - You can optionally include a login_hint_token JWT parameter in this request. This is a signed JWT containing user identification (username, email, phone, sub) that helps PingOne identify the user. Since you've already authenticated the user in your app (Kroger login), including login_hint_token can help PingOne pre-populate user information and potentially streamline the flow.`,
 				timestamp: Date.now()
 			}]);
 			
@@ -1797,7 +1797,7 @@ const CancelButton = styled.button`
 		}
 	}, [config, mode, navigate, redirectlessCreds]);
 
-	const handleHEBLogin = useCallback(async (credentials: HEBLoginCredentials) => {
+	const handleKrogerLogin = useCallback(async (credentials: KrogerLoginCredentials) => {
 		// Prevent double-submission
 		if (loading) {
 			console.log('🔍 [PingOneAuthentication] Already processing, ignoring duplicate submission');
@@ -1805,7 +1805,7 @@ const CancelButton = styled.button`
 		}
 		
 		// Close popup immediately
-		setHebLoginOpen(false);
+		setKrogerLoginOpen(false);
 		
 		// Store credentials
 		setRedirectlessCreds(prev => ({
@@ -1817,10 +1817,10 @@ const CancelButton = styled.button`
 		// Clear pending flow context (we'll start fresh with credentials)
 		setPendingFlowContext(null);
 		
-		// Add log entry for HEB login completion (preparation step before OAuth flow)
+		// Add log entry for Kroger login completion (preparation step before OAuth flow)
 		setFlowRequestLog([{
 			step: 0,
-			title: 'HEB Login - Collect Credentials',
+			title: 'Kroger Login - Collect Credentials',
 			method: 'UI',
 			url: 'N/A (UI Interaction)',
 			params: {
@@ -1828,7 +1828,7 @@ const CancelButton = styled.button`
 				password: '***',
 				status: 'credentials collected'
 			},
-			note: 'Preparation: User authenticates in our app (HEB login). This is separate from PingOne authentication. Once authenticated, we proceed to the 4-step PingOne redirectless flow (pi.flow).',
+			note: 'Preparation: User authenticates in our app (Kroger login). This is separate from PingOne authentication. Once authenticated, we proceed to the 4-step PingOne redirectless flow (pi.flow).',
 			timestamp: Date.now()
 		}]);
 		
@@ -1846,7 +1846,7 @@ const CancelButton = styled.button`
 		setFlowRequestLog([]);
 		setPendingFlowContext(null);
 		setRedirectlessCreds(DEFAULT_REDIRECTLESS_CREDS);
-		setHebLoginOpen(false);
+		setKrogerLoginOpen(false);
 		setLoading(false);
 		setShowAuthenticationModal(false);
 		setPendingRedirectUrl('');
@@ -2337,14 +2337,14 @@ const CancelButton = styled.button`
 
 				{mode === 'redirectless' && (
 					<ComedyLogin>
-						<ComedyHeading>HEB Grocery Login</ComedyHeading>
+						<ComedyHeading>Kroger Grocery Login</ComedyHeading>
 						<ComedyText>
-							For redirectless flow testing, start by logging into your HEB account. 
+							For redirectless flow testing, start by logging into your Kroger account. 
 							After successful login, the authorization code flow will begin automatically.
 						</ComedyText>
 						<div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-							<ComedyButton onClick={() => setHebLoginOpen(true)} disabled={loading}>
-								{loading ? 'Processing...' : 'Start HEB Login'}
+							<ComedyButton onClick={() => setKrogerLoginOpen(true)} disabled={loading}>
+								{loading ? 'Processing...' : 'Start Kroger Login'}
 							</ComedyButton>
 							{(flowRequestLog.length > 0 || pendingFlowContext || loading) && (
 								<ComedyButton 
@@ -2427,13 +2427,13 @@ const CancelButton = styled.button`
 							<div style={{ padding: '1rem 0' }}>
 								<p style={{ marginBottom: '0.75rem' }}>
 									<strong>What is login_hint_token?</strong><br />
-									The <code>login_hint_token</code> is an optional signed JWT that you can include in Step 1's authorization request to help PingOne identify the user. Since you've already authenticated the user in your app (via HEB login), this token can pre-populate user information in PingOne's authentication flow.
+									The <code>login_hint_token</code> is an optional signed JWT that you can include in Step 1's authorization request to help PingOne identify the user. Since you've already authenticated the user in your app (via Kroger login), this token can pre-populate user information in PingOne's authentication flow.
 								</p>
 								<p style={{ marginTop: '0.75rem', marginBottom: '0.5rem' }}>
 									<strong>When to Use It:</strong>
 								</p>
 								<ul style={{ marginBottom: '0.75rem', paddingLeft: '1.5rem' }}>
-									<li style={{ marginBottom: '0.5rem' }}><strong>Pre-authenticated users:</strong> When the user has already logged into your application (like HEB login), you can include their identity in the token</li>
+									<li style={{ marginBottom: '0.5rem' }}><strong>Pre-authenticated users:</strong> When the user has already logged into your application (like Kroger login), you can include their identity in the token</li>
 									<li style={{ marginBottom: '0.5rem' }}><strong>Improved UX:</strong> Helps PingOne skip unnecessary steps or pre-fill forms</li>
 									<li style={{ marginBottom: '0.5rem' }}><strong>Integration scenarios:</strong> Useful when integrating PingOne with existing authentication systems (like PingFederate)</li>
 									<li style={{ marginBottom: '0.5rem' }}><strong>MFA-only flows:</strong> When another system handles initial authentication and PingOne only needs to handle MFA</li>
@@ -2459,11 +2459,11 @@ const CancelButton = styled.button`
 				</>
 			)}
 
-			<HEBLoginPopup
-				isOpen={hebLoginOpen}
-				onClose={() => setHebLoginOpen(false)}
-				onLogin={handleHEBLogin}
-				overrides={hebBrandingOverrides}
+			<KrogerLoginPopup
+				isOpen={krogerLoginOpen}
+				onClose={() => setKrogerLoginOpen(false)}
+				onLogin={handleKrogerLogin}
+				overrides={krogerBrandingOverrides}
 				onOpenDavinciStudio={openDesignStudio}
 			/>
 

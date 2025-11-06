@@ -71,7 +71,7 @@ import {
 	DEFAULT_APP_CONFIG,
 } from './config/OAuthAuthzCodeFlowV6.config';
 import FlowCredentialService from '../../services/flowCredentialService';
-import HEBLoginPopup, { type HEBLoginCredentials } from '../../components/HEBLoginPopup';
+import KrogerLoginPopup, { type KrogerLoginCredentials } from '../../components/KrogerLoginPopup';
 
 type StepCompletionState = Record<number, boolean>;
 
@@ -1587,7 +1587,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	}, [controller]);
 
 	// Run redirectless (pi.flow) inside V7.2 using the same backend endpoints as the playground
-	const runRedirectlessInline = useCallback(async (creds: HEBLoginCredentials) => {
+	const runRedirectlessInline = useCallback(async (creds: KrogerLoginCredentials) => {
 		if (isRedirectlessRunning) return;
 		
 		// Safety check: only run redirectless if explicitly enabled
@@ -2937,7 +2937,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 			{/* Custom Login popup for redirectless credentials */}
 			{useRedirectless && (
-				<HEBLoginPopup
+				<KrogerLoginPopup
 					isOpen={customLoginOpen}
 					onClose={() => setCustomLoginOpen(false)}
 					onLogin={async (c) => {

@@ -299,7 +299,7 @@ When a PingOne application is **NOT** configured for "Redirectless" mode:
 ## 🔧 Next Steps
 
 1. **Enable Redirectless Mode** in PingOne Admin Console
-2. **Test the HEB Login Button** again
+2. **Test the Kroger Login Button** again
 3. **Watch Backend Logs** for cookie confirmation
 4. **Expected Result**: Authentication should complete successfully
 
