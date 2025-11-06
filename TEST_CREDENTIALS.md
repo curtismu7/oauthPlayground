@@ -14,7 +14,7 @@ Client Secret: VhIALUz93iLEPhmTs~Y3_oj~hxzi7gnqw6cJYXLSJEq2LyLz2m7KV0bOq9LFj_GU
 1. Navigate to the **PingOne Authentication** page
 2. Fill in the **Environment ID**, **Client ID**, and **Client Secret** fields
 3. Use the copy buttons (📋) next to each field for easy copying
-4. Click **HEB Login** button to test redirectless flow
+4. Click **Kroger Login** button to test redirectless flow
 5. The **Credential Diagnostic Modal** will automatically appear if any credentials are empty
 6. The modal will show:
    - Which credentials are being sent

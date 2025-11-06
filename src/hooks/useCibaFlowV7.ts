@@ -229,11 +229,29 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				}),
 			});
 			
-			const data = await response.json();
+			let data;
+			try {
+				const text = await response.text();
+				try {
+					data = JSON.parse(text);
+				} catch {
+					// Response is not JSON
+					data = { error: 'Invalid response format', error_description: text };
+				}
+			} catch (err) {
+				console.error('[CIBA-V7] Failed to parse response:', err);
+				data = { error: 'Network error', error_description: 'Failed to read response from server' };
+			}
 			
 			if (!response.ok) {
-				const errorMsg = data.error_description || data.error || 'Failed to initiate CIBA request';
-				console.error('[CIBA-V7] Backchannel request failed:', data);
+				const errorMsg = data.error_description || data.error || `Failed to initiate CIBA request (HTTP ${response.status})`;
+				console.error('[CIBA-V7] Backchannel request failed:', {
+					status: response.status,
+					statusText: response.statusText,
+					url: response.url,
+					data: data,
+					fullResponse: data
+				});
 				setError(errorMsg);
 				setStage('failed');
 				v4ToastManager.showError(errorMsg);
@@ -265,7 +283,7 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				launchMode: 'poll',
 				bindingMessage: data.binding_message || config.bindingMessage,
 				expiresAt: Date.now() + (expires_in * 1000),
-				requestContext: config.requestContext,
+				...(config.requestContext ? { requestContext: config.requestContext } : {}),
 			};
 			
 			setAuthRequest(authRequest);
@@ -411,14 +429,13 @@ export const useCibaFlowV7 = (options: CibaFlowV7Options) => {
 				
 				const tokens: CibaTokens = {
 					access_token: data.access_token,
-					refresh_token: data.refresh_token,
-					id_token: data.id_token,
+					...(data.refresh_token ? { refresh_token: data.refresh_token } : {}),
 					token_type: data.token_type || 'Bearer',
 					expires_in: data.expires_in,
 					scope: data.scope,
-					client_id: config.clientId,
-					sub: data.sub,
-					aud: data.aud,
+					...(config.clientId ? { client_id: config.clientId } : {}),
+					...(data.sub ? { sub: data.sub } : {}),
+					...(data.aud ? { aud: data.aud } : {}),
 					iss: data.iss,
 					iat: data.iat,
 					exp: data.exp,

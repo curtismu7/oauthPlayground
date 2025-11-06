@@ -1013,10 +1013,33 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 	try {
 		const { environmentId, accessToken, identifier } = req.body || {};
 
+		console.log('[PingOne User Lookup] Request received:', {
+			hasEnvironmentId: !!environmentId,
+			hasAccessToken: !!accessToken,
+			hasIdentifier: !!identifier,
+			identifierType: typeof identifier,
+			identifierValue: identifier ? (typeof identifier === 'string' ? identifier.substring(0, 20) : String(identifier).substring(0, 20)) : 'undefined',
+		});
+
 		if (!environmentId || !accessToken || !identifier) {
+			const missing = [];
+			if (!environmentId) missing.push('environmentId');
+			if (!accessToken) missing.push('accessToken');
+			if (!identifier) missing.push('identifier');
+			console.error('[PingOne User Lookup] Missing required parameters:', missing);
 			return res.status(400).json({
 				error: 'invalid_request',
-				error_description: 'Missing required parameters: environmentId, accessToken, identifier',
+				error_description: `Missing required parameters: ${missing.join(', ')}`,
+			});
+		}
+
+		// Trim and validate identifier
+		const trimmedIdentifier = String(identifier).trim();
+		if (!trimmedIdentifier) {
+			console.error('[PingOne User Lookup] Identifier is empty after trimming');
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Identifier cannot be empty',
 			});
 		}
 
@@ -1032,11 +1055,11 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 		const escapeIdentifier = (value) => {
 			return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
 		};
-		const escapedIdentifier = escapeIdentifier(identifier);
+		const escapedIdentifier = escapeIdentifier(trimmedIdentifier);
 
 		// 1. Direct lookup by ID (use Management API)
 		try {
-			const directResponse = await global.fetch(`${apiBaseUrl}/${encodeURIComponent(identifier)}`, {
+			const directResponse = await global.fetch(`${apiBaseUrl}/${encodeURIComponent(trimmedIdentifier)}`, {
 				headers,
 			});
 			if (directResponse.ok) {
@@ -1053,12 +1076,13 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 		}
 
 		// 2. Management API filter-based searches for username and email
-		// PingOne Management API uses OData filter syntax (not SCIM)
-		// Reference: The endpoint /v1/environments/{envId}/users uses OData filters
+		// PingOne Management API uses SCIM filter syntax
+		// Reference: https://apidocs.pingidentity.com/pingone/platform/v1/api/#get-users
 		const filters = [];
 		
-		if (typeof identifier === 'string' && identifier.includes('@')) {
-			// Email filter - Management API OData syntax: email eq "email@example.com" or emails.value eq "email@example.com"
+		// Try case-insensitive searches and different field variations
+		if (typeof trimmedIdentifier === 'string' && trimmedIdentifier.includes('@')) {
+			// Email filter - SCIM syntax
 			filters.push({ 
 				filter: `email eq "${escapedIdentifier}"`, 
 				matchType: 'email' 
@@ -1067,25 +1091,44 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 				filter: `emails.value eq "${escapedIdentifier}"`, 
 				matchType: 'email' 
 			});
+			// Try with primary email
+			filters.push({ 
+				filter: `emails[primary eq true].value eq "${escapedIdentifier}"`, 
+				matchType: 'email' 
+			});
 		}
 		
-		// Username filter - Management API OData syntax: username eq "username" (lowercase)
+		// Username filter - SCIM syntax
 		filters.push({ 
 			filter: `username eq "${escapedIdentifier}"`, 
 			matchType: 'username' 
 		});
+		// Try userName (camelCase) variant
+		filters.push({ 
+			filter: `userName eq "${escapedIdentifier}"`, 
+			matchType: 'username' 
+		});
 
-		console.log(`[PingOne User Lookup] Attempting Management API filter searches for: ${identifier}`);
+		console.log(`[PingOne User Lookup] Attempting Management API filter searches for: ${trimmedIdentifier}`);
+		console.log(`[PingOne User Lookup] Will try ${filters.length} filter variations`);
 
 		for (const { filter, matchType } of filters) {
 			try {
-				// Use Management API endpoint with OData filter parameter
-				const queryUrl = `${apiBaseUrl}?filter=${encodeURIComponent(filter)}`;
-				console.log(`[PingOne User Lookup] Trying OData filter: ${filter}`);
+				// Use Management API endpoint with SCIM filter parameter
+				const queryUrl = `${apiBaseUrl}?filter=${encodeURIComponent(filter)}&limit=10`;
+				console.log(`[PingOne User Lookup] Trying SCIM filter: ${filter}`);
+				console.log(`[PingOne User Lookup] Full URL: ${queryUrl}`);
 				
 				const searchResponse = await global.fetch(queryUrl, { headers });
 				const payloadText = await searchResponse.text();
-				const searchData = payloadText ? JSON.parse(payloadText) : {};
+				let searchData = {};
+				
+				try {
+					searchData = payloadText ? JSON.parse(payloadText) : {};
+				} catch (parseError) {
+					console.error(`[PingOne User Lookup] Failed to parse response for filter ${filter}:`, payloadText.substring(0, 200));
+					continue;
+				}
 
 				if (searchResponse.ok) {
 					// Management API returns users in _embedded.users
@@ -1099,16 +1142,24 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 					} else if (Array.isArray(searchData)) {
 						// Direct array response
 						users = searchData;
+					} else if (searchData?.items && Array.isArray(searchData.items)) {
+						// Alternative response format
+						users = searchData.items;
 					}
 
 					if (users.length > 0) {
-						console.log(`[PingOne User Lookup] ✅ Match found via ${matchType}: ${users[0].id || users[0].username || users[0].userName || 'unknown'}`);
-						return res.json({ user: users[0], matchType });
+						const foundUser = users[0];
+						console.log(`[PingOne User Lookup] ✅ Match found via ${matchType}:`, {
+							id: foundUser.id,
+							username: foundUser.username || foundUser.userName,
+							email: foundUser.email || foundUser.emails?.[0]?.value,
+						});
+						return res.json({ user: foundUser, matchType });
 					}
 					console.log(`[PingOne User Lookup] Filter returned no results: ${filter}`);
 				} else if (searchResponse.status === 400) {
 					const errorMsg = searchData?.detail || searchData?.message || searchData?.error_description || searchData?.error || 'Invalid filter syntax';
-					console.warn(`[PingOne User Lookup] Filter ${filter} returned 400:`, errorMsg, JSON.stringify(searchData, null, 2));
+					console.warn(`[PingOne User Lookup] Filter ${filter} returned 400:`, errorMsg);
 					// Continue to next filter
 					continue;
 				} else if (searchResponse.status === 404) {
@@ -1116,22 +1167,25 @@ app.post('/api/pingone/users/lookup', async (req, res) => {
 					continue;
 				} else {
 					console.error(`[PingOne User Lookup] Filter returned ${searchResponse.status}:`, searchData);
-					return res.status(searchResponse.status).json(searchData);
+					// Don't return error immediately, try next filter
+					continue;
 				}
 			} catch (error) {
-				console.warn(`[PingOne User Lookup] Filter lookup failed for ${filter}:`, error);
+				console.warn(`[PingOne User Lookup] Filter lookup failed for ${filter}:`, error.message);
+				// Continue to next filter
+				continue;
 			}
 		}
 
-		console.log(`[PingOne User Lookup] No user found for identifier: ${identifier}`);
+		console.log(`[PingOne User Lookup] No user found for identifier: ${trimmedIdentifier}`);
 
 		// Return a more helpful error message
 		return res.status(404).json({
 			error: 'not_found',
-			error_description: `No user found matching identifier: ${identifier}. Please verify the user ID, username, or email address is correct.`,
-			identifier: identifier,
+			error_description: `No user found matching identifier: ${trimmedIdentifier}. Please verify the user ID, username, or email address is correct.`,
+			identifier: trimmedIdentifier,
 			triedFilters: filters.map(f => f.filter),
-			note: 'Used Management API OData filter syntax (username eq "value" and email eq "value")',
+			note: 'Used Management API SCIM filter syntax (username eq "value" and email eq "value")',
 		});
 	} catch (error) {
 		console.error('[PingOne User Lookup] Server error:', error);
@@ -2319,6 +2373,709 @@ app.post('/api/mfa/challenge/verify', async (req, res) => {
 			success: false,
 			error: 'server_error',
 			error_description: 'Internal server error during MFA challenge verification',
+			details: error.message,
+		});
+	}
+});
+
+// ============================================
+// PINGONE PASSWORD RESET ENDPOINTS
+// ============================================
+
+// Send Recovery Code
+app.post('/api/pingone/password/send-recovery-code', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.body;
+
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Sending recovery code...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		// PingOne Platform API - Send recovery code
+		// Note: PingOne may send recovery code automatically when recover endpoint is called
+		// For now, we'll use the password recovery endpoint to trigger code sending
+		// This endpoint may need adjustment based on actual PingOne API behavior
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/recovery`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify({}), // Empty body to trigger recovery code sending
+		});
+
+		let responseData;
+		try {
+			responseData = await pingOneResponse.json();
+		} catch (e) {
+			// If response is not JSON (e.g., 204 No Content), treat as success
+			if (pingOneResponse.ok) {
+				responseData = { success: true };
+			} else {
+				responseData = { error: 'unknown_error', error_description: 'Failed to send recovery code' };
+			}
+		}
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Failed to send recovery code:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Failed to send recovery code',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Recovery code sent successfully');
+		res.json({
+			success: true,
+			message: 'Recovery code sent successfully',
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error sending recovery code:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Recover Password
+app.post('/api/pingone/password/recover', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken, recoveryCode, newPassword } = req.body;
+
+		if (!environmentId || !userId || !workerToken || !recoveryCode || !newPassword) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken, recoveryCode, newPassword',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Recovering password...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.recover+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify({
+				recoveryCode,
+				newPassword,
+			}),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Password recovery failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Password recovery failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password recovered successfully');
+		res.json({
+			success: true,
+			message: 'Password recovered successfully',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error recovering password:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Force Password Change
+app.post('/api/pingone/password/force-change', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.body;
+
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Forcing password change...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.forceChange+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify({
+				forceChange: true,
+			}),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Force password change failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Force password change failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password change forced successfully');
+		res.json({
+			success: true,
+			message: 'User will be required to change password on next sign-on',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error forcing password change:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Change Password
+app.post('/api/pingone/password/change', async (req, res) => {
+	try {
+		const { environmentId, userId, accessToken, oldPassword, newPassword } = req.body;
+
+		if (!environmentId || !userId || !accessToken || !oldPassword || !newPassword) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, accessToken, oldPassword, newPassword',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Changing password...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${accessToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.change+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify({
+				oldPassword,
+				newPassword,
+			}),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Password change failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Password change failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password changed successfully');
+		res.json({
+			success: true,
+			message: 'Password changed successfully',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error changing password:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Password Check
+app.post('/api/pingone/password/check', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken, password } = req.body;
+
+		if (!environmentId || !userId || !workerToken || !password) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken, password',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Checking password...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/check`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.check+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify({
+				password,
+			}),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Password check failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Password check failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password check successful');
+		res.json({
+			success: true,
+			message: 'Password check successful',
+			valid: responseData.valid || true,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error checking password:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Password Unlock
+app.post('/api/pingone/password/unlock', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.body;
+
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Unlocking password...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password/unlock`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify({}),
+		});
+
+		let responseData;
+		try {
+			responseData = await pingOneResponse.json();
+		} catch (e) {
+			if (pingOneResponse.ok) {
+				responseData = { success: true };
+			} else {
+				responseData = { error: 'unknown_error', error_description: 'Failed to unlock password' };
+			}
+		}
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Password unlock failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Password unlock failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password unlocked successfully');
+		res.json({
+			success: true,
+			message: 'Password unlocked successfully',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error unlocking password:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Read Password State
+app.get('/api/pingone/password/state', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken } = req.query;
+
+		if (!environmentId || !userId || !workerToken) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Reading password state...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Accept': 'application/json',
+			},
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Failed to read password state:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Failed to read password state',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password state read successfully');
+		res.json({
+			success: true,
+			passwordState: responseData,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error reading password state:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Update Password (Admin) - Set password directly
+app.put('/api/pingone/password/admin-set', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken, newPassword, forceChange, bypassPasswordPolicy } = req.body;
+
+		if (!environmentId || !userId || !workerToken || !newPassword) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken, newPassword',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Setting password (admin)...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+			forceChange: forceChange || false,
+			bypassPasswordPolicy: bypassPasswordPolicy || false,
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const requestBody = {
+			password: newPassword,
+		};
+		
+		// Add forceChange option if provided
+		if (forceChange === true) {
+			requestBody.forceChange = true;
+		}
+		
+		// Add bypassPasswordPolicy option if provided
+		if (bypassPasswordPolicy === true) {
+			requestBody.bypassPasswordPolicy = true;
+		}
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'PUT',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.set+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Admin password set failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Admin password set failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password set successfully (admin)');
+		res.json({
+			success: true,
+			message: 'Password set successfully',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error setting password (admin):', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Update Password (Set)
+app.put('/api/pingone/password/set', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken, newPassword, forceChange, bypassPasswordPolicy } = req.body;
+
+		if (!environmentId || !userId || !workerToken || !newPassword) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken, newPassword',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Setting password...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+			forceChange: forceChange || false,
+			bypassPasswordPolicy: bypassPasswordPolicy || false,
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const requestBody = {
+			password: newPassword,
+		};
+		
+		// Add forceChange option if provided
+		if (forceChange === true) {
+			requestBody.forceChange = true;
+		}
+		
+		// Add bypassPasswordPolicy option if provided
+		if (bypassPasswordPolicy === true) {
+			requestBody.bypassPasswordPolicy = true;
+		}
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'PUT',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.set+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Password set failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Password set failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password set successfully');
+		res.json({
+			success: true,
+			message: 'Password set successfully',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error setting password:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Update Password (Set Value)
+app.put('/api/pingone/password/set-value', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken, passwordValue, forceChange, bypassPasswordPolicy } = req.body;
+
+		if (!environmentId || !userId || !workerToken || !passwordValue) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken, passwordValue',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Setting password value...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+			forceChange: forceChange || false,
+			bypassPasswordPolicy: bypassPasswordPolicy || false,
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const requestBody = {
+			value: passwordValue,
+		};
+		
+		// Add forceChange option if provided
+		if (forceChange === true) {
+			requestBody.forceChange = true;
+		}
+		
+		// Add bypassPasswordPolicy option if provided
+		if (bypassPasswordPolicy === true) {
+			requestBody.bypassPasswordPolicy = true;
+		}
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'PUT',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.setValue+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] Password value set failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'Password value set failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password value set successfully');
+		res.json({
+			success: true,
+			message: 'Password value set successfully',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error setting password value:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
+			details: error.message,
+		});
+	}
+});
+
+// Update Password (LDAP Gateway)
+app.put('/api/pingone/password/ldap-gateway', async (req, res) => {
+	try {
+		const { environmentId, userId, workerToken, newPassword, ldapGatewayId, forceChange, bypassPasswordPolicy } = req.body;
+
+		if (!environmentId || !userId || !workerToken || !newPassword) {
+			return res.status(400).json({
+				error: 'invalid_request',
+				error_description: 'Missing required parameters: environmentId, userId, workerToken, newPassword',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] Setting password via LDAP Gateway...', {
+			environmentId: environmentId?.substring(0, 20) + '...',
+			userId: userId?.substring(0, 20) + '...',
+			forceChange: forceChange || false,
+			bypassPasswordPolicy: bypassPasswordPolicy || false,
+		});
+
+		const pingOneUrl = `https://api.pingone.com/v1/environments/${environmentId}/users/${userId}/password`;
+		
+		const requestBody = {
+			password: newPassword,
+		};
+		
+		// Add optional fields
+		if (ldapGatewayId) {
+			requestBody.ldapGatewayId = ldapGatewayId;
+		}
+		if (forceChange === true) {
+			requestBody.forceChange = true;
+		}
+		if (bypassPasswordPolicy === true) {
+			requestBody.bypassPasswordPolicy = true;
+		}
+		
+		const pingOneResponse = await fetch(pingOneUrl, {
+			method: 'PUT',
+			headers: {
+				'Authorization': `Bearer ${workerToken}`,
+				'Content-Type': 'application/vnd.pingidentity.password.ldapGateway+json',
+				'Accept': 'application/json',
+			},
+			body: JSON.stringify(requestBody),
+		});
+
+		const responseData = await pingOneResponse.json();
+
+		if (!pingOneResponse.ok) {
+			console.error('[🔐 PASSWORD] LDAP Gateway password set failed:', responseData);
+			return res.status(pingOneResponse.status).json({
+				error: responseData.error || 'unknown_error',
+				error_description: responseData.error_description || responseData.message || 'LDAP Gateway password set failed',
+			});
+		}
+
+		console.log('[🔐 PASSWORD] ✅ Password set successfully via LDAP Gateway');
+		res.json({
+			success: true,
+			message: 'Password set successfully via LDAP Gateway',
+			transactionId: responseData.id || responseData.transactionId,
+		});
+	} catch (error) {
+		console.error('[🔐 PASSWORD] Error setting password via LDAP Gateway:', error);
+		res.status(500).json({
+			error: 'server_error',
+			error_description: 'Internal server error',
 			details: error.message,
 		});
 	}
@@ -3601,10 +4358,35 @@ app.post('/api/ciba-backchannel', async (req, res) => {
 			body: formData,
 		});
 
-		const data = await response.json();
+		let data;
+		try {
+			const text = await response.text();
+			try {
+				data = JSON.parse(text);
+			} catch (parseError) {
+				// Response is not JSON - might be HTML error page or plain text
+				console.error(`[CIBA Backchannel] Non-JSON response from PingOne (${response.status}):`, text.substring(0, 500));
+				data = {
+					error: 'invalid_response',
+					error_description: `PingOne returned non-JSON response (${response.status}): ${text.substring(0, 200)}`,
+					raw_response: text.substring(0, 500)
+				};
+			}
+		} catch (err) {
+			console.error(`[CIBA Backchannel] Failed to read response:`, err);
+			data = {
+				error: 'network_error',
+				error_description: `Failed to read response from PingOne: ${err.message}`
+			};
+		}
 
 		if (!response.ok) {
-			console.error(`[CIBA Backchannel] PingOne error (${response.status}):`, data);
+			console.error(`[CIBA Backchannel] PingOne error (${response.status}):`, {
+				status: response.status,
+				statusText: response.statusText,
+				headers: Object.fromEntries(response.headers.entries()),
+				data: data
+			});
 			return res.status(response.status).json(data);
 		}
 

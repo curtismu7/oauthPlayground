@@ -266,12 +266,12 @@ export const AuthorizationDetailsEditor: React.FC<AuthorizationDetailsEditorProp
       if (Array.isArray(parsed)) {
         onUpdate(parsed);
       }
-    } catch (error) {
+    } catch {
       // Invalid JSON, don't update
     }
   }, [onUpdate]);
 
-  const updateDetail = useCallback((index: number, field: string, value: any) => {
+  const updateDetail = useCallback((index: number, field: string, value: string | string[] | Record<string, unknown> | boolean) => {
     const updated = [...authorizationDetails];
     updated[index] = { ...updated[index], [field]: value };
     onUpdate(updated);

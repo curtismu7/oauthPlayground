@@ -68,56 +68,60 @@ import Dashboard from './pages/Dashboard';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverviewV7';
-import OIDCOverviewSimple from './pages/docs/OIDCOverview_Simple';
-import OIDCOverviewMinimal from './pages/docs/OIDCOverview_Minimal';
-import OIDCOverviewEnhanced from './pages/docs/OIDCOverview_Enhanced';
+import SpiffeSpirePingOne from './pages/docs/SpiffeSpirePingOne';
+// Removed unused OIDC overview imports
+// import OIDCOverviewSimple from './pages/docs/OIDCOverview_Simple';
+// import OIDCOverviewMinimal from './pages/docs/OIDCOverview_Minimal';
+// import OIDCOverviewEnhanced from './pages/docs/OIDCOverview_Enhanced';
 // import OIDCOverviewEnhancedSimple from './pages/docs/OIDCOverview_Enhanced_Simple';
 // import OIDCOverviewTest from './pages/docs/OIDCOverview_Test';
-import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
+// import OIDCOverviewNew from './pages/docs/OIDCOverview_New';
 import OIDCSpecs from './pages/docs/OIDCSpecs';
 import OAuthForAI from './pages/docs/OAuthForAI';
 import PingViewOnAI from './pages/docs/PingViewOnAI';
 import PingAIResources from './pages/PingAIResources';
 import PingOneUserProfile from './pages/PingOneUserProfile';
 import EnvironmentIdInputDemo from './pages/EnvironmentIdInputDemo';
-import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
+import HelioMartPasswordReset from './pages/security/HelioMartPasswordReset';
+// import CIBAFlowV6 from './pages/flows/CIBAFlowV6';
 import CIBAFlowV7 from './pages/flows/CIBAFlowV7';
 // Backed up V2/V3/V4 flows - moved to _backup folder
-import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
-import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
+// Removed unused flow imports
+// import ClientCredentialsFlowV5 from './pages/flows/ClientCredentialsFlowV5';
+// import ClientCredentialsFlowV6 from './pages/flows/ClientCredentialsFlowV6';
 import ClientCredentialsFlowV7 from './pages/flows/ClientCredentialsFlowV7';
-import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
+// import DeviceAuthorizationFlowV6 from './pages/flows/DeviceAuthorizationFlowV6';
 import DeviceAuthorizationFlowV7 from './pages/flows/DeviceAuthorizationFlowV7';
-import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
+// import JWTBearerTokenFlowV6 from './pages/flows/JWTBearerTokenFlowV6';
 import JWTBearerTokenFlowV7 from './pages/flows/JWTBearerTokenFlowV7';
-import SAMLBearerAssertionFlowV6 from './pages/flows/SAMLBearerAssertionFlowV6';
+// import SAMLBearerAssertionFlowV6 from './pages/flows/SAMLBearerAssertionFlowV6';
 import SAMLBearerAssertionFlowV7 from './pages/flows/SAMLBearerAssertionFlowV7';
 import SAMLServiceProviderFlowV1 from './pages/flows/SAMLServiceProviderFlowV1';
-import AdvancedParametersV6 from './pages/flows/AdvancedParametersV6';
+// import AdvancedParametersV6 from './pages/flows/AdvancedParametersV6';
 import AdvancedOAuthParametersDemoFlow from './pages/flows/AdvancedOAuthParametersDemoFlow';
 // Backed up legacy flows
 import IDTokensFlow from './pages/flows/IDTokensFlow';
 // Import all the new OAuth and OIDC flow components
 import JWTBearerFlow from './pages/flows/JWTBearerFlow';
-import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
+// import JWTBearerTokenFlowV5 from './pages/flows/JWTBearerTokenFlowV5';
 import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuth2ResourceOwnerPasswordFlowV6 from './pages/flows/OAuth2ResourceOwnerPasswordFlowV6';
 import OAuthROPCFlowV7 from './pages/flows/OAuthROPCFlowV7';
 // V5 OAuth/OIDC Flows
-import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
+// import OAuthAuthorizationCodeFlowV6 from './pages/flows/OAuthAuthorizationCodeFlowV6';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
-import OAuthImplicitFlowV6 from './pages/flows/OAuthImplicitFlowV6';
-import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
-import OIDCAuthorizationCodeFlowV6 from './pages/flows/OIDCAuthorizationCodeFlowV6';
-import OIDCDeviceAuthorizationFlowV6 from './pages/flows/OIDCDeviceAuthorizationFlowV6';
+// import OAuthImplicitFlowV6 from './pages/flows/OAuthImplicitFlowV6';
+// import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
+// import OIDCAuthorizationCodeFlowV6 from './pages/flows/OIDCAuthorizationCodeFlowV6';
+// import OIDCDeviceAuthorizationFlowV6 from './pages/flows/OIDCDeviceAuthorizationFlowV6';
 // OIDCHybridFlowV3 backed up
-import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
-import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
+// import OIDCHybridFlowV5 from './pages/flows/OIDCHybridFlowV5';
+// import OIDCHybridFlowV6 from './pages/flows/OIDCHybridFlowV6';
 import OIDCHybridFlowV7 from './pages/flows/OIDCHybridFlowV7';
 // OIDCImplicitFlowV3 backed up
-import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
+// import OIDCImplicitFlowV6 from './pages/flows/OIDCImplicitFlowV6';
 import ImplicitFlowV7 from './pages/flows/ImplicitFlowV7';
 import OAuthAuthorizationCodeFlowV7 from './pages/flows/OAuthAuthorizationCodeFlowV7';
 import OAuthAuthorizationCodeFlowV7_2 from './pages/flows/OAuthAuthorizationCodeFlowV7_2';
@@ -126,22 +130,24 @@ import V7CondensedMock from './pages/flows/V7CondensedMock';
 import TestMock from './pages/flows/TestMock';
 import TokenExchangeFlowV7 from './pages/flows/TokenExchangeFlowV7';
 import PingOneWebhookViewer from './pages/PingOneWebhookViewer';
-import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
+// import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPasswordFlowV5';
 import PARFlow from './pages/flows/PARFlow';
-import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
-import PingOneMFAFlowV6 from './pages/flows/PingOneMFAFlowV6';
+// import PingOneMFAFlowV5 from './pages/flows/PingOneMFAFlowV5';
+// import PingOneMFAFlowV6 from './pages/flows/PingOneMFAFlowV6';
 import PingOneCompleteMFAFlowV7 from './pages/flows/PingOneCompleteMFAFlowV7';
+import PingOneMFAWorkflowLibraryV7 from './pages/flows/PingOneMFAWorkflowLibraryV7';
+import KrogerGroceryStoreMFA from './pages/flows/KrogerGroceryStoreMFA';
 import PingOneAuthentication from './pages/PingOneAuthentication';
 import PingOneAuthenticationCallback from './pages/PingOneAuthenticationCallback';
 import PingOneAuthenticationResult from './pages/PingOneAuthenticationResult';
 // PingOnePARFlow (non-V5) backed up
-import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
+// import PingOnePARFlowV6 from './pages/flows/PingOnePARFlowV6_New';
 import PingOnePARFlowV7 from './pages/flows/PingOnePARFlowV7';
-import RARFlowV6 from './pages/flows/RARFlowV6_New';
+// import RARFlowV6 from './pages/flows/RARFlowV6_New';
 import RARFlowV7 from './pages/flows/RARFlowV7';
 import DPoPFlow from './pages/flows/DPoPFlow';
-import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
-import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
+// import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
+// import RedirectlessFlowV6Real from './pages/flows/RedirectlessFlowV6_Real';
 import RedirectlessFlowV7Real from './pages/flows/RedirectlessFlowV7_Real';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
@@ -149,7 +155,7 @@ import OAuth2CompliantAuthorizationCodeFlow from './pages/flows/OAuth2CompliantA
 import OIDCCompliantAuthorizationCodeFlow from './pages/flows/OIDCCompliantAuthorizationCodeFlow';
 // WorkerToken flows
 // WorkerTokenFlowV5 backed up - use V6
-import WorkerTokenFlowV6 from './pages/flows/WorkerTokenFlowV6';
+// import WorkerTokenFlowV6 from './pages/flows/WorkerTokenFlowV6';
 import WorkerTokenFlowV7 from './pages/flows/WorkerTokenFlowV7';
 import InteractiveTutorials from './pages/InteractiveTutorials';
 import JWKSTroubleshooting from './pages/JWKSTroubleshooting';
@@ -159,6 +165,7 @@ import OAuthOIDCTraining from './pages/OAuthOIDCTraining';
 import OIDC from './pages/OIDC';
 import OIDCSessionManagement from './pages/OIDCSessionManagement';
 import PARvsRAR from './pages/PARvsRAR';
+import CIBAvsDeviceAuthz from './pages/CIBAvsDeviceAuthz';
 import SDKSampleApp from './pages/SDKSampleApp';
 import TestDemo from './pages/TestDemo';
 import TokenManagement from './pages/TokenManagement';
@@ -305,13 +312,13 @@ const AppRoutes: React.FC = () => {
 	useEffect(() => {
 		console.log('🌍 [GlobalScroll] Route changed to:', location.pathname);
 		
-		// Skip auto-scroll for certain flows to prevent menu jumping
-		const skipAutoScroll = [
-			// V6 flows disabled - no longer needed
-			// '/flows/pingone-mfa-v6',
-			// '/flows/ciba-v6',
-			// Add other flows that should preserve scroll position
-		];
+			// Skip auto-scroll for certain flows to prevent menu jumping
+			const skipAutoScroll: string[] = [
+				// V6 flows disabled - no longer needed
+				// '/flows/pingone-mfa-v6',
+				// '/flows/ciba-v6',
+				// Add other flows that should preserve scroll position
+			];
 		
 		if (skipAutoScroll.some(path => location.pathname.includes(path))) {
 			console.log('🌍 [GlobalScroll] Skipping auto-scroll for:', location.pathname);
@@ -397,7 +404,6 @@ const AppRoutes: React.FC = () => {
 				<Navbar 
 					toggleSidebar={toggleSidebar} 
 					sidebarOpen={sidebarOpen}
-					sidebarWidth={undefined}
 				/>
 				<Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 				<ContentColumn>
@@ -590,6 +596,8 @@ const AppRoutes: React.FC = () => {
 							
 							{/* V7 PingOne MFA Flow */}
 							<Route path="/flows/pingone-complete-mfa-v7" element={<PingOneCompleteMFAFlowV7 />} />
+							<Route path="/flows/pingone-mfa-workflow-library-v7" element={<PingOneMFAWorkflowLibraryV7 />} />
+							<Route path="/flows/kroger-grocery-store-mfa" element={<KrogerGroceryStoreMFA />} />
 							
 							{/* V6 flows disabled - redirect to V7 equivalents */}
 							<Route path="/flows/pingone-mfa-v5" element={<Navigate to="/flows/pingone-complete-mfa-v7" replace />} />
@@ -660,11 +668,16 @@ const AppRoutes: React.FC = () => {
 								path="/docs/oauth2-security-best-practices"
 								element={<OAuth2SecurityBestPractices />}
 							/>
+							<Route
+								path="/docs/spiffe-spire-pingone"
+								element={<SpiffeSpirePingOne />}
+							/>
 							<Route path="/auto-discover" element={<AutoDiscover />} />
 							<Route path="/token-management" element={<TokenManagement />} />
 							<Route path="/oauth-2-1" element={<OAuth21 />} />
 							<Route path="/oidc-session-management" element={<OIDCSessionManagement />} />
 							<Route path="/par-vs-rar" element={<PARvsRAR />} />
+							<Route path="/ciba-vs-device-authz" element={<CIBAvsDeviceAuthz />} />
 							<Route path="/jwks-troubleshooting" element={<JWKSTroubleshooting />} />
 							<Route path="/url-decoder" element={<URLDecoder />} />
 							<Route path="/code-examples" element={<CodeExamplesDemo />} />
@@ -681,6 +694,7 @@ const AppRoutes: React.FC = () => {
 							<Route path="/advanced-config" element={<AdvancedConfiguration />} />
 							<Route path="/advanced-security-settings" element={<AdvancedSecuritySettingsDemo />} />
 							<Route path="/advanced-security-settings-comparison" element={<AdvancedSecuritySettingsComparison />} />
+							<Route path="/security/password-reset" element={<HelioMartPasswordReset />} />
 							<Route path="/tutorials" element={<InteractiveTutorials />} />
 							<Route path="/oauth-oidc-training" element={<OAuthOIDCTraining />} />
 							<Route path="/learn/response-modes" element={<ResponseModesLearnPage />} />
@@ -825,12 +839,16 @@ function App() {
 function AppContent() {
 	const { settings } = useUISettings();
 	const theme = useMemo(() => buildTheme(settings), [settings]);
-	const [urlValidationModalState, setUrlValidationModalState] = useState({
+	const [urlValidationModalState, setUrlValidationModalState] = useState<{
+		isOpen: boolean;
+		validationResult: import('./services/authorizationUrlValidationService').UrlValidationResult | null;
+		url: string;
+		onProceed?: () => void;
+		onFix?: () => void;
+	}>({
 		isOpen: false,
 		validationResult: null,
-		url: '',
-		onProceed: undefined,
-		onFix: undefined
+		url: ''
 	});
 
 	// Initialize credential debugger for development
@@ -839,7 +857,7 @@ function AppContent() {
 			// Import and initialize the debugger
 			import('./utils/credentialDebugger').then(({ default: CredentialDebugger }) => {
 				// Make it available globally
-				(window as any).CredentialDebugger = CredentialDebugger;
+				(window as Window & { CredentialDebugger?: typeof CredentialDebugger }).CredentialDebugger = CredentialDebugger;
 				console.log('🔧 CredentialDebugger initialized and available globally');
 				console.log('🔧 Available commands:');
 				console.log('  - CredentialDebugger.auditAllFlows()');
@@ -852,7 +870,7 @@ function AppContent() {
 			// Import and initialize field editing diagnostic
 			import('./utils/fieldEditingDiagnostic').then(({ default: FieldEditingDiagnostic }) => {
 				// Make it available globally
-				(window as any).FieldEditingDiagnostic = FieldEditingDiagnostic;
+				(window as Window & { FieldEditingDiagnostic?: typeof FieldEditingDiagnostic }).FieldEditingDiagnostic = FieldEditingDiagnostic;
 				console.log('🔧 FieldEditingDiagnostic initialized and available globally');
 				console.log('🔧 Available commands:');
 				console.log('  - diagnoseFields() - Analyze all fields for editing issues');
@@ -905,14 +923,16 @@ function AppContent() {
 			</ErrorBoundary>
 			
 			{/* Global URL Validation Modal */}
-			<AuthorizationUrlValidationModal
-				isOpen={urlValidationModalState.isOpen}
-				onClose={() => authorizationUrlValidationModalService.hideModal()}
-				validationResult={urlValidationModalState.validationResult}
-				url={urlValidationModalState.url}
-				onProceed={urlValidationModalState.onProceed}
-				onFix={urlValidationModalState.onFix}
-			/>
+			{urlValidationModalState.validationResult && (
+				<AuthorizationUrlValidationModal
+					isOpen={urlValidationModalState.isOpen}
+					onClose={() => authorizationUrlValidationModalService.hideModal()}
+					validationResult={urlValidationModalState.validationResult}
+					url={urlValidationModalState.url}
+					{...(urlValidationModalState.onProceed && { onProceed: urlValidationModalState.onProceed })}
+					{...(urlValidationModalState.onFix && { onFix: urlValidationModalState.onFix })}
+				/>
+			)}
 		</ThemeProvider>
 	);
 }
