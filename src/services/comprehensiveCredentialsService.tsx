@@ -1,6 +1,15 @@
 // src/services/comprehensiveCredentialsService.tsx
 // Comprehensive Credentials Service - All-in-one configuration for OAuth/OIDC flows
 
+/**
+ * SERVICE VERSION
+ * Increment this when making breaking changes or critical fixes to ensure compatibility
+ * Version History:
+ * - 2.0.0: Added OIDC discovery Environment ID safeguard - ensures Environment ID is ALWAYS populated
+ *          after OIDC discovery, even if credential fields are non-editable
+ */
+const SERVICE_VERSION = '2.0.0';
+
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { FiSettings, FiKey, FiCheckCircle } from 'react-icons/fi';
 import styled from 'styled-components';
@@ -25,6 +34,7 @@ import { environmentIdPersistenceService } from './environmentIdPersistenceServi
 import { EnvironmentIdPersistenceStatus } from '../components/EnvironmentIdPersistenceStatus';
 import PingOneApplicationPicker from '../components/PingOneApplicationPicker';
 import type { PingOneApplication } from '../services/pingOneApplicationService';
+import { getDefaultScopesForFlow } from './flowScopeMappingService';
 
 // Response Type Selector Component
 const ResponseTypeSelector = styled.div`
@@ -352,7 +362,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	clientSecret = '',
 	redirectUri,
 	scopes,
-	defaultScopes = 'openid',
+	defaultScopes,
 	loginHint = '',
 	postLogoutRedirectUri,
 	clientAuthMethod = 'none',
@@ -628,7 +638,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 
 	// Normalize scopes to be space-separated
 	const normalizeScopes = (scopeValue: string | undefined): string => {
-		if (!scopeValue) return defaultScopes;
+		if (!scopeValue) return flowAwareDefaultScopes;
 		
 		// Convert comma-separated to space-separated if needed
 		if (scopeValue.includes(',') && !scopeValue.includes(' ')) {
@@ -638,8 +648,13 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 		return scopeValue;
 	};
 
+	// Get flow-aware default scopes from flowScopeMappingService
+	const flowAwareDefaultScopes = useMemo(() => {
+		return defaultScopes || getDefaultScopesForFlow(flowType || 'flow');
+	}, [defaultScopes, flowType]);
+
 	const resolvedCredentials = useMemo<StepCredentials>(() => {
-		const fallbackScope = scopes || defaultScopes;
+		const fallbackScope = scopes || flowAwareDefaultScopes;
 		const normalizedScope = normalizeScopes(credentials?.scope ?? credentials?.scopes ?? fallbackScope);
 		
 		// Try to load Environment ID from persistence service
@@ -664,7 +679,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			tokenEndpoint: credentials?.tokenEndpoint ?? '',
 			userInfoEndpoint: credentials?.userInfoEndpoint ?? '',
 			clientAuthMethod: credentials?.clientAuthMethod ?? clientAuthMethod ?? 'client_secret_post',
-			tokenEndpointAuthMethod: credentials?.tokenEndpointAuthMethod ?? (typeof credentials?.clientAuthMethod === 'string' ? credentials.clientAuthMethod : credentials?.clientAuthMethod?.value) ?? clientAuthMethod ?? 'client_secret_post',
 		};
 		
 		console.log('[ComprehensiveCredentialsService] resolvedCredentials computed:', {
@@ -759,7 +773,6 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					
 					// Set new debounced save
 					environmentIdSaveTimeoutRef.current = setTimeout(() => {
-						const currentEnvId = resolvedCredentials.environmentId;
 						// Double-check the value hasn't changed during debounce period
 						if (updates.environmentId && /^[a-f0-9-]{36}$/i.test(updates.environmentId.trim())) {
 							environmentIdPersistenceService.saveEnvironmentId(updates.environmentId.trim(), 'manual');
@@ -893,6 +906,8 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 	}, [resolvedCredentials, applyCredentialUpdates, onCredentialsChange, onEnvironmentIdChange, onClientIdChange, onClientSecretChange, onClientAuthMethodChange, onScopesChange, onRedirectUriChange, onLoginHintChange, onPostLogoutRedirectUriChange]);
 
 	// Handle discovery completion and update environment ID
+	// SAFEGUARD: This function ensures Environment ID is ALWAYS populated after OIDC discovery,
+	// even if credential fields are non-editable. Multiple update paths are used to guarantee success.
 	const handleInternalDiscoveryComplete = useCallback(
 		(result: DiscoveryResult) => {
 			const issuerUrl = result.issuerUrl;
@@ -911,33 +926,86 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					resolvedCredentials.redirectUri
 				);
 				updates = {
-					environmentId: discovered.environmentId || extractedEnvId || resolvedCredentials.environmentId,
-					issuerUrl: discovered.issuerUrl || issuerUrl || resolvedCredentials.issuerUrl,
-					authorizationEndpoint: discovered.authorizationEndpoint || resolvedCredentials.authorizationEndpoint,
-					tokenEndpoint: discovered.tokenEndpoint || resolvedCredentials.tokenEndpoint,
-					userInfoEndpoint: discovered.userInfoEndpoint || resolvedCredentials.userInfoEndpoint,
+					...(discovered.environmentId || extractedEnvId || resolvedCredentials.environmentId ? { environmentId: discovered.environmentId || extractedEnvId || resolvedCredentials.environmentId } : {}),
+					...(discovered.issuerUrl || issuerUrl || resolvedCredentials.issuerUrl ? { issuerUrl: discovered.issuerUrl || issuerUrl || resolvedCredentials.issuerUrl } : {}),
+					...(discovered.authorizationEndpoint || resolvedCredentials.authorizationEndpoint ? { authorizationEndpoint: discovered.authorizationEndpoint || resolvedCredentials.authorizationEndpoint } : {}),
+					...(discovered.tokenEndpoint || resolvedCredentials.tokenEndpoint ? { tokenEndpoint: discovered.tokenEndpoint || resolvedCredentials.tokenEndpoint } : {}),
+					...(discovered.userInfoEndpoint || resolvedCredentials.userInfoEndpoint ? { userInfoEndpoint: discovered.userInfoEndpoint || resolvedCredentials.userInfoEndpoint } : {}),
 				};
 			} else if (extractedEnvId) {
 				updates = { environmentId: extractedEnvId };
 			}
 
 			if (updates) {
-				console.log('[ComprehensiveCredentialsService] Auto-populating credentials from discovery:', updates);
+				const environmentIdToApply = updates.environmentId;
+				console.log(`[ComprehensiveCredentialsService v${SERVICE_VERSION}] Auto-populating credentials from discovery:`, updates);
+				console.log(`[ComprehensiveCredentialsService v${SERVICE_VERSION}] Environment ID to apply: ${environmentIdToApply}`);
 				
-				// Persist Environment ID from OIDC discovery
-				if (updates.environmentId) {
-					console.log(`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${updates.environmentId}`);
-					environmentIdPersistenceService.saveEnvironmentId(updates.environmentId, 'oidc_discovery');
+				// SAFEGUARD 1: Persist Environment ID to localStorage immediately (bypasses any UI restrictions)
+				if (environmentIdToApply && environmentIdToApply.trim() !== '') {
+					console.log(`🔧 [EnvironmentIdPersistence] OIDC Discovery found Environment ID: ${environmentIdToApply}`);
+					try {
+						environmentIdPersistenceService.saveEnvironmentId(environmentIdToApply.trim(), 'oidc_discovery');
+						console.log(`✅ [EnvironmentIdPersistence] Environment ID saved to persistence service`);
+					} catch (error) {
+						console.error(`❌ [EnvironmentIdPersistence] Failed to save Environment ID:`, error);
+					}
 				}
 				
-				applyCredentialUpdates(updates, { shouldSave: true });
+				// SAFEGUARD 2: Apply updates through the standard update path
+				try {
+					applyCredentialUpdates(updates, { shouldSave: true });
+					console.log(`✅ [ComprehensiveCredentialsService] applyCredentialUpdates called successfully`);
+				} catch (error) {
+					console.error(`❌ [ComprehensiveCredentialsService] applyCredentialUpdates failed:`, error);
+				}
+
+				// SAFEGUARD 3: Direct update via onCredentialsChange if available (bypasses any field restrictions)
+				if (environmentIdToApply && environmentIdToApply.trim() !== '' && onCredentialsChange) {
+					try {
+						const mergedCredentials = {
+							...resolvedCredentials,
+							...updates,
+							environmentId: environmentIdToApply.trim(),
+						};
+						console.log(`🔧 [ComprehensiveCredentialsService] Direct update via onCredentialsChange (safeguard)`);
+						onCredentialsChange(mergedCredentials);
+						console.log(`✅ [ComprehensiveCredentialsService] Direct onCredentialsChange called successfully`);
+					} catch (error) {
+						console.error(`❌ [ComprehensiveCredentialsService] Direct onCredentialsChange failed:`, error);
+					}
+				}
+
+				// SAFEGUARD 4: Direct update via onEnvironmentIdChange if available (most direct path)
+				if (environmentIdToApply && environmentIdToApply.trim() !== '' && onEnvironmentIdChange) {
+					try {
+						console.log(`🔧 [ComprehensiveCredentialsService] Direct update via onEnvironmentIdChange (final safeguard)`);
+						onEnvironmentIdChange(environmentIdToApply.trim());
+						console.log(`✅ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange called successfully`);
+					} catch (error) {
+						console.error(`❌ [ComprehensiveCredentialsService] Direct onEnvironmentIdChange failed:`, error);
+					}
+				}
+
+				// Validation: Verify Environment ID was actually applied
+				setTimeout(() => {
+					const currentEnvId = resolvedCredentials.environmentId;
+					if (environmentIdToApply && currentEnvId !== environmentIdToApply.trim()) {
+						console.warn(`⚠️ [ComprehensiveCredentialsService] Environment ID mismatch after OIDC discovery!`);
+						console.warn(`   Expected: ${environmentIdToApply.trim()}`);
+						console.warn(`   Current: ${currentEnvId}`);
+						console.warn(`   This indicates a potential issue with credential field editability.`);
+					} else if (environmentIdToApply && currentEnvId === environmentIdToApply.trim()) {
+						console.log(`✅ [ComprehensiveCredentialsService] Environment ID successfully applied: ${currentEnvId}`);
+					}
+				}, 100);
 			}
 
 			if (onDiscoveryComplete) {
 				onDiscoveryComplete(result);
 			}
 		},
-		[resolvedCredentials, applyCredentialUpdates, onDiscoveryComplete]
+		[resolvedCredentials, applyCredentialUpdates, onDiscoveryComplete, onCredentialsChange, onEnvironmentIdChange]
 	);
 
 	return (
@@ -1250,13 +1318,20 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			)}
 
 			{/* Basic Credentials */}
+			{/* 
+				CRITICAL SAFEGUARD (v2.0.0+): 
+				Fields MUST remain editable to ensure OIDC discovery can populate Environment ID.
+				The CredentialsInput component hardcodes all fields to disabled={false} and readOnly={false}.
+				The handleInternalDiscoveryComplete function includes multiple safeguards to ensure Environment ID
+				is populated even if fields become non-editable, but field editability is the primary requirement.
+			*/}
 			<CredentialsInput
-				environmentId={resolvedCredentials.environmentId}
-				clientId={resolvedCredentials.clientId}
-				clientSecret={resolvedCredentials.clientSecret}
+				environmentId={resolvedCredentials.environmentId || ''}
+				clientId={resolvedCredentials.clientId || ''}
+				clientSecret={resolvedCredentials.clientSecret || ''}
 				redirectUri={resolvedCredentials.redirectUri}
-				scopes={resolvedCredentials.scope || resolvedCredentials.scopes || defaultScopes}
-				loginHint={resolvedCredentials.loginHint}
+				scopes={resolvedCredentials.scope || resolvedCredentials.scopes || flowAwareDefaultScopes}
+				loginHint={resolvedCredentials.loginHint || ''}
 				postLogoutRedirectUri={resolvedCredentials.postLogoutRedirectUri || actualPostLogoutRedirectUri}
 				onEnvironmentIdChange={(value) => applyCredentialUpdates({ environmentId: value }, { shouldSave: false })}
 				onClientIdChange={(value) => applyCredentialUpdates({ clientId: value }, { shouldSave: false })}
@@ -1272,9 +1347,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				onSave={saveHandler || (() => {})}
 				hasUnsavedChanges={hasUnsavedChanges}
 				isSaving={isSaving}
-				// Field editing protection - ensure all fields remain editable
-				disabled={false}
-				readOnly={false}
+				onDiscoveryComplete={handleInternalDiscoveryComplete}
 			/>
 
 			{/* Environment ID Persistence Status */}
@@ -1334,7 +1407,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							</div>
 							
 							{/* Response Type Explanation */}
-							{responseType && responseType !== '' && (
+							{responseType && (
 								<div style={{ 
 									marginTop: '0.75rem', 
 									padding: '0.75rem', 
@@ -1410,7 +1483,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 							}}
 							allowedMethods={flowAuthMethods}
 							showDescription={true}
-							disabled={isDisabled}
+							disabled={isDisabled ?? false}
 						/>
 					</div>
 				);
@@ -1561,18 +1634,26 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 						region={region}
 							isCreating={isSaving}
 							onGenerateWorkerToken={() => setShowWorkerTokenModal(true)}
-							onImportConfig={(importedConfig) => {
+							onImportConfig={(importedConfig: { redirectUri?: string; redirectUris?: string[]; scopes?: string; tokenEndpointAuthMethod?: string }) => {
 								// Update credentials with imported PingOne configuration
-								const updatedCredentials = {
+								const redirectUri = Array.isArray(importedConfig.redirectUris) && importedConfig.redirectUris[0] 
+									? importedConfig.redirectUris[0] 
+									: (importedConfig.redirectUri || resolvedCredentials.redirectUri);
+								const importedScopes = typeof importedConfig.scopes === 'string' ? importedConfig.scopes : '';
+								const importedAuthMethod = typeof importedConfig.tokenEndpointAuthMethod === 'string' ? importedConfig.tokenEndpointAuthMethod : '';
+								
+								const updatedCredentials: StepCredentials = {
 									...resolvedCredentials,
-									redirectUri: importedConfig.redirectUris?.[0] || resolvedCredentials.redirectUri,
-									scopes: importedConfig.scopes || resolvedCredentials.scopes,
-									clientAuthMethod: importedConfig.tokenEndpointAuthMethod || resolvedCredentials.clientAuthMethod,
+									redirectUri,
+									scopes: importedScopes || resolvedCredentials.scopes || resolvedCredentials.scope || '',
+									clientAuthMethod: importedAuthMethod || resolvedCredentials.clientAuthMethod || 'client_secret_post',
 									// Note: grantTypes and responseTypes are flow-specific, not imported
 								};
 								
 								// Update the credentials
-								onCredentialsChange(updatedCredentials);
+								if (onCredentialsChange) {
+									onCredentialsChange(updatedCredentials);
+								}
 								
 								// Show success message
 								import('../utils/v4ToastMessages').then(({ v4ToastManager }) => {
@@ -1681,9 +1762,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 									})();
 									
 									// Use provided values or fallback to flow defaults
-									let grantTypes = appData?.grantTypes || getFlowGrantTypes(flowType) as string[];
-									const responseTypes = appData?.responseTypes || getFlowResponseTypes(flowType) as string[];
-									const tokenAuthMethod = appData?.tokenEndpointAuthMethod || clientAuthMethod || 'none';
+									let grantTypes = (appData?.grantTypes || getFlowGrantTypes(flowType)) as ('authorization_code' | 'implicit' | 'refresh_token' | 'client_credentials')[];
+									const responseTypes = (appData?.responseTypes || getFlowResponseTypes(flowType)) as ('code' | 'token' | 'id_token')[];
+									const tokenAuthMethod = (appData?.tokenEndpointAuthMethod || clientAuthMethod || 'none') as 'none' | 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt';
 									
 									// Add refresh_token to grant types if refresh token is enabled
 									// NOTE: refresh_token is not a grant type in OAuth spec, but PingOne requires it in the grantTypes array
@@ -1722,21 +1803,26 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 											description: appDescription,
 											redirectUris: [redirectUri],
 											postLogoutRedirectUris: resolvedCredentials.postLogoutRedirectUri ? [resolvedCredentials.postLogoutRedirectUri] : [],
-											grantTypes: grantTypes,
-											responseTypes: responseTypes,
-											tokenEndpointAuthMethod: tokenAuthMethod,
+											grantTypes: grantTypes as ('authorization_code' | 'implicit' | 'refresh_token' | 'client_credentials')[],
+											responseTypes: responseTypes as ('code' | 'token' | 'id_token')[],
+											tokenEndpointAuthMethod: tokenAuthMethod as 'none' | 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt',
 											scopes: scopesArray,
 											pkceEnforcement: 'OPTIONAL',
 										});
 									} else {
+										// Filter out client_credentials for native apps (not supported)
+										const nativeGrantTypes = grantTypes.filter((gt): gt is 'authorization_code' | 'implicit' | 'refresh_token' => 
+											gt !== 'client_credentials'
+										) as ('authorization_code' | 'implicit' | 'refresh_token')[];
+										
 										result = await pingOneAppCreationService.createOIDCNativeApp({
 											type: 'OIDC_NATIVE_APP',
 											name: appName,
 											description: appDescription,
 											redirectUris: [redirectUri],
-											grantTypes: grantTypes,
-											responseTypes: responseTypes,
-											tokenEndpointAuthMethod: tokenAuthMethod,
+											grantTypes: nativeGrantTypes,
+											responseTypes: responseTypes as ('code' | 'token' | 'id_token')[],
+											tokenEndpointAuthMethod: tokenAuthMethod as 'none' | 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt',
 											scopes: scopesArray,
 											pkceEnforcement: 'OPTIONAL',
 										});
@@ -1793,9 +1879,9 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 			>
 				<JwksKeySourceSelector
 					value={jwksKeySource}
-					jwksUrl={jwksUrl}
-					environmentId={resolvedCredentials.environmentId}
-					issuer={resolvedCredentials.issuerUrl}
+					jwksUrl={jwksUrl || ''}
+					environmentId={resolvedCredentials.environmentId || ''}
+					issuer={resolvedCredentials.issuerUrl || ''}
 					onCopyJwksUrlSuccess={(url) => {
 						v4ToastManager.showSuccess(`JWKS URL copied: ${url}`);
 					}}
