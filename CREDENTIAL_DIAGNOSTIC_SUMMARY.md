@@ -45,7 +45,7 @@ Each field now has a **copy button (📋)** in the label that appears when the f
 ### Flow Diagram
 
 ```
-User fills credentials → User clicks HEB Login
+User fills credentials → User clicks Kroger Login
                               ↓
         Check credentials before sending
                               ↓
@@ -105,14 +105,14 @@ User fills credentials → User clicks HEB Login
 1. Go to PingOne Authentication page
 2. Fill in Environment ID and Client ID
 3. **Leave Client Secret empty**
-4. Click HEB Login
+4. Click Kroger Login
 5. **Expected**: Diagnostic modal appears showing clientSecret as EMPTY (red)
 
 ### Test 2: All Credentials Filled
 1. Fill in all credentials:
    - Client ID: `bdb78dcc-d530-4144-90c7-c7537a55128a`
    - Client Secret: `VhIALUz93iLEPhmTs~Y3_oj~hxzi7gnqw6cJYXLSJEq2LyLz2m7KV0bOq9LFj_GU`
-2. Click HEB Login
+2. Click Kroger Login
 3. Enter username/password in popup
 4. **Expected**: No diagnostic modal (all fields OK), request proceeds
 
