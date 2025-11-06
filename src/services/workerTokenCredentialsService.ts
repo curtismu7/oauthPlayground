@@ -29,13 +29,25 @@ export interface WorkerTokenValidationResult {
 }
 
 class WorkerTokenCredentialsService {
-  private readonly STORAGE_KEY = 'pingone_worker_token_credentials';
+  private readonly DEFAULT_STORAGE_KEY = 'pingone_worker_token_credentials';
   private readonly DEFAULT_SCOPES = [
     'p1:read:user',
     'p1:update:user', 
     'p1:read:device',
     'p1:update:device'
   ];
+
+  /**
+   * Get storage key for a specific flow type
+   * This ensures each flow type has its own isolated credential storage
+   */
+  private getStorageKey(flowType?: string): string {
+    if (!flowType || flowType === 'flow' || flowType === 'worker-token') {
+      return this.DEFAULT_STORAGE_KEY;
+    }
+    // Create unique key per flow type to prevent conflicts
+    return `pingone_worker_token_credentials_${flowType}`;
+  }
   
   private readonly REGION_URLS = {
     us: 'https://auth.pingone.com',
@@ -47,9 +59,10 @@ class WorkerTokenCredentialsService {
   /**
    * Load worker token credentials from storage
    */
-  loadCredentials(): WorkerTokenCredentials | null {
+  loadCredentials(flowType?: string): WorkerTokenCredentials | null {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const storageKey = this.getStorageKey(flowType);
+      const stored = localStorage.getItem(storageKey);
       if (!stored) return null;
       
       const config: WorkerTokenConfig = JSON.parse(stored);
@@ -71,8 +84,9 @@ class WorkerTokenCredentialsService {
   /**
    * Save worker token credentials to storage
    */
-  saveCredentials(credentials: WorkerTokenCredentials): boolean {
+  saveCredentials(credentials: WorkerTokenCredentials, flowType?: string): boolean {
     try {
+      const storageKey = this.getStorageKey(flowType);
       const config: WorkerTokenConfig = {
         environmentId: credentials.environmentId,
         clientId: credentials.clientId,
@@ -83,8 +97,12 @@ class WorkerTokenCredentialsService {
         lastUpdated: Date.now()
       };
 
-      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));
-      console.log('[WorkerTokenCredentialsService] Credentials saved successfully');
+      localStorage.setItem(storageKey, JSON.stringify(config));
+      console.log('[WorkerTokenCredentialsService] Credentials saved successfully:', {
+        flowType: flowType || 'default',
+        storageKey,
+        environmentId: credentials.environmentId?.substring(0, 20) + '...',
+      });
       return true;
     } catch (error) {
       console.error('[WorkerTokenCredentialsService] Failed to save credentials:', error);
@@ -162,10 +180,11 @@ class WorkerTokenCredentialsService {
   /**
    * Clear stored credentials
    */
-  clearCredentials(): void {
+  clearCredentials(flowType?: string): void {
     try {
-      localStorage.removeItem(this.STORAGE_KEY);
-      console.log('[WorkerTokenCredentialsService] Credentials cleared');
+      const storageKey = this.getStorageKey(flowType);
+      localStorage.removeItem(storageKey);
+      console.log('[WorkerTokenCredentialsService] Credentials cleared for flowType:', flowType || 'default');
     } catch (error) {
       console.error('[WorkerTokenCredentialsService] Failed to clear credentials:', error);
     }
@@ -174,16 +193,17 @@ class WorkerTokenCredentialsService {
   /**
    * Check if credentials exist in storage
    */
-  hasStoredCredentials(): boolean {
-    return this.loadCredentials() !== null;
+  hasStoredCredentials(flowType?: string): boolean {
+    return this.loadCredentials(flowType) !== null;
   }
 
   /**
    * Get credential metadata
    */
-  getCredentialMetadata(): { lastUpdated?: number; hasCredentials: boolean } {
+  getCredentialMetadata(flowType?: string): { lastUpdated?: number; hasCredentials: boolean } {
     try {
-      const stored = localStorage.getItem(this.STORAGE_KEY);
+      const storageKey = this.getStorageKey(flowType);
+      const stored = localStorage.getItem(storageKey);
       if (!stored) return { hasCredentials: false };
       
       const config: WorkerTokenConfig = JSON.parse(stored);

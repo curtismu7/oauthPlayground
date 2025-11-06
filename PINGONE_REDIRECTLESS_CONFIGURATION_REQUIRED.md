@@ -46,9 +46,9 @@ For pi.flow mode, redirect URIs are optional, but if you have any registered:
 
 ## How to Test
 
-### Step 1: Try the HEB Login Button
+### Step 1: Try the Kroger Login Button
 
-After enabling Redirectless mode in PingOne, try the HEB login button.
+After enabling Redirectless mode in PingOne, try the Kroger login button.
 
 ### Step 2: Check Backend Logs
 

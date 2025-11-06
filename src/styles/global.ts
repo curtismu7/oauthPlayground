@@ -82,8 +82,8 @@ export const GlobalStyle = createGlobalStyle`
   body {
     font-family: ${({ theme }) => theme.fonts.body};
     line-height: 1.5;
-    color: ${({ theme }) => theme.colors.black};
-    background-color: ${({ theme }) => theme.colors.white};
+    color: ${({ theme }) => theme.colors.gray900};
+    background-color: #f9fafb; /* Match Container background to prevent white bottom */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100%;
@@ -99,7 +99,7 @@ export const GlobalStyle = createGlobalStyle`
     margin-bottom: 0.5rem;
     font-weight: 600;
     line-height: 1.2;
-    color: ${({ theme }) => theme.colors.black};
+    color: ${({ theme }) => theme.colors.gray900};
   }
 
   h1 { font-size: 2.5rem; }
@@ -134,8 +134,8 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   pre {
-    background-color: ${({ theme }) => theme.colors.white};
-    color: ${({ theme }) => theme.colors.black};
+    background-color: ${({ theme }) => theme.colors.gray100};
+    color: ${({ theme }) => theme.colors.gray900};
     padding: 1rem;
     border-radius: 4px;
     overflow-x: auto;
@@ -155,16 +155,16 @@ export const GlobalStyle = createGlobalStyle`
 
   /* JWT Token Display - Clean and readable styling */
   pre[class*="TokenValue"] {
-    background-color: ${({ theme }) => theme.colors.white} !important;
-    color: ${({ theme }) => theme.colors.black} !important;
+    background-color: ${({ theme }) => theme.colors.gray100} !important;
+    color: ${({ theme }) => theme.colors.gray900} !important;
     border: 1px solid ${({ theme }) => theme.colors.gray300} !important;
   }
 
   /* Ensure token containers have proper text contrast */
   div[class*="TokenContainer"] pre,
   div[class*="TokenSection"] pre {
-    background-color: ${({ theme }) => theme.colors.white} !important;
-    color: ${({ theme }) => theme.colors.black} !important;
+    background-color: ${({ theme }) => theme.colors.gray100} !important;
+    color: ${({ theme }) => theme.colors.gray900} !important;
     border: 1px solid ${({ theme }) => theme.colors.gray300} !important;
   }
 
