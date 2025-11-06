@@ -1,8 +1,7 @@
 // src/services/scopeValidationService.ts
 // Centralized service for OAuth/OIDC scope validation and normalization
 
-// src/services/scopeValidationService.ts
-// Centralized service for OAuth/OIDC scope validation and normalization
+import { getDefaultScopesForFlow, getFlowScopeMapping, requiresOpenIdScope, validateScopesForFlow } from './flowScopeMappingService';
 
 export interface ScopeValidationResult {
   isValid: boolean;
@@ -57,42 +56,19 @@ class ScopeValidationService {
 
   /**
    * Default scopes for different flow types
+   * Now uses flowScopeMappingService for centralized mapping
    */
   private getDefaultScopes(flowType: string): string {
-    switch (flowType) {
-      case 'oidc':
-        return 'openid';
-      case 'oauth':
-        return 'openid';
-      case 'device':
-        return 'openid';
-      case 'client-credentials':
-        return 'p1:read:user p1:update:user';
-      case 'implicit':
-        return 'openid';
-      case 'hybrid':
-        return 'openid';
-      default:
-        return 'openid';
-    }
+    return getDefaultScopesForFlow(flowType);
   }
 
   /**
    * Required scopes for different flow types
+   * Now uses flowScopeMappingService for centralized mapping
    */
   private getRequiredScopes(flowType: string): string[] {
-    switch (flowType) {
-      case 'oidc':
-      case 'implicit':
-      case 'hybrid':
-      case 'oauth':
-      case 'device':
-        return ['openid']; // All authorization flows require openid for PingOne
-      case 'client-credentials':
-        return []; // Client credentials can have custom scopes
-      default:
-        return ['openid']; // Default to requiring openid
-    }
+    const mapping = getFlowScopeMapping(flowType);
+    return mapping.requiresOpenId ? ['openid'] : [];
   }
 
   /**
@@ -425,22 +401,35 @@ class ScopeValidationService {
 
   /**
    * Validate scopes for authorization URL generation
+   * Now uses flowScopeMappingService for flow-aware validation
    */
   validateForAuthorizationUrl(
     scopes: string | string[] | undefined | null,
     flowType: string
   ): { scopes: string; isValid: boolean; error?: string } {
+    // Use flowScopeMappingService for flow-aware validation
+    const mappingValidation = validateScopesForFlow(flowType, scopes || '');
+    
+    if (!mappingValidation.isValid) {
+      return {
+        scopes: '',
+        isValid: false,
+        error: mappingValidation.errors.join('; ')
+      };
+    }
+
+    // Also run through the existing validation for additional checks
     const config: ScopeConfig = {
       flowType: flowType as ScopeConfig['flowType'],
       allowEmpty: false,
-      requireOpenId: true
+      requireOpenId: requiresOpenIdScope(flowType)
     };
 
-    const result = this.validateScopes(scopes, config);
+    const result = this.validateScopes(mappingValidation.normalizedScopes.join(' '), config);
     
     if (!result.isValid) {
       return {
-        scopes: '',
+        scopes: mappingValidation.normalizedScopes.join(' '),
         isValid: false,
         error: result.errors.join('; ')
       };
@@ -524,12 +513,12 @@ class ScopeValidationService {
   }
 
   /**
-   * Force cache cleanup
+   * Force cache cleanup (public method)
    */
-  cleanupCache(): void {
-    this.cache.clear();
-    this.metrics.cacheHits = 0;
-    this.metrics.cacheMisses = 0;
+  forceCleanupCache(): void {
+    this.validationCache.clear();
+    this.validationMetrics.cacheHitRate = 0;
+    this.validationMetrics.lastResetTime = Date.now();
   }
 }
 

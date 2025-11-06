@@ -9,6 +9,9 @@ import { v4ToastManager } from '../utils/v4ToastMessages';
 import { showTokenSuccessMessage } from '../services/tokenExpirationService';
 import { DraggableModal } from './DraggableModal';
 import { WorkerTokenRequestModal } from './WorkerTokenRequestModal';
+import { workerTokenCredentialsService } from '../services/workerTokenCredentialsService';
+import { trackedFetch } from '../utils/trackedFetch';
+// Note: Worker tokens use roles, not scopes. Scopes are optional and not used for authorization.
 
 
 const InfoBox = styled.div<{ $variant: 'info' | 'warning' }>`
@@ -174,28 +177,30 @@ const LoadingSpinner = styled.div`
   }
 `;
 
-const normalizeScopes = (scopes?: string) => {
-	if (!scopes) return '';
-	// Remove openid scope (not valid for worker tokens)
-	return scopes
-		.replace(/\bopenid\b/gi, '')
-		.replace(/\bopneid\b/gi, '')
-		.replace(/\s+/g, ' ')
-		.trim();
-};
+// Removed normalizeScopes - scope filtering is now handled inline with OIDC scope detection
+// const normalizeScopes = (scopes?: string) => {
+// 	if (!scopes) return '';
+// 	// Remove openid scope (not valid for worker tokens)
+// 	return scopes
+// 		.replace(/\bopenid\b/gi, '')
+// 		.replace(/\bopneid\b/gi, '')
+// 		.replace(/\s+/g, ' ')
+// 		.trim();
+// };
 
-const ensureRequiredScopes = (scopes?: string) => {
-	const normalized = normalizeScopes(scopes);
-	const parts = normalized.split(/\s+/).filter(Boolean);
-	const scopeSet = new Set(parts);
-	// Note: 'openid' is NOT valid for worker tokens (client_credentials grant)
-	// Worker tokens only use management API scopes like p1:read:*, p1:write:*, etc.
-	// Ensure at least one scope exists
-	if (scopeSet.size === 0) {
-		scopeSet.add('p1:read:user');
-	}
-	return Array.from(scopeSet).join(' ');
-};
+// Removed ensureRequiredScopes - scopes are now optional to prevent 401 errors
+// const ensureRequiredScopes = (scopes?: string) => {
+// 	const normalized = normalizeScopes(scopes);
+// 	const parts = normalized.split(/\s+/).filter(Boolean);
+// 	const scopeSet = new Set(parts);
+// 	// Note: 'openid' is NOT valid for worker tokens (client_credentials grant)
+// 	// Worker tokens only use management API scopes like p1:read:*, p1:write:*, etc.
+// 	// Ensure at least one scope exists
+// 	if (scopeSet.size === 0) {
+// 		scopeSet.add('p1:read:user');
+// 	}
+// 	return Array.from(scopeSet).join(' ');
+// };
 
 interface Props {
   isOpen: boolean;
@@ -262,12 +267,16 @@ export const WorkerTokenModal: React.FC<Props> = ({
       const cleanedClientSecret = (prefillCredentials.clientSecret || '').trim();
       const cleanedEnvironmentId = (prefillCredentials.environmentId || '').trim();
       
-      let finalScopes = prefillCredentials.scopes || 'p1:read:users p1:read:environments p1:read:applications p1:read:connections';
-      // Strip openid from prefilled scopes
-      finalScopes = finalScopes
-        .split(/\s+/)
-        .filter(s => s && s !== 'openid' && s !== 'opneid')
-        .join(' ') || 'p1:read:users p1:read:environments p1:read:applications p1:read:connections';
+      // For worker tokens, scopes are not used for authorization (roles are used)
+      // Scopes are optional - only use if user provided one
+      let finalScopes = prefillCredentials.scopes || '';
+      // Strip OIDC scopes and normalize to single scope if provided
+      if (finalScopes) {
+        const scopeArray = finalScopes
+          .split(/\s+/)
+          .filter(s => s && s.trim() && s !== 'openid' && s !== 'opneid' && s !== 'profile' && s !== 'email');
+        finalScopes = scopeArray.length > 0 ? scopeArray[0] : ''; // Use first scope only, or empty
+      }
       
       console.log('[WorkerTokenModal] ✅ Using cleaned prefilled credentials:', {
         clientIdLength: cleanedClientId.length,
@@ -275,24 +284,71 @@ export const WorkerTokenModal: React.FC<Props> = ({
         clientSecretPreview: cleanedClientSecret.substring(0, 20),
       });
       
+      // Validate environment ID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const effectiveEnvId = (prefillCredentials.environmentId || environmentId || '').trim();
+      const isValidEnvId = effectiveEnvId && uuidRegex.test(effectiveEnvId);
+      
+      if (!isValidEnvId && effectiveEnvId) {
+        console.warn('[WorkerTokenModal] ⚠️ prefillCredentials environmentId is not valid UUID format:', effectiveEnvId);
+      }
+      
       return {
-        environmentId: environmentId || cleanedEnvironmentId || '',
+        environmentId: isValidEnvId ? effectiveEnvId : cleanedEnvironmentId || '',
         clientId: cleanedClientId || '',
         clientSecret: cleanedClientSecret || '',
         region: prefillCredentials.region || 'us',
-        scopes: finalScopes,
+          scopes: finalScopes || '', // Empty by default - scopes are optional for worker tokens
         authMethod: 'client_secret_post' as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt'
       };
     }
     
-    // No prefillCredentials - use defaults
+    // No prefillCredentials - try to load from saved credentials first
+    const savedCredentials = workerTokenCredentialsService.loadCredentials(flowType);
+    if (savedCredentials) {
+      // Validate environment ID format
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const savedEnvId = savedCredentials.environmentId?.trim() || '';
+      const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
+      
+      if (isValidEnvId) {
+        console.log('[WorkerTokenModal] 🔄 Initial state: Using saved credentials from flow-specific storage');
+        return {
+          environmentId: savedEnvId,
+          clientId: savedCredentials.clientId || '',
+          clientSecret: savedCredentials.clientSecret || '',
+          region: savedCredentials.region || 'us',
+          scopes: (() => {
+            // Worker tokens use roles, not scopes - scopes are optional
+            const savedScopes = Array.isArray(savedCredentials.scopes) 
+              ? savedCredentials.scopes.join(' ') 
+              : (savedCredentials.scopes || '');
+            // Use first scope only if provided, otherwise empty
+            if (savedScopes) {
+              const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
+              return scopeArray.length > 0 ? scopeArray[0] : '';
+            }
+            return ''; // Empty - scopes are optional for worker tokens
+          })(),
+          authMethod: savedCredentials.tokenEndpointAuthMethod || 'client_secret_post' as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt'
+        };
+      } else {
+        console.warn('[WorkerTokenModal] ⚠️ Saved credentials have invalid environment ID, using defaults');
+      }
+    }
+    
+    // Use defaults - validate environmentId prop if provided
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const propEnvId = environmentId?.trim() || '';
+    const isValidPropEnvId = propEnvId && uuidRegex.test(propEnvId);
+    
     console.log('[WorkerTokenModal] ⚠️ No prefillCredentials provided, using defaults');
     return {
-      environmentId: environmentId || '',
+      environmentId: isValidPropEnvId ? propEnvId : '', // Only use prop if valid UUID
       clientId: '',
       clientSecret: '',
       region: 'us',
-      scopes: 'p1:read:users p1:read:environments p1:read:applications p1:read:connections',
+      scopes: '', // Empty by default - worker tokens use roles, not scopes. Scopes are optional.
       authMethod: 'client_secret_post' as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt'
     };
   });
@@ -307,43 +363,142 @@ export const WorkerTokenModal: React.FC<Props> = ({
     }
   }, [isOpen]);
   
-  // Update credentials when prefillCredentials changes
-  // ALWAYS use prefillCredentials when modal opens (they are the current credentials from the form)
+  // Load saved credentials on mount (if no prefillCredentials) or when modal opens
   useEffect(() => {
-    if (prefillCredentials && isOpen && !hasInitializedRef.current) {
+    if (isOpen && !hasInitializedRef.current) {
       hasInitializedRef.current = true;
       
-      console.log('[WorkerTokenModal] 🔍 Modal opened (first time), using prefillCredentials:', {
-        prefillClientIdLength: prefillCredentials.clientId?.length || 0,
-        prefillClientSecretLength: prefillCredentials.clientSecret?.length || 0,
-        prefillClientSecretPreview: prefillCredentials.clientSecret?.substring(0, 20) || 'none',
-      });
-      
-      // ALWAYS use prefillCredentials - they represent the current form state
-      setWorkerCredentials(prev => {
-        console.log('[WorkerTokenModal] ✅ Applying prefillCredentials (overriding any cached credentials):', {
-          oldSecretLength: prev.clientSecret.length,
-          newSecretLength: (prefillCredentials.clientSecret || prev.clientSecret).length,
-          oldSecretPreview: prev.clientSecret.substring(0, 20),
-          newSecretPreview: (prefillCredentials.clientSecret || prev.clientSecret).substring(0, 20),
+      // If prefillCredentials are provided, use them (they are the current form values)
+      if (prefillCredentials) {
+        console.log('[WorkerTokenModal] 🔍 Modal opened, using prefillCredentials:', {
+          prefillEnvironmentId: prefillCredentials.environmentId || 'missing',
+          propEnvironmentId: environmentId || 'missing',
+          prefillClientIdLength: prefillCredentials.clientId?.length || 0,
+          prefillClientSecretLength: prefillCredentials.clientSecret?.length || 0,
+          flowType,
         });
-        return {
-          ...prev,
-          environmentId: environmentId || prefillCredentials.environmentId || prev.environmentId,
-          clientId: prefillCredentials.clientId || prev.clientId,
-          clientSecret: prefillCredentials.clientSecret || prev.clientSecret,
-          scopes: prefillCredentials.scopes || prev.scopes,
-          region: prefillCredentials.region || prev.region,
-          authMethod: prev.authMethod,
-        };
-      });
+        
+        // Determine the correct environment ID - prioritize prefillCredentials.environmentId, then prop
+        const effectiveEnvId = (prefillCredentials.environmentId || environmentId || '').trim();
+        
+        // ALWAYS use prefillCredentials - they represent the current form state
+        // But ensure scopes are cleaned (worker tokens use roles, not scopes)
+        // Scopes are optional - only use if user provided one
+        let prefillScopes = prefillCredentials.scopes || '';
+        // Strip OIDC scopes and normalize to single scope if provided
+        if (prefillScopes) {
+          const scopeArray = prefillScopes
+            .split(/\s+/)
+            .filter(s => s && s.trim() && s !== 'openid' && s !== 'opneid' && s !== 'profile' && s !== 'email');
+          prefillScopes = scopeArray.length > 0 ? scopeArray[0] : ''; // Use first scope only, or empty
+        }
+        
+        setWorkerCredentials({
+          environmentId: effectiveEnvId,
+          clientId: (prefillCredentials.clientId || '').trim(),
+          clientSecret: (prefillCredentials.clientSecret || '').trim(),
+          region: prefillCredentials.region || 'us',
+          scopes: prefillScopes, // Clean scopes (worker tokens use roles, not scopes)
+          authMethod: 'client_secret_post' as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt',
+        });
+        
+        console.log('[WorkerTokenModal] ✅ Credentials updated from prefillCredentials:', {
+          environmentId: effectiveEnvId,
+          environmentIdLength: effectiveEnvId.length,
+          clientIdLength: (prefillCredentials.clientId || '').trim().length,
+          clientSecretLength: (prefillCredentials.clientSecret || '').trim().length,
+        });
+      } else {
+        // No prefillCredentials - try to load from flow-specific storage FIRST
+        // NEVER use environmentId prop as it might be from authorization code flow credentials
+        const savedCredentials = workerTokenCredentialsService.loadCredentials(flowType);
+        if (savedCredentials) {
+          // Validate that environmentId is actually an environment ID (UUID format)
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const savedEnvId = savedCredentials.environmentId?.trim() || '';
+          const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
+          
+          console.log('[WorkerTokenModal] 🔄 Loading saved credentials from flow-specific storage:', {
+            flowType,
+            savedEnvironmentId: savedEnvId ? savedEnvId.substring(0, 20) + '...' : 'MISSING',
+            isValidEnvironmentId: isValidEnvId,
+            propEnvironmentId: environmentId ? environmentId.substring(0, 20) + '...' : 'MISSING',
+            clientId: savedCredentials.clientId?.substring(0, 20) + '...',
+            hasClientSecret: !!savedCredentials.clientSecret,
+          });
+          
+          if (!isValidEnvId) {
+            console.error('[WorkerTokenModal] ❌ Saved environment ID is invalid (not UUID format):', savedEnvId);
+            // Don't use invalid saved credentials
+            return;
+          }
+          
+          // Use saved credentials ONLY - ignore environmentId prop completely
+          setWorkerCredentials({
+            environmentId: savedEnvId, // Use saved environment ID only
+            clientId: savedCredentials.clientId || '',
+            clientSecret: savedCredentials.clientSecret || '',
+            region: savedCredentials.region || 'us',
+            scopes: (() => {
+              // Worker tokens use roles, not scopes - we may need 1 scope for API compatibility
+              const savedScopes = Array.isArray(savedCredentials.scopes) 
+                ? savedCredentials.scopes.join(' ') 
+                : (savedCredentials.scopes || '');
+              // Use first scope only if provided (scopes aren't used for authorization)
+              if (savedScopes) {
+                const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
+                return scopeArray.length > 0 ? scopeArray[0] : '';
+              }
+              return ''; // Empty - scopes are optional for worker tokens
+            })(),
+            authMethod: savedCredentials.tokenEndpointAuthMethod || 'client_secret_post' as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt',
+          });
+          
+          console.log('[WorkerTokenModal] ✅ Loaded credentials from flow-specific storage (ignoring environmentId prop)');
+        } else {
+          // No saved credentials - use defaults but validate environmentId prop if provided
+          const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+          const propEnvId = environmentId?.trim() || '';
+          const isValidPropEnvId = propEnvId && uuidRegex.test(propEnvId);
+          
+          console.log('[WorkerTokenModal] ℹ️ No saved credentials found for flowType:', flowType);
+          console.log('[WorkerTokenModal] ℹ️ Environment ID prop validation:', {
+            propEnvironmentId: propEnvId ? propEnvId.substring(0, 20) + '...' : 'MISSING',
+            isValid: isValidPropEnvId,
+          });
+          
+          // Only use prop environmentId if it's valid UUID format
+          if (isValidPropEnvId) {
+            setWorkerCredentials(prev => ({
+              ...prev,
+              environmentId: propEnvId,
+            }));
+          } else if (propEnvId) {
+            console.warn('[WorkerTokenModal] ⚠️ Ignoring invalid environmentId prop (not UUID format):', propEnvId);
+          }
+        }
+      }
     }
-  }, [prefillCredentials, environmentId, isOpen]);
+  }, [prefillCredentials, environmentId, isOpen, flowType]);
 
-  // Update environmentId when prop changes (if not using prefillCredentials)
+  // Update environmentId when prop changes (if not using prefillCredentials and prop is valid)
+  // Only update if prop is a valid UUID format (to avoid using user IDs or invalid values)
   useEffect(() => {
-    if (environmentId && !prefillCredentials) {
-      setWorkerCredentials(prev => ({ ...prev, environmentId }));
+    if (environmentId && !prefillCredentials && !hasInitializedRef.current) {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      const trimmedEnvId = environmentId.trim();
+      if (uuidRegex.test(trimmedEnvId)) {
+        // Only update if current environmentId is empty or invalid
+        setWorkerCredentials(prev => {
+          const currentEnvId = prev.environmentId.trim();
+          if (!currentEnvId || !uuidRegex.test(currentEnvId)) {
+            return { ...prev, environmentId: trimmedEnvId };
+          }
+          return prev; // Keep existing valid environment ID
+        });
+      } else {
+        console.warn('[WorkerTokenModal] ⚠️ Ignoring invalid environmentId prop (not UUID format):', trimmedEnvId);
+      }
     }
   }, [environmentId, prefillCredentials]);
 
@@ -364,9 +519,50 @@ export const WorkerTokenModal: React.FC<Props> = ({
     navigate('/client-generator');
   };
 
+  // Reload credentials from storage when modal opens (prioritize saved credentials over prefillCredentials)
+  useEffect(() => {
+    if (isOpen) {
+      const savedCredentials = workerTokenCredentialsService.loadCredentials(flowType);
+      if (savedCredentials && savedCredentials.environmentId && savedCredentials.clientId && savedCredentials.clientSecret) {
+        console.log('[WorkerTokenModal] 🔄 Modal opened - reloading saved credentials from storage for flowType:', flowType);
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        const savedEnvId = savedCredentials.environmentId?.trim() || '';
+        const isValidEnvId = savedEnvId && uuidRegex.test(savedEnvId);
+        
+        if (isValidEnvId) {
+          const savedScopes = Array.isArray(savedCredentials.scopes) 
+            ? savedCredentials.scopes.join(' ') 
+            : (savedCredentials.scopes || '');
+          const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
+          const finalScope = scopeArray.length > 0 ? scopeArray[0] : '';
+          
+          // Only update if we have valid saved credentials (prioritize saved over prefill)
+          setWorkerCredentials(prev => {
+            // Only update if current credentials are empty or different from saved
+            if (!prev.clientId || !prev.clientSecret || prev.environmentId !== savedEnvId) {
+              console.log('[WorkerTokenModal] ✅ Updating credentials from saved storage');
+              return {
+                environmentId: savedEnvId,
+                clientId: savedCredentials.clientId || '',
+                clientSecret: savedCredentials.clientSecret || '',
+                region: savedCredentials.region || 'us',
+                scopes: finalScope,
+                authMethod: (savedCredentials.tokenEndpointAuthMethod || 'client_secret_post') as 'none' | 'client_secret_basic' | 'client_secret_post' | 'client_secret_jwt' | 'private_key_jwt'
+              };
+            }
+            return prev;
+          });
+        }
+      } else {
+        console.log('[WorkerTokenModal] ⚠️ No saved credentials found for flowType:', flowType);
+      }
+    }
+  }, [isOpen, flowType]);
+
   const handleClearSavedCredentials = () => {
-    // Clear all saved worker token data from localStorage
-    localStorage.removeItem('worker_credentials');
+    // Clear all saved worker token data using service (with flowType-specific key)
+    workerTokenCredentialsService.clearCredentials(flowType);
+    localStorage.removeItem('worker_credentials'); // Legacy key for backward compatibility
     localStorage.removeItem(tokenStorageKey);
     localStorage.removeItem(tokenExpiryKey);
     
@@ -381,7 +577,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
     });
     
     v4ToastManager.showSuccess('Saved credentials cleared successfully');
-    console.log('[WorkerTokenModal] Cleared all saved credentials from localStorage');
+    console.log('[WorkerTokenModal] Cleared all saved credentials via service');
   };
 
   const handleSaveCredentials = () => {
@@ -391,29 +587,59 @@ export const WorkerTokenModal: React.FC<Props> = ({
       return;
     }
 
-    // Clean and trim all credential fields before saving to prevent authentication issues
-    const cleanedCredentials = {
+    // Clean and trim scopes - remove OIDC scopes for worker tokens
+    // Scopes are optional - only save if user provided one
+    const cleanedScopes = workerCredentials.scopes
+      .split(/\s+/)
+      .filter((s: string) => s && s.trim() && s !== 'openid' && s !== 'opneid' && s !== 'profile' && s !== 'email');
+    
+    // If no scopes after cleaning, use empty array (scopes are optional for worker tokens)
+    const finalScopesArray = cleanedScopes.length > 0 
+      ? [cleanedScopes[0]] // Use first scope only if provided
+      : []; // Empty - scopes are optional
+
+    // Prepare credentials for service (convert scopes string to array)
+    const credentialsToSave = {
       environmentId: workerCredentials.environmentId.trim(),
       clientId: workerCredentials.clientId.trim(),
       clientSecret: workerCredentials.clientSecret.trim(),
-      region: workerCredentials.region,
-      authMethod: workerCredentials.authMethod,
-      scopes: workerCredentials.scopes
-        .split(/\s+/)
-        .filter((s: string) => s && s !== 'openid' && s !== 'opneid')
-        .join(' ')
+      region: workerCredentials.region as 'us' | 'eu' | 'ap' | 'ca',
+      scopes: finalScopesArray, // Use cleaned scopes (user's input + defaults if needed)
+      tokenEndpointAuthMethod: workerCredentials.authMethod
     };
 
-    // Save credentials to localStorage
-    localStorage.setItem('worker_credentials', JSON.stringify(cleanedCredentials));
-    console.log('[WorkerTokenModal] Credentials saved to localStorage (cleaned & trimmed):', {
-      environmentId: cleanedCredentials.environmentId,
-      clientId: cleanedCredentials.clientId ? '***' : 'missing',
-      clientIdLength: cleanedCredentials.clientId.length,
-      clientSecretLength: cleanedCredentials.clientSecret.length,
-      hasClientSecret: !!cleanedCredentials.clientSecret,
-      scopes: cleanedCredentials.scopes,
-      authMethod: cleanedCredentials.authMethod
+    // Validate credentials using service
+    const validation = workerTokenCredentialsService.validateCredentials(credentialsToSave);
+    if (!validation.isValid) {
+      v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
+      return;
+    }
+
+    // Save credentials using service (with flowType-specific key)
+    const success = workerTokenCredentialsService.saveCredentials(credentialsToSave, flowType);
+    if (!success) {
+      v4ToastManager.showError('Failed to save credentials');
+      return;
+    }
+
+      // Also save to legacy key for backward compatibility
+      localStorage.setItem('worker_credentials', JSON.stringify({
+        environmentId: credentialsToSave.environmentId,
+        clientId: credentialsToSave.clientId,
+        clientSecret: credentialsToSave.clientSecret,
+        region: credentialsToSave.region,
+        authMethod: credentialsToSave.tokenEndpointAuthMethod,
+        scopes: finalScopesArray.join(' ')
+      }));
+
+    console.log('[WorkerTokenModal] Credentials saved via service (cleaned & trimmed):', {
+      environmentId: credentialsToSave.environmentId,
+      clientId: credentialsToSave.clientId ? '***' : 'missing',
+      clientIdLength: credentialsToSave.clientId.length,
+      clientSecretLength: credentialsToSave.clientSecret.length,
+      hasClientSecret: !!credentialsToSave.clientSecret,
+      scopes: finalScopesArray,
+      authMethod: credentialsToSave.tokenEndpointAuthMethod
     });
     
     v4ToastManager.showSuccess('Credentials saved successfully');
@@ -426,12 +652,78 @@ export const WorkerTokenModal: React.FC<Props> = ({
       return;
     }
 
+    // Save credentials first before generating token
+    try {
+      // Clean and trim scopes - remove OIDC scopes for worker tokens, but preserve user-added Management API scopes
+      const userScopesForToken = workerCredentials.scopes || '';
+      const cleanedScopesForToken = userScopesForToken
+        .split(/\s+/)
+        .filter((s: string) => s && s.trim() && s !== 'openid' && s !== 'opneid');
+      
+      // If no scopes after cleaning, use empty array (scopes are optional for worker tokens)
+      const finalScopesArrayForToken = cleanedScopesForToken.length > 0 
+        ? [cleanedScopesForToken[0]] // Use first scope only if provided
+        : []; // Empty - scopes are optional
+
+      const credentialsToSave = {
+        environmentId: workerCredentials.environmentId.trim(),
+        clientId: workerCredentials.clientId.trim(),
+        clientSecret: workerCredentials.clientSecret.trim(),
+        region: workerCredentials.region as 'us' | 'eu' | 'ap' | 'ca',
+        scopes: finalScopesArrayForToken,
+        tokenEndpointAuthMethod: workerCredentials.authMethod
+      };
+
+      const validation = workerTokenCredentialsService.validateCredentials(credentialsToSave);
+      if (!validation.isValid) {
+        v4ToastManager.showError(`Invalid credentials: ${validation.errors.join(', ')}`);
+        return;
+      }
+
+      const success = workerTokenCredentialsService.saveCredentials(credentialsToSave, flowType);
+      if (success) {
+        console.log('[WorkerTokenModal] ✅ Credentials saved automatically before token generation');
+      } else {
+        console.warn('[WorkerTokenModal] ⚠️ Failed to save credentials, but continuing with token generation');
+      }
+    } catch (error) {
+      console.error('[WorkerTokenModal] Error saving credentials:', error);
+      // Continue with token generation even if save fails
+    }
+
     // Note: Identity Metrics API uses ROLES, not scopes
     // Any token will work as long as the Worker App has the correct role assigned in PingOne
     if (flowType === 'pingone-identity-metrics') {
       console.log('[WorkerTokenModal] ℹ️ Note: Metrics API uses roles, not scopes. Ensure your Worker App has "Identity Data Read Only" or "Environment Admin" role assigned.');
     }
 
+    // Trim environment ID before building endpoint URL
+    // Prioritize prefillCredentials.environmentId if available (most current), then prop, then state
+    let effectiveEnvironmentId = '';
+    if (prefillCredentials?.environmentId?.trim()) {
+      effectiveEnvironmentId = prefillCredentials.environmentId.trim();
+      console.log('[WorkerTokenModal] 🎯 Using environmentId from prefillCredentials:', effectiveEnvironmentId.substring(0, 20) + '...');
+    } else if (environmentId?.trim()) {
+      effectiveEnvironmentId = environmentId.trim();
+      console.log('[WorkerTokenModal] 🎯 Using environmentId from prop:', effectiveEnvironmentId.substring(0, 20) + '...');
+    } else {
+      effectiveEnvironmentId = workerCredentials.environmentId.trim();
+      console.log('[WorkerTokenModal] ⚠️ Using environmentId from workerCredentials state:', effectiveEnvironmentId.substring(0, 20) + '...');
+    }
+    
+    if (!effectiveEnvironmentId) {
+      v4ToastManager.showError('Environment ID is required');
+      return;
+    }
+    
+    // Validate that environmentId looks like a UUID (not a user ID)
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(effectiveEnvironmentId)) {
+      console.error('[WorkerTokenModal] ❌ Environment ID does not look like a valid UUID:', effectiveEnvironmentId);
+      v4ToastManager.showError(`Invalid Environment ID format. Expected UUID format, got: ${effectiveEnvironmentId.substring(0, 20)}...`);
+      return;
+    }
+    
     // Build token endpoint URL based on selected region
     const regionDomains: Record<string, string> = {
       us: 'auth.pingone.com',
@@ -441,43 +733,69 @@ export const WorkerTokenModal: React.FC<Props> = ({
       na: 'auth.pingone.com'
     };
     const domain = regionDomains[workerCredentials.region] || 'auth.pingone.com';
-    const tokenEndpoint = `https://${domain}/${workerCredentials.environmentId}/as/token`;
+    const tokenEndpoint = `https://${domain}/${effectiveEnvironmentId}/as/token`;
     
-    // Remove openid and ensure valid scopes
-    let finalScopes = ensureRequiredScopes(workerCredentials.scopes);
+    // Process scopes - NOTE: Worker tokens use ROLES for authorization, not scopes
+    // Scopes are optional - only send if user provides one. If empty, no scope parameter will be sent.
+    let finalScopes = workerCredentials.scopes || '';
     
-    // Double check: explicitly remove openid if it somehow got through
+    // List of OIDC scopes that are NOT valid for worker tokens
+    const oidcScopes = ['openid', 'opneid', 'profile', 'email', 'address', 'phone'];
+    
+    // Remove OIDC scopes (not valid for worker tokens) and normalize
     finalScopes = finalScopes
       .split(/\s+/)
-      .filter((s: string) => s && s !== 'openid' && s !== 'opneid')
-      .join(' ');
+      .filter((s: string) => s && s.trim() && !oidcScopes.includes(s.toLowerCase()))
+      .join(' ')
+      .trim();
+    
+    // If user provided scopes, use the first one (some APIs may only accept one)
+    // If no scopes provided, leave empty (no scope parameter will be sent in request)
+    if (finalScopes && finalScopes !== '') {
+      const scopeArray = finalScopes.split(/\s+/).filter(Boolean);
+      if (scopeArray.length > 1) {
+        console.log('[WorkerTokenModal] ℹ️ Multiple scopes provided - using first one. Note: Scopes are NOT used for authorization.');
+        finalScopes = scopeArray[0];
+      }
+      console.log('[WorkerTokenModal] ℹ️ User provided scope:', finalScopes, '- will be sent in request (but not used for authorization)');
+    } else {
+      console.log('[WorkerTokenModal] ℹ️ No scopes provided - no scope parameter will be sent. Worker tokens use ROLES for authorization, not scopes.');
+      finalScopes = ''; // Empty - no scope will be sent
+    }
+    
+    console.log('[WorkerTokenModal] 📝 REMINDER: Worker token authorization is based on ROLES (e.g., Identity Data Admin), not scopes. Scopes are optional and do not grant permissions.');
     
     console.log('[WorkerTokenModal] 🔍 SCOPES DEBUG - Token Request:', {
       original: workerCredentials.scopes,
-      afterEnsure: finalScopes,
-      scopesArray: finalScopes.split(/\s+/),
-      hasUsers: finalScopes.includes('p1:read:users'),
-      hasEnvironments: finalScopes.includes('p1:read:environments'),
-      hasApplications: finalScopes.includes('p1:read:applications'),
-      hasConnections: finalScopes.includes('p1:read:connections'),
-      hasAudit: finalScopes.includes('p1:read:audit'),
+      afterProcessing: finalScopes,
+      willIncludeInRequest: finalScopes !== '',
+      scopesArray: finalScopes ? finalScopes.split(/\s+/) : [],
     });
     
     // Trim credentials to prevent authentication failures from whitespace
     const trimmedClientId = workerCredentials.clientId.trim();
     const trimmedClientSecret = workerCredentials.clientSecret.trim();
+    const trimmedEnvironmentId = effectiveEnvironmentId;
+    
+    if (!trimmedClientId || !trimmedClientSecret || !trimmedEnvironmentId) {
+      v4ToastManager.showError('Please fill in all required fields (Environment ID, Client ID, and Client Secret)');
+      return;
+    }
     
     console.log('[WorkerTokenModal] 🔍 CREDENTIALS BEING USED FOR REQUEST:', {
       clientIdLength: trimmedClientId.length,
       clientIdPreview: trimmedClientId.substring(0, 20) + '...',
       clientSecretLength: trimmedClientSecret.length,
       clientSecretPreview: trimmedClientSecret.substring(0, 20) + '...',
-      environmentId: workerCredentials.environmentId.substring(0, 20) + '...',
+      environmentId: trimmedEnvironmentId,
+      environmentIdLength: trimmedEnvironmentId.length,
+      environmentIdSource: prefillCredentials?.environmentId ? 'prefillCredentials' : environmentId ? 'prop' : 'state',
       authMethod: workerCredentials.authMethod,
       region: workerCredentials.region,
+      scopes: finalScopes,
     });
     
-    // Prepare request params for modal display
+    // Prepare request params for modal display (ensure all values are trimmed)
     const requestParams: {
       grant_type: string;
       client_id: string;
@@ -489,8 +807,13 @@ export const WorkerTokenModal: React.FC<Props> = ({
       client_secret: trimmedClientSecret,
     };
     
-    if (finalScopes) {
-      requestParams.scope = finalScopes;
+    // Scope is optional - only include if we have valid scopes
+    // Empty or invalid scopes can cause 401 errors if the application doesn't support them
+    if (finalScopes && finalScopes.trim() && finalScopes.trim() !== '') {
+      requestParams.scope = finalScopes.trim();
+    } else {
+      // No scope - will let PingOne use default scopes for the application
+      console.log('[WorkerTokenModal] ℹ️ No scopes specified - PingOne will use default scopes for this application');
     }
     
     // Store request details and show educational modal
@@ -546,7 +869,9 @@ export const WorkerTokenModal: React.FC<Props> = ({
         case 'client_secret_basic':
           // Use Basic authentication in Authorization header
           headers['Authorization'] = `Basic ${btoa(`${requestParams.client_id}:${requestParams.client_secret}`)}`;
-          console.log('[WorkerTokenModal] Using Basic auth in header');
+          // Still need client_id in body for token endpoint (PingOne requirement)
+          bodyParams.client_id = requestParams.client_id;
+          console.log('[WorkerTokenModal] Using Basic auth in header with client_id in body');
           break;
         case 'client_secret_post':
           // Send client credentials in request body
@@ -574,51 +899,91 @@ export const WorkerTokenModal: React.FC<Props> = ({
           console.log('[WorkerTokenModal] Default to client_secret_post');
       }
       
+      // Build URLSearchParams from bodyParams (ensures proper encoding and handles empty values)
+      // IMPORTANT: Don't include scope parameter if it's empty or undefined - PingOne may reject requests with empty/invalid scopes
+      const body = new URLSearchParams();
+      Object.entries(bodyParams).forEach(([key, value]) => {
+        // Skip scope if it's empty, undefined, or null - let PingOne use default scopes
+        if (key === 'scope' && (!value || value.trim() === '')) {
+          console.log('[WorkerTokenModal] ⚠️ Skipping empty scope parameter - PingOne will use default scopes');
+          return;
+        }
+        if (value !== undefined && value !== null && value !== '') {
+          body.append(key, String(value));
+        }
+      });
+      
       console.log('[WorkerTokenModal] ===== TOKEN REQUEST DETAILS =====');
       console.log('[WorkerTokenModal] Endpoint:', tokenEndpoint);
       console.log('[WorkerTokenModal] Region:', pendingRequestDetails.region);
       console.log('[WorkerTokenModal] Headers:', headers);
       console.log('[WorkerTokenModal] Body params:', bodyParams);
+      console.log('[WorkerTokenModal] Body string:', body.toString());
       console.log('[WorkerTokenModal] Scopes being sent:', bodyParams.scope);
       console.log('[WorkerTokenModal] ===============================');
       
-      const response = await fetch(tokenEndpoint, {
+      // Use trackedFetch to automatically track this API call in the API calls table
+      const response = await trackedFetch(tokenEndpoint, {
         method: 'POST',
         headers,
-        body: new URLSearchParams(bodyParams),
+        body: body.toString(),
       });
 
       if (!response.ok) {
-        const errorData = await response.text();
+        const errorText = await response.text();
+        let errorData: Record<string, unknown> = {};
+        try {
+          errorData = JSON.parse(errorText) as Record<string, unknown>;
+        } catch {
+          errorData = { raw: errorText };
+        }
+        
+        // Trim credentials here for use in error messages
+        const trimmedClientId = workerCredentials.clientId.trim();
+        const trimmedClientSecret = workerCredentials.clientSecret.trim();
+        // Use the same effectiveEnvironmentId that was used to build the token endpoint
+        const trimmedEnvId = (prefillCredentials?.environmentId?.trim() || environmentId?.trim() || workerCredentials.environmentId.trim());
+        
         console.error('[WorkerTokenModal] ❌ TOKEN REQUEST FAILED:', {
           status: response.status,
           statusText: response.statusText,
           endpoint: tokenEndpoint,
-          region: workerCredentials.region || 'us',
+          region: pendingRequestDetails.region || 'us',
           scopesRequested: bodyParams.scope,
-          error: errorData
+          authMethod: authMethod,
+          requestHeaders: { ...headers, Authorization: headers.Authorization ? '[REDACTED]' : undefined },
+          requestBody: body.toString().replace(/client_secret=[^&]*/, 'client_secret=[REDACTED]'),
+          error: errorData,
+          rawErrorText: errorText
         });
         
         // Parse error response for user-friendly messages
         let userMessage = 'Unknown error occurred';
-        try {
-          const errorJson = JSON.parse(errorData);
-          const errorType = errorJson.error || '';
-          const errorDesc = errorJson.error_description || '';
-          
-          if (errorType === 'invalid_client') {
-            userMessage = 'Your Client ID or Client Secret is incorrect, or the authentication method is not supported by this application.';
-          } else if (errorType === 'invalid_scope') {
-            userMessage = 'The scopes you requested are not valid or not granted to this application. Note: "openid" scope is not valid for worker tokens.';
-          } else if (errorType === 'unauthorized_client') {
-            userMessage = 'This client is not authorized to use the client_credentials grant type.';
-          } else if (errorDesc) {
-            userMessage = errorDesc;
-          } else {
-            userMessage = `HTTP ${response.status}: ${errorData}`;
-          }
-        } catch {
-          userMessage = `HTTP ${response.status}: Unable to parse error response`;
+        const errorType = (errorData.error as string) || '';
+        const errorDesc = (errorData.error_description as string) || '';
+        
+        // Build verification checklist for credential errors
+        const verificationChecklist = '\n\nPlease verify:\n' +
+          `• Environment ID: ${trimmedEnvId || 'MISSING'}\n` +
+          `• Client ID: ${trimmedClientId ? trimmedClientId.substring(0, 20) + '...' : 'MISSING'}\n` +
+          `• Client Secret: ${trimmedClientSecret ? '***' + trimmedClientSecret.substring(trimmedClientSecret.length - 4) : 'MISSING'}\n` +
+          `• Token Auth Method: ${authMethod}`;
+        
+        if (errorType === 'invalid_client') {
+          userMessage = 'Your Client ID or Client Secret is incorrect, or the authentication method is not supported by this application.' + verificationChecklist;
+        } else if (errorType === 'invalid_scope') {
+          userMessage = 'The scopes you requested are not valid or not granted to this application. Note: Worker tokens require management API scopes (e.g., p1:read:users), not OIDC scopes (e.g., profile, email, openid).' + verificationChecklist;
+        } else if (errorType === 'unauthorized_client') {
+          userMessage = 'This client is not authorized to use the client_credentials grant type.' + verificationChecklist;
+        } else if (response.status === 400 || response.status === 401) {
+          // For 400/401 errors, always include the verification checklist
+          userMessage = (errorDesc || `HTTP ${response.status}: ${errorText}`) + verificationChecklist;
+        } else if (errorDesc) {
+          userMessage = errorDesc + verificationChecklist;
+        } else if (errorData.raw) {
+          userMessage = `HTTP ${response.status}: ${String(errorData.raw)}` + verificationChecklist;
+        } else {
+          userMessage = `HTTP ${response.status}: ${errorText}` + verificationChecklist;
         }
         
         // Show toast error for all errors
@@ -697,21 +1062,38 @@ export const WorkerTokenModal: React.FC<Props> = ({
       });
       
       // Save credentials with clean scopes (no openid) and trim all fields
-      const cleanScopes = requestedScopesStr || workerCredentials.scopes
+      // Preserve user's scopes from workerCredentials state (which they can edit)
+      const userScopes = workerCredentials.scopes || '';
+      const cleanScopes = userScopes
         .split(/\s+/)
-        .filter((s: string) => s && s !== 'openid' && s !== 'opneid')
-        .join(' ');
+        .filter((s: string) => s && s.trim() && s !== 'openid' && s !== 'opneid');
+      
+      // If no scopes after cleaning, use empty array (scopes are optional for worker tokens)
+      const finalScopesForSave = cleanScopes.length > 0 
+        ? [cleanScopes[0]] // Use first scope only if provided
+        : []; // Empty - scopes are optional
       
       const credentialsToSave = {
         environmentId: workerCredentials.environmentId.trim(),
         clientId: workerCredentials.clientId.trim(),
         clientSecret: workerCredentials.clientSecret.trim(),
-        region: workerCredentials.region,
-        scopes: cleanScopes,
-        authMethod: workerCredentials.authMethod
+        region: workerCredentials.region as 'us' | 'eu' | 'ap' | 'ca',
+        scopes: finalScopesForSave, // Use cleaned user scopes or defaults
+        tokenEndpointAuthMethod: workerCredentials.authMethod
       };
       
-      localStorage.setItem('worker_credentials', JSON.stringify(credentialsToSave));
+      // Save credentials using service (with flowType-specific key)
+      workerTokenCredentialsService.saveCredentials(credentialsToSave, flowType);
+      
+      // Also save to legacy key for backward compatibility
+      localStorage.setItem('worker_credentials', JSON.stringify({
+        environmentId: credentialsToSave.environmentId,
+        clientId: credentialsToSave.clientId,
+        clientSecret: credentialsToSave.clientSecret,
+        region: credentialsToSave.region,
+        authMethod: credentialsToSave.tokenEndpointAuthMethod,
+        scopes: cleanScopes.join(' ')
+      }));
       
       console.log('[WorkerTokenModal] Token and credentials saved successfully:', {
         expiresIn: `${expiresIn} seconds`,
@@ -721,7 +1103,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
           clientId: credentialsToSave.clientId ? '***' : 'missing',
           hasClientSecret: !!credentialsToSave.clientSecret,
           scopes: credentialsToSave.scopes,
-          authMethod: credentialsToSave.authMethod
+          authMethod: credentialsToSave.tokenEndpointAuthMethod
         }
       });
       
@@ -776,7 +1158,7 @@ export const WorkerTokenModal: React.FC<Props> = ({
       maxHeight="calc(100vh - 4rem)"
       width="min(900px, calc(100vw - 2rem))"
     >
-      <div style={{ margin: '-0.5rem -0.5rem 0 -0.5rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
         {!skipCredentialsStep && (
           <InfoBox $variant="warning">
             <FiAlertTriangle size={16} style={{ flexShrink: 0, color: '#f59e0b', marginTop: '0.125rem' }} />
@@ -905,6 +1287,33 @@ export const WorkerTokenModal: React.FC<Props> = ({
                 <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.125rem', lineHeight: '1.3' }}>
                   💡 Use "Client Secret Post" for most PingOne applications.
                 </div>
+              </FormField>
+
+              <FormField>
+                <FormLabel>Scopes</FormLabel>
+                <FormInput
+                  type="text"
+                  placeholder="Leave empty or enter scope (e.g., p1:read:users)"
+                  value={workerCredentials.scopes || ''}
+                  onChange={(e) => setWorkerCredentials(prev => ({ ...prev, scopes: e.target.value }))}
+                />
+                <InfoBox $variant="info" style={{ marginTop: '0.5rem', padding: '0.75rem', backgroundColor: '#eff6ff', border: '1px solid #bfdbfe' }}>
+                  <FiInfo size={16} style={{ flexShrink: 0, color: '#3b82f6', marginTop: '0.125rem' }} />
+                  <InfoContent>
+                    <InfoTitle style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.25rem', color: '#1e40af' }}>
+                      ⚠️ Important: Worker Token Authorization Uses Roles, Not Scopes
+                    </InfoTitle>
+                    <InfoText style={{ fontSize: '0.8125rem', lineHeight: '1.5', color: '#1e3a8a' }}>
+                      <strong>Authorization is based on PingOne roles assigned to your Worker App, not scopes.</strong>
+                      <br /><br />
+                      <strong>Required Role:</strong> Typically <code style={{ backgroundColor: '#dbeafe', padding: '0.125rem 0.25rem', borderRadius: '0.25rem', fontSize: '0.8125rem' }}>Identity Data Admin</code> or <code style={{ backgroundColor: '#dbeafe', padding: '0.125rem 0.25rem', borderRadius: '0.25rem', fontSize: '0.8125rem' }}>Environment Admin</code>
+                      <br /><br />
+                      <strong>Scopes:</strong> Scopes are <strong>optional</strong> and <strong>not used for authorization</strong>. You can leave this field empty. If you provide a scope, it may be sent to the API but it doesn't affect what the worker token can access (only roles determine access).
+                      <br /><br />
+                      <strong>To assign roles:</strong> Go to PingOne Admin Console → Applications → Your Worker App → <strong>Roles</strong> tab → Assign the appropriate role.
+                    </InfoText>
+                  </InfoContent>
+                </InfoBox>
               </FormField>
             </FormSection>
 
