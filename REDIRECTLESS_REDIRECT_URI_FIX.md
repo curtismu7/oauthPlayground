@@ -41,7 +41,7 @@ node server.js
 ### Step 3: Test Redirectless Flow
 1. Fill in credentials on the PingOne Authentication page
 2. Scroll to **Redirectless Flow Configuration**
-3. Enter username/password or click **HEB Grocery Login**
+3. Enter username/password or click **Kroger Grocery Login**
 4. Click **Launch Redirectless Flow**
 
 ### Step 4: Check Backend Logs

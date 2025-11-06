@@ -194,7 +194,7 @@ const [flowRequestLog, setFlowRequestLog] = useState<Array<{
 
 2. **Watch the log build**:
    - Step 1 appears immediately
-   - HEB popup opens for credentials
+   - Kroger popup opens for credentials
    - Enter username/password
    - Steps 3, 4, 5 appear in sequence
 
