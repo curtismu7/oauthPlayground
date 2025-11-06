@@ -1,5 +1,5 @@
 import React from 'react';
-import { FiCpu, FiShield, FiUsers, FiGlobe, FiKey, FiCheckCircle, FiAlertTriangle, FiExternalLink, FiBookOpen, FiZap } from 'react-icons/fi';
+import { FiCpu, FiShield, FiUsers, FiGlobe, FiKey, FiCheckCircle, FiAlertTriangle, FiExternalLink, FiBookOpen, FiZap, FiCode } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import { FlowUIService } from '../../services/flowUIService';
@@ -98,13 +98,13 @@ const PingViewOnAI: React.FC = () => {
     responsive: true,
     flowId: 'ping-view-on-ai',
   };
-  const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } =
+  const { PageContainer, ContentWrapper, PageHeader } =
     PageLayoutService.createPageLayout(pageConfig);
 
   return (
     <PageContainer>
       <ContentWrapper>
-        {LayoutFlowHeader && <LayoutFlowHeader />}
+        {PageHeader && <PageHeader />}
       <Header>
         <h1>
           <FiCpu />
@@ -130,6 +130,18 @@ const PingViewOnAI: React.FC = () => {
             lineHeight: '2',
             margin: 0
           }}>
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://developer.pingidentity.com/identity-for-ai/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiCode />
+                Identity for AI (Developer Guide)
+              </ExternalLink>
+            </li>
+
             <li style={{ marginBottom: '1rem' }}>
               <ExternalLink
                 href="https://docs.pingidentity.com/bundle/pingone/page/ai-powered-identity.html"
@@ -175,6 +187,18 @@ const PingViewOnAI: React.FC = () => {
               >
                 <FiExternalLink />
                 AI Security Best Practices
+              </ExternalLink>
+            </li>
+
+            <li style={{ marginBottom: '1rem' }}>
+              <ExternalLink
+                href="https://cloud.google.com/blog/topics/threat-intelligence/threat-actor-usage-of-ai-tools"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ fontSize: '1.1rem', fontWeight: '500' }}
+              >
+                <FiShield />
+                Google Threat Intelligence: AI Tools Misuse Report
               </ExternalLink>
             </li>
 

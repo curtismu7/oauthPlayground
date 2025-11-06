@@ -26,7 +26,7 @@ The PingOne Flow API (`/api/pingone/flows/check-username-password`) was returnin
 
 ### Test Steps
 
-#### 1. **Test with HEB Login Popup (Username/Password)**
+#### 1. **Test with Kroger Login Popup (Username/Password)**
    
    **Steps:**
    a. Navigate to PingOne Authentication page (`https://localhost:3000/pingone-authentication`)
@@ -41,11 +41,11 @@ The PingOne Flow API (`/api/pingone/flows/check-username-password`) was returnin
    
    d. Set Authentication Method to **Username & Password**
    
-   e. Leave username/password fields empty (to trigger HEB login popup)
+   e. Leave username/password fields empty (to trigger Kroger login popup)
    
    f. Click **Launch Redirectless Flow**
    
-   g. In HEB login popup:
+   g. In Kroger login popup:
    - Username: `curtis7`
    - Password: `Wolverine7&`
    - Click **Sign In**
@@ -71,7 +71,7 @@ The PingOne Flow API (`/api/pingone/flows/check-username-password`) was returnin
    b. Click **Launch Redirectless Flow**
    
    **Expected Results:**
-   - ✅ No HEB popup shown (credentials already provided)
+   - ✅ No Kroger popup shown (credentials already provided)
    - ✅ Backend receives all credentials including client auth
    - ✅ Flow completes successfully with tokens
 
@@ -120,7 +120,7 @@ Look for these log entries in the terminal running the backend:
 - ✅ Client authentication works (clientId + clientSecret sent via Basic Auth)
 - ✅ Username/password validation works
 - ✅ Tokens are returned successfully
-- ✅ HEB login popup works correctly
+- ✅ Kroger login popup works correctly
 - ✅ Error messages are clear and actionable
 
 ## Common Issues to Check
