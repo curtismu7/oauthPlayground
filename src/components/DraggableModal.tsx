@@ -38,6 +38,7 @@ const ModalContent = styled.div<{
 }>`
   width: ${props => props.$isMinimized ? '300px' : (props.$width || 'min(800px, calc(100vw - 4rem))')};
   max-height: ${props => props.$isMinimized ? 'auto' : (props.$maxHeight || 'calc(100vh - 4rem)')};
+  height: ${props => props.$isMinimized ? 'auto' : 'auto'};
   background: #ffffff;
   border-radius: 0.75rem;
   box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
@@ -67,6 +68,9 @@ const ModalContent = styled.div<{
   cursor: ${props => props.$isDragging ? 'grabbing' : 'default'};
   transition: ${props => props.$isDragging ? 'none' : 'all 0.2s ease'};
   z-index: 1001;
+  
+  /* Ensure modal stays within viewport */
+  max-width: calc(100vw - 2rem);
 `;
 
 const ModalHeader = styled.div<{ $isMinimized: boolean }>`
@@ -172,13 +176,23 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Center modal initially
+  // Center modal initially and ensure it's visible
   useEffect(() => {
     if (isOpen && modalPosition.x === 0 && modalPosition.y === 0) {
-      const centerX = (window.innerWidth - (modalRef.current?.offsetWidth || 1000)) / 2;
-      const centerY = (window.innerHeight - (modalRef.current?.offsetHeight || 600)) / 2;
-      setModalPosition({ x: Math.max(0, centerX), y: Math.max(0, centerY) });
+      // Use setTimeout to ensure DOM is fully rendered
+      const timer = setTimeout(() => {
+        const modalWidth = modalRef.current?.offsetWidth || 900;
+        // For tall modals, use a reasonable max height (4rem = 64px)
+        const padding = 64;
+        const maxModalHeight = Math.min(800, window.innerHeight - padding);
+        const centerX = Math.max(20, (window.innerWidth - modalWidth) / 2);
+        // Position near top of viewport with some margin, but ensure it's visible
+        const centerY = Math.max(20, Math.min(40, (window.innerHeight - maxModalHeight) / 2));
+        setModalPosition({ x: centerX, y: centerY });
+      }, 0);
+      return () => clearTimeout(timer);
     }
+    return undefined;
   }, [isOpen, modalPosition.x, modalPosition.y]);
 
   // Reset state when modal closes
@@ -215,12 +229,14 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
     const newY = e.clientY - dragOffset.y;
     
     // Keep modal within viewport bounds
-    const maxX = window.innerWidth - (modalRef.current?.offsetWidth || 1000);
-    const maxY = window.innerHeight - (modalRef.current?.offsetHeight || 600);
+    const modalWidth = modalRef.current?.offsetWidth || 900;
+    const modalHeight = modalRef.current?.offsetHeight || 600;
+    const maxX = Math.max(0, window.innerWidth - modalWidth - 20);
+    const maxY = Math.max(20, window.innerHeight - modalHeight - 20);
     
     setModalPosition({
-      x: Math.max(0, Math.min(newX, maxX)),
-      y: Math.max(0, Math.min(newY, maxY))
+      x: Math.max(20, Math.min(newX, maxX)),
+      y: Math.max(20, Math.min(newY, maxY))
     });
   }, [isDragging, dragOffset, isMinimized]);
 
@@ -238,6 +254,7 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
+    return undefined;
   }, [isDragging, handleMouseMove, handleMouseUp]);
 
   // Handle escape key to close modal
@@ -256,6 +273,18 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
       document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
+
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+    return undefined;
+  }, [isOpen]);
 
   const toggleMinimize = () => {
     setIsMinimized(!isMinimized);
@@ -276,8 +305,8 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
         $isMinimized={isMinimized}
         $position={modalPosition}
         $isDragging={isDragging}
-        $width={width}
-        $maxHeight={maxHeight}
+        {...(width && { $width: width })}
+        {...(maxHeight && { $maxHeight: maxHeight })}
       >
         <ModalHeader $isMinimized={isMinimized} onMouseDown={handleMouseDown}>
           <DragHandle>
@@ -301,13 +330,17 @@ export const DraggableModal: React.FC<DraggableModalProps> = ({
 
         {!isMinimized && (
           <div style={{
-            flex: 1,
-            overflow: 'auto',
+            flex: '1 1 auto',
+            overflowY: 'auto',
+            overflowX: 'hidden',
             minHeight: 0,
-            maxHeight: 'calc(100vh - 6rem)',
+            maxHeight: 'calc(100vh - 10rem)',
             display: 'flex',
             flexDirection: 'column',
-            padding: '1.5rem'
+            padding: '1.5rem',
+            WebkitOverflowScrolling: 'touch',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#cbd5e1 #f1f5f9'
           }}>
             {children}
           </div>

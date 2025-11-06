@@ -178,7 +178,7 @@ Updated `runRedirectlessLogin` to:
 
 ## 🚀 Next Steps
 
-Try the HEB login button now! It should:
+Try the Kroger login button now! It should:
 
 1. ✅ Send credentials in initial request
 2. ✅ Get back `resumeUrl` (no 401 error!)

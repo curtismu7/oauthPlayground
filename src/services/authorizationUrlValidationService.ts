@@ -1,6 +1,8 @@
 // src/services/authorizationUrlValidationService.ts
 // Comprehensive service for validating OAuth/OIDC authorization URLs before sending
 
+import { validateScopesForFlow, requiresOpenIdScope } from './flowScopeMappingService';
+
 export interface UrlValidationResult {
   isValid: boolean;
   errors: string[];
@@ -272,7 +274,7 @@ class AuthorizationUrlValidationService {
   }
 
   /**
-   * Validate scopes
+   * Validate scopes using flowScopeMappingService
    */
   private validateScopes(
     scopes: string[],
@@ -284,8 +286,23 @@ class AuthorizationUrlValidationService {
       return;
     }
 
-    // Check for openid scope requirement
-    if (config.requireOpenId !== false && !scopes.includes('openid')) {
+    // Use flowScopeMappingService for flow-aware validation
+    const flowType = config.flowType || 'flow';
+    const scopeString = scopes.join(' ');
+    
+    const validation = validateScopesForFlow(flowType, scopeString);
+    
+    if (!validation.isValid) {
+      result.errors.push(...validation.errors.map((err: string) => `SCOPE_VALIDATION_ERROR: ${err}`));
+    }
+    
+    if (validation.warnings.length > 0) {
+      result.warnings.push(...validation.warnings.map((warn: string) => `SCOPE_VALIDATION_WARNING: ${warn}`));
+    }
+
+    // Check for openid scope requirement using flow-aware check
+    const requiresOpenId = requiresOpenIdScope(flowType);
+    if (requiresOpenId && !scopes.includes('openid')) {
       result.errors.push('URL_VALIDATION_ERROR: Missing required scope: openid');
       result.suggestions.push('Add "openid" to the scope parameter for PingOne authorization flows');
     }

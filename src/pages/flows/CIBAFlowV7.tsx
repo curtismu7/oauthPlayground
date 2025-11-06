@@ -166,20 +166,7 @@ const TextArea = styled.textarea`
 	}
 `;
 
-const Select = styled.select`
-	padding: 0.75rem;
-	border: 1px solid #d1d5db;
-	border-radius: 0.5rem;
-	font-size: 0.875rem;
-	background: white;
-	transition: all 0.2s ease;
-	
-	&:focus {
-		outline: none;
-		border-color: #8b5cf6;
-		box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-	}
-`;
+// Select component removed - not used
 
 const CIBAFlowV7: React.FC = () => {
 	// Initialize page scroll management
@@ -239,8 +226,8 @@ const CIBAFlowV7: React.FC = () => {
 				console.log('✅ [CIBA-V7] Found flow-specific credentials');
 				
 				// Load clientAuthMethod from saved credentials if available
-				if (flowData.flowCredentials.tokenEndpointAuthMethod || flowData.flowCredentials.clientAuthMethod) {
-					const savedAuthMethod = (flowData.flowCredentials.tokenEndpointAuthMethod || flowData.flowCredentials.clientAuthMethod) as ClientAuthMethod;
+				if (flowData.flowCredentials && (flowData.flowCredentials.tokenEndpointAuthMethod || (flowData.flowCredentials as unknown as Record<string, unknown>).clientAuthMethod)) {
+					const savedAuthMethod = (flowData.flowCredentials.tokenEndpointAuthMethod || (flowData.flowCredentials as unknown as Record<string, unknown>).clientAuthMethod) as ClientAuthMethod;
 					if (['client_secret_basic', 'client_secret_post', 'client_secret_jwt', 'private_key_jwt'].includes(savedAuthMethod)) {
 						setClientAuthMethod(savedAuthMethod);
 						console.log('✅ [CIBA-V7] Loaded clientAuthMethod:', savedAuthMethod);
@@ -250,19 +237,19 @@ const CIBAFlowV7: React.FC = () => {
 				setFormData(prev => ({
 					...prev,
 					environmentId: flowData.sharedEnvironment?.environmentId || prev.environmentId || '',
-					clientId: flowData.flowCredentials.clientId || prev.clientId || '',
-					clientSecret: flowData.flowCredentials.clientSecret || prev.clientSecret || '',
-					scope: flowData.flowCredentials.scopes?.join(' ') || prev.scope || 'openid profile',
+					clientId: flowData.flowCredentials?.clientId || prev.clientId || '',
+					clientSecret: flowData.flowCredentials?.clientSecret || prev.clientSecret || '',
+					scope: flowData.flowCredentials?.scopes?.join(' ') || prev.scope || 'openid profile',
 					// Load CIBA-specific fields from flowConfig if available
-					loginHint: (flowData.flowConfig as any)?.loginHint || prev.loginHint || '',
-					bindingMessage: (flowData.flowConfig as any)?.bindingMessage || prev.bindingMessage || '',
-					requestContext: (flowData.flowConfig as any)?.requestContext || prev.requestContext || JSON.stringify({"device":"Smart TV", "location": "living Room", "ip": "192.168.1.1"}, null, 2),
+					loginHint: (flowData.flowConfig as unknown as Record<string, unknown>)?.loginHint as string || prev.loginHint || '',
+					bindingMessage: (flowData.flowConfig as unknown as Record<string, unknown>)?.bindingMessage as string || prev.bindingMessage || '',
+					requestContext: (flowData.flowConfig as unknown as Record<string, unknown>)?.requestContext as string || prev.requestContext || JSON.stringify({"device":"Smart TV", "location": "living Room", "ip": "192.168.1.1"}, null, 2),
 				}));
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [CIBA-V7] Using shared environment data only');
 				setFormData(prev => ({
 					...prev,
-					environmentId: flowData.sharedEnvironment.environmentId,
+					environmentId: flowData.sharedEnvironment?.environmentId || prev.environmentId,
 				}));
 			} else {
 				console.log('ℹ️ [CIBA-V7] No saved credentials found, using defaults');
@@ -285,16 +272,32 @@ const CIBAFlowV7: React.FC = () => {
 		if (formData.environmentId && formData.clientId && formData.scope && formData.loginHint) {
 			// Debounce updates to prevent infinite loops
 			updateConfigTimeoutRef.current = setTimeout(() => {
-				controller.updateConfig({
+				const configUpdate: Partial<{
+					environmentId: string;
+					clientId: string;
+					clientSecret: string;
+					scope: string;
+					loginHint: string;
+					bindingMessage: string;
+					authMethod: 'client_secret_post' | 'client_secret_basic';
+					requestContext: string;
+				}> = {
 					environmentId: formData.environmentId,
 					clientId: formData.clientId,
-					clientSecret: formData.clientSecret || undefined,
 					scope: formData.scope,
 					loginHint: formData.loginHint,
-					bindingMessage: formData.bindingMessage || undefined,
 					authMethod: clientAuthMethod as 'client_secret_post' | 'client_secret_basic',
-					requestContext: formData.requestContext || undefined,
-				});
+				};
+				if (formData.clientSecret) {
+					configUpdate.clientSecret = formData.clientSecret;
+				}
+				if (formData.bindingMessage) {
+					configUpdate.bindingMessage = formData.bindingMessage;
+				}
+				if (formData.requestContext) {
+					configUpdate.requestContext = formData.requestContext;
+				}
+				controller.updateConfig(configUpdate);
 			}, 150); // Small debounce to prevent rapid updates
 		}
 		
@@ -357,7 +360,7 @@ const CIBAFlowV7: React.FC = () => {
 							...(formData.environmentId && {
 							sharedEnvironment: {
 								environmentId: formData.environmentId,
-								region: formData.region || 'us',
+								region: 'us',
 								issuerUrl: (() => {
 									const regionDomains: Record<string, string> = {
 										us: 'auth.pingone.com',
@@ -366,7 +369,7 @@ const CIBAFlowV7: React.FC = () => {
 										ca: 'auth.pingone.ca',
 										na: 'auth.pingone.com'
 									};
-									const domain = regionDomains[formData.region || 'us'] || 'auth.pingone.com';
+									const domain = regionDomains['us'] || 'auth.pingone.com';
 									return `https://${domain}/${formData.environmentId}`;
 								})()
 							}
@@ -378,12 +381,12 @@ const CIBAFlowV7: React.FC = () => {
 								tokenEndpointAuthMethod: clientAuthMethod,
 								lastUpdated: Date.now()
 							},
-							// Save CIBA-specific fields in flowConfig
+							// Save CIBA-specific fields in flowConfig (extend FlowSpecificConfig)
 							flowConfig: {
-								loginHint: formData.loginHint || undefined,
-								bindingMessage: formData.bindingMessage || undefined,
-								requestContext: formData.requestContext || undefined,
-							}
+								...(formData.loginHint && { loginHint: formData.loginHint }),
+								...(formData.bindingMessage && { bindingMessage: formData.bindingMessage }),
+								...(formData.requestContext && { requestContext: formData.requestContext }),
+							} as Record<string, unknown>
 						}, { showToast: false });
 
 						if (!success) {
@@ -430,13 +433,39 @@ const CIBAFlowV7: React.FC = () => {
 		}
 	}, [controller.tokens, currentStep]);
 
-	// Handle form submission
-	const handleStartFlow = useCallback(() => {
-		controller.startFlow();
-		if (currentStep === 0) {
-			setCurrentStep(1);
+	// Track when user navigates to step 1 (to prevent auto-start on initial mount)
+	const [hasNavigatedToStep1, setHasNavigatedToStep1] = useState(false);
+	const prevStepRef = useRef(0);
+	
+	// Track step changes
+	useEffect(() => {
+		if (currentStep === 1 && prevStepRef.current === 0) {
+			// User navigated from step 0 to step 1
+			setHasNavigatedToStep1(true);
+		} else if (currentStep === 0) {
+			// Reset when going back to step 0
+			setHasNavigatedToStep1(false);
 		}
-	}, [controller, currentStep]);
+		prevStepRef.current = currentStep;
+	}, [currentStep]);
+
+	// Auto-start flow when navigating to step 1 (only after user explicitly navigates there)
+	useEffect(() => {
+		if (currentStep === 1 && hasNavigatedToStep1 && !controller.authRequest && !controller.isInProgress && controller.canStart) {
+			// Small delay to ensure step is fully rendered
+			const timer = setTimeout(() => {
+				controller.startFlow();
+			}, 100);
+			return () => clearTimeout(timer);
+		}
+		return undefined;
+	}, [currentStep, hasNavigatedToStep1, controller.authRequest, controller.isInProgress, controller.canStart, controller]);
+
+	// Handle form submission - navigate to step 1 (flow will auto-start)
+	const handleStartFlow = useCallback(() => {
+		// Navigate to step 1 - the useEffect will auto-start the flow
+		setCurrentStep(1);
+	}, []);
 
 	// Handle reset
 	const handleReset = useCallback(() => {
@@ -530,44 +559,416 @@ const CIBAFlowV7: React.FC = () => {
 									Unlike traditional OAuth flows where the user interacts directly with the authorization server, CIBA allows 
 									the client to initiate authentication on one device while the user approves it on a completely different device.
 								</InfoText>
+								
+								<InfoText style={{ marginTop: '1rem', padding: '1rem', background: '#f0f9ff', borderRadius: '0.5rem', border: '1px solid #0ea5e9' }}>
+									<strong style={{ color: '#0c4a6e' }}>🔑 Key Insight: CIBA Reverses the Flow Direction</strong>
+									<br/>
+									<span style={{ color: '#075985', fontSize: '0.95rem' }}>
+										In CIBA, the <strong>authorization server contacts the user's device</strong> (via push notification), 
+										rather than the user navigating to the authorization server. This is the opposite of traditional OAuth flows.
+									</span>
+								</InfoText>
+
+								<InfoText style={{ marginTop: '1rem' }}>
+									<strong>📱 CIBA Session Model — Where Sessions Exist:</strong>
+								</InfoText>
+								<InfoText style={{ marginTop: '0.5rem', paddingLeft: '1rem', padding: '0.75rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
+									• <strong>Initiating Device (Client):</strong> Kiosk, TV, or backend app — holds <code>auth_req_id</code> only (no user session)<br/>
+									• <strong>PingOne Authorization Server:</strong> Maintains CIBA transaction metadata and user binding<br/>
+									• <strong>User's Authentication Device (Mobile):</strong> <strong style={{ color: '#dc2626' }}>Holds active PingOne user session</strong> (via PingOne SDK or PingID app)<br/>
+									<br/>
+									<span style={{ fontStyle: 'italic', color: '#475569' }}>
+										<strong>Important:</strong> The user session exists on the mobile device, not on the initiating client device.
+									</span>
+								</InfoText>
+
 								<InfoText style={{ marginTop: '0.75rem' }}>
 									<strong>Why Use CIBA?</strong>
 								</InfoText>
 								<InfoText style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
+									• <strong>Known User Identity:</strong> You know the user's email, phone, or user ID (via <code>login_hint</code>)<br/>
 									• <strong>IoT Devices:</strong> Smart TVs, printers, smart speakers that can't display a full browser<br/>
 									• <strong>Kiosks & Terminals:</strong> Public-facing devices without keyboards or secure input methods<br/>
 									• <strong>Better UX:</strong> User approves on their trusted device (phone) with full security controls<br/>
-									• <strong>Security:</strong> No redirect URIs needed, reduces phishing risks, enables device binding
+									• <strong>Security:</strong> No redirect URIs needed, reduces phishing risks, enables device binding<br/>
+									• <strong>Push Notifications:</strong> Seamless user experience with automatic device notification
 								</InfoText>
+
 								<InfoText style={{ marginTop: '0.75rem' }}>
-									<strong>How CIBA Works:</strong>
+									<strong>How CIBA Works (Step-by-Step):</strong>
 								</InfoText>
 								<InfoText style={{ marginTop: '0.5rem', paddingLeft: '1rem' }}>
-									1. <strong>Client sends <LearningTooltip variant="learning" title="Backchannel Request" content="A server-to-server request from the client to the authorization server. Unlike front-channel flows, this happens without user interaction in the browser." placement="top">backchannel request</LearningTooltip></strong> with <LearningTooltip variant="info" title="Login Hint" content="Parameter (login_hint) that identifies the user (email, phone, or user ID). Required to tell the authorization server which user should receive the notification." placement="top"><code>login_hint</code></LearningTooltip> to identify the user<br/>
-									2. <strong><LearningTooltip variant="info" title="Authorization Server" content="The OAuth/OIDC server (like PingOne) that handles authentication and authorization" placement="top">Authorization server</LearningTooltip></strong> validates the request and sends a notification to the user's device<br/>
-									3. <strong>User approves/denies</strong> on their trusted device (phone, tablet)<br/>
-									4. <strong>Client <LearningTooltip variant="learning" title="Polling" content="The client repeatedly requests tokens from the token endpoint using auth_req_id until the user completes authentication. Uses grant_type=urn:openid:params:grant-type:ciba." placement="top">polls</LearningTooltip></strong> the <LearningTooltip variant="info" title="Token Endpoint" content="OAuth/OIDC endpoint where clients exchange credentials for tokens" placement="top">token endpoint</LearningTooltip> with <LearningTooltip variant="learning" title="Auth Request ID" content="Unique identifier (auth_req_id) returned from the backchannel authentication request. Used in polling to check if user has approved." placement="top"><code>auth_req_id</code></LearningTooltip> until user completes authentication<br/>
-									5. <strong><LearningTooltip variant="info" title="Tokens" content="Access tokens and ID tokens returned after successful authentication" placement="top">Tokens are returned</LearningTooltip></strong> to the client once user approves
+									<strong>1. Client → PingOne /bc-authorize:</strong> <strong>Our client (browser/backend) sends a POST request</strong> to PingOne's <code>/bc-authorize</code> endpoint with <LearningTooltip variant="info" title="Login Hint" content="Parameter (login_hint) that identifies the user (email, phone, or user ID). Required to tell the authorization server which user should receive the notification." placement="top"><code>login_hint</code></LearningTooltip> to identify the user. PingOne returns <code>auth_req_id</code>.<br/>
+									<strong>2. PingOne → User's Registered Mobile Device:</strong> <strong>PingOne then sends a push notification</strong> to the user's registered device (PingOne SDK app or PingID app). The user must have a registered device with push notifications enabled.<br/>
+									<strong>3. User Approval on Mobile:</strong> User receives notification and approves via the PingOne SDK or PingID app on their mobile device (biometric or PIN). <strong>User session exists on this mobile device.</strong><br/>
+									<strong>4. Client Polling:</strong> <strong>Our client polls</strong> PingOne's <LearningTooltip variant="info" title="Token Endpoint" content="OAuth/OIDC endpoint where clients exchange credentials for tokens" placement="top">token endpoint</LearningTooltip> using <code>grant_type=urn:openid:params:grant-type:ciba</code> and <LearningTooltip variant="learning" title="Auth Request ID" content="Unique identifier (auth_req_id) returned from the backchannel authentication request. Used in polling to check if user has approved." placement="top"><code>auth_req_id</code></LearningTooltip> until user completes authentication.<br/>
+									<strong>5. Tokens Issued:</strong> <LearningTooltip variant="info" title="Tokens" content="Access tokens and ID tokens returned after successful authentication" placement="top">Tokens are returned</LearningTooltip> to our client once user approves on their mobile device.
+								</InfoText>
+
+								<InfoText style={{ marginTop: '1rem', padding: '1rem', background: '#fef3c7', borderRadius: '0.5rem', border: '2px solid #f59e0b' }}>
+									<strong style={{ color: '#92400e', fontSize: '1.1rem' }}>⚠️ CRITICAL: PingOne Requirements for CIBA</strong>
+									<br/>
+									<br/>
+									<strong style={{ color: '#78350f' }}>For CIBA to work, you MUST have the following configured in PingOne:</strong>
+									<br/>
+									<br/>
+									<span style={{ color: '#78350f', fontSize: '0.95rem' }}>
+										<strong>1. Application Configuration:</strong><br/>
+										• CIBA grant type must be <strong>enabled</strong> for your application<br/>
+										• Application must have <strong>client authentication</strong> configured (client_secret)<br/>
+										• Application must have proper <strong>scopes</strong> configured (including <code>openid</code> for OIDC)<br/>
+										<br/>
+										<strong>2. User Device Requirements:</strong><br/>
+										• User identified by <code>login_hint</code> must have a <strong>registered device</strong> in PingOne<br/>
+										• Device must have <strong>PingOne SDK</strong> or <strong>PingID app</strong> installed<br/>
+										• Device must have <strong>push notifications enabled</strong><br/>
+										• User must have an <strong>active PingOne session</strong> on their mobile device<br/>
+										<br/>
+										<strong>3. Common 403 Errors:</strong><br/>
+										• User doesn't have a registered device → Register device in PingOne<br/>
+										• <code>login_hint</code> doesn't match a user → Use correct email/phone/user ID<br/>
+										• CIBA grant type not enabled → Enable in PingOne application settings<br/>
+										• Client authentication failed → Check client_id and client_secret<br/>
+									</span>
+								</InfoText>
+
+								<InfoText style={{ marginTop: '1rem', padding: '1rem', background: '#fef3c7', borderRadius: '0.5rem', border: '1px solid #f59e0b' }}>
+									<strong style={{ color: '#92400e' }}>⚠️ Key Difference from Device Authorization:</strong>
+									<br/>
+									<span style={{ color: '#78350f', fontSize: '0.95rem' }}>
+										• <strong>CIBA:</strong> No user code — automatic device binding via push notification. User session exists on mobile device. <strong>Requires registered device in PingOne.</strong><br/>
+										• <strong>Device Authorization:</strong> Requires user code — user manually enters code. Session exists on web browser device. Works with any user.<br/>
+										• <strong>CIBA:</strong> Requires known user identity (<code>login_hint</code>) and registered device. Device Authorization works with unknown users and no device registration needed.
+									</span>
+								</InfoText>
+
+								<InfoText style={{ marginTop: '1rem', padding: '1rem', background: '#fee2e2', borderRadius: '0.5rem', border: '2px solid #ef4444' }}>
+									<strong style={{ color: '#991b1b', fontSize: '1.1rem' }}>🔴 Important: CIBA Flow Direction</strong>
+									<br/>
+									<br/>
+									<span style={{ color: '#7f1d1d', fontSize: '0.95rem' }}>
+										<strong>CIBA Flow:</strong><br/>
+										<strong>1.</strong> <span style={{ color: '#dc2626' }}>Our Client → PingOne</span> (POST to <code>/bc-authorize</code>)<br/>
+										<strong>2.</strong> <span style={{ color: '#dc2626' }}>PingOne → User's Registered Device</span> (Push notification)<br/>
+										<strong>3.</strong> User approves on mobile device<br/>
+										<strong>4.</strong> <span style={{ color: '#dc2626' }}>Our Client → PingOne</span> (Poll <code>/token</code> with <code>auth_req_id</code>)<br/>
+										<strong>5.</strong> <span style={{ color: '#dc2626' }}>PingOne → Our Client</span> (Returns tokens)<br/>
+										<br/>
+										<strong>Note:</strong> PingOne does NOT call our device. We call PingOne, and PingOne calls the user's registered mobile device.
+									</span>
+								</InfoText>
+							</div>
+						</InfoBox>
+
+						{/* CIBA vs Device Authorization Comparison */}
+						<InfoBox $variant="info" style={{ marginTop: '1.5rem', marginBottom: '1.5rem', background: '#f8fafc', borderColor: '#cbd5e1' }}>
+							<FiInfo />
+							<div>
+								<InfoTitle style={{ marginBottom: '1rem' }}>
+									CIBA vs Device Authorization — Key Differences
+								</InfoTitle>
+								<div style={{ overflowX: 'auto' }}>
+									<table style={{ 
+										width: '100%', 
+										borderCollapse: 'collapse', 
+										fontSize: '0.875rem',
+										background: 'white',
+										borderRadius: '0.5rem',
+										overflow: 'hidden'
+									}}>
+										<thead>
+											<tr style={{ background: '#f1f5f9' }}>
+												<th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e1', fontWeight: '600', color: '#1e293b' }}>Aspect</th>
+												<th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e1', fontWeight: '600', color: '#1e293b' }}>Device Authorization (RFC 8628)</th>
+												<th style={{ padding: '0.75rem', textAlign: 'left', borderBottom: '2px solid #cbd5e1', fontWeight: '600', color: '#1e293b' }}>CIBA (RFC 9436)</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>Who initiates</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Limited UI device (e.g., TV)</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Backend or web client</td>
+											</tr>
+											<tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>How user authorizes</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>User manually enters code on another device</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Authorization Server contacts known user device</td>
+											</tr>
+											<tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>User linking</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>User types verification code</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Automatic device binding</td>
+											</tr>
+											<tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>Polling</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Device polls <code>/token</code></td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Client polls <code>/token</code></td>
+											</tr>
+											<tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>Session exists where</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>On the web browser device</td>
+												<td style={{ padding: '0.75rem', color: '#dc2626', fontWeight: '600' }}>On user's mobile (PingOne SDK/App)</td>
+											</tr>
+											<tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>User identity</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Unknown user (works for anyone)</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>Known user (requires <code>login_hint</code>)</td>
+											</tr>
+											<tr style={{ borderBottom: '1px solid #e2e8f0' }}>
+												<td style={{ padding: '0.75rem', fontWeight: '600', color: '#475569' }}>User code</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>✅ Required (user enters code)</td>
+												<td style={{ padding: '0.75rem', color: '#64748b' }}>❌ Not used (no user code)</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+								<InfoText style={{ marginTop: '1rem', padding: '0.75rem', background: '#eff6ff', borderRadius: '0.5rem', border: '1px solid #bfdbfe' }}>
+									<strong style={{ color: '#1e40af' }}>💡 Decision Guide:</strong> Use <strong>CIBA</strong> when you know the user's identity (email, phone, user ID). Use <strong>Device Authorization</strong> when the user is unknown (first-time setup, public kiosks).
 								</InfoText>
 							</div>
 						</InfoBox>
 
 						<FlowConfigurationRequirements
 							flowType="ciba"
-							requirements={[
-								"PingOne environment with CIBA support enabled",
-								"Client ID and secret (client authentication required)",
-								"Login hint (email, phone, or user ID) to identify the user",
-								"Scope: 'openid' required for OIDC; add 'profile', 'email' as needed"
-							]}
 						/>
+
+						{/* Real-Life Use Case Presets */}
+						<div style={{ marginTop: '2rem', marginBottom: '2rem' }}>
+							<h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#1e293b' }}>
+								Real-Life Use Case Presets
+							</h3>
+							<p style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: '1.5rem' }}>
+								Select a real-life scenario to pre-fill the CIBA parameters with realistic values. These scenarios demonstrate when CIBA is the best choice for authentication.
+							</p>
+							
+							<FormGrid>
+								{/* Banking Transaction Approval */}
+								<div style={{
+									padding: '1.5rem',
+									border: '2px solid #e2e8f0',
+									borderRadius: '0.75rem',
+									background: '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease'
+								}}
+								onClick={() => {
+									updateFormData('loginHint', 'customer@bank.com');
+									updateFormData('bindingMessage', 'Approve $1,250.00');
+									updateFormData('requestContext', JSON.stringify({
+										transaction: {
+											amount: '$1,250.00',
+											merchant: 'Online Store Inc.',
+											date: new Date().toISOString(),
+											currency: 'USD'
+										},
+										device: {
+											type: 'Banking App',
+											location: 'San Francisco, CA'
+										},
+										security: {
+											risk_level: 'low',
+											ip_address: '192.168.1.50'
+										}
+									}, null, 2));
+									v4ToastManager.showSuccess('Banking transaction approval scenario loaded');
+								}}
+								onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+									e.currentTarget.style.borderColor = '#8b5cf6';
+									e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.15)';
+								}}
+								onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+									e.currentTarget.style.borderColor = '#e2e8f0';
+									e.currentTarget.style.boxShadow = 'none';
+								}}
+								>
+									<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+										<div style={{
+											width: '48px',
+											height: '48px',
+											borderRadius: '0.5rem',
+											background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexShrink: 0
+										}}>
+											<FiShield style={{ color: 'white', fontSize: '24px' }} />
+										</div>
+										<div style={{ flex: 1 }}>
+											<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600', color: '#1e293b' }}>
+												Banking Transaction Approval
+											</h4>
+											<p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>
+												<strong>Scenario:</strong> Customer needs to approve a $1,250.00 transaction from their banking app.
+											</p>
+											<div style={{
+												padding: '0.75rem',
+												background: '#f0fdf4',
+												borderRadius: '0.5rem',
+												border: '1px solid #bbf7d0'
+											}}>
+												<p style={{ margin: 0, fontSize: '0.75rem', color: '#166534' }}>
+													<strong>Why CIBA:</strong> Known user, high security requirements, push notification UX, transaction context verification
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* Payment Authorization */}
+								<div style={{
+									padding: '1.5rem',
+									border: '2px solid #e2e8f0',
+									borderRadius: '0.75rem',
+									background: '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease'
+								}}
+								onClick={() => {
+									updateFormData('loginHint', 'user@paymentprovider.com');
+									updateFormData('bindingMessage', 'Approve payment');
+									updateFormData('requestContext', JSON.stringify({
+										payment: {
+											amount: '$499.99',
+											merchant: 'Premium Service Co.',
+											description: 'Annual subscription renewal',
+											transaction_id: 'TXN-' + Date.now()
+										},
+										device: {
+											type: 'Payment Gateway',
+											browser: 'Chrome on Desktop'
+										},
+										user: {
+											trusted_device: true,
+											location: 'New York, NY'
+										}
+									}, null, 2));
+									v4ToastManager.showSuccess('Payment authorization scenario loaded');
+								}}
+								onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+									e.currentTarget.style.borderColor = '#8b5cf6';
+									e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.15)';
+								}}
+								onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+									e.currentTarget.style.borderColor = '#e2e8f0';
+									e.currentTarget.style.boxShadow = 'none';
+								}}
+								>
+									<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+										<div style={{
+											width: '48px',
+											height: '48px',
+											borderRadius: '0.5rem',
+											background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexShrink: 0
+										}}>
+											<FiZap style={{ color: 'white', fontSize: '24px' }} />
+										</div>
+										<div style={{ flex: 1 }}>
+											<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600', color: '#1e293b' }}>
+												Payment Authorization
+											</h4>
+											<p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>
+												<strong>Scenario:</strong> User needs to authorize a recurring payment subscription on their trusted device.
+											</p>
+											<div style={{
+												padding: '0.75rem',
+												background: '#eff6ff',
+												borderRadius: '0.5rem',
+												border: '1px solid #bfdbfe'
+											}}>
+												<p style={{ margin: 0, fontSize: '0.75rem', color: '#1e40af' }}>
+													<strong>Why CIBA:</strong> Known user, transaction context, trusted device, seamless approval flow
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								{/* Account Recovery Approval */}
+								<div style={{
+									padding: '1.5rem',
+									border: '2px solid #e2e8f0',
+									borderRadius: '0.75rem',
+									background: '#ffffff',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease'
+								}}
+								onClick={() => {
+									updateFormData('loginHint', 'user@example.com');
+									updateFormData('bindingMessage', 'Account recovery');
+									updateFormData('requestContext', JSON.stringify({
+										recovery: {
+											reason: 'Password reset requested',
+											initiated_from: 'Web browser',
+											timestamp: new Date().toISOString()
+										},
+										security: {
+											verification_method: 'push_notification',
+											risk_level: 'high',
+											requires_approval: true
+										},
+										device: {
+											initiating_device: 'Unknown device (Chrome, Windows)',
+											approval_device: 'Trusted iPhone 14 Pro'
+										}
+									}, null, 2));
+									v4ToastManager.showSuccess('Account recovery approval scenario loaded');
+								}}
+								onMouseEnter={(e: React.MouseEvent<HTMLDivElement>) => {
+									e.currentTarget.style.borderColor = '#8b5cf6';
+									e.currentTarget.style.boxShadow = '0 4px 12px rgba(139, 92, 246, 0.15)';
+								}}
+								onMouseLeave={(e: React.MouseEvent<HTMLDivElement>) => {
+									e.currentTarget.style.borderColor = '#e2e8f0';
+									e.currentTarget.style.boxShadow = 'none';
+								}}
+								>
+									<div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+										<div style={{
+											width: '48px',
+											height: '48px',
+											borderRadius: '0.5rem',
+											background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+											display: 'flex',
+											alignItems: 'center',
+											justifyContent: 'center',
+											flexShrink: 0
+										}}>
+											<FiSmartphone style={{ color: 'white', fontSize: '24px' }} />
+										</div>
+										<div style={{ flex: 1 }}>
+											<h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600', color: '#1e293b' }}>
+												Account Recovery Approval
+											</h4>
+											<p style={{ margin: '0 0 0.75rem 0', fontSize: '0.875rem', color: '#64748b', lineHeight: '1.5' }}>
+												<strong>Scenario:</strong> User requested password reset, needs to approve on their trusted device for security.
+											</p>
+											<div style={{
+												padding: '0.75rem',
+												background: '#fffbeb',
+												borderRadius: '0.5rem',
+												border: '1px solid #fde68a'
+											}}>
+												<p style={{ margin: 0, fontSize: '0.75rem', color: '#92400e' }}>
+													<strong>Why CIBA:</strong> Known user, security-critical operation, push notification for approval, prevents unauthorized access
+												</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</FormGrid>
+						</div>
 
 						{formData.environmentId && formData.clientId ? (
 							<StatusCard $status="completed" style={{ marginTop: '1.5rem' }}>
 								<FiCheckCircle />
 								<div>
 									<strong>Credentials Ready</strong>
-									<p>Basic credentials are configured above. Configure CIBA-specific parameters below.</p>
+									<p>Basic credentials are configured above. Configure CIBA-specific parameters below or select a use case preset above.</p>
 								</div>
 							</StatusCard>
 						) : (
@@ -780,7 +1181,7 @@ const CIBAFlowV7: React.FC = () => {
 {`POST /backchannel-authentication HTTP/1.1
 Host: ${(() => {
 	const regionDomains: Record<string, string> = { us: 'auth.pingone.com', eu: 'auth.pingone.eu', ap: 'auth.pingone.asia', ca: 'auth.pingone.ca', na: 'auth.pingone.com' };
-	return regionDomains[formData.region || 'us'] || 'auth.pingone.com';
+	return regionDomains['us'] || 'auth.pingone.com';
 })()}/${formData.environmentId}/as
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic ${btoa(`${formData.clientId}:${formData.clientSecret}`)}
@@ -849,13 +1250,50 @@ Content-Type: application/json
 									</div>
 								</div>
 							</>
+						) : controller.error ? (
+							<>
+								<StatusCard $status="failed">
+									<FiAlertTriangle />
+									<div>
+										<strong>CIBA Request Failed</strong>
+										<p>{controller.error}</p>
+									</div>
+								</StatusCard>
+								
+								<InfoBox $variant="info" style={{ marginTop: '1.5rem', padding: '1rem', background: '#fee2e2', borderRadius: '0.5rem', border: '2px solid #ef4444' }}>
+									<FiAlertTriangle style={{ color: '#dc2626' }} />
+									<div>
+										<InfoTitle style={{ color: '#991b1b' }}>⚠️ Troubleshooting 403 Forbidden Errors</InfoTitle>
+										<InfoText style={{ color: '#7f1d1d', marginTop: '0.75rem' }}>
+											<strong>Common causes of 403 errors in CIBA:</strong>
+											<br/>
+											<br/>
+											<strong>1. User Device Not Registered:</strong><br/>
+											• The user identified by <code>login_hint</code> must have a registered device in PingOne<br/>
+											• Device must have PingOne SDK or PingID app installed<br/>
+											• Device must have push notifications enabled<br/>
+											<br/>
+											<strong>2. Application Not Configured for CIBA:</strong><br/>
+											• CIBA grant type must be enabled in PingOne application settings<br/>
+											• Application must support OIDC (not just OAuth 2.0)<br/>
+											• Required scopes must be configured (including <code>openid</code>)<br/>
+											<br/>
+											<strong>3. User Not Found or Invalid login_hint:</strong><br/>
+											• <code>login_hint</code> must match a valid user in PingOne (email, phone, or user ID)<br/>
+											• User must exist in the same environment as the application<br/>
+											<br/>
+											<strong>4. Client Authentication Failed:</strong><br/>
+											• Verify <code>client_id</code> and <code>client_secret</code> are correct<br/>
+											• Check that the authentication method matches your application configuration<br/>
+											<br/>
+											<strong>Next Steps:</strong> Check your PingOne admin console to verify application settings, user device registration, and grant type configuration.
+										</InfoText>
+									</div>
+								</InfoBox>
+							</>
 						) : (
 							<div>
-								<InfoText>Click the button below to initiate the CIBA authentication request.</InfoText>
-								<Button onClick={handleStartFlow} disabled={!controller.canStart} style={{ marginTop: '1rem' }}>
-									<FiZap />
-									Start CIBA Flow
-								</Button>
+								<InfoText>Preparing to initiate CIBA authentication request...</InfoText>
 							</div>
 						)}
 					</>
@@ -864,32 +1302,7 @@ Content-Type: application/json
 			case 2:
 				return (
 					<>
-						<FlowSequenceDisplay
-							title="CIBA User Approval Process"
-							description="The user approval process is a critical part of CIBA authentication, ensuring secure backchannel communication."
-							steps={[
-								{
-									title: "Authentication Request Sent",
-									description: "The client initiates a backchannel authentication request to PingOne",
-									status: "completed"
-								},
-								{
-									title: "User Notification",
-									description: "PingOne notifies the user through their preferred method (push notification, SMS, etc.)",
-									status: "completed"
-								},
-								{
-									title: "User Approval",
-									description: "The user reviews and approves the authentication request on their device",
-									status: controller.authRequest?.status === 'approved' ? 'completed' : 'pending'
-								},
-								{
-									title: "Token Exchange",
-									description: "Upon approval, tokens are exchanged and returned to the client",
-									status: controller.authRequest?.status === 'approved' ? 'completed' : 'pending'
-								}
-							]}
-						/>
+						<FlowSequenceDisplay flowType="ciba" />
 
 						{controller.authRequest && (
 							<>
@@ -927,7 +1340,7 @@ Content-Type: application/json
 {`POST /token HTTP/1.1
 Host: ${(() => {
 	const regionDomains: Record<string, string> = { us: 'auth.pingone.com', eu: 'auth.pingone.eu', ap: 'auth.pingone.asia', ca: 'auth.pingone.ca', na: 'auth.pingone.com' };
-	return regionDomains[formData.region || 'us'] || 'auth.pingone.com';
+	return regionDomains['us'] || 'auth.pingone.com';
 })()}/${formData.environmentId}/as
 Content-Type: application/x-www-form-urlencoded
 Authorization: Basic ${btoa(`${formData.clientId}:${formData.clientSecret}`)}
@@ -1007,6 +1420,7 @@ grant_type=urn:openid:params:grant-type:ciba
 						clientId: formData.clientId,
 						clientSecret: formData.clientSecret,
 						scope: formData.scope,
+						redirectUri: 'https://localhost:3000/callback/ciba-v7',
 					}}
 					onCredentialsChange={(credentials) => {
 						console.log('[CIBA-V7] Credentials changed:', credentials);

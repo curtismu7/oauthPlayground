@@ -138,7 +138,7 @@ Client Secret: VhIALUz93iLEPhmTs~Y3_oj~hxzi7gnqw6cJYXLSJEq2... (saved!)
    - Should see `hasClientSecret: true`
    - Should see `clientSecretLength: 64`
 
-5. **Click HEB Login**
+5. **Click Kroger Login**
 
 6. **Check diagnostic modal or console**:
    - Should show client secret with correct length

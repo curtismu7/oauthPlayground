@@ -136,14 +136,14 @@ POST /as/token
 
 ## 🧪 Ready to Test!
 
-Try the **HEB Login Button** now:
+Try the **Kroger Login Button** now:
 
 ### Expected Flow:
 
 ```
-1. User clicks "Launch HEB Login"
+1. User clicks "Launch Kroger Login"
    ↓
-2. HEB popup opens
+2. Kroger popup opens
    ↓
 3. User enters username/password
    ↓
@@ -234,7 +234,7 @@ The DaVinci document (`HOW+TO_+Ping+-+Using+Davinci+with+pi.flow+for+non-web+flo
 4. ✅ Logging enhanced for debugging
 5. ✅ Ready to test!
 
-**Try the HEB login button now. It should work perfectly!** 🎉
+**Try the Kroger login button now. It should work perfectly!** 🎉
 
 ---
 
