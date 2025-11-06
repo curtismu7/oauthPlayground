@@ -20,7 +20,7 @@ Step 1: POST /as/authorize (NO credentials, response_mode=pi.flow)
   ↓
 { flowId, status: "USERNAME_PASSWORD_REQUIRED", interactionId, interactionToken, _links }
   ↓
-Step 2: Show HEB login popup (collect credentials)
+Step 2: Show Kroger login popup (collect credentials)
   ↓
 Step 3: POST /flows/{flowId} (WITH credentials + session cookies)
   ↓
@@ -93,7 +93,7 @@ const flowLinks = data._links;
 const sessionCookies = data._cookies;
 
 if (flowStatus === 'USERNAME_PASSWORD_REQUIRED' && flowLinks['usernamePassword.check']) {
-  // Show HEB popup to collect credentials
+  // Show Kroger popup to collect credentials
   setHebLoginOpen(true);
   return; // Wait for user
 }
@@ -147,9 +147,9 @@ const tokenResponse = await fetch('/api/token-exchange', {
 });
 ```
 
-### 6. HEB Login Handler
+### 6. Kroger Login Handler
 ```typescript
-const handleHEBLogin = useCallback(async (credentials: HEBLoginCredentials) => {
+const handleKrogerLogin = useCallback(async (credentials: KrogerLoginCredentials) => {
   // Update credentials state
   setRedirectlessCreds(prev => ({
     ...prev,
@@ -181,7 +181,7 @@ const handleHEBLogin = useCallback(async (credentials: HEBLoginCredentials) => {
 
 ## 📋 What This Enables
 
-✅ **Custom UI**: App controls the login experience (HEB branded popup)  
+✅ **Custom UI**: App controls the login experience (Kroger branded popup)  
 ✅ **Standards-Compliant**: Follows PingOne Flow API pattern  
 ✅ **Secure**: Credentials never sent to /as/authorize or /as/token  
 ✅ **Passwordless-Ready**: PingOne handles authentication logic  
@@ -196,8 +196,8 @@ const handleHEBLogin = useCallback(async (credentials: HEBLoginCredentials) => {
 - Backend requests flow from PingOne (no credentials)
 - PingOne returns flow object with `USERNAME_PASSWORD_REQUIRED` status
 
-### 2. HEB Login Popup
-- Frontend shows HEB-branded login popup
+### 2. Kroger Login Popup
+- Frontend shows Kroger-branded login popup
 - User enters username/password
 - Popup sends credentials to Flow API via backend
 
@@ -243,7 +243,7 @@ const handleHEBLogin = useCallback(async (credentials: HEBLoginCredentials) => {
 
 - ✅ Backend updated with correct Flow API pattern
 - ✅ Frontend implements multi-step flow
-- ✅ HEB login popup integrated
+- ✅ Kroger login popup integrated
 - ✅ Session cookie handling implemented
 - ✅ All linter errors fixed
 - ✅ Ready for user testing
