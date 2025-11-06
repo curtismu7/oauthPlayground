@@ -43,6 +43,7 @@ import {
 	FiActivity,
 	FiBox,
 	FiAlertTriangle,
+	FiShoppingCart,
 } from 'react-icons/fi';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -96,7 +97,7 @@ interface SimpleDragDropSidebarProps {
 const SimpleDragDropSidebar: React.FC<SimpleDragDropSidebarProps> = ({ dragMode = false, searchQuery = '' }) => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const [draggedItem, setDraggedItem] = useState<{ type: 'group' | 'item'; id: string; groupId?: string } | null>(null);
+	const [draggedItem, setDraggedItem] = useState<{ type: 'group' | 'item'; id: string; groupId?: string; subGroupId?: string } | null>(null);
 	const [dropTarget, setDropTarget] = useState<{ groupId: string; index: number } | null>(null);
 	const [saveButtonState, setSaveButtonState] = useState<'default' | 'saving' | 'saved'>('default');
 
@@ -493,6 +494,27 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						badge: <MigrationBadge title="V7: Enhanced PingOne Multi-Factor Authentication"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
+						id: 'pingone-mfa-workflow-library-v7',
+						path: '/flows/pingone-mfa-workflow-library-v7',
+						label: 'PingOne MFA Workflow Library (V7)',
+						icon: <ColoredIcon $color="#059669"><FiShield /></ColoredIcon>,
+						badge: <MigrationBadge title="V7: PingOne Workflow Library Steps 11-20 - Authorization Code with MFA"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'kroger-grocery-store-mfa',
+						path: '/flows/kroger-grocery-store-mfa',
+						label: 'Kroger Grocery Store MFA',
+						icon: <ColoredIcon $color="#e4002b"><FiShoppingCart /></ColoredIcon>,
+						badge: <MigrationBadge title="Real-world MFA experience - Kroger Grocery Store mockup"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'password-reset-flow',
+						path: '/security/password-reset',
+						label: 'Password Reset',
+						icon: <ColoredIcon $color="#dc2626"><FiLock /></ColoredIcon>,
+						badge: <MigrationBadge title="PingOne Password Reset Operations"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
 						id: 'pingone-authentication',
 						path: '/pingone-authentication',
 						label: 'PingOne Authentication',
@@ -728,6 +750,13 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						icon: <ColoredIcon $color="#10b981"><FiUser /></ColoredIcon>,
 						badge: <MigrationBadge title="OIDC Session Management"><FiCheckCircle /></MigrationBadge>,
 					},
+					{
+						id: 'password-reset',
+						path: '/security/password-reset',
+						label: 'Password Reset',
+						icon: <ColoredIcon $color="#F59E0B"><FiLock /></ColoredIcon>,
+						badge: <MigrationBadge title="HelioMart Password Reset Demo"><FiCheckCircle /></MigrationBadge>,
+					},
 				],
 			},
 			{
@@ -742,6 +771,13 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						label: 'RAR vs PAR and DPoP Guide',
 						icon: <ColoredIcon $color="#16a34a"><FiBook /></ColoredIcon>,
 						badge: <MigrationBadge title="RAR vs PAR and DPoP Comparison and Examples"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'ciba-vs-device-authz',
+						path: '/ciba-vs-device-authz',
+						label: 'CIBA vs Device Authorization Guide',
+						icon: <ColoredIcon $color="#8b5cf6"><FiBook /></ColoredIcon>,
+						badge: <MigrationBadge title="CIBA vs Device Authorization Comparison and Examples"><FiCheckCircle /></MigrationBadge>,
 					},
 					{
 						id: 'pingone-mock-features',
@@ -785,6 +821,13 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 						label: 'OAuth 2.0 Security Best Practices',
 						icon: <ColoredIcon $color="#dc2626"><FiShield /></ColoredIcon>,
 						badge: <MigrationBadge title="OAuth 2.0 Security Guidelines"><FiCheckCircle /></MigrationBadge>,
+					},
+					{
+						id: 'spiffe-spire-pingone',
+						path: '/docs/spiffe-spire-pingone',
+						label: 'SPIFFE/SPIRE with PingOne',
+						icon: <ColoredIcon $color="#8b5cf6"><FiShield /></ColoredIcon>,
+						badge: <MigrationBadge title="Workload Identity & SSO"><FiCheckCircle /></MigrationBadge>,
 					},
 				],
 			},
@@ -927,10 +970,14 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 	}, [menuGroups, searchQuery]);
 
 	// Handle drag start
-	const handleDragStart = (e: React.DragEvent, type: 'group' | 'item', id: string, groupId?: string) => {
-		setDraggedItem(groupId ? { type, id, groupId } : { type, id });
+	const handleDragStart = (e: React.DragEvent, type: 'group' | 'item', id: string, groupId?: string, subGroupId?: string) => {
+		const dragData: { type: 'group' | 'item'; id: string; groupId?: string; subGroupId?: string } = groupId 
+			? { type, id, groupId, ...(subGroupId ? { subGroupId } : {}) } 
+			: { type, id };
+		setDraggedItem(dragData);
 		e.dataTransfer.effectAllowed = 'move';
-		e.dataTransfer.setData('text/plain', JSON.stringify({ type, id, groupId }));
+		e.dataTransfer.setData('text/plain', JSON.stringify(dragData));
+		e.dataTransfer.setData('application/json', JSON.stringify(dragData));
 		
 		// Make the dragged element slightly transparent
 		const target = e.currentTarget as HTMLElement;
@@ -943,10 +990,9 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 		const target = e.currentTarget as HTMLElement;
 		target.style.opacity = '1';
 		
-		// Clear draggedItem after a short delay to ensure drop handlers can access it
-		setTimeout(() => {
-			setDraggedItem(null);
-		}, 100);
+		// Don't clear draggedItem here - let the drop handler clear it
+		// This ensures drop handlers can always access the dragged item data
+		// If drop doesn't happen, we'll clear it on next drag start or component unmount
 	};
 
 	// Handle drag over
@@ -955,55 +1001,126 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 		e.dataTransfer.dropEffect = 'move';
 	};
 
+	// Helper function to get dragged item data (from state or dataTransfer)
+	const getDraggedItemData = (e: React.DragEvent): { type: 'group' | 'item'; id: string; groupId?: string; subGroupId?: string } | null => {
+		// First try to get from state
+		if (draggedItem) {
+			return draggedItem;
+		}
+		
+		// Fallback to dataTransfer if state is cleared
+		try {
+			const dataStr = e.dataTransfer.getData('application/json') || e.dataTransfer.getData('text/plain');
+			if (dataStr) {
+				const data = JSON.parse(dataStr);
+				return data;
+			}
+		} catch (err) {
+			console.warn('Failed to parse drag data from dataTransfer:', err);
+		}
+		
+		return null;
+	};
+
 	// Handle drop on specific item (for precise positioning)
-	const handleDropOnItem = (e: React.DragEvent, targetGroupId: string, targetItemIndex: number) => {
+	const handleDropOnItem = (e: React.DragEvent, targetGroupId: string, targetItemIndex: number, targetSubGroupId?: string) => {
 		e.preventDefault();
 		e.stopPropagation();
 		setDropTarget(null);
 		
-		if (!draggedItem) {
+		const itemData = getDraggedItemData(e);
+		if (!itemData) {
 			return;
 		}
 
-		if (draggedItem.type === 'item') {
+		// Clear draggedItem after successful drop
+		setDraggedItem(null);
+
+		if (itemData.type === 'item') {
 			const newGroups = [...menuGroups];
-			const sourceGroupIndex = newGroups.findIndex(g => g.id === draggedItem.groupId);
-			const targetGroupIndex = newGroups.findIndex(g => g.id === targetGroupId);
+			const sourceGroupIndex = newGroups.findIndex(g => g.id === itemData.groupId);
 			
-			if (sourceGroupIndex !== -1 && targetGroupIndex !== -1) {
-				const sourceGroup = { ...newGroups[sourceGroupIndex] };
-				const targetGroup = { ...newGroups[targetGroupIndex] };
-				
-				const sourceItemIndex = sourceGroup.items.findIndex(i => i.id === draggedItem.id);
-				if (sourceItemIndex !== -1) {
-					// Don't do anything if dropping on the same position
-					if (draggedItem.groupId === targetGroupId && sourceItemIndex === targetItemIndex) {
-						return;
+			if (sourceGroupIndex === -1) return;
+			
+			const sourceGroup = newGroups[sourceGroupIndex];
+			
+			// Find the source item - it could be in the main group items or in a subGroup
+			let sourceItem = null;
+			let sourceItemIndex = -1;
+			let sourceSubGroupIndex = -1;
+			
+			// First check main group items
+			sourceItemIndex = sourceGroup.items.findIndex(i => i.id === itemData.id);
+			if (sourceItemIndex !== -1) {
+				sourceItem = sourceGroup.items[sourceItemIndex];
+			} else if (itemData.subGroupId && sourceGroup.subGroups) {
+				// Check subGroups
+				sourceSubGroupIndex = sourceGroup.subGroups.findIndex(sg => sg.id === itemData.subGroupId);
+				if (sourceSubGroupIndex !== -1) {
+					sourceItemIndex = sourceGroup.subGroups[sourceSubGroupIndex].items.findIndex(i => i.id === itemData.id);
+					if (sourceItemIndex !== -1) {
+						sourceItem = sourceGroup.subGroups[sourceSubGroupIndex].items[sourceItemIndex];
 					}
-					
-					const [movedItem] = sourceGroup.items.splice(sourceItemIndex, 1);
-					
-					// Calculate the correct insertion index
-					let insertIndex = targetItemIndex;
-					
-					// If moving within the same group and the source is before target, adjust index
-					if (draggedItem.groupId === targetGroupId && sourceItemIndex < targetItemIndex) {
-						insertIndex = targetItemIndex;
-					} else if (draggedItem.groupId === targetGroupId && sourceItemIndex > targetItemIndex) {
-						// If moving backward within the same group, use target index directly
-						insertIndex = targetItemIndex;
-					}
-					
-					targetGroup.items.splice(insertIndex, 0, movedItem);
-					
-					newGroups[sourceGroupIndex] = sourceGroup;
-					newGroups[targetGroupIndex] = targetGroup;
-					
-					setMenuGroups(newGroups);
-					saveWithFeedback(newGroups);
-					v4ToastManager.showSuccess(`Moved "${movedItem.label}" to position ${insertIndex + 1} in ${targetGroup.label}`);
 				}
 			}
+			
+			if (!sourceItem || sourceItemIndex === -1) return;
+			
+			// Find the target group
+			const targetGroupIndex = newGroups.findIndex(g => g.id === targetGroupId);
+			if (targetGroupIndex === -1) return;
+			
+			const targetGroup = newGroups[targetGroupIndex];
+			
+			// Remove item from source location
+			if (sourceSubGroupIndex !== -1) {
+				// Remove from subGroup
+				sourceGroup.subGroups![sourceSubGroupIndex].items.splice(sourceItemIndex, 1);
+			} else {
+				// Remove from main group items
+				sourceGroup.items.splice(sourceItemIndex, 1);
+			}
+			
+			// Add item to target location
+			if (targetSubGroupId && targetGroup.subGroups) {
+				// Add to target subGroup
+				const targetSubGroupIndex = targetGroup.subGroups.findIndex(sg => sg.id === targetSubGroupId);
+				if (targetSubGroupIndex !== -1) {
+					const targetSubGroup = targetGroup.subGroups[targetSubGroupIndex];
+					
+					// Calculate correct insertion index
+					let insertIndex = targetItemIndex;
+					if (itemData.groupId === targetGroupId && itemData.subGroupId === targetSubGroupId && sourceItemIndex < targetItemIndex) {
+						insertIndex = targetItemIndex - 1;
+					}
+					
+					targetSubGroup.items.splice(Math.max(0, insertIndex), 0, sourceItem);
+				}
+			} else {
+				// Add to main group items
+				let insertIndex = targetItemIndex;
+				
+				// Adjust index if moving within same location
+				if (itemData.groupId === targetGroupId && !itemData.subGroupId && !targetSubGroupId && sourceItemIndex < targetItemIndex) {
+					insertIndex = targetItemIndex - 1;
+				}
+				
+				targetGroup.items.splice(Math.max(0, insertIndex), 0, sourceItem);
+			}
+			
+			setMenuGroups(newGroups);
+			saveWithFeedback(newGroups);
+			
+			// Determine target location description for toast
+			let targetLocation = targetGroup.label;
+			if (targetSubGroupId && targetGroup.subGroups) {
+				const subGroup = targetGroup.subGroups.find(sg => sg.id === targetSubGroupId);
+				if (subGroup) {
+					targetLocation = `${subGroup.label} (${targetGroup.label})`;
+				}
+			}
+			
+			v4ToastManager.showSuccess(`Moved "${sourceItem.label}" to ${targetLocation}`);
 		}
 	};
 
@@ -1011,21 +1128,37 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 	const handleDropOnGroup = (e: React.DragEvent, targetGroupId: string) => {
 		e.preventDefault();
 		
-		if (!draggedItem) return;
+		const itemData = getDraggedItemData(e);
+		if (!itemData) return;
 
-		if (draggedItem.type === 'item' && draggedItem.groupId !== targetGroupId) {
-			// Move item to end of target group
+		if (itemData.type === 'item') {
 			const newGroups = [...menuGroups];
-			const sourceGroupIndex = newGroups.findIndex(g => g.id === draggedItem.groupId);
+			const sourceGroupIndex = newGroups.findIndex(g => g.id === itemData.groupId);
 			const targetGroupIndex = newGroups.findIndex(g => g.id === targetGroupId);
 			
 			if (sourceGroupIndex !== -1 && targetGroupIndex !== -1) {
 				const sourceGroup = { ...newGroups[sourceGroupIndex] };
 				const targetGroup = { ...newGroups[targetGroupIndex] };
 				
-				const itemIndex = sourceGroup.items.findIndex(i => i.id === draggedItem.id);
-				if (itemIndex !== -1) {
-					const [movedItem] = sourceGroup.items.splice(itemIndex, 1);
+				// Find and remove the item from source location
+				let movedItem = null;
+				let sourceItemIndex = sourceGroup.items.findIndex(i => i.id === itemData.id);
+				
+				if (sourceItemIndex !== -1) {
+					[movedItem] = sourceGroup.items.splice(sourceItemIndex, 1);
+				} else if (itemData.subGroupId && sourceGroup.subGroups) {
+					// Check subGroups
+					const sourceSubGroupIndex = sourceGroup.subGroups.findIndex(sg => sg.id === itemData.subGroupId);
+					if (sourceSubGroupIndex !== -1) {
+						sourceItemIndex = sourceGroup.subGroups[sourceSubGroupIndex].items.findIndex(i => i.id === itemData.id);
+						if (sourceItemIndex !== -1) {
+							[movedItem] = sourceGroup.subGroups[sourceSubGroupIndex].items.splice(sourceItemIndex, 1);
+						}
+					}
+				}
+				
+				if (movedItem) {
+					// Add to end of target group main items (not subGroups)
 					targetGroup.items.push(movedItem);
 					
 					newGroups[sourceGroupIndex] = sourceGroup;
@@ -1034,6 +1167,9 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 					setMenuGroups(newGroups);
 					saveWithFeedback(newGroups);
 					v4ToastManager.showSuccess(`Moved "${movedItem.label}" to end of ${targetGroup.label}`);
+					
+					// Clear draggedItem after successful drop
+					setDraggedItem(null);
 				}
 			}
 		}
@@ -1043,9 +1179,10 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 	const handleDropForGroupReorder = (e: React.DragEvent, targetIndex: number) => {
 		e.preventDefault();
 		
-		if (!draggedItem || draggedItem.type !== 'group') return;
+		const itemData = getDraggedItemData(e);
+		if (!itemData || itemData.type !== 'group') return;
 
-		const sourceIndex = menuGroups.findIndex(g => g.id === draggedItem.id);
+		const sourceIndex = menuGroups.findIndex(g => g.id === itemData.id);
 		if (sourceIndex !== -1 && sourceIndex !== targetIndex) {
 			const newGroups = [...menuGroups];
 			const [movedGroup] = newGroups.splice(sourceIndex, 1);
@@ -1054,6 +1191,9 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 			setMenuGroups(newGroups);
 			saveWithFeedback(newGroups);
 			v4ToastManager.showSuccess(`Reordered "${movedGroup.label}" section`);
+			
+			// Clear draggedItem after successful drop
+			setDraggedItem(null);
 		}
 	};
 
@@ -1353,30 +1493,165 @@ const restoreMenuGroups = (serializedGroups: any[], defaultGroups: MenuGroup[]) 
 												padding: '0.5rem',
 											}}
 										>
-											{subGroup.items.map((item) => (
-												<div
-													key={item.id}
-													onClick={() => handleNavigation(item.path)}
-													className={item.id.includes('implicit') ? 'implicit-flow-menu-item' : ''}
-													style={{
-														display: 'flex',
-														alignItems: 'center',
-														gap: '0.5rem',
-														padding: '0.5rem 0.75rem',
-														backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
-														color: isActive(item.path) ? '#d97706' : '#64748b',
-														borderRadius: '0.375rem',
-														border: isActive(item.path) ? '3px solid #f59e0b' : '1px solid #e2e8f0',
-														fontWeight: isActive(item.path) ? '700' : '400',
-														boxShadow: isActive(item.path) ? '0 4px 8px rgba(245, 158, 11, 0.3)' : 'none',
-														transform: isActive(item.path) ? 'scale(1.02)' : 'scale(1)',
-														marginBottom: '0.25rem',
-														cursor: 'pointer',
-													}}
-												>
-													{item.icon}
-													<span style={{ flex: 1 }}>{item.label}</span>
-													{item.badge}
+											{subGroup.items.map((item, itemIndex) => (
+												<div key={item.id}>
+													{/* Drop zone before subGroup item */}
+													{dragMode && draggedItem && draggedItem.type === 'item' && (
+														<div
+															style={{
+																height: '20px',
+																backgroundColor: 'rgba(34, 197, 94, 0.08)',
+																borderRadius: '6px',
+																marginBottom: '4px',
+																border: '2px dashed rgba(34, 197, 94, 0.3)',
+																transition: 'all 0.2s',
+																position: 'relative',
+																animation: draggedItem ? 'pulse 2s infinite' : 'none',
+															}}
+															onDragOver={(e) => {
+																e.preventDefault();
+																e.stopPropagation();
+																setDropTarget({ groupId: group.id, index: itemIndex });
+																e.currentTarget.style.backgroundColor = '#fef2f2';
+																e.currentTarget.style.borderColor = '#ef4444';
+																e.currentTarget.style.borderStyle = 'solid';
+																e.currentTarget.style.borderWidth = '2px';
+																e.currentTarget.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.2)';
+																e.currentTarget.style.height = '28px';
+															}}
+															onDragLeave={(e) => {
+																const rect = e.currentTarget.getBoundingClientRect();
+																const x = e.clientX;
+																const y = e.clientY;
+																if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+																	setDropTarget(prev => {
+																		if (prev && prev.groupId === group.id && prev.index === itemIndex) {
+																			return null;
+																		}
+																		return prev;
+																	});
+																	e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.08)';
+																	e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+																	e.currentTarget.style.borderStyle = 'dashed';
+																	e.currentTarget.style.borderWidth = '2px';
+																	e.currentTarget.style.boxShadow = 'none';
+																	e.currentTarget.style.height = '20px';
+																}
+															}}
+															onDrop={(e) => {
+																setDropTarget(null);
+																e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.08)';
+																e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+																e.currentTarget.style.borderStyle = 'dashed';
+																e.currentTarget.style.borderWidth = '2px';
+																e.currentTarget.style.boxShadow = 'none';
+																e.currentTarget.style.height = '20px';
+																handleDropOnItem(e, group.id, itemIndex, subGroup.id);
+															}}
+														/>
+													)}
+													
+													{/* SubGroup Item */}
+													<div
+														draggable={dragMode}
+														onDragStart={dragMode ? (e) => {
+															handleDragStart(e, 'item', item.id, group.id, subGroup.id);
+															e.currentTarget.style.cursor = 'grabbing';
+														} : undefined}
+														onDragEnd={dragMode ? (e) => {
+															handleDragEnd(e);
+															setDropTarget(null);
+															e.currentTarget.style.cursor = 'grab';
+														} : undefined}
+														onDragOver={dragMode ? (e) => {
+															e.preventDefault();
+															e.stopPropagation();
+															// Set drop target to after this item
+															setDropTarget({ groupId: group.id, index: itemIndex + 1 });
+														} : undefined}
+														onClick={() => handleNavigation(item.path)}
+														className={item.id.includes('implicit') ? 'implicit-flow-menu-item' : ''}
+														style={{
+															display: 'flex',
+															alignItems: 'center',
+															gap: '0.5rem',
+															padding: '0.5rem 0.75rem',
+															backgroundColor: isActive(item.path) ? '#fef3c7' : 'white',
+															color: isActive(item.path) ? '#d97706' : '#64748b',
+															borderRadius: '0.375rem',
+															border: dropTarget && dropTarget.groupId === group.id && dropTarget.index === itemIndex + 1
+																? '3px solid #ef4444'
+																: isActive(item.path) ? '3px solid #f59e0b' : '1px solid #e2e8f0',
+															fontWeight: isActive(item.path) ? '700' : '400',
+															boxShadow: dropTarget && dropTarget.groupId === group.id && dropTarget.index === itemIndex + 1
+																? '0 0 0 3px rgba(239, 68, 68, 0.2)'
+																: isActive(item.path) ? '0 4px 8px rgba(245, 158, 11, 0.3)' : 'none',
+															transform: isActive(item.path) ? 'scale(1.02)' : 'scale(1)',
+															marginBottom: '0.25rem',
+															cursor: dragMode ? 'grab' : 'pointer',
+															transition: 'all 0.2s ease',
+														}}
+													>
+														{dragMode && <FiMove size={10} />}
+														{item.icon}
+														<span style={{ flex: 1 }}>{item.label}</span>
+														{item.badge}
+													</div>
+													
+													{/* Drop zone after last subGroup item */}
+													{dragMode && itemIndex === subGroup.items.length - 1 && (
+														<div
+															style={{
+																height: '20px',
+																backgroundColor: 'rgba(34, 197, 94, 0.08)',
+																borderRadius: '6px',
+																marginTop: '4px',
+																border: '2px dashed rgba(34, 197, 94, 0.3)',
+																animation: draggedItem ? 'pulse 2s infinite' : 'none',
+																transition: 'all 0.2s',
+															}}
+															onDragOver={(e) => {
+																e.preventDefault();
+																e.stopPropagation();
+																setDropTarget({ groupId: group.id, index: subGroup.items.length });
+																e.currentTarget.style.backgroundColor = '#fef2f2';
+																e.currentTarget.style.borderColor = '#ef4444';
+																e.currentTarget.style.borderStyle = 'solid';
+																e.currentTarget.style.borderWidth = '2px';
+																e.currentTarget.style.boxShadow = '0 0 0 2px rgba(239, 68, 68, 0.2)';
+																e.currentTarget.style.height = '28px';
+															}}
+															onDragLeave={(e) => {
+																const rect = e.currentTarget.getBoundingClientRect();
+																const x = e.clientX;
+																const y = e.clientY;
+																if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+																	setDropTarget(prev => {
+																		if (prev && prev.groupId === group.id && prev.index === subGroup.items.length) {
+																			return null;
+																		}
+																		return prev;
+																	});
+																	e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.08)';
+																	e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+																	e.currentTarget.style.borderStyle = 'dashed';
+																	e.currentTarget.style.borderWidth = '2px';
+																	e.currentTarget.style.boxShadow = 'none';
+																	e.currentTarget.style.height = '20px';
+																}
+															}}
+															onDrop={(e) => {
+																setDropTarget(null);
+																e.currentTarget.style.backgroundColor = 'rgba(34, 197, 94, 0.08)';
+																e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+																e.currentTarget.style.borderStyle = 'dashed';
+																e.currentTarget.style.borderWidth = '2px';
+																e.currentTarget.style.boxShadow = 'none';
+																e.currentTarget.style.height = '20px';
+																handleDropOnItem(e, group.id, subGroup.items.length, subGroup.id);
+															}}
+														/>
+													)}
 												</div>
 											))}
 										</div>
