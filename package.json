@@ -46,7 +46,8 @@
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:report": "playwright show-report",
 		"service-discovery": "node src/services/serviceDiscoveryCLI.js",
-		"config": "node src/services/configurationManagerDemo.js"
+		"config": "node src/services/configurationManagerDemo.js",
+		"audit:async": "node scripts/audit-async-patterns.js"
 	},
 	"keywords": [
 		"oauth",
