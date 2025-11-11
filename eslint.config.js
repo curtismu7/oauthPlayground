@@ -12,6 +12,9 @@ export default [
 				ecmaFeatures: {
 					jsx: true,
 				},
+				// Note: project-based rules disabled to avoid memory issues
+				// Enable when needed for specific checks
+				// project: './tsconfig.json',
 			},
 		},
 		plugins: {
@@ -21,6 +24,15 @@ export default [
 			...tsplugin.configs.recommended.rules,
 			'@typescript-eslint/no-unused-vars': 'warn',
 			'no-console': 'off',
+			// Async/Promise rules to prevent syntax errors
+			// Note: Type-aware rules require project config and cause memory issues
+			// They are disabled for now but can be enabled for targeted checks
+			// '@typescript-eslint/no-floating-promises': 'error',
+			// '@typescript-eslint/require-await': 'warn',
+			// '@typescript-eslint/no-misused-promises': 'error',
+			// '@typescript-eslint/promise-function-async': 'warn',
+			'no-async-promise-executor': 'error',
+			'require-atomic-updates': 'error',
 		},
 	},
 	{
