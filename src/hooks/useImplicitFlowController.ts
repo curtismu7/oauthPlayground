@@ -682,8 +682,19 @@ export const useImplicitFlowController = (
 
 		try {
 			// Validate required fields before saving
+			// Only validate if we have at least one of the required fields (partial save is OK)
+			if (!credentials.environmentId && !credentials.clientId) {
+				console.warn('⚠️ [useImplicitFlowController] No credentials to save yet (missing both environmentId and clientId)');
+				setIsSavingCredentials(false);
+				return; // Silently skip save if no credentials are set yet
+			}
+			
+			// If we have one but not the other, log a warning but continue
 			if (!credentials.environmentId || !credentials.clientId) {
-				throw new Error('Environment ID and Client ID are required to save credentials');
+				console.warn('⚠️ [useImplicitFlowController] Partial credentials save:', {
+					hasEnvironmentId: !!credentials.environmentId,
+					hasClientId: !!credentials.clientId
+				});
 			}
 
 			const normalizedScopes = (() => {
