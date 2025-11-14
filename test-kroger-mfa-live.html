@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kroger MFA Live Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-success {
+            color: #48bb78;
+        }
+        
+        .log-error {
+            color: #f56565;
+        }
+        
+        .log-info {
+            color: #4299e1;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-pending {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 Kroger MFA Live Test</h1>
+        <p class="subtitle">Test the complete MFA flow with real PingOne APIs</p>
+        
+        <div class="grid">
+            <div>
+                <div class="section">
+                    <h2>1. Worker Token</h2>
+                    <div class="form-group">
+                        <label>Worker Access Token</label>
+                        <input type="text" id="workerToken" placeholder="Paste worker token here">
+                    </div>
+                    <button onclick="testWorkerToken()">Test Worker Token</button>
+                    <span id="workerStatus"></span>
+                </div>
+                
+                <div class="section">
+                    <h2>2. User Lookup</h2>
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" id="username" value="john.doe@example.com">
+                    </div>
+                    <button onclick="lookupUser()" id="lookupBtn" disabled>Lookup User</button>
+                    <span id="userStatus"></span>
+                </div>
+                
+                <div class="section">
+                    <h2>2b. List Existing Devices</h2>
+                    <button onclick="listDevices()" id="listBtn" disabled>List Devices</button>
+                    <div id="deviceList" style="margin-top: 10px; font-size: 12px;"></div>
+                </div>
+                
+                <div class="section">
+                    <h2>3. SMS Device Registration</h2>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="text" id="phoneNumber" value="+15551234567">
+                    </div>
+                    <button onclick="registerSmsDevice()" id="registerBtn" disabled>Register SMS Device</button>
+                    <span id="deviceStatus"></span>
+                </div>
+                
+                <div class="section">
+                    <h2>4. Send Challenge</h2>
+                    <button onclick="sendChallenge()" id="challengeBtn" disabled>Send SMS Code</button>
+                    <span id="challengeStatus"></span>
+                </div>
+                
+                <div class="section">
+                    <h2>5. Verify Code</h2>
+                    <div class="form-group">
+                        <label>Verification Code</label>
+                        <input type="text" id="verificationCode" placeholder="123456">
+                    </div>
+                    <button onclick="verifyCode()" id="verifyBtn" disabled>Verify Code</button>
+                    <span id="verifyStatus"></span>
+                </div>
+            </div>
+            
+            <div>
+                <div class="section">
+                    <h2>📋 Test Log</h2>
+                    <div class="log" id="log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const ENV_ID = 'b9817c16-9910-4415-b67e-4ac687da74d9';
+        const API_BASE = 'https://api.pingone.com/v1';
+        
+        let userId = null;
+        let deviceId = null;
+        let challengeId = null;
+        
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = `log-${type}`;
+            logEl.innerHTML += `<div class="log-entry ${className}">[${timestamp}] ${message}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        function setStatus(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<span class="status status-${type}">${text}</span>`;
+        }
+        
+        async function testWorkerToken() {
+            const token = document.getElementById('workerToken').value.trim();
+            
+            if (!token) {
+                log('❌ Please enter a worker token', 'error');
+                return;
+            }
+            
+            log('🔍 Testing worker token...', 'info');
+            setStatus('workerStatus', 'Testing...', 'pending');
+            
+            try {
+                // Test token by fetching MFA policies
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/mfaSettings`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    log('✅ Worker token is valid!', 'success');
+                    log(`   Found ${data._embedded?.mfaSettings?.length || 0} MFA policies`, 'info');
+                    setStatus('workerStatus', 'Valid', 'success');
+                    document.getElementById('lookupBtn').disabled = false;
+                } else {
+                    const error = await response.text();
+                    log(`❌ Worker token invalid: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                    setStatus('workerStatus', 'Invalid', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error testing token: ${error.message}`, 'error');
+                setStatus('workerStatus', 'Error', 'error');
+            }
+        }
+        
+        async function lookupUser() {
+            const token = document.getElementById('workerToken').value.trim();
+            const username = document.getElementById('username').value.trim();
+            
+            log(`🔍 Looking up user: ${username}`, 'info');
+            setStatus('userStatus', 'Looking up...', 'pending');
+            
+            try {
+                const filter = encodeURIComponent(`username eq "${username}"`);
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/users?filter=${filter}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const users = data._embedded?.users || [];
+                    
+                    if (users.length > 0) {
+                        userId = users[0].id;
+                        log(`✅ User found!`, 'success');
+                        log(`   User ID: ${userId}`, 'info');
+                        log(`   Username: ${users[0].username}`, 'info');
+                        log(`   Email: ${users[0].email || 'N/A'}`, 'info');
+                        setStatus('userStatus', 'Found', 'success');
+                        document.getElementById('registerBtn').disabled = false;
+                        document.getElementById('listBtn').disabled = false;
+                    } else {
+                        log(`❌ User not found: ${username}`, 'error');
+                        setStatus('userStatus', 'Not Found', 'error');
+                    }
+                } else {
+                    const error = await response.text();
+                    log(`❌ User lookup failed: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                    setStatus('userStatus', 'Error', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error looking up user: ${error.message}`, 'error');
+                setStatus('userStatus', 'Error', 'error');
+            }
+        }
+        
+        async function listDevices() {
+            const token = document.getElementById('workerToken').value.trim();
+            
+            if (!userId) {
+                log('❌ Please lookup user first', 'error');
+                return;
+            }
+            
+            log(`📋 Listing devices for user...`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/users/${userId}/devices`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const devices = data._embedded?.devices || [];
+                    
+                    log(`✅ Found ${devices.length} devices`, 'success');
+                    
+                    const deviceListEl = document.getElementById('deviceList');
+                    deviceListEl.innerHTML = '';
+                    
+                    if (devices.length === 0) {
+                        deviceListEl.innerHTML = '<p style="color: #718096;">No devices found</p>';
+                    } else {
+                        devices.forEach(device => {
+                            const deviceEl = document.createElement('div');
+                            deviceEl.style.cssText = 'padding: 8px; margin: 4px 0; background: #f7fafc; border-radius: 4px; display: flex; justify-content: space-between; align-items: center;';
+                            deviceEl.innerHTML = `
+                                <div>
+                                    <strong>${device.type}</strong> - ${device.status}
+                                    <br><small>${device.phone || device.email || device.id}</small>
+                                </div>
+                                <button onclick="deleteDevice('${device.id}')" style="padding: 4px 8px; font-size: 11px;">Delete</button>
+                            `;
+                            deviceListEl.appendChild(deviceEl);
+                            
+                            log(`   Device: ${device.type} (${device.id})`, 'info');
+                        });
+                    }
+                } else {
+                    const error = await response.text();
+                    log(`❌ Failed to list devices: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error listing devices: ${error.message}`, 'error');
+            }
+        }
+        
+        async function deleteDevice(deviceIdToDelete) {
+            const token = document.getElementById('workerToken').value.trim();
+            
+            if (!confirm('Delete this device?')) {
+                return;
+            }
+            
+            log(`🗑️ Deleting device: ${deviceIdToDelete}`, 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/users/${userId}/devices/${deviceIdToDelete}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Accept': 'application/json'
+                    }
+                });
+                
+                if (response.ok || response.status === 204) {
+                    log(`✅ Device deleted successfully`, 'success');
+                    // Refresh the list
+                    await listDevices();
+                } else {
+                    const error = await response.text();
+                    log(`❌ Failed to delete device: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                }
+            } catch (error) {
+                log(`❌ Error deleting device: ${error.message}`, 'error');
+            }
+        }
+        
+        async function registerSmsDevice() {
+            const token = document.getElementById('workerToken').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            
+            if (!userId) {
+                log('❌ Please lookup user first', 'error');
+                return;
+            }
+            
+            log(`📱 Registering SMS device: ${phoneNumber}`, 'info');
+            setStatus('deviceStatus', 'Registering...', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/users/${userId}/devices`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'SMS',
+                        phone: phoneNumber,
+                        name: 'Test Phone'
+                    })
+                });
+                
+                if (response.ok) {
+                    const device = await response.json();
+                    deviceId = device.id;
+                    log(`✅ SMS device registered!`, 'success');
+                    log(`   Device ID: ${deviceId}`, 'info');
+                    log(`   Status: ${device.status}`, 'info');
+                    log(`   Phone: ${device.phone}`, 'info');
+                    setStatus('deviceStatus', 'Registered', 'success');
+                    document.getElementById('challengeBtn').disabled = false;
+                } else {
+                    const error = await response.text();
+                    log(`❌ Device registration failed: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                    setStatus('deviceStatus', 'Failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error registering device: ${error.message}`, 'error');
+                setStatus('deviceStatus', 'Error', 'error');
+            }
+        }
+        
+        async function sendChallenge() {
+            const token = document.getElementById('workerToken').value.trim();
+            
+            if (!deviceId) {
+                log('❌ Please register device first', 'error');
+                return;
+            }
+            
+            log(`📤 Sending SMS challenge...`, 'info');
+            setStatus('challengeStatus', 'Sending...', 'pending');
+            
+            try {
+                // Send OTP challenge using the MFA challenges endpoint
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/users/${userId}/devices/${deviceId}/challenges`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'SMS'
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    challengeId = data.id;
+                    log(`✅ SMS challenge sent!`, 'success');
+                    log(`   Challenge ID: ${challengeId}`, 'info');
+                    log(`   Check your phone for the code`, 'info');
+                    setStatus('challengeStatus', 'Sent', 'success');
+                    document.getElementById('verifyBtn').disabled = false;
+                } else {
+                    const error = await response.text();
+                    log(`❌ Challenge send failed: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                    setStatus('challengeStatus', 'Failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error sending challenge: ${error.message}`, 'error');
+                setStatus('challengeStatus', 'Error', 'error');
+            }
+        }
+        
+        async function verifyCode() {
+            const token = document.getElementById('workerToken').value.trim();
+            const code = document.getElementById('verificationCode').value.trim();
+            
+            if (!challengeId) {
+                log('❌ Please send challenge first', 'error');
+                return;
+            }
+            
+            if (!code || code.length !== 6) {
+                log('❌ Please enter a 6-digit code', 'error');
+                return;
+            }
+            
+            log(`🔐 Verifying code: ${code}`, 'info');
+            setStatus('verifyStatus', 'Verifying...', 'pending');
+            
+            try {
+                const response = await fetch(`${API_BASE}/environments/${ENV_ID}/users/${userId}/devices/${deviceId}/challenges/${challengeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        otp: code
+                    })
+                });
+                
+                if (response.ok) {
+                    log(`✅ Code verified successfully!`, 'success');
+                    log(`   🎉 MFA flow complete!`, 'success');
+                    setStatus('verifyStatus', 'Verified', 'success');
+                } else {
+                    const error = await response.text();
+                    log(`❌ Code verification failed: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                    setStatus('verifyStatus', 'Failed', 'error');
+                }
+            } catch (error) {
+                log(`❌ Error verifying code: ${error.message}`, 'error');
+                setStatus('verifyStatus', 'Error', 'error');
+            }
+        }
+        
+        // Auto-fill worker token if provided
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            if (token) {
+                document.getElementById('workerToken').value = token;
+                log('✓ Worker token loaded from URL', 'info');
+            }
+            
+            log('🚀 Kroger MFA Live Test Ready', 'success');
+            log('   Environment: ' + ENV_ID, 'info');
+            log('   Paste your worker token and click "Test Worker Token" to begin', 'info');
+        });
+    </script>
+</body>
+</html>
