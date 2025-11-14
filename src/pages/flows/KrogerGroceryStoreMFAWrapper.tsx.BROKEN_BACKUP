@@ -1,0 +1,1200 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import styled from 'styled-components';
+import { MFAProvider } from '../../contexts/MFAContext';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { v4ToastManager } from '../../utils/v4ToastManager';
+import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
+import { UltimateTokenDisplayModal } from '../../components/UltimateTokenDisplayModal';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
+import { getValidWorkerToken } from '../../services/tokenExpirationService';
+import { FiKey, FiCheckCircle, FiAlertCircle } from '../../services/commonImportsService';
+import KrogerGroceryStoreMFA from './KrogerGroceryStoreMFA';
+import { loadFlowCredentials } from '../../services/flowCredentialService';
+import RogerGroceryLogo from '../../components/RogerGroceryLogo';
+import { RedirectlessAuthService } from '../../services/redirectlessAuthService';
+import RedirectlessLoginModal from '../../components/RedirectlessLoginModal';
+
+const HeroWrapper = styled.section`
+	max-width: 1200px;
+	margin: 0 auto 2.5rem;
+	padding: 2.75rem 2.25rem;
+	border-radius: 28px;
+	background: linear-gradient(135deg, #fde68a 0%, #fbbf24 45%, #f59e0b 100%);
+	box-shadow: 0 25px 60px rgba(245, 158, 11, 0.22);
+	text-align: center;
+	color: #1f2937;
+`;
+
+const HeroBadge = styled.span`
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	padding: 0.35rem 0.85rem;
+	border-radius: 9999px;
+	background: rgba(255, 255, 255, 0.65);
+	font-size: 0.85rem;
+	font-weight: 600;
+	color: #92400e;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+`;
+
+const HeroTitle = styled.h1`
+	margin: 1.5rem 0 0.75rem;
+	font-size: 2rem;
+	font-weight: 700;
+	color: #111827;
+`;
+
+const HeroSubtitle = styled.p`
+	margin: 0 auto 1.75rem;
+	max-width: 660px;
+	font-size: 1rem;
+	line-height: 1.6;
+	color: #1f2937;
+`;
+
+const HeroFooter = styled.p`
+	margin: 1.5rem 0 0;
+	font-size: 0.85rem;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+	color: rgba(17, 24, 39, 0.8);
+`;
+
+const HeroLogoRow = styled.div`
+	display: flex;
+	justify-content: center;
+	margin-top: 2rem;
+`;
+
+/**
+ * Renders the custom Kroger MFA hero banner without the shared flow header.
+ */
+const HeaderSection: React.FC = () => (
+	<HeroWrapper>
+		<HeroBadge>
+			<span role="img" aria-label="shopping cart">
+				🛒
+			</span>
+			PingOne V7
+		</HeroBadge>
+		<HeroTitle>Kroger Grocery Store MFA Experience</HeroTitle>
+		<HeroSubtitle>
+			Guided PingOne MFA walkthrough embedded in a realistic Kroger storefront. Configure worker tokens,
+			step through redirectless authentication, and manage MFA devices in a production-style UX.
+		</HeroSubtitle>
+		<HeroFooter>PingOne OAuth/OIDC Playground v7.4.0</HeroFooter>
+		<HeroLogoRow>
+			<RogerGroceryLogo />
+		</HeroLogoRow>
+	</HeroWrapper>
+);
+
+
+const decodeIdTokenSubject = (idToken?: string | null): string => {
+	if (!idToken) {
+		return '';
+	}
+
+	try {
+		const [, payloadSegment] = idToken.split('.');
+		if (!payloadSegment) {
+			return '';
+		}
+
+		const normalized = payloadSegment.replace(/-/g, '+').replace(/_/g, '/');
+		const padded =
+			normalized + '='.repeat(Math.max(0, 4 - (normalized.length % 4)));
+		const decoded = JSON.parse(atob(padded));
+		return typeof decoded?.sub === 'string' ? decoded.sub : '';
+	} catch (error) {
+		console.warn('[Kroger MFA] Failed to decode ID token for subject claim', error);
+		return '';
+	}
+};
+
+type LoginMode = 'redirect' | 'redirectless';
+
+const KrogerGroceryStoreMFAWrapper: React.FC = () => {
+	const { config, user, tokens, isAuthenticated, isLoading: authLoading, login, handleCallback, error: authError } =
+		useAuth();
+	const [isLoginInProgress, setIsLoginInProgress] = useState(false);
+	const [savedConfigCredentials, setSavedConfigCredentials] = useState({
+		environmentId: '',
+		clientId: '',
+		redirectUri: '',
+	});
+	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
+	const [showAuthConfigModal, setShowAuthConfigModal] = useState(false);
+	const [showTokenModal, setShowTokenModal] = useState(false);
+	const [workerTokenStatus, setWorkerTokenStatus] = useState({
+		hasCredentials: false,
+		hasToken: false,
+	});
+	const [loginMode, setLoginMode] = useState<LoginMode>('redirectless');
+	const [showLoginModal, setShowLoginModal] = useState(false);
+	const [loginError, setLoginError] = useState<string | null>(null);
+
+	// Debug: Log modal state changes
+	useEffect(() => {
+		console.log('[Kroger Wrapper] Modal States:', {
+			showWorkerTokenModal,
+			showAuthConfigModal,
+		});
+	}, [showWorkerTokenModal, showAuthConfigModal]);
+
+	const FLOW_KEY = 'kroger-grocery-store-mfa';
+	const WORKER_TOKEN_STORAGE_KEY = `pingone_worker_token_${FLOW_KEY}`;
+	const WORKER_TOKEN_EXPIRY_KEY = `pingone_worker_token_expires_at_${FLOW_KEY}`;
+
+	useEffect(() => {
+		let isMounted = true;
+
+		const fetchConfigurationCredentials = async () => {
+			try {
+				const { credentials } = await loadFlowCredentials({
+					flowKey: 'configuration.credentials',
+					disableSharedFallback: true,
+					defaultCredentials: {
+						environmentId: '',
+						clientId: '',
+						clientSecret: '',
+						redirectUri: `${window.location.origin}/callback`,
+					},
+				});
+
+				if (isMounted && credentials) {
+					setSavedConfigCredentials({
+						environmentId: credentials.environmentId?.trim() ?? '',
+						clientId: credentials.clientId ?? '',
+						redirectUri: credentials.redirectUri ?? '',
+					});
+				}
+			} catch (error) {
+				console.error('[KrogerMFAWrapper] Failed to load configuration credentials:', error);
+			}
+		};
+
+		fetchConfigurationCredentials();
+		refreshWorkerTokenState();
+		refreshAuthzFlowCredentials();
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	// Handle auth callback - check for authorization code and exchange for tokens
+	useEffect(() => {
+		// Use RedirectlessAuthService to check for JSON response on page
+		const extracted = RedirectlessAuthService.extractCodeFromPageJson(FLOW_KEY);
+		if (extracted) {
+			console.log('[Kroger Wrapper] Extracted code from page JSON:', {
+				codePreview: extracted.code.substring(0, 20) + '...',
+			});
+			// Redirect back to our app - code is already stored
+			window.location.href = '/flows/kroger-grocery-store-mfa';
+			return;
+		}
+		
+		// Check if we have a pending resume after redirectless authentication
+		// Use RedirectlessAuthService to handle resume
+		const handlePendingResume = async () => {
+			const pendingResumeData = sessionStorage.getItem(`${FLOW_KEY}_pending_resume`);
+			if (!pendingResumeData) {
+				return; // No pending resume
+			}
+			
+			console.log('[Kroger Wrapper] 🐛 DEBUG - Found pending resume data, checking if expired...');
+			
+			try {
+				const resumeData = JSON.parse(pendingResumeData);
+				const now = Date.now();
+				const createdAt = resumeData.timestamp || 0;
+				const ageMinutes = (now - createdAt) / (1000 * 60);
+				
+				// If data is older than 10 minutes, consider it expired and clear it
+				if (ageMinutes > 10) {
+					console.log(`[Kroger Wrapper] 🐛 DEBUG - Resume data is ${ageMinutes.toFixed(1)} minutes old, clearing expired data`);
+					sessionStorage.removeItem(`${FLOW_KEY}_pending_resume`);
+					sessionStorage.removeItem(`${FLOW_KEY}_auth_code`);
+					sessionStorage.removeItem(`${FLOW_KEY}_state`);
+					return;
+				}
+				
+				console.log(`[Kroger Wrapper] 🐛 DEBUG - Resume data is ${ageMinutes.toFixed(1)} minutes old, attempting resume...`);
+			} catch (error) {
+				console.warn('[Kroger Wrapper] Failed to parse pending resume data, clearing it:', error);
+				sessionStorage.removeItem(`${FLOW_KEY}_pending_resume`);
+				return;
+			}
+			
+			const savedCreds = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
+			if (!savedCreds) {
+				console.log('[Kroger Wrapper] No saved credentials, cannot resume');
+				sessionStorage.removeItem(`${FLOW_KEY}_pending_resume`);
+				return;
+			}
+
+			const authCode = await RedirectlessAuthService.handlePendingResume({
+				credentials: {
+					environmentId: effectiveAuthzCredentials.environmentId,
+					clientId: effectiveAuthzCredentials.clientId,
+					clientSecret: savedCreds.clientSecret || '',
+					redirectUri: effectiveAuthzCredentials.redirectUri,
+					scopes: effectiveAuthzCredentials.scopes || 'openid',
+				},
+				flowKey: FLOW_KEY,
+				onAuthCodeReceived: async (code, state) => {
+					sessionStorage.setItem(`${FLOW_KEY}_auth_code`, code);
+					sessionStorage.setItem(`${FLOW_KEY}_state`, state);
+				},
+			});
+
+			return authCode;
+		};
+
+		// Try to handle pending resume
+		handlePendingResume().catch((error) => {
+			console.error('[Kroger Wrapper] Failed to handle pending resume:', error);
+		});
+		
+		// Check for redirectless flow JSON response in sessionStorage
+		const redirectlessResponse = sessionStorage.getItem(`${FLOW_KEY}_redirectless_response`);
+		let authCode: string | null = null;
+		let authState: string | null = null;
+		
+		if (redirectlessResponse) {
+			try {
+				const parsed = JSON.parse(redirectlessResponse);
+				// Extract code from redirectless JSON response format
+				// PingOne returns: { authorizeResponse: { code: "...", state: "..." } }
+				if (parsed?.authorizeResponse?.code) {
+					authCode = parsed.authorizeResponse.code;
+					authState = parsed.authorizeResponse.state || parsed.state || null;
+					console.log('[Kroger Wrapper] Extracted code from redirectless JSON response:', {
+						codePreview: authCode ? authCode.substring(0, 20) + '...' : 'none',
+						hasState: !!authState,
+					});
+					// Clear the redirectless response after extracting
+					sessionStorage.removeItem(`${FLOW_KEY}_redirectless_response`);
+				} else if (parsed?.code) {
+					// Fallback: direct code field
+					authCode = parsed.code;
+					authState = parsed.state || null;
+					console.log('[Kroger Wrapper] Extracted code from direct code field');
+					sessionStorage.removeItem(`${FLOW_KEY}_redirectless_response`);
+				} else if (parsed?.status === 'COMPLETED' && parsed?.authorizeResponse?.code) {
+					// Handle COMPLETED status with authorizeResponse.code
+					authCode = parsed.authorizeResponse.code;
+					authState = parsed.authorizeResponse.state || parsed.state || null;
+					console.log('[Kroger Wrapper] Extracted code from COMPLETED flow response');
+					sessionStorage.removeItem(`${FLOW_KEY}_redirectless_response`);
+				}
+			} catch (error) {
+				console.warn('[Kroger Wrapper] Failed to parse redirectless response:', error);
+				sessionStorage.removeItem(`${FLOW_KEY}_redirectless_response`);
+			}
+		}
+		
+		// Fallback to URL-based auth code (for redirect flows)
+		if (!authCode) {
+			authCode = sessionStorage.getItem(`${FLOW_KEY}_auth_code`);
+			authState = sessionStorage.getItem(`${FLOW_KEY}_state`);
+		}
+		
+		if (authCode && !tokens?.access_token && !isLoginInProgress) {
+			console.log('[Kroger Wrapper] Auth code detected, exchanging for tokens...');
+			setIsLoginInProgress(true);
+			
+			// Get redirect_uri from flow context (for redirectless flows, this must match PingOne registration)
+			// For redirectless flows, we didn't send redirect_uri in auth request, but token exchange requires it
+			const flowContextRaw = sessionStorage.getItem('flowContext');
+			let redirectUri = `${window.location.origin}/kroger-authz-callback`; // Default fallback
+			
+			if (flowContextRaw) {
+				try {
+					const parsed = JSON.parse(flowContextRaw) as Record<string, unknown>;
+					if (parsed?.redirectUri && typeof parsed.redirectUri === 'string') {
+						redirectUri = parsed.redirectUri;
+						console.log('[Kroger Wrapper] Using redirect_uri from flow context:', redirectUri);
+					}
+				} catch (error) {
+					console.warn('[Kroger Wrapper] Failed to parse flow context for redirect_uri:', error);
+				}
+			}
+			
+			// Build callback URL with code and state
+			// For redirectless flows, the redirect_uri in the URL doesn't matter - handleCallback will use flow context
+			const callbackUrl = `${redirectUri}?code=${authCode}&state=${authState || ''}`;
+			
+			console.log('[Kroger Wrapper] Calling handleCallback with:', {
+				callbackUrl,
+				redirectUri,
+				hasCode: !!authCode,
+				hasState: !!authState,
+			});
+			
+			// Exchange code for tokens using NewAuthContext
+			handleCallback(callbackUrl)
+				.then((result: { success: boolean; error?: string }) => {
+					if (result.success) {
+						console.log('[Kroger Wrapper] Token exchange successful!');
+						
+						// DEBUG: Check if auth context was updated
+						setTimeout(() => {
+							console.log('[Kroger Wrapper] 🔍 POST-TOKEN-EXCHANGE AUTH STATE CHECK:', {
+								hasTokensNow: !!tokens,
+								hasAccessTokenNow: !!(tokens?.access_token),
+								isAuthenticatedNow: isAuthenticated,
+								userObject: user ? Object.keys(user) : 'null',
+								accessTokenPreview: tokens?.access_token ? `${tokens.access_token.substring(0, 20)}...` : 'still empty',
+								message: 'Auth context should be updated with new tokens by now'
+							});
+						}, 100);
+						
+						v4ToastManager.showSuccess('Authentication successful! You can now proceed with MFA.');
+						
+						// Clear the auth code
+						sessionStorage.removeItem(`${FLOW_KEY}_auth_code`);
+						sessionStorage.removeItem(`${FLOW_KEY}_state`);
+						sessionStorage.removeItem('processed_auth_code');
+					} else {
+						console.error('[Kroger Wrapper] Token exchange failed:', result.error);
+						v4ToastManager.showError(`Token exchange failed: ${result.error}`);
+						sessionStorage.removeItem(`${FLOW_KEY}_auth_code`);
+						sessionStorage.removeItem(`${FLOW_KEY}_state`);
+						sessionStorage.removeItem('processed_auth_code');
+						sessionStorage.removeItem('code_verifier');
+						sessionStorage.removeItem('oauth_code_verifier');
+						sessionStorage.removeItem('authz_v3_code_verifier');
+						sessionStorage.removeItem('oauth2_v3_code_verifier');
+						sessionStorage.removeItem('oidc_v3_code_verifier');
+						sessionStorage.removeItem('oauth_state');
+					}
+				})
+				.catch((error: Error) => {
+					console.error('[Kroger Wrapper] Token exchange error:', error);
+					v4ToastManager.showError('Failed to exchange authorization code for tokens');
+					sessionStorage.removeItem(`${FLOW_KEY}_auth_code`);
+					sessionStorage.removeItem(`${FLOW_KEY}_state`);
+					sessionStorage.removeItem('processed_auth_code');
+					sessionStorage.removeItem('code_verifier');
+					sessionStorage.removeItem('oauth_code_verifier');
+					sessionStorage.removeItem('authz_v3_code_verifier');
+					sessionStorage.removeItem('oauth2_v3_code_verifier');
+					sessionStorage.removeItem('oidc_v3_code_verifier');
+					sessionStorage.removeItem('oauth_state');
+				})
+				.finally(() => {
+					setIsLoginInProgress(false);
+				});
+		}
+	}, [tokens, isLoginInProgress, handleCallback]);
+
+	const refreshAuthzFlowCredentials = useCallback(() => {
+		const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
+		if (saved?.environmentId && saved.clientId) {
+			setSavedConfigCredentials((prev) => ({
+				environmentId: saved.environmentId || prev.environmentId,
+				clientId: saved.clientId || prev.clientId,
+				redirectUri: saved.redirectUri || prev.redirectUri || `${window.location.origin}/kroger-authz-callback`,
+			}));
+		}
+	}, []);
+
+	const refreshWorkerTokenState = useCallback(() => {
+		const savedWorkerCreds = workerTokenCredentialsService.loadCredentials(FLOW_KEY);
+		const hasWorkerCreds = Boolean(
+			savedWorkerCreds?.environmentId && savedWorkerCreds.clientId && savedWorkerCreds.clientSecret
+		);
+		const tokenResult = getValidWorkerToken(WORKER_TOKEN_STORAGE_KEY, WORKER_TOKEN_EXPIRY_KEY, {
+			clearExpired: true,
+			showToast: false,
+		});
+		setWorkerTokenStatus({
+			hasCredentials: hasWorkerCreds,
+			hasToken: Boolean(tokenResult.isValid && tokenResult.token),
+		});
+	}, []);
+
+	const effectiveAuthzCredentials = useMemo(
+		() => {
+			// Ensure we always have a valid redirect URI, prioritizing saved > config > default
+			// Use flow-specific callback URI for Kroger MFA flow
+			const redirectUri = savedConfigCredentials.redirectUri || 
+				(config?.redirectUri && config.redirectUri !== `${window.location.origin}/callback` ? config.redirectUri : '') ||
+				`${window.location.origin}/kroger-authz-callback`;
+			
+			return {
+				environmentId:
+					savedConfigCredentials.environmentId || config?.environmentId?.trim() || '',
+				clientId: savedConfigCredentials.clientId || config?.clientId || '',
+				redirectUri,
+				scopes: ['openid'],
+			};
+		},
+		[savedConfigCredentials, config]
+	);
+
+
+	const environmentId = effectiveAuthzCredentials.environmentId;
+	const accessToken = tokens?.access_token ?? '';
+	
+	// DEBUG: Track auth state changes
+	console.log('[Kroger Wrapper] 🔍 AUTH STATE DEBUG:', {
+		hasTokens: !!tokens,
+		hasAccessToken: !!accessToken,
+		isAuthenticated,
+		authError: authError || 'none',
+		tokensObject: tokens ? Object.keys(tokens) : 'null',
+		accessTokenPreview: accessToken ? `${accessToken.substring(0, 20)}...` : 'empty',
+		shouldShowLogin: !!(authError || !accessToken),
+		shouldShowMFA: !!(accessToken && !authError),
+	});
+	
+	const userId = useMemo(() => {
+		if (user?.sub) {
+			return user.sub;
+		}
+
+		if (user?.id) {
+			return user.id;
+		}
+
+		return decodeIdTokenSubject(tokens?.id_token as string | null | undefined);
+	}, [user, tokens?.id_token]);
+
+	// Handle redirectless login with username/password collected from modal
+	const handleRedirectlessLogin = useCallback(async (username: string, password: string) => {
+		console.log('[Kroger MFA] 🔐 Credentials collected from modal, starting API-based authentication...');
+		
+		// Load the full credentials including client secret for the flow
+		const savedCreds = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
+		
+		try {
+			// Generate PKCE codes first (required for OAuth 2.0 security)
+			console.log('[Kroger MFA] Generating PKCE codes...');
+			const { generateCodeVerifier, generateCodeChallenge } = await import('../../utils/oauth');
+			const codeVerifier = generateCodeVerifier();
+			const codeChallenge = await generateCodeChallenge(codeVerifier);
+			
+			// Store code verifier for token exchange later (in location handleCallback expects)
+			sessionStorage.setItem('code_verifier', codeVerifier);
+			sessionStorage.setItem('oauth_code_verifier', codeVerifier); // Backup location
+			
+			console.log('[Kroger MFA] PKCE codes generated:', {
+				verifierLength: codeVerifier.length,
+				challengeLength: codeChallenge.length,
+			});
+
+			// Ensure scopes are always a string (fix for backend .trim() error)
+			const scopesString = Array.isArray(effectiveAuthzCredentials.scopes) 
+				? effectiveAuthzCredentials.scopes.join(' ')
+				: (effectiveAuthzCredentials.scopes || 'openid');
+
+			console.log('[Kroger MFA] Request parameters:', {
+				environmentId: effectiveAuthzCredentials.environmentId,
+				clientId: effectiveAuthzCredentials.clientId ? `${effectiveAuthzCredentials.clientId.substring(0, 8)}...` : 'MISSING',
+				hasClientSecret: !!(savedCreds?.clientSecret),
+				redirectUri: effectiveAuthzCredentials.redirectUri,
+				scopes: scopesString,
+				scopesType: typeof scopesString,
+			});
+
+			// Step 1: Start authorization flow (returns JSON flow object)
+			console.log('[Kroger MFA] Step 1: Starting authorization flow...');
+			const step1Response = await fetch('/api/pingone/redirectless/authorize', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					environmentId: effectiveAuthzCredentials.environmentId,
+					clientId: effectiveAuthzCredentials.clientId,
+					clientSecret: savedCreds?.clientSecret || '',
+					redirectUri: effectiveAuthzCredentials.redirectUri,
+					scopes: scopesString,
+					responseType: 'code',
+					responseMode: 'pi.flow', // This makes it redirectless
+					codeChallenge: codeChallenge,
+					codeChallengeMethod: 'S256',
+				}),
+			});
+
+			if (!step1Response.ok) {
+				const errorText = await step1Response.text();
+				throw new Error(`Authorization failed (${step1Response.status}): ${errorText}`);
+			}
+
+			const step1Data = await step1Response.json();
+			console.log('[Kroger MFA] Step 1 success:', {
+				flowId: step1Data.id,
+				status: step1Data.status,
+				hasSessionId: !!step1Data._sessionId,
+			});
+
+			const sessionId = step1Data._sessionId;
+			const flowCheckUrl = step1Data?._links?.['usernamePassword.check']?.href;
+
+			if (!flowCheckUrl) {
+				throw new Error('Flow missing usernamePassword.check link - flow may not require credentials');
+			}
+
+			if (step1Data.status !== 'USERNAME_PASSWORD_REQUIRED') {
+				throw new Error(`Expected USERNAME_PASSWORD_REQUIRED, got: ${step1Data.status}`);
+			}
+
+			// Step 2: Send user credentials to PingOne Flow API
+			console.log('[Kroger MFA] Step 2: Sending credentials to PingOne Flow API...');
+			const step2Response = await fetch('/api/pingone/flows/check-username-password', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					flowUrl: flowCheckUrl,
+					username: username,
+					password: password,
+					sessionId: sessionId,
+				}),
+			});
+
+			if (!step2Response.ok) {
+				const errorData = await step2Response.json().catch(() => ({}));
+				let errorMsg = errorData.error_description || errorData.message || 
+					`Credential check failed (${step2Response.status})`;
+				
+				if (step2Response.status === 401) {
+					errorMsg = 'Invalid username or password. Please check your credentials and try again.';
+				}
+				throw new Error(errorMsg);
+			}
+
+			const step2Data = await step2Response.json();
+			console.log('[Kroger MFA] Step 2 success:', {
+				status: step2Data.status || 'unknown',
+				hasResumeUrl: !!step1Data.resumeUrl,
+			});
+
+			// Step 3: Resume flow to get authorization code
+			console.log('[Kroger MFA] Step 3: Resuming flow to get authorization code...');
+			const resumeResponse = await fetch('/api/pingone/resume', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					resumeUrl: step1Data.resumeUrl,
+					sessionId: sessionId,
+				}),
+			});
+
+			if (!resumeResponse.ok) {
+				const errorData = await resumeResponse.json().catch(() => ({}));
+				const errorMsg = errorData.error_description || errorData.message || 
+					`Resume failed (${resumeResponse.status})`;
+				throw new Error(errorMsg);
+			}
+
+			const resumeData = await resumeResponse.json();
+			console.log('[Kroger MFA] Step 3 success:', {
+				hasCode: !!(resumeData.code || resumeData.authorizeResponse?.code),
+				hasState: !!(resumeData.state || resumeData.authorizeResponse?.state),
+			});
+
+			// Extract authorization code (try multiple locations)
+			const authCode = resumeData.code || resumeData.authorizeResponse?.code;
+			const authState = resumeData.state || resumeData.authorizeResponse?.state || 
+				`kroger-redirectless-${Date.now()}`;
+
+			if (!authCode) {
+				console.error('[Kroger MFA] No authorization code in resume response:', resumeData);
+				throw new Error('No authorization code received from PingOne - check flow configuration');
+			}
+
+			console.log('[Kroger MFA] ✅ Redirectless authentication complete!', {
+				codePreview: `${authCode.substring(0, 20)}...`,
+				state: authState,
+			});
+
+			// Store code for token exchange
+			sessionStorage.setItem(`${FLOW_KEY}_auth_code`, authCode);
+			sessionStorage.setItem(`${FLOW_KEY}_state`, authState);
+			
+			// Close modal and show success
+			setShowLoginModal(false);
+			setLoginError(null);
+			v4ToastManager.showSuccess('✅ Redirectless authentication successful! Exchanging for tokens...');
+			
+			// The useEffect hook will detect the code and exchange it for tokens
+
+		} catch (error) {
+			console.error('[Kroger MFA] Redirectless authentication error:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown authentication error';
+			setLoginError(errorMessage);
+			// Don't close modal on error - let user retry
+			throw error; // Re-throw so modal can handle loading state
+		}
+	}, [effectiveAuthzCredentials, FLOW_KEY]);
+
+	const handleStartLogin = useCallback(async () => {
+		console.log('[Kroger MFA] 🔵 Sign in button clicked!');
+		console.log(`[Kroger MFA] 🐛 DEBUG - Starting login with loginMode: ${loginMode}`);
+		console.log(`[Kroger MFA] 🐛 DEBUG - Auth context state:`, {
+			isAuthenticated: isAuthenticated,
+			isLoading: authLoading,
+			hasError: !!authError,
+			hasTokens: !!tokens,
+		});
+		
+		if (isLoginInProgress) {
+			console.log('[Kroger MFA] ⚠️ Login already in progress, skipping');
+			return;
+		}
+
+		// Validate that flow-specific credentials are configured
+		if (!savedConfigCredentials.environmentId || !savedConfigCredentials.clientId) {
+			console.error('[Kroger MFA] ❌ Missing credentials:', savedConfigCredentials);
+			v4ToastManager.showError(
+				'Please configure your Authorization Code client credentials first. Click "Configure Auth Code Client" button above.'
+			);
+			return;
+		}
+		
+		console.log('[Kroger MFA] ✅ Credentials validated, proceeding with login');
+
+		console.log('[Kroger MFA] Starting login with credentials:', {
+			effectiveAuthzCredentials,
+			config,
+			savedConfigCredentials,
+			loginMode,
+		});
+		
+		console.log('[Kroger MFA] 🎯 OVERRIDE CONFIG:', {
+			environmentId: effectiveAuthzCredentials.environmentId,
+			clientId: effectiveAuthzCredentials.clientId,
+			redirectUri: effectiveAuthzCredentials.redirectUri,
+			scopes: effectiveAuthzCredentials.scopes,
+			note: 'This should override the NewAuthContext config'
+		});
+
+		setIsLoginInProgress(true);
+		try {
+			// Load the full credentials including client secret for token exchange
+			const savedCreds = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_KEY);
+			
+			// Set flow context so the callback knows which flow's credentials to use
+			sessionStorage.setItem(
+				'flowContext',
+				JSON.stringify({
+					flow: 'kroger-grocery-store-mfa',
+					flowKey: FLOW_KEY,
+					clientId: effectiveAuthzCredentials.clientId,
+					clientSecret: savedCreds?.clientSecret || '',
+					environmentId: effectiveAuthzCredentials.environmentId,
+					redirectUri: effectiveAuthzCredentials.redirectUri,
+					authMode: loginMode,
+					returnPath: '/flows/kroger-grocery-store-mfa',
+					timestamp: Date.now(),
+				})
+			);
+			
+			// For redirectless mode, show login modal to collect credentials
+			console.log('[Kroger MFA] 🚨 CRITICAL DEBUG - loginMode check:', {
+				loginMode,
+				isRedirectless: loginMode === 'redirectless',
+				typeof: typeof loginMode,
+			});
+			
+			if (loginMode === 'redirectless') {
+				console.log('[Kroger MFA] 🐛 DEBUG - Starting redirectless flow - showing credential collection modal');
+				console.log('[Kroger MFA] ✅ CORRECT REDIRECTLESS: Showing login modal for credential collection...');
+				
+				// Clear any previous errors and show the login modal
+				setLoginError(null);
+				setShowLoginModal(true);
+				setIsLoginInProgress(false); // Let modal handle loading state
+				return; // Exit early - authentication will happen in modal callback
+			}
+			
+			// For redirect mode, use standard login flow
+			console.log('[Kroger MFA] 🐛 DEBUG - Using standard OAuth redirect flow');
+			console.log('[Kroger MFA] Using redirect flow');
+			console.log('[Kroger MFA] Calling login() from NewAuthContext with override config');
+			// Pass the flow-specific credentials to override the context config
+			const result = await login('/flows/kroger-grocery-store-mfa', 'oauth');
+			
+			console.log('[Kroger MFA] 🐛 DEBUG - Standard login result:', {
+				success: result.success,
+				hasRedirectUrl: !!result.redirectUrl,
+				error: result.error,
+				shouldShowModal: 'YES - modal should be visible now if success=true',
+			});
+			
+			if (result.success) {
+				if (result.redirectUrl) {
+					console.log('[Kroger MFA] 🐛 DEBUG - Authorization URL ready (awaiting user review):', {
+						redirectUrl: result.redirectUrl,
+						loginMode,
+						modalShouldBeVisible: 'YES - check browser for modal',
+					});
+					console.log('[Kroger MFA] Authorization URL ready (awaiting user review):', {
+						redirectUrl: result.redirectUrl,
+						loginMode,
+					});
+				} else {
+					console.warn('[Kroger MFA] Login succeeded but no redirect URL was returned.');
+				}
+
+				v4ToastManager.showSuccess(
+					'Authorization URL ready. Review the modal and click Continue when you are ready to authenticate.'
+				);
+				return;
+			}
+
+			if (result.error) {
+				console.error('[Kroger MFA] Login failed:', result.error);
+				
+				// Provide more helpful error messages
+				if (result.error.includes('unsupported_response_type')) {
+					v4ToastManager.showError(
+						'PingOne rejected the authorization request. Please verify your application configuration:\n' +
+						'1. Grant Types must include "Authorization Code"\n' +
+						'2. Response Types must include "Code"\n' +
+						'3. PKCE Enforcement should match your settings\n' +
+						'4. Redirect URI must match exactly: ' + effectiveAuthzCredentials.redirectUri
+					);
+				} else if (result.error.includes('invalid_scope')) {
+					v4ToastManager.showError(
+						'Invalid scopes requested. Please verify your PingOne application has these scopes enabled:\n' +
+						'p1:read:user, p1:update:user, p1:read:device, p1:update:device'
+					);
+				} else {
+					v4ToastManager.showError(result.error);
+				}
+				return;
+			}
+
+			v4ToastManager.showWarning(
+				'PingOne login request did not provide a redirect URL. Please verify your configuration.'
+			);
+		} catch (loginError) {
+			console.error('[Kroger MFA] Login error:', loginError);
+			v4ToastManager.showError('Unable to open PingOne sign-in. Please try again.');
+		} finally {
+			setIsLoginInProgress(false);
+		}
+	}, [isLoginInProgress, login, savedConfigCredentials, effectiveAuthzCredentials, config, loginMode]);
+
+	// Render modals at component level (outside conditional returns)
+	const renderModals = () => (
+		<>
+			<WorkerTokenModal
+				isOpen={showWorkerTokenModal}
+				onClose={() => {
+					setShowWorkerTokenModal(false);
+					refreshWorkerTokenState();
+				}}
+				onContinue={() => {
+					setShowWorkerTokenModal(false);
+					refreshWorkerTokenState();
+				}}
+				flowType={FLOW_KEY}
+				environmentId={effectiveAuthzCredentials.environmentId}
+				tokenStorageKey={WORKER_TOKEN_STORAGE_KEY}
+				tokenExpiryKey={WORKER_TOKEN_EXPIRY_KEY}
+				prefillCredentials={(() => {
+					const saved = workerTokenCredentialsService.loadCredentials(FLOW_KEY);
+					if (saved) {
+						return {
+							environmentId: saved.environmentId || effectiveAuthzCredentials.environmentId || '',
+							clientId: saved.clientId || '',
+							clientSecret: saved.clientSecret || '',
+							region: saved.region || 'us',
+							scopes: Array.isArray(saved.scopes) ? saved.scopes.join(' ') : saved.scopes || '',
+						};
+					}
+					return {
+						environmentId: effectiveAuthzCredentials.environmentId || '',
+						clientId: '',
+						clientSecret: '',
+						region: 'us',
+						scopes: '',
+					};
+				})()}
+			/>
+
+			<AuthorizationCodeConfigModal
+				isOpen={showAuthConfigModal}
+				onClose={() => {
+					setShowAuthConfigModal(false);
+					refreshAuthzFlowCredentials();
+				}}
+				flowType={FLOW_KEY}
+				initialCredentials={{
+					environmentId: effectiveAuthzCredentials.environmentId,
+					clientId: effectiveAuthzCredentials.clientId,
+					clientSecret: '',
+					redirectUri: effectiveAuthzCredentials.redirectUri || `${window.location.origin}/kroger-authz-callback`,
+					scopes: 'openid',
+				}}
+				onCredentialsSaved={(savedCreds) => {
+					setSavedConfigCredentials({
+						environmentId: savedCreds.environmentId || '',
+						clientId: savedCreds.clientId || '',
+						redirectUri: savedCreds.redirectUri || `${window.location.origin}/kroger-authz-callback`,
+					});
+				}}
+			/>
+
+			<UltimateTokenDisplayModal
+				isOpen={showTokenModal}
+				onClose={() => setShowTokenModal(false)}
+				tokens={tokens || {}}
+				title="OAuth Tokens - Kroger MFA Flow"
+			/>
+
+			{/* Redirectless Login Modal */}
+			<RedirectlessLoginModal
+				isOpen={showLoginModal}
+				onClose={() => {
+					setShowLoginModal(false);
+					setLoginError(null);
+					setIsLoginInProgress(false);
+				}}
+				onLogin={handleRedirectlessLogin}
+				title="Kroger MFA Authentication"
+				subtitle="Enter your PingOne credentials for redirectless authentication"
+				error={loginError}
+			/>
+		</>
+	);
+
+	const renderCredentialStatusSection = () => (
+		<>
+			<div
+				style={{
+					border: '1px solid #e5e7eb',
+					borderRadius: '12px',
+					padding: '1.25rem',
+					marginBottom: '1.5rem',
+					background: '#f9fafb',
+					textAlign: 'left',
+					fontSize: '0.95rem',
+				}}
+			>
+				<p style={{ fontWeight: 600, marginBottom: '0.75rem', color: '#111827' }}>
+					Current PingOne Credentials
+				</p>
+				<div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.25rem', alignItems: 'center' }}>
+					<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
+						<FiKey style={{ color: '#2563eb' }} />
+						Environment: {effectiveAuthzCredentials.environmentId || 'Not configured'}
+					</span>
+					<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+						{workerTokenStatus.hasToken ? (
+							<FiCheckCircle style={{ color: '#22c55e' }} />
+						) : (
+							<FiAlertCircle style={{ color: '#f59e0b' }} />
+						)}
+						Worker Token:{' '}
+						{workerTokenStatus.hasToken
+							? 'Valid'
+							: workerTokenStatus.hasCredentials
+								? 'Generate token'
+								: 'Credentials needed'}
+					</span>
+					<span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+						{effectiveAuthzCredentials.environmentId && effectiveAuthzCredentials.clientId ? (
+							<FiCheckCircle style={{ color: '#22c55e' }} />
+						) : (
+							<FiAlertCircle style={{ color: '#f59e0b' }} />
+						)}
+						Auth Code Client:{' '}
+						{effectiveAuthzCredentials.environmentId && effectiveAuthzCredentials.clientId
+							? 'Configured'
+							: 'Not configured'}
+					</span>
+				</div>
+				<p style={{ marginTop: '0.75rem', color: '#6b7280' }}>
+					Need to update these values? Open the credentials setup modal from the configuration menu and paste
+					the PingOne app settings you want to use for this flow.
+				</p>
+				<div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+					<button
+						type="button"
+						onClick={() => {
+							console.log('[Kroger Wrapper] Configure Worker Token clicked');
+							setShowAuthConfigModal(false);
+							setShowWorkerTokenModal(true);
+						}}
+						style={{
+							background: workerTokenStatus.hasToken
+								? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+								: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+							color: '#ffffff',
+							border: 'none',
+							borderRadius: '9999px',
+							padding: '0.6rem 1.4rem',
+							fontWeight: 600,
+							cursor: 'pointer',
+						}}
+					>
+						Configure Worker Token
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							console.log('[Kroger Wrapper] Configure Auth Code Client clicked');
+							setShowWorkerTokenModal(false);
+							setShowAuthConfigModal(true);
+						}}
+						style={{
+							background:
+								effectiveAuthzCredentials.environmentId && effectiveAuthzCredentials.clientId
+									? 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'
+									: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+							color: '#ffffff',
+							border: 'none',
+							borderRadius: '9999px',
+							padding: '0.6rem 1.4rem',
+							fontWeight: 600,
+							cursor: 'pointer',
+						}}
+					>
+						Configure Auth Code Client
+					</button>
+					{tokens?.access_token && (
+						<button
+							type="button"
+							onClick={() => setShowTokenModal(true)}
+							style={{
+								background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+								color: '#ffffff',
+								border: 'none',
+								borderRadius: '9999px',
+								padding: '0.6rem 1.4rem',
+								fontWeight: 600,
+								cursor: 'pointer',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							<FiKey size={16} />
+							View Tokens
+						</button>
+					)}
+				</div>
+			</div>
+			<div
+				style={{
+					textAlign: 'left',
+					borderLeft: '4px solid #2563eb',
+					padding: '1rem',
+					background: '#eef2ff',
+					marginBottom: '1.5rem',
+				}}
+			>
+				<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#1d4ed8' }}>Credential Guide</p>
+				<ul style={{ margin: 0, paddingLeft: '1.25rem', color: '#1f2937', fontSize: '0.95rem' }}>
+					<li style={{ marginBottom: '0.5rem' }}>
+						<strong>Authorization Code App</strong>: Interactive user sign-in with redirect URI matching your
+						PingOne application. Provides the tokens that populate this MFA playground.
+					</li>
+					<li style={{ marginBottom: '0.5rem' }}>
+						<strong>Worker Token (Client Credentials)</strong>: Machine-to-machine token used by the back-end
+						to call PingOne MFA APIs. Generate it from a PingOne worker application or the Worker Token
+						Generator flow.
+					</li>
+				</ul>
+			</div>
+		</>
+	);
+
+	if (authLoading || isLoginInProgress) {
+		return (
+			<>
+				<HeaderSection />
+				<div
+					style={{
+						display: 'flex',
+						justifyContent: 'center',
+						alignItems: 'center',
+						height: '100vh',
+						flexDirection: 'column',
+						gap: '1rem',
+					}}
+				>
+					<div className="spinner">Loading authentication details...</div>
+				</div>
+				{renderModals()}
+			</>
+		);
+	}
+
+	if (!environmentId) {
+		return (
+			<>
+				<HeaderSection />
+				<div
+					style={{
+						padding: '2rem',
+						textAlign: 'center',
+						color: '#e74c3c',
+						maxWidth: '640px',
+						margin: '0 auto',
+					}}
+				>
+					<h2>Missing PingOne Configuration</h2>
+					<p>We could not find a PingOne environment ID. Please configure your credentials.</p>
+				</div>
+				{renderModals()}
+			</>
+		);
+	}
+
+	// Always show authentication mode selection (moved outside conditional)
+	const renderAuthModeSelection = () => (
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				gap: '0.85rem',
+				marginTop: '1.25rem',
+				background: '#f8fafc',
+				borderRadius: '12px',
+				border: '1px solid #e2e8f0',
+				padding: '1rem 1.25rem',
+				textAlign: 'left',
+			}}
+		>
+			<div style={{ fontWeight: 600, color: '#1e293b' }}>Authentication Flow Mode</div>
+			<label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#1f2937' }}>
+				<input
+					type="radio"
+					name="loginMode"
+					value="redirect"
+					checked={loginMode === 'redirect'}
+					onChange={(e) => setLoginMode(e.target.value as LoginMode)}
+					style={{ marginTop: '0.3rem' }}
+				/>
+				<span>
+					<strong>Redirect (Hosted UI)</strong> — Browser leaves this page, PingOne renders the login
+					experience, and then redirects back. Easiest integration path; ideal when you want PingOne to
+					host username/password and MFA prompts.
+				</span>
+			</label>
+			<label style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', color: '#1f2937' }}>
+				<input
+					type="radio"
+					name="loginMode"
+					value="redirectless"
+					checked={loginMode === 'redirectless'}
+					onChange={(e) => setLoginMode(e.target.value as LoginMode)}
+					style={{ marginTop: '0.3rem' }}
+				/>
+				<span>
+					<strong>Redirectless (response_mode=pi.flow)</strong> — PingOne returns a flow JSON payload
+					instead of issuing a browser redirect. Use this when embedding login in your own UI. We
+					silently add <code style={{ color: '#ef4444' }}>response_mode=pi.flow</code> and swap
+					<code style={{ color: '#ef4444' }}>redirect_uri</code> to the special
+					<code style={{ color: '#ef4444' }}>urn:pingidentity:redirectless</code> value.
+				</span>
+			</label>
+		</div>
+	);
+
+	if (!accessToken) {
+		return (
+			<>
+				<HeaderSection />
+				<div
+					style={{
+						padding: '2rem',
+						textAlign: 'center',
+						color: '#1f2937',
+						maxWidth: '640px',
+						margin: '0 auto',
+					}}
+				>
+				<h2>Sign In Required</h2>
+				<p style={{ marginBottom: '1.5rem' }}>
+					We need an active PingOne session to load the Kroger MFA tools. Please sign in to continue.
+				</p>
+				{renderCredentialStatusSection()}
+				{renderAuthModeSelection()}
+				<button
+					type="button"
+					onClick={handleStartLogin}
+					style={{
+						background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+						color: '#ffffff',
+						border: 'none',
+						borderRadius: '9999px',
+						padding: '0.75rem 1.75rem',
+						fontSize: '1rem',
+						cursor: 'pointer',
+					}}
+				>
+					Sign In with PingOne
+				</button>
+				<p style={{ color: '#4b5563', marginTop: '1rem', fontSize: '0.9rem' }}>
+					Tip: After updating credentials in the configuration modal, reload this Kroger MFA page and then
+					click <strong>Sign In with PingOne</strong>. The flow now uses your saved Authorization Code client
+					end to end.
+				</p>
+				<p
+					style={{
+						color: '#1d4ed8',
+						marginTop: '0.75rem',
+						fontSize: '0.9rem',
+						background: '#e0ecff',
+						borderRadius: '12px',
+						padding: '0.9rem 1.1rem',
+						borderLeft: '4px solid #1d4ed8',
+					}}
+				>
+					Note: We automatically add <code style={{ color: '#ef4444' }}>prompt=login</code> and{' '}
+					<code style={{ color: '#ef4444' }}>max_age=0</code> to the authorization request so students can see
+					the full PingOne username/password screen every time.
+				</p>
+				{(authError || !accessToken) && (
+					<p style={{ color: '#dc2626', marginTop: '1rem' }}>
+						{authError || 'No access token detected for the current session.'}
+					</p>
+				)}
+				{accessToken && !userId && (
+					<p style={{ color: '#b45309', marginTop: '0.75rem' }}>
+						We issued tokens but could not identify the OIDC subject. The flow will continue, but some
+						dashboard personalization may be limited.
+					</p>
+				)}
+				{renderModals()}
+				</div>
+			</>
+		);
+	}
+
+	return (
+		<>
+			<HeaderSection />
+			<div
+				style={{
+					maxWidth: '640px',
+					margin: '0 auto',
+					padding: '0 2rem 2rem',
+				}}
+			>
+				{renderCredentialStatusSection()}
+				{renderAuthModeSelection()}
+			</div>
+		<MFAProvider accessToken={accessToken} environmentId={environmentId} userId={userId as string}>
+				<KrogerGroceryStoreMFA />
+			</MFAProvider>
+			
+			{renderModals()}
+		</>
+	);
+};
+
+export default KrogerGroceryStoreMFAWrapper;
