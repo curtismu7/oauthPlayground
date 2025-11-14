@@ -1111,6 +1111,38 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 					placeholder={discoveryPlaceholder}
 					showProviderInfo={showProviderInfo}
 				/>
+				
+				{/* Credential Input Fields */}
+				<CredentialsInput
+					environmentId={resolvedCredentials.environmentId}
+					clientId={resolvedCredentials.clientId}
+					clientSecret={resolvedCredentials.clientSecret}
+					redirectUri={resolvedCredentials.redirectUri}
+					scopes={resolvedCredentials.scope || resolvedCredentials.scopes}
+					loginHint={resolvedCredentials.loginHint}
+					postLogoutRedirectUri={resolvedCredentials.postLogoutRedirectUri}
+					region={(resolvedCredentials.region as 'us' | 'eu' | 'ap' | 'ca') || 'us'}
+					flowKey={flowType as any}
+					responseType={resolvedCredentials.responseType as any}
+					onEnvironmentIdChange={(value) => applyCredentialUpdates({ environmentId: value })}
+					onClientIdChange={(value) => applyCredentialUpdates({ clientId: value })}
+					onClientSecretChange={(value) => applyCredentialUpdates({ clientSecret: value })}
+					onRedirectUriChange={(value) => applyCredentialUpdates({ redirectUri: value })}
+					onScopesChange={(value) => applyCredentialUpdates({ scope: value, scopes: value })}
+					onLoginHintChange={(value) => applyCredentialUpdates({ loginHint: value })}
+					onPostLogoutRedirectUriChange={(value) => applyCredentialUpdates({ postLogoutRedirectUri: value })}
+					onRegionChange={(value) => applyCredentialUpdates({ region: value })}
+					showRedirectUri={effectiveShowRedirectUri}
+					showLoginHint={showLoginHint}
+					showPostLogoutRedirectUri={effectiveShowPostLogoutRedirectUri}
+					showClientSecret={requireClientSecret}
+					showEnvironmentIdInput={false}
+					showResponseModeSelector={false}
+					onSave={saveHandler}
+					hasUnsavedChanges={hasUnsavedChanges}
+					isSaving={isSaving}
+					autoDiscover={false}
+				/>
 			</CollapsibleHeader>
 
 			{/* Advanced Configuration */}
