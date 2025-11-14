@@ -216,14 +216,14 @@ export const testData = {
 // Helper functions for test data
 export const helpers = {
   // Generate mock JWT
-  generateMockJWT: (payload: any, header: any = { alg: 'RS256', typ: 'JWT' }) => {
+  generateMockJWT: (payload, header = { alg: 'RS256', typ: 'JWT' }) => {
     const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     return `${encodedHeader}.${encodedPayload}.mock-signature`;
   },
 
   // Generate random strings for testing
-  generateRandomString: (length: number = 32) => {
+  generateRandomString: (length = 32) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
     for (let i = 0; i < length; i++) {
@@ -233,7 +233,7 @@ export const helpers = {
   },
 
   // Create mock fetch response
-  createMockResponse: (data: any, status: number = 200) => ({
+  createMockResponse: (data, status = 200) => ({
     ok: status >= 200 && status < 300,
     status,
     statusText: status === 200 ? 'OK' : 'Error',
@@ -243,5 +243,5 @@ export const helpers = {
   }),
 
   // Mock network delay
-  delay: (ms: number) => new Promise(resolve => setTimeout(resolve, ms)),
+  delay: (ms) => new Promise(resolve => setTimeout(resolve, ms)),
 };
