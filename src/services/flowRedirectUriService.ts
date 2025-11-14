@@ -2,11 +2,11 @@
 // Service for managing flow-specific redirect URIs using centralized mapping
 
 import { 
-	generateRedirectUriForFlow, 
 	getFlowRedirectUriConfig, 
 	flowRequiresRedirectUri,
 	type FlowRedirectUriConfig 
 } from '../utils/flowRedirectUriMapping';
+import { callbackUriService } from './callbackUriService';
 
 /**
  * Service for managing OAuth/OIDC flow redirect URIs
@@ -15,11 +15,17 @@ export class FlowRedirectUriService {
 	/**
 	 * Get the default redirect URI for a flow type
 	 * @param flowType - The flow type identifier
-	 * @param baseUrl - Optional base URL (defaults to window.location.origin)
 	 * @returns The redirect URI or null if not required
 	 */
-	static getDefaultRedirectUri(flowType: string, baseUrl?: string): string | null {
-		return generateRedirectUriForFlow(flowType, baseUrl);
+	static getDefaultRedirectUri(flowType: string): string | null {
+		const config = getFlowRedirectUriConfig(flowType);
+
+		if (config && !config.requiresRedirectUri) {
+			return null;
+		}
+
+		const { redirectUri } = callbackUriService.getCallbackUriForFlow(flowType);
+		return redirectUri || null;
 	}
 
 	/**
@@ -52,48 +58,60 @@ export class FlowRedirectUriService {
 		customRedirectUri?: string, 
 		baseUrl?: string
 	): string | null {
-		// If custom redirect URI is provided and valid, use it
 		if (customRedirectUri && customRedirectUri.trim()) {
 			return customRedirectUri;
 		}
 
-		// Otherwise, use the default for this flow type
-		return FlowRedirectUriService.getDefaultRedirectUri(flowType, baseUrl);
+		const defaultUri = FlowRedirectUriService.getDefaultRedirectUri(flowType);
+
+		if (!defaultUri) {
+			return null;
+		}
+
+		if (!baseUrl) {
+			return defaultUri;
+		}
+
+		try {
+			const defaultUrl = new URL(defaultUri);
+			const targetBase = new URL(baseUrl, defaultUrl.origin);
+			return `${targetBase.origin}${defaultUrl.pathname}`;
+		} catch (error) {
+			console.warn('[FlowRedirectUriService] Failed to remap redirect URI base:', error);
+			return defaultUri;
+		}
 	}
 
 	/**
 	 * Validate a redirect URI against the flow's expected pattern
 	 * @param flowType - The flow type identifier
 	 * @param redirectUri - The redirect URI to validate
-	 * @param baseUrl - Optional base URL for validation
 	 * @returns true if the redirect URI is valid for this flow
 	 */
 	static validateRedirectUri(
 		flowType: string, 
-		redirectUri: string, 
-		baseUrl?: string
+		redirectUri: string
 	): boolean {
 		const config = FlowRedirectUriService.getFlowConfig(flowType);
 		
-		// If flow doesn't require redirect URI, any URI is valid
 		if (!config || !config.requiresRedirectUri) {
 			return true;
 		}
 
-		// Get expected redirect URI
-		const expectedUri = FlowRedirectUriService.getDefaultRedirectUri(flowType, baseUrl);
+		const expectedUri = FlowRedirectUriService.getDefaultRedirectUri(flowType);
 		
-		// If we can't determine expected URI, consider it valid
 		if (!expectedUri) {
 			return true;
 		}
 
-		// Check if the provided URI matches the expected pattern
-		const base = baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'https://localhost:3000');
-		const expectedPath = expectedUri.replace(base, '');
-		const providedPath = redirectUri.replace(base, '');
-
-		return providedPath === expectedPath;
+		try {
+			const expectedUrl = new URL(expectedUri);
+			const providedUrl = new URL(redirectUri, expectedUrl.origin);
+			return expectedUrl.href === providedUrl.href;
+		} catch (error) {
+			console.warn('[FlowRedirectUriService] Failed to normalise redirect URI for validation:', error);
+			return false;
+		}
 	}
 
 	/**
@@ -123,7 +141,6 @@ export class FlowRedirectUriService {
 		credentials: { redirectUri?: string },
 		baseUrl?: string
 	): string | null {
-		// For token exchange, we need the exact same URI used in authorization
 		return FlowRedirectUriService.getAuthorizationRedirectUri(flowType, credentials, baseUrl);
 	}
 
@@ -139,7 +156,7 @@ export class FlowRedirectUriService {
 		baseUrl?: string
 	): void {
 		const config = FlowRedirectUriService.getFlowConfig(flowType);
-		const defaultUri = FlowRedirectUriService.getDefaultRedirectUri(flowType, baseUrl);
+		const defaultUri = FlowRedirectUriService.getDefaultRedirectUri(flowType);
 		const finalUri = FlowRedirectUriService.getRedirectUri(flowType, credentials.redirectUri, baseUrl);
 
 		console.log(`[FlowRedirectUriService] Flow: ${flowType}`, {

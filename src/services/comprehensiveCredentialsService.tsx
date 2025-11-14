@@ -617,7 +617,7 @@ const ComprehensiveCredentialsService: React.FC<ComprehensiveCredentialsProps> =
 				flowTypeForCallback = 'authorization_code';
 			}
 			
-			const flowInfo = callbackUriService.getRedirectUriForFlow(flowTypeForCallback);
+			const flowInfo = callbackUriService.getCallbackUriForFlow(flowTypeForCallback);
 			if (flowInfo.logoutUri) {
 				return flowInfo.logoutUri;
 			}
