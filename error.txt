@@ -1,0 +1,9 @@
+
+> pingone-oauth-playground@7.4.0 lint
+> biome lint .
+
+The number of diagnostics exceeds the limit allowed. Use --max-diagnostics to increase it.
+Diagnostics not shown: 5329.
+Checked 1052 files in 1725ms. No fixes applied.
+Found 1383 errors.
+Found 3883 warnings.
