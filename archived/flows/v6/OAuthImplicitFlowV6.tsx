@@ -1,0 +1,2663 @@
+// src/pages/flows/OAuthImplicitFlowV6.tsx
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import styled from 'styled-components';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnhancedPromptSelector, { PromptValue } from '../../components/EnhancedPromptSelector';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import LoginSuccessModal from '../../components/LoginSuccessModal';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import ResourceParameterInput from '../../components/ResourceParameterInput';
+import ResponseModeSelector from '../../components/response-modes/ResponseModeSelector';
+import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
+// Import components
+import TokenIntrospect from '../../components/TokenIntrospect';
+import { useUISettings } from '../../contexts/UISettingsContext';
+import { useOAuth2CompliantImplicitFlow } from '../../hooks/useOAuth2CompliantImplicitFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import {
+	FiAlertCircle,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiChevronDown,
+	FiClock,
+	FiCode,
+	FiExternalLink,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiSettings,
+	FiShield,
+} from '../../services/commonImportsService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { CredentialGuardService } from '../../services/credentialGuardService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowConfigurationService } from '../../services/flowConfigurationService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowLayoutService } from '../../services/flowLayoutService';
+import { FlowRedirectUriService } from '../../services/flowRedirectUriService';
+import FlowStateService from '../../services/flowStateService';
+import { FlowStepNavigationService } from '../../services/flowStepNavigationService';
+import { FlowUIService } from '../../services/flowUIService';
+import { ImplicitFlowSharedService } from '../../services/implicitFlowSharedService';
+import ModalPresentationService from '../../services/modalPresentationService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { useResponseModeIntegration } from '../../services/responseModeIntegrationService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+
+// Import extracted styles and config
+
+// Get all UI components from the shared service
+const {
+	Container,
+	ContentWrapper,
+	MainCard,
+	StepHeader,
+	StepHeaderLeft,
+	VersionBadge,
+	StepHeaderTitle,
+	StepHeaderSubtitle,
+	StepHeaderRight,
+	StepNumber,
+	StepTotal,
+	StepContentWrapper,
+	CollapsibleSection,
+	CollapsibleHeaderButton,
+	CollapsibleTitle,
+	CollapsibleContent,
+	InfoBox,
+	InfoTitle,
+	InfoText,
+	StrongText,
+	InfoList,
+	ActionRow,
+	Button,
+	HighlightedActionButton,
+	HighlightBadge,
+	CodeBlock,
+	GeneratedContentBox,
+	GeneratedLabel,
+	ParameterGrid,
+	ParameterLabel,
+	ParameterValue,
+	FlowDiagram,
+	FlowStep,
+	FlowStepNumber,
+	FlowStepContent,
+	SectionDivider,
+	ResultsSection,
+	ResultsHeading,
+	HelperText,
+	ExplanationSection,
+	ExplanationHeading,
+	NextSteps,
+} = FlowUIService.getFlowUIComponents();
+
+// Local CollapsibleToggleIcon that accepts children
+const CollapsibleToggleIcon = styled.span<{ $collapsed?: boolean }>`
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: #3b82f6;
+	color: white;
+	box-shadow: 0 6px 16px #3b82f633;
+	transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(0deg)' : 'rotate(180deg)')};
+
+	svg {
+		width: 16px;
+		height: 16px;
+	}
+`;
+
+import {
+	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
+	STEP_METADATA,
+} from './config/OAuthImplicitFlow.config';
+
+// Import step components
+
+// Requirements components now generated by FlowLayoutService
+const RequirementsIndicator = FlowLayoutService.getRequirementsIndicatorStyles();
+const RequirementsIcon = FlowLayoutService.getRequirementsIconStyles();
+const RequirementsText = FlowLayoutService.getRequirementsTextStyles();
+
+const OAuthImplicitFlowV6: React.FC = () => {
+	const [implicitFlowState, implicitFlowActions] = useOAuth2CompliantImplicitFlow();
+
+	// Initialize shared services
+	const configService = FlowConfigurationService.createOAuthImplicitConfig();
+
+	// Initialize credentials from the compliant flow state
+	const [credentials, setCredentials] = useState<StepCredentials>(() => {
+		const normalizeCredentials = (creds?: Partial<StepCredentials>): StepCredentials => ({
+			clientId: creds?.clientId ?? implicitFlowState.credentials.clientId,
+			clientSecret: creds?.clientSecret ?? '',
+			environmentId: creds?.environmentId ?? implicitFlowState.credentials.environmentId,
+			issuerUrl: creds?.issuerUrl ?? '',
+			redirectUri:
+				creds?.redirectUri ??
+				(implicitFlowState.credentials.redirectUri ||
+					FlowRedirectUriService.getDefaultRedirectUri('oauth-implicit-v6')) ??
+				'',
+			scopes: creds?.scopes ?? implicitFlowState.credentials.scope ?? '',
+			scope: creds?.scope ?? implicitFlowState.credentials.scope ?? '',
+			responseType: creds?.responseType ?? 'token',
+			responseMode: creds?.responseMode ?? '',
+			grantType: creds?.grantType ?? '',
+			introspectionEndpoint: creds?.introspectionEndpoint ?? '',
+			authorizationEndpoint:
+				creds?.authorizationEndpoint ?? implicitFlowState.credentials.authorizationEndpoint ?? '',
+			nonce: creds?.nonce ?? '',
+			privateKey: creds?.privateKey ?? '',
+			keyId: creds?.keyId ?? '',
+			responseTypeCode: creds?.responseTypeCode ?? false,
+			responseTypeToken: creds?.responseTypeToken ?? true, // Implicit flow uses token response type
+			responseTypeIdToken: creds?.responseTypeIdToken ?? false,
+			initiateLoginUri: creds?.initiateLoginUri ?? '',
+			targetLinkUri: creds?.targetLinkUri ?? '',
+			signoffUrls: creds?.signoffUrls ?? [],
+			loginHint: creds?.loginHint ?? '',
+			postLogoutRedirectUri: creds?.postLogoutRedirectUri ?? '',
+			requestParameterSignatureRequirement:
+				creds?.requestParameterSignatureRequirement ?? 'DEFAULT',
+			additionalRefreshTokenReplayProtection:
+				creds?.additionalRefreshTokenReplayProtection ?? false,
+			includeX5tParameter: creds?.includeX5tParameter ?? false,
+			oidcSessionManagement: creds?.oidcSessionManagement ?? false,
+			requestScopesForMultipleResources: creds?.requestScopesForMultipleResources ?? false,
+			terminateUserSessionByIdToken: creds?.terminateUserSessionByIdToken ?? false,
+			corsOrigins: creds?.corsOrigins ?? [],
+			corsAllowAnyOrigin: creds?.corsAllowAnyOrigin ?? false,
+			tokenEndpoint: creds?.tokenEndpoint ?? '',
+			userInfoEndpoint: creds?.userInfoEndpoint ?? '',
+			clientAuthMethod: creds?.clientAuthMethod ?? 'none',
+		});
+
+		const stored = configService.loadConfiguration();
+		if (stored) {
+			return normalizeCredentials(stored);
+		}
+
+		return normalizeCredentials();
+	});
+
+	// Sync credentials with compliant flow state
+	useEffect(() => {
+		const updatedCredentials = {
+			...credentials,
+			clientId: implicitFlowState.credentials.clientId,
+			environmentId: implicitFlowState.credentials.environmentId,
+			redirectUri: implicitFlowState.credentials.redirectUri,
+			scope: implicitFlowState.credentials.scope,
+			authorizationEndpoint: implicitFlowState.credentials.authorizationEndpoint,
+		};
+		setCredentials(updatedCredentials);
+	}, [implicitFlowState.credentials]);
+
+	// Response mode integration using centralized service
+	const responseModeIntegration = useResponseModeIntegration({
+		flowKey: 'implicit',
+		credentials: credentials,
+		setCredentials: setCredentials,
+		logPrefix: '[🔐 OAUTH-IMPLICIT]',
+	});
+
+	const { setResponseMode: setResponseModeInternal } = responseModeIntegration;
+
+	// Wrapper to update both local and compliant flow credentials when response mode changes
+	const setResponseMode = useCallback(
+		(mode: string) => {
+			console.log('[OAuth Implicit V6] Response mode changing to:', mode);
+			setResponseModeInternal(mode as any);
+			// Update local credentials
+			const updated = { ...credentials, responseMode: mode };
+			setCredentials(updated);
+		},
+		[setResponseModeInternal, credentials, setCredentials]
+	);
+
+	// Ensure page starts at top
+	usePageScroll({ pageName: 'OAuth Implicit Flow V5', force: true });
+
+	const { settings } = useUISettings();
+	const { showApiCallExamples } = settings;
+
+	// State declarations FIRST (before any useEffect that uses them)
+	const [currentStep, setCurrentStep] = useState(0);
+	const initialStepAppliedRef = useRef(false);
+	const initialStepRef = useRef(0);
+
+	useEffect(() => {
+		if (initialStepAppliedRef.current) {
+			return;
+		}
+
+		const stateStep = implicitFlowState.currentStep;
+		const initialStep =
+			typeof stateStep === 'number' && stateStep > 0
+				? stateStep
+				: ImplicitFlowSharedService.StepRestoration.getInitialStep();
+
+		initialStepRef.current = initialStep;
+		setCurrentStep(initialStep);
+		initialStepAppliedRef.current = true;
+	}, [implicitFlowState.currentStep]);
+
+	useEffect(() => {
+		if (initialStepRef.current < 2) {
+			return;
+		}
+
+		const hasTokenFragment =
+			typeof window !== 'undefined' && window.location.hash?.includes('access_token');
+		if (!implicitFlowState.tokens && !hasTokenFragment) {
+			initialStepRef.current = 0;
+			setCurrentStep(0);
+			try {
+				sessionStorage.removeItem('restore_step');
+			} catch (error) {
+				console.warn(
+					'[OAuthImplicitFlowV6] Failed to clear restore_step from sessionStorage',
+					error
+				);
+			}
+		}
+	}, [implicitFlowState.tokens]);
+	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
+	const [collapsedSections, setCollapsedSections] = useState(
+		ImplicitFlowSharedService.CollapsibleSections.getDefaultState
+	);
+	const [showSuccessModal, setShowSuccessModal] = useState(false);
+	const [showRedirectModal, setShowRedirectModal] = useState(false);
+	const [showMissingCredentialsModal, setShowMissingCredentialsModal] = useState(false);
+	const [missingCredentialFields, setMissingCredentialFields] = useState<string[]>([]);
+
+	// Advanced OAuth parameters
+	const [audience, setAudience] = useState('');
+	const [resources, setResources] = useState<string[]>([]);
+	const [promptValues, setPromptValues] = useState<PromptValue[]>([]);
+	const [isDiscoveringAudience, setIsDiscoveringAudience] = useState(false);
+
+	// All useEffect hooks AFTER state declarations
+	useEffect(() => {
+		// Sync current step with compliant flow state when provided
+		if (
+			typeof implicitFlowState.currentStep === 'number' &&
+			implicitFlowState.currentStep !== currentStep
+		) {
+			setCurrentStep(implicitFlowState.currentStep);
+		}
+	}, [implicitFlowState.currentStep, currentStep]);
+
+	useEffect(() => {
+		// Handle token response completion
+		if (implicitFlowState.tokens && !showSuccessModal) {
+			setShowSuccessModal(true);
+			setCurrentStep(3); // Move to token display step
+			console.log('[OAuth Implicit V6] Tokens received and processed successfully:', {
+				hasAccessToken: !!implicitFlowState.tokens.access_token,
+				tokenType: implicitFlowState.tokens.token_type,
+				expiresIn: implicitFlowState.tokens.expires_in,
+				scope: implicitFlowState.tokens.scope,
+			});
+		}
+	}, [implicitFlowState.tokens, showSuccessModal]);
+
+	useEffect(() => {
+		// Handle authorization errors with detailed processing
+		if (implicitFlowState.errors.length > 0) {
+			const latestError = implicitFlowState.errors[implicitFlowState.errors.length - 1];
+			console.error('[OAuth Implicit V6] Authorization error:', latestError);
+
+			// Provide specific error messages based on error type
+			let userMessage = 'Authorization failed';
+			if (latestError.error === 'access_denied') {
+				userMessage =
+					'Access denied: User cancelled the authorization or access was denied by the server';
+			} else if (latestError.error === 'invalid_request') {
+				userMessage = 'Invalid request: Check your client configuration and parameters';
+			} else if (latestError.error === 'unauthorized_client') {
+				userMessage = 'Unauthorized client: Your client is not authorized for this flow';
+			} else if (latestError.error === 'unsupported_response_type') {
+				userMessage = 'Unsupported response type: The server does not support the implicit flow';
+			} else if (latestError.error === 'invalid_scope') {
+				userMessage = 'Invalid scope: One or more requested scopes are invalid or not allowed';
+			} else if (latestError.error === 'server_error') {
+				userMessage = 'Server error: The authorization server encountered an unexpected condition';
+			} else if (latestError.error === 'temporarily_unavailable') {
+				userMessage = 'Service temporarily unavailable: Please try again later';
+			} else if (latestError.error_description) {
+				userMessage = `Authorization failed: ${latestError.error_description}`;
+			} else {
+				userMessage = `Authorization failed: ${latestError.error}`;
+			}
+
+			v4ToastManager.showError(userMessage);
+		}
+	}, [implicitFlowState.errors]);
+
+	useEffect(() => {
+		// Handle validation warnings
+		if (implicitFlowState.warnings.length > 0) {
+			const latestWarning = implicitFlowState.warnings[implicitFlowState.warnings.length - 1];
+			console.warn('[OAuth Implicit V6] Security warning:', latestWarning);
+		}
+	}, [implicitFlowState.warnings]);
+
+	useEffect(() => {
+		// Ensure response type is always 'token' for OAuth 2.0 implicit flow
+		if (credentials.responseType !== 'token') {
+			const updated = { ...credentials, responseType: 'token', responseTypeToken: true };
+			setCredentials(updated);
+		}
+	}, [credentials]);
+
+	// Sync prompt values with credentials
+	useEffect(() => {
+		if (promptValues.length > 0) {
+			const promptString = promptValues.join(' ');
+			console.log('[OAuth Implicit V6] Updating prompt parameter:', promptString);
+			// Store prompt in credentials for later use in authorization URL
+			const updated = { ...credentials, prompt: promptString };
+			setCredentials(updated);
+		}
+	}, [promptValues, credentials]);
+
+	// Sync audience with credentials
+	useEffect(() => {
+		if (audience) {
+			console.log('[OAuth Implicit V6] Updating audience parameter:', audience);
+			// Store audience in credentials for later use in authorization URL
+			const updated = { ...credentials, audience };
+			setCredentials(updated);
+		}
+	}, [audience, credentials]);
+
+	useEffect(() => {
+		ImplicitFlowSharedService.StepRestoration.scrollToTopOnStepChange();
+	}, [currentStep]);
+
+	// Discover audience from OIDC Discovery
+	const discoverAudience = useCallback(async () => {
+		if (!credentials.environmentId || credentials.environmentId.trim() === '') {
+			console.warn('⚠️ [OAuth Implicit] Cannot discover audience - Environment ID is empty');
+			v4ToastManager.showWarning('Please enter an Environment ID first');
+			return;
+		}
+
+		setIsDiscoveringAudience(true);
+		try {
+			console.log(
+				'🔍 [OAuth Implicit] Discovering audience for environment:',
+				credentials.environmentId
+			);
+
+			// Construct issuer URL from environment ID
+			const issuerUrl = `https://auth.pingone.com/${credentials.environmentId.trim()}/as`;
+			console.log('🔍 [OAuth Implicit] Constructed issuer URL:', issuerUrl);
+
+			// Perform OIDC discovery
+			const result = await oidcDiscoveryService.discover(issuerUrl);
+
+			if (result.document?.issuer) {
+				const discoveredAudience = result.document.issuer;
+				setAudience(discoveredAudience);
+				console.log('✅ [OAuth Implicit] Audience discovered:', discoveredAudience);
+				v4ToastManager.showSuccess('Audience discovered and populated!');
+			} else {
+				throw new Error('No issuer found in OIDC discovery document');
+			}
+		} catch (error) {
+			handleFlowError(
+				error,
+				'Audience discovery failed',
+				'Failed to discover audience from OIDC endpoint. Please enter the audience manually.'
+			);
+		} finally {
+			setIsDiscoveringAudience(false);
+		}
+	}, [credentials.environmentId]);
+
+	// Step completions are now handled by FlowStateService
+
+	const toggleSection =
+		ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
+
+	const savePingOneConfig = useCallback((config: PingOneApplicationState) => {
+		ImplicitFlowSharedService.CredentialsHandlers.createPingOneConfigHandler(
+			'oauth',
+			setPingOneConfig
+		)(config);
+	}, []);
+
+	const handleGenerateAuthUrl = useCallback(async () => {
+		console.log('[OAuth Implicit V6] Generate URL - Checking credentials:', {
+			clientId: credentials.clientId,
+			environmentId: credentials.environmentId,
+			redirectUri: credentials.redirectUri,
+		});
+
+		const credentialGuard = CredentialGuardService.checkMissingFields(credentials, {
+			requiredFields: ['environmentId', 'clientId', 'redirectUri'],
+			fieldLabels: {
+				environmentId: 'Environment ID',
+				clientId: 'Client ID',
+				redirectUri: 'Redirect URI',
+			},
+		});
+
+		if (!credentialGuard.canProceed) {
+			setMissingCredentialFields(credentialGuard.missingFields);
+			setShowMissingCredentialsModal(true);
+			console.warn(
+				'⚠️ [OAuthImplicitFlowV6] Blocked authorization URL generation due to missing credentials',
+				{
+					missingFields: credentialGuard.missingFields,
+				}
+			);
+			return;
+		}
+
+		try {
+			// Update compliant flow credentials
+			implicitFlowActions.setCredentials({
+				environmentId: credentials.environmentId,
+				clientId: credentials.clientId,
+				redirectUri: credentials.redirectUri,
+				scope: credentials.scope || 'openid profile email',
+				authorizationEndpoint:
+					credentials.authorizationEndpoint ||
+					`https://auth.pingone.com/${credentials.environmentId}/as/authorize`,
+			});
+
+			// Validate configuration first
+			const validation = await implicitFlowActions.validateConfiguration();
+			if (!validation.valid) {
+				console.error('[OAuth Implicit V6] Configuration validation failed:', validation.errors);
+				v4ToastManager.showError(
+					`Configuration validation failed: ${validation.errors.join(', ')}`
+				);
+				return;
+			}
+
+			// Clear any other flow flags and mark this flow as active for callback handling
+			sessionStorage.removeItem('oidc-implicit-v6-flow-active');
+			sessionStorage.setItem('oauth-implicit-v6-flow-active', 'true');
+
+			// Generate RFC 6749 compliant authorization URL
+			await implicitFlowActions.generateAuthorizationUrl();
+
+			console.log('[OAuth Implicit V6] Authorization URL generated successfully');
+			v4ToastManager.showSuccess('RFC 6749 compliant authorization URL generated successfully!');
+		} catch (error) {
+			handleFlowError(
+				error,
+				'Authorization URL generation failed',
+				'Failed to generate authorization URL. Please check your credentials and try again.'
+			);
+		}
+	}, [credentials, implicitFlowActions]);
+
+	const handleOpenAuthUrl = useCallback(() => {
+		if (ImplicitFlowSharedService.Authorization.openAuthUrl(implicitFlowState.authorizationUrl)) {
+			setShowRedirectModal(true);
+		}
+	}, [implicitFlowState.authorizationUrl]);
+
+	const handleConfirmRedirect = useCallback(() => {
+		setShowRedirectModal(false);
+		// The compliant flow automatically handles token response via URL fragment
+		window.location.href = implicitFlowState.authorizationUrl;
+	}, [implicitFlowState.authorizationUrl]);
+
+	const handleCancelRedirect = useCallback(() => {
+		setShowRedirectModal(false);
+	}, []);
+
+	const navigateToTokenManagement = useCallback(() => {
+		ImplicitFlowSharedService.TokenManagement.navigateToTokenManagement(
+			'oauth',
+			implicitFlowState.tokens,
+			credentials,
+			currentStep
+		);
+	}, [implicitFlowState.tokens, credentials, currentStep]);
+
+	const handleResetFlow = useCallback(() => {
+		implicitFlowActions.resetFlow();
+		setCurrentStep(0);
+	}, [implicitFlowActions]);
+
+	// Centralized error handler for consistent error processing
+	const handleFlowError = useCallback(
+		(error: unknown, context: string, userMessage?: string) => {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+			const timestamp = new Date().toISOString();
+
+			// Log detailed error information
+			console.error(`[OAuth Implicit V6] ${context}:`, {
+				error: errorMessage,
+				timestamp,
+				context,
+				flowState: {
+					currentStep: implicitFlowState.currentStep,
+					hasTokens: !!implicitFlowState.tokens,
+					hasAuthUrl: !!implicitFlowState.authorizationUrl,
+					configValid: implicitFlowState.isConfigValid,
+				},
+				credentials: {
+					hasClientId: !!credentials.clientId,
+					hasEnvironmentId: !!credentials.environmentId,
+					hasRedirectUri: !!credentials.redirectUri,
+				},
+			});
+
+			// Show user-friendly error message
+			const displayMessage = userMessage || errorMessage;
+			v4ToastManager.showError(displayMessage);
+
+			// Add error to flow state for display
+			if (error instanceof Error && error.message.includes('authorization')) {
+				// This is likely an authorization error that should be tracked
+				console.warn(
+					'[OAuth Implicit V6] Authorization error detected, check URL fragment for error parameters'
+				);
+			}
+		},
+		[implicitFlowState, credentials]
+	);
+
+	const handleProcessTokens = useCallback(async () => {
+		try {
+			console.log('[OAuth Implicit V6] Manually processing token response from URL fragment');
+			await implicitFlowActions.handleTokenResponse();
+		} catch (error) {
+			handleFlowError(
+				error,
+				'Manual token processing failed',
+				'Failed to process tokens from URL fragment. Please check the URL contains valid tokens.'
+			);
+		}
+	}, [implicitFlowActions, handleFlowError]);
+
+	// Error recovery helper
+	const handleErrorRecovery = useCallback(
+		(errorType: 'config' | 'auth' | 'token' | 'network') => {
+			console.log(`[OAuth Implicit V6] Attempting error recovery for: ${errorType}`);
+
+			switch (errorType) {
+				case 'config':
+					// Reset to step 0 for configuration fixes
+					setCurrentStep(0);
+					v4ToastManager.showInfo('Returned to configuration step. Please check your credentials.');
+					break;
+				case 'auth':
+					// Clear authorization state and retry
+					implicitFlowActions.resetFlow();
+					setCurrentStep(0);
+					v4ToastManager.showInfo(
+						'Authorization state cleared. You can try generating a new authorization URL.'
+					);
+					break;
+				case 'token':
+					// Attempt to reprocess tokens from URL
+					if (window.location.hash) {
+						handleProcessTokens();
+					} else {
+						v4ToastManager.showWarning(
+							'No tokens found in URL fragment. Please complete the authorization flow again.'
+						);
+						setCurrentStep(0);
+					}
+					break;
+				case 'network':
+					// Provide network troubleshooting guidance
+					v4ToastManager.showInfo(
+						'Network error detected. Please check your internet connection and try again.'
+					);
+					break;
+				default:
+					// General recovery - reset flow
+					implicitFlowActions.resetFlow();
+					setCurrentStep(0);
+					v4ToastManager.showInfo('Flow reset. Please start over.');
+			}
+		},
+		[implicitFlowActions, handleProcessTokens]
+	);
+
+	const handleIntrospectToken = useCallback(
+		async (token: string) => {
+			if (!credentials.environmentId || !credentials.clientId) {
+				throw new Error('Missing PingOne credentials. Please configure your credentials first.');
+			}
+
+			const request = {
+				token: token,
+				clientId: credentials.clientId,
+				// No client secret for implicit flow (public client)
+				tokenTypeHint: 'access_token' as const,
+			};
+
+			try {
+				// Determine the appropriate authentication method for implicit flow
+				// Implicit flows are public clients and typically don't use client secrets
+				const authMethod = 'none'; // Implicit flows don't use client authentication for introspection
+
+				// Use the reusable service to create API call data and execute introspection
+				const result = await TokenIntrospectionService.introspectToken(
+					request,
+					'implicit',
+					'/api/introspect-token',
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`,
+					authMethod
+				);
+
+				// Set the API call data for display
+				setIntrospectionApiCall(result.apiCall);
+
+				return result.response;
+			} catch (error) {
+				// Create error API call using reusable service
+				const errorApiCall = TokenIntrospectionService.createErrorApiCall(
+					request,
+					'implicit',
+					error instanceof Error ? error.message : 'Unknown error',
+					500,
+					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`
+				);
+
+				setIntrospectionApiCall(errorApiCall);
+				throw error;
+			}
+		},
+		[credentials]
+	);
+
+	// Validation and navigation functions using services
+	const isStepValid = useCallback(
+		(stepIndex: number) => {
+			switch (stepIndex) {
+				case 0:
+					return true;
+				case 1:
+					return Boolean(implicitFlowState.authorizationUrl);
+				case 2:
+					return Boolean(implicitFlowState.tokens);
+				case 3:
+					return Boolean(implicitFlowState.tokens);
+				case 4:
+					return true;
+				case 5:
+					return true;
+				default:
+					return false;
+			}
+		},
+		[implicitFlowState.authorizationUrl, implicitFlowState.tokens]
+	);
+
+	const getStepRequirements = useCallback((stepIndex: number) => {
+		switch (stepIndex) {
+			case 1:
+				return ['Configure credentials and generate authorization URL'];
+			case 2:
+				return ['Complete authorization and receive tokens'];
+			case 3:
+				return ['Validate and inspect received tokens'];
+			case 4:
+				return ['Review security features and best practices'];
+			case 5:
+				return ['Review flow completion and next steps'];
+			default:
+				return [];
+		}
+	}, []);
+
+	const { handleNext, handlePrev, canNavigateNext } =
+		FlowStepNavigationService.createStepNavigationHandlers({
+			currentStep,
+			totalSteps: STEP_METADATA.length,
+			isStepValid: (stepIndex: number) => {
+				// Add step validation logic here if needed
+				return true;
+			},
+		});
+
+	// Create the actual handlers that use setCurrentStep
+	const handleNextStep = useCallback(
+		() => handleNext(setCurrentStep),
+		[handleNext, setCurrentStep]
+	);
+	const handlePrevStep = useCallback(
+		() => handlePrev(setCurrentStep),
+		[handlePrev, setCurrentStep]
+	);
+
+	// Override canNavigateNext to include step validation
+	const validatedCanNavigateNext = useCallback(() => {
+		return canNavigateNext() && isStepValid(currentStep);
+	}, [canNavigateNext, isStepValid, currentStep]);
+
+	// Override handleNext to include step validation and credential guard on Step 0
+	const validatedHandleNext = useCallback(() => {
+		if (currentStep === 0) {
+			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(credentials, {
+				requiredFields: ['environmentId', 'clientId', 'redirectUri'],
+				fieldLabels: {
+					environmentId: 'Environment ID',
+					clientId: 'Client ID',
+					redirectUri: 'Redirect URI',
+				},
+			});
+
+			if (!canProceed) {
+				setMissingCredentialFields(missingFields);
+				setShowMissingCredentialsModal(true);
+				console.warn('⚠️ [OAuthImplicitFlowV6] Missing required credentials', { missingFields });
+				return;
+			}
+		}
+
+		ImplicitFlowSharedService.Navigation.handleNext(
+			currentStep,
+			credentials,
+			'oauth',
+			isStepValid,
+			handleNext
+		);
+	}, [currentStep, credentials, handleNext, isStepValid]);
+
+	const renderStepContent = useMemo(() => {
+		const tokens = implicitFlowState.tokens;
+
+		switch (currentStep) {
+			case 0:
+				return (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('overview')}
+								aria-expanded={!collapsedSections.overview}
+							>
+								<CollapsibleTitle>
+									<FiInfo /> Implicit Flow Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.overview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.overview && (
+								<CollapsibleContent>
+									{/* Prominent Deprecation Warning */}
+									<InfoBox
+										$variant="danger"
+										style={{
+											border: '2px solid #dc2626',
+											backgroundColor: '#fef2f2',
+											marginBottom: '1.5rem',
+										}}
+									>
+										<FiAlertTriangle size={24} style={{ color: '#dc2626' }} />
+										<div>
+											<InfoTitle
+												style={{ color: '#dc2626', fontSize: '1.1rem', fontWeight: 'bold' }}
+											>
+												⚠️ DEPRECATED FLOW - NOT RECOMMENDED FOR PRODUCTION
+											</InfoTitle>
+											<InfoText style={{ color: '#7f1d1d', fontWeight: '500' }}>
+												The OAuth 2.0 Implicit Flow is <StrongText>deprecated</StrongText> and
+												should
+												<StrongText> NOT be used in production applications</StrongText>. This
+												implementation is provided for{' '}
+												<StrongText>educational purposes only</StrongText>.
+											</InfoText>
+											<InfoText style={{ marginTop: '0.75rem', color: '#7f1d1d' }}>
+												<StrongText>Recommended Alternative:</StrongText> Use Authorization Code
+												Flow with PKCE for all new applications. It provides better security,
+												refresh tokens, and is the OAuth 2.1 standard.
+											</InfoText>
+											<NextSteps
+												steps={[
+													'🔒 Authorization Code + PKCE: Modern, secure OAuth flow',
+													'🔄 Refresh Tokens: Long-lived access without re-authentication',
+													'📱 Mobile Support: Better support for native mobile apps',
+													'🛡️ Security: No token exposure in URLs or browser history',
+													'📋 OAuth 2.1: Current standard recommendation',
+												]}
+											/>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>OAuth 2.0 Implicit Flow (Authorization Only)</InfoTitle>
+											<InfoText>
+												This is the pure OAuth 2.0 Implicit Flow that returns{' '}
+												<StrongText>Access Token only</StrongText>. It's designed for{' '}
+												<StrongText>authorization and API access delegation</StrongText>, NOT for
+												user authentication or identity.
+											</InfoText>
+											<InfoText style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
+												⚠️ This flow does NOT provide user identity information. If you need to
+												authenticate users, use OIDC Implicit Flow V5 instead.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="warning">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Legacy Flow - Use with Caution</InfoTitle>
+											<InfoText>
+												The Implicit Flow is considered legacy and less secure than Authorization
+												Code with PKCE. Tokens are exposed in the URL, making them vulnerable to
+												interception. Use this flow only if you have specific requirements that
+												prevent using Authorization Code + PKCE.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<GeneratedContentBox>
+										<GeneratedLabel>OAuth 2.0 vs OIDC Implicit Comparison</GeneratedLabel>
+										<ParameterGrid>
+											<div>
+												<ParameterLabel>Tokens Returned</ParameterLabel>
+												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+													Access Token ONLY
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Purpose</ParameterLabel>
+												<ParameterValue style={{ color: '#3b82f6', fontWeight: 'bold' }}>
+													Authorization (NOT authentication)
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Spec Layer</ParameterLabel>
+												<ParameterValue>OAuth 2.0 Framework</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Nonce Requirement</ParameterLabel>
+												<ParameterValue style={{ color: '#059669' }}>
+													Not used (no ID token)
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Scope Requirements</ParameterLabel>
+												<ParameterValue>Custom scopes (no openid)</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>User Identity</ParameterLabel>
+												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+													NOT PROVIDED
+												</ParameterValue>
+											</div>
+											<div style={{ gridColumn: '1 / -1' }}>
+												<ParameterLabel>Use Case</ParameterLabel>
+												<ParameterValue>
+													Delegate API access to third-party app (e.g., "Let app X post to my
+													Twitter")
+												</ParameterValue>
+											</div>
+										</ParameterGrid>
+									</GeneratedContentBox>
+
+									<ExplanationSection>
+										<ExplanationHeading>
+											<FiShield /> How Implicit Flow Works
+										</ExplanationHeading>
+										<InfoText>
+											In the Implicit Flow, tokens are returned directly from the authorization
+											endpoint in the URL fragment (#), without an intermediate authorization code
+											exchange step. This makes it simpler but less secure.
+										</InfoText>
+									</ExplanationSection>
+
+									<FlowDiagram>
+										{[
+											'User clicks login to start the flow',
+											'App redirects to PingOne with authorization request',
+											'User authenticates and approves scopes',
+											'PingOne returns tokens directly in URL fragment',
+											'App extracts and validates tokens from URL',
+										].map((description, index) => (
+											<FlowStep key={description}>
+												<FlowStepNumber>{index + 1}</FlowStepNumber>
+												<FlowStepContent>
+													<StrongText>{description}</StrongText>
+												</FlowStepContent>
+											</FlowStep>
+										))}
+									</FlowDiagram>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Comprehensive Credentials Service - replaces all credential configuration components */}
+						<ComprehensiveCredentialsService
+							// Flow identification
+							flowType="oauth-implicit-v6"
+							// Pass individual credential props
+							environmentId={credentials.environmentId || ''}
+							clientId={credentials.clientId || ''}
+							clientSecret={credentials.clientSecret || ''}
+							redirectUri={credentials.redirectUri}
+							scopes={credentials.scope || credentials.scopes || ''}
+							loginHint={credentials.loginHint || ''}
+							postLogoutRedirectUri={
+								credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'
+							}
+							// Individual change handlers
+							onEnvironmentIdChange={(value) => {
+								const updated = { ...credentials, environmentId: value };
+								setCredentials(updated);
+								console.log('[OAuth Implicit V6] Environment ID updated:', value);
+							}}
+							onClientIdChange={(value) => {
+								const updated = { ...credentials, clientId: value };
+								setCredentials(updated);
+								console.log('[OAuth Implicit V6] Client ID updated:', value);
+							}}
+							onClientSecretChange={(value) => {
+								const updated = { ...credentials, clientSecret: value };
+								setCredentials(updated);
+							}}
+							onRedirectUriChange={(value) => {
+								const updated = { ...credentials, redirectUri: value };
+								setCredentials(updated);
+								console.log('[OAuth Implicit V6] Redirect URI updated:', value);
+								// Auto-save redirect URI to persist across refreshes
+								configService
+									.saveConfiguration(updated)
+									.then(() => {
+										v4ToastManager.showSuccess('Redirect URI saved successfully!');
+									})
+									.catch((error) => {
+										console.error('[OAuth Implicit V6] Failed to save redirect URI:', error);
+										v4ToastManager.showError('Failed to save redirect URI');
+									});
+							}}
+							onScopesChange={(value) => {
+								// For OAuth 2.0 implicit flow, don't force openid scope
+								const updated = { ...credentials, scope: value, scopes: value };
+								setCredentials(updated);
+								console.log('[OAuth Implicit V6] Scopes updated:', value);
+							}}
+							onLoginHintChange={(value) => {
+								const updated = { ...credentials, loginHint: value };
+								setCredentials(updated);
+							}}
+							// Save handler for credentials
+							onSave={async () => {
+								try {
+									await configService.saveConfiguration(credentials);
+									v4ToastManager.showSuccess('Credentials saved successfully!');
+								} catch (error) {
+									console.error('[OAuth Implicit V6] Failed to save credentials:', error);
+									v4ToastManager.showError('Failed to save credentials');
+								}
+							}}
+							// Discovery handler - environment ID is auto-populated by the service
+							onDiscoveryComplete={(result) => {
+								console.log('[OAuth Implicit V6] OIDC Discovery completed:', result);
+								// Extract environment ID from issuer URL using the standard service
+								if (result.issuerUrl) {
+									const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
+										result.issuerUrl
+									);
+									if (extractedEnvId) {
+										implicitFlowActions.setCredentials({
+											...implicitFlowState.credentials,
+											environmentId: extractedEnvId,
+										});
+										console.log(
+											'[OAuth Implicit V6] Auto-extracted Environment ID:',
+											extractedEnvId
+										);
+									}
+								}
+							}}
+							// PingOne Advanced Configuration (correct prop names)
+							pingOneAppState={pingOneConfig}
+							onPingOneAppStateChange={savePingOneConfig}
+							// Configuration
+							requireClientSecret={false}
+							showAdvancedConfig={false} // ❌ Implicit flow deprecated, no token endpoint for client auth
+							defaultCollapsed={false}
+						/>
+					</>
+				);
+
+			case 1:
+				return (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('authRequestOverview')}
+								aria-expanded={!collapsedSections.authRequestOverview}
+							>
+								<CollapsibleTitle>
+									<FiGlobe /> Authorization Request Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.authRequestOverview && (
+								<CollapsibleContent>
+									<InfoBox $variant="info">
+										<FiGlobe size={20} />
+										<div>
+											<InfoTitle>Building the Authorization URL</InfoTitle>
+											<InfoText>
+												The authorization URL includes all OAuth parameters. Unlike Authorization
+												Code flow, the response_type is 'token' or 'id_token token', telling PingOne
+												to return tokens directly instead of an authorization code.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>OAuth 2.0 Implicit Flow Specific Parameters</InfoTitle>
+											<InfoList>
+												<li>
+													<StrongText>response_type:</StrongText> token (Access Token only)
+												</li>
+												<li>
+													<StrongText>nonce:</StrongText>{' '}
+													<span style={{ color: '#059669', fontWeight: 'bold' }}>NOT required</span>{' '}
+													(no ID Token in OAuth 2.0)
+												</li>
+												<li>
+													<StrongText>state:</StrongText> CSRF protection (recommended)
+												</li>
+												<li>
+													<StrongText>No PKCE:</StrongText> Implicit flow doesn't support PKCE
+												</li>
+												<li>
+													<StrongText>No ID Token:</StrongText> OAuth 2.0 is for authorization, not
+													authentication
+												</li>
+												<li>
+													<StrongText>No openid scope:</StrongText> OAuth 2.0 doesn't use OIDC
+													scopes
+												</li>
+												<li>
+													<StrongText>No UserInfo endpoint:</StrongText> OAuth 2.0 doesn't provide
+													user identity claims
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="danger">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>NOT for User Authentication!</InfoTitle>
+											<InfoText>
+												OAuth 2.0 Implicit is for <StrongText>authorization only</StrongText> (API
+												access delegation). It does NOT authenticate users or provide identity
+												information.
+											</InfoText>
+											<InfoText style={{ marginTop: '0.5rem' }}>
+												<StrongText>Need user authentication?</StrongText> Use OIDC Implicit Flow V5
+												instead, which returns an ID Token with user identity claims.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() =>
+									setCollapsedSections((prev) => ({ ...prev, responseMode: !prev.responseMode }))
+								}
+								aria-expanded={!collapsedSections.responseMode}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Response Mode Selection
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.responseMode}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.responseMode && (
+								<CollapsibleContent>
+									<ResponseModeSelector
+										flowKey="implicit"
+										responseType="token"
+										redirectUri={`${window.location.origin}/oauth-implicit-callback`}
+										clientId={credentials.clientId}
+										scope={credentials.scope || ''}
+										state="random_state_123"
+										nonce=""
+										defaultMode="fragment"
+										readOnlyFlowContext={false}
+										onModeChange={setResponseMode}
+									/>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Advanced OAuth Parameters */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() =>
+									setCollapsedSections((prev) => ({
+										...prev,
+										advancedParams: !prev.advancedParams,
+									}))
+								}
+								aria-expanded={!collapsedSections.advancedParams}
+							>
+								<CollapsibleTitle>
+									<FiSettings /> Advanced OAuth Parameters (Optional)
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.advancedParams}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.advancedParams && (
+								<CollapsibleContent>
+									{/* Audience Parameter with OIDC Discovery */}
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>Audience Parameter</InfoTitle>
+											<InfoText>
+												The audience parameter specifies the intended recipient of the access token.
+												This can be auto-discovered from your PingOne environment's OIDC Discovery
+												endpoint.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<div
+										style={{
+											marginTop: '1rem',
+											display: 'flex',
+											flexDirection: 'column',
+											gap: '0.75rem',
+										}}
+									>
+										<AudienceParameterInput
+											value={audience}
+											onChange={setAudience}
+											flowType="oauth"
+										/>
+
+										<div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+											<button
+												type="button"
+												onClick={discoverAudience}
+												disabled={isDiscoveringAudience || !credentials.environmentId}
+												style={{
+													padding: '0.5rem 1rem',
+													background: isDiscoveringAudience ? '#9ca3af' : '#3b82f6',
+													color: 'white',
+													border: 'none',
+													borderRadius: '6px',
+													cursor:
+														isDiscoveringAudience || !credentials.environmentId
+															? 'not-allowed'
+															: 'pointer',
+													fontSize: '0.875rem',
+													fontWeight: '500',
+													display: 'flex',
+													alignItems: 'center',
+													gap: '0.5rem',
+													transition: 'all 0.2s ease',
+												}}
+												onMouseEnter={(e) => {
+													if (!isDiscoveringAudience && credentials.environmentId) {
+														e.currentTarget.style.background = '#2563eb';
+													}
+												}}
+												onMouseLeave={(e) => {
+													if (!isDiscoveringAudience && credentials.environmentId) {
+														e.currentTarget.style.background = '#3b82f6';
+													}
+												}}
+											>
+												{isDiscoveringAudience ? (
+													<FiRefreshCw size={14} className="animate-spin" />
+												) : (
+													<FiGlobe size={14} />
+												)}
+												{isDiscoveringAudience ? 'Discovering...' : 'Auto-Discover from OIDC'}
+											</button>
+										</div>
+									</div>
+
+									<SectionDivider />
+
+									{/* Resource Indicators */}
+									<ResourceParameterInput
+										value={resources}
+										onChange={setResources}
+										flowType="oauth"
+									/>
+
+									<SectionDivider />
+
+									{/* Enhanced Prompt Parameter */}
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>OAuth Prompt Parameter</InfoTitle>
+											<InfoText>
+												The prompt parameter controls authentication and consent behavior in OAuth
+												flows. While more commonly used in OIDC, many OAuth providers also support
+												this parameter.
+											</InfoText>
+										</div>
+									</InfoBox>
+									<EnhancedPromptSelector value={promptValues} onChange={setPromptValues} />
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiCheckCircle size={18} /> Build Authorization URL
+							</ResultsHeading>
+							<HelperText>
+								Generate the authorization URL with Implicit flow parameters. Review it carefully
+								before redirecting.
+							</HelperText>
+
+							{(!credentials.clientId || !credentials.environmentId) && (
+								<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>Missing Required Credentials</InfoTitle>
+										<InfoText>
+											<StrongText>Environment ID</StrongText> and <StrongText>Client ID</StrongText>{' '}
+											are required to generate the authorization URL. Please go back to Step 0 to
+											fill in these credentials first.
+										</InfoText>
+										<InfoText
+											style={{ marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'monospace' }}
+										>
+											DEBUG: Client ID: {credentials.clientId || 'EMPTY'} | Environment ID:{' '}
+											{credentials.environmentId || 'EMPTY'}
+											<br />
+											Controller: Client ID: {implicitFlowState.credentials?.clientId || 'EMPTY'} |
+											Environment ID: {implicitFlowState.credentials?.environmentId || 'EMPTY'}
+										</InfoText>
+									</div>
+								</InfoBox>
+							)}
+
+							<ActionRow>
+								<HighlightedActionButton
+									onClick={handleGenerateAuthUrl}
+									$priority="primary"
+									disabled={
+										!!implicitFlowState.authorizationUrl ||
+										!credentials.clientId ||
+										!credentials.environmentId
+									}
+									title={
+										!credentials.clientId || !credentials.environmentId
+											? `Complete Step 0: Fill in Environment ID and Client ID first (Client ID: ${credentials.clientId ? '✓' : '✗'}, Environment ID: ${credentials.environmentId ? '✓' : '✗'})`
+											: 'Generate RFC 6749 compliant authorization URL with current credentials'
+									}
+								>
+									{implicitFlowState.authorizationUrl ? <FiCheckCircle /> : <FiGlobe />}{' '}
+									{implicitFlowState.authorizationUrl
+										? 'Authorization URL Generated'
+										: 'Generate Authorization URL'}
+									<HighlightBadge>1</HighlightBadge>
+								</HighlightedActionButton>
+
+								{implicitFlowState.authorizationUrl && (
+									<HighlightedActionButton onClick={handleOpenAuthUrl} $priority="success">
+										<FiExternalLink /> Redirect to PingOne
+										<HighlightBadge>2</HighlightBadge>
+									</HighlightedActionButton>
+								)}
+							</ActionRow>
+
+							{implicitFlowState.authorizationUrl && (
+								<GeneratedContentBox>
+									<GeneratedLabel>Generated Authorization URL (RFC 6749 Compliant)</GeneratedLabel>
+									<ColoredUrlDisplay
+										url={implicitFlowState.authorizationUrl}
+										label="OAuth 2.0 Implicit Flow Authorization URL"
+										showCopyButton={true}
+										showInfoButton={true}
+										showOpenButton={true}
+										onOpen={handleOpenAuthUrl}
+									/>
+								</GeneratedContentBox>
+							)}
+						</ResultsSection>
+					</>
+				);
+
+			case 2:
+				return (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('tokenResponseOverview')}
+								aria-expanded={!collapsedSections.tokenResponseOverview}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Token Response Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponseOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.tokenResponseOverview && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Tokens Received Directly</InfoTitle>
+											<InfoText>
+												In Implicit Flow, tokens come back in the URL fragment (#) immediately after
+												authorization. No token exchange step is needed, making it simpler but
+												exposing tokens in the browser.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{/* Token Response Details Section */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('tokenResponseDetails')}
+								aria-expanded={!collapsedSections.tokenResponseDetails}
+							>
+								<CollapsibleTitle>
+									<FiCode /> Token Response Details
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponseDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.tokenResponseDetails && (
+								<CollapsibleContent>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>URL Fragment Response Format</InfoTitle>
+											<InfoText>
+												In OAuth 2.0 Implicit Flow, tokens are returned in the URL fragment (#) as
+												key-value pairs. This allows the client to extract tokens without a
+												server-side exchange.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="warning">
+										<FiAlertTriangle size={20} />
+										<div>
+											<InfoTitle>Security Considerations</InfoTitle>
+											<InfoText>
+												Implicit Flow has inherent security limitations. Tokens are exposed in the
+												URL, making them vulnerable to interception. This step demonstrates security
+												best practices and mitigation strategies.
+											</InfoText>
+											<NextSteps
+												steps={[
+													'Security: Auth Code + PKCE is more secure (no token exposure)',
+													'Tokens: Auth Code provides refresh tokens for long-term access',
+													'Standards: Auth Code + PKCE is OAuth 2.1 recommended',
+													'Browser Support: Auth Code works better with modern browsers',
+													'Migration: Implicit Flow is deprecated - plan migration',
+												]}
+											/>
+										</div>
+									</InfoBox>
+
+									{/* Error Display Section */}
+									{implicitFlowState.errors.length > 0 && (
+										<InfoBox $variant="danger" style={{ marginBottom: '1rem' }}>
+											<FiAlertCircle size={20} />
+											<div>
+												<InfoTitle>🚨 Authorization Errors Detected</InfoTitle>
+												<InfoText>
+													The following errors were encountered during the OAuth flow:
+												</InfoText>
+												{implicitFlowState.errors.map((error, index) => (
+													<GeneratedContentBox key={index} style={{ marginTop: '0.75rem' }}>
+														<GeneratedLabel>Error {index + 1}</GeneratedLabel>
+														<ParameterGrid>
+															<div>
+																<ParameterLabel>Error Code</ParameterLabel>
+																<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+																	{error.error}
+																</ParameterValue>
+															</div>
+															{error.error_description && (
+																<div style={{ gridColumn: '1 / -1' }}>
+																	<ParameterLabel>Description</ParameterLabel>
+																	<ParameterValue>{error.error_description}</ParameterValue>
+																</div>
+															)}
+															{error.state && (
+																<div>
+																	<ParameterLabel>State</ParameterLabel>
+																	<ParameterValue
+																		style={{ fontFamily: 'monospace', fontSize: '0.75rem' }}
+																	>
+																		{error.state}
+																	</ParameterValue>
+																</div>
+															)}
+														</ParameterGrid>
+													</GeneratedContentBox>
+												))}
+												<ActionRow
+													style={{ justifyContent: 'center', marginTop: '1rem', gap: '0.75rem' }}
+												>
+													<Button onClick={() => handleErrorRecovery('auth')} $variant="primary">
+														<FiRefreshCw /> Reset Authorization
+													</Button>
+													<Button onClick={() => handleErrorRecovery('config')} $variant="outline">
+														<FiSettings /> Fix Configuration
+													</Button>
+													{window.location.hash && (
+														<Button onClick={() => handleErrorRecovery('token')} $variant="outline">
+															<FiKey /> Retry Token Processing
+														</Button>
+													)}
+												</ActionRow>
+											</div>
+										</InfoBox>
+									)}
+
+									{/* Fragment Parsing Status */}
+									<GeneratedContentBox>
+										<GeneratedLabel>Fragment Parsing Status (RFC 6749 Compliant)</GeneratedLabel>
+										<ParameterGrid>
+											<div>
+												<ParameterLabel>Current URL Fragment</ParameterLabel>
+												<ParameterValue
+													style={{
+														fontFamily: 'monospace',
+														fontSize: '0.75rem',
+														color: window.location.hash ? '#059669' : '#6b7280',
+													}}
+												>
+													{window.location.hash || 'No fragment detected'}
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Auto-Processing</ParameterLabel>
+												<ParameterValue
+													style={{
+														color: implicitFlowState.tokens ? '#059669' : '#6b7280',
+														fontWeight: 'bold',
+													}}
+												>
+													{implicitFlowState.tokens
+														? '✓ Tokens Processed'
+														: 'Waiting for tokens...'}
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>State Validation</ParameterLabel>
+												<ParameterValue
+													style={{
+														color: implicitFlowState.state ? '#059669' : '#6b7280',
+														fontWeight: 'bold',
+													}}
+												>
+													{implicitFlowState.state ? '✓ CSRF Protected' : 'No state parameter'}
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Validation Errors</ParameterLabel>
+												<ParameterValue
+													style={{
+														color: implicitFlowState.errors.length > 0 ? '#dc2626' : '#059669',
+														fontWeight: 'bold',
+													}}
+												>
+													{implicitFlowState.errors.length > 0
+														? `${implicitFlowState.errors.length} errors`
+														: '✓ No errors'}
+												</ParameterValue>
+											</div>
+										</ParameterGrid>
+
+										{window.location.hash && !implicitFlowState.tokens && (
+											<ActionRow style={{ justifyContent: 'center', marginTop: '1rem' }}>
+												<Button onClick={handleProcessTokens} $variant="primary">
+													<FiRefreshCw /> Process Tokens Manually
+												</Button>
+											</ActionRow>
+										)}
+									</GeneratedContentBox>
+
+									<CodeBlock>
+										{`// RFC 6749 Compliant Fragment Parsing
+const fragment = window.location.hash;
+if (!fragment) {
+  throw new Error('No fragment found - implicit flow requires fragment-based response');
+}
+
+// Parse fragment as URL parameters
+const params = new URLSearchParams(fragment.substring(1));
+
+// Check for error response first (RFC 6749 Section 4.2.2.1)
+const error = params.get('error');
+if (error) {
+  const errorDescription = params.get('error_description');
+  throw new Error(\`Authorization error: \${error} - \${errorDescription}\`);
+}
+
+// Extract token response (RFC 6749 Section 4.2.2)
+const accessToken = params.get('access_token');
+const tokenType = params.get('token_type');
+const expiresIn = params.get('expires_in');
+const scope = params.get('scope');
+const state = params.get('state');
+
+// Validate required parameters
+if (!accessToken) {
+  throw new Error('Missing access_token in fragment response');
+}
+if (!tokenType) {
+  throw new Error('Missing token_type - required when access_token is present');
+}
+
+// Validate state parameter for CSRF protection
+const expectedState = sessionStorage.getItem('implicit_state');
+if (expectedState && state !== expectedState) {
+  throw new Error('State parameter mismatch - possible CSRF attack');
+}
+
+console.log('✓ RFC 6749 compliant token parsing successful');`}
+									</CodeBlock>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						{tokens && (
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('tokenResponse')}
+									aria-expanded={!collapsedSections.tokenResponse}
+								>
+									<CollapsibleTitle>
+										<FiCheckCircle /> Token Response
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.tokenResponse}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.tokenResponse && (
+									<CollapsibleContent>
+										<HelperText>
+											Review the tokens received. In Implicit Flow, there is no refresh token.
+										</HelperText>
+
+										{/* Raw Response Display */}
+										<GeneratedContentBox>
+											<GeneratedLabel>Raw Token Response</GeneratedLabel>
+											<CodeBlock>{JSON.stringify(tokens, null, 2)}</CodeBlock>
+											<ActionRow>
+												<CopyButtonService
+													text={JSON.stringify(tokens, null, 2)}
+													label="Copy JSON Response"
+													variant="primary"
+												/>
+											</ActionRow>
+										</GeneratedContentBox>
+
+										{/* Unified Token Display Service Info */}
+										<InfoBox $variant="info">
+											<FiInfo size={20} />
+											<div>
+												<InfoTitle>Unified Token Display Service</InfoTitle>
+												<InfoText>
+													The tokens below are displayed using the UnifiedTokenDisplayService, which
+													provides consistent token presentation across all OAuth flows. This
+													service includes:
+												</InfoText>
+												<InfoList>
+													<li>
+														<StrongText>Automatic JWT Detection:</StrongText> Detects and decodes
+														JWT tokens
+													</li>
+													<li>
+														<StrongText>Copy & Decode Actions:</StrongText> Built-in copy and decode
+														functionality
+													</li>
+													<li>
+														<StrongText>Token Management:</StrongText> Direct integration with
+														advanced token tools
+													</li>
+													<li>
+														<StrongText>Security Features:</StrongText> Proper token masking and
+														reveal controls
+													</li>
+													<li>
+														<StrongText>Error Handling:</StrongText> Graceful fallback for display
+														issues
+													</li>
+												</InfoList>
+											</div>
+										</InfoBox>
+
+										{(() => {
+											try {
+												return UnifiedTokenDisplayService.showTokens(
+													tokens,
+													'oauth',
+													'oauth-implicit-v6',
+													{
+														showCopyButtons: true,
+														showDecodeButtons: true,
+													}
+												);
+											} catch (error) {
+												console.error('[OAuth Implicit V6] Token display error:', error);
+												// Fallback to basic token display
+												return (
+													<GeneratedContentBox>
+														<GeneratedLabel>Tokens (Fallback Display)</GeneratedLabel>
+														<ParameterGrid>
+															{tokens.access_token && (
+																<div style={{ gridColumn: '1 / -1' }}>
+																	<ParameterLabel>Access Token</ParameterLabel>
+																	<ParameterValue
+																		style={{
+																			wordBreak: 'break-all',
+																			fontFamily: 'monospace',
+																			fontSize: '0.75rem',
+																		}}
+																	>
+																		{tokens.access_token}
+																	</ParameterValue>
+																</div>
+															)}
+															{tokens.token_type && (
+																<div>
+																	<ParameterLabel>Token Type</ParameterLabel>
+																	<ParameterValue>{tokens.token_type}</ParameterValue>
+																</div>
+															)}
+															{tokens.expires_in && (
+																<div>
+																	<ParameterLabel>Expires In</ParameterLabel>
+																	<ParameterValue>{tokens.expires_in} seconds</ParameterValue>
+																</div>
+															)}
+															{tokens.scope && (
+																<div style={{ gridColumn: '1 / -1' }}>
+																	<ParameterLabel>Scope</ParameterLabel>
+																	<ParameterValue>{tokens.scope}</ParameterValue>
+																</div>
+															)}
+														</ParameterGrid>
+														<ActionRow style={{ justifyContent: 'center', gap: '0.75rem' }}>
+															<Button
+																onClick={() => navigator.clipboard.writeText(tokens.access_token)}
+																$variant="outline"
+															>
+																<FiCopy /> Copy Access Token
+															</Button>
+														</ActionRow>
+													</GeneratedContentBox>
+												);
+											}
+										})()}
+
+										{/* Token Analysis Section */}
+										<GeneratedContentBox>
+											<GeneratedLabel>Token Analysis & Validation</GeneratedLabel>
+											<ParameterGrid>
+												<div>
+													<ParameterLabel>Token Format</ParameterLabel>
+													<ParameterValue
+														style={{
+															color: tokens.access_token?.includes('.') ? '#059669' : '#6b7280',
+															fontWeight: 'bold',
+														}}
+													>
+														{tokens.access_token?.includes('.')
+															? 'JWT (Structured)'
+															: 'Opaque (Reference)'}
+													</ParameterValue>
+												</div>
+												<div>
+													<ParameterLabel>Token Length</ParameterLabel>
+													<ParameterValue>
+														{tokens.access_token?.length || 0} characters
+													</ParameterValue>
+												</div>
+												<div>
+													<ParameterLabel>Expires At</ParameterLabel>
+													<ParameterValue>
+														{tokens.expires_in
+															? new Date(Date.now() + tokens.expires_in * 1000).toLocaleString()
+															: 'Unknown'}
+													</ParameterValue>
+												</div>
+												<div>
+													<ParameterLabel>State Validation</ParameterLabel>
+													<ParameterValue
+														style={{
+															color: implicitFlowState.tokenValidation?.valid
+																? '#059669'
+																: '#dc2626',
+															fontWeight: 'bold',
+														}}
+													>
+														{implicitFlowState.tokenValidation?.valid ? '✓ Valid' : '✗ Invalid'}
+													</ParameterValue>
+												</div>
+												{implicitFlowState.warnings.length > 0 && (
+													<div style={{ gridColumn: '1 / -1' }}>
+														<ParameterLabel>Security Warnings</ParameterLabel>
+														<ParameterValue style={{ color: '#f59e0b' }}>
+															{implicitFlowState.warnings.length} warning(s) - Check console for
+															details
+														</ParameterValue>
+													</div>
+												)}
+											</ParameterGrid>
+
+											{/* Token Management Actions */}
+											<ActionRow
+												style={{ justifyContent: 'center', gap: '0.75rem', marginTop: '1rem' }}
+											>
+												<Button onClick={navigateToTokenManagement} $variant="primary">
+													<FiExternalLink /> Advanced Token Management
+												</Button>
+												{tokens.access_token && (
+													<Button
+														onClick={() => handleIntrospectToken(tokens.access_token)}
+														$variant="outline"
+													>
+														<FiShield /> Introspect Token
+													</Button>
+												)}
+											</ActionRow>
+										</GeneratedContentBox>
+
+										{/* Security Warnings */}
+										<InfoBox $variant="warning">
+											<FiAlertCircle size={20} />
+											<div>
+												<InfoTitle>No Refresh Token</InfoTitle>
+												<InfoText>
+													Implicit Flow does not provide refresh tokens for security reasons. When
+													the access token expires, users must re-authenticate.
+												</InfoText>
+											</div>
+										</InfoBox>
+
+										<InfoBox $variant="danger">
+											<FiAlertTriangle size={20} />
+											<div>
+												<InfoTitle>Token Security</InfoTitle>
+												<InfoList>
+													<li>Store tokens securely (not in localStorage)</li>
+													<li>Use HTTPS for all token transmissions</li>
+													<li>Implement proper token expiration handling</li>
+													<li>Consider using Authorization Code flow for better security</li>
+												</InfoList>
+											</div>
+										</InfoBox>
+
+										<InfoBox $variant="info">
+											<FiInfo size={20} />
+											<div>
+												<InfoTitle>Next Steps</InfoTitle>
+												<NextSteps
+													steps={[
+														'🔒 Try Authorization Code + PKCE: Experience the secure modern OAuth flow (RECOMMENDED)',
+														'🆔 Explore OIDC Authorization Code: See how OpenID Connect provides user identity',
+														'📱 Test Device Authorization: Perfect for IoT and limited-input devices',
+														'🔧 Test API Calls: Use your access token to call protected APIs (carefully)',
+														'⚠️ Review Security Limitations: Understand why this flow is deprecated',
+														'🔍 Token Management: Decode and inspect your tokens in detail',
+														'📚 Learn OAuth 2.1: Study the modern OAuth security recommendations',
+													]}
+												/>
+											</div>
+										</InfoBox>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+						)}
+
+						{/* No Tokens State */}
+						{!tokens && (
+							<ResultsSection>
+								<ResultsHeading>
+									<FiClock size={18} /> Waiting for Tokens
+								</ResultsHeading>
+								<HelperText>
+									Complete the authorization flow to receive tokens in this step.
+								</HelperText>
+								<InfoBox $variant="info">
+									<FiInfo size={20} />
+									<div>
+										<InfoTitle>Next Steps</InfoTitle>
+										<NextSteps
+											steps={[
+												'Go back to Step 1 and generate the authorization URL',
+												'Click "Redirect to PingOne" to start authentication',
+												'Complete authentication with PingOne',
+												'Return here to see the received tokens',
+											]}
+										/>
+									</div>
+								</InfoBox>
+							</ResultsSection>
+						)}
+					</>
+				);
+
+			case 3:
+				return (
+					<>
+						{/* Security Checklist */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('securityChecklist')}
+								aria-expanded={!collapsedSections.securityChecklist}
+							>
+								<CollapsibleTitle>
+									<FiShield /> Security Checklist & Migration Guide
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.securityChecklist}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.securityChecklist && (
+								<CollapsibleContent>
+									<InfoBox $variant="danger">
+										<FiAlertTriangle size={20} />
+										<div>
+											<InfoTitle>🚨 Before Using This Token in Production</InfoTitle>
+											<InfoText>
+												<StrongText>DO NOT use this flow in production applications.</StrongText> If
+												you absolutely must use it, ensure you've addressed these critical security
+												requirements:
+											</InfoText>
+											<InfoList>
+												<li>
+													✅ <StrongText>HTTPS Only:</StrongText> All communication uses HTTPS
+												</li>
+												<li>
+													✅ <StrongText>State Validated:</StrongText> CSRF protection is working
+												</li>
+												<li>
+													✅ <StrongText>Short Lifetime:</StrongText> Token expires in &lt;15
+													minutes
+												</li>
+												<li>
+													✅ <StrongText>Memory Storage:</StrongText> Token stored in memory only
+												</li>
+												<li>
+													✅ <StrongText>CSP Headers:</StrongText> Content Security Policy
+													implemented
+												</li>
+												<li>
+													✅ <StrongText>Token Validation:</StrongText> Server validates all tokens
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>🔄 Migration to Authorization Code + PKCE</InfoTitle>
+											<InfoText>
+												Here's how to migrate from Implicit Flow to the secure Authorization Code +
+												PKCE flow:
+											</InfoText>
+											<GeneratedContentBox>
+												<GeneratedLabel>Migration Steps</GeneratedLabel>
+												<CodeBlock>
+													{`// 1. Change response_type from 'token' to 'code'
+const authUrl = new URL('https://auth.pingone.com/ENV_ID/as/authorize');
+authUrl.searchParams.set('response_type', 'code'); // Changed from 'token'
+authUrl.searchParams.set('client_id', 'YOUR_CLIENT_ID');
+authUrl.searchParams.set('redirect_uri', 'YOUR_REDIRECT_URI');
+authUrl.searchParams.set('scope', 'YOUR_SCOPES');
+authUrl.searchParams.set('state', generateSecureState());
+
+// 2. Add PKCE parameters
+const codeVerifier = generateCodeVerifier();
+const codeChallenge = await generateCodeChallenge(codeVerifier);
+authUrl.searchParams.set('code_challenge', codeChallenge);
+authUrl.searchParams.set('code_challenge_method', 'S256');
+
+// 3. Exchange code for tokens (server-side or with PKCE)
+const tokenResponse = await fetch('https://auth.pingone.com/ENV_ID/as/token', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  body: new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: authorizationCode,
+    redirect_uri: 'YOUR_REDIRECT_URI',
+    client_id: 'YOUR_CLIENT_ID',
+    code_verifier: codeVerifier // PKCE verification
+  })
+});`}
+												</CodeBlock>
+											</GeneratedContentBox>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<TokenIntrospect
+							flowName="OAuth 2.0 Implicit Flow"
+							flowVersion="V5"
+							tokens={implicitFlowState.tokens || {}}
+							onResetFlow={handleResetFlow}
+							onNavigateToTokenManagement={navigateToTokenManagement}
+							onIntrospectToken={handleIntrospectToken}
+							collapsedSections={{
+								completionOverview: collapsedSections.completionOverview,
+								completionDetails: collapsedSections.completionDetails,
+								introspectionDetails: collapsedSections.introspectionDetails,
+								rawJson: false,
+							}}
+							onToggleSection={(section) => {
+								if (
+									section === 'completionOverview' ||
+									section === 'completionDetails' ||
+									section === 'introspectionDetails'
+								) {
+									toggleSection(section as IntroSectionKey);
+								}
+							}}
+						/>
+
+						{/* API Call Display for Token Introspection */}
+						{introspectionApiCall && (
+							<EnhancedApiCallDisplay
+								apiCall={introspectionApiCall}
+								options={{
+									showEducationalNotes: true,
+									showFlowContext: true,
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('implicit'),
+								}}
+							/>
+						)}
+
+						{/* API Call Display Section */}
+						{implicitFlowState.tokens?.access_token && showApiCallExamples && (
+							<CollapsibleSection>
+								<CollapsibleHeaderButton
+									onClick={() => toggleSection('apiCallDisplay')}
+									aria-expanded={!collapsedSections.apiCallDisplay}
+								>
+									<CollapsibleTitle>
+										<FiCode /> Code Examples
+									</CollapsibleTitle>
+									<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallDisplay}>
+										<FiChevronDown />
+									</CollapsibleToggleIcon>
+								</CollapsibleHeaderButton>
+								{!collapsedSections.apiCallDisplay && (
+									<CollapsibleContent>
+										<ResultsSection>
+											<ResultsHeading>
+												<FiCode size={18} /> Test Your Access Token
+											</ResultsHeading>
+											<HelperText>
+												Use the access token to make authenticated API calls. Copy the curl command
+												below to test your token with a PingOne API endpoint.
+											</HelperText>
+
+											<CodeExamplesDisplay
+												flowType="implicit"
+												stepId="step3"
+												config={{
+													baseUrl: 'https://auth.pingone.com',
+													clientId: credentials.clientId || '',
+													clientSecret: '', // Implicit flow doesn't use client secret
+													redirectUri: credentials.redirectUri || '',
+													scopes: credentials.scopes?.split(' ') || ['openid', 'profile'],
+													environmentId: credentials.environmentId || '',
+												}}
+											/>
+
+											<InfoBox $variant="info" style={{ marginTop: '1.5rem' }}>
+												<FiInfo size={20} />
+												<div>
+													<InfoTitle>API Testing Tips</InfoTitle>
+													<InfoText>
+														• Replace <code>{'{environmentId}'}</code> with your actual PingOne
+														environment ID
+														<br />• The access token is valid for the scopes you requested
+														<br />• Test with different API endpoints to verify token functionality
+														<br />• Monitor token expiration and handle refresh scenarios
+													</InfoText>
+												</div>
+											</InfoBox>
+										</ResultsSection>
+									</CollapsibleContent>
+								)}
+							</CollapsibleSection>
+						)}
+					</>
+				);
+
+			case 4:
+				return (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('securityOverview')}
+								aria-expanded={!collapsedSections.securityOverview}
+							>
+								<CollapsibleTitle>
+									<FiShield /> Security Features Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.securityOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.securityOverview && (
+								<CollapsibleContent>
+									{/* Critical Security Vulnerabilities */}
+									<InfoBox $variant="danger">
+										<FiAlertTriangle size={20} />
+										<div>
+											<InfoTitle>🚨 Critical Security Vulnerabilities</InfoTitle>
+											<InfoText>
+												The Implicit Flow has fundamental security flaws that cannot be fully
+												mitigated:
+											</InfoText>
+											<InfoList>
+												<li>
+													<StrongText>URL Fragment Exposure:</StrongText> Tokens are visible in
+													browser history, server logs, and referrer headers
+												</li>
+												<li>
+													<StrongText>No Client Authentication:</StrongText> Public clients cannot
+													securely authenticate with the authorization server
+												</li>
+												<li>
+													<StrongText>No Refresh Tokens:</StrongText> Users must re-authenticate
+													when tokens expire
+												</li>
+												<li>
+													<StrongText>XSS Vulnerability:</StrongText> Malicious scripts can access
+													tokens from the URL fragment
+												</li>
+												<li>
+													<StrongText>CSRF Attacks:</StrongText> Without proper state validation,
+													vulnerable to cross-site request forgery
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									{/* Security Best Practices */}
+									<InfoBox $variant="warning">
+										<FiShield size={20} />
+										<div>
+											<InfoTitle>🛡️ Security Best Practices (If You Must Use This Flow)</InfoTitle>
+											<InfoList>
+												<li>
+													<StrongText>Always Use HTTPS:</StrongText> Never use HTTP in production -
+													tokens would be transmitted in plain text
+												</li>
+												<li>
+													<StrongText>Implement State Parameter:</StrongText> Always include and
+													validate the state parameter for CSRF protection
+												</li>
+												<li>
+													<StrongText>Short Token Lifetimes:</StrongText> Use very short access
+													token lifetimes (5-15 minutes maximum)
+												</li>
+												<li>
+													<StrongText>Secure Token Storage:</StrongText> Never store tokens in
+													localStorage or sessionStorage - use memory only
+												</li>
+												<li>
+													<StrongText>Content Security Policy:</StrongText> Implement strict CSP
+													headers to prevent XSS attacks
+												</li>
+												<li>
+													<StrongText>Token Validation:</StrongText> Always validate tokens on the
+													server before processing requests
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									{/* Modern Alternatives */}
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>✅ Recommended Modern Alternatives</InfoTitle>
+											<InfoText>
+												Instead of Implicit Flow, use these secure, modern OAuth flows:
+											</InfoText>
+											<InfoList>
+												<li>
+													<StrongText>Authorization Code + PKCE:</StrongText> The gold standard for
+													SPAs and mobile apps - secure, supports refresh tokens
+												</li>
+												<li>
+													<StrongText>Device Authorization Grant:</StrongText> Perfect for devices
+													without browsers or limited input capabilities
+												</li>
+												<li>
+													<StrongText>Client Credentials:</StrongText> For server-to-server
+													communication where no user is involved
+												</li>
+											</InfoList>
+											<InfoText style={{ marginTop: '0.75rem', fontStyle: 'italic' }}>
+												💡 <StrongText>Migration Tip:</StrongText> Authorization Code + PKCE
+												provides the same user experience as Implicit Flow but with significantly
+												better security.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									{/* Educational Resources */}
+									<GeneratedContentBox>
+										<GeneratedLabel>📚 Educational Resources & Standards</GeneratedLabel>
+										<ParameterGrid>
+											<div>
+												<ParameterLabel>OAuth 2.1 Status</ParameterLabel>
+												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+													❌ Removed from OAuth 2.1
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>IETF Recommendation</ParameterLabel>
+												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+													🚫 Not recommended
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Security Community</ParameterLabel>
+												<ParameterValue style={{ color: '#dc2626', fontWeight: 'bold' }}>
+													⚠️ Strongly discouraged
+												</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Browser Support</ParameterLabel>
+												<ParameterValue style={{ color: '#f59e0b', fontWeight: 'bold' }}>
+													⚡ Being phased out
+												</ParameterValue>
+											</div>
+										</ParameterGrid>
+									</GeneratedContentBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiShield size={18} /> Interactive Security Demonstrations
+							</ResultsHeading>
+							<HelperText>
+								Test security features and understand how to protect your OAuth implementation.
+							</HelperText>
+
+							<SecurityFeaturesDemo
+								tokens={implicitFlowState.tokens as unknown as Record<string, unknown> | null}
+								credentials={credentials as unknown as Record<string, unknown>}
+								onTerminateSession={() => {
+									v4ToastManager.showSuccess('Session termination completed.');
+								}}
+								onRevokeTokens={() => {
+									v4ToastManager.showSuccess('Token revocation completed.');
+								}}
+							/>
+						</ResultsSection>
+
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('securityBestPractices')}
+								aria-expanded={!collapsedSections.securityBestPractices}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Security Best Practices
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.securityBestPractices}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.securityBestPractices && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Recommended Security Practices</InfoTitle>
+											<InfoList>
+												<li>
+													<StrongText>Use HTTPS:</StrongText> Always use HTTPS for all OAuth
+													endpoints
+												</li>
+												<li>
+													<StrongText>Validate State:</StrongText> Always validate the state
+													parameter to prevent CSRF
+												</li>
+												<li>
+													<StrongText>Short Token Lifetimes:</StrongText> Use short-lived access
+													tokens
+												</li>
+												<li>
+													<StrongText>Token Storage:</StrongText> Never store tokens in localStorage
+													for production
+												</li>
+												<li>
+													<StrongText>Consider PKCE:</StrongText> Use Authorization Code + PKCE
+													instead of Implicit
+												</li>
+												<li>
+													<StrongText>Regular Audits:</StrongText> Regularly audit and rotate client
+													secrets
+												</li>
+											</InfoList>
+										</div>
+									</InfoBox>
+
+									<InfoBox $variant="danger">
+										<FiAlertCircle size={20} />
+										<div>
+											<InfoTitle>Critical Security Warnings</InfoTitle>
+											<InfoText>
+												<StrongText>⚠️ Production Warning:</StrongText> The Implicit Flow is
+												deprecated by OAuth 2.1 specification due to security concerns. Use
+												Authorization Code + PKCE flow for new implementations.
+											</InfoText>
+										</div>
+									</InfoBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+					</>
+				);
+
+			case 5:
+				return (
+					<>
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('flowSummary')}
+								aria-expanded={!collapsedSections.flowSummary}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Flow Completion Summary
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.flowSummary}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.flowSummary && (
+								<CollapsibleContent>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>OAuth 2.0 Implicit Flow Completed!</InfoTitle>
+											<InfoText>
+												Congratulations! You have successfully completed the OAuth 2.0 Implicit Flow
+												demonstration. This flow returned an access token directly in the URL
+												fragment for API authorization.
+											</InfoText>
+										</div>
+									</InfoBox>
+
+									<GeneratedContentBox>
+										<GeneratedLabel>Flow Summary</GeneratedLabel>
+										<ParameterGrid>
+											<div>
+												<ParameterLabel>Flow Type</ParameterLabel>
+												<ParameterValue>OAuth 2.0 Implicit</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Tokens Received</ParameterLabel>
+												<ParameterValue>Access Token Only</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Security Level</ParameterLabel>
+												<ParameterValue>Legacy (Deprecated)</ParameterValue>
+											</div>
+											<div>
+												<ParameterLabel>Refresh Token</ParameterLabel>
+												<ParameterValue>Not Provided</ParameterValue>
+											</div>
+											<div style={{ gridColumn: '1 / -1' }}>
+												<ParameterLabel>Recommended Alternative</ParameterLabel>
+												<ParameterValue>Authorization Code + PKCE Flow</ParameterValue>
+											</div>
+										</ParameterGrid>
+									</GeneratedContentBox>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
+
+						<SectionDivider />
+						<ResultsSection>
+							<ResultsHeading>
+								<FiExternalLink size={18} /> Next Steps & Recommendations
+							</ResultsHeading>
+							<HelperText>
+								What to do now that you've completed the Implicit Flow demonstration.
+							</HelperText>
+							<InfoBox $variant="success">
+								<FiCheckCircle size={20} />
+								<div>
+									<InfoTitle>Migration Benefits</InfoTitle>
+									<InfoText>
+										Migrating to Authorization Code + PKCE provides better security, refresh tokens,
+										and compliance with modern OAuth standards. Your applications will be more
+										secure and future-proof.
+									</InfoText>
+								</div>
+							</InfoBox>
+							<InfoBox $variant="info">
+								<FiInfo size={20} />
+								<div>
+									<InfoTitle>Additional Recommendations</InfoTitle>
+									<InfoText>
+										Consider implementing additional security measures, such as token validation and
+										revocation, to further enhance the security of your OAuth implementation.
+									</InfoText>
+								</div>
+							</InfoBox>
+						</ResultsSection>
+					</>
+				);
+
+			default:
+				return null;
+		}
+	}, [
+		collapsedSections,
+		implicitFlowState,
+		currentStep,
+		handleGenerateAuthUrl,
+		handleOpenAuthUrl,
+		handleResetFlow,
+		handleProcessTokens,
+		handleErrorRecovery,
+		handleIntrospectToken,
+		navigateToTokenManagement,
+		pingOneConfig,
+		savePingOneConfig,
+		showApiCallExamples,
+		toggleSection,
+		introspectionApiCall,
+	]);
+
+	return (
+		<Container>
+			<ContentWrapper>
+				<FlowHeader flowId="oauth-implicit-v6" />
+
+				{/* Configuration Requirements */}
+				<FlowConfigurationRequirements flowType="oauth-implicit" variant="oauth" />
+
+				{/* Flow Walkthrough */}
+				<EnhancedFlowWalkthrough flowId="oauth-implicit" />
+				<EnhancedFlowInfoCard flowType="oauth-implicit" />
+				<FlowSequenceDisplay flowType="implicit" />
+
+				<MainCard>
+					<StepHeader>
+						<StepHeaderLeft>
+							<VersionBadge>Implicit Flow · V5 · Legacy</VersionBadge>
+							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+						</StepHeaderLeft>
+						<StepHeaderRight>
+							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
+							<StepTotal>of {String(STEP_METADATA.length).padStart(2, '0')}</StepTotal>
+						</StepHeaderRight>
+					</StepHeader>
+
+					{!isStepValid(currentStep) && currentStep !== 0 && (
+						<RequirementsIndicator>
+							<RequirementsIcon>
+								<FiAlertCircle />
+							</RequirementsIcon>
+							<RequirementsText>
+								<StrongText>Complete this step to continue:</StrongText>
+								<ul>
+									{getStepRequirements(currentStep).map((requirement, index) => (
+										<li key={index}>{requirement}</li>
+									))}
+								</ul>
+							</RequirementsText>
+						</RequirementsIndicator>
+					)}
+					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
+				</MainCard>
+			</ContentWrapper>
+
+			<StepNavigationButtons
+				currentStep={currentStep}
+				totalSteps={STEP_METADATA.length}
+				onPrevious={handlePrevStep}
+				onReset={handleResetFlow}
+				onNext={validatedHandleNext}
+				canNavigateNext={validatedCanNavigateNext()}
+				isFirstStep={currentStep === 0}
+				nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
+				disabledMessage="Complete the action above to continue"
+			/>
+
+			<LoginSuccessModal
+				isOpen={showSuccessModal}
+				onClose={() => setShowSuccessModal(false)}
+				title="🎉 Implicit Flow Success!"
+				message="Access token received successfully! You can now explore token analysis and make API calls."
+				autoCloseDelay={5000}
+			/>
+
+			{/* Redirect Confirmation Modal */}
+			{showRedirectModal && (
+				<div
+					style={{
+						position: 'fixed',
+						top: 0,
+						left: 0,
+						right: 0,
+						bottom: 0,
+						backgroundColor: 'rgba(0, 0, 0, 0.5)',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+						zIndex: 10000,
+					}}
+				>
+					<div
+						style={{
+							backgroundColor: 'white',
+							borderRadius: '0.75rem',
+							padding: '2rem',
+							maxWidth: '600px',
+							width: '90%',
+							boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+						}}
+					>
+						<div style={{ marginBottom: '1.5rem' }}>
+							<h2
+								style={{
+									fontSize: '1.5rem',
+									fontWeight: '600',
+									color: '#111827',
+									marginBottom: '0.5rem',
+								}}
+							>
+								🔐 Ready to Authenticate?
+							</h2>
+							<p
+								style={{
+									fontSize: '1rem',
+									color: '#6b7280',
+									lineHeight: '1.5',
+								}}
+							>
+								You're about to be redirected to PingOne for authentication. This will open in a new
+								window or redirect your current tab.
+							</p>
+						</div>
+
+						<div
+							style={{
+								backgroundColor: '#f0fdf4' /* Light green for generated content */,
+								border: '1px solid #16a34a',
+								borderRadius: '0.5rem',
+								padding: '1rem',
+								marginBottom: '1.5rem',
+							}}
+						>
+							<h3
+								style={{
+									fontSize: '0.875rem',
+									fontWeight: '600',
+									color: '#374151',
+									marginBottom: '0.5rem',
+								}}
+							>
+								Authorization URL:
+							</h3>
+							<ColoredUrlDisplay
+								url={implicitFlowState.authorizationUrl}
+								label="Authorization URL"
+								showInfoButton={true}
+								showCopyButton={true}
+								showOpenButton={false}
+							/>
+						</div>
+
+						<div
+							style={{
+								display: 'flex',
+								gap: '0.75rem',
+								justifyContent: 'flex-end',
+							}}
+						>
+							<button
+								onClick={handleCancelRedirect}
+								style={{
+									padding: '0.75rem 1.5rem',
+									border: '1px solid #d1d5db',
+									borderRadius: '0.5rem',
+									backgroundColor: 'white',
+									color: '#374151',
+									fontSize: '0.875rem',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#f9fafb';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = 'white';
+								}}
+							>
+								Cancel
+							</button>
+							<button
+								onClick={handleConfirmRedirect}
+								style={{
+									padding: '0.75rem 1.5rem',
+									border: '1px solid #10b981',
+									borderRadius: '0.5rem',
+									backgroundColor: '#10b981',
+									color: 'white',
+									fontSize: '0.875rem',
+									fontWeight: '500',
+									cursor: 'pointer',
+									transition: 'all 0.2s ease',
+								}}
+								onMouseEnter={(e) => {
+									e.currentTarget.style.backgroundColor = '#059669';
+								}}
+								onMouseLeave={(e) => {
+									e.currentTarget.style.backgroundColor = '#10b981';
+								}}
+							>
+								Continue to PingOne
+							</button>
+						</div>
+					</div>
+				</div>
+			)}
+
+			<ModalPresentationService
+				isOpen={showMissingCredentialsModal}
+				onClose={() => setShowMissingCredentialsModal(false)}
+				title="Credentials required"
+				description={
+					missingCredentialFields.length > 0
+						? `Please provide the following required credential${missingCredentialFields.length > 1 ? 's' : ''} before continuing:`
+						: 'Environment ID, Client ID, and Redirect URI are required before moving to the next step.'
+				}
+				actions={[
+					{
+						label: 'Back to credentials',
+						onClick: () => setShowMissingCredentialsModal(false),
+						variant: 'primary',
+					},
+				]}
+			>
+				{missingCredentialFields.length > 0 && (
+					<ul style={{ marginTop: '1rem', marginBottom: '1rem', paddingLeft: '1.5rem' }}>
+						{missingCredentialFields.map((field) => (
+							<li key={field} style={{ marginBottom: '0.5rem', fontWeight: 600 }}>
+								{field}
+							</li>
+						))}
+					</ul>
+				)}
+			</ModalPresentationService>
+		</Container>
+	);
+};
+
+export default OAuthImplicitFlowV6;
