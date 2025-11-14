@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   FiCheckCircle,
   FiCopy,
   FiDownload,
   FiExternalLink,
   FiGithub,
-  FiGlobe,
   FiInfo,
   FiPackage,
   FiSettings,
@@ -21,9 +20,9 @@ import {
 import styled from "styled-components";
 import { FlowHeader } from "../services/flowHeaderService";
 import { CollapsibleHeader } from "../services/collapsibleHeaderService";
-import { FlowUIService } from "../services/flowUIService";
 import { usePageScroll } from "../hooks/usePageScroll";
 import { credentialManager } from "../utils/credentialManager";
+import { credentialStorageManager } from "../services/credentialStorageManager";
 import PingOneApplicationConfig, {
   type PingOneApplicationState,
 } from "../components/PingOneApplicationConfig";
@@ -34,6 +33,10 @@ import { WorkerTokenModal } from "../components/WorkerTokenModal";
 import ComprehensiveCredentialsService from "../services/comprehensiveCredentialsService";
 import ConfigurationURIChecker from "../components/ConfigurationURIChecker";
 import { WorkerTokenDetectedBanner } from "../components/WorkerTokenDetectedBanner";
+import { WorkerTokenStatusLabel } from "../components/WorkerTokenStatusLabel";
+import { SaveButton } from "../services/saveButtonService";
+import { callbackUriService } from "../services/callbackUriService";
+import { CopyButtonService } from "../services/copyButtonService";
 
 const Container = styled.div`
   max-width: 1200px;
@@ -72,25 +75,6 @@ const Card = styled.div`
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
   border: 1px solid #e5e7eb;
-`;
-
-const CardHeader = styled.div`
-  margin-bottom: 1.5rem;
-
-  h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.gray900};
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  p {
-    color: ${({ theme }) => theme.colors.gray600};
-    line-height: 1.6;
-  }
 `;
 
 const StepCard = styled.div`
@@ -237,9 +221,250 @@ const FeatureItem = styled.div`
   }
 `;
 
+const UriTable = styled.table`
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+`;
+
+const UriHeaderCell = styled.th`
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid #e2e8f0;
+`;
+
+const UriRow = styled.tr`
+  &:nth-child(even) {
+    background: #f9fafb;
+  }
+`;
+
+const UriCell = styled.td`
+  padding: 0.85rem 1rem;
+  vertical-align: top;
+  border-bottom: 1px solid #e2e8f0;
+`;
+
+const UriValue = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+`;
+
+const UriCode = styled.code`
+  font-family: "Fira Code", "SFMono-Regular", ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  background: #f8fafc;
+  padding: 0.35rem 0.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  word-break: break-all;
+`;
+
+const UriDescription = styled.p`
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  color: #475569;
+`;
+
+const UriActionRow = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+`;
+
+const UriActionButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
+  border-radius: 0.75rem;
+  padding: 0.65rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#cbd5f5')};
+  background: ${({ $variant }) => ($variant === 'primary' ? '#2563eb' : '#ffffff')};
+  color: ${({ $variant }) => ($variant === 'primary' ? '#ffffff' : '#0f172a')};
+  transition: background 0.2s ease, border 0.2s ease, transform 0.2s ease;
+
+  &:hover {
+    background: ${({ $variant }) => ($variant === 'primary' ? '#1d4ed8' : '#f8fafc')};
+    border-color: ${({ $variant }) => ($variant === 'primary' ? '#1d4ed8' : '#cbd5f5')};
+    transform: translateY(-1px);
+  }
+`;
+
+const UriInput = styled.input<{ $disabled?: boolean }>`
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px solid ${({ $disabled }) => ($disabled ? '#e2e8f0' : '#cbd5f5')};
+  background: ${({ $disabled }) => ($disabled ? '#f8fafc' : '#ffffff')};
+  color: ${({ $disabled }) => ($disabled ? '#94a3b8' : '#0f172a')};
+  font-size: 0.9rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+`;
+
+const UriStatusBadge = styled.span<{ $variant: 'default' | 'override' }>`
+  display: inline-block;
+  padding: 0.35rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: ${({ $variant }) => ($variant === 'override' ? '#0f172a' : '#e2e8f0')};
+  color: ${({ $variant }) => ($variant === 'override' ? '#ffffff' : '#0f172a')};
+`;
+
+const UriHelper = styled.p`
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
+  color: #64748b;
+`;
+
 const Configuration: React.FC = () => {
   usePageScroll({ pageName: "Configuration & Setup", force: true });
   const [copiedText, setCopiedText] = useState<string>("");
+
+  const buildUriEditState = (
+    catalog: ReturnType<typeof callbackUriService.getRedirectUriCatalog>
+  ) =>
+    catalog.reduce<Record<string, { redirectUri: string; logoutUri: string }>>(
+      (acc, entry) => {
+        acc[entry.flowType] = {
+          redirectUri:
+            entry.requiresRedirectUri && entry.redirectUri !== "Not required"
+              ? entry.redirectUri
+              : "",
+          logoutUri: entry.logoutUri,
+        };
+        return acc;
+      },
+      {}
+    );
+
+  const initialUriCatalog = useMemo(
+    () => callbackUriService.getRedirectUriCatalog(),
+    []
+  );
+  const [uriCatalog, setUriCatalog] = useState(initialUriCatalog);
+  const [uriEdits, setUriEdits] = useState(() => buildUriEditState(initialUriCatalog));
+  const [uriSaving, setUriSaving] = useState(false);
+
+  useEffect(() => {
+    setUriEdits(buildUriEditState(uriCatalog));
+  }, [uriCatalog]);
+
+  const handleUriChange = (
+    flowType: string,
+    field: 'redirectUri' | 'logoutUri',
+    value: string
+  ) => {
+    setUriEdits((prev) => ({
+      ...prev,
+      [flowType]: {
+        redirectUri: prev[flowType]?.redirectUri ?? '',
+        logoutUri: prev[flowType]?.logoutUri ?? '',
+        [field]: value,
+      },
+    }));
+  };
+
+  const handleResetUriRow = (flowType: string) => {
+    const row = uriCatalog.find((entry) => entry.flowType === flowType);
+    if (!row) {
+      return;
+    }
+
+    setUriEdits((prev) => ({
+      ...prev,
+      [flowType]: {
+        redirectUri:
+          row.requiresRedirectUri && row.defaultRedirectUri !== 'Not required'
+            ? row.defaultRedirectUri
+            : '',
+        logoutUri: row.defaultLogoutUri,
+      },
+    }));
+  };
+
+  const handleResetAllUris = () => {
+    setUriSaving(true);
+    try {
+      callbackUriService.applyFlowOverrides({});
+      const updatedCatalog = callbackUriService.getRedirectUriCatalog();
+      setUriCatalog(updatedCatalog);
+      v4ToastManager.showSuccess('Callback URIs reset to default values.');
+    } catch (error) {
+      console.error('[Configuration] Failed to reset callback URIs:', error);
+      v4ToastManager.showError('Unable to reset callback URIs. Check the console for details.');
+    } finally {
+      setUriSaving(false);
+    }
+  };
+
+  const handleApplyUriOverrides = () => {
+    setUriSaving(true);
+    try {
+      const overrides = uriCatalog.reduce<Record<string, { redirectUri?: string; logoutUri?: string }>>(
+        (acc, entry) => {
+          const edit = uriEdits[entry.flowType];
+          if (!edit) {
+            return acc;
+          }
+
+          const redirectValue = edit.redirectUri.trim();
+          const logoutValue = edit.logoutUri.trim();
+
+          const needsRedirectOverride =
+            entry.requiresRedirectUri &&
+            redirectValue &&
+            redirectValue !== entry.defaultRedirectUri;
+
+          const needsLogoutOverride = logoutValue && logoutValue !== entry.defaultLogoutUri;
+
+          if (needsRedirectOverride || needsLogoutOverride) {
+            acc[entry.flowType] = {};
+            if (needsRedirectOverride) {
+              acc[entry.flowType].redirectUri = redirectValue;
+            }
+            if (needsLogoutOverride) {
+              acc[entry.flowType].logoutUri = logoutValue;
+            }
+          }
+
+          return acc;
+        },
+        {}
+      );
+
+      callbackUriService.applyFlowOverrides(overrides);
+      const updatedCatalog = callbackUriService.getRedirectUriCatalog();
+      setUriCatalog(updatedCatalog);
+
+      const hasOverrides = Object.keys(overrides).length > 0;
+      v4ToastManager.showSuccess(
+        hasOverrides
+          ? 'Callback URIs updated successfully.'
+          : 'Callback URIs now using default values.'
+      );
+    } catch (error) {
+      console.error('[Configuration] Failed to apply callback URI overrides:', error);
+      v4ToastManager.showError('Unable to update callback URIs. Check the console for details.');
+    } finally {
+      setUriSaving(false);
+    }
+  };
 
   // Credential state
   // Comprehensive credentials state
@@ -263,7 +488,6 @@ const Configuration: React.FC = () => {
     postLogoutRedirectUri: "",
   });
 
-  // PingOne Application Configuration state
   const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>({
     clientAuthMethod: "client_secret_basic",
     allowRedirectUriPatterns: false,
@@ -293,7 +517,6 @@ const Configuration: React.FC = () => {
   });
   const [pingOneConfigSaved, setPingOneConfigSaved] = useState(false);
 
-  // Worker Token state
   const [workerToken, setWorkerToken] = useState("");
   const [workerTokenExpiresAt, setWorkerTokenExpiresAt] = useState<number | null>(null);
   const [workerTokenLoading, setWorkerTokenLoading] = useState(false);
@@ -317,7 +540,6 @@ const Configuration: React.FC = () => {
               ? configCredentials.scopes.join(" ")
               : configCredentials.scopes || "openid profile email",
           });
-          setHasCredentials(true);
         }
       } catch (error) {
         console.error("Failed to load credentials:", error);
@@ -329,28 +551,31 @@ const Configuration: React.FC = () => {
 
   // Load existing PingOne configuration on mount
   useEffect(() => {
-    const loadPingOneConfig = () => {
+    const loadPingOneConfig = async () => {
       try {
-        const savedConfig = localStorage.getItem("pingone-application-config");
+        const savedConfig = await credentialStorageManager.loadFlowData<PingOneApplicationState>(
+          "configuration",
+          "pingone-application-config"
+        );
         if (savedConfig) {
-          const parsed = JSON.parse(savedConfig);
-          setPingOneConfig((prev) => ({ ...prev, ...parsed }));
+          setPingOneConfig((prev) => ({ ...prev, ...savedConfig }));
         }
       } catch (error) {
         console.error("Failed to load PingOne configuration:", error);
       }
     };
 
-    loadPingOneConfig();
+    void loadPingOneConfig();
   }, []);
 
   // Save PingOne Application Configuration
   const savePingOneConfig = async () => {
     try {
-      // Save to localStorage with a specific key
-      localStorage.setItem(
+      // Save to credentialStorageManager
+      await credentialStorageManager.saveFlowData(
+        "configuration",
         "pingone-application-config",
-        JSON.stringify(pingOneConfig),
+        pingOneConfig
       );
       setPingOneConfigSaved(true);
 
@@ -358,6 +583,26 @@ const Configuration: React.FC = () => {
       setTimeout(() => setPingOneConfigSaved(false), 3000);
     } catch (error) {
       console.error("Failed to save PingOne configuration:", error);
+    }
+  };
+
+  // Save all configuration (credentials + PingOne config)
+  const saveAllConfiguration = async () => {
+    try {
+      // Save PingOne application config
+      await credentialStorageManager.saveFlowData(
+        "configuration",
+        "pingone-application-config",
+        pingOneConfig
+      );
+
+      setPingOneConfigSaved(true);
+      setTimeout(() => setPingOneConfigSaved(false), 10000);
+
+      console.log(`[Configuration] Saved configuration`);
+    } catch (error) {
+      console.error("Failed to save configuration:", error);
+      throw error;
     }
   };
 
@@ -389,18 +634,29 @@ const Configuration: React.FC = () => {
 
   // Load existing worker token on mount
   useEffect(() => {
-    const savedToken = localStorage.getItem("worker_token");
-    const savedEnv = localStorage.getItem("worker_token_env");
-    const savedExpiresAt = localStorage.getItem("worker_token_expires_at");
+    const loadWorkerToken = async () => {
+      setWorkerTokenLoading(true);
+      setWorkerTokenError(null);
 
-    if (savedToken && savedEnv === credentials.environmentId) {
-      setWorkerToken(savedToken);
-      if (savedExpiresAt) {
-        setWorkerTokenExpiresAt(parseInt(savedExpiresAt, 10));
+      try {
+        const tokenData = await credentialStorageManager.loadWorkerToken();
+        if (tokenData && tokenData.environmentId === credentials.environmentId) {
+          setWorkerToken(tokenData.accessToken);
+          setWorkerTokenExpiresAt(tokenData.expiresAt);
+        } else {
+          setWorkerToken("");
+          setWorkerTokenExpiresAt(null);
+        }
+      } catch (error) {
+        console.error('[Configuration] Failed to load worker token:', error);
+        setWorkerTokenError('Unable to load saved worker token.');
+      } finally {
+        setWorkerTokenLoading(false);
       }
-    }
-  }, [credentials.environmentId]);
+    };
 
+    void loadWorkerToken();
+  }, [credentials.environmentId]);
 
   return (
     <Container>
@@ -443,7 +699,7 @@ const Configuration: React.FC = () => {
             />
           )}
 
-          <div style={{ marginBottom: "1rem" }}>
+          <div style={{ marginBottom: "1rem", display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "0.35rem" }}>
             <button
               onClick={() => setShowWorkerTokenModal(true)}
               disabled={workerTokenLoading}
@@ -490,6 +746,12 @@ const Configuration: React.FC = () => {
                   ? "Token Obtained"
                   : "Get Worker Token"}
             </button>
+            <WorkerTokenStatusLabel
+              token={workerToken}
+              expiresAt={workerTokenExpiresAt}
+              tokenStorageKey="worker_token"
+              tokenExpiryKey="worker_token_expires_at"
+            />
           </div>
 
           {workerToken && (
@@ -530,7 +792,7 @@ const Configuration: React.FC = () => {
                   : "••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••••"}
               </CodeBlockWithCopy>
 
-              {/* Check Config and Create App buttons */}
+              {/* Check Config, Save Configuration, and Create App buttons */}
               <div
                 style={{
                   marginTop: "1.5rem",
@@ -572,6 +834,13 @@ const Configuration: React.FC = () => {
                   <FiSettings size={16} />
                   Check Config
                 </button>
+
+                <SaveButton
+                  flowType="configuration"
+                  credentials={credentials}
+                  additionalData={pingOneConfig as unknown as Record<string, unknown>}
+                  onSave={saveAllConfiguration}
+                />
 
                 <button
                   onClick={() => {
@@ -625,12 +894,164 @@ const Configuration: React.FC = () => {
         isOIDC={false}
         credentials={credentials}
         onCredentialsChange={setCredentials}
+        onSaveCredentials={saveAllConfiguration}
         showConfigChecker={true}
+        showSaveButton={true}
+        autoLoad={true}
         title="Application Configuration & Credentials"
         subtitle="Configure your PingOne environment credentials and optionally auto-fill from existing applications"
         region={credentials.region || "us"}
         defaultCollapsed={false}
       />
+
+      {/* Configuration URI Reference Table */}
+      <CollapsibleHeader
+        title="PingOne Redirect & Logout URIs"
+        subtitle="Authoritative URIs to register in PingOne for each Playground flow"
+        icon={<FiInfo />}
+        defaultCollapsed={false}
+        theme="orange"
+      >
+        <Card>
+          <p
+            style={{
+              marginBottom: "1rem",
+              color: "#475569",
+              lineHeight: 1.6,
+            }}
+          >
+            Use this catalogue to copy the exact redirect and logout callback URIs that the
+            OAuth Playground expects. Register these values in your PingOne application to
+            avoid redirect mismatches and RP-initiated logout failures. Redirect URIs marked
+            <strong> Not required</strong> may be omitted in PingOne. You can customise the URIs
+            below and the Playground will update instantly.
+          </p>
+
+          <UriActionRow>
+            <UriActionButton
+              $variant="primary"
+              onClick={handleApplyUriOverrides}
+              disabled={uriSaving}
+            >
+              {uriSaving ? "Saving URIs..." : "Apply Changes"}
+            </UriActionButton>
+            <UriActionButton
+              $variant="secondary"
+              onClick={handleResetAllUris}
+              disabled={uriSaving}
+            >
+              Reset All to Defaults
+            </UriActionButton>
+          </UriActionRow>
+
+          <UriTable>
+            <thead>
+              <tr>
+                <UriHeaderCell style={{ width: "25%" }}>Flow</UriHeaderCell>
+                <UriHeaderCell style={{ width: "30%" }}>Redirect URI</UriHeaderCell>
+                <UriHeaderCell style={{ width: "30%" }}>Logout URI</UriHeaderCell>
+                <UriHeaderCell style={{ width: "15%" }}>Specification</UriHeaderCell>
+              </tr>
+            </thead>
+            <tbody>
+              {uriCatalog.map((entry) => {
+                const edit = uriEdits[entry.flowType] ?? {
+                  redirectUri:
+                    entry.requiresRedirectUri && entry.redirectUri !== "Not required"
+                      ? entry.redirectUri
+                      : "",
+                  logoutUri: entry.logoutUri,
+                };
+                const flowOverride = entry.isOverrideRedirect || entry.isOverrideLogout;
+
+                return (
+                  <UriRow key={entry.flowType}>
+                    <UriCell>
+                      <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                          <strong style={{ color: "#0f172a" }}>{entry.flowType}</strong>
+                          <UriStatusBadge $variant={flowOverride ? "override" : "default"}>
+                            {flowOverride ? "Override" : "Default"}
+                          </UriStatusBadge>
+                        </div>
+                        <UriDescription>{entry.description}</UriDescription>
+                      </div>
+                    </UriCell>
+                    <UriCell>
+                      {entry.requiresRedirectUri ? (
+                        <div style={{ display: "grid", gap: "0.5rem" }}>
+                          <UriValue>
+                            <UriCode>{entry.redirectUri}</UriCode>
+                            {entry.redirectUri !== "Not required" && (
+                              <CopyButtonService
+                                text={entry.redirectUri}
+                                label="Redirect URI"
+                                size="sm"
+                                variant="outline"
+                                showLabel={false}
+                              />
+                            )}
+                          </UriValue>
+                          <UriInput
+                            value={edit.redirectUri}
+                            onChange={(event) =>
+                              handleUriChange(entry.flowType, "redirectUri", event.target.value)
+                            }
+                            placeholder={entry.defaultRedirectUri}
+                          />
+                          <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+                            <UriHelper>Default: {entry.defaultRedirectUri}</UriHelper>
+                            <UriActionButton
+                              $variant="secondary"
+                              style={{ padding: "0.4rem 0.65rem", fontSize: "0.75rem" }}
+                              onClick={() => handleResetUriRow(entry.flowType)}
+                              disabled={uriSaving}
+                            >
+                              Reset Row
+                            </UriActionButton>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          <em style={{ color: "#94a3b8" }}>Not required for this flow</em>
+                          <UriHelper>
+                            PingOne does not expect a redirect URI for this flow. Leave the field blank.
+                          </UriHelper>
+                        </div>
+                      )}
+                    </UriCell>
+                    <UriCell>
+                      <div style={{ display: "grid", gap: "0.5rem" }}>
+                        <UriValue>
+                          <UriCode>{entry.logoutUri}</UriCode>
+                          <CopyButtonService
+                            text={entry.logoutUri}
+                            label="Logout URI"
+                            size="sm"
+                            variant="outline"
+                            showLabel={false}
+                          />
+                        </UriValue>
+                        <UriInput
+                          value={edit.logoutUri}
+                          onChange={(event) =>
+                            handleUriChange(entry.flowType, "logoutUri", event.target.value)
+                          }
+                          placeholder={entry.defaultLogoutUri}
+                        />
+                        <UriHelper>Default: {entry.defaultLogoutUri}</UriHelper>
+                      </div>
+                    </UriCell>
+                    <UriCell>
+                      <UriCode>{entry.specification}</UriCode>
+                    </UriCell>
+                  </UriRow>
+                );
+              })}
+            </tbody>
+          </UriTable>
+        </Card>
+      </CollapsibleHeader>
 
       {/* Configuration URI Status - Check redirect and logout URIs against PingOne */}
       {workerToken && credentials.environmentId && credentials.clientId && (
@@ -639,8 +1060,8 @@ const Configuration: React.FC = () => {
           environmentId={credentials.environmentId}
           clientId={credentials.clientId}
           workerToken={workerToken}
-          redirectUri={credentials.redirectUri}
-          postLogoutRedirectUri={credentials.postLogoutRedirectUri}
+          redirectUri={credentials.redirectUri || ""}
+          postLogoutRedirectUri={credentials.postLogoutRedirectUri || ""}
           region={credentials.region || "us"}
         />
       )}
@@ -964,8 +1385,8 @@ cd oauthPlayground`}
           <div
             style={{
               padding: "1.5rem",
-              background: "linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)",
-              border: "2px solid #8b5cf6",
+              background: "linear-gradient(135deg, #e0f2fe 0%, #ddd6fe 100%)",
+              border: "2px solid #2563eb",
               borderRadius: "0.75rem",
             }}
           >
@@ -978,13 +1399,13 @@ cd oauthPlayground`}
             >
               Redirect Server Launcher
             </h3>
-            <p style={{ color: "#5b21b6", marginBottom: "1rem" }}>
+            <p style={{ color: "#1e3a8a", marginBottom: "1rem" }}>
               Runs both redirect-friendly servers with the project defaults.
             </p>
             <CodeBlockWithCopy label="redirect-script">{`./redirect-servers.sh`}</CodeBlockWithCopy>
             <p
               style={{
-                color: "#4c1d95",
+                color: "#1d4ed8",
                 fontSize: "0.85rem",
                 marginTop: "0.75rem",
               }}
@@ -1139,17 +1560,12 @@ cd oauthPlayground`}
         <WorkerTokenModal
           isOpen={showWorkerTokenModal}
           onClose={() => setShowWorkerTokenModal(false)}
-          onContinue={() => {
+          onContinue={async () => {
             // Re-check worker token after modal closes
-            const savedToken = localStorage.getItem("worker_token");
-            const savedEnv = localStorage.getItem("worker_token_env");
-            const savedExpiresAt = localStorage.getItem("worker_token_expires_at");
-
-            if (savedToken && savedEnv === credentials.environmentId) {
-              setWorkerToken(savedToken);
-              if (savedExpiresAt) {
-                setWorkerTokenExpiresAt(parseInt(savedExpiresAt, 10));
-              }
+            const tokenData = await credentialStorageManager.loadWorkerToken();
+            if (tokenData && tokenData.environmentId === credentials.environmentId) {
+              setWorkerToken(tokenData.accessToken);
+              setWorkerTokenExpiresAt(tokenData.expiresAt);
             }
             setShowWorkerTokenModal(false);
           }}
