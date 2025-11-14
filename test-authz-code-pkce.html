@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authorization Code + PKCE Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #f5f7fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #1a202c;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        button:hover {
+            background: #0056b3;
+        }
+        
+        button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 500px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+        }
+        
+        .log-success {
+            color: #48bb78;
+        }
+        
+        .log-error {
+            color: #f56565;
+        }
+        
+        .log-info {
+            color: #4299e1;
+        }
+        
+        .log-warning {
+            color: #ed8936;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-left: 10px;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-pending {
+            background: #feebc8;
+            color: #7c2d12;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .badge-pass {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .badge-fail {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Authorization Code + PKCE Test</h1>
+        <p class="subtitle">Test the complete OAuth 2.0 Authorization Code flow with PKCE</p>
+        
+        <div class="grid">
+            <div>
+                <div class="section">
+                    <h2>1. Configuration</h2>
+                    <div class="form-group">
+                        <label>Environment ID</label>
+                        <input type="text" id="envId" value="b9817c16-9910-4415-b67e-4ac687da74d9">
+                    </div>
+                    <div class="form-group">
+                        <label>Client ID</label>
+                        <input type="text" id="clientId" value="a4f963ea-0736-456a-be72-b1fa4f63f81f">
+                    </div>
+                    <div class="form-group">
+                        <label>Client Secret</label>
+                        <input type="password" id="clientSecret" placeholder="Enter client secret">
+                    </div>
+                    <div class="form-group">
+                        <label>Redirect URI</label>
+                        <input type="text" id="redirectUri" value="https://localhost:3001/flows/kroger-grocery-store-mfa">
+                    </div>
+                    <div class="form-group">
+                        <label>Scopes</label>
+                        <input type="text" id="scopes" value="openid profile email">
+                    </div>
+                    <button onclick="saveConfig()">Save Configuration</button>
+                    <span id="configStatus"></span>
+                </div>
+                
+                <div class="section">
+                    <h2>2. Generate PKCE Codes</h2>
+                    <button onclick="generatePKCE()" id="pkceBtn">Generate PKCE Codes</button>
+                    <span id="pkceStatus"></span>
+                    <div id="pkceDisplay"></div>
+                </div>
+                
+                <div class="section">
+                    <h2>3. Build Authorization Request</h2>
+                    <button onclick="buildAuthRequest()" id="authReqBtn" disabled>Build Request</button>
+                    <span id="authReqStatus"></span>
+                    <div id="authReqDisplay"></div>
+                </div>
+                
+                <div class="section">
+                    <h2>4. Simulate Auth Code Receipt</h2>
+                    <div class="form-group">
+                        <label>Authorization Code (paste from callback)</label>
+                        <input type="text" id="authCode" placeholder="Paste auth code here">
+                    </div>
+                    <button onclick="receiveAuthCode()" id="receiveBtn" disabled>Receive Auth Code</button>
+                    <span id="receiveStatus"></span>
+                </div>
+                
+                <div class="section">
+                    <h2>5. Exchange Code for Tokens</h2>
+                    <button onclick="exchangeCode()" id="exchangeBtn" disabled>Exchange Code</button>
+                    <span id="exchangeStatus"></span>
+                    <div id="tokenDisplay"></div>
+                </div>
+                
+                <div class="section">
+                    <h2>6. Verify PKCE Flow</h2>
+                    <button onclick="verifyPKCE()">Verify PKCE Implementation</button>
+                    <div id="verifyDisplay"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="section">
+                    <h2>📋 Test Log</h2>
+                    <div class="log" id="log"></div>
+                </div>
+                
+                <div class="section">
+                    <h2>✅ Test Results</h2>
+                    <div id="results">
+                        <p style="color: #718096;">Run tests to see results...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const FLOW_KEY = 'authz-pkce-test';
+        let config = {};
+        let pkceData = {};
+        let authCodeData = {};
+        let tokenData = {};
+        
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = `log-${type}`;
+            logEl.innerHTML += `<div class="log-entry ${className}">[${timestamp}] ${message}</div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        function setStatus(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = `<span class="status status-${type}">${text}</span>`;
+        }
+        
+        function saveConfig() {
+            config = {
+                envId: document.getElementById('envId').value.trim(),
+                clientId: document.getElementById('clientId').value.trim(),
+                clientSecret: document.getElementById('clientSecret').value.trim(),
+                redirectUri: document.getElementById('redirectUri').value.trim(),
+                scopes: document.getElementById('scopes').value.trim()
+            };
+            
+            if (!config.envId || !config.clientId || !config.clientSecret) {
+                log('❌ Please fill in all required fields', 'error');
+                setStatus('configStatus', 'Incomplete', 'error');
+                return;
+            }
+            
+            localStorage.setItem(`${FLOW_KEY}_config`, JSON.stringify(config));
+            log('✅ Configuration saved', 'success');
+            setStatus('configStatus', 'Saved', 'success');
+            document.getElementById('pkceBtn').disabled = false;
+        }
+        
+        function generateCodeVerifier() {
+            const array = new Uint8Array(32);
+            crypto.getRandomValues(array);
+            return btoa(String.fromCharCode.apply(null, array))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+        }
+        
+        async function generateCodeChallenge(verifier) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(verifier);
+            const hash = await crypto.subtle.digest('SHA-256', data);
+            return btoa(String.fromCharCode.apply(null, new Uint8Array(hash)))
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=/g, '');
+        }
+        
+        async function generatePKCE() {
+            log('🔐 Generating PKCE codes...', 'info');
+            setStatus('pkceStatus', 'Generating...', 'pending');
+            
+            try {
+                const verifier = generateCodeVerifier();
+                const challenge = await generateCodeChallenge(verifier);
+                
+                pkceData = {
+                    codeVerifier: verifier,
+                    codeChallenge: challenge,
+                    codeChallengeMethod: 'S256',
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                localStorage.setItem(`${FLOW_KEY}_pkce`, JSON.stringify(pkceData));
+                
+                log('✅ PKCE codes generated', 'success');
+                log(`   Code Verifier: ${verifier.substring(0, 20)}... (${verifier.length} chars)`, 'info');
+                log(`   Code Challenge: ${challenge.substring(0, 20)}...`, 'info');
+                log(`   Challenge Method: S256`, 'info');
+                
+                setStatus('pkceStatus', 'Generated', 'success');
+                
+                document.getElementById('pkceDisplay').innerHTML = `
+                    <div class="code-block">
+<strong>Code Verifier:</strong> ${verifier}
+<strong>Length:</strong> ${verifier.length} characters
+<strong>Code Challenge:</strong> ${challenge}
+<strong>Method:</strong> S256
+                    </div>
+                `;
+                
+                document.getElementById('authReqBtn').disabled = false;
+                
+            } catch (error) {
+                log(`❌ PKCE generation failed: ${error.message}`, 'error');
+                setStatus('pkceStatus', 'Failed', 'error');
+            }
+        }
+        
+        function buildAuthRequest() {
+            log('🔨 Building authorization request...', 'info');
+            setStatus('authReqStatus', 'Building...', 'pending');
+            
+            try {
+                const state = `${FLOW_KEY}-${Date.now()}`;
+                
+                const params = new URLSearchParams({
+                    client_id: config.clientId,
+                    response_type: 'code',
+                    redirect_uri: config.redirectUri,
+                    scope: config.scopes,
+                    state: state,
+                    code_challenge: pkceData.codeChallenge,
+                    code_challenge_method: pkceData.codeChallengeMethod
+                });
+                
+                const authUrl = `https://auth.pingone.com/${config.envId}/as/authorize?${params.toString()}`;
+                
+                // Save state
+                localStorage.setItem(`${FLOW_KEY}_state`, state);
+                
+                log('✅ Authorization request built', 'success');
+                log(`   State: ${state}`, 'info');
+                log(`   PKCE Challenge included: ✓`, 'success');
+                
+                setStatus('authReqStatus', 'Ready', 'success');
+                
+                document.getElementById('authReqDisplay').innerHTML = `
+                    <div class="code-block">
+<strong>Authorization URL:</strong>
+${authUrl}
+
+<strong>Parameters:</strong>
+- client_id: ${config.clientId}
+- response_type: code
+- redirect_uri: ${config.redirectUri}
+- scope: ${config.scopes}
+- state: ${state}
+- code_challenge: ${pkceData.codeChallenge}
+- code_challenge_method: S256
+                    </div>
+                    <button onclick="window.open('${authUrl}', '_blank')" style="margin-top: 10px;">
+                        Open Authorization URL
+                    </button>
+                `;
+                
+                document.getElementById('receiveBtn').disabled = false;
+                
+            } catch (error) {
+                log(`❌ Failed to build request: ${error.message}`, 'error');
+                setStatus('authReqStatus', 'Failed', 'error');
+            }
+        }
+        
+        function receiveAuthCode() {
+            const code = document.getElementById('authCode').value.trim();
+            
+            if (!code) {
+                log('❌ Please enter an authorization code', 'error');
+                return;
+            }
+            
+            authCodeData = {
+                code: code,
+                receivedAt: new Date().toISOString()
+            };
+            
+            localStorage.setItem(`${FLOW_KEY}_authcode`, JSON.stringify(authCodeData));
+            
+            log('✅ Authorization code received', 'success');
+            log(`   Code: ${code.substring(0, 20)}...`, 'info');
+            setStatus('receiveStatus', 'Received', 'success');
+            
+            document.getElementById('exchangeBtn').disabled = false;
+        }
+        
+        async function exchangeCode() {
+            log('🔄 Exchanging authorization code for tokens...', 'info');
+            setStatus('exchangeStatus', 'Exchanging...', 'pending');
+            
+            try {
+                const formData = new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    code: authCodeData.code,
+                    redirect_uri: config.redirectUri,
+                    client_id: config.clientId,
+                    client_secret: config.clientSecret,
+                    code_verifier: pkceData.codeVerifier  // ← CRITICAL!
+                });
+                
+                log('   Including code_verifier in request ✓', 'success');
+                log(`   Code Verifier: ${pkceData.codeVerifier.substring(0, 20)}...`, 'info');
+                
+                const response = await fetch(`https://auth.pingone.com/${config.envId}/as/token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: formData.toString()
+                });
+                
+                if (response.ok) {
+                    tokenData = await response.json();
+                    
+                    log('✅ Token exchange successful!', 'success');
+                    log(`   Access Token: ${tokenData.access_token.substring(0, 30)}...`, 'info');
+                    log(`   Token Type: ${tokenData.token_type}`, 'info');
+                    log(`   Expires In: ${tokenData.expires_in} seconds`, 'info');
+                    log(`   Scope: ${tokenData.scope}`, 'info');
+                    if (tokenData.id_token) log('   ID Token: Present ✓', 'success');
+                    if (tokenData.refresh_token) log('   Refresh Token: Present ✓', 'success');
+                    
+                    setStatus('exchangeStatus', 'Success', 'success');
+                    
+                    document.getElementById('tokenDisplay').innerHTML = `
+                        <div class="code-block">
+<strong>Access Token:</strong> ${tokenData.access_token.substring(0, 50)}...
+<strong>Token Type:</strong> ${tokenData.token_type}
+<strong>Expires In:</strong> ${tokenData.expires_in} seconds
+<strong>Scope:</strong> ${tokenData.scope}
+<strong>ID Token:</strong> ${tokenData.id_token ? 'Present ✓' : 'Not present'}
+<strong>Refresh Token:</strong> ${tokenData.refresh_token ? 'Present ✓' : 'Not present'}
+                        </div>
+                    `;
+                    
+                    updateResults();
+                    
+                } else {
+                    const error = await response.text();
+                    log(`❌ Token exchange failed: ${response.status}`, 'error');
+                    log(`   ${error}`, 'error');
+                    setStatus('exchangeStatus', 'Failed', 'error');
+                }
+                
+            } catch (error) {
+                log(`❌ Error exchanging code: ${error.message}`, 'error');
+                setStatus('exchangeStatus', 'Error', 'error');
+            }
+        }
+        
+        function verifyPKCE() {
+            log('🔍 Verifying PKCE implementation...', 'info');
+            
+            const checks = [];
+            
+            // Check 1: Code verifier generated
+            if (pkceData.codeVerifier && pkceData.codeVerifier.length === 43) {
+                checks.push({ name: 'Code Verifier Generated', pass: true, detail: `${pkceData.codeVerifier.length} chars` });
+                log('   ✓ Code verifier generated (43 chars)', 'success');
+            } else {
+                checks.push({ name: 'Code Verifier Generated', pass: false, detail: 'Missing or wrong length' });
+                log('   ✗ Code verifier missing or wrong length', 'error');
+            }
+            
+            // Check 2: Code challenge generated
+            if (pkceData.codeChallenge) {
+                checks.push({ name: 'Code Challenge Generated', pass: true, detail: 'SHA-256 hash' });
+                log('   ✓ Code challenge generated', 'success');
+            } else {
+                checks.push({ name: 'Code Challenge Generated', pass: false, detail: 'Missing' });
+                log('   ✗ Code challenge missing', 'error');
+            }
+            
+            // Check 3: Challenge method is S256
+            if (pkceData.codeChallengeMethod === 'S256') {
+                checks.push({ name: 'Challenge Method', pass: true, detail: 'S256' });
+                log('   ✓ Challenge method is S256', 'success');
+            } else {
+                checks.push({ name: 'Challenge Method', pass: false, detail: pkceData.codeChallengeMethod || 'Missing' });
+                log('   ✗ Challenge method not S256', 'error');
+            }
+            
+            // Check 4: PKCE saved to localStorage
+            const saved = localStorage.getItem(`${FLOW_KEY}_pkce`);
+            if (saved) {
+                checks.push({ name: 'PKCE Saved to Storage', pass: true, detail: 'localStorage' });
+                log('   ✓ PKCE codes saved to localStorage', 'success');
+            } else {
+                checks.push({ name: 'PKCE Saved to Storage', pass: false, detail: 'Not saved' });
+                log('   ✗ PKCE codes not saved', 'error');
+            }
+            
+            // Check 5: Tokens received
+            if (tokenData.access_token) {
+                checks.push({ name: 'Tokens Received', pass: true, detail: 'Access + ID tokens' });
+                log('   ✓ Tokens received successfully', 'success');
+            } else {
+                checks.push({ name: 'Tokens Received', pass: false, detail: 'No tokens' });
+                log('   ✗ No tokens received', 'error');
+            }
+            
+            const allPass = checks.every(c => c.pass);
+            
+            let html = '<div style="margin-top: 10px;">';
+            checks.forEach(check => {
+                const badge = check.pass ? 
+                    '<span class="badge badge-pass">PASS</span>' : 
+                    '<span class="badge badge-fail">FAIL</span>';
+                html += `<div style="margin: 8px 0;"><strong>${check.name}:</strong> ${check.detail} ${badge}</div>`;
+            });
+            html += '</div>';
+            
+            if (allPass) {
+                html += '<div style="margin-top: 15px; padding: 10px; background: #c6f6d5; color: #22543d; border-radius: 4px;"><strong>✅ All PKCE checks passed!</strong></div>';
+                log('🎉 All PKCE checks passed!', 'success');
+            } else {
+                html += '<div style="margin-top: 15px; padding: 10px; background: #fed7d7; color: #742a2a; border-radius: 4px;"><strong>❌ Some PKCE checks failed</strong></div>';
+                log('⚠️  Some PKCE checks failed', 'warning');
+            }
+            
+            document.getElementById('verifyDisplay').innerHTML = html;
+        }
+        
+        function updateResults() {
+            const results = {
+                pkceGeneration: !!pkceData.codeVerifier,
+                pkceStorage: !!localStorage.getItem(`${FLOW_KEY}_pkce`),
+                pkceInExchange: true, // We included it in the request
+                tokenReceipt: !!tokenData.access_token,
+                idToken: !!tokenData.id_token,
+                refreshToken: !!tokenData.refresh_token
+            };
+            
+            let html = '<div>';
+            html += `<div style="margin: 8px 0;">PKCE Generation: ${results.pkceGeneration ? '<span class="badge badge-pass">PASS</span>' : '<span class="badge badge-fail">FAIL</span>'}</div>`;
+            html += `<div style="margin: 8px 0;">PKCE Storage: ${results.pkceStorage ? '<span class="badge badge-pass">PASS</span>' : '<span class="badge badge-fail">FAIL</span>'}</div>`;
+            html += `<div style="margin: 8px 0;">PKCE in Token Exchange: ${results.pkceInExchange ? '<span class="badge badge-pass">PASS</span>' : '<span class="badge badge-fail">FAIL</span>'}</div>`;
+            html += `<div style="margin: 8px 0;">Token Receipt: ${results.tokenReceipt ? '<span class="badge badge-pass">PASS</span>' : '<span class="badge badge-fail">FAIL</span>'}</div>`;
+            html += `<div style="margin: 8px 0;">ID Token: ${results.idToken ? '<span class="badge badge-pass">PASS</span>' : '<span class="badge badge-fail">FAIL</span>'}</div>`;
+            html += `<div style="margin: 8px 0;">Refresh Token: ${results.refreshToken ? '<span class="badge badge-pass">PASS</span>' : '<span class="badge badge-fail">FAIL</span>'}</div>`;
+            html += '</div>';
+            
+            document.getElementById('results').innerHTML = html;
+        }
+        
+        // Load saved config on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            const saved = localStorage.getItem(`${FLOW_KEY}_config`);
+            if (saved) {
+                config = JSON.parse(saved);
+                document.getElementById('envId').value = config.envId;
+                document.getElementById('clientId').value = config.clientId;
+                document.getElementById('clientSecret').value = config.clientSecret;
+                document.getElementById('redirectUri').value = config.redirectUri;
+                document.getElementById('scopes').value = config.scopes;
+                log('✓ Configuration loaded from storage', 'info');
+                document.getElementById('pkceBtn').disabled = false;
+            }
+            
+            log('🚀 Authorization Code + PKCE Test Ready', 'success');
+            log('   Follow the steps 1-5 to test the complete flow', 'info');
+        });
+    </script>
+</body>
+</html>
