@@ -1,6 +1,7 @@
 // src/services/pingOneAppCreationService.ts
-import { logger } from '../utils/logger';
+
 import { createPingOneClient, makeApiRequest, PingOneClient } from '../utils/apiClient';
+import { logger } from '../utils/logger';
 
 export type AppType = 'OIDC_WEB_APP' | 'OIDC_NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
 

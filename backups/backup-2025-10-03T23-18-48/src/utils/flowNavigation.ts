@@ -60,7 +60,7 @@ export const storeFlowNavigationState = (
 	// Store in both localStorage and sessionStorage for cross-tab compatibility
 	localStorage.setItem('flow_navigation_state', JSON.stringify(navigationState));
 	sessionStorage.setItem('flow_navigation_state', JSON.stringify(navigationState));
-	
+
 	console.log('🔗 [FlowNavigation] Stored navigation state:', navigationState);
 };
 
@@ -70,13 +70,14 @@ export const storeFlowNavigationState = (
 export const getFlowNavigationState = (): FlowNavigationState | null => {
 	try {
 		// Try localStorage first, then sessionStorage
-		const stored = localStorage.getItem('flow_navigation_state') || 
-					  sessionStorage.getItem('flow_navigation_state');
-		
+		const stored =
+			localStorage.getItem('flow_navigation_state') ||
+			sessionStorage.getItem('flow_navigation_state');
+
 		if (!stored) return null;
 
 		const navigationState = JSON.parse(stored) as FlowNavigationState;
-		
+
 		// Check if the state is not too old (24 hours)
 		const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 		if (Date.now() - navigationState.timestamp > maxAge) {
@@ -119,21 +120,21 @@ export const getFlowDisplayName = (flowSource: string): string => {
  */
 export const navigateBackToFlow = (navigate: (path: string) => void): boolean => {
 	const navigationState = getFlowNavigationState();
-	
+
 	if (!navigationState) {
 		console.warn('🔗 [FlowNavigation] No navigation state found');
 		return false;
 	}
 
 	const route = getFlowRoute(navigationState.flowSource);
-	
+
 	// Store the step to restore in the flow
 	sessionStorage.setItem('restore_step', navigationState.stepIndex.toString());
-	
+
 	console.log('🔗 [FlowNavigation] Navigating back to flow:', {
 		flowSource: navigationState.flowSource,
 		stepIndex: navigationState.stepIndex,
-		route
+		route,
 	});
 
 	navigate(route);

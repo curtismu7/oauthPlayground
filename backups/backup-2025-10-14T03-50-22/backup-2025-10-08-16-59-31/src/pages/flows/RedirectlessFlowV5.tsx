@@ -20,8 +20,11 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	HelperText,
 	ResultsHeading,
@@ -32,9 +35,6 @@ import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -470,7 +470,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		// Step 5
 		completionOverview: false,
 		completionDetails: false,
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 
@@ -523,7 +523,7 @@ const RedirectlessFlowV5: React.FC = () => {
 				return [];
 			default:
 				return [];
-			}
+		}
 	}, []);
 
 	const toggleSection = useCallback((key: IntroSectionKey) => {
@@ -671,7 +671,6 @@ const RedirectlessFlowV5: React.FC = () => {
 		v4ToastManager.showSuccess('Flow reset successfully!');
 	}, [controller]);
 
-	
 	const renderFlowSummary = useCallback(() => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
@@ -680,7 +679,7 @@ const RedirectlessFlowV5: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false, // Update based on flow capabilities
-			showIntrospection: false // Update based on flow capabilities
+			showIntrospection: false, // Update based on flow capabilities
 		};
 
 		return (
@@ -692,7 +691,7 @@ const RedirectlessFlowV5: React.FC = () => {
 		);
 	}, [collapsedSections.flowSummary, toggleSection]);
 
-const renderStepContent = useMemo(() => {
+	const renderStepContent = useMemo(() => {
 		switch (currentStep) {
 			case 0:
 				return (
@@ -887,7 +886,12 @@ const renderStepContent = useMemo(() => {
 									environmentId: newEnvId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
+								if (
+									newEnvId &&
+									controller.credentials.clientId &&
+									newEnvId.trim() &&
+									controller.credentials.clientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}
@@ -915,7 +919,12 @@ const renderStepContent = useMemo(() => {
 									clientId: newClientId,
 								});
 								// Auto-save if we have both environmentId and clientId
-								if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
+								if (
+									controller.credentials.environmentId &&
+									newClientId &&
+									controller.credentials.environmentId.trim() &&
+									newClientId.trim()
+								) {
 									controller.saveCredentials();
 									v4ToastManager.showSuccess('Credentials auto-saved');
 								}

@@ -1,8 +1,8 @@
 // src/components/ClaimsRequestBuilder.tsx
 // Advanced OIDC Claims Request Builder - Request specific claims with essential/voluntary flags
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiCode, FiInfo, FiPlus, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiPlus, FiTrash2, FiInfo, FiCode, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 
 export interface ClaimRequest {
 	name: string;
@@ -88,10 +88,10 @@ const Tab = styled.button<{ $active: boolean }>`
 	padding: 0.75rem 1.5rem;
 	font-size: 0.875rem;
 	font-weight: 500;
-	color: ${props => props.$active ? '#0284c7' : '#6b7280'};
-	background: ${props => props.$active ? '#f0f9ff' : 'transparent'};
+	color: ${(props) => (props.$active ? '#0284c7' : '#6b7280')};
+	background: ${(props) => (props.$active ? '#f0f9ff' : 'transparent')};
 	border: none;
-	border-bottom: 2px solid ${props => props.$active ? '#0284c7' : 'transparent'};
+	border-bottom: 2px solid ${(props) => (props.$active ? '#0284c7' : 'transparent')};
 	margin-bottom: -2px;
 	cursor: pointer;
 	transition: all 0.2s;
@@ -141,15 +141,15 @@ const EssentialToggle = styled.button<{ $essential: boolean }>`
 	padding: 0.5rem 1rem;
 	font-size: 0.75rem;
 	font-weight: 500;
-	color: ${props => props.$essential ? '#ffffff' : '#6b7280'};
-	background: ${props => props.$essential ? '#dc2626' : '#ffffff'};
-	border: 1px solid ${props => props.$essential ? '#dc2626' : '#d1d5db'};
+	color: ${(props) => (props.$essential ? '#ffffff' : '#6b7280')};
+	background: ${(props) => (props.$essential ? '#dc2626' : '#ffffff')};
+	border: 1px solid ${(props) => (props.$essential ? '#dc2626' : '#d1d5db')};
 	border-radius: 0.375rem;
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${props => props.$essential ? '#b91c1c' : '#f3f4f6'};
+		background: ${(props) => (props.$essential ? '#b91c1c' : '#f3f4f6')};
 	}
 `;
 
@@ -250,15 +250,88 @@ const JSONPreview = styled.pre`
 	}
 `;
 
+type JsonPreviewPart = { text: string; className?: string };
+
+const buildJsonPreviewParts = (input: unknown, indent = 0): JsonPreviewPart[] => {
+	const parts: JsonPreviewPart[] = [];
+	const indentation = '  '.repeat(indent);
+
+	if (input === null) {
+		parts.push({ text: 'null', className: 'json-null' });
+		return parts;
+	}
+
+	if (typeof input === 'boolean') {
+		parts.push({ text: input.toString(), className: 'json-boolean' });
+		return parts;
+	}
+
+	if (typeof input === 'number') {
+		parts.push({ text: input.toString(), className: 'json-number' });
+		return parts;
+	}
+
+	if (typeof input === 'string') {
+		parts.push({ text: `"${input}"`, className: 'json-string' });
+		return parts;
+	}
+
+	if (Array.isArray(input)) {
+		if (input.length === 0) {
+			parts.push({ text: '[]', className: 'json-punctuation' });
+			return parts;
+		}
+
+		parts.push({ text: '[\n', className: 'json-punctuation' });
+		input.forEach((item, index) => {
+			parts.push({ text: `${indentation}  ` });
+			parts.push(...buildJsonPreviewParts(item, indent + 1));
+			if (index < input.length - 1) {
+				parts.push({ text: ',\n', className: 'json-punctuation' });
+			} else {
+				parts.push({ text: '\n' });
+			}
+		});
+		parts.push({ text: `${indentation}]`, className: 'json-punctuation' });
+		return parts;
+	}
+
+	if (typeof input === 'object') {
+		const entries = Object.entries(input as Record<string, unknown>);
+		if (entries.length === 0) {
+			parts.push({ text: '{}', className: 'json-punctuation' });
+			return parts;
+		}
+
+		parts.push({ text: '{\n', className: 'json-punctuation' });
+		entries.forEach(([key, value], index) => {
+			parts.push({ text: `${indentation}  ` });
+			parts.push({ text: `"${key}"`, className: 'json-key' });
+			parts.push({ text: ': ', className: 'json-punctuation' });
+			parts.push(...buildJsonPreviewParts(value, indent + 1));
+			if (index < entries.length - 1) {
+				parts.push({ text: ',\n', className: 'json-punctuation' });
+			} else {
+				parts.push({ text: '\n' });
+			}
+		});
+		parts.push({ text: `${indentation}}`, className: 'json-punctuation' });
+		return parts;
+	}
+
+	parts.push({ text: String(input) });
+	return parts;
+};
+
 const InfoBox = styled.div<{ $variant?: 'info' | 'success' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${props => props.$variant === 'success' ? '#f0fdf4' : '#eff6ff'};
-	border: 1px solid ${props => props.$variant === 'success' ? '#bbf7d0' : '#bfdbfe'};
+	background: ${(props) => (props.$variant === 'success' ? '#f0fdf4' : '#eff6ff')};
+	border: 1px solid ${(props) => (props.$variant === 'success' ? '#bbf7d0' : '#bfdbfe')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: ${props => props.$variant === 'success' ? '#166534' : '#1e40af'};
+	color: ${(props) => (props.$variant === 'success' ? '#166534' : '#1e40af')};
 	line-height: 1.5;
 	margin-bottom: 1rem;
 `;
@@ -292,11 +365,11 @@ const DraggableClaim = styled.div<{ $isDragging?: boolean }>`
 	flex-direction: column;
 	padding: 0.75rem;
 	background: white;
-	border: 2px solid ${props => props.$isDragging ? '#3b82f6' : '#e5e7eb'};
+	border: 2px solid ${(props) => (props.$isDragging ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.5rem;
 	cursor: grab;
 	transition: all 0.2s;
-	opacity: ${props => props.$isDragging ? 0.5 : 1};
+	opacity: ${(props) => (props.$isDragging ? 0.5 : 1)};
 
 	&:hover {
 		border-color: #3b82f6;
@@ -361,7 +434,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 	value,
 	onChange,
 	collapsed = false,
-	onToggleCollapsed
+	onToggleCollapsed,
 }) => {
 	const [activeTab, setActiveTab] = useState<'userinfo' | 'id_token'>('userinfo');
 	const [showPreview, setShowPreview] = useState(false);
@@ -373,80 +446,94 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 			// Add one empty claim to the active tab
 			onChange({
 				[activeTab]: {
-					'': null
-				}
+					'': null,
+				},
 			});
 		} else if (value && !value[activeTab]) {
 			// If switching to a tab with no claims, add one empty claim
 			onChange({
 				...value,
 				[activeTab]: {
-					'': null
-				}
+					'': null,
+				},
 			});
 		}
-	}, [activeTab]); // Run when tab changes
+	}, [
+		activeTab, // If switching to a tab with no claims, add one empty claim
+		onChange,
+		value,
+	]); // Run when tab changes
 
-	const getClaims = useCallback((location: 'userinfo' | 'id_token'): Array<[string, ClaimRequest | null]> => {
-		if (!value || !value[location]) return [];
-		return Object.entries(value[location]!);
-	}, [value]);
+	const getClaims = useCallback(
+		(location: 'userinfo' | 'id_token'): Array<[string, ClaimRequest | null]> => {
+			if (!value || !value[location]) return [];
+			return Object.entries(value[location]!);
+		},
+		[value]
+	);
 
-	const addClaim = useCallback((location: 'userinfo' | 'id_token') => {
-		const newValue = value || {};
-		const locationClaims = newValue[location] || {};
-		
-		onChange({
-			...newValue,
-			[location]: {
-				...locationClaims,
-				'': null // Empty string means voluntary with default behavior
-			}
-		});
-	}, [value, onChange]);
+	const addClaim = useCallback(
+		(location: 'userinfo' | 'id_token') => {
+			const newValue = value || {};
+			const locationClaims = newValue[location] || {};
 
-	const updateClaim = useCallback((
-		location: 'userinfo' | 'id_token',
-		oldName: string,
-		newName: string,
-		essential: boolean
-	) => {
-		const newValue = value || {};
-		const locationClaims = { ...(newValue[location] || {}) };
-		
-		delete locationClaims[oldName];
-		locationClaims[newName] = essential ? { essential: true } : null;
-		
-		onChange({
-			...newValue,
-			[location]: locationClaims
-		});
-	}, [value, onChange]);
-
-	const deleteClaim = useCallback((location: 'userinfo' | 'id_token', name: string) => {
-		const newValue = value || {};
-		const locationClaims = { ...(newValue[location] || {}) };
-		
-		delete locationClaims[name];
-		
-		// If no claims left, remove the location
-		if (Object.keys(locationClaims).length === 0) {
-			const { [location]: _, ...rest } = newValue;
-			onChange(Object.keys(rest).length > 0 ? rest as ClaimsRequestStructure : null);
-		} else {
 			onChange({
 				...newValue,
-				[location]: locationClaims
+				[location]: {
+					...locationClaims,
+					'': null, // Empty string means voluntary with default behavior
+				},
 			});
-		}
-	}, [value, onChange]);
+		},
+		[value, onChange]
+	);
+
+	const updateClaim = useCallback(
+		(location: 'userinfo' | 'id_token', oldName: string, newName: string, essential: boolean) => {
+			const newValue = value || {};
+			const locationClaims = { ...(newValue[location] || {}) };
+
+			delete locationClaims[oldName];
+			locationClaims[newName] = essential ? { essential: true } : null;
+
+			onChange({
+				...newValue,
+				[location]: locationClaims,
+			});
+		},
+		[value, onChange]
+	);
+
+	const deleteClaim = useCallback(
+		(location: 'userinfo' | 'id_token', name: string) => {
+			const newValue = value || {};
+			const locationClaims = { ...(newValue[location] || {}) };
+
+			delete locationClaims[name];
+
+			// If no claims left, remove the location
+			if (Object.keys(locationClaims).length === 0) {
+				const { [location]: _, ...rest } = newValue;
+				onChange(Object.keys(rest).length > 0 ? (rest as ClaimsRequestStructure) : null);
+			} else {
+				onChange({
+					...newValue,
+					[location]: locationClaims,
+				});
+			}
+		},
+		[value, onChange]
+	);
 
 	// Drag and drop handlers
-	const handleDragStart = useCallback((claimName: string) => (e: React.DragEvent) => {
-		e.dataTransfer.effectAllowed = 'copy';
-		e.dataTransfer.setData('text/plain', claimName);
-		setDraggedClaim(claimName);
-	}, []);
+	const handleDragStart = useCallback(
+		(claimName: string) => (e: React.DragEvent) => {
+			e.dataTransfer.effectAllowed = 'copy';
+			e.dataTransfer.setData('text/plain', claimName);
+			setDraggedClaim(claimName);
+		},
+		[]
+	);
 
 	const handleDragEnd = useCallback(() => {
 		setDraggedClaim(null);
@@ -457,43 +544,30 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 		e.dataTransfer.dropEffect = 'copy';
 	}, []);
 
-	const handleDrop = useCallback((location: 'userinfo' | 'id_token', currentName: string) => (e: React.DragEvent) => {
-		e.preventDefault();
-		const claimName = e.dataTransfer.getData('text/plain');
-		if (claimName && claimName !== currentName) {
-			// If dropping on an empty field, replace it
-			if (currentName === '') {
-				updateClaim(location, currentName, claimName, false);
-			}
-		}
-		setDraggedClaim(null);
-	}, [updateClaim]);
-
-	const jsonString = value ? JSON.stringify(value, null, 2) : '{}';
-	
-	// Syntax highlight JSON
-	const highlightJSON = (json: string) => {
-		return json
-			.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?)/g, (match) => {
-				let cls = 'json-string';
-				if (/:$/.test(match)) {
-					cls = 'json-key';
-					match = match.slice(0, -1); // Remove the colon
-					return `<span class="${cls}">${match}</span><span class="json-punctuation">:</span>`;
+	const handleDrop = useCallback(
+		(location: 'userinfo' | 'id_token', currentName: string) => (e: React.DragEvent) => {
+			e.preventDefault();
+			const claimName = e.dataTransfer.getData('text/plain');
+			if (claimName && claimName !== currentName) {
+				// If dropping on an empty field, replace it
+				if (currentName === '') {
+					updateClaim(location, currentName, claimName, false);
 				}
-				return `<span class="${cls}">${match}</span>`;
-			})
-			.replace(/\b(true|false)\b/g, '<span class="json-boolean">$1</span>')
-			.replace(/\b(null)\b/g, '<span class="json-null">$1</span>')
-			.replace(/\b(-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)\b/g, '<span class="json-number">$1</span>')
-			.replace(/([{}[\],])/g, '<span class="json-punctuation">$1</span>');
-	};
+			}
+			setDraggedClaim(null);
+		},
+		[updateClaim]
+	);
+
+	const jsonPreviewParts = useMemo(() => buildJsonPreviewParts(value ?? {}), [value]);
 
 	if (collapsed) {
 		return (
 			<Header onClick={onToggleCollapsed}>
 				<HeaderLeft>
-					<HeaderIcon><FiCode /></HeaderIcon>
+					<HeaderIcon>
+						<FiCode />
+					</HeaderIcon>
 					<div>
 						<HeaderTitle>Advanced Claims Request Builder</HeaderTitle>
 						<HeaderSubtitle>Request specific user claims (collapsed)</HeaderSubtitle>
@@ -508,10 +582,14 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 		<Container>
 			<Header onClick={onToggleCollapsed}>
 				<HeaderLeft>
-					<HeaderIcon><FiCode /></HeaderIcon>
+					<HeaderIcon>
+						<FiCode />
+					</HeaderIcon>
 					<div>
 						<HeaderTitle>Advanced Claims Request Builder</HeaderTitle>
-						<HeaderSubtitle>Request specific user claims with essential/voluntary flags</HeaderSubtitle>
+						<HeaderSubtitle>
+							Request specific user claims with essential/voluntary flags
+						</HeaderSubtitle>
 					</div>
 				</HeaderLeft>
 				<HeaderIcon>▼</HeaderIcon>
@@ -519,20 +597,52 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 
 			<Content>
 				<InfoBox>
-					<HeaderIcon><FiInfo /></HeaderIcon>
+					<HeaderIcon>
+						<FiInfo />
+					</HeaderIcon>
 					<div>
-						<strong>About Claims Requests:</strong> The <code>claims</code> parameter lets you request 
-						specific user information beyond what's included by default in scopes. 
-						<div style={{ marginTop: '0.75rem', padding: '0.75rem', background: '#f0f9ff', borderRadius: '0.5rem', border: '1px solid #bae6fd' }}>
+						<strong>About Claims Requests:</strong> The <code>claims</code> parameter lets you
+						request specific user information beyond what's included by default in scopes.
+						<div
+							style={{
+								marginTop: '0.75rem',
+								padding: '0.75rem',
+								background: '#f0f9ff',
+								borderRadius: '0.5rem',
+								border: '1px solid #bae6fd',
+							}}
+						>
 							<strong>Understanding Claim Values:</strong>
-							<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem', lineHeight: '1.6' }}>
-								<li><code>null</code> = <strong>Voluntary</strong> (optional) - Authorization server will try to return this claim if available, but won't fail if it's missing</li>
-								<li><code>{`{"essential": true}`}</code> = <strong>Essential</strong> (required) - Authorization server MUST return this claim or the request will fail</li>
+							<ul
+								style={{
+									marginTop: '0.5rem',
+									marginBottom: 0,
+									paddingLeft: '1.5rem',
+									lineHeight: '1.6',
+								}}
+							>
+								<li>
+									<code>null</code> = <strong>Voluntary</strong> (optional) - Authorization server
+									will try to return this claim if available, but won't fail if it's missing
+								</li>
+								<li>
+									<code>{`{"essential": true}`}</code> = <strong>Essential</strong> (required) -
+									Authorization server MUST return this claim or the request will fail
+								</li>
 							</ul>
 						</div>
 						<div style={{ marginTop: '0.75rem' }}>
 							<strong>💡 Example JSON:</strong>
-							<pre style={{ background: '#1e293b', color: '#e2e8f0', padding: '0.75rem', borderRadius: '0.5rem', fontSize: '0.8rem', overflowX: 'auto' }}>{`{
+							<pre
+								style={{
+									background: '#1e293b',
+									color: '#e2e8f0',
+									padding: '0.75rem',
+									borderRadius: '0.5rem',
+									fontSize: '0.8rem',
+									overflowX: 'auto',
+								}}
+							>{`{
   "id_token": {
     "email": null,           ← Voluntary
     "name": {"essential": true}  ← Required
@@ -540,7 +650,9 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 }`}</pre>
 						</div>
 						<div style={{ marginTop: '0.75rem' }}>
-							Claims can be returned in the <strong>ID Token</strong> (immediately with authentication) or fetched from the <strong>UserInfo endpoint</strong> (separate API call).
+							Claims can be returned in the <strong>ID Token</strong> (immediately with
+							authentication) or fetched from the <strong>UserInfo endpoint</strong> (separate API
+							call).
 						</div>
 					</div>
 				</InfoBox>
@@ -571,9 +683,11 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 								<EssentialToggle
 									$essential={isEssential}
 									onClick={() => updateClaim(activeTab, name, name, !isEssential)}
-									title={isEssential 
-										? 'Essential (required) - JSON: {"essential": true} - Auth server MUST return this claim or fail'
-										: 'Voluntary (optional) - JSON: null - Auth server will try to return this claim but won\'t fail if missing'}
+									title={
+										isEssential
+											? 'Essential (required) - JSON: {"essential": true} - Auth server MUST return this claim or fail'
+											: "Voluntary (optional) - JSON: null - Auth server will try to return this claim but won't fail if missing"
+									}
 								>
 									{isEssential ? <FiAlertCircle /> : <FiCheckCircle />}
 									{isEssential ? 'Essential' : 'Voluntary'}
@@ -589,8 +703,9 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 				<AddClaimHelper>
 					<FiInfo />
 					<div>
-						<strong>Type custom claim names</strong> (like PingOne custom attributes) in the input field above, or <strong>drag claims from below</strong>. 
-						Click "Add Claim" to add additional fields.
+						<strong>Type custom claim names</strong> (like PingOne custom attributes) in the input
+						field above, or <strong>drag claims from below</strong>. Click "Add Claim" to add
+						additional fields.
 					</div>
 				</AddClaimHelper>
 
@@ -622,37 +737,96 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 					<FiPlus /> Add Another Claim
 				</AddButton>
 
-				<div style={{ 
-					marginTop: '1.5rem', 
-					padding: '1rem', 
-					background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', 
-					border: '2px solid #fbbf24',
-					borderRadius: '0.75rem',
-					fontSize: '0.85rem'
-				}}>
-					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+				<div
+					style={{
+						marginTop: '1.5rem',
+						padding: '1rem',
+						background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+						border: '2px solid #fbbf24',
+						borderRadius: '0.75rem',
+						fontSize: '0.85rem',
+					}}
+				>
+					<div
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							marginBottom: '0.75rem',
+						}}
+					>
 						<FiInfo style={{ color: '#92400e', fontSize: '1.25rem' }} />
 						<strong style={{ color: '#92400e' }}>JSON Format Guide:</strong>
 					</div>
-					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem' }}>
-						<div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #fbbf24' }}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: '1fr 1fr',
+							gap: '1rem',
+							marginTop: '0.5rem',
+						}}
+					>
+						<div
+							style={{
+								background: 'white',
+								padding: '0.75rem',
+								borderRadius: '0.5rem',
+								border: '1px solid #fbbf24',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.5rem',
+								}}
+							>
 								<FiCheckCircle style={{ color: '#059669' }} />
 								<strong>Voluntary (Optional)</strong>
 							</div>
-							<code style={{ background: '#f3f4f6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', display: 'block' }}>
+							<code
+								style={{
+									background: '#f3f4f6',
+									padding: '0.25rem 0.5rem',
+									borderRadius: '0.25rem',
+									display: 'block',
+								}}
+							>
 								"email": null
 							</code>
 							<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
 								Server tries to return this claim but won't fail if missing
 							</div>
 						</div>
-						<div style={{ background: 'white', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid #fbbf24' }}>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+						<div
+							style={{
+								background: 'white',
+								padding: '0.75rem',
+								borderRadius: '0.5rem',
+								border: '1px solid #fbbf24',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.5rem',
+								}}
+							>
 								<FiAlertCircle style={{ color: '#dc2626' }} />
 								<strong>Essential (Required)</strong>
 							</div>
-							<code style={{ background: '#f3f4f6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', display: 'block', fontSize: '0.75rem' }}>
+							<code
+								style={{
+									background: '#f3f4f6',
+									padding: '0.25rem 0.5rem',
+									borderRadius: '0.25rem',
+									display: 'block',
+									fontSize: '0.75rem',
+								}}
+							>
 								{`"email": {"essential": true}`}
 							</code>
 							<div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#6b7280' }}>
@@ -664,7 +838,7 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 
 				{Object.keys(value || {}).length > 0 && (
 					<>
-						<AddButton 
+						<AddButton
 							onClick={() => setShowPreview(!showPreview)}
 							style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}
 						>
@@ -672,7 +846,17 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 						</AddButton>
 
 						{showPreview && (
-							<JSONPreview dangerouslySetInnerHTML={{ __html: highlightJSON(jsonString) }} />
+							<JSONPreview>
+								{jsonPreviewParts.map((part, index) =>
+									part.className ? (
+										<span key={`json-preview-${index}`} className={part.className}>
+											{part.text}
+										</span>
+									) : (
+										<React.Fragment key={`json-preview-${index}`}>{part.text}</React.Fragment>
+									)
+								)}
+							</JSONPreview>
 						)}
 					</>
 				)}
@@ -682,4 +866,3 @@ export const ClaimsRequestBuilder: React.FC<ClaimsRequestBuilderProps> = ({
 };
 
 export default ClaimsRequestBuilder;
-

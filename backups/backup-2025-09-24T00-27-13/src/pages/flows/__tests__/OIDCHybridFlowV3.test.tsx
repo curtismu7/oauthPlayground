@@ -1,7 +1,8 @@
 // src/pages/flows/__tests__/OIDCHybridFlowV3.test.tsx
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import OIDCHybridFlowV3 from '../OIDCHybridFlowV3';
 
 // Mock the hooks and utilities

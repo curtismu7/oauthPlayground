@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiGlobe, FiSettings } from 'react-icons/fi';
+import styled from 'styled-components';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
-import { FlowHeader } from '../services/flowHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 
 const Container = styled.div`
@@ -119,7 +119,7 @@ const ComparisonTitle = styled.h3`
   gap: 0.5rem;
 `;
 
-const ProsList = styled.ul`
+const _ProsList = styled.ul`
   list-style: none;
   padding: 0;
   margin: 0;

@@ -1,29 +1,30 @@
 // src/pages/flows/OIDCDeviceAuthorizationFlowV5.tsx
 // OIDC Device Authorization Code Grant (RFC 8628) - V5 Implementation with ID Token
-import React, { useState, useCallback } from 'react';
+
 import { QRCodeSVG } from 'qrcode.react';
+import React, { useCallback, useState } from 'react';
 import {
+	FiAlertCircle,
 	FiCheckCircle,
+	FiChevronDown,
 	FiClock,
 	FiCopy,
+	FiExternalLink,
 	FiInfo,
 	FiKey,
 	FiMonitor,
 	FiRefreshCw,
 	FiShield,
 	FiSmartphone,
-	FiAlertCircle,
-	FiChevronDown,
-	FiExternalLink,
 	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
 import { credentialManager } from '../../utils/credentialManager';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`

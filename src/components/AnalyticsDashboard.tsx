@@ -1,3 +1,4 @@
+import { BarChart3 } from 'lucide-react';
 import React, { useState } from 'react';
 import {
 	FiAlertTriangle,
@@ -8,7 +9,6 @@ import {
 	FiTrendingUp,
 	FiUsers,
 } from 'react-icons/fi';
-import { BarChart3 } from 'lucide-react';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { useAnalytics } from '../hooks/useAnalytics';

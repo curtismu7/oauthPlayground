@@ -113,17 +113,14 @@ export async function getEnvironmentLicensingInfo(
 	});
 
 	try {
-		const response = await fetch(
-			`https://api.pingone.com/v1/environments/${environmentId}`,
-			{
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${accessToken}`,
-					'Content-Type': 'application/json',
-					Accept: 'application/json',
-				},
-			}
-		);
+		const response = await fetch(`https://api.pingone.com/v1/environments/${environmentId}`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${accessToken}`,
+				'Content-Type': 'application/json',
+				Accept: 'application/json',
+			},
+		});
 
 		if (!response.ok) {
 			logger.error('ORG-LICENSE', 'Failed to fetch environment', {
@@ -157,22 +154,22 @@ export async function getEnvironmentLicensingInfo(
  * Get all licenses from the organization
  * Uses backend proxy to avoid CORS issues
  */
-export async function getAllLicenses(accessToken: string, organizationId?: string): Promise<OrganizationLicense[]> {
+export async function getAllLicenses(
+	accessToken: string,
+	organizationId?: string
+): Promise<OrganizationLicense[]> {
 	logger.info('ORG-LICENSE', 'Fetching all licenses via backend proxy', {
 		hasOrganizationId: Boolean(organizationId),
 		organizationId,
 	});
-	
+
 	try {
-		const response = await fetch(
-			'/api/pingone/all-licenses',
-			{
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ workerToken: accessToken, organizationId }),
-			}
-		);
-		
+		const response = await fetch('/api/pingone/all-licenses', {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ workerToken: accessToken, organizationId }),
+		});
+
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
 			logger.error('ORG-LICENSE', 'Backend API request failed', {
@@ -181,11 +178,11 @@ export async function getAllLicenses(accessToken: string, organizationId?: strin
 			});
 			return [];
 		}
-		
+
 		const licenses: OrganizationLicense[] = await response.json();
-		
+
 		logger.success('ORG-LICENSE', `Retrieved ${licenses.length} licenses`);
-		
+
 		return licenses;
 	} catch (error) {
 		logger.error('ORG-LICENSE', 'Failed to fetch licenses', {

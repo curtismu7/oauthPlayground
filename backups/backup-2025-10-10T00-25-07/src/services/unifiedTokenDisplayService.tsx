@@ -1,8 +1,8 @@
 // src/services/unifiedTokenDisplayService.tsx
 import React from 'react';
-import styled from 'styled-components';
-import { FiCopy, FiKey, FiInfo, FiCheckCircle, FiEyeOff, FiExternalLink } from 'react-icons/fi';
+import { FiCheckCircle, FiCopy, FiExternalLink, FiEyeOff, FiInfo, FiKey } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 import TokenDisplayService from './tokenDisplayService';
 
@@ -196,7 +196,12 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 		return null;
 	};
 
-	const renderToken = (token: string, label: string, tokenType: 'access' | 'id' | 'refresh', navigate: any) => {
+	const renderToken = (
+		token: string,
+		label: string,
+		tokenType: 'access' | 'id' | 'refresh',
+		navigate: any
+	) => {
 		const [decoded, setDecoded] = React.useState<any>(null);
 		const [isDecoded, setIsDecoded] = React.useState(false);
 
@@ -259,7 +264,9 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 						<TokenValue>{token}</TokenValue>
 					) : (
 						<DecodedContent>
-							{decoded ? JSON.stringify(decoded, null, 2) : 'Token is opaque and cannot be decoded as JWT.'}
+							{decoded
+								? JSON.stringify(decoded, null, 2)
+								: 'Token is opaque and cannot be decoded as JWT.'}
 						</DecodedContent>
 					)}
 					{!isDecoded && showDecodeButtons && !TokenDisplayService.isJWT(token) && (
@@ -279,28 +286,17 @@ export const UnifiedTokenDisplay: React.FC<UnifiedTokenDisplayProps> = ({
 	return (
 		<div>
 			{/* Access Token */}
-			{tokens.access_token && renderToken(
-				String(tokens.access_token),
-				'Access Token',
-				'access',
-				navigate
-			)}
+			{tokens.access_token &&
+				renderToken(String(tokens.access_token), 'Access Token', 'access', navigate)}
 
 			{/* ID Token - OIDC flows only */}
-			{isOIDC && tokens.id_token && renderToken(
-				String(tokens.id_token),
-				'ID Token (OIDC)',
-				'id',
-				navigate
-			)}
+			{isOIDC &&
+				tokens.id_token &&
+				renderToken(String(tokens.id_token), 'ID Token (OIDC)', 'id', navigate)}
 
 			{/* Refresh Token */}
-			{tokens.refresh_token && renderToken(
-				String(tokens.refresh_token),
-				'Refresh Token',
-				'refresh',
-				navigate
-			)}
+			{tokens.refresh_token &&
+				renderToken(String(tokens.refresh_token), 'Refresh Token', 'refresh', navigate)}
 		</div>
 	);
 };

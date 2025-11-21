@@ -1,7 +1,7 @@
 // src/services/hybridFlowSharedService.ts
 /**
  * Hybrid Flow Shared Service - V6 Service Architecture
- * 
+ *
  * Provides shared functionality for OIDC Hybrid Flow V6
  * Follows the same patterns as AuthorizationCodeSharedService and ImplicitFlowSharedService
  */
@@ -158,7 +158,8 @@ export class HybridFlowDefaults {
 				requiresState: true,
 				supportsPKCE: true,
 				supportsRefreshToken: true,
-				description: 'Returns authorization code + ID token + access token immediately in URL fragment',
+				description:
+					'Returns authorization code + ID token + access token immediately in URL fragment',
 				benefits: [
 					'Immediate user identity verification and API access',
 					'Most comprehensive hybrid approach',
@@ -209,7 +210,9 @@ export class HybridFlowDefaults {
 	/**
 	 * Validate response type
 	 */
-	static validateResponseType(responseType: string): responseType is 'code id_token' | 'code token' | 'code id_token token' {
+	static validateResponseType(
+		responseType: string
+	): responseType is 'code id_token' | 'code token' | 'code id_token token' {
 		return ['code id_token', 'code token', 'code id_token token'].includes(responseType);
 	}
 
@@ -220,7 +223,8 @@ export class HybridFlowDefaults {
 		const descriptions: Record<HybridFlowVariant, string> = {
 			'code-id-token': 'Authorization Code + ID Token - Immediate user identity verification',
 			'code-token': 'Authorization Code + Access Token - Immediate API access',
-			'code-id-token-token': 'Authorization Code + ID Token + Access Token - Complete hybrid approach',
+			'code-id-token-token':
+				'Authorization Code + ID Token + Access Token - Complete hybrid approach',
 		};
 		return descriptions[responseType];
 	}
@@ -369,7 +373,7 @@ export class HybridFlowCollapsibleSectionsManager {
 		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 	) {
 		return (key: string) => {
-			setCollapsedSections(prev => ({
+			setCollapsedSections((prev) => ({
 				...prev,
 				[key]: !prev[key],
 			}));
@@ -384,7 +388,7 @@ export class HybridFlowCollapsibleSectionsManager {
 		key: string,
 		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 	): void {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[key]: !prev[key],
 		}));
@@ -493,26 +497,13 @@ export const HybridFlowEducationalContent = {
 	responseTypes: {
 		'code id_token': {
 			description: 'Returns authorization code + ID token immediately',
-			benefits: [
-				'Immediate user identity verification',
-				'Secure refresh token via code exchange',
-			],
-			security: [
-				'ID token validation',
-				'Nonce verification',
-				'State parameter validation',
-			],
+			benefits: ['Immediate user identity verification', 'Secure refresh token via code exchange'],
+			security: ['ID token validation', 'Nonce verification', 'State parameter validation'],
 		},
 		'code token': {
 			description: 'Returns authorization code + access token immediately',
-			benefits: [
-				'Immediate API access',
-				'Secure refresh token via code exchange',
-			],
-			security: [
-				'Access token validation',
-				'State parameter validation',
-			],
+			benefits: ['Immediate API access', 'Secure refresh token via code exchange'],
+			security: ['Access token validation', 'State parameter validation'],
 		},
 		'code id_token token': {
 			description: 'Returns authorization code + ID token + access token immediately',
@@ -520,11 +511,7 @@ export const HybridFlowEducationalContent = {
 				'Immediate identity verification and API access',
 				'Secure refresh token via code exchange',
 			],
-			security: [
-				'Full token validation',
-				'Nonce verification',
-				'State parameter validation',
-			],
+			security: ['Full token validation', 'Nonce verification', 'State parameter validation'],
 		},
 	},
 };

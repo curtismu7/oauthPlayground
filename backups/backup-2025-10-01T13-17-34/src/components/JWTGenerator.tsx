@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import styled from 'styled-components';
 import {
+	ClientSecretJWTPayload,
 	jwtGenerator,
 	LoginHintTokenPayload,
-	RequestObjectPayload,
-	ClientSecretJWTPayload,
 	PrivateKeyJWTPayload,
+	RequestObjectPayload,
 } from '../utils/jwtGenerator';
 import JWKSConverter from './JWKSConverter';
 

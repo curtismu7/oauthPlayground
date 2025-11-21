@@ -1,6 +1,5 @@
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import styled from 'styled-components';
 import {
 	FiCheck,
 	FiChevronDown,
@@ -12,6 +11,7 @@ import {
 	FiSave,
 	FiSettings,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { Card, CardBody, CardHeader } from './Card';
 import StandardMessage from './StandardMessage';

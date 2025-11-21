@@ -1,27 +1,27 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
-	securityAnalyticsManager,
-	trackSecurityEvent,
-	trackAuthenticationFailure,
-	trackAuthorizationFailure,
-	trackTokenValidationFailure,
-	trackSuspiciousActivity,
-	trackComplianceViolation,
-	getSecurityMetrics,
+	ComplianceReport,
+	ComplianceStandard,
 	getComplianceReports,
 	getSecurityAlerts,
+	getSecurityMetrics,
 	getThreatIntelligence,
-	SecurityEventType,
-	SecuritySeverity,
-	ComplianceStandard,
-	SecurityEvent,
-	SecurityAlert,
-	ComplianceReport,
-	ThreatIntelligence,
 	RiskAssessment,
+	SecurityAlert,
+	SecurityEvent,
+	SecurityEventType,
 	SecurityMetrics,
+	SecuritySeverity,
+	securityAnalyticsManager,
+	ThreatIntelligence,
+	trackAuthenticationFailure,
+	trackAuthorizationFailure,
+	trackComplianceViolation,
+	trackSecurityEvent,
+	trackSuspiciousActivity,
+	trackTokenValidationFailure,
 } from '../utils/securityAnalytics';
-import { logger } from '../utils/logger';
 
 // Security analytics hook configuration
 export interface UseSecurityAnalyticsConfig {

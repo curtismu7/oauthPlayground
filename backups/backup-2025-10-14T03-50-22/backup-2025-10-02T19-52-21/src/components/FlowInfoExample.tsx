@@ -2,8 +2,8 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from './EnhancedFlowInfoCard';
 import { useFlowInfo } from '../hooks/useFlowInfo';
+import EnhancedFlowInfoCard from './EnhancedFlowInfoCard';
 
 const Container = styled.div`
 	padding: 2rem;

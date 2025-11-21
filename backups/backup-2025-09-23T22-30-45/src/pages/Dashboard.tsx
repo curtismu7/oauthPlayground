@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useLocation, Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import {
-	FiCheckCircle,
-	FiShield,
-	FiClock,
 	FiActivity,
-	FiRefreshCw,
-	FiKey,
-	FiGlobe,
+	FiCheckCircle,
+	FiClock,
 	FiCopy,
+	FiGlobe,
+	FiKey,
+	FiRefreshCw,
 	FiServer,
+	FiShield,
 } from 'react-icons/fi';
-import { useAuth } from '../contexts/NewAuthContext';
-import { getRecentActivity } from '../utils/activityTracker';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useTokenRefresh } from '../hooks/useTokenRefresh';
-import { getSharedConfigurationStatus } from '../utils/configurationStatus';
-import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import CentralizedSuccessMessage, {
-	showFlowSuccess,
 	showFlowError,
+	showFlowSuccess,
 } from '../components/CentralizedSuccessMessage';
 import ServerStatusModal from '../components/ServerStatusModal';
+import { useAuth } from '../contexts/NewAuthContext';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { useTokenRefresh } from '../hooks/useTokenRefresh';
+import { getRecentActivity } from '../utils/activityTracker';
+import { getSharedConfigurationStatus } from '../utils/configurationStatus';
+import { getAllFlowCredentialStatuses } from '../utils/flowCredentialChecker';
 
 const DashboardContainer = styled.div`
   max-width: 1400px;

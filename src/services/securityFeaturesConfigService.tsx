@@ -1,6 +1,6 @@
 // src/services/securityFeaturesConfigService.tsx
-import React, { useCallback, useMemo, useState } from 'react';
-import { FiCheckCircle, FiSettings, FiShield, FiAlertTriangle, FiInfo } from 'react-icons/fi';
+import React, { useMemo } from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { PingOneApplicationState } from '../components/PingOneApplicationConfig';
 
@@ -15,7 +15,12 @@ export interface SecurityFeaturesConfig {
 
 	// Client Authentication
 	clientAuth: {
-		method: 'client_secret_post' | 'client_secret_basic' | 'client_secret_jwt' | 'private_key_jwt' | 'none';
+		method:
+			| 'client_secret_post'
+			| 'client_secret_basic'
+			| 'client_secret_jwt'
+			| 'private_key_jwt'
+			| 'none';
 		hasClientSecret: boolean;
 		hasPrivateKey: boolean;
 	};
@@ -73,7 +78,9 @@ export interface SecurityFeatureStatus {
 }
 
 // Convert PingOne config to security features config
-export const convertPingOneToSecurityConfig = (pingOneConfig: PingOneApplicationState): SecurityFeaturesConfig => {
+export const convertPingOneToSecurityConfig = (
+	pingOneConfig: PingOneApplicationState
+): SecurityFeaturesConfig => {
 	return {
 		pkce: {
 			enabled: pingOneConfig.pkceEnforcement !== 'OPTIONAL',
@@ -82,12 +89,17 @@ export const convertPingOneToSecurityConfig = (pingOneConfig: PingOneApplication
 		},
 		clientAuth: {
 			method: pingOneConfig.clientAuthMethod,
-			hasClientSecret: pingOneConfig.clientAuthMethod !== 'none' && pingOneConfig.clientAuthMethod !== 'private_key_jwt',
-			hasPrivateKey: pingOneConfig.clientAuthMethod === 'private_key_jwt' && !!pingOneConfig.privateKey,
+			hasClientSecret:
+				pingOneConfig.clientAuthMethod !== 'none' &&
+				pingOneConfig.clientAuthMethod !== 'private_key_jwt',
+			hasPrivateKey:
+				pingOneConfig.clientAuthMethod === 'private_key_jwt' && !!pingOneConfig.privateKey,
 		},
 		requestSecurity: {
-			requireSignedRequests: pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED',
-			allowUnsignedRequests: pingOneConfig.requestParameterSignatureRequirement === 'ALLOW_UNSIGNED',
+			requireSignedRequests:
+				pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED',
+			allowUnsignedRequests:
+				pingOneConfig.requestParameterSignatureRequirement === 'ALLOW_UNSIGNED',
 			requestParameterSignature: pingOneConfig.requestParameterSignatureRequirement,
 			// JAR (JWT Secured Authorization Request) - RFC 9101
 			jarSupport: pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED',
@@ -120,17 +132,20 @@ export const convertPingOneToSecurityConfig = (pingOneConfig: PingOneApplication
 };
 
 // Analyze security configuration and provide recommendations
-export const analyzeSecurityConfiguration = (config: SecurityFeaturesConfig): SecurityFeatureStatus[] => {
+export const analyzeSecurityConfiguration = (
+	config: SecurityFeaturesConfig
+): SecurityFeatureStatus[] => {
 	const features: SecurityFeatureStatus[] = [];
 
 	// PKCE Analysis
 	features.push({
 		feature: 'PKCE (Proof Key for Code Exchange)',
 		enabled: config.pkce.enabled,
-		configured: config.pkce.enforcement === 'REQUIRED' || config.pkce.enforcement === 'S256_REQUIRED',
+		configured:
+			config.pkce.enforcement === 'REQUIRED' || config.pkce.enforcement === 'S256_REQUIRED',
 		description: 'Prevents authorization code interception attacks',
 		impact: 'high',
-		recommendation: config.pkce.enabled 
+		recommendation: config.pkce.enabled
 			? 'PKCE is properly configured for enhanced security'
 			: 'Enable PKCE with S256 method for maximum security',
 	});
@@ -142,9 +157,10 @@ export const analyzeSecurityConfiguration = (config: SecurityFeaturesConfig): Se
 		configured: config.clientAuth.hasClientSecret || config.clientAuth.hasPrivateKey,
 		description: 'Authenticates the client application to the authorization server',
 		impact: 'high',
-		recommendation: config.clientAuth.method === 'none'
-			? 'Consider using client authentication for better security'
-			: 'Client authentication is properly configured',
+		recommendation:
+			config.clientAuth.method === 'none'
+				? 'Consider using client authentication for better security'
+				: 'Client authentication is properly configured',
 	});
 
 	// Request Security Analysis
@@ -163,7 +179,8 @@ export const analyzeSecurityConfiguration = (config: SecurityFeaturesConfig): Se
 	features.push({
 		feature: 'JWT Secured Authorization Request (JAR)',
 		enabled: config.requestSecurity.jarSupport,
-		configured: config.requestSecurity.jarSupport && config.requestSecurity.jarAlgorithm === 'RS256',
+		configured:
+			config.requestSecurity.jarSupport && config.requestSecurity.jarAlgorithm === 'RS256',
 		description: 'RFC 9101 - Signs authorization request parameters using JWT',
 		impact: 'high',
 		recommendation: config.requestSecurity.jarSupport
@@ -199,7 +216,8 @@ export const analyzeSecurityConfiguration = (config: SecurityFeaturesConfig): Se
 	features.push({
 		feature: 'X.509 Certificate Thumbprint (x5t)',
 		enabled: config.tokenSecurity.includeX5tParameter,
-		configured: config.tokenSecurity.includeX5tParameter && config.tokenSecurity.x5tAlgorithm === 'SHA-256',
+		configured:
+			config.tokenSecurity.includeX5tParameter && config.tokenSecurity.x5tAlgorithm === 'SHA-256',
 		description: 'RFC 7515 - Includes X.509 certificate thumbprint in JWT header',
 		impact: 'medium',
 		recommendation: config.tokenSecurity.includeX5tParameter
@@ -292,20 +310,28 @@ const FeatureGrid = styled.div`
 const FeatureCard = styled.div<{ $status: 'enabled' | 'disabled' | 'warning' }>`
 	border: 1px solid ${(props) => {
 		switch (props.$status) {
-			case 'enabled': return '#10b981';
-			case 'warning': return '#f59e0b';
-			case 'disabled': return '#e5e7eb';
-			default: return '#e5e7eb';
+			case 'enabled':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			case 'disabled':
+				return '#e5e7eb';
+			default:
+				return '#e5e7eb';
 		}
 	}};
 	border-radius: 8px;
 	padding: 1.5rem;
 	background: ${(props) => {
 		switch (props.$status) {
-			case 'enabled': return '#f0fdf4';
-			case 'warning': return '#fffbeb';
-			case 'disabled': return '#f9fafb';
-			default: return '#f9fafb';
+			case 'enabled':
+				return '#f0fdf4';
+			case 'warning':
+				return '#fffbeb';
+			case 'disabled':
+				return '#f9fafb';
+			default:
+				return '#f9fafb';
 		}
 	}};
 `;
@@ -326,10 +352,14 @@ const FeatureIcon = styled.div<{ $status: 'enabled' | 'disabled' | 'warning' }>`
 	border-radius: 50%;
 	background: ${(props) => {
 		switch (props.$status) {
-			case 'enabled': return '#10b981';
-			case 'warning': return '#f59e0b';
-			case 'disabled': return '#6b7280';
-			default: return '#6b7280';
+			case 'enabled':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			case 'disabled':
+				return '#6b7280';
+			default:
+				return '#6b7280';
 		}
 	}};
 	color: white;
@@ -354,18 +384,26 @@ const FeatureRecommendation = styled.div<{ $impact: 'low' | 'medium' | 'high' }>
 	border-radius: 6px;
 	background: ${(props) => {
 		switch (props.$impact) {
-			case 'high': return '#fef2f2';
-			case 'medium': return '#fffbeb';
-			case 'low': return '#f0f9ff';
-			default: return '#f9fafb';
+			case 'high':
+				return '#fef2f2';
+			case 'medium':
+				return '#fffbeb';
+			case 'low':
+				return '#f0f9ff';
+			default:
+				return '#f9fafb';
 		}
 	}};
 	border: 1px solid ${(props) => {
 		switch (props.$impact) {
-			case 'high': return '#fecaca';
-			case 'medium': return '#fed7aa';
-			case 'low': return '#bfdbfe';
-			default: return '#e5e7eb';
+			case 'high':
+				return '#fecaca';
+			case 'medium':
+				return '#fed7aa';
+			case 'low':
+				return '#bfdbfe';
+			default:
+				return '#e5e7eb';
 		}
 	}};
 `;
@@ -386,10 +424,14 @@ const ImpactBadge = styled.span<{ $impact: 'low' | 'medium' | 'high' }>`
 	text-transform: uppercase;
 	background: ${(props) => {
 		switch (props.$impact) {
-			case 'high': return '#dc2626';
-			case 'medium': return '#d97706';
-			case 'low': return '#059669';
-			default: return '#6b7280';
+			case 'high':
+				return '#dc2626';
+			case 'medium':
+				return '#d97706';
+			case 'low':
+				return '#059669';
+			default:
+				return '#6b7280';
 		}
 	}};
 	color: white;
@@ -453,17 +495,23 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 	flowType,
 	onConfigChange,
 }) => {
-	const securityConfig = useMemo(() => convertPingOneToSecurityConfig(pingOneConfig), [pingOneConfig]);
-	const securityAnalysis = useMemo(() => analyzeSecurityConfiguration(securityConfig), [securityConfig]);
+	const securityConfig = useMemo(
+		() => convertPingOneToSecurityConfig(pingOneConfig),
+		[pingOneConfig]
+	);
+	const securityAnalysis = useMemo(
+		() => analyzeSecurityConfiguration(securityConfig),
+		[securityConfig]
+	);
 
 	// Calculate security score
 	const securityScore = useMemo(() => {
 		const totalFeatures = securityAnalysis.length;
-		const enabledFeatures = securityAnalysis.filter(f => f.enabled).length;
-		const configuredFeatures = securityAnalysis.filter(f => f.configured).length;
-		
+		const enabledFeatures = securityAnalysis.filter((f) => f.enabled).length;
+		const configuredFeatures = securityAnalysis.filter((f) => f.configured).length;
+
 		// Weight configured features more heavily
-		return Math.round(((configuredFeatures * 2) + enabledFeatures) / (totalFeatures * 2) * 100);
+		return Math.round(((configuredFeatures * 2 + enabledFeatures) / (totalFeatures * 2)) * 100);
 	}, [securityAnalysis]);
 
 	// Get security level
@@ -487,10 +535,14 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 	const getFeatureIcon = (feature: SecurityFeatureStatus) => {
 		const status = getFeatureStatus(feature);
 		switch (status) {
-			case 'enabled': return <FiCheckCircle size={20} />;
-			case 'warning': return <FiAlertTriangle size={20} />;
-			case 'disabled': return <FiShield size={20} />;
-			default: return <FiShield size={20} />;
+			case 'enabled':
+				return <FiCheckCircle size={20} />;
+			case 'warning':
+				return <FiAlertTriangle size={20} />;
+			case 'disabled':
+				return <FiShield size={20} />;
+			default:
+				return <FiShield size={20} />;
 		}
 	};
 
@@ -522,11 +574,15 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 							<StatLabel>Security Level</StatLabel>
 						</StatItem>
 						<StatItem>
-							<StatValue $color="#10b981">{securityAnalysis.filter(f => f.configured).length}</StatValue>
+							<StatValue $color="#10b981">
+								{securityAnalysis.filter((f) => f.configured).length}
+							</StatValue>
 							<StatLabel>Configured Features</StatLabel>
 						</StatItem>
 						<StatItem>
-							<StatValue $color="#6b7280">{securityAnalysis.filter(f => !f.configured).length}</StatValue>
+							<StatValue $color="#6b7280">
+								{securityAnalysis.filter((f) => !f.configured).length}
+							</StatValue>
 							<StatLabel>Needs Configuration</StatLabel>
 						</StatItem>
 					</SummaryStats>
@@ -543,13 +599,16 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 							</FeatureHeader>
 							<FeatureDescription>{feature.description}</FeatureDescription>
 							<FeatureRecommendation $impact={feature.impact}>
-								<ImpactBadge $impact={feature.impact}>
-									{feature.impact} impact
-								</ImpactBadge>
-								<RecommendationText color={
-									feature.impact === 'high' ? '#dc2626' :
-									feature.impact === 'medium' ? '#d97706' : '#059669'
-								}>
+								<ImpactBadge $impact={feature.impact}>{feature.impact} impact</ImpactBadge>
+								<RecommendationText
+									color={
+										feature.impact === 'high'
+											? '#dc2626'
+											: feature.impact === 'medium'
+												? '#d97706'
+												: '#059669'
+									}
+								>
 									{feature.recommendation}
 								</RecommendationText>
 							</FeatureRecommendation>
@@ -565,24 +624,67 @@ export const SecurityFeaturesConfig: React.FC<SecurityFeaturesConfigProps> = ({
 					<p style={{ color: '#6b7280', lineHeight: '1.6', margin: 0 }}>
 						To configure these security features in PingOne:
 					</p>
-					<ol style={{ color: '#374151', lineHeight: '1.6', marginTop: '1rem', paddingLeft: '1.5rem' }}>
+					<ol
+						style={{
+							color: '#374151',
+							lineHeight: '1.6',
+							marginTop: '1rem',
+							paddingLeft: '1.5rem',
+						}}
+					>
 						<li>Go to your PingOne environment dashboard</li>
 						<li>Navigate to Applications → Your Application</li>
 						<li>Configure the security settings in the "Security" tab</li>
 						<li>Enable the features you want to use in your OAuth flows</li>
 						<li>Save your configuration and test the flows</li>
 					</ol>
-					
-					<div style={{ marginTop: '1.5rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #0ea5e9', borderRadius: '6px' }}>
-						<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e', fontSize: '0.9rem', fontWeight: '600' }}>
+
+					<div
+						style={{
+							marginTop: '1.5rem',
+							padding: '1rem',
+							background: '#f0f9ff',
+							border: '1px solid #0ea5e9',
+							borderRadius: '6px',
+						}}
+					>
+						<h4
+							style={{
+								margin: '0 0 0.5rem 0',
+								color: '#0c4a6e',
+								fontSize: '0.9rem',
+								fontWeight: '600',
+							}}
+						>
 							🔐 Advanced Security Features
 						</h4>
-						<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#0c4a6e', fontSize: '0.85rem', lineHeight: '1.5' }}>
-							<li><strong>JAR (RFC 9101):</strong> Enable "Request Parameter Signature" → "Require Signed"</li>
-							<li><strong>PAR (RFC 9126):</strong> Enable "Pushed Authorization Request"</li>
-							<li><strong>X5T Parameter:</strong> Enable "Include x5t Parameter" for certificate thumbprints</li>
-							<li><strong>PKCE:</strong> Set to "Required" or "S256 Required" for maximum security</li>
-							<li><strong>Client Authentication:</strong> Use "Private Key JWT" for confidential clients</li>
+						<ul
+							style={{
+								margin: 0,
+								paddingLeft: '1.5rem',
+								color: '#0c4a6e',
+								fontSize: '0.85rem',
+								lineHeight: '1.5',
+							}}
+						>
+							<li>
+								<strong>JAR (RFC 9101):</strong> Enable "Request Parameter Signature" → "Require
+								Signed"
+							</li>
+							<li>
+								<strong>PAR (RFC 9126):</strong> Enable "Pushed Authorization Request"
+							</li>
+							<li>
+								<strong>X5T Parameter:</strong> Enable "Include x5t Parameter" for certificate
+								thumbprints
+							</li>
+							<li>
+								<strong>PKCE:</strong> Set to "Required" or "S256 Required" for maximum security
+							</li>
+							<li>
+								<strong>Client Authentication:</strong> Use "Private Key JWT" for confidential
+								clients
+							</li>
 						</ul>
 					</div>
 				</ConfigurationSummary>

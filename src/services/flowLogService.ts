@@ -89,8 +89,3 @@ class FlowLogService {
 const flowLogService = new FlowLogService();
 
 export default flowLogService;
-
-
-
-
-

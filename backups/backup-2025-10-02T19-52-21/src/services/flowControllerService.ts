@@ -1,7 +1,7 @@
 // src/services/flowControllerService.ts
 // FlowControllerService - Standardized flow controller patterns and management
 
-import { useCallback, useState, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 export interface FlowControllerConfig {
 	flowType: string;
@@ -513,7 +513,8 @@ export class FlowControllerService {
 		introSectionKeys: string[]
 	): FlowController {
 		return useMemo(
-			() => FlowControllerService.createFlowController(config, controller, stepCount, introSectionKeys),
+			() =>
+				FlowControllerService.createFlowController(config, controller, stepCount, introSectionKeys),
 			[config, controller, stepCount, introSectionKeys]
 		);
 	}

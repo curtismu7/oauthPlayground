@@ -1,6 +1,6 @@
 import React from 'react';
+import { FiAlertTriangle, FiInfo, FiLock, FiShield, FiUser, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiInfo, FiShield, FiUser, FiLock, FiX } from 'react-icons/fi';
 
 const PageContainer = styled.div`
   max-width: 1200px;

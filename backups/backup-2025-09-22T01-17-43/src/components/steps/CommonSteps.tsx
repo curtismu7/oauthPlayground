@@ -1,28 +1,28 @@
 // src/components/steps/CommonSteps.tsx - Reusable step components for OAuth flows
 
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiSettings,
-	FiShield,
-	FiGlobe,
-	FiKey,
-	FiUser,
+	FiAlertCircle,
+	FiArrowLeft,
 	FiCheckCircle,
 	FiCopy,
-	FiRefreshCw,
 	FiExternalLink,
-	FiArrowLeft,
-	FiAlertCircle,
-	FiRotateCcw,
-	FiInfo,
 	FiEye,
 	FiEyeOff,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiRotateCcw,
+	FiSettings,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
-import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
-import { copyToClipboard } from '../../utils/clipboard';
+import styled from 'styled-components';
 import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { copyToClipboard } from '../../utils/clipboard';
 import AuthorizationUrlExplainer from '../AuthorizationUrlExplainer';
+import { EnhancedFlowStep } from '../EnhancedStepFlowV2';
 
 // Common styled components
 const FormField = styled.div`

@@ -19,6 +19,8 @@ import {
 	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -26,6 +28,7 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -38,33 +41,32 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { AuthenticationModalService } from '../../services/authenticationModalService';
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { AuthenticationModalService } from '../../services/authenticationModalService';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { decodeJWTHeader } from '../../utils/jwks';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
-import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { getFlowSequence } from '../../services/flowSequenceService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { ResponseMode } from '../../services/responseModeService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { decodeJWTHeader } from '../../utils/jwks';
+import { getAuthCodeIfFresh, setAuthCodeWithTimestamp } from '../../utils/sessionStorageHelpers';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import {
 	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
 	RAR_EDUCATION,
+	STEP_METADATA,
 } from './config/RARFlow.config';
 
 type StepCompletionState = Record<number, boolean>;
@@ -618,7 +620,9 @@ const RARFlowV6: React.FC = () => {
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep()
 	);
 	const [pingOneConfig, setPingOneConfig] = useState<PingOneApplicationState>(DEFAULT_APP_CONFIG);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 
 	const [collapsedSections, setCollapsedSections] = useState(
 		AuthorizationCodeSharedService.CollapsibleSections.getDefaultState()
@@ -842,9 +846,8 @@ const RARFlowV6: React.FC = () => {
 		]
 	);
 
-	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(
-		setCollapsedSections
-	);
+	const toggleSection =
+		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const handleSaveConfiguration = useCallback(async () => {
 		const required: Array<keyof StepCredentials> = [
@@ -938,7 +941,7 @@ const RARFlowV6: React.FC = () => {
 			hasControllerAuthCode: !!controller.authCode,
 			hasLocalAuthCode: !!localAuthCode,
 		});
-		
+
 		const authCode = controller.authCode || localAuthCode;
 		if (!authCode) {
 			console.log('❌ [DEBUG] No authorization code available');
@@ -1029,7 +1032,7 @@ const RARFlowV6: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for access token
 		if (controller.tokens?.access_token) {
 			// Use localStorage for cross-tab communication
@@ -1051,7 +1054,7 @@ const RARFlowV6: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for refresh token
 		if (controller.tokens?.refresh_token) {
 			// Use localStorage for cross-tab communication
@@ -1090,7 +1093,7 @@ const RARFlowV6: React.FC = () => {
 				token: token,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -1100,10 +1103,10 @@ const RARFlowV6: React.FC = () => {
 					'authorization-code',
 					'/api/introspect-token'
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -1114,7 +1117,7 @@ const RARFlowV6: React.FC = () => {
 					500,
 					'/api/introspect-token'
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -1126,9 +1129,10 @@ const RARFlowV6: React.FC = () => {
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			// Enhanced validation - checks both controller state and session storage for PKCE codes
-			const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
-							   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
-			
+			const hasPkceCodes =
+				!!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) ||
+				!!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
 					return true; // Always valid - introduction step
@@ -1257,7 +1261,8 @@ const RARFlowV6: React.FC = () => {
 		const completionConfig = {
 			...FlowCompletionConfigs.authorizationCode,
 			flowName: 'Rich Authorization Requests (RAR) Flow V6',
-			flowDescription: 'You\'ve successfully completed the RAR flow. Fine-grained authorization details were requested and granted using structured JSON authorization_details.',
+			flowDescription:
+				"You've successfully completed the RAR flow. Fine-grained authorization details were requested and granted using structured JSON authorization_details.",
 			onStartNewFlow: () => {
 				controller.resetFlow();
 				setCurrentStep(0);
@@ -1271,8 +1276,8 @@ const RARFlowV6: React.FC = () => {
 				'Parse authorization_details from the access token',
 				'Enforce fine-grained permissions based on authorization_details',
 				'Note: RAR enables precise, scope-independent authorization',
-				'Implement proper error handling for authorization_details validation'
-			]
+				'Implement proper error handling for authorization_details validation',
+			],
 		};
 
 		return (
@@ -1300,7 +1305,7 @@ const RARFlowV6: React.FC = () => {
 
 						{/* RAR Educational Content */}
 						<EducationalContentService flowType="rar" defaultCollapsed={false} />
-						
+
 						<CollapsibleSection>
 							<CollapsibleHeaderButton
 								onClick={() => toggleSection('overview')}
@@ -1320,8 +1325,9 @@ const RARFlowV6: React.FC = () => {
 										<div>
 											<InfoTitle>When to Use OIDC Authorization Code</InfoTitle>
 											<InfoText>
-												OIDC Authorization Code Flow is perfect when you need to authenticate users and verify their 
-												identity while also accessing their resources. Provides full OIDC context with ID tokens.
+												OIDC Authorization Code Flow is perfect when you need to authenticate users
+												and verify their identity while also accessing their resources. Provides
+												full OIDC context with ID tokens.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1408,115 +1414,124 @@ const RARFlowV6: React.FC = () => {
 							{!collapsedSections.credentials && (
 								<CollapsibleContent>
 									{/* Environment ID Input */}
-								<ComprehensiveCredentialsService
-									// Discovery props
-									onDiscoveryComplete={(result) => {
-										console.log('[OIDC Authz V5] Discovery completed:', result);
-										// Extract environment ID from issuer URL if available
-										if (result.issuerUrl) {
-											const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
-											if (envIdMatch && envIdMatch[1]) {
-												controller.setCredentials({
-													...controller.credentials,
-													environmentId: envIdMatch[1],
-												});
-												// Auto-save if we have both environmentId and clientId
-												if (envIdMatch[1] && controller.credentials.clientId) {
-													controller.saveCredentials();
-													v4ToastManager.showSuccess('Credentials auto-saved');
+									<ComprehensiveCredentialsService
+										// Discovery props
+										onDiscoveryComplete={(result) => {
+											console.log('[OIDC Authz V5] Discovery completed:', result);
+											// Extract environment ID from issuer URL if available
+											if (result.issuerUrl) {
+												const envIdMatch = result.issuerUrl.match(/\/([a-f0-9-]{36})\//i);
+												if (envIdMatch && envIdMatch[1]) {
+													controller.setCredentials({
+														...controller.credentials,
+														environmentId: envIdMatch[1],
+													});
+													// Auto-save if we have both environmentId and clientId
+													if (envIdMatch[1] && controller.credentials.clientId) {
+														controller.saveCredentials();
+														v4ToastManager.showSuccess('Credentials auto-saved');
+													}
 												}
 											}
+										}}
+										discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+										showProviderInfo={true}
+										// Credentials props
+										environmentId={controller.credentials.environmentId || ''}
+										clientId={controller.credentials.clientId || ''}
+										clientSecret={controller.credentials.clientSecret || ''}
+										redirectUri={
+											controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'
 										}
-									}}
-									discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
-									showProviderInfo={true}
-									
-									// Credentials props
-									environmentId={controller.credentials.environmentId || ''}
-									clientId={controller.credentials.clientId || ''}
-									clientSecret={controller.credentials.clientSecret || ''}
-									redirectUri={controller.credentials.redirectUri || 'https://localhost:3000/authz-callback'}
-									scopes={controller.credentials.scope || 'openid profile email'}
-									loginHint={controller.credentials.loginHint || ''}
-									postLogoutRedirectUri={controller.credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
-									
-									// Change handlers
-									onEnvironmentIdChange={(newEnvId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											environmentId: newEnvId,
-										});
-										if (newEnvId && controller.credentials.clientId && newEnvId.trim() && controller.credentials.clientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
+										scopes={controller.credentials.scope || 'openid profile email'}
+										loginHint={controller.credentials.loginHint || ''}
+										postLogoutRedirectUri={
+											controller.credentials.postLogoutRedirectUri ||
+											'https://localhost:3000/logout-callback'
 										}
-									}}
-									onClientIdChange={(newClientId) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientId: newClientId,
-										});
-										if (controller.credentials.environmentId && newClientId && controller.credentials.environmentId.trim() && newClientId.trim()) {
-											controller.saveCredentials();
-											v4ToastManager.showSuccess('Credentials auto-saved');
-										}
-									}}
-									onClientSecretChange={(newClientSecret) => {
-										controller.setCredentials({
-											...controller.credentials,
-											clientSecret: newClientSecret,
-										});
-									}}
-									onScopesChange={(newScopes) => {
-										controller.setCredentials({
-											...controller.credentials,
-											scope: newScopes,
-										});
-									}}
-									onRedirectUriChange={(newRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											redirectUri: newRedirectUri,
-										});
-									}}
-									onLoginHintChange={(newLoginHint) => {
-										controller.setCredentials({
-											...controller.credentials,
-											loginHint: newLoginHint,
-										});
-									}}
-									onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
-										controller.setCredentials({
-											...controller.credentials,
-											postLogoutRedirectUri: newPostLogoutRedirectUri,
-										});
-									}}
-									
-									// Save handler
-									onSave={async () => {
-										await controller.saveCredentials();
-										v4ToastManager.showSuccess('Credentials saved');
-									}}
-									hasUnsavedChanges={false}
-									isSaving={false}
-									requireClientSecret={true}
-									
-									// PingOne Advanced Configuration (integrated below)
-									pingOneAppState={pingOneConfig}
-									onPingOneAppStateChange={setPingOneConfig}
-									onPingOneSave={async () => await savePingOneConfig(pingOneConfig)}
-									hasUnsavedPingOneChanges={false}
-									isSavingPingOne={false}
-									
-									// UI config
-									title="OIDC Authorization Code Configuration"
-									subtitle="Configure your application settings and credentials"
-									showAdvancedConfig={true}
-									defaultCollapsed={false}
-								/>
+										// Change handlers
+										onEnvironmentIdChange={(newEnvId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												environmentId: newEnvId,
+											});
+											if (
+												newEnvId &&
+												controller.credentials.clientId &&
+												newEnvId.trim() &&
+												controller.credentials.clientId.trim()
+											) {
+												controller.saveCredentials();
+												v4ToastManager.showSuccess('Credentials auto-saved');
+											}
+										}}
+										onClientIdChange={(newClientId) => {
+											controller.setCredentials({
+												...controller.credentials,
+												clientId: newClientId,
+											});
+											if (
+												controller.credentials.environmentId &&
+												newClientId &&
+												controller.credentials.environmentId.trim() &&
+												newClientId.trim()
+											) {
+												controller.saveCredentials();
+												v4ToastManager.showSuccess('Credentials auto-saved');
+											}
+										}}
+										onClientSecretChange={(newClientSecret) => {
+											controller.setCredentials({
+												...controller.credentials,
+												clientSecret: newClientSecret,
+											});
+										}}
+										onScopesChange={(newScopes) => {
+											controller.setCredentials({
+												...controller.credentials,
+												scope: newScopes,
+											});
+										}}
+										onRedirectUriChange={(newRedirectUri) => {
+											controller.setCredentials({
+												...controller.credentials,
+												redirectUri: newRedirectUri,
+											});
+										}}
+										onLoginHintChange={(newLoginHint) => {
+											controller.setCredentials({
+												...controller.credentials,
+												loginHint: newLoginHint,
+											});
+										}}
+										onPostLogoutRedirectUriChange={(newPostLogoutRedirectUri) => {
+											controller.setCredentials({
+												...controller.credentials,
+												postLogoutRedirectUri: newPostLogoutRedirectUri,
+											});
+										}}
+										// Save handler
+										onSave={async () => {
+											await controller.saveCredentials();
+											v4ToastManager.showSuccess('Credentials saved');
+										}}
+										hasUnsavedChanges={false}
+										isSaving={false}
+										requireClientSecret={true}
+										// PingOne Advanced Configuration (integrated below)
+										pingOneAppState={pingOneConfig}
+										onPingOneAppStateChange={setPingOneConfig}
+										onPingOneSave={async () => await savePingOneConfig(pingOneConfig)}
+										hasUnsavedPingOneChanges={false}
+										isSavingPingOne={false}
+										// UI config
+										title="OIDC Authorization Code Configuration"
+										subtitle="Configure your application settings and credentials"
+										showAdvancedConfig={true}
+										defaultCollapsed={false}
+									/>
 
-
-								{/* Response Mode Configuration */}
+									{/* Response Mode Configuration */}
 									<CollapsibleSection
 										title="Response Mode Configuration"
 										collapsed={collapsedSections.responseMode}
@@ -1527,13 +1542,16 @@ const RARFlowV6: React.FC = () => {
 											<div>
 												<InfoTitle>Response Mode Selection</InfoTitle>
 												<div style={{ marginTop: '0.5rem', color: '#6b7280' }}>
-													Choose how the authorization response should be returned to your application.
-													This affects how the authorization code and other parameters are delivered.
+													Choose how the authorization response should be returned to your
+													application. This affects how the authorization code and other parameters
+													are delivered.
 												</div>
 											</div>
 										</InfoBox>
 										<ResponseModeSelector
-											selectedMode={(controller.credentials.responseMode as ResponseMode) || 'query'}
+											selectedMode={
+												(controller.credentials.responseMode as ResponseMode) || 'query'
+											}
 											onModeChange={(mode) => {
 												controller.setCredentials({
 													...controller.credentials,
@@ -1545,15 +1563,12 @@ const RARFlowV6: React.FC = () => {
 											platform="web"
 										/>
 									</CollapsibleSection>
-
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
 
 						<EnhancedFlowWalkthrough flowId="oidc-authorization-code" />
 						<FlowSequenceDisplay flowType="authorization-code" />
-
-
 					</>
 				);
 
@@ -1887,7 +1902,7 @@ const RARFlowV6: React.FC = () => {
 												</li>
 												<li>
 													<strong>code_challenge_method=S256</strong> - PKCE method
-											</li>
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1911,10 +1926,12 @@ const RARFlowV6: React.FC = () => {
 									$priority="primary"
 									disabled={
 										!!controller.authUrl ||
-										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+										(!controller.pkceCodes.codeVerifier &&
+											!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
 									}
 									title={
-										(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+										!controller.pkceCodes.codeVerifier &&
+										!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)
 											? 'Generate PKCE parameters first'
 											: controller.authUrl
 												? 'Authorization URL already generated'
@@ -1924,7 +1941,8 @@ const RARFlowV6: React.FC = () => {
 									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
-										: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+										: !controller.pkceCodes.codeVerifier &&
+												!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)
 											? 'Complete above action'
 											: 'Generate Authorization URL'}
 									<HighlightBadge>1</HighlightBadge>
@@ -2184,9 +2202,16 @@ const RARFlowV6: React.FC = () => {
 													disabled: !(controller.authCode || localAuthCode),
 													controllerAuthCode: controller.authCode,
 													localAuthCode: localAuthCode,
-													hasCredentials: !!(controller.credentials.clientId && controller.credentials.clientSecret && controller.credentials.environmentId),
-													hasPkce: !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
-														  !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`),
+													hasCredentials: !!(
+														controller.credentials.clientId &&
+														controller.credentials.clientSecret &&
+														controller.credentials.environmentId
+													),
+													hasPkce:
+														!!(
+															controller.pkceCodes.codeVerifier &&
+															controller.pkceCodes.codeChallenge
+														) || !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`),
 												});
 												handleExchangeTokens();
 											}}
@@ -2204,15 +2229,10 @@ const RARFlowV6: React.FC = () => {
 
 									<SectionDivider />
 
-									{UnifiedTokenDisplayService.showTokens(
-										tokens,
-										'rar',
-										'rar-v6',
-										{
-											showCopyButtons: true,
-											showDecodeButtons: true,
-										}
-									)}
+									{UnifiedTokenDisplayService.showTokens(tokens, 'rar', 'rar-v6', {
+										showCopyButtons: true,
+										showDecodeButtons: true,
+									})}
 								</CollapsibleContent>
 							)}
 						</CollapsibleSection>
@@ -2253,7 +2273,11 @@ const RARFlowV6: React.FC = () => {
 								rawJson: false, // Show raw JSON expanded by default
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
+								if (
+									section === 'completionOverview' ||
+									section === 'completionDetails' ||
+									section === 'introspectionDetails'
+								) {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2271,7 +2295,8 @@ const RARFlowV6: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2299,7 +2324,11 @@ const RARFlowV6: React.FC = () => {
 								rawJson: false, // Show raw JSON expanded by default
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
+								if (
+									section === 'completionOverview' ||
+									section === 'completionDetails' ||
+									section === 'introspectionDetails'
+								) {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -2318,7 +2347,8 @@ const RARFlowV6: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -2390,8 +2420,6 @@ const RARFlowV6: React.FC = () => {
 				<FlowInfoCard flowInfo={getFlowInfo('oidc-authorization-code')!} />
 				<FlowSequenceDisplay flowType="authorization-code" />
 
-
-
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
@@ -2445,15 +2473,24 @@ const RARFlowV6: React.FC = () => {
 					setShowRedirectModal(false);
 					// The controller will handle the actual redirect
 					if (controller.authUrl) {
-						window.open(controller.authUrl, 'PingOneAuth', 'width=600,height=700,left=' + (window.screen.width / 2 - 300) + ',top=' + (window.screen.height / 2 - 350) + ',resizable=yes,scrollbars=yes,status=yes');
+						window.open(
+							controller.authUrl,
+							'PingOneAuth',
+							'width=600,height=700,left=' +
+								(window.screen.width / 2 - 300) +
+								',top=' +
+								(window.screen.height / 2 - 350) +
+								',resizable=yes,scrollbars=yes,status=yes'
+						);
 					}
 				},
 				controller.authUrl || '',
 				'rar',
 				'Rich Authorization Request',
 				{
-					description: 'You\'re about to be redirected to PingOne for Rich Authorization Request (RAR) authentication. This flow provides fine-grained authorization with structured permissions.',
-					redirectMode: 'popup'
+					description:
+						"You're about to be redirected to PingOne for Rich Authorization Request (RAR) authentication. This flow provides fine-grained authorization with structured permissions.",
+					redirectMode: 'popup',
 				}
 			)}
 

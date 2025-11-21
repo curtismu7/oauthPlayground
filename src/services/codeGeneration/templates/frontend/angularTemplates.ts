@@ -4,8 +4,8 @@
  */
 
 export class AngularTemplates {
-  static authorization(config: any): string {
-    return `// Angular - Authorization Service
+	static authorization(config: any): string {
+		return `// Angular - Authorization Service
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
@@ -128,10 +128,10 @@ export class LoginComponent {
     this.authService.login();
   }
 }`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// Angular - Worker Token Service
+	static workerToken(config: any): string {
+		return `// Angular - Worker Token Service
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject, throwError } from 'rxjs';
@@ -214,10 +214,10 @@ export class TokenDisplayComponent implements OnInit {
     this.token$ = this.tokenService.getWorkerToken();
   }
 }`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// Angular - MFA Device Service
+	static deviceSelection(config: any): string {
+		return `// Angular - MFA Device Service
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -310,10 +310,10 @@ export class DeviceListComponent implements OnInit {
     this.deviceSelected.emit(deviceId);
   }
 }`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// Angular - MFA Challenge Service
+	static mfaChallenge(config: any): string {
+		return `// Angular - MFA Challenge Service
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -411,10 +411,10 @@ export class MFAChallengeComponent {
     });
   }
 }`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// Angular - MFA Verification Service
+	static mfaVerification(config: any): string {
+		return `// Angular - MFA Verification Service
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -538,10 +538,10 @@ export class MFAVerificationComponent {
     });
   }
 }`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// Angular - Device Registration Service
+	static deviceRegistration(config: any): string {
+		return `// Angular - Device Registration Service
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
@@ -717,5 +717,5 @@ export class DeviceRegistrationComponent {
     });
   }
 }`;
-  }
+	}
 }

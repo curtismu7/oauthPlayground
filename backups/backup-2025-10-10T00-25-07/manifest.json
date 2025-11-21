@@ -1,15 +1,15 @@
 {
-  "timestamp": "2025-10-10T00:25:07.471Z",
-  "backupDir": "/Users/cmuir/P1Import-apps/oauth-playground/backup-2025-10-10T00-25-07",
-  "filesBackedUp": 582,
-  "totalSize": 9174079,
-  "sizeFormatted": "8.75 MB",
-  "items": [
-    "src",
-    "package.json",
-    "package-lock.json",
-    "tsconfig.json",
-    "vite.config.ts",
-    "eslint.config.js"
-  ]
+	"timestamp": "2025-10-10T00:25:07.471Z",
+	"backupDir": "/Users/cmuir/P1Import-apps/oauth-playground/backup-2025-10-10T00-25-07",
+	"filesBackedUp": 582,
+	"totalSize": 9174079,
+	"sizeFormatted": "8.75 MB",
+	"items": [
+		"src",
+		"package.json",
+		"package-lock.json",
+		"tsconfig.json",
+		"vite.config.ts",
+		"eslint.config.js"
+	]
 }

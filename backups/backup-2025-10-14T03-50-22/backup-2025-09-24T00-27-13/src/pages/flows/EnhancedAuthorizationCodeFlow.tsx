@@ -1,38 +1,36 @@
 // src/pages/flows/EnhancedAuthorizationCodeFlow.tsx
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import styled from 'styled-components';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiLock,
-	FiKey,
-	FiExternalLink,
-	FiRefreshCw,
-	FiSettings,
-	FiSave,
-	FiEye,
-	FiCopy,
-	FiCheck,
 	FiAlertTriangle,
+	FiCheck,
+	FiCopy,
+	FiExternalLink,
+	FiEye,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
+	FiSave,
+	FiSettings,
 } from 'react-icons/fi';
-
-import { useAuth } from '../../contexts/NewAuthContext';
-import { logger } from '../../utils/logger';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
-import {
-	persistentCredentials,
-	saveFlowCredentials,
-	loadFlowCredentials,
-	saveFlowState,
-	loadFlowState,
-	type FlowCredentials,
-} from '../../utils/persistentCredentials';
-
-import EnhancedStepFlow, { type EnhancedFlowStep } from '../../components/EnhancedStepFlow';
-import PageTitle from '../../components/PageTitle';
+import { useLocation, useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 import ConfigurationStatus from '../../components/ConfigurationStatus';
 import ContextualHelp from '../../components/ContextualHelp';
+import EnhancedStepFlow, { type EnhancedFlowStep } from '../../components/EnhancedStepFlow';
+import PageTitle from '../../components/PageTitle';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { logger } from '../../utils/logger';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import {
+	type FlowCredentials,
+	loadFlowCredentials,
+	loadFlowState,
+	persistentCredentials,
+	saveFlowCredentials,
+	saveFlowState,
+} from '../../utils/persistentCredentials';
 
 // Styled Components
 const Container = styled.div`

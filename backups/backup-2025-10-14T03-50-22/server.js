@@ -1,5 +1,6 @@
 /* eslint-disable */
-console.log("🚀 Starting OAuth Playground Backend Server...");// OAuth Playground Backend Server
+console.log('🚀 Starting OAuth Playground Backend Server...'); // OAuth Playground Backend Server
+
 // Provides secure server-side OAuth flow implementations
 
 import { execSync } from 'node:child_process';
@@ -111,12 +112,14 @@ app.get('/api/health', (_req, res) => {
 		avg5mPercent: Number(((loadAverage[1] / cpuCount) * 100).toFixed(2)),
 		avg15mPercent: Number(((loadAverage[2] / cpuCount) * 100).toFixed(2)),
 	};
-	const averageResponseTimeMs = requestStats.totalRequests > 0
-		? requestStats.totalResponseTimeMs / requestStats.totalRequests
-		: 0;
-	const errorRatePercent = requestStats.totalRequests > 0
-		? (requestStats.errorCount / requestStats.totalRequests) * 100
-		: 0;
+	const averageResponseTimeMs =
+		requestStats.totalRequests > 0
+			? requestStats.totalResponseTimeMs / requestStats.totalRequests
+			: 0;
+	const errorRatePercent =
+		requestStats.totalRequests > 0
+			? (requestStats.errorCount / requestStats.totalRequests) * 100
+			: 0;
 
 	res.json({
 		status: 'ok',
@@ -162,7 +165,7 @@ app.get('/callback', (req, res) => {
 		error: req.query.error,
 		error_description: req.query.error_description,
 	});
-	
+
 	// Redirect to the frontend callback handler
 	res.redirect(`https://localhost:3001/callback?${req.url.split('?')[1] || ''}`);
 });
@@ -264,7 +267,9 @@ app.post('/api/token-exchange', async (req, res) => {
 		}
 
 		// Get environment ID from request or environment (skip env fallback in test)
-		const environmentId = req.body.environment_id || (process.env.NODE_ENV !== 'test' ? process.env.PINGONE_ENVIRONMENT_ID : undefined);
+		const environmentId =
+			req.body.environment_id ||
+			(process.env.NODE_ENV !== 'test' ? process.env.PINGONE_ENVIRONMENT_ID : undefined);
 		if (!environmentId) {
 			return res.status(400).json({
 				error: 'invalid_request',
@@ -829,7 +834,7 @@ app.get('/api/device-userinfo', async (req, res) => {
 			hasAccessToken: !!access_token,
 			accessTokenLength: access_token?.length,
 			environment_id,
-			accessTokenPreview: access_token ? `${access_token.substring(0, 20)}...` : 'none'
+			accessTokenPreview: access_token ? `${access_token.substring(0, 20)}...` : 'none',
 		});
 
 		if (!access_token || !environment_id) {
@@ -854,7 +859,7 @@ app.get('/api/device-userinfo', async (req, res) => {
 		console.log(`[Device UserInfo] PingOne response:`, {
 			status: response.status,
 			statusText: response.statusText,
-			ok: response.ok
+			ok: response.ok,
 		});
 
 		const data = await response.json();
@@ -862,7 +867,7 @@ app.get('/api/device-userinfo', async (req, res) => {
 		console.log(`[Device UserInfo] PingOne response data:`, {
 			hasData: !!data,
 			error: data.error,
-			error_description: data.error_description
+			error_description: data.error_description,
 		});
 
 		if (!response.ok) {
@@ -879,12 +884,12 @@ app.get('/api/device-userinfo', async (req, res) => {
 		console.error('[Device UserInfo] Server error:', {
 			message: error.message,
 			stack: error.stack,
-			error
+			error,
 		});
 		res.status(500).json({
 			error: 'server_error',
 			error_description: 'Internal server error during device userinfo request',
-			details: error.message
+			details: error.message,
 		});
 	}
 });
@@ -1219,7 +1224,7 @@ app.get('/api/discovery', async (req, res) => {
 		console.log('[Discovery] Request received:', {
 			environment_id,
 			region,
-			query: req.query
+			query: req.query,
 		});
 
 		if (!environment_id) {
@@ -1229,27 +1234,27 @@ app.get('/api/discovery', async (req, res) => {
 			});
 		}
 
-	// Determine the base URL based on region
-	const regionMap = {
-		us: 'https://auth.pingone.com',
-		na: 'https://auth.pingone.com', // North America -> US
-		eu: 'https://auth.pingone.eu',
-		ca: 'https://auth.pingone.ca',
-		ap: 'https://auth.pingone.asia',
-		asia: 'https://auth.pingone.asia',
-	};
+		// Determine the base URL based on region
+		const regionMap = {
+			us: 'https://auth.pingone.com',
+			na: 'https://auth.pingone.com', // North America -> US
+			eu: 'https://auth.pingone.eu',
+			ca: 'https://auth.pingone.ca',
+			ap: 'https://auth.pingone.asia',
+			asia: 'https://auth.pingone.asia',
+		};
 
-	const baseUrl = regionMap[region.toLowerCase()] || regionMap['us'];
+		const baseUrl = regionMap[region.toLowerCase()] || regionMap['us'];
 		const discoveryUrl = `${baseUrl}/${environment_id}/.well-known/openid_configuration`;
 
 		console.log(`[Discovery] Fetching configuration from: ${discoveryUrl}`);
 
 		console.log('[Discovery] Fetching from PingOne...');
-		
+
 		const response = await global.fetch(discoveryUrl, {
 			method: 'GET',
 			headers: {
-				'Accept': 'application/json',
+				Accept: 'application/json',
 				'User-Agent': 'PingOne-OAuth-Playground/1.0',
 			},
 			timeout: 10000, // 10 second timeout
@@ -1353,7 +1358,7 @@ app.get('/api/discovery', async (req, res) => {
 		console.error('[Discovery] Server error:', {
 			message: error.message,
 			stack: error.stack,
-			error
+			error,
 		});
 		res.status(500).json({
 			error: 'server_error',
@@ -1482,4 +1487,3 @@ if (httpsServer) {
 }
 
 export default app;
-

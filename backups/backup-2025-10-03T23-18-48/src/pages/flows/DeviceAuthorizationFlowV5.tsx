@@ -19,28 +19,31 @@ import {
 	FiSmartphone,
 	FiZap,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
+import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowCredentials from '../../components/FlowCredentials';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useUISettings } from '../../contexts/UISettingsContext';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
-import { pingOneConfigService } from '../../services/pingoneConfigService';
-import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import FlowCredentials from '../../components/FlowCredentials';
-import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
+import { pingOneConfigService } from '../../services/pingoneConfigService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -742,9 +745,11 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 		}
 		return 0;
 	});
-	
+
 	// API call tracking for display
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
 	const [collapsedSections, setCollapsedSections] = useState<Record<SectionKey, boolean>>({
 		overview: false,
 		flowDiagram: true,
@@ -2120,7 +2125,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 			token: token,
 			clientId: deviceFlow.credentials.clientId,
 			// No client secret for device flow (public client)
-			tokenTypeHint: 'access_token' as const
+			tokenTypeHint: 'access_token' as const,
 		};
 
 		try {
@@ -2130,10 +2135,10 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				'device-code',
 				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
 			);
-			
+
 			// Set the API call data for display
 			setIntrospectionApiCall(result.apiCall);
-			
+
 			return result.response;
 		} catch (error) {
 			// Create error API call using reusable service
@@ -2144,7 +2149,7 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 				500,
 				`https://auth.pingone.com/${deviceFlow.credentials.environmentId}/as/introspect`
 			);
-			
+
 			setIntrospectionApiCall(errorApiCall);
 			throw error;
 		}
@@ -2184,7 +2189,8 @@ const DeviceAuthorizationFlowV5: React.FC = () => {
 					options={{
 						showEducationalNotes: true,
 						showFlowContext: true,
-						urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+						urlHighlightRules:
+							EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code'),
 					}}
 				/>
 			)}

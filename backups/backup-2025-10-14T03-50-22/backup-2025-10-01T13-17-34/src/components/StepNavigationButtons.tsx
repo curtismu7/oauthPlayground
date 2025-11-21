@@ -1,6 +1,7 @@
 // src/components/StepNavigationButtons.tsx
-import styled from 'styled-components';
+
 import { FiArrowLeft, FiArrowRight, FiRefreshCw } from 'react-icons/fi';
+import styled from 'styled-components';
 
 export interface StepNavigationButtonsProps {
 	currentStep: number;

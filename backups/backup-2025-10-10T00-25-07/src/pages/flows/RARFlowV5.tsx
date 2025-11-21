@@ -2,54 +2,59 @@
 // Rich Authorization Requests (RAR) Flow - V6 Implementation with Service Architecture
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiCheckCircle,
+	FiChevronDown,
 	FiCode,
 	FiExternalLink,
-	FiKey,
-	FiRefreshCw,
-	FiZap,
-	FiPlus,
-	FiTrash2,
 	FiInfo,
-	FiShield,
+	FiKey,
+	FiPlus,
+	FiRefreshCw,
 	FiSettings,
-	FiChevronDown,
+	FiShield,
+	FiTrash2,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { ConfigurationSummaryCard, ConfigurationSummaryService } from '../../services/configurationSummaryService';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import { createOAuthTemplate } from '../../services/enhancedApiCallDisplayService';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
+	ConfigurationSummaryCard,
+	ConfigurationSummaryService,
+} from '../../services/configurationSummaryService';
+import {
+	createOAuthTemplate,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import {
 	DEFAULT_APP_CONFIG,
+	type IntroSectionKey,
 	RAR_EDUCATION,
+	STEP_METADATA,
 } from './config/RARFlow.config';
 
 // Styled Components
@@ -454,7 +459,7 @@ export const RARFlowV6: React.FC = () => {
 	usePageScroll({ pageName: 'RAR Flow V6', force: true });
 
 	// Use service for state initialization
-	const [currentStep, setCurrentStep] = useState(() => 
+	const [currentStep, setCurrentStep] = useState(() =>
 		AuthorizationCodeSharedService.StepRestoration.getInitialStep('rar-v6')
 	);
 

@@ -1,21 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
+import React, { useEffect, useState } from 'react';
 import {
-	FiPlay,
-	FiEye,
-	FiCheckCircle,
 	FiAlertCircle,
+	FiCheckCircle,
 	FiCode,
-	FiShield,
+	FiEye,
 	FiKey,
+	FiPlay,
+	FiShield,
 } from 'react-icons/fi';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
+import styled from 'styled-components';
+import { Card, CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
-import PageTitle from '../../components/PageTitle';
-import { getOAuthTokens } from '../../utils/tokenStorage';
 import FlowCredentials from '../../components/FlowCredentials';
+import PageTitle from '../../components/PageTitle';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { getOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

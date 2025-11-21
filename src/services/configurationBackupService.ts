@@ -87,7 +87,9 @@ class ConfigurationBackupService {
 					resolve(config);
 				} catch (error) {
 					console.error('[CONFIG-BACKUP] Import failed:', error);
-					reject(new Error('Failed to parse configuration file. Please ensure it is a valid JSON file.'));
+					reject(
+						new Error('Failed to parse configuration file. Please ensure it is a valid JSON file.')
+					);
 				}
 			};
 

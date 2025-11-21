@@ -1,7 +1,7 @@
 // src/utils/v4ToastMessages.ts - Enhanced Toast Messaging for V4 Flows
 
-import { ButtonToastScenarios } from '../types/v4FlowTemplate';
 import { showGlobalError, showGlobalSuccess, showGlobalWarning } from '../hooks/useNotifications';
+import { ButtonToastScenarios } from '../types/v4FlowTemplate';
 
 // Default toast messages for V4 flows
 export const V4_TOAST_MESSAGES: ButtonToastScenarios = {

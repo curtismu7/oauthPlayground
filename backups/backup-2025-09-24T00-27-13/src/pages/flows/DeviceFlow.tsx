@@ -1,15 +1,15 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { StepByStepFlow } from '../../components/StepByStepFlow';
-import FlowCredentials from '../../components/FlowCredentials';
 import DeviceFlowDisplay from '../../components/DeviceFlowDisplay';
+import FlowCredentials from '../../components/FlowCredentials';
+import { StepByStepFlow } from '../../components/StepByStepFlow';
 import {
-	deviceFlowService,
-	DeviceFlowState,
 	DeviceAuthorizationRequest,
+	DeviceFlowState,
+	deviceFlowService,
 } from '../../services/deviceFlowService';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
 import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const FlowContainer = styled.div`
   max-width: 1200px;

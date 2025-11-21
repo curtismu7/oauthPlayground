@@ -20,23 +20,23 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { CredentialsInput } from '../../components/CredentialsInput';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useDeviceAuthorizationFlow } from '../../hooks/useDeviceAuthorizationFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
 import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 import { credentialManager } from '../../utils/credentialManager';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import logger from '../../utils/logger';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -709,9 +709,14 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 	const handleDiscoveryComplete = useCallback(
 		(discoveryResult: DiscoveryResult) => {
 			if (discoveryResult.success && discoveryResult.document) {
-				const environmentId = oidcDiscoveryService.extractEnvironmentId(discoveryResult.issuerUrl || discoveryResult.document.issuer);
+				const environmentId = oidcDiscoveryService.extractEnvironmentId(
+					discoveryResult.issuerUrl || discoveryResult.document.issuer
+				);
 
-				logger.discovery('OIDCDeviceAuthorizationFlowV5', `Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`);
+				logger.discovery(
+					'OIDCDeviceAuthorizationFlowV5',
+					`Discovery completed successfully for environment: ${environmentId}, issuer: ${discoveryResult.issuerUrl || discoveryResult.document.issuer}`
+				);
 
 				// Auto-populate environment ID from discovery
 				if (environmentId) {
@@ -1027,53 +1032,63 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 									autoDiscover={false}
 								/>
 							</div>
-							
-							<div style={{ 
-								margin: '1.5rem 0', 
-								height: '1px', 
-								backgroundColor: '#e5e7eb',
-								position: 'relative'
-							}}>
-								<div style={{
-									position: 'absolute',
-									left: '50%',
-									top: '-0.5rem',
-									transform: 'translateX(-50%)',
-									backgroundColor: '#f9fafb',
-									padding: '0 1rem',
-									color: '#6b7280',
-									fontSize: '0.875rem',
-									fontWeight: '500'
-								}}>
+
+							<div
+								style={{
+									margin: '1.5rem 0',
+									height: '1px',
+									backgroundColor: '#e5e7eb',
+									position: 'relative',
+								}}
+							>
+								<div
+									style={{
+										position: 'absolute',
+										left: '50%',
+										top: '-0.5rem',
+										transform: 'translateX(-50%)',
+										backgroundColor: '#f9fafb',
+										padding: '0 1rem',
+										color: '#6b7280',
+										fontSize: '0.875rem',
+										fontWeight: '500',
+									}}
+								>
 									OR
 								</div>
 							</div>
-							
+
 							<div style={{ marginTop: '1.5rem' }}>
-								<div style={{ 
-									marginBottom: '1rem',
-									padding: '0.75rem',
-									backgroundColor: '#f8fafc',
-									border: '1px solid #e2e8f0',
-									borderRadius: '0.5rem'
-								}}>
-									<h4 style={{ 
-										margin: '0 0 0.5rem 0', 
-										fontSize: '0.875rem', 
-										fontWeight: '600', 
-										color: '#374151',
-										display: 'flex',
-										alignItems: 'center',
-										gap: '0.5rem'
-									}}>
+								<div
+									style={{
+										marginBottom: '1rem',
+										padding: '0.75rem',
+										backgroundColor: '#f8fafc',
+										border: '1px solid #e2e8f0',
+										borderRadius: '0.5rem',
+									}}
+								>
+									<h4
+										style={{
+											margin: '0 0 0.5rem 0',
+											fontSize: '0.875rem',
+											fontWeight: '600',
+											color: '#374151',
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+										}}
+									>
 										<FiKey size={16} />
 										Manual Configuration
 									</h4>
-									<p style={{ 
-										margin: '0 0 1rem 0', 
-										fontSize: '0.75rem', 
-										color: '#6b7280' 
-									}}>
+									<p
+										style={{
+											margin: '0 0 1rem 0',
+											fontSize: '0.75rem',
+											color: '#6b7280',
+										}}
+									>
 										Enter your PingOne credentials manually if you prefer not to use OIDC Discovery.
 									</p>
 								</div>
@@ -1213,7 +1228,12 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 						clientId: newClientId,
 					});
 					// Auto-save if we have both environmentId and clientId
-					if (deviceFlow.credentials?.environmentId && newClientId && deviceFlow.credentials.environmentId.trim() && newClientId.trim()) {
+					if (
+						deviceFlow.credentials?.environmentId &&
+						newClientId &&
+						deviceFlow.credentials.environmentId.trim() &&
+						newClientId.trim()
+					) {
 						deviceFlow.saveCredentials();
 						v4ToastManager.showSuccess('Credentials auto-saved');
 					}
@@ -1737,7 +1757,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 											copyLabel="Access Token"
 											showTokenType={true}
 											showExpiry={true}
-											{...(deviceFlow.tokens.expires_in && { expiresIn: Number(deviceFlow.tokens.expires_in) })}
+											{...(deviceFlow.tokens.expires_in && {
+												expiresIn: Number(deviceFlow.tokens.expires_in),
+											})}
 											{...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })}
 										/>
 
@@ -1763,7 +1785,9 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 												copyLabel="ID Token"
 												showTokenType={true}
 												showExpiry={true}
-												{...(deviceFlow.tokens.expires_in && { expiresIn: Number(deviceFlow.tokens.expires_in) })}
+												{...(deviceFlow.tokens.expires_in && {
+													expiresIn: Number(deviceFlow.tokens.expires_in),
+												})}
 												{...(deviceFlow.tokens.scope && { scope: String(deviceFlow.tokens.scope) })}
 											/>
 										</GeneratedContentBox>
@@ -1882,7 +1906,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 			showUserInfo: Boolean(userInfo),
 			showIntrospection: Boolean(introspectionResult),
 			userInfo,
-			introspectionResult
+			introspectionResult,
 		};
 
 		return (
@@ -1901,7 +1925,7 @@ const OIDCDeviceAuthorizationFlowV5: React.FC = () => {
 			showUserInfo: Boolean(userInfo),
 			showIntrospection: Boolean(introspectionResult),
 			userInfo,
-			introspectionResult
+			introspectionResult,
 		};
 
 		return (

@@ -8,7 +8,10 @@ export const FLOW_TYPE = 'implicit';
 export const STEP_CONFIGS = [
 	{ title: 'Step 1: Introduction & Setup', subtitle: 'Understand the OIDC Implicit Flow' },
 	{ title: 'Step 2: Authorization Request', subtitle: 'Build and launch the authorization URL' },
-	{ title: 'Step 3: Token Response', subtitle: 'Receive ID token and access token from URL fragment' },
+	{
+		title: 'Step 3: Token Response',
+		subtitle: 'Receive ID token and access token from URL fragment',
+	},
 	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and inspect tokens' },
 	{ title: 'Step 5: Security Features', subtitle: 'Advanced security demonstrations' },
 	{ title: 'Step 6: Flow Summary', subtitle: 'Complete flow overview and next steps' },
@@ -66,5 +69,4 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 };
 
 // Import FlowStateService for metadata generation
-import { FlowStateService} from '../../../services/flowStateService';
-
+import { FlowStateService } from '../../../services/flowStateService';

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiCheckCircle, FiCode, FiEye, FiPlay, FiRefreshCw, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAuth } from '../contexts/NewAuthContext';
-import { FiPlay, FiRefreshCw, FiCheckCircle, FiCode, FiEye, FiSettings } from 'react-icons/fi';
+import { Card, CardBody, CardHeader } from './Card';
 import TutorialStep from './TutorialStep';
-import { Card, CardHeader, CardBody } from './Card';
 
 interface TutorialData {
 	id: string;

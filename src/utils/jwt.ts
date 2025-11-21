@@ -1,5 +1,5 @@
 // Browser-compatible base64 encoding/decoding
-const base64Encode = (str: string): string => {
+const _base64Encode = (str: string): string => {
 	return btoa(unescape(encodeURIComponent(str)));
 };
 

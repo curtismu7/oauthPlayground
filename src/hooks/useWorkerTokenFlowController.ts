@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { FlowCredentialService } from '../services/flowCredentialService';
+import { scopeValidationService } from '../services/scopeValidationService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
@@ -11,11 +13,9 @@ import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import type { TokenIntrospectionResponse, WorkerTokenResponse } from '../utils/workerToken';
-import { requestClientCredentialsToken, introspectToken } from '../utils/workerToken';
+import { introspectToken, requestClientCredentialsToken } from '../utils/workerToken';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { FlowCredentialService } from '../services/flowCredentialService';
-import { scopeValidationService } from '../services/scopeValidationService';
 
 export interface WorkerTokenFlowControllerOptions {
 	flowKey?: string;
@@ -77,10 +77,13 @@ const loadInitialCredentials = (): StepCredentials => {
 		const workerTokenCredentials = localStorage.getItem('worker_credentials');
 		if (workerTokenCredentials) {
 			const parsed = JSON.parse(workerTokenCredentials);
-			console.log('🔄 [useWorkerTokenFlowController] Loaded worker token credentials from storage:', parsed);
+			console.log(
+				'🔄 [useWorkerTokenFlowController] Loaded worker token credentials from storage:',
+				parsed
+			);
 			return { ...createEmptyCredentials(), ...parsed };
 		}
-		
+
 		// Fallback to credentialManager if no worker token credentials found
 		const stored = credentialManager.getAllCredentials();
 		if (stored.environmentId && stored.clientId) {
@@ -216,13 +219,18 @@ export const useWorkerTokenFlowController = (
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				console.log('🔄 [useWorkerTokenFlowController] Loading flow-specific credentials on mount...');
-				
-				const { credentials: loadedCreds, hasSharedCredentials, flowState } = 
-					await FlowCredentialService.loadFlowCredentials<FlowConfig>({
-						flowKey: persistKey,
-						defaultCredentials: loadInitialCredentials(),
-					});
+				console.log(
+					'🔄 [useWorkerTokenFlowController] Loading flow-specific credentials on mount...'
+				);
+
+				const {
+					credentials: loadedCreds,
+					hasSharedCredentials,
+					flowState,
+				} = await FlowCredentialService.loadFlowCredentials<FlowConfig>({
+					flowKey: persistKey,
+					defaultCredentials: loadInitialCredentials(),
+				});
 
 				if (loadedCreds && hasSharedCredentials) {
 					console.log('✅ [useWorkerTokenFlowController] Found saved credentials', {
@@ -230,10 +238,10 @@ export const useWorkerTokenFlowController = (
 						environmentId: loadedCreds.environmentId,
 						clientId: loadedCreds.clientId?.substring(0, 8) + '...',
 					});
-					
+
 					setCredentials(loadedCreds);
 					setHasCredentialsSaved(true);
-					
+
 					// Load flow-specific state if available
 					if (flowState?.flowConfig) {
 						setFlowConfig(flowState.flowConfig);
@@ -288,14 +296,14 @@ export const useWorkerTokenFlowController = (
 
 			const scopes = scopeValidation.scopes;
 			const scopeArray = scopes.split(' ').filter(Boolean);
-			
+
 			// Debug logging
 			console.log('🔍 [useWorkerTokenFlowController] Scope validation:', {
 				originalScopes: credentials.scopes,
 				originalScope: credentials.scope,
 				validatedScopes: scopes,
 				scopeArray,
-				isValid: scopeValidation.isValid
+				isValid: scopeValidation.isValid,
 			});
 
 			// Get authentication method (default to client_secret_post)
@@ -420,59 +428,66 @@ export const useWorkerTokenFlowController = (
 				!!credentials.clientSecret
 			);
 
-		setIsSavingCredentials(true);
+			setIsSavingCredentials(true);
 
-		// Validate required fields
-		if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
-			const missingFields = [];
-			if (!credentials.environmentId) missingFields.push('Environment ID');
-			if (!credentials.clientId) missingFields.push('Client ID');
-			if (!credentials.clientSecret) missingFields.push('Client Secret');
+			// Validate required fields
+			if (!credentials.environmentId || !credentials.clientId || !credentials.clientSecret) {
+				const missingFields = [];
+				if (!credentials.environmentId) missingFields.push('Environment ID');
+				if (!credentials.clientId) missingFields.push('Client ID');
+				if (!credentials.clientSecret) missingFields.push('Client Secret');
 
-			console.error(
-				'❌ [useWorkerTokenFlowController] Missing fields:',
-				missingFields.join(', ')
-			);
-			showGlobalError(`Missing required fields: ${missingFields.join(', ')} are required.`);
-			return;
-		}
-
-	// Save using FlowCredentialService
-	const success = await FlowCredentialService.saveFlowCredentials(
-		persistKey,
-		credentials,
-		flowConfig,
-		{
-			tokens,
-		}
-	);
-
-		if (success) {
-			console.log('✅ [useWorkerTokenFlowController] Credentials saved successfully via FlowCredentialService');
-			console.log('🔍 [useWorkerTokenFlowController] Saved loginHint:', credentials.loginHint);
-
-			// Also save to worker token specific storage
-			try {
-				localStorage.setItem('worker_credentials', JSON.stringify(credentials));
-				console.log('✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage');
-			} catch (error) {
-				console.warn('⚠️ [useWorkerTokenFlowController] Failed to save to worker_credentials localStorage:', error);
+				console.error(
+					'❌ [useWorkerTokenFlowController] Missing fields:',
+					missingFields.join(', ')
+				);
+				showGlobalError(`Missing required fields: ${missingFields.join(', ')} are required.`);
+				return;
 			}
 
-			setHasCredentialsSaved(true);
-			setHasUnsavedCredentialChanges(false);
-			originalCredentialsRef.current = { ...credentials };
+			// Save using FlowCredentialService
+			const success = await FlowCredentialService.saveFlowCredentials(
+				persistKey,
+				credentials,
+				flowConfig,
+				{
+					tokens,
+				}
+			);
 
-			// Clear cache to ensure fresh data is loaded
-			credentialManager.clearCache();
+			if (success) {
+				console.log(
+					'✅ [useWorkerTokenFlowController] Credentials saved successfully via FlowCredentialService'
+				);
+				console.log('🔍 [useWorkerTokenFlowController] Saved loginHint:', credentials.loginHint);
 
-			// Dispatch events to notify dashboard and other components
-			window.dispatchEvent(new CustomEvent('pingone-config-changed'));
-			window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
-			console.log('📢 [useWorkerTokenFlowController] Configuration change events dispatched');
-		} else {
-			throw new Error('Failed to save credentials via FlowCredentialService');
-		}
+				// Also save to worker token specific storage
+				try {
+					localStorage.setItem('worker_credentials', JSON.stringify(credentials));
+					console.log(
+						'✅ [useWorkerTokenFlowController] Also saved to worker_credentials localStorage'
+					);
+				} catch (error) {
+					console.warn(
+						'⚠️ [useWorkerTokenFlowController] Failed to save to worker_credentials localStorage:',
+						error
+					);
+				}
+
+				setHasCredentialsSaved(true);
+				setHasUnsavedCredentialChanges(false);
+				originalCredentialsRef.current = { ...credentials };
+
+				// Clear cache to ensure fresh data is loaded
+				credentialManager.clearCache();
+
+				// Dispatch events to notify dashboard and other components
+				window.dispatchEvent(new CustomEvent('pingone-config-changed'));
+				window.dispatchEvent(new CustomEvent('permanent-credentials-changed'));
+				console.log('📢 [useWorkerTokenFlowController] Configuration change events dispatched');
+			} else {
+				throw new Error('Failed to save credentials via FlowCredentialService');
+			}
 		} catch (error) {
 			console.error('❌ [useWorkerTokenFlowController] Failed to save credentials:', error);
 			showGlobalError(

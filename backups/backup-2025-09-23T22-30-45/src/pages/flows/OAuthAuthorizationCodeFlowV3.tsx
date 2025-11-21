@@ -1,52 +1,52 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV3.tsx - Pure OAuth 2.0 Authorization Code Flow
 
-import React, { useState, useCallback } from 'react';
-import { useAuth } from '../../contexts/NewAuthContext';
-import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import React, { useCallback, useState } from 'react';
+import { FiCheckCircle, FiCopy, FiKey, FiRotateCcw, FiShield } from 'react-icons/fi';
+import styled from 'styled-components';
 import CentralizedSuccessMessage, {
-	showFlowSuccess,
 	showFlowError,
+	showFlowSuccess,
 } from '../../components/CentralizedSuccessMessage';
 import EnhancedStepFlowV2 from '../../components/EnhancedStepFlowV2';
-import { useFlowStepManager } from '../../utils/flowStepSystem';
-import {
-	createCredentialsStep,
-	createPKCEStep,
-	createAuthUrlStep,
-	createUserAuthorizationStep,
-	createCallbackHandlingStep,
-	createTokenExchangeStep,
-	StepCredentials,
-	PKCECodes,
-} from '../../components/steps/CommonSteps';
-import { FiKey, FiShield, FiCheckCircle, FiCopy, FiRotateCcw } from 'react-icons/fi';
-import { copyToClipboard } from '../../utils/clipboard';
-import { generateCodeVerifier, generateCodeChallenge } from '../../utils/oauth';
-import { credentialManager } from '../../utils/credentialManager';
-import { FlowConfiguration, FlowConfig } from '../../components/FlowConfiguration';
-import { getDefaultConfig } from '../../utils/flowConfigDefaults';
-import {
-	applyClientAuthentication,
-	getAuthMethodSecurityLevel,
-} from '../../utils/clientAuthentication';
-import PingOneConfigSection from '../../components/PingOneConfigSection';
-import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
-import OAuthErrorHelper from '../../components/OAuthErrorHelper';
-import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
-import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
-import EnhancedErrorRecovery from '../../utils/errorRecovery';
-import {
-	usePerformanceMonitor,
-	useMemoizedComputation,
-	useOptimizedCallback,
-} from '../../utils/performance';
-import { enhancedDebugger } from '../../utils/enhancedDebug';
+import { FlowConfig, FlowConfiguration } from '../../components/FlowConfiguration';
 import {
 	InlineDocumentation,
 	QuickReference,
 	TroubleshootingGuide,
 } from '../../components/InlineDocumentation';
-import styled from 'styled-components';
+import OAuthErrorHelper from '../../components/OAuthErrorHelper';
+import PingOneConfigSection from '../../components/PingOneConfigSection';
+import {
+	createAuthUrlStep,
+	createCallbackHandlingStep,
+	createCredentialsStep,
+	createPKCEStep,
+	createTokenExchangeStep,
+	createUserAuthorizationStep,
+	PKCECodes,
+	StepCredentials,
+} from '../../components/steps/CommonSteps';
+import { useAuth } from '../../contexts/NewAuthContext';
+import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
+import { getCallbackUrlForFlow } from '../../utils/callbackUrls';
+import {
+	applyClientAuthentication,
+	getAuthMethodSecurityLevel,
+} from '../../utils/clientAuthentication';
+import { copyToClipboard } from '../../utils/clipboard';
+import { credentialManager } from '../../utils/credentialManager';
+import { enhancedDebugger } from '../../utils/enhancedDebug';
+import EnhancedErrorRecovery from '../../utils/errorRecovery';
+import { getDefaultConfig } from '../../utils/flowConfigDefaults';
+import { useFlowStepManager } from '../../utils/flowStepSystem';
+import { generateCodeChallenge, generateCodeVerifier } from '../../utils/oauth';
+import {
+	useMemoizedComputation,
+	useOptimizedCallback,
+	usePerformanceMonitor,
+} from '../../utils/performance';
+import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import { safeJsonParse, safeLocalStorageParse } from '../../utils/secureJson';
 
 // Styled Components
 const Container = styled.div`

@@ -5,6 +5,7 @@ export interface ApiCall {
 	id: string;
 	method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 	url: string;
+	actualPingOneUrl?: string; // The actual PingOne API URL that will be called (for proxy endpoints)
 	headers?: Record<string, string>;
 	body?: string | object | null;
 	queryParams?: Record<string, string>;
@@ -53,7 +54,7 @@ class ApiCallTrackerService {
 	 * Update an API call with response data
 	 */
 	updateApiCallResponse(id: string, response: ApiCall['response'], duration?: number): void {
-		const call = this.apiCalls.find(c => c.id === id);
+		const call = this.apiCalls.find((c) => c.id === id);
 		if (call) {
 			call.response = response;
 			if (duration !== undefined) {
@@ -93,12 +94,12 @@ class ApiCallTrackerService {
 	 */
 	private notifySubscribers(): void {
 		const calls = this.getApiCalls();
-		this.subscribers.forEach(callback => callback(calls));
+		this.subscribers.forEach((callback) => {
+			callback(calls);
+		});
 	}
 }
 
 // Export singleton instance
 export const apiCallTrackerService = new ApiCallTrackerService();
 export default apiCallTrackerService;
-
-

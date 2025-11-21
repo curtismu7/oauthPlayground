@@ -3,8 +3,8 @@
 // Consolidates all common UI patterns from OAuth flows
 
 import React from 'react';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiAlertCircle, FiCheckCircle, FiAlertTriangle } from 'react-icons/fi';
 
 import { CollapsibleIcon } from '../components/CollapsibleIcon';
 
@@ -338,19 +338,27 @@ export class FlowUIService {
 			border: 1px solid
 				${({ $variant }) => {
 					switch ($variant) {
-						case 'warning': return '#f59e0b';
-						case 'success': return '#22c55e';
-						case 'danger': return '#ef4444';
-						default: return '#3b82f6';
+						case 'warning':
+							return '#f59e0b';
+						case 'success':
+							return '#22c55e';
+						case 'danger':
+							return '#ef4444';
+						default:
+							return '#3b82f6';
 					}
 				}};
 			background-color:
 				${({ $variant }) => {
 					switch ($variant) {
-						case 'warning': return '#fef3c7';
-						case 'success': return '#dcfce7';
-						case 'danger': return '#fee2e2';
-						default: return '#dbeafe';
+						case 'warning':
+							return '#fef3c7';
+						case 'success':
+							return '#dcfce7';
+						case 'danger':
+							return '#fee2e2';
+						default:
+							return '#dbeafe';
 					}
 				}};
 		`;
@@ -434,7 +442,7 @@ export class FlowUIService {
 	static getActionRow() {
 		return styled.div<{ $justify?: string; $gap?: string; $wrap?: boolean }>`
 			display: flex;
-			flex-wrap: ${({ $wrap }) => $wrap ? 'wrap' : 'nowrap'};
+			flex-wrap: ${({ $wrap }) => ($wrap ? 'wrap' : 'nowrap')};
 			gap: ${({ $gap }) => $gap || '1rem'};
 			align-items: center;
 			justify-content: ${({ $justify }) => $justify || 'center'};
@@ -450,19 +458,22 @@ export class FlowUIService {
 			gap: 0.5rem;
 			padding: ${({ size }) => {
 				switch (size) {
-					case 'sm': return '0.5rem 1rem';
-					case 'lg': return '0.875rem 2rem';
-					default: return '0.75rem 1.5rem';
+					case 'sm':
+						return '0.5rem 1rem';
+					case 'lg':
+						return '0.875rem 2rem';
+					default:
+						return '0.75rem 1.5rem';
 				}
 			}};
 			border-radius: 0.5rem;
-			font-size: ${({ size }) => size === 'sm' ? '0.875rem' : '0.875rem'};
+			font-size: ${({ size }) => (size === 'sm' ? '0.875rem' : '0.875rem')};
 			font-weight: 600;
-			cursor: ${({ disabled }) => disabled ? 'not-allowed' : 'pointer'};
+			cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
 			transition: all 0.2s;
 			border: 1px solid transparent;
-			width: ${({ fullWidth }) => fullWidth ? '100%' : 'auto'};
-			opacity: ${({ disabled }) => disabled ? 0.6 : 1};
+			width: ${({ fullWidth }) => (fullWidth ? '100%' : 'auto')};
+			opacity: ${({ disabled }) => (disabled ? 0.6 : 1)};
 
 			${({ variant }) => {
 				switch (variant) {
@@ -798,7 +809,7 @@ export class FlowUIService {
 
 	static getFlowUIConfig(flowType: string): FlowUIConfig {
 		const configs: Record<string, FlowUIConfig> = {
-			'implicit': {
+			implicit: {
 				flowType: 'implicit',
 				theme: 'orange',
 				showEducationalContent: true,
@@ -1035,7 +1046,6 @@ export class FlowUIService {
 		`;
 	}
 
-
 	// ============================================================================
 	// GENERATED CONTENT COMPONENTS
 	// ============================================================================
@@ -1076,7 +1086,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 	isCollapsed,
 	onToggle,
 	icon,
-	variant = 'default'
+	variant = 'default',
 }) => {
 	const theme = FlowUIService.getThemeFromVariant(variant);
 	const Section = FlowUIService.getCollapsibleSection();
@@ -1099,12 +1109,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({
 	);
 };
 
-export const InfoBox: React.FC<InfoBoxProps> = ({
-	title,
-	children,
-	variant = 'info',
-	icon
-}) => {
+export const InfoBox: React.FC<InfoBoxProps> = ({ title, children, variant = 'info', icon }) => {
 	const Box = FlowUIService.getInfoBox();
 	const Title = FlowUIService.getInfoTitle();
 	const Text = FlowUIService.getInfoText();
@@ -1113,7 +1118,7 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
 		info: <FiInfo size={20} />,
 		warning: <FiAlertTriangle size={20} />,
 		success: <FiCheckCircle size={20} />,
-		danger: <FiAlertCircle size={20} />
+		danger: <FiAlertCircle size={20} />,
 	};
 
 	return (
@@ -1130,20 +1135,28 @@ export const InfoBox: React.FC<InfoBoxProps> = ({
 export const ParameterGrid: React.FC<ParameterGridProps> = ({
 	children,
 	columns = 1,
-	gap = '1rem'
+	gap = '1rem',
 }) => {
 	const Grid = FlowUIService.getParameterGrid();
-	return <Grid $columns={columns} $gap={gap}>{children}</Grid>;
+	return (
+		<Grid $columns={columns} $gap={gap}>
+			{children}
+		</Grid>
+	);
 };
 
 export const ActionRow: React.FC<ActionRowProps> = ({
 	children,
 	justify = 'center',
 	gap = '1rem',
-	wrap = false
+	wrap = false,
 }) => {
 	const Row = FlowUIService.getActionRow();
-	return <Row $justify={justify} $gap={gap} $wrap={wrap}>{children}</Row>;
+	return (
+		<Row $justify={justify} $gap={gap} $wrap={wrap}>
+			{children}
+		</Row>
+	);
 };
 
 export const Button: React.FC<ButtonProps> = ({
@@ -1154,7 +1167,7 @@ export const Button: React.FC<ButtonProps> = ({
 	loading = false,
 	onClick,
 	type = 'button',
-	fullWidth = false
+	fullWidth = false,
 }) => {
 	const StyledButton = FlowUIService.getButton();
 	return (
@@ -1180,7 +1193,7 @@ export const ResultsSection: React.FC<ResultsSectionProps> = ({
 	title,
 	children,
 	icon,
-	variant = 'default'
+	variant = 'default',
 }) => {
 	return (
 		<StyledResultsSection>

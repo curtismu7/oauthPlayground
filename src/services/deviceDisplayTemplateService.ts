@@ -3,20 +3,18 @@
 
 import React from 'react';
 import { 
-  FiCamera, 
-  FiPrinter, 
-  FiCreditCard, 
-  FiTv, 
   FiActivity,
-  FiSmartphone,
-  FiVolume2,
-  FiMic,
-  FiShield,
+  FiCamera, 
   FiCar,
-  FiGamepad2
+  FiCreditCard, 
+  FiGamepad2, 
+  FiMic,
+  FiPrinter, 
+  FiShield,
+  FiSmartphone,
+  FiTv, 
 } from 'react-icons/fi';
-import { DeviceFlowState } from './deviceFlowService';
-import { deviceFlowService } from './deviceFlowService';
+import { DeviceFlowState, deviceFlowService } from './deviceFlowService';
 
 export interface DeviceDisplayConfig {
   brandName: string;
@@ -66,7 +64,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Status', value: 'Ready to Print' },
             { label: 'Paper', value: '100% Loaded' }
           ],
-          statusIcon: (status) => <FiPrinter />,
+          statusIcon: (_status) => <FiPrinter />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Printer Ready';
@@ -75,7 +73,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable printing features'
+          statusDescription: (_state) => 'Complete authorization to enable printing features'
         };
 
       case 'square-pos':
@@ -89,7 +87,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Register', value: 'Register 1' },
             { label: 'Network', value: 'Connected' }
           ],
-          statusIcon: (status) => <FiCreditCard />,
+          statusIcon: (_status) => <FiCreditCard />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Terminal Ready';
@@ -98,7 +96,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable payment processing'
+          statusDescription: (_state) => 'Complete authorization to enable payment processing'
         };
 
       case 'streaming-tv':
@@ -111,7 +109,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Resolution', value: '4K UHD' },
             { label: 'Status', value: 'Connected' }
           ],
-          statusIcon: (status) => <FiTv />,
+          statusIcon: (_status) => <FiTv />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'TV Authorized';
@@ -120,7 +118,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable streaming features'
+          statusDescription: (_state) => 'Complete authorization to enable streaming features'
         };
 
       case 'fitness-wearable':
@@ -133,7 +131,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Battery', value: '85%' },
             { label: 'Status', value: 'Connected' }
           ],
-          statusIcon: (status) => <FiActivity />,
+          statusIcon: (_status) => <FiActivity />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Tracker Ready';
@@ -142,7 +140,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to sync fitness data'
+          statusDescription: (_state) => 'Complete authorization to sync fitness data'
         };
 
       case 'smartphone':
@@ -155,7 +153,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'OS', value: 'iOS/Android' },
             { label: 'Status', value: 'Connected' }
           ],
-          statusIcon: (status) => <FiSmartphone />,
+          statusIcon: (_status) => <FiSmartphone />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Device Ready';
@@ -164,7 +162,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable mobile access'
+          statusDescription: (_state) => 'Complete authorization to enable mobile access'
         };
 
       case 'smart-speaker':
@@ -178,7 +176,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Status', value: 'Online' },
             { label: 'Wake Word', value: 'Alexa' }
           ],
-          statusIcon: (status) => <FiMic />,
+          statusIcon: (_status) => <FiMic />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Speaker Ready';
@@ -187,7 +185,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable voice commands'
+          statusDescription: (_state) => 'Complete authorization to enable voice commands'
         };
 
       case 'ai-agent':
@@ -200,7 +198,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Status', value: 'Active' },
             { label: 'Capabilities', value: 'Decision Making' }
           ],
-          statusIcon: (status) => <FiShield />,
+          statusIcon: (_status) => <FiShield />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Agent Ready';
@@ -209,7 +207,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable autonomous tasks'
+          statusDescription: (_state) => 'Complete authorization to enable autonomous tasks'
         };
 
       case 'smart-vehicle':
@@ -222,7 +220,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Battery', value: '85%' },
             { label: 'Status', value: 'Parked' }
           ],
-          statusIcon: (status) => <FiCar />,
+          statusIcon: (_status) => <FiCar />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Vehicle Ready';
@@ -231,7 +229,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable vehicle controls'
+          statusDescription: (_state) => 'Complete authorization to enable vehicle controls'
         };
 
       case 'gaming-console':
@@ -244,7 +242,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Network', value: 'Connected' },
             { label: 'Status', value: 'Online' }
           ],
-          statusIcon: (status) => <FiGamepad2 />,
+          statusIcon: (_status) => <FiGamepad2 />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Console Ready';
@@ -253,10 +251,8 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable gaming features'
+          statusDescription: (_state) => 'Complete authorization to enable gaming features'
         };
-
-      case 'gas-pump':
       default:
         return {
           brandName: 'Gas Pump',
@@ -267,7 +263,7 @@ export const DeviceDisplayTemplateService = {
             { label: 'Fuel', value: 'Regular, Premium' },
             { label: 'Status', value: 'Ready' }
           ],
-          statusIcon: (status) => <FiCamera />,
+          statusIcon: (_status) => <FiCamera />,
           statusTitle: (status) => {
             switch (status) {
               case 'authorized': return 'Pump Ready';
@@ -276,7 +272,7 @@ export const DeviceDisplayTemplateService = {
               default: return 'Ready';
             }
           },
-          statusDescription: (state) => 'Complete authorization to enable fuel dispensing'
+          statusDescription: (_state) => 'Complete authorization to enable fuel dispensing'
         };
     }
   },

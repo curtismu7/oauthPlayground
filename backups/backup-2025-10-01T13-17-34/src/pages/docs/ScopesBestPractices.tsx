@@ -1,17 +1,17 @@
 import React from 'react';
-import styled from 'styled-components';
 import {
+	FiAlertTriangle,
+	FiArrowRight,
 	FiBookOpen,
-	FiShield,
-	FiUsers,
+	FiCheckCircle,
 	FiDatabase,
 	FiKey,
 	FiRefreshCw,
-	FiArrowRight,
-	FiAlertTriangle,
-	FiCheckCircle,
+	FiShield,
+	FiUsers,
 	FiXCircle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 
 const Container = styled.div`
   max-width: 1200px;

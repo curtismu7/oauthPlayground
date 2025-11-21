@@ -1,21 +1,21 @@
-import { useEffect, useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { logger } from '../utils/logger';
 import {
-	userBehaviorTracker,
-	trackPageView,
-	trackUserAction,
-	trackFlowStart,
-	trackFlowStep,
-	completeFlowStep,
 	completeFlow,
-	getCurrentSession,
-	getUserJourney,
-	getEngagementMetrics,
-	UserSession,
-	UserJourney,
+	completeFlowStep,
 	EngagementMetrics,
 	FlowInteraction,
+	getCurrentSession,
+	getEngagementMetrics,
+	getUserJourney,
+	trackFlowStart,
+	trackFlowStep,
+	trackPageView,
+	trackUserAction,
+	UserJourney,
+	UserSession,
+	userBehaviorTracker,
 } from '../utils/userBehaviorTracking';
-import { logger } from '../utils/logger';
 
 // User behavior tracking hook configuration
 export interface UseUserBehaviorTrackingConfig {

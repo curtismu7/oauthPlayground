@@ -2,10 +2,10 @@
 // Table component to display tracked API calls with full details
 
 import React, { useState } from 'react';
-import { FiChevronDown, FiChevronRight, FiClock, FiCode, FiFileText } from 'react-icons/fi';
+import { FiChevronDown, FiChevronRight, FiCode, FiFileText } from 'react-icons/fi';
 import styled from 'styled-components';
 import type { ApiCall } from '../services/apiCallTrackerService';
-import JSONHighlighter from './JSONHighlighter';
+import JSONHighlighter, { type JSONData } from './JSONHighlighter';
 
 const TableContainer = styled.div`
 	background: white;
@@ -78,7 +78,9 @@ const TableRow = styled.tr<{ $isExpanded?: boolean }>`
 		background: #f9fafb;
 	}
 	
-	${props => props.$isExpanded && `
+	${(props) =>
+		props.$isExpanded &&
+		`
 		background: #f9fafb;
 	`}
 `;
@@ -97,7 +99,7 @@ const MethodBadge = styled.span<{ $method: string }>`
 	font-weight: 600;
 	text-transform: uppercase;
 	
-	${props => {
+	${(props) => {
 		switch (props.$method) {
 			case 'GET':
 				return 'background: #dbeafe; color: #1e40af;';
@@ -120,7 +122,7 @@ const StatusBadge = styled.span<{ $status: number }>`
 	font-size: 0.75rem;
 	font-weight: 600;
 	
-	${props => {
+	${(props) => {
 		if (props.$status >= 200 && props.$status < 300) {
 			return 'background: #dcfce7; color: #166534;';
 		} else if (props.$status >= 400) {
@@ -132,7 +134,7 @@ const StatusBadge = styled.span<{ $status: number }>`
 `;
 
 const ExpandableContent = styled.div<{ $isExpanded: boolean }>`
-	display: ${props => props.$isExpanded ? 'block' : 'none'};
+	display: ${(props) => (props.$isExpanded ? 'block' : 'none')};
 	padding: 1rem 1.5rem;
 	background: white;
 	border-top: 1px solid #e5e7eb;
@@ -219,12 +221,12 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 	};
 
 	const formatTime = (date: Date) => {
-		return date.toLocaleTimeString('en-US', { 
-			hour12: false, 
-			hour: '2-digit', 
-			minute: '2-digit', 
+		return date.toLocaleTimeString('en-US', {
+			hour12: false,
+			hour: '2-digit',
+			minute: '2-digit',
 			second: '2-digit',
-			fractionalSecondDigits: 3
+			fractionalSecondDigits: 3,
 		});
 	};
 
@@ -237,9 +239,7 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 		<TableContainer>
 			<TableHeader>
 				<h3>API Calls to PingOne ({apiCalls.length})</h3>
-				{onClear && apiCalls.length > 0 && (
-					<ClearButton onClick={onClear}>Clear All</ClearButton>
-				)}
+				{onClear && apiCalls.length > 0 && <ClearButton onClick={onClear}>Clear All</ClearButton>}
 			</TableHeader>
 			{apiCalls.length === 0 ? (
 				<EmptyState>
@@ -262,29 +262,36 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 							const isExpanded = expandedRows.has(call.id);
 							return (
 								<React.Fragment key={call.id}>
-									<TableRow 
-										$isExpanded={isExpanded} 
-										onClick={() => toggleRow(call.id)}
-									>
+									<TableRow $isExpanded={isExpanded} onClick={() => toggleRow(call.id)}>
+										<TableCell>{isExpanded ? <FiChevronDown /> : <FiChevronRight />}</TableCell>
 										<TableCell>
-											{isExpanded ? <FiChevronDown /> : <FiChevronRight />}
+											<MethodBadge $method={call.method}>{call.method}</MethodBadge>
 										</TableCell>
 										<TableCell>
-											<MethodBadge $method={call.method}>
-												{call.method}
-											</MethodBadge>
-										</TableCell>
-										<TableCell>
-											<div style={{ 
-												fontFamily: 'Monaco, Menlo, monospace', 
-												fontSize: '0.8125rem',
-												wordBreak: 'break-all',
-												whiteSpace: 'normal',
-												overflowWrap: 'break-word',
-												maxWidth: '100%'
-											}}>
-												{call.url}
+											<div
+												style={{
+													fontFamily: 'Monaco, Menlo, monospace',
+													fontSize: '0.8125rem',
+													wordBreak: 'break-all',
+													whiteSpace: 'normal',
+													overflowWrap: 'break-word',
+													maxWidth: '100%',
+												}}
+											>
+												{call.actualPingOneUrl || call.url}
 											</div>
+											{call.actualPingOneUrl && call.url !== call.actualPingOneUrl && (
+												<div
+													style={{
+														fontSize: '0.75rem',
+														color: '#6b7280',
+														marginTop: '0.25rem',
+														fontStyle: 'italic',
+													}}
+												>
+													Proxy: {call.url}
+												</div>
+											)}
 										</TableCell>
 										<TableCell>
 											{call.response ? (
@@ -296,20 +303,41 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 											)}
 										</TableCell>
 										<TableCell>
-											<small style={{ color: '#6b7280' }}>
-												{formatTime(call.timestamp)}
-											</small>
+											<small style={{ color: '#6b7280' }}>{formatTime(call.timestamp)}</small>
 										</TableCell>
 										<TableCell>
-											<small style={{ color: '#6b7280' }}>
-												{formatDuration(call.duration)}
-											</small>
+											<small style={{ color: '#6b7280' }}>{formatDuration(call.duration)}</small>
 										</TableCell>
 									</TableRow>
 									{isExpanded && (
 										<tr>
 											<TableCell colSpan={6} style={{ padding: 0 }}>
 												<ExpandableContent $isExpanded={true}>
+													{call.actualPingOneUrl && call.url !== call.actualPingOneUrl && (
+														<Section>
+															<SectionTitle>API URLs</SectionTitle>
+															<KeyValueList>
+																<dt>PingOne API:</dt>
+																<dd
+																	style={{
+																		fontFamily: 'Monaco, Menlo, monospace',
+																		fontSize: '0.875rem',
+																	}}
+																>
+																	{call.actualPingOneUrl}
+																</dd>
+																<dt>Proxy URL:</dt>
+																<dd
+																	style={{
+																		fontFamily: 'Monaco, Menlo, monospace',
+																		fontSize: '0.875rem',
+																	}}
+																>
+																	{call.url}
+																</dd>
+															</KeyValueList>
+														</Section>
+													)}
 													{call.queryParams && Object.keys(call.queryParams).length > 0 && (
 														<Section>
 															<SectionTitle>Query Parameters</SectionTitle>
@@ -332,9 +360,11 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 																{Object.entries(call.headers).map(([key, value]) => (
 																	<React.Fragment key={key}>
 																		<dt>{key}:</dt>
-																		<dd>{key.toLowerCase().includes('authorization') || key.toLowerCase().includes('secret') 
-																			? '***REDACTED***' 
-																			: String(value)}
+																		<dd>
+																			{key.toLowerCase().includes('authorization') ||
+																			key.toLowerCase().includes('secret')
+																				? '***REDACTED***'
+																				: String(value)}
 																		</dd>
 																	</React.Fragment>
 																))}
@@ -346,36 +376,41 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 															<SectionTitle>
 																<FiCode /> Request Body
 															</SectionTitle>
-															<CodeBlock>
-																{typeof call.body === 'string' 
-																	? call.body 
-																	: JSON.stringify(call.body, null, 2)}
-															</CodeBlock>
+															{typeof call.body === 'object' && call.body !== null ? (
+																<JSONHighlighter data={call.body as JSONData} />
+															) : (
+																<CodeBlock>
+																	{typeof call.body === 'string'
+																		? call.body
+																		: JSON.stringify(call.body, null, 2)}
+																</CodeBlock>
+															)}
 														</Section>
 													)}
 													{call.response && (
 														<>
-															{call.response.headers && Object.keys(call.response.headers).length > 0 && (
-																<Section>
-																	<SectionTitle>
-																		<FiFileText /> Response Headers
-																	</SectionTitle>
-																	<KeyValueList>
-																		{Object.entries(call.response.headers).map(([key, value]) => (
-																			<React.Fragment key={key}>
-																				<dt>{key}:</dt>
-																				<dd>{String(value)}</dd>
-																			</React.Fragment>
-																		))}
-																	</KeyValueList>
-																</Section>
-															)}
+															{call.response.headers &&
+																Object.keys(call.response.headers).length > 0 && (
+																	<Section>
+																		<SectionTitle>
+																			<FiFileText /> Response Headers
+																		</SectionTitle>
+																		<KeyValueList>
+																			{Object.entries(call.response.headers).map(([key, value]) => (
+																				<React.Fragment key={key}>
+																					<dt>{key}:</dt>
+																					<dd>{String(value)}</dd>
+																				</React.Fragment>
+																			))}
+																		</KeyValueList>
+																	</Section>
+																)}
 															<Section>
 																<SectionTitle>
 																	<FiCode /> Response Body
 																</SectionTitle>
 																{call.response.data ? (
-																	<JSONHighlighter data={call.response.data} />
+																	<JSONHighlighter data={call.response.data as JSONData} />
 																) : call.response.error ? (
 																	<CodeBlock style={{ color: '#dc2626' }}>
 																		{call.response.error}
@@ -399,4 +434,3 @@ export const ApiCallTable: React.FC<ApiCallTableProps> = ({ apiCalls, onClear })
 		</TableContainer>
 	);
 };
-

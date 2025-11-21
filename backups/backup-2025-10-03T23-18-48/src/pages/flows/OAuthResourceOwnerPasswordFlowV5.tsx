@@ -2,21 +2,21 @@
 // V5.0.0 OAuth Resource Owner Password Flow - Full V5 Implementation with Enhanced FlowInfoService
 
 import React, { useCallback, useEffect, useState } from 'react';
-import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser, FiAlertTriangle } from 'react-icons/fi';
+import { FiAlertTriangle, FiCheckCircle, FiInfo, FiRefreshCw, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
-import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { useResourceOwnerPasswordFlowController } from '../../hooks/useResourceOwnerPasswordFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -445,64 +445,64 @@ const OAuthResourceOwnerPasswordFlowV5: React.FC = () => {
 							/>
 							<form>
 								<FormGrid>
-								<FormGroup>
-									<Label>Client ID</Label>
-									<Input
-										placeholder="Enter client ID..."
-										value={credentials.clientId || ''}
-										onChange={(e) => updateCredentials({ clientId: e.target.value })}
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Client Secret (optional)</Label>
-									<Input
-										type="password"
-										placeholder="Enter client secret..."
-										value={credentials.clientSecret || ''}
-										onChange={(e) => updateCredentials({ clientSecret: e.target.value })}
-										autoComplete="current-password"
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Username</Label>
-									<Input
-										placeholder="Enter username..."
-										value={credentials.username || ''}
-										onChange={(e) => updateCredentials({ username: e.target.value })}
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Password</Label>
-									<Input
-										type="password"
-										placeholder="Enter password..."
-										value={credentials.password || ''}
-										onChange={(e) => updateCredentials({ password: e.target.value })}
-										autoComplete="current-password"
-									/>
-								</FormGroup>
-								<FormGroup>
-									<Label>Token Endpoint</Label>
-									<Input
-										placeholder="Enter token endpoint URL..."
-										value={credentials.tokenEndpoint || ''}
-										onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
-									/>
-								</FormGroup>
-							</FormGrid>
-							<Button
-								variant="danger"
-								onClick={handleRequestToken}
-								disabled={
-									isRequesting ||
-									!credentials.username ||
-									!credentials.password ||
-									!credentials.clientId
-								}
-							>
-								{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
-								{isRequesting ? 'Requesting...' : 'Request OAuth Resource Owner Password Token'}
-							</Button>
+									<FormGroup>
+										<Label>Client ID</Label>
+										<Input
+											placeholder="Enter client ID..."
+											value={credentials.clientId || ''}
+											onChange={(e) => updateCredentials({ clientId: e.target.value })}
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Client Secret (optional)</Label>
+										<Input
+											type="password"
+											placeholder="Enter client secret..."
+											value={credentials.clientSecret || ''}
+											onChange={(e) => updateCredentials({ clientSecret: e.target.value })}
+											autoComplete="current-password"
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Username</Label>
+										<Input
+											placeholder="Enter username..."
+											value={credentials.username || ''}
+											onChange={(e) => updateCredentials({ username: e.target.value })}
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Password</Label>
+										<Input
+											type="password"
+											placeholder="Enter password..."
+											value={credentials.password || ''}
+											onChange={(e) => updateCredentials({ password: e.target.value })}
+											autoComplete="current-password"
+										/>
+									</FormGroup>
+									<FormGroup>
+										<Label>Token Endpoint</Label>
+										<Input
+											placeholder="Enter token endpoint URL..."
+											value={credentials.tokenEndpoint || ''}
+											onChange={(e) => updateCredentials({ tokenEndpoint: e.target.value })}
+										/>
+									</FormGroup>
+								</FormGrid>
+								<Button
+									variant="danger"
+									onClick={handleRequestToken}
+									disabled={
+										isRequesting ||
+										!credentials.username ||
+										!credentials.password ||
+										!credentials.clientId
+									}
+								>
+									{isRequesting ? <FiRefreshCw className="animate-spin" /> : <FiUser />}
+									{isRequesting ? 'Requesting...' : 'Request OAuth Resource Owner Password Token'}
+								</Button>
 							</form>
 						</FormSection>
 

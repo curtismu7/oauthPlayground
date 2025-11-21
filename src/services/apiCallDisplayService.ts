@@ -13,7 +13,7 @@ export interface ApiCallData {
 		error?: string;
 	};
 	timestamp?: Date;
-	duration?: number; // in milliseconds
+	duration?: number;
 }
 
 export interface CurlCommandOptions {
@@ -21,7 +21,7 @@ export interface CurlCommandOptions {
 	includeBody?: boolean;
 	prettyPrint?: boolean;
 	verbose?: boolean;
-	insecure?: boolean; // for HTTPS with self-signed certificates
+	insecure?: boolean;
 }
 
 export interface ApiCallDisplayResult {
@@ -31,318 +31,261 @@ export interface ApiCallDisplayResult {
 	timingInfo?: string;
 }
 
-export class ApiCallDisplayService {
-	/**
-	 * Format an API call for display with curl command and response summary
-	 */
-	static formatApiCall(
-		apiCall: ApiCallData,
-		options: CurlCommandOptions = {}
-	): ApiCallDisplayResult {
-		const {
-			includeHeaders = true,
-			includeBody = true,
-			prettyPrint = true,
-			verbose = false,
-			insecure = false,
-		} = options;
+const sanitizeObject = (obj: unknown, sensitiveFields: string[]): unknown => {
+	if (typeof obj !== 'object' || obj === null) {
+		return obj;
+	}
 
-		const formattedCall = ApiCallDisplayService.formatApiCallText(apiCall, prettyPrint);
-		const curlCommand = ApiCallDisplayService.generateCurlCommand(apiCall, {
-			includeHeaders,
-			includeBody,
-			verbose,
-			insecure,
+	const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
+
+	Object.keys(sanitized).forEach((key) => {
+		if (sensitiveFields.some((field) => key.toLowerCase().includes(field))) {
+			(sanitized as Record<string, unknown>)[key] = '***REDACTED***';
+		} else if (typeof (sanitized as Record<string, unknown>)[key] === 'object') {
+			(sanitized as Record<string, unknown>)[key] = sanitizeObject(
+				(sanitized as Record<string, unknown>)[key],
+				sensitiveFields
+			);
+		}
+	});
+
+	return sanitized;
+};
+
+const formatApiCallText = (apiCall: ApiCallData, prettyPrint: boolean = true): string => {
+	let result = `${apiCall.method} ${apiCall.url}`;
+
+	if (apiCall.headers && Object.keys(apiCall.headers).length > 0) {
+		result += '\nHeaders:';
+		Object.entries(apiCall.headers).forEach(([key, value]) => {
+			result += `\n  ${key}: ${value}`;
 		});
-		const responseSummary = ApiCallDisplayService.formatResponseSummary(apiCall);
-		const timingInfo = apiCall.duration ? ApiCallDisplayService.formatTimingInfo(apiCall.duration) : undefined;
-
-		return {
-			formattedCall,
-			curlCommand,
-			responseSummary,
-			timingInfo,
-		};
 	}
 
-	/**
-	 * Generate a curl command for the API call
-	 */
-	static generateCurlCommand(apiCall: ApiCallData, options: CurlCommandOptions = {}): string {
-		const {
-			includeHeaders = true,
-			includeBody = true,
-			verbose = false,
-			insecure = false,
-		} = options;
-
-		let curlCommand = 'curl';
-
-		// Add verbose flag if requested
-		if (verbose) {
-			curlCommand += ' -v';
+	if (apiCall.body) {
+		result += '\nBody:';
+		if (typeof apiCall.body === 'string') {
+			result += `\n  ${apiCall.body}`;
+		} else if (typeof apiCall.body === 'object') {
+			result += `\n  ${JSON.stringify(apiCall.body, null, prettyPrint ? 2 : undefined)}`;
 		}
-
-		// Add insecure flag for self-signed certificates
-		if (insecure) {
-			curlCommand += ' -k';
-		}
-
-		// Add method (curl defaults to GET, so only add for non-GET)
-		if (apiCall.method !== 'GET') {
-			curlCommand += ` -X ${apiCall.method}`;
-		}
-
-		// Add headers
-		if (includeHeaders && apiCall.headers) {
-			Object.entries(apiCall.headers).forEach(([key, value]) => {
-				curlCommand += ` -H "${key}: ${value}"`;
-			});
-		}
-
-		// Add body data
-		if (includeBody && apiCall.body) {
-			let bodyData = '';
-
-			if (typeof apiCall.body === 'string') {
-				bodyData = apiCall.body;
-			} else if (typeof apiCall.body === 'object') {
-				bodyData = JSON.stringify(apiCall.body);
-				// Ensure Content-Type is set for JSON
-				if (!apiCall.headers?.['Content-Type']) {
-					curlCommand += ` -H "Content-Type: application/json"`;
-				}
-			}
-
-			if (bodyData) {
-				// Escape quotes in body data
-				const escapedBody = bodyData.replace(/"/g, '\\"');
-				curlCommand += ` -d "${escapedBody}"`;
-			}
-		}
-
-		// Add URL (must be last)
-		curlCommand += ` "${apiCall.url}"`;
-
-		return curlCommand;
 	}
 
-	/**
-	 * Format API call as readable text
-	 */
-	static formatApiCallText(apiCall: ApiCallData, prettyPrint: boolean = true): string {
-		let result = `${apiCall.method} ${apiCall.url}`;
+	return result;
+};
 
-		if (apiCall.headers && Object.keys(apiCall.headers).length > 0) {
-			result += '\nHeaders:';
-			Object.entries(apiCall.headers).forEach(([key, value]) => {
-				result += `\n  ${key}: ${value}`;
-			});
-		}
-
-		if (apiCall.body) {
-			result += '\nBody:';
-			if (typeof apiCall.body === 'string') {
-				result += `\n  ${apiCall.body}`;
-			} else if (typeof apiCall.body === 'object') {
-				if (prettyPrint) {
-					result += `\n  ${JSON.stringify(apiCall.body, null, 2)}`;
-				} else {
-					result += `\n  ${JSON.stringify(apiCall.body)}`;
-				}
-			}
-		}
-
-		return result;
+const formatResponseSummary = (apiCall: ApiCallData): string => {
+	if (!apiCall.response) {
+		return 'No response received';
 	}
 
-	/**
-	 * Format response summary
-	 */
-	static formatResponseSummary(apiCall: ApiCallData): string {
-		if (!apiCall.response) {
-			return 'No response received';
-		}
+	const { status, statusText, data, error } = apiCall.response;
+	let summary = `HTTP ${status} ${statusText}`;
 
-		const { status, statusText, data, error } = apiCall.response;
-		let summary = `HTTP ${status} ${statusText}`;
-
-		if (error) {
-			summary += `\nError: ${error}`;
-		} else if (data) {
-			summary += '\nResponse:';
-			if (typeof data === 'string') {
-				summary += `\n  ${data}`;
-			} else if (typeof data === 'object') {
-				try {
-					summary += `\n  ${JSON.stringify(data, null, 2)}`;
-				} catch {
-					summary += `\n  ${String(data)}`;
-				}
-			} else {
+	if (error) {
+		summary += `\nError: ${error}`;
+	} else if (data !== undefined) {
+		summary += '\nResponse:';
+		if (typeof data === 'string') {
+			summary += `\n  ${data}`;
+		} else if (typeof data === 'object') {
+			try {
+				summary += `\n  ${JSON.stringify(data, null, 2)}`;
+			} catch {
 				summary += `\n  ${String(data)}`;
 			}
-		}
-
-		return summary;
-	}
-
-	/**
-	 * Format timing information
-	 */
-	static formatTimingInfo(duration: number): string {
-		if (duration < 1000) {
-			return `Duration: ${duration}ms`;
 		} else {
-			const seconds = (duration / 1000).toFixed(2);
-			return `Duration: ${seconds}s`;
+			summary += `\n  ${String(data)}`;
 		}
 	}
 
-	/**
-	 * Create a complete display string with all API call information
-	 */
-	static createFullDisplay(apiCall: ApiCallData, options: CurlCommandOptions = {}): string {
-		const result = ApiCallDisplayService.formatApiCall(apiCall, options);
+	return summary;
+};
 
-		let display = '🚀 API Call Details\n';
-		display += '='.repeat(50) + '\n\n';
+const formatTimingInfo = (duration: number): string => {
+	if (duration < 1000) {
+		return `Duration: ${duration}ms`;
+	}
+	return `Duration: ${(duration / 1000).toFixed(2)}s`;
+};
 
-		display += '📤 Request:\n';
-		display += result.formattedCall + '\n\n';
+export const generateCurlCommand = (
+	apiCall: ApiCallData,
+	options: CurlCommandOptions = {}
+): string => {
+	const { includeHeaders = true, includeBody = true, verbose = false, insecure = false } = options;
 
-		display += '💻 cURL Command:\n';
-		display += result.curlCommand + '\n\n';
+	let curlCommand = 'curl';
 
-		display += '📥 Response:\n';
-		display += result.responseSummary + '\n';
-
-		if (result.timingInfo) {
-			display += '\n⏱️  ' + result.timingInfo + '\n';
-		}
-
-		return display;
+	if (verbose) {
+		curlCommand += ' -v';
 	}
 
-	/**
-	 * Create a compact display string for API call results
-	 */
-	static createCompactDisplay(apiCall: ApiCallData): string {
-		const status = apiCall.response?.status || 'Unknown';
-		const method = apiCall.method;
-		const url = apiCall.url;
-		const duration = apiCall.duration ? ` (${ApiCallDisplayService.formatTimingInfo(apiCall.duration)})` : '';
-
-		return `${method} ${url} → ${status}${duration}`;
+	if (insecure) {
+		curlCommand += ' -k';
 	}
 
-	/**
-	 * Validate API call data structure
-	 */
-	static validateApiCall(apiCall: ApiCallData): { isValid: boolean; errors: string[] } {
-		const errors: string[] = [];
+	if (apiCall.method !== 'GET') {
+		curlCommand += ` -X ${apiCall.method}`;
+	}
 
-		if (!apiCall.method || typeof apiCall.method !== 'string') {
-			errors.push('Method is required');
-		}
+	if (includeHeaders && apiCall.headers) {
+		Object.entries(apiCall.headers).forEach(([key, value]) => {
+			curlCommand += ` -H "${key}: ${value}"`;
+		});
+	}
 
-		if (!apiCall.url) {
-			errors.push('URL is required');
-		} else {
-			try {
-				new URL(apiCall.url);
-			} catch {
-				errors.push('URL must be a valid URL');
+	if (includeBody && apiCall.body) {
+		let bodyData = '';
+
+		if (typeof apiCall.body === 'string') {
+			bodyData = apiCall.body;
+		} else if (typeof apiCall.body === 'object') {
+			bodyData = JSON.stringify(apiCall.body);
+			if (!apiCall.headers?.['Content-Type']) {
+				curlCommand += ' -H "Content-Type: application/json"';
 			}
 		}
 
-		if (
-			apiCall.method !== 'GET' &&
-			apiCall.method !== 'POST' &&
-			apiCall.method !== 'PUT' &&
-			apiCall.method !== 'DELETE' &&
-			apiCall.method !== 'PATCH' &&
-			apiCall.method !== 'HEAD' &&
-			apiCall.method !== 'OPTIONS'
-		) {
-			errors.push('Invalid HTTP method');
+		if (bodyData) {
+			const escapedBody = bodyData.replace(/"/g, '\\"');
+			curlCommand += ` -d "${escapedBody}"`;
 		}
-
-		return {
-			isValid: errors.length === 0,
-			errors,
-		};
 	}
 
-	/**
-	 * Sanitize sensitive data from API call for display
-	 */
-	static sanitizeApiCall(
-		apiCall: ApiCallData,
-		sensitiveFields: string[] = ['authorization', 'password', 'secret', 'token']
-	): ApiCallData {
-		const sanitized = { ...apiCall };
+	curlCommand += ` "${apiCall.url}"`;
+	return curlCommand;
+};
 
-		// Sanitize headers
-		if (sanitized.headers) {
-			sanitized.headers = { ...sanitized.headers };
-			Object.keys(sanitized.headers).forEach((key) => {
-				if (sensitiveFields.some((field) => key.toLowerCase().includes(field))) {
-					sanitized.headers![key] = '***REDACTED***';
-				}
-			});
-		}
+export const formatApiCall = (
+	apiCall: ApiCallData,
+	options: CurlCommandOptions = {}
+): ApiCallDisplayResult => {
+	const {
+		includeHeaders = true,
+		includeBody = true,
+		prettyPrint = true,
+		verbose = false,
+		insecure = false,
+	} = options;
 
-		// Sanitize body if it's an object
-		if (sanitized.body && typeof sanitized.body === 'object') {
-			sanitized.body = ApiCallDisplayService.sanitizeObject(sanitized.body, sensitiveFields) as object;
-		}
+	const formattedCall = formatApiCallText(apiCall, prettyPrint);
+	const curlCommand = generateCurlCommand(apiCall, {
+		includeHeaders,
+		includeBody,
+		verbose,
+		insecure,
+	});
+	const responseSummary = formatResponseSummary(apiCall);
+	const timingInfo = apiCall.duration ? formatTimingInfo(apiCall.duration) : undefined;
 
-		// Sanitize response data
-		if (sanitized.response?.data && typeof sanitized.response.data === 'object') {
-			sanitized.response.data = ApiCallDisplayService.sanitizeObject(sanitized.response.data, sensitiveFields);
-		}
+	return {
+		formattedCall,
+		curlCommand,
+		responseSummary,
+		timingInfo,
+	};
+};
 
-		return sanitized;
+export const createFullDisplay = (
+	apiCall: ApiCallData,
+	options: CurlCommandOptions = {}
+): string => {
+	const result = formatApiCall(apiCall, options);
+
+	let display = '🚀 API Call Details\n';
+	display += `${'='.repeat(50)}\n\n`;
+	display += '📤 Request:\n';
+	display += `${result.formattedCall}\n\n`;
+	display += '💻 cURL Command:\n';
+	display += `${result.curlCommand}\n\n`;
+	display += '📥 Response:\n';
+	display += `${result.responseSummary}\n`;
+
+	if (result.timingInfo) {
+		display += `\n⏱️  ${result.timingInfo}\n`;
 	}
 
-	/**
-	 * Helper method to sanitize objects recursively
-	 */
-	private static sanitizeObject(obj: unknown, sensitiveFields: string[]): unknown {
-		if (typeof obj !== 'object' || obj === null) {
-			return obj;
+	return display;
+};
+
+export const createCompactDisplay = (apiCall: ApiCallData): string => {
+	const status = apiCall.response?.status ?? 'Unknown';
+	const duration = apiCall.duration ? ` (${formatTimingInfo(apiCall.duration)})` : '';
+	return `${apiCall.method} ${apiCall.url} → ${status}${duration}`;
+};
+
+export const validateApiCall = (
+	apiCall: ApiCallData
+): {
+	isValid: boolean;
+	errors: string[];
+} => {
+	const errors: string[] = [];
+
+	if (!apiCall.method || typeof apiCall.method !== 'string') {
+		errors.push('Method is required');
+	}
+
+	if (!apiCall.url) {
+		errors.push('URL is required');
+	} else {
+		try {
+			new URL(apiCall.url);
+		} catch {
+			errors.push('URL must be a valid URL');
 		}
+	}
 
-		const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
+	const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'];
+	if (!validMethods.includes(apiCall.method)) {
+		errors.push('Invalid HTTP method');
+	}
 
-		Object.keys(sanitized).forEach((key) => {
+	return {
+		isValid: errors.length === 0,
+		errors,
+	};
+};
+
+export const sanitizeApiCall = (
+	apiCall: ApiCallData,
+	sensitiveFields: string[] = ['authorization', 'password', 'secret', 'token']
+): ApiCallData => {
+	const sanitized: ApiCallData = { ...apiCall };
+
+	if (sanitized.headers) {
+		sanitized.headers = { ...sanitized.headers };
+		Object.keys(sanitized.headers).forEach((key) => {
 			if (sensitiveFields.some((field) => key.toLowerCase().includes(field))) {
-				(sanitized as Record<string, unknown>)[key] = '***REDACTED***';
-			} else if (typeof (sanitized as Record<string, unknown>)[key] === 'object') {
-				(sanitized as Record<string, unknown>)[key] = ApiCallDisplayService.sanitizeObject(
-					(sanitized as Record<string, unknown>)[key],
-					sensitiveFields
-				);
+				sanitized.headers![key] = '***REDACTED***';
 			}
 		});
-
-		return sanitized;
 	}
-}
 
-// Export singleton instance
-export const apiCallDisplayService = new ApiCallDisplayService();
+	if (sanitized.body && typeof sanitized.body === 'object') {
+		sanitized.body = sanitizeObject(sanitized.body, sensitiveFields) as object;
+	}
 
-// Export utility functions for backward compatibility
-export const formatApiCall = (apiCall: ApiCallData, options?: CurlCommandOptions) =>
-	ApiCallDisplayService.formatApiCall(apiCall, options);
+	if (sanitized.response?.data && typeof sanitized.response.data === 'object') {
+		sanitized.response.data = sanitizeObject(sanitized.response.data, sensitiveFields);
+	}
 
-export const generateCurlCommand = (apiCall: ApiCallData, options?: CurlCommandOptions) =>
-	ApiCallDisplayService.generateCurlCommand(apiCall, options);
+	return sanitized;
+};
 
-export const createFullDisplay = (apiCall: ApiCallData, options?: CurlCommandOptions) =>
-	ApiCallDisplayService.createFullDisplay(apiCall, options);
+export const ApiCallDisplayService = {
+	formatApiCall,
+	generateCurlCommand,
+	formatApiCallText,
+	formatResponseSummary,
+	formatTimingInfo,
+	createFullDisplay,
+	createCompactDisplay,
+	validateApiCall,
+	sanitizeApiCall,
+};
 
-export const createCompactDisplay = (apiCall: ApiCallData) =>
-	ApiCallDisplayService.createCompactDisplay(apiCall);
+export const apiCallDisplayService = ApiCallDisplayService;
+
+export default ApiCallDisplayService;

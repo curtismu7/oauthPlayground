@@ -1,7 +1,7 @@
 // src/hooks/useFlowInfo.ts - Hook for accessing flow information in V5 flows
 
 import { useMemo } from 'react';
-import { FlowInfoService, DetailedFlowInfo, FlowInfoCardData } from '../services/FlowInfoService';
+import { DetailedFlowInfo, FlowInfoCardData, FlowInfoService } from '../services/FlowInfoService';
 import { FlowInfoGenerator, FlowInfoTemplate } from '../utils/FlowInfoGenerator';
 
 export interface UseFlowInfoOptions {

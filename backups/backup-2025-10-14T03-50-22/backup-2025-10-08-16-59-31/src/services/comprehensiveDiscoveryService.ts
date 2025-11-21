@@ -65,23 +65,23 @@ export class ComprehensiveDiscoveryService {
 			name: 'PingOne',
 			baseUrl: 'https://auth.pingone.com',
 			regions: ['us', 'eu', 'ap', 'ca'],
-			discoveryPath: '/.well-known/openid_configuration'
+			discoveryPath: '/.well-known/openid_configuration',
 		},
 		google: {
 			name: 'Google OAuth',
 			baseUrl: 'https://accounts.google.com',
-			discoveryPath: '/.well-known/openid_configuration'
+			discoveryPath: '/.well-known/openid_configuration',
 		},
 		auth0: {
 			name: 'Auth0',
 			baseUrl: 'https://{domain}.auth0.com',
-			discoveryPath: '/.well-known/openid_configuration'
+			discoveryPath: '/.well-known/openid_configuration',
 		},
 		microsoft: {
 			name: 'Microsoft Entra ID',
 			baseUrl: 'https://login.microsoftonline.com',
-			discoveryPath: '/{tenant}/v2.0/.well-known/openid_configuration'
-		}
+			discoveryPath: '/{tenant}/v2.0/.well-known/openid_configuration',
+		},
 	};
 
 	/**
@@ -140,15 +140,17 @@ export class ComprehensiveDiscoveryService {
 	/**
 	 * Resolve input to provider and issuer URL
 	 */
-	private async resolveInput(input: string): Promise<{ provider: ProviderType; issuerUrl: string }> {
+	private async resolveInput(
+		input: string
+	): Promise<{ provider: ProviderType; issuerUrl: string }> {
 		// Remove leading slash if present
 		const cleanInput = input.startsWith('/') ? input.substring(1) : input;
-		
+
 		// Check if it's a PingOne Environment ID
 		if (this.isPingOneEnvironmentId(cleanInput)) {
 			return {
 				provider: 'pingone',
-				issuerUrl: await this.resolvePingOneEnvironmentId(cleanInput)
+				issuerUrl: await this.resolvePingOneEnvironmentId(cleanInput),
 			};
 		}
 
@@ -164,7 +166,9 @@ export class ComprehensiveDiscoveryService {
 			return { provider: cleanInput as ProviderType, issuerUrl };
 		}
 
-		throw new Error(`Invalid input: ${cleanInput}. Expected Environment ID, issuer URL, or provider name.`);
+		throw new Error(
+			`Invalid input: ${cleanInput}. Expected Environment ID, issuer URL, or provider name.`
+		);
 	}
 
 	/**
@@ -192,14 +196,15 @@ export class ComprehensiveDiscoveryService {
 	private isValidIssuerUrl(input: string): boolean {
 		// Remove leading slash if present
 		const cleanInput = input.startsWith('/') ? input.substring(1) : input;
-		
+
 		try {
 			const url = new URL(cleanInput);
-			return url.protocol === 'https:' && (
-				cleanInput.includes('/.well-known/openid_configuration') ||
-				cleanInput.includes('/as') ||
-				cleanInput.includes('/oauth') ||
-				cleanInput.includes('/auth')
+			return (
+				url.protocol === 'https:' &&
+				(cleanInput.includes('/.well-known/openid_configuration') ||
+					cleanInput.includes('/as') ||
+					cleanInput.includes('/oauth') ||
+					cleanInput.includes('/auth'))
 			);
 		} catch {
 			return false;
@@ -229,7 +234,7 @@ export class ComprehensiveDiscoveryService {
 	 */
 	private async resolveProviderName(providerName: string): Promise<string> {
 		const provider = providerName.toLowerCase();
-		
+
 		switch (provider) {
 			case 'pingone':
 				throw new Error('PingOne requires Environment ID or issuer URL');
@@ -247,10 +252,13 @@ export class ComprehensiveDiscoveryService {
 	/**
 	 * Fetch discovery document from issuer URL
 	 */
-	private async fetchDiscoveryDocument(issuerUrl: string, timeout: number): Promise<OIDCDiscoveryDocument> {
+	private async fetchDiscoveryDocument(
+		issuerUrl: string,
+		timeout: number
+	): Promise<OIDCDiscoveryDocument> {
 		// Construct discovery URL
-		const discoveryUrl = issuerUrl.endsWith('/.well-known/openid_configuration') 
-			? issuerUrl 
+		const discoveryUrl = issuerUrl.endsWith('/.well-known/openid_configuration')
+			? issuerUrl
 			: `${issuerUrl.replace(/\/$/, '')}/.well-known/openid_configuration`;
 
 		console.log('[Comprehensive Discovery] Fetching discovery document:', discoveryUrl);
@@ -258,14 +266,16 @@ export class ComprehensiveDiscoveryService {
 		// For PingOne URLs, use backend proxy to avoid CORS
 		if (issuerUrl.includes('pingone.com')) {
 			// Extract environment ID - match both with and without /as
-			const envMatch = issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+			const envMatch = issuerUrl.match(
+				/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+			);
 			if (envMatch) {
 				const environmentId = envMatch[1];
 				const proxyUrl = `/api/discovery?environment_id=${environmentId}&region=na`;
-				
+
 				console.log('[Comprehensive Discovery] Using backend proxy:', proxyUrl);
 				console.log('[Comprehensive Discovery] Extracted environment ID:', environmentId);
-				
+
 				const controller = new AbortController();
 				const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -335,7 +345,7 @@ export class ComprehensiveDiscoveryService {
 			'token_endpoint',
 			'jwks_uri',
 			'response_types_supported',
-			'grant_types_supported'
+			'grant_types_supported',
 		];
 
 		for (const field of requiredFields) {
@@ -367,7 +377,7 @@ export class ComprehensiveDiscoveryService {
 	private cacheDocument(issuerUrl: string, document: OIDCDiscoveryDocument): void {
 		this.cache.set(issuerUrl, {
 			document,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -379,23 +389,24 @@ export class ComprehensiveDiscoveryService {
 			{
 				name: 'PingOne',
 				type: 'pingone',
-				description: 'Environment ID or issuer URL (e.g., https://auth.pingone.com/{env-id}/as)'
+				description: 'Environment ID or issuer URL (e.g., https://auth.pingone.com/{env-id}/as)',
 			},
 			{
 				name: 'Google OAuth',
 				type: 'google',
-				description: 'Google issuer URL (e.g., https://accounts.google.com)'
+				description: 'Google issuer URL (e.g., https://accounts.google.com)',
 			},
 			{
 				name: 'Microsoft Entra ID',
 				type: 'microsoft',
-				description: 'Microsoft tenant ID or common (e.g., https://login.microsoftonline.com/{tenant-id}/v2.0)'
+				description:
+					'Microsoft tenant ID or common (e.g., https://login.microsoftonline.com/{tenant-id}/v2.0)',
 			},
 			{
 				name: 'Generic OIDC',
 				type: 'generic',
-				description: 'Any RFC 8414 compliant OIDC provider'
-			}
+				description: 'Any RFC 8414 compliant OIDC provider',
+			},
 		];
 	}
 

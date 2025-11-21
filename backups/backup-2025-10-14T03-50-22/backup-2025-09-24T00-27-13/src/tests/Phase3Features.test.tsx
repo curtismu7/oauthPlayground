@@ -1,16 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from 'styled-components';
-import { theme } from '../styles/global';
-import { FlowComparisonTools } from '../components/FlowComparisonTools';
-import { PerformanceMonitor } from '../components/PerformanceMonitor';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CachingDashboard } from '../components/CachingDashboard';
-import { UXEnhancements } from '../components/UXEnhancements';
+import { FlowComparisonTools } from '../components/FlowComparisonTools';
 import { MobileResponsiveness } from '../components/MobileResponsiveness';
+import { PerformanceMonitor } from '../components/PerformanceMonitor';
+import { UXEnhancements } from '../components/UXEnhancements';
 import { useAccessibility } from '../hooks/useAccessibility';
-import { useServiceWorker } from '../hooks/useServiceWorker';
 import { useFlowAnalysis } from '../hooks/useFlowAnalysis';
+import { useServiceWorker } from '../hooks/useServiceWorker';
+import { theme } from '../styles/global';
 import { flowAnalyzer } from '../utils/flowAnalysis';
 
 // Mock the logger

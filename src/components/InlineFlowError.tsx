@@ -1,41 +1,41 @@
 // src/components/InlineFlowError.tsx
 import React from 'react';
-import styled from 'styled-components';
 import { FiAlertTriangle, FiInfo, FiSettings } from 'react-icons/fi';
-import { OAuthErrorHelper } from './OAuthErrorHelper';
+import styled from 'styled-components';
 import { ERROR_MESSAGES, ErrorCategory } from '../constants/errorMessages';
+import { OAuthErrorHelper } from './OAuthErrorHelper';
 
 /**
  * Props for the InlineFlowError component
  */
 export interface InlineFlowErrorProps {
-  /** The error category/type (used to lookup standardized message) */
-  errorCategory?: ErrorCategory;
-  /** Custom error title (overrides category-based title) */
-  title?: string;
-  /** Error description/message */
-  description?: string;
-  /** Additional error details or technical information */
-  details?: string;
-  /** OAuth error code (from error parameter) */
-  oauthError?: string;
-  /** OAuth error description (from error_description parameter) */
-  oauthErrorDescription?: string;
-  /** Correlation ID for debugging */
-  correlationId?: string;
-  /** Callback for retry action */
-  onRetry?: () => void;
-  /** Callback for going to configuration */
-  onGoToConfig?: () => void;
-  /** Whether to show detailed error information */
-  showDetails?: boolean;
-  /** Severity level for styling */
-  severity?: 'error' | 'warning' | 'info';
+	/** The error category/type (used to lookup standardized message) */
+	errorCategory?: ErrorCategory;
+	/** Custom error title (overrides category-based title) */
+	title?: string;
+	/** Error description/message */
+	description?: string;
+	/** Additional error details or technical information */
+	details?: string;
+	/** OAuth error code (from error parameter) */
+	oauthError?: string;
+	/** OAuth error description (from error_description parameter) */
+	oauthErrorDescription?: string;
+	/** Correlation ID for debugging */
+	correlationId?: string;
+	/** Callback for retry action */
+	onRetry?: () => void;
+	/** Callback for going to configuration */
+	onGoToConfig?: () => void;
+	/** Whether to show detailed error information */
+	showDetails?: boolean;
+	/** Severity level for styling */
+	severity?: 'error' | 'warning' | 'info';
 }
 
 /**
  * InlineFlowError - A compact inline error component for displaying errors within a flow
- * 
+ *
  * This component is designed for inline error display (e.g., within a step or section)
  * as opposed to full-page error displays. It provides:
  * - Standardized error messaging with actionable suggestions
@@ -44,134 +44,145 @@ export interface InlineFlowErrorProps {
  * - Collapsible technical details
  */
 export const InlineFlowError: React.FC<InlineFlowErrorProps> = ({
-  errorCategory,
-  title,
-  description,
-  details,
-  oauthError,
-  oauthErrorDescription,
-  correlationId,
-  onRetry,
-  onGoToConfig,
-  showDetails = false,
-  severity = 'error',
+	errorCategory,
+	title,
+	description,
+	details,
+	oauthError,
+	oauthErrorDescription,
+	correlationId,
+	onRetry,
+	onGoToConfig,
+	showDetails = false,
+	severity = 'error',
 }) => {
-  const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(showDetails);
+	const [isDetailsExpanded, setIsDetailsExpanded] = React.useState(showDetails);
 
-  // Get standardized error message if category provided
-  const errorTemplate = errorCategory ? ERROR_MESSAGES[errorCategory] : null;
+	// Get standardized error message if category provided
+	const errorTemplate = errorCategory ? ERROR_MESSAGES[errorCategory] : null;
 
-  // Use custom or template-based title/description
-  const displayTitle = title || errorTemplate?.title || 'An Error Occurred';
-  const displayDescription = description || errorTemplate?.description || 'Please check your configuration and try again.';
-  const suggestions = errorTemplate?.suggestions || [];
+	// Use custom or template-based title/description
+	const displayTitle = title || errorTemplate?.title || 'An Error Occurred';
+	const displayDescription =
+		description || errorTemplate?.description || 'Please check your configuration and try again.';
+	const suggestions = errorTemplate?.suggestions || [];
 
-  return (
-    <ErrorContainer severity={severity}>
-      <ErrorHeader>
-        <ErrorIcon severity={severity}>
-          <FiAlertTriangle size={20} />
-        </ErrorIcon>
-        <ErrorTitle>{displayTitle}</ErrorTitle>
-      </ErrorHeader>
+	return (
+		<ErrorContainer severity={severity}>
+			<ErrorHeader>
+				<ErrorIcon severity={severity}>
+					<FiAlertTriangle size={20} />
+				</ErrorIcon>
+				<ErrorTitle>{displayTitle}</ErrorTitle>
+			</ErrorHeader>
 
-      <ErrorBody>
-        <ErrorDescription>{displayDescription}</ErrorDescription>
+			<ErrorBody>
+				<ErrorDescription>{displayDescription}</ErrorDescription>
 
-        {/* Suggestions */}
-        {suggestions.length > 0 && (
-          <SuggestionsSection>
-            <SuggestionsTitle>
-              <FiInfo size={14} />
-              Suggestions:
-            </SuggestionsTitle>
-            <SuggestionsList>
-              {suggestions.map((suggestion, index) => (
-                <SuggestionItem key={index}>{suggestion}</SuggestionItem>
-              ))}
-            </SuggestionsList>
-          </SuggestionsSection>
-        )}
+				{/* Suggestions */}
+				{suggestions.length > 0 && (
+					<SuggestionsSection>
+						<SuggestionsTitle>
+							<FiInfo size={14} />
+							Suggestions:
+						</SuggestionsTitle>
+						<SuggestionsList>
+							{suggestions.map((suggestion, index) => (
+								<SuggestionItem key={index}>{suggestion}</SuggestionItem>
+							))}
+						</SuggestionsList>
+					</SuggestionsSection>
+				)}
 
-        {/* OAuth Error Details */}
-        {(oauthError || oauthErrorDescription) && (
-          <OAuthErrorSection>
-            <OAuthErrorHelper
-              error={oauthError}
-              errorDescription={oauthErrorDescription}
-              correlationId={correlationId}
-            />
-          </OAuthErrorSection>
-        )}
+				{/* OAuth Error Details */}
+				{(oauthError || oauthErrorDescription) && (
+					<OAuthErrorSection>
+						<OAuthErrorHelper
+							error={oauthError}
+							errorDescription={oauthErrorDescription}
+							correlationId={correlationId}
+						/>
+					</OAuthErrorSection>
+				)}
 
-        {/* Technical Details (Collapsible) */}
-        {details && (
-          <DetailsSection>
-            <DetailsToggle onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}>
-              <FiSettings size={14} />
-              {isDetailsExpanded ? 'Hide' : 'Show'} Technical Details
-            </DetailsToggle>
-            {isDetailsExpanded && (
-              <DetailsContent>{details}</DetailsContent>
-            )}
-          </DetailsSection>
-        )}
+				{/* Technical Details (Collapsible) */}
+				{details && (
+					<DetailsSection>
+						<DetailsToggle onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}>
+							<FiSettings size={14} />
+							{isDetailsExpanded ? 'Hide' : 'Show'} Technical Details
+						</DetailsToggle>
+						{isDetailsExpanded && <DetailsContent>{details}</DetailsContent>}
+					</DetailsSection>
+				)}
 
-        {/* Correlation ID */}
-        {correlationId && (
-          <CorrelationId>
-            Correlation ID: <code>{correlationId}</code>
-          </CorrelationId>
-        )}
-      </ErrorBody>
+				{/* Correlation ID */}
+				{correlationId && (
+					<CorrelationId>
+						Correlation ID: <code>{correlationId}</code>
+					</CorrelationId>
+				)}
+			</ErrorBody>
 
-      {/* Actions */}
-      {(onRetry || onGoToConfig) && (
-        <ErrorActions>
-          {onRetry && (
-            <ActionButton onClick={onRetry} variant="primary">
-              Retry
-            </ActionButton>
-          )}
-          {onGoToConfig && (
-            <ActionButton onClick={onGoToConfig} variant="secondary">
-              <FiSettings size={16} />
-              Go to Configuration
-            </ActionButton>
-          )}
-        </ErrorActions>
-      )}
-    </ErrorContainer>
-  );
+			{/* Actions */}
+			{(onRetry || onGoToConfig) && (
+				<ErrorActions>
+					{onRetry && (
+						<ActionButton onClick={onRetry} variant="primary">
+							Retry
+						</ActionButton>
+					)}
+					{onGoToConfig && (
+						<ActionButton onClick={onGoToConfig} variant="secondary">
+							<FiSettings size={16} />
+							Go to Configuration
+						</ActionButton>
+					)}
+				</ErrorActions>
+			)}
+		</ErrorContainer>
+	);
 };
 
 // Styled Components
 
 const ErrorContainer = styled.div<{ severity: 'error' | 'warning' | 'info' }>`
-  background-color: ${props => {
-    switch (props.severity) {
-      case 'error': return '#fef2f2';
-      case 'warning': return '#fffbeb';
-      case 'info': return '#eff6ff';
-      default: return '#fef2f2';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.severity) {
-      case 'error': return '#fecaca';
-      case 'warning': return '#fde68a';
-      case 'info': return '#bfdbfe';
-      default: return '#fecaca';
-    }
-  }};
-  border-left: 4px solid ${props => {
-    switch (props.severity) {
-      case 'error': return '#dc2626';
-      case 'warning': return '#f59e0b';
-      case 'info': return '#3b82f6';
-      default: return '#dc2626';
-    }
-  }};
+  background-color: ${(props) => {
+		switch (props.severity) {
+			case 'error':
+				return '#fef2f2';
+			case 'warning':
+				return '#fffbeb';
+			case 'info':
+				return '#eff6ff';
+			default:
+				return '#fef2f2';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.severity) {
+			case 'error':
+				return '#fecaca';
+			case 'warning':
+				return '#fde68a';
+			case 'info':
+				return '#bfdbfe';
+			default:
+				return '#fecaca';
+		}
+	}};
+  border-left: 4px solid ${(props) => {
+		switch (props.severity) {
+			case 'error':
+				return '#dc2626';
+			case 'warning':
+				return '#f59e0b';
+			case 'info':
+				return '#3b82f6';
+			default:
+				return '#dc2626';
+		}
+	}};
   border-radius: 0.5rem;
   padding: 1rem;
   margin: 1rem 0;
@@ -185,14 +196,18 @@ const ErrorHeader = styled.div`
 `;
 
 const ErrorIcon = styled.div<{ severity: 'error' | 'warning' | 'info' }>`
-  color: ${props => {
-    switch (props.severity) {
-      case 'error': return '#dc2626';
-      case 'warning': return '#f59e0b';
-      case 'info': return '#3b82f6';
-      default: return '#dc2626';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.severity) {
+			case 'error':
+				return '#dc2626';
+			case 'warning':
+				return '#f59e0b';
+			case 'info':
+				return '#3b82f6';
+			default:
+				return '#dc2626';
+		}
+	}};
   flex-shrink: 0;
 `;
 
@@ -320,7 +335,9 @@ const ActionButton = styled.button<{ variant: 'primary' | 'secondary' }>`
   transition: all 0.2s;
   border: 1px solid;
 
-  ${props => props.variant === 'primary' ? `
+  ${(props) =>
+		props.variant === 'primary'
+			? `
     background-color: #2563eb;
     color: white;
     border-color: #2563eb;
@@ -329,7 +346,8 @@ const ActionButton = styled.button<{ variant: 'primary' | 'secondary' }>`
       background-color: #1d4ed8;
       border-color: #1d4ed8;
     }
-  ` : `
+  `
+			: `
     background-color: white;
     color: #374151;
     border-color: #d1d5db;
@@ -340,4 +358,3 @@ const ActionButton = styled.button<{ variant: 'primary' | 'secondary' }>`
     }
   `}
 `;
-

@@ -4,8 +4,8 @@
  */
 
 export class NodeJsTemplates {
-  static authorization(config: any): string {
-    return `// Node.js Backend - Authorization Endpoint
+	static authorization(config: any): string {
+		return `// Node.js Backend - Authorization Endpoint
 const express = require('express');
 const crypto = require('crypto');
 const app = express();
@@ -101,10 +101,10 @@ app.get('/auth/callback', async (req, res) => {
 app.listen(3000, () => {
   console.log('Server running on http://localhost:3000');
 });`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// Node.js Backend - Worker Token
+	static workerToken(config: any): string {
+		return `// Node.js Backend - Worker Token
 const fetch = require('node-fetch');
 
 /**
@@ -152,10 +152,10 @@ async function getWorkerToken() {
 }
 
 module.exports = { getWorkerToken };`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// Node.js Backend - Device Selection
+	static deviceSelection(config: any): string {
+		return `// Node.js Backend - Device Selection
 const fetch = require('node-fetch');
 
 /**
@@ -203,10 +203,10 @@ async function listMfaDevices(accessToken) {
 }
 
 module.exports = { listMfaDevices };`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// Node.js Backend - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// Node.js Backend - MFA Challenge
 const fetch = require('node-fetch');
 
 /**
@@ -251,10 +251,10 @@ async function sendMfaChallenge(accessToken, deviceId) {
 }
 
 module.exports = { sendMfaChallenge };`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// Node.js Backend - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// Node.js Backend - MFA Verification
 const fetch = require('node-fetch');
 
 /**
@@ -301,10 +301,10 @@ async function verifyMfaCode(accessToken, deviceId, otp) {
 }
 
 module.exports = { verifyMfaCode };`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// Node.js Backend - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// Node.js Backend - Device Registration
 const fetch = require('node-fetch');
 
 /**
@@ -382,12 +382,12 @@ async function example() {
 }
 
 module.exports = { registerDevice };`;
-  }
+	}
 }
 
 export class PythonTemplates {
-  static authorization(config: any): string {
-    return `# Python Backend - Authorization Flow
+	static authorization(config: any): string {
+		return `# Python Backend - Authorization Flow
 from flask import Flask, redirect, request, session
 import requests
 import secrets
@@ -470,10 +470,10 @@ def callback():
 
 if __name__ == '__main__':
     app.run(port=3000)`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `# Python Backend - Worker Token
+	static workerToken(config: any): string {
+		return `# Python Backend - Worker Token
 import requests
 import os
 
@@ -513,10 +513,10 @@ def get_worker_token():
 if __name__ == '__main__':
     token = get_worker_token()
     print(f"Token: {token[:20]}...")`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `# Python Backend - Device Selection
+	static deviceSelection(config: any): string {
+		return `# Python Backend - Device Selection
 import requests
 
 """
@@ -563,10 +563,10 @@ if __name__ == '__main__':
     devices = list_mfa_devices(token)
     for device in devices:
         print(f"- {device['type']}: {device['name']} (ID: {device['id']})")`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `# Python Backend - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `# Python Backend - MFA Challenge
 import requests
 
 """
@@ -607,10 +607,10 @@ if __name__ == '__main__':
     device_id = 'DEVICE_ID'
     challenge = send_mfa_challenge(token, device_id)
     print(f"Challenge: {challenge}")`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `# Python Backend - MFA Verification
+	static mfaVerification(config: any): string {
+		return `# Python Backend - MFA Verification
 import requests
 
 """
@@ -654,10 +654,10 @@ if __name__ == '__main__':
     otp = '123456'
     result = verify_mfa_code(token, device_id, otp)
     print(f"Result: {result}")`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `# Python Backend - Device Registration
+	static deviceRegistration(config: any): string {
+		return `# Python Backend - Device Registration
 import requests
 
 """
@@ -720,5 +720,5 @@ if __name__ == '__main__':
     })
     
     print(f"Registered device: {sms_device}")`;
-  }
+	}
 }

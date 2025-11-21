@@ -1,5 +1,5 @@
-import { logger } from './logger';
 import { errorHandler } from './errorHandler';
+import { logger } from './logger';
 
 // CSRF token interface
 export interface CSRFToken {
