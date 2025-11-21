@@ -1,6 +1,6 @@
 // src/services/postmanGeneratorService.ts
 import { v4 as uuidv4 } from 'uuid';
-import { generateCodeVerifier, generateCodeChallenge } from '../utils/oauth';
+import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
 
 export type PostmanRegion = 'NA' | 'EU' | 'AP';
 
@@ -122,14 +122,20 @@ const encodeBasicCredentials = (clientId: string, clientSecret: string) => {
 	}
 };
 
-const withHost = (host: string, pathParts: (string | undefined)[], query?: Record<string, string>) => {
+const withHost = (
+	host: string,
+	pathParts: (string | undefined)[],
+	query?: Record<string, string>
+) => {
 	const filteredParts = pathParts.filter(Boolean) as string[];
 	const rawBase = `https://${host}/${filteredParts.join('/')}`;
 	const queryArray = query
 		? Object.entries(query).map(([key, value]) => ({ key, value }))
 		: undefined;
 	return {
-		raw: queryArray ? `${rawBase}?${queryArray.map((entry) => `${entry.key}=${entry.value}`).join('&')}` : rawBase,
+		raw: queryArray
+			? `${rawBase}?${queryArray.map((entry) => `${entry.key}=${entry.value}`).join('&')}`
+			: rawBase,
 		protocol: 'https',
 		host: host.split('.'),
 		path: filteredParts,
@@ -163,7 +169,12 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 		{ key: 'authHost', value: common.authHost, type: 'default', enabled: true },
 		{ key: 'apiHost', value: common.apiHost, type: 'default', enabled: true },
 		{ key: 'client_id', value: common.clientId, type: 'default', enabled: true },
-		{ key: 'client_secret', value: common.clientSecret, type: common.clientSecret ? 'secret' : 'default', enabled: true },
+		{
+			key: 'client_secret',
+			value: common.clientSecret,
+			type: common.clientSecret ? 'secret' : 'default',
+			enabled: true,
+		},
 		{ key: 'redirect_uri', value: common.redirectUri, type: 'default', enabled: true },
 		{ key: 'scope', value: common.scopes, type: 'default', enabled: true },
 		{ key: 'state', value: generateState(), type: 'default', enabled: true },
@@ -188,7 +199,7 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 		values.push(
 			{ key: 'code_verifier', value: codeVerifier, type: 'secret', enabled: true },
 			{ key: 'code_challenge', value: codeChallenge, type: 'default', enabled: true },
-			{ key: 'code_challenge_method', value: 'S256', type: 'default', enabled: true },
+			{ key: 'code_challenge_method', value: 'S256', type: 'default', enabled: true }
 		);
 	}
 
@@ -203,7 +214,7 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 			{ key: 'password', value: flowSpecific.password ?? '', type: 'secret', enabled: true },
 			{ key: 'mfa_code', value: flowSpecific.mfa_code ?? '', type: 'default', enabled: true },
 			{ key: 'pi_flow_resume_url', value: '', type: 'default', enabled: true },
-			{ key: 'pi_flow_step', value: '', type: 'default', enabled: true },
+			{ key: 'pi_flow_step', value: '', type: 'default', enabled: true }
 		);
 	}
 
@@ -217,7 +228,7 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 				value: flowSpecific.pollIntervalSeconds ?? 5,
 				type: 'default',
 				enabled: true,
-			},
+			}
 		);
 	}
 
@@ -225,17 +236,32 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 		values.push(
 			{ key: 'jwt_iss', value: flowSpecific.iss ?? '', type: 'default', enabled: true },
 			{ key: 'jwt_sub', value: flowSpecific.sub ?? '', type: 'default', enabled: true },
-			{ key: 'jwt_aud', value: flowSpecific.aud ?? `https://${common.authHost}/${common.environmentId}/as/token`, type: 'default', enabled: true },
+			{
+				key: 'jwt_aud',
+				value: flowSpecific.aud ?? `https://${common.authHost}/${common.environmentId}/as/token`,
+				type: 'default',
+				enabled: true,
+			},
 			{ key: 'jwt_kid', value: flowSpecific.kid ?? '', type: 'default', enabled: true },
 			{ key: 'private_key', value: flowSpecific.privateKey ?? '', type: 'secret', enabled: true },
-			{ key: 'assertion_lifetime_sec', value: flowSpecific.assertionLifetimeSeconds ?? 300, type: 'default', enabled: true },
-			{ key: 'signed_jwt_assertion', value: '', type: 'secret', enabled: true },
+			{
+				key: 'assertion_lifetime_sec',
+				value: flowSpecific.assertionLifetimeSeconds ?? 300,
+				type: 'default',
+				enabled: true,
+			},
+			{ key: 'signed_jwt_assertion', value: '', type: 'secret', enabled: true }
 		);
 	}
 
 	if (state.flowType === 'token-exchange' || common.enableTokenExchange) {
 		values.push(
-			{ key: 'subject_token', value: flowSpecific.subjectToken ?? '', type: 'secret', enabled: true },
+			{
+				key: 'subject_token',
+				value: flowSpecific.subjectToken ?? '',
+				type: 'secret',
+				enabled: true,
+			},
 			{
 				key: 'subject_token_type',
 				value: flowSpecific.subjectTokenType ?? 'urn:ietf:params:oauth:token-type:access_token',
@@ -243,8 +269,18 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 				enabled: true,
 			},
 			{ key: 'actor_token', value: flowSpecific.actorToken ?? '', type: 'secret', enabled: true },
-			{ key: 'requested_token_type', value: flowSpecific.requestedTokenType ?? '', type: 'default', enabled: true },
-			{ key: 'exchange_audience', value: flowSpecific.exchangeAudience ?? '', type: 'default', enabled: true },
+			{
+				key: 'requested_token_type',
+				value: flowSpecific.requestedTokenType ?? '',
+				type: 'default',
+				enabled: true,
+			},
+			{
+				key: 'exchange_audience',
+				value: flowSpecific.exchangeAudience ?? '',
+				type: 'default',
+				enabled: true,
+			}
 		);
 	}
 
@@ -264,7 +300,7 @@ const buildEnvironmentValues = async (state: WizardState): Promise<PostmanVariab
 	return values;
 };
 
-const ensureArray = <T,>(value: T | T[] | undefined): T[] => {
+const ensureArray = <T>(value: T | T[] | undefined): T[] => {
 	if (!value) return [];
 	return Array.isArray(value) ? value : [value];
 };
@@ -291,9 +327,7 @@ const buildAuthorizationRequests = (state: WizardState): PostmanCollectionItem[]
 					'Initiate the PingOne redirect-less flow. Capture the resumeUrl and flowId from the response, then update the environment variables.',
 				request: {
 					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/json' },
-					],
+					header: [{ key: 'Content-Type', value: 'application/json' }],
 					body: {
 						mode: 'raw',
 						raw: JSON.stringify(
@@ -307,13 +341,13 @@ const buildAuthorizationRequests = (state: WizardState): PostmanCollectionItem[]
 								acr_values: ['urn:pingidentity:acr:password'],
 							},
 							null,
-							2,
+							2
 						),
 						options: { raw: { language: 'json' } },
 					},
 					url: withHost(common.authHost, [common.environmentId, 'as', 'authorize']),
 				},
-			}),
+			})
 		);
 
 		items.push(
@@ -333,7 +367,7 @@ const buildAuthorizationRequests = (state: WizardState): PostmanCollectionItem[]
 								mfaCode: '{{mfa_code}}',
 							},
 							null,
-							2,
+							2
 						),
 						options: { raw: { language: 'json' } },
 					},
@@ -341,7 +375,7 @@ const buildAuthorizationRequests = (state: WizardState): PostmanCollectionItem[]
 						raw: '{{pi_flow_resume_url}}',
 					},
 				},
-			}),
+			})
 		);
 
 		items.push(
@@ -349,22 +383,26 @@ const buildAuthorizationRequests = (state: WizardState): PostmanCollectionItem[]
 				name: 'Exchange pi.flow Authorization Code for Tokens',
 				request: {
 					method: 'POST',
-					header: [
-						{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-					],
+					header: [{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' }],
 					body: {
 						mode: 'urlencoded',
 						urlencoded: ensureArray([
 							{ key: 'grant_type', value: 'authorization_code' },
 							{ key: 'code', value: '{{authorization_code}}' },
 							{ key: 'redirect_uri', value: '{{redirect_uri}}' },
-							common.tokenAuthMethod !== 'client_secret_basic' && { key: 'client_id', value: '{{client_id}}' },
-							common.tokenAuthMethod === 'client_secret_post' && { key: 'client_secret', value: '{{client_secret}}' },
+							common.tokenAuthMethod !== 'client_secret_basic' && {
+								key: 'client_id',
+								value: '{{client_id}}',
+							},
+							common.tokenAuthMethod === 'client_secret_post' && {
+								key: 'client_secret',
+								value: '{{client_secret}}',
+							},
 						]).filter(Boolean),
 					},
 					url: withHost(common.authHost, [common.environmentId, 'as', 'token']),
 				},
-			}),
+			})
 		);
 
 		return items;
@@ -378,21 +416,26 @@ const buildAuthorizationRequests = (state: WizardState): PostmanCollectionItem[]
 			request: {
 				method: 'GET',
 				header: [],
-				url: withHost(common.authHost, [common.environmentId, 'as', 'authorize'], baseAuthorizeQuery),
+				url: withHost(
+					common.authHost,
+					[common.environmentId, 'as', 'authorize'],
+					baseAuthorizeQuery
+				),
 			},
-		}),
+		})
 	);
 
 	return items;
 };
 
-const buildTokenExchangeItem = (state: WizardState, name = 'Token Exchange Request'): PostmanCollectionItem => ({
+const buildTokenExchangeItem = (
+	state: WizardState,
+	name = 'Token Exchange Request'
+): PostmanCollectionItem => ({
 	name,
 	request: {
 		method: 'POST',
-		header: [
-			{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-		],
+		header: [{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' }],
 		url: withHost(state.common.authHost, [state.common.environmentId, 'as', 'token']),
 		body: {
 			mode: 'urlencoded',
@@ -414,9 +457,7 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 
 	items.push(...buildAuthorizationRequests(state));
 
-	const tokenHeaders = [
-		{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' },
-	];
+	const tokenHeaders = [{ key: 'Content-Type', value: 'application/x-www-form-urlencoded' }];
 
 	if (common.tokenAuthMethod === 'client_secret_basic') {
 		tokenHeaders.push({ key: 'Authorization', value: 'Basic {{client_credentials_basic}}' });
@@ -438,14 +479,23 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 								{ key: 'grant_type', value: 'authorization_code' },
 								{ key: 'code', value: '{{authorization_code}}' },
 								{ key: 'redirect_uri', value: '{{redirect_uri}}' },
-								common.tokenAuthMethod !== 'client_secret_basic' && { key: 'client_id', value: '{{client_id}}' },
-								common.tokenAuthMethod === 'client_secret_post' && { key: 'client_secret', value: '{{client_secret}}' },
-								state.flowType === 'authorization-code-pkce' && { key: 'code_verifier', value: '{{code_verifier}}' },
+								common.tokenAuthMethod !== 'client_secret_basic' && {
+									key: 'client_id',
+									value: '{{client_id}}',
+								},
+								common.tokenAuthMethod === 'client_secret_post' && {
+									key: 'client_secret',
+									value: '{{client_secret}}',
+								},
+								state.flowType === 'authorization-code-pkce' && {
+									key: 'code_verifier',
+									value: '{{code_verifier}}',
+								},
 							]).filter(Boolean),
 						},
 						url: withHost(common.authHost, [common.environmentId, 'as', 'token']),
 					},
-				}),
+				})
 			);
 			break;
 		case 'implicit':
@@ -454,7 +504,7 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 					name: 'Parse Implicit Callback',
 					description:
 						'After completing the implicit flow in a browser, paste the callback URL here to populate access_token and id_token environment variables.',
-				}),
+				})
 			);
 			break;
 		case 'client-credentials':
@@ -468,15 +518,21 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 							mode: 'urlencoded',
 							urlencoded: ensureArray([
 								{ key: 'grant_type', value: 'client_credentials' },
-								common.tokenAuthMethod !== 'client_secret_basic' && { key: 'client_id', value: '{{client_id}}' },
-								common.tokenAuthMethod === 'client_secret_post' && { key: 'client_secret', value: '{{client_secret}}' },
+								common.tokenAuthMethod !== 'client_secret_basic' && {
+									key: 'client_id',
+									value: '{{client_id}}',
+								},
+								common.tokenAuthMethod === 'client_secret_post' && {
+									key: 'client_secret',
+									value: '{{client_secret}}',
+								},
 								common.scopes && { key: 'scope', value: '{{scope}}' },
 								state.flowSpecific.audience && { key: 'audience', value: '{{audience}}' },
 							]).filter(Boolean),
 						},
 						url: withHost(common.authHost, [common.environmentId, 'as', 'token']),
 					},
-				}),
+				})
 			);
 			break;
 		case 'device-authorization':
@@ -489,19 +545,26 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 						body: {
 							mode: 'urlencoded',
 							urlencoded: ensureArray([
-								common.tokenAuthMethod !== 'client_secret_basic' && { key: 'client_id', value: '{{client_id}}' },
-								common.tokenAuthMethod === 'client_secret_post' && { key: 'client_secret', value: '{{client_secret}}' },
+								common.tokenAuthMethod !== 'client_secret_basic' && {
+									key: 'client_id',
+									value: '{{client_id}}',
+								},
+								common.tokenAuthMethod === 'client_secret_post' && {
+									key: 'client_secret',
+									value: '{{client_secret}}',
+								},
 								{ key: 'scope', value: '{{scope}}' },
 							]).filter(Boolean),
 						},
 						url: withHost(common.authHost, [common.environmentId, 'as', 'device_authorization']),
 					},
-				}),
+				})
 			);
 			items.push(
 				createPostmanItem({
 					name: 'Poll Token Endpoint',
-					description: 'Poll at {{poll_interval_sec}} second intervals until PingOne issues tokens.',
+					description:
+						'Poll at {{poll_interval_sec}} second intervals until PingOne issues tokens.',
 					request: {
 						method: 'POST',
 						header: tokenHeaders,
@@ -510,13 +573,19 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 							urlencoded: ensureArray([
 								{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:device_code' },
 								{ key: 'device_code', value: '{{device_code}}' },
-								common.tokenAuthMethod !== 'client_secret_basic' && { key: 'client_id', value: '{{client_id}}' },
-								common.tokenAuthMethod === 'client_secret_post' && { key: 'client_secret', value: '{{client_secret}}' },
+								common.tokenAuthMethod !== 'client_secret_basic' && {
+									key: 'client_id',
+									value: '{{client_id}}',
+								},
+								common.tokenAuthMethod === 'client_secret_post' && {
+									key: 'client_secret',
+									value: '{{client_secret}}',
+								},
 							]).filter(Boolean),
 						},
 						url: withHost(common.authHost, [common.environmentId, 'as', 'token']),
 					},
-				}),
+				})
 			);
 			break;
 		case 'jwt-bearer':
@@ -531,13 +600,19 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 							urlencoded: ensureArray([
 								{ key: 'grant_type', value: 'urn:ietf:params:oauth:grant-type:jwt-bearer' },
 								{ key: 'assertion', value: '{{signed_jwt_assertion}}' },
-								common.tokenAuthMethod !== 'client_secret_basic' && { key: 'client_id', value: '{{client_id}}' },
-								common.tokenAuthMethod === 'client_secret_post' && { key: 'client_secret', value: '{{client_secret}}' },
+								common.tokenAuthMethod !== 'client_secret_basic' && {
+									key: 'client_id',
+									value: '{{client_id}}',
+								},
+								common.tokenAuthMethod === 'client_secret_post' && {
+									key: 'client_secret',
+									value: '{{client_secret}}',
+								},
 							]).filter(Boolean),
 						},
 						url: withHost(common.authHost, [common.environmentId, 'as', 'token']),
 					},
-				}),
+				})
 			);
 			break;
 		case 'token-exchange':
@@ -551,7 +626,8 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 		items.push(
 			createPostmanItem({
 				name: 'Push Authorization Request (PAR)',
-				description: 'Submit authorization details to PingOne for PAR. Capture request_uri from the response.',
+				description:
+					'Submit authorization details to PingOne for PAR. Capture request_uri from the response.',
 				request: {
 					method: 'POST',
 					header: tokenHeaders,
@@ -567,7 +643,7 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 					},
 					url: withHost(common.authHost, [common.environmentId, 'as', 'par']),
 				},
-			}),
+			})
 		);
 	}
 
@@ -584,9 +660,14 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 						raw: '{{rar_payload}}',
 						options: { raw: { language: 'json' } },
 					},
-					url: withHost(common.apiHost, ['v1', 'environments', '{{environmentId}}', 'authorizationRequests']),
+					url: withHost(common.apiHost, [
+						'v1',
+						'environments',
+						'{{environmentId}}',
+						'authorizationRequests',
+					]),
 				},
-			}),
+			})
 		);
 	}
 
@@ -604,7 +685,7 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 					header: [{ key: 'Authorization', value: 'Bearer {{access_token}}' }],
 					url: withHost(common.authHost, [common.environmentId, 'as', 'userinfo']),
 				},
-			}),
+			})
 		);
 	}
 
@@ -617,13 +698,11 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 					header: tokenHeaders,
 					body: {
 						mode: 'urlencoded',
-						urlencoded: ensureArray([
-							{ key: 'token', value: '{{access_token}}' },
-						]).filter(Boolean),
+						urlencoded: ensureArray([{ key: 'token', value: '{{access_token}}' }]).filter(Boolean),
 					},
 					url: withHost(common.authHost, [common.environmentId, 'as', 'introspect']),
 				},
-			}),
+			})
 		);
 	}
 
@@ -636,13 +715,11 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 					header: tokenHeaders,
 					body: {
 						mode: 'urlencoded',
-						urlencoded: ensureArray([
-							{ key: 'token', value: '{{refresh_token}}' },
-						]).filter(Boolean),
+						urlencoded: ensureArray([{ key: 'token', value: '{{refresh_token}}' }]).filter(Boolean),
 					},
 					url: withHost(common.authHost, [common.environmentId, 'as', 'revoke']),
 				},
-			}),
+			})
 		);
 	}
 
@@ -659,7 +736,7 @@ const buildCollectionItems = (state: WizardState): PostmanCollectionItem[] => {
 						id_token_hint: '{{id_token}}',
 					}),
 				},
-			}),
+			})
 		);
 	}
 
@@ -676,7 +753,10 @@ const buildCollection = (state: WizardState): Record<string, unknown> => ({
 	item: buildCollectionItems(state),
 });
 
-const buildEnvironment = (state: WizardState, values: PostmanVariable[]): Record<string, unknown> => ({
+const buildEnvironment = (
+	state: WizardState,
+	values: PostmanVariable[]
+): Record<string, unknown> => ({
 	id: uuidv4(),
 	name: `PingOne ${FLOW_LABELS[state.flowType]} Environment`,
 	values,
@@ -685,7 +765,7 @@ const buildEnvironment = (state: WizardState, values: PostmanVariable[]): Record
 });
 
 export const getDefaultCommonAnswers = (
-	overrides?: Partial<WizardCommonAnswers>,
+	overrides?: Partial<WizardCommonAnswers>
 ): WizardCommonAnswers => ({
 	region: overrides?.region ?? 'NA',
 	environmentId: overrides?.environmentId ?? '',
@@ -708,7 +788,7 @@ export const getDefaultCommonAnswers = (
 });
 
 export const generatePostmanArtifacts = async (
-	inputState: WizardState,
+	inputState: WizardState
 ): Promise<PostmanArtifactResult> => {
 	const state = normalizeState(inputState);
 	const environmentValues = await buildEnvironmentValues(state);

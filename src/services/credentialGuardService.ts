@@ -17,7 +17,9 @@ export const CredentialGuardService = {
 	): CredentialGuardResult {
 		if (!credentials) {
 			return {
-				missingFields: requiredFields.map((field) => fieldLabels[field as string] || humanizeFieldName(field as string)),
+				missingFields: requiredFields.map(
+					(field) => fieldLabels[field as string] || humanizeFieldName(field as string)
+				),
 				canProceed: false,
 			};
 		}

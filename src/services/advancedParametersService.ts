@@ -1,8 +1,8 @@
 // src/services/advancedParametersService.ts
 // Service for adding advanced OAuth/OIDC parameters to authorization URLs
 
-import { DisplayMode } from '../components/DisplayParameterSelector';
 import { ClaimsRequestStructure } from '../components/ClaimsRequestBuilder';
+import { DisplayMode } from '../components/DisplayParameterSelector';
 
 export interface AdvancedOAuthParameters {
 	display?: DisplayMode;
@@ -19,10 +19,10 @@ export interface AdvancedOAuthParameters {
 
 /**
  * Advanced Parameters Service
- * 
+ *
  * Enhances authorization URLs with advanced OAuth/OIDC parameters
  * without requiring controller refactoring.
- * 
+ *
  * Supports:
  * - Display parameter (OIDC)
  * - Claims request (OIDC/OAuth)
@@ -31,224 +31,216 @@ export interface AdvancedOAuthParameters {
  * - Resource indicators (OAuth/OIDC)
  * - Prompt, max_age, etc.
  */
-export class AdvancedParametersService {
-	/**
-	 * Add advanced parameters to an existing authorization URL
-	 */
-	static enhanceAuthorizationUrl(
-		baseUrl: string,
-		parameters: AdvancedOAuthParameters
-	): string {
-		try {
-			const url = new URL(baseUrl);
-			const params = url.searchParams;
 
-			// Display parameter (OIDC only, skip if 'page' default)
-			if (parameters.display && parameters.display !== 'page') {
-				params.set('display', parameters.display);
-			}
+const isValidDisplayMode = (value: string): value is DisplayMode =>
+	['page', 'popup', 'touch', 'wap'].includes(value);
 
-			// Claims parameter (OIDC/OAuth)
-			if (parameters.claims && AdvancedParametersService.isValidClaims(parameters.claims)) {
-				params.set('claims', JSON.stringify(parameters.claims));
-			}
-
-			// UI Locales (OIDC only)
-			if (parameters.uiLocales && parameters.uiLocales.trim()) {
-				params.set('ui_locales', parameters.uiLocales.trim());
-			}
-
-			// Claims Locales (OIDC only)
-			if (parameters.claimsLocales && parameters.claimsLocales.trim()) {
-				params.set('claims_locales', parameters.claimsLocales.trim());
-			}
-
-			// Audience (OAuth/OIDC)
-			if (parameters.audience && parameters.audience.trim()) {
-				params.set('audience', parameters.audience.trim());
-			}
-
-			// Resource indicators (OAuth/OIDC) - can have multiple
-			if (parameters.resource && parameters.resource.length > 0) {
-				parameters.resource.forEach(res => {
-					if (res.trim()) {
-						params.append('resource', res.trim());
-					}
-				});
-			}
-
-			// Prompt (OIDC only)
-			if (parameters.prompt && parameters.prompt.trim()) {
-				params.set('prompt', parameters.prompt.trim());
-			}
-
-			// Max Age (OIDC only)
-			if (parameters.maxAge !== undefined && parameters.maxAge > 0) {
-				params.set('max_age', parameters.maxAge.toString());
-			}
-
-			// ID Token Hint (OIDC only)
-			if (parameters.idTokenHint && parameters.idTokenHint.trim()) {
-				params.set('id_token_hint', parameters.idTokenHint.trim());
-			}
-
-			// ACR Values (OIDC only)
-			if (parameters.acrValues && parameters.acrValues.trim()) {
-				params.set('acr_values', parameters.acrValues.trim());
-			}
-
-			return url.toString();
-		} catch (error) {
-			console.error('[AdvancedParametersService] Failed to enhance URL:', error);
-			return baseUrl; // Return original URL if enhancement fails
-		}
+const isValidClaims = (claims: ClaimsRequestStructure): boolean => {
+	if (!claims || typeof claims !== 'object') {
+		return false;
 	}
 
-	/**
-	 * Validate claims request structure
-	 */
-	private static isValidClaims(claims: ClaimsRequestStructure): boolean {
-		if (!claims || typeof claims !== 'object') return false;
-		
-		// Must have at least one location (userinfo or id_token)
-		const hasUserInfo = claims.userinfo && Object.keys(claims.userinfo).length > 0;
-		const hasIdToken = claims.id_token && Object.keys(claims.id_token).length > 0;
-		
-		return hasUserInfo || hasIdToken;
-	}
+	const hasUserInfo = Boolean(claims.userinfo && Object.keys(claims.userinfo).length > 0);
+	const hasIdToken = Boolean(claims.id_token && Object.keys(claims.id_token).length > 0);
 
-	/**
-	 * Extract advanced parameters from a URL
-	 */
-	static extractFromUrl(url: string): Partial<AdvancedOAuthParameters> {
-		try {
-			const urlObj = new URL(url);
-			const params = urlObj.searchParams;
-			const extracted: Partial<AdvancedOAuthParameters> = {};
+	return hasUserInfo || hasIdToken;
+};
 
-			// Display
-			const display = params.get('display');
-			if (display && AdvancedParametersService.isValidDisplayMode(display)) {
-				extracted.display = display;
-			}
-
-			// Claims
-			const claims = params.get('claims');
-			if (claims) {
-				try {
-					const parsed = JSON.parse(claims);
-					if (AdvancedParametersService.isValidClaims(parsed)) {
-						extracted.claims = parsed;
-					}
-				} catch {
-					// Invalid JSON, skip
-				}
-			}
-
-			// Locales
-			const uiLocales = params.get('ui_locales');
-			if (uiLocales) extracted.uiLocales = uiLocales;
-
-			const claimsLocales = params.get('claims_locales');
-			if (claimsLocales) extracted.claimsLocales = claimsLocales;
-
-			// Audience
-			const audience = params.get('audience');
-			if (audience) extracted.audience = audience;
-
-			// Resources (can be multiple)
-			const resources = params.getAll('resource');
-			if (resources.length > 0) extracted.resource = resources;
-
-			// Other parameters
-			const prompt = params.get('prompt');
-			if (prompt) extracted.prompt = prompt;
-
-			const maxAge = params.get('max_age');
-			if (maxAge) extracted.maxAge = parseInt(maxAge, 10);
-
-			const idTokenHint = params.get('id_token_hint');
-			if (idTokenHint) extracted.idTokenHint = idTokenHint;
-
-			const acrValues = params.get('acr_values');
-			if (acrValues) extracted.acrValues = acrValues;
-
-			return extracted;
-		} catch (error) {
-			console.error('[AdvancedParametersService] Failed to extract from URL:', error);
-			return {};
-		}
-	}
-
-	/**
-	 * Validate display mode
-	 */
-	private static isValidDisplayMode(value: string): value is DisplayMode {
-		return ['page', 'popup', 'touch', 'wap'].includes(value);
-	}
-
-	/**
-	 * Get summary of active parameters
-	 */
-	static getSummary(parameters: AdvancedOAuthParameters): string[] {
-		const summary: string[] = [];
+const enhanceAuthorizationUrl = (baseUrl: string, parameters: AdvancedOAuthParameters): string => {
+	try {
+		const url = new URL(baseUrl);
+		const params = url.searchParams;
 
 		if (parameters.display && parameters.display !== 'page') {
-			summary.push(`Display: ${parameters.display}`);
+			params.set('display', parameters.display);
 		}
 
-		if (parameters.claims && AdvancedParametersService.isValidClaims(parameters.claims)) {
-			const locations = [];
-			if (parameters.claims.userinfo) locations.push('UserInfo');
-			if (parameters.claims.id_token) locations.push('ID Token');
-			summary.push(`Claims requested in: ${locations.join(', ')}`);
+		if (parameters.claims && isValidClaims(parameters.claims)) {
+			params.set('claims', JSON.stringify(parameters.claims));
 		}
 
-		if (parameters.uiLocales) {
-			summary.push(`UI Languages: ${parameters.uiLocales}`);
+		if (parameters.uiLocales?.trim()) {
+			params.set('ui_locales', parameters.uiLocales.trim());
 		}
 
-		if (parameters.claimsLocales) {
-			summary.push(`Claim Languages: ${parameters.claimsLocales}`);
+		if (parameters.claimsLocales?.trim()) {
+			params.set('claims_locales', parameters.claimsLocales.trim());
 		}
 
-		if (parameters.audience) {
-			summary.push(`Audience: ${parameters.audience}`);
+		if (parameters.audience?.trim()) {
+			params.set('audience', parameters.audience.trim());
 		}
 
-		if (parameters.resource && parameters.resource.length > 0) {
-			summary.push(`Resources: ${parameters.resource.length} specified`);
+		if (parameters.resource?.length) {
+			parameters.resource.forEach((res) => {
+				if (res.trim()) {
+					params.append('resource', res.trim());
+				}
+			});
 		}
 
-		if (parameters.prompt) {
-			summary.push(`Prompt: ${parameters.prompt}`);
+		if (parameters.prompt?.trim()) {
+			params.set('prompt', parameters.prompt.trim());
 		}
 
-		if (parameters.maxAge) {
-			summary.push(`Max Age: ${parameters.maxAge}s`);
+		if (parameters.maxAge && parameters.maxAge > 0) {
+			params.set('max_age', parameters.maxAge.toString());
 		}
 
-		return summary;
+		if (parameters.idTokenHint?.trim()) {
+			params.set('id_token_hint', parameters.idTokenHint.trim());
+		}
+
+		if (parameters.acrValues?.trim()) {
+			params.set('acr_values', parameters.acrValues.trim());
+		}
+
+		return url.toString();
+	} catch (error) {
+		console.error('[AdvancedParametersService] Failed to enhance URL:', error);
+		return baseUrl;
+	}
+};
+
+const extractFromUrl = (url: string): Partial<AdvancedOAuthParameters> => {
+	try {
+		const urlObj = new URL(url);
+		const params = urlObj.searchParams;
+		const extracted: Partial<AdvancedOAuthParameters> = {};
+
+		const display = params.get('display');
+		if (display && isValidDisplayMode(display)) {
+			extracted.display = display;
+		}
+
+		const claims = params.get('claims');
+		if (claims) {
+			try {
+				const parsed = JSON.parse(claims) as ClaimsRequestStructure;
+				if (isValidClaims(parsed)) {
+					extracted.claims = parsed;
+				}
+			} catch {
+				// Ignore invalid JSON
+			}
+		}
+
+		const uiLocales = params.get('ui_locales');
+		if (uiLocales) {
+			extracted.uiLocales = uiLocales;
+		}
+
+		const claimsLocales = params.get('claims_locales');
+		if (claimsLocales) {
+			extracted.claimsLocales = claimsLocales;
+		}
+
+		const audience = params.get('audience');
+		if (audience) {
+			extracted.audience = audience;
+		}
+
+		const resources = params.getAll('resource');
+		if (resources.length > 0) {
+			extracted.resource = resources;
+		}
+
+		const prompt = params.get('prompt');
+		if (prompt) {
+			extracted.prompt = prompt;
+		}
+
+		const maxAge = params.get('max_age');
+		if (maxAge) {
+			const parsed = Number.parseInt(maxAge, 10);
+			if (!Number.isNaN(parsed)) {
+				extracted.maxAge = parsed;
+			}
+		}
+
+		const idTokenHint = params.get('id_token_hint');
+		if (idTokenHint) {
+			extracted.idTokenHint = idTokenHint;
+		}
+
+		const acrValues = params.get('acr_values');
+		if (acrValues) {
+			extracted.acrValues = acrValues;
+		}
+
+		return extracted;
+	} catch (error) {
+		console.error('[AdvancedParametersService] Failed to extract from URL:', error);
+		return {};
+	}
+};
+
+const getSummary = (parameters: AdvancedOAuthParameters): string[] => {
+	const summary: string[] = [];
+
+	if (parameters.display && parameters.display !== 'page') {
+		summary.push(`Display: ${parameters.display}`);
 	}
 
-	/**
-	 * Check if any advanced parameters are set
-	 */
-	static hasAnyParameters(parameters: AdvancedOAuthParameters): boolean {
-		return (
-			(parameters.display !== undefined && parameters.display !== 'page') ||
-			(parameters.claims !== null && AdvancedParametersService.isValidClaims(parameters.claims)) ||
-			(parameters.uiLocales !== undefined && parameters.uiLocales.trim() !== '') ||
-			(parameters.claimsLocales !== undefined && parameters.claimsLocales.trim() !== '') ||
-			(parameters.audience !== undefined && parameters.audience.trim() !== '') ||
-			(parameters.resource !== undefined && parameters.resource.length > 0) ||
-			(parameters.prompt !== undefined && parameters.prompt.trim() !== '') ||
-			(parameters.maxAge !== undefined && parameters.maxAge > 0) ||
-			(parameters.idTokenHint !== undefined && parameters.idTokenHint.trim() !== '') ||
-			(parameters.acrValues !== undefined && parameters.acrValues.trim() !== '')
-		);
+	if (parameters.claims && isValidClaims(parameters.claims)) {
+		const locations: string[] = [];
+		if (parameters.claims.userinfo) {
+			locations.push('UserInfo');
+		}
+		if (parameters.claims.id_token) {
+			locations.push('ID Token');
+		}
+		summary.push(`Claims requested in: ${locations.join(', ')}`);
 	}
-}
+
+	if (parameters.uiLocales) {
+		summary.push(`UI Languages: ${parameters.uiLocales}`);
+	}
+
+	if (parameters.claimsLocales) {
+		summary.push(`Claim Languages: ${parameters.claimsLocales}`);
+	}
+
+	if (parameters.audience) {
+		summary.push(`Audience: ${parameters.audience}`);
+	}
+
+	if (parameters.resource?.length) {
+		summary.push(`Resources: ${parameters.resource.length} specified`);
+	}
+
+	if (parameters.prompt) {
+		summary.push(`Prompt: ${parameters.prompt}`);
+	}
+
+	if (parameters.maxAge) {
+		summary.push(`Max Age: ${parameters.maxAge}s`);
+	}
+
+	return summary;
+};
+
+const hasAnyParameters = (parameters: AdvancedOAuthParameters): boolean =>
+	Boolean(
+		(parameters.display && parameters.display !== 'page') ||
+			(parameters.claims && isValidClaims(parameters.claims)) ||
+			parameters.uiLocales?.trim() ||
+			parameters.claimsLocales?.trim() ||
+			parameters.audience?.trim() ||
+			(parameters.resource && parameters.resource.length > 0) ||
+			parameters.prompt?.trim() ||
+			(parameters.maxAge && parameters.maxAge > 0) ||
+			parameters.idTokenHint?.trim() ||
+			parameters.acrValues?.trim()
+	);
+
+export { enhanceAuthorizationUrl, extractFromUrl, getSummary, hasAnyParameters };
+
+export const AdvancedParametersService = {
+	enhanceAuthorizationUrl,
+	extractFromUrl,
+	getSummary,
+	hasAnyParameters,
+};
 
 export default AdvancedParametersService;
-

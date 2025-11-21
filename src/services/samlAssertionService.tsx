@@ -1,7 +1,6 @@
 // src/services/samlAssertionService.tsx
 // SAML Assertion Service for OAuth 2.0 SAML Bearer Assertion Flow
 
-import React from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface SAMLAssertionData {
@@ -56,10 +55,14 @@ export class SAMLAssertionService {
     <saml:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name">
       <saml:AttributeValue>${samlAssertion.subject}</saml:AttributeValue>
     </saml:Attribute>
-    ${Object.entries(samlAssertion.attributes).map(([name, value]) => `
+    ${Object.entries(samlAssertion.attributes)
+			.map(
+				([name, value]) => `
     <saml:Attribute Name="${name}">
       <saml:AttributeValue>${value}</saml:AttributeValue>
-    </saml:Attribute>`).join('')}
+    </saml:Attribute>`
+			)
+			.join('')}
   </saml:AttributeStatement>
 </saml:Assertion>`;
 	}
@@ -67,7 +70,10 @@ export class SAMLAssertionService {
 	/**
 	 * Validate SAML configuration
 	 */
-	static validateConfiguration(config: Partial<SAMLAssertionConfig>): { isValid: boolean; errors: string[] } {
+	static validateConfiguration(config: Partial<SAMLAssertionConfig>): {
+		isValid: boolean;
+		errors: string[];
+	} {
 		const errors: string[] = [];
 
 		if (!config.clientId?.trim()) {
@@ -92,7 +98,7 @@ export class SAMLAssertionService {
 
 		return {
 			isValid: errors.length === 0,
-			errors
+			errors,
 		};
 	}
 
@@ -104,7 +110,7 @@ export class SAMLAssertionService {
 			try {
 				const configWithTimestamp = {
 					...config,
-					timestamp: new Date().toISOString()
+					timestamp: new Date().toISOString(),
 				};
 				localStorage.setItem(SAMLAssertionService.STORAGE_KEY, JSON.stringify(configWithTimestamp));
 				v4ToastManager.showSuccess('SAML configuration saved successfully!');
@@ -162,21 +168,25 @@ export class SAMLAssertionService {
 			audience: 'https://auth.example.com/oauth/token',
 			conditions: {
 				notBefore: notBefore.toISOString(),
-				notOnOrAfter: notOnOrAfter.toISOString()
+				notOnOrAfter: notOnOrAfter.toISOString(),
 			},
-			attributes: {}
+			attributes: {},
 		};
 	}
 
 	/**
 	 * Create token request form data
 	 */
-	static createTokenRequestFormData(samlAssertion: string, clientId: string, scopes?: string): URLSearchParams {
+	static createTokenRequestFormData(
+		samlAssertion: string,
+		clientId: string,
+		scopes?: string
+	): URLSearchParams {
 		const formData = new URLSearchParams();
 		formData.append('grant_type', 'urn:ietf:params:oauth:grant-type:saml2-bearer');
 		formData.append('assertion', btoa(samlAssertion));
 		formData.append('client_id', clientId);
-		
+
 		if (scopes?.trim()) {
 			formData.append('scope', scopes.trim());
 		}
@@ -190,13 +200,9 @@ export class SAMLAssertionService {
 	static formatSAMLForDisplay(samlAssertion: string): { xml: string; base64: string } {
 		return {
 			xml: samlAssertion,
-			base64: btoa(samlAssertion)
+			base64: btoa(samlAssertion),
 		};
 	}
 }
 
 export default SAMLAssertionService;
-
-
-
-

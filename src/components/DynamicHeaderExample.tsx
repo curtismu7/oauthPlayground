@@ -2,9 +2,9 @@
 // Example component demonstrating dynamic header colors based on security features
 
 import React, { useState } from 'react';
+import { FiGlobe, FiKey, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader, createSecurityFeaturesConfig } from '../services/flowHeaderService';
-import { FiShield, FiKey, FiGlobe, FiSettings } from 'react-icons/fi';
+import { createSecurityFeaturesConfig, FlowHeader } from '../services/flowHeaderService';
 
 const ExampleContainer = styled.div`
 	padding: 2rem;
@@ -88,8 +88,8 @@ const StatusIndicator = styled.div<{ $enabled: boolean }>`
 	border-radius: 6px;
 	font-size: 0.75rem;
 	font-weight: 600;
-	background: ${props => props.$enabled ? '#dcfce7' : '#fef2f2'};
-	color: ${props => props.$enabled ? '#166534' : '#dc2626'};
+	background: ${(props) => (props.$enabled ? '#dcfce7' : '#fef2f2')};
+	color: ${(props) => (props.$enabled ? '#166534' : '#dc2626')};
 `;
 
 const DynamicHeaderExample: React.FC = () => {
@@ -105,16 +105,16 @@ const DynamicHeaderExample: React.FC = () => {
 	const securityFeatures = createSecurityFeaturesConfig(pingOneConfig);
 
 	const handleToggle = (feature: keyof typeof pingOneConfig) => {
-		setPingOneConfig(prev => ({
+		setPingOneConfig((prev) => ({
 			...prev,
-			[feature]: !prev[feature]
+			[feature]: !prev[feature],
 		}));
 	};
 
 	const handleAuthMethodChange = (value: 'DEFAULT' | 'REQUIRE_SIGNED') => {
-		setPingOneConfig(prev => ({
+		setPingOneConfig((prev) => ({
 			...prev,
-			requestParameterSignatureRequirement: value
+			requestParameterSignatureRequirement: value,
 		}));
 	};
 
@@ -127,7 +127,7 @@ const DynamicHeaderExample: React.FC = () => {
 
 			<SecurityControls>
 				<h3 style={{ margin: '0 0 1rem 0', color: '#374151' }}>Security Features</h3>
-				
+
 				<ControlGroup>
 					<ToggleSwitch>
 						<ToggleInput
@@ -169,11 +169,13 @@ const DynamicHeaderExample: React.FC = () => {
 						<ToggleInput
 							type="checkbox"
 							checked={pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'}
-							onChange={() => handleAuthMethodChange(
-								pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED' 
-									? 'DEFAULT' 
-									: 'REQUIRE_SIGNED'
-							)}
+							onChange={() =>
+								handleAuthMethodChange(
+									pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'
+										? 'DEFAULT'
+										: 'REQUIRE_SIGNED'
+								)
+							}
 						/>
 						<ToggleSlider />
 					</ToggleSwitch>
@@ -181,8 +183,12 @@ const DynamicHeaderExample: React.FC = () => {
 						<FiShield size={16} />
 						JAR (JWT Secured Authorization Request)
 					</ControlLabel>
-					<StatusIndicator $enabled={pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'}>
-						{pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED' ? 'Enabled' : 'Disabled'}
+					<StatusIndicator
+						$enabled={pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'}
+					>
+						{pingOneConfig.requestParameterSignatureRequirement === 'REQUIRE_SIGNED'
+							? 'Enabled'
+							: 'Disabled'}
 					</StatusIndicator>
 				</ControlGroup>
 
@@ -208,67 +214,71 @@ const DynamicHeaderExample: React.FC = () => {
 			{/* Dynamic Header Examples */}
 			<div style={{ marginBottom: '2rem' }}>
 				<h3 style={{ margin: '0 0 1rem 0', color: '#374151' }}>OAuth 2.0 Flow Header</h3>
-				<FlowHeader 
-					flowType="oauth" 
+				<FlowHeader
+					flowType="oauth"
 					customConfig={{
-						title: "OAuth 2.0 Authorization Code Flow",
-						subtitle: "API Authorization with Access token only",
-						version: "V6",
-						securityFeatures
+						title: 'OAuth 2.0 Authorization Code Flow',
+						subtitle: 'API Authorization with Access token only',
+						version: 'V6',
+						securityFeatures,
 					}}
 				/>
 			</div>
 
 			<div style={{ marginBottom: '2rem' }}>
 				<h3 style={{ margin: '0 0 1rem 0', color: '#374151' }}>OpenID Connect Flow Header</h3>
-				<FlowHeader 
-					flowType="oidc" 
+				<FlowHeader
+					flowType="oidc"
 					customConfig={{
-						title: "OpenID Connect Authorization Code Flow",
-						subtitle: "Authentication + Authorization with ID token and Access token",
-						version: "V6",
-						securityFeatures
+						title: 'OpenID Connect Authorization Code Flow',
+						subtitle: 'Authentication + Authorization with ID token and Access token',
+						version: 'V6',
+						securityFeatures,
 					}}
 				/>
 			</div>
 
 			<div style={{ marginBottom: '2rem' }}>
 				<h3 style={{ margin: '0 0 1rem 0', color: '#374151' }}>PingOne Flow Header</h3>
-				<FlowHeader 
-					flowType="pingone" 
+				<FlowHeader
+					flowType="pingone"
 					customConfig={{
-						title: "PingOne Advanced Configuration",
-						subtitle: "Enterprise-grade security features",
-						version: "V6",
-						securityFeatures
+						title: 'PingOne Advanced Configuration',
+						subtitle: 'Enterprise-grade security features',
+						version: 'V6',
+						securityFeatures,
 					}}
 				/>
 			</div>
 
 			{/* Security Status Summary */}
-			<div style={{ 
-				background: '#f0f9ff', 
-				border: '1px solid #0ea5e9', 
-				borderRadius: '8px', 
-				padding: '1rem',
-				marginTop: '2rem'
-			}}>
+			<div
+				style={{
+					background: '#f0f9ff',
+					border: '1px solid #0ea5e9',
+					borderRadius: '8px',
+					padding: '1rem',
+					marginTop: '2rem',
+				}}
+			>
 				<h4 style={{ margin: '0 0 0.5rem 0', color: '#0c4a6e' }}>Security Status</h4>
 				<div style={{ fontSize: '0.875rem', color: '#0c4a6e' }}>
-					<strong>Current Security Level:</strong> {
-						securityFeatures?.highSecurityMode ? '🔒 High Security (Gold)' :
-						securityFeatures?.jwksEnabled || securityFeatures?.parEnabled || 
-						securityFeatures?.jarEnabled || securityFeatures?.dpopEnabled ? '🛡️ Enhanced Security (Green)' :
-						'🔓 Standard Security (Default)'
-					}
+					<strong>Current Security Level:</strong>{' '}
+					{securityFeatures?.highSecurityMode
+						? '🔒 High Security (Gold)'
+						: securityFeatures?.jwksEnabled ||
+								securityFeatures?.parEnabled ||
+								securityFeatures?.jarEnabled ||
+								securityFeatures?.dpopEnabled
+							? '🛡️ Enhanced Security (Green)'
+							: '🔓 Standard Security (Default)'}
 				</div>
 				<div style={{ fontSize: '0.8rem', color: '#0369a1', marginTop: '0.5rem' }}>
-					<strong>Active Features:</strong> {
-						Object.entries(securityFeatures || {})
-							.filter(([key, value]) => key !== 'highSecurityMode' && value)
-							.map(([key]) => key.replace('Enabled', '').toUpperCase())
-							.join(', ') || 'None'
-					}
+					<strong>Active Features:</strong>{' '}
+					{Object.entries(securityFeatures || {})
+						.filter(([key, value]) => key !== 'highSecurityMode' && value)
+						.map(([key]) => key.replace('Enabled', '').toUpperCase())
+						.join(', ') || 'None'}
 				</div>
 			</div>
 		</ExampleContainer>

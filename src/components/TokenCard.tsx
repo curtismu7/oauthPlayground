@@ -1,9 +1,9 @@
 // src/components/InlineTokenDisplay.tsx
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { FiCopy, FiExternalLink, FiEye, FiEyeOff, FiKey, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiEye, FiEyeOff, FiKey, FiShield, FiExternalLink } from 'react-icons/fi';
+import TokenDisplayService, { type DecodedJWT } from '../services/tokenDisplayService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
-import TokenDisplayService, { type DecodedJWT, type TokenInfo } from '../services/tokenDisplayService';
 
 interface InlineTokenDisplayProps {
 	label: string;
@@ -56,18 +56,26 @@ const TokenBadge = styled.span<{ $type: 'access' | 'id' | 'refresh' }>`
 	font-weight: 500;
 	background: ${({ $type }) => {
 		switch ($type) {
-			case 'access': return '#dbeafe';
-			case 'id': return '#dcfce7';
-			case 'refresh': return '#fef3c7';
-			default: return '#f3f4f6';
+			case 'access':
+				return '#dbeafe';
+			case 'id':
+				return '#dcfce7';
+			case 'refresh':
+				return '#fef3c7';
+			default:
+				return '#f3f4f6';
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
-			case 'access': return '#1e40af';
-			case 'id': return '#166534';
-			case 'refresh': return '#92400e';
-			default: return '#374151';
+			case 'access':
+				return '#1e40af';
+			case 'id':
+				return '#166534';
+			case 'refresh':
+				return '#92400e';
+			default:
+				return '#374151';
 		}
 	}};
 `;
@@ -85,23 +93,31 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 	border-radius: 6px;
 	border: 1px solid ${({ $variant }) => {
 		switch ($variant) {
-			case 'primary': return '#3b82f6';
-			case 'management': return '#059669';
-			default: return '#d1d5db';
+			case 'primary':
+				return '#3b82f6';
+			case 'management':
+				return '#059669';
+			default:
+				return '#d1d5db';
 		}
 	}};
 	background: ${({ $variant }) => {
 		switch ($variant) {
-			case 'primary': return '#3b82f6';
-			case 'management': return '#059669';
-			default: return 'white';
+			case 'primary':
+				return '#3b82f6';
+			case 'management':
+				return '#059669';
+			default:
+				return 'white';
 		}
 	}};
 	color: ${({ $variant }) => {
 		switch ($variant) {
 			case 'primary':
-			case 'management': return 'white';
-			default: return '#374151';
+			case 'management':
+				return 'white';
+			default:
+				return '#374151';
 		}
 	}};
 	font-size: 0.75rem;
@@ -112,16 +128,22 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'manag
 	&:hover {
 		background: ${({ $variant }) => {
 			switch ($variant) {
-				case 'primary': return '#2563eb';
-				case 'management': return '#047857';
-				default: return '#f9fafb';
+				case 'primary':
+					return '#2563eb';
+				case 'management':
+					return '#047857';
+				default:
+					return '#f9fafb';
 			}
 		}};
 		border-color: ${({ $variant }) => {
 			switch ($variant) {
-				case 'primary': return '#2563eb';
-				case 'management': return '#047857';
-				default: return '#9ca3af';
+				case 'primary':
+					return '#2563eb';
+				case 'management':
+					return '#047857';
+				default:
+					return '#9ca3af';
 			}
 		}};
 	}
@@ -240,7 +262,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 	flowKey = '',
 	className,
 	defaultMasked = false,
-	allowMaskToggle = true
+	allowMaskToggle = true,
 }) => {
 	const [masked, setMasked] = useState(defaultMasked);
 	const [showDecodeModal, setShowDecodeModal] = useState(false);
@@ -286,7 +308,7 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 		if (!allowMaskToggle) {
 			return;
 		}
-		setMasked(prev => !prev);
+		setMasked((prev) => !prev);
 	}, [allowMaskToggle]);
 
 	const handleSendToTokenManagement = useCallback(() => {
@@ -300,10 +322,14 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 
 	const getTokenIcon = () => {
 		switch (tokenType) {
-			case 'access': return <FiKey size={16} />;
-			case 'id': return <FiShield size={16} />;
-			case 'refresh': return <FiShield size={16} />;
-			default: return <FiShield size={16} />;
+			case 'access':
+				return <FiKey size={16} />;
+			case 'id':
+				return <FiShield size={16} />;
+			case 'refresh':
+				return <FiShield size={16} />;
+			default:
+				return <FiShield size={16} />;
 		}
 	};
 
@@ -313,25 +339,16 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 				<TokenLabel>
 					{getTokenIcon()}
 					{displayLabel}
-					<TokenBadge $type={tokenType}>
-						{tokenType.toUpperCase()}
-					</TokenBadge>
+					<TokenBadge $type={tokenType}>{tokenType.toUpperCase()}</TokenBadge>
 				</TokenLabel>
 				<ActionButtons>
 					{allowMaskToggle && (
-					<ActionButton
-						onClick={handleToggleMask}
-						title={masked ? 'Show token' : 'Hide token'}
-					>
-						{masked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
-						{masked ? 'Show' : 'Hide'}
-					</ActionButton>
+						<ActionButton onClick={handleToggleMask} title={masked ? 'Show token' : 'Hide token'}>
+							{masked ? <FiEye size={14} /> : <FiEyeOff size={14} />}
+							{masked ? 'Show' : 'Hide'}
+						</ActionButton>
 					)}
-					<ActionButton
-						onClick={handleDecode}
-						title="Decode token"
-						disabled={!token}
-					>
+					<ActionButton onClick={handleDecode} title="Decode token" disabled={!token}>
 						<FiKey size={14} />
 						Decode
 					</ActionButton>
@@ -356,22 +373,16 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 				</ActionButtons>
 			</CardHeader>
 			<CardContent>
-				<TokenPreview>
-					{preview}
-				</TokenPreview>
+				<TokenPreview>{preview}</TokenPreview>
 			</CardContent>
 
 			<DecodeModal $isOpen={showDecodeModal}>
 				<DecodeModalContent>
 					<DecodeModalHeader>
-						<DecodeModalTitle>
-							{displayLabel} - Decoded Content
-						</DecodeModalTitle>
-						<CloseButton onClick={() => setShowDecodeModal(false)}>
-							×
-						</CloseButton>
+						<DecodeModalTitle>{displayLabel} - Decoded Content</DecodeModalTitle>
+						<CloseButton onClick={() => setShowDecodeModal(false)}>×</CloseButton>
 					</DecodeModalHeader>
-					
+
 					{isOpaque ? (
 						<OpaqueMessage>
 							<FiShield size={20} />
@@ -380,14 +391,12 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 					) : decodedContent ? (
 						<div>
 							<h4 style={{ marginBottom: '1rem', color: '#374151' }}>Header:</h4>
-							<DecodeContent>
-								{JSON.stringify(decodedContent.header, null, 2)}
-							</DecodeContent>
-							
-							<h4 style={{ marginBottom: '1rem', marginTop: '1.5rem', color: '#374151' }}>Payload:</h4>
-							<DecodeContent>
-								{JSON.stringify(decodedContent.payload, null, 2)}
-							</DecodeContent>
+							<DecodeContent>{JSON.stringify(decodedContent.header, null, 2)}</DecodeContent>
+
+							<h4 style={{ marginBottom: '1rem', marginTop: '1.5rem', color: '#374151' }}>
+								Payload:
+							</h4>
+							<DecodeContent>{JSON.stringify(decodedContent.payload, null, 2)}</DecodeContent>
 						</div>
 					) : (
 						<OpaqueMessage>
@@ -402,4 +411,3 @@ export const InlineTokenDisplay: React.FC<InlineTokenDisplayProps> = ({
 };
 
 export default InlineTokenDisplay;
-

@@ -40,7 +40,14 @@
 			"@/pages/*": ["src/pages/*"],
 			"@/utils/*": ["src/utils/*"],
 			"@/contexts/*": ["src/contexts/*"],
-			"@/styles/*": ["src/styles/*"]
+			"@/styles/*": ["src/styles/*"],
+			"@/v8/*": ["src/v8/*"],
+			"@/v8/components/*": ["src/v8/components/*"],
+			"@/v8/services/*": ["src/v8/services/*"],
+			"@/v8/hooks/*": ["src/v8/hooks/*"],
+			"@/v8/flows/*": ["src/v8/flows/*"],
+			"@/v8/types/*": ["src/v8/types/*"],
+			"@/v8/utils/*": ["src/v8/utils/*"]
 		},
 
 		/* Additional type checking for security */

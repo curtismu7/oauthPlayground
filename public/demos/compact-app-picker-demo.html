@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compact Application Picker Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .demo-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .demo-header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .demo-header h1 {
+            font-size: 2rem;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .demo-header p {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        .demo-section {
+            margin-bottom: 2rem;
+        }
+
+        .demo-section h2 {
+            font-size: 1.25rem;
+            color: #334155;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Compact Application Picker Styles */
+        .app-picker-compact {
+            position: relative;
+            width: 100%;
+        }
+
+        .app-picker-trigger {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+        }
+
+        .app-picker-trigger:hover {
+            border-color: #667eea;
+            background: #f8fafc;
+        }
+
+        .app-picker-trigger:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .app-picker-trigger.open {
+            border-color: #667eea;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .trigger-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .app-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 0.375rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+            flex-shrink: 0;
+        }
+
+        .app-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .app-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .app-id {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-family: 'Monaco', 'Menlo', monospace;
+        }
+
+        .chevron {
+            width: 20px;
+            height: 20px;
+            color: #64748b;
+            transition: transform 0.2s ease;
+        }
+
+        .chevron.open {
+            transform: rotate(180deg);
+        }
+
+        .app-picker-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #667eea;
+            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            max-height: 320px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-picker-search {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 1;
+        }
+
+        .app-picker-search input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+        }
+
+        .app-picker-search input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .app-list {
+            list-style: none;
+        }
+
+        .app-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: background 0.15s ease;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .app-item:last-child {
+            border-bottom: none;
+        }
+
+        .app-item:hover {
+            background: #f8fafc;
+        }
+
+        .app-item.selected {
+            background: #ede9fe;
+        }
+
+        .app-item .app-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .app-details {
+            flex: 1;
+        }
+
+        .app-type {
+            display: inline-block;
+            padding: 0.125rem 0.5rem;
+            background: #dbeafe;
+            color: #1e40af;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .empty-state {
+            padding: 2rem;
+            text-align: center;
+            color: #94a3b8;
+        }
+
+        /* Demo Controls */
+        .demo-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .demo-button {
+            padding: 0.5rem 1rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .demo-button:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .demo-button.secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .demo-button.secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .selected-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 0.5rem;
+        }
+
+        .selected-info h3 {
+            font-size: 0.875rem;
+            color: #0c4a6e;
+            margin-bottom: 0.5rem;
+        }
+
+        .selected-info pre {
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            color: #1e293b;
+        }
+
+        /* Scrollbar styling */
+        .app-picker-dropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .app-picker-dropdown::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .app-picker-dropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .app-picker-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🎯 Compact Application Picker</h1>
+            <p>A space-efficient dropdown for selecting OAuth/OIDC applications</p>
+        </div>
+
+        <div class="demo-section">
+            <h2>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="9" y1="3" x2="9" y2="21"></line>
+                </svg>
+                Interactive Demo
+            </h2>
+
+            <div class="app-picker-compact">
+                <button class="app-picker-trigger" id="pickerTrigger">
+                    <div class="trigger-content">
+                        <div class="app-icon" id="selectedIcon">?</div>
+                        <div class="app-info">
+                            <div class="app-name" id="selectedName">Select an application...</div>
+                            <div class="app-id" id="selectedId">No application selected</div>
+                        </div>
+                    </div>
+                    <svg class="chevron" id="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+
+                <div class="app-picker-dropdown" id="dropdown" style="display: none;">
+                    <div class="app-picker-search">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="🔍 Search applications..."
+                            autocomplete="off"
+                        />
+                    </div>
+                    <ul class="app-list" id="appList"></ul>
+                </div>
+            </div>
+
+            <div class="demo-controls">
+                <button class="demo-button" onclick="addRandomApp()">+ Add Random App</button>
+                <button class="demo-button secondary" onclick="clearSelection()">Clear Selection</button>
+                <button class="demo-button secondary" onclick="resetApps()">Reset Apps</button>
+            </div>
+
+            <div class="selected-info" id="selectedInfo" style="display: none;">
+                <h3>Selected Application Data:</h3>
+                <pre id="selectedData"></pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample application data
+        const sampleApps = [
+            { id: 'app-001', name: 'Production Web App', type: 'OIDC', clientId: 'abc123-prod-web' },
+            { id: 'app-002', name: 'Mobile iOS App', type: 'OAuth', clientId: 'xyz789-mobile-ios' },
+            { id: 'app-003', name: 'Admin Dashboard', type: 'OIDC', clientId: 'admin-dash-456' },
+            { id: 'app-004', name: 'API Gateway', type: 'OAuth', clientId: 'api-gw-789' },
+            { id: 'app-005', name: 'Customer Portal', type: 'OIDC', clientId: 'customer-portal-123' },
+            { id: 'app-006', name: 'Partner Integration', type: 'OAuth', clientId: 'partner-int-456' },
+            { id: 'app-007', name: 'Internal Tools', type: 'OIDC', clientId: 'internal-tools-789' },
+            { id: 'app-008', name: 'Analytics Service', type: 'OAuth', clientId: 'analytics-svc-012' },
+        ];
+
+        let applications = [...sampleApps];
+        let selectedApp = null;
+        let isOpen = false;
+
+        // DOM elements
+        const trigger = document.getElementById('pickerTrigger');
+        const dropdown = document.getElementById('dropdown');
+        const chevron = document.getElementById('chevron');
+        const searchInput = document.getElementById('searchInput');
+        const appList = document.getElementById('appList');
+        const selectedIcon = document.getElementById('selectedIcon');
+        const selectedName = document.getElementById('selectedName');
+        const selectedId = document.getElementById('selectedId');
+        const selectedInfo = document.getElementById('selectedInfo');
+        const selectedData = document.getElementById('selectedData');
+
+        // Initialize
+        renderAppList();
+
+        // Toggle dropdown
+        trigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleDropdown();
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!dropdown.contains(e.target) && e.target !== trigger) {
+                closeDropdown();
+            }
+        });
+
+        // Search functionality
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            renderAppList(query);
+        });
+
+        // Prevent dropdown close when clicking inside
+        dropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        function toggleDropdown() {
+            isOpen = !isOpen;
+            if (isOpen) {
+                openDropdown();
+            } else {
+                closeDropdown();
+            }
+        }
+
+        function openDropdown() {
+            isOpen = true;
+            dropdown.style.display = 'block';
+            trigger.classList.add('open');
+            chevron.classList.add('open');
+            searchInput.focus();
+        }
+
+        function closeDropdown() {
+            isOpen = false;
+            dropdown.style.display = 'none';
+            trigger.classList.remove('open');
+            chevron.classList.remove('open');
+            searchInput.value = '';
+            renderAppList();
+        }
+
+        function renderAppList(query = '') {
+            const filtered = applications.filter(app => 
+                app.name.toLowerCase().includes(query) ||
+                app.clientId.toLowerCase().includes(query) ||
+                app.type.toLowerCase().includes(query)
+            );
+
+            if (filtered.length === 0) {
+                appList.innerHTML = '<div class="empty-state">No applications found</div>';
+                return;
+            }
+
+            appList.innerHTML = filtered.map(app => `
+                <li class="app-item ${selectedApp?.id === app.id ? 'selected' : ''}" 
+                    onclick="selectApp('${app.id}')">
+                    <div class="app-icon">${app.name.charAt(0)}</div>
+                    <div class="app-details">
+                        <div class="app-name">${app.name}</div>
+                        <div class="app-id">${app.clientId}</div>
+                        <span class="app-type">${app.type}</span>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function selectApp(appId) {
+            selectedApp = applications.find(app => app.id === appId);
+            
+            if (selectedApp) {
+                selectedIcon.textContent = selectedApp.name.charAt(0);
+                selectedName.textContent = selectedApp.name;
+                selectedId.textContent = selectedApp.clientId;
+                
+                selectedInfo.style.display = 'block';
+                selectedData.textContent = JSON.stringify(selectedApp, null, 2);
+            }
+            
+            closeDropdown();
+            renderAppList();
+        }
+
+        function clearSelection() {
+            selectedApp = null;
+            selectedIcon.textContent = '?';
+            selectedName.textContent = 'Select an application...';
+            selectedId.textContent = 'No application selected';
+            selectedInfo.style.display = 'none';
+            renderAppList();
+        }
+
+        function addRandomApp() {
+            const randomNames = [
+                'Test Application', 'Dev Environment', 'Staging Portal', 
+                'QA Dashboard', 'Demo Service', 'Beta App', 'Sandbox Client'
+            ];
+            const randomTypes = ['OAuth', 'OIDC'];
+            
+            const newApp = {
+                id: `app-${Date.now()}`,
+                name: randomNames[Math.floor(Math.random() * randomNames.length)],
+                type: randomTypes[Math.floor(Math.random() * randomTypes.length)],
+                clientId: `client-${Math.random().toString(36).substr(2, 9)}`
+            };
+            
+            applications.push(newApp);
+            renderAppList();
+            
+            // Show success feedback
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '✓ Added!';
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1000);
+        }
+
+        function resetApps() {
+            applications = [...sampleApps];
+            clearSelection();
+            renderAppList();
+        }
+    </script>
+</body>
+</html>

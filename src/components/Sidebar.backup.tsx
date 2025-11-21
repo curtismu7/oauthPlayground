@@ -17,7 +17,6 @@ import {
 	FiLayers,
 	FiLock,
 	FiPackage,
-	FiPlay,
 	FiSearch,
 	FiServer,
 	FiSettings,

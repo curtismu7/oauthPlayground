@@ -5,14 +5,14 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -343,8 +343,6 @@ const JsonNull = styled.span`
   color: #6b7280;
   font-style: italic;
 `;
-
-
 
 const UserInfoFlow: React.FC = () => {
 	const { tokens, config, updateTokens } = useAuth();

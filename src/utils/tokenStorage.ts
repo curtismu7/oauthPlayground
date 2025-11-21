@@ -95,7 +95,7 @@ export const storeOAuthTokens = (
  */
 export const rehydrateOAuthTokens = (): OAuthTokens | null => {
 	const secureTokens = getOAuthTokens();
-	if (secureTokens && secureTokens.access_token) {
+	if (secureTokens?.access_token) {
 		return secureTokens;
 	}
 

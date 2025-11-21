@@ -198,7 +198,7 @@ export function checkTokenExpiry(payload: JWTPayload, clockTolerance: number = 0
 	if (!payload.exp) return true;
 
 	const now = Math.floor(Date.now() / 1000);
-	return (now - clockTolerance) > payload.exp;
+	return now - clockTolerance > payload.exp;
 }
 
 /**

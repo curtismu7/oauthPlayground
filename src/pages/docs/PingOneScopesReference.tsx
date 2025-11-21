@@ -3,9 +3,15 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { FiBook, FiCheckCircle, FiInfo, FiShield, FiTarget } from '../../services/commonImportsService';
-import PageLayoutService from '../../services/pageLayoutService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import {
+	FiBook,
+	FiCheckCircle,
+	FiInfo,
+	FiShield,
+	FiTarget,
+} from '../../services/commonImportsService';
+import PageLayoutService from '../../services/pageLayoutService';
 
 const pageConfig = PageLayoutService.getDefaultConfig('documentation');
 
@@ -219,11 +225,12 @@ const PingOneScopesReference: React.FC = () => {
 						</Pill>
 						<Spacing $size="sm" />
 						<p>
-							Scopes define the exact resources and operations that an access token may use. PingOne ships
-							with a mix of <strong>standard OpenID Connect scopes</strong>,{' '}
-							<strong>PingOne-specific API scopes</strong>, and <strong>granular service scopes</strong>
-							for MFA, Risk, and Directory APIs. Use the tables below to assemble precise scope bundles for
-							your applications.
+							Scopes define the exact resources and operations that an access token may use. PingOne
+							ships with a mix of <strong>standard OpenID Connect scopes</strong>,{' '}
+							<strong>PingOne-specific API scopes</strong>, and{' '}
+							<strong>granular service scopes</strong>
+							for MFA, Risk, and Directory APIs. Use the tables below to assemble precise scope
+							bundles for your applications.
 						</p>
 
 						<Callout>
@@ -231,9 +238,9 @@ const PingOneScopesReference: React.FC = () => {
 								<FiShield />
 							</CalloutIcon>
 							<div>
-								<strong>Security first:</strong> Always apply the principle of least privilege. Only grant
-								the scopes that the calling application genuinely needs, and review them during every
-								release cycle.
+								<strong>Security first:</strong> Always apply the principle of least privilege. Only
+								grant the scopes that the calling application genuinely needs, and review them
+								during every release cycle.
 							</div>
 						</Callout>
 					</SectionContainer>
@@ -241,8 +248,8 @@ const PingOneScopesReference: React.FC = () => {
 					<SectionContainer>
 						<h2>1. Standard OpenID Connect Scopes</h2>
 						<p>
-							These scopes conform to the OIDC Core specification. They control which identity claims are
-							returned in the ID token and the /userinfo endpoint.
+							These scopes conform to the OIDC Core specification. They control which identity
+							claims are returned in the ID token and the /userinfo endpoint.
 						</p>
 						<ScopeTable>
 							<thead>
@@ -257,29 +264,45 @@ const PingOneScopesReference: React.FC = () => {
 									<td>
 										<code>openid</code>
 									</td>
-									<td>Required for any OIDC request. Enables ID token issuance and /userinfo access.</td>
-									<td>Always include. Without it, the request becomes plain OAuth and PingOne will reject OIDC features.</td>
+									<td>
+										Required for any OIDC request. Enables ID token issuance and /userinfo access.
+									</td>
+									<td>
+										Always include. Without it, the request becomes plain OAuth and PingOne will
+										reject OIDC features.
+									</td>
 								</tr>
 								<tr>
 									<td>
 										<code>profile</code>
 									</td>
-									<td>Basic identity claims: name, family_name, given_name, locale, updated_at, etc.</td>
-									<td>Combine with <code>openid</code> when your app needs to display a friendly name or avatar.</td>
+									<td>
+										Basic identity claims: name, family_name, given_name, locale, updated_at, etc.
+									</td>
+									<td>
+										Combine with <code>openid</code> when your app needs to display a friendly name
+										or avatar.
+									</td>
 								</tr>
 								<tr>
 									<td>
 										<code>email</code>
 									</td>
 									<td>Email address and verification status.</td>
-									<td>Useful for apps that rely on email notifications or must confirm the user’s email ownership.</td>
+									<td>
+										Useful for apps that rely on email notifications or must confirm the user’s
+										email ownership.
+									</td>
 								</tr>
 								<tr>
 									<td>
 										<code>address</code>
 									</td>
 									<td>Structured postal address claim.</td>
-									<td>Request only for applications that manage shipping, invoicing, or regulated customer data.</td>
+									<td>
+										Request only for applications that manage shipping, invoicing, or regulated
+										customer data.
+									</td>
 								</tr>
 								<tr>
 									<td>
@@ -297,8 +320,11 @@ const PingOneScopesReference: React.FC = () => {
 										</Pill>
 									</td>
 									<td>
-										<strong>Enables refresh token issuance.</strong> Allows the application to obtain new access tokens without requiring the user to re-authenticate. The refresh token can be used to maintain long-term access to user resources.
-										<br /><br />
+										<strong>Enables refresh token issuance.</strong> Allows the application to
+										obtain new access tokens without requiring the user to re-authenticate. The
+										refresh token can be used to maintain long-term access to user resources.
+										<br />
+										<br />
 										<strong>PingOne Behavior:</strong>
 										<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem' }}>
 											<li>
@@ -307,14 +333,15 @@ const PingOneScopesReference: React.FC = () => {
 												yield a refresh token.
 											</li>
 											<li>
-												If <code>offline_access</code> is <em>not</em> listed under Allowed Scopes, PingOne
-												will return a refresh token automatically on every successful Authorization
-												Code exchange once the grant is enabled.
+												If <code>offline_access</code> is <em>not</em> listed under Allowed Scopes,
+												PingOne will return a refresh token automatically on every successful
+												Authorization Code exchange once the grant is enabled.
 											</li>
 											<li>
-												If <code>offline_access</code> <em>is</em> listed under Allowed Scopes, clients must
-												explicitly request it during authorization. Without the scope in the request,
-												PingOne withholds the refresh token even though the grant is enabled.
+												If <code>offline_access</code> <em>is</em> listed under Allowed Scopes,
+												clients must explicitly request it during authorization. Without the scope
+												in the request, PingOne withholds the refresh token even though the grant is
+												enabled.
 											</li>
 											<li>Supports refresh token rotation (recommended)</li>
 											<li>Configurable token lifetime (default: 30 days)</li>
@@ -336,7 +363,10 @@ const PingOneScopesReference: React.FC = () => {
 											<li>Short-lived sessions</li>
 											<li>Public clients without secure storage</li>
 										</ul>
-										<strong>🔒 Security:</strong> Store refresh tokens securely using platform-specific secure storage (iOS Keychain, Android Keystore, encrypted database). Never store in localStorage or sessionStorage. Always enable token rotation in PingOne for enhanced security.
+										<strong>🔒 Security:</strong> Store refresh tokens securely using
+										platform-specific secure storage (iOS Keychain, Android Keystore, encrypted
+										database). Never store in localStorage or sessionStorage. Always enable token
+										rotation in PingOne for enhanced security.
 									</td>
 								</tr>
 							</tbody>
@@ -349,11 +379,29 @@ const PingOneScopesReference: React.FC = () => {
 							<div>
 								<strong>offline_access Security Best Practices:</strong>
 								<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', lineHeight: '1.7' }}>
-									<li><strong>Enable Token Rotation:</strong> Configure PingOne to issue a new refresh token with each refresh request, limiting the impact of token theft.</li>
-									<li><strong>Secure Storage:</strong> Use platform-specific secure storage mechanisms. On iOS use Keychain, on Android use Keystore, for web apps use Backend-for-Frontend (BFF) pattern.</li>
-									<li><strong>Handle Revocation:</strong> Implement proper error handling for revoked or expired refresh tokens. Prompt users to re-authenticate rather than retrying indefinitely.</li>
-									<li><strong>Monitor Usage:</strong> Track refresh token usage patterns to detect anomalies that might indicate token theft or misuse.</li>
-									<li><strong>Set Appropriate Lifetimes:</strong> Configure refresh token lifetimes based on your security requirements. Shorter lifetimes reduce risk but require more frequent re-authentication.</li>
+									<li>
+										<strong>Enable Token Rotation:</strong> Configure PingOne to issue a new refresh
+										token with each refresh request, limiting the impact of token theft.
+									</li>
+									<li>
+										<strong>Secure Storage:</strong> Use platform-specific secure storage
+										mechanisms. On iOS use Keychain, on Android use Keystore, for web apps use
+										Backend-for-Frontend (BFF) pattern.
+									</li>
+									<li>
+										<strong>Handle Revocation:</strong> Implement proper error handling for revoked
+										or expired refresh tokens. Prompt users to re-authenticate rather than retrying
+										indefinitely.
+									</li>
+									<li>
+										<strong>Monitor Usage:</strong> Track refresh token usage patterns to detect
+										anomalies that might indicate token theft or misuse.
+									</li>
+									<li>
+										<strong>Set Appropriate Lifetimes:</strong> Configure refresh token lifetimes
+										based on your security requirements. Shorter lifetimes reduce risk but require
+										more frequent re-authentication.
+									</li>
 								</ul>
 							</div>
 						</Callout>
@@ -367,8 +415,10 @@ const PingOneScopesReference: React.FC = () => {
 							</CalloutIcon>
 							<div>
 								Scopes prefixed with <code>p1:</code> follow the pattern{' '}
-								<code>p1:{'<resource>'}:{'<action>'}:{'<entity>'}</code>. They map directly to PingOne
-								Management API permissions.
+								<code>
+									p1:{'<resource>'}:{'<action>'}:{'<entity>'}
+								</code>
+								. They map directly to PingOne Management API permissions.
 							</div>
 						</Callout>
 
@@ -378,19 +428,21 @@ const PingOneScopesReference: React.FC = () => {
 									<FiCheckCircle /> User Directory
 								</h3>
 								<p>
-									Grant read/write access to PingOne user profiles. These scopes are typically used by
-									admin portals, HR sync processes, or customer service tools.
+									Grant read/write access to PingOne user profiles. These scopes are typically used
+									by admin portals, HR sync processes, or customer service tools.
 								</p>
 								<ul>
 									<li>
-										<ScopeBadge>Read</ScopeBadge> <code>p1:read:user</code> – view directory users and
-										core attributes.
+										<ScopeBadge>Read</ScopeBadge> <code>p1:read:user</code> – view directory users
+										and core attributes.
 									</li>
 									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:update:user</code> – modify profile data.
+										<ScopeBadge>Write</ScopeBadge> <code>p1:update:user</code> – modify profile
+										data.
 									</li>
 									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:create:user</code> – provision new users.
+										<ScopeBadge>Write</ScopeBadge> <code>p1:create:user</code> – provision new
+										users.
 									</li>
 									<li>
 										<ScopeBadge>Write</ScopeBadge> <code>p1:delete:user</code> – remove users.
@@ -416,8 +468,8 @@ const PingOneScopesReference: React.FC = () => {
 										credential metadata (never raw passwords).
 									</li>
 									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:update:secret</code> – manage application
-										or environment secrets.
+										<ScopeBadge>Write</ScopeBadge> <code>p1:update:secret</code> – manage
+										application or environment secrets.
 									</li>
 								</ul>
 							</ScopeCategoryCard>
@@ -427,16 +479,16 @@ const PingOneScopesReference: React.FC = () => {
 									<FiInfo /> MFA & Device Management
 								</h3>
 								<p>
-									Allow applications to enroll, read, or disable MFA devices. Required for self-service
-									security portals and helpdesk tooling.
+									Allow applications to enroll, read, or disable MFA devices. Required for
+									self-service security portals and helpdesk tooling.
 								</p>
 								<ul>
 									<li>
 										<ScopeBadge>Read</ScopeBadge> <code>p1:read:device</code> – list MFA devices.
 									</li>
 									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:update:device</code> – activate/deactivate
-										devices.
+										<ScopeBadge>Write</ScopeBadge> <code>p1:update:device</code> –
+										activate/deactivate devices.
 									</li>
 									<li>
 										<ScopeBadge>Write</ScopeBadge> <code>p1:create:device</code> – register new
@@ -454,12 +506,12 @@ const PingOneScopesReference: React.FC = () => {
 								</p>
 								<ul>
 									<li>
-										<ScopeBadge>Read</ScopeBadge> <code>p1:read:riskEvaluation</code> – retrieve risk
-										scores generated during authentication.
+										<ScopeBadge>Read</ScopeBadge> <code>p1:read:riskEvaluation</code> – retrieve
+										risk scores generated during authentication.
 									</li>
 									<li>
-										<ScopeBadge>Write</ScopeBadge> <code>p1:update:riskEvaluation</code> – submit risk
-										feedback loops.
+										<ScopeBadge>Write</ScopeBadge> <code>p1:update:riskEvaluation</code> – submit
+										risk feedback loops.
 									</li>
 								</ul>
 							</ScopeCategoryCard>
@@ -484,24 +536,30 @@ const PingOneScopesReference: React.FC = () => {
 									<td>
 										<code>openid profile email</code>
 									</td>
-									<td>Delivers core identity claims for session personalization; no directory write access.</td>
+									<td>
+										Delivers core identity claims for session personalization; no directory write
+										access.
+									</td>
 								</tr>
 								<tr>
 									<td>Helpdesk Tool</td>
 									<td>
-										<code>openid profile</code> +{' '}
-										<code>p1:read:user</code> <code>p1:update:user</code>{' '}
-										<code>p1:read:device</code> <code>p1:update:device</code>
+										<code>openid profile</code> + <code>p1:read:user</code>{' '}
+										<code>p1:update:user</code> <code>p1:read:device</code>{' '}
+										<code>p1:update:device</code>
 									</td>
 									<td>Allows support agents to reset MFA and update profile fields.</td>
 								</tr>
 								<tr>
 									<td>Automation / API Client</td>
 									<td>
-										<code>p1:read:user</code> <code>p1:create:user</code> <code>p1:update:user</code>{' '}
-										<code>p1:read:group</code>
+										<code>p1:read:user</code> <code>p1:create:user</code>{' '}
+										<code>p1:update:user</code> <code>p1:read:group</code>
 									</td>
-									<td>Provisioning bots often run under client credentials grant; rotate secrets regularly.</td>
+									<td>
+										Provisioning bots often run under client credentials grant; rotate secrets
+										regularly.
+									</td>
 								</tr>
 								<tr>
 									<td>Analytics / Risk Dashboard</td>
@@ -509,7 +567,9 @@ const PingOneScopesReference: React.FC = () => {
 										<code>openid</code> <code>profile</code> <code>p1:read:riskEvaluation</code>{' '}
 										<code>p1:read:activity</code>
 									</td>
-									<td>Read-only visibility into behavioral signals without mutating directory data.</td>
+									<td>
+										Read-only visibility into behavioral signals without mutating directory data.
+									</td>
 								</tr>
 							</tbody>
 						</ScopeTable>
@@ -529,8 +589,8 @@ const PingOneScopesReference: React.FC = () => {
 
 						<BestPracticeList>
 							<li>
-								<strong>Inventory every client:</strong> document which scopes each application uses and
-								why. Review quarterly.
+								<strong>Inventory every client:</strong> document which scopes each application uses
+								and why. Review quarterly.
 							</li>
 							<li>
 								<strong>Prefer role-based tokens:</strong> rather than granting broad scopes to many
@@ -538,16 +598,16 @@ const PingOneScopesReference: React.FC = () => {
 							</li>
 							<li>
 								<strong>Split machine vs. human clients:</strong> automation typically needs client
-								credentials grant with management scopes; interactive clients should receive minimal user
-								scopes.
+								credentials grant with management scopes; interactive clients should receive minimal
+								user scopes.
 							</li>
 							<li>
-								<strong>Monitor access tokens:</strong> log introspection requests and flag tokens that
-								request unexpected scopes.
+								<strong>Monitor access tokens:</strong> log introspection requests and flag tokens
+								that request unexpected scopes.
 							</li>
 							<li>
-								<strong>Use environment roles:</strong> pair scopes with PingOne environment-level access
-								control to reduce blast radius.
+								<strong>Use environment roles:</strong> pair scopes with PingOne environment-level
+								access control to reduce blast radius.
 							</li>
 						</BestPracticeList>
 					</SectionContainer>
@@ -591,7 +651,8 @@ const PingOneScopesReference: React.FC = () => {
 									>
 										PingFederate Developer’s Reference Guide
 									</a>{' '}
-									– Full catalog of PingFederate OAuth, OIDC, and federation endpoints to pair with PingOne.
+									– Full catalog of PingFederate OAuth, OIDC, and federation endpoints to pair with
+									PingOne.
 								</li>
 								<li>
 									<a
@@ -635,7 +696,8 @@ const PingOneScopesReference: React.FC = () => {
 									>
 										RFC 6749 (Full Specification)
 									</a>{' '}
-									– Canonical OAuth 2.0 framework specification covering all grant types and endpoints.
+									– Canonical OAuth 2.0 framework specification covering all grant types and
+									endpoints.
 								</li>
 								<li>
 									<a
@@ -673,4 +735,3 @@ const PingOneScopesReference: React.FC = () => {
 };
 
 export default PingOneScopesReference;
-

@@ -1,7 +1,7 @@
 // src/pages/ServiceTestRunner.tsx
 /**
  * Service Test Runner Page
- * 
+ *
  * This page provides a UI to run comprehensive tests on the ComprehensiveFlowDataService
  * and display results in a user-friendly format.
  */
@@ -53,34 +53,34 @@ const TestButton = styled.button<{ variant?: 'primary' | 'secondary' | 'success'
   cursor: pointer;
   transition: all 0.2s ease;
   
-  ${props => {
-    switch (props.variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return `
           background: #007bff;
           color: white;
           &:hover { background: #0056b3; }
         `;
-      case 'success':
-        return `
+			case 'success':
+				return `
           background: #28a745;
           color: white;
           &:hover { background: #1e7e34; }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #dc3545;
           color: white;
           &:hover { background: #c82333; }
         `;
-      default:
-        return `
+			default:
+				return `
           background: #6c757d;
           color: white;
           &:hover { background: #545b62; }
         `;
-    }
-  }}
+		}
+	}}
   
   &:disabled {
     opacity: 0.6;
@@ -117,16 +117,16 @@ const TestStats = styled.div`
 const StatItem = styled.div<{ type: 'total' | 'passed' | 'failed' }>`
   text-align: center;
   
-  ${props => {
-    switch (props.type) {
-      case 'total':
-        return `color: #6c757d;`;
-      case 'passed':
-        return `color: #28a745;`;
-      case 'failed':
-        return `color: #dc3545;`;
-    }
-  }}
+  ${(props) => {
+		switch (props.type) {
+			case 'total':
+				return `color: #6c757d;`;
+			case 'passed':
+				return `color: #28a745;`;
+			case 'failed':
+				return `color: #dc3545;`;
+		}
+	}}
 `;
 
 const StatNumber = styled.div`
@@ -150,8 +150,8 @@ const TestResultsList = styled.div`
 const TestResultItem = styled.div<{ passed: boolean }>`
   padding: 15px;
   border-radius: 8px;
-  border-left: 4px solid ${props => props.passed ? '#28a745' : '#dc3545'};
-  background: ${props => props.passed ? '#d4edda' : '#f8d7da'};
+  border-left: 4px solid ${(props) => (props.passed ? '#28a745' : '#dc3545')};
+  background: ${(props) => (props.passed ? '#d4edda' : '#f8d7da')};
 `;
 
 const TestResultName = styled.div`
@@ -162,7 +162,7 @@ const TestResultName = styled.div`
 
 const TestResultStatus = styled.div<{ passed: boolean }>`
   font-size: 0.9rem;
-  color: ${props => props.passed ? '#155724' : '#721c24'};
+  color: ${(props) => (props.passed ? '#155724' : '#721c24')};
 `;
 
 const TestResultError = styled.div`
@@ -203,179 +203,165 @@ const ConsoleOutput = styled.div`
 `;
 
 interface TestResult {
-  testName: string;
-  passed: boolean;
-  error?: string;
-  details?: any;
+	testName: string;
+	passed: boolean;
+	error?: string;
+	details?: any;
 }
 
 interface TestResults {
-  total: number;
-  passed: number;
-  failed: number;
-  successRate: number;
-  results: TestResult[];
+	total: number;
+	passed: number;
+	failed: number;
+	successRate: number;
+	results: TestResult[];
 }
 
 export const ServiceTestRunner: React.FC = () => {
-  const [isRunning, setIsRunning] = useState(false);
-  const [testResults, setTestResults] = useState<TestResults | null>(null);
-  const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
+	const [isRunning, setIsRunning] = useState(false);
+	const [testResults, setTestResults] = useState<TestResults | null>(null);
+	const [consoleOutput, setConsoleOutput] = useState<string[]>([]);
 
-  const runTests = async () => {
-    setIsRunning(true);
-    setTestResults(null);
-    setConsoleOutput([]);
+	const runTests = async () => {
+		setIsRunning(true);
+		setTestResults(null);
+		setConsoleOutput([]);
 
-    // Capture console output
-    const originalLog = console.log;
-    const originalError = console.error;
-    const originalGroup = console.group;
-    const originalGroupEnd = console.groupEnd;
+		// Capture console output
+		const originalLog = console.log;
+		const originalError = console.error;
+		const originalGroup = console.group;
+		const originalGroupEnd = console.groupEnd;
 
-    const capturedOutput: string[] = [];
+		const capturedOutput: string[] = [];
 
-    console.log = (...args) => {
-      capturedOutput.push(`[LOG] ${args.join(' ')}`);
-      originalLog(...args);
-    };
+		console.log = (...args) => {
+			capturedOutput.push(`[LOG] ${args.join(' ')}`);
+			originalLog(...args);
+		};
 
-    console.error = (...args) => {
-      capturedOutput.push(`[ERROR] ${args.join(' ')}`);
-      originalError(...args);
-    };
+		console.error = (...args) => {
+			capturedOutput.push(`[ERROR] ${args.join(' ')}`);
+			originalError(...args);
+		};
 
-    console.group = (...args) => {
-      capturedOutput.push(`[GROUP] ${args.join(' ')}`);
-      originalGroup(...args);
-    };
+		console.group = (...args) => {
+			capturedOutput.push(`[GROUP] ${args.join(' ')}`);
+			originalGroup(...args);
+		};
 
-    console.groupEnd = () => {
-      capturedOutput.push(`[GROUP END]`);
-      originalGroupEnd();
-    };
+		console.groupEnd = () => {
+			capturedOutput.push(`[GROUP END]`);
+			originalGroupEnd();
+		};
 
-    try {
-      // Run the tests
-      await comprehensiveFlowDataServiceTest.runAllTests();
-      
-      // Get results (the test suite returns results)
-      const results = comprehensiveFlowDataServiceTest['testResults'];
-      const total = results.length;
-      const passed = results.filter(r => r.passed).length;
-      const failed = results.filter(r => !r.passed).length;
-      
-      setTestResults({
-        total,
-        passed,
-        failed,
-        successRate: (passed / total) * 100,
-        results
-      });
-    } catch (error) {
-      console.error('Test runner error:', error);
-    } finally {
-      // Restore console
-      console.log = originalLog;
-      console.error = originalError;
-      console.group = originalGroup;
-      console.groupEnd = originalGroupEnd;
-      
-      setConsoleOutput(capturedOutput);
-      setIsRunning(false);
-    }
-  };
+		try {
+			// Run the tests
+			await comprehensiveFlowDataServiceTest.runAllTests();
 
-  const clearResults = () => {
-    setTestResults(null);
-    setConsoleOutput([]);
-  };
+			// Get results (the test suite returns results)
+			const results = comprehensiveFlowDataServiceTest['testResults'];
+			const total = results.length;
+			const passed = results.filter((r) => r.passed).length;
+			const failed = results.filter((r) => !r.passed).length;
 
-  return (
-    <TestRunnerContainer>
-      <TestRunnerHeader>
-        <TestRunnerTitle>🧪 Service Test Runner</TestRunnerTitle>
-        <TestRunnerSubtitle>
-          Comprehensive testing for ComprehensiveFlowDataService
-        </TestRunnerSubtitle>
-      </TestRunnerHeader>
+			setTestResults({
+				total,
+				passed,
+				failed,
+				successRate: (passed / total) * 100,
+				results,
+			});
+		} catch (error) {
+			console.error('Test runner error:', error);
+		} finally {
+			// Restore console
+			console.log = originalLog;
+			console.error = originalError;
+			console.group = originalGroup;
+			console.groupEnd = originalGroupEnd;
 
-      <TestControls>
-        <TestButton 
-          variant="primary" 
-          onClick={runTests} 
-          disabled={isRunning}
-        >
-          {isRunning ? (
-            <>
-              <LoadingSpinner /> Running Tests...
-            </>
-          ) : (
-            '🚀 Run All Tests'
-          )}
-        </TestButton>
-        
-        <TestButton 
-          variant="secondary" 
-          onClick={clearResults}
-          disabled={isRunning}
-        >
-          🧹 Clear Results
-        </TestButton>
-      </TestControls>
+			setConsoleOutput(capturedOutput);
+			setIsRunning(false);
+		}
+	};
 
-      {testResults && (
-        <TestResultsContainer>
-          <TestResultsHeader>
-            <TestResultsTitle>📊 Test Results</TestResultsTitle>
-            <TestStats>
-              <StatItem type="total">
-                <StatNumber>{testResults.total}</StatNumber>
-                <StatLabel>Total</StatLabel>
-              </StatItem>
-              <StatItem type="passed">
-                <StatNumber>{testResults.passed}</StatNumber>
-                <StatLabel>Passed</StatLabel>
-              </StatItem>
-              <StatItem type="failed">
-                <StatNumber>{testResults.failed}</StatNumber>
-                <StatLabel>Failed</StatLabel>
-              </StatItem>
-            </TestStats>
-          </TestResultsHeader>
+	const clearResults = () => {
+		setTestResults(null);
+		setConsoleOutput([]);
+	};
 
-          <TestResultsList>
-            {testResults.results.map((result, index) => (
-              <TestResultItem key={index} passed={result.passed}>
-                <TestResultName>
-                  {result.passed ? '✅' : '❌'} {result.testName}
-                </TestResultName>
-                <TestResultStatus passed={result.passed}>
-                  {result.passed ? 'PASSED' : 'FAILED'}
-                </TestResultStatus>
-                {result.error && (
-                  <TestResultError>
-                    {result.error}
-                  </TestResultError>
-                )}
-              </TestResultItem>
-            ))}
-          </TestResultsList>
-        </TestResultsContainer>
-      )}
+	return (
+		<TestRunnerContainer>
+			<TestRunnerHeader>
+				<TestRunnerTitle>🧪 Service Test Runner</TestRunnerTitle>
+				<TestRunnerSubtitle>
+					Comprehensive testing for ComprehensiveFlowDataService
+				</TestRunnerSubtitle>
+			</TestRunnerHeader>
 
-      {consoleOutput.length > 0 && (
-        <ConsoleOutput>
-          <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>
-            📝 Console Output:
-          </div>
-          {consoleOutput.map((line, index) => (
-            <div key={index}>{line}</div>
-          ))}
-        </ConsoleOutput>
-      )}
-    </TestRunnerContainer>
-  );
+			<TestControls>
+				<TestButton variant="primary" onClick={runTests} disabled={isRunning}>
+					{isRunning ? (
+						<>
+							<LoadingSpinner /> Running Tests...
+						</>
+					) : (
+						'🚀 Run All Tests'
+					)}
+				</TestButton>
+
+				<TestButton variant="secondary" onClick={clearResults} disabled={isRunning}>
+					🧹 Clear Results
+				</TestButton>
+			</TestControls>
+
+			{testResults && (
+				<TestResultsContainer>
+					<TestResultsHeader>
+						<TestResultsTitle>📊 Test Results</TestResultsTitle>
+						<TestStats>
+							<StatItem type="total">
+								<StatNumber>{testResults.total}</StatNumber>
+								<StatLabel>Total</StatLabel>
+							</StatItem>
+							<StatItem type="passed">
+								<StatNumber>{testResults.passed}</StatNumber>
+								<StatLabel>Passed</StatLabel>
+							</StatItem>
+							<StatItem type="failed">
+								<StatNumber>{testResults.failed}</StatNumber>
+								<StatLabel>Failed</StatLabel>
+							</StatItem>
+						</TestStats>
+					</TestResultsHeader>
+
+					<TestResultsList>
+						{testResults.results.map((result, index) => (
+							<TestResultItem key={index} passed={result.passed}>
+								<TestResultName>
+									{result.passed ? '✅' : '❌'} {result.testName}
+								</TestResultName>
+								<TestResultStatus passed={result.passed}>
+									{result.passed ? 'PASSED' : 'FAILED'}
+								</TestResultStatus>
+								{result.error && <TestResultError>{result.error}</TestResultError>}
+							</TestResultItem>
+						))}
+					</TestResultsList>
+				</TestResultsContainer>
+			)}
+
+			{consoleOutput.length > 0 && (
+				<ConsoleOutput>
+					<div style={{ marginBottom: '10px', fontWeight: 'bold' }}>📝 Console Output:</div>
+					{consoleOutput.map((line, index) => (
+						<div key={index}>{line}</div>
+					))}
+				</ConsoleOutput>
+			)}
+		</TestRunnerContainer>
+	);
 };
 
 export default ServiceTestRunner;

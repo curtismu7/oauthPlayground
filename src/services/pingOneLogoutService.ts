@@ -47,13 +47,13 @@ const openLogoutUrl = (url: string, target: PingOneLogoutOpenTarget): boolean =>
 	// Try to open in new tab with better popup blocker handling
 	try {
 		const newWindow = window.open(url, '_blank', 'noopener,noreferrer');
-		
+
 		// Check if popup was blocked
 		if (!newWindow || newWindow.closed || typeof newWindow.closed === 'undefined') {
 			console.warn('[pingOneLogoutService] Popup may have been blocked by browser');
 			return false;
 		}
-		
+
 		// Focus the new window
 		newWindow.focus();
 		return true;
@@ -115,7 +115,3 @@ export const pingOneLogoutService = {
 };
 
 export default pingOneLogoutService;
-
-
-
-

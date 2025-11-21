@@ -2,24 +2,24 @@
 // V7.1 Flow Configuration - Configuration section for credentials and settings
 
 import React, { useState } from 'react';
+import { FiChevronDown, FiChevronRight, FiInfo, FiRefreshCw, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiChevronDown, FiChevronRight, FiSave, FiRefreshCw, FiInfo } from 'react-icons/fi';
+import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowCredentials, FlowVariant } from '../types/flowTypes';
-import type { PingOneApplicationState } from '../../../components/PingOneApplicationConfig';
 
 interface FlowConfigurationProps {
-  credentials: FlowCredentials;
-  onCredentialsChange: (credentials: FlowCredentials) => void;
-  flowVariant: FlowVariant;
-  onVariantChange: (variant: FlowVariant) => void;
-  appConfig: PingOneApplicationState;
-  onAppConfigChange: (config: PingOneApplicationState) => void;
-  isCollapsed?: boolean;
-  onToggleCollapse?: () => void;
-  showAdvancedSettings?: boolean;
-  onToggleAdvancedSettings?: () => void;
+	credentials: FlowCredentials;
+	onCredentialsChange: (credentials: FlowCredentials) => void;
+	flowVariant: FlowVariant;
+	onVariantChange: (variant: FlowVariant) => void;
+	appConfig: PingOneApplicationState;
+	onAppConfigChange: (config: PingOneApplicationState) => void;
+	isCollapsed?: boolean;
+	onToggleCollapse?: () => void;
+	showAdvancedSettings?: boolean;
+	onToggleAdvancedSettings?: () => void;
 }
 
 const ConfigurationContainer = styled.div`
@@ -94,11 +94,12 @@ const Label = styled.label`
 
 const Input = styled.input<{ $hasError?: boolean; $hasSuccess?: boolean }>`
   padding: ${UI_CONSTANTS.FORM.INPUT_PADDING};
-  border: 1px solid ${props =>
-    props.$hasError ? UI_CONSTANTS.FORM.INPUT_ERROR_BORDER :
-    props.$hasSuccess ? UI_CONSTANTS.FORM.INPUT_SUCCESS_BORDER :
-    UI_CONSTANTS.FORM.INPUT_BORDER
-  };
+  border: 1px solid ${(props) =>
+		props.$hasError
+			? UI_CONSTANTS.FORM.INPUT_ERROR_BORDER
+			: props.$hasSuccess
+				? UI_CONSTANTS.FORM.INPUT_SUCCESS_BORDER
+				: UI_CONSTANTS.FORM.INPUT_BORDER};
   border-radius: ${UI_CONSTANTS.FORM.INPUT_BORDER_RADIUS};
   font-size: ${UI_CONSTANTS.FORM.INPUT_FONT_SIZE};
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
@@ -118,11 +119,12 @@ const Input = styled.input<{ $hasError?: boolean; $hasSuccess?: boolean }>`
 
 const TextArea = styled.textarea<{ $hasError?: boolean; $hasSuccess?: boolean }>`
   padding: ${UI_CONSTANTS.FORM.INPUT_PADDING};
-  border: 1px solid ${props =>
-    props.$hasError ? UI_CONSTANTS.FORM.INPUT_ERROR_BORDER :
-    props.$hasSuccess ? UI_CONSTANTS.FORM.INPUT_SUCCESS_BORDER :
-    UI_CONSTANTS.FORM.INPUT_BORDER
-  };
+  border: 1px solid ${(props) =>
+		props.$hasError
+			? UI_CONSTANTS.FORM.INPUT_ERROR_BORDER
+			: props.$hasSuccess
+				? UI_CONSTANTS.FORM.INPUT_SUCCESS_BORDER
+				: UI_CONSTANTS.FORM.INPUT_BORDER};
   border-radius: ${UI_CONSTANTS.FORM.INPUT_BORDER_RADIUS};
   font-size: ${UI_CONSTANTS.FORM.INPUT_FONT_SIZE};
   font-family: monospace;
@@ -139,13 +141,16 @@ const TextArea = styled.textarea<{ $hasError?: boolean; $hasSuccess?: boolean }>
 
 const HelperText = styled.div<{ $type: 'info' | 'error' | 'success' }>`
   font-size: ${UI_CONSTANTS.FORM.HELPER_TEXT_FONT_SIZE};
-  color: ${props => {
-    switch (props.$type) {
-      case 'error': return UI_CONSTANTS.STATUS.ERROR_COLOR;
-      case 'success': return UI_CONSTANTS.STATUS.SUCCESS_COLOR;
-      default: return UI_CONSTANTS.FORM.HELPER_TEXT_COLOR;
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$type) {
+			case 'error':
+				return UI_CONSTANTS.STATUS.ERROR_COLOR;
+			case 'success':
+				return UI_CONSTANTS.STATUS.SUCCESS_COLOR;
+			default:
+				return UI_CONSTANTS.FORM.HELPER_TEXT_COLOR;
+		}
+	}};
 `;
 
 const ButtonGroup = styled.div`
@@ -167,9 +172,9 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }>`
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   
   ${({ $variant }) => {
-    switch ($variant) {
-      case 'primary':
-        return `
+		switch ($variant) {
+			case 'primary':
+				return `
           background: ${UI_CONSTANTS.BUTTON.PRIMARY_BACKGROUND};
           color: ${UI_CONSTANTS.BUTTON.PRIMARY_COLOR};
           box-shadow: ${UI_CONSTANTS.BUTTON.PRIMARY_SHADOW};
@@ -179,8 +184,8 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }>`
             transform: ${UI_CONSTANTS.ANIMATION.TRANSFORM_SCALE_HOVER};
           }
         `;
-      case 'secondary':
-        return `
+			case 'secondary':
+				return `
           background: ${UI_CONSTANTS.BUTTON.SECONDARY_BACKGROUND};
           color: ${UI_CONSTANTS.BUTTON.SECONDARY_COLOR};
           border: ${UI_CONSTANTS.BUTTON.SECONDARY_BORDER};
@@ -189,8 +194,8 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }>`
             background: ${UI_CONSTANTS.BUTTON.SECONDARY_HOVER_BACKGROUND};
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: ${UI_CONSTANTS.STATUS.ERROR_COLOR};
           color: ${UI_CONSTANTS.COLORS.WHITE};
           
@@ -198,10 +203,10 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' | 'danger' }>`
             background: ${UI_CONSTANTS.COLORS.GRAY_700};
           }
         `;
-      default:
-        return '';
-    }
-  }}
+			default:
+				return '';
+		}
+	}}
   
   &:disabled {
     opacity: 0.5;
@@ -228,218 +233,225 @@ const InfoText = styled.div`
 `;
 
 export const FlowConfiguration: React.FC<FlowConfigurationProps> = ({
-  credentials,
-  onCredentialsChange,
-  flowVariant,
-  onVariantChange,
-  appConfig,
-  onAppConfigChange,
-  isCollapsed = false,
-  onToggleCollapse,
-  showAdvancedSettings = false,
-  onToggleAdvancedSettings,
+	credentials,
+	onCredentialsChange,
+	flowVariant,
+	onVariantChange,
+	appConfig,
+	onAppConfigChange,
+	isCollapsed = false,
+	onToggleCollapse,
+	showAdvancedSettings = false,
+	onToggleAdvancedSettings,
 }) => {
-  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+	const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
-  const validateCredentials = (creds: FlowCredentials): Record<string, string> => {
-    const errors: Record<string, string> = {};
+	const validateCredentials = (creds: FlowCredentials): Record<string, string> => {
+		const errors: Record<string, string> = {};
 
-    if (!creds.environmentId) {
-      errors.environmentId = 'Environment ID is required';
-    }
+		if (!creds.environmentId) {
+			errors.environmentId = 'Environment ID is required';
+		}
 
-    if (!creds.clientId) {
-      errors.clientId = 'Client ID is required';
-    }
+		if (!creds.clientId) {
+			errors.clientId = 'Client ID is required';
+		}
 
-    if (!creds.redirectUri) {
-      errors.redirectUri = 'Redirect URI is required';
-    } else if (!creds.redirectUri.startsWith('https://') && !creds.redirectUri.startsWith('http://localhost')) {
-      errors.redirectUri = 'Redirect URI must be HTTPS or localhost';
-    }
+		if (!creds.redirectUri) {
+			errors.redirectUri = 'Redirect URI is required';
+		} else if (
+			!creds.redirectUri.startsWith('https://') &&
+			!creds.redirectUri.startsWith('http://localhost')
+		) {
+			errors.redirectUri = 'Redirect URI must be HTTPS or localhost';
+		}
 
-    if (!creds.scope) {
-      errors.scope = 'Scope is required';
-    }
+		if (!creds.scope) {
+			errors.scope = 'Scope is required';
+		}
 
-    return errors;
-  };
+		return errors;
+	};
 
-  const handleCredentialsChange = (field: keyof FlowCredentials, value: string) => {
-    const updatedCredentials = { ...credentials, [field]: value };
-    onCredentialsChange(updatedCredentials);
-    
-    // Validate and update errors
-    const errors = validateCredentials(updatedCredentials);
-    setValidationErrors(errors);
-  };
+	const handleCredentialsChange = (field: keyof FlowCredentials, value: string) => {
+		const updatedCredentials = { ...credentials, [field]: value };
+		onCredentialsChange(updatedCredentials);
 
-  const handleSave = () => {
-    const errors = validateCredentials(credentials);
-    if (Object.keys(errors).length === 0) {
-      // Save to storage
-      try {
-        sessionStorage.setItem('oauth-authorization-code-v7-1-credentials', JSON.stringify(credentials));
-        sessionStorage.setItem('oauth-authorization-code-v7-1-app-config', JSON.stringify(appConfig));
-        console.log('✅ Configuration saved successfully');
-      } catch (error) {
-        console.error('❌ Failed to save configuration:', error);
-      }
-    } else {
-      setValidationErrors(errors);
-    }
-  };
+		// Validate and update errors
+		const errors = validateCredentials(updatedCredentials);
+		setValidationErrors(errors);
+	};
 
-  const handleReset = () => {
-    const defaultCredentials: FlowCredentials = {
-      environmentId: '',
-      clientId: '',
-      clientSecret: '',
-      redirectUri: FLOW_CONSTANTS.DEFAULT_REDIRECT_URI,
-      scope: FLOW_CONSTANTS.DEFAULT_SCOPE,
-    };
-    
-    onCredentialsChange(defaultCredentials);
-    setValidationErrors({});
-  };
+	const handleSave = () => {
+		const errors = validateCredentials(credentials);
+		if (Object.keys(errors).length === 0) {
+			// Save to storage
+			try {
+				sessionStorage.setItem(
+					'oauth-authorization-code-v7-1-credentials',
+					JSON.stringify(credentials)
+				);
+				sessionStorage.setItem(
+					'oauth-authorization-code-v7-1-app-config',
+					JSON.stringify(appConfig)
+				);
+				console.log('✅ Configuration saved successfully');
+			} catch (error) {
+				console.error('❌ Failed to save configuration:', error);
+			}
+		} else {
+			setValidationErrors(errors);
+		}
+	};
 
-  return (
-    <ConfigurationContainer>
-      <SectionHeader $collapsed={isCollapsed} onClick={onToggleCollapse}>
-        <SectionTitle>
-          <CollapseIcon $collapsed={isCollapsed}>
-            <FiChevronRight />
-          </CollapseIcon>
-          <span>Flow Configuration</span>
-        </SectionTitle>
-      </SectionHeader>
+	const handleReset = () => {
+		const defaultCredentials: FlowCredentials = {
+			environmentId: '',
+			clientId: '',
+			clientSecret: '',
+			redirectUri: FLOW_CONSTANTS.DEFAULT_REDIRECT_URI,
+			scope: FLOW_CONSTANTS.DEFAULT_SCOPE,
+		};
 
-      <SectionContent $collapsed={isCollapsed}>
-        <InfoBox>
-          <InfoText>
-            <FiInfo />
-            <div>
-              Configure your OAuth application credentials and settings. 
-              The {flowVariant.toUpperCase()} variant requires specific scopes and configuration.
-            </div>
-          </InfoText>
-        </InfoBox>
+		onCredentialsChange(defaultCredentials);
+		setValidationErrors({});
+	};
 
-        <FormGrid>
-          <FormGroup>
-            <Label htmlFor="environmentId">Environment ID *</Label>
-            <Input
-              id="environmentId"
-              type="text"
-              value={credentials.environmentId}
-              onChange={(e) => handleCredentialsChange('environmentId', e.target.value)}
-              placeholder="Enter your PingOne Environment ID"
-              $hasError={!!validationErrors.environmentId}
-            />
-            {validationErrors.environmentId && (
-              <HelperText $type="error">{validationErrors.environmentId}</HelperText>
-            )}
-            <HelperText $type="info">
-              Your PingOne Environment ID (e.g., b9817c16-9910-4415-b67e-4ac687da74d9)
-            </HelperText>
-          </FormGroup>
+	return (
+		<ConfigurationContainer>
+			<SectionHeader $collapsed={isCollapsed} onClick={onToggleCollapse}>
+				<SectionTitle>
+					<CollapseIcon $collapsed={isCollapsed}>
+						<FiChevronRight />
+					</CollapseIcon>
+					<span>Flow Configuration</span>
+				</SectionTitle>
+			</SectionHeader>
 
-          <FormGroup>
-            <Label htmlFor="clientId">Client ID *</Label>
-            <Input
-              id="clientId"
-              type="text"
-              value={credentials.clientId}
-              onChange={(e) => handleCredentialsChange('clientId', e.target.value)}
-              placeholder="Enter your Client ID"
-              $hasError={!!validationErrors.clientId}
-            />
-            {validationErrors.clientId && (
-              <HelperText $type="error">{validationErrors.clientId}</HelperText>
-            )}
-            <HelperText $type="info">
-              Your OAuth application Client ID
-            </HelperText>
-          </FormGroup>
+			<SectionContent $collapsed={isCollapsed}>
+				<InfoBox>
+					<InfoText>
+						<FiInfo />
+						<div>
+							Configure your OAuth application credentials and settings. The{' '}
+							{flowVariant.toUpperCase()} variant requires specific scopes and configuration.
+						</div>
+					</InfoText>
+				</InfoBox>
 
-          <FormGroup>
-            <Label htmlFor="clientSecret">Client Secret</Label>
-            <Input
-              id="clientSecret"
-              type="password"
-              value={credentials.clientSecret}
-              onChange={(e) => handleCredentialsChange('clientSecret', e.target.value)}
-              placeholder="Enter your Client Secret (optional for public clients)"
-            />
-            <HelperText $type="info">
-              Client Secret for confidential clients (leave empty for public clients)
-            </HelperText>
-          </FormGroup>
+				<FormGrid>
+					<FormGroup>
+						<Label htmlFor="environmentId">Environment ID *</Label>
+						<Input
+							id="environmentId"
+							type="text"
+							value={credentials.environmentId}
+							onChange={(e) => handleCredentialsChange('environmentId', e.target.value)}
+							placeholder="Enter your PingOne Environment ID"
+							$hasError={!!validationErrors.environmentId}
+						/>
+						{validationErrors.environmentId && (
+							<HelperText $type="error">{validationErrors.environmentId}</HelperText>
+						)}
+						<HelperText $type="info">
+							Your PingOne Environment ID (e.g., b9817c16-9910-4415-b67e-4ac687da74d9)
+						</HelperText>
+					</FormGroup>
 
-          <FormGroup>
-            <Label htmlFor="redirectUri">Redirect URI *</Label>
-            <Input
-              id="redirectUri"
-              type="url"
-              value={credentials.redirectUri}
-              onChange={(e) => handleCredentialsChange('redirectUri', e.target.value)}
-              placeholder="https://localhost:3000/authz-callback"
-              $hasError={!!validationErrors.redirectUri}
-            />
-            {validationErrors.redirectUri && (
-              <HelperText $type="error">{validationErrors.redirectUri}</HelperText>
-            )}
-            <HelperText $type="info">
-              Must match the redirect URI configured in your PingOne application
-            </HelperText>
-          </FormGroup>
+					<FormGroup>
+						<Label htmlFor="clientId">Client ID *</Label>
+						<Input
+							id="clientId"
+							type="text"
+							value={credentials.clientId}
+							onChange={(e) => handleCredentialsChange('clientId', e.target.value)}
+							placeholder="Enter your Client ID"
+							$hasError={!!validationErrors.clientId}
+						/>
+						{validationErrors.clientId && (
+							<HelperText $type="error">{validationErrors.clientId}</HelperText>
+						)}
+						<HelperText $type="info">Your OAuth application Client ID</HelperText>
+					</FormGroup>
 
-          <FormGroup>
-            <Label htmlFor="scope">Scope *</Label>
-            <Input
-              id="scope"
-              type="text"
-              value={credentials.scope}
-              onChange={(e) => handleCredentialsChange('scope', e.target.value)}
-              placeholder="openid profile email"
-              $hasError={!!validationErrors.scope}
-            />
-            {validationErrors.scope && (
-              <HelperText $type="error">{validationErrors.scope}</HelperText>
-            )}
-            <HelperText $type="info">
-              Space-separated list of scopes (e.g., openid profile email)
-            </HelperText>
-          </FormGroup>
+					<FormGroup>
+						<Label htmlFor="clientSecret">Client Secret</Label>
+						<Input
+							id="clientSecret"
+							type="password"
+							value={credentials.clientSecret}
+							onChange={(e) => handleCredentialsChange('clientSecret', e.target.value)}
+							placeholder="Enter your Client Secret (optional for public clients)"
+						/>
+						<HelperText $type="info">
+							Client Secret for confidential clients (leave empty for public clients)
+						</HelperText>
+					</FormGroup>
 
-          <FormGroup>
-            <Label htmlFor="state">State (Optional)</Label>
-            <Input
-              id="state"
-              type="text"
-              value={credentials.state || ''}
-              onChange={(e) => handleCredentialsChange('state', e.target.value)}
-              placeholder="Random state value for CSRF protection"
-            />
-            <HelperText $type="info">
-              Random string for CSRF protection (auto-generated if empty)
-            </HelperText>
-          </FormGroup>
-        </FormGrid>
+					<FormGroup>
+						<Label htmlFor="redirectUri">Redirect URI *</Label>
+						<Input
+							id="redirectUri"
+							type="url"
+							value={credentials.redirectUri}
+							onChange={(e) => handleCredentialsChange('redirectUri', e.target.value)}
+							placeholder="https://localhost:3000/authz-callback"
+							$hasError={!!validationErrors.redirectUri}
+						/>
+						{validationErrors.redirectUri && (
+							<HelperText $type="error">{validationErrors.redirectUri}</HelperText>
+						)}
+						<HelperText $type="info">
+							Must match the redirect URI configured in your PingOne application
+						</HelperText>
+					</FormGroup>
 
-        <ButtonGroup>
-          <Button $variant="primary" onClick={handleSave}>
-            <FiSave />
-            Save Configuration
-          </Button>
-          <Button $variant="secondary" onClick={handleReset}>
-            <FiRefreshCw />
-            Reset to Defaults
-          </Button>
-        </ButtonGroup>
-      </SectionContent>
-    </ConfigurationContainer>
-  );
+					<FormGroup>
+						<Label htmlFor="scope">Scope *</Label>
+						<Input
+							id="scope"
+							type="text"
+							value={credentials.scope}
+							onChange={(e) => handleCredentialsChange('scope', e.target.value)}
+							placeholder="openid profile email"
+							$hasError={!!validationErrors.scope}
+						/>
+						{validationErrors.scope && (
+							<HelperText $type="error">{validationErrors.scope}</HelperText>
+						)}
+						<HelperText $type="info">
+							Space-separated list of scopes (e.g., openid profile email)
+						</HelperText>
+					</FormGroup>
+
+					<FormGroup>
+						<Label htmlFor="state">State (Optional)</Label>
+						<Input
+							id="state"
+							type="text"
+							value={credentials.state || ''}
+							onChange={(e) => handleCredentialsChange('state', e.target.value)}
+							placeholder="Random state value for CSRF protection"
+						/>
+						<HelperText $type="info">
+							Random string for CSRF protection (auto-generated if empty)
+						</HelperText>
+					</FormGroup>
+				</FormGrid>
+
+				<ButtonGroup>
+					<Button $variant="primary" onClick={handleSave}>
+						<FiSave />
+						Save Configuration
+					</Button>
+					<Button $variant="secondary" onClick={handleReset}>
+						<FiRefreshCw />
+						Reset to Defaults
+					</Button>
+				</ButtonGroup>
+			</SectionContent>
+		</ConfigurationContainer>
+	);
 };
 
 export default FlowConfiguration;

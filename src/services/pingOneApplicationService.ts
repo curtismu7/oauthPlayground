@@ -45,13 +45,15 @@ export async function getWorkerToken(params: GetWorkerTokenParams): Promise<stri
 			client_secret: params.clientSecret,
 			environment_id: params.environmentId,
 			token_endpoint_auth_method: params.tokenEndpointAuthMethod,
-			scope: 'p1:read:environments p1:read:applications p1:read:connections'
-		})
+			scope: 'p1:read:environments p1:read:applications p1:read:connections',
+		}),
 	});
 
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
-		throw new Error(errorData.error_description || `Failed to get worker token (${response.status})`);
+		throw new Error(
+			errorData.error_description || `Failed to get worker token (${response.status})`
+		);
 	}
 
 	const tokenData = await response.json();
@@ -63,7 +65,9 @@ export async function getWorkerToken(params: GetWorkerTokenParams): Promise<stri
 /**
  * Fetches PingOne applications via the backend proxy. Accepts a worker token or client credentials.
  */
-export async function fetchApplications(params: FetchApplicationsParams): Promise<PingOneApplication[]> {
+export async function fetchApplications(
+	params: FetchApplicationsParams
+): Promise<PingOneApplication[]> {
 	const searchParams = new URLSearchParams({
 		environmentId: params.environmentId,
 		region: params.region || 'na',
@@ -75,7 +79,9 @@ export async function fetchApplications(params: FetchApplicationsParams): Promis
 	const response = await fetch(`/api/pingone/applications?${searchParams.toString()}`);
 	if (!response.ok) {
 		const errorData = await response.json().catch(() => ({}));
-		throw new Error(errorData.error_description || `Failed to fetch applications (${response.status})`);
+		throw new Error(
+			errorData.error_description || `Failed to fetch applications (${response.status})`
+		);
 	}
 
 	const data = await response.json();
@@ -96,7 +102,3 @@ export async function fetchApplications(params: FetchApplicationsParams): Promis
 		type: app.type,
 	})) as PingOneApplication[];
 }
-
-
-
-

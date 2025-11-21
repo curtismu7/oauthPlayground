@@ -7,14 +7,18 @@
  * feedback on discovery status.
  */
 
-import React, { useState, useCallback, useEffect } from 'react';
-import styled from 'styled-components';
-import { FiGlobe, FiCheck, FiAlertCircle, FiLoader, FiInfo, FiRefreshCw, FiEye, FiEyeOff, FiChevronDown, FiChevronRight } from 'react-icons/fi';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	oidcDiscoveryService,
-	type DiscoveryResult,
-	type OIDCDiscoveryDocument,
-} from '../services/oidcDiscoveryService';
+	FiAlertCircle,
+	FiCheck,
+	FiEye,
+	FiEyeOff,
+	FiGlobe,
+	FiLoader,
+	FiRefreshCw,
+} from 'react-icons/fi';
+import styled from 'styled-components';
+import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
 interface OIDCDiscoveryInputProps {
 	onDiscoveryComplete?: (result: DiscoveryResult) => void;
@@ -338,8 +342,8 @@ const ResultsToggleButton = styled.button`
 const ResultsCollapsible = styled.div<{ isOpen: boolean }>`
   overflow: hidden;
   transition: all 0.3s ease;
-  max-height: ${props => props.isOpen ? '1000px' : '0'};
-  opacity: ${props => props.isOpen ? '1' : '0'};
+  max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
+  opacity: ${(props) => (props.isOpen ? '1' : '0')};
 `;
 
 const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
@@ -426,10 +430,12 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 		try {
 			const url = new URL(issuerUrl.trim());
 			if (!url.hostname.includes('pingone')) {
-				setError('Only PingOne issuer URLs are supported. Please use a URL like https://auth.pingone.com/{environment-id}');
+				setError(
+					'Only PingOne issuer URLs are supported. Please use a URL like https://auth.pingone.com/{environment-id}'
+				);
 				return;
 			}
-		} catch (urlError) {
+		} catch (_urlError) {
 			setError('Please enter a valid URL');
 			return;
 		}
@@ -637,7 +643,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			)}
 
 			{renderStatus()}
-			
+
 			{/* Results Toggle Button - Only show if we have results */}
 			{discoveryResult?.success && discoveryResult.document && (
 				<ResultsToggleContainer>
@@ -652,9 +658,7 @@ const OIDCDiscoveryInput: React.FC<OIDCDiscoveryInputProps> = ({
 			)}
 
 			{/* Collapsible Results Section */}
-			<ResultsCollapsible isOpen={showResults}>
-				{renderEndpoints()}
-			</ResultsCollapsible>
+			<ResultsCollapsible isOpen={showResults}>{renderEndpoints()}</ResultsCollapsible>
 		</Container>
 	);
 };

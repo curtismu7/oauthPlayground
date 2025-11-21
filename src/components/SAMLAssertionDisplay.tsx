@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import { FiCheck, FiCopy } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCopy, FiCheck } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastManager';
 
 const Container = styled.div`
@@ -64,67 +64,67 @@ const CopyButton = styled.button`
 `;
 
 interface SAMLAssertionDisplayProps {
-  assertion: string;
-  title?: string;
-  showCopyButton?: boolean;
+	assertion: string;
+	title?: string;
+	showCopyButton?: boolean;
 }
 
 const SAMLAssertionDisplay: React.FC<SAMLAssertionDisplayProps> = ({
-  assertion,
-  title = 'SAML Assertion',
-  showCopyButton = true,
+	assertion,
+	title = 'SAML Assertion',
+	showCopyButton = true,
 }) => {
-  const [copied, setCopied] = useState(false);
+	const [copied, setCopied] = useState(false);
 
-  const formatXML = (xml: string): string => {
-    try {
-      // Basic XML formatting - for better display
-      const formatted = xml
-        .replace(/></g, '>\n<')
-        .replace(/\s+/g, ' ')
-        .replace(/\s+</g, '<')
-        .replace(/>\s+/g, '>')
-        .trim();
-      
-      return formatted;
-    } catch (error) {
-      console.error('Error formatting SAML assertion:', error);
-      return xml; // Return original if formatting fails
-    }
-  };
+	const formatXML = (xml: string): string => {
+		try {
+			// Basic XML formatting - for better display
+			const formatted = xml
+				.replace(/></g, '>\n<')
+				.replace(/\s+/g, ' ')
+				.replace(/\s+</g, '<')
+				.replace(/>\s+/g, '>')
+				.trim();
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(assertion);
-    setCopied(true);
-    v4ToastManager.showSuccess('SAML assertion copied to clipboard');
-    
-    // Reset the copied state after 2 seconds
-    setTimeout(() => {
-      setCopied(false);
-    }, 2000);
-  };
+			return formatted;
+		} catch (error) {
+			console.error('Error formatting SAML assertion:', error);
+			return xml; // Return original if formatting fails
+		}
+	};
 
-  return (
-    <Container>
-      <Header>
-        <Title>{title}</Title>
-        {showCopyButton && (
-          <CopyButton onClick={handleCopy}>
-            {copied ? (
-              <>
-                <FiCheck size={14} /> Copied!
-              </>
-            ) : (
-              <>
-                <FiCopy size={14} /> Copy
-              </>
-            )}
-          </CopyButton>
-        )}
-      </Header>
-      <Content>{formatXML(assertion)}</Content>
-    </Container>
-  );
+	const handleCopy = () => {
+		navigator.clipboard.writeText(assertion);
+		setCopied(true);
+		v4ToastManager.showSuccess('SAML assertion copied to clipboard');
+
+		// Reset the copied state after 2 seconds
+		setTimeout(() => {
+			setCopied(false);
+		}, 2000);
+	};
+
+	return (
+		<Container>
+			<Header>
+				<Title>{title}</Title>
+				{showCopyButton && (
+					<CopyButton onClick={handleCopy}>
+						{copied ? (
+							<>
+								<FiCheck size={14} /> Copied!
+							</>
+						) : (
+							<>
+								<FiCopy size={14} /> Copy
+							</>
+						)}
+					</CopyButton>
+				)}
+			</Header>
+			<Content>{formatXML(assertion)}</Content>
+		</Container>
+	);
 };
 
 export default SAMLAssertionDisplay;

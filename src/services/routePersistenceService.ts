@@ -48,7 +48,7 @@ export class RoutePersistenceService {
 	 */
 	static saveCurrentRoute(path: string): void {
 		// Don't save excluded routes
-		if (this.isExcludedRoute(path)) {
+		if (RoutePersistenceService.isExcludedRoute(path)) {
 			console.log(`🚫 [RoutePersistence] Not saving excluded route: ${path}`);
 			return;
 		}
@@ -85,7 +85,7 @@ export class RoutePersistenceService {
 			const age = Date.now() - parseInt(timestamp, 10);
 			if (age > ROUTE_EXPIRY_MS) {
 				console.log(`⏰ [RoutePersistence] Saved route expired, using default: ${DEFAULT_ROUTE}`);
-				this.clearSavedRoute();
+				RoutePersistenceService.clearSavedRoute();
 				return DEFAULT_ROUTE;
 			}
 
@@ -125,7 +125,7 @@ export class RoutePersistenceService {
 			const timestamp = localStorage.getItem(LAST_ROUTE_TIMESTAMP_KEY);
 			if (!timestamp) return null;
 			return Date.now() - parseInt(timestamp, 10);
-		} catch (error) {
+		} catch (_error) {
 			return null;
 		}
 	}
@@ -136,9 +136,9 @@ export class RoutePersistenceService {
 	static hasSavedRoute(): boolean {
 		const savedRoute = localStorage.getItem(LAST_ROUTE_KEY);
 		const timestamp = localStorage.getItem(LAST_ROUTE_TIMESTAMP_KEY);
-		
+
 		if (!savedRoute || !timestamp) return false;
-		
+
 		const age = Date.now() - parseInt(timestamp, 10);
 		return age < ROUTE_EXPIRY_MS;
 	}
@@ -157,5 +157,3 @@ if (typeof window !== 'undefined') {
 }
 
 export default RoutePersistenceService;
-
-

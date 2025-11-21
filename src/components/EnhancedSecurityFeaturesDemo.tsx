@@ -1,41 +1,32 @@
 // src/components/EnhancedSecurityFeaturesDemo.tsx
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
-	FiAlertTriangle,
-	FiCheckCircle,
-	FiChevronDown,
 	FiClock,
 	FiDownload,
 	FiExternalLink,
 	FiEye,
 	FiGlobe,
 	FiKey,
-	FiLock,
 	FiPlay,
-	FiPlus,
-	FiRefreshCw,
+	FiSettings,
 	FiShield,
 	FiTrash2,
 	FiX,
-	FiSettings,
-	FiInfo,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfirmationModal from './ConfirmationModal';
 import { useUISettings } from '../contexts/UISettingsContext';
-import { showGlobalSuccess } from '../hooks/useNotifications';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import {
+	analyzeSecurityConfiguration,
+	convertPingOneToSecurityConfig,
+	SecurityFeaturesConfig as SecurityConfigComponent,
+} from '../services/securityFeaturesConfigService';
 import {
 	buildLogoutUrl,
 	terminateSession as terminateSessionService,
 } from '../services/sessionTerminationService';
 import { isJWT } from '../utils/jwtDecoder';
-import SecurityFeaturesConfig, { 
-	SecurityFeaturesConfig as SecurityConfigComponent,
-	type SecurityFeaturesConfig as SecurityConfigType,
-	convertPingOneToSecurityConfig,
-	analyzeSecurityConfiguration,
-} from '../services/securityFeaturesConfigService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import ConfirmationModal from './ConfirmationModal';
 import type { PingOneApplicationState } from './PingOneApplicationConfig';
 
 // Styled Components
@@ -70,14 +61,14 @@ const Content = styled.div`
 	padding: 2rem;
 `;
 
-const Section = styled.div`
+const _Section = styled.div`
 	margin-bottom: 2rem;
 	border: 1px solid #e2e8f0;
 	border-radius: 8px;
 	overflow: hidden;
 `;
 
-const SectionHeader = styled.div`
+const _SectionHeader = styled.div`
 	background: #f8fafc;
 	padding: 1rem 1.5rem;
 	border-bottom: 1px solid #e2e8f0;
@@ -88,7 +79,7 @@ const SectionHeader = styled.div`
 	gap: 0.5rem;
 `;
 
-const SectionContent = styled.div`
+const _SectionContent = styled.div`
 	padding: 1.5rem;
 `;
 
@@ -194,19 +185,19 @@ const CodeBlock = styled.pre<{ $isVisible: boolean }>`
 	min-height: 60px;
 `;
 
-const ParameterGrid = styled.div`
+const _ParameterGrid = styled.div`
 	display: grid;
 	grid-template-columns: auto 1fr;
 	gap: 0.5rem 1rem;
 	margin: 1rem 0;
 `;
 
-const ParamLabel = styled.div`
+const _ParamLabel = styled.div`
 	font-weight: 600;
 	color: #374151;
 `;
 
-const ParamValue = styled.div`
+const _ParamValue = styled.div`
 	font-family: 'Monaco', 'Menlo', monospace;
 	background: #f1f5f9;
 	padding: 0.25rem 0.5rem;
@@ -234,7 +225,7 @@ const InfoText = styled.div`
 	line-height: 1.5;
 `;
 
-const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
+const _CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
 	background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
 	color: white;
 	padding: 1rem 1.5rem;
@@ -250,7 +241,7 @@ const CollapsibleHeader = styled.div<{ $isCollapsed: boolean }>`
 	}
 `;
 
-const CollapsibleTitle = styled.h3`
+const _CollapsibleTitle = styled.h3`
 	margin: 0;
 	font-size: 1.1rem;
 	font-weight: 600;
@@ -259,7 +250,7 @@ const CollapsibleTitle = styled.h3`
 	gap: 0.5rem;
 `;
 
-const CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
+const _CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
 	background: white;
 	border: 1px solid #e2e8f0;
 	border-top: none;
@@ -270,14 +261,14 @@ const CollapsibleContent = styled.div<{ $isCollapsed: boolean }>`
 	transition: all 0.3s ease;
 `;
 
-const ActionRow = styled.div`
+const _ActionRow = styled.div`
 	text-align: center;
 	margin-top: 2rem;
 	padding-top: 2rem;
 	border-top: 1px solid #e2e8f0;
 `;
 
-const List = styled.ul`
+const _List = styled.ul`
 	margin: 0;
 	padding-left: 1.5rem;
 	color: #374151;
@@ -346,7 +337,7 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 		return 'transparent';
 	}};
 	transition: all 0.2s;
-	box-shadow: ${(props) => props.$active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
+	box-shadow: ${(props) => (props.$active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none')};
 	
 	&:hover {
 		background: ${(props) => {
@@ -365,8 +356,8 @@ const Tab = styled.button<{ $active: boolean; $tabType?: string }>`
 			return '#f8fafc';
 		}};
 		color: ${(props) => (props.$active ? props.color : '#374151')};
-		transform: ${(props) => props.$active ? 'translateY(-1px)' : 'none'};
-		box-shadow: ${(props) => props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)'};
+		transform: ${(props) => (props.$active ? 'translateY(-1px)' : 'none')};
+		box-shadow: ${(props) => (props.$active ? '0 4px 8px rgba(0, 0, 0, 0.15)' : '0 2px 4px rgba(0, 0, 0, 0.1)')};
 	}
 `;
 
@@ -412,16 +403,16 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const [activeTab, setActiveTab] = useState<'config' | 'demo' | 'analysis'>('config');
 	const [showLogoutUrl, setShowLogoutUrl] = useState(false);
 	const [isValidating, setIsValidating] = useState(false);
-	const [validationResults, setValidationResults] = useState<string | null>(null);
+	const [_validationResults, _setValidationResults] = useState<string | null>(null);
 	const [expirationResults, setExpirationResults] = useState<string | null>(null);
 	const [signatureResults, setSignatureResults] = useState<string | null>(null);
 	const [signatureValidationResults, setSignatureValidationResults] = useState<string | null>(null);
-	const [revokeResults, setRevokeResults] = useState<string | null>(null);
+	const [_revokeResults, _setRevokeResults] = useState<string | null>(null);
 	const [securityReportResults, setSecurityReportResults] = useState<string | null>(null);
 	const [securityTestResults, setSecurityTestResults] = useState<string | null>(null);
-	const [collapsedSecurityReport, setCollapsedSecurityReport] = useState(false);
-	const [collapsedSecurityTest, setCollapsedSecurityTest] = useState(false);
-	const [sessionResults, setSessionResults] = useState<string | null>(null);
+	const [_collapsedSecurityReport, _setCollapsedSecurityReport] = useState(false);
+	const [_collapsedSecurityTest, _setCollapsedSecurityTest] = useState(false);
+	const [_sessionResults, _setSessionResults] = useState<string | null>(null);
 	const [x5tResults, setX5tResults] = useState<string | null>(null);
 	const [corsResults, setCorsResults] = useState<string | null>(null);
 
@@ -485,10 +476,10 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const validateTokenExpiration = useCallback(async () => {
 		setIsValidating(true);
 		setExpirationResults('Validating token expiration...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 1000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1000));
+
 			const results = [];
 			if (normalizedTokens.id_token) {
 				results.push('✅ ID Token expiration validated');
@@ -499,7 +490,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			if (tokens?.refreshToken) {
 				results.push('✅ Refresh Token expiration validated');
 			}
-			
+
 			setExpirationResults(results.join('\n') || 'No tokens to validate');
 		} catch (error) {
 			setExpirationResults(`❌ Validation failed: ${error}`);
@@ -511,10 +502,10 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const validateTokenSignature = useCallback(async () => {
 		setIsValidating(true);
 		setSignatureResults('Validating token signatures...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+
 			const results = [];
 			if (normalizedTokens.id_token && isJWT(normalizedTokens.id_token)) {
 				results.push('✅ ID Token signature validated');
@@ -522,7 +513,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			if (tokens?.accessToken && isJWT(tokens.accessToken as string)) {
 				results.push('✅ Access Token signature validated');
 			}
-			
+
 			setSignatureResults(results.join('\n') || 'No JWT tokens to validate');
 		} catch (error) {
 			setSignatureResults(`❌ Signature validation failed: ${error}`);
@@ -534,10 +525,10 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const validateRequestSignature = useCallback(async () => {
 		setIsValidating(true);
 		setSignatureValidationResults('Validating request parameter signature...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 1500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1500));
+
 			const results = [];
 			results.push('🔐 Request Parameter Signature Validation');
 			results.push('=====================================');
@@ -549,7 +540,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			results.push('');
 			results.push('🎯 Security Status: EXCELLENT');
 			results.push('All request parameters are cryptographically signed and validated.');
-			
+
 			setSignatureValidationResults(results.join('\n'));
 		} catch (error) {
 			setSignatureValidationResults(`❌ Request signature validation failed: ${error}`);
@@ -561,10 +552,10 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const validateCertificate = useCallback(async () => {
 		setIsValidating(true);
 		setX5tResults('Validating X.509 certificate thumbprint...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 1200));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1200));
+
 			const results = [];
 			results.push('🔐 X.509 Certificate Validation (x5t)');
 			results.push('===================================');
@@ -577,7 +568,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			results.push('');
 			results.push('🎯 Security Status: EXCELLENT');
 			results.push('Certificate validation provides additional security layer.');
-			
+
 			setX5tResults(results.join('\n'));
 		} catch (error) {
 			setX5tResults(`❌ Certificate validation failed: ${error}`);
@@ -603,17 +594,17 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 		demo.push('• Prevents certificate substitution attacks');
 		demo.push('• Enables certificate validation by clients');
 		demo.push('• Provides additional token authenticity verification');
-		
+
 		setX5tResults(demo.join('\n'));
 	}, []);
 
 	const testCORS = useCallback(async () => {
 		setIsValidating(true);
 		setCorsResults('Testing CORS configuration...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 1800));
-			
+			await new Promise((resolve) => setTimeout(resolve, 1800));
+
 			const results = [];
 			results.push('🌐 CORS Configuration Test');
 			results.push('=========================');
@@ -626,7 +617,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 			results.push('');
 			results.push('🎯 Security Status: GOOD');
 			results.push('CORS is properly configured to prevent unauthorized cross-origin requests.');
-			
+
 			setCorsResults(results.join('\n'));
 		} catch (error) {
 			setCorsResults(`❌ CORS test failed: ${error}`);
@@ -638,31 +629,31 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const generateSecurityReport = useCallback(async () => {
 		setIsValidating(true);
 		setSecurityReportResults('Generating security report...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 2000));
-			
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+
 			const report = [];
 			report.push('🔒 SECURITY ANALYSIS REPORT');
 			report.push('========================');
 			report.push('');
-			
+
 			if (securityAnalysis.length > 0) {
 				report.push('📊 Security Features Status:');
-				securityAnalysis.forEach(feature => {
+				securityAnalysis.forEach((feature) => {
 					const status = feature.configured ? '✅' : feature.enabled ? '⚠️' : '❌';
 					report.push(`${status} ${feature.feature}: ${feature.recommendation}`);
 				});
 				report.push('');
 			}
-			
+
 			report.push('🎯 Recommendations:');
 			report.push('• Enable PKCE with S256 method for maximum security');
 			report.push('• Use client authentication for confidential clients');
 			report.push('• Enable refresh token replay protection');
 			report.push('• Consider using Pushed Authorization Requests (PAR)');
 			report.push('• Implement proper token validation and expiration handling');
-			
+
 			setSecurityReportResults(report.join('\n'));
 		} catch (error) {
 			setSecurityReportResults(`❌ Report generation failed: ${error}`);
@@ -674,43 +665,43 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const runSecurityTests = useCallback(async () => {
 		setIsValidating(true);
 		setSecurityTestResults('Running security tests...');
-		
+
 		try {
-			await new Promise(resolve => setTimeout(resolve, 2500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 2500));
+
 			const tests = [];
 			tests.push('🧪 SECURITY TEST RESULTS');
 			tests.push('=======================');
 			tests.push('');
-			
+
 			// Test PKCE
 			if (securityConfig?.pkce.enabled) {
 				tests.push('✅ PKCE: Enabled and properly configured');
 			} else {
 				tests.push('❌ PKCE: Not enabled - consider enabling for better security');
 			}
-			
+
 			// Test Client Authentication
 			if (securityConfig?.clientAuth.method !== 'none') {
 				tests.push('✅ Client Authentication: Configured');
 			} else {
 				tests.push('⚠️ Client Authentication: Not configured - acceptable for public clients');
 			}
-			
+
 			// Test Token Security
 			if (securityConfig?.tokenSecurity.refreshTokenReplayProtection) {
 				tests.push('✅ Refresh Token Replay Protection: Enabled');
 			} else {
 				tests.push('❌ Refresh Token Replay Protection: Not enabled');
 			}
-			
+
 			// Test Advanced Features
 			if (securityConfig?.advancedFeatures.requirePushedAuthorizationRequest) {
 				tests.push('✅ PAR: Enabled for enhanced security');
 			} else {
 				tests.push('⚠️ PAR: Not enabled - consider for better security');
 			}
-			
+
 			setSecurityTestResults(tests.join('\n'));
 		} catch (error) {
 			setSecurityTestResults(`❌ Security tests failed: ${error}`);
@@ -723,7 +714,8 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 		setConfirmModal({
 			isOpen: true,
 			title: 'Terminate Session',
-			message: 'Are you sure you want to terminate the current session? This will log you out and invalidate all tokens.',
+			message:
+				'Are you sure you want to terminate the current session? This will log you out and invalidate all tokens.',
 			onConfirm: () => {
 				terminateSessionService();
 				onTerminateSession?.();
@@ -749,15 +741,13 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 	const renderConfigurationTab = () => (
 		<TabContent $active={activeTab === 'config'}>
 			{pingOneConfig ? (
-				<SecurityConfigComponent
-					pingOneConfig={pingOneConfig}
-					flowType={flowType}
-				/>
+				<SecurityConfigComponent pingOneConfig={pingOneConfig} flowType={flowType} />
 			) : (
 				<InfoBox>
 					<InfoTitle>No PingOne Configuration Available</InfoTitle>
 					<InfoText>
-						To see security configuration options, please configure your PingOne application settings first.
+						To see security configuration options, please configure your PingOne application
+						settings first.
 					</InfoText>
 				</InfoBox>
 			)}
@@ -775,10 +765,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Validate token expiration times and check for expired tokens
 					</FeatureDescription>
-					<ActionButton
-						onClick={validateTokenExpiration}
-						disabled={isValidating || !tokens}
-					>
+					<ActionButton onClick={validateTokenExpiration} disabled={isValidating || !tokens}>
 						<FiPlay size={16} />
 						{isValidating ? 'Validating...' : 'Validate Expiration'}
 					</ActionButton>
@@ -795,10 +782,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Validate JWT token signatures and verify token integrity
 					</FeatureDescription>
-					<ActionButton
-						onClick={validateTokenSignature}
-						disabled={isValidating || !tokens}
-					>
+					<ActionButton onClick={validateTokenSignature} disabled={isValidating || !tokens}>
 						<FiPlay size={16} />
 						{isValidating ? 'Validating...' : 'Validate Signatures'}
 					</ActionButton>
@@ -815,10 +799,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Terminate the current session and log out the user
 					</FeatureDescription>
-					<ActionButton
-						onClick={handleTerminateSession}
-						$variant="danger"
-					>
+					<ActionButton onClick={handleTerminateSession} $variant="danger">
 						<FiTrash2 size={16} />
 						Terminate Session
 					</ActionButton>
@@ -828,25 +809,21 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						style={{
 							background: '#3b82f6',
 							color: 'white',
-							border: '1px solid #3b82f6'
+							border: '1px solid #3b82f6',
 						}}
 					>
 						<FiEye size={16} />
 						{showLogoutUrl ? 'Hide' : 'Show'} Logout URL
 					</ActionButton>
-					
+
 					{/* Session Termination Request URL Display */}
 					{showLogoutUrl && (
-						<InfoBox
-							style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}
-						>
+						<InfoBox style={{ marginTop: '1rem', background: '#f8fafc', borderColor: '#cbd5e1' }}>
 							<InfoTitle style={{ color: '#475569' }}>🌐 Logout Request URL</InfoTitle>
 							<CodeBlock $isVisible={true}>
 								{calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff'}
 							</CodeBlock>
-							<InfoText
-								style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}
-							>
+							<InfoText style={{ color: '#64748b', fontSize: '0.85rem', marginTop: '0.5rem' }}>
 								<strong>Parameters:</strong>
 								<br />• id_token_hint: ID token for logout hint
 								<br />• client_id: Client identifier
@@ -857,7 +834,8 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 									$variant="primary"
 									$primaryColor={colors.primary}
 									onClick={() => {
-										const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+										const logoutUrl =
+											calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
 										window.open(logoutUrl, '_blank');
 									}}
 								>
@@ -867,7 +845,8 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 									$variant="secondary"
 									$primaryColor={colors.primary}
 									onClick={() => {
-										const logoutUrl = calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
+										const logoutUrl =
+											calculatedLogoutUrl || 'https://auth.pingone.com/{environmentId}/as/signoff';
 										navigator.clipboard.writeText(logoutUrl);
 										v4ToastManager.showSuccess('📋 Logout URL copied to clipboard!');
 									}}
@@ -887,10 +866,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Revoke all tokens and invalidate the current session
 					</FeatureDescription>
-					<ActionButton
-						onClick={handleRevokeTokens}
-						$variant="danger"
-					>
+					<ActionButton onClick={handleRevokeTokens} $variant="danger">
 						<FiX size={16} />
 						Revoke Tokens
 					</ActionButton>
@@ -904,15 +880,13 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Validate HMAC-SHA256 signatures on OAuth requests to prevent tampering
 					</FeatureDescription>
-					<ActionButton
-						onClick={validateRequestSignature}
-						disabled={isValidating}
-					>
+					<ActionButton onClick={validateRequestSignature} disabled={isValidating}>
 						<FiPlay size={16} />
 						{isValidating ? 'Validating...' : 'Validate Request Signature'}
 					</ActionButton>
 					<CodeBlock $isVisible={!!signatureValidationResults}>
-						{signatureValidationResults || 'Click "Validate Request Signature" to check request integrity'}
+						{signatureValidationResults ||
+							'Click "Validate Request Signature" to check request integrity'}
 					</CodeBlock>
 				</FeatureCard>
 
@@ -924,17 +898,11 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Validate X.509 certificate thumbprints in JWT headers for enhanced security
 					</FeatureDescription>
-					<ActionButton
-						onClick={validateCertificate}
-						disabled={!tokens}
-					>
+					<ActionButton onClick={validateCertificate} disabled={!tokens}>
 						<FiShield size={16} />
 						Verify Certificate
 					</ActionButton>
-					<ActionButton
-						onClick={showX5tDemo}
-						$variant="secondary"
-					>
+					<ActionButton onClick={showX5tDemo} $variant="secondary">
 						<FiEye size={16} />
 						View x5t in Tokens
 					</ActionButton>
@@ -951,10 +919,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Test Cross-Origin Resource Sharing configuration and security
 					</FeatureDescription>
-					<ActionButton
-						onClick={testCORS}
-						disabled={isValidating}
-					>
+					<ActionButton onClick={testCORS} disabled={isValidating}>
 						<FiPlay size={16} />
 						{isValidating ? 'Testing...' : 'Test CORS Configuration'}
 					</ActionButton>
@@ -971,21 +936,17 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Generate comprehensive security report and run automated tests
 					</FeatureDescription>
-					<ActionButton
-						onClick={generateSecurityReport}
-					>
+					<ActionButton onClick={generateSecurityReport}>
 						<FiDownload size={16} />
 						Export Security Report
 					</ActionButton>
-					<ActionButton
-						onClick={runSecurityTests}
-						$variant="secondary"
-					>
+					<ActionButton onClick={runSecurityTests} $variant="secondary">
 						<FiPlay size={16} />
 						Run Security Test Suite
 					</ActionButton>
 					<CodeBlock $isVisible={!!securityReportResults}>
-						{securityReportResults || 'Click "Export Security Report" to generate comprehensive analysis'}
+						{securityReportResults ||
+							'Click "Export Security Report" to generate comprehensive analysis'}
 					</CodeBlock>
 				</FeatureCard>
 			</FeatureGrid>
@@ -1000,13 +961,8 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 						<FiDownload size={20} />
 						Security Report
 					</FeatureTitle>
-					<FeatureDescription>
-						Generate a comprehensive security analysis report
-					</FeatureDescription>
-					<ActionButton
-						onClick={generateSecurityReport}
-						disabled={isValidating}
-					>
+					<FeatureDescription>Generate a comprehensive security analysis report</FeatureDescription>
+					<ActionButton onClick={generateSecurityReport} disabled={isValidating}>
 						<FiPlay size={16} />
 						{isValidating ? 'Generating...' : 'Generate Report'}
 					</ActionButton>
@@ -1023,10 +979,7 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 					<FeatureDescription>
 						Run automated security tests on your configuration
 					</FeatureDescription>
-					<ActionButton
-						onClick={runSecurityTests}
-						disabled={isValidating}
-					>
+					<ActionButton onClick={runSecurityTests} disabled={isValidating}>
 						<FiPlay size={16} />
 						{isValidating ? 'Testing...' : 'Run Tests'}
 					</ActionButton>
@@ -1071,15 +1024,17 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 							>
 								<FiPlay size={16} />
 								Demo & Testing
-								<span style={{ 
-									marginLeft: '0.5rem', 
-									fontSize: '0.75rem', 
-									background: '#10b981', 
-									color: 'white', 
-									padding: '0.125rem 0.375rem', 
-									borderRadius: '0.25rem',
-									fontWeight: '600'
-								}}>
+								<span
+									style={{
+										marginLeft: '0.5rem',
+										fontSize: '0.75rem',
+										background: '#10b981',
+										color: 'white',
+										padding: '0.125rem 0.375rem',
+										borderRadius: '0.25rem',
+										fontWeight: '600',
+									}}
+								>
 									🚪 Logout
 								</span>
 							</Tab>
@@ -1090,15 +1045,17 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 							>
 								<FiShield size={16} />
 								Analysis
-								<span style={{ 
-									marginLeft: '0.5rem', 
-									fontSize: '0.75rem', 
-									background: '#ec4899', 
-									color: 'white', 
-									padding: '0.125rem 0.375rem', 
-									borderRadius: '0.25rem',
-									fontWeight: '600'
-								}}>
+								<span
+									style={{
+										marginLeft: '0.5rem',
+										fontSize: '0.75rem',
+										background: '#ec4899',
+										color: 'white',
+										padding: '0.125rem 0.375rem',
+										borderRadius: '0.25rem',
+										fontWeight: '600',
+									}}
+								>
 									🛡️ Security
 								</span>
 							</Tab>
@@ -1116,7 +1073,9 @@ const EnhancedSecurityFeaturesDemo: React.FC<EnhancedSecurityFeaturesDemoProps> 
 				title={confirmModal.title}
 				message={confirmModal.message}
 				onConfirm={confirmModal.onConfirm}
-				onCancel={() => setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })}
+				onCancel={() =>
+					setConfirmModal({ isOpen: false, title: '', message: '', onConfirm: () => {} })
+				}
 			/>
 		</>
 	);

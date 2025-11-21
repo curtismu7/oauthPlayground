@@ -3,7 +3,7 @@
 
 import React, { useState } from 'react';
 import { FiEye, FiEyeOff } from '../../../services/commonImportsService';
-import { FormGroup, Label, Input } from './PasswordResetSharedComponents';
+import { FormGroup, Input, Label } from './PasswordResetSharedComponents';
 
 interface PasswordInputProps {
 	label: string;
@@ -62,4 +62,3 @@ export const PasswordInput: React.FC<PasswordInputProps> = ({
 		</FormGroup>
 	);
 };
-

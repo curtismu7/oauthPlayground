@@ -1,7 +1,7 @@
 // src/examples/V7ServicesIntegrationExample.tsx
 /**
  * V7 Services Integration Example
- * 
+ *
  * Demonstrates all four options (A, B, C, D) for V7 services integration:
  * A. Integrate V7SharedService into existing V7 flows
  * B. Create OAuth vs OIDC variants using templates
@@ -9,15 +9,12 @@
  * D. Create comprehensive tests for V7 services
  */
 
-import React, { useCallback, useState, useEffect } from 'react';
-import { V7SharedService } from '../services/v7SharedService';
-import { V7FlowTemplateService } from '../services/v7FlowTemplateService';
-import { V7EducationalContentService } from '../services/v7EducationalContentService';
-import { V7ServicesTestSuite } from '../tests/v7ServicesTestSuite';
-import { V7FlowTemplate } from '../templates/V7FlowTemplate';
-import { V7OAuthFlowVariant, V7OIDCFlowVariant, V7FlowVariantSelector } from '../templates/V7FlowVariants';
+import React, { useState } from 'react';
 import { FlowUIService } from '../services/flowUIService';
-import type { V7FlowName } from '../services/v7SharedService';
+import { V7EducationalContentService } from '../services/v7EducationalContentService';
+import { V7SharedService } from '../services/v7SharedService';
+import { V7FlowVariantSelector } from '../templates/V7FlowVariants';
+import { V7ServicesTestSuite } from '../tests/v7ServicesTestSuite';
 
 // Get shared UI components
 const {
@@ -54,8 +51,8 @@ export const V7ServicesIntegrationExample: React.FC = () => {
 			<InfoBox $variant="info">
 				<InfoTitle>Option A: V7 Services Integration</InfoTitle>
 				<InfoText>
-					Demonstrates how to integrate V7SharedService into existing V7 flows
-					with comprehensive compliance features.
+					Demonstrates how to integrate V7SharedService into existing V7 flows with comprehensive
+					compliance features.
 				</InfoText>
 			</InfoBox>
 
@@ -94,10 +91,14 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 				</CollapsibleHeaderButton>
 			</CollapsibleSection>
 
-			<Button onClick={() => {
-				const compliance = V7SharedService.SpecificationCompliance.checkFlowCompliance('oauth-authorization-code-v7');
-				setComplianceStatus(compliance);
-			}}>
+			<Button
+				onClick={() => {
+					const compliance = V7SharedService.SpecificationCompliance.checkFlowCompliance(
+						'oauth-authorization-code-v7'
+					);
+					setComplianceStatus(compliance);
+				}}
+			>
 				Check Compliance Status
 			</Button>
 
@@ -123,8 +124,8 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 			<InfoBox $variant="info">
 				<InfoTitle>Option B: V7 Flow Variants</InfoTitle>
 				<InfoText>
-					Demonstrates OAuth vs OIDC variants using V7 templates with
-					built-in compliance architecture.
+					Demonstrates OAuth vs OIDC variants using V7 templates with built-in compliance
+					architecture.
 				</InfoText>
 			</InfoBox>
 
@@ -143,15 +144,19 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 			<InfoBox $variant="info">
 				<InfoTitle>Option C: Enhanced Educational Content</InfoTitle>
 				<InfoText>
-					Demonstrates comprehensive specification education for V7 flows
-					with interactive learning components.
+					Demonstrates comprehensive specification education for V7 flows with interactive learning
+					components.
 				</InfoText>
 			</InfoBox>
 
-			<Button onClick={() => {
-				const content = V7EducationalContentService.getEducationalContent('oauth-authorization-code-v7');
-				setEducationalContent(content);
-			}}>
+			<Button
+				onClick={() => {
+					const content = V7EducationalContentService.getEducationalContent(
+						'oauth-authorization-code-v7'
+					);
+					setEducationalContent(content);
+				}}
+			>
 				Load Educational Content
 			</Button>
 
@@ -183,13 +188,19 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 					<GeneratedContentBox>
 						<InfoTitle>Interactive Learning</InfoTitle>
 						<InfoText>Quizzes: {educationalContent.interactiveLearning.quizzes.length}</InfoText>
-						<InfoText>Scenarios: {educationalContent.interactiveLearning.scenarios.length}</InfoText>
+						<InfoText>
+							Scenarios: {educationalContent.interactiveLearning.scenarios.length}
+						</InfoText>
 					</GeneratedContentBox>
 
 					<GeneratedContentBox>
 						<InfoTitle>Compliance Rules</InfoTitle>
-						<InfoText>Validation Rules: {educationalContent.complianceChecking.validationRules.length}</InfoText>
-						<InfoText>Best Practices: {educationalContent.complianceChecking.bestPractices.length}</InfoText>
+						<InfoText>
+							Validation Rules: {educationalContent.complianceChecking.validationRules.length}
+						</InfoText>
+						<InfoText>
+							Best Practices: {educationalContent.complianceChecking.bestPractices.length}
+						</InfoText>
 					</GeneratedContentBox>
 				</>
 			)}
@@ -202,15 +213,17 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 			<InfoBox $variant="info">
 				<InfoTitle>Option D: Testing and Validation</InfoTitle>
 				<InfoText>
-					Demonstrates comprehensive testing framework for V7 services
-					with automated compliance testing.
+					Demonstrates comprehensive testing framework for V7 services with automated compliance
+					testing.
 				</InfoText>
 			</InfoBox>
 
-			<Button onClick={async () => {
-				const results = await V7ServicesTestSuite.runAllTests();
-				setTestResults(results);
-			}}>
+			<Button
+				onClick={async () => {
+					const results = await V7ServicesTestSuite.runAllTests();
+					setTestResults(results);
+				}}
+			>
 				Run V7 Services Test Suite
 			</Button>
 
@@ -236,7 +249,9 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 							{testResults.tests.map((test, index) => (
 								<li key={index}>
 									{test.passed ? '✅' : '❌'} {test.testName} ({test.duration}ms)
-									{!test.passed && <div style={{ color: 'red', fontSize: '0.875rem' }}>{test.message}</div>}
+									{!test.passed && (
+										<div style={{ color: 'red', fontSize: '0.875rem' }}>{test.message}</div>
+									)}
 								</li>
 							))}
 						</InfoList>
@@ -252,8 +267,9 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 			<InfoBox $variant="info">
 				<InfoTitle>V7 Services Integration Example</InfoTitle>
 				<InfoText>
-					This example demonstrates all four options for V7 services integration:
-					A. V7 Services Integration, B. V7 Flow Variants, C. Enhanced Educational Content, D. Testing and Validation
+					This example demonstrates all four options for V7 services integration: A. V7 Services
+					Integration, B. V7 Flow Variants, C. Enhanced Educational Content, D. Testing and
+					Validation
 				</InfoText>
 			</InfoBox>
 
@@ -268,7 +284,7 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 							onClick={() => setSelectedOption('A')}
 							style={{
 								backgroundColor: selectedOption === 'A' ? '#16a34a' : '#e5e7eb',
-								color: selectedOption === 'A' ? 'white' : 'black'
+								color: selectedOption === 'A' ? 'white' : 'black',
 							}}
 						>
 							V7 Services Integration
@@ -280,7 +296,7 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 							onClick={() => setSelectedOption('B')}
 							style={{
 								backgroundColor: selectedOption === 'B' ? '#3b82f6' : '#e5e7eb',
-								color: selectedOption === 'B' ? 'white' : 'black'
+								color: selectedOption === 'B' ? 'white' : 'black',
 							}}
 						>
 							V7 Flow Variants
@@ -292,7 +308,7 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 							onClick={() => setSelectedOption('C')}
 							style={{
 								backgroundColor: selectedOption === 'C' ? '#f59e0b' : '#e5e7eb',
-								color: selectedOption === 'C' ? 'white' : 'black'
+								color: selectedOption === 'C' ? 'white' : 'black',
 							}}
 						>
 							Enhanced Educational Content
@@ -304,7 +320,7 @@ const securityHeaders = V7SharedService.SecurityHeaders.getSecurityHeaders(flowN
 							onClick={() => setSelectedOption('D')}
 							style={{
 								backgroundColor: selectedOption === 'D' ? '#dc2626' : '#e5e7eb',
-								color: selectedOption === 'D' ? 'white' : 'black'
+								color: selectedOption === 'D' ? 'white' : 'black',
 							}}
 						>
 							Testing and Validation

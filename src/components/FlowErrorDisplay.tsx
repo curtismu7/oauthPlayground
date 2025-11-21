@@ -1,38 +1,38 @@
 // src/components/FlowErrorDisplay.tsx
 /**
  * Full-Page Error Display Component
- * 
+ *
  * Displays errors with V5 stepper, error details, and action buttons.
  * Used in callback pages and major error states.
  */
 
 import React from 'react';
+import * as Icons from 'react-icons/fi';
+import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiHome, FiRefreshCw, FiSettings, FiXCircle } from 'react-icons/fi';
-import * as Icons from 'react-icons/fi';
+import type { ErrorTemplate } from '../constants/errorMessages';
+import type { FlowType } from '../services/flowStepDefinitions';
 import FlowSequenceDisplay from './FlowSequenceDisplay';
 import OAuthErrorHelper from './OAuthErrorHelper';
-import type { FlowType } from '../services/flowStepDefinitions';
-import type { ErrorTemplate } from '../constants/errorMessages';
 
 export interface FlowErrorDisplayProps {
 	// Flow context
 	flowType: FlowType;
 	flowKey: string;
 	currentStep: number;
-	
+
 	// Error details
 	errorTemplate: ErrorTemplate;
 	errorCode?: string;
 	errorDescription?: string;
 	correlationId?: string;
-	
+
 	// Actions
 	onStartOver?: () => void;
 	onRetry?: () => void;
 	onGoToConfig?: () => void;
-	
+
 	// Additional metadata
 	metadata?: Record<string, any>;
 }
@@ -175,7 +175,6 @@ const ActionButton = styled.button<{ $variant?: 'primary' | 'secondary' | 'ghost
 						transform: translateY(-2px);
 					}
 				`;
-			case 'ghost':
 			default:
 				return `
 					background: transparent;
@@ -215,10 +214,10 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 	metadata,
 }) => {
 	const navigate = useNavigate();
-	
+
 	// Get icon component
 	const IconComponent = (Icons as any)[errorTemplate.icon] || FiXCircle;
-	
+
 	// Default handlers
 	const handleStartOver = () => {
 		if (onStartOver) {
@@ -229,7 +228,7 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 			navigate(flowPath);
 		}
 	};
-	
+
 	const handleRetry = () => {
 		if (onRetry) {
 			onRetry();
@@ -238,7 +237,7 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 			window.location.reload();
 		}
 	};
-	
+
 	const handleGoToConfig = () => {
 		if (onGoToConfig) {
 			onGoToConfig();
@@ -247,13 +246,13 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 			navigate('/configuration');
 		}
 	};
-	
+
 	return (
 		<PageContainer>
 			<StepperContainer>
 				<FlowSequenceDisplay flowType={flowType} />
 			</StepperContainer>
-			
+
 			<ErrorContainer>
 				<ErrorCard>
 					<ErrorHeader>
@@ -265,7 +264,7 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 							<ErrorMessage>{errorTemplate.message}</ErrorMessage>
 						</ErrorContent>
 					</ErrorHeader>
-					
+
 					{(errorCode || errorDescription || correlationId) && (
 						<ErrorMetadata>
 							{errorCode && (
@@ -286,15 +285,16 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 									<MetadataValue>{correlationId}</MetadataValue>
 								</MetadataRow>
 							)}
-							{metadata && Object.entries(metadata).map(([key, value]) => (
-								<MetadataRow key={key}>
-									<MetadataLabel>{key}:</MetadataLabel>
-									<MetadataValue>{String(value)}</MetadataValue>
-								</MetadataRow>
-							))}
+							{metadata &&
+								Object.entries(metadata).map(([key, value]) => (
+									<MetadataRow key={key}>
+										<MetadataLabel>{key}:</MetadataLabel>
+										<MetadataValue>{String(value)}</MetadataValue>
+									</MetadataRow>
+								))}
 						</ErrorMetadata>
 					)}
-					
+
 					<OAuthErrorHelper
 						error={errorCode || errorTemplate.title}
 						errorDescription={errorDescription || errorTemplate.message}
@@ -302,20 +302,20 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 						onRetry={handleRetry}
 						onGoToConfig={handleGoToConfig}
 					/>
-					
+
 					<ActionButtons>
 						<ActionButton $variant="primary" onClick={handleStartOver}>
 							<FiHome size={18} />
 							Start Over
 						</ActionButton>
-						
+
 						{onRetry && (
 							<ActionButton $variant="secondary" onClick={handleRetry}>
 								<FiRefreshCw size={18} />
 								Try Again
 							</ActionButton>
 						)}
-						
+
 						<ActionButton $variant="ghost" onClick={handleGoToConfig}>
 							<FiSettings size={18} />
 							Configuration
@@ -328,4 +328,3 @@ export const FlowErrorDisplay: React.FC<FlowErrorDisplayProps> = ({
 };
 
 export default FlowErrorDisplay;
-

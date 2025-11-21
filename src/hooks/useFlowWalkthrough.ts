@@ -2,7 +2,7 @@
 // Custom hook for using FlowWalkthroughService
 
 import { useMemo } from 'react';
-import { FlowWalkthroughService, FlowWalkthroughConfig } from '../services/FlowWalkthroughService';
+import { FlowWalkthroughConfig, FlowWalkthroughService } from '../services/FlowWalkthroughService';
 
 export interface UseFlowWalkthroughReturn {
 	config: FlowWalkthroughConfig | null;

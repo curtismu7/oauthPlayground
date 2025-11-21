@@ -2,36 +2,41 @@
 // Square POS Terminal Style Device Authorization Flow Interface
 // Designed to look like actual Square POS hardware
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiCreditCard, FiDollarSign, FiFileText } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiCreditCard,
+	FiExternalLink,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
 import { logger } from '../utils/logger';
-import InlineTokenDisplay from './InlineTokenDisplay';
 import StandardizedTokenDisplay from './StandardizedTokenDisplay';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
-  background: ${({ $authorized }) => 
-    $authorized 
-      ? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)' 
-      : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
-  };
+  background: ${({ $authorized }) =>
+		$authorized
+			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 50%, #00ff88 100%)'
+			: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
   border-radius: 1rem;
   padding: 1.5rem;
   margin: 2rem 0;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.1),
-    0 0 0 1px ${({ $authorized }) => $authorized ? '#00ff88' : '#e5e7eb'},
+    0 0 0 1px ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')},
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   position: relative;
   overflow: hidden;
-  border: 2px solid ${({ $authorized }) => $authorized ? '#00ff88' : '#e5e7eb'};
+  border: 2px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
-  color: ${({ $authorized }) => $authorized ? '#000000' : '#1f2937'};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   transition: all 0.3s ease;
   
   /* Square tablet design - white with modern styling */
@@ -43,11 +48,10 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
     right: 0;
     bottom: 0;
     border-radius: 1rem;
-    background: ${({ $authorized }) => 
-      $authorized 
-        ? 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 204, 106, 0.1) 100%)' 
-        : 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%)'
-    };
+    background: ${({ $authorized }) =>
+			$authorized
+				? 'linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 204, 106, 0.1) 100%)'
+				: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%)'};
     pointer-events: none;
   }
   
@@ -59,7 +63,7 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
     left: 0.5rem;
     font-size: 0.75rem;
     font-weight: 700;
-    color: ${({ $authorized }) => $authorized ? '#000000' : '#00d4aa'};
+    color: ${({ $authorized }) => ($authorized ? '#000000' : '#00d4aa')};
     letter-spacing: 1px;
     z-index: 3;
   }
@@ -67,18 +71,17 @@ const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
 
 // Square POS Header - Authentic Square Design
 const SquareHeader = styled.div<{ $authorized?: boolean }>`
-  background: ${({ $authorized }) => 
-    $authorized 
-      ? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)' 
-      : 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'
-  };
-  border: 1px solid ${({ $authorized }) => $authorized ? '#00ff88' : '#e5e7eb'};
+  background: ${({ $authorized }) =>
+		$authorized
+			? 'linear-gradient(135deg, #00ff88 0%, #00cc6a 100%)'
+			: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)'};
+  border: 1px solid ${({ $authorized }) => ($authorized ? '#00ff88' : '#e5e7eb')};
   border-radius: 0.5rem;
   padding: 1rem;
   margin-bottom: 1.5rem;
   text-align: center;
   position: relative;
-  color: ${({ $authorized }) => $authorized ? '#000000' : '#1f2937'};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   font-weight: 600;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
   font-size: 0.875rem;
@@ -89,7 +92,7 @@ const SquareHeader = styled.div<{ $authorized?: boolean }>`
 const SquareTitle = styled.div<{ $authorized?: boolean }>`
   font-size: 1.25rem;
   font-weight: 600;
-  color: ${({ $authorized }) => $authorized ? '#000000' : '#1f2937'};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#1f2937')};
   margin-bottom: 0.5rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -98,7 +101,7 @@ const SquareTitle = styled.div<{ $authorized?: boolean }>`
 
 const SquareSubtitle = styled.div<{ $authorized?: boolean }>`
   font-size: 0.875rem;
-  color: ${({ $authorized }) => $authorized ? '#000000' : '#6b7280'};
+  color: ${({ $authorized }) => ($authorized ? '#000000' : '#6b7280')};
   font-weight: 500;
   transition: all 0.3s ease;
 `;
@@ -140,15 +143,20 @@ const POSLogo = styled.div`
 `;
 
 const POSStatus = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return '#f59e0b';
-      case 'authorized': return '#10b981';
-      case 'denied': return '#ef4444';
-      case 'expired': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'authorized':
+				return '#10b981';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
   color: #ffffff;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -168,13 +176,16 @@ const POSKeypad = styled.div`
 
 const POSKey = styled.button<{ $type: 'number' | 'action' | 'special' }>`
   aspect-ratio: 1;
-  background: ${props => {
-    switch (props.$type) {
-      case 'number': return 'linear-gradient(135deg, #374151 0%, #1f2937 100%)';
-      case 'action': return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-      case 'special': return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$type) {
+			case 'number':
+				return 'linear-gradient(135deg, #374151 0%, #1f2937 100%)';
+			case 'action':
+				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+			case 'special':
+				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+		}
+	}};
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   color: #ffffff;
@@ -260,14 +271,18 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $status?: string }>`
   font-size: 0.875rem;
   font-weight: 500;
-  color: ${props => {
-    switch (props.$status) {
-      case 'connected': return '#10b981';
-      case 'disconnected': return '#ef4444';
-      case 'pending': return '#f59e0b';
-      default: return '#ffffff';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'connected':
+				return '#10b981';
+			case 'disconnected':
+				return '#ef4444';
+			case 'pending':
+				return '#f59e0b';
+			default:
+				return '#ffffff';
+		}
+	}};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -277,9 +292,9 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${props => props.$active ? props.$color : '#6b7280'};
-  box-shadow: ${props => props.$active ? `0 0 8px ${props.$color}` : 'none'};
-  animation: ${props => props.$active ? 'pulse 2s infinite' : 'none'};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
+  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -347,7 +362,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -399,190 +414,184 @@ const SuccessMessage = styled.div`
 `;
 
 interface SquarePOSDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Authorization';
-      case 'authorized':
-        return 'POS Connected';
-      case 'denied':
-        return 'Connection Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Authorization';
+			case 'authorized':
+				return 'POS Connected';
+			case 'denied':
+				return 'Connection Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  const isAuthorized = state.status === 'authorized';
+	const isAuthorized = state.status === 'authorized';
 
-  return (
-    <>
-    <SquarePOSContainer $authorized={isAuthorized}>
-      {/* Square POS Header */}
-      <SquareHeader $authorized={isAuthorized}>
-        <SquareTitle $authorized={isAuthorized}>
-          <FiCreditCard style={{ marginRight: '0.5rem' }} />
-          Square POS Terminal
-        </SquareTitle>
-        <SquareSubtitle $authorized={isAuthorized}>Payment Authorization System</SquareSubtitle>
-      </SquareHeader>
+	return (
+		<>
+			<SquarePOSContainer $authorized={isAuthorized}>
+				{/* Square POS Header */}
+				<SquareHeader $authorized={isAuthorized}>
+					<SquareTitle $authorized={isAuthorized}>
+						<FiCreditCard style={{ marginRight: '0.5rem' }} />
+						Square POS Terminal
+					</SquareTitle>
+					<SquareSubtitle $authorized={isAuthorized}>Payment Authorization System</SquareSubtitle>
+				</SquareHeader>
 
-      {/* POS Display Screen */}
-      <POSDisplay>
-        <POSHeader>
-          <POSLogo>Square POS</POSLogo>
-          <POSStatus $status={state.status}>
-            {getStatusIcon()}
-            {getStatusText()}
-          </POSStatus>
-        </POSHeader>
+				{/* POS Display Screen */}
+				<POSDisplay>
+					<POSHeader>
+						<POSLogo>Square POS</POSLogo>
+						<POSStatus $status={state.status}>
+							{getStatusIcon()}
+							{getStatusText()}
+						</POSStatus>
+					</POSHeader>
 
-        <div style={{ marginTop: '2rem' }}>
-          <AuthCodeDisplay>
-            {deviceFlowService.formatUserCode(state.userCode)}
-          </AuthCodeDisplay>
-        </div>
-      </POSDisplay>
+					<div style={{ marginTop: '2rem' }}>
+						<AuthCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</AuthCodeDisplay>
+					</div>
+				</POSDisplay>
 
-      {/* POS Keypad */}
-      <POSKeypad>
-        <POSKey $type="number">1</POSKey>
-        <POSKey $type="number">2</POSKey>
-        <POSKey $type="number">3</POSKey>
-        <POSKey $type="number">4</POSKey>
-        <POSKey $type="number">5</POSKey>
-        <POSKey $type="number">6</POSKey>
-        <POSKey $type="number">7</POSKey>
-        <POSKey $type="number">8</POSKey>
-        <POSKey $type="number">9</POSKey>
-        <POSKey $type="special">Clear</POSKey>
-        <POSKey $type="number">0</POSKey>
-        <POSKey $type="special">Enter</POSKey>
-      </POSKeypad>
+				{/* POS Keypad */}
+				<POSKeypad>
+					<POSKey $type="number">1</POSKey>
+					<POSKey $type="number">2</POSKey>
+					<POSKey $type="number">3</POSKey>
+					<POSKey $type="number">4</POSKey>
+					<POSKey $type="number">5</POSKey>
+					<POSKey $type="number">6</POSKey>
+					<POSKey $type="number">7</POSKey>
+					<POSKey $type="number">8</POSKey>
+					<POSKey $type="number">9</POSKey>
+					<POSKey $type="special">Clear</POSKey>
+					<POSKey $type="number">0</POSKey>
+					<POSKey $type="special">Enter</POSKey>
+				</POSKeypad>
 
-      {/* Card Reader */}
-      <CardReader>
-        <FiCreditCard />
-        <CardReaderSlot>
-          <FiCreditCard />
-        </CardReaderSlot>
-        <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
-          Card Reader Ready
-        </span>
-      </CardReader>
+				{/* Card Reader */}
+				<CardReader>
+					<FiCreditCard />
+					<CardReaderSlot>
+						<FiCreditCard />
+					</CardReaderSlot>
+					<span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Card Reader Ready</span>
+				</CardReader>
 
-      {/* Status Display */}
-      <StatusDisplay>
-        <StatusRow>
-          <StatusLabel>Network</StatusLabel>
-          <StatusValue $status="connected">
-            <StatusDot $active={true} $color="#10b981" />
-            Connected
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Power</StatusLabel>
-          <StatusValue>
-            <StatusDot $active={true} $color="#10b981" />
-            AC Power
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Status</StatusLabel>
-          <StatusValue $status={state.status}>
-            {getStatusIcon()}
-            {getStatusText()}
-          </StatusValue>
-        </StatusRow>
-      </StatusDisplay>
+				{/* Status Display */}
+				<StatusDisplay>
+					<StatusRow>
+						<StatusLabel>Network</StatusLabel>
+						<StatusValue $status="connected">
+							<StatusDot $active={true} $color="#10b981" />
+							Connected
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Power</StatusLabel>
+						<StatusValue>
+							<StatusDot $active={true} $color="#10b981" />
+							AC Power
+						</StatusValue>
+					</StatusRow>
+					<StatusRow>
+						<StatusLabel>Status</StatusLabel>
+						<StatusValue $status={state.status}>
+							{getStatusIcon()}
+							{getStatusText()}
+						</StatusValue>
+					</StatusRow>
+				</StatusDisplay>
 
-      {/* QR Code Section */}
-      <QRCodeSection>
-        <QRTitle>Connect to Square Dashboard</QRTitle>
-        <QRSubtitle>
-          Scan this QR code with your phone to complete setup
-        </QRSubtitle>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={160}
-            bgColor="#ffffff"
-            fgColor="#1f2937"
-            level="H"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-        <ActionButtons>
-          <ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-            <FiCopy /> Copy Code
-          </ActionButton>
-          <ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open App
-          </ActionButton>
-        </ActionButtons>
-      </QRCodeSection>
+				{/* QR Code Section */}
+				<QRCodeSection>
+					<QRTitle>Connect to Square Dashboard</QRTitle>
+					<QRSubtitle>Scan this QR code with your phone to complete setup</QRSubtitle>
+					<QRCodeContainer>
+						<QRCodeSVG
+							value={state.verificationUriComplete}
+							size={160}
+							bgColor="#ffffff"
+							fgColor="#1f2937"
+							level="H"
+							includeMargin={true}
+						/>
+					</QRCodeContainer>
+					<ActionButtons>
+						<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
+							<FiCopy /> Copy Code
+						</ActionButton>
+						<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+							<FiExternalLink /> Open App
+						</ActionButton>
+					</ActionButtons>
+				</QRCodeSection>
 
-      {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
-        <SuccessDisplay>
-          <SuccessTitle>
-            <FiCheckCircle />
-            POS Terminal Connected Successfully!
-          </SuccessTitle>
-          <SuccessMessage>
-            Your Square POS terminal is now connected and ready to process payments.
-          </SuccessMessage>
-        </SuccessDisplay>
-      )}
-    </SquarePOSContainer>
+				{/* Success Display */}
+				{state.status === 'authorized' && state.tokens && (
+					<SuccessDisplay>
+						<SuccessTitle>
+							<FiCheckCircle />
+							POS Terminal Connected Successfully!
+						</SuccessTitle>
+						<SuccessMessage>
+							Your Square POS terminal is now connected and ready to process payments.
+						</SuccessMessage>
+					</SuccessDisplay>
+				)}
+			</SquarePOSContainer>
 
-    {/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
-    <StandardizedTokenDisplay 
-      tokens={state.tokens}
-      backgroundColor="rgba(0, 0, 0, 0.2)"
-      borderColor="#333333"
-      headerTextColor="#ffffff"
-    />
-    </>
-  );
+			{/* Token Display Section - RENDERED OUTSIDE container to be truly independent */}
+			<StandardizedTokenDisplay
+				tokens={state.tokens}
+				backgroundColor="rgba(0, 0, 0, 0.2)"
+				borderColor="#333333"
+				headerTextColor="#ffffff"
+			/>
+		</>
+	);
 };
 
 export default SquarePOSDeviceFlow;
