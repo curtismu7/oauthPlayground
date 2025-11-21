@@ -3,6 +3,8 @@
 
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import styled from 'styled-components';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
@@ -10,6 +12,7 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import {
 	HelperText,
 	ResultsHeading,
@@ -22,6 +25,10 @@ import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import UserInformationStep from '../../components/UserInformationStep';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
+import { AuthenticationModalService } from '../../services/authenticationModalService';
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import {
 	FiAlertCircle,
@@ -38,21 +45,13 @@ import {
 	FiSettings,
 	FiShield,
 } from '../../services/commonImportsService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import FlowStorageService from '../../services/flowStorageService';
-
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { AdvancedParametersSectionService } from '../../services/advancedParametersSectionService';
-import { AuthenticationModalService } from '../../services/authenticationModalService';
-import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
 import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
 import EducationalContentService from '../../services/educationalContentService.tsx';
 import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
 import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { getFlowSequence } from '../../services/flowSequenceService';
+import FlowStorageService from '../../services/flowStorageService';
 import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { ResponseMode } from '../../services/responseModeService';
 import {

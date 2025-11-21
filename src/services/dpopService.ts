@@ -2,7 +2,7 @@
 /**
  * DPoP (Demonstration of Proof of Possession) Service
  * RFC 9449 - OAuth 2.0 Demonstrating Proof of Possession (DPoP)
- * 
+ *
  * Provides DPoP token generation and validation for enhanced OAuth security.
  * Particularly useful for Client Credentials and other OAuth flows to prevent
  * token replay attacks and provide proof of possession.
@@ -37,7 +37,7 @@ export class DPoPService {
 	private static keyPair: DPoPKeyPair | null = null;
 	private static config: DPoPConfig = {
 		algorithm: 'ES256',
-		namedCurve: 'P-256'
+		namedCurve: 'P-256',
 	};
 
 	/**
@@ -46,20 +46,20 @@ export class DPoPService {
 	static async generateKeyPair(config?: Partial<DPoPConfig>): Promise<DPoPKeyPair> {
 		try {
 			const finalConfig = { ...DPoPService.config, ...config };
-			
+
 			let keyGenParams: RsaHashedKeyGenParams | EcKeyGenParams;
-			
+
 			if (finalConfig.algorithm === 'RS256') {
 				keyGenParams = {
 					name: 'RSASSA-PKCS1-v1_5',
 					modulusLength: finalConfig.keySize || 2048,
 					publicExponent: new Uint8Array([1, 0, 1]),
-					hash: 'SHA-256'
+					hash: 'SHA-256',
 				};
 			} else {
 				keyGenParams = {
 					name: 'ECDSA',
-					namedCurve: finalConfig.namedCurve || 'P-256'
+					namedCurve: finalConfig.namedCurve || 'P-256',
 				};
 			}
 
@@ -70,7 +70,7 @@ export class DPoPService {
 			);
 
 			const jwk = await window.crypto.subtle.exportKey('jwk', cryptoKeyPair.publicKey);
-			
+
 			// Remove private key components from JWK
 			delete jwk.d;
 			delete jwk.dp;
@@ -82,14 +82,14 @@ export class DPoPService {
 			const keyPair: DPoPKeyPair = {
 				publicKey: cryptoKeyPair.publicKey,
 				privateKey: cryptoKeyPair.privateKey,
-				jwk
+				jwk,
 			};
 
 			DPoPService.keyPair = keyPair;
 			console.log('🔐 [DPoP] Generated new key pair:', {
 				algorithm: finalConfig.algorithm,
 				keyType: jwk.kty,
-				curve: jwk.crv || 'N/A'
+				curve: jwk.crv || 'N/A',
 			});
 
 			return keyPair;
@@ -120,7 +120,7 @@ export class DPoPService {
 			const header = {
 				typ: 'dpop+jwt',
 				alg: DPoPService.config.algorithm,
-				jwk: DPoPService.keyPair!.jwk
+				jwk: DPoPService.keyPair!.jwk,
 			};
 
 			// DPoP JWT Payload
@@ -128,7 +128,7 @@ export class DPoPService {
 				jti,
 				htm: httpMethod.toUpperCase(),
 				htu: httpUri,
-				iat
+				iat,
 			};
 
 			// Add access token hash if provided
@@ -148,7 +148,7 @@ export class DPoPService {
 				htm: payload.htm,
 				htu: payload.htu,
 				hasAccessToken: !!accessToken,
-				hasNonce: !!nonce
+				hasNonce: !!nonce,
 			});
 
 			return {
@@ -156,7 +156,7 @@ export class DPoPService {
 				jti,
 				iat,
 				htm: payload.htm,
-				htu: payload.htu
+				htu: payload.htu,
 			};
 		} catch (error) {
 			console.error('❌ [DPoP] Failed to create proof:', error);
@@ -185,7 +185,7 @@ export class DPoPService {
 	private static generateJti(): string {
 		const array = new Uint8Array(16);
 		window.crypto.getRandomValues(array);
-		return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+		return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 	}
 
 	/**
@@ -196,7 +196,7 @@ export class DPoPService {
 		const data = encoder.encode(accessToken);
 		const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
 		const hashArray = new Uint8Array(hashBuffer);
-		
+
 		// Base64url encode the hash
 		return btoa(String.fromCharCode(...hashArray))
 			.replace(/\+/g, '-')
@@ -209,11 +209,11 @@ export class DPoPService {
 	 */
 	private static async signJWT(header: any, payload: any): Promise<string> {
 		const encoder = new TextEncoder();
-		
+
 		// Base64url encode header and payload
 		const encodedHeader = DPoPService.base64urlEncode(JSON.stringify(header));
 		const encodedPayload = DPoPService.base64urlEncode(JSON.stringify(payload));
-		
+
 		const signingInput = `${encodedHeader}.${encodedPayload}`;
 		const signingInputBytes = encoder.encode(signingInput);
 
@@ -239,18 +239,15 @@ export class DPoPService {
 	 */
 	private static base64urlEncode(data: string | ArrayBuffer): string {
 		let base64: string;
-		
+
 		if (typeof data === 'string') {
 			base64 = btoa(data);
 		} else {
 			const bytes = new Uint8Array(data);
 			base64 = btoa(String.fromCharCode(...bytes));
 		}
-		
-		return base64
-			.replace(/\+/g, '-')
-			.replace(/\//g, '_')
-			.replace(/=/g, '');
+
+		return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 	}
 }
 
@@ -269,10 +266,10 @@ export class DPoPHttpHelper {
 	): Promise<HeadersInit> {
 		try {
 			const proof = await DPoPService.createProof(method, url, accessToken);
-			
+
 			return {
 				...headers,
-				'DPoP': proof.jwt
+				DPoP: proof.jwt,
 			};
 		} catch (error) {
 			console.error('❌ [DPoP] Failed to add DPoP headers:', error);
@@ -290,7 +287,7 @@ export class DPoPHttpHelper {
 		accessToken?: string
 	): Promise<Response> {
 		const method = options.method || 'GET';
-		
+
 		const dpopHeaders = await DPoPHttpHelper.addDPoPHeaders(
 			url,
 			method,
@@ -300,7 +297,7 @@ export class DPoPHttpHelper {
 
 		return fetch(url, {
 			...options,
-			headers: dpopHeaders
+			headers: dpopHeaders,
 		});
 	}
 }
@@ -313,12 +310,7 @@ export class DPoPStatus {
 	 * Check if DPoP is supported by the browser
 	 */
 	static isSupported(): boolean {
-		return !!(
-			window.crypto &&
-			window.crypto.subtle &&
-			window.crypto.subtle.generateKey &&
-			window.crypto.subtle.sign
-		);
+		return !!(window.crypto?.subtle?.generateKey && window.crypto.subtle.sign);
 	}
 
 	/**
@@ -329,7 +321,7 @@ export class DPoPStatus {
 			supported: DPoPStatus.isSupported(),
 			hasKeyPair: !!DPoPService.getPublicKeyJWK(),
 			algorithm: DPoPService['config'].algorithm,
-			publicKey: DPoPService.getPublicKeyJWK()
+			publicKey: DPoPService.getPublicKeyJWK(),
 		};
 	}
 }

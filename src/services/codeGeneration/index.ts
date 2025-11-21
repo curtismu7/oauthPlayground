@@ -1,2 +1,2 @@
-export { CodeGenerationService } from './codeGenerationService';
 export type { CodeGenerationConfig, GeneratedCode } from './codeGenerationService';
+export { CodeGenerationService } from './codeGenerationService';

@@ -2,8 +2,8 @@
 // Comparison of OAuth/OIDC features across Ping products
 
 import React, { useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiInfo, FiXCircle } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiXCircle, FiAlertCircle, FiInfo } from 'react-icons/fi';
 
 interface FeatureSupport {
 	pf: 'full' | 'partial' | 'none' | 'plugin';
@@ -63,9 +63,9 @@ const FilterBar = styled.div`
 
 const FilterButton = styled.button<{ $active: boolean }>`
 	padding: 0.5rem 1rem;
-	border: 2px solid ${props => props.$active ? '#3b82f6' : '#e5e7eb'};
-	background: ${props => props.$active ? '#3b82f6' : 'white'};
-	color: ${props => props.$active ? 'white' : '#374151'};
+	border: 2px solid ${(props) => (props.$active ? '#3b82f6' : '#e5e7eb')};
+	background: ${(props) => (props.$active ? '#3b82f6' : 'white')};
+	color: ${(props) => (props.$active ? 'white' : '#374151')};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
 	font-weight: 600;
@@ -74,7 +74,7 @@ const FilterButton = styled.button<{ $active: boolean }>`
 
 	&:hover {
 		border-color: #3b82f6;
-		background: ${props => props.$active ? '#2563eb' : '#eff6ff'};
+		background: ${(props) => (props.$active ? '#2563eb' : '#eff6ff')};
 	}
 `;
 
@@ -141,11 +141,11 @@ const FeatureRow = styled.div<{ $unverified?: boolean }>`
 	padding: 1rem 1.5rem;
 	border-bottom: 1px solid #f3f4f6;
 	transition: background 0.2s;
-	background: ${props => props.$unverified ? '#fef3c7' : 'transparent'};
-	border-left: ${props => props.$unverified ? '4px solid #f59e0b' : '4px solid transparent'};
+	background: ${(props) => (props.$unverified ? '#fef3c7' : 'transparent')};
+	border-left: ${(props) => (props.$unverified ? '4px solid #f59e0b' : '4px solid transparent')};
 
 	&:hover {
-		background: ${props => props.$unverified ? '#fde68a' : '#f9fafb'};
+		background: ${(props) => (props.$unverified ? '#fde68a' : '#f9fafb')};
 	}
 
 	&:last-child {
@@ -169,9 +169,9 @@ const VerificationBadge = styled.div<{ $verified: boolean }>`
 	border-radius: 9999px;
 	font-size: 0.65rem;
 	font-weight: 600;
-	background: ${props => props.$verified ? '#dcfce7' : '#fef3c7'};
-	color: ${props => props.$verified ? '#166534' : '#92400e'};
-	border: 1px solid ${props => props.$verified ? '#86efac' : '#fbbf24'};
+	background: ${(props) => (props.$verified ? '#dcfce7' : '#fef3c7')};
+	color: ${(props) => (props.$verified ? '#166534' : '#92400e')};
+	border: 1px solid ${(props) => (props.$verified ? '#86efac' : '#fbbf24')};
 	width: fit-content;
 `;
 
@@ -203,20 +203,28 @@ const SupportBadge = styled.div<{ $type: 'full' | 'partial' | 'none' | 'plugin' 
 	border-radius: 9999px;
 	font-size: 0.75rem;
 	font-weight: 600;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$type) {
-			case 'full': return '#dcfce7';
-			case 'partial': return '#fef3c7';
-			case 'plugin': return '#dbeafe';
-			case 'none': return '#fee2e2';
+			case 'full':
+				return '#dcfce7';
+			case 'partial':
+				return '#fef3c7';
+			case 'plugin':
+				return '#dbeafe';
+			case 'none':
+				return '#fee2e2';
 		}
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$type) {
-			case 'full': return '#166534';
-			case 'partial': return '#92400e';
-			case 'plugin': return '#1e40af';
-			case 'none': return '#991b1b';
+			case 'full':
+				return '#166534';
+			case 'partial':
+				return '#92400e';
+			case 'plugin':
+				return '#1e40af';
+			case 'none':
+				return '#991b1b';
 		}
 	}};
 `;
@@ -262,7 +270,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Authorization Code + PKCE',
@@ -275,7 +283,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Implicit Flow',
@@ -293,7 +301,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Client Credentials',
@@ -306,7 +314,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Resource Owner Password Credentials (ROPC)',
@@ -337,7 +345,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Refresh Token',
@@ -350,7 +358,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 
 	// OIDC Features
@@ -365,7 +373,8 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2025-11-11',
-		verificationSource: 'PingOne Platform OIDC/OAuth Docs, PingOne AIC OAuth & OIDC, PingFederate OAuth 2.0 Admin Guide',
+		verificationSource:
+			'PingOne Platform OIDC/OAuth Docs, PingOne AIC OAuth & OIDC, PingFederate OAuth 2.0 Admin Guide',
 	},
 	{
 		name: 'OIDC Discovery',
@@ -378,7 +387,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'OIDC Dynamic Client Registration',
@@ -389,12 +398,13 @@ const features: Feature[] = [
 			aic: 'full',
 			pingone: 'partial',
 			notes: {
-				pingone: 'Partial: Dynamic client registration is available via Management API only, not through standard OIDC DCR endpoints. Requires API credentials and administrative permissions.',
+				pingone:
+					'Partial: Dynamic client registration is available via Management API only, not through standard OIDC DCR endpoints. Requires API credentials and administrative permissions.',
 			},
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Hybrid Flow',
@@ -407,7 +417,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Session Management',
@@ -418,7 +428,8 @@ const features: Feature[] = [
 			aic: 'full',
 			pingone: 'partial',
 			notes: {
-				pingone: 'Partial: Basic session management available but may not include full OP iframe and check_session_iframe functionality as specified in OIDC Session Management spec. Supports session tracking but with limitations.',
+				pingone:
+					'Partial: Basic session management available but may not include full OP iframe and check_session_iframe functionality as specified in OIDC Session Management spec. Supports session tracking but with limitations.',
 			},
 		},
 	},
@@ -433,7 +444,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Back-Channel Logout',
@@ -446,7 +457,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 
 	// Advanced OAuth Features
@@ -461,7 +472,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Rich Authorization Requests (RAR)',
@@ -503,12 +514,13 @@ const features: Feature[] = [
 			aic: 'full',
 			pingone: 'partial',
 			notes: {
-				pingone: 'Partial: Supports limited token exchange scenarios. May not support all token types or exchange patterns defined in RFC 8693. Specific use cases need verification.',
+				pingone:
+					'Partial: Supports limited token exchange scenarios. May not support all token types or exchange patterns defined in RFC 8693. Specific use cases need verification.',
 			},
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'JWT Bearer Token (RFC 7523)',
@@ -596,7 +608,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Token Revocation (RFC 7009)',
@@ -609,7 +621,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 	{
 		name: 'Demonstrating Proof of Possession (DPoP)',
@@ -640,7 +652,7 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2024-01-15',
-		verificationSource: 'PingFederate 12.2 Developer\'s Reference Guide - OAuth 2.0 endpoints',
+		verificationSource: "PingFederate 12.2 Developer's Reference Guide - OAuth 2.0 endpoints",
 	},
 
 	// Security Features
@@ -748,7 +760,8 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2025-11-11',
-		verificationSource: 'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
+		verificationSource:
+			'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
 	},
 	{
 		name: 'Client Secret JWT',
@@ -761,7 +774,8 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2025-11-11',
-		verificationSource: 'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
+		verificationSource:
+			'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
 	},
 	{
 		name: 'Private Key JWT',
@@ -774,7 +788,8 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2025-11-11',
-		verificationSource: 'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
+		verificationSource:
+			'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
 	},
 	{
 		name: 'Public Clients (none)',
@@ -790,7 +805,8 @@ const features: Feature[] = [
 		},
 		verified: true,
 		verificationDate: '2025-11-11',
-		verificationSource: 'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
+		verificationSource:
+			'PingIdentity OIDC & OAuth Feature Comparison 2025-11-11 - Token Authentication Summary',
 	},
 	{
 		name: 'mTLS Client Authentication',
@@ -910,28 +926,30 @@ const PingProductComparison: React.FC = () => {
 
 	// Calculate verification statistics
 	const totalFeatures = features.length;
-	const verifiedFeatures = features.filter(f => f.verified).length;
+	const verifiedFeatures = features.filter((f) => f.verified).length;
 	const unverifiedFeatures = totalFeatures - verifiedFeatures;
 	const verificationPercentage = Math.round((verifiedFeatures / totalFeatures) * 100);
 
-	const categories = ['all', ...Array.from(new Set(features.map(f => f.category)))];
-	
-	let filteredFeatures = selectedCategory === 'all' 
-		? features 
-		: features.filter(f => f.category === selectedCategory);
+	const categories = ['all', ...Array.from(new Set(features.map((f) => f.category)))];
+
+	let filteredFeatures =
+		selectedCategory === 'all' ? features : features.filter((f) => f.category === selectedCategory);
 
 	// Apply unverified filter if enabled
 	if (showOnlyUnverified) {
-		filteredFeatures = filteredFeatures.filter(f => !f.verified);
+		filteredFeatures = filteredFeatures.filter((f) => !f.verified);
 	}
 
-	const groupedFeatures = filteredFeatures.reduce((acc, feature) => {
-		if (!acc[feature.category]) {
-			acc[feature.category] = [];
-		}
-		acc[feature.category].push(feature);
-		return acc;
-	}, {} as Record<string, Feature[]>);
+	const groupedFeatures = filteredFeatures.reduce(
+		(acc, feature) => {
+			if (!acc[feature.category]) {
+				acc[feature.category] = [];
+			}
+			acc[feature.category].push(feature);
+			return acc;
+		},
+		{} as Record<string, Feature[]>
+	);
 
 	const getSupportIcon = (support: 'full' | 'partial' | 'none' | 'plugin') => {
 		switch (support) {
@@ -948,10 +966,14 @@ const PingProductComparison: React.FC = () => {
 
 	const getSupportLabel = (support: 'full' | 'partial' | 'none' | 'plugin') => {
 		switch (support) {
-			case 'full': return 'Full';
-			case 'partial': return 'Partial';
-			case 'plugin': return 'Plugin';
-			case 'none': return 'None';
+			case 'full':
+				return 'Full';
+			case 'partial':
+				return 'Partial';
+			case 'plugin':
+				return 'Plugin';
+			case 'none':
+				return 'None';
 		}
 	};
 
@@ -960,80 +982,111 @@ const PingProductComparison: React.FC = () => {
 			<Header>
 				<Title>Ping Product Comparison</Title>
 				<Subtitle>
-					OAuth 2.0 and OpenID Connect feature support across PingFederate, 
-					PingOne Advanced Identity Cloud, and PingOne
+					OAuth 2.0 and OpenID Connect feature support across PingFederate, PingOne Advanced
+					Identity Cloud, and PingOne
 				</Subtitle>
 			</Header>
 
 			{/* Verification Status Banner */}
-			<div style={{ 
-				padding: '1.5rem', 
-				background: verificationPercentage === 100 ? '#dcfce7' : '#fef3c7', 
-				borderRadius: '0.75rem', 
-				marginBottom: '1.5rem',
-				border: `2px solid ${verificationPercentage === 100 ? '#86efac' : '#fbbf24'}`
-			}}>
-				<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+			<div
+				style={{
+					padding: '1.5rem',
+					background: verificationPercentage === 100 ? '#dcfce7' : '#fef3c7',
+					borderRadius: '0.75rem',
+					marginBottom: '1.5rem',
+					border: `2px solid ${verificationPercentage === 100 ? '#86efac' : '#fbbf24'}`,
+				}}
+			>
+				<div
+					style={{
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'space-between',
+						flexWrap: 'wrap',
+						gap: '1rem',
+					}}
+				>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-						<div style={{ 
-							fontSize: '2.5rem', 
-							color: verificationPercentage === 100 ? '#166534' : '#92400e' 
-						}}>
+						<div
+							style={{
+								fontSize: '2.5rem',
+								color: verificationPercentage === 100 ? '#166534' : '#92400e',
+							}}
+						>
 							{verificationPercentage === 100 ? '✓' : '⚠️'}
 						</div>
 						<div>
-							<h3 style={{ 
-								margin: '0 0 0.25rem 0', 
-								color: verificationPercentage === 100 ? '#166534' : '#92400e',
-								fontSize: '1.125rem',
-								fontWeight: 700
-							}}>
+							<h3
+								style={{
+									margin: '0 0 0.25rem 0',
+									color: verificationPercentage === 100 ? '#166534' : '#92400e',
+									fontSize: '1.125rem',
+									fontWeight: 700,
+								}}
+							>
 								Verification Status: {verificationPercentage}% Complete
 							</h3>
-							<p style={{ 
-								margin: 0, 
-								color: verificationPercentage === 100 ? '#166534' : '#92400e',
-								fontSize: '0.875rem'
-							}}>
-								{verifiedFeatures} of {totalFeatures} features verified against official documentation
+							<p
+								style={{
+									margin: 0,
+									color: verificationPercentage === 100 ? '#166534' : '#92400e',
+									fontSize: '0.875rem',
+								}}
+							>
+								{verifiedFeatures} of {totalFeatures} features verified against official
+								documentation
 								{unverifiedFeatures > 0 && ` • ${unverifiedFeatures} features need verification`}
 							</p>
 						</div>
 					</div>
 					<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-						<div style={{ 
-							background: 'white', 
-							padding: '0.75rem 1.25rem', 
-							borderRadius: '0.5rem',
-							textAlign: 'center',
-							border: '1px solid #e5e7eb'
-						}}>
-							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#16a34a' }}>{verifiedFeatures}</div>
+						<div
+							style={{
+								background: 'white',
+								padding: '0.75rem 1.25rem',
+								borderRadius: '0.5rem',
+								textAlign: 'center',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#16a34a' }}>
+								{verifiedFeatures}
+							</div>
 							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Verified</div>
 						</div>
-						<div style={{ 
-							background: 'white', 
-							padding: '0.75rem 1.25rem', 
-							borderRadius: '0.5rem',
-							textAlign: 'center',
-							border: '1px solid #e5e7eb'
-						}}>
-							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#d97706' }}>{unverifiedFeatures}</div>
-							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>Unverified</div>
+						<div
+							style={{
+								background: 'white',
+								padding: '0.75rem 1.25rem',
+								borderRadius: '0.5rem',
+								textAlign: 'center',
+								border: '1px solid #e5e7eb',
+							}}
+						>
+							<div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#d97706' }}>
+								{unverifiedFeatures}
+							</div>
+							<div style={{ fontSize: '0.75rem', color: '#6b7280', fontWeight: 600 }}>
+								Unverified
+							</div>
 						</div>
 					</div>
 				</div>
 				{unverifiedFeatures > 0 && (
-					<div style={{ 
-						marginTop: '1rem', 
-						padding: '0.75rem 1rem', 
-						background: 'white', 
-						borderRadius: '0.5rem',
-						fontSize: '0.875rem',
-						color: '#92400e',
-						border: '1px solid #fbbf24'
-					}}>
-						<strong>⚠️ Unverified features are highlighted in yellow.</strong> These features are based on general knowledge and should be verified against official Ping Identity documentation before making decisions.
+					<div
+						style={{
+							marginTop: '1rem',
+							padding: '0.75rem 1rem',
+							background: 'white',
+							borderRadius: '0.5rem',
+							fontSize: '0.875rem',
+							color: '#92400e',
+							border: '1px solid #fbbf24',
+						}}
+					>
+						<strong>⚠️ Unverified features are highlighted in yellow.</strong> These features are
+						based on general knowledge and should be verified against official Ping Identity
+						documentation before making decisions.
 					</div>
 				)}
 			</div>
@@ -1059,7 +1112,7 @@ const PingProductComparison: React.FC = () => {
 
 			<FilterBar>
 				<span style={{ fontWeight: 600, color: '#374151' }}>Filter by category:</span>
-				{categories.map(category => (
+				{categories.map((category) => (
 					<FilterButton
 						key={category}
 						$active={selectedCategory === category}
@@ -1069,20 +1122,22 @@ const PingProductComparison: React.FC = () => {
 					</FilterButton>
 				))}
 				<div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-					<label style={{ 
-						display: 'flex', 
-						alignItems: 'center', 
-						gap: '0.5rem', 
-						cursor: 'pointer',
-						padding: '0.5rem 1rem',
-						background: showOnlyUnverified ? '#fef3c7' : 'white',
-						border: `2px solid ${showOnlyUnverified ? '#f59e0b' : '#e5e7eb'}`,
-						borderRadius: '0.5rem',
-						fontSize: '0.875rem',
-						fontWeight: 600,
-						color: showOnlyUnverified ? '#92400e' : '#374151',
-						transition: 'all 0.2s'
-					}}>
+					<label
+						style={{
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+							cursor: 'pointer',
+							padding: '0.5rem 1rem',
+							background: showOnlyUnverified ? '#fef3c7' : 'white',
+							border: `2px solid ${showOnlyUnverified ? '#f59e0b' : '#e5e7eb'}`,
+							borderRadius: '0.5rem',
+							fontSize: '0.875rem',
+							fontWeight: 600,
+							color: showOnlyUnverified ? '#92400e' : '#374151',
+							transition: 'all 0.2s',
+						}}
+					>
 						<input
 							type="checkbox"
 							checked={showOnlyUnverified}
@@ -1117,7 +1172,14 @@ const PingProductComparison: React.FC = () => {
 						{categoryFeatures.map((feature, index) => (
 							<FeatureRow key={`${category}-${index}`} $unverified={!feature.verified}>
 								<FeatureName>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											flexWrap: 'wrap',
+										}}
+									>
 										<span>{feature.name}</span>
 										<VerificationBadge $verified={!!feature.verified}>
 											{feature.verified ? '✓ Verified' : '⚠ Needs Verification'}
@@ -1167,14 +1229,30 @@ const PingProductComparison: React.FC = () => {
 				))}
 			</ComparisonTable>
 
-			<div style={{ marginTop: '3rem', padding: '1.5rem', background: '#fef3c7', borderRadius: '0.75rem', border: '2px solid #f59e0b' }}>
-				<h3 style={{ margin: '0 0 1rem 0', color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+			<div
+				style={{
+					marginTop: '3rem',
+					padding: '1.5rem',
+					background: '#fef3c7',
+					borderRadius: '0.75rem',
+					border: '2px solid #f59e0b',
+				}}
+			>
+				<h3
+					style={{
+						margin: '0 0 1rem 0',
+						color: '#92400e',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
+				>
 					<FiAlertCircle size={20} />
 					⚠️ Important Disclaimer
 				</h3>
 				<div style={{ color: '#92400e', lineHeight: 1.8, fontSize: '0.95rem' }}>
 					<p style={{ margin: '0 0 1rem 0', fontWeight: 600 }}>
-						This comparison is based on general knowledge and publicly available information. 
+						This comparison is based on general knowledge and publicly available information.
 						Feature support may vary based on:
 					</p>
 					<ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.5rem' }}>
@@ -1185,34 +1263,80 @@ const PingProductComparison: React.FC = () => {
 						<li>Regional availability and deployment model</li>
 					</ul>
 					<p style={{ margin: '0', fontWeight: 600 }}>
-						⚠️ <strong>Always verify with official Ping Identity documentation or your account team before making architectural decisions.</strong>
+						⚠️{' '}
+						<strong>
+							Always verify with official Ping Identity documentation or your account team before
+							making architectural decisions.
+						</strong>
 					</p>
 				</div>
 			</div>
 
-			<div style={{ marginTop: '1.5rem', padding: '1.5rem', background: '#eff6ff', borderRadius: '0.75rem', border: '1px solid #bfdbfe' }}>
-				<h3 style={{ margin: '0 0 1rem 0', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+			<div
+				style={{
+					marginTop: '1.5rem',
+					padding: '1.5rem',
+					background: '#eff6ff',
+					borderRadius: '0.75rem',
+					border: '1px solid #bfdbfe',
+				}}
+			>
+				<h3
+					style={{
+						margin: '0 0 1rem 0',
+						color: '#1e40af',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
+				>
 					<FiInfo size={20} />
 					Key Takeaways
 				</h3>
 				<ul style={{ margin: 0, paddingLeft: '1.5rem', color: '#1e40af', lineHeight: 1.8 }}>
-					<li><strong>PingOne</strong> - Modern cloud-native platform with excellent OAuth/OIDC support, best for new deployments</li>
-					<li><strong>PingOne AIC</strong> - Most comprehensive feature set, ideal for complex enterprise requirements</li>
-					<li><strong>PingFederate</strong> - Mature on-premise solution, highly customizable but may require plugins for newer features</li>
+					<li>
+						<strong>PingOne</strong> - Modern cloud-native platform with excellent OAuth/OIDC
+						support, best for new deployments
+					</li>
+					<li>
+						<strong>PingOne AIC</strong> - Most comprehensive feature set, ideal for complex
+						enterprise requirements
+					</li>
+					<li>
+						<strong>PingFederate</strong> - Mature on-premise solution, highly customizable but may
+						require plugins for newer features
+					</li>
 					<li>All three products support core OAuth 2.0 and OpenID Connect specifications</li>
-					<li>Advanced features like RAR, CIBA, and DPoP are better supported in cloud platforms (AIC, PingOne)</li>
+					<li>
+						Advanced features like RAR, CIBA, and DPoP are better supported in cloud platforms (AIC,
+						PingOne)
+					</li>
 				</ul>
 			</div>
 
-			<div style={{ marginTop: '1.5rem', padding: '1.5rem', background: '#f9fafb', borderRadius: '0.75rem', border: '1px solid #e5e7eb' }}>
-				<h3 style={{ margin: '0 0 1rem 0', color: '#374151', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+			<div
+				style={{
+					marginTop: '1.5rem',
+					padding: '1.5rem',
+					background: '#f9fafb',
+					borderRadius: '0.75rem',
+					border: '1px solid #e5e7eb',
+				}}
+			>
+				<h3
+					style={{
+						margin: '0 0 1rem 0',
+						color: '#374151',
+						display: 'flex',
+						alignItems: 'center',
+						gap: '0.5rem',
+					}}
+				>
 					<FiInfo size={20} />
 					Sources & Verification
 				</h3>
 				<div style={{ color: '#6b7280', lineHeight: 1.8, fontSize: '0.875rem' }}>
-					<p style={{ margin: '0 0 0.75rem 0' }}>
-						This comparison is compiled from:
-					</p>
+					<p style={{ margin: '0 0 0.75rem 0' }}>This comparison is compiled from:</p>
 					<ul style={{ margin: '0 0 1rem 0', paddingLeft: '1.5rem' }}>
 						<li>Ping Identity official documentation</li>
 						<li>Product release notes and feature announcements</li>
@@ -1223,9 +1347,36 @@ const PingProductComparison: React.FC = () => {
 						<strong>Recommended Resources:</strong>
 					</p>
 					<ul style={{ margin: '0.5rem 0 0 0', paddingLeft: '1.5rem', fontSize: '0.8rem' }}>
-						<li><a href="https://docs.pingidentity.com" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb' }}>Ping Identity Documentation</a></li>
-						<li><a href="https://www.pingidentity.com/en/resources/product-comparison.html" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb' }}>Official Product Comparison</a></li>
-						<li><a href="https://support.pingidentity.com" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb' }}>Ping Identity Support Portal</a></li>
+						<li>
+							<a
+								href="https://docs.pingidentity.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{ color: '#2563eb' }}
+							>
+								Ping Identity Documentation
+							</a>
+						</li>
+						<li>
+							<a
+								href="https://www.pingidentity.com/en/resources/product-comparison.html"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{ color: '#2563eb' }}
+							>
+								Official Product Comparison
+							</a>
+						</li>
+						<li>
+							<a
+								href="https://support.pingidentity.com"
+								target="_blank"
+								rel="noopener noreferrer"
+								style={{ color: '#2563eb' }}
+							>
+								Ping Identity Support Portal
+							</a>
+						</li>
 						<li>Contact your Ping Identity account team for specific requirements</li>
 					</ul>
 				</div>

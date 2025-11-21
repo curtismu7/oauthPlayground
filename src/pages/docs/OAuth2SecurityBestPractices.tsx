@@ -16,8 +16,8 @@ import {
 	FiUsers,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
 
 const PageContainer = styled.div`
   max-width: 1200px;
@@ -352,7 +352,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiLock />}
 				defaultCollapsed={false}
 			>
-
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
@@ -485,7 +484,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiRefreshCw />}
 				defaultCollapsed={false}
 			>
-
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
@@ -582,7 +580,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiUsers />}
 				defaultCollapsed={false}
 			>
-
 				<Subsection>
 					<SubsectionTitle>
 						<SubsectionIcon>
@@ -682,7 +679,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiGlobe />}
 				defaultCollapsed={false}
 			>
-
 				<BestPracticeCard $type="critical">
 					<PracticeIcon>
 						<FiAlertTriangle />
@@ -726,7 +722,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiSettings />}
 				defaultCollapsed={false}
 			>
-
 				<BestPracticeCard $type="important">
 					<PracticeIcon>
 						<FiShield />
@@ -768,7 +763,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiAlertTriangle />}
 				defaultCollapsed={false}
 			>
-
 				<WarningBox>
 					<WarningIcon>
 						<FiAlertTriangle />
@@ -826,7 +820,6 @@ const OAuth2SecurityBestPractices: React.FC = () => {
 				icon={<FiCheckCircle />}
 				defaultCollapsed={false}
 			>
-
 				<BestPracticeCard $type="recommended">
 					<PracticeIcon>
 						<FiCheckCircle />

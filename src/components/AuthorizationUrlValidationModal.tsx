@@ -1,13 +1,13 @@
 import React from 'react';
+import { FiAlertTriangle, FiCheckCircle, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiAlertTriangle, FiCheckCircle, FiX, FiExternalLink } from 'react-icons/fi';
 
 interface ValidationResult {
 	isValid: boolean;
 	errors: string[];
 	warnings: string[];
 	suggestions: string[];
-	parsedUrl: any;
+	parsedUrl: URL | null;
 	flowType: string;
 	severity: string;
 }
@@ -28,7 +28,7 @@ const ModalOverlay = styled.div<{ $isOpen: boolean }>`
 	right: 0;
 	bottom: 0;
 	background: rgba(0, 0, 0, 0.5);
-	display: ${props => props.$isOpen ? 'flex' : 'none'};
+	display: ${(props) => (props.$isOpen ? 'flex' : 'none')};
 	align-items: center;
 	justify-content: center;
 	z-index: 1000;
@@ -93,9 +93,9 @@ const ValidationSummary = styled.div<{ $isValid: boolean }>`
 	padding: 1rem;
 	border-radius: 0.5rem;
 	margin-bottom: 1.5rem;
-	background: ${props => props.$isValid ? '#d1fae5' : '#fef2f2'};
-	border: 1px solid ${props => props.$isValid ? '#a7f3d0' : '#fecaca'};
-	color: ${props => props.$isValid ? '#065f46' : '#991b1b'};
+	background: ${(props) => (props.$isValid ? '#d1fae5' : '#fef2f2')};
+	border: 1px solid ${(props) => (props.$isValid ? '#a7f3d0' : '#fecaca')};
+	color: ${(props) => (props.$isValid ? '#065f46' : '#991b1b')};
 	font-weight: 500;
 	display: flex;
 	align-items: center;
@@ -117,9 +117,9 @@ const IssueItem = styled.div<{ $isError: boolean }>`
 	padding: 0.75rem;
 	border-radius: 0.375rem;
 	margin-bottom: 0.5rem;
-	background: ${props => props.$isError ? '#fef2f2' : '#fffbeb'};
-	border-left: 4px solid ${props => props.$isError ? '#ef4444' : '#f59e0b'};
-	color: ${props => props.$isError ? '#991b1b' : '#92400e'};
+	background: ${(props) => (props.$isError ? '#fef2f2' : '#fffbeb')};
+	border-left: 4px solid ${(props) => (props.$isError ? '#ef4444' : '#f59e0b')};
+	color: ${(props) => (props.$isError ? '#991b1b' : '#92400e')};
 	font-size: 0.875rem;
 `;
 
@@ -138,14 +138,17 @@ const Button = styled.button<{ $variant: 'primary' | 'secondary' }>`
 	border: none;
 	transition: all 0.2s;
 	
-	${props => props.$variant === 'primary' ? `
+	${(props) =>
+		props.$variant === 'primary'
+			? `
 		background: #3b82f6;
 		color: white;
 		
 		&:hover {
 			background: #2563eb;
 		}
-	` : `
+	`
+			: `
 		background: #f3f4f6;
 		color: #374151;
 		
@@ -161,7 +164,7 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 	validationResult,
 	authUrl,
 	onProceed,
-	onFix
+	onFix,
 }) => {
 	if (!isOpen || !validationResult) return null;
 
@@ -191,7 +194,8 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 				</ModalHeader>
 
 				<UrlDisplay>
-					<strong>Authorization URL:</strong><br />
+					<strong>Authorization URL:</strong>
+					<br />
 					{authUrl}
 				</UrlDisplay>
 
@@ -199,12 +203,14 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 					{hasErrors ? (
 						<>
 							<FiAlertTriangle />
-							{validationResult.errors.length} error{validationResult.errors.length !== 1 ? 's' : ''} found
+							{validationResult.errors.length} error
+							{validationResult.errors.length !== 1 ? 's' : ''} found
 						</>
 					) : hasWarnings ? (
 						<>
 							<FiAlertTriangle />
-							{validationResult.warnings.length} warning{validationResult.warnings.length !== 1 ? 's' : ''} found
+							{validationResult.warnings.length} warning
+							{validationResult.warnings.length !== 1 ? 's' : ''} found
 						</>
 					) : (
 						<>
@@ -226,7 +232,7 @@ const AuthorizationUrlValidationModal: React.FC<AuthorizationUrlValidationModalP
 								))}
 							</div>
 						)}
-						
+
 						{hasWarnings && (
 							<div>
 								<IssuesTitle style={{ color: '#d97706' }}>Warnings:</IssuesTitle>

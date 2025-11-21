@@ -2,56 +2,55 @@
 // Unified OAuth/OIDC Implicit Flow V7 - Single implementation supporting both variants
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom';
-import styled from 'styled-components';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
 	FiCheckCircle,
 	FiChevronDown,
 	FiCode,
-	FiCopy,
 	FiExternalLink,
-	FiEyeOff,
 	FiGlobe,
 	FiInfo,
-	FiKey,
-	FiRefreshCw,
 	FiShield,
-	FiZap,
 } from 'react-icons/fi';
-
-// Import shared services
-import { ImplicitFlowSharedService, ImplicitFlowV7Helpers } from '../../services/implicitFlowSharedService';
-import { useImplicitFlowController, loadInitialCredentials } from '../../hooks/useImplicitFlowController';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
-import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
-
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
 // Import components
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
+import {
+	loadInitialCredentials,
+	useImplicitFlowController,
+} from '../../hooks/useImplicitFlowController';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
 import { FlowHeader } from '../../services/flowHeaderService';
+// Import shared services
+import {
+	ImplicitFlowSharedService,
+	ImplicitFlowV7Helpers,
+} from '../../services/implicitFlowSharedService';
+import {
+	OAuthErrorDetails,
+	OAuthErrorHandlingService,
+} from '../../services/oauthErrorHandlingService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 import '../../utils/testImplicitConfigChecker'; // Auto-run config checker tests in development
-import TokenIntrospect from '../../components/TokenIntrospect';
-import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-
-// Import UI components from services
-import { FlowUIService } from '../../services/flowUIService';
-import { CopyButtonService } from '../../services/copyButtonService';
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
 import { LearningTooltip } from '../../components/LearningTooltip';
+import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+// Import UI components from services
+import { FlowUIService } from '../../services/flowUIService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 
 // Get UI components
 const {
@@ -101,25 +100,27 @@ const {
 
 // Local styled components with dynamic colors
 const DynamicStepHeader = styled(StepHeader)<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'};
+	color: #ffffff;
+`;
+
+// Ensure title and number are white on dark background
+const DynamicStepHeaderTitle = styled(StepHeaderTitle)`
+	color: #ffffff;
+`;
+
+const DynamicStepNumber = styled(StepNumber)`
+	color: #ffffff;
 `;
 
 const DynamicVersionBadge = styled(VersionBadge)<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(22, 163, 74, 0.2)'
-	};
-	border: 1px solid ${props => props.$variant === 'oidc' 
-		? '#60a5fa' 
-		: '#4ade80'
-	};
-	color: ${props => props.$variant === 'oidc' 
-		? '#dbeafe' 
-		: '#bbf7d0'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#bbf7d0')};
 `;
 
 // Local CollapsibleToggleIcon that accepts children
@@ -157,10 +158,10 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
-	background: ${props => props.$selected ? '#dbeafe' : 'white'};
-	color: ${props => props.$selected ? '#1e40af' : '#475569'};
-	font-weight: ${props => props.$selected ? '600' : '500'};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
+	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 
 	&:hover {
@@ -181,7 +182,7 @@ const VariantDescription = styled.div`
 
 const ImplicitFlowV7: React.FC = () => {
 	const location = useLocation();
-	
+
 	// Detect default variant based on navigation context
 	const getDefaultVariant = (): 'oauth' | 'oidc' => {
 		// Check if there's a variant specified in the URL params
@@ -190,17 +191,17 @@ const ImplicitFlowV7: React.FC = () => {
 		if (urlVariant === 'oidc' || urlVariant === 'oauth') {
 			return urlVariant as 'oauth' | 'oidc';
 		}
-		
+
 		// Check navigation state for context
 		const state = location.state as any;
 		if (state?.fromSection === 'oidc') {
 			return 'oidc';
 		}
-		
+
 		// Default to OAuth (base protocol)
 		return 'oauth';
 	};
-	
+
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
 	const [workerToken, setWorkerToken] = useState<string>('');
 
@@ -246,7 +247,7 @@ const ImplicitFlowV7: React.FC = () => {
 		// If not in location state, try to load from localStorage
 		const savedToken = localStorage.getItem('worker-token');
 		const savedEnv = localStorage.getItem('worker-token-env');
-		
+
 		if (savedToken && savedEnv) {
 			setWorkerToken(savedToken);
 			console.log('[ImplicitFlowV7] Worker token loaded from localStorage');
@@ -259,7 +260,7 @@ const ImplicitFlowV7: React.FC = () => {
 	useEffect(() => {
 		const hash = window.location.hash;
 		console.log('[ImplicitFlowV7] Checking for tokens in URL fragment on mount:', hash);
-		
+
 		if (hash?.includes('access_token') && !controller.tokens) {
 			console.log('[ImplicitFlowV7] Found tokens in URL fragment, processing...');
 			controller.setTokensFromFragment(hash);
@@ -278,29 +279,31 @@ const ImplicitFlowV7: React.FC = () => {
 
 	// Sync local credentials with controller credentials
 	useEffect(() => {
-		if (controller.credentials && 
-		    (controller.credentials.environmentId !== credentials.environmentId ||
-		     controller.credentials.clientId !== credentials.clientId ||
-		     controller.credentials.redirectUri !== credentials.redirectUri ||
-		     controller.credentials.scope !== credentials.scope ||
-		     controller.credentials.scopes !== credentials.scopes)) {
+		if (
+			controller.credentials &&
+			(controller.credentials.environmentId !== credentials.environmentId ||
+				controller.credentials.clientId !== credentials.clientId ||
+				controller.credentials.redirectUri !== credentials.redirectUri ||
+				controller.credentials.scope !== credentials.scope ||
+				controller.credentials.scopes !== credentials.scopes)
+		) {
 			console.log('[ImplicitFlowV7] Syncing credentials from controller:', controller.credentials);
 			console.log('[ImplicitFlowV7] Current local credentials:', credentials);
 			setCredentials(controller.credentials);
 		}
-	}, [controller.credentials]); // Removed credentials dependencies to prevent infinite loop
+	}, [controller.credentials, credentials]); // Removed credentials dependencies to prevent infinite loop
 
 	// Load credentials on mount using V7 standardized storage
 	useEffect(() => {
 		const loadCredentials = async () => {
 			console.log('[ImplicitFlowV7] Loading credentials on mount...');
-			
+
 			try {
 				// Try V7 standardized storage first
 				const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 					flowKey: 'implicit-flow-v7',
 					useSharedEnvironment: true,
-					useSharedDiscovery: true
+					useSharedDiscovery: true,
 				});
 
 				if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
@@ -312,7 +315,7 @@ const ImplicitFlowV7: React.FC = () => {
 						redirectUri: flowData.flowCredentials.redirectUri,
 						scopes: flowData.flowCredentials.scopes,
 					};
-					
+
 					setCredentials(updatedCredentials);
 					controller.setCredentials(updatedCredentials);
 				} else if (flowData.sharedEnvironment?.environmentId) {
@@ -339,13 +342,13 @@ const ImplicitFlowV7: React.FC = () => {
 		};
 
 		loadCredentials();
-	}, [selectedVariant]); // Removed controller dependency to prevent infinite loop
+	}, [selectedVariant, controller.credentials, controller.setCredentials]); // Removed controller dependency to prevent infinite loop
 
 	// Update controller when variant changes and reload credentials
 	useEffect(() => {
 		controller.setFlowVariant(selectedVariant);
 		ImplicitFlowV7Helpers.getSessionHelpers(selectedVariant).setActiveFlow();
-		
+
 		// Reload variant-specific credentials
 		const reloadedCredentials = loadInitialCredentials(selectedVariant, 'implicit-v7');
 		controller.setCredentials(reloadedCredentials);
@@ -356,7 +359,7 @@ const ImplicitFlowV7: React.FC = () => {
 	// Sync credentials with variant
 	useEffect(() => {
 		const variantDefaults = ImplicitFlowV7Helpers.getFlowMetadata(selectedVariant);
-		setCredentials(prev => ({
+		setCredentials((prev) => ({
 			...prev,
 			scope: variantDefaults.scopes || prev.scope || '',
 			scopes: variantDefaults.scopes || prev.scopes || '',
@@ -367,21 +370,26 @@ const ImplicitFlowV7: React.FC = () => {
 	// Ensure Implicit Flow V7 uses its own credential storage
 	useEffect(() => {
 		// Save current credentials to flow-specific storage
-		if (controller.credentials && (controller.credentials.environmentId || controller.credentials.clientId)) {
+		if (
+			controller.credentials &&
+			(controller.credentials.environmentId || controller.credentials.clientId)
+		) {
 			console.log('🔧 [Implicit V7] Saving credentials to flow-specific storage:', {
 				flowKey: 'implicit-v7',
 				environmentId: controller.credentials.environmentId,
-				clientId: controller.credentials.clientId?.substring(0, 8) + '...',
-				redirectUri: controller.credentials.redirectUri
+				clientId: `${controller.credentials.clientId?.substring(0, 8)}...`,
+				redirectUri: controller.credentials.redirectUri,
 			});
-			
+
 			// Save to comprehensive service with complete isolation
 			const success = comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
-				sharedEnvironment: controller.credentials.environmentId ? {
-					environmentId: controller.credentials.environmentId,
-					region: 'us', // Default region
-					issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`
-				} : undefined,
+				sharedEnvironment: controller.credentials.environmentId
+					? {
+							environmentId: controller.credentials.environmentId,
+							region: 'us', // Default region
+							issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`,
+						}
+					: undefined,
 				flowCredentials: {
 					clientId: controller.credentials.clientId,
 					clientSecret: controller.credentials.clientSecret,
@@ -390,8 +398,8 @@ const ImplicitFlowV7: React.FC = () => {
 					logoutUrl: controller.credentials.logoutUrl,
 					loginHint: controller.credentials.loginHint,
 					tokenEndpointAuthMethod: 'client_secret_basic',
-					lastUpdated: Date.now()
-				}
+					lastUpdated: Date.now(),
+				},
 			});
 
 			if (!success) {
@@ -405,7 +413,7 @@ const ImplicitFlowV7: React.FC = () => {
 		flowKey: 'implicit-v7',
 		credentials: controller.credentials,
 		setCredentials: controller.setCredentials,
-		enabled: true
+		enabled: true,
 	});
 
 	usePageScroll({ pageName: 'Implicit Flow V7', force: true });
@@ -415,9 +423,9 @@ const ImplicitFlowV7: React.FC = () => {
 		checkCredentialsAndWarn(credentials, {
 			flowName: `${selectedVariant.toUpperCase()} Implicit Flow`,
 			requiredFields: ['environmentId', 'clientId'],
-			showToast: true
+			showToast: true,
 		});
-	}, []); // Only run once on mount
+	}, [credentials, selectedVariant.toUpperCase]); // Only run once on mount
 
 	// V7 Enhanced step validation
 	const isStepValid = (step: number): boolean => {
@@ -427,10 +435,10 @@ const ImplicitFlowV7: React.FC = () => {
 				return !!(credentials.environmentId && credentials.clientId);
 			case 1:
 				// Step 1: Must have valid redirect URI
-				return !!(credentials.redirectUri);
+				return !!credentials.redirectUri;
 			case 2:
 				// Step 2: Must have generated authorization URL
-				return !!(controller.authUrl);
+				return !!controller.authUrl;
 			case 3:
 				// Step 3: Must have tokens from callback
 				return !!(controller.tokens?.access_token || (controller.tokens as any)?.accessToken);
@@ -442,24 +450,28 @@ const ImplicitFlowV7: React.FC = () => {
 		}
 	};
 
-	const toggleSection = ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
+	const toggleSection =
+		ImplicitFlowSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		// Reset to step 0 when switching variants
-		setCurrentStep(0);
-		controller.resetFlow();
-		
-		// Update credentials based on variant (PingOne requires openid for both)
-		setCredentials(prev => ({
-			...prev,
-			scope: variant === 'oidc' ? 'openid profile email' : 'openid',
-			scopes: variant === 'oidc' ? 'openid profile email' : 'openid',
-			responseType: variant === 'oidc' ? 'id_token token' : 'token',
-		}));
-		
-		v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
-	}, [controller]);
+	const handleVariantChange = useCallback(
+		(variant: 'oauth' | 'oidc') => {
+			setSelectedVariant(variant);
+			// Reset to step 0 when switching variants
+			setCurrentStep(0);
+			controller.resetFlow();
+
+			// Update credentials based on variant (PingOne requires openid for both)
+			setCredentials((prev) => ({
+				...prev,
+				scope: variant === 'oidc' ? 'openid profile email' : 'openid',
+				scopes: variant === 'oidc' ? 'openid profile email' : 'openid',
+				responseType: variant === 'oidc' ? 'id_token token' : 'token',
+			}));
+
+			v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Implicit Flow variant`);
+		},
+		[controller]
+	);
 
 	const renderVariantSelector = () => (
 		<VariantSelector>
@@ -475,7 +487,9 @@ const ImplicitFlowV7: React.FC = () => {
 				onClick={() => handleVariantChange('oidc')}
 			>
 				<VariantTitle>OpenID Connect Implicit</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+				<VariantDescription>
+					ID token + Access token - Authentication + Authorization
+				</VariantDescription>
 			</VariantButton>
 		</VariantSelector>
 	);
@@ -484,7 +498,7 @@ const ImplicitFlowV7: React.FC = () => {
 		const metadata = ImplicitFlowV7Helpers.getFlowMetadata(selectedVariant);
 		const educationalContent = ImplicitFlowV7Helpers.getEducationalContent(selectedVariant);
 		const flowDiagram = ImplicitFlowV7Helpers.getFlowDiagram(selectedVariant);
-		const requirements = ImplicitFlowV7Helpers.getRequirements(selectedVariant);
+		const _requirements = ImplicitFlowV7Helpers.getRequirements(selectedVariant);
 
 		return (
 			<>
@@ -554,7 +568,6 @@ const ImplicitFlowV7: React.FC = () => {
 				<ComprehensiveCredentialsService
 					// Flow identification
 					flowType={`implicit-${selectedVariant}-v7`}
-					
 					// Pass individual credential props
 					environmentId={credentials.environmentId || ''}
 					clientId={credentials.clientId || ''}
@@ -562,8 +575,9 @@ const ImplicitFlowV7: React.FC = () => {
 					redirectUri={credentials.redirectUri}
 					scopes={credentials.scope || credentials.scopes || ''}
 					loginHint={credentials.loginHint || ''}
-					postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'}
-					
+					postLogoutRedirectUri={
+						credentials.postLogoutRedirectUri || 'https://localhost:3000/logout-callback'
+					}
 					// Individual change handlers
 					onEnvironmentIdChange={(value) => {
 						const updated = { ...credentials, environmentId: value };
@@ -587,7 +601,10 @@ const ImplicitFlowV7: React.FC = () => {
 						setCredentials(updated);
 						console.log('[ImplicitFlowV7] Setting controller credentials:', updated);
 						controller.setCredentials(updated); // Sync with controller immediately
-						console.log('[ImplicitFlowV7] Controller credentials after set:', controller.credentials);
+						console.log(
+							'[ImplicitFlowV7] Controller credentials after set:',
+							controller.credentials
+						);
 						console.log('[Implicit Flow V7] Redirect URI updated:', value);
 						// Auto-save redirect URI to persist across refreshes
 						comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
@@ -596,17 +613,21 @@ const ImplicitFlowV7: React.FC = () => {
 								clientSecret: updated.clientSecret,
 								redirectUri: updated.redirectUri,
 								scopes: updated.scopes,
-								lastUpdated: Date.now()
-							}
+								lastUpdated: Date.now(),
+							},
 						});
-						
+
 						// Also save using controller for backward compatibility
-						controller.saveCredentials()
+						controller
+							.saveCredentials()
 							.then(() => {
 								console.log('[Implicit Flow V7] Redirect URI auto-saved to controller');
 							})
 							.catch((error: any) => {
-								console.error('[Implicit Flow V7] Failed to auto-save redirect URI to controller:', error);
+								console.error(
+									'[Implicit Flow V7] Failed to auto-save redirect URI to controller:',
+									error
+								);
 							});
 					}}
 					onScopesChange={(value) => {
@@ -620,33 +641,37 @@ const ImplicitFlowV7: React.FC = () => {
 						setCredentials(updated);
 						controller.setCredentials(updated); // Sync with controller
 					}}
-					
 					// Save handler for credentials
 					onSave={async () => {
 						try {
 							// Save using comprehensive service with complete isolation
-							const success = comprehensiveFlowDataService.saveFlowDataComprehensive('implicit-flow-v7', {
-								sharedEnvironment: credentials.environmentId ? {
-									environmentId: credentials.environmentId,
-									region: 'us',
-									issuerUrl: `https://auth.pingone.com/${credentials.environmentId}`
-								} : undefined,
-								flowCredentials: {
-									clientId: credentials.clientId,
-									clientSecret: credentials.clientSecret,
-									redirectUri: credentials.redirectUri,
-									scopes: credentials.scopes,
-									logoutUrl: credentials.logoutUrl,
-									loginHint: credentials.loginHint,
-									tokenEndpointAuthMethod: 'client_secret_basic',
-									lastUpdated: Date.now()
+							const success = comprehensiveFlowDataService.saveFlowDataComprehensive(
+								'implicit-flow-v7',
+								{
+									sharedEnvironment: credentials.environmentId
+										? {
+												environmentId: credentials.environmentId,
+												region: 'us',
+												issuerUrl: `https://auth.pingone.com/${credentials.environmentId}`,
+											}
+										: undefined,
+									flowCredentials: {
+										clientId: credentials.clientId,
+										clientSecret: credentials.clientSecret,
+										redirectUri: credentials.redirectUri,
+										scopes: credentials.scopes,
+										logoutUrl: credentials.logoutUrl,
+										loginHint: credentials.loginHint,
+										tokenEndpointAuthMethod: 'client_secret_basic',
+										lastUpdated: Date.now(),
+									},
 								}
-							});
-							
+							);
+
 							if (!success) {
 								throw new Error('Failed to save credentials to comprehensive service');
 							}
-							
+
 							// Also save using controller for backward compatibility
 							await controller.saveCredentials();
 							v4ToastManager.showSuccess('Credentials saved successfully!');
@@ -654,7 +679,7 @@ const ImplicitFlowV7: React.FC = () => {
 							setErrorDetails(null);
 						} catch (error) {
 							console.error('[Implicit Flow V7] Failed to save credentials:', error);
-							
+
 							// Use the new OAuth Error Handling Service
 							const errorDetails = OAuthErrorHandlingService.parseOAuthError(error, {
 								flowType: 'implicit',
@@ -665,19 +690,18 @@ const ImplicitFlowV7: React.FC = () => {
 									hasClientSecret: !!credentials.clientSecret,
 									hasEnvironmentId: !!credentials.environmentId,
 									hasRedirectUri: !!credentials.redirectUri,
-									hasScope: !!credentials.scope
+									hasScope: !!credentials.scope,
 								},
 								metadata: {
 									flowVariant: selectedVariant,
-									clientAuthMethod: credentials.clientAuthMethod
-								}
+									clientAuthMethod: credentials.clientAuthMethod,
+								},
 							});
-							
+
 							v4ToastManager.showError(errorDetails.message);
 							setErrorDetails(errorDetails);
 						}
 					}}
-					
 					// Discovery handler
 					onDiscoveryComplete={(result) => {
 						console.log('[Implicit Flow V7] OIDC Discovery completed:', result);
@@ -691,26 +715,26 @@ const ImplicitFlowV7: React.FC = () => {
 							}
 						}
 					}}
-					
 					// Configuration
 					requireClientSecret={false}
 					showAdvancedConfig={false} // Implicit flow deprecated, no token endpoint for client auth
 					defaultCollapsed={false}
-
 					// App Creation Handler
 					onCreateApplication={async (appData?: { name: string; description: string }) => {
 						try {
 							// Import the service dynamically
-							const { pingOneAppCreationService } = await import('../../services/pingOneAppCreationService');
-							
+							const { pingOneAppCreationService } = await import(
+								'../../services/pingOneAppCreationService'
+							);
+
 							// Initialize the service
 							pingOneAppCreationService.initialize(workerToken, credentials.environmentId || '');
-							
+
 							// Generate app name with PingOne and flow type
 							const generateAppName = (flowType: string) => {
 								// Extract the actual flow name from flowType
 								let flowName = flowType.replace(/[-_]/g, '-').toLowerCase();
-								
+
 								// For specific flow types, use the main flow name
 								if (flowName.includes('implicit')) {
 									flowName = 'implicit';
@@ -723,16 +747,16 @@ const ImplicitFlowV7: React.FC = () => {
 								} else if (flowName.includes('hybrid')) {
 									flowName = 'hybrid';
 								}
-								
+
 								const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
 								return `pingone-${flowName}-${uniqueId}`;
 							};
-							
+
 							// Generate redirect URI with flow name and unique 3-digit number
 							const generateRedirectUri = (flowType: string) => {
 								// Extract the actual flow name from flowType (same logic as app name)
 								let flowName = flowType.replace(/[-_]/g, '-').toLowerCase();
-								
+
 								// For specific flow types, use the main flow name
 								if (flowName.includes('implicit')) {
 									flowName = 'implicit';
@@ -745,14 +769,14 @@ const ImplicitFlowV7: React.FC = () => {
 								} else if (flowName.includes('hybrid')) {
 									flowName = 'hybrid';
 								}
-								
+
 								const uniqueId = Math.floor(Math.random() * 900) + 100; // 3-digit number (100-999)
 								return `https://localhost:3000/callback/${flowName}-${uniqueId}`;
 							};
-							
+
 							const generatedAppName = generateAppName('implicit');
 							const generatedRedirectUri = generateRedirectUri('implicit');
-							
+
 							// Create the app
 							const result = await pingOneAppCreationService.createSinglePageApp({
 								name: appData?.name || generatedAppName,
@@ -769,7 +793,7 @@ const ImplicitFlowV7: React.FC = () => {
 								refreshTokenValiditySeconds: 2592000,
 								idTokenValiditySeconds: 3600,
 							});
-							
+
 							if (result.success && result.app) {
 								// Update credentials with the new application details
 								const updated = {
@@ -778,31 +802,34 @@ const ImplicitFlowV7: React.FC = () => {
 									clientSecret: result.app.clientSecret || credentials.clientSecret,
 									redirectUri: generatedRedirectUri, // Update with the generated redirect URI
 								};
-								
+
 								// Update local state
 								setCredentials(updated);
-								
+
 								// Update controller
 								controller.setCredentials(updated);
-								
+
 								// Save credentials to persist across refreshes
 								await controller.saveCredentials();
-								
+
 								console.log('[Implicit Flow V7] Updated credentials with new app details:', {
 									clientId: result.app.clientId,
-									hasSecret: !!result.app.clientSecret
+									hasSecret: !!result.app.clientSecret,
 								});
-								
-								v4ToastManager.showSuccess(`Application "${result.app.name}" created successfully! Credentials updated and saved.`);
+
+								v4ToastManager.showSuccess(
+									`Application "${result.app.name}" created successfully! Credentials updated and saved.`
+								);
 							} else {
 								v4ToastManager.showError(`Failed to create application: ${result.error}`);
 							}
 						} catch (error) {
 							console.error('[Implicit Flow V7] Failed to create PingOne application:', error);
-							v4ToastManager.showError(`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`);
+							v4ToastManager.showError(
+								`Failed to create application: ${error instanceof Error ? error.message : 'Unknown error'}`
+							);
 						}
 					}}
-
 					// Config Checker
 					showConfigChecker={true}
 					workerToken={workerToken}
@@ -840,21 +867,89 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>
 												Building the{' '}
-												<LearningTooltip variant="info" title="Authorization URL" content="URL where user is redirected to authorize the application" placement="top">
+												<LearningTooltip
+													variant="info"
+													title="Authorization URL"
+													content="URL where user is redirected to authorize the application"
+													placement="top"
+												>
 													Authorization URL
 												</LearningTooltip>
 											</InfoTitle>
 											<InfoText>
 												The{' '}
-												<LearningTooltip variant="info" title="Authorization URL" content="URL for user authorization" placement="top">authorization URL</LearningTooltip> includes all{' '}
-												<LearningTooltip variant="info" title="OAuth Parameters" content="OAuth request parameters like client_id, redirect_uri, scope, state, response_type" placement="top">OAuth parameters</LearningTooltip>. Unlike{' '}
-												<LearningTooltip variant="learning" title="Authorization Code Flow" content="Secure OAuth flow using authorization code for token exchange" placement="top">Authorization Code flow</LearningTooltip>, the{' '}
-												<LearningTooltip variant="learning" title="response_type" content="OAuth parameter specifying requested tokens. Implicit uses 'token' or 'id_token token'." placement="top">response_type</LearningTooltip> is{' '}
-												<LearningTooltip variant="warning" title="Implicit response_type" content="'token' or 'id_token token' - returns tokens directly in URL fragment. DEPRECATED in OAuth 2.1." placement="top">'token' or 'id_token token'</LearningTooltip>, telling{' '}
-												<LearningTooltip variant="info" title="PingOne" content="Identity and access management platform" placement="top">PingOne</LearningTooltip>
-												{' '}to return{' '}
-												<LearningTooltip variant="security" title="Tokens in URL" content="SECURITY RISK: Tokens exposed in browser URL fragment. Deprecated for this reason." placement="top">tokens directly</LearningTooltip> instead of an{' '}
-												<LearningTooltip variant="learning" title="Authorization Code" content="Short-lived code exchanged for tokens server-side (safer)" placement="top">authorization code</LearningTooltip>.
+												<LearningTooltip
+													variant="info"
+													title="Authorization URL"
+													content="URL for user authorization"
+													placement="top"
+												>
+													authorization URL
+												</LearningTooltip>{' '}
+												includes all{' '}
+												<LearningTooltip
+													variant="info"
+													title="OAuth Parameters"
+													content="OAuth request parameters like client_id, redirect_uri, scope, state, response_type"
+													placement="top"
+												>
+													OAuth parameters
+												</LearningTooltip>
+												. Unlike{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Authorization Code Flow"
+													content="Secure OAuth flow using authorization code for token exchange"
+													placement="top"
+												>
+													Authorization Code flow
+												</LearningTooltip>
+												, the{' '}
+												<LearningTooltip
+													variant="learning"
+													title="response_type"
+													content="OAuth parameter specifying requested tokens. Implicit uses 'token' or 'id_token token'."
+													placement="top"
+												>
+													response_type
+												</LearningTooltip>{' '}
+												is{' '}
+												<LearningTooltip
+													variant="warning"
+													title="Implicit response_type"
+													content="'token' or 'id_token token' - returns tokens directly in URL fragment. DEPRECATED in OAuth 2.1."
+													placement="top"
+												>
+													'token' or 'id_token token'
+												</LearningTooltip>
+												, telling{' '}
+												<LearningTooltip
+													variant="info"
+													title="PingOne"
+													content="Identity and access management platform"
+													placement="top"
+												>
+													PingOne
+												</LearningTooltip>{' '}
+												to return{' '}
+												<LearningTooltip
+													variant="security"
+													title="Tokens in URL"
+													content="SECURITY RISK: Tokens exposed in browser URL fragment. Deprecated for this reason."
+													placement="top"
+												>
+													tokens directly
+												</LearningTooltip>{' '}
+												instead of an{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Authorization Code"
+													content="Short-lived code exchanged for tokens server-side (safer)"
+													placement="top"
+												>
+													authorization code
+												</LearningTooltip>
+												.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -863,75 +958,206 @@ const ImplicitFlowV7: React.FC = () => {
 										<FiInfo size={20} />
 										<div>
 											<InfoTitle>
-												<LearningTooltip variant="warning" title="Implicit Flow" content="OAuth 2.0 flow (RFC 6749 Section 4.2) - DEPRECATED in OAuth 2.1. Tokens returned in URL fragment. Use Authorization Code + PKCE instead." placement="top">
+												<LearningTooltip
+													variant="warning"
+													title="Implicit Flow"
+													content="OAuth 2.0 flow (RFC 6749 Section 4.2) - DEPRECATED in OAuth 2.1. Tokens returned in URL fragment. Use Authorization Code + PKCE instead."
+													placement="top"
+												>
 													Implicit Flow
-												</LearningTooltip> Specific Parameters
+												</LearningTooltip>{' '}
+												Specific Parameters
 											</InfoTitle>
 											<InfoList>
 												<li>
 													<StrongText>
-														<LearningTooltip variant="learning" title="response_type" content="OAuth parameter. Implicit uses 'token' (OAuth) or 'id_token token' (OIDC)" placement="top">response_type</LearningTooltip>
+														<LearningTooltip
+															variant="learning"
+															title="response_type"
+															content="OAuth parameter. Implicit uses 'token' (OAuth) or 'id_token token' (OIDC)"
+															placement="top"
+														>
+															response_type
+														</LearningTooltip>
 														:
-													</StrongText> {selectedVariant === 'oidc' ? 'id_token token' : 'token'} ({selectedVariant === 'oidc' ? (
-														<LearningTooltip variant="info" title="OIDC" content="OpenID Connect - adds authentication via ID token" placement="top">OIDC</LearningTooltip>
+													</StrongText>{' '}
+													{selectedVariant === 'oidc' ? 'id_token token' : 'token'} (
+													{selectedVariant === 'oidc' ? (
+														<LearningTooltip
+															variant="info"
+															title="OIDC"
+															content="OpenID Connect - adds authentication via ID token"
+															placement="top"
+														>
+															OIDC
+														</LearningTooltip>
 													) : (
-														<LearningTooltip variant="info" title="OAuth 2.0" content="Authorization framework" placement="top">OAuth</LearningTooltip>
-													)} variant)
+														<LearningTooltip
+															variant="info"
+															title="OAuth 2.0"
+															content="Authorization framework"
+															placement="top"
+														>
+															OAuth
+														</LearningTooltip>
+													)}{' '}
+													variant)
 												</li>
 												<li>
 													<StrongText>
-														<LearningTooltip variant="security" title="nonce" content="Number used once - random value for replay protection. Required for OIDC ID tokens." placement="top">nonce</LearningTooltip>
+														<LearningTooltip
+															variant="security"
+															title="nonce"
+															content="Number used once - random value for replay protection. Required for OIDC ID tokens."
+															placement="top"
+														>
+															nonce
+														</LearningTooltip>
 														:
 													</StrongText>{' '}
-													<span style={{ color: selectedVariant === 'oidc' ? '#059669' : '#dc2626' }}>
+													<span
+														style={{ color: selectedVariant === 'oidc' ? '#059669' : '#dc2626' }}
+													>
 														{selectedVariant === 'oidc' ? 'Required' : 'Not used'}
 													</span>{' '}
-													({selectedVariant === 'oidc' ? (
-														<>
-															<LearningTooltip variant="security" title="ID Token Protection" content="Nonce prevents ID token replay attacks" placement="top">ID token protection</LearningTooltip>
-														</>
-													) : 'No ID token'})
+													(
+													{selectedVariant === 'oidc' ? (
+														<LearningTooltip
+															variant="security"
+															title="ID Token Protection"
+															content="Nonce prevents ID token replay attacks"
+															placement="top"
+														>
+															ID token protection
+														</LearningTooltip>
+													) : (
+														'No ID token'
+													)}
+													)
 												</li>
 												<li>
 													<StrongText>
-														<LearningTooltip variant="security" title="state parameter" content="CSRF protection - random value that must match between request and callback" placement="top">state</LearningTooltip>
+														<LearningTooltip
+															variant="security"
+															title="state parameter"
+															content="CSRF protection - random value that must match between request and callback"
+															placement="top"
+														>
+															state
+														</LearningTooltip>
 														:
 													</StrongText>{' '}
-													<LearningTooltip variant="security" title="CSRF Protection" content="Cross-Site Request Forgery protection using state parameter" placement="top">CSRF protection</LearningTooltip> (recommended)
-												</li>
-												<li>
-													<StrongText>No{' '}
-														<LearningTooltip variant="warning" title="PKCE" content="Proof Key for Code Exchange - security extension. Implicit flow doesn't support PKCE because it doesn't use authorization codes." placement="top">PKCE</LearningTooltip>
-														:
-													</StrongText> Implicit flow doesn't support{' '}
-													<LearningTooltip variant="warning" title="PKCE" content="RFC 7636 - not supported in Implicit flow" placement="top">PKCE</LearningTooltip>
+													<LearningTooltip
+														variant="security"
+														title="CSRF Protection"
+														content="Cross-Site Request Forgery protection using state parameter"
+														placement="top"
+													>
+														CSRF protection
+													</LearningTooltip>{' '}
+													(recommended)
 												</li>
 												<li>
 													<StrongText>
-														<LearningTooltip variant="learning" title="Tokens" content="Access token and optionally ID token returned in URL fragment" placement="top">Tokens</LearningTooltip>
+														No{' '}
+														<LearningTooltip
+															variant="warning"
+															title="PKCE"
+															content="Proof Key for Code Exchange - security extension. Implicit flow doesn't support PKCE because it doesn't use authorization codes."
+															placement="top"
+														>
+															PKCE
+														</LearningTooltip>
 														:
-													</StrongText> {selectedVariant === 'oidc' ? (
+													</StrongText>{' '}
+													Implicit flow doesn't support{' '}
+													<LearningTooltip
+														variant="warning"
+														title="PKCE"
+														content="RFC 7636 - not supported in Implicit flow"
+														placement="top"
+													>
+														PKCE
+													</LearningTooltip>
+												</li>
+												<li>
+													<StrongText>
+														<LearningTooltip
+															variant="learning"
+															title="Tokens"
+															content="Access token and optionally ID token returned in URL fragment"
+															placement="top"
+														>
+															Tokens
+														</LearningTooltip>
+														:
+													</StrongText>{' '}
+													{selectedVariant === 'oidc' ? (
 														<>
-															<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access" placement="top">Access Token</LearningTooltip>
+															<LearningTooltip
+																variant="learning"
+																title="Access Token"
+																content="Bearer token for API access"
+																placement="top"
+															>
+																Access Token
+															</LearningTooltip>
 															{' + '}
-															<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT with user identity" placement="top">ID Token</LearningTooltip>
+															<LearningTooltip
+																variant="learning"
+																title="ID Token"
+																content="OIDC JWT with user identity"
+																placement="top"
+															>
+																ID Token
+															</LearningTooltip>
 														</>
 													) : (
-														<LearningTooltip variant="learning" title="Access Token" content="Bearer token for API access only" placement="top">Access Token only</LearningTooltip>
+														<LearningTooltip
+															variant="learning"
+															title="Access Token"
+															content="Bearer token for API access only"
+															placement="top"
+														>
+															Access Token only
+														</LearningTooltip>
 													)}
 												</li>
 												<li>
 													<StrongText>
-														<LearningTooltip variant="learning" title="Scopes" content="Permissions requested from user" placement="top">Scopes</LearningTooltip> (PingOne):
-													</StrongText> {selectedVariant === 'oidc' ? (
+														<LearningTooltip
+															variant="learning"
+															title="Scopes"
+															content="Permissions requested from user"
+															placement="top"
+														>
+															Scopes
+														</LearningTooltip>{' '}
+														(PingOne):
+													</StrongText>{' '}
+													{selectedVariant === 'oidc' ? (
 														<>
-															<LearningTooltip variant="info" title="openid scope" content="Required for OIDC flows to receive ID token" placement="top">openid required</LearningTooltip>
-															{' '}(OIDC spec)
+															<LearningTooltip
+																variant="info"
+																title="openid scope"
+																content="Required for OIDC flows to receive ID token"
+																placement="top"
+															>
+																openid required
+															</LearningTooltip>{' '}
+															(OIDC spec)
 														</>
 													) : (
 														<>
-															<LearningTooltip variant="info" title="openid scope" content="PingOne requires openid scope even for OAuth flows" placement="top">openid required</LearningTooltip>
-															{' '}(PingOne-specific) + custom scopes
+															<LearningTooltip
+																variant="info"
+																title="openid scope"
+																content="PingOne requires openid scope even for OAuth flows"
+																placement="top"
+															>
+																openid required
+															</LearningTooltip>{' '}
+															(PingOne-specific) + custom scopes
 														</>
 													)}
 												</li>
@@ -944,16 +1170,55 @@ const ImplicitFlowV7: React.FC = () => {
 											<FiAlertCircle size={20} />
 											<div>
 												<InfoTitle>
-													<LearningTooltip variant="info" title="OIDC" content="OpenID Connect - authentication layer on top of OAuth 2.0" placement="top">OIDC</LearningTooltip> Requirements
+													<LearningTooltip
+														variant="info"
+														title="OIDC"
+														content="OpenID Connect - authentication layer on top of OAuth 2.0"
+														placement="top"
+													>
+														OIDC
+													</LearningTooltip>{' '}
+													Requirements
 												</InfoTitle>
 												<InfoText>
-													<LearningTooltip variant="warning" title="OIDC Implicit Flow" content="OIDC version of deprecated Implicit flow - returns ID token in URL fragment" placement="top">OIDC Implicit Flow</LearningTooltip> requires the{' '}
+													<LearningTooltip
+														variant="warning"
+														title="OIDC Implicit Flow"
+														content="OIDC version of deprecated Implicit flow - returns ID token in URL fragment"
+														placement="top"
+													>
+														OIDC Implicit Flow
+													</LearningTooltip>{' '}
+													requires the{' '}
 													<StrongText>
-														<LearningTooltip variant="info" title="openid scope" content="Mandatory scope for OIDC flows to receive ID token" placement="top">"openid"</LearningTooltip>
-													</StrongText> scope to receive an{' '}
-													<LearningTooltip variant="learning" title="ID Token" content="OIDC JWT containing user identity information" placement="top">ID token</LearningTooltip>.
-													Make sure your application is configured with the{' '}
-													<LearningTooltip variant="info" title="openid scope" content="Required OIDC scope" placement="top">openid scope</LearningTooltip>.
+														<LearningTooltip
+															variant="info"
+															title="openid scope"
+															content="Mandatory scope for OIDC flows to receive ID token"
+															placement="top"
+														>
+															"openid"
+														</LearningTooltip>
+													</StrongText>{' '}
+													scope to receive an{' '}
+													<LearningTooltip
+														variant="learning"
+														title="ID Token"
+														content="OIDC JWT containing user identity information"
+														placement="top"
+													>
+														ID token
+													</LearningTooltip>
+													. Make sure your application is configured with the{' '}
+													<LearningTooltip
+														variant="info"
+														title="openid scope"
+														content="Required OIDC scope"
+														placement="top"
+													>
+														openid scope
+													</LearningTooltip>
+													.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -965,12 +1230,43 @@ const ImplicitFlowV7: React.FC = () => {
 											<InfoTitle>Security Warning</InfoTitle>
 											<InfoText>
 												<StrongText>
-													<LearningTooltip variant="warning" title="Implicit Flow Deprecation" content="Removed from OAuth 2.1 (RFC 9207). Was part of OAuth 2.0 (RFC 6749 Section 4.2) but deprecated for security reasons." placement="top">Implicit Flow is deprecated</LearningTooltip>
-												</StrongText> and should not be used in production.
-												<LearningTooltip variant="security" title="Token Exposure" content="Tokens in URL fragment are visible in browser history, logs, and can be intercepted by malicious scripts" placement="top">Tokens are exposed in the URL</LearningTooltip> and can be intercepted. Use{' '}
-												<LearningTooltip variant="learning" title="Authorization Code Flow" content="Secure OAuth flow using authorization code" placement="top">Authorization Code</LearningTooltip>
-												{' '}+{' '}
-												<LearningTooltip variant="learning" title="PKCE" content="RFC 7636 - Proof Key for Code Exchange, security extension" placement="top">PKCE</LearningTooltip> instead.
+													<LearningTooltip
+														variant="warning"
+														title="Implicit Flow Deprecation"
+														content="Removed from OAuth 2.1 (RFC 9207). Was part of OAuth 2.0 (RFC 6749 Section 4.2) but deprecated for security reasons."
+														placement="top"
+													>
+														Implicit Flow is deprecated
+													</LearningTooltip>
+												</StrongText>{' '}
+												and should not be used in production.
+												<LearningTooltip
+													variant="security"
+													title="Token Exposure"
+													content="Tokens in URL fragment are visible in browser history, logs, and can be intercepted by malicious scripts"
+													placement="top"
+												>
+													Tokens are exposed in the URL
+												</LearningTooltip>{' '}
+												and can be intercepted. Use{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Authorization Code Flow"
+													content="Secure OAuth flow using authorization code"
+													placement="top"
+												>
+													Authorization Code
+												</LearningTooltip>{' '}
+												+{' '}
+												<LearningTooltip
+													variant="learning"
+													title="PKCE"
+													content="RFC 7636 - Proof Key for Code Exchange, security extension"
+													placement="top"
+												>
+													PKCE
+												</LearningTooltip>{' '}
+												instead.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -999,8 +1295,11 @@ const ImplicitFlowV7: React.FC = () => {
 											are required to generate the authorization URL. Please go back to Step 0 to
 											fill in these credentials first.
 										</InfoText>
-										<InfoText style={{ marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'monospace' }}>
-											Client ID: {credentials.clientId || 'EMPTY'} | Environment ID: {credentials.environmentId || 'EMPTY'}
+										<InfoText
+											style={{ marginTop: '0.5rem', fontSize: '0.75rem', fontFamily: 'monospace' }}
+										>
+											Client ID: {credentials.clientId || 'EMPTY'} | Environment ID:{' '}
+											{credentials.environmentId || 'EMPTY'}
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1027,7 +1326,10 @@ const ImplicitFlowV7: React.FC = () => {
 								</HighlightedActionButton>
 
 								{controller.authUrl && (
-									<HighlightedActionButton onClick={controller.handleRedirectAuthorization} $priority="success">
+									<HighlightedActionButton
+										onClick={controller.handleRedirectAuthorization}
+										$priority="success"
+									>
 										<FiExternalLink /> Redirect to PingOne
 										<HighlightBadge>2</HighlightBadge>
 									</HighlightedActionButton>
@@ -1071,17 +1373,63 @@ const ImplicitFlowV7: React.FC = () => {
 										<FiCheckCircle size={20} />
 										<div>
 											<InfoTitle>
-												<LearningTooltip variant="learning" title="Tokens" content="Access token and optionally ID token returned immediately" placement="top">Tokens</LearningTooltip> Received Directly
+												<LearningTooltip
+													variant="learning"
+													title="Tokens"
+													content="Access token and optionally ID token returned immediately"
+													placement="top"
+												>
+													Tokens
+												</LearningTooltip>{' '}
+												Received Directly
 											</InfoTitle>
 											<InfoText>
 												In{' '}
-												<LearningTooltip variant="warning" title="Implicit Flow" content="Deprecated OAuth flow - tokens in URL fragment" placement="top">Implicit Flow</LearningTooltip>,{' '}
-												<LearningTooltip variant="learning" title="Tokens" content="Access token and/or ID token" placement="top">tokens</LearningTooltip> come back in the{' '}
-												<LearningTooltip variant="security" title="URL Fragment" content="Part of URL after # - not sent to server but visible in browser. SECURITY RISK: tokens exposed here." placement="top">URL fragment (#)</LearningTooltip> immediately after
-												authorization. No{' '}
-												<LearningTooltip variant="learning" title="Token Exchange" content="Server-side step to exchange authorization code for tokens" placement="top">token exchange step</LearningTooltip> is needed, making it simpler but
-												exposing{' '}
-												<LearningTooltip variant="security" title="Tokens in Browser" content="Tokens visible in browser URL, history, and can be intercepted" placement="top">tokens in the browser</LearningTooltip>.
+												<LearningTooltip
+													variant="warning"
+													title="Implicit Flow"
+													content="Deprecated OAuth flow - tokens in URL fragment"
+													placement="top"
+												>
+													Implicit Flow
+												</LearningTooltip>
+												,{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Tokens"
+													content="Access token and/or ID token"
+													placement="top"
+												>
+													tokens
+												</LearningTooltip>{' '}
+												come back in the{' '}
+												<LearningTooltip
+													variant="security"
+													title="URL Fragment"
+													content="Part of URL after # - not sent to server but visible in browser. SECURITY RISK: tokens exposed here."
+													placement="top"
+												>
+													URL fragment (#)
+												</LearningTooltip>{' '}
+												immediately after authorization. No{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Token Exchange"
+													content="Server-side step to exchange authorization code for tokens"
+													placement="top"
+												>
+													token exchange step
+												</LearningTooltip>{' '}
+												is needed, making it simpler but exposing{' '}
+												<LearningTooltip
+													variant="security"
+													title="Tokens in Browser"
+													content="Tokens visible in browser URL, history, and can be intercepted"
+													placement="top"
+												>
+													tokens in the browser
+												</LearningTooltip>
+												.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1108,17 +1456,72 @@ const ImplicitFlowV7: React.FC = () => {
 										<FiInfo size={20} />
 										<div>
 											<InfoTitle>
-												<LearningTooltip variant="info" title="URL Fragment" content="URL part after # symbol - processed client-side, not sent to server" placement="top">URL Fragment</LearningTooltip> Response Format
+												<LearningTooltip
+													variant="info"
+													title="URL Fragment"
+													content="URL part after # symbol - processed client-side, not sent to server"
+													placement="top"
+												>
+													URL Fragment
+												</LearningTooltip>{' '}
+												Response Format
 											</InfoTitle>
 											<InfoText>
 												In{' '}
-												<LearningTooltip variant="warning" title="Implicit Flow" content="Deprecated OAuth flow" placement="top">Implicit Flow</LearningTooltip>,{' '}
-												<LearningTooltip variant="learning" title="Tokens" content="Access token and optionally ID token" placement="top">tokens</LearningTooltip> are returned in the{' '}
-												<LearningTooltip variant="security" title="URL Fragment" content="Part after # - tokens exposed here is a security risk" placement="top">URL fragment (#)</LearningTooltip> as key-value pairs.
-												This allows the{' '}
-												<LearningTooltip variant="info" title="OAuth Client" content="Application requesting access" placement="top">client</LearningTooltip> to extract{' '}
-												<LearningTooltip variant="learning" title="Tokens" content="Access token and/or ID token" placement="top">tokens</LearningTooltip> without a{' '}
-												<LearningTooltip variant="info" title="Server-side Exchange" content="Safer method - exchanging code for tokens on backend server" placement="top">server-side exchange</LearningTooltip>.
+												<LearningTooltip
+													variant="warning"
+													title="Implicit Flow"
+													content="Deprecated OAuth flow"
+													placement="top"
+												>
+													Implicit Flow
+												</LearningTooltip>
+												,{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Tokens"
+													content="Access token and optionally ID token"
+													placement="top"
+												>
+													tokens
+												</LearningTooltip>{' '}
+												are returned in the{' '}
+												<LearningTooltip
+													variant="security"
+													title="URL Fragment"
+													content="Part after # - tokens exposed here is a security risk"
+													placement="top"
+												>
+													URL fragment (#)
+												</LearningTooltip>{' '}
+												as key-value pairs. This allows the{' '}
+												<LearningTooltip
+													variant="info"
+													title="OAuth Client"
+													content="Application requesting access"
+													placement="top"
+												>
+													client
+												</LearningTooltip>{' '}
+												to extract{' '}
+												<LearningTooltip
+													variant="learning"
+													title="Tokens"
+													content="Access token and/or ID token"
+													placement="top"
+												>
+													tokens
+												</LearningTooltip>{' '}
+												without a{' '}
+												<LearningTooltip
+													variant="info"
+													title="Server-side Exchange"
+													content="Safer method - exchanging code for tokens on backend server"
+													placement="top"
+												>
+													server-side exchange
+												</LearningTooltip>
+												.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1128,9 +1531,9 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Security Considerations</InfoTitle>
 											<InfoText>
-												Implicit Flow has inherent security limitations. Tokens are exposed in
-												the URL, making them vulnerable to interception. This step demonstrates
-												security best practices and mitigation strategies.
+												Implicit Flow has inherent security limitations. Tokens are exposed in the
+												URL, making them vulnerable to interception. This step demonstrates security
+												best practices and mitigation strategies.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1170,15 +1573,10 @@ const ImplicitFlowV7: React.FC = () => {
 											</ActionRow>
 										</GeneratedContentBox>
 
-										{UnifiedTokenDisplayService.showTokens(
-											tokens,
-											selectedVariant,
-											'implicit-v7',
-											{
-												showCopyButtons: true,
-												showDecodeButtons: true,
-											}
-										)}
+										{UnifiedTokenDisplayService.showTokens(tokens, selectedVariant, 'implicit-v7', {
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										})}
 
 										{/* Security Warnings */}
 										<InfoBox $variant="warning">
@@ -1186,8 +1584,8 @@ const ImplicitFlowV7: React.FC = () => {
 											<div>
 												<InfoTitle>No Refresh Token</InfoTitle>
 												<InfoText>
-													Implicit Flow does not provide refresh tokens for security reasons. When the
-													access token expires, users must re-authenticate.
+													Implicit Flow does not provide refresh tokens for security reasons. When
+													the access token expires, users must re-authenticate.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -1219,8 +1617,9 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Token Analysis Service</InfoTitle>
 											<InfoText>
-												The UnifiedTokenDisplayService provides consistent token presentation across all OAuth flows,
-												with automatic JWT detection, decode functionality, and token management integration.
+												The UnifiedTokenDisplayService provides consistent token presentation across
+												all OAuth flows, with automatic JWT detection, decode functionality, and
+												token management integration.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1233,10 +1632,18 @@ const ImplicitFlowV7: React.FC = () => {
 												Tokens are exposed in the browser URL, making them vulnerable to:
 											</InfoText>
 											<InfoList>
-												<li><StrongText>Browser History:</StrongText> Tokens saved in browser history</li>
-												<li><StrongText>Network Interception:</StrongText> Visible in network logs</li>
-												<li><StrongText>Shoulder Surfing:</StrongText> Visible on screen</li>
-												<li><StrongText>Server Logs:</StrongText> May be logged by web servers</li>
+												<li>
+													<StrongText>Browser History:</StrongText> Tokens saved in browser history
+												</li>
+												<li>
+													<StrongText>Network Interception:</StrongText> Visible in network logs
+												</li>
+												<li>
+													<StrongText>Shoulder Surfing:</StrongText> Visible on screen
+												</li>
+												<li>
+													<StrongText>Server Logs:</StrongText> May be logged by web servers
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1255,26 +1662,27 @@ const ImplicitFlowV7: React.FC = () => {
 									<ParameterGrid>
 										<div>
 											<ParameterLabel>Token Format</ParameterLabel>
-											<ParameterValue style={{
-												color: tokens.access_token?.includes('.') ? '#059669' : '#6b7280',
-												fontWeight: 'bold'
-											}}>
-												{tokens.access_token?.includes('.') ? 'JWT (Structured)' : 'Opaque (Reference)'}
+											<ParameterValue
+												style={{
+													color: tokens.access_token?.includes('.') ? '#059669' : '#6b7280',
+													fontWeight: 'bold',
+												}}
+											>
+												{tokens.access_token?.includes('.')
+													? 'JWT (Structured)'
+													: 'Opaque (Reference)'}
 											</ParameterValue>
 										</div>
 										<div>
 											<ParameterLabel>Token Length</ParameterLabel>
-											<ParameterValue>
-												{tokens.access_token?.length || 0} characters
-											</ParameterValue>
+											<ParameterValue>{tokens.access_token?.length || 0} characters</ParameterValue>
 										</div>
 										<div>
 											<ParameterLabel>Expires At</ParameterLabel>
 											<ParameterValue>
 												{tokens.expires_in
-													? new Date(Date.now() + (tokens.expires_in * 1000)).toLocaleString()
-													: 'Unknown'
-												}
+													? new Date(Date.now() + tokens.expires_in * 1000).toLocaleString()
+													: 'Unknown'}
 											</ParameterValue>
 										</div>
 										<div>
@@ -1285,7 +1693,9 @@ const ImplicitFlowV7: React.FC = () => {
 										</div>
 									</ParameterGrid>
 
-									<ActionRow style={{ justifyContent: 'center', gap: '0.75rem', marginTop: '1rem' }}>
+									<ActionRow
+										style={{ justifyContent: 'center', gap: '0.75rem', marginTop: '1rem' }}
+									>
 										<Button onClick={() => {}} variant="primary">
 											<FiExternalLink /> Advanced Token Management
 										</Button>
@@ -1317,7 +1727,8 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>⚠️ DEPRECATED FLOW - NOT RECOMMENDED</InfoTitle>
 											<InfoText>
-												The OAuth 2.0 Implicit Flow is <StrongText>deprecated</StrongText> and should
+												The OAuth 2.0 Implicit Flow is <StrongText>deprecated</StrongText> and
+												should
 												<StrongText> NOT be used in production applications</StrongText>.
 											</InfoText>
 										</div>
@@ -1328,8 +1739,8 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Recommended Alternative</InfoTitle>
 											<InfoText>
-												Use <StrongText>Authorization Code Flow with PKCE</StrongText> for all new applications.
-												It provides better security and is the OAuth 2.1 standard.
+												Use <StrongText>Authorization Code Flow with PKCE</StrongText> for all new
+												applications. It provides better security and is the OAuth 2.1 standard.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1339,9 +1750,18 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>Security Comparison</InfoTitle>
 											<InfoList>
-												<li><StrongText>Authorization Code + PKCE:</StrongText> High security, refresh tokens, no URL exposure</li>
-												<li><StrongText>Implicit Flow:</StrongText> Low security, no refresh tokens, URL exposure</li>
-												<li><StrongText>OAuth 2.1:</StrongText> Current standard with enhanced security</li>
+												<li>
+													<StrongText>Authorization Code + PKCE:</StrongText> High security, refresh
+													tokens, no URL exposure
+												</li>
+												<li>
+													<StrongText>Implicit Flow:</StrongText> Low security, no refresh tokens,
+													URL exposure
+												</li>
+												<li>
+													<StrongText>OAuth 2.1:</StrongText> Current standard with enhanced
+													security
+												</li>
 											</InfoList>
 										</div>
 									</InfoBox>
@@ -1380,8 +1800,9 @@ const ImplicitFlowV7: React.FC = () => {
 										<div>
 											<InfoTitle>{selectedVariant.toUpperCase()} Implicit Flow Completed</InfoTitle>
 											<InfoText>
-												You have successfully completed the {selectedVariant.toUpperCase()} Implicit Flow.
-												Tokens were received and validated according to OAuth 2.0 specifications.
+												You have successfully completed the {selectedVariant.toUpperCase()} Implicit
+												Flow. Tokens were received and validated according to OAuth 2.0
+												specifications.
 											</InfoText>
 										</div>
 									</InfoBox>
@@ -1395,17 +1816,23 @@ const ImplicitFlowV7: React.FC = () => {
 											</div>
 											<div>
 												<ParameterLabel>Response Type</ParameterLabel>
-												<ParameterValue>{selectedVariant === 'oidc' ? 'id_token token' : 'token'}</ParameterValue>
+												<ParameterValue>
+													{selectedVariant === 'oidc' ? 'id_token token' : 'token'}
+												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Tokens Received</ParameterLabel>
 												<ParameterValue>
-													{selectedVariant === 'oidc' ? 'Access Token + ID Token' : 'Access Token only'}
+													{selectedVariant === 'oidc'
+														? 'Access Token + ID Token'
+														: 'Access Token only'}
 												</ParameterValue>
 											</div>
 											<div>
 												<ParameterLabel>Security Level</ParameterLabel>
-												<ParameterValue style={{ color: '#dc2626' }}>Deprecated - Low Security</ParameterValue>
+												<ParameterValue style={{ color: '#dc2626' }}>
+													Deprecated - Low Security
+												</ParameterValue>
 											</div>
 										</ParameterGrid>
 									</GeneratedContentBox>
@@ -1419,7 +1846,7 @@ const ImplicitFlowV7: React.FC = () => {
 								onStartNewFlow: () => {
 									setCurrentStep(0);
 									controller.resetFlow();
-								}
+								},
 							}}
 							collapsed={false}
 						/>
@@ -1428,11 +1855,26 @@ const ImplicitFlowV7: React.FC = () => {
 			default:
 				return <div>Step {currentStep} - Not implemented yet</div>;
 		}
-	}, [currentStep, selectedVariant, collapsedSections, controller, credentials, controller.tokens, toggleSection]);
+	}, [
+		currentStep,
+		selectedVariant,
+		collapsedSections,
+		controller,
+		credentials,
+		controller.tokens,
+		toggleSection,
+		renderStep0,
+	]);
 
 	const STEP_METADATA = [
-		{ title: 'Step 0: Setup & Configuration', subtitle: 'Choose variant and configure credentials' },
-		{ title: 'Step 1: Generate Authorization URL', subtitle: 'Build and generate the authorization URL' },
+		{
+			title: 'Step 0: Setup & Configuration',
+			subtitle: 'Choose variant and configure credentials',
+		},
+		{
+			title: 'Step 1: Generate Authorization URL',
+			subtitle: 'Build and generate the authorization URL',
+		},
 		{ title: 'Step 2: User Authorization', subtitle: 'Complete authorization and receive tokens' },
 		{ title: 'Step 3: Token Analysis', subtitle: 'Inspect and validate received tokens' },
 		{ title: 'Step 4: Security Review', subtitle: 'Review security features and best practices' },
@@ -1470,12 +1912,12 @@ const ImplicitFlowV7: React.FC = () => {
 						<StepHeaderLeft>
 							<DynamicVersionBadge $variant={selectedVariant}>V7</DynamicVersionBadge>
 							<div>
-								<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+								<DynamicStepHeaderTitle>{STEP_METADATA[currentStep].title}</DynamicStepHeaderTitle>
 								<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
 							</div>
 						</StepHeaderLeft>
 						<StepHeaderRight>
-							<StepNumber>{String(currentStep + 1).padStart(2, '0')}</StepNumber>
+							<DynamicStepNumber>{String(currentStep + 1).padStart(2, '0')}</DynamicStepNumber>
 							<StepTotal>of {STEP_METADATA.length}</StepTotal>
 						</StepHeaderRight>
 					</DynamicStepHeader>
@@ -1483,27 +1925,25 @@ const ImplicitFlowV7: React.FC = () => {
 					{/* V7 Variant Selector - Now inside MainCard below Step Header */}
 					{renderVariantSelector()}
 
-					<StepContentWrapper>
-						{renderStepContent}
-					</StepContentWrapper>
+					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
 
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}
-					onPrevious={() => setCurrentStep(prev => Math.max(prev - 1, 0))}
+					onPrevious={() => setCurrentStep((prev) => Math.max(prev - 1, 0))}
 					onReset={() => {
 						setCurrentStep(0);
 						controller.resetFlow();
-						
+
 						// Clear Implicit Flow V7-specific storage
 						FlowCredentialService.clearFlowState('implicit-v7');
 						console.log('🔧 [Implicit V7] Cleared flow-specific storage');
-						
+
 						// Clear credential backup when flow is reset
 						clearBackup();
 					}}
-					onNext={() => setCurrentStep(prev => Math.min(prev + 1, STEP_METADATA.length - 1))}
+					onNext={() => setCurrentStep((prev) => Math.min(prev + 1, STEP_METADATA.length - 1))}
 					canNavigateNext={isStepValid(currentStep)}
 					isFirstStep={currentStep === 0}
 					nextButtonText="Next"

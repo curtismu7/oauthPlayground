@@ -4,19 +4,19 @@
  * Pre-built OAuth scenarios with auto-populated parameters and generated code
  */
 
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useState } from 'react';
 import {
-	FiGlobe,
-	FiDollarSign,
-	FiLock,
-	FiSmartphone,
-	FiShoppingCart,
+	FiCheckCircle,
 	FiCode,
 	FiCopy,
-	FiCheckCircle,
+	FiDollarSign,
 	FiExternalLink,
+	FiGlobe,
+	FiLock,
+	FiShoppingCart,
+	FiSmartphone,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const BuilderContainer = styled.div`
@@ -60,9 +60,7 @@ const ScenarioCard = styled.button<{ $selected: boolean }>`
 	transition: all 0.2s;
 	text-align: left;
 	box-shadow: ${({ $selected }) =>
-		$selected
-			? '0 8px 24px rgba(16, 185, 129, 0.3)'
-			: '0 2px 8px rgba(0, 0, 0, 0.1)'};
+		$selected ? '0 8px 24px rgba(16, 185, 129, 0.3)' : '0 2px 8px rgba(0, 0, 0, 0.1)'};
 
 	&:hover {
 		transform: translateY(-4px);
@@ -266,9 +264,7 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
 	font-size: 1rem;
 	transition: all 0.2s;
 	background: ${({ variant }) =>
-		variant === 'secondary'
-			? 'white'
-			: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'};
+		variant === 'secondary' ? 'white' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)'};
 	color: ${({ variant }) => (variant === 'secondary' ? '#059669' : 'white')};
 	border: ${({ variant }) => (variant === 'secondary' ? '2px solid #10b981' : 'none')};
 
@@ -501,8 +497,7 @@ public class BankingOAuthConfig
 		icon: <FiGlobe />,
 		iconColor: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
 		title: 'Multi-Tenant SaaS Platform',
-		description:
-			'Cloud software with multiple customer APIs requiring resource-specific tokens',
+		description: 'Cloud software with multiple customer APIs requiring resource-specific tokens',
 		tags: ['SaaS', 'Multi-API', 'Resource Indicators'],
 		parameters: {
 			response_type: 'code',
@@ -512,7 +507,7 @@ public class BankingOAuthConfig
 			state: 'RANDOM_STATE_TOKEN',
 		},
 		whyItMatters:
-			'Multi-tenant SaaS apps need resource indicators (RFC 8707) to limit token scope. If CustomerA\'s token is stolen, it can\'t access CustomerB\'s data.',
+			"Multi-tenant SaaS apps need resource indicators (RFC 8707) to limit token scope. If CustomerA's token is stolen, it can't access CustomerB's data.",
 		industryExample:
 			'☁️ Salesforce, HubSpot, and Zendesk use resource indicators to isolate customer data.',
 		codeExamples: {
@@ -1667,4 +1662,3 @@ const RealWorldScenarioBuilder: React.FC = () => {
 };
 
 export default RealWorldScenarioBuilder;
-

@@ -1,4 +1,3 @@
-import React from 'react';
 import { FiChevronDown, FiInfo, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 
@@ -42,7 +41,7 @@ const CollapsibleToggleIcon = styled.div<{ $collapsed: boolean }>`
 	font-size: 1.25rem;
 	color: #0284c7;
 	transition: transform 0.2s;
-	transform: ${props => props.$collapsed ? 'rotate(-90deg)' : 'rotate(0)'};
+	transform: ${(props) => (props.$collapsed ? 'rotate(-90deg)' : 'rotate(0)')};
 `;
 
 const CollapsibleContent = styled.div`
@@ -53,27 +52,36 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${props => {
+	background: ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#f0fdf4';
-			case 'warning': return '#fffbeb';
-			default: return '#eff6ff';
+			case 'success':
+				return '#f0fdf4';
+			case 'warning':
+				return '#fffbeb';
+			default:
+				return '#eff6ff';
 		}
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#bbf7d0';
-			case 'warning': return '#fed7aa';
-			default: return '#bfdbfe';
+			case 'success':
+				return '#bbf7d0';
+			case 'warning':
+				return '#fed7aa';
+			default:
+				return '#bfdbfe';
 		}
 	}};
 	border-radius: 0.5rem;
 	font-size: 0.875rem;
-	color: ${props => {
+	color: ${(props) => {
 		switch (props.$variant) {
-			case 'success': return '#166534';
-			case 'warning': return '#92400e';
-			default: return '#1e40af';
+			case 'success':
+				return '#166534';
+			case 'warning':
+				return '#92400e';
+			default:
+				return '#1e40af';
 		}
 	}};
 	line-height: 1.5;
@@ -114,14 +122,11 @@ interface OAuthPromptParameterServiceProps {
 export class OAuthPromptParameterService {
 	static getPromptParameterSection({
 		collapsed,
-		onToggleCollapsed
+		onToggleCollapsed,
 	}: OAuthPromptParameterServiceProps) {
 		return (
 			<CollapsibleSection>
-				<CollapsibleHeaderButton 
-					onClick={onToggleCollapsed} 
-					aria-expanded={!collapsed}
-				>
+				<CollapsibleHeaderButton onClick={onToggleCollapsed} aria-expanded={!collapsed}>
 					<CollapsibleTitle>
 						<FiUser /> OAuth Prompt Parameter
 					</CollapsibleTitle>
@@ -138,8 +143,9 @@ export class OAuthPromptParameterService {
 									OAuth Prompt Parameter
 								</div>
 								<div>
-									The prompt parameter controls authentication and consent behavior in OAuth flows. 
-									While more commonly used in OIDC, many OAuth providers also support this parameter.
+									The prompt parameter controls authentication and consent behavior in OAuth flows.
+									While more commonly used in OIDC, many OAuth providers also support this
+									parameter.
 								</div>
 							</div>
 						</InfoBox>
@@ -150,8 +156,9 @@ export class OAuthPromptParameterService {
 						</SectionHeader>
 
 						<SectionDescription>
-							The <CodeHighlight>prompt</CodeHighlight> parameter controls the authentication and consent behavior. 
-							You can select multiple values to combine behaviors (e.g., "login consent").
+							The <CodeHighlight>prompt</CodeHighlight> parameter controls the authentication and
+							consent behavior. You can select multiple values to combine behaviors (e.g., "login
+							consent").
 						</SectionDescription>
 					</CollapsibleContent>
 				)}

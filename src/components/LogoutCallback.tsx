@@ -82,18 +82,27 @@ const LogoutCallback: React.FC = () => {
 				// Clear any remaining session data
 				const keysToRemove = [
 					// Auth tokens
-					'access_token', 'id_token', 'refresh_token',
+					'access_token',
+					'id_token',
+					'refresh_token',
 					// OAuth flow state
-					'oauth_state', 'oauth_nonce', 'oauth_tokens',
+					'oauth_state',
+					'oauth_nonce',
+					'oauth_tokens',
 					// OIDC flow state
-					'oidc_state', 'oidc_nonce', 'oidc_tokens',
+					'oidc_state',
+					'oidc_nonce',
+					'oidc_tokens',
 					// Flow-specific data
-					'flowContext', 'authz_flow_tokens', 'implicit_tokens',
+					'flowContext',
+					'authz_flow_tokens',
+					'implicit_tokens',
 					// User context
-					'user_info', 'session_state',
+					'user_info',
+					'session_state',
 				];
 
-				keysToRemove.forEach(key => {
+				keysToRemove.forEach((key) => {
 					localStorage.removeItem(key);
 					sessionStorage.removeItem(key);
 				});
@@ -108,7 +117,6 @@ const LogoutCallback: React.FC = () => {
 				setTimeout(() => {
 					setIsProcessing(false);
 				}, 1000);
-
 			} catch (error) {
 				logger.error('LogoutCallback', 'Error during logout processing', error);
 				v4ToastManager.showError('An error occurred during logout');
@@ -147,7 +155,8 @@ const LogoutCallback: React.FC = () => {
 				</SuccessIcon>
 				<SuccessTitle>Logout Successful</SuccessTitle>
 				<SuccessMessage>
-					You have been successfully logged out from all applications. Your session has been terminated and all tokens have been cleared.
+					You have been successfully logged out from all applications. Your session has been
+					terminated and all tokens have been cleared.
 				</SuccessMessage>
 				<LoginButton onClick={handleReturnToLogin}>
 					<FiLogIn />

@@ -19,10 +19,10 @@ export const RouteRestorer: React.FC = () => {
 		// Only restore if we're at the root path and it's the initial load
 		if (location.pathname === '/' && !sessionStorage.getItem('route_restored')) {
 			const lastRoute = RoutePersistenceService.getLastRoute();
-			
+
 			// Mark that we've attempted restoration to prevent loops
 			sessionStorage.setItem('route_restored', 'true');
-			
+
 			if (lastRoute && lastRoute !== '/') {
 				console.log(`🔄 [RouteRestorer] Restoring last route: ${lastRoute}`);
 				navigate(lastRoute, { replace: true });
@@ -36,5 +36,3 @@ export const RouteRestorer: React.FC = () => {
 };
 
 export default RouteRestorer;
-
-

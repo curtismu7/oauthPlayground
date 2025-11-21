@@ -1,7 +1,7 @@
 // src/components/AuthorizationCodeModal.tsx
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes, css } from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { FiCheck, FiCopy, FiExternalLink, FiX } from 'react-icons/fi';
+import styled, { css, keyframes } from 'styled-components';
 
 // Animation for success checkmark
 const checkmarkAnimation = keyframes`
@@ -159,7 +159,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	position: absolute;
 	top: 0.5rem;
 	right: 0.5rem;
-	background: ${({ $copied }) => $copied ? '#10b981' : '#3b82f6'};
+	background: ${({ $copied }) => ($copied ? '#10b981' : '#3b82f6')};
 	color: white;
 	border: none;
 	padding: 0.5rem;
@@ -174,7 +174,7 @@ const CopyButton = styled.button<{ $copied: boolean }>`
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
 	&:hover {
-		background: ${({ $copied }) => $copied ? '#059669' : '#2563eb'};
+		background: ${({ $copied }) => ($copied ? '#059669' : '#2563eb')};
 		transform: translateY(-1px);
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 	}
@@ -251,7 +251,7 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 	isOpen,
 	onClose,
 	authorizationCode,
-	onContinue
+	onContinue,
 }) => {
 	const [copied, setCopied] = useState(false);
 
@@ -263,7 +263,7 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 			authorizationCode: authorizationCode ? `${authorizationCode.substring(0, 10)}...` : 'none',
 			hasOnClose: !!onClose,
 			hasOnContinue: !!onContinue,
-			timestamp: new Date().toISOString()
+			timestamp: new Date().toISOString(),
 		});
 	}, [isOpen, authorizationCode, onClose, onContinue]);
 
@@ -307,7 +307,8 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 						</SuccessIcon>
 						<SuccessTitle>Welcome Back from PingOne!</SuccessTitle>
 						<SuccessMessage>
-							Your authorization was successful. PingOne has returned an authorization code that you can now use to exchange for access tokens.
+							Your authorization was successful. PingOne has returned an authorization code that you
+							can now use to exchange for access tokens.
 						</SuccessMessage>
 					</SuccessSection>
 
@@ -337,7 +338,9 @@ export const AuthorizationCodeModal: React.FC<AuthorizationCodeModalProps> = ({
 							Next Steps
 						</InfoTitle>
 						<InfoText>
-							You can now proceed to exchange this authorization code for access tokens. The authorization code is typically short-lived (10 minutes), so it's recommended to exchange it for tokens as soon as possible.
+							You can now proceed to exchange this authorization code for access tokens. The
+							authorization code is typically short-lived (10 minutes), so it's recommended to
+							exchange it for tokens as soon as possible.
 						</InfoText>
 					</InfoSection>
 				</ModalContent>

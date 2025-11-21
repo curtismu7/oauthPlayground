@@ -13,7 +13,7 @@ interface MessageEntry {
 	text: string;
 	isError?: boolean;
 	autoCloseMs?: number;
-	html?: string;
+	html?: string[][];
 }
 
 // Global message state
@@ -21,24 +21,18 @@ let globalMessages: MessageEntry[] = [];
 let messageListeners: Array<(messages: MessageEntry[]) => void> = [];
 let hasPrimaryToastInstance = false;
 
-const escapeHtml = (value: string) =>
-	value
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#39;');
+const convertTextToBlocks = (text: string): string[][] => {
+	const trimmed = text.trim();
+	if (!trimmed) {
+		return [];
+	}
 
-const convertTextToHtml = (text: string) =>
-	text
-		.trim()
-		.split(/\n{2,}/)
-		.map((block) => `<p>${escapeHtml(block).replace(/\n/g, '<br />')}</p>`)
-		.join('');
+	return trimmed.split(/\n{2,}/).map((block) => block.split('\n'));
+};
 
-const buildErrorHtml = (summary: string, details?: string) => {
+const buildErrorBlocks = (summary: string, details?: string): string[][] => {
 	const bodySource = details && details.trim().length > 0 ? details : summary;
-	return convertTextToHtml(bodySource);
+	return convertTextToBlocks(bodySource);
 };
 
 const notifyListeners = () => {
@@ -267,6 +261,9 @@ export const CentralizedSuccessMessage: React.FC = () => {
 	const [messages, setMessages] = useState<MessageEntry[]>([]);
 	const [showModal, setShowModal] = useState(false);
 	const [modalContent, setModalContent] = useState<MessageEntry | null>(null);
+	const parsedModalContent = modalContent
+		? (modalContent.html ?? convertTextToBlocks(modalContent.text))
+		: [];
 
 	// TODO: Current lint configuration produces global warnings unrelated to this component when running scoped lint.
 	// Once repository-wide lint debt is resolved, re-run lint specifically for this file to ensure compliance.
@@ -343,11 +340,22 @@ export const CentralizedSuccessMessage: React.FC = () => {
 							</div>
 						</ErrorHeader>
 
-						<ErrorBody
-							dangerouslySetInnerHTML={{
-								__html: modalContent.html || convertTextToHtml(modalContent.text),
-							}}
-						/>
+						<ErrorBody>
+							{parsedModalContent.length === 0 ? (
+								<p>No additional details provided.</p>
+							) : (
+								parsedModalContent.map((paragraph, paragraphIndex) => (
+									<p key={`modal-paragraph-${paragraphIndex}`}>
+										{paragraph.map((line, lineIndex) => (
+											<React.Fragment key={`modal-line-${lineIndex}`}>
+												{line}
+												{lineIndex < paragraph.length - 1 && <br />}
+											</React.Fragment>
+										))}
+									</p>
+								))
+							)}
+						</ErrorBody>
 
 						<ModalActions>
 							<CloseButton type="button" onClick={handleCloseModal}>
@@ -370,14 +378,14 @@ export const showFlowSuccess = (text: string, subtitle?: string, autoCloseMs?: n
 
 export const showFlowError = (summary: string, details?: string) => {
 	const _message = details ? `${summary}\n${details}` : summary;
-	addMessage({ text: summary, isError: true, html: buildErrorHtml(summary, details) });
+	addMessage({ text: summary, isError: true, html: buildErrorBlocks(summary, details) });
 };
 
 export const showDetailedError = (summary: string, details?: string, durationMs?: number) => {
 	addMessage({
 		text: summary,
 		isError: true,
-		html: buildErrorHtml(summary, details),
+		html: buildErrorBlocks(summary, details),
 		autoCloseMs: durationMs || 0,
 	});
 };

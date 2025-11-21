@@ -1,10 +1,10 @@
 // src/utils/runSafeguards.ts
 // Script to run comprehensive safeguard checks
 
-import { safeguardIntegration } from './safeguardIntegration';
+import { errorMonitoring } from './errorMonitoring';
 import { flowTestSuite } from './flowTestSuite';
 import { regressionSafeguards } from './regressionSafeguards';
-import { errorMonitoring } from './errorMonitoring';
+import { safeguardIntegration } from './safeguardIntegration';
 
 /**
  * Run comprehensive safeguard checks
@@ -16,7 +16,7 @@ export async function runSafeguards(): Promise<void> {
 	try {
 		// Run comprehensive check
 		const results = await safeguardIntegration.runComprehensiveCheck();
-		
+
 		console.log('\n📊 Safeguard Check Results:');
 		console.log('============================');
 		console.log(`Overall Status: ${results.passed ? '✅ PASSED' : '❌ FAILED'}`);
@@ -28,7 +28,9 @@ export async function runSafeguards(): Promise<void> {
 			console.log(`Total Flows: ${results.results.regressionTesting.summary.totalFlows}`);
 			console.log(`Passed: ${results.results.regressionTesting.summary.passedFlows}`);
 			console.log(`Failed: ${results.results.regressionTesting.summary.failedFlows}`);
-			console.log(`Critical Failures: ${results.results.regressionTesting.summary.criticalFailures}`);
+			console.log(
+				`Critical Failures: ${results.results.regressionTesting.summary.criticalFailures}`
+			);
 		}
 
 		if (results.results.preCommitChecks) {
@@ -68,16 +70,15 @@ export async function runSafeguards(): Promise<void> {
 			console.log('✅ All safeguard checks passed! Your system is healthy.');
 		} else {
 			console.log('❌ Some safeguard checks failed. Please review the issues above.');
-			
+
 			if (results.summary.metrics.criticalErrors > 0) {
 				console.log('🚨 Critical errors detected. Immediate attention required.');
 			}
-			
+
 			if (results.summary.metrics.failedTests > 0) {
 				console.log('⚠️  Some tests failed. Review and fix before proceeding.');
 			}
 		}
-
 	} catch (error) {
 		console.error('❌ Safeguard check failed:', error);
 		throw error;
@@ -89,14 +90,14 @@ export async function runSafeguards(): Promise<void> {
  */
 export async function runQuickHealthCheck(): Promise<boolean> {
 	console.log('🏥 Running Quick Health Check...');
-	
+
 	try {
 		const status = await safeguardIntegration.runHealthCheck();
 		const healthSummary = safeguardIntegration.getHealthSummary();
-		
+
 		console.log(`Health Status: ${status.overall}`);
 		console.log(`Components: ${healthSummary.healthy}/${healthSummary.components} healthy`);
-		
+
 		return status.overall === 'healthy';
 	} catch (error) {
 		console.error('❌ Quick health check failed:', error);
@@ -109,16 +110,16 @@ export async function runQuickHealthCheck(): Promise<boolean> {
  */
 export async function runFlowTest(flowName: string): Promise<boolean> {
 	console.log(`🧪 Running test for flow: ${flowName}`);
-	
+
 	try {
 		const result = await flowTestSuite.runFlowTest(flowName);
-		
+
 		if (result) {
 			console.log(`Flow ${flowName}: ${result.overallPassed ? '✅ PASSED' : '❌ FAILED'}`);
 			console.log(`Tests: ${result.tests.length}`);
-			console.log(`Passed: ${result.tests.filter(t => t.passed).length}`);
-			console.log(`Failed: ${result.tests.filter(t => !t.passed).length}`);
-			
+			console.log(`Passed: ${result.tests.filter((t) => t.passed).length}`);
+			console.log(`Failed: ${result.tests.filter((t) => !t.passed).length}`);
+
 			return result.overallPassed;
 		} else {
 			console.error(`No test configuration found for flow: ${flowName}`);
@@ -136,7 +137,7 @@ export async function runFlowTest(flowName: string): Promise<boolean> {
 export function showSafeguardStatus(): void {
 	console.log('📊 Safeguard System Status');
 	console.log('==========================');
-	
+
 	const status = safeguardIntegration.getStatus();
 	if (status) {
 		console.log(`Overall: ${status.overall}`);
@@ -146,7 +147,7 @@ export function showSafeguardStatus(): void {
 		console.log(`Failed Tests: ${status.metrics.failedTests}`);
 		console.log(`Critical Errors: ${status.metrics.criticalErrors}`);
 		console.log(`Recent Errors: ${status.metrics.recentErrors}`);
-		
+
 		console.log('\nComponent Status:');
 		Object.entries(status.components).forEach(([component, health]) => {
 			console.log(`  ${component}: ${health}`);
@@ -174,9 +175,4 @@ export function clearSafeguardData(): void {
 }
 
 // Export functions for use in other modules
-export {
-	safeguardIntegration,
-	flowTestSuite,
-	regressionSafeguards,
-	errorMonitoring
-};
+export { safeguardIntegration, flowTestSuite, regressionSafeguards, errorMonitoring };

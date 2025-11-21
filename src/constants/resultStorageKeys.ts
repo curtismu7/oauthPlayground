@@ -9,8 +9,3 @@ export const FLOW_LOG_STORAGE_PREFIX = 'flow.log.';
 
 export const PINGONE_AUTH_RESULT_KEY = 'pingone_login_playground_result';
 export const PINGONE_AUTH_FLOW_LOG_KEY = 'pingone_login_flow_log';
-
-
-
-
-

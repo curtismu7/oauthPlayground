@@ -1,8 +1,18 @@
 // src/services/__tests__/workerTokenDiscoveryService.test.ts
 // Tests for Worker Token Discovery Service
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ComprehensiveDiscoveryService } from '../comprehensiveDiscoveryService';
 import { workerTokenDiscoveryService } from '../workerTokenDiscoveryService';
+
+const spyOnComprehensiveDiscovery = () =>
+	vi.spyOn(
+		workerTokenDiscoveryService as unknown as {
+			comprehensiveDiscovery: ComprehensiveDiscoveryService;
+		},
+		'comprehensiveDiscovery',
+		'get'
+	);
 
 describe('WorkerTokenDiscoveryService', () => {
 	beforeEach(() => {
@@ -30,7 +40,12 @@ describe('WorkerTokenDiscoveryService', () => {
 					introspection_endpoint: 'https://auth.pingone.com/test-env-id-123/as/introspect',
 					userinfo_endpoint: 'https://auth.pingone.com/test-env-id-123/as/userinfo',
 					jwks_uri: 'https://auth.pingone.com/test-env-id-123/as/jwks',
-					scopes_supported: ['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device'],
+					scopes_supported: [
+						'p1:read:user',
+						'p1:update:user',
+						'p1:read:device',
+						'p1:update:device',
+					],
 					grant_types_supported: ['client_credentials'],
 					response_types_supported: ['token'],
 				},
@@ -39,7 +54,7 @@ describe('WorkerTokenDiscoveryService', () => {
 			};
 
 			// Mock the comprehensive discovery service
-			vi.spyOn(workerTokenDiscoveryService as any, 'comprehensiveDiscovery', 'get').mockReturnValue({
+			spyOnComprehensiveDiscovery().mockReturnValue({
 				discover: vi.fn().mockResolvedValue(mockResult),
 			});
 
@@ -49,7 +64,12 @@ describe('WorkerTokenDiscoveryService', () => {
 			expect(result.environmentId).toBe('test-env-id-123');
 			expect(result.issuerUrl).toBe('https://auth.pingone.com/test-env-id-123/as');
 			expect(result.tokenEndpoint).toBe('https://auth.pingone.com/test-env-id-123/as/token');
-			expect(result.scopes).toEqual(['p1:read:user', 'p1:update:user', 'p1:read:device', 'p1:update:device']);
+			expect(result.scopes).toEqual([
+				'p1:read:user',
+				'p1:update:user',
+				'p1:read:device',
+				'p1:update:device',
+			]);
 		});
 
 		it('should handle discovery failure gracefully', async () => {
@@ -59,7 +79,7 @@ describe('WorkerTokenDiscoveryService', () => {
 			};
 
 			// Mock discovery failure
-			vi.spyOn(workerTokenDiscoveryService as any, 'comprehensiveDiscovery', 'get').mockReturnValue({
+			spyOnComprehensiveDiscovery().mockReturnValue({
 				discover: vi.fn().mockResolvedValue({
 					success: false,
 					error: 'Discovery failed',
@@ -91,7 +111,7 @@ describe('WorkerTokenDiscoveryService', () => {
 				cached: false,
 			};
 
-			vi.spyOn(workerTokenDiscoveryService as any, 'comprehensiveDiscovery', 'get').mockReturnValue({
+			spyOnComprehensiveDiscovery().mockReturnValue({
 				discover: vi.fn().mockResolvedValue(mockResult),
 			});
 
@@ -133,7 +153,7 @@ describe('WorkerTokenDiscoveryService', () => {
 				cached: false,
 			};
 
-			vi.spyOn(workerTokenDiscoveryService as any, 'comprehensiveDiscovery', 'get').mockReturnValue({
+			spyOnComprehensiveDiscovery().mockReturnValue({
 				discover: vi.fn().mockResolvedValue(mockResult),
 			});
 
@@ -167,7 +187,7 @@ describe('WorkerTokenDiscoveryService', () => {
 				cached: false,
 			};
 
-			vi.spyOn(workerTokenDiscoveryService as any, 'comprehensiveDiscovery', 'get').mockReturnValue({
+			spyOnComprehensiveDiscovery().mockReturnValue({
 				discover: vi.fn().mockResolvedValue(mockResult),
 			});
 

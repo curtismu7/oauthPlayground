@@ -2,8 +2,8 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from './EnhancedFlowInfoCard';
 import { useFlowInfo } from '../hooks/useFlowInfo';
+import EnhancedFlowInfoCard from './EnhancedFlowInfoCard';
 
 const Container = styled.div`
 	padding: 2rem;
@@ -24,7 +24,7 @@ const Subtitle = styled.p`
 	margin-bottom: 2rem;
 `;
 
-const FlowGrid = styled.div`
+const _FlowGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
 	gap: 2rem;
@@ -75,42 +75,42 @@ const FlowDescription = styled.div`
 
 const FlowInfoExample: React.FC = () => {
 	// Example of using the hook for different flow types
-	const oauthAuthCode = useFlowInfo('oauth-authorization-code', {
+	const _oauthAuthCode = useFlowInfo('oauth-authorization-code', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: true,
 		showImplementationNotes: true,
 	});
 
-	const oidcAuthCode = useFlowInfo('oidc-authorization-code', {
+	const _oidcAuthCode = useFlowInfo('oidc-authorization-code', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: false,
 		showImplementationNotes: false,
 	});
 
-	const clientCredentials = useFlowInfo('client-credentials', {
+	const _clientCredentials = useFlowInfo('client-credentials', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: false,
 		showImplementationNotes: false,
 	});
 
-	const deviceCode = useFlowInfo('device-code', {
+	const _deviceCode = useFlowInfo('device-code', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: false,
 		showImplementationNotes: false,
 	});
 
-	const ciba = useFlowInfo('oidc-ciba-v6', {
+	const _ciba = useFlowInfo('oidc-ciba-v6', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: false,
 		showImplementationNotes: false,
 	});
 
-	const par = useFlowInfo('par', {
+	const _par = useFlowInfo('par', {
 		showAdditionalInfo: true,
 		showDocumentation: true,
 		showCommonIssues: false,

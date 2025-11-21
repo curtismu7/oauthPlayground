@@ -82,60 +82,60 @@ async function main() {
 	console.log('='.repeat(70));
 	console.log(`User: ${TEST_USERNAME}`);
 	console.log('='.repeat(70));
-	
+
 	// Get token and user
 	console.log('\n🔑 Getting worker token...');
 	const workerToken = await getWorkerToken();
 	console.log('✅ Token obtained');
-	
+
 	console.log(`\n🔍 Looking up user "${TEST_USERNAME}"...`);
 	const userLookup = await lookupUser(workerToken, TEST_USERNAME);
 	const userId = userLookup.user.id;
 	console.log(`✅ User found: ${userId}`);
-	
+
 	// Step 1: Set password (without force change)
 	console.log('\n📝 STEP 1: Setting password (forceChange=false)...');
 	const setResult = await setPassword(workerToken, userId, 'TempPass123!@#');
-	
+
 	if (setResult.success) {
 		console.log('✅ Password set successfully');
 	} else {
 		console.log('⚠️  Password set may have failed:', setResult.error_description);
 		console.log('   Continuing anyway to demonstrate force change...');
 	}
-	
+
 	// Check state after set
 	const stateAfterSet = await getPasswordState(workerToken, userId);
 	displayPasswordState(stateAfterSet, '📊 Password State After Set');
-	
+
 	// Step 2: Force password change
 	console.log('\n🔐 STEP 2: Forcing password change...');
 	const forceResult = await forcePasswordChange(workerToken, userId);
-	
+
 	if (forceResult.success) {
 		console.log('✅ Password change forced successfully');
 	} else {
 		console.error('❌ Force failed:', forceResult);
 		process.exit(1);
 	}
-	
+
 	// Check state after force
 	const stateAfterForce = await getPasswordState(workerToken, userId);
 	displayPasswordState(stateAfterForce, '📊 Password State After Force Change');
-	
+
 	// Comparison
 	console.log('\n🎯 COMPARISON:');
 	console.log('='.repeat(70));
 	console.log(`Status Changed: ${stateAfterSet.status} → ${stateAfterForce.status}`);
-	
+
 	if (stateAfterSet.status !== stateAfterForce.status) {
 		console.log('✨ STATUS CHANGED! ⬅️  User must now change password on next login');
 	} else if (stateAfterForce.status === 'MUST_CHANGE_PASSWORD') {
 		console.log('✅ Status is MUST_CHANGE_PASSWORD (already required or now required)');
 	}
-	
+
 	console.log('='.repeat(70));
-	
+
 	// Final user lookup to show complete state
 	console.log('\n🔍 STEP 3: Final user lookup to verify...');
 	const finalLookup = await lookupUser(workerToken, TEST_USERNAME);
@@ -146,7 +146,7 @@ async function main() {
 	console.log(`  Email: ${finalLookup.user.email}`);
 	console.log(`  Enabled: ${finalLookup.user.enabled}`);
 	console.log(`  Account Status: ${finalLookup.user.account?.status || 'N/A'}`);
-	
+
 	console.log('\n✨ DEMO COMPLETE!');
 	console.log('='.repeat(70));
 	console.log('What happened:');
@@ -157,7 +157,7 @@ async function main() {
 	console.log('='.repeat(70));
 }
 
-main().catch(error => {
+main().catch((error) => {
 	console.error('Fatal error:', error);
 	process.exit(1);
 });

@@ -24,20 +24,21 @@ import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
 import { credentialManager } from '../../utils/credentialManager';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService'
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
-import { FlowHeader } from '../../services/flowHeaderService';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
-import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+
 import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
+import UltimateTokenDisplay from '../../components/UltimateTokenDisplay';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { FlowStepService, type StepConfig } from '../../services/flowStepService';
+import { ResponseMode } from '../../services/responseModeService';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -57,7 +58,10 @@ const log = {
 };
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Hybrid Flow and configure credentials' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the OIDC Hybrid Flow and configure credentials',
+	},
 	{ title: 'Step 1: Authorization Request', subtitle: 'Build and launch authorization URL' },
 	{ title: 'Step 2: Process Response', subtitle: 'Handle callback and validate tokens' },
 	{ title: 'Step 3: Token Exchange', subtitle: 'Exchange code for additional tokens' },
@@ -332,26 +336,42 @@ const OIDCHybridFlowV5: React.FC = () => {
 		validation: {
 			isStepValid: (stepIndex: number) => {
 				switch (stepIndex) {
-					case 0: return !!hybridFlow.credentials?.environmentId && !!hybridFlow.credentials?.clientId;
-					case 1: return !!hybridFlow.authorizationUrl;
-					case 2: return !!hybridFlow.tokens || !!hybridFlow.error;
-					case 3: return !!hybridFlow.tokens;
-					case 4: return !!hybridFlow.tokens;
-					case 5: return true;
-					case 6: return true;
-					default: return false;
+					case 0:
+						return !!hybridFlow.credentials?.environmentId && !!hybridFlow.credentials?.clientId;
+					case 1:
+						return !!hybridFlow.authorizationUrl;
+					case 2:
+						return !!hybridFlow.tokens || !!hybridFlow.error;
+					case 3:
+						return !!hybridFlow.tokens;
+					case 4:
+						return !!hybridFlow.tokens;
+					case 5:
+						return true;
+					case 6:
+						return true;
+					default:
+						return false;
 				}
 			},
 			getStepRequirements: (stepIndex: number) => {
 				switch (stepIndex) {
-					case 0: return ['Valid environment ID', 'Client ID', 'Redirect URI'];
-					case 1: return ['Complete step 0', 'Valid credentials'];
-					case 2: return ['Authorization URL generated', 'User authorization'];
-					case 3: return ['Authorization code received'];
-					case 4: return ['Tokens received'];
-					case 5: return ['Flow completed'];
-					case 6: return ['All previous steps completed'];
-					default: return [];
+					case 0:
+						return ['Valid environment ID', 'Client ID', 'Redirect URI'];
+					case 1:
+						return ['Complete step 0', 'Valid credentials'];
+					case 2:
+						return ['Authorization URL generated', 'User authorization'];
+					case 3:
+						return ['Authorization code received'];
+					case 4:
+						return ['Tokens received'];
+					case 5:
+						return ['Flow completed'];
+					case 6:
+						return ['All previous steps completed'];
+					default:
+						return [];
 				}
 			},
 		},
@@ -384,7 +404,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 			if (error) {
 				console.error('❌ [OIDC-Hybrid-V5] Authorization error:', error, errorDescription);
 				v4ToastManager.showError(`Authorization failed: ${errorDescription || error}`);
-				
+
 				// Clear URL parameters
 				window.history.replaceState({}, '', window.location.pathname);
 				return;
@@ -392,7 +412,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 			if (authCode) {
 				console.log('✅ [OIDC-Hybrid-V5] Authorization code received from URL');
-				
+
 				// Create tokens object with what we received
 				const tokens: {
 					code: string;
@@ -418,12 +438,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 				// Set the tokens in the hybrid flow
 				hybridFlow.setTokens(tokens);
-				
+
 				// Auto-advance to step 2 (process response)
 				setCurrentStep(2);
-				
+
 				v4ToastManager.showSuccess('🎉 Authorization successful! Ready for token exchange.');
-				
+
 				// Clear URL parameters
 				window.history.replaceState({}, '', window.location.pathname);
 			}
@@ -440,9 +460,9 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const [clientId, setClientId] = useState('');
 	const [clientSecret, setClientSecret] = useState('');
 	const [scopes, setScopes] = useState('openid profile email');
-	const [responseType] = useState<
-		'code id_token' | 'code token' | 'code id_token token'
-	>('code id_token');
+	const [responseType] = useState<'code id_token' | 'code token' | 'code id_token token'>(
+		'code id_token'
+	);
 	const [responseMode, setResponseMode] = useState<ResponseMode>('fragment');
 
 	// Update credentials when response mode changes
@@ -513,21 +533,24 @@ const OIDCHybridFlowV5: React.FC = () => {
 		log.info('Credentials saved');
 	}, [environmentId, clientId, clientSecret, scopes, responseType, hybridFlow]);
 
-	const handleClientIdChange = useCallback((newClientId: string) => {
-		setClientId(newClientId);
-		// Auto-save credentials if we have both environmentId and clientId
-		if (environmentId && newClientId && environmentId.trim() && newClientId.trim()) {
-			hybridFlow.setCredentials({
-				environmentId,
-				clientId: newClientId,
-				clientSecret,
-				scopes,
-				responseType,
-				responseMode,
-			});
-			v4ToastManager.showSuccess('Credentials auto-saved');
-		}
-	}, [environmentId, clientSecret, scopes, responseType, responseMode, hybridFlow]);
+	const handleClientIdChange = useCallback(
+		(newClientId: string) => {
+			setClientId(newClientId);
+			// Auto-save credentials if we have both environmentId and clientId
+			if (environmentId && newClientId && environmentId.trim() && newClientId.trim()) {
+				hybridFlow.setCredentials({
+					environmentId,
+					clientId: newClientId,
+					clientSecret,
+					scopes,
+					responseType,
+					responseMode,
+				});
+				v4ToastManager.showSuccess('Credentials auto-saved');
+			}
+		},
+		[environmentId, clientSecret, scopes, responseType, responseMode, hybridFlow]
+	);
 
 	const handleStartAuthorization = useCallback(() => {
 		try {
@@ -535,7 +558,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 			log.info('Redirecting to authorization URL');
 			window.location.href = authUrl;
 		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to generate authorization URL';
 			v4ToastManager.showError(errorMessage);
 		}
 	}, [hybridFlow]);
@@ -545,7 +569,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 			hybridFlow.generateAuthorizationUrl();
 			log.info('Authorization URL generated');
 		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to generate authorization URL';
 			v4ToastManager.showError(errorMessage);
 		}
 	}, [hybridFlow]);
@@ -644,162 +669,154 @@ const OIDCHybridFlowV5: React.FC = () => {
 	const renderIntroduction = () => (
 		<>
 			<CollapsibleHeader
-					title="OIDC Hybrid Flow Overview"
-					icon={<FiInfo />}
-					defaultCollapsed={false}
-				>
-					<InfoBox $variant="info">
-							<FiShield size={20} />
-							<div>
-								<InfoTitle>What is OIDC Hybrid Flow?</InfoTitle>
-								<InfoText>
-									The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to
-									be returned from both the authorization endpoint (in the fragment) and the token
-									endpoint. This provides flexibility for different client types and security
-									requirements.
-								</InfoText>
-							</div>
-						</InfoBox>
+				title="OIDC Hybrid Flow Overview"
+				icon={<FiInfo />}
+				defaultCollapsed={false}
+			>
+				<InfoBox $variant="info">
+					<FiShield size={20} />
+					<div>
+						<InfoTitle>What is OIDC Hybrid Flow?</InfoTitle>
+						<InfoText>
+							The Hybrid Flow combines Authorization Code and Implicit flows, allowing tokens to be
+							returned from both the authorization endpoint (in the fragment) and the token
+							endpoint. This provides flexibility for different client types and security
+							requirements.
+						</InfoText>
+					</div>
+				</InfoBox>
 
-						<InfoBox $variant="warning">
-							<FiAlertCircle size={20} />
-							<div>
-								<InfoTitle>Response Types Supported:</InfoTitle>
-								<InfoList>
-									<li>
-										<code>code id_token</code> - Returns code + ID token in fragment
-									</li>
-									<li>
-										<code>code token</code> - Returns code + access token in fragment
-									</li>
-									<li>
-										<code>code id_token token</code> - Returns code + ID token + access token in
-										fragment
-									</li>
-								</InfoList>
-							</div>
-						</InfoBox>
+				<InfoBox $variant="warning">
+					<FiAlertCircle size={20} />
+					<div>
+						<InfoTitle>Response Types Supported:</InfoTitle>
+						<InfoList>
+							<li>
+								<code>code id_token</code> - Returns code + ID token in fragment
+							</li>
+							<li>
+								<code>code token</code> - Returns code + access token in fragment
+							</li>
+							<li>
+								<code>code id_token token</code> - Returns code + ID token + access token in
+								fragment
+							</li>
+						</InfoList>
+					</div>
+				</InfoBox>
 
-						<InfoBox>
-							<FiZap size={20} />
-							<div>
-								<InfoTitle>Key Features:</InfoTitle>
-								<InfoList>
-									<li>Immediate access to ID token for client-side validation</li>
-									<li>Authorization code for secure token exchange</li>
-									<li>Flexible security model for different client types</li>
-									<li>Supports both public and confidential clients</li>
-								</InfoList>
-							</div>
-						</InfoBox>
-				</CollapsibleHeader>
+				<InfoBox>
+					<FiZap size={20} />
+					<div>
+						<InfoTitle>Key Features:</InfoTitle>
+						<InfoList>
+							<li>Immediate access to ID token for client-side validation</li>
+							<li>Authorization code for secure token exchange</li>
+							<li>Flexible security model for different client types</li>
+							<li>Supports both public and confidential clients</li>
+						</InfoList>
+					</div>
+				</InfoBox>
+			</CollapsibleHeader>
 
-			<CollapsibleHeader
-					title="Configure Credentials"
-					icon={<FiKey />}
-					defaultCollapsed={false}
-				>
-					<EnvironmentIdInput
-							initialEnvironmentId={environmentId}
-							onEnvironmentIdChange={(newEnvId) => {
-								setEnvironmentId(newEnvId);
+			<CollapsibleHeader title="Configure Credentials" icon={<FiKey />} defaultCollapsed={false}>
+				<EnvironmentIdInput
+					initialEnvironmentId={environmentId}
+					onEnvironmentIdChange={(newEnvId) => {
+						setEnvironmentId(newEnvId);
+						// Auto-save credentials if we have both environmentId and clientId
+						if (newEnvId && clientId && newEnvId.trim() && clientId.trim()) {
+							hybridFlow.setCredentials({
+								environmentId: newEnvId,
+								clientId,
+								clientSecret,
+								scopes,
+								responseType,
+								responseMode,
+							});
+							v4ToastManager.showSuccess('Credentials auto-saved after environment ID change');
+						}
+					}}
+					onIssuerUrlChange={() => {}}
+					onDiscoveryComplete={async (result) => {
+						if (result.success && result.document) {
+							console.log('🎯 [OIDCHybrid] OIDC Discovery completed successfully');
+							// Auto-populate environment ID if it's a PingOne issuer
+							const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
+							if (envId) {
+								setEnvironmentId(envId);
 								// Auto-save credentials if we have both environmentId and clientId
-								if (newEnvId && clientId && newEnvId.trim() && clientId.trim()) {
+								if (clientId?.trim()) {
 									hybridFlow.setCredentials({
-										environmentId: newEnvId,
+										environmentId: envId,
 										clientId,
 										clientSecret,
 										scopes,
 										responseType,
 										responseMode,
 									});
-									v4ToastManager.showSuccess('Credentials auto-saved after environment ID change');
+									v4ToastManager.showSuccess('Configuration auto-saved after OIDC discovery');
 								}
-							}}
-							onIssuerUrlChange={() => {}}
-							onDiscoveryComplete={async (result) => {
-								if (result.success && result.document) {
-									console.log('🎯 [OIDCHybrid] OIDC Discovery completed successfully');
-									// Auto-populate environment ID if it's a PingOne issuer
-									const envId = oidcDiscoveryService.extractEnvironmentId(result.document.issuer);
-									if (envId) {
-										setEnvironmentId(envId);
-										// Auto-save credentials if we have both environmentId and clientId
-										if (clientId?.trim()) {
-											hybridFlow.setCredentials({
-												environmentId: envId,
-												clientId,
-												clientSecret,
-												scopes,
-												responseType,
-												responseMode,
-											});
-											v4ToastManager.showSuccess('Configuration auto-saved after OIDC discovery');
-										}
-									}
-								}
-							}}
-							showSuggestions={true}
-							autoDiscover={false}
-						/>
-						
-						<SectionDivider />
-						
-						<CredentialsInput
-							environmentId={environmentId}
-							clientId={clientId}
-							clientSecret={clientSecret}
-							scopes={scopes}
-							onEnvironmentIdChange={setEnvironmentId}
-							onClientIdChange={handleClientIdChange}
-							onClientSecretChange={(newClientSecret) => {
-								setClientSecret(newClientSecret);
-								// Auto-save credentials if we have environmentId, clientId, and now clientSecret
-								if (environmentId?.trim() && clientId?.trim() && newClientSecret?.trim()) {
-									hybridFlow.setCredentials({
-										environmentId,
-										clientId,
-										clientSecret: newClientSecret,
-										scopes,
-										responseType,
-										responseMode,
-									});
-									v4ToastManager.showSuccess('Configuration auto-saved after client secret change');
-								}
-							}}
-							onScopesChange={setScopes}
-							onCopy={handleCopy}
-							showRedirectUri={false}
-							showLoginHint={false}
-						/>
+							}
+						}
+					}}
+					showSuggestions={true}
+					autoDiscover={false}
+				/>
 
-						<SectionDivider />
-						
-						<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
+				<SectionDivider />
 
-						<SectionDivider />
-				</CollapsibleHeader>
+				<CredentialsInput
+					environmentId={environmentId}
+					clientId={clientId}
+					clientSecret={clientSecret}
+					scopes={scopes}
+					onEnvironmentIdChange={setEnvironmentId}
+					onClientIdChange={handleClientIdChange}
+					onClientSecretChange={(newClientSecret) => {
+						setClientSecret(newClientSecret);
+						// Auto-save credentials if we have environmentId, clientId, and now clientSecret
+						if (environmentId?.trim() && clientId?.trim() && newClientSecret?.trim()) {
+							hybridFlow.setCredentials({
+								environmentId,
+								clientId,
+								clientSecret: newClientSecret,
+								scopes,
+								responseType,
+								responseMode,
+							});
+							v4ToastManager.showSuccess('Configuration auto-saved after client secret change');
+						}
+					}}
+					onScopesChange={setScopes}
+					onCopy={handleCopy}
+					showRedirectUri={false}
+					showLoginHint={false}
+				/>
 
-			<CollapsibleHeader
-					title="Hybrid Flow Sequence"
-					icon={<FiZap />}
-					defaultCollapsed={true}
-				>
-					<InfoBox>
-							<FiInfo size={20} />
-							<div>
-								<InfoTitle>Flow Steps:</InfoTitle>
-								<InfoList>
-									<li>User initiates authorization request with hybrid response type</li>
-									<li>Authorization server authenticates user and obtains consent</li>
-									<li>Server returns authorization code + tokens in fragment</li>
-									<li>Client extracts tokens from URL fragment</li>
-									<li>Client exchanges authorization code for additional tokens</li>
-									<li>Client receives all tokens (access, ID, refresh)</li>
-								</InfoList>
-							</div>
-						</InfoBox>
-				</CollapsibleHeader>
+				<SectionDivider />
+
+				<FlowConfigurationRequirements flowType="hybrid" variant="oidc" />
+
+				<SectionDivider />
+			</CollapsibleHeader>
+
+			<CollapsibleHeader title="Hybrid Flow Sequence" icon={<FiZap />} defaultCollapsed={true}>
+				<InfoBox>
+					<FiInfo size={20} />
+					<div>
+						<InfoTitle>Flow Steps:</InfoTitle>
+						<InfoList>
+							<li>User initiates authorization request with hybrid response type</li>
+							<li>Authorization server authenticates user and obtains consent</li>
+							<li>Server returns authorization code + tokens in fragment</li>
+							<li>Client extracts tokens from URL fragment</li>
+							<li>Client exchanges authorization code for additional tokens</li>
+							<li>Client receives all tokens (access, ID, refresh)</li>
+						</InfoList>
+					</div>
+				</InfoBox>
+			</CollapsibleHeader>
 		</>
 	);
 
@@ -810,269 +827,265 @@ const OIDCHybridFlowV5: React.FC = () => {
 					<FiExternalLink /> Step 2: Generate Authorization URL
 				</StepTitle>
 				<StepDescription>
-					Configure response mode and generate the authorization URL to redirect users to PingOne for authentication.
+					Configure response mode and generate the authorization URL to redirect users to PingOne
+					for authentication.
 				</StepDescription>
 			</StepHeader>
 
 			<CollapsibleHeader
-					title="Response Mode Configuration"
-					icon={<FiSettings />}
-					defaultCollapsed={true}
-				>
-					<InfoBox>
-							<FiInfo size={20} />
-							<div>
-								<InfoText>
-									Choose how the authorization response should be returned. This affects security and user experience.
-								</InfoText>
-							</div>
-						</InfoBox>
+				title="Response Mode Configuration"
+				icon={<FiSettings />}
+				defaultCollapsed={true}
+			>
+				<InfoBox>
+					<FiInfo size={20} />
+					<div>
+						<InfoText>
+							Choose how the authorization response should be returned. This affects security and
+							user experience.
+						</InfoText>
+					</div>
+				</InfoBox>
 
-						<ResponseModeSelector
-							selectedMode={responseMode}
-							onModeChange={setResponseMode}
-							responseType={responseType}
-							clientType="confidential"
-							platform="web"
-							showRecommendations={true}
-							showUrlExamples={true}
-							baseUrl="https://auth.pingone.com/{envID}/as/authorize"
-						/>
-				</CollapsibleHeader>
+				<ResponseModeSelector
+					selectedMode={responseMode}
+					onModeChange={setResponseMode}
+					responseType={responseType}
+					clientType="confidential"
+					platform="web"
+					showRecommendations={true}
+					showUrlExamples={true}
+					baseUrl="https://auth.pingone.com/{envID}/as/authorize"
+				/>
+			</CollapsibleHeader>
 
 			<CollapsibleHeader
-					title="Authorization Request"
-					icon={<FiExternalLink />}
-					defaultCollapsed={true}
-				>
-					<InfoBox>
-							<FiInfo size={20} />
-							<div>
-								<InfoText>
-									Click the button below to start the authorization flow. You'll be redirected to
-									PingOne where you can authenticate and authorize the application.
-								</InfoText>
-							</div>
-						</InfoBox>
+				title="Authorization Request"
+				icon={<FiExternalLink />}
+				defaultCollapsed={true}
+			>
+				<InfoBox>
+					<FiInfo size={20} />
+					<div>
+						<InfoText>
+							Click the button below to start the authorization flow. You'll be redirected to
+							PingOne where you can authenticate and authorize the application.
+						</InfoText>
+					</div>
+				</InfoBox>
 
-						<ParameterGrid>
-							<ParameterLabel>Response Type</ParameterLabel>
-							<ParameterValue>{responseType}</ParameterValue>
-							<ParameterLabel>Response Mode</ParameterLabel>
-							<ParameterValue>{responseMode}</ParameterValue>
-							<ParameterLabel>Scopes</ParameterLabel>
-							<ParameterValue>{scopes}</ParameterValue>
-						</ParameterGrid>
+				<ParameterGrid>
+					<ParameterLabel>Response Type</ParameterLabel>
+					<ParameterValue>{responseType}</ParameterValue>
+					<ParameterLabel>Response Mode</ParameterLabel>
+					<ParameterValue>{responseMode}</ParameterValue>
+					<ParameterLabel>Scopes</ParameterLabel>
+					<ParameterValue>{scopes}</ParameterValue>
+				</ParameterGrid>
 
-						{hybridFlow.authorizationUrl && (
-							<ColoredUrlDisplay
-								url={hybridFlow.authorizationUrl}
-								label="Generated Authorization URL"
-								showCopyButton={true}
-								showInfoButton={true}
-								showOpenButton={true}
-								onOpen={() => window.open(hybridFlow.authorizationUrl!, '_blank')}
-								height="120px"
-							/>
-						)}
+				{hybridFlow.authorizationUrl && (
+					<ColoredUrlDisplay
+						url={hybridFlow.authorizationUrl}
+						label="Generated Authorization URL"
+						showCopyButton={true}
+						showInfoButton={true}
+						showOpenButton={true}
+						onOpen={() => window.open(hybridFlow.authorizationUrl!, '_blank')}
+						height="120px"
+					/>
+				)}
 
-						<ActionRow>
-							<Button
-								onClick={handleGenerateUrl}
-								disabled={!environmentId || !clientId}
-								$variant="outline"
-							>
-								<FiRefreshCw /> Generate URL
-							</Button>
-							<Button
-								onClick={handleStartAuthorization}
-								disabled={!environmentId || !clientId || !hybridFlow.authorizationUrl}
-								$variant="primary"
-							>
-								<FiExternalLink /> Start Authorization
-							</Button>
-						</ActionRow>
-				</CollapsibleHeader>
+				<ActionRow>
+					<Button
+						onClick={handleGenerateUrl}
+						disabled={!environmentId || !clientId}
+						$variant="outline"
+					>
+						<FiRefreshCw /> Generate URL
+					</Button>
+					<Button
+						onClick={handleStartAuthorization}
+						disabled={!environmentId || !clientId || !hybridFlow.authorizationUrl}
+						$variant="primary"
+					>
+						<FiExternalLink /> Start Authorization
+					</Button>
+				</ActionRow>
+			</CollapsibleHeader>
 		</>
 	);
 
 	const renderProcessResponse = () => (
-		<CollapsibleHeader
-					title="Process Response"
-					icon={<FiCheckCircle />}
-					defaultCollapsed={true}
-				>
-					{hybridFlow.tokens ? (
-						<>
-							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
-								<div>
-									<InfoTitle>Authorization Response Received!</InfoTitle>
-									<InfoText>
-										Tokens received from authorization endpoint. Click "Exchange Code" to get
-										additional tokens from the token endpoint.
-									</InfoText>
-									<InfoText>
-										You can now close this tab and return to the PingOne authorization flow.
-									</InfoText>
-								</div>
-							</InfoBox>
-
-							{hybridFlow.tokens.id_token && (
-								<div style={{ marginTop: '1rem' }}>
-									<UltimateTokenDisplay
-										tokens={{ id_token: hybridFlow.tokens.id_token }}
-										flowType="oidc"
-										flowKey="hybrid-flow-v5-fragment"
-										displayMode="compact"
-										title="ID Token (from fragment)"
-										subtitle="Identity token received in URL fragment"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										defaultMasked={false}
-									/>
-								</div>
-							)}
-
-							{hybridFlow.tokens.access_token && (
-								<div style={{ marginTop: '1rem' }}>
-									<UltimateTokenDisplay
-										tokens={{ 
-											access_token: hybridFlow.tokens.access_token,
-											...(hybridFlow.tokens.scope && { scope: String(hybridFlow.tokens.scope) }),
-											...(hybridFlow.tokens.expires_in && { expires_in: hybridFlow.tokens.expires_in })
-										}}
-										flowType="oidc"
-										flowKey="hybrid-flow-v5-fragment-access"
-										displayMode="compact"
-										title="Access Token (from fragment)"
-										subtitle="Access token received in URL fragment"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										defaultMasked={false}
-									/>
-									<ActionRow>
-										<Button onClick={navigateToTokenManagement} $variant="outline">
-											<FiExternalLink /> Decode Access Token
-										</Button>
-									</ActionRow>
-								</div>
-							)}
-
-							{hybridFlow.tokens.code && (
-								<div style={{ marginTop: '1rem' }}>
-									<UltimateTokenDisplay
-										tokens={{ code: hybridFlow.tokens.code }}
-										flowType="oidc"
-										flowKey="hybrid-flow-v5-code"
-										displayMode="compact"
-										title="Authorization Code"
-										subtitle="Authorization code received in URL fragment"
-										showCopyButtons={true}
-										showDecodeButtons={true}
-										showMaskToggle={true}
-										showTokenManagement={true}
-										defaultMasked={false}
-									/>
-								</div>
-							)}
-						</>
-					) : (
-						<InfoBox $variant="warning">
-							<FiAlertCircle size={20} />
-							<div>
-								<InfoText>
-									Waiting for authorization response. Please complete the authorization flow.
-								</InfoText>
-							</div>
-						</InfoBox>
-					)}
-				</CollapsibleHeader>
-	);
-
-	const renderTokenExchange = () => (
-		<CollapsibleHeader
-					title="Token Exchange"
-					icon={<FiRefreshCw />}
-					defaultCollapsed={true}
-				>
-					<InfoBox>
-						<FiInfo size={20} />
-						<div>
-							<InfoText>
-								Exchange the authorization code for additional tokens (access token, refresh token,
-								ID token) from the token endpoint.
-							</InfoText>
-						</div>
-					</InfoBox>
-
-					<ActionRow>
-						<Button
-							onClick={handleExchangeCode}
-							disabled={!hybridFlow.tokens?.code || hybridFlow.isExchangingCode}
-							$variant="primary"
-						>
-							{hybridFlow.isExchangingCode ? (
-								<>
-									<FiRefreshCw className="animate-spin" />
-									Exchanging...
-								</>
-							) : (
-								<>
-									<FiRefreshCw />
-									Exchange Code for Tokens
-								</>
-							)}
-						</Button>
-					</ActionRow>
-				</CollapsibleHeader>
-	);
-
-	const renderTokensReceived = () => (
-		<CollapsibleHeader
-					title="Tokens Received"
-					icon={<FiKey />}
-					defaultCollapsed={true}
-				>
+		<CollapsibleHeader title="Process Response" icon={<FiCheckCircle />} defaultCollapsed={true}>
+			{hybridFlow.tokens ? (
+				<>
 					<InfoBox $variant="success">
 						<FiCheckCircle size={20} />
 						<div>
-							<InfoTitle>All Tokens Received!</InfoTitle>
+							<InfoTitle>Authorization Response Received!</InfoTitle>
 							<InfoText>
-								You now have all tokens from both the authorization endpoint and token endpoint.
+								Tokens received from authorization endpoint. Click "Exchange Code" to get additional
+								tokens from the token endpoint.
+							</InfoText>
+							<InfoText>
+								You can now close this tab and return to the PingOne authorization flow.
 							</InfoText>
 						</div>
 					</InfoBox>
 
-					{(hybridFlow.tokens?.access_token || hybridFlow.tokens?.id_token || hybridFlow.tokens?.refresh_token) && (
+					{hybridFlow.tokens.id_token && (
 						<div style={{ marginTop: '1rem' }}>
 							<UltimateTokenDisplay
-								tokens={{
-									...(hybridFlow.tokens.access_token && { access_token: hybridFlow.tokens.access_token }),
-									...(hybridFlow.tokens.id_token && { id_token: hybridFlow.tokens.id_token }),
-									...(hybridFlow.tokens.refresh_token && { refresh_token: hybridFlow.tokens.refresh_token }),
-									...(hybridFlow.tokens.scope && { scope: String(hybridFlow.tokens.scope) }),
-									...(hybridFlow.tokens.expires_in && { expires_in: hybridFlow.tokens.expires_in })
-								}}
+								tokens={{ id_token: hybridFlow.tokens.id_token }}
 								flowType="oidc"
-								flowKey="hybrid-flow-v5-tokens"
-								displayMode="detailed"
-								title="OIDC Hybrid Flow Tokens"
-								subtitle="Complete token set from authorization code exchange"
+								flowKey="hybrid-flow-v5-fragment"
+								displayMode="compact"
+								title="ID Token (from fragment)"
+								subtitle="Identity token received in URL fragment"
 								showCopyButtons={true}
 								showDecodeButtons={true}
 								showMaskToggle={true}
 								showTokenManagement={true}
-								showMetadata={true}
 								defaultMasked={false}
 							/>
 						</div>
 					)}
-				</CollapsibleHeader>
+
+					{hybridFlow.tokens.access_token && (
+						<div style={{ marginTop: '1rem' }}>
+							<UltimateTokenDisplay
+								tokens={{
+									access_token: hybridFlow.tokens.access_token,
+									...(hybridFlow.tokens.scope && { scope: String(hybridFlow.tokens.scope) }),
+									...(hybridFlow.tokens.expires_in && { expires_in: hybridFlow.tokens.expires_in }),
+								}}
+								flowType="oidc"
+								flowKey="hybrid-flow-v5-fragment-access"
+								displayMode="compact"
+								title="Access Token (from fragment)"
+								subtitle="Access token received in URL fragment"
+								showCopyButtons={true}
+								showDecodeButtons={true}
+								showMaskToggle={true}
+								showTokenManagement={true}
+								defaultMasked={false}
+							/>
+							<ActionRow>
+								<Button onClick={navigateToTokenManagement} $variant="outline">
+									<FiExternalLink /> Decode Access Token
+								</Button>
+							</ActionRow>
+						</div>
+					)}
+
+					{hybridFlow.tokens.code && (
+						<div style={{ marginTop: '1rem' }}>
+							<UltimateTokenDisplay
+								tokens={{ code: hybridFlow.tokens.code }}
+								flowType="oidc"
+								flowKey="hybrid-flow-v5-code"
+								displayMode="compact"
+								title="Authorization Code"
+								subtitle="Authorization code received in URL fragment"
+								showCopyButtons={true}
+								showDecodeButtons={true}
+								showMaskToggle={true}
+								showTokenManagement={true}
+								defaultMasked={false}
+							/>
+						</div>
+					)}
+				</>
+			) : (
+				<InfoBox $variant="warning">
+					<FiAlertCircle size={20} />
+					<div>
+						<InfoText>
+							Waiting for authorization response. Please complete the authorization flow.
+						</InfoText>
+					</div>
+				</InfoBox>
+			)}
+		</CollapsibleHeader>
+	);
+
+	const renderTokenExchange = () => (
+		<CollapsibleHeader title="Token Exchange" icon={<FiRefreshCw />} defaultCollapsed={true}>
+			<InfoBox>
+				<FiInfo size={20} />
+				<div>
+					<InfoText>
+						Exchange the authorization code for additional tokens (access token, refresh token, ID
+						token) from the token endpoint.
+					</InfoText>
+				</div>
+			</InfoBox>
+
+			<ActionRow>
+				<Button
+					onClick={handleExchangeCode}
+					disabled={!hybridFlow.tokens?.code || hybridFlow.isExchangingCode}
+					$variant="primary"
+				>
+					{hybridFlow.isExchangingCode ? (
+						<>
+							<FiRefreshCw className="animate-spin" />
+							Exchanging...
+						</>
+					) : (
+						<>
+							<FiRefreshCw />
+							Exchange Code for Tokens
+						</>
+					)}
+				</Button>
+			</ActionRow>
+		</CollapsibleHeader>
+	);
+
+	const renderTokensReceived = () => (
+		<CollapsibleHeader title="Tokens Received" icon={<FiKey />} defaultCollapsed={true}>
+			<InfoBox $variant="success">
+				<FiCheckCircle size={20} />
+				<div>
+					<InfoTitle>All Tokens Received!</InfoTitle>
+					<InfoText>
+						You now have all tokens from both the authorization endpoint and token endpoint.
+					</InfoText>
+				</div>
+			</InfoBox>
+
+			{(hybridFlow.tokens?.access_token ||
+				hybridFlow.tokens?.id_token ||
+				hybridFlow.tokens?.refresh_token) && (
+				<div style={{ marginTop: '1rem' }}>
+					<UltimateTokenDisplay
+						tokens={{
+							...(hybridFlow.tokens.access_token && {
+								access_token: hybridFlow.tokens.access_token,
+							}),
+							...(hybridFlow.tokens.id_token && { id_token: hybridFlow.tokens.id_token }),
+							...(hybridFlow.tokens.refresh_token && {
+								refresh_token: hybridFlow.tokens.refresh_token,
+							}),
+							...(hybridFlow.tokens.scope && { scope: String(hybridFlow.tokens.scope) }),
+							...(hybridFlow.tokens.expires_in && { expires_in: hybridFlow.tokens.expires_in }),
+						}}
+						flowType="oidc"
+						flowKey="hybrid-flow-v5-tokens"
+						displayMode="detailed"
+						title="OIDC Hybrid Flow Tokens"
+						subtitle="Complete token set from authorization code exchange"
+						showCopyButtons={true}
+						showDecodeButtons={true}
+						showMaskToggle={true}
+						showTokenManagement={true}
+						showMetadata={true}
+						defaultMasked={false}
+					/>
+				</div>
+			)}
+		</CollapsibleHeader>
 	);
 
 	const renderCompletion = () => {
@@ -1083,7 +1096,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false,
-			showIntrospection: false
+			showIntrospection: false,
 		};
 
 		return (
@@ -1103,7 +1116,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 				setCurrentStep(0);
 			},
 			showUserInfo: false,
-			showIntrospection: false
+			showIntrospection: false,
 		};
 
 		return (
@@ -1116,7 +1129,7 @@ const OIDCHybridFlowV5: React.FC = () => {
 	};
 
 	const canNavigateNext = useCallback((): boolean => {
-		const config = stepConfigs.find(c => c.stepIndex === currentStep);
+		const config = stepConfigs.find((c) => c.stepIndex === currentStep);
 		const isCurrentStepValid = config ? config.validation.isStepValid(currentStep) : false;
 		return isCurrentStepValid && currentStep < STEP_METADATA.length - 1;
 	}, [currentStep, stepConfigs]);

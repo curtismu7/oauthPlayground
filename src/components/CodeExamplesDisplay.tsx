@@ -211,9 +211,7 @@ export const CodeExamplesDisplay: React.FC<CodeExamplesDisplayProps> = ({
 	config,
 	className,
 }) => {
-	const [selectedLanguages, setSelectedLanguages] = useState<SupportedLanguage[]>([
-		'javascript',
-	]);
+	const [selectedLanguages, setSelectedLanguages] = useState<SupportedLanguage[]>(['javascript']);
 	const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
 	const codeExamplesService = useMemo(() => new CodeExamplesService(config), [config]);

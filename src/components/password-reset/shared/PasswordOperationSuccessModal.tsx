@@ -5,12 +5,12 @@ import React from 'react';
 import styled from 'styled-components';
 import {
 	FiCheckCircle,
-	FiUser,
-	FiMail,
-	FiX,
-	FiUnlock,
-	FiKey,
 	FiInfo,
+	FiKey,
+	FiMail,
+	FiUnlock,
+	FiUser,
+	FiX,
 } from '../../../services/commonImportsService';
 import type { PingOneUser } from './useUserLookup';
 
@@ -262,15 +262,17 @@ const operationConfig = {
 	check: {
 		icon: FiKey,
 		title: 'Password Verified Successfully!',
-		subtitle: 'The password matches the user\'s current password',
-		message: '✅ The password you provided is correct and matches the user\'s current password. The user can authenticate with this password.',
+		subtitle: "The password matches the user's current password",
+		message:
+			"✅ The password you provided is correct and matches the user's current password. The user can authenticate with this password.",
 		accomplishments: null,
 	},
 	unlock: {
 		icon: FiUnlock,
 		title: 'Account Unlocked Successfully!',
 		subtitle: 'The user can now sign in to their account',
-		message: '✅ Account unlocked! The user account has been successfully unlocked and is now accessible.',
+		message:
+			'✅ Account unlocked! The user account has been successfully unlocked and is now accessible.',
 		accomplishments: [
 			'Account lock has been removed',
 			'Failed login attempt counters have been reset',
@@ -281,7 +283,8 @@ const operationConfig = {
 		icon: FiKey,
 		title: 'Password Change Forced Successfully!',
 		subtitle: 'User must change password on next sign-in',
-		message: '✅ Password change forced! The user will be required to change their password on their next sign-in.',
+		message:
+			'✅ Password change forced! The user will be required to change their password on their next sign-in.',
 		accomplishments: [
 			'User account marked for password change',
 			'User must provide new password on next login',
@@ -292,7 +295,7 @@ const operationConfig = {
 		icon: FiCheckCircle,
 		title: 'Password Recovered Successfully!',
 		subtitle: 'The user can now sign in with the new password',
-		message: '✅ Password recovered! The user\'s password has been successfully reset.',
+		message: "✅ Password recovered! The user's password has been successfully reset.",
 		accomplishments: [
 			'Password has been updated',
 			'User can sign in with new password',
@@ -303,7 +306,7 @@ const operationConfig = {
 		icon: FiKey,
 		title: 'Password Set Successfully!',
 		subtitle: 'The new password is now active',
-		message: '✅ Password set! The user\'s password has been successfully updated.',
+		message: "✅ Password set! The user's password has been successfully updated.",
 		accomplishments: [
 			'New password is now active',
 			'User can sign in with new password',
@@ -324,7 +327,7 @@ const operationConfig = {
 		message: '✅ Recovery code sent! The user will receive a code via email or SMS.',
 		accomplishments: [
 			'Recovery code generated',
-			'Code sent to user\'s registered contact',
+			"Code sent to user's registered contact",
 			'Code is valid for limited time',
 		],
 	},

@@ -1,0 +1,22 @@
+{
+  "projectName": "ImplicitFlowV8_V8_Package",
+  "description": "Specs, docs, and AI manifests for building the ImplicitFlowV8 V8 experience aligned with PingOne apidocs.",
+  "docs": [
+    "docs/ImplicitFlowV8-StarterSkeleton.md",
+    "docs/PingOne-Implicit-API-CheatSheet.md",
+    "docs/ImplicitFlowV8-ValidationMatrix.md",
+    "docs/V8-CredentialHelper-ServiceStub-Guide.md"
+  ],
+  "manifests": [
+    "manifests/cursor-import-manifest-ImplicitFlowV8.md"
+  ],
+  "entryPoints": [
+    "src/pages/flows/ImplicitFlowV8.tsx"
+  ],
+  "rules": {
+    "preferDocsAsSourceOfTruth": true,
+    "pingOneEndpointsMustMatchDocs": true,
+    "reuseWorkerTokensUntilExpiry": true,
+    "noComprehensiveCredentialService": true
+  }
+}

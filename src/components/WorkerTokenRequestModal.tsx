@@ -2,8 +2,18 @@
 // Educational modal showing worker token API request details
 
 import React, { useState } from 'react';
+import {
+	FiCheck,
+	FiCheckCircle,
+	FiCopy,
+	FiEye,
+	FiEyeOff,
+	FiInfo,
+	FiKey,
+	FiShield,
+	FiX,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiKey, FiX, FiInfo, FiShield, FiCheckCircle, FiCopy, FiCheck, FiEye, FiEyeOff } from 'react-icons/fi';
 import { ColoredUrlDisplay } from './ColoredUrlDisplay';
 
 const ModalOverlay = styled.div<{ $isOpen: boolean }>`
@@ -321,7 +331,7 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 
 	const generateCurlCommand = () => {
 		const { client_id, client_secret, scope } = requestParams;
-		
+
 		if (authMethod === 'client_secret_basic') {
 			// Basic auth - credentials in Authorization header
 			return `curl -X POST '${tokenEndpoint}' \\
@@ -334,18 +344,27 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
   -H 'Content-Type: application/x-www-form-urlencoded' \\
   -d 'grant_type=client_credentials' \\
   -d 'client_id=${encodeURIComponent(client_id)}' \\
-  -d 'client_secret=${encodeURIComponent(client_secret)}'${scope ? ` \\
-  -d 'scope=${encodeURIComponent(scope)}'` : ''}`;
+  -d 'client_secret=${encodeURIComponent(client_secret)}'${
+		scope
+			? ` \\
+  -d 'scope=${encodeURIComponent(scope)}'`
+			: ''
+	}`;
 		}
 	};
 
 	const getRegionDisplayName = (region: string): string => {
 		switch (region.toLowerCase()) {
-			case 'us': return 'US (auth.pingone.com)';
-			case 'eu': return 'Europe (auth.pingone.eu)';
-			case 'ap': return 'Asia Pacific (auth.pingone.asia)';
-			case 'ca': return 'Canada (auth.pingone.ca)';
-			default: return region;
+			case 'us':
+				return 'US (auth.pingone.com)';
+			case 'eu':
+				return 'Europe (auth.pingone.eu)';
+			case 'ap':
+				return 'Asia Pacific (auth.pingone.asia)';
+			case 'ca':
+				return 'Canada (auth.pingone.ca)';
+			default:
+				return region;
 		}
 	};
 
@@ -386,7 +405,8 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 							<FiInfo size={14} />
 						</InfoIcon>
 						<InfoText>
-							<strong>Client Credentials Grant:</strong> This machine-to-machine flow exchanges worker credentials for an access token.
+							<strong>Client Credentials Grant:</strong> This machine-to-machine flow exchanges
+							worker credentials for an access token.
 						</InfoText>
 					</InfoBox>
 
@@ -416,28 +436,29 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 							<ParameterLabel>Grant Type</ParameterLabel>
 							<ParameterValue>client_credentials</ParameterValue>
 
-						<ParameterLabel>Client ID</ParameterLabel>
-						<ParameterValue>{requestParams.client_id}</ParameterValue>
+							<ParameterLabel>Client ID</ParameterLabel>
+							<ParameterValue>{requestParams.client_id}</ParameterValue>
 
-						<ParameterLabel>Client Secret</ParameterLabel>
-						<ParameterValue>
-							<span style={{ flex: 1 }}>
-								{showSecret 
-									? requestParams.client_secret 
-									: '•'.repeat(Math.min(requestParams.client_secret.length, 40))
-								}
-							</span>
-							<ToggleSecretButton 
-								onClick={() => setShowSecret(!showSecret)}
-								title={showSecret ? 'Hide secret' : 'Show secret'}
-							>
-								{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-							</ToggleSecretButton>
-						</ParameterValue>
-
-						<ParameterLabel>Auth Method</ParameterLabel>
+							<ParameterLabel>Client Secret</ParameterLabel>
 							<ParameterValue>
-								{authMethod === 'client_secret_basic' ? 'Basic (Authorization header)' : 'Post (Request body)'}
+								<span style={{ flex: 1 }}>
+									{showSecret
+										? requestParams.client_secret
+										: '•'.repeat(Math.min(requestParams.client_secret.length, 40))}
+								</span>
+								<ToggleSecretButton
+									onClick={() => setShowSecret(!showSecret)}
+									title={showSecret ? 'Hide secret' : 'Show secret'}
+								>
+									{showSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+								</ToggleSecretButton>
+							</ParameterValue>
+
+							<ParameterLabel>Auth Method</ParameterLabel>
+							<ParameterValue>
+								{authMethod === 'client_secret_basic'
+									? 'Basic (Authorization header)'
+									: 'Post (Request body)'}
 							</ParameterValue>
 
 							{requestParams.scope && (
@@ -461,7 +482,13 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 						</CopyButton>
 					</Section>
 
-					<InfoBox style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)', border: '1px solid #f59e0b', marginBottom: 0 }}>
+					<InfoBox
+						style={{
+							background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+							border: '1px solid #f59e0b',
+							marginBottom: 0,
+						}}
+					>
 						<InfoIcon style={{ color: '#d97706' }}>
 							<FiInfo size={14} />
 						</InfoIcon>
@@ -486,4 +513,3 @@ export const WorkerTokenRequestModal: React.FC<WorkerTokenRequestModalProps> = (
 };
 
 export default WorkerTokenRequestModal;
-

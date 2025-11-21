@@ -1,16 +1,16 @@
 import React from 'react';
-import styled from 'styled-components';
 import {
-	FiBook,
-	FiShield,
-	FiKey,
-	FiGlobe,
-	FiUsers,
-	FiCheckCircle,
 	FiArrowRight,
+	FiBook,
+	FiCheckCircle,
+	FiGlobe,
+	FiKey,
+	FiShield,
+	FiUsers,
 } from 'react-icons/fi';
-import { FlowHeader } from '../services/flowHeaderService';
+import styled from 'styled-components';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
   max-width: 1400px;

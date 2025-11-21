@@ -8,13 +8,9 @@ import {
  * V7 wrapper around the hybrid flow controller ensuring V7 defaults.
  */
 export const useHybridFlowControllerV7 = (
-	opts: HybridFlowControllerOptions = {},
+	opts: HybridFlowControllerOptions = {}
 ): HybridFlowController => {
-	const {
-		flowKey = 'hybrid-flow-v7',
-		defaultFlowVariant = 'code-id-token',
-		...rest
-	} = opts;
+	const { flowKey = 'hybrid-flow-v7', defaultFlowVariant = 'code-id-token', ...rest } = opts;
 
 	return useHybridFlowController({
 		flowKey,

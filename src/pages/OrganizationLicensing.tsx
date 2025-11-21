@@ -1,34 +1,34 @@
 // src/pages/OrganizationLicensing.tsx
 // Organization Licensing: Get Worker Token & License Information
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-	FiCheckCircle,
 	FiAlertTriangle,
-	FiRefreshCw,
+	FiCheckCircle,
 	FiInfo,
-	FiShield,
 	FiKey,
+	FiRefreshCw,
+	FiShield,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModal } from '../components/WorkerTokenModal';
+import { useAuth } from '../contexts/NewAuthContext';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import {
-	getOrganizationLicensingInfo,
 	getAllLicenses,
+	getOrganizationLicensingInfo,
 	type OrganizationInfo,
 	type OrganizationLicense,
 } from '../services/organizationLicensingService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { useAuth } from '../contexts/NewAuthContext';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import { getOAuthTokens } from '../utils/tokenStorage';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { credentialManager } from '../utils/credentialManager';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
 import V7StepperService from '../services/v7StepperService';
-import { WorkerTokenModal } from '../components/WorkerTokenModal';
-import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
-import { getValidWorkerToken } from '../services/tokenExpirationService';
+import { credentialManager } from '../utils/credentialManager';
+import { getOAuthTokens } from '../utils/tokenStorage';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { getAnyWorkerToken } from '../utils/workerTokenDetection';
 
 type CredentialsState = {
 	environmentId: string;
@@ -49,8 +49,7 @@ const pageConfig = {
 	flowId: 'organization-licensing',
 };
 
-const { PageContainer, ContentWrapper } = 
-	PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const StepContainer = styled.div`
 	background: white;
@@ -88,8 +87,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.5rem;
 	transition: all 0.2s;
 	
-	background: ${({ $variant }) =>
-		$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
 	color: white;
 	
 	&:hover:not(:disabled) {
@@ -256,7 +254,10 @@ const InputLabel = styled.label`
 `;
 
 // Create V5 stepper layout components
-const stepperComponents = V7StepperService.createStepLayout({ theme: 'purple', showProgress: true });
+const stepperComponents = V7StepperService.createStepLayout({
+	theme: 'purple',
+	showProgress: true,
+});
 
 const STEP_METADATA: Array<{ title: string; subtitle: string }> = [
 	{
@@ -270,10 +271,10 @@ const ORGANIZATION_ID_STORAGE_KEY = 'organizationLicensing.organizationId';
 const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
 	const { tokens } = useAuth();
-	
+
 	// Step management - only one step now (combined worker token + license info)
 	const [currentStep, setCurrentStep] = useState(0);
-	
+
 	// Create stepper components dynamically
 	const currentStepData = STEP_METADATA[currentStep];
 	const StepperHeader = stepperComponents.StepHeader;
@@ -289,7 +290,7 @@ const OrganizationLicensingV2: React.FC = () => {
 	const [isFetchingAllLicenses, setIsFetchingAllLicenses] = useState(false);
 	const isBusy = isFetchingOrgInfo || isFetchingAllLicenses;
 	const [error, setError] = useState<string | null>(null);
-	const [storedTokens, setStoredTokens] = useState<{ access_token?: string } | null>(null);
+	const [_storedTokens, setStoredTokens] = useState<{ access_token?: string } | null>(null);
 	const [organizationId, setOrganizationId] = useState<string>(() => {
 		if (typeof window === 'undefined') {
 			return '';
@@ -314,91 +315,65 @@ const OrganizationLicensingV2: React.FC = () => {
 
 	// Get access token from all possible sources
 	const getAccessToken = (): string | null => {
-		// Use token expiration service to check dedicated worker token
-		const tokenCheck = getValidWorkerToken(
-			'worker_token_org_licensing',
-			'worker_token_org_licensing_expires_at',
-			{
-				clearExpired: true,
-				showToast: false, // We'll show toast in the calling function
-				requiredScopes: ['p1:read:organization', 'p1:read:licensing'],
-			}
-		);
-
-		if (tokenCheck.isValid && tokenCheck.token) {
-			console.log('[OrganizationLicensing] ✅ Valid worker token found in dedicated storage');
-			return tokenCheck.token;
+		// Use global worker token detection
+		const globalToken = getAnyWorkerToken();
+		if (globalToken) {
+			console.log('[OrganizationLicensing] ✅ Valid worker token found');
+			return globalToken;
 		}
 
 		// Don't use fallback tokens for organization licensing - they might not have the right scopes
 		// and could cause 401 errors
-		console.warn('[OrganizationLicensing] ⚠️ No valid dedicated worker token found. Please generate a new token with required scopes.');
+		console.warn(
+			'[OrganizationLicensing] ⚠️ No valid worker token found. Please generate a new token with required scopes (p1:read:organization p1:read:licensing).'
+		);
 		return null;
 	};
 
 	// Track if we've initialized to prevent auto-advance after user clicks reset
 	const [hasInitialized, setHasInitialized] = useState(false);
-	
+
 	// Load credentials and tokens, then determine starting step - only on mount
 	useEffect(() => {
 		if (hasInitialized) return;
-		
+
 		const loadAllTokens = () => {
-			// Check dedicated worker token storage first (with expiration check)
+			// Use global worker token detection (checks all possible sources)
 			try {
-				const workerToken = localStorage.getItem('worker_token_org_licensing');
-				const expiresAt = localStorage.getItem('worker_token_org_licensing_expires_at');
-				
-				if (workerToken && expiresAt) {
-					const isExpired = Date.now() > parseInt(expiresAt);
-					if (!isExpired) {
-						setStoredTokens({ access_token: workerToken });
-						return { access_token: workerToken };
-					} else {
-						console.log('[OrganizationLicensing] Worker token expired, clearing');
-						localStorage.removeItem('worker_token_org_licensing');
-						localStorage.removeItem('worker_token_org_licensing_expires_at');
-					}
+				const workerToken = getAnyWorkerToken();
+				if (workerToken) {
+					setStoredTokens({ access_token: workerToken });
+					return { access_token: workerToken };
 				}
 			} catch (e) {
 				console.warn('[OrganizationLicensing] Error loading worker token:', e);
 			}
-			
+
 			// Check secure storage (fallback)
 			const secureTokens = getOAuthTokens();
 			if (secureTokens?.access_token) {
 				setStoredTokens(secureTokens);
 				return secureTokens;
 			}
-			
-			// Check localStorage (fallback)
-			try {
-				const localToken = localStorage.getItem('worker_token');
-				if (localToken) {
-					// Convert to OAuthTokens format
-					setStoredTokens({ access_token: localToken });
-					return { access_token: localToken };
-				}
-			} catch (e) {
-				console.warn('[OrganizationLicensing] Error loading from localStorage:', e);
-			}
-			
+
 			return null;
 		};
-		
+
 		const initializeFlow = () => {
 			// Start at step 0 (combined worker token + license info)
-			console.log('[OrganizationLicensing] Starting at step 0 (Get Worker Token & License Information)');
-			
+			console.log(
+				'[OrganizationLicensing] Starting at step 0 (Get Worker Token & License Information)'
+			);
+
 			// Load any existing tokens
 			const loadedTokens = loadAllTokens();
 			if (loadedTokens) {
 				setStoredTokens(loadedTokens);
 			}
-			
+
 			// Load saved credentials from credential manager
 			const savedCreds = credentialManager.getAllCredentials();
-			if (savedCreds && savedCreds.environmentId && savedCreds.clientId) {
+			if (savedCreds?.environmentId && savedCreds.clientId) {
 				setCredentials({
 					environmentId: savedCreds.environmentId || '',
 					clientId: savedCreds.clientId || '',
@@ -408,14 +383,14 @@ const OrganizationLicensingV2: React.FC = () => {
 					scopes: 'p1:read:organization p1:read:licensing',
 				});
 			}
-			
+
 			setCurrentStep(0);
 			setHasInitialized(true);
 		};
-		
+
 		initializeFlow();
-	}, [tokens?.access_token, hasInitialized]);
-	
+	}, [hasInitialized]);
+
 	// Handle reset - go back to step 0 and reset initialized flag
 	const handleReset = () => {
 		setOrgInfo(null);
@@ -441,7 +416,9 @@ const OrganizationLicensingV2: React.FC = () => {
 
 	const handleGetWorkerToken = () => {
 		if (getAccessToken()) {
-			v4ToastManager.showInfo('Worker token already available. Opening modal so you can refresh it if needed.');
+			v4ToastManager.showInfo(
+				'Worker token already available. Opening modal so you can refresh it if needed.'
+			);
 		}
 		setShowWorkerTokenModal(true);
 	};
@@ -449,11 +426,13 @@ const OrganizationLicensingV2: React.FC = () => {
 	const handleWorkerTokenModalContinue = () => {
 		setShowWorkerTokenModal(false);
 		// Re-check for token after modal closes (check dedicated storage first)
-		const token = localStorage.getItem('worker_token_org_licensing') || getAccessToken();
+		const token = getAnyWorkerToken() || getAccessToken();
 		if (token) {
 			setStoredTokens({ access_token: token });
 			window.dispatchEvent(new Event('workerTokenUpdated'));
-			v4ToastManager.showSuccess('Worker token saved. You can fetch organization licensing details now.');
+			v4ToastManager.showSuccess(
+				'Worker token saved. You can fetch organization licensing details now.'
+			);
 			return;
 		}
 		v4ToastManager.showError('Worker token was not detected. Please try generating it again.');
@@ -478,22 +457,15 @@ const OrganizationLicensingV2: React.FC = () => {
 	};
 
 	const fetchOrganizationInfo = async () => {
-		const tokenCheck = getValidWorkerToken(
-			'worker_token_org_licensing',
-			'worker_token_org_licensing_expires_at',
-			{
-				clearExpired: true,
-				showToast: true,
-				requiredScopes: ['p1:read:organization', 'p1:read:licensing'],
-			}
-		);
+		// Use global worker token
+		const globalToken = getAnyWorkerToken();
+		const tokenCheck = globalToken ? { token: globalToken, isValid: true } : null;
 
-		if (!tokenCheck.isValid || !tokenCheck.token) {
-			const errorMsg = tokenCheck.errorMessage || 'No valid worker token available. Please click "Get Worker Token" to generate one with the required scopes (p1:read:organization p1:read:licensing).';
+		if (!tokenCheck || !tokenCheck.isValid || !tokenCheck.token) {
+			const errorMsg =
+				'No valid worker token available. Please click "Get Worker Token" to generate one with the required scopes (p1:read:organization p1:read:licensing).';
 			setError(errorMsg);
-			if (!tokenCheck.errorMessage) {
-				v4ToastManager.showError(errorMsg);
-			}
+			v4ToastManager.showError(errorMsg);
 			return;
 		}
 
@@ -510,26 +482,33 @@ const OrganizationLicensingV2: React.FC = () => {
 		setOrgInfo(null); // Clear previous results
 
 		try {
-			console.log('[OrganizationLicensing] Fetching organization info with access token and org ID:', organizationId.trim());
+			console.log(
+				'[OrganizationLicensing] Fetching organization info with access token and org ID:',
+				organizationId.trim()
+			);
 			const info = await getOrganizationLicensingInfo(accessToken, organizationId.trim());
-			
+
 			if (info) {
 				console.log('[OrganizationLicensing] Organization info received:', info);
 				setOrgInfo(info);
 				v4ToastManager.showSuccess('Organization licensing information loaded!');
 			} else {
-				const errorMsg = 'Failed to fetch organization information. The API returned no data. This usually means:\n1. The worker token is expired or invalid\n2. The Organization ID is incorrect\n3. The worker app lacks required permissions (p1:read:organization p1:read:licensing)\n\nPlease click "Get Worker Token" to generate a new token and try again.';
+				const errorMsg =
+					'Failed to fetch organization information. The API returned no data. This usually means:\n1. The worker token is expired or invalid\n2. The Organization ID is incorrect\n3. The worker app lacks required permissions (p1:read:organization p1:read:licensing)\n\nPlease click "Get Worker Token" to generate a new token and try again.';
 				setError(errorMsg);
-				v4ToastManager.showError('Failed to fetch organization information. Check the error message for details.');
+				v4ToastManager.showError(
+					'Failed to fetch organization information. Check the error message for details.'
+				);
 				console.error('[OrganizationLicensing] getOrganizationLicensingInfo returned null');
 			}
 		} catch (err) {
 			const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
 			console.error('[OrganizationLicensing] Error fetching organization info:', err);
-			
+
 			// Check if it's a 401 error
 			if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-				const errorMsg = 'Worker token is expired or invalid. Please click "Get Worker Token" to generate a new token with the required scopes (p1:read:organization p1:read:licensing).';
+				const errorMsg =
+					'Worker token is expired or invalid. Please click "Get Worker Token" to generate a new token with the required scopes (p1:read:organization p1:read:licensing).';
 				setError(errorMsg);
 				v4ToastManager.showError('Token expired or invalid. Please generate a new worker token.');
 			} else {
@@ -541,7 +520,7 @@ const OrganizationLicensingV2: React.FC = () => {
 		}
 	};
 
-	const fetchAllLicenses = async () => {
+	const _fetchAllLicenses = async () => {
 		const accessToken = getAccessToken();
 		if (!accessToken) return;
 
@@ -569,54 +548,85 @@ const OrganizationLicensingV2: React.FC = () => {
 					<FiShield /> Get Worker Token & License Information
 				</StepTitle>
 				<HelperText>
-					First, get a worker token using your saved credentials. Then fetch your organization's licensing information.
+					First, get a worker token using your saved credentials. Then fetch your organization's
+					licensing information.
 				</HelperText>
 
 				{/* Worker Token Section */}
-			<div style={{ marginBottom: '2rem', padding: '1.5rem', background: '#f8fafc', borderRadius: '0.5rem', border: '1px solid #e2e8f0' }}>
-				<h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1.125rem', fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-					<FiKey /> Get Worker Token
-				</h3>
-				{hasWorkerToken ? (
-					<WorkerTokenDetectedBanner 
-						token={workerToken} 
-						tokenExpiryKey="worker_token_org_licensing_expires_at"
-						message="Your existing worker token will be used automatically. You can generate a new one if needed, or proceed to fetch license information below."
-					/>
-				) : (
-					<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
-						Click the button below to open the worker token modal and obtain a token using your saved credentials.
-					</p>
-				)}
-				<Button 
-					$variant="primary" 
-					onClick={handleGetWorkerToken}
+				<div
 					style={{
-						backgroundColor: hasWorkerToken ? '#9ca3af' : '#059669',
-						cursor: 'pointer',
-						opacity: hasWorkerToken ? 0.95 : 1,
+						marginBottom: '2rem',
+						padding: '1.5rem',
+						background: '#f8fafc',
+						borderRadius: '0.5rem',
+						border: '1px solid #e2e8f0',
 					}}
-					id="get-worker-token-button"
 				>
+					<h3
+						style={{
+							margin: '0 0 0.75rem 0',
+							fontSize: '1.125rem',
+							fontWeight: 600,
+							color: '#1e293b',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
+						<FiKey /> Get Worker Token
+					</h3>
 					{hasWorkerToken ? (
-						<>
-							<FiCheckCircle /> Worker Token Ready
-						</>
+						<WorkerTokenDetectedBanner
+							token={workerToken || ''}
+							tokenExpiryKey="worker_token_expires_at"
+							message="Your existing worker token will be used automatically. You can generate a new one if needed, or proceed to fetch license information below."
+						/>
 					) : (
-						<>
-							<FiKey /> Get Worker Token
-						</>
+						<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
+							Click the button below to open the worker token modal and obtain a token using your
+							saved credentials.
+						</p>
 					)}
-				</Button>
-			</div>
+					<Button
+						$variant="primary"
+						onClick={handleGetWorkerToken}
+						style={{
+							backgroundColor: hasWorkerToken ? '#9ca3af' : '#059669',
+							cursor: 'pointer',
+							opacity: hasWorkerToken ? 0.95 : 1,
+						}}
+						id="get-worker-token-button"
+					>
+						{hasWorkerToken ? (
+							<>
+								<FiCheckCircle /> Worker Token Ready
+							</>
+						) : (
+							<>
+								<FiKey /> Get Worker Token
+							</>
+						)}
+					</Button>
+				</div>
 
 				{/* License Information Section */}
 				<div style={{ marginBottom: '1rem' }}>
-					<h3 style={{ margin: '0 0 0.75rem 0', fontSize: '1.125rem', fontWeight: 600, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<h3
+						style={{
+							margin: '0 0 0.75rem 0',
+							fontSize: '1.125rem',
+							fontWeight: 600,
+							color: '#1e293b',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
 						<FiShield /> Get License Information
 					</h3>
 					<p style={{ margin: '0 0 1rem 0', color: '#64748b', fontSize: '0.875rem' }}>
-						Enter your Organization ID to fetch organization information including region and number of environments.
+						Enter your Organization ID to fetch organization information including region and number
+						of environments.
 					</p>
 					<InputLabel htmlFor="organization-id">Organization ID</InputLabel>
 					<Input
@@ -628,13 +638,15 @@ const OrganizationLicensingV2: React.FC = () => {
 						disabled={isBusy || !hasWorkerToken}
 					/>
 					<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-						<Button 
-							$variant="primary" 
+						<Button
+							$variant="primary"
 							onClick={fetchOrganizationInfo}
 							disabled={isBusy || !hasWorkerToken || !organizationId.trim()}
 							id="fetch-organization-info-button"
 						>
-							<FiRefreshCw style={{ animation: isFetchingOrgInfo ? 'spin 1s linear infinite' : 'none' }} />
+							<FiRefreshCw
+								style={{ animation: isFetchingOrgInfo ? 'spin 1s linear infinite' : 'none' }}
+							/>
 							{isFetchingOrgInfo ? 'Loading...' : 'Get Organization Info'}
 						</Button>
 					</div>
@@ -683,7 +695,12 @@ const OrganizationLicensingV2: React.FC = () => {
 							</InfoRow>
 							<InfoRow>
 								<InfoLabel>Status:</InfoLabel>
-								<InfoValue style={{ fontWeight: 700, color: orgInfo.license.status === 'active' ? '#047857' : '#b45309' }}>
+								<InfoValue
+									style={{
+										fontWeight: 700,
+										color: orgInfo.license.status === 'active' ? '#047857' : '#b45309',
+									}}
+								>
 									{orgInfo.license.status.toUpperCase()}
 								</InfoValue>
 							</InfoRow>
@@ -715,7 +732,9 @@ const OrganizationLicensingV2: React.FC = () => {
 							)}
 							{orgInfo.license.features && orgInfo.license.features.length > 0 && (
 								<div style={{ marginTop: '1rem' }}>
-									<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#1f2937' }}>Included Features</p>
+									<p style={{ margin: '0 0 0.5rem 0', fontWeight: 600, color: '#1f2937' }}>
+										Included Features
+									</p>
 									<div style={{ display: 'flex', flexWrap: 'wrap' }}>
 										{orgInfo.license.features.map((feature) => (
 											<FeatureBadge key={feature}>{feature}</FeatureBadge>
@@ -733,7 +752,9 @@ const OrganizationLicensingV2: React.FC = () => {
 						theme="highlight"
 					>
 						{orgInfo.environments.length === 0 ? (
-							<p style={{ margin: 0, color: '#64748b' }}>No environments were returned for this organization.</p>
+							<p style={{ margin: 0, color: '#64748b' }}>
+								No environments were returned for this organization.
+							</p>
 						) : (
 							<EnvironmentTable>
 								<EnvironmentHeader>
@@ -753,16 +774,15 @@ const OrganizationLicensingV2: React.FC = () => {
 										return (
 											<EnvironmentRow key={environment.id}>
 												<EnvironmentName>{environment.name}</EnvironmentName>
-												<EnvironmentRegion>
-													{environment.region || 'unknown'}
-												</EnvironmentRegion>
+												<EnvironmentRegion>{environment.region || 'unknown'}</EnvironmentRegion>
 												<EnvironmentId>{environment.id}</EnvironmentId>
 												<EnvironmentLicense>
 													<strong>{appliedLicenseName}</strong>
 													{appliedLicenseStatus && (
 														<FeatureBadge
 															style={{
-																background: appliedLicenseStatus === 'active' ? '#dcfce7' : '#fee2e2',
+																background:
+																	appliedLicenseStatus === 'active' ? '#dcfce7' : '#fee2e2',
 																color: appliedLicenseStatus === 'active' ? '#166534' : '#b91c1c',
 															}}
 														>
@@ -772,8 +792,12 @@ const OrganizationLicensingV2: React.FC = () => {
 													{(appliedLicenseId || appliedLicenseType || isInheritedLicense) && (
 														<EnvironmentLicenseMeta>
 															{appliedLicenseId && <span>License ID: {appliedLicenseId}</span>}
-															{appliedLicenseType && <span>License Type: {appliedLicenseType}</span>}
-															{isInheritedLicense && <span>Inherited from organization license</span>}
+															{appliedLicenseType && (
+																<span>License Type: {appliedLicenseType}</span>
+															)}
+															{isInheritedLicense && (
+																<span>Inherited from organization license</span>
+															)}
 														</EnvironmentLicenseMeta>
 													)}
 												</EnvironmentLicense>
@@ -786,27 +810,43 @@ const OrganizationLicensingV2: React.FC = () => {
 					</CollapsibleHeader>
 				)}
 				{allLicenses.length > 0 && (
-					<CollapsibleHeader title={`All Licenses (${allLicenses.length})`} icon={<FiShield />} theme="green">
+					<CollapsibleHeader
+						title={`All Licenses (${allLicenses.length})`}
+						icon={<FiShield />}
+						theme="green"
+					>
 						<LicenseGrid>
 							{allLicenses.map((license) => (
-								<LicenseCard 
-									key={license.id} 
+								<LicenseCard
+									key={license.id}
 									$borderColor={
-										license.status === 'active' ? '#10b981' :
-										license.status === 'expired' ? '#ef4444' :
-										license.status === 'trial' ? '#f59e0b' : '#e5e7eb'
+										license.status === 'active'
+											? '#10b981'
+											: license.status === 'expired'
+												? '#ef4444'
+												: license.status === 'trial'
+													? '#f59e0b'
+													: '#e5e7eb'
 									}
 								>
-									<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+									<div
+										style={{
+											display: 'flex',
+											justifyContent: 'space-between',
+											marginBottom: '1rem',
+										}}
+									>
 										<h3 style={{ margin: 0 }}>{license.name}</h3>
-										<span style={{ 
-											padding: '0.25rem 0.75rem',
-											borderRadius: '9999px',
-											fontSize: '0.75rem',
-											fontWeight: 600,
-											background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
-											color: license.status === 'active' ? '#065f46' : '#991b1b',
-										}}>
+										<span
+											style={{
+												padding: '0.25rem 0.75rem',
+												borderRadius: '9999px',
+												fontSize: '0.75rem',
+												fontWeight: 600,
+												background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
+												color: license.status === 'active' ? '#065f46' : '#991b1b',
+											}}
+										>
 											{license.status.toUpperCase()}
 										</span>
 									</div>
@@ -849,32 +889,37 @@ const OrganizationLicensingV2: React.FC = () => {
 	return (
 		<PageContainer>
 			<ContentWrapper>
-				<div style={{ 
-					background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-					color: 'white',
-					padding: '1rem 1.5rem',
-					borderRadius: '12px',
-					marginBottom: '1.5rem',
-					boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-					display: 'flex',
-					justifyContent: 'space-between',
-					alignItems: 'center',
-				}}>
+				<div
+					style={{
+						background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+						color: 'white',
+						padding: '1rem 1.5rem',
+						borderRadius: '12px',
+						marginBottom: '1.5rem',
+						boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+						display: 'flex',
+						justifyContent: 'space-between',
+						alignItems: 'center',
+					}}
+				>
 					<div>
 						<h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600 }}>
 							📊 Organization Licensing
 						</h2>
 						<p style={{ margin: '0.25rem 0 0 0', fontSize: '0.875rem', opacity: 0.9 }}>
-							View your PingOne organization licensing information, usage statistics, and available features
+							View your PingOne organization licensing information, usage statistics, and available
+							features
 						</p>
 					</div>
-					<div style={{ 
-						background: 'rgba(255, 255, 255, 0.2)',
-						padding: '0.5rem 1rem',
-						borderRadius: '8px',
-						fontSize: '0.875rem',
-						fontWeight: 600,
-					}}>
+					<div
+						style={{
+							background: 'rgba(255, 255, 255, 0.2)',
+							padding: '0.5rem 1rem',
+							borderRadius: '8px',
+							fontSize: '0.875rem',
+							fontWeight: 600,
+						}}
+					>
 						Step 1 of 1
 					</div>
 				</div>
@@ -914,12 +959,11 @@ const OrganizationLicensingV2: React.FC = () => {
 					clientSecret: credentials.clientSecret,
 					scopes: 'p1:read:organization p1:read:licensing',
 				}}
-				tokenStorageKey="worker_token_org_licensing"
-				tokenExpiryKey="worker_token_org_licensing_expires_at"
+				tokenStorageKey="worker_token"
+				tokenExpiryKey="worker_token_expires_at"
 			/>
 		</PageContainer>
 	);
 };
 
 export default OrganizationLicensingV2;
-

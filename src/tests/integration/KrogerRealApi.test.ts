@@ -2,7 +2,7 @@
 // Verifies live PingOne APIs backing the Kroger MFA experience.
 
 import 'dotenv/config';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 const envId = process.env.PINGONE_ENVIRONMENT_ID;
 const clientId = process.env.PINGONE_CLIENT_ID;
@@ -11,7 +11,9 @@ const apiBase = process.env.PINGONE_API_URL ?? 'https://auth.pingone.com';
 const usernameUnderTest = process.env.KROGER_E2E_USERNAME ?? 'curtis7';
 
 if (!envId || !clientId || !clientSecret) {
-	throw new Error('PINGONE credentials are required. Ensure PINGONE_ENVIRONMENT_ID, PINGONE_CLIENT_ID, and PINGONE_CLIENT_SECRET are set.');
+	throw new Error(
+		'PINGONE credentials are required. Ensure PINGONE_ENVIRONMENT_ID, PINGONE_CLIENT_ID, and PINGONE_CLIENT_SECRET are set.'
+	);
 }
 
 const tokenEndpoint = `${apiBase.replace(/\/$/, '')}/${envId}/as/token`;
@@ -47,7 +49,9 @@ describe.skipIf(process.env.CI === 'true')('Kroger MFA real PingOne API', () => 
 		const payload = await response.json();
 
 		if (!response.ok) {
-			throw new Error(`Worker token request failed: ${response.status} ${response.statusText} ${JSON.stringify(payload)}`);
+			throw new Error(
+				`Worker token request failed: ${response.status} ${response.statusText} ${JSON.stringify(payload)}`
+			);
 		}
 
 		expect(payload).toHaveProperty('access_token');
@@ -73,7 +77,9 @@ describe.skipIf(process.env.CI === 'true')('Kroger MFA real PingOne API', () => 
 		const payload = await response.json();
 
 		if (!response.ok) {
-			throw new Error(`User lookup failed: ${response.status} ${response.statusText} ${JSON.stringify(payload)}`);
+			throw new Error(
+				`User lookup failed: ${response.status} ${response.statusText} ${JSON.stringify(payload)}`
+			);
 		}
 
 		expect(payload?._embedded?.users).toBeInstanceOf(Array);
@@ -102,11 +108,11 @@ describe.skipIf(process.env.CI === 'true')('Kroger MFA real PingOne API', () => 
 		const payload = await response.json();
 
 		if (!response.ok) {
-			throw new Error(`MFA device lookup failed: ${response.status} ${response.statusText} ${JSON.stringify(payload)}`);
+			throw new Error(
+				`MFA device lookup failed: ${response.status} ${response.statusText} ${JSON.stringify(payload)}`
+			);
 		}
 
 		expect(payload?._embedded?.mfaDevices).toBeInstanceOf(Array);
 	});
 });
-
-

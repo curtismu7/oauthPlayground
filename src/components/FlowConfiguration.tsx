@@ -1,6 +1,6 @@
 import type React from 'react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { FiCheck, FiChevronDown, FiChevronUp, FiCopy, FiSave, FiSettings } from 'react-icons/fi';
+import { FiCheck, FiChevronDown, FiCopy, FiSave, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useAccessibility } from '../hooks/useAccessibility';
 import { themeService } from '../services/themeService';
@@ -309,7 +309,6 @@ export interface FlowConfig {
 	scopes: string[];
 	responseType: string;
 	grantType: string;
-
 	// PKCE settings
 	enablePKCE: boolean;
 	codeChallengeMethod: 'S256' | 'plain';

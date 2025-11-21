@@ -6,7 +6,14 @@ export type FlowStatus = 'not_started' | 'in_progress' | 'completed' | 'failed' 
 export interface FlowStep {
 	stepId: string;
 	stepName: string;
-	stepType: 'authentication' | 'device_selection' | 'device_registration' | 'challenge' | 'verification' | 'completion' | 'generic';
+	stepType:
+		| 'authentication'
+		| 'device_selection'
+		| 'device_registration'
+		| 'challenge'
+		| 'verification'
+		| 'completion'
+		| 'generic';
 	status: 'not_started' | 'in_progress' | 'completed' | 'failed' | 'skipped';
 	startedAt?: Date;
 	completedAt?: Date;
@@ -35,7 +42,9 @@ class FlowStateService {
 	// ---------------------------------------------------------------------
 	// Metadata helpers used by various flow configs (retained from V6 work)
 	// ---------------------------------------------------------------------
-	static createStepMetadata(stepConfigs: Array<{ title: string; subtitle?: string; description?: string }>) {
+	static createStepMetadata(
+		stepConfigs: Array<{ title: string; subtitle?: string; description?: string }>
+	) {
 		return stepConfigs.map((config, index) => ({
 			stepNumber: index,
 			title: config.title,
@@ -61,38 +70,42 @@ class FlowStateService {
 	// ---------------------------------------------------------------------
 	// Legacy-compatible Flow State API (used heavily by MFA flow)
 	// ---------------------------------------------------------------------
-	static initializeFlow(userId: string, flowType: string, configuration: Record<string, any> = {}): FlowState {
+	static initializeFlow(
+		userId: string,
+		flowType: string,
+		configuration: Record<string, any> = {}
+	): FlowState {
 		const flow: FlowState = {
-			flowId: this.generateFlowId(),
+			flowId: FlowStateService.generateFlowId(),
 			userId,
 			flowType,
 			status: 'not_started',
 			steps: [],
 			startedAt: new Date(),
-			metadata: { sessionId: this.generateSessionId() },
+			metadata: { sessionId: FlowStateService.generateSessionId() },
 			configuration: { ...configuration },
 			results: {},
 		};
 
-		this.flows.set(flow.flowId, flow);
+		FlowStateService.flows.set(flow.flowId, flow);
 		return flow;
 	}
 
 	static getFlow(flowId: string): FlowState | undefined {
-		return this.flows.get(flowId);
+		return FlowStateService.flows.get(flowId);
 	}
 
 	static getFlowState(flowId: string): FlowState | undefined {
-		return this.getFlow(flowId);
+		return FlowStateService.getFlow(flowId);
 	}
 
 	static startStep(flowId: string, stepId: string, stepName?: string): void {
-		const flow = this.flows.get(flowId);
+		const flow = FlowStateService.flows.get(flowId);
 		if (!flow) {
 			return;
 		}
 
-		const step = this.ensureStep(flow, stepId, stepName);
+		const step = FlowStateService.ensureStep(flow, stepId, stepName);
 		step.status = 'in_progress';
 		step.startedAt = new Date();
 		if ('completedAt' in step) {
@@ -103,12 +116,12 @@ class FlowStateService {
 	}
 
 	static completeStep(flowId: string, stepId: string, data?: Record<string, any>): void {
-		const flow = this.flows.get(flowId);
+		const flow = FlowStateService.flows.get(flowId);
 		if (!flow) {
 			return;
 		}
 
-		const step = this.ensureStep(flow, stepId);
+		const step = FlowStateService.ensureStep(flow, stepId);
 		step.status = 'completed';
 		step.completedAt = new Date();
 		if (data) {
@@ -118,12 +131,12 @@ class FlowStateService {
 	}
 
 	static failStep(flowId: string, stepId: string, errorMessage: string): void {
-		const flow = this.flows.get(flowId);
+		const flow = FlowStateService.flows.get(flowId);
 		if (!flow) {
 			return;
 		}
 
-		const step = this.ensureStep(flow, stepId);
+		const step = FlowStateService.ensureStep(flow, stepId);
 		step.status = 'failed';
 		step.completedAt = new Date();
 		step.error = errorMessage;
@@ -132,7 +145,7 @@ class FlowStateService {
 	}
 
 	static completeFlow(flowId: string): void {
-		const flow = this.flows.get(flowId);
+		const flow = FlowStateService.flows.get(flowId);
 		if (!flow) {
 			return;
 		}
@@ -142,7 +155,7 @@ class FlowStateService {
 	}
 
 	static updateFlow(flowId: string, updates: Partial<FlowState>): FlowState | undefined {
-		const flow = this.flows.get(flowId);
+		const flow = FlowStateService.flows.get(flowId);
 		if (!flow) {
 			return undefined;
 		}
@@ -155,7 +168,7 @@ class FlowStateService {
 			results: { ...flow.results, ...(updates.results ?? {}) },
 		};
 
-		this.flows.set(flowId, merged);
+		FlowStateService.flows.set(flowId, merged);
 		return merged;
 	}
 
@@ -167,8 +180,8 @@ class FlowStateService {
 		if (!step) {
 			step = {
 				stepId,
-				stepName: stepName ?? this.formatStepName(stepId),
-				stepType: this.inferStepType(stepId),
+				stepName: stepName ?? FlowStateService.formatStepName(stepId),
+				stepType: FlowStateService.inferStepType(stepId),
 				status: 'not_started',
 			};
 			flow.steps.push(step);
@@ -184,7 +197,8 @@ class FlowStateService {
 	private static inferStepType(stepId: string): FlowStep['stepType'] {
 		const normalized = stepId.toLowerCase();
 		if (normalized.includes('auth') || normalized.includes('login')) return 'authentication';
-		if (normalized.includes('device') && normalized.includes('registration')) return 'device_registration';
+		if (normalized.includes('device') && normalized.includes('registration'))
+			return 'device_registration';
 		if (normalized.includes('device')) return 'device_selection';
 		if (normalized.includes('challenge')) return 'challenge';
 		if (normalized.includes('verify') || normalized.includes('verification')) return 'verification';

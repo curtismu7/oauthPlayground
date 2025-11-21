@@ -4,45 +4,37 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
-	FiInfo,
-	FiLock,
-	FiShield,
-	FiUser,
-	FiKey,
+	FiBook,
 	FiCheckCircle,
-	FiRefreshCw,
 	FiCopy,
 	FiEye,
 	FiEyeOff,
-	FiBook,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiRefreshCw,
 	FiSave,
+	FiShield,
+	FiUser,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { useResourceOwnerPasswordFlowV5 } from '../../hooks/useResourceOwnerPasswordFlowV5';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { EducationalContentService } from '../../services/educationalContentService.tsx';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { useResourceOwnerPasswordFlowV7 } from '../../hooks/useResourceOwnerPasswordFlowV7';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { EducationalContentService } from '../../services/educationalContentService.tsx';
+import { FlowHeader } from '../../services/flowHeaderService';
+import FlowUIService from '../../services/flowUIService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
-// V7 Styled Components with enhanced styling
-const Container = styled.div`
-	min-height: 100vh;
-	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-	padding: 2rem 0 6rem;
-`;
-
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
+// Get UI components from FlowUIService
+const Container = FlowUIService.getContainer();
+const ContentWrapper = FlowUIService.getContentWrapper();
 
 const MainCard = styled.div`
 	background-color: #ffffff;
@@ -204,7 +196,7 @@ const FormInput = styled.input<{ $isMock?: boolean }>`
 	border: 2px solid #e5e7eb;
 	border-radius: 0.75rem;
 	font-size: 1rem;
-	background: ${props => props.$isMock ? '#fef3c7' : '#ffffff'};
+	background: ${(props) => (props.$isMock ? '#fef3c7' : '#ffffff')};
 	transition: all 0.2s ease;
 	
 	&:focus {
@@ -271,7 +263,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 		left: 100%;
 	}
 	
-	${props => props.variant === 'primary' && `
+	${(props) =>
+		props.variant === 'primary' &&
+		`
 		background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
 		color: white;
 		box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
@@ -287,7 +281,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 		}
 	`}
 	
-	${props => props.variant === 'success' && `
+	${(props) =>
+		props.variant === 'success' &&
+		`
 		background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
 		color: white;
 		box-shadow: 0 4px 15px rgba(22, 163, 74, 0.3);
@@ -303,7 +299,9 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'succes
 		}
 	`}
 	
-	${props => props.variant === 'secondary' && `
+	${(props) =>
+		props.variant === 'secondary' &&
+		`
 		background: #f8fafc;
 		color: #374151;
 		border: 2px solid #e2e8f0;
@@ -330,16 +328,18 @@ const ResultCard = styled.div<{ style?: React.CSSProperties }>`
 `;
 
 const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
-	background: ${props => 
-		props.$variant === 'success' ? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)' :
-		props.$variant === 'warning' ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' :
-		'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'
-	};
-	border: 2px solid ${props =>
-		props.$variant === 'success' ? '#22c55e' :
-		props.$variant === 'warning' ? '#f59e0b' :
-		'#3b82f6'
-	};
+	background: ${(props) =>
+		props.$variant === 'success'
+			? 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)'
+			: props.$variant === 'warning'
+				? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)'
+				: 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)'};
+	border: 2px solid ${(props) =>
+		props.$variant === 'success'
+			? '#22c55e'
+			: props.$variant === 'warning'
+				? '#f59e0b'
+				: '#3b82f6'};
 	border-radius: 0.75rem;
 	padding: 1.5rem;
 	display: flex;
@@ -350,7 +350,7 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 const InfoTitle = styled.div`
 	font-weight: 700;
 	font-size: 1.125rem;
-	color: ${props => props.theme || '#1f2937'};
+	color: ${(props) => props.theme || '#1f2937'};
 	margin-bottom: 0.5rem;
 `;
 
@@ -407,8 +407,7 @@ const STEP_METADATA = [
 ] as const;
 
 const OAuthROPCFlowV7: React.FC = () => {
-	// Use existing V5 controller with V7 flow key
-	const controller = useResourceOwnerPasswordFlowV5({
+	const controller = useResourceOwnerPasswordFlowV7({
 		flowKey: 'oauth-ropc-v7',
 		enableDebugger: true,
 	});
@@ -432,8 +431,6 @@ const OAuthROPCFlowV7: React.FC = () => {
 			[field]: value,
 		});
 	};
-
-
 
 	const renderStepContent = () => {
 		const currentStep = controller.stepManager.currentStepIndex;
@@ -461,9 +458,10 @@ const OAuthROPCFlowV7: React.FC = () => {
 								<V7NoticeContent>
 									<V7NoticeTitle>🚀 V7 Enhanced Implementation</V7NoticeTitle>
 									<V7NoticeText>
-										This is the latest V7 implementation of the OAuth Resource Owner Password Credentials (ROPC) flow. 
-										It features enhanced UI, improved error handling, and better user experience while maintaining 
-										compatibility with your real PingOne credentials.
+										This is the latest V7 implementation of the OAuth Resource Owner Password
+										Credentials (ROPC) flow. It features enhanced UI, improved error handling, and
+										better user experience while maintaining compatibility with your real PingOne
+										credentials.
 									</V7NoticeText>
 								</V7NoticeContent>
 							</V7Notice>
@@ -522,7 +520,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 								<FormGrid>
 									<FormGroup>
 										<FormLabel>
-											Username 
+											Username
 											<V7Badge>V7</V7Badge>
 										</FormLabel>
 										<FormInput
@@ -536,7 +534,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 
 									<FormGroup>
 										<FormLabel>
-											Password 
+											Password
 											<V7Badge>V7</V7Badge>
 										</FormLabel>
 										<PasswordInputContainer>
@@ -572,7 +570,9 @@ const OAuthROPCFlowV7: React.FC = () => {
 										disabled={controller.isSavingCredentials}
 									>
 										{controller.isSavingCredentials ? (
-											<SpinningIcon><FiRefreshCw /></SpinningIcon>
+											<SpinningIcon>
+												<FiRefreshCw />
+											</SpinningIcon>
 										) : (
 											<FiSave />
 										)}
@@ -590,7 +590,14 @@ const OAuthROPCFlowV7: React.FC = () => {
 									<FiLock />
 									Resource Owner Password Authentication
 								</SectionTitle>
-								<p style={{ marginBottom: '2rem', color: '#6b7280', fontSize: '1rem', lineHeight: '1.6' }}>
+								<p
+									style={{
+										marginBottom: '2rem',
+										color: '#6b7280',
+										fontSize: '1rem',
+										lineHeight: '1.6',
+									}}
+								>
 									This step will exchange the username and password for an access token using the
 									Resource Owner Password Credentials grant. This is a direct authentication method
 									that bypasses the browser redirect flow.
@@ -602,7 +609,9 @@ const OAuthROPCFlowV7: React.FC = () => {
 									disabled={controller.isAuthenticating || !controller.hasCredentialsSaved}
 								>
 									{controller.isAuthenticating ? (
-										<SpinningIcon><FiRefreshCw /></SpinningIcon>
+										<SpinningIcon>
+											<FiRefreshCw />
+										</SpinningIcon>
 									) : (
 										<FiLock />
 									)}
@@ -616,16 +625,16 @@ const OAuthROPCFlowV7: React.FC = () => {
 										<FiCheckCircle />
 										Access Token Received
 									</ResultHeader>
-									
-								{UnifiedTokenDisplayService.showTokens(
-									controller.tokens,
-									'oauth',
-									'oauth-ropc-v7',
-									{
-										showCopyButtons: true,
-										showDecodeButtons: true,
-									}
-								)}
+
+									{UnifiedTokenDisplayService.showTokens(
+										controller.tokens,
+										'oauth',
+										'oauth-ropc-v7',
+										{
+											showCopyButtons: true,
+											showDecodeButtons: true,
+										}
+									)}
 								</ResultCard>
 							)}
 						</>
@@ -638,9 +647,16 @@ const OAuthROPCFlowV7: React.FC = () => {
 									<FiUser />
 									User Information
 								</SectionTitle>
-								<p style={{ marginBottom: '2rem', color: '#6b7280', fontSize: '1rem', lineHeight: '1.6' }}>
-									Fetch user information using the access token from the previous step. This demonstrates
-									how to use the access token to access protected resources.
+								<p
+									style={{
+										marginBottom: '2rem',
+										color: '#6b7280',
+										fontSize: '1rem',
+										lineHeight: '1.6',
+									}}
+								>
+									Fetch user information using the access token from the previous step. This
+									demonstrates how to use the access token to access protected resources.
 								</p>
 
 								<ActionButton
@@ -649,7 +665,9 @@ const OAuthROPCFlowV7: React.FC = () => {
 									disabled={controller.isFetchingUserInfo || !controller.tokens}
 								>
 									{controller.isFetchingUserInfo ? (
-										<SpinningIcon><FiRefreshCw /></SpinningIcon>
+										<SpinningIcon>
+											<FiRefreshCw />
+										</SpinningIcon>
 									) : (
 										<FiUser />
 									)}
@@ -679,9 +697,16 @@ const OAuthROPCFlowV7: React.FC = () => {
 									<FiRefreshCw />
 									Token Refresh
 								</SectionTitle>
-								<p style={{ marginBottom: '2rem', color: '#6b7280', fontSize: '1rem', lineHeight: '1.6' }}>
-									Use the refresh token to obtain a new access token without re-authenticating the user.
-									This is essential for maintaining long-lived sessions.
+								<p
+									style={{
+										marginBottom: '2rem',
+										color: '#6b7280',
+										fontSize: '1rem',
+										lineHeight: '1.6',
+									}}
+								>
+									Use the refresh token to obtain a new access token without re-authenticating the
+									user. This is essential for maintaining long-lived sessions.
 								</p>
 
 								<ActionButton
@@ -690,7 +715,9 @@ const OAuthROPCFlowV7: React.FC = () => {
 									disabled={controller.isRefreshingTokens || !controller.tokens?.refresh_token}
 								>
 									{controller.isRefreshingTokens ? (
-										<SpinningIcon><FiRefreshCw /></SpinningIcon>
+										<SpinningIcon>
+											<FiRefreshCw />
+										</SpinningIcon>
 									) : (
 										<FiRefreshCw />
 									)}
@@ -734,7 +761,9 @@ const OAuthROPCFlowV7: React.FC = () => {
 											<div>
 												<InfoTitle>✅ After Refresh</InfoTitle>
 												<InfoText>
-													New tokens issued after the refresh token exchange. The refresh token is typically opaque (references server-side state) unless your authorization server issues JWT refresh tokens.
+													New tokens issued after the refresh token exchange. The refresh token is
+													typically opaque (references server-side state) unless your authorization
+													server issues JWT refresh tokens.
 												</InfoText>
 											</div>
 										</InfoBox>
@@ -764,7 +793,7 @@ const OAuthROPCFlowV7: React.FC = () => {
 				<FlowHeader flowId="oauth-ropc-v7" />
 
 				{/* Educational Content */}
-				<EducationalContentService 
+				<EducationalContentService
 					flowType="resource-owner-password"
 					title="Understanding OAuth Resource Owner Password Credentials (ROPC) Flow"
 					theme="purple"
@@ -833,5 +862,3 @@ const OAuthROPCFlowV7: React.FC = () => {
 };
 
 export default OAuthROPCFlowV7;
-
-

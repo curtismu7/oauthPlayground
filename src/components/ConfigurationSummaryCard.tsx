@@ -393,9 +393,7 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 											}}
 										>
 											{configuration?.scopes ||
-												(configurationDetails?.scopes
-													? configurationDetails.scopes.join(' ')
-													: '')}
+												(configurationDetails?.scopes ? configurationDetails.scopes.join(' ') : '')}
 										</div>
 									</>
 								)}
@@ -452,7 +450,9 @@ const ConfigurationSummaryCard: React.FC<ConfigurationSummaryCardProps> = ({
 								)}
 							</div>
 
-							<div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}>
+							<div
+								style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem', flexWrap: 'wrap' }}
+							>
 								<button
 									type="button"
 									onClick={handleSaveConfiguration}

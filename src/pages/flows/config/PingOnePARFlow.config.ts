@@ -75,7 +75,8 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 export const PAR_EDUCATION = {
 	overview: {
 		title: 'What is PAR (Pushed Authorization Request)?',
-		description: 'PAR is an enhancement to OAuth 2.0 and OpenID Connect that improves security by pushing authorization request parameters directly to the Authorization Server via a secure back-channel, instead of passing them through the user\'s browser.',
+		description:
+			"PAR is an enhancement to OAuth 2.0 and OpenID Connect that improves security by pushing authorization request parameters directly to the Authorization Server via a secure back-channel, instead of passing them through the user's browser.",
 		benefits: [
 			'🔒 Parameter Security: Parameters stored server-side, not visible in URLs',
 			'🛡️ Request Integrity: User cannot modify authorization parameters',
@@ -99,4 +100,3 @@ export const PAR_EDUCATION = {
 	],
 	standard: 'RFC 9126 – OAuth 2.0 Pushed Authorization Requests',
 };
-

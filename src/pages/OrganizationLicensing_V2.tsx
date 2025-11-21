@@ -1,42 +1,28 @@
 // src/pages/OrganizationLicensing_V2.tsx
 // Multi-step Organization Licensing flow: Creds → Token → License Info
 
-import React, { useState, useEffect } from 'react';
-import {
-	FiCheckCircle,
-	FiAlertTriangle,
-	FiRefreshCw,
-	FiInfo,
-	FiUsers,
-	FiLayers,
-	FiCalendar,
-	FiShield,
-	FiActivity,
-	FiKey,
-	FiArrowRight,
-	FiArrowLeft,
-} from 'react-icons/fi';
+import React, { useEffect, useState } from 'react';
+import { FiAlertTriangle, FiInfo, FiKey, FiRefreshCw, FiShield } from 'react-icons/fi';
+import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import { useAuth } from '../contexts/NewAuthContext';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import ComprehensiveCredentialsService from '../services/comprehensiveCredentialsService';
+import { FlowCredentialService } from '../services/flowCredentialService';
+import { FlowHeader } from '../services/flowHeaderService';
 import {
-	getOrganizationLicensingInfo,
-	getEnvironmentLicensingInfo,
 	getAllLicenses,
+	getOrganizationLicensingInfo,
 	type OrganizationInfo,
 	type OrganizationLicense,
 } from '../services/organizationLicensingService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { useAuth } from '../contexts/NewAuthContext';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
-import ComprehensiveCredentialsService from '../services/comprehensiveCredentialsService';
 import type { StepCredentials } from '../types/common';
-import { getOAuthTokens } from '../utils/tokenStorage';
-import { FlowHeader } from '../services/flowHeaderService';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { useNavigate } from 'react-router-dom';
 import { credentialManager } from '../utils/credentialManager';
-import { FlowCredentialService } from '../services/flowCredentialService';
-import { StepNavigationButtons } from '../components/StepNavigationButtons';
+import { getOAuthTokens } from '../utils/tokenStorage';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const pageConfig = {
 	flowType: 'documentation' as const,
@@ -48,8 +34,7 @@ const pageConfig = {
 	flowId: 'organization-licensing',
 };
 
-const { PageContainer, ContentWrapper } = 
-	PageLayoutService.createPageLayout(pageConfig);
+const { PageContainer, ContentWrapper } = PageLayoutService.createPageLayout(pageConfig);
 
 const StepContainer = styled.div`
 	background: white;
@@ -87,8 +72,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' }>`
 	gap: 0.5rem;
 	transition: all 0.2s;
 	
-	background: ${({ $variant }) =>
-		$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+	background: ${({ $variant }) => ($variant === 'primary' ? '#3b82f6' : '#6b7280')};
 	color: white;
 	
 	&:hover:not(:disabled) {
@@ -110,7 +94,7 @@ const ErrorMessage = styled.div`
 	margin: 1rem 0;
 `;
 
-const LoadingMessage = styled.div`
+const _LoadingMessage = styled.div`
 	text-align: center;
 	padding: 2rem;
 	color: #6b7280;
@@ -155,7 +139,7 @@ const OrganizationLicensingV2: React.FC = () => {
 	usePageScroll({ pageName: 'Organization Licensing', force: true });
 	const { tokens } = useAuth();
 	const navigate = useNavigate();
-	
+
 	// Step management
 	const [currentStep, setCurrentStep] = useState(0);
 	const [orgInfo, setOrgInfo] = useState<OrganizationInfo | null>(null);
@@ -183,7 +167,7 @@ const OrganizationLicensingV2: React.FC = () => {
 	// Load credentials on mount
 	useEffect(() => {
 		const savedCreds = credentialManager.getAllCredentials();
-		if (savedCreds && savedCreds.environmentId && savedCreds.clientId) {
+		if (savedCreds?.environmentId && savedCreds.clientId) {
 			setCredentials({
 				environmentId: savedCreds.environmentId || '',
 				clientId: savedCreds.clientId || '',
@@ -208,7 +192,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				setCurrentStep(2);
 			}
 		};
-		
+
 		loadStoredTokens();
 		const interval = setInterval(loadStoredTokens, 2000);
 		return () => clearInterval(interval);
@@ -228,7 +212,7 @@ const OrganizationLicensingV2: React.FC = () => {
 				redirectUri: credentials.redirectUri,
 				scopes: ['p1:read:organization', 'p1:read:licensing'],
 			});
-			
+
 			await FlowCredentialService.saveFlowCredentials('worker-token-v7', {
 				...credentials,
 				scope: 'p1:read:organization p1:read:licensing',
@@ -302,8 +286,8 @@ const OrganizationLicensingV2: React.FC = () => {
 							<FiSettings /> Step 1: Configure Credentials
 						</StepTitle>
 						<HelperText>
-							Enter your PingOne environment ID, client ID, and client secret.
-							These will be saved for the worker token flow.
+							Enter your PingOne environment ID, client ID, and client secret. These will be saved
+							for the worker token flow.
 						</HelperText>
 						<ComprehensiveCredentialsService
 							flowType="organization-licensing"
@@ -336,11 +320,9 @@ const OrganizationLicensingV2: React.FC = () => {
 						<StepTitle>
 							<FiKey /> Step 2: Get Worker Token
 						</StepTitle>
-						<HelperText>
-							Navigate to the worker token flow to obtain an access token.
-						</HelperText>
-						<Button 
-							$variant="primary" 
+						<HelperText>Navigate to the worker token flow to obtain an access token.</HelperText>
+						<Button
+							$variant="primary"
 							onClick={handleGetWorkerToken}
 							style={{ backgroundColor: '#059669' }}
 						>
@@ -359,16 +341,16 @@ const OrganizationLicensingV2: React.FC = () => {
 							Fetch your organization's licensing information using the worker token.
 						</HelperText>
 						<div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
-							<Button 
-								$variant="primary" 
+							<Button
+								$variant="primary"
 								onClick={fetchOrganizationInfo}
 								disabled={loading || !getAccessToken()}
 							>
 								<FiRefreshCw style={{ animation: loading ? 'spin 1s linear infinite' : 'none' }} />
 								{loading ? 'Loading...' : 'Get Organization Info'}
 							</Button>
-							<Button 
-								$variant="secondary" 
+							<Button
+								$variant="secondary"
 								onClick={fetchAllLicenses}
 								disabled={loading || !getAccessToken()}
 							>
@@ -406,27 +388,43 @@ const OrganizationLicensingV2: React.FC = () => {
 							</CollapsibleHeader>
 						)}
 						{allLicenses.length > 0 && (
-							<CollapsibleHeader title={`All Licenses (${allLicenses.length})`} icon={<FiShield />} theme="green">
+							<CollapsibleHeader
+								title={`All Licenses (${allLicenses.length})`}
+								icon={<FiShield />}
+								theme="green"
+							>
 								<LicenseGrid>
 									{allLicenses.map((license) => (
-										<LicenseCard 
-											key={license.id} 
+										<LicenseCard
+											key={license.id}
 											$borderColor={
-												license.status === 'active' ? '#10b981' :
-												license.status === 'expired' ? '#ef4444' :
-												license.status === 'trial' ? '#f59e0b' : '#e5e7eb'
+												license.status === 'active'
+													? '#10b981'
+													: license.status === 'expired'
+														? '#ef4444'
+														: license.status === 'trial'
+															? '#f59e0b'
+															: '#e5e7eb'
 											}
 										>
-											<div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+											<div
+												style={{
+													display: 'flex',
+													justifyContent: 'space-between',
+													marginBottom: '1rem',
+												}}
+											>
 												<h3 style={{ margin: 0 }}>{license.name}</h3>
-												<span style={{ 
-													padding: '0.25rem 0.75rem',
-													borderRadius: '9999px',
-													fontSize: '0.75rem',
-													fontWeight: 600,
-													background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
-													color: license.status === 'active' ? '#065f46' : '#991b1b',
-												}}>
+												<span
+													style={{
+														padding: '0.25rem 0.75rem',
+														borderRadius: '9999px',
+														fontSize: '0.75rem',
+														fontWeight: 600,
+														background: license.status === 'active' ? '#d1fae5' : '#fee2e2',
+														color: license.status === 'active' ? '#065f46' : '#991b1b',
+													}}
+												>
 													{license.status.toUpperCase()}
 												</span>
 											</div>
@@ -491,5 +489,3 @@ const OrganizationLicensingV2: React.FC = () => {
 };
 
 export default OrganizationLicensingV2;
-
-

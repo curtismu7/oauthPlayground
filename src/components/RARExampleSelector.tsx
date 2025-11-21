@@ -2,13 +2,13 @@
 // RAR Example Selector with pre-built templates including customer_information
 
 import React, { useState } from 'react';
+import { FiCheckCircle, FiChevronDown, FiChevronUp, FiCode, FiCopy, FiEye } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiCopy, FiEye, FiCode, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import RARService, { type AuthorizationDetail } from '../services/rarService';
 
 interface RARExampleSelectorProps {
-  onSelectExample: (details: AuthorizationDetail[]) => void;
-  className?: string;
+	onSelectExample: (details: AuthorizationDetail[]) => void;
+	className?: string;
 }
 
 const Container = styled.div`
@@ -98,14 +98,14 @@ const ViewButton = styled.button<{ active: boolean }>`
   gap: 0.5rem;
   padding: 0.5rem;
   border: none;
-  background: ${props => props.active ? '#3b82f6' : 'white'};
-  color: ${props => props.active ? 'white' : '#6b7280'};
+  background: ${(props) => (props.active ? '#3b82f6' : 'white')};
+  color: ${(props) => (props.active ? 'white' : '#6b7280')};
   font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: ${props => props.active ? '#2563eb' : '#f9fafb'};
+    background: ${(props) => (props.active ? '#2563eb' : '#f9fafb')};
   }
 `;
 
@@ -217,7 +217,7 @@ const CollapsibleHeader = styled.button`
 `;
 
 const CollapsibleContent = styled.div<{ isOpen: boolean }>`
-  display: ${props => props.isOpen ? 'block' : 'none'};
+  display: ${(props) => (props.isOpen ? 'block' : 'none')};
   padding: 1rem;
   border: 1px solid #e5e7eb;
   border-top: none;
@@ -226,176 +226,183 @@ const CollapsibleContent = styled.div<{ isOpen: boolean }>`
 `;
 
 export const RARExampleSelector: React.FC<RARExampleSelectorProps> = ({
-  onSelectExample,
-  className
+	onSelectExample,
+	className,
 }) => {
-  const [viewModes, setViewModes] = useState<Record<string, 'json' | 'formatted'>>({});
-  const [isExpanded, setIsExpanded] = useState(false);
+	const [viewModes, setViewModes] = useState<Record<string, 'json' | 'formatted'>>({});
+	const [isExpanded, setIsExpanded] = useState(false);
 
-  const examples = RARService.getExampleAuthorizationDetails();
-  const templates = RARService.getTemplates();
+	const examples = RARService.getExampleAuthorizationDetails();
+	const templates = RARService.getTemplates();
 
-  const exampleConfigs = [
-    {
-      id: 'customer_info',
-      title: 'Customer Information Access',
-      subtitle: 'Read and write customer contacts and photos',
-      details: [templates.customerInformation],
-      description: 'Request access to specific customer data types with defined actions and API endpoints.'
-    },
-    {
-      id: 'payment',
-      title: 'Payment Initiation',
-      subtitle: 'Authorize a specific payment transaction',
-      details: [templates.paymentInitiation],
-      description: 'Authorize a payment with specific amount, creditor, and account details.'
-    },
-    {
-      id: 'account_info',
-      title: 'Account Information',
-      subtitle: 'Access account balances and transactions',
-      details: [templates.accountInformation],
-      description: 'Request access to account information including balances and transaction history.'
-    },
-    {
-      id: 'comprehensive',
-      title: 'Comprehensive Example',
-      subtitle: 'Multiple authorization types combined',
-      details: examples,
-      description: 'A complete example showing multiple authorization detail types in a single request.'
-    }
-  ];
+	const exampleConfigs = [
+		{
+			id: 'customer_info',
+			title: 'Customer Information Access',
+			subtitle: 'Read and write customer contacts and photos',
+			details: [templates.customerInformation],
+			description:
+				'Request access to specific customer data types with defined actions and API endpoints.',
+		},
+		{
+			id: 'payment',
+			title: 'Payment Initiation',
+			subtitle: 'Authorize a specific payment transaction',
+			details: [templates.paymentInitiation],
+			description: 'Authorize a payment with specific amount, creditor, and account details.',
+		},
+		{
+			id: 'account_info',
+			title: 'Account Information',
+			subtitle: 'Access account balances and transactions',
+			details: [templates.accountInformation],
+			description:
+				'Request access to account information including balances and transaction history.',
+		},
+		{
+			id: 'comprehensive',
+			title: 'Comprehensive Example',
+			subtitle: 'Multiple authorization types combined',
+			details: examples,
+			description:
+				'A complete example showing multiple authorization detail types in a single request.',
+		},
+	];
 
-  const toggleViewMode = (exampleId: string) => {
-    setViewModes(prev => ({
-      ...prev,
-      [exampleId]: prev[exampleId] === 'json' ? 'formatted' : 'json'
-    }));
-  };
+	const toggleViewMode = (exampleId: string) => {
+		setViewModes((prev) => ({
+			...prev,
+			[exampleId]: prev[exampleId] === 'json' ? 'formatted' : 'json',
+		}));
+	};
 
-  const copyToClipboard = async (details: AuthorizationDetail[]) => {
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(details, null, 2));
-      // Could add a toast notification here
-    } catch (error) {
-      console.warn('Failed to copy to clipboard:', error);
-    }
-  };
+	const copyToClipboard = async (details: AuthorizationDetail[]) => {
+		try {
+			await navigator.clipboard.writeText(JSON.stringify(details, null, 2));
+			// Could add a toast notification here
+		} catch (error) {
+			console.warn('Failed to copy to clipboard:', error);
+		}
+	};
 
-  const renderFormattedView = (details: AuthorizationDetail[]) => (
-    <FormattedView>
-      {details.map((detail, index) => (
-        <DetailItem key={index}>
-          <DetailType>{detail.type}</DetailType>
-          <DetailFields>
-            {detail.type === 'customer_information' && (
-              <>
-                <FieldItem><FieldLabel>Actions:</FieldLabel> {detail.actions?.join(', ')}</FieldItem>
-                <FieldItem><FieldLabel>Data Types:</FieldLabel> {detail.datatypes?.join(', ')}</FieldItem>
-                <FieldItem><FieldLabel>Locations:</FieldLabel> {detail.locations?.join(', ')}</FieldItem>
-              </>
-            )}
-            {detail.type === 'payment_initiation' && (
-              <>
-                <FieldItem><FieldLabel>Amount:</FieldLabel> {detail.instructedAmount?.currency} {detail.instructedAmount?.amount}</FieldItem>
-                <FieldItem><FieldLabel>Creditor:</FieldLabel> {detail.creditorName}</FieldItem>
-                <FieldItem><FieldLabel>IBAN:</FieldLabel> {detail.creditorAccount?.iban}</FieldItem>
-              </>
-            )}
-            {detail.type === 'account_information' && (
-              <>
-                <FieldItem><FieldLabel>Accounts:</FieldLabel> {detail.accounts?.join(', ') || 'All'}</FieldItem>
-                <FieldItem><FieldLabel>Balances:</FieldLabel> {detail.balances ? 'Yes' : 'No'}</FieldItem>
-                <FieldItem><FieldLabel>Transactions:</FieldLabel> {detail.transactions ? 'Yes' : 'No'}</FieldItem>
-              </>
-            )}
-          </DetailFields>
-        </DetailItem>
-      ))}
-    </FormattedView>
-  );
+	const renderFormattedView = (details: AuthorizationDetail[]) => (
+		<FormattedView>
+			{details.map((detail, index) => (
+				<DetailItem key={index}>
+					<DetailType>{detail.type}</DetailType>
+					<DetailFields>
+						{detail.type === 'customer_information' && (
+							<>
+								<FieldItem>
+									<FieldLabel>Actions:</FieldLabel> {detail.actions?.join(', ')}
+								</FieldItem>
+								<FieldItem>
+									<FieldLabel>Data Types:</FieldLabel> {detail.datatypes?.join(', ')}
+								</FieldItem>
+								<FieldItem>
+									<FieldLabel>Locations:</FieldLabel> {detail.locations?.join(', ')}
+								</FieldItem>
+							</>
+						)}
+						{detail.type === 'payment_initiation' && (
+							<>
+								<FieldItem>
+									<FieldLabel>Amount:</FieldLabel> {detail.instructedAmount?.currency}{' '}
+									{detail.instructedAmount?.amount}
+								</FieldItem>
+								<FieldItem>
+									<FieldLabel>Creditor:</FieldLabel> {detail.creditorName}
+								</FieldItem>
+								<FieldItem>
+									<FieldLabel>IBAN:</FieldLabel> {detail.creditorAccount?.iban}
+								</FieldItem>
+							</>
+						)}
+						{detail.type === 'account_information' && (
+							<>
+								<FieldItem>
+									<FieldLabel>Accounts:</FieldLabel> {detail.accounts?.join(', ') || 'All'}
+								</FieldItem>
+								<FieldItem>
+									<FieldLabel>Balances:</FieldLabel> {detail.balances ? 'Yes' : 'No'}
+								</FieldItem>
+								<FieldItem>
+									<FieldLabel>Transactions:</FieldLabel> {detail.transactions ? 'Yes' : 'No'}
+								</FieldItem>
+							</>
+						)}
+					</DetailFields>
+				</DetailItem>
+			))}
+		</FormattedView>
+	);
 
-  const renderExample = (config: typeof exampleConfigs[0]) => {
-    const viewMode = viewModes[config.id] || 'formatted';
-    
-    return (
-      <ExampleCard key={config.id}>
-        <ExampleHeader>
-          <ExampleTitle>{config.title}</ExampleTitle>
-          <ExampleSubtitle>{config.subtitle}</ExampleSubtitle>
-        </ExampleHeader>
-        <ExampleContent>
-          <ViewToggle>
-            <ViewButton
-              active={viewMode === 'formatted'}
-              onClick={() => toggleViewMode(config.id)}
-            >
-              <FiEye size={12} />
-              Formatted
-            </ViewButton>
-            <ViewButton
-              active={viewMode === 'json'}
-              onClick={() => toggleViewMode(config.id)}
-            >
-              <FiCode size={12} />
-              JSON
-            </ViewButton>
-          </ViewToggle>
+	const renderExample = (config: (typeof exampleConfigs)[0]) => {
+		const viewMode = viewModes[config.id] || 'formatted';
 
-          {viewMode === 'json' ? (
-            <JsonDisplay>
-              {JSON.stringify(config.details, null, 2)}
-            </JsonDisplay>
-          ) : (
-            renderFormattedView(config.details)
-          )}
+		return (
+			<ExampleCard key={config.id}>
+				<ExampleHeader>
+					<ExampleTitle>{config.title}</ExampleTitle>
+					<ExampleSubtitle>{config.subtitle}</ExampleSubtitle>
+				</ExampleHeader>
+				<ExampleContent>
+					<ViewToggle>
+						<ViewButton active={viewMode === 'formatted'} onClick={() => toggleViewMode(config.id)}>
+							<FiEye size={12} />
+							Formatted
+						</ViewButton>
+						<ViewButton active={viewMode === 'json'} onClick={() => toggleViewMode(config.id)}>
+							<FiCode size={12} />
+							JSON
+						</ViewButton>
+					</ViewToggle>
 
-          <ActionButtons>
-            <ActionButton onClick={() => copyToClipboard(config.details)}>
-              <FiCopy size={12} />
-              Copy
-            </ActionButton>
-            <ActionButton
-              className="primary"
-              onClick={() => onSelectExample(config.details)}
-            >
-              <FiCheckCircle size={12} />
-              Use Example
-            </ActionButton>
-          </ActionButtons>
-        </ExampleContent>
-      </ExampleCard>
-    );
-  };
+					{viewMode === 'json' ? (
+						<JsonDisplay>{JSON.stringify(config.details, null, 2)}</JsonDisplay>
+					) : (
+						renderFormattedView(config.details)
+					)}
 
-  return (
-    <Container className={className}>
-      <Header>
-        <Title>RAR Authorization Examples</Title>
-      </Header>
-      
-      <Description>
-        Choose from pre-built authorization detail templates to get started quickly. 
-        These examples demonstrate different RAR use cases including the new customer_information type.
-      </Description>
+					<ActionButtons>
+						<ActionButton onClick={() => copyToClipboard(config.details)}>
+							<FiCopy size={12} />
+							Copy
+						</ActionButton>
+						<ActionButton className="primary" onClick={() => onSelectExample(config.details)}>
+							<FiCheckCircle size={12} />
+							Use Example
+						</ActionButton>
+					</ActionButtons>
+				</ExampleContent>
+			</ExampleCard>
+		);
+	};
 
-      <ExampleGrid>
-        {exampleConfigs.slice(0, 2).map(renderExample)}
-      </ExampleGrid>
+	return (
+		<Container className={className}>
+			<Header>
+				<Title>RAR Authorization Examples</Title>
+			</Header>
 
-      <CollapsibleSection>
-        <CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
-          <span>More Examples</span>
-          {isExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
-        </CollapsibleHeader>
-        <CollapsibleContent isOpen={isExpanded}>
-          <ExampleGrid>
-            {exampleConfigs.slice(2).map(renderExample)}
-          </ExampleGrid>
-        </CollapsibleContent>
-      </CollapsibleSection>
-    </Container>
-  );
+			<Description>
+				Choose from pre-built authorization detail templates to get started quickly. These examples
+				demonstrate different RAR use cases including the new customer_information type.
+			</Description>
+
+			<ExampleGrid>{exampleConfigs.slice(0, 2).map(renderExample)}</ExampleGrid>
+
+			<CollapsibleSection>
+				<CollapsibleHeader onClick={() => setIsExpanded(!isExpanded)}>
+					<span>More Examples</span>
+					{isExpanded ? <FiChevronUp size={16} /> : <FiChevronDown size={16} />}
+				</CollapsibleHeader>
+				<CollapsibleContent isOpen={isExpanded}>
+					<ExampleGrid>{exampleConfigs.slice(2).map(renderExample)}</ExampleGrid>
+				</CollapsibleContent>
+			</CollapsibleSection>
+		</Container>
+	);
 };
 
 export default RARExampleSelector;

@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-	FiShield,
-	FiUsers,
-	FiKey,
-	FiGlobe,
-	FiSettings,
-	FiCheckCircle,
-	FiAlertTriangle,
-	FiTrendingUp,
-	FiLock,
-	FiEye,
-	FiZap,
-	FiTarget,
 	FiActivity,
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCloud,
 	FiCpu,
 	FiDatabase,
-	FiCloud,
-	FiGitBranch,
-	FiRefreshCw,
-	FiArrowRight,
-	FiInfo,
 	FiExternalLink,
+	FiEye,
+	FiGitBranch,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiLock,
+	FiSettings,
+	FiShield,
+	FiTarget,
+	FiTrendingUp,
+	FiUsers,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
-import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const Container = styled.div`
 	max-width: 1400px;
@@ -155,18 +153,26 @@ const TrustBoundary = styled.div`
 const AgentType = styled.div`
 	background: ${({ variant }) => {
 		switch (variant) {
-			case 'personal': return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
-			case 'managed': return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
-			case 'digital': return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
-			default: return 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)';
+			case 'personal':
+				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
+			case 'managed':
+				return 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+			case 'digital':
+				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+			default:
+				return 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)';
 		}
 	}};
 	border: 1px solid ${({ variant }) => {
 		switch (variant) {
-			case 'personal': return '#3b82f6';
-			case 'managed': return '#10b981';
-			case 'digital': return '#f59e0b';
-			default: return '#6b7280';
+			case 'personal':
+				return '#3b82f6';
+			case 'managed':
+				return '#10b981';
+			case 'digital':
+				return '#f59e0b';
+			default:
+				return '#6b7280';
 		}
 	}};
 	border-radius: 0.75rem;
@@ -231,26 +237,38 @@ const InfoBox = styled.div<{ $type?: 'info' | 'warning' | 'success' | 'error' }>
 	margin: 1rem 0;
 	background: ${({ $type }) => {
 		switch ($type) {
-			case 'warning': return '#fef3c7';
-			case 'success': return '#d1fae5';
-			case 'error': return '#fee2e2';
-			default: return '#eff6ff';
+			case 'warning':
+				return '#fef3c7';
+			case 'success':
+				return '#d1fae5';
+			case 'error':
+				return '#fee2e2';
+			default:
+				return '#eff6ff';
 		}
 	}};
 	border: 1px solid ${({ $type }) => {
 		switch ($type) {
-			case 'warning': return '#f59e0b';
-			case 'success': return '#10b981';
-			case 'error': return '#ef4444';
-			default: return '#3b82f6';
+			case 'warning':
+				return '#f59e0b';
+			case 'success':
+				return '#10b981';
+			case 'error':
+				return '#ef4444';
+			default:
+				return '#3b82f6';
 		}
 	}};
 	color: ${({ $type }) => {
 		switch ($type) {
-			case 'warning': return '#92400e';
-			case 'success': return '#065f46';
-			case 'error': return '#991b1b';
-			default: return '#1e40af';
+			case 'warning':
+				return '#92400e';
+			case 'success':
+				return '#065f46';
+			case 'error':
+				return '#991b1b';
+			default:
+				return '#1e40af';
 		}
 	}};
 `;
@@ -268,8 +286,8 @@ const AIIdentityArchitectures: React.FC = () => {
 					Identity for AI Architectures
 				</h1>
 				<p>
-					Exploring the future of identity management in an AI-driven world. Understanding how to secure, 
-					manage, and govern AI agents and their interactions with enterprise systems.
+					Exploring the future of identity management in an AI-driven world. Understanding how to
+					secure, manage, and govern AI agents and their interactions with enterprise systems.
 				</p>
 			</Header>
 
@@ -346,7 +364,15 @@ const AIIdentityArchitectures: React.FC = () => {
 			>
 				<Card>
 					<AgentType variant="personal">
-						<h3 style={{ color: '#1e40af', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								color: '#1e40af',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiUsers />
 							Personal Agents
 						</h3>
@@ -361,7 +387,15 @@ const AIIdentityArchitectures: React.FC = () => {
 					</AgentType>
 
 					<AgentType variant="managed">
-						<h3 style={{ color: '#065f46', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								color: '#065f46',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiSettings />
 							Managed Agents
 						</h3>
@@ -377,7 +411,15 @@ const AIIdentityArchitectures: React.FC = () => {
 					</AgentType>
 
 					<AgentType variant="digital">
-						<h3 style={{ color: '#92400e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<h3
+							style={{
+								color: '#92400e',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiCpu />
 							Digital Workers
 						</h3>
@@ -408,7 +450,8 @@ const AIIdentityArchitectures: React.FC = () => {
 							Trust Boundary
 						</h3>
 						<p>
-							The security perimeter that defines trusted vs. untrusted components in AI architectures
+							The security perimeter that defines trusted vs. untrusted components in AI
+							architectures
 						</p>
 					</TrustBoundary>
 
@@ -437,8 +480,23 @@ const AIIdentityArchitectures: React.FC = () => {
 			>
 				<Card>
 					<div style={{ display: 'grid', gap: '1.5rem', marginBottom: '2rem' }}>
-						<div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-							<h4 style={{ color: '#1e40af', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#f8fafc',
+								borderRadius: '0.75rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<h4
+								style={{
+									color: '#1e40af',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiGlobe />
 								Single Platform, Multi-Domain
 							</h4>
@@ -447,8 +505,23 @@ const AIIdentityArchitectures: React.FC = () => {
 							</p>
 						</div>
 
-						<div style={{ padding: '1.5rem', background: '#f0fdf4', borderRadius: '0.75rem', border: '1px solid #bbf7d0' }}>
-							<h4 style={{ color: '#065f46', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#f0fdf4',
+								borderRadius: '0.75rem',
+								border: '1px solid #bbf7d0',
+							}}
+						>
+							<h4
+								style={{
+									color: '#065f46',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiCloud />
 								Multi-Platform, Multi-Domain
 							</h4>
@@ -457,8 +530,23 @@ const AIIdentityArchitectures: React.FC = () => {
 							</p>
 						</div>
 
-						<div style={{ padding: '1.5rem', background: '#fef3c7', borderRadius: '0.75rem', border: '1px solid #fde68a' }}>
-							<h4 style={{ color: '#92400e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#fef3c7',
+								borderRadius: '0.75rem',
+								border: '1px solid #fde68a',
+							}}
+						>
+							<h4
+								style={{
+									color: '#92400e',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiExternalLink />
 								External Agent Integration
 							</h4>
@@ -479,9 +567,31 @@ const AIIdentityArchitectures: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<Card>
-					<div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '2rem' }}>
-						<div style={{ padding: '1.5rem', background: '#fee2e2', borderRadius: '0.75rem', border: '1px solid #fecaca' }}>
-							<h4 style={{ color: '#991b1b', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: '1fr 1fr',
+							gap: '2rem',
+							marginBottom: '2rem',
+						}}
+					>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#fee2e2',
+								borderRadius: '0.75rem',
+								border: '1px solid #fecaca',
+							}}
+						>
+							<h4
+								style={{
+									color: '#991b1b',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiAlertTriangle />
 								Before: Bots as Threats
 							</h4>
@@ -493,8 +603,23 @@ const AIIdentityArchitectures: React.FC = () => {
 							</ul>
 						</div>
 
-						<div style={{ padding: '1.5rem', background: '#d1fae5', borderRadius: '0.75rem', border: '1px solid #a7f3d0' }}>
-							<h4 style={{ color: '#065f46', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#d1fae5',
+								borderRadius: '0.75rem',
+								border: '1px solid #a7f3d0',
+							}}
+						>
+							<h4
+								style={{
+									color: '#065f46',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiCheckCircle />
 								Now: CUAs as Verified Agents
 							</h4>
@@ -510,7 +635,9 @@ const AIIdentityArchitectures: React.FC = () => {
 					<InfoBox $type="warning">
 						<FiAlertTriangle />
 						<div>
-							<strong>Key Insight:</strong> The paradigm has shifted from treating all automated entities as threats to recognizing and managing legitimate Computer Using Agents (CUAs) that act on behalf of users.
+							<strong>Key Insight:</strong> The paradigm has shifted from treating all automated
+							entities as threats to recognizing and managing legitimate Computer Using Agents
+							(CUAs) that act on behalf of users.
 						</div>
 					</InfoBox>
 				</Card>
@@ -532,8 +659,9 @@ const AIIdentityArchitectures: React.FC = () => {
 						<RoadmapContent>
 							<h4>Making Agents Visible Across The Estate</h4>
 							<p>
-								Bot detection capabilities to identify unknown agents interacting with services. 
-								Centrally manage agents and tools with a single management plane for agent identities.
+								Bot detection capabilities to identify unknown agents interacting with services.
+								Centrally manage agents and tools with a single management plane for agent
+								identities.
 							</p>
 						</RoadmapContent>
 					</RoadmapItem>
@@ -545,8 +673,8 @@ const AIIdentityArchitectures: React.FC = () => {
 						<RoadmapContent>
 							<h4>Bringing Brand Experiences to Life on the Agentic Channel</h4>
 							<p>
-								Standardized approaches to offer best-in-class brand and security experiences 
-								to a human using an agent. Human in the loop; consents; constraints.
+								Standardized approaches to offer best-in-class brand and security experiences to a
+								human using an agent. Human in the loop; consents; constraints.
 							</p>
 						</RoadmapContent>
 					</RoadmapItem>
@@ -558,7 +686,7 @@ const AIIdentityArchitectures: React.FC = () => {
 						<RoadmapContent>
 							<h4>Getting Token Issuance Right</h4>
 							<p>
-								Issue the right tokens to the right actors with the right scopes at the right 
+								Issue the right tokens to the right actors with the right scopes at the right
 								control points. Agent Detection, MCP Gateway, Agent Management.
 							</p>
 						</RoadmapContent>
@@ -571,8 +699,9 @@ const AIIdentityArchitectures: React.FC = () => {
 						<RoadmapContent>
 							<h4>Authentication & Authorization</h4>
 							<p>
-								Entitlements management with least privilege, policy-based access control. 
-								Permission and policy controls to handle permission creep & delegated entitlements across A2A agents.
+								Entitlements management with least privilege, policy-based access control.
+								Permission and policy controls to handle permission creep & delegated entitlements
+								across A2A agents.
 							</p>
 						</RoadmapContent>
 					</RoadmapItem>
@@ -584,8 +713,9 @@ const AIIdentityArchitectures: React.FC = () => {
 						<RoadmapContent>
 							<h4>Enterprise Grade Service Layer for Agents</h4>
 							<p>
-								Protocol support, security controls and integrations to securely provide tools to agents, 
-								gain visibility of, and manage access policies. Revocation and kill switch controls.
+								Protocol support, security controls and integrations to securely provide tools to
+								agents, gain visibility of, and manage access policies. Revocation and kill switch
+								controls.
 							</p>
 						</RoadmapContent>
 					</RoadmapItem>
@@ -601,9 +731,30 @@ const AIIdentityArchitectures: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<Card>
-					<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
-						<div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '0.75rem', border: '1px solid #e2e8f0' }}>
-							<h4 style={{ color: '#1e40af', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<div
+						style={{
+							display: 'grid',
+							gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+							gap: '1.5rem',
+						}}
+					>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#f8fafc',
+								borderRadius: '0.75rem',
+								border: '1px solid #e2e8f0',
+							}}
+						>
+							<h4
+								style={{
+									color: '#1e40af',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiEye />
 								Agent Discovery
 							</h4>
@@ -614,8 +765,23 @@ const AIIdentityArchitectures: React.FC = () => {
 							</ul>
 						</div>
 
-						<div style={{ padding: '1.5rem', background: '#f0fdf4', borderRadius: '0.75rem', border: '1px solid #bbf7d0' }}>
-							<h4 style={{ color: '#065f46', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#f0fdf4',
+								borderRadius: '0.75rem',
+								border: '1px solid #bbf7d0',
+							}}
+						>
+							<h4
+								style={{
+									color: '#065f46',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiShield />
 								Security & Governance
 							</h4>
@@ -626,8 +792,23 @@ const AIIdentityArchitectures: React.FC = () => {
 							</ul>
 						</div>
 
-						<div style={{ padding: '1.5rem', background: '#fef3c7', borderRadius: '0.75rem', border: '1px solid #fde68a' }}>
-							<h4 style={{ color: '#92400e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#fef3c7',
+								borderRadius: '0.75rem',
+								border: '1px solid #fde68a',
+							}}
+						>
+							<h4
+								style={{
+									color: '#92400e',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiUsers />
 								Human-Agent Experience
 							</h4>
@@ -638,8 +819,23 @@ const AIIdentityArchitectures: React.FC = () => {
 							</ul>
 						</div>
 
-						<div style={{ padding: '1.5rem', background: '#eff6ff', borderRadius: '0.75rem', border: '1px solid #bfdbfe' }}>
-							<h4 style={{ color: '#1e40af', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								padding: '1.5rem',
+								background: '#eff6ff',
+								borderRadius: '0.75rem',
+								border: '1px solid #bfdbfe',
+							}}
+						>
+							<h4
+								style={{
+									color: '#1e40af',
+									marginBottom: '1rem',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiActivity />
 								Operations & Monitoring
 							</h4>
@@ -662,13 +858,29 @@ const AIIdentityArchitectures: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<Card>
-					<div style={{ padding: '1.5rem', background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', borderRadius: '0.75rem', border: '1px solid #0ea5e9' }}>
-						<h4 style={{ color: '#0c4a6e', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<div
+						style={{
+							padding: '1.5rem',
+							background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+							borderRadius: '0.75rem',
+							border: '1px solid #0ea5e9',
+						}}
+					>
+						<h4
+							style={{
+								color: '#0c4a6e',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiZap />
 							SSO for AI Agents
 						</h4>
 						<p style={{ color: '#0c4a6e', marginBottom: '1rem' }}>
-							<strong>OAuth Assertion Grant Flow</strong> enables Agent SSO and enterprise managed authorization policy
+							<strong>OAuth Assertion Grant Flow</strong> enables Agent SSO and enterprise managed
+							authorization policy
 						</p>
 						<ul style={{ color: '#0c4a6e', margin: 0, paddingLeft: '1.5rem' }}>
 							<li>Eliminates need for agent to store multiple secrets for each backend service</li>
@@ -680,7 +892,7 @@ const AIIdentityArchitectures: React.FC = () => {
 					<InfoBox $type="success">
 						<FiCheckCircle />
 						<div>
-							<strong>Key Benefits:</strong> Simplified credential management, enhanced security, 
+							<strong>Key Benefits:</strong> Simplified credential management, enhanced security,
 							and centralized policy enforcement for AI agents across enterprise systems.
 						</div>
 					</InfoBox>

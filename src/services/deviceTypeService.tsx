@@ -27,7 +27,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#1e40af', // Samsung Blue
 		secondaryColor: '#1e3a8a',
 		scenario: 'Home Entertainment',
-		useCase: 'Perfect for streaming apps, smart TVs, and media players'
+		useCase: 'Perfect for streaming apps, smart TVs, and media players',
 	},
 	'gas-pump': {
 		id: 'gas-pump',
@@ -40,7 +40,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#fbbf24', // Shell Yellow
 		secondaryColor: '#f59e0b',
 		scenario: 'Fuel Payment',
-		useCase: 'Ideal for gas stations, charging stations, and unattended payment terminals'
+		useCase: 'Ideal for gas stations, charging stations, and unattended payment terminals',
 	},
 	'iot-device': {
 		id: 'iot-device',
@@ -53,7 +53,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#0ea5e9', // Siemens Blue
 		secondaryColor: '#0284c7',
 		scenario: 'Industrial IoT',
-		useCase: 'Built for industrial controllers, pump valves, SCADA systems, and factory automation'
+		useCase: 'Built for industrial controllers, pump valves, SCADA systems, and factory automation',
 	},
 	'gaming-console': {
 		id: 'gaming-console',
@@ -66,7 +66,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#10b981', // Xbox Green
 		secondaryColor: '#059669',
 		scenario: 'Gaming & Entertainment',
-		useCase: 'Designed for gaming consoles, cloud gaming, and entertainment systems'
+		useCase: 'Designed for gaming consoles, cloud gaming, and entertainment systems',
 	},
 	'fitness-wearable': {
 		id: 'fitness-wearable',
@@ -79,7 +79,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#1d4ed8', // Apple Blue
 		secondaryColor: '#1e40af',
 		scenario: 'Health & Fitness',
-		useCase: 'Optimized for wearables, fitness trackers, and health monitoring devices'
+		useCase: 'Optimized for wearables, fitness trackers, and health monitoring devices',
 	},
 	'smart-printer': {
 		id: 'smart-printer',
@@ -92,7 +92,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#dc2626', // Canon Red
 		secondaryColor: '#b91c1c',
 		scenario: 'Office Equipment',
-		useCase: 'Built for printers, scanners, and office document management'
+		useCase: 'Built for printers, scanners, and office document management',
 	},
 	'airport-kiosk': {
 		id: 'airport-kiosk',
@@ -105,7 +105,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#dc2626', // American Red
 		secondaryColor: '#b91c1c',
 		scenario: 'Travel & Transportation',
-		useCase: 'Perfect for airport kiosks, train stations, and travel check-in systems'
+		useCase: 'Perfect for airport kiosks, train stations, and travel check-in systems',
 	},
 	'pos-terminal': {
 		id: 'pos-terminal',
@@ -118,7 +118,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#059669', // Clover Green
 		secondaryColor: '#047857',
 		scenario: 'Retail & Commerce',
-		useCase: 'Ideal for point-of-sale systems, retail terminals, and payment kiosks'
+		useCase: 'Ideal for point-of-sale systems, retail terminals, and payment kiosks',
 	},
 	'ai-agent': {
 		id: 'ai-agent',
@@ -131,7 +131,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#10b981', // OpenAI Green
 		secondaryColor: '#059669',
 		scenario: 'Artificial Intelligence',
-		useCase: 'Perfect for AI agents, chatbots, autonomous systems, and LLM-powered applications'
+		useCase: 'Perfect for AI agents, chatbots, autonomous systems, and LLM-powered applications',
 	},
 	'mcp-server': {
 		id: 'mcp-server',
@@ -144,7 +144,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#8b5cf6', // Anthropic Purple
 		secondaryColor: '#7c3aed',
 		scenario: 'AI Infrastructure',
-		useCase: 'Designed for MCP servers, AI context providers, and model integration systems'
+		useCase: 'Designed for MCP servers, AI context providers, and model integration systems',
 	},
 	'smart-speaker': {
 		id: 'smart-speaker',
@@ -157,9 +157,9 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#f59e0b', // Amazon Orange
 		secondaryColor: '#d97706',
 		scenario: 'Voice & IoT',
-		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices'
+		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices',
 	},
-	'smartphone': {
+	smartphone: {
 		id: 'smartphone',
 		name: 'Samsung Galaxy',
 		displayName: 'Samsung Galaxy S24 Ultra - Personal Device',
@@ -170,7 +170,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#1e40af', // Samsung Blue
 		secondaryColor: '#1e3a8a',
 		scenario: 'Mobile Auth',
-		useCase: 'Perfect for smartphones, companion apps, and mobile-first experiences'
+		useCase: 'Perfect for smartphones, companion apps, and mobile-first experiences',
 	},
 	'smart-vehicle': {
 		id: 'smart-vehicle',
@@ -183,7 +183,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#1f2937', // BMW Dark
 		secondaryColor: '#111827',
 		scenario: 'Automotive & Transport',
-		useCase: 'Optimized for connected cars, vehicle infotainment, and automotive IoT systems'
+		useCase: 'Optimized for connected cars, vehicle infotainment, and automotive IoT systems',
 	},
 	'smart-doorbell': {
 		id: 'smart-doorbell',
@@ -196,7 +196,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#0ea5e9', // Sky Blue
 		secondaryColor: '#0284c7',
 		scenario: 'Smart Home Security',
-		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems'
+		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems',
 	},
 	'ring-doorbell': {
 		id: 'ring-doorbell',
@@ -209,7 +209,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#0ea5e9', // Sky Blue
 		secondaryColor: '#0284c7',
 		scenario: 'Smart Home Security',
-		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems'
+		useCase: 'Perfect for smart doorbells, security cameras, and home monitoring systems',
 	},
 	'vizio-tv': {
 		id: 'vizio-tv',
@@ -222,7 +222,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#dc2626', // Red
 		secondaryColor: '#991b1b',
 		scenario: 'Home Entertainment',
-		useCase: 'Perfect for streaming apps, smart TVs, and media players'
+		useCase: 'Perfect for streaming apps, smart TVs, and media players',
 	},
 	'sony-controller': {
 		id: 'sony-controller',
@@ -235,7 +235,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#8b5cf6', // Purple
 		secondaryColor: '#7c3aed',
 		scenario: 'Gaming & Entertainment',
-		useCase: 'Designed for gaming consoles, cloud gaming, and entertainment systems'
+		useCase: 'Designed for gaming consoles, cloud gaming, and entertainment systems',
 	},
 	'bose-speaker': {
 		id: 'bose-speaker',
@@ -248,7 +248,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#0891b2', // Cyan
 		secondaryColor: '#0e7490',
 		scenario: 'Voice & IoT',
-		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices'
+		useCase: 'Built for smart speakers, voice assistants, and ambient computing devices',
 	},
 	'square-pos': {
 		id: 'square-pos',
@@ -261,7 +261,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#10b981', // Emerald
 		secondaryColor: '#059669',
 		scenario: 'Retail & Commerce',
-		useCase: 'Ideal for point-of-sale systems, retail terminals, and payment kiosks'
+		useCase: 'Ideal for point-of-sale systems, retail terminals, and payment kiosks',
 	},
 	'ev-charger': {
 		id: 'ev-charger',
@@ -274,7 +274,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#22c55e', // Green
 		secondaryColor: '#16a34a',
 		scenario: 'Electric Vehicle Infrastructure',
-		useCase: 'Built for EV charging stations, fast chargers, and electric vehicle infrastructure'
+		useCase: 'Built for EV charging stations, fast chargers, and electric vehicle infrastructure',
 	},
 	'smart-thermostat': {
 		id: 'smart-thermostat',
@@ -287,7 +287,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#f97316', // Orange
 		secondaryColor: '#ea580c',
 		scenario: 'Smart Home Climate',
-		useCase: 'Designed for smart thermostats, HVAC systems, and climate control devices'
+		useCase: 'Designed for smart thermostats, HVAC systems, and climate control devices',
 	},
 	'digital-signage': {
 		id: 'digital-signage',
@@ -300,7 +300,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#8b5cf6', // Purple
 		secondaryColor: '#7c3aed',
 		scenario: 'Digital Advertising',
-		useCase: 'Perfect for digital billboards, interactive displays, and public information systems'
+		useCase: 'Perfect for digital billboards, interactive displays, and public information systems',
 	},
 	'drone-controller': {
 		id: 'drone-controller',
@@ -313,7 +313,7 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#06b6d4', // Cyan
 		secondaryColor: '#0891b2',
 		scenario: 'Autonomous Vehicles',
-		useCase: 'Built for drones, UAVs, and autonomous aerial vehicle systems'
+		useCase: 'Built for drones, UAVs, and autonomous aerial vehicle systems',
 	},
 	'vr-headset': {
 		id: 'vr-headset',
@@ -326,8 +326,8 @@ export const DEVICE_TYPES: Record<string, DeviceTypeConfig> = {
 		color: '#a855f7', // Purple
 		secondaryColor: '#9333ea',
 		scenario: 'Virtual & Augmented Reality',
-		useCase: 'Optimized for VR headsets, AR glasses, and immersive reality devices'
-	}
+		useCase: 'Optimized for VR headsets, AR glasses, and immersive reality devices',
+	},
 };
 
 export const DEFAULT_DEVICE_TYPE = 'streaming-tv';
@@ -351,10 +351,10 @@ class DeviceTypeService {
 	 * Get device type options for dropdown
 	 */
 	getDeviceTypeOptions(): Array<{ value: string; label: string; emoji: string }> {
-		return Object.values(DEVICE_TYPES).map(device => ({
+		return Object.values(DEVICE_TYPES).map((device) => ({
 			value: device.id,
 			label: device.name,
-			emoji: device.emoji
+			emoji: device.emoji,
 		}));
 	}
 
@@ -370,8 +370,8 @@ class DeviceTypeService {
 	 * Get device-specific waiting message
 	 */
 	getWaitingMessage(deviceId: string): string {
-		const device = this.getDeviceType(deviceId);
-		
+		const _device = this.getDeviceType(deviceId);
+
 		const messages: Record<string, string> = {
 			'streaming-tv': 'WAITING FOR AUTHORIZATION',
 			'gas-pump': 'AWAITING PAYMENT APPROVAL',
@@ -384,10 +384,10 @@ class DeviceTypeService {
 			'ai-agent': 'AGENT AUTHENTICATION',
 			'mcp-server': 'CONTEXT AUTHORIZATION',
 			'smart-speaker': 'VOICE PAIRING',
-			'smartphone': 'MOBILE SIGN-IN',
-			'smart-vehicle': 'VEHICLE SYNC'
+			smartphone: 'MOBILE SIGN-IN',
+			'smart-vehicle': 'VEHICLE SYNC',
 		};
-		
+
 		return messages[deviceId] || 'WAITING FOR AUTHORIZATION';
 	}
 
@@ -407,10 +407,10 @@ class DeviceTypeService {
 			'ai-agent': 'Scan to authorize this AI agent and grant it access to your resources',
 			'mcp-server': 'Scan to authorize MCP server connection and enable context sharing',
 			'smart-speaker': 'Scan to link your voice assistant to your account',
-			'smartphone': 'Scan to authorize this mobile device immediately',
-			'smart-vehicle': 'Scan to connect your vehicle infotainment system'
+			smartphone: 'Scan to authorize this mobile device immediately',
+			'smart-vehicle': 'Scan to connect your vehicle infotainment system',
 		};
-		
+
 		return messages[deviceId] || 'Scan this QR code to authorize this device';
 	}
 
@@ -427,7 +427,7 @@ class DeviceTypeService {
 				{ label: 'YouTube TV', icon: '📺', color: '#ff0000' },
 				{ label: 'Apple TV+', icon: '🍎', color: '#000000' },
 				{ label: 'HBO Max', icon: '🎭', color: '#673ab7' },
-				{ label: 'SmartCast', icon: '⚙️', color: '#64748b' }
+				{ label: 'SmartCast', icon: '⚙️', color: '#64748b' },
 			],
 			'gas-pump': [
 				{ label: 'Kroger Pay', icon: '💳', color: '#004c91' },
@@ -437,18 +437,18 @@ class DeviceTypeService {
 				{ label: 'Fuel Rewards', icon: '💰', color: '#ff6b35' },
 				{ label: 'Regular 87', icon: '⛽', color: '#22c55e' },
 				{ label: 'Premium 93', icon: '⛽', color: '#3b82f6' },
-				{ label: 'Receipt', icon: '📄', color: '#64748b' }
+				{ label: 'Receipt', icon: '📄', color: '#64748b' },
 			],
-		'iot-device': [
-			{ label: 'System Status', icon: '📊', color: '#3b82f6' },
-			{ label: 'Valve Control', icon: '⚙️', color: '#10b981' },
-			{ label: 'Pressure', icon: '🔧', color: '#ef4444' },
-			{ label: 'Flow Rate', icon: '💧', color: '#0ea5e9' },
-			{ label: 'Alarms', icon: '🚨', color: '#f59e0b' },
-			{ label: 'Diagnostics', icon: '🔍', color: '#8b5cf6' },
-			{ label: 'Logs', icon: '📝', color: '#06b6d4' },
-			{ label: 'Settings', icon: '⚙️', color: '#64748b' }
-		],
+			'iot-device': [
+				{ label: 'System Status', icon: '📊', color: '#3b82f6' },
+				{ label: 'Valve Control', icon: '⚙️', color: '#10b981' },
+				{ label: 'Pressure', icon: '🔧', color: '#ef4444' },
+				{ label: 'Flow Rate', icon: '💧', color: '#0ea5e9' },
+				{ label: 'Alarms', icon: '🚨', color: '#f59e0b' },
+				{ label: 'Diagnostics', icon: '🔍', color: '#8b5cf6' },
+				{ label: 'Logs', icon: '📝', color: '#06b6d4' },
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
+			],
 			'gaming-console': [
 				{ label: 'Call of Duty', icon: '🎮', color: '#000000' },
 				{ label: 'FIFA 24', icon: '⚽', color: '#326295' },
@@ -457,7 +457,7 @@ class DeviceTypeService {
 				{ label: 'Spider-Man 2', icon: '🕷️', color: '#c41e3a' },
 				{ label: 'PlayStation Store', icon: '🛒', color: '#003791' },
 				{ label: 'PlayStation Plus', icon: '➕', color: '#f59e0b' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
 			],
 			'fitness-wearable': [
 				{ label: 'Strava', icon: '🏃', color: '#fc4c02' },
@@ -467,7 +467,7 @@ class DeviceTypeService {
 				{ label: 'Apple Health', icon: '❤️', color: '#ff2d92' },
 				{ label: 'Sleep Score', icon: '😴', color: '#8b5cf6' },
 				{ label: 'Heart Rate', icon: '💓', color: '#ef4444' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
 			],
 			'smart-printer': [
 				{ label: 'HP Smart', icon: '🖨️', color: '#0096d6' },
@@ -477,7 +477,7 @@ class DeviceTypeService {
 				{ label: 'Adobe Acrobat', icon: '📋', color: '#dc143c' },
 				{ label: 'Print Queue', icon: '📄', color: '#64748b' },
 				{ label: 'Scan to Email', icon: '📧', color: '#22c55e' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
 			],
 			'airport-kiosk': [
 				{ label: 'American Airlines', icon: '✈️', color: '#c8102e' },
@@ -487,13 +487,13 @@ class DeviceTypeService {
 				{ label: 'TSA PreCheck', icon: '🛂', color: '#1f4e79' },
 				{ label: 'Check Baggage', icon: '🧳', color: '#3b82f6' },
 				{ label: 'Print Boarding Pass', icon: '🎫', color: '#f97316' },
-				{ label: 'Help', icon: 'ℹ️', color: '#64748b' }
+				{ label: 'Help', icon: 'ℹ️', color: '#64748b' },
 			],
 			'pos-terminal': [
 				{ label: 'Pay', icon: '💳', color: '#22c55e' },
 				{ label: 'Refund', icon: '↩️', color: '#f97316' },
 				{ label: 'Receipt', icon: '📄', color: '#3b82f6' },
-				{ label: 'Help', icon: 'ℹ️', color: '#64748b' }
+				{ label: 'Help', icon: 'ℹ️', color: '#64748b' },
 			],
 			'ai-agent': [
 				{ label: 'Chat', icon: '💬', color: '#a855f7' },
@@ -503,7 +503,7 @@ class DeviceTypeService {
 				{ label: 'Context', icon: '📚', color: '#06b6d4' },
 				{ label: 'Analytics', icon: '📊', color: '#8b5cf6' },
 				{ label: 'History', icon: '📜', color: '#ec4899' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
 			],
 			'mcp-server': [
 				{ label: 'Contexts', icon: '🔗', color: '#ec4899' },
@@ -513,7 +513,7 @@ class DeviceTypeService {
 				{ label: 'Logs', icon: '📝', color: '#06b6d4' },
 				{ label: 'Monitor', icon: '📊', color: '#22c55e' },
 				{ label: 'Config', icon: '⚙️', color: '#64748b' },
-				{ label: 'Docs', icon: '📖', color: '#8b5cf6' }
+				{ label: 'Docs', icon: '📖', color: '#8b5cf6' },
 			],
 			'smart-speaker': [
 				{ label: 'Spotify', icon: '🎵', color: '#1db954' },
@@ -523,9 +523,9 @@ class DeviceTypeService {
 				{ label: 'YouTube Music', icon: '🎤', color: '#ff0000' },
 				{ label: 'Sonos Radio', icon: '📡', color: '#000000' },
 				{ label: 'TuneIn', icon: '🌐', color: '#14d9c4' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
 			],
-			'smartphone': [
+			smartphone: [
 				{ label: 'Instagram', icon: '📷', color: '#e4405f' },
 				{ label: 'WhatsApp', icon: '💬', color: '#25d366' },
 				{ label: 'TikTok', icon: '🎵', color: '#000000' },
@@ -533,7 +533,7 @@ class DeviceTypeService {
 				{ label: 'Venmo', icon: '💸', color: '#3d95ce' },
 				{ label: 'Apple Wallet', icon: '💳', color: '#007aff' },
 				{ label: 'Face ID', icon: '🔐', color: '#f59e0b' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
 			],
 			'smart-vehicle': [
 				{ label: 'Navigation', icon: '🗺️', color: '#3b82f6' },
@@ -543,14 +543,13 @@ class DeviceTypeService {
 				{ label: 'Charging', icon: '🔋', color: '#10b981' },
 				{ label: 'Apps', icon: '📱', color: '#a855f7' },
 				{ label: 'Garage', icon: '🏠', color: '#f59e0b' },
-				{ label: 'Settings', icon: '⚙️', color: '#64748b' }
-			]
+				{ label: 'Settings', icon: '⚙️', color: '#64748b' },
+			],
 		};
-		
+
 		return apps[deviceId] || apps['streaming-tv'];
 	}
 }
 
 export const deviceTypeService = new DeviceTypeService();
 export default deviceTypeService;
-

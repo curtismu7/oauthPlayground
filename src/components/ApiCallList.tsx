@@ -1,12 +1,12 @@
 // src/components/ApiCallList.tsx
 // Reusable component to display API calls using EnhancedApiCallDisplay
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { apiCallTrackerService, type ApiCall } from '../services/apiCallTrackerService';
-import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
-import { ApiCallColorLegend } from './ApiCallColorLegend';
+import { type ApiCall, apiCallTrackerService } from '../services/apiCallTrackerService';
 import type { EnhancedApiCallData } from '../services/enhancedApiCallDisplayService';
+import { ApiCallColorLegend } from './ApiCallColorLegend';
+import { EnhancedApiCallDisplay } from './EnhancedApiCallDisplay';
 
 const Container = styled.div`
 	margin: 24px 0;
@@ -94,9 +94,9 @@ interface ApiCallListProps {
 	showLegend?: boolean;
 }
 
-export const ApiCallList: React.FC<ApiCallListProps> = ({ 
+export const ApiCallList: React.FC<ApiCallListProps> = ({
 	title = 'API Calls to PingOne',
-	showLegend = true
+	showLegend = true,
 }) => {
 	const [apiCalls, setApiCalls] = useState<ApiCall[]>([]);
 
@@ -140,10 +140,7 @@ export const ApiCallList: React.FC<ApiCallListProps> = ({
 					{title}
 					<CallCount>{apiCalls.length}</CallCount>
 				</Title>
-				<ClearButton 
-					onClick={handleClearAll}
-					disabled={apiCalls.length === 0}
-				>
+				<ClearButton onClick={handleClearAll} disabled={apiCalls.length === 0}>
 					🗑️ Clear All
 				</ClearButton>
 			</Header>
@@ -156,9 +153,7 @@ export const ApiCallList: React.FC<ApiCallListProps> = ({
 					<div style={{ fontSize: '16px', fontWeight: 600, color: '#6b7280', marginBottom: '8px' }}>
 						No API calls recorded yet
 					</div>
-					<div style={{ fontSize: '14px' }}>
-						API calls will appear here as they are made
-					</div>
+					<div style={{ fontSize: '14px' }}>API calls will appear here as they are made</div>
 				</EmptyState>
 			) : (
 				<CallsContainer>

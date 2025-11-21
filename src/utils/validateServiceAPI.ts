@@ -1,13 +1,13 @@
 // src/utils/validateServiceAPI.ts
 /**
  * Service API Validation Script
- * 
+ *
  * This script validates that the ComprehensiveFlowDataService API interface
  * is rock solid and ready for production use.
  */
 
-import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 import type { FlowSpecificCredentials } from '../services/comprehensiveFlowDataService';
+import { comprehensiveFlowDataService } from '../services/comprehensiveFlowDataService';
 
 export const validateServiceAPI = (): {
 	success: boolean;
@@ -15,9 +15,9 @@ export const validateServiceAPI = (): {
 	summary: string;
 } => {
 	console.log('🔍 [API VALIDATION] Validating ComprehensiveFlowDataService API Interface');
-	
+
 	const issues: string[] = [];
-	
+
 	// Test 1: Validate all required methods exist
 	const requiredMethods = [
 		'saveFlowCredentialsIsolated',
@@ -30,15 +30,15 @@ export const validateServiceAPI = (): {
 		'auditAllFlowData',
 		'clearFlowData',
 		'clearAllFlowData',
-		'clearAllSharedData'
+		'clearAllSharedData',
 	];
-	
-	requiredMethods.forEach(method => {
+
+	requiredMethods.forEach((method) => {
 		if (typeof comprehensiveFlowDataService[method] !== 'function') {
 			issues.push(`Missing required method: ${method}`);
 		}
 	});
-	
+
 	// Test 2: Validate method signatures
 	try {
 		// Test saveFlowCredentialsIsolated signature
@@ -47,54 +47,56 @@ export const validateServiceAPI = (): {
 			clientSecret: 'test',
 			redirectUri: 'https://test.com',
 			scopes: ['openid'],
-			lastUpdated: Date.now()
+			lastUpdated: Date.now(),
 		};
-		
+
 		// Should not throw
-		comprehensiveFlowDataService.saveFlowCredentialsIsolated('api-test', testCreds, { showToast: false });
+		comprehensiveFlowDataService.saveFlowCredentialsIsolated('api-test', testCreds, {
+			showToast: false,
+		});
 	} catch (error) {
 		issues.push(`saveFlowCredentialsIsolated signature issue: ${error}`);
 	}
-	
+
 	try {
 		// Test loadFlowCredentialsIsolated signature
 		comprehensiveFlowDataService.loadFlowCredentialsIsolated('api-test');
 	} catch (error) {
 		issues.push(`loadFlowCredentialsIsolated signature issue: ${error}`);
 	}
-	
+
 	try {
 		// Test loadFlowDataComprehensive signature
 		comprehensiveFlowDataService.loadFlowDataComprehensive({ flowKey: 'api-test' });
 	} catch (error) {
 		issues.push(`loadFlowDataComprehensive signature issue: ${error}`);
 	}
-	
+
 	try {
 		// Test testCredentialIsolation signature
 		comprehensiveFlowDataService.testCredentialIsolation('flow1', 'flow2');
 	} catch (error) {
 		issues.push(`testCredentialIsolation signature issue: ${error}`);
 	}
-	
+
 	try {
 		// Test auditAllFlowData signature
 		comprehensiveFlowDataService.auditAllFlowData();
 	} catch (error) {
 		issues.push(`auditAllFlowData signature issue: ${error}`);
 	}
-	
+
 	// Test 3: Validate return types
 	const auditResult = comprehensiveFlowDataService.auditAllFlowData();
 	if (typeof auditResult !== 'object' || auditResult === null) {
 		issues.push('auditAllFlowData should return an object');
 	}
-	
+
 	const isolationResult = comprehensiveFlowDataService.testCredentialIsolation('test1', 'test2');
 	if (typeof isolationResult !== 'boolean') {
 		issues.push('testCredentialIsolation should return a boolean');
 	}
-	
+
 	// Test 4: Validate error handling
 	try {
 		// Test with invalid flow key
@@ -103,14 +105,14 @@ export const validateServiceAPI = (): {
 	} catch (error) {
 		issues.push(`Error handling issue with empty flow key: ${error}`);
 	}
-	
+
 	// Test 5: Validate global availability
 	if (typeof window !== 'undefined') {
-		if (!(window as any).ComprehensiveFlowDataService) {
+		if (!window.ComprehensiveFlowDataService) {
 			issues.push('Service not available globally in development');
 		}
 	}
-	
+
 	const success = issues.length === 0;
 	const summary = `
 🔍 COMPREHENSIVE FLOW DATA SERVICE API VALIDATION
@@ -118,23 +120,30 @@ export const validateServiceAPI = (): {
 ${success ? '✅ API INTERFACE IS ROCK SOLID' : '❌ API INTERFACE HAS ISSUES'}
 
 ${issues.length > 0 ? `Issues Found (${issues.length}):` : 'No issues found'}
-${issues.map(issue => `  - ${issue}`).join('\n')}
+${issues.map((issue) => `  - ${issue}`).join('\n')}
 
 ${success ? '🚀 READY FOR PRODUCTION USE' : '⚠️ NEEDS FIXES BEFORE PRODUCTION'}
 	`.trim();
-	
+
 	console.log(summary);
-	
+
 	return {
 		success,
 		issues,
-		summary
+		summary,
 	};
 };
 
+declare global {
+	interface Window {
+		ComprehensiveFlowDataService?: typeof comprehensiveFlowDataService;
+		validateServiceAPI?: typeof validateServiceAPI;
+	}
+}
+
 // Make it available globally
 if (typeof window !== 'undefined') {
-	(window as any).validateServiceAPI = validateServiceAPI;
+	window.validateServiceAPI = validateServiceAPI;
 	console.log('🔍 validateServiceAPI() available globally');
 }
 

@@ -1,33 +1,80 @@
 // src/pages/security/HelioMartPasswordReset.tsx
 // HelioMart Password Reset Demo - Real-world password management interface
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { FiLock, FiUser, FiMail, FiKey, FiCheckCircle, FiAlertCircle, FiEye, FiEyeOff, FiSearch, FiRefreshCw, FiExternalLink, FiBook, FiCode, FiCopy, FiChevronDown, FiChevronUp, FiLogIn, FiArrowRight } from 'react-icons/fi';
-import styled from 'styled-components';
 import Prism from 'prismjs';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiBook,
+	FiCheckCircle,
+	FiChevronDown,
+	FiChevronUp,
+	FiCode,
+	FiCopy,
+	FiExternalLink,
+	FiEye,
+	FiEyeOff,
+	FiKey,
+	FiLock,
+	FiLogIn,
+	FiMail,
+	FiRefreshCw,
+	FiSearch,
+} from 'react-icons/fi';
+import styled from 'styled-components';
 import 'prismjs/themes/prism.css';
 import 'prismjs/components/prism-javascript';
 import 'prismjs/components/prism-json';
-import { trackedFetch } from '../../utils/trackedFetch';
-import { apiCallTrackerService } from '../../services/apiCallTrackerService';
 import { ApiCallTable } from '../../components/ApiCallTable';
-import type { ApiCall } from '../../services/apiCallTrackerService';
-import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
-import { sendRecoveryCode, recoverPassword, forcePasswordChange, changePassword, checkPassword, unlockPassword, readPasswordState, setPasswordAdmin, setPassword, setPasswordLdapGateway } from '../../services/passwordResetService';
-import { WorkerTokenModal } from '../../components/WorkerTokenModal';
-import { getValidWorkerToken } from '../../services/tokenExpirationService';
-import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { PageLayoutService } from '../../services/pageLayoutService';
 import { AuthorizationCodeConfigModal } from '../../components/AuthorizationCodeConfigModal';
 import { PasswordSetValueTab } from '../../components/password-reset/PasswordSetValueTab';
+import { WorkerTokenDetectedBanner } from '../../components/WorkerTokenDetectedBanner';
+import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import type { ApiCall } from '../../services/apiCallTrackerService';
+import { apiCallTrackerService } from '../../services/apiCallTrackerService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { PageLayoutService } from '../../services/pageLayoutService';
+import {
+	changePassword,
+	checkPassword,
+	forcePasswordChange,
+	readPasswordState,
+	recoverPassword,
+	sendRecoveryCode,
+	setPassword,
+	setPasswordAdmin,
+	setPasswordLdapGateway,
+	unlockPassword,
+} from '../../services/passwordResetService';
+import { lookupPingOneUser } from '../../services/pingOneUserProfileService';
+import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
+import { trackedFetch } from '../../utils/trackedFetch';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { getAnyWorkerToken } from '../../utils/workerTokenDetection';
+
+// Type for PingOne user objects
+interface PingOneUserName {
+	given?: string;
+	family?: string;
+}
+
+interface PingOneUser {
+	id?: string;
+	username?: string;
+	email?: string;
+	name?: string | PingOneUserName;
+	[key: string]: unknown;
+}
+
+// Type for password state
+interface PasswordState {
+	status?: string;
+	locked?: boolean;
+	expired?: boolean;
+	[key: string]: unknown;
+}
 
 // HelioMart Brand Colors
-const HELIOMART_DARK = '#0F172A';
-const HELIOMART_NAVY = '#111827';
-const HELIOMART_SLATE = '#1F2937';
-const HELIOMART_SURFACE = '#0B1220';
 const HELIOMART_ACCENT_START = '#F59E0B'; // Amber
 const HELIOMART_ACCENT_END = '#F97316'; // Orange
 
@@ -45,24 +92,6 @@ const ContentContainer = styled.div`
 `;
 
 // Login Page Styled Components
-const LoginContainer = styled.div`
-	min-height: 100vh;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: #6B7280;
-	padding: 2rem;
-`;
-
-const LoginCard = styled.div`
-	background: #ffffff;
-	border-radius: 1rem;
-	padding: 3rem;
-	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-	max-width: 450px;
-	width: 100%;
-`;
-
 const LoginTitle = styled.h1`
 	font-size: 2rem;
 	font-weight: 700;
@@ -76,38 +105,6 @@ const LoginSubtitle = styled.p`
 	text-align: center;
 	margin-bottom: 2rem;
 	font-size: 0.875rem;
-`;
-
-const PasswordResetLinks = styled.div`
-	margin-top: 1.5rem;
-	padding-top: 1.5rem;
-	border-top: 1px solid #E5E7EB;
-`;
-
-const PasswordResetLink = styled.button`
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	width: 100%;
-	padding: 0.75rem 1rem;
-	margin-bottom: 0.5rem;
-	background: #F9FAFB;
-	border: 1px solid #E5E7EB;
-	border-radius: 0.5rem;
-	color: #374151;
-	font-size: 0.875rem;
-	cursor: pointer;
-	transition: all 0.2s;
-	
-	&:hover {
-		background: #F3F4F6;
-		border-color: ${HELIOMART_ACCENT_START};
-		color: ${HELIOMART_ACCENT_START};
-	}
-	
-	&:last-child {
-		margin-bottom: 0;
-	}
 `;
 
 const SuccessMessage = styled.div`
@@ -151,12 +148,12 @@ const TabContainer = styled.div`
 const Tab = styled.button<{ $active: boolean }>`
 	background: none;
 	border: none;
-	color: ${props => props.$active ? HELIOMART_ACCENT_START : '#6B7280'};
+	color: ${(props) => (props.$active ? HELIOMART_ACCENT_START : '#6B7280')};
 	padding: 1rem 1.5rem;
 	font-size: 1rem;
-	font-weight: ${props => props.$active ? 600 : 400};
+	font-weight: ${(props) => (props.$active ? 600 : 400)};
 	cursor: pointer;
-	border-bottom: 2px solid ${props => props.$active ? HELIOMART_ACCENT_START : 'transparent'};
+	border-bottom: 2px solid ${(props) => (props.$active ? HELIOMART_ACCENT_START : 'transparent')};
 	transition: all 0.2s;
 	margin-bottom: -2px;
 
@@ -198,29 +195,6 @@ const Input = styled.input`
 	}
 `;
 
-const InputWrapper = styled.div`
-	position: relative;
-`;
-
-const PasswordToggle = styled.button`
-	position: absolute;
-	right: 0.75rem;
-	top: 50%;
-	transform: translateY(-50%);
-	background: none;
-	border: none;
-	color: #6B7280;
-	cursor: pointer;
-	padding: 0.25rem;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-
-	&:hover {
-		color: ${HELIOMART_ACCENT_START};
-	}
-`;
-
 const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | 'success' }>`
 	padding: 0.75rem 1.5rem;
 	border-radius: 0.5rem;
@@ -233,7 +207,7 @@ const Button = styled.button<{ $variant?: 'primary' | 'secondary' | 'danger' | '
 	align-items: center;
 	gap: 0.5rem;
 
-	${props => {
+	${(props) => {
 		if (props.$variant === 'secondary') {
 			return `
 				background: #F3F4F6;
@@ -287,17 +261,17 @@ const Alert = styled.div<{ $type: 'success' | 'error' | 'info' }>`
 	display: flex;
 	align-items: center;
 	gap: 0.75rem;
-	background: ${props => {
+	background: ${(props) => {
 		if (props.$type === 'success') return 'rgba(34, 197, 94, 0.1)';
 		if (props.$type === 'error') return 'rgba(220, 38, 38, 0.1)';
 		return 'rgba(59, 130, 246, 0.1)';
 	}};
-	border: 1px solid ${props => {
+	border: 1px solid ${(props) => {
 		if (props.$type === 'success') return '#22C55E';
 		if (props.$type === 'error') return '#DC2626';
 		return '#3B82F6';
 	}};
-	color: ${props => {
+	color: ${(props) => {
 		if (props.$type === 'success') return '#15803D';
 		if (props.$type === 'error') return '#991B1B';
 		return '#1E40AF';
@@ -412,8 +386,8 @@ const CodeContainer = styled.div<{ $isExpanded: boolean }>`
 	border: 1px solid #E5E7EB;
 	border-radius: 0.5rem;
 	margin: 1rem 0;
-	overflow: ${props => props.$isExpanded ? 'visible' : 'hidden'};
-	max-height: ${props => props.$isExpanded ? '10000px' : '200px'};
+	overflow: ${(props) => (props.$isExpanded ? 'visible' : 'hidden')};
+	max-height: ${(props) => (props.$isExpanded ? '10000px' : '200px')};
 	transition: max-height 0.3s ease, overflow 0.3s ease;
 	position: relative;
 `;
@@ -527,7 +501,38 @@ const CodeButton = styled.button`
 	}
 `;
 
-type TabType = 'overview' | 'recover' | 'force-reset' | 'change' | 'check' | 'unlock' | 'state' | 'admin-set' | 'set' | 'set-value' | 'ldap-gateway';
+type TabType =
+	| 'overview'
+	| 'recover'
+	| 'force-reset'
+	| 'change'
+	| 'check'
+	| 'unlock'
+	| 'state'
+	| 'admin-set'
+	| 'set'
+	| 'set-value'
+	| 'ldap-gateway';
+
+// Helper function to safely get user name display
+const getUserNameDisplay = (user: PingOneUser | null): string => {
+	if (!user) return 'User';
+	if (typeof user.name === 'object' && user.name) {
+		const nameObj = user.name;
+		const parts = [nameObj.given, nameObj.family].filter(Boolean);
+		return parts.length > 0 ? parts.join(' ') : user.username || 'User';
+	}
+	return typeof user.name === 'string' ? user.name : user.username || 'User';
+};
+
+// Helper function to safely get user name initial
+const getUserNameInitial = (user: PingOneUser | null): string => {
+	if (!user) return 'U';
+	if (typeof user.name === 'object' && user.name?.given) {
+		return user.name.given[0]?.toUpperCase() || 'U';
+	}
+	return user.username?.[0]?.toUpperCase() || 'U';
+};
 
 const HelioMartPasswordReset: React.FC = () => {
 	const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -538,16 +543,15 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
 	const [showAuthzConfigModal, setShowAuthzConfigModal] = useState(false);
 	const [showSetupModal, setShowSetupModal] = useState(false);
-	
+
 	// Login state
 	const [loginUsername, setLoginUsername] = useState('');
 	const [loginPassword, setLoginPassword] = useState('');
 	const [showLoginPassword, setShowLoginPassword] = useState(false);
 	const [isLoggingIn, setIsLoggingIn] = useState(false);
-	const [flowId, setFlowId] = useState<string>('');
 	const [userAccessToken, setUserAccessToken] = useState('');
 	const [userId, setUserId] = useState('');
-	const [userInfo, setUserInfo] = useState<any>(null);
+	const [userInfo, setUserInfo] = useState<PingOneUser | null>(null);
 	const [authzCredentials, setAuthzCredentials] = useState({
 		environmentId: '',
 		clientId: '',
@@ -555,7 +559,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		redirectUri: 'https://localhost:3000/callback',
 		scopes: 'openid profile email',
 	});
-	
+
 	// Recover tab state
 	const [recoverEmail, setRecoverEmail] = useState('');
 	const [recoveryCodeSent, setRecoveryCodeSent] = useState(false);
@@ -565,13 +569,13 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [recoverLoading, setRecoverLoading] = useState(false);
 	const [recoverSuccess, setRecoverSuccess] = useState(false);
 	const [recoverUserId, setRecoverUserId] = useState('');
-	
+
 	// Force reset tab state
 	const [forceResetIdentifier, setForceResetIdentifier] = useState('');
-	const [forceResetUser, setForceResetUser] = useState<any>(null);
+	const [forceResetUser, setForceResetUser] = useState<PingOneUser | null>(null);
 	const [forceResetLoading, setForceResetLoading] = useState(false);
 	const [forceResetSuccess, setForceResetSuccess] = useState(false);
-	
+
 	// Change password tab state
 	const [oldPassword, setOldPassword] = useState('');
 	const [changeNewPassword, setChangeNewPassword] = useState('');
@@ -580,51 +584,53 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [showChangeNewPassword, setShowChangeNewPassword] = useState(false);
 	const [changePasswordLoading, setChangePasswordLoading] = useState(false);
 	const [changePasswordSuccess, setChangePasswordSuccess] = useState(false);
-	
+
 	// Check password tab state
 	const [checkPasswordIdentifier, setCheckPasswordIdentifier] = useState('');
-	const [checkPasswordUser, setCheckPasswordUser] = useState<any>(null);
+	const [checkPasswordUser, setCheckPasswordUser] = useState<PingOneUser | null>(null);
 	const [checkPasswordValue, setCheckPasswordValue] = useState('');
 	const [showCheckPassword, setShowCheckPassword] = useState(false);
 	const [checkPasswordLoading, setCheckPasswordLoading] = useState(false);
-	const [checkPasswordResult, setCheckPasswordResult] = useState<{ valid?: boolean; message?: string } | null>(null);
-	
+	const [checkPasswordResult, setCheckPasswordResult] = useState<{
+		valid?: boolean;
+		message?: string;
+	} | null>(null);
+
 	// Unlock password tab state
 	const [unlockIdentifier, setUnlockIdentifier] = useState('');
-	const [unlockUser, setUnlockUser] = useState<any>(null);
+	const [unlockUser, setUnlockUser] = useState<PingOneUser | null>(null);
 	const [unlockLoading, setUnlockLoading] = useState(false);
 	const [unlockSuccess, setUnlockSuccess] = useState(false);
-	
+
 	// Read password state tab state
 	const [stateIdentifier, setStateIdentifier] = useState('');
-	const [stateUser, setStateUser] = useState<any>(null);
-	const [passwordState, setPasswordState] = useState<any>(null);
+	const [stateUser, setStateUser] = useState<PingOneUser | null>(null);
+	const [passwordState, setPasswordState] = useState<PasswordState | null>(null);
 	const [stateLoading, setStateLoading] = useState(false);
-	
+
 	// Admin set password tab state
 	const [adminSetIdentifier, setAdminSetIdentifier] = useState('');
-	const [adminSetUser, setAdminSetUser] = useState<any>(null);
+	const [adminSetUser, setAdminSetUser] = useState<PingOneUser | null>(null);
 	const [adminSetPassword, setAdminSetPassword] = useState('');
 	const [showAdminSetPassword, setShowAdminSetPassword] = useState(false);
 	const [adminSetForceChange, setAdminSetForceChange] = useState(false);
 	const [adminSetBypassPolicy, setAdminSetBypassPolicy] = useState(false);
 	const [adminSetLoading, setAdminSetLoading] = useState(false);
 	const [adminSetSuccess, setAdminSetSuccess] = useState(false);
-	
+
 	// Set password tab state
 	const [setPasswordIdentifier, setSetPasswordIdentifier] = useState('');
-	const [setPasswordUser, setSetPasswordUser] = useState<any>(null);
+	const [setPasswordUser, setSetPasswordUser] = useState<PingOneUser | null>(null);
 	const [setPasswordValue, setSetPasswordValue] = useState('');
 	const [showSetPassword, setShowSetPassword] = useState(false);
 	const [setPasswordForceChange, setSetPasswordForceChange] = useState(false);
 	const [setPasswordBypassPolicy, setSetPasswordBypassPolicy] = useState(false);
 	const [setPasswordLoading, setSetPasswordLoading] = useState(false);
 	const [setPasswordSuccess, setSetPasswordSuccess] = useState(false);
-	
-	
+
 	// LDAP Gateway tab state
 	const [ldapIdentifier, setLdapIdentifier] = useState('');
-	const [ldapUser, setLdapUser] = useState<any>(null);
+	const [ldapUser, setLdapUser] = useState<PingOneUser | null>(null);
 	const [ldapPassword, setLdapPassword] = useState('');
 	const [ldapGatewayId, setLdapGatewayId] = useState('');
 	const [showLdapPassword, setShowLdapPassword] = useState(false);
@@ -632,7 +638,7 @@ const HelioMartPasswordReset: React.FC = () => {
 	const [ldapBypassPolicy, setLdapBypassPolicy] = useState(false);
 	const [ldapLoading, setLdapLoading] = useState(false);
 	const [ldapSuccess, setLdapSuccess] = useState(false);
-	
+
 	// Code generator state
 	const [generatedCode, setGeneratedCode] = useState('');
 	const [showCodeGenerator, setShowCodeGenerator] = useState(false);
@@ -650,26 +656,26 @@ const HelioMartPasswordReset: React.FC = () => {
 	// Load environment ID, worker token, and authz credentials
 	useEffect(() => {
 		const loadConfig = () => {
+			const FLOW_TYPE = 'heliomart-password-reset';
+
 			// Load environment ID from shared environment or use default
 			const sharedEnv = comprehensiveFlowDataService.loadSharedEnvironment();
 			const envId = sharedEnv?.environmentId || 'b9817c16-9910-4415-b67e-4ac687da74d9';
 			setEnvironmentId(envId);
 
-			const FLOW_TYPE = 'heliomart-password-reset';
-			const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
-			const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-			
-			const tokenResult = getValidWorkerToken(tokenStorageKey, tokenExpiryKey, {
-				clearExpired: true,
-				showToast: false,
-			});
-			
-			if (tokenResult.isValid && tokenResult.token) {
-				setWorkerToken(tokenResult.token);
+			// Use global worker token
+			const globalToken = getAnyWorkerToken();
+			if (globalToken) {
+				setWorkerToken(globalToken);
 			} else {
 				// Check for saved credentials
 				const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-				if (!savedCreds || !savedCreds.environmentId || !savedCreds.clientId || !savedCreds.clientSecret) {
+				if (
+					!savedCreds ||
+					!savedCreds.environmentId ||
+					!savedCreds.clientId ||
+					!savedCreds.clientSecret
+				) {
 					// Pre-fill with provided credentials if available
 					if (!savedCreds) {
 						setShowWorkerTokenModal(true);
@@ -679,23 +685,52 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			// Load authorization code credentials
 			const savedAuthz = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_TYPE);
-			if (savedAuthz && savedAuthz.environmentId && savedAuthz.clientId && savedAuthz.clientSecret) {
+			if (savedAuthz?.environmentId && savedAuthz.clientId && savedAuthz.clientSecret) {
 				setAuthzCredentials({
 					environmentId: savedAuthz.environmentId || '',
 					clientId: savedAuthz.clientId || '',
 					clientSecret: savedAuthz.clientSecret || '',
 					redirectUri: savedAuthz.redirectUri || 'https://localhost:3000/callback',
-					scopes: Array.isArray(savedAuthz.scopes) ? savedAuthz.scopes.join(' ') : (savedAuthz.scopes || 'openid profile email'),
+					scopes: Array.isArray(savedAuthz.scopes)
+						? savedAuthz.scopes.join(' ')
+						: savedAuthz.scopes || 'openid profile email',
 				});
 			} else {
 				// No authorization code credentials found - show setup modal
-				console.log('⚠️ [HelioMartPasswordReset] No authorization code credentials found, showing setup modal...');
+				console.log(
+					'⚠️ [HelioMartPasswordReset] No authorization code credentials found, showing setup modal...'
+				);
 				setTimeout(() => setShowSetupModal(true), 200);
 			}
 		};
 
 		loadConfig();
-	}, []);
+
+		// Listen for global worker token changes
+		const handleStorageChange = (e: StorageEvent) => {
+			if (e.key?.startsWith('worker_token') || e.key?.startsWith('pingone_worker_token')) {
+				const newToken = getAnyWorkerToken();
+				if (newToken) {
+					setWorkerToken(newToken);
+				}
+			}
+		};
+
+		window.addEventListener('storage', handleStorageChange);
+
+		// Also poll for same-tab updates (since storage event only fires cross-tab)
+		const interval = setInterval(() => {
+			const currentToken = getAnyWorkerToken();
+			if (currentToken && currentToken !== workerToken) {
+				setWorkerToken(currentToken);
+			}
+		}, 1000);
+
+		return () => {
+			window.removeEventListener('storage', handleStorageChange);
+			clearInterval(interval);
+		};
+	}, [workerToken]);
 
 	// Handle login with PingOne
 	const handleLogin = useCallback(async () => {
@@ -704,7 +739,11 @@ const HelioMartPasswordReset: React.FC = () => {
 			return;
 		}
 
-		if (!authzCredentials.environmentId || !authzCredentials.clientId || !authzCredentials.clientSecret) {
+		if (
+			!authzCredentials.environmentId ||
+			!authzCredentials.clientId ||
+			!authzCredentials.clientSecret
+		) {
 			v4ToastManager.showError('Please configure application credentials first');
 			setShowAuthzConfigModal(true);
 			return;
@@ -712,7 +751,28 @@ const HelioMartPasswordReset: React.FC = () => {
 
 		setIsLoggingIn(true);
 		try {
+			// Generate PKCE codes for redirectless authorization code flow
+			const { generateCodeVerifier, generateCodeChallenge } = await import('../../utils/oauth');
+			const verifier = generateCodeVerifier();
+			const challenge = await generateCodeChallenge(verifier);
+
+			if (!challenge || typeof challenge !== 'string' || challenge.length === 0) {
+				throw new Error('Failed to generate PKCE code challenge');
+			}
+			if (!verifier || typeof verifier !== 'string' || verifier.length === 0) {
+				throw new Error('Failed to generate PKCE code verifier');
+			}
+
+			console.log('[PasswordReset] PKCE codes generated:', {
+				hasVerifier: !!verifier,
+				hasChallenge: !!challenge,
+				verifierLength: verifier?.length,
+				challengeLength: challenge?.length,
+			});
+
 			// Step 1: Initiate authorization flow
+			const actualPingOneAuthUrl = `https://auth.pingone.com/${encodeURIComponent(authzCredentials.environmentId)}/as/authorize`;
+
 			const authResponse = await trackedFetch(`/api/pingone/redirectless/authorize`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -722,9 +782,11 @@ const HelioMartPasswordReset: React.FC = () => {
 					clientSecret: authzCredentials.clientSecret,
 					redirectUri: authzCredentials.redirectUri,
 					scopes: authzCredentials.scopes,
-					responseType: 'code',
-					responseMode: 'pi.flow',
+					codeChallenge: challenge,
+					codeChallengeMethod: 'S256',
+					state: `password-reset-${Date.now()}`,
 				}),
+				actualPingOneUrl: actualPingOneAuthUrl,
 			});
 
 			const authData = await authResponse.json();
@@ -733,17 +795,19 @@ const HelioMartPasswordReset: React.FC = () => {
 			}
 
 			const currentFlowId = authData.flowId;
-			setFlowId(currentFlowId);
 
 			// Step 2: Submit login credentials
+			const actualPingOneFlowUrl = `https://auth.pingone.com/${encodeURIComponent(authzCredentials.environmentId)}/flows/${encodeURIComponent(currentFlowId)}`;
+
 			const loginResponse = await trackedFetch(`/api/pingone/flows/check-username-password`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					flowUrl: `https://auth.pingone.com/${authzCredentials.environmentId}/flows/${currentFlowId}`,
+					flowUrl: actualPingOneFlowUrl,
 					username: loginUsername,
 					password: loginPassword,
 				}),
+				actualPingOneUrl: actualPingOneFlowUrl,
 			});
 
 			const loginData = await loginResponse.json();
@@ -763,17 +827,28 @@ const HelioMartPasswordReset: React.FC = () => {
 			const maxAttempts = 30;
 
 			while (!completed && attempts < maxAttempts) {
-				await new Promise(resolve => setTimeout(resolve, 1000));
-				
+				await new Promise((resolve) => setTimeout(resolve, 1000));
+
+				// Extract environment ID from resumeUrl for actualPingOneUrl
+				const resumeUrlMatch = resumeUrl.match(/\/environments\/([^/]+)\//);
+				const envIdFromResume = resumeUrlMatch ? resumeUrlMatch[1] : authzCredentials.environmentId;
+				const actualPingOneResumeUrl = resumeUrl.startsWith('https://')
+					? resumeUrl
+					: `https://auth.pingone.com/${envIdFromResume}/as/resume`;
+
 				const pollResponse = await trackedFetch(`/api/pingone/redirectless/poll`, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ resumeUrl }),
+					actualPingOneUrl: actualPingOneResumeUrl,
 				});
 
 				const pollData = await pollResponse.json();
 				if (pollData.code) {
-					// Exchange code for tokens
+					// Exchange code for tokens (with PKCE code verifier)
+					// Use the verifier from the closure (generated at the start of this function)
+					const actualPingOneTokenUrl = `https://auth.pingone.com/${encodeURIComponent(authzCredentials.environmentId)}/as/token`;
+
 					const tokenResponse = await trackedFetch('/api/token-exchange', {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
@@ -784,13 +859,15 @@ const HelioMartPasswordReset: React.FC = () => {
 							client_secret: authzCredentials.clientSecret,
 							code: pollData.code,
 							redirect_uri: authzCredentials.redirectUri,
+							code_verifier: verifier, // Required for PKCE - use local variable from closure
 						}),
+						actualPingOneUrl: actualPingOneTokenUrl,
 					});
 
 					const tokenData = await tokenResponse.json();
 					if (tokenResponse.ok && tokenData.access_token) {
 						setUserAccessToken(tokenData.access_token);
-						
+
 						// Get user info
 						if (tokenData.id_token) {
 							try {
@@ -806,9 +883,9 @@ const HelioMartPasswordReset: React.FC = () => {
 							}
 						}
 
-					v4ToastManager.showSuccess('Login successful!');
-					setShowLoginModal(false);
-					setActiveTab('change'); // Show change password tab by default after login
+						v4ToastManager.showSuccess('Login successful!');
+						setShowLoginModal(false);
+						setActiveTab('change'); // Show change password tab by default after login
 						completed = true;
 					} else {
 						throw new Error(tokenData.error_description || 'Failed to exchange code for tokens');
@@ -823,7 +900,6 @@ const HelioMartPasswordReset: React.FC = () => {
 			if (!completed) {
 				throw new Error('Login timeout - please try again');
 			}
-
 		} catch (error) {
 			console.error('[PasswordReset] Login failed:', error);
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Login failed');
@@ -832,10 +908,48 @@ const HelioMartPasswordReset: React.FC = () => {
 		}
 	}, [loginUsername, loginPassword, authzCredentials]);
 
+	// Helper to get effective environment ID from shared environment or state
+	const getEffectiveEnvironmentId = useCallback(() => {
+		const sharedEnv = comprehensiveFlowDataService.loadSharedEnvironment();
+		const effectiveEnvId = sharedEnv?.environmentId || environmentId;
+
+		// Log for debugging if environment ID is missing
+		if (!effectiveEnvId || effectiveEnvId.trim() === '') {
+			console.warn('[HelioMartPasswordReset] ⚠️ No environment ID found:', {
+				sharedEnvId: sharedEnv?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvId || '(empty)',
+			});
+		}
+
+		return effectiveEnvId;
+	}, [environmentId]);
+
 	// Lookup user by email and send recovery code
 	const handleSendRecoveryCode = useCallback(async () => {
-		if (!recoverEmail || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please enter your email address and configure worker token');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!recoverEmail) {
+			v4ToastManager.showError('Please enter your email address');
+			return;
+		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
 
@@ -849,8 +963,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedEmail,
 			});
 
@@ -877,11 +991,13 @@ const HelioMartPasswordReset: React.FC = () => {
 				v4ToastManager.showError(sendResult.errorDescription || 'Failed to send recovery code');
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to send recovery code');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to send recovery code'
+			);
 		} finally {
 			setRecoverLoading(false);
 		}
-	}, [recoverEmail, workerToken, environmentId]);
+	}, [recoverEmail, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Recover password
 	const handleRecoverPassword = useCallback(async () => {
@@ -902,7 +1018,9 @@ const HelioMartPasswordReset: React.FC = () => {
 
 			if (result.success) {
 				setRecoverSuccess(true);
-				v4ToastManager.showSuccess('Password recovered successfully! You can now sign in with your new password.');
+				v4ToastManager.showSuccess(
+					'Password recovered successfully! You can now sign in with your new password.'
+				);
 				// Reset form
 				setRecoveryCode('');
 				setNewPassword('');
@@ -921,8 +1039,29 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user for force reset
 	const handleForceResetLookup = useCallback(async () => {
-		if (!forceResetIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!forceResetIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
+			return;
+		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
 			return;
 		}
 
@@ -933,8 +1072,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 
@@ -945,22 +1084,18 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [forceResetIdentifier, workerToken, environmentId]);
+	}, [forceResetIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Force password reset
 	const handleForcePasswordReset = useCallback(async () => {
-		if (!forceResetUser || !workerToken || !environmentId) {
+		if (!forceResetUser || !forceResetUser.id || !workerToken || !environmentId) {
 			v4ToastManager.showError('User not found or credentials missing');
 			return;
 		}
 
 		setForceResetLoading(true);
 		try {
-			const result = await forcePasswordChange(
-				environmentId,
-				forceResetUser.id,
-				workerToken
-			);
+			const result = await forcePasswordChange(environmentId, forceResetUser.id, workerToken);
 
 			if (result.success) {
 				setForceResetSuccess(true);
@@ -969,7 +1104,9 @@ const HelioMartPasswordReset: React.FC = () => {
 				v4ToastManager.showError(result.errorDescription || 'Force password reset failed');
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Force password reset failed');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Force password reset failed'
+			);
 		} finally {
 			setForceResetLoading(false);
 		}
@@ -977,7 +1114,14 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Change password (using authenticated user)
 	const handleChangePassword = useCallback(async () => {
-		if (!userId || !oldPassword || !changeNewPassword || !confirmPassword || !userAccessToken || !environmentId) {
+		if (
+			!userId ||
+			!oldPassword ||
+			!changeNewPassword ||
+			!confirmPassword ||
+			!userAccessToken ||
+			!environmentId
+		) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
@@ -1016,10 +1160,32 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user for check password
 	const handleCheckPasswordLookup = useCallback(async () => {
-		if (!checkPasswordIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!checkPasswordIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
 			return;
 		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			return;
+		}
+
 		try {
 			const trimmedIdentifier = checkPasswordIdentifier.trim();
 			if (!trimmedIdentifier) {
@@ -1027,8 +1193,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 			if (result.user) {
@@ -1038,7 +1204,7 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [checkPasswordIdentifier, workerToken, environmentId]);
+	}, [checkPasswordIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Check password
 	const handleCheckPassword = useCallback(async () => {
@@ -1046,14 +1212,27 @@ const HelioMartPasswordReset: React.FC = () => {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
+		if (!checkPasswordUser?.id) {
+			v4ToastManager.showError('User ID is required');
+			return;
+		}
+
 		setCheckPasswordLoading(true);
 		try {
-			const result = await checkPassword(environmentId, checkPasswordUser.id, workerToken, checkPasswordValue);
+			const result = await checkPassword(
+				environmentId,
+				checkPasswordUser.id,
+				workerToken,
+				checkPasswordValue
+			);
 			if (result.success) {
 				setCheckPasswordResult({ valid: true, message: result.message || 'Password is valid' });
 				v4ToastManager.showSuccess('Password check successful');
 			} else {
-				setCheckPasswordResult({ valid: false, message: result.errorDescription || 'Password check failed' });
+				setCheckPasswordResult({
+					valid: false,
+					message: result.errorDescription || 'Password check failed',
+				});
 				v4ToastManager.showError(result.errorDescription || 'Password check failed');
 			}
 		} catch (error) {
@@ -1065,10 +1244,32 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user for unlock
 	const handleUnlockLookup = useCallback(async () => {
-		if (!unlockIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!unlockIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
 			return;
 		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			return;
+		}
+
 		try {
 			const trimmedIdentifier = unlockIdentifier.trim();
 			if (!trimmedIdentifier) {
@@ -1076,8 +1277,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 			if (result.user) {
@@ -1087,11 +1288,11 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [unlockIdentifier, workerToken, environmentId]);
+	}, [unlockIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Unlock password
 	const handleUnlockPassword = useCallback(async () => {
-		if (!unlockUser || !workerToken || !environmentId) {
+		if (!unlockUser || !unlockUser.id || !workerToken || !environmentId) {
 			v4ToastManager.showError('User not found or credentials missing');
 			return;
 		}
@@ -1113,10 +1314,32 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user for read state
 	const handleStateLookup = useCallback(async () => {
-		if (!stateIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!stateIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
 			return;
 		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			return;
+		}
+
 		try {
 			const trimmedIdentifier = stateIdentifier.trim();
 			if (!trimmedIdentifier) {
@@ -1124,8 +1347,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 			if (result.user) {
@@ -1135,25 +1358,27 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [stateIdentifier, workerToken, environmentId]);
+	}, [stateIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Read password state
 	const handleReadPasswordState = useCallback(async () => {
-		if (!stateUser || !workerToken || !environmentId) {
+		if (!stateUser || !stateUser.id || !workerToken || !environmentId) {
 			v4ToastManager.showError('User not found or credentials missing');
 			return;
 		}
 		setStateLoading(true);
 		try {
 			const result = await readPasswordState(environmentId, stateUser.id, workerToken);
-			if (result.success) {
-				setPasswordState(result.passwordState);
+			if (result.success && result.passwordState) {
+				setPasswordState(result.passwordState as PasswordState);
 				v4ToastManager.showSuccess('Password state read successfully');
 			} else {
 				v4ToastManager.showError(result.errorDescription || 'Failed to read password state');
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to read password state');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to read password state'
+			);
 		} finally {
 			setStateLoading(false);
 		}
@@ -1161,10 +1386,32 @@ const HelioMartPasswordReset: React.FC = () => {
 
 	// Lookup user for admin set
 	const handleAdminSetLookup = useCallback(async () => {
-		if (!adminSetIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!adminSetIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
 			return;
 		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			return;
+		}
+
 		try {
 			const trimmedIdentifier = adminSetIdentifier.trim();
 			if (!trimmedIdentifier) {
@@ -1172,8 +1419,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 			if (result.user) {
@@ -1183,20 +1430,26 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [adminSetIdentifier, workerToken, environmentId]);
+	}, [adminSetIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Admin set password
 	const handleAdminSetPassword = useCallback(async () => {
-		if (!adminSetUser || !adminSetPassword || !workerToken || !environmentId) {
+		if (!adminSetUser || !adminSetUser.id || !adminSetPassword || !workerToken || !environmentId) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
 		setAdminSetLoading(true);
 		try {
-			const result = await setPasswordAdmin(environmentId, adminSetUser.id, workerToken, adminSetPassword, { forceChange: adminSetForceChange, bypassPasswordPolicy: adminSetBypassPolicy });
+			const result = await setPasswordAdmin(
+				environmentId,
+				adminSetUser.id,
+				workerToken,
+				adminSetPassword,
+				{ forceChange: adminSetForceChange, bypassPasswordPolicy: adminSetBypassPolicy }
+			);
 			if (result.success) {
 				setAdminSetSuccess(true);
-				const message = adminSetForceChange 
+				const message = adminSetForceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully!';
 				v4ToastManager.showSuccess(message);
@@ -1209,14 +1462,43 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setAdminSetLoading(false);
 		}
-	}, [adminSetUser, adminSetPassword, adminSetForceChange, adminSetBypassPolicy, workerToken, environmentId]);
+	}, [
+		adminSetUser,
+		adminSetPassword,
+		adminSetForceChange,
+		adminSetBypassPolicy,
+		workerToken,
+		environmentId,
+	]);
 
 	// Lookup user for set password
 	const handleSetPasswordLookup = useCallback(async () => {
-		if (!setPasswordIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!setPasswordIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
 			return;
 		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			return;
+		}
+
 		try {
 			const trimmedIdentifier = setPasswordIdentifier.trim();
 			if (!trimmedIdentifier) {
@@ -1224,8 +1506,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 			if (result.user) {
@@ -1235,20 +1517,32 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [setPasswordIdentifier, workerToken, environmentId]);
+	}, [setPasswordIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Set password
 	const handleSetPassword = useCallback(async () => {
-		if (!setPasswordUser || !setPasswordValue || !workerToken || !environmentId) {
+		if (
+			!setPasswordUser ||
+			!setPasswordUser.id ||
+			!setPasswordValue ||
+			!workerToken ||
+			!environmentId
+		) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
 		setSetPasswordLoading(true);
 		try {
-			const result = await setPassword(environmentId, setPasswordUser.id, workerToken, setPasswordValue, { forceChange: setPasswordForceChange, bypassPasswordPolicy: setPasswordBypassPolicy });
+			const result = await setPassword(
+				environmentId,
+				setPasswordUser.id,
+				workerToken,
+				setPasswordValue,
+				{ forceChange: setPasswordForceChange, bypassPasswordPolicy: setPasswordBypassPolicy }
+			);
 			if (result.success) {
 				setSetPasswordSuccess(true);
-				const message = setPasswordForceChange 
+				const message = setPasswordForceChange
 					? 'Password set successfully! User will be required to change password on next sign-on.'
 					: 'Password set successfully!';
 				v4ToastManager.showSuccess(message);
@@ -1261,14 +1555,43 @@ const HelioMartPasswordReset: React.FC = () => {
 		} finally {
 			setSetPasswordLoading(false);
 		}
-	}, [setPasswordUser, setPasswordValue, setPasswordForceChange, setPasswordBypassPolicy, workerToken, environmentId]);
+	}, [
+		setPasswordUser,
+		setPasswordValue,
+		setPasswordForceChange,
+		setPasswordBypassPolicy,
+		workerToken,
+		environmentId,
+	]);
 
 	// Lookup user for LDAP Gateway
 	const handleLdapLookup = useCallback(async () => {
-		if (!ldapIdentifier || !workerToken || !environmentId) {
-			v4ToastManager.showError('Please configure worker token and environment ID first');
+		const effectiveWorkerToken = getAnyWorkerToken() || workerToken;
+		const effectiveEnvironmentId = getEffectiveEnvironmentId();
+
+		if (!ldapIdentifier) {
+			v4ToastManager.showError('Please enter a username or email address');
 			return;
 		}
+		if (!effectiveWorkerToken || effectiveWorkerToken.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing worker token:', {
+				globalToken: getAnyWorkerToken() ? 'present' : 'missing',
+				localToken: workerToken ? 'present' : 'missing',
+			});
+			v4ToastManager.showError('Worker token is required. Please generate a worker token first.');
+			return;
+		}
+		if (!effectiveEnvironmentId || effectiveEnvironmentId.trim() === '') {
+			console.error('[HelioMartPasswordReset] ❌ Missing environment ID:', {
+				sharedEnvId:
+					comprehensiveFlowDataService.loadSharedEnvironment()?.environmentId || '(empty)',
+				stateEnvId: environmentId || '(empty)',
+				effectiveEnvId: effectiveEnvironmentId || '(empty)',
+			});
+			v4ToastManager.showError('Environment ID is required. Please configure it first.');
+			return;
+		}
+
 		try {
 			const trimmedIdentifier = ldapIdentifier.trim();
 			if (!trimmedIdentifier) {
@@ -1276,8 +1599,8 @@ const HelioMartPasswordReset: React.FC = () => {
 				return;
 			}
 			const result = await lookupPingOneUser({
-				environmentId,
-				accessToken: workerToken,
+				environmentId: effectiveEnvironmentId,
+				accessToken: effectiveWorkerToken,
 				identifier: trimmedIdentifier,
 			});
 			if (result.user) {
@@ -1287,20 +1610,27 @@ const HelioMartPasswordReset: React.FC = () => {
 		} catch (error) {
 			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to lookup user');
 		}
-	}, [ldapIdentifier, workerToken, environmentId]);
+	}, [ldapIdentifier, workerToken, environmentId, getEffectiveEnvironmentId]);
 
 	// Set password via LDAP Gateway
 	const handleSetPasswordLdap = useCallback(async () => {
-		if (!ldapUser || !ldapPassword || !workerToken || !environmentId) {
+		if (!ldapUser || !ldapUser.id || !ldapPassword || !workerToken || !environmentId) {
 			v4ToastManager.showError('Please fill in all required fields');
 			return;
 		}
 		setLdapLoading(true);
 		try {
-			const result = await setPasswordLdapGateway(environmentId, ldapUser.id, workerToken, ldapPassword, ldapGatewayId || undefined, { forceChange: ldapForceChange, bypassPasswordPolicy: ldapBypassPolicy });
+			const result = await setPasswordLdapGateway(
+				environmentId,
+				ldapUser.id,
+				workerToken,
+				ldapPassword,
+				ldapGatewayId || undefined,
+				{ forceChange: ldapForceChange, bypassPasswordPolicy: ldapBypassPolicy }
+			);
 			if (result.success) {
 				setLdapSuccess(true);
-				const message = ldapForceChange 
+				const message = ldapForceChange
 					? 'Password set successfully via LDAP Gateway! User will be required to change password on next sign-on.'
 					: 'Password set successfully via LDAP Gateway!';
 				v4ToastManager.showSuccess(message);
@@ -1309,11 +1639,21 @@ const HelioMartPasswordReset: React.FC = () => {
 				v4ToastManager.showError(result.errorDescription || 'LDAP Gateway password set failed');
 			}
 		} catch (error) {
-			v4ToastManager.showError(error instanceof Error ? error.message : 'LDAP Gateway password set failed');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'LDAP Gateway password set failed'
+			);
 		} finally {
 			setLdapLoading(false);
 		}
-	}, [ldapUser, ldapPassword, ldapGatewayId, ldapForceChange, ldapBypassPolicy, workerToken, environmentId]);
+	}, [
+		ldapUser,
+		ldapPassword,
+		ldapGatewayId,
+		ldapForceChange,
+		ldapBypassPolicy,
+		workerToken,
+		environmentId,
+	]);
 
 	// Generate JavaScript code for password recovery
 	const generateRecoverPasswordCode = useCallback(() => {
@@ -1409,7 +1749,7 @@ async function handlePasswordRecovery(userId, recoveryCode, newPassword) {
 // Export for use in your application
 export { sendRecoveryCode, recoverPassword, handlePasswordRecovery };`;
 		return code;
-	}, [environmentId]);
+	}, []);
 
 	// Generate JavaScript code for force password change
 	const generateForcePasswordChangeCode = useCallback(() => {
@@ -1475,7 +1815,7 @@ async function handleForcePasswordChange(userId) {
 // Export for use in your application
 export { forcePasswordChange, handleForcePasswordChange };`;
 		return code;
-	}, [environmentId]);
+	}, []);
 
 	// Generate JavaScript code for change password
 	const generateChangePasswordCode = useCallback(() => {
@@ -1551,7 +1891,7 @@ async function handleChangePassword(userId, accessToken, oldPassword, newPasswor
 // Export for use in your application
 export { changePassword, handleChangePassword };`;
 		return code;
-	}, [environmentId]);
+	}, []);
 
 	// Copy code to clipboard
 	const handleCopyCode = useCallback(async (code: string) => {
@@ -1585,7 +1925,12 @@ export { changePassword, handleChangePassword };`;
 		setGeneratedCode(code);
 		setShowCodeGenerator(true);
 		setIsCodeExpanded(true);
-	}, [activeTab, generateRecoverPasswordCode, generateForcePasswordChangeCode, generateChangePasswordCode]);
+	}, [
+		activeTab,
+		generateRecoverPasswordCode,
+		generateForcePasswordChangeCode,
+		generateChangePasswordCode,
+	]);
 
 	// Highlight code with Prism.js when code changes
 	useEffect(() => {
@@ -1595,7 +1940,7 @@ export { changePassword, handleChangePassword };`;
 				Prism.highlightAll();
 			}, 0);
 		}
-	}, [generatedCode, showCodeGenerator, isCodeExpanded]);
+	}, [generatedCode, showCodeGenerator]);
 
 	// Highlight JSON when password state changes
 	useEffect(() => {
@@ -1624,11 +1969,23 @@ export { changePassword, handleChangePassword };`;
 					</PageHeader>
 				)}
 
+				{(() => {
+					const currentToken = getAnyWorkerToken() || workerToken;
+					return currentToken ? (
+						<WorkerTokenDetectedBanner
+							token={currentToken}
+							tokenExpiryKey="worker_token_expires_at"
+						/>
+					) : null;
+				})()}
+
 				{userInfo && (
 					<Card style={{ marginBottom: '2rem', background: '#6B7280', color: 'white' }}>
 						<div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 							<div>
-								<h2 style={{ margin: 0, color: 'white' }}>Welcome, {userInfo.name || userInfo.username}!</h2>
+								<h2 style={{ margin: 0, color: 'white' }}>
+									Welcome, {getUserNameDisplay(userInfo)}!
+								</h2>
 								<p style={{ margin: '0.5rem 0 0 0', opacity: 0.9 }}>{userInfo.email}</p>
 							</div>
 							<Button
@@ -1647,27 +2004,35 @@ export { changePassword, handleChangePassword };`;
 						</div>
 					</Card>
 				)}
-				
+
 				<StatusBar>
 					<StatusItem>
 						<FiKey />
-						<span>Environment: {environmentId ? `${environmentId.substring(0, 8)}...` : 'Not configured'}</span>
+						<span>
+							Environment:{' '}
+							{environmentId ? `${environmentId.substring(0, 8)}...` : 'Not configured'}
+						</span>
 					</StatusItem>
 					<StatusItem>
-						{workerToken ? (
-							<>
-								<FiCheckCircle style={{ color: '#22C55E' }} />
-								<span>Worker Token: Valid</span>
-							</>
-						) : (
-							<>
-								<FiAlertCircle style={{ color: '#F59E0B' }} />
-								<span>Worker Token: Not configured</span>
-							</>
-						)}
+						{(() => {
+							const currentToken = getAnyWorkerToken() || workerToken;
+							return currentToken ? (
+								<>
+									<FiCheckCircle style={{ color: '#22C55E' }} />
+									<span>Worker Token: Valid</span>
+								</>
+							) : (
+								<>
+									<FiAlertCircle style={{ color: '#F59E0B' }} />
+									<span>Worker Token: Not configured</span>
+								</>
+							);
+						})()}
 					</StatusItem>
 					<StatusItem>
-						{authzCredentials.environmentId && authzCredentials.clientId && authzCredentials.clientSecret ? (
+						{authzCredentials.environmentId &&
+						authzCredentials.clientId &&
+						authzCredentials.clientSecret ? (
 							<>
 								<FiCheckCircle style={{ color: '#22C55E' }} />
 								<span>Auth Code Client: Configured</span>
@@ -1680,15 +2045,21 @@ export { changePassword, handleChangePassword };`;
 						)}
 					</StatusItem>
 					<div style={{ display: 'flex', gap: '0.5rem' }}>
-						<Button 
-							$variant={workerToken ? "success" : "danger"} 
+						<Button
+							$variant={workerToken ? 'success' : 'danger'}
 							onClick={() => setShowWorkerTokenModal(true)}
 						>
-						<FiKey />
+							<FiKey />
 							Configure Worker Token
-					</Button>
-						<Button 
-							$variant={authzCredentials.environmentId && authzCredentials.clientId && authzCredentials.clientSecret ? "success" : "danger"} 
+						</Button>
+						<Button
+							$variant={
+								authzCredentials.environmentId &&
+								authzCredentials.clientId &&
+								authzCredentials.clientSecret
+									? 'success'
+									: 'danger'
+							}
 							onClick={() => setShowAuthzConfigModal(true)}
 						>
 							<FiKey />
@@ -1735,10 +2106,13 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'overview' && (
 					<Card>
-						<h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: '#1F2937' }}>Password Operations Overview</h2>
+						<h2 style={{ marginBottom: '1rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Password Operations Overview
+						</h2>
 						<p style={{ color: '#6B7280', marginBottom: '2rem', lineHeight: '1.6' }}>
-							This page demonstrates all PingOne password operations. Each operation uses different <strong>Content-Type headers</strong> to specify the action. 
-							Choose an operation from the tabs above to see details and try it out.
+							This page demonstrates all PingOne password operations. Each operation uses different{' '}
+							<strong>Content-Type headers</strong> to specify the action. Choose an operation from
+							the tabs above to see details and try it out.
 						</p>
 
 						<Alert $type="info" style={{ marginBottom: '2rem' }}>
@@ -1746,27 +2120,42 @@ export { changePassword, handleChangePassword };`;
 							<div>
 								<strong>Important: Content-Type Headers</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									Each password operation requires a specific <code>Content-Type</code> header (e.g., <code>application/vnd.pingidentity.password.recover+json</code>). 
-									The Content-Type determines which operation PingOne performs. Always check the API documentation for the correct header.
+									Each password operation requires a specific <code>Content-Type</code> header
+									(e.g., <code>application/vnd.pingidentity.password.recover+json</code>). The
+									Content-Type determines which operation PingOne performs. Always check the API
+									documentation for the correct header.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<div style={{ display: 'grid', gap: '1.5rem' }}>
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>🔐 Recover Password</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									🔐 Recover Password
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Recovery code (sent via email/SMS) + New password
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
-									<strong>Content-Type:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.recover+json</code>
+									<strong>Content-Type:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.recover+json
+									</code>
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									For users who have forgotten their password. They request a recovery code via email/SMS, then use the code to reset their password.
+									For users who have forgotten their password. They request a recovery code via
+									email/SMS, then use the code to reset their password.
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1774,24 +2163,45 @@ export { changePassword, handleChangePassword };`;
 									<FiExternalLink size={14} />
 								</DocumentationLink>
 							</div>
-							
+
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>🔒 Force Password Change</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									🔒 Force Password Change
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token (admin operation)
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
-									<strong>Content-Type:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.forceChange+json</code>
+									<strong>Content-Type:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.forceChange+json
+									</code>
 								</p>
-								<p style={{ color: '#DC2626', lineHeight: '1.6', fontWeight: 600, marginBottom: '0.5rem' }}>
-									⚠️ <strong>Puts user in password change state</strong> - User must change password on next sign-on
+								<p
+									style={{
+										color: '#DC2626',
+										lineHeight: '1.6',
+										fontWeight: 600,
+										marginBottom: '0.5rem',
+									}}
+								>
+									⚠️ <strong>Puts user in password change state</strong> - User must change password
+									on next sign-on
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									For help desk or admin operations. Forces a user to change their password on their next sign-on.
+									For help desk or admin operations. Forces a user to change their password on their
+									next sign-on.
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1799,21 +2209,34 @@ export { changePassword, handleChangePassword };`;
 									<FiExternalLink size={14} />
 								</DocumentationLink>
 							</div>
-							
+
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>✏️ Change Password</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									✏️ Change Password
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> User access token + Old password + New password
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
-									<strong>Content-Type:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.change+json</code>
+									<strong>Content-Type:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.change+json
+									</code>
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									For authenticated users who know their current password and want to change it. Requires user's access token (not worker token).
+									For authenticated users who know their current password and want to change it.
+									Requires user's access token (not worker token).
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1823,22 +2246,43 @@ export { changePassword, handleChangePassword };`;
 							</div>
 
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>✅ Update Password (Set Value)</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									✅ Update Password (Set Value)
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token + New password
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
-									<strong>Content-Type:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.setValue+json</code>
+									<strong>Content-Type:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.setValue+json
+									</code>
 								</p>
-								<p style={{ color: '#22C55E', lineHeight: '1.6', fontWeight: 600, marginBottom: '0.5rem' }}>
-									✅ <strong>Recommended for admin password resets</strong> - Sets password without recovery code and does NOT force password change state
+								<p
+									style={{
+										color: '#22C55E',
+										lineHeight: '1.6',
+										fontWeight: 600,
+										marginBottom: '0.5rem',
+									}}
+								>
+									✅ <strong>Recommended for admin password resets</strong> - Sets password without
+									recovery code and does NOT force password change state
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									Admin operation to set a user's password directly. Does not require recovery code and does not put the user in a forced password change state.
+									Admin operation to set a user's password directly. Does not require recovery code
+									and does not put the user in a forced password change state.
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1848,19 +2292,32 @@ export { changePassword, handleChangePassword };`;
 							</div>
 
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>🔍 Check Password</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									🔍 Check Password
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token + Password to verify
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
-									<strong>Content-Type:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.check+json</code>
+									<strong>Content-Type:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.check+json
+									</code>
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									Verify if a provided password matches the user's current password. Useful for validation before allowing password changes.
+									Verify if a provided password matches the user's current password. Useful for
+									validation before allowing password changes.
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1870,19 +2327,32 @@ export { changePassword, handleChangePassword };`;
 							</div>
 
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>🔓 Unlock Password</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									🔓 Unlock Password
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
-									<strong>Content-Type:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/json</code>
+									<strong>Content-Type:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/json
+									</code>
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									Unlock a user's account that has been locked due to failed login attempts. Admin operation.
+									Unlock a user's account that has been locked due to failed login attempts. Admin
+									operation.
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1892,7 +2362,9 @@ export { changePassword, handleChangePassword };`;
 							</div>
 
 							<div>
-								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>📊 Read Password State</h3>
+								<h3 style={{ marginBottom: '0.5rem', color: HELIOMART_ACCENT_START }}>
+									📊 Read Password State
+								</h3>
 								<p style={{ color: '#6B7280', lineHeight: '1.6', marginBottom: '0.5rem' }}>
 									<strong>Requires:</strong> Worker token
 								</p>
@@ -1900,11 +2372,12 @@ export { changePassword, handleChangePassword };`;
 									<strong>Method:</strong> GET (no special Content-Type)
 								</p>
 								<p style={{ color: '#6B7280', lineHeight: '1.6' }}>
-									Retrieve the current password state information for a user, including lock status, expiration, and change requirements.
+									Retrieve the current password state information for a user, including lock status,
+									expiration, and change requirements.
 								</p>
-								<DocumentationLink 
-									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-									target="_blank" 
+								<DocumentationLink
+									href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+									target="_blank"
 									rel="noopener noreferrer"
 								>
 									<FiBook />
@@ -1918,32 +2391,48 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'recover' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Self-Service Password Recovery</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Self-Service Password Recovery
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Recovery code (sent via email/SMS) + New password<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.recover+json</code><br/>
-									The Content-Type header tells PingOne this is a password recovery operation. User must first request a recovery code, then use it to reset their password.
+									<strong>Requires:</strong> Recovery code (sent via email/SMS) + New password
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.recover+json
+									</code>
+									<br />
+									The Content-Type header tells PingOne this is a password recovery operation. User
+									must first request a recovery code, then use it to reset their password.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Password Recovery (Content-Type: application/vnd.pingidentity.password.recover+json)
+								PingOne API: Password Recovery (Content-Type:
+								application/vnd.pingidentity.password.recover+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
-						
+
 						{recoverSuccess && (
 							<SuccessMessage>
 								<SuccessTitle>
@@ -1960,30 +2449,34 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<Alert $type="info">
 									<FiAlertCircle />
-								<div>
+									<div>
 										<strong>Forgot your password?</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-											Enter your email address and we'll send you a recovery code to reset your password.
+											Enter your email address and we'll send you a recovery code to reset your
+											password.
 										</p>
-								</div>
-							</Alert>
+									</div>
+								</Alert>
 
-						<FormGroup>
+								<FormGroup>
 									<Label>Email Address</Label>
-							<div style={{ display: 'flex', gap: '0.5rem' }}>
-								<Input
+									<div style={{ display: 'flex', gap: '0.5rem' }}>
+										<Input
 											type="email"
 											placeholder="Enter your email address"
 											value={recoverEmail}
 											onChange={(e) => setRecoverEmail(e.target.value)}
 											onKeyPress={(e) => e.key === 'Enter' && handleSendRecoveryCode()}
 										/>
-										<Button onClick={handleSendRecoveryCode} disabled={recoverLoading || !recoverEmail}>
+										<Button
+											onClick={handleSendRecoveryCode}
+											disabled={recoverLoading || !recoverEmail}
+										>
 											{recoverLoading ? <SpinningIcon /> : <FiMail />}
 											{recoverLoading ? 'Sending...' : 'Send Recovery Code'}
-								</Button>
-							</div>
-						</FormGroup>
+										</Button>
+									</div>
+								</FormGroup>
 							</>
 						)}
 
@@ -1991,12 +2484,13 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<Alert $type="success">
 									<FiCheckCircle />
-										<div>
+									<div>
 										<strong>Recovery code sent!</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-											We've sent a recovery code to <strong>{recoverEmail}</strong>. Please check your email and enter the code below.
+											We've sent a recovery code to <strong>{recoverEmail}</strong>. Please check
+											your email and enter the code below.
 										</p>
-											</div>
+									</div>
 								</Alert>
 
 								<FormGroup>
@@ -2040,7 +2534,10 @@ export { changePassword, handleChangePassword };`;
 									</div>
 								</FormGroup>
 
-								<Button onClick={handleRecoverPassword} disabled={recoverLoading || !recoveryCode || !newPassword}>
+								<Button
+									onClick={handleRecoverPassword}
+									disabled={recoverLoading || !recoveryCode || !newPassword}
+								>
 									{recoverLoading ? <SpinningIcon /> : <FiCheckCircle />}
 									{recoverLoading ? 'Recovering...' : 'Recover Password'}
 								</Button>
@@ -2098,9 +2595,7 @@ export { changePassword, handleChangePassword };`;
 											<FiCopy />
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
-										<CodeButton onClick={() => setShowCodeGenerator(false)}>
-											Hide Code
-										</CodeButton>
+										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
 									</CodeActions>
 								</>
 							)}
@@ -2110,39 +2605,60 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'force-reset' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Admin Force Password Reset</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Admin Force Password Reset
+						</h2>
+
 						<Alert $type="error" style={{ marginBottom: '1.5rem', borderColor: '#DC2626' }}>
 							<FiAlertCircle style={{ color: '#DC2626' }} />
 							<div>
-								<strong style={{ color: '#DC2626' }}>⚠️ Important: This Puts User in Password Change State</strong>
+								<strong style={{ color: '#DC2626' }}>
+									⚠️ Important: This Puts User in Password Change State
+								</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token (admin operation)<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.forceChange+json</code><br/>
-									<strong style={{ color: '#DC2626' }}>⚠️ WARNING:</strong> This operation will force the user to change their password on their next sign-on. 
-									If you just want to set a password without forcing a change, use <strong>"Update Password (Set Value)"</strong> instead.
+									<strong>Requires:</strong> Worker token (admin operation)
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.forceChange+json
+									</code>
+									<br />
+									<strong style={{ color: '#DC2626' }}>⚠️ WARNING:</strong> This operation will force
+									the user to change their password on their next sign-on. If you just want to set a
+									password without forcing a change, use{' '}
+									<strong>"Update Password (Set Value)"</strong> instead.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Force Password Change (Content-Type: application/vnd.pingidentity.password.forceChange+json)
+								PingOne API: Force Password Change (Content-Type:
+								application/vnd.pingidentity.password.forceChange+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
-						
+
 						{forceResetSuccess && (
 							<Alert $type="success">
 								<FiCheckCircle />
 								<div>
 									<strong>Password change forced successfully!</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>User will be required to change password on next sign-on.</p>
+									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+										User will be required to change password on next sign-on.
+									</p>
 								</div>
 							</Alert>
 						)}
@@ -2167,13 +2683,9 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<UserCard>
 									<UserInfo>
-										<UserAvatar>
-											{forceResetUser.name?.given || forceResetUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
+										<UserAvatar>{getUserNameInitial(forceResetUser)}</UserAvatar>
 										<div>
-											<div style={{ fontWeight: 600 }}>
-												{forceResetUser.name?.given} {forceResetUser.name?.family}
-											</div>
+											<div style={{ fontWeight: 600 }}>{getUserNameDisplay(forceResetUser)}</div>
 											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
 												{forceResetUser.email || forceResetUser.username}
 											</div>
@@ -2186,12 +2698,17 @@ export { changePassword, handleChangePassword };`;
 									<div>
 										<strong>Force Password Change</strong>
 										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-											This will require the user to change their password the next time they sign in.
+											This will require the user to change their password the next time they sign
+											in.
 										</p>
 									</div>
 								</Alert>
 
-								<Button $variant="danger" onClick={handleForcePasswordReset} disabled={forceResetLoading}>
+								<Button
+									$variant="danger"
+									onClick={handleForcePasswordReset}
+									disabled={forceResetLoading}
+								>
 									{forceResetLoading ? <SpinningIcon /> : <FiLock />}
 									{forceResetLoading ? 'Processing...' : 'Force Password Change'}
 								</Button>
@@ -2235,9 +2752,7 @@ export { changePassword, handleChangePassword };`;
 											<FiCopy />
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
-										<CodeButton onClick={() => setShowCodeGenerator(false)}>
-											Hide Code
-										</CodeButton>
+										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
 									</CodeActions>
 								</>
 							)}
@@ -2247,69 +2762,86 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'change' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Change Password</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Change Password
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> User access token (from OAuth login) + Old password + New password<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.change+json</code><br/>
-									For authenticated users who know their current password. Requires the user's access token (obtained from OAuth login), not a worker token. 
-									The user must provide their current password to verify identity before changing to a new password.
+									<strong>Requires:</strong> User access token (from OAuth login) + Old password +
+									New password
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.change+json
+									</code>
+									<br />
+									For authenticated users who know their current password. Requires the user's
+									access token (obtained from OAuth login), not a worker token. The user must
+									provide their current password to verify identity before changing to a new
+									password.
 								</p>
 							</div>
 						</Alert>
-						
-					{!userAccessToken && (
-						<>
-							<Alert $type="info">
-								<FiAlertCircle />
-								<div>
-									<strong>Authentication Required</strong>
-									<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>Please sign in first to change your password. This operation requires your user access token.</p>
+
+						{!userAccessToken && (
+							<>
+								<Alert $type="info">
+									<FiAlertCircle />
+									<div>
+										<strong>Authentication Required</strong>
+										<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+											Please sign in first to change your password. This operation requires your
+											user access token.
+										</p>
+									</div>
+								</Alert>
+								<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+									<Button onClick={() => setShowLoginModal(true)}>
+										<FiLogIn />
+										Sign In to Change Password
+									</Button>
 								</div>
-							</Alert>
-							<div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-								<Button onClick={() => setShowLoginModal(true)}>
-									<FiLogIn />
-									Sign In to Change Password
-								</Button>
-							</div>
-						</>
-					)}
+							</>
+						)}
 
 						{userInfo && (
 							<UserCard style={{ marginBottom: '1.5rem' }}>
 								<UserInfo>
-									<UserAvatar>
-										{(userInfo.name || userInfo.username || '').charAt(0).toUpperCase()}
-									</UserAvatar>
+									<UserAvatar>{getUserNameInitial(userInfo)}</UserAvatar>
 									<div>
 										<div style={{ fontWeight: 600, color: '#1F2937' }}>
-											{userInfo.name || userInfo.username}
+											{getUserNameDisplay(userInfo)}
 										</div>
-										<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
-											{userInfo.email}
-										</div>
+										<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>{userInfo.email}</div>
 									</div>
 								</UserInfo>
 							</UserCard>
 						)}
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-environments-environmentid-users-userid-password" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-environments-environmentid-users-userid-password"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Change Password (Content-Type: application/vnd.pingidentity.password.change+json)
+								PingOne API: Change Password (Content-Type:
+								application/vnd.pingidentity.password.change+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
-						
+
 						{changePasswordSuccess && (
 							<SuccessMessage>
 								<SuccessTitle>
@@ -2324,14 +2856,14 @@ export { changePassword, handleChangePassword };`;
 
 						{userAccessToken && (
 							<>
-						<FormGroup>
-							<Label>Current Password</Label>
+								<FormGroup>
+									<Label>Current Password</Label>
 									<div style={{ position: 'relative' }}>
-								<Input
-									type={showOldPassword ? 'text' : 'password'}
+										<Input
+											type={showOldPassword ? 'text' : 'password'}
 											placeholder="Enter your current password"
-									value={oldPassword}
-									onChange={(e) => setOldPassword(e.target.value)}
+											value={oldPassword}
+											onChange={(e) => setOldPassword(e.target.value)}
 											style={{ paddingRight: '3rem' }}
 										/>
 										<button
@@ -2349,19 +2881,19 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-									{showOldPassword ? <FiEyeOff /> : <FiEye />}
+											{showOldPassword ? <FiEyeOff /> : <FiEye />}
 										</button>
 									</div>
-						</FormGroup>
+								</FormGroup>
 
-						<FormGroup>
-							<Label>New Password</Label>
+								<FormGroup>
+									<Label>New Password</Label>
 									<div style={{ position: 'relative' }}>
-								<Input
-									type={showChangeNewPassword ? 'text' : 'password'}
-									placeholder="Enter new password"
-									value={changeNewPassword}
-									onChange={(e) => setChangeNewPassword(e.target.value)}
+										<Input
+											type={showChangeNewPassword ? 'text' : 'password'}
+											placeholder="Enter new password"
+											value={changeNewPassword}
+											onChange={(e) => setChangeNewPassword(e.target.value)}
 											style={{ paddingRight: '3rem' }}
 										/>
 										<button
@@ -2379,25 +2911,30 @@ export { changePassword, handleChangePassword };`;
 												padding: '0.25rem',
 											}}
 										>
-									{showChangeNewPassword ? <FiEyeOff /> : <FiEye />}
+											{showChangeNewPassword ? <FiEyeOff /> : <FiEye />}
 										</button>
 									</div>
-						</FormGroup>
+								</FormGroup>
 
-						<FormGroup>
-							<Label>Confirm New Password</Label>
-							<Input
-								type="password"
-								placeholder="Confirm new password"
-								value={confirmPassword}
-								onChange={(e) => setConfirmPassword(e.target.value)}
-							/>
-						</FormGroup>
+								<FormGroup>
+									<Label>Confirm New Password</Label>
+									<Input
+										type="password"
+										placeholder="Confirm new password"
+										value={confirmPassword}
+										onChange={(e) => setConfirmPassword(e.target.value)}
+									/>
+								</FormGroup>
 
-						<Button onClick={handleChangePassword} disabled={changePasswordLoading || !oldPassword || !changeNewPassword || !confirmPassword}>
-							{changePasswordLoading ? <SpinningIcon /> : <FiCheckCircle />}
-							{changePasswordLoading ? 'Changing...' : 'Change Password'}
-						</Button>
+								<Button
+									onClick={handleChangePassword}
+									disabled={
+										changePasswordLoading || !oldPassword || !changeNewPassword || !confirmPassword
+									}
+								>
+									{changePasswordLoading ? <SpinningIcon /> : <FiCheckCircle />}
+									{changePasswordLoading ? 'Changing...' : 'Change Password'}
+								</Button>
 							</>
 						)}
 
@@ -2438,9 +2975,7 @@ export { changePassword, handleChangePassword };`;
 											<FiCopy />
 											{copied ? 'Copied!' : 'Copy Code'}
 										</CodeButton>
-										<CodeButton onClick={() => setShowCodeGenerator(false)}>
-											Hide Code
-										</CodeButton>
+										<CodeButton onClick={() => setShowCodeGenerator(false)}>Hide Code</CodeButton>
 									</CodeActions>
 								</>
 							)}
@@ -2450,28 +2985,44 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'check' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Check Password</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Check Password
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token + Password to verify<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.check+json</code><br/>
-									Verify if a provided password matches the user's current password. Useful for validation before allowing password changes.
+									<strong>Requires:</strong> Worker token + Password to verify
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.check+json
+									</code>
+									<br />
+									Verify if a provided password matches the user's current password. Useful for
+									validation before allowing password changes.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Check Password (Content-Type: application/vnd.pingidentity.password.check+json)
+								PingOne API: Check Password (Content-Type:
+								application/vnd.pingidentity.password.check+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
@@ -2485,7 +3036,10 @@ export { changePassword, handleChangePassword };`;
 									value={checkPasswordIdentifier}
 									onChange={(e) => setCheckPasswordIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleCheckPasswordLookup} disabled={checkPasswordLoading || !checkPasswordIdentifier}>
+								<Button
+									onClick={handleCheckPasswordLookup}
+									disabled={checkPasswordLoading || !checkPasswordIdentifier}
+								>
 									{checkPasswordLoading ? <SpinningIcon /> : <FiSearch />}
 									Lookup
 								</Button>
@@ -2496,13 +3050,9 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<UserCard>
 									<UserInfo>
-										<UserAvatar>
-											{checkPasswordUser.name?.given || checkPasswordUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
+										<UserAvatar>{getUserNameInitial(checkPasswordUser)}</UserAvatar>
 										<div>
-											<div style={{ fontWeight: 600 }}>
-												{checkPasswordUser.name?.given} {checkPasswordUser.name?.family}
-											</div>
+											<div style={{ fontWeight: 600 }}>{getUserNameDisplay(checkPasswordUser)}</div>
 											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
 												{checkPasswordUser.email || checkPasswordUser.username}
 											</div>
@@ -2544,15 +3094,22 @@ export { changePassword, handleChangePassword };`;
 									<Alert $type={checkPasswordResult.valid ? 'success' : 'error'}>
 										{checkPasswordResult.valid ? <FiCheckCircle /> : <FiAlertCircle />}
 										<div>
-											<strong>{checkPasswordResult.valid ? 'Password is valid' : 'Password check failed'}</strong>
+											<strong>
+												{checkPasswordResult.valid ? 'Password is valid' : 'Password check failed'}
+											</strong>
 											{checkPasswordResult.message && (
-												<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>{checkPasswordResult.message}</p>
+												<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
+													{checkPasswordResult.message}
+												</p>
 											)}
 										</div>
 									</Alert>
 								)}
 
-								<Button onClick={handleCheckPassword} disabled={checkPasswordLoading || !checkPasswordValue}>
+								<Button
+									onClick={handleCheckPassword}
+									disabled={checkPasswordLoading || !checkPasswordValue}
+								>
 									{checkPasswordLoading ? <SpinningIcon /> : <FiKey />}
 									{checkPasswordLoading ? 'Checking...' : 'Check Password'}
 								</Button>
@@ -2563,24 +3120,39 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'unlock' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Unlock Password</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Unlock Password
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token (admin operation)<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/json</code><br/>
-									Unlock a user's account that has been locked due to failed login attempts. This is an admin operation.
+									<strong>Requires:</strong> Worker token (admin operation)
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/json
+									</code>
+									<br />
+									Unlock a user's account that has been locked due to failed login attempts. This is
+									an admin operation.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
@@ -2618,51 +3190,50 @@ export { changePassword, handleChangePassword };`;
 						</FormGroup>
 
 						{unlockUser && (
-							<>
-								<UserCard>
-									<UserInfo>
-										<UserAvatar>
-											{unlockUser.name?.given || unlockUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
-										<div>
-											<div style={{ fontWeight: 600 }}>
-												{unlockUser.name?.given} {unlockUser.name?.family}
-											</div>
-											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
-												{unlockUser.email || unlockUser.username}
-											</div>
+							<UserCard>
+								<UserInfo>
+									<UserAvatar>{getUserNameInitial(unlockUser)}</UserAvatar>
+									<div>
+										<div style={{ fontWeight: 600 }}>{getUserNameDisplay(unlockUser)}</div>
+										<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
+											{unlockUser.email || unlockUser.username}
 										</div>
-									</UserInfo>
-									<Button $variant="danger" onClick={handleUnlockPassword} disabled={unlockLoading}>
-										{unlockLoading ? <SpinningIcon /> : <FiKey />}
-										{unlockLoading ? 'Unlocking...' : 'Unlock Password'}
-									</Button>
-								</UserCard>
-							</>
+									</div>
+								</UserInfo>
+								<Button $variant="danger" onClick={handleUnlockPassword} disabled={unlockLoading}>
+									{unlockLoading ? <SpinningIcon /> : <FiKey />}
+									{unlockLoading ? 'Unlocking...' : 'Unlock Password'}
+								</Button>
+							</UserCard>
 						)}
 					</Card>
 				)}
 
 				{activeTab === 'state' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Read Password State</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Read Password State
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token<br/>
-									<strong>Method:</strong> GET (no special Content-Type header)<br/>
-									Retrieve the current password state information for a user, including lock status, expiration, and change requirements.
+									<strong>Requires:</strong> Worker token
+									<br />
+									<strong>Method:</strong> GET (no special Content-Type header)
+									<br />
+									Retrieve the current password state information for a user, including lock status,
+									expiration, and change requirements.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
@@ -2691,13 +3262,9 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<UserCard>
 									<UserInfo>
-										<UserAvatar>
-											{stateUser.name?.given || stateUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
+										<UserAvatar>{getUserNameInitial(stateUser)}</UserAvatar>
 										<div>
-											<div style={{ fontWeight: 600 }}>
-												{stateUser.name?.given} {stateUser.name?.family}
-											</div>
+											<div style={{ fontWeight: 600 }}>{getUserNameDisplay(stateUser)}</div>
 											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
 												{stateUser.email || stateUser.username}
 											</div>
@@ -2711,9 +3278,13 @@ export { changePassword, handleChangePassword };`;
 
 								{passwordState && (
 									<Card style={{ marginTop: '1.5rem', background: '#F9FAFB' }}>
-										<h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', color: '#1F2937' }}>Password State</h3>
+										<h3 style={{ marginBottom: '1rem', fontSize: '1.125rem', color: '#1F2937' }}>
+											Password State
+										</h3>
 										<CodeBlock>
-											<code className="language-json">{JSON.stringify(passwordState, null, 2)}</code>
+											<code className="language-json">
+												{JSON.stringify(passwordState, null, 2)}
+											</code>
 										</CodeBlock>
 									</Card>
 								)}
@@ -2724,28 +3295,43 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'admin-set' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Admin Set Password</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Admin Set Password
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token + New password<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.set+json</code><br/>
+									<strong>Requires:</strong> Worker token + New password
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.set+json
+									</code>
+									<br />
 									Admin operation to set a user's password directly. Uses the "set" Content-Type.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Admin Set Password (Content-Type: application/vnd.pingidentity.password.set+json)
+								PingOne API: Admin Set Password (Content-Type:
+								application/vnd.pingidentity.password.set+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
@@ -2756,9 +3342,7 @@ export { changePassword, handleChangePassword };`;
 									<FiCheckCircle style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
 									Password Set Successfully!
 								</SuccessTitle>
-								<SuccessText>
-									The user's password has been set successfully.
-								</SuccessText>
+								<SuccessText>The user's password has been set successfully.</SuccessText>
 							</SuccessMessage>
 						)}
 
@@ -2771,7 +3355,10 @@ export { changePassword, handleChangePassword };`;
 									value={adminSetIdentifier}
 									onChange={(e) => setAdminSetIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleAdminSetLookup} disabled={adminSetLoading || !adminSetIdentifier}>
+								<Button
+									onClick={handleAdminSetLookup}
+									disabled={adminSetLoading || !adminSetIdentifier}
+								>
 									{adminSetLoading ? <SpinningIcon /> : <FiSearch />}
 									Lookup
 								</Button>
@@ -2782,13 +3369,9 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<UserCard>
 									<UserInfo>
-										<UserAvatar>
-											{adminSetUser.name?.given || adminSetUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
+										<UserAvatar>{getUserNameInitial(adminSetUser)}</UserAvatar>
 										<div>
-											<div style={{ fontWeight: 600 }}>
-												{adminSetUser.name?.given} {adminSetUser.name?.family}
-											</div>
+											<div style={{ fontWeight: 600 }}>{getUserNameDisplay(adminSetUser)}</div>
 											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
 												{adminSetUser.email || adminSetUser.username}
 											</div>
@@ -2827,7 +3410,14 @@ export { changePassword, handleChangePassword };`;
 								</FormGroup>
 
 								<FormGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+									<Label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											cursor: 'pointer',
+										}}
+									>
 										<input
 											type="checkbox"
 											checked={adminSetForceChange}
@@ -2836,13 +3426,28 @@ export { changePassword, handleChangePassword };`;
 										/>
 										<span>Force password change on next sign-on</span>
 									</Label>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-										If checked, the user will be required to change their password when they next sign in.
+									<p
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.875rem',
+											color: '#6B7280',
+											marginLeft: '1.75rem',
+										}}
+									>
+										If checked, the user will be required to change their password when they next
+										sign in.
 									</p>
 								</FormGroup>
 
 								<FormGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+									<Label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											cursor: 'pointer',
+										}}
+									>
 										<input
 											type="checkbox"
 											checked={adminSetBypassPolicy}
@@ -2851,13 +3456,24 @@ export { changePassword, handleChangePassword };`;
 										/>
 										<span>Bypass password policy</span>
 									</Label>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-										If checked, the password will be set even if it doesn't meet the password policy requirements. 
-										Use with caution - this allows setting weak passwords that may violate security policies.
+									<p
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.875rem',
+											color: '#6B7280',
+											marginLeft: '1.75rem',
+										}}
+									>
+										If checked, the password will be set even if it doesn't meet the password policy
+										requirements. Use with caution - this allows setting weak passwords that may
+										violate security policies.
 									</p>
 								</FormGroup>
 
-								<Button onClick={handleAdminSetPassword} disabled={adminSetLoading || !adminSetPassword}>
+								<Button
+									onClick={handleAdminSetPassword}
+									disabled={adminSetLoading || !adminSetPassword}
+								>
 									{adminSetLoading ? <SpinningIcon /> : <FiKey />}
 									{adminSetLoading ? 'Setting...' : 'Set Password'}
 								</Button>
@@ -2868,28 +3484,43 @@ export { changePassword, handleChangePassword };`;
 
 				{activeTab === 'set' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Set Password</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Set Password
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token + New password<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.set+json</code><br/>
+									<strong>Requires:</strong> Worker token + New password
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.set+json
+									</code>
+									<br />
 									General password set operation. Admin operation to set a user's password.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Set Password (Content-Type: application/vnd.pingidentity.password.set+json)
+								PingOne API: Set Password (Content-Type:
+								application/vnd.pingidentity.password.set+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
@@ -2900,9 +3531,7 @@ export { changePassword, handleChangePassword };`;
 									<FiCheckCircle style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
 									Password Set Successfully!
 								</SuccessTitle>
-								<SuccessText>
-									The user's password has been set successfully.
-								</SuccessText>
+								<SuccessText>The user's password has been set successfully.</SuccessText>
 							</SuccessMessage>
 						)}
 
@@ -2915,7 +3544,10 @@ export { changePassword, handleChangePassword };`;
 									value={setPasswordIdentifier}
 									onChange={(e) => setSetPasswordIdentifier(e.target.value)}
 								/>
-								<Button onClick={handleSetPasswordLookup} disabled={setPasswordLoading || !setPasswordIdentifier}>
+								<Button
+									onClick={handleSetPasswordLookup}
+									disabled={setPasswordLoading || !setPasswordIdentifier}
+								>
 									{setPasswordLoading ? <SpinningIcon /> : <FiSearch />}
 									Lookup
 								</Button>
@@ -2926,13 +3558,9 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<UserCard>
 									<UserInfo>
-										<UserAvatar>
-											{setPasswordUser.name?.given || setPasswordUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
+										<UserAvatar>{getUserNameInitial(setPasswordUser)}</UserAvatar>
 										<div>
-											<div style={{ fontWeight: 600 }}>
-												{setPasswordUser.name?.given} {setPasswordUser.name?.family}
-											</div>
+											<div style={{ fontWeight: 600 }}>{getUserNameDisplay(setPasswordUser)}</div>
 											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
 												{setPasswordUser.email || setPasswordUser.username}
 											</div>
@@ -2971,7 +3599,14 @@ export { changePassword, handleChangePassword };`;
 								</FormGroup>
 
 								<FormGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+									<Label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											cursor: 'pointer',
+										}}
+									>
 										<input
 											type="checkbox"
 											checked={setPasswordForceChange}
@@ -2980,13 +3615,28 @@ export { changePassword, handleChangePassword };`;
 										/>
 										<span>Force password change on next sign-on</span>
 									</Label>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-										If checked, the user will be required to change their password when they next sign in.
+									<p
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.875rem',
+											color: '#6B7280',
+											marginLeft: '1.75rem',
+										}}
+									>
+										If checked, the user will be required to change their password when they next
+										sign in.
 									</p>
 								</FormGroup>
 
 								<FormGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+									<Label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											cursor: 'pointer',
+										}}
+									>
 										<input
 											type="checkbox"
 											checked={setPasswordBypassPolicy}
@@ -2995,13 +3645,24 @@ export { changePassword, handleChangePassword };`;
 										/>
 										<span>Bypass password policy</span>
 									</Label>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-										If checked, the password will be set even if it doesn't meet the password policy requirements. 
-										Use with caution - this allows setting weak passwords that may violate security policies.
+									<p
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.875rem',
+											color: '#6B7280',
+											marginLeft: '1.75rem',
+										}}
+									>
+										If checked, the password will be set even if it doesn't meet the password policy
+										requirements. Use with caution - this allows setting weak passwords that may
+										violate security policies.
 									</p>
 								</FormGroup>
 
-								<Button onClick={handleSetPassword} disabled={setPasswordLoading || !setPasswordValue}>
+								<Button
+									onClick={handleSetPassword}
+									disabled={setPasswordLoading || !setPasswordValue}
+								>
 									{setPasswordLoading ? <SpinningIcon /> : <FiKey />}
 									{setPasswordLoading ? 'Setting...' : 'Set Password'}
 								</Button>
@@ -3011,36 +3672,50 @@ export { changePassword, handleChangePassword };`;
 				)}
 
 				{activeTab === 'set-value' && (
-					<PasswordSetValueTab
-						environmentId={environmentId}
-						workerToken={workerToken}
-					/>
+					<PasswordSetValueTab environmentId={environmentId} workerToken={workerToken} />
 				)}
 
 				{activeTab === 'ldap-gateway' && (
 					<Card>
-						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>Set Password via LDAP Gateway</h2>
-						
+						<h2 style={{ marginBottom: '1.5rem', fontSize: '1.5rem', color: '#1F2937' }}>
+							Set Password via LDAP Gateway
+						</h2>
+
 						<Alert $type="info" style={{ marginBottom: '1.5rem' }}>
 							<FiAlertCircle />
 							<div>
 								<strong>How This Works:</strong>
 								<p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem' }}>
-									<strong>Requires:</strong> Worker token + New password + (Optional) LDAP Gateway ID<br/>
-									<strong>Content-Type Header:</strong> <code style={{ background: '#F3F4F6', padding: '0.25rem 0.5rem', borderRadius: '0.25rem', fontSize: '0.875rem' }}>application/vnd.pingidentity.password.ldapGateway+json</code><br/>
-									Set a user's password via an LDAP Gateway. This is useful when integrating with LDAP directories.
+									<strong>Requires:</strong> Worker token + New password + (Optional) LDAP Gateway
+									ID
+									<br />
+									<strong>Content-Type Header:</strong>{' '}
+									<code
+										style={{
+											background: '#F3F4F6',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+											fontSize: '0.875rem',
+										}}
+									>
+										application/vnd.pingidentity.password.ldapGateway+json
+									</code>
+									<br />
+									Set a user's password via an LDAP Gateway. This is useful when integrating with
+									LDAP directories.
 								</p>
 							</div>
 						</Alert>
-						
+
 						<DocumentationSection>
-							<DocumentationLink 
-								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords" 
-								target="_blank" 
+							<DocumentationLink
+								href="https://apidocs.pingidentity.com/pingone/platform/v1/api/#user-passwords"
+								target="_blank"
 								rel="noopener noreferrer"
 							>
 								<FiBook />
-								PingOne API: Set Password via LDAP Gateway (Content-Type: application/vnd.pingidentity.password.ldapGateway+json)
+								PingOne API: Set Password via LDAP Gateway (Content-Type:
+								application/vnd.pingidentity.password.ldapGateway+json)
 								<FiExternalLink size={14} />
 							</DocumentationLink>
 						</DocumentationSection>
@@ -3077,13 +3752,9 @@ export { changePassword, handleChangePassword };`;
 							<>
 								<UserCard>
 									<UserInfo>
-										<UserAvatar>
-											{ldapUser.name?.given || ldapUser.username?.[0]?.toUpperCase() || 'U'}
-										</UserAvatar>
+										<UserAvatar>{getUserNameInitial(ldapUser)}</UserAvatar>
 										<div>
-											<div style={{ fontWeight: 600 }}>
-												{ldapUser.name?.given} {ldapUser.name?.family}
-											</div>
+											<div style={{ fontWeight: 600 }}>{getUserNameDisplay(ldapUser)}</div>
 											<div style={{ fontSize: '0.875rem', color: '#6B7280' }}>
 												{ldapUser.email || ldapUser.username}
 											</div>
@@ -3132,7 +3803,14 @@ export { changePassword, handleChangePassword };`;
 								</FormGroup>
 
 								<FormGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+									<Label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											cursor: 'pointer',
+										}}
+									>
 										<input
 											type="checkbox"
 											checked={ldapForceChange}
@@ -3141,13 +3819,28 @@ export { changePassword, handleChangePassword };`;
 										/>
 										<span>Force password change on next sign-on</span>
 									</Label>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-										If checked, the user will be required to change their password when they next sign in.
+									<p
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.875rem',
+											color: '#6B7280',
+											marginLeft: '1.75rem',
+										}}
+									>
+										If checked, the user will be required to change their password when they next
+										sign in.
 									</p>
 								</FormGroup>
 
 								<FormGroup>
-									<Label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+									<Label
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											cursor: 'pointer',
+										}}
+									>
 										<input
 											type="checkbox"
 											checked={ldapBypassPolicy}
@@ -3156,9 +3849,17 @@ export { changePassword, handleChangePassword };`;
 										/>
 										<span>Bypass password policy</span>
 									</Label>
-									<p style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#6B7280', marginLeft: '1.75rem' }}>
-										If checked, the password will be set even if it doesn't meet the password policy requirements. 
-										Use with caution - this allows setting weak passwords that may violate security policies.
+									<p
+										style={{
+											marginTop: '0.5rem',
+											fontSize: '0.875rem',
+											color: '#6B7280',
+											marginLeft: '1.75rem',
+										}}
+									>
+										If checked, the password will be set even if it doesn't meet the password policy
+										requirements. Use with caution - this allows setting weak passwords that may
+										violate security policies.
 									</p>
 								</FormGroup>
 
@@ -3172,10 +3873,7 @@ export { changePassword, handleChangePassword };`;
 				)}
 
 				<ApiCallTableContainer>
-					<ApiCallTable 
-						apiCalls={apiCalls} 
-						onClear={() => apiCallTrackerService.clearApiCalls()}
-					/>
+					<ApiCallTable apiCalls={apiCalls} onClear={() => apiCallTrackerService.clearApiCalls()} />
 				</ApiCallTableContainer>
 
 				<WorkerTokenModal
@@ -3183,43 +3881,34 @@ export { changePassword, handleChangePassword };`;
 					onClose={() => setShowWorkerTokenModal(false)}
 					onContinue={() => {
 						setShowWorkerTokenModal(false);
-						
-						// Re-check for saved credentials and worker token after modal closes
-						const FLOW_TYPE = 'heliomart-password-reset';
-						const savedCreds = workerTokenCredentialsService.loadCredentials(FLOW_TYPE);
-						
-						if (savedCreds && savedCreds.environmentId && savedCreds.clientId && savedCreds.clientSecret) {
-							console.log('✅ [HelioMartPasswordReset] Credentials found after save, checking for token...');
-							
-							// Re-check worker token after modal closes
-							const tokenStorageKey = `pingone_worker_token_${FLOW_TYPE}`;
-							const tokenExpiryKey = `pingone_worker_token_expires_at_${FLOW_TYPE}`;
-							const tokenResult = getValidWorkerToken(
-								tokenStorageKey,
-								tokenExpiryKey,
-								{ clearExpired: true, showToast: false }
-							);
-						if (tokenResult.isValid && tokenResult.token) {
-							setWorkerToken(tokenResult.token);
-							}
+
+						// Use global worker token after modal closes
+						const globalToken = getAnyWorkerToken();
+						if (globalToken) {
+							setWorkerToken(globalToken);
+							console.log('✅ [HelioMartPasswordReset] Global worker token detected');
 						} else {
-							console.log('⚠️ [HelioMartPasswordReset] No credentials found after save');
+							console.log('⚠️ [HelioMartPasswordReset] No global worker token found after save');
 						}
 					}}
 					flowType="heliomart-password-reset"
 					environmentId={environmentId}
-					tokenStorageKey="pingone_worker_token_heliomart-password-reset"
-					tokenExpiryKey="pingone_worker_token_expires_at_heliomart-password-reset"
+					tokenStorageKey="worker_token"
+					tokenExpiryKey="worker_token_expires_at"
 					prefillCredentials={(() => {
-						const savedCreds = workerTokenCredentialsService.loadCredentials('heliomart-password-reset');
+						const savedCreds = workerTokenCredentialsService.loadCredentials(
+							'heliomart-password-reset'
+						);
 						if (savedCreds) {
 							return {
 								environmentId: savedCreds.environmentId || '',
 								clientId: savedCreds.clientId || '',
 								clientSecret: savedCreds.clientSecret || '',
 								region: savedCreds.region || 'us',
-								scopes: Array.isArray(savedCreds.scopes) ? savedCreds.scopes[0] : (savedCreds.scopes?.[0] || ''),
-								authMethod: savedCreds.tokenEndpointAuthMethod || 'client_secret_post' as const,
+								scopes: Array.isArray(savedCreds.scopes)
+									? savedCreds.scopes[0]
+									: savedCreds.scopes?.[0] || '',
+								authMethod: savedCreds.tokenEndpointAuthMethod || ('client_secret_post' as const),
 							};
 						}
 						return {
@@ -3237,8 +3926,17 @@ export { changePassword, handleChangePassword };`;
 				{showSetupModal && (
 					<ModalOverlay onClick={() => {}}>
 						<ModalContent onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
-							<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-								<h2 style={{ fontSize: '1.75rem', color: '#1F2937', margin: 0 }}>Configuration Required</h2>
+							<div
+								style={{
+									display: 'flex',
+									justifyContent: 'space-between',
+									alignItems: 'center',
+									marginBottom: '2rem',
+								}}
+							>
+								<h2 style={{ fontSize: '1.75rem', color: '#1F2937', margin: 0 }}>
+									Configuration Required
+								</h2>
 								<button
 									onClick={() => setShowSetupModal(false)}
 									style={{
@@ -3255,16 +3953,25 @@ export { changePassword, handleChangePassword };`;
 									×
 								</button>
 							</div>
-							
+
 							<div style={{ marginBottom: '1.5rem' }}>
 								<p style={{ color: '#4b5563', lineHeight: '1.6', marginBottom: '1rem' }}>
-									The Password Reset flow requires authorization code credentials to be configured for user authentication. 
-									Please configure your PingOne authorization code client credentials to continue.
+									The Password Reset flow requires authorization code credentials to be configured
+									for user authentication. Please configure your PingOne authorization code client
+									credentials to continue.
 								</p>
 								<p style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.5' }}>
 									You'll need:
 								</p>
-								<ul style={{ color: '#6b7280', fontSize: '0.875rem', lineHeight: '1.8', marginLeft: '1.5rem', marginTop: '0.5rem' }}>
+								<ul
+									style={{
+										color: '#6b7280',
+										fontSize: '0.875rem',
+										lineHeight: '1.8',
+										marginLeft: '1.5rem',
+										marginTop: '0.5rem',
+									}}
+								>
 									<li>Environment ID</li>
 									<li>Client ID</li>
 									<li>Client Secret</li>
@@ -3272,12 +3979,9 @@ export { changePassword, handleChangePassword };`;
 									<li>Scopes (optional)</li>
 								</ul>
 							</div>
-							
+
 							<div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-								<Button
-									$variant="secondary"
-									onClick={() => setShowSetupModal(false)}
-								>
+								<Button $variant="secondary" onClick={() => setShowSetupModal(false)}>
 									Cancel
 								</Button>
 								<Button
@@ -3299,13 +4003,15 @@ export { changePassword, handleChangePassword };`;
 						setShowAuthzConfigModal(false);
 						const FLOW_TYPE = 'heliomart-password-reset';
 						const saved = comprehensiveFlowDataService.loadFlowCredentialsIsolated(FLOW_TYPE);
-						if (saved && saved.environmentId && saved.clientId && saved.clientSecret) {
+						if (saved?.environmentId && saved.clientId && saved.clientSecret) {
 							setAuthzCredentials({
 								environmentId: saved.environmentId || '',
 								clientId: saved.clientId || '',
 								clientSecret: saved.clientSecret || '',
 								redirectUri: saved.redirectUri || 'https://localhost:3000/callback',
-								scopes: Array.isArray(saved.scopes) ? saved.scopes.join(' ') : (saved.scopes || 'openid profile email'),
+								scopes: Array.isArray(saved.scopes)
+									? saved.scopes.join(' ')
+									: saved.scopes || 'openid profile email',
 							});
 							// Close setup modal if credentials are now complete
 							setShowSetupModal(false);
@@ -3320,10 +4026,16 @@ export { changePassword, handleChangePassword };`;
 							clientId: savedCredentials.clientId || '',
 							clientSecret: savedCredentials.clientSecret || '',
 							redirectUri: savedCredentials.redirectUri || 'https://localhost:3000/callback',
-							scopes: Array.isArray(savedCredentials.scopes) ? savedCredentials.scopes.join(' ') : (savedCredentials.scopes || 'openid profile email'),
+							scopes: Array.isArray(savedCredentials.scopes)
+								? savedCredentials.scopes.join(' ')
+								: savedCredentials.scopes || 'openid profile email',
 						});
 						// Close setup modal if credentials are now complete
-						if (savedCredentials.environmentId && savedCredentials.clientId && savedCredentials.clientSecret) {
+						if (
+							savedCredentials.environmentId &&
+							savedCredentials.clientId &&
+							savedCredentials.clientSecret
+						) {
 							setShowSetupModal(false);
 						}
 					}}
@@ -3417,4 +4129,3 @@ export { changePassword, handleChangePassword };`;
 };
 
 export default HelioMartPasswordReset;
-

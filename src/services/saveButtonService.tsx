@@ -1,12 +1,12 @@
 // src/services/saveButtonService.tsx
 // Centralized Save Button Service with Flow-Specific Storage
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { FiCheck, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSave, FiCheck } from 'react-icons/fi';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { credentialManager } from '../utils/credentialManager';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { credentialManager } from '../utils/credentialManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Styled Save Button Component
 const SaveButtonStyled = styled.button<{ $saved?: boolean }>`
@@ -71,8 +71,8 @@ export class FlowStorageService {
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
 				redirectUri: credentials.redirectUri,
-				scopes: Array.isArray(credentials.scopes) 
-					? credentials.scopes 
+				scopes: Array.isArray(credentials.scopes)
+					? credentials.scopes
 					: (credentials.scopes || credentials.scope || '').split(' ').filter(Boolean),
 				region: credentials.region,
 				responseType: credentials.responseType,
@@ -88,7 +88,7 @@ export class FlowStorageService {
 			});
 
 			// 2. Save to flow-specific storage (isolation) - save ALL fields
-			const flowKey = this.getFlowKey(flowType);
+			const flowKey = FlowStorageService.getFlowKey(flowType);
 			const completeCredentials = {
 				...credentials,
 				// Ensure all fields are included
@@ -114,7 +114,7 @@ export class FlowStorageService {
 	 */
 	static loadCredentials(flowType: string): StepCredentials | null {
 		try {
-			const flowKey = this.getFlowKey(flowType);
+			const flowKey = FlowStorageService.getFlowKey(flowType);
 			const stored = localStorage.getItem(flowKey);
 
 			if (stored) {
@@ -130,8 +130,10 @@ export class FlowStorageService {
 
 			// Fallback to credentialManager flow-specific credentials
 			const flowCreds = credentialManager.loadFlowCredentials(flowType);
-			if (flowCreds && flowCreds.environmentId) {
-				console.log(`[FlowStorageService] Using credentialManager flow credentials for: ${flowType}`);
+			if (flowCreds?.environmentId) {
+				console.log(
+					`[FlowStorageService] Using credentialManager flow credentials for: ${flowType}`
+				);
 				return flowCreds as StepCredentials;
 			}
 
@@ -154,7 +156,7 @@ export class FlowStorageService {
 	 */
 	static clearCredentials(flowType: string): void {
 		try {
-			const flowKey = this.getFlowKey(flowType);
+			const flowKey = FlowStorageService.getFlowKey(flowType);
 			localStorage.removeItem(flowKey);
 			console.log(`[FlowStorageService] Cleared credentials for flow: ${flowType}`);
 		} catch (error) {
@@ -169,7 +171,7 @@ export class FlowStorageService {
 		const keys: string[] = [];
 		for (let i = 0; i < localStorage.length; i++) {
 			const key = localStorage.key(i);
-			if (key && key.startsWith('flow_credentials_')) {
+			if (key?.startsWith('flow_credentials_')) {
 				keys.push(key);
 			}
 		}
@@ -188,10 +190,10 @@ export class WorkerTokenService {
 	 */
 	static saveToken(token: string, environmentId: string, expiresAt?: number): void {
 		try {
-			localStorage.setItem(this.STORAGE_KEY, token);
-			localStorage.setItem(this.ENV_KEY, environmentId);
+			localStorage.setItem(WorkerTokenService.STORAGE_KEY, token);
+			localStorage.setItem(WorkerTokenService.ENV_KEY, environmentId);
 			if (expiresAt) {
-				localStorage.setItem(this.EXPIRES_KEY, expiresAt.toString());
+				localStorage.setItem(WorkerTokenService.EXPIRES_KEY, expiresAt.toString());
 			}
 			console.log(`[WorkerTokenService] Saved worker token for env: ${environmentId}`);
 		} catch (error) {
@@ -205,15 +207,13 @@ export class WorkerTokenService {
 	 */
 	static loadToken(environmentId?: string): string | null {
 		try {
-			const token = localStorage.getItem(this.STORAGE_KEY);
-			const savedEnv = localStorage.getItem(this.ENV_KEY);
-			const expiresAt = localStorage.getItem(this.EXPIRES_KEY);
+			const token = localStorage.getItem(WorkerTokenService.STORAGE_KEY);
+			const savedEnv = localStorage.getItem(WorkerTokenService.ENV_KEY);
+			const expiresAt = localStorage.getItem(WorkerTokenService.EXPIRES_KEY);
 
 			// Check if token is for the correct environment
 			if (environmentId && savedEnv !== environmentId) {
-				console.log(
-					`[WorkerTokenService] Token env mismatch: ${savedEnv} !== ${environmentId}`
-				);
+				console.log(`[WorkerTokenService] Token env mismatch: ${savedEnv} !== ${environmentId}`);
 				return null;
 			}
 
@@ -222,7 +222,7 @@ export class WorkerTokenService {
 				const expiresAtNum = parseInt(expiresAt, 10);
 				if (Date.now() > expiresAtNum) {
 					console.log('[WorkerTokenService] Token expired');
-					this.clearToken();
+					WorkerTokenService.clearToken();
 					return null;
 				}
 			}
@@ -243,9 +243,9 @@ export class WorkerTokenService {
 	 */
 	static clearToken(): void {
 		try {
-			localStorage.removeItem(this.STORAGE_KEY);
-			localStorage.removeItem(this.ENV_KEY);
-			localStorage.removeItem(this.EXPIRES_KEY);
+			localStorage.removeItem(WorkerTokenService.STORAGE_KEY);
+			localStorage.removeItem(WorkerTokenService.ENV_KEY);
+			localStorage.removeItem(WorkerTokenService.EXPIRES_KEY);
 			console.log('[WorkerTokenService] Cleared worker token');
 		} catch (error) {
 			console.error('[WorkerTokenService] Failed to clear token:', error);
@@ -256,7 +256,7 @@ export class WorkerTokenService {
 	 * Check if token exists and is valid
 	 */
 	static hasValidToken(environmentId?: string): boolean {
-		const token = this.loadToken(environmentId);
+		const token = WorkerTokenService.loadToken(environmentId);
 		return !!token;
 	}
 
@@ -265,9 +265,9 @@ export class WorkerTokenService {
 	 */
 	static getExpiresAt(): number | null {
 		try {
-			const expiresAt = localStorage.getItem(this.EXPIRES_KEY);
+			const expiresAt = localStorage.getItem(WorkerTokenService.EXPIRES_KEY);
 			return expiresAt ? parseInt(expiresAt, 10) : null;
-		} catch (error) {
+		} catch (_error) {
 			return null;
 		}
 	}

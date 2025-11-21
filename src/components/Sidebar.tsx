@@ -1,32 +1,29 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+// import { DropResult } from 'react-beautiful-dnd';
 import {
+	FiAlertTriangle,
+	FiBarChart2,
 	FiBook,
-	FiBookOpen,
-	FiClock,
+	FiCheckCircle,
+	FiCode,
 	FiCpu,
 	FiDatabase,
-	FiExternalLink,
 	FiEye,
-	FiFileText,
 	FiKey,
 	FiLayers,
 	FiLock,
+	FiMove,
 	FiPackage,
 	FiRefreshCw,
-	FiSearch,
 	FiSettings,
 	FiShield,
 	FiSmartphone,
+	FiUser,
 	FiUsers,
 	FiX,
 	FiZap,
-	FiCheckCircle,
-	FiCode,
-	FiMove,
-	FiBarChart2,
 } from 'react-icons/fi';
-import { Menu, MenuItem, Sidebar as ProSidebar, SubMenu } from 'react-pro-sidebar';
+import { Sidebar as ProSidebar } from 'react-pro-sidebar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastMessages';
@@ -38,10 +35,10 @@ const ColoredIcon = styled.span<{ $color?: string }>`
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	color: ${props => props.$color || 'currentColor'};
+	color: ${(props) => props.$color || 'currentColor'};
 	
 	svg {
-		color: ${props => props.$color || 'currentColor'} !important;
+		color: ${(props) => props.$color || 'currentColor'} !important;
 	}
 `;
 
@@ -61,13 +58,13 @@ const MigrationBadge = styled.span`
 	}
 `;
 
-// Wrapper for menu item content with badge
-const MenuItemContent = styled.span`
-	display: flex;
-	align-items: center;
-	width: 100%;
-	gap: 0.5rem;
-`;
+// Wrapper for menu item content with badge (Unused, kept for reference if needed but commented out to fix lint)
+// const _MenuItemContent = styled.span`
+// 	display: flex;
+// 	align-items: center;
+// 	width: 100%;
+// 	gap: 0.5rem;
+// `;
 
 interface SidebarProps {
 	isOpen: boolean;
@@ -299,24 +296,24 @@ const SidebarHeader = styled.div`
 	justify-content: space-between;
 `;
 
-const DragHandle = styled.div`
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	padding: 0.25rem;
-	margin-right: 0.5rem;
-	cursor: grab;
-	color: #9ca3af;
-	transition: color 0.2s;
-	
-	&:hover {
-		color: #4b5563;
-	}
-	
-	&:active {
-		cursor: grabbing;
-	}
-`;
+// const _DragHandle = styled.div`
+// 	display: inline-flex;
+// 	align-items: center;
+// 	justify-content: center;
+// 	padding: 0.25rem;
+// 	margin-right: 0.5rem;
+// 	cursor: grab;
+// 	color: #9ca3af;
+// 	transition: color 0.2s;
+// 	
+// 	&:hover {
+// 		color: #4b5563;
+// 	}
+// 	
+// 	&:active {
+// 		cursor: grabbing;
+// 	}
+// `;
 
 const DragModeToggle = styled.button<{ $isActive?: boolean }>`
 	border: 1px solid #e5e7eb;
@@ -330,12 +327,12 @@ const DragModeToggle = styled.button<{ $isActive?: boolean }>`
 	gap: 0.375rem;
 	
 	/* Dynamic styling based on active state */
-	background: ${props => props.$isActive ? '#22c55e' : '#6b7280'};
-	color: ${props => props.$isActive ? 'white' : 'white'};
-	border-color: ${props => props.$isActive ? '#16a34a' : '#4b5563'};
+	background: ${(props) => (props.$isActive ? '#22c55e' : '#6b7280')};
+	color: ${(props) => (props.$isActive ? 'white' : 'white')};
+	border-color: ${(props) => (props.$isActive ? '#16a34a' : '#4b5563')};
 	
 	&:hover {
-		background: ${props => props.$isActive ? '#16a34a' : '#4b5563'};
+		background: ${(props) => (props.$isActive ? '#16a34a' : '#4b5563')};
 		transform: translateY(-1px);
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 	}
@@ -363,7 +360,7 @@ const ResizeHandle = styled.div`
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	const location = useLocation();
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	const [sidebarWidth, setSidebarWidth] = useState(() => {
 		try {
 			const saved = localStorage.getItem('sidebar.width');
@@ -373,62 +370,64 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return 450; // Default width
 	}); // Increased to fit widest menu items with mock badges
 	const isResizing = useRef(false);
-	
+
 	// Search functionality
 	const [searchQuery, setSearchQuery] = useState('');
-	
-	// Force re-render timestamp for CSS updates
-	const renderTimestamp = Date.now();
-	
+	const [matchAnywhere, setMatchAnywhere] = useState(false);
+
+	// Stable timestamp for ProSidebar key (use useRef to prevent remounts on every render)
+	const renderTimestampRef = useRef(Date.now());
+	const renderTimestamp = renderTimestampRef.current;
+
 	// Helper function to get V6 flow styles
-	const getV6FlowStyles = (isActive: boolean) => ({
+	const _getV6FlowStyles = (isActive: boolean) => ({
 		background: '#dcfce7', // Light green for all V6 flows
 		color: '#166534', // Dark green text
 		borderLeft: '3px solid #22c55e',
 		borderRight: isActive ? '3px solid #22c55e' : undefined, // Green border for active
 		fontWeight: isActive ? '700' : '600',
 		transition: 'all 0.2s ease',
-		cursor: 'pointer'
+		cursor: 'pointer',
 	});
 
 	// Helper function to get V6 flow hover styles
-	const getV6FlowHoverStyles = () => ({
-		background: '#bbf7d0', // Light green hover
-		color: '#15803d', // Dark green text
-		transform: 'translateX(2px)',
-		boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)' // Green shadow
-	});
+	// const _getV6FlowHoverStyles = () => ({
+	// 	background: '#bbf7d0', // Light green hover
+	// 	color: '#15803d', // Dark green text
+	// 	transform: 'translateX(2px)',
+	// 	boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)', // Green shadow
+	// });
 
 	// Helper function to get V7 flow styles
-	const getV7FlowStyles = (isActive: boolean) => ({
-		background: '#dcfce7', // Light green for all V7 flows
-		color: '#166534', // Dark green text
-		borderLeft: '3px solid #22c55e',
-		borderRight: isActive ? '3px solid #22c55e' : undefined, // Green border for active
-		fontWeight: isActive ? '700' : '600',
-		transition: 'all 0.2s ease',
-		cursor: 'pointer'
-	});
+	// const _getV7FlowStyles = (isActive: boolean) => ({
+	// 	background: '#dcfce7', // Light green for all V7 flows
+	// 	color: '#166534', // Dark green text
+	// 	borderLeft: '3px solid #22c55e',
+	// 	borderRight: isActive ? '3px solid #22c55e' : undefined, // Green border for active
+	// 	fontWeight: isActive ? '700' : '600',
+	// 	transition: 'all 0.2s ease',
+	// 	cursor: 'pointer',
+	// });
 
 	// Helper function to get V7 flow hover styles
-	const getV7FlowHoverStyles = () => ({
-		background: '#bbf7d0', // Light green hover
-		color: '#15803d', // Dark green text
-		transform: 'translateX(2px)',
-		boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)' // Green shadow
-	});
+	// const _getV7FlowHoverStyles = () => ({
+	// 	background: '#bbf7d0', // Light green hover
+	// 	color: '#15803d', // Dark green text
+	// 	transform: 'translateX(2px)',
+	// 	boxShadow: '0 2px 8px rgba(34, 197, 94, 0.3)', // Green shadow
+	// });
 
 	// Helper function to create V6 menu item props
-	const createV6MenuItemProps = (path: string, additionalPaths: string[] = []) => {
-		const isActiveState = isActive(path) || additionalPaths.some(p => isActive(p));
-		return {
-			className: 'v6-flow',
-			style: getV6FlowStyles(isActiveState)
-		};
-	};
+	// const _createV6MenuItemProps = (path: string, additionalPaths: string[] = []) => {
+	// 	const isActiveState = isActive(path) || additionalPaths.some((p) => isActive(p));
+	// 	return {
+	// 		className: 'v6-flow',
+	// 		style: getV6FlowStyles(isActiveState),
+	// 	};
+	// };
 
 	// Load persisted menu state from localStorage
-	const [openMenus, setOpenMenus] = useState<Record<string, boolean>>(() => {
+	const [openMenus, _setOpenMenus] = useState<Record<string, boolean>>(() => {
 		try {
 			const saved = localStorage.getItem('nav.openSections');
 			if (saved) {
@@ -437,25 +436,26 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		} catch (error) {
 			console.warn('Failed to load navigation state from localStorage:', error);
 		}
-		// Default state - only Core Overview and OAuth 2.0 Flows open by default
+		// Default state - only Core Overview and V8 Flows open by default
 		return {
 			'Core Overview': true,
-			'OAuth 2.0 Flows': true,
+			'V8 Flows (Latest)': true,
+			'OAuth 2.0 Flows': false,
 			'OpenID Connect': true,
 			PingOne: false,
-			'Mock & Demo Flows': false,
+			'V7RM Mock Flows (Not Supported by PingOne)': false,
 			'Artificial Intelligence': false,
 			'Security & Management': false,
 			'Tools & Utilities': false,
 			Documentation: false,
-			'Developers': false,
+			Developers: false,
 		};
 	});
 
-	const isActive = (path: string) => location.pathname === path;
+	const _isActive = (path: string) => location.pathname === path;
 
 	// Get friendly flow name from path for toast notification
-	const getFlowName = (path: string): string | undefined => {
+	const _getFlowName = (path: string): string | undefined => {
 		const flowNames: Record<string, string> = {
 			'/dashboard': 'Dashboard',
 			'/configuration': 'Configuration',
@@ -469,7 +469,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/oidc-hybrid-v6': 'OIDC Hybrid Flow',
 			'/flows/oidc-hybrid-v7': 'Hybrid Flow V7',
 			'/flows/implicit-v7': 'Implicit Flow V7',
-			'/flows/token-exchange-v7': 'Token Exchange V7',
+			'/flows/token-exchange-v7': 'Token Exchange V8M',
 			'/flows/device-authorization-v7': 'Device Authorization V7',
 			'/documentation/oidc-overview': 'OIDC Overview',
 			'/auto-discover': 'OIDC Discovery',
@@ -494,6 +494,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			'/flows/resource-owner-password-v6': 'Resource Owner Password',
 			'/flows/pingone-complete-mfa-v7': 'PingOne Complete MFA Flow V7',
 			'/flows/pingone-mfa-v7': 'PingOne MFA V7',
+			'/v8/mfa': 'MFA Playground (V8)',
 			'/pingone-authentication': 'PingOne Authentication',
 			'/pingone-mock-features': 'PingOne Mock Features',
 			'/pingone-identity-metrics': 'PingOne Identity Metrics',
@@ -501,37 +502,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		return flowNames[path];
 	};
 
-	const handleNavigation = (path: string, state?: any) => {
-		console.log('Navigating to:', path, 'with state:', state);
-		
-		// Don't show toast if navigating to same page
-		if (location.pathname !== path) {
-			const flowName = getFlowName(path);
-			console.log('Flow name:', flowName);
-			if (!flowName && path.startsWith('/flows/')) {
-				v4ToastManager.showError('Unable to locate that flow. Please verify the menu configuration.');
-				return;
-			}
-			if (flowName) {
-				// Show brief toast notification using showSuccess (no showInfo method exists)
-				v4ToastManager.showSuccess(`Switched to ${flowName}`, {}, { duration: 1500 });
-			}
-		}
-		
-		// Navigate immediately without scrolling the menu
-		navigate(path, { state });
-		// Close sidebar after navigation
-		setTimeout(() => {
-			onClose();
-		}, 150);
-	};
+	// const _handleNavigation = (path: string, state?: unknown) => {
+	// 	console.log('Navigating to:', path, 'with state:', state);
+	//
+	// 	// Don't show toast if navigating to same page
+	// 	if (location.pathname !== path) {
+	// 		const flowName = getFlowName(path);
+	// 		console.log('Flow name:', flowName);
+	// 		if (!flowName && path.startsWith('/flows/')) {
+	// 			v4ToastManager.showError(
+	// 				'Unable to locate that flow. Please verify the menu configuration.'
+	// 			);
+	// 			return;
+	// 		}
+	// 		if (flowName) {
+	// 			// Show brief toast notification using showSuccess (no showInfo method exists)
+	// 			v4ToastManager.showSuccess(`Switched to ${flowName}`, {}, { duration: 1500 });
+	// 		}
+	// 	}
+	//
+	// 	// Navigate immediately without scrolling the menu
+	// 	navigate(path, { state });
+	// 	// Close sidebar after navigation
+	// 	setTimeout(() => {
+	// 		onClose();
+	// 	}, 150);
+	// };
 
 	// Handle search
 	const handleSearch = useCallback((query: string) => {
 		setSearchQuery(query);
 		// The DragDropSidebar will handle the actual search filtering
-	}, [sidebarWidth]);
-
+	}, []);
 
 	const handleMouseDown = (e: React.MouseEvent) => {
 		isResizing.current = true;
@@ -539,23 +541,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	};
 
 	// Toggle menu section and persist to localStorage
-	const toggleMenu = (menuLabel: string) => {
-		setOpenMenus((prev: Record<string, boolean>) => {
-			const newState = {
-				...prev,
-				[menuLabel]: !prev[menuLabel],
-			};
+	// const _toggleMenu = (menuLabel: string) => {
+	// 	setOpenMenus((prev: Record<string, boolean>) => {
+	// 		const newState = {
+	// 			...prev,
+	// 			[menuLabel]: !prev[menuLabel],
+	// 		};
+	//
+	// 		try {
+	// 			localStorage.setItem('nav.openSections', JSON.stringify(newState));
+	// 		} catch (error) {
+	// 			console.warn('Failed to save navigation state to localStorage:', error);
+	// 		}
+	//
+	// 		return newState;
+	// 	});
+	// };
 
-			try {
-				localStorage.setItem('nav.openSections', JSON.stringify(newState));
-			} catch (error) {
-				console.warn('Failed to save navigation state to localStorage:', error);
-			}
-
-			return newState;
-		});
-	};
-	
 	// Define menu item structure for drag and drop
 	interface MenuItem {
 		id: string;
@@ -575,8 +577,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	}
 
 	// Initialize menu structure with drag and drop support
-	const [menuGroups, setMenuGroups] = useState<MenuGroup[]>(() => {
+	const [_menuGroups, _setMenuGroups] = useState<MenuGroup[]>(() => {
 		const savedOrder = localStorage.getItem('sidebar.menuOrder');
+    //     // ... (commented out large block) ...
+    //     return [];
+    // });
 		if (savedOrder) {
 			try {
 				return JSON.parse(savedOrder);
@@ -586,80 +591,493 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 		}
 
 		// Default menu structure
- 		return [
+		return [
+			{
+				id: 'v8-flows-new',
+				label: 'V8 Flows - NEW',
+				icon: (
+					<ColoredIcon $color="#3b82f6">
+						<FiZap />
+					</ColoredIcon>
+				),
+				isOpen: openMenus['V8 Flows - NEW'] || true,
+				items: [
+					{
+						id: 'unified-oauth-flow-v8u',
+						path: '/v8u/unified',
+						label: '🎯 Unified Flow (V8U)',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8U: Single UI for all OAuth/OIDC flows with real PingOne APIs">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'spiffe-spire-flow-v8u',
+						path: '/v8u/spiffe-spire',
+						label: '🔐 SPIFFE/SPIRE Mock',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiShield />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Mock flow demonstrating SPIFFE/SPIRE workload identity to PingOne token exchange">
+								MOCK
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'mfa-playground-v8',
+						path: '/v8/mfa',
+						label: 'OTP MFA',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSmartphone />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: OTP MFA Playground">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'resources-api-v8',
+						path: '/v8/resources-api',
+						label: 'Resources API Tutorial',
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiBook />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Learn PingOne Resources API - OAuth 2.0 resources, scopes, and custom claims">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'pingone-authentication',
+						path: '/pingone-authentication',
+						label: 'PingOne Authentication',
+						icon: (
+							<ColoredIcon $color="#2563eb">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="Enhanced PingOne authentication with token endpoint auth help">
+								NEW
+							</MigrationBadge>
+						),
+					},
+				],
+			},
+			{
+				id: 'v8-flows',
+				label: 'V8 Flows (Latest)',
+				icon: (
+					<ColoredIcon $color="#10b981">
+						<FiZap />
+					</ColoredIcon>
+				),
+				isOpen: openMenus['V8 Flows (Latest)'] || true,
+				items: [
+					{
+						id: 'mfa-v8',
+						path: '/flows/mfa-v8',
+						label: 'MFA Flow (V8)',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiSmartphone />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: PingOne MFA with SMS device registration and OTP validation">
+								NEW
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'oauth-authorization-code-v8',
+						path: '/flows/oauth-authorization-code-v8',
+						label: 'Authorization Code (V8)',
+						icon: (
+							<ColoredIcon $color="#06b6d4">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Simplified UI with educational content in modals">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'implicit-v8',
+						path: '/flows/implicit-v8',
+						label: 'Implicit Flow (V8)',
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Simplified UI with educational content in modals">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+					{
+						id: 'unified-credentials-mockup-v8',
+						path: '/v8/unified-credentials-mockup',
+						label: 'Unified Credentials UI (Mockup)',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiSettings />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8: Spec-aware unified credentials form demo">
+								<FiCode />
+							</MigrationBadge>
+						),
+					},
+				],
+			},
+			{
+				id: 'v7m-mock-flows',
+				label: 'Mock OAuth and OIDC flows',
+				icon: (
+					<ColoredIcon $color="#0ea5e9">
+						<FiPackage />
+					</ColoredIcon>
+				),
+				isOpen: openMenus['Mock OAuth and OIDC flows'] || true,
+				items: [
+					{
+						id: 'v7m-oauth-authorization-code',
+						path: '/v7m/oauth/authorization-code',
+						label: 'V7M OAuth Authorization Code',
+						icon: (
+							<ColoredIcon $color="#06b6d4">
+								<FiKey />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oidc-authorization-code',
+						path: '/v7m/oidc/authorization-code',
+						label: 'V7M OIDC Authorization Code',
+						icon: (
+							<ColoredIcon $color="#22c55e">
+								<FiShield />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oauth-device-authorization',
+						path: '/v7m/oauth/device-authorization',
+						label: 'V7M Device Authorization',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiSmartphone />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oauth-client-credentials',
+						path: '/v7m/oauth/client-credentials',
+						label: 'V7M Client Credentials',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiKey />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oauth-implicit',
+						path: '/v7m/oauth/implicit',
+						label: 'V7M OAuth Implicit Flow',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiAlertTriangle />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oidc-implicit',
+						path: '/v7m/oidc/implicit',
+						label: 'V7M OIDC Implicit Flow',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiAlertTriangle />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oauth-ropc',
+						path: '/v7m/oauth/ropc',
+						label: 'V7M Resource Owner Password',
+						icon: (
+							<ColoredIcon $color="#dc2626">
+								<FiUser />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-oidc-ropc',
+						path: '/v7m/oidc/ropc',
+						label: 'V7M OIDC Resource Owner Password',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiUser />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7m-settings',
+						path: '/v7m/settings',
+						label: 'V7M Settings',
+						icon: (
+							<ColoredIcon $color="#0ea5e9">
+								<FiSettings />
+							</ColoredIcon>
+						),
+					},
+				],
+			},
 			{
 				id: 'main',
 				label: 'OAuth 2.0 Flows',
-				icon: <ColoredIcon $color="#ef4444"><FiShield /></ColoredIcon>,
+				icon: (
+					<ColoredIcon $color="#ef4444">
+						<FiShield />
+					</ColoredIcon>
+				),
 				isOpen: openMenus['OAuth 2.0 Flows'] || false,
 				items: [
 					{
 						id: 'oauth-authorization-code-v7',
 						path: '/flows/oauth-authorization-code-v7',
 						label: 'Authorization Code (V7)',
-						icon: <ColoredIcon $color="#22d3ee"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience"><FiCheckCircle /></MigrationBadge>,
+						icon: (
+							<ColoredIcon $color="#22d3ee">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: Unified OAuth/OIDC authorization code experience">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'implicit-v7',
 						path: '/flows/implicit-v7',
 						label: 'Implicit Flow (V7)',
-						icon: <ColoredIcon $color="#7c3aed"><FiZap /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector"><FiCheckCircle /></MigrationBadge>,
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<FiZap />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: Unified OAuth/OIDC implementation with variant selector">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'device-authorization-v7',
 						path: '/flows/device-authorization-v7',
 						label: 'Device Authorization (V7)',
-						icon: <ColoredIcon $color="#f59e0b"><FiSmartphone /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools"><FiCheckCircle /></MigrationBadge>,
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiSmartphone />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: Unified OAuth/OIDC device authorization for TVs, IoT devices, and CLI tools">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'client-credentials-v7',
 						path: '/flows/client-credentials-v7',
 						label: 'OAuth Client Credentials (V7)',
-						icon: <ColoredIcon $color="#10b981"><FiKey /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Enhanced client credentials with comprehensive auth methods"><FiCheckCircle /></MigrationBadge>,
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiKey />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: Enhanced client credentials with comprehensive auth methods">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'oauth-ropc-v7',
 						path: '/flows/oauth-ropc-v7',
 						label: 'OAuth Resource Owner Password (V7)',
-						icon: <ColoredIcon $color="#8b5cf6"><FiLock /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: Resource Owner Password Credentials with enhanced security"><FiCheckCircle /></MigrationBadge>,
+						icon: (
+							<ColoredIcon $color="#8b5cf6">
+								<FiLock />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V7: Resource Owner Password Credentials with enhanced security">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
 					},
 					{
 						id: 'token-exchange-v7',
 						path: '/flows/token-exchange-v7',
-						label: 'Token Exchange (V7)',
-						icon: <ColoredIcon $color="#7c3aed"><FiRefreshCw /></ColoredIcon>,
-						badge: <MigrationBadge title="V7: RFC 8693 Token Exchange for A2A scenarios"><FiCheckCircle /></MigrationBadge>,
+						label: 'Token Exchange (V8M)',
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<FiRefreshCw />
+							</ColoredIcon>
+						),
+						badge: (
+							<MigrationBadge title="V8M: RFC 8693 Token Exchange for A2A scenarios">
+								<FiCheckCircle />
+							</MigrationBadge>
+						),
+					},
+				],
+			},
+			{
+				id: 'token-management',
+				label: 'Token Management',
+				icon: (
+					<ColoredIcon $color="#8b5cf6">
+						<FiDatabase />
+					</ColoredIcon>
+				),
+				isOpen: openMenus['Token Management'] || false,
+				items: [
+					{
+						id: 'token-introspection',
+						path: '/flows/token-introspection',
+						label: 'Token Introspection',
+						icon: (
+							<ColoredIcon $color="#3b82f6">
+								<FiEye />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'token-revocation',
+						path: '/flows/token-revocation',
+						label: 'Token Revocation',
+						icon: (
+							<ColoredIcon $color="#ef4444">
+								<FiX />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'userinfo-flow',
+						path: '/flows/userinfo',
+						label: 'UserInfo Flow',
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiUsers />
+							</ColoredIcon>
+						),
+					},
+				],
+			},
+			{
+				id: 'mock-flows',
+				label: 'V7RM Mock Flows (Not Supported by PingOne)',
+				icon: (
+					<ColoredIcon $color="#f59e0b">
+						<FiCpu />
+					</ColoredIcon>
+				),
+				isOpen: openMenus['V7RM Mock Flows (Not Supported by PingOne)'] || false,
+				items: [
+					{
+						id: 'v7rm-oidc-ropc',
+						path: '/flows/v7rm-oidc-ropc',
+						label: 'V7RM OIDC ROPC',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiLock />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'saml-bearer-assertion-v7',
+						path: '/flows/saml-bearer-assertion-v7',
+						label: 'SAML Bearer (Mock)',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiShield />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7rm-oauth-authz-code-condensed',
+						path: '/flows/oauth-authorization-code-v7-condensed-mock',
+						label: 'V7RM Auth Code Condensed',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiKey />
+							</ColoredIcon>
+						),
+					},
+					{
+						id: 'v7rm-condensed-mock',
+						path: '/flows/v7rm-condensed-mock',
+						label: 'V7RM Condensed Mock',
+						icon: (
+							<ColoredIcon $color="#f59e0b">
+								<FiLayers />
+							</ColoredIcon>
+						),
 					},
 				],
 			},
 			{
 				id: 'pingone',
 				label: 'PingOne',
-				icon: <ColoredIcon $color="#0ea5e9"><FiShield /></ColoredIcon>,
+				icon: (
+					<ColoredIcon $color="#0ea5e9">
+						<FiShield />
+					</ColoredIcon>
+				),
 				isOpen: openMenus['PingOne'] || false,
 				items: [
-					{
-						id: 'pingone-authentication',
-						path: '/pingone-authentication',
-						label: 'PingOne Authentication',
-						icon: <ColoredIcon $color="#2563eb"><FiKey /></ColoredIcon>,
-					},
 					{
 						id: 'pingone-identity-metrics',
 						path: '/pingone-identity-metrics',
 						label: 'PingOne Identity Metrics',
-						icon: <ColoredIcon $color="#10b981"><FiBarChart2 /></ColoredIcon>,
+						icon: (
+							<ColoredIcon $color="#10b981">
+								<FiBarChart2 />
+							</ColoredIcon>
+						),
 					},
 					{
 						id: 'pingone-mock-features',
 						path: '/pingone-mock-features',
 						label: 'PingOne Mock Features',
-						icon: <ColoredIcon $color="#7c3aed"><FiCpu /></ColoredIcon>,
+						icon: (
+							<ColoredIcon $color="#7c3aed">
+								<FiCpu />
+							</ColoredIcon>
+						),
 					},
 				],
 			},
@@ -667,84 +1085,85 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	});
 
 	// Handle drag and drop
-	const handleDragEnd = (result: DropResult) => {
-		const { destination, source, type } = result;
-
-		// If dropped outside a valid drop zone
-		if (!destination) {
-			return;
-		}
-
-		// If dropped in the same position
-		if (destination.droppableId === source.droppableId && destination.index === source.index) {
-			return;
-		}
-
-		if (type === 'group') {
-			// Reordering groups
-			const newGroups = Array.from(menuGroups);
-			const [reorderedGroup] = newGroups.splice(source.index, 1);
-			newGroups.splice(destination.index, 0, reorderedGroup);
-
-			setMenuGroups(newGroups);
-			localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
-			
-			v4ToastManager.showSuccess('Menu section reordered successfully!');
-		} else {
-			// Moving items between groups
-			const sourceGroupIndex = menuGroups.findIndex(group => group.id === source.droppableId);
-			const destGroupIndex = menuGroups.findIndex(group => group.id === destination.droppableId);
-
-			if (sourceGroupIndex === -1 || destGroupIndex === -1) {
-				return;
-			}
-
-			const newGroups = Array.from(menuGroups);
-			const sourceGroup = { ...newGroups[sourceGroupIndex] };
-			const destGroup = { ...newGroups[destGroupIndex] };
-
-			// Remove item from source group
-			const [movedItem] = sourceGroup.items.splice(source.index, 1);
-
-			// Add item to destination group
-			destGroup.items.splice(destination.index, 0, movedItem);
-
-			// Update the groups
-			newGroups[sourceGroupIndex] = sourceGroup;
-			newGroups[destGroupIndex] = destGroup;
-
-			setMenuGroups(newGroups);
-			localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
-
-			v4ToastManager.showSuccess(
-				`Moved "${movedItem.label}" to ${destGroup.label}`,
-				{},
-				{ duration: 3000 }
-			);
-		}
-	};
+	// const _handleDragEnd = (result: DropResult) => {
+	// 	const { destination, source, type } = result;
+	//
+	// 	// If dropped outside a valid drop zone
+	// 	if (!destination) {
+	// 		return;
+	// 	}
+	//
+	// 	// If dropped in the same position
+	// 	if (destination.droppableId === source.droppableId && destination.index === source.index) {
+	// 		return;
+	// 	}
+	//
+	// 	if (type === 'group') {
+	// 		// Reordering groups
+	// 		const newGroups = Array.from(menuGroups);
+	// 		const [reorderedGroup] = newGroups.splice(source.index, 1);
+	// 		newGroups.splice(destination.index, 0, reorderedGroup);
+	//
+	// 		setMenuGroups(newGroups);
+	// 		localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
+	//
+	// 		v4ToastManager.showSuccess('Menu section reordered successfully!');
+	// 	} else {
+	// 		// Moving items between groups
+	// 		const sourceGroupIndex = menuGroups.findIndex((group) => group.id === source.droppableId);
+	// 		const destGroupIndex = menuGroups.findIndex((group) => group.id === destination.droppableId);
+	//
+	// 		if (sourceGroupIndex === -1 || destGroupIndex === -1) {
+	// 			return;
+	// 		}
+	//
+	// 		const newGroups = Array.from(menuGroups);
+	// 		const sourceGroup = { ...newGroups[sourceGroupIndex] };
+	// 		const destGroup = { ...newGroups[destGroupIndex] };
+	//
+	// 		// Remove item from source group
+	// 		const [movedItem] = sourceGroup.items.splice(source.index, 1);
+	//
+	// 		// Add item to destination group
+	// 		destGroup.items.splice(destination.index, 0, movedItem);
+	//
+	// 		// Update the groups
+	// 		newGroups[sourceGroupIndex] = sourceGroup;
+	// 		newGroups[destGroupIndex] = destGroup;
+	//
+	// 		setMenuGroups(newGroups);
+	// 		localStorage.setItem('sidebar.menuOrder', JSON.stringify(newGroups));
+	//
+	// 		v4ToastManager.showSuccess(
+	// 			`Moved "${movedItem.label}" to ${destGroup.label}`,
+	// 			{},
+	// 			{ duration: 3000 }
+	// 		);
+	// 	}
+	// };
 
 	// Update group open state
-	const toggleMenuGroup = (groupId: string) => {
-		setMenuGroups(prevGroups => {
-			const newGroups = prevGroups.map(group => 
-				group.id === groupId 
-					? { ...group, isOpen: !group.isOpen }
-					: group
-			);
-
-			// Update the openMenus state for persistence
-			const newOpenState = newGroups.reduce((acc, group) => {
-				acc[group.label] = group.isOpen;
-				return acc;
-			}, {} as Record<string, boolean>);
-
-			setOpenMenus(newOpenState);
-			localStorage.setItem('nav.openSections', JSON.stringify(newOpenState));
-
-			return newGroups;
-		});
-	};
+	// const _toggleMenuGroup = (groupId: string) => {
+	// 	setMenuGroups((prevGroups) => {
+	// 		const newGroups = prevGroups.map((group) =>
+	// 			group.id === groupId ? { ...group, isOpen: !group.isOpen } : group
+	// 		);
+	//
+	// 		// Update the openMenus state for persistence
+	// 		const newOpenState = newGroups.reduce(
+	// 			(acc, group) => {
+	// 				acc[group.label] = group.isOpen;
+	// 				return acc;
+	// 			},
+	// 			{} as Record<string, boolean>
+	// 		);
+	//
+	// 		setOpenMenus(newOpenState);
+	// 		localStorage.setItem('nav.openSections', JSON.stringify(newOpenState));
+	//
+	// 		return newGroups;
+	// 	});
+	// };
 
 	// Drag and drop mode toggle
 	const [isDragDropMode, setIsDragDropMode] = useState(() => {
@@ -759,23 +1178,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	}, [isDragDropMode]);
 
 	// Function to reset drag mode (for debugging)
-	const resetDragMode = () => {
-		console.log('🔄 Resetting drag mode');
-		localStorage.removeItem('sidebar.dragDropMode');
-		setIsDragDropMode(false);
-	};
+	// const _resetDragMode = () => {
+	// 	console.log('🔄 Resetting drag mode');
+	// 	localStorage.removeItem('sidebar.dragDropMode');
+	// 	setIsDragDropMode(false);
+	// };
 
 	const toggleDragDropMode = () => {
 		const newMode = !isDragDropMode;
 		console.log('🔄 Toggling drag mode from', isDragDropMode, 'to', newMode);
 		setIsDragDropMode(newMode);
 		localStorage.setItem('sidebar.dragDropMode', newMode.toString());
-		
+
 		if (newMode) {
 			v4ToastManager.showSuccess(
 				'Drag & Drop Mode Enabled',
 				{
-					description: 'You can now drag menu items between sections and reorder sections!'
+					description: 'You can now drag menu items between sections and reorder sections!',
 				},
 				{ duration: 3000 }
 			);
@@ -783,7 +1202,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			v4ToastManager.showSuccess(
 				'Standard View Mode',
 				{
-					description: 'Your customizations are preserved but drag handles are hidden.'
+					description: 'Your customizations are preserved but drag handles are hidden.',
 				},
 				{ duration: 3000 }
 			);
@@ -791,15 +1210,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 	};
 
 	// Show drag instructions
-	const showDragInstructions = () => {
-		v4ToastManager.showSuccess(
-			'Drag & Drop Menu Items',
-			{
-				description: 'Drag menu items between sections or reorder sections by dragging the section headers. Your layout will be saved automatically!'
-			},
-			{ duration: 4000 }
-		);
-	};
+	// const _showDragInstructions = () => {
+	// 	v4ToastManager.showSuccess(
+	// 		'Drag & Drop Menu Items',
+	// 		{
+	// 			description:
+	// 				'Drag menu items between sections or reorder sections by dragging the section headers. Your layout will be saved automatically!',
+	// 		},
+	// 		{ duration: 4000 }
+	// 	);
+	// };
 
 	useEffect(() => {
 		const handleMouseMove = (e: MouseEvent) => {
@@ -825,7 +1245,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 			document.removeEventListener('mousemove', handleMouseMove);
 			document.removeEventListener('mouseup', handleMouseUp);
 		};
-	}, []);
+	}, [sidebarWidth]);
 
 	return (
 		<SidebarContainer $isOpen={isOpen} $width={sidebarWidth}>
@@ -836,9 +1256,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 						PingOne OAuth Playground
 					</div>
 					<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<DragModeToggle 
+						<DragModeToggle
 							onClick={toggleDragDropMode}
-							title={isDragDropMode ? "Switch to standard menu" : "Enable drag & drop mode"}
+							title={isDragDropMode ? 'Switch to standard menu' : 'Enable drag & drop mode'}
 							$isActive={isDragDropMode}
 						>
 							<FiMove size={14} />
@@ -850,15 +1270,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 					</div>
 				</SidebarHeader>
 
-				<SidebarSearch 
+				<SidebarSearch
 					onSearch={handleSearch}
 					placeholder="Search flows and pages..."
 					activeSearchQuery={searchQuery}
+					matchAnywhere={matchAnywhere}
+					onMatchAnywhereChange={setMatchAnywhere}
 				/>
 
-				<DragDropSidebar 
-					dragMode={isDragDropMode} 
+				<DragDropSidebar
+					dragMode={isDragDropMode}
 					searchQuery={searchQuery}
+					matchAnywhere={matchAnywhere}
 				/>
 			</ProSidebar>
 		</SidebarContainer>

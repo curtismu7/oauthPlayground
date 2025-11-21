@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FiSearch, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import { FlowHeader } from '../services/flowHeaderService';
 
 const PageContainer = styled.main`
 	min-height: 100vh;
@@ -1019,7 +1019,12 @@ const AIGlossary: React.FC = () => {
 						'A technique that combines information retrieval with text generation, allowing AI models to access and incorporate external knowledge sources to provide more accurate and up-to-date responses.',
 					example:
 						'A customer service chatbot that retrieves relevant product information from a knowledge base and uses it to generate accurate, contextual responses to customer inquiries.',
-					relatedTerms: ['Information Retrieval', 'Knowledge Base', 'Context-aware AI', 'External Knowledge'],
+					relatedTerms: [
+						'Information Retrieval',
+						'Knowledge Base',
+						'Context-aware AI',
+						'External Knowledge',
+					],
 				},
 				{
 					term: 'Few-shot Learning',
@@ -1035,7 +1040,12 @@ const AIGlossary: React.FC = () => {
 						'A prompting technique that encourages AI models to show their reasoning process step-by-step, leading to more accurate and interpretable results.',
 					example:
 						'Asking an AI to solve a math problem by showing each step of calculation, making the reasoning process transparent and allowing for verification of the logic.',
-					relatedTerms: ['Reasoning', 'Interpretability', 'Step-by-step Processing', 'Transparency'],
+					relatedTerms: [
+						'Reasoning',
+						'Interpretability',
+						'Step-by-step Processing',
+						'Transparency',
+					],
 				},
 				{
 					term: 'Multimodal AI',
@@ -1043,7 +1053,12 @@ const AIGlossary: React.FC = () => {
 						'AI systems that can process and understand multiple types of data simultaneously, such as text, images, audio, and video, enabling more comprehensive understanding.',
 					example:
 						'An AI system that can analyze a video to understand both the visual content and spoken dialogue, then generate a summary that incorporates both visual and auditory information.',
-					relatedTerms: ['Cross-modal Learning', 'Multimedia AI', 'Sensory Integration', 'Unified Processing'],
+					relatedTerms: [
+						'Cross-modal Learning',
+						'Multimedia AI',
+						'Sensory Integration',
+						'Unified Processing',
+					],
 				},
 				{
 					term: 'Constitutional AI',
@@ -1059,7 +1074,12 @@ const AIGlossary: React.FC = () => {
 						'The ability of large language models to learn new tasks or adapt their behavior based on examples provided within the input context, without requiring model updates.',
 					example:
 						'Providing a few examples of a specific writing style in the prompt, and the AI model adapts its output to match that style for subsequent requests.',
-					relatedTerms: ['Context Adaptation', 'Prompt Engineering', 'Dynamic Learning', 'Task Adaptation'],
+					relatedTerms: [
+						'Context Adaptation',
+						'Prompt Engineering',
+						'Dynamic Learning',
+						'Task Adaptation',
+					],
 				},
 				{
 					term: 'Reinforcement Learning from Human Feedback (RLHF)',
@@ -1067,15 +1087,25 @@ const AIGlossary: React.FC = () => {
 						'A training method that uses human preferences to guide AI model behavior, allowing models to learn complex behaviors that are difficult to specify directly.',
 					example:
 						'Training a chatbot by having humans rate different responses, then using these ratings to fine-tune the model to generate more helpful and appropriate responses.',
-					relatedTerms: ['Human Feedback', 'Preference Learning', 'Model Alignment', 'Behavioral Training'],
+					relatedTerms: [
+						'Human Feedback',
+						'Preference Learning',
+						'Model Alignment',
+						'Behavioral Training',
+					],
 				},
 				{
 					term: 'Emergent Capabilities',
 					definition:
-						'Abilities that appear in AI models as they scale up, often unexpectedly, representing behaviors or skills that weren\'t explicitly trained for.',
+						"Abilities that appear in AI models as they scale up, often unexpectedly, representing behaviors or skills that weren't explicitly trained for.",
 					example:
-						'A language model that suddenly demonstrates mathematical reasoning abilities or code generation skills that weren\'t part of its original training objectives.',
-					relatedTerms: ['Scaling Laws', 'Unexpected Behaviors', 'Model Scaling', 'Capability Emergence'],
+						"A language model that suddenly demonstrates mathematical reasoning abilities or code generation skills that weren't part of its original training objectives.",
+					relatedTerms: [
+						'Scaling Laws',
+						'Unexpected Behaviors',
+						'Model Scaling',
+						'Capability Emergence',
+					],
 				},
 				{
 					term: 'Tool Use (AI)',
@@ -1083,7 +1113,12 @@ const AIGlossary: React.FC = () => {
 						'The ability of AI systems to interact with external tools, APIs, and systems to accomplish tasks that require capabilities beyond text generation.',
 					example:
 						'An AI assistant that can search the web for current information, use a calculator for complex computations, and interact with databases to provide comprehensive answers.',
-					relatedTerms: ['API Integration', 'External Tools', 'Function Calling', 'System Interaction'],
+					relatedTerms: [
+						'API Integration',
+						'External Tools',
+						'Function Calling',
+						'System Interaction',
+					],
 				},
 				{
 					term: 'Hallucination (AI)',
@@ -1091,7 +1126,12 @@ const AIGlossary: React.FC = () => {
 						'The tendency of AI models to generate plausible-sounding but factually incorrect or nonsensical information, often with high confidence.',
 					example:
 						'An AI model confidently stating that a fictional character won a real Nobel Prize, or providing detailed but completely fabricated historical events.',
-					relatedTerms: ['Factual Accuracy', 'Confidence Calibration', 'Truthfulness', 'Reliability'],
+					relatedTerms: [
+						'Factual Accuracy',
+						'Confidence Calibration',
+						'Truthfulness',
+						'Reliability',
+					],
 				},
 				{
 					term: 'Prompt Engineering',
@@ -1099,7 +1139,12 @@ const AIGlossary: React.FC = () => {
 						'The practice of designing and optimizing input prompts to achieve desired outputs from AI models, involving careful crafting of instructions, examples, and context.',
 					example:
 						'Crafting a prompt that includes specific instructions, examples, and formatting requirements to get an AI to generate a professional email in a particular tone and style.',
-					relatedTerms: ['Input Optimization', 'Instruction Design', 'Context Crafting', 'Output Control'],
+					relatedTerms: [
+						'Input Optimization',
+						'Instruction Design',
+						'Context Crafting',
+						'Output Control',
+					],
 				},
 				{
 					term: 'Parameter-Efficient Fine-tuning',
@@ -1114,16 +1159,21 @@ const AIGlossary: React.FC = () => {
 					definition:
 						'The field focused on ensuring AI systems are beneficial, controllable, and aligned with human values, addressing risks from misaligned AI behavior.',
 					example:
-						'Research into making AI systems that can be reliably shut down, that won\'t pursue unintended goals, and that can be aligned with complex human values and preferences.',
+						"Research into making AI systems that can be reliably shut down, that won't pursue unintended goals, and that can be aligned with complex human values and preferences.",
 					relatedTerms: ['AI Alignment', 'Robustness', 'Controllability', 'Value Alignment'],
 				},
 				{
 					term: 'Interpretability',
 					definition:
-						'The ability to understand and explain how AI models make decisions, including which features or inputs most influence the model\'s outputs.',
+						"The ability to understand and explain how AI models make decisions, including which features or inputs most influence the model's outputs.",
 					example:
-						'Using attention visualization to see which words in a sentence a language model focuses on when making a classification decision, helping understand the model\'s reasoning process.',
-					relatedTerms: ['Explainability', 'Transparency', 'Model Understanding', 'Decision Analysis'],
+						"Using attention visualization to see which words in a sentence a language model focuses on when making a classification decision, helping understand the model's reasoning process.",
+					relatedTerms: [
+						'Explainability',
+						'Transparency',
+						'Model Understanding',
+						'Decision Analysis',
+					],
 				},
 				{
 					term: 'Federated Learning',
@@ -1131,7 +1181,12 @@ const AIGlossary: React.FC = () => {
 						'A distributed machine learning approach where models are trained across multiple decentralized devices or servers while keeping data localized and private.',
 					example:
 						'Training a predictive text model across millions of smartphones without ever collecting the actual text data, instead sending only model updates to a central server.',
-					relatedTerms: ['Privacy-preserving ML', 'Distributed Training', 'Data Privacy', 'Decentralized Learning'],
+					relatedTerms: [
+						'Privacy-preserving ML',
+						'Distributed Training',
+						'Data Privacy',
+						'Decentralized Learning',
+					],
 				},
 				{
 					term: 'Transfer Learning',
@@ -1139,7 +1194,12 @@ const AIGlossary: React.FC = () => {
 						'The practice of applying knowledge gained from one task to improve performance on a related but different task, leveraging pre-trained models.',
 					example:
 						'Using a model pre-trained on general language understanding to quickly adapt to medical text analysis, requiring much less training data than starting from scratch.',
-					relatedTerms: ['Pre-trained Models', 'Domain Adaptation', 'Knowledge Transfer', 'Model Reuse'],
+					relatedTerms: [
+						'Pre-trained Models',
+						'Domain Adaptation',
+						'Knowledge Transfer',
+						'Model Reuse',
+					],
 				},
 				{
 					term: 'Adversarial Examples',
@@ -1155,7 +1215,12 @@ const AIGlossary: React.FC = () => {
 						'The ability of AI systems to learn new tasks or information over time without forgetting previously learned knowledge, mimicking human learning.',
 					example:
 						'An AI system that learns to recognize new types of objects in images while maintaining its ability to recognize previously learned object categories.',
-					relatedTerms: ['Lifelong Learning', 'Catastrophic Forgetting', 'Incremental Learning', 'Knowledge Retention'],
+					relatedTerms: [
+						'Lifelong Learning',
+						'Catastrophic Forgetting',
+						'Incremental Learning',
+						'Knowledge Retention',
+					],
 				},
 				{
 					term: 'Neural Architecture Search (NAS)',
@@ -1163,7 +1228,12 @@ const AIGlossary: React.FC = () => {
 						'Automated methods for designing optimal neural network architectures, using AI to design AI models for specific tasks.',
 					example:
 						'Using automated search algorithms to discover the most efficient neural network structure for image classification on mobile devices, balancing accuracy and computational requirements.',
-					relatedTerms: ['Automated ML', 'Architecture Optimization', 'Model Design', 'Efficiency Search'],
+					relatedTerms: [
+						'Automated ML',
+						'Architecture Optimization',
+						'Model Design',
+						'Efficiency Search',
+					],
 				},
 			],
 		},
@@ -1185,22 +1255,32 @@ const AIGlossary: React.FC = () => {
 						'A category of AI models trained on massive text datasets to process, understand, and generate human language. LLMs are the foundation of modern conversational AI, enabling natural interactions, summarization, translation, and code generation.',
 					example:
 						'ChatGPT, Claude, or GPT-4 analyzing a legal document, translating between languages, writing code, or engaging in natural conversation with users.',
-					relatedTerms: ['Transformer Architecture', 'Natural Language Processing', 'Generative AI', 'Conversational AI'],
+					relatedTerms: [
+						'Transformer Architecture',
+						'Natural Language Processing',
+						'Generative AI',
+						'Conversational AI',
+					],
 				},
 				{
 					term: 'RAG (Retrieval Augmented Generation)',
 					definition:
 						'A hybrid approach in which an LLM retrieves information from external knowledge sources before generating responses. This method improves factual accuracy, reduces hallucinations, and is widely used in enterprise knowledge bases and secure AI assistants.',
 					example:
-						'A customer service chatbot that searches a company\'s knowledge base for relevant product information before generating a response, ensuring accurate and up-to-date answers.',
-					relatedTerms: ['Information Retrieval', 'Knowledge Base', 'Hallucination Reduction', 'Enterprise AI'],
+						"A customer service chatbot that searches a company's knowledge base for relevant product information before generating a response, ensuring accurate and up-to-date answers.",
+					relatedTerms: [
+						'Information Retrieval',
+						'Knowledge Base',
+						'Hallucination Reduction',
+						'Enterprise AI',
+					],
 				},
 				{
 					term: 'HITL (Human-in-the-Loop)',
 					definition:
 						'A governance model requiring explicit human validation before an AI system performs sensitive actions. HITL is critical for compliance-heavy industries such as healthcare, banking, and government, ensuring accountability and oversight.',
 					example:
-						'A medical AI system that suggests a diagnosis but requires a doctor to review and approve the recommendation before it\'s communicated to the patient.',
+						"A medical AI system that suggests a diagnosis but requires a doctor to review and approve the recommendation before it's communicated to the patient.",
 					relatedTerms: ['AI Governance', 'Compliance', 'Human Oversight', 'Risk Management'],
 				},
 				{
@@ -1217,12 +1297,17 @@ const AIGlossary: React.FC = () => {
 						'A middleware service that improves scalability, security, and performance for AI applications by providing rate limiting, caching, monitoring, and analytics. Gateways help enterprises safely integrate AI models into production environments.',
 					example:
 						'A company using an AI gateway to manage access to multiple LLM providers, implement usage quotas, cache responses for efficiency, and monitor API costs across different AI services.',
-					relatedTerms: ['API Management', 'Middleware', 'Enterprise Integration', 'AI Infrastructure'],
+					relatedTerms: [
+						'API Management',
+						'Middleware',
+						'Enterprise Integration',
+						'AI Infrastructure',
+					],
 				},
 				{
 					term: 'NIST AI RMF',
 					definition:
-						'The National Institute of Standards and Technology\'s Artificial Intelligence Risk Management Framework. It provides structured guidelines for organizations to identify, measure, and mitigate risks related to AI adoption.',
+						"The National Institute of Standards and Technology's Artificial Intelligence Risk Management Framework. It provides structured guidelines for organizations to identify, measure, and mitigate risks related to AI adoption.",
 					example:
 						'A financial institution using the NIST AI RMF to assess risks in their AI-powered fraud detection system, ensuring compliance with regulatory requirements and maintaining customer trust.',
 					relatedTerms: ['Risk Management', 'AI Governance', 'Compliance', 'Standards'],
@@ -1232,16 +1317,26 @@ const AIGlossary: React.FC = () => {
 					definition:
 						'An industry-standard security list highlighting the ten most critical vulnerabilities specific to Large Language Model applications. It serves as a guideline for developers and enterprises to secure AI systems against threats like prompt injection and data leakage.',
 					example:
-						'A development team using the OWASP Top 10 for LLMs checklist to secure their customer service chatbot, implementing protections against prompt injection attacks and ensuring sensitive data isn\'t leaked in responses.',
-					relatedTerms: ['AI Security', 'Vulnerability Assessment', 'Prompt Injection', 'Data Protection'],
+						"A development team using the OWASP Top 10 for LLMs checklist to secure their customer service chatbot, implementing protections against prompt injection attacks and ensuring sensitive data isn't leaked in responses.",
+					relatedTerms: [
+						'AI Security',
+						'Vulnerability Assessment',
+						'Prompt Injection',
+						'Data Protection',
+					],
 				},
 				{
 					term: 'MAESTRO Framework',
 					definition:
-						'Cloud Security Alliance\'s threat modeling framework for agentic AI systems. It defines adversarial tactics such as overriding safeguards, misusing tools, and evading monitoring to help security teams model and mitigate risks.',
+						"Cloud Security Alliance's threat modeling framework for agentic AI systems. It defines adversarial tactics such as overriding safeguards, misusing tools, and evading monitoring to help security teams model and mitigate risks.",
 					example:
-						'A security team using the MAESTRO framework to identify potential attack vectors in their autonomous AI trading system, ensuring the AI can\'t be manipulated to make unauthorized trades or bypass safety controls.',
-					relatedTerms: ['Threat Modeling', 'AI Security', 'Adversarial Attacks', 'Risk Assessment'],
+						"A security team using the MAESTRO framework to identify potential attack vectors in their autonomous AI trading system, ensuring the AI can't be manipulated to make unauthorized trades or bypass safety controls.",
+					relatedTerms: [
+						'Threat Modeling',
+						'AI Security',
+						'Adversarial Attacks',
+						'Risk Assessment',
+					],
 				},
 				{
 					term: 'BYOA (Bring Your Own Agent)',
@@ -1328,7 +1423,7 @@ const AIGlossary: React.FC = () => {
 				terms: categoryMatches ? category.terms : termMatches,
 			};
 		})
- 		.filter((category) => category.terms.length > 0);
+		.filter((category) => category.terms.length > 0);
 
 	const hasResults = filteredData.length > 0;
 

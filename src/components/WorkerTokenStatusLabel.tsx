@@ -4,6 +4,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { formatTimeRemaining } from '../services/tokenExpirationService';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
 type StatusVariant = 'success' | 'warning' | 'danger';
 
@@ -17,7 +18,11 @@ const StatusText = styled.span<{ $variant: StatusVariant }>`
 	}};
 `;
 
-const STATUS_EVENTS = ['workerTokenUpdated', 'workerTokenMetricsUpdated', 'workerTokenAuditUpdated'] as const;
+const STATUS_EVENTS = [
+	'workerTokenUpdated',
+	'workerTokenMetricsUpdated',
+	'workerTokenAuditUpdated',
+] as const;
 
 export interface WorkerTokenStatusLabelProps {
 	token?: string | null | undefined;
@@ -34,29 +39,80 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 	tokenExpiryKey,
 	align = 'flex-start',
 }) => {
-	const readTokenState = React.useCallback(() => {
-		let resolvedToken = token ?? '';
-		let resolvedExpiry = typeof expiresAt === 'number' ? expiresAt : undefined;
+	const [tokenState, setTokenState] = React.useState<{
+		tokenValue: string;
+		expiresAtValue: number | undefined;
+	}>({ tokenValue: '', expiresAtValue: undefined });
 
-		if (!token && tokenStorageKey) {
-			resolvedToken = localStorage.getItem(tokenStorageKey) ?? '';
-		}
-
-		if (typeof expiresAt !== 'number' && tokenExpiryKey) {
-			const storedExpiry = localStorage.getItem(tokenExpiryKey);
-			if (storedExpiry) {
-				const parsed = Number.parseInt(storedExpiry, 10);
-				if (!Number.isNaN(parsed)) {
-					resolvedExpiry = parsed;
-				}
+	// Load token state from global service
+	React.useEffect(() => {
+		const loadTokenState = async () => {
+			// Use props if provided (for backwards compatibility)
+			if (token || expiresAt) {
+				setTokenState({
+					tokenValue: token ?? '',
+					expiresAtValue: typeof expiresAt === 'number' ? expiresAt : undefined,
+				});
+				return;
 			}
-		}
 
-		return { tokenValue: resolvedToken, expiresAtValue: resolvedExpiry };
-	}, [token, expiresAt, tokenStorageKey, tokenExpiryKey]);
+			// Otherwise, load from global service
+			try {
+				const tokenValue = await workerTokenServiceV8.getToken();
+				// Get expiration from service - need to check stored data
+				const credentials = await workerTokenServiceV8.loadCredentials();
+				if (credentials && tokenValue) {
+					// Try to get expiration from browser storage (service stores it there)
+					try {
+						const stored = localStorage.getItem('v8:worker_token');
+						if (stored) {
+							const data = JSON.parse(stored);
+							setTokenState({
+								tokenValue: tokenValue,
+								expiresAtValue: data.expiresAt,
+							});
+						} else {
+							setTokenState({
+								tokenValue: tokenValue,
+								expiresAtValue: undefined,
+							});
+						}
+					} catch {
+						setTokenState({
+							tokenValue: tokenValue,
+							expiresAtValue: undefined,
+						});
+					}
+				} else {
+					setTokenState({ tokenValue: '', expiresAtValue: undefined });
+				}
+			} catch (error) {
+				console.error('[WorkerTokenStatusLabel] Failed to load token state:', error);
+				setTokenState({ tokenValue: '', expiresAtValue: undefined });
+			}
+		};
+
+		loadTokenState();
+
+		// Set up interval to check token state periodically
+		const intervalId = setInterval(loadTokenState, 30000); // Check every 30 seconds
+
+		// Listen for storage events
+		const handleStorageChange = () => {
+			loadTokenState();
+		};
+		window.addEventListener('storage', handleStorageChange);
+		window.addEventListener('workerTokenUpdated', handleStorageChange);
+
+		return () => {
+			clearInterval(intervalId);
+			window.removeEventListener('storage', handleStorageChange);
+			window.removeEventListener('workerTokenUpdated', handleStorageChange);
+		};
+	}, [token, expiresAt]);
 
 	const computeStatus = React.useCallback((): { text: string; variant: StatusVariant } => {
-		const { tokenValue, expiresAtValue } = readTokenState();
+		const { tokenValue, expiresAtValue } = tokenState;
 
 		if (!tokenValue) {
 			return {
@@ -82,14 +138,15 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 
 		const diffMinutes = Math.floor((expiresAtValue - now) / 60000);
 		const timeLabel = formatTimeRemaining(expiresAtValue);
-		const variant: StatusVariant = diffMinutes <= 5 ? 'danger' : diffMinutes <= 15 ? 'warning' : 'success';
+		const variant: StatusVariant =
+			diffMinutes <= 5 ? 'danger' : diffMinutes <= 15 ? 'warning' : 'success';
 		const expiresAtTime = new Date(expiresAtValue).toLocaleString();
 
 		return {
 			text: `Worker token valid — ${timeLabel} (expires ${expiresAtTime})`,
 			variant,
 		};
-	}, [readTokenState]);
+	}, [tokenState]);
 
 	const [status, setStatus] = React.useState(computeStatus);
 
@@ -128,5 +185,3 @@ export const WorkerTokenStatusLabel: React.FC<WorkerTokenStatusLabelProps> = ({
 };
 
 export default WorkerTokenStatusLabel;
-
-

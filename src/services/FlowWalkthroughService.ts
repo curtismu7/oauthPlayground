@@ -279,11 +279,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Configure CIBA Parameters',
-				description: 'Set up your CIBA configuration with environment details and authentication parameters',
+				description:
+					'Set up your CIBA configuration with environment details and authentication parameters',
 			},
 			{
 				title: 'Initiate Authentication Request',
-				description: 'Start the CIBA authentication process and generate the authentication request',
+				description:
+					'Start the CIBA authentication process and generate the authentication request',
 			},
 			{
 				title: 'User Approval Process',
@@ -412,31 +414,38 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Obtain worker token for MFA management',
-				description: 'Get a management API token using client credentials to register devices and manage MFA challenges',
+				description:
+					'Get a management API token using client credentials to register devices and manage MFA challenges',
 			},
 			{
 				title: 'Configure user information and MFA method',
-				description: 'Set up user details (username, phone, email) and select MFA method (SMS, Email, TOTP, Push)',
+				description:
+					'Set up user details (username, phone, email) and select MFA method (SMS, Email, TOTP, Push)',
 			},
 			{
 				title: 'Register MFA device with PingOne',
-				description: 'Create a device record in PingOne for the selected MFA method using the management API',
+				description:
+					'Create a device record in PingOne for the selected MFA method using the management API',
 			},
 			{
 				title: 'Initiate MFA challenge',
-				description: 'Send an MFA challenge to the registered device (SMS code, email code, push notification)',
+				description:
+					'Send an MFA challenge to the registered device (SMS code, email code, push notification)',
 			},
 			{
 				title: 'User completes MFA verification',
-				description: 'User receives and enters the verification code or approves the push notification',
+				description:
+					'User receives and enters the verification code or approves the push notification',
 			},
 			{
 				title: 'Exchange authorization code for MFA-enhanced tokens',
-				description: 'Exchange the MFA-verified authorization code for access tokens that include MFA context',
+				description:
+					'Exchange the MFA-verified authorization code for access tokens that include MFA context',
 			},
 			{
 				title: 'Review MFA flow results and API interactions',
-				description: 'Examine the complete API flow and MFA-enhanced tokens with verification context',
+				description:
+					'Examine the complete API flow and MFA-enhanced tokens with verification context',
 			},
 		],
 	},
@@ -452,15 +461,18 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Send token request with user credentials',
-				description: "Your application sends the user's credentials directly to PingOne's token endpoint with grant_type=password",
+				description:
+					"Your application sends the user's credentials directly to PingOne's token endpoint with grant_type=password",
 			},
 			{
 				title: 'PingOne validates credentials and returns tokens',
-				description: 'PingOne authenticates the user and returns access token and refresh token (not recommended for production)',
+				description:
+					'PingOne authenticates the user and returns access token and refresh token (not recommended for production)',
 			},
 			{
 				title: 'Use access token for API calls',
-				description: 'Use the access token to make authenticated calls to protected resources on behalf of the user',
+				description:
+					'Use the access token to make authenticated calls to protected resources on behalf of the user',
 			},
 		],
 	},
@@ -472,23 +484,28 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'User enters credentials in your application',
-				description: 'User provides username and password directly in your application interface with enhanced V7 UI',
+				description:
+					'User provides username and password directly in your application interface with enhanced V7 UI',
 			},
 			{
 				title: 'Send token request with user credentials',
-				description: "Your application sends the user's credentials directly to PingOne's token endpoint with grant_type=password",
+				description:
+					"Your application sends the user's credentials directly to PingOne's token endpoint with grant_type=password",
 			},
 			{
 				title: 'PingOne validates credentials and returns tokens',
-				description: 'PingOne authenticates the user and returns access token and refresh token (not recommended for production)',
+				description:
+					'PingOne authenticates the user and returns access token and refresh token (not recommended for production)',
 			},
 			{
 				title: 'Use access token for API calls',
-				description: 'Use the access token to make authenticated calls to protected resources on behalf of the user',
+				description:
+					'Use the access token to make authenticated calls to protected resources on behalf of the user',
 			},
 			{
 				title: 'Enhanced error handling and user feedback',
-				description: 'V7 implementation provides better error handling, visual feedback, and educational content about ROPC security concerns',
+				description:
+					'V7 implementation provides better error handling, visual feedback, and educational content about ROPC security concerns',
 			},
 		],
 	},
@@ -500,11 +517,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'User clicks login to start the flow',
-				description: 'User initiates authentication by clicking the login button in your application',
+				description:
+					'User initiates authentication by clicking the login button in your application',
 			},
 			{
 				title: 'App redirects to PingOne with an authorization request',
-				description: "Your application redirects the user to PingOne's authorization server with the required parameters including PKCE",
+				description:
+					"Your application redirects the user to PingOne's authorization server with the required parameters including PKCE",
 			},
 			{
 				title: 'User authenticates and approves scopes',
@@ -516,7 +535,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Backend exchanges the code for tokens securely',
-				description: 'Your backend exchanges the authorization code for access and refresh tokens using PKCE verification',
+				description:
+					'Your backend exchanges the authorization code for access and refresh tokens using PKCE verification',
 			},
 		],
 	},
@@ -556,7 +576,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Push request to PingOne PAR endpoint',
-				description: "Send the authorization request to PingOne's PAR endpoint with client authentication",
+				description:
+					"Send the authorization request to PingOne's PAR endpoint with client authentication",
 			},
 			{
 				title: 'Receive request URI',
@@ -580,7 +601,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Define rich authorization details',
-				description: 'Create detailed authorization request with specific resource access requirements',
+				description:
+					'Create detailed authorization request with specific resource access requirements',
 			},
 			{
 				title: 'Send authorization request with RAR',
@@ -596,7 +618,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Exchange code for tokens with RAR context',
-				description: 'Tokens include the approved authorization details for fine-grained access control',
+				description:
+					'Tokens include the approved authorization details for fine-grained access control',
 			},
 		],
 	},
@@ -607,19 +630,23 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'RAR Overview and Configuration',
-				description: 'Learn about Rich Authorization Requests (RFC 9396) and configure RAR parameters',
+				description:
+					'Learn about Rich Authorization Requests (RFC 9396) and configure RAR parameters',
 			},
 			{
 				title: 'Set up RAR credentials',
-				description: 'Configure environment, client credentials, and RAR-specific authorization details',
+				description:
+					'Configure environment, client credentials, and RAR-specific authorization details',
 			},
 			{
 				title: 'Generate RAR authorization URL',
-				description: 'Create authorization request with structured RAR JSON in authorization_details parameter',
+				description:
+					'Create authorization request with structured RAR JSON in authorization_details parameter',
 			},
 			{
 				title: 'Token exchange with RAR context',
-				description: 'Exchange authorization code for tokens, maintaining RAR authorization context',
+				description:
+					'Exchange authorization code for tokens, maintaining RAR authorization context',
 			},
 			{
 				title: 'Flow completion and review',
@@ -635,11 +662,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Configure PingOne worker application credentials',
-				description: 'Set up environment ID, client ID, and client secret for PingOne worker application',
+				description:
+					'Set up environment ID, client ID, and client secret for PingOne worker application',
 			},
 			{
 				title: 'Request worker token with required scopes',
-				description: "Send a client credentials request to PingOne's token endpoint with management scopes",
+				description:
+					"Send a client credentials request to PingOne's token endpoint with management scopes",
 			},
 			{
 				title: 'Receive management access token',
@@ -659,11 +688,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Learn about response_mode=pi.flow',
-				description: 'Understand how PingOne redirectless authentication enables API-driven flows without browser redirects',
+				description:
+					'Understand how PingOne redirectless authentication enables API-driven flows without browser redirects',
 			},
 			{
 				title: 'Configure PingOne application for redirectless flow',
-				description: 'Set up your PingOne application with proper redirect URIs and response_mode=pi.flow support',
+				description:
+					'Set up your PingOne application with proper redirect URIs and response_mode=pi.flow support',
 			},
 			{
 				title: 'Initiate authorization request with pi.flow',
@@ -675,7 +706,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Receive tokens directly from API response',
-				description: 'Get access tokens and ID tokens directly from the API response without redirect handling',
+				description:
+					'Get access tokens and ID tokens directly from the API response without redirect handling',
 			},
 		],
 	},
@@ -687,7 +719,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Request device code from PingOne',
-				description: 'Your application requests a device code and user code from PingOne for input-constrained devices',
+				description:
+					'Your application requests a device code and user code from PingOne for input-constrained devices',
 			},
 			{
 				title: 'Display user code to user',
@@ -695,7 +728,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'User visits verification URL on another device',
-				description: 'User goes to the verification URL on a device with a browser (phone, computer)',
+				description:
+					'User goes to the verification URL on a device with a browser (phone, computer)',
 			},
 			{
 				title: 'User authenticates and approves',
@@ -719,7 +753,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'Request device code from PingOne',
-				description: 'Your application requests a device code and user code from PingOne with OIDC scopes',
+				description:
+					'Your application requests a device code and user code from PingOne with OIDC scopes',
 			},
 			{
 				title: 'Display user code to user',
@@ -727,11 +762,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'User visits verification URL on another device',
-				description: 'User goes to the verification URL on a device with a browser (phone, computer)',
+				description:
+					'User goes to the verification URL on a device with a browser (phone, computer)',
 			},
 			{
 				title: 'User authenticates and approves OIDC scopes',
-				description: 'User logs in and grants permission for identity information (openid, profile, email)',
+				description:
+					'User logs in and grants permission for identity information (openid, profile, email)',
 			},
 			{
 				title: 'Poll for tokens',
@@ -751,7 +788,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'User clicks login to start the flow',
-				description: 'User initiates authentication in your application (not recommended for production)',
+				description:
+					'User initiates authentication in your application (not recommended for production)',
 			},
 			{
 				title: 'App redirects to PingOne with an authorization request',
@@ -775,7 +813,8 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'User initiates authentication',
-				description: 'User clicks login and is redirected to the OpenID Connect provider (not recommended)',
+				description:
+					'User clicks login and is redirected to the OpenID Connect provider (not recommended)',
 			},
 			{
 				title: 'User authenticates and consents',
@@ -922,15 +961,18 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 		steps: [
 			{
 				title: 'User clicks login to start the OIDC flow',
-				description: 'User initiates authentication by clicking the login button in your application',
+				description:
+					'User initiates authentication by clicking the login button in your application',
 			},
 			{
 				title: 'App redirects to PingOne with OIDC authorization request',
-				description: "Your application redirects the user to PingOne's authorization server with openid scope and required parameters",
+				description:
+					"Your application redirects the user to PingOne's authorization server with openid scope and required parameters",
 			},
 			{
 				title: 'User authenticates and approves scopes',
-				description: 'User logs in and grants permission for the requested OIDC scopes (openid, profile, email)',
+				description:
+					'User logs in and grants permission for the requested OIDC scopes (openid, profile, email)',
 			},
 			{
 				title: 'PingOne returns an authorization code to the redirect URI',
@@ -938,11 +980,13 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 			},
 			{
 				title: 'Backend exchanges the code for access and ID tokens',
-				description: 'Your backend exchanges the authorization code for access token and ID token containing user identity claims',
+				description:
+					'Your backend exchanges the authorization code for access token and ID token containing user identity claims',
 			},
 			{
 				title: 'Validate ID token and extract user information',
-				description: 'Validate the ID token signature and extract user identity information from the claims',
+				description:
+					'Validate the ID token signature and extract user identity information from the claims',
 			},
 			{
 				title: 'Use access token for API calls',
@@ -952,54 +996,45 @@ export const FLOW_WALKTHROUGH_CONFIGS: Record<string, FlowWalkthroughConfig> = {
 	},
 };
 
-// Service class for generating flow walkthrough configurations
-export class FlowWalkthroughService {
-	/**
-	 * Get walkthrough configuration for a specific flow
-	 */
-	static getWalkthroughConfig(flowId: string): FlowWalkthroughConfig | null {
-		return FLOW_WALKTHROUGH_CONFIGS[flowId] || null;
-	}
+// Service helpers for generating flow walkthrough configurations
+const getWalkthroughConfig = (flowId: string): FlowWalkthroughConfig | null =>
+	FLOW_WALKTHROUGH_CONFIGS[flowId] ?? null;
 
-	/**
-	 * Get all walkthrough configurations for a specific flow type
-	 */
-	static getWalkthroughConfigsByType(
-		flowType: 'oauth' | 'oidc' | 'pingone'
-	): FlowWalkthroughConfig[] {
-		return Object.values(FLOW_WALKTHROUGH_CONFIGS).filter((config) => config.flowType === flowType);
-	}
+const getWalkthroughConfigsByType = (
+	flowType: 'oauth' | 'oidc' | 'pingone'
+): FlowWalkthroughConfig[] =>
+	Object.values(FLOW_WALKTHROUGH_CONFIGS).filter((config) => config.flowType === flowType);
 
-	/**
-	 * Get all available flow IDs
-	 */
-	static getAllFlowIds(): string[] {
-		return Object.keys(FLOW_WALKTHROUGH_CONFIGS);
-	}
+const getAllFlowIds = (): string[] => Object.keys(FLOW_WALKTHROUGH_CONFIGS);
 
-	/**
-	 * Check if a flow has a walkthrough configuration
-	 */
-	static hasWalkthrough(flowId: string): boolean {
-		return flowId in FLOW_WALKTHROUGH_CONFIGS;
-	}
+const hasWalkthrough = (flowId: string): boolean => flowId in FLOW_WALKTHROUGH_CONFIGS;
 
-	/**
-	 * Generate custom walkthrough configuration
-	 */
-	static createCustomWalkthrough(
-		flowType: 'oauth' | 'oidc' | 'pingone',
-		flowName: string,
-		steps: FlowWalkthroughStep[],
-		icon?: string
-	): FlowWalkthroughConfig {
-		return {
-			flowType,
-			flowName,
-			steps,
-			icon,
-		};
-	}
-}
+const createCustomWalkthrough = (
+	flowType: 'oauth' | 'oidc' | 'pingone',
+	flowName: string,
+	steps: FlowWalkthroughStep[],
+	icon?: string
+): FlowWalkthroughConfig => ({
+	flowType,
+	flowName,
+	steps,
+	icon,
+});
+
+export {
+	getWalkthroughConfig,
+	getWalkthroughConfigsByType,
+	getAllFlowIds,
+	hasWalkthrough,
+	createCustomWalkthrough,
+};
+
+export const FlowWalkthroughService = {
+	getWalkthroughConfig,
+	getWalkthroughConfigsByType,
+	getAllFlowIds,
+	hasWalkthrough,
+	createCustomWalkthrough,
+};
 
 export default FlowWalkthroughService;

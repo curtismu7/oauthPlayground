@@ -1,11 +1,10 @@
 // src/pages/URLDecoder.tsx - URL Decoder Utility
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	FiAlertTriangle,
 	FiCheck,
 	FiCode,
 	FiCopy,
-	FiGlobe,
 	FiInfo,
 	FiLink,
 	FiRefreshCw,
@@ -13,8 +12,8 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../components/CentralizedSuccessMessage';
-import { copyToClipboard } from '../utils/clipboard';
 import { FlowHeader } from '../services/flowHeaderService';
+import { copyToClipboard } from '../utils/clipboard';
 
 // Styled components
 const Container = styled.div<{ $sidebarWidth?: number }>`
@@ -28,7 +27,7 @@ const Container = styled.div<{ $sidebarWidth?: number }>`
   /* Ensure content doesn't get cut off by sidebar on desktop */
   @media (min-width: 768px) {
     /* Account for sidebar width when open */
-    margin-left: ${({ $sidebarWidth }) => ($sidebarWidth && $sidebarWidth > 0) ? `${$sidebarWidth}px` : '0'};
+    margin-left: ${({ $sidebarWidth }) => ($sidebarWidth && $sidebarWidth > 0 ? `${$sidebarWidth}px` : '0')};
     transition: margin-left 0.3s ease;
     padding-left: 2rem;
     padding-right: 2rem;
@@ -43,10 +42,10 @@ const Container = styled.div<{ $sidebarWidth?: number }>`
   }
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   text-align: center;
   margin: 0 auto 3rem auto;
-  max-width: 72rem;
+  max-width: 90rem;
   color: #1f2937;
   
   @media (min-width: 768px) {
@@ -54,7 +53,7 @@ const Header = styled.div`
   }
 `;
 
-const Title = styled.h1`
+const _Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 700;
   margin: 0 0 1rem 0;
@@ -65,7 +64,7 @@ const Title = styled.h1`
   gap: 1rem;
 `;
 
-const Subtitle = styled.p`
+const _Subtitle = styled.p`
   font-size: 1.125rem;
   color: #6b7280;
   margin: 0;
@@ -81,7 +80,7 @@ const ContentCard = styled.div`
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   margin: 0 auto 2rem auto;
-  max-width: 72rem;
+  max-width: 90rem;
   border: 1px solid #e5e7eb;
   
   /* Ensure content is visible even when sidebar is open */
@@ -290,7 +289,7 @@ const URLDecoder: React.FC = () => {
 
 		// Listen for storage events
 		window.addEventListener('storage', checkSidebarWidth);
-		
+
 		// Poll for same-tab updates (since storage event only fires cross-tab)
 		const interval = setInterval(checkSidebarWidth, 500);
 

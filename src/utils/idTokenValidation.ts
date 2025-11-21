@@ -61,18 +61,18 @@ export class IDTokenValidationService {
 				audience: false,
 				expiration: false,
 				nonce: false,
-				claims: false
-			}
+				claims: false,
+			},
 		};
 
 		try {
 			// Decode JWT
-			const decoded = this.decodeJWT(idToken);
+			const decoded = IDTokenValidationService.decodeJWT(idToken);
 			result.header = decoded.header;
 			result.claims = decoded.payload;
 
 			// Validate JWT structure
-			if (!this.validateJWTStructure(decoded)) {
+			if (!IDTokenValidationService.validateJWTStructure(decoded)) {
 				result.errors.push('Invalid JWT structure');
 				result.isValid = false;
 				return result;
@@ -80,7 +80,7 @@ export class IDTokenValidationService {
 
 			// Validate signature
 			if (jwksUri) {
-				const signatureValid = await this.validateSignature(idToken, jwksUri);
+				const signatureValid = await IDTokenValidationService.validateSignature(idToken, jwksUri);
 				result.validationDetails.signature = signatureValid;
 				if (!signatureValid) {
 					result.errors.push('Invalid JWT signature');
@@ -91,23 +91,33 @@ export class IDTokenValidationService {
 			}
 
 			// Validate issuer (iss)
-			const issuerValid = this.validateIssuer(decoded.payload.iss, expectedIssuer);
+			const issuerValid = IDTokenValidationService.validateIssuer(
+				decoded.payload.iss,
+				expectedIssuer
+			);
 			result.validationDetails.issuer = issuerValid;
 			if (!issuerValid) {
-				result.errors.push(`Invalid issuer: expected ${expectedIssuer}, got ${decoded.payload.iss}`);
+				result.errors.push(
+					`Invalid issuer: expected ${expectedIssuer}, got ${decoded.payload.iss}`
+				);
 				result.isValid = false;
 			}
 
 			// Validate audience (aud)
-			const audienceValid = this.validateAudience(decoded.payload.aud, expectedAudience);
+			const audienceValid = IDTokenValidationService.validateAudience(
+				decoded.payload.aud,
+				expectedAudience
+			);
 			result.validationDetails.audience = audienceValid;
 			if (!audienceValid) {
-				result.errors.push(`Invalid audience: expected ${expectedAudience}, got ${JSON.stringify(decoded.payload.aud)}`);
+				result.errors.push(
+					`Invalid audience: expected ${expectedAudience}, got ${JSON.stringify(decoded.payload.aud)}`
+				);
 				result.isValid = false;
 			}
 
 			// Validate expiration (exp)
-			const expirationValid = this.validateExpiration(decoded.payload.exp);
+			const expirationValid = IDTokenValidationService.validateExpiration(decoded.payload.exp);
 			result.validationDetails.expiration = expirationValid;
 			if (!expirationValid) {
 				result.errors.push('Token has expired');
@@ -116,16 +126,21 @@ export class IDTokenValidationService {
 
 			// Validate nonce (if provided)
 			if (expectedNonce) {
-				const nonceValid = this.validateNonce(decoded.payload.nonce, expectedNonce);
+				const nonceValid = IDTokenValidationService.validateNonce(
+					decoded.payload.nonce,
+					expectedNonce
+				);
 				result.validationDetails.nonce = nonceValid;
 				if (!nonceValid) {
-					result.errors.push(`Invalid nonce: expected ${expectedNonce}, got ${decoded.payload.nonce}`);
+					result.errors.push(
+						`Invalid nonce: expected ${expectedNonce}, got ${decoded.payload.nonce}`
+					);
 					result.isValid = false;
 				}
 			}
 
 			// Validate required claims
-			const claimsValid = this.validateRequiredClaims(decoded.payload);
+			const claimsValid = IDTokenValidationService.validateRequiredClaims(decoded.payload);
 			result.validationDetails.claims = claimsValid;
 			if (!claimsValid) {
 				result.errors.push('Missing required claims');
@@ -133,10 +148,11 @@ export class IDTokenValidationService {
 			}
 
 			// Check for warnings
-			this.checkForWarnings(decoded.payload, result);
-
+			IDTokenValidationService.checkForWarnings(decoded.payload, result);
 		} catch (error) {
-			result.errors.push(`Token validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			result.errors.push(
+				`Token validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 			result.isValid = false;
 		}
 
@@ -153,11 +169,13 @@ export class IDTokenValidationService {
 		}
 
 		try {
-			const header = JSON.parse(this.base64UrlDecode(parts[0]));
-			const payload = JSON.parse(this.base64UrlDecode(parts[1]));
+			const header = JSON.parse(IDTokenValidationService.base64UrlDecode(parts[0]));
+			const payload = JSON.parse(IDTokenValidationService.base64UrlDecode(parts[1]));
 			return { header, payload };
 		} catch (error) {
-			throw new Error(`Failed to decode JWT: ${error instanceof Error ? error.message : 'Unknown error'}`);
+			throw new Error(
+				`Failed to decode JWT: ${error instanceof Error ? error.message : 'Unknown error'}`
+			);
 		}
 	}
 
@@ -200,18 +218,18 @@ export class IDTokenValidationService {
 	private static async validateSignature(token: string, jwksUri: string): Promise<boolean> {
 		try {
 			// Get JWKS
-			const jwks = await this.getJWKS(jwksUri);
+			const jwks = await IDTokenValidationService.getJWKS(jwksUri);
 			if (!jwks) {
 				return false;
 			}
 
 			// Decode token header to get key ID
 			const parts = token.split('.');
-			const header = JSON.parse(this.base64UrlDecode(parts[0]));
+			const header = JSON.parse(IDTokenValidationService.base64UrlDecode(parts[0]));
 			const kid = header.kid;
 
 			// Find matching key
-			const key = jwks.keys.find(k => k.kid === kid);
+			const key = jwks.keys.find((k) => k.kid === kid);
 			if (!key) {
 				console.warn('No matching key found in JWKS');
 				return false;
@@ -221,7 +239,6 @@ export class IDTokenValidationService {
 			// For now, we'll return true as a placeholder
 			console.log('Signature validation would be performed here with key:', key);
 			return true;
-
 		} catch (error) {
 			console.error('Signature validation failed:', error);
 			return false;
@@ -234,9 +251,9 @@ export class IDTokenValidationService {
 	private static async getJWKS(jwksUri: string): Promise<JWKSSet | null> {
 		try {
 			// Check cache
-			const cached = this.jwksCache.get(jwksUri);
-			const expiry = this.jwksCacheExpiry.get(jwksUri);
-			
+			const cached = IDTokenValidationService.jwksCache.get(jwksUri);
+			const expiry = IDTokenValidationService.jwksCacheExpiry.get(jwksUri);
+
 			if (cached && expiry && Date.now() < expiry) {
 				return cached;
 			}
@@ -247,14 +264,13 @@ export class IDTokenValidationService {
 				throw new Error(`Failed to fetch JWKS: ${response.status}`);
 			}
 
-			const jwks = await response.json() as JWKSSet;
-			
+			const jwks = (await response.json()) as JWKSSet;
+
 			// Cache JWKS for 1 hour
-			this.jwksCache.set(jwksUri, jwks);
-			this.jwksCacheExpiry.set(jwksUri, Date.now() + 60 * 60 * 1000);
+			IDTokenValidationService.jwksCache.set(jwksUri, jwks);
+			IDTokenValidationService.jwksCacheExpiry.set(jwksUri, Date.now() + 60 * 60 * 1000);
 
 			return jwks;
-
 		} catch (error) {
 			console.error('Failed to get JWKS:', error);
 			return null;
@@ -271,11 +287,14 @@ export class IDTokenValidationService {
 	/**
 	 * Validate audience claim
 	 */
-	private static validateAudience(actualAudience: string | string[], expectedAudience: string): boolean {
+	private static validateAudience(
+		actualAudience: string | string[],
+		expectedAudience: string
+	): boolean {
 		if (typeof actualAudience === 'string') {
 			return actualAudience === expectedAudience;
 		}
-		
+
 		if (Array.isArray(actualAudience)) {
 			return actualAudience.includes(expectedAudience);
 		}
@@ -307,7 +326,7 @@ export class IDTokenValidationService {
 	 */
 	private static validateRequiredClaims(payload: any): boolean {
 		const requiredClaims = ['iss', 'sub', 'aud', 'exp', 'iat'];
-		
+
 		for (const claim of requiredClaims) {
 			if (!payload[claim]) {
 				console.error(`Missing required claim: ${claim}`);
@@ -337,14 +356,15 @@ export class IDTokenValidationService {
 		// Check token age
 		if (payload.iat && payload.exp) {
 			const tokenAge = payload.exp - payload.iat;
-			if (tokenAge > 24 * 60 * 60) { // 24 hours
+			if (tokenAge > 24 * 60 * 60) {
+				// 24 hours
 				result.warnings.push('Token has long lifetime');
 			}
 		}
 
 		// Check for missing optional claims
 		const optionalClaims = ['name', 'email', 'picture', 'locale', 'zoneinfo'];
-		const missingClaims = optionalClaims.filter(claim => !payload[claim]);
+		const missingClaims = optionalClaims.filter((claim) => !payload[claim]);
 		if (missingClaims.length > 0) {
 			result.warnings.push(`Missing optional claims: ${missingClaims.join(', ')}`);
 		}
@@ -367,21 +387,21 @@ export class IDTokenValidationService {
 	static getValidationReport(result: IDTokenValidationResult): string {
 		let report = `ID Token Validation Report\n`;
 		report += `========================\n\n`;
-		
+
 		report += `Overall Status: ${result.isValid ? '✅ VALID' : '❌ INVALID'}\n\n`;
-		
+
 		if (result.errors.length > 0) {
 			report += `Errors:\n`;
-			result.errors.forEach(error => report += `  ❌ ${error}\n`);
+			result.errors.forEach((error) => (report += `  ❌ ${error}\n`));
 			report += `\n`;
 		}
-		
+
 		if (result.warnings.length > 0) {
 			report += `Warnings:\n`;
-			result.warnings.forEach(warning => report += `  ⚠️ ${warning}\n`);
+			result.warnings.forEach((warning) => (report += `  ⚠️ ${warning}\n`));
 			report += `\n`;
 		}
-		
+
 		report += `Validation Details:\n`;
 		report += `  Signature: ${result.validationDetails.signature ? '✅' : '❌'}\n`;
 		report += `  Issuer: ${result.validationDetails.issuer ? '✅' : '❌'}\n`;
@@ -389,7 +409,7 @@ export class IDTokenValidationService {
 		report += `  Expiration: ${result.validationDetails.expiration ? '✅' : '❌'}\n`;
 		report += `  Nonce: ${result.validationDetails.nonce ? '✅' : '❌'}\n`;
 		report += `  Claims: ${result.validationDetails.claims ? '✅' : '❌'}\n`;
-		
+
 		return report;
 	}
 }

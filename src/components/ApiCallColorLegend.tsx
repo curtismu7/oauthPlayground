@@ -3,7 +3,7 @@
 
 import React from 'react';
 import styled from 'styled-components';
-import { ApiCallTypeDetector, type ApiCallType } from '../utils/apiCallTypeDetector';
+import { type ApiCallType, ApiCallTypeDetector } from '../utils/apiCallTypeDetector';
 
 const LegendContainer = styled.div`
 	background: #ffffff;
@@ -81,9 +81,9 @@ interface ApiCallColorLegendProps {
 	compact?: boolean;
 }
 
-export const ApiCallColorLegend: React.FC<ApiCallColorLegendProps> = ({ 
+export const ApiCallColorLegend: React.FC<ApiCallColorLegendProps> = ({
 	className,
-	compact = false 
+	compact = false,
 }) => {
 	const callTypes = ApiCallTypeDetector.getAllCallTypes();
 

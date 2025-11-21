@@ -1,65 +1,62 @@
-import React, { useState, useRef } from 'react';
-import styled from 'styled-components';
 import Editor from '@monaco-editor/react';
-import { FiCopy, FiDownload, FiRefreshCw, FiCheck, FiSun, FiMoon, FiCode } from 'react-icons/fi';
+import React, { useRef, useState } from 'react';
+import { FiCheck, FiCode, FiCopy, FiDownload, FiMoon, FiRefreshCw, FiSun } from 'react-icons/fi';
+import styled from 'styled-components';
 import { v4ToastManager } from '../utils/v4ToastManager';
 
-export type FlowStep = 
-  | 'authorization'
-  | 'workerToken'
-  | 'deviceSelection'
-  | 'mfaChallenge'
-  | 'mfaVerification'
-  | 'deviceRegistration';
+export type FlowStep =
+	| 'authorization'
+	| 'workerToken'
+	| 'deviceSelection'
+	| 'mfaChallenge'
+	| 'mfaVerification'
+	| 'deviceRegistration';
 
-export type CodeCategory = 
-  | 'frontend'
-  | 'backend'
-  | 'mobile';
+export type CodeCategory = 'frontend' | 'backend' | 'mobile';
 
-export type CodeType = 
-  // Frontend options
-  | 'ping-sdk-js'
-  | 'rest-api-fetch'
-  | 'rest-api-axios'
-  | 'react'
-  | 'angular'
-  | 'vue'
-  | 'next-js'
-  | 'vanilla-js'
-  // Backend options
-  | 'ping-sdk-node'
-  | 'rest-api-node'
-  | 'python-requests'
-  | 'python-sdk'
-  | 'java-sdk'
-  | 'go-http'
-  | 'ruby-http'
-  | 'csharp-http'
-  // Mobile options
-  | 'ping-sdk-ios'
-  | 'ping-sdk-android'
-  | 'react-native'
-  | 'flutter'
-  | 'swift-native'
-  | 'kotlin-native';
+export type CodeType =
+	// Frontend options
+	| 'ping-sdk-js'
+	| 'rest-api-fetch'
+	| 'rest-api-axios'
+	| 'react'
+	| 'angular'
+	| 'vue'
+	| 'next-js'
+	| 'vanilla-js'
+	// Backend options
+	| 'ping-sdk-node'
+	| 'rest-api-node'
+	| 'python-requests'
+	| 'python-sdk'
+	| 'java-sdk'
+	| 'go-http'
+	| 'ruby-http'
+	| 'csharp-http'
+	// Mobile options
+	| 'ping-sdk-ios'
+	| 'ping-sdk-android'
+	| 'react-native'
+	| 'flutter'
+	| 'swift-native'
+	| 'kotlin-native';
 
-export type LanguageOption = 
-  | 'javascript'
-  | 'typescript'
-  | 'python'
-  | 'go'
-  | 'ruby'
-  | 'perl'
-  | 'java'
-  | 'csharp'
-  | 'react'
-  | 'angular'
-  | 'vanilla'
-  | 'react-native'
-  | 'flutter'
-  | 'swift'
-  | 'kotlin';
+export type LanguageOption =
+	| 'javascript'
+	| 'typescript'
+	| 'python'
+	| 'go'
+	| 'ruby'
+	| 'perl'
+	| 'java'
+	| 'csharp'
+	| 'react'
+	| 'angular'
+	| 'vanilla'
+	| 'react-native'
+	| 'flutter'
+	| 'swift'
+	| 'kotlin';
 
 const EditorContainer = styled.div`
   background: #ffffff;
@@ -135,9 +132,9 @@ const ToolbarButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   align-items: center;
   gap: 6px;
   padding: 8px 14px;
-  background: ${props => props.$variant === 'primary' ? '#667eea' : '#ffffff'};
-  color: ${props => props.$variant === 'primary' ? '#ffffff' : '#374151'};
-  border: 1px solid ${props => props.$variant === 'primary' ? '#667eea' : '#d1d5db'};
+  background: ${(props) => (props.$variant === 'primary' ? '#667eea' : '#ffffff')};
+  color: ${(props) => (props.$variant === 'primary' ? '#ffffff' : '#374151')};
+  border: 1px solid ${(props) => (props.$variant === 'primary' ? '#667eea' : '#d1d5db')};
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -145,7 +142,7 @@ const ToolbarButton = styled.button<{ $variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s;
   
   &:hover {
-    background: ${props => props.$variant === 'primary' ? '#5568d3' : '#f9fafb'};
+    background: ${(props) => (props.$variant === 'primary' ? '#5568d3' : '#f9fafb')};
     transform: translateY(-1px);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
@@ -160,9 +157,9 @@ const ThemeToggle = styled.button<{ $isDark: boolean }>`
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
-  background: ${props => props.$isDark ? '#1e293b' : '#fef3c7'};
-  color: ${props => props.$isDark ? '#fbbf24' : '#92400e'};
-  border: 1px solid ${props => props.$isDark ? '#334155' : '#fbbf24'};
+  background: ${(props) => (props.$isDark ? '#1e293b' : '#fef3c7')};
+  color: ${(props) => (props.$isDark ? '#fbbf24' : '#92400e')};
+  border: 1px solid ${(props) => (props.$isDark ? '#334155' : '#fbbf24')};
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
@@ -206,16 +203,10 @@ const StatusBadge = styled.span<{ $type: 'success' | 'warning' | 'info' }>`
   border-radius: 10px;
   font-size: 11px;
   font-weight: 600;
-  background: ${props => 
-    props.$type === 'success' ? '#d1fae5' :
-    props.$type === 'warning' ? '#fef3c7' :
-    '#dbeafe'
-  };
-  color: ${props =>
-    props.$type === 'success' ? '#065f46' :
-    props.$type === 'warning' ? '#92400e' :
-    '#1e40af'
-  };
+  background: ${(props) =>
+		props.$type === 'success' ? '#d1fae5' : props.$type === 'warning' ? '#fef3c7' : '#dbeafe'};
+  color: ${(props) =>
+		props.$type === 'success' ? '#065f46' : props.$type === 'warning' ? '#92400e' : '#1e40af'};
 `;
 
 const TabsContainer = styled.div`
@@ -238,10 +229,10 @@ const TabsContainer = styled.div`
 
 const Tab = styled.button<{ $active: boolean }>`
   padding: 12px 20px;
-  background: ${props => props.$active ? '#667eea' : 'transparent'};
-  color: ${props => props.$active ? '#ffffff' : '#6b7280'};
+  background: ${(props) => (props.$active ? '#667eea' : 'transparent')};
+  color: ${(props) => (props.$active ? '#ffffff' : '#6b7280')};
   border: none;
-  border-bottom: 3px solid ${props => props.$active ? '#667eea' : 'transparent'};
+  border-bottom: 3px solid ${(props) => (props.$active ? '#667eea' : 'transparent')};
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -250,8 +241,8 @@ const Tab = styled.button<{ $active: boolean }>`
   position: relative;
   
   &:hover {
-    background: ${props => props.$active ? '#667eea' : '#f3f4f6'};
-    color: ${props => props.$active ? '#ffffff' : '#374151'};
+    background: ${(props) => (props.$active ? '#667eea' : '#f3f4f6')};
+    color: ${(props) => (props.$active ? '#ffffff' : '#374151')};
   }
   
   &:active {
@@ -335,7 +326,7 @@ const Divider = styled.div`
 `;
 
 const UpdateIndicator = styled.div<{ $visible: boolean }>`
-  display: ${props => props.$visible ? 'flex' : 'none'};
+  display: ${(props) => (props.$visible ? 'flex' : 'none')};
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
@@ -344,7 +335,7 @@ const UpdateIndicator = styled.div<{ $visible: boolean }>`
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  animation: ${props => props.$visible ? 'slideIn 0.3s ease-out' : 'none'};
+  animation: ${(props) => (props.$visible ? 'slideIn 0.3s ease-out' : 'none')};
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
   
   @keyframes slideIn {
@@ -359,7 +350,7 @@ const UpdateIndicator = styled.div<{ $visible: boolean }>`
   }
   
   svg {
-    animation: ${props => props.$visible ? 'spin 0.6s ease-in-out' : 'none'};
+    animation: ${(props) => (props.$visible ? 'spin 0.6s ease-in-out' : 'none')};
   }
   
   @keyframes spin {
@@ -373,7 +364,7 @@ const UpdateIndicator = styled.div<{ $visible: boolean }>`
 `;
 
 const SpinnerOverlay = styled.div<{ $visible: boolean }>`
-  display: ${props => props.$visible ? 'flex' : 'none'};
+  display: ${(props) => (props.$visible ? 'flex' : 'none')};
   position: fixed;
   top: 0;
   left: 0;
@@ -384,7 +375,7 @@ const SpinnerOverlay = styled.div<{ $visible: boolean }>`
   z-index: 9999;
   align-items: center;
   justify-content: center;
-  animation: ${props => props.$visible ? 'fadeIn 0.2s ease-out' : 'none'};
+  animation: ${(props) => (props.$visible ? 'fadeIn 0.2s ease-out' : 'none')};
   
   @keyframes fadeIn {
     from {
@@ -451,485 +442,494 @@ const SpinnerSubtext = styled.div`
 `;
 
 interface InteractiveCodeEditorProps {
-  initialCode: string;
-  language?: LanguageOption;
-  title?: string;
-  onCodeChange?: (code: string) => void;
-  flowSteps?: FlowStep[];
-  codeByStep?: Record<FlowStep, string>;
-  onCategoryChange?: (category: CodeCategory, type: CodeType) => void;
+	initialCode: string;
+	language?: LanguageOption;
+	title?: string;
+	onCodeChange?: (code: string) => void;
+	flowSteps?: FlowStep[];
+	codeByStep?: Record<FlowStep, string>;
+	onCategoryChange?: (category: CodeCategory, type: CodeType) => void;
 }
 
 const FLOW_STEP_LABELS: Record<FlowStep, string> = {
-  authorization: '1. Authorization',
-  workerToken: '2. Worker Token',
-  deviceSelection: '3. Device Selection',
-  mfaChallenge: '4. MFA Challenge',
-  mfaVerification: '5. MFA Verification',
-  deviceRegistration: '6. Device Registration',
+	authorization: '1. Authorization',
+	workerToken: '2. Worker Token',
+	deviceSelection: '3. Device Selection',
+	mfaChallenge: '4. MFA Challenge',
+	mfaVerification: '5. MFA Verification',
+	deviceRegistration: '6. Device Registration',
 };
 
 const CODE_CATEGORY_LABELS: Record<CodeCategory, string> = {
-  frontend: 'Frontend',
-  backend: 'Backend',
-  mobile: 'Mobile',
+	frontend: 'Frontend',
+	backend: 'Backend',
+	mobile: 'Mobile',
 };
 
 const CODE_TYPE_LABELS: Record<CodeType, string> = {
-  // Frontend
-  'ping-sdk-js': 'Ping SDK (JavaScript)',
-  'rest-api-fetch': 'REST API (Fetch)',
-  'rest-api-axios': 'REST API (Axios)',
-  'react': 'React',
-  'angular': 'Angular',
-  'vue': 'Vue.js',
-  'next-js': 'Next.js',
-  'vanilla-js': 'Vanilla JavaScript',
-  // Backend
-  'ping-sdk-node': 'Ping SDK (Node.js)',
-  'rest-api-node': 'REST API (Node.js)',
-  'python-requests': 'Python (Requests)',
-  'python-sdk': 'Ping SDK (Python)',
-  'java-sdk': 'Ping SDK (Java)',
-  'go-http': 'Go (HTTP)',
-  'ruby-http': 'Ruby (HTTP)',
-  'csharp-http': 'C# (HTTP)',
-  // Mobile
-  'ping-sdk-ios': 'Ping SDK (iOS)',
-  'ping-sdk-android': 'Ping SDK (Android)',
-  'react-native': 'React Native',
-  'flutter': 'Flutter',
-  'swift-native': 'Swift (Native)',
-  'kotlin-native': 'Kotlin (Native)',
+	// Frontend
+	'ping-sdk-js': 'Ping SDK (JavaScript)',
+	'rest-api-fetch': 'REST API (Fetch)',
+	'rest-api-axios': 'REST API (Axios)',
+	react: 'React',
+	angular: 'Angular',
+	vue: 'Vue.js',
+	'next-js': 'Next.js',
+	'vanilla-js': 'Vanilla JavaScript',
+	// Backend
+	'ping-sdk-node': 'Ping SDK (Node.js)',
+	'rest-api-node': 'REST API (Node.js)',
+	'python-requests': 'Python (Requests)',
+	'python-sdk': 'Ping SDK (Python)',
+	'java-sdk': 'Ping SDK (Java)',
+	'go-http': 'Go (HTTP)',
+	'ruby-http': 'Ruby (HTTP)',
+	'csharp-http': 'C# (HTTP)',
+	// Mobile
+	'ping-sdk-ios': 'Ping SDK (iOS)',
+	'ping-sdk-android': 'Ping SDK (Android)',
+	'react-native': 'React Native',
+	flutter: 'Flutter',
+	'swift-native': 'Swift (Native)',
+	'kotlin-native': 'Kotlin (Native)',
 };
 
 const CODE_TYPES_BY_CATEGORY: Record<CodeCategory, CodeType[]> = {
-  frontend: [
-    'ping-sdk-js',
-    'rest-api-fetch',
-    'rest-api-axios',
-    'react',
-    'angular',
-    'vue',
-    'next-js',
-    'vanilla-js',
-  ],
-  backend: [
-    'ping-sdk-node',
-    'rest-api-node',
-    'python-requests',
-    'python-sdk',
-    'java-sdk',
-    'go-http',
-    'ruby-http',
-    'csharp-http',
-  ],
-  mobile: [
-    'ping-sdk-ios',
-    'ping-sdk-android',
-    'react-native',
-    'flutter',
-    'swift-native',
-    'kotlin-native',
-  ],
+	frontend: [
+		'ping-sdk-js',
+		'rest-api-fetch',
+		'rest-api-axios',
+		'react',
+		'angular',
+		'vue',
+		'next-js',
+		'vanilla-js',
+	],
+	backend: [
+		'ping-sdk-node',
+		'rest-api-node',
+		'python-requests',
+		'python-sdk',
+		'java-sdk',
+		'go-http',
+		'ruby-http',
+		'csharp-http',
+	],
+	mobile: [
+		'ping-sdk-ios',
+		'ping-sdk-android',
+		'react-native',
+		'flutter',
+		'swift-native',
+		'kotlin-native',
+	],
 };
 
 const getMonacoLanguage = (lang: LanguageOption): string => {
-  const languageMap: Record<LanguageOption, string> = {
-    javascript: 'javascript',
-    typescript: 'typescript',
-    python: 'python',
-    go: 'go',
-    ruby: 'ruby',
-    perl: 'perl',
-    java: 'java',
-    csharp: 'csharp',
-    react: 'typescript',
-    angular: 'typescript',
-    vanilla: 'javascript',
-    'react-native': 'typescript',
-    flutter: 'dart',
-    swift: 'swift',
-    kotlin: 'kotlin',
-  };
-  return languageMap[lang] || 'typescript';
+	const languageMap: Record<LanguageOption, string> = {
+		javascript: 'javascript',
+		typescript: 'typescript',
+		python: 'python',
+		go: 'go',
+		ruby: 'ruby',
+		perl: 'perl',
+		java: 'java',
+		csharp: 'csharp',
+		react: 'typescript',
+		angular: 'typescript',
+		vanilla: 'javascript',
+		'react-native': 'typescript',
+		flutter: 'dart',
+		swift: 'swift',
+		kotlin: 'kotlin',
+	};
+	return languageMap[lang] || 'typescript';
 };
 
 export const InteractiveCodeEditor: React.FC<InteractiveCodeEditorProps> = ({
-  initialCode,
-  language = 'typescript',
-  title = 'Code Editor',
-  onCodeChange,
-  flowSteps = ['authorization', 'workerToken', 'deviceSelection', 'mfaChallenge', 'mfaVerification', 'deviceRegistration'],
-  codeByStep,
-  onCategoryChange,
+	initialCode,
+	language = 'typescript',
+	title = 'Code Editor',
+	onCodeChange,
+	flowSteps = [
+		'authorization',
+		'workerToken',
+		'deviceSelection',
+		'mfaChallenge',
+		'mfaVerification',
+		'deviceRegistration',
+	],
+	codeByStep,
+	onCategoryChange,
 }) => {
-  const [activeStep, setActiveStep] = useState<FlowStep>(flowSteps[0]);
-  const [selectedLanguage, setSelectedLanguage] = useState<LanguageOption>(language);
-  const [selectedCategory, setSelectedCategory] = useState<CodeCategory>('frontend');
-  const [selectedCodeType, setSelectedCodeType] = useState<CodeType>('ping-sdk-js');
-  const [code, setCode] = useState(initialCode);
-  const [theme, setTheme] = useState<'light' | 'vs-dark'>('light');
-  const [copied, setCopied] = useState(false);
-  const [codeUpdated, setCodeUpdated] = useState(false);
-  const [config, setConfig] = useState({
-    environmentId: 'YOUR_ENVIRONMENT_ID',
-    clientId: 'YOUR_CLIENT_ID',
-    redirectUri: 'https://your-app.com/callback',
-    userId: 'USER_ID',
-  });
-  const editorRef = useRef<any>(null);
+	const [activeStep, setActiveStep] = useState<FlowStep>(flowSteps[0]);
+	const [selectedLanguage, setSelectedLanguage] = useState<LanguageOption>(language);
+	const [selectedCategory, setSelectedCategory] = useState<CodeCategory>('frontend');
+	const [selectedCodeType, setSelectedCodeType] = useState<CodeType>('ping-sdk-js');
+	const [code, setCode] = useState(initialCode);
+	const [theme, setTheme] = useState<'light' | 'vs-dark'>('light');
+	const [copied, setCopied] = useState(false);
+	const [codeUpdated, setCodeUpdated] = useState(false);
+	const [config, setConfig] = useState({
+		environmentId: 'YOUR_ENVIRONMENT_ID',
+		clientId: 'YOUR_CLIENT_ID',
+		redirectUri: 'https://your-app.com/callback',
+		userId: 'USER_ID',
+	});
+	const editorRef = useRef<any>(null);
 
-  const handleEditorDidMount = (editor: any) => {
-    editorRef.current = editor;
-  };
+	const handleEditorDidMount = (editor: any) => {
+		editorRef.current = editor;
+	};
 
-  const handleCodeChange = (value: string | undefined) => {
-    if (value !== undefined) {
-      setCode(value);
-      onCodeChange?.(value);
-    }
-  };
+	const handleCodeChange = (value: string | undefined) => {
+		if (value !== undefined) {
+			setCode(value);
+			onCodeChange?.(value);
+		}
+	};
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      v4ToastManager.showSuccess('Code copied to clipboard!');
-    } catch (err) {
-      console.error('Failed to copy:', err);
-      v4ToastManager.showError('Failed to copy code to clipboard');
-    }
-  };
+	const handleCopy = async () => {
+		try {
+			await navigator.clipboard.writeText(code);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+			v4ToastManager.showSuccess('Code copied to clipboard!');
+		} catch (err) {
+			console.error('Failed to copy:', err);
+			v4ToastManager.showError('Failed to copy code to clipboard');
+		}
+	};
 
-  const getFileExtension = (lang: LanguageOption): string => {
-    const extensionMap: Record<LanguageOption, string> = {
-      javascript: 'js',
-      typescript: 'ts',
-      python: 'py',
-      go: 'go',
-      ruby: 'rb',
-      perl: 'pl',
-      java: 'java',
-      csharp: 'cs',
-      react: 'tsx',
-      angular: 'ts',
-      vanilla: 'js',
-      'react-native': 'tsx',
-      flutter: 'dart',
-      swift: 'swift',
-      kotlin: 'kt',
-    };
-    return extensionMap[lang] || 'txt';
-  };
+	const getFileExtension = (lang: LanguageOption): string => {
+		const extensionMap: Record<LanguageOption, string> = {
+			javascript: 'js',
+			typescript: 'ts',
+			python: 'py',
+			go: 'go',
+			ruby: 'rb',
+			perl: 'pl',
+			java: 'java',
+			csharp: 'cs',
+			react: 'tsx',
+			angular: 'ts',
+			vanilla: 'js',
+			'react-native': 'tsx',
+			flutter: 'dart',
+			swift: 'swift',
+			kotlin: 'kt',
+		};
+		return extensionMap[lang] || 'txt';
+	};
 
-  const handleDownload = () => {
-    try {
-      const blob = new Blob([code], { type: 'text/plain' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      const extension = getFileExtension(selectedLanguage);
-      const filename = `mfa-${FLOW_STEP_LABELS[activeStep].toLowerCase().replace(/\s+/g, '-')}.${extension}`;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      v4ToastManager.showSuccess(`Downloaded ${filename}`);
-    } catch (err) {
-      console.error('Failed to download:', err);
-      v4ToastManager.showError('Failed to download file');
-    }
-  };
+	const handleDownload = () => {
+		try {
+			const blob = new Blob([code], { type: 'text/plain' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			const extension = getFileExtension(selectedLanguage);
+			const filename = `mfa-${FLOW_STEP_LABELS[activeStep].toLowerCase().replace(/\s+/g, '-')}.${extension}`;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			URL.revokeObjectURL(url);
+			v4ToastManager.showSuccess(`Downloaded ${filename}`);
+		} catch (err) {
+			console.error('Failed to download:', err);
+			v4ToastManager.showError('Failed to download file');
+		}
+	};
 
-  const handleReset = () => {
-    if (window.confirm('Reset code to original? Your changes will be lost.')) {
-      setCode(initialCode);
-      v4ToastManager.showSuccess('Code reset to original');
-    }
-  };
+	const handleReset = () => {
+		if (window.confirm('Reset code to original? Your changes will be lost.')) {
+			setCode(initialCode);
+			v4ToastManager.showSuccess('Code reset to original');
+		}
+	};
 
-  const handleFormat = () => {
-    if (editorRef.current) {
-      editorRef.current.getAction('editor.action.formatDocument').run();
-      v4ToastManager.showSuccess('Code formatted');
-    }
-  };
+	const handleFormat = () => {
+		if (editorRef.current) {
+			editorRef.current.getAction('editor.action.formatDocument').run();
+			v4ToastManager.showSuccess('Code formatted');
+		}
+	};
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'vs-dark' : 'light';
-    setTheme(newTheme);
-    v4ToastManager.showSuccess(`Switched to ${newTheme === 'light' ? 'Light' : 'Dark'} theme`);
-  };
+	const toggleTheme = () => {
+		const newTheme = theme === 'light' ? 'vs-dark' : 'light';
+		setTheme(newTheme);
+		v4ToastManager.showSuccess(`Switched to ${newTheme === 'light' ? 'Light' : 'Dark'} theme`);
+	};
 
-  const handleConfigChange = (field: keyof typeof config, value: string) => {
-    setConfig(prev => ({ ...prev, [field]: value }));
-    
-    // Update code with new config values
-    let updatedCode = code;
-    Object.entries({ ...config, [field]: value }).forEach(([key, val]) => {
-      const placeholder = key === 'environmentId' ? 'YOUR_ENVIRONMENT_ID' :
-                         key === 'clientId' ? 'YOUR_CLIENT_ID' :
-                         key === 'redirectUri' ? 'https://your-app.com/callback' :
-                         'USER_ID';
-      updatedCode = updatedCode.replace(new RegExp(placeholder, 'g'), val);
-    });
-    setCode(updatedCode);
-  };
+	const handleConfigChange = (field: keyof typeof config, value: string) => {
+		setConfig((prev) => ({ ...prev, [field]: value }));
 
-  const handleStepChange = (step: FlowStep) => {
-    setActiveStep(step);
-    if (codeByStep && codeByStep[step]) {
-      setCode(codeByStep[step]);
-    }
-    v4ToastManager.showSuccess(`Switched to ${FLOW_STEP_LABELS[step]}`);
-  };
+		// Update code with new config values
+		let updatedCode = code;
+		Object.entries({ ...config, [field]: value }).forEach(([key, val]) => {
+			const placeholder =
+				key === 'environmentId'
+					? 'YOUR_ENVIRONMENT_ID'
+					: key === 'clientId'
+						? 'YOUR_CLIENT_ID'
+						: key === 'redirectUri'
+							? 'https://your-app.com/callback'
+							: 'USER_ID';
+			updatedCode = updatedCode.replace(new RegExp(placeholder, 'g'), val);
+		});
+		setCode(updatedCode);
+	};
 
-  const handleLanguageChange = (lang: LanguageOption) => {
-    setSelectedLanguage(lang);
-    v4ToastManager.showSuccess(`Switched to ${lang}`);
-  };
+	const handleStepChange = (step: FlowStep) => {
+		setActiveStep(step);
+		if (codeByStep?.[step]) {
+			setCode(codeByStep[step]);
+		}
+		v4ToastManager.showSuccess(`Switched to ${FLOW_STEP_LABELS[step]}`);
+	};
 
-  const handleCategoryChange = (category: CodeCategory) => {
-    // Show spinner modal
-    setCodeUpdated(true);
-    
-    // Simulate code generation delay for better UX
-    setTimeout(() => {
-      setSelectedCategory(category);
-      // Reset to first code type in new category
-      const firstType = CODE_TYPES_BY_CATEGORY[category][0];
-      setSelectedCodeType(firstType);
-      onCategoryChange?.(category, firstType);
-      
-      // Hide spinner after generation
-      setTimeout(() => {
-        setCodeUpdated(false);
-        v4ToastManager.showSuccess(`Generated ${CODE_CATEGORY_LABELS[category]} code`);
-      }, 300);
-    }, 500);
-  };
+	const handleLanguageChange = (lang: LanguageOption) => {
+		setSelectedLanguage(lang);
+		v4ToastManager.showSuccess(`Switched to ${lang}`);
+	};
 
-  const handleCodeTypeChange = (type: CodeType) => {
-    // Show spinner modal
-    setCodeUpdated(true);
-    
-    // Simulate code generation delay for better UX
-    setTimeout(() => {
-      setSelectedCodeType(type);
-      onCategoryChange?.(selectedCategory, type);
-      
-      // Hide spinner after generation
-      setTimeout(() => {
-        setCodeUpdated(false);
-        v4ToastManager.showSuccess(`Generated ${CODE_TYPE_LABELS[type]} code`);
-      }, 300);
-    }, 500);
-  };
+	const handleCategoryChange = (category: CodeCategory) => {
+		// Show spinner modal
+		setCodeUpdated(true);
 
-  return (
-    <>
-    <EditorContainer>
-      <TabsContainer>
-        {flowSteps.map((step) => (
-          <Tab
-            key={step}
-            $active={activeStep === step}
-            onClick={() => handleStepChange(step)}
-          >
-            {FLOW_STEP_LABELS[step]}
-          </Tab>
-        ))}
-      </TabsContainer>
+		// Simulate code generation delay for better UX
+		setTimeout(() => {
+			setSelectedCategory(category);
+			// Reset to first code type in new category
+			const firstType = CODE_TYPES_BY_CATEGORY[category][0];
+			setSelectedCodeType(firstType);
+			onCategoryChange?.(category, firstType);
 
-      <CategoryPanel>
-        <CategoryLabel>Category:</CategoryLabel>
-        <CategorySelector 
-          value={selectedCategory}
-          onChange={(e) => handleCategoryChange(e.target.value as CodeCategory)}
-        >
-          {Object.entries(CODE_CATEGORY_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
-          ))}
-        </CategorySelector>
+			// Hide spinner after generation
+			setTimeout(() => {
+				setCodeUpdated(false);
+				v4ToastManager.showSuccess(`Generated ${CODE_CATEGORY_LABELS[category]} code`);
+			}, 300);
+		}, 500);
+	};
 
-        <Divider />
+	const handleCodeTypeChange = (type: CodeType) => {
+		// Show spinner modal
+		setCodeUpdated(true);
 
-        <CategoryLabel>Code Type:</CategoryLabel>
-        <CategorySelector 
-          value={selectedCodeType}
-          onChange={(e) => handleCodeTypeChange(e.target.value as CodeType)}
-        >
-          {CODE_TYPES_BY_CATEGORY[selectedCategory].map((type) => (
-            <option key={type} value={type}>{CODE_TYPE_LABELS[type]}</option>
-          ))}
-        </CategorySelector>
+		// Simulate code generation delay for better UX
+		setTimeout(() => {
+			setSelectedCodeType(type);
+			onCategoryChange?.(selectedCategory, type);
 
-        <Divider />
+			// Hide spinner after generation
+			setTimeout(() => {
+				setCodeUpdated(false);
+				v4ToastManager.showSuccess(`Generated ${CODE_TYPE_LABELS[type]} code`);
+			}, 300);
+		}, 500);
+	};
 
-        <UpdateIndicator $visible={codeUpdated}>
-          <FiRefreshCw size={14} />
-          Code Updated
-        </UpdateIndicator>
+	return (
+		<>
+			<EditorContainer>
+				<TabsContainer>
+					{flowSteps.map((step) => (
+						<Tab key={step} $active={activeStep === step} onClick={() => handleStepChange(step)}>
+							{FLOW_STEP_LABELS[step]}
+						</Tab>
+					))}
+				</TabsContainer>
 
-        <Divider />
+				<CategoryPanel>
+					<CategoryLabel>Category:</CategoryLabel>
+					<CategorySelector
+						value={selectedCategory}
+						onChange={(e) => handleCategoryChange(e.target.value as CodeCategory)}
+					>
+						{Object.entries(CODE_CATEGORY_LABELS).map(([value, label]) => (
+							<option key={value} value={value}>
+								{label}
+							</option>
+						))}
+					</CategorySelector>
 
-        <CategoryLabel>Language:</CategoryLabel>
-        <LanguageSelector 
-          value={selectedLanguage} 
-          onChange={(e) => handleLanguageChange(e.target.value as LanguageOption)}
-        >
-          <LanguageOptGroup label="Web">
-            <option value="javascript">JavaScript</option>
-            <option value="typescript">TypeScript</option>
-            <option value="react">React</option>
-            <option value="angular">Angular</option>
-            <option value="vanilla">Vanilla JS</option>
-          </LanguageOptGroup>
-          <LanguageOptGroup label="Mobile">
-            <option value="react-native">React Native</option>
-            <option value="flutter">Flutter/Dart</option>
-            <option value="swift">Swift (iOS)</option>
-            <option value="kotlin">Kotlin (Android)</option>
-          </LanguageOptGroup>
-          <LanguageOptGroup label="Backend">
-            <option value="python">Python</option>
-            <option value="go">Go</option>
-            <option value="ruby">Ruby</option>
-            <option value="java">Java</option>
-            <option value="csharp">C#</option>
-            <option value="perl">Perl</option>
-          </LanguageOptGroup>
-        </LanguageSelector>
-      </CategoryPanel>
+					<Divider />
 
-      <ConfigPanel>
-        <ConfigGrid>
-          <ConfigField>
-            <ConfigLabel>Environment ID</ConfigLabel>
-            <ConfigInput
-              type="text"
-              value={config.environmentId}
-              onChange={(e) => handleConfigChange('environmentId', e.target.value)}
-              placeholder="Enter your environment ID"
-            />
-          </ConfigField>
-          <ConfigField>
-            <ConfigLabel>Client ID</ConfigLabel>
-            <ConfigInput
-              type="text"
-              value={config.clientId}
-              onChange={(e) => handleConfigChange('clientId', e.target.value)}
-              placeholder="Enter your client ID"
-            />
-          </ConfigField>
-          <ConfigField>
-            <ConfigLabel>Redirect URI</ConfigLabel>
-            <ConfigInput
-              type="text"
-              value={config.redirectUri}
-              onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
-              placeholder="Enter your redirect URI"
-            />
-          </ConfigField>
-          <ConfigField>
-            <ConfigLabel>User ID</ConfigLabel>
-            <ConfigInput
-              type="text"
-              value={config.userId}
-              onChange={(e) => handleConfigChange('userId', e.target.value)}
-              placeholder="Enter user ID"
-            />
-          </ConfigField>
-        </ConfigGrid>
-      </ConfigPanel>
+					<CategoryLabel>Code Type:</CategoryLabel>
+					<CategorySelector
+						value={selectedCodeType}
+						onChange={(e) => handleCodeTypeChange(e.target.value as CodeType)}
+					>
+						{CODE_TYPES_BY_CATEGORY[selectedCategory].map((type) => (
+							<option key={type} value={type}>
+								{CODE_TYPE_LABELS[type]}
+							</option>
+						))}
+					</CategorySelector>
 
-      <Toolbar>
-        <ToolbarLeft>
-          <ToolbarButton $variant="primary" onClick={handleCopy}>
-            {copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
-            {copied ? 'Copied!' : 'Copy Code'}
-          </ToolbarButton>
-          <ToolbarButton onClick={handleDownload}>
-            <FiDownload size={14} />
-            Download
-          </ToolbarButton>
-          <ToolbarButton onClick={handleFormat}>
-            <FiCode size={14} />
-            Format
-          </ToolbarButton>
-          <ToolbarButton onClick={handleReset}>
-            <FiRefreshCw size={14} />
-            Reset
-          </ToolbarButton>
-        </ToolbarLeft>
-        <ToolbarRight>
-          <ThemeToggle $isDark={theme === 'vs-dark'} onClick={toggleTheme}>
-            {theme === 'vs-dark' ? <FiSun size={14} /> : <FiMoon size={14} />}
-            {theme === 'vs-dark' ? 'Light' : 'Dark'}
-          </ThemeToggle>
-        </ToolbarRight>
-      </Toolbar>
+					<Divider />
 
-      <EditorWrapper>
-        <Editor
-          height="500px"
-          language={getMonacoLanguage(selectedLanguage)}
-          value={code}
-          theme={theme}
-          onChange={handleCodeChange}
-          onMount={handleEditorDidMount}
-          options={{
-            minimap: { enabled: true },
-            fontSize: 14,
-            lineNumbers: 'on',
-            roundedSelection: true,
-            scrollBeyondLastLine: false,
-            automaticLayout: true,
-            tabSize: 2,
-            wordWrap: 'on',
-            formatOnPaste: true,
-            formatOnType: true,
-          }}
-        />
-      </EditorWrapper>
+					<UpdateIndicator $visible={codeUpdated}>
+						<FiRefreshCw size={14} />
+						Code Updated
+					</UpdateIndicator>
 
-      <StatusBar>
-        <StatusLeft>
-          <StatusItem>
-            <StatusBadge $type="success">{CODE_CATEGORY_LABELS[selectedCategory]}</StatusBadge>
-          </StatusItem>
-          <StatusItem>
-            <StatusBadge $type="warning">{CODE_TYPE_LABELS[selectedCodeType]}</StatusBadge>
-          </StatusItem>
-          <StatusItem>
-            <StatusBadge $type="info">{FLOW_STEP_LABELS[activeStep]}</StatusBadge>
-          </StatusItem>
-          <StatusItem>
-            Lines: {code.split('\n').length}
-          </StatusItem>
-          <StatusItem>
-            Characters: {code.length}
-          </StatusItem>
-        </StatusLeft>
-        <StatusItem>
-          <StatusBadge $type="info">Ready</StatusBadge>
-        </StatusItem>
-      </StatusBar>
-    </EditorContainer>
-    
-    {/* Spinner Modal Overlay */}
-    <SpinnerOverlay $visible={codeUpdated}>
-      <SpinnerModal>
-        <Spinner />
-        <SpinnerText>Generating Code...</SpinnerText>
-        <SpinnerSubtext>Creating production-ready code for {CODE_TYPE_LABELS[selectedCodeType]}</SpinnerSubtext>
-      </SpinnerModal>
-    </SpinnerOverlay>
-    </>
-  );
+					<Divider />
+
+					<CategoryLabel>Language:</CategoryLabel>
+					<LanguageSelector
+						value={selectedLanguage}
+						onChange={(e) => handleLanguageChange(e.target.value as LanguageOption)}
+					>
+						<LanguageOptGroup label="Web">
+							<option value="javascript">JavaScript</option>
+							<option value="typescript">TypeScript</option>
+							<option value="react">React</option>
+							<option value="angular">Angular</option>
+							<option value="vanilla">Vanilla JS</option>
+						</LanguageOptGroup>
+						<LanguageOptGroup label="Mobile">
+							<option value="react-native">React Native</option>
+							<option value="flutter">Flutter/Dart</option>
+							<option value="swift">Swift (iOS)</option>
+							<option value="kotlin">Kotlin (Android)</option>
+						</LanguageOptGroup>
+						<LanguageOptGroup label="Backend">
+							<option value="python">Python</option>
+							<option value="go">Go</option>
+							<option value="ruby">Ruby</option>
+							<option value="java">Java</option>
+							<option value="csharp">C#</option>
+							<option value="perl">Perl</option>
+						</LanguageOptGroup>
+					</LanguageSelector>
+				</CategoryPanel>
+
+				<ConfigPanel>
+					<ConfigGrid>
+						<ConfigField>
+							<ConfigLabel>Environment ID</ConfigLabel>
+							<ConfigInput
+								type="text"
+								value={config.environmentId}
+								onChange={(e) => handleConfigChange('environmentId', e.target.value)}
+								placeholder="Enter your environment ID"
+							/>
+						</ConfigField>
+						<ConfigField>
+							<ConfigLabel>Client ID</ConfigLabel>
+							<ConfigInput
+								type="text"
+								value={config.clientId}
+								onChange={(e) => handleConfigChange('clientId', e.target.value)}
+								placeholder="Enter your client ID"
+							/>
+						</ConfigField>
+						<ConfigField>
+							<ConfigLabel>Redirect URI</ConfigLabel>
+							<ConfigInput
+								type="text"
+								value={config.redirectUri}
+								onChange={(e) => handleConfigChange('redirectUri', e.target.value)}
+								placeholder="Enter your redirect URI"
+							/>
+						</ConfigField>
+						<ConfigField>
+							<ConfigLabel>User ID</ConfigLabel>
+							<ConfigInput
+								type="text"
+								value={config.userId}
+								onChange={(e) => handleConfigChange('userId', e.target.value)}
+								placeholder="Enter user ID"
+							/>
+						</ConfigField>
+					</ConfigGrid>
+				</ConfigPanel>
+
+				<Toolbar>
+					<ToolbarLeft>
+						<ToolbarButton $variant="primary" onClick={handleCopy}>
+							{copied ? <FiCheck size={14} /> : <FiCopy size={14} />}
+							{copied ? 'Copied!' : 'Copy Code'}
+						</ToolbarButton>
+						<ToolbarButton onClick={handleDownload}>
+							<FiDownload size={14} />
+							Download
+						</ToolbarButton>
+						<ToolbarButton onClick={handleFormat}>
+							<FiCode size={14} />
+							Format
+						</ToolbarButton>
+						<ToolbarButton onClick={handleReset}>
+							<FiRefreshCw size={14} />
+							Reset
+						</ToolbarButton>
+					</ToolbarLeft>
+					<ToolbarRight>
+						<ThemeToggle $isDark={theme === 'vs-dark'} onClick={toggleTheme}>
+							{theme === 'vs-dark' ? <FiSun size={14} /> : <FiMoon size={14} />}
+							{theme === 'vs-dark' ? 'Light' : 'Dark'}
+						</ThemeToggle>
+					</ToolbarRight>
+				</Toolbar>
+
+				<EditorWrapper>
+					<Editor
+						height="500px"
+						language={getMonacoLanguage(selectedLanguage)}
+						value={code}
+						theme={theme}
+						onChange={handleCodeChange}
+						onMount={handleEditorDidMount}
+						options={{
+							minimap: { enabled: true },
+							fontSize: 14,
+							lineNumbers: 'on',
+							roundedSelection: true,
+							scrollBeyondLastLine: false,
+							automaticLayout: true,
+							tabSize: 2,
+							wordWrap: 'on',
+							formatOnPaste: true,
+							formatOnType: true,
+						}}
+					/>
+				</EditorWrapper>
+
+				<StatusBar>
+					<StatusLeft>
+						<StatusItem>
+							<StatusBadge $type="success">{CODE_CATEGORY_LABELS[selectedCategory]}</StatusBadge>
+						</StatusItem>
+						<StatusItem>
+							<StatusBadge $type="warning">{CODE_TYPE_LABELS[selectedCodeType]}</StatusBadge>
+						</StatusItem>
+						<StatusItem>
+							<StatusBadge $type="info">{FLOW_STEP_LABELS[activeStep]}</StatusBadge>
+						</StatusItem>
+						<StatusItem>Lines: {code.split('\n').length}</StatusItem>
+						<StatusItem>Characters: {code.length}</StatusItem>
+					</StatusLeft>
+					<StatusItem>
+						<StatusBadge $type="info">Ready</StatusBadge>
+					</StatusItem>
+				</StatusBar>
+			</EditorContainer>
+
+			{/* Spinner Modal Overlay */}
+			<SpinnerOverlay $visible={codeUpdated}>
+				<SpinnerModal>
+					<Spinner />
+					<SpinnerText>Generating Code...</SpinnerText>
+					<SpinnerSubtext>
+						Creating production-ready code for {CODE_TYPE_LABELS[selectedCodeType]}
+					</SpinnerSubtext>
+				</SpinnerModal>
+			</SpinnerOverlay>
+		</>
+	);
 };
 
 export default InteractiveCodeEditor;

@@ -4,9 +4,9 @@
  * Analyzes real OAuth URLs from any provider and explains every parameter
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { FiCheckCircle, FiCopy, FiInfo, FiSearch } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSearch, FiCheckCircle, FiInfo, FiCopy } from 'react-icons/fi';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const DetectiveContainer = styled.div`
@@ -156,7 +156,9 @@ const ParameterList = styled.div`
 	gap: 1rem;
 `;
 
-const ParameterCard = styled.div<{ status: 'standard' | 'provider-specific' | 'advanced' | 'security' }>`
+const ParameterCard = styled.div<{
+	status: 'standard' | 'provider-specific' | 'advanced' | 'security';
+}>`
 	background: ${({ status }) => {
 		switch (status) {
 			case 'standard':
@@ -270,10 +272,14 @@ interface AnalysisResults {
 }
 
 const EXAMPLE_URLS = {
-	google: 'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=https://example.com/callback&response_type=code&scope=openid%20email%20profile&access_type=offline&include_granted_scopes=true&state=security_token&prompt=consent',
-	microsoft: 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=https://example.com/callback&response_mode=query&scope=openid%20profile%20email%20offline_access&state=12345&prompt=select_account',
-	github: 'https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=https://example.com/callback&scope=user%20repo&state=random_string&allow_signup=true',
-	pingone: 'https://auth.pingone.com/YOUR_ENV_ID/as/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=https://example.com/callback&response_type=code&scope=openid%20profile%20email&state=security_token&nonce=random_nonce&prompt=login',
+	google:
+		'https://accounts.google.com/o/oauth2/v2/auth?client_id=YOUR_CLIENT_ID&redirect_uri=https://example.com/callback&response_type=code&scope=openid%20email%20profile&access_type=offline&include_granted_scopes=true&state=security_token&prompt=consent',
+	microsoft:
+		'https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=YOUR_CLIENT_ID&response_type=code&redirect_uri=https://example.com/callback&response_mode=query&scope=openid%20profile%20email%20offline_access&state=12345&prompt=select_account',
+	github:
+		'https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=https://example.com/callback&scope=user%20repo&state=random_string&allow_signup=true',
+	pingone:
+		'https://auth.pingone.com/YOUR_ENV_ID/as/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=https://example.com/callback&response_type=code&scope=openid%20profile%20email&state=security_token&nonce=random_nonce&prompt=login',
 };
 
 const OAuthDetective: React.FC = () => {
@@ -285,7 +291,8 @@ const OAuthDetective: React.FC = () => {
 	const detectProvider = useCallback((urlString: string): string => {
 		const lowerUrl = urlString.toLowerCase();
 		if (lowerUrl.includes('google.com') || lowerUrl.includes('googleapis.com')) return 'Google';
-		if (lowerUrl.includes('microsoft.com') || lowerUrl.includes('microsoftonline')) return 'Microsoft';
+		if (lowerUrl.includes('microsoft.com') || lowerUrl.includes('microsoftonline'))
+			return 'Microsoft';
 		if (lowerUrl.includes('github.com')) return 'GitHub';
 		if (lowerUrl.includes('okta.com')) return 'Okta';
 		if (lowerUrl.includes('pingone.com') || lowerUrl.includes('pingidentity')) return 'PingOne';
@@ -295,155 +302,168 @@ const OAuthDetective: React.FC = () => {
 	}, []);
 
 	// Analyze parameter and provide context
-	const analyzeParameter = useCallback((name: string, value: string, provider: string): Parameter => {
-		const decodedValue = decodeURIComponent(value);
+	const analyzeParameter = useCallback(
+		(name: string, value: string, provider: string): Parameter => {
+			const decodedValue = decodeURIComponent(value);
 
-		// Standard OAuth/OIDC parameters
-		const standardParams: Record<string, Omit<Parameter, 'name' | 'value'>> = {
-			client_id: {
-				status: 'standard',
-				explanation: '🔑 Your application identifier. This tells the authorization server which application is requesting access. Every OAuth client must have a unique client_id.',
-			},
-			redirect_uri: {
-				status: 'security',
-				explanation: '🔒 Where users return after authentication. This MUST be pre-registered with the authorization server to prevent redirect attacks. Only exact matches are allowed for security.',
-			},
-			response_type: {
-				status: 'standard',
-				explanation: `🎯 Determines the OAuth flow: "code" = Authorization Code flow (most secure), "token" = Implicit flow (legacy), "id_token" = OIDC authentication. You're using: ${decodedValue}`,
-			},
-			scope: {
-				status: 'standard',
-				explanation: `🎫 What permissions you're requesting. Space-separated list. Common scopes: "openid" (OIDC), "profile", "email", "offline_access" (refresh tokens). Your scopes: ${decodedValue}`,
-			},
-			state: {
-				status: 'security',
-				explanation: '🛡️ CSRF protection token. Your app generates this random value, sends it with the request, and validates it when the user returns. Prevents cross-site request forgery attacks.',
-				pingoneEquivalent: '✅ PingOne fully supports state parameter - always use it!',
-			},
-			nonce: {
-				status: 'security',
-				explanation: '🔐 Replay attack prevention for ID tokens. This random value is hashed into the ID token, ensuring the token was issued for THIS specific request and cannot be reused.',
-				pingoneEquivalent: '✅ PingOne requires nonce when using implicit/hybrid flows',
-			},
-			prompt: {
-				status: 'advanced',
-				explanation: `👤 Controls authentication UX: "none" = silent auth (no UI), "login" = force re-login, "consent" = show consent screen, "select_account" = show account picker. You're using: ${decodedValue}`,
-				pingoneEquivalent: '✅ PingOne supports: none, login, consent',
-			},
-			max_age: {
-				status: 'security',
-				explanation: `⏱️ Maximum authentication age in seconds. If the user's last authentication is older than this, they must re-authenticate. Critical for high-security operations. Your value: ${decodedValue}s (${Math.floor(parseInt(decodedValue) / 60)} minutes)`,
-				pingoneEquivalent: '✅ PingOne supports max_age parameter',
-			},
-			display: {
-				status: 'advanced',
-				explanation: `📱 UI presentation mode: "page" (full page), "popup" (popup window), "touch" (mobile-optimized), "wap" (legacy mobile). Your value: ${decodedValue}`,
-				pingoneEquivalent: '⚠️ PingOne uses responsive design - display parameter has limited effect',
-			},
-			login_hint: {
-				status: 'advanced',
-				explanation: `💡 Pre-fills the username/email field to improve UX for known users. Your value: ${decodedValue}`,
-				pingoneEquivalent: '✅ PingOne supports login_hint to pre-populate username',
-			},
-			ui_locales: {
-				status: 'advanced',
-				explanation: `🌍 Preferred languages for auth UI (RFC 5646 language tags). Space-separated priority list. Your value: ${decodedValue}`,
-				pingoneEquivalent: '✅ PingOne supports ui_locales for internationalization',
-			},
-			acr_values: {
-				status: 'advanced',
-				explanation: `🔐 Authentication Context Class Reference - specifies required authentication strength (e.g., MFA, biometric). Your value: ${decodedValue}`,
-				pingoneEquivalent: '⚠️ PingOne uses policy-based MFA - configure in console rather than acr_values',
-			},
-			claims: {
-				status: 'advanced',
-				explanation: `📋 OIDC Claims Request - JSON object specifying which user attributes to include in tokens. Length: ${decodedValue.length} chars`,
-				pingoneEquivalent: '✅ PingOne supports claims parameter for selective disclosure',
-			},
-			response_mode: {
-				status: 'standard',
-				explanation: `📬 How the authorization server returns the response: "query" (URL params), "fragment" (URL hash), "form_post" (HTTP POST). Your value: ${decodedValue}`,
-				pingoneEquivalent: '✅ PingOne supports query, fragment, and form_post',
-			},
-			code_challenge: {
-				status: 'security',
-				explanation: `🔒 PKCE code challenge - hashed version of code_verifier. Prevents authorization code interception attacks. Essential for mobile/SPA apps. Length: ${decodedValue.length} chars`,
-				pingoneEquivalent: '✅ PingOne REQUIRES PKCE for public clients (SPAs, mobile apps)',
-			},
-			code_challenge_method: {
-				status: 'security',
-				explanation: `🔐 PKCE hash algorithm: "S256" (SHA-256, recommended), "plain" (not recommended). Your value: ${decodedValue}`,
-				pingoneEquivalent: '✅ PingOne supports S256 (recommended) and plain',
-			},
-		};
+			// Standard OAuth/OIDC parameters
+			const standardParams: Record<string, Omit<Parameter, 'name' | 'value'>> = {
+				client_id: {
+					status: 'standard',
+					explanation:
+						'🔑 Your application identifier. This tells the authorization server which application is requesting access. Every OAuth client must have a unique client_id.',
+				},
+				redirect_uri: {
+					status: 'security',
+					explanation:
+						'🔒 Where users return after authentication. This MUST be pre-registered with the authorization server to prevent redirect attacks. Only exact matches are allowed for security.',
+				},
+				response_type: {
+					status: 'standard',
+					explanation: `🎯 Determines the OAuth flow: "code" = Authorization Code flow (most secure), "token" = Implicit flow (legacy), "id_token" = OIDC authentication. You're using: ${decodedValue}`,
+				},
+				scope: {
+					status: 'standard',
+					explanation: `🎫 What permissions you're requesting. Space-separated list. Common scopes: "openid" (OIDC), "profile", "email", "offline_access" (refresh tokens). Your scopes: ${decodedValue}`,
+				},
+				state: {
+					status: 'security',
+					explanation:
+						'🛡️ CSRF protection token. Your app generates this random value, sends it with the request, and validates it when the user returns. Prevents cross-site request forgery attacks.',
+					pingoneEquivalent: '✅ PingOne fully supports state parameter - always use it!',
+				},
+				nonce: {
+					status: 'security',
+					explanation:
+						'🔐 Replay attack prevention for ID tokens. This random value is hashed into the ID token, ensuring the token was issued for THIS specific request and cannot be reused.',
+					pingoneEquivalent: '✅ PingOne requires nonce when using implicit/hybrid flows',
+				},
+				prompt: {
+					status: 'advanced',
+					explanation: `👤 Controls authentication UX: "none" = silent auth (no UI), "login" = force re-login, "consent" = show consent screen, "select_account" = show account picker. You're using: ${decodedValue}`,
+					pingoneEquivalent: '✅ PingOne supports: none, login, consent',
+				},
+				max_age: {
+					status: 'security',
+					explanation: `⏱️ Maximum authentication age in seconds. If the user's last authentication is older than this, they must re-authenticate. Critical for high-security operations. Your value: ${decodedValue}s (${Math.floor(parseInt(decodedValue, 10) / 60)} minutes)`,
+					pingoneEquivalent: '✅ PingOne supports max_age parameter',
+				},
+				display: {
+					status: 'advanced',
+					explanation: `📱 UI presentation mode: "page" (full page), "popup" (popup window), "touch" (mobile-optimized), "wap" (legacy mobile). Your value: ${decodedValue}`,
+					pingoneEquivalent:
+						'⚠️ PingOne uses responsive design - display parameter has limited effect',
+				},
+				login_hint: {
+					status: 'advanced',
+					explanation: `💡 Pre-fills the username/email field to improve UX for known users. Your value: ${decodedValue}`,
+					pingoneEquivalent: '✅ PingOne supports login_hint to pre-populate username',
+				},
+				ui_locales: {
+					status: 'advanced',
+					explanation: `🌍 Preferred languages for auth UI (RFC 5646 language tags). Space-separated priority list. Your value: ${decodedValue}`,
+					pingoneEquivalent: '✅ PingOne supports ui_locales for internationalization',
+				},
+				acr_values: {
+					status: 'advanced',
+					explanation: `🔐 Authentication Context Class Reference - specifies required authentication strength (e.g., MFA, biometric). Your value: ${decodedValue}`,
+					pingoneEquivalent:
+						'⚠️ PingOne uses policy-based MFA - configure in console rather than acr_values',
+				},
+				claims: {
+					status: 'advanced',
+					explanation: `📋 OIDC Claims Request - JSON object specifying which user attributes to include in tokens. Length: ${decodedValue.length} chars`,
+					pingoneEquivalent: '✅ PingOne supports claims parameter for selective disclosure',
+				},
+				response_mode: {
+					status: 'standard',
+					explanation: `📬 How the authorization server returns the response: "query" (URL params), "fragment" (URL hash), "form_post" (HTTP POST). Your value: ${decodedValue}`,
+					pingoneEquivalent: '✅ PingOne supports query, fragment, and form_post',
+				},
+				code_challenge: {
+					status: 'security',
+					explanation: `🔒 PKCE code challenge - hashed version of code_verifier. Prevents authorization code interception attacks. Essential for mobile/SPA apps. Length: ${decodedValue.length} chars`,
+					pingoneEquivalent: '✅ PingOne REQUIRES PKCE for public clients (SPAs, mobile apps)',
+				},
+				code_challenge_method: {
+					status: 'security',
+					explanation: `🔐 PKCE hash algorithm: "S256" (SHA-256, recommended), "plain" (not recommended). Your value: ${decodedValue}`,
+					pingoneEquivalent: '✅ PingOne supports S256 (recommended) and plain',
+				},
+			};
 
-		// Provider-specific parameters
-		const providerSpecificParams: Record<string, Record<string, Omit<Parameter, 'name' | 'value'>>> = {
-			Google: {
-				access_type: {
-					status: 'provider-specific',
-					explanation: `🔄 Google-specific: "offline" requests a refresh token, "online" doesn't. Your value: ${decodedValue}`,
-					pingoneEquivalent: '💡 PingOne equivalent: Add "offline_access" to scope parameter',
+			// Provider-specific parameters
+			const providerSpecificParams: Record<
+				string,
+				Record<string, Omit<Parameter, 'name' | 'value'>>
+			> = {
+				Google: {
+					access_type: {
+						status: 'provider-specific',
+						explanation: `🔄 Google-specific: "offline" requests a refresh token, "online" doesn't. Your value: ${decodedValue}`,
+						pingoneEquivalent: '💡 PingOne equivalent: Add "offline_access" to scope parameter',
+					},
+					include_granted_scopes: {
+						status: 'provider-specific',
+						explanation: `➕ Google-specific: Incremental authorization - preserves previously granted scopes. Your value: ${decodedValue}`,
+						pingoneEquivalent:
+							"⚠️ PingOne doesn't have direct equivalent - request all scopes upfront",
+					},
+					hd: {
+						status: 'provider-specific',
+						explanation: `🏢 Google Workspace: Restricts authentication to specific domain. Your domain: ${decodedValue}`,
+						pingoneEquivalent: '💡 PingOne equivalent: Use population restrictions in console',
+					},
 				},
-				include_granted_scopes: {
-					status: 'provider-specific',
-					explanation: `➕ Google-specific: Incremental authorization - preserves previously granted scopes. Your value: ${decodedValue}`,
-					pingoneEquivalent: '⚠️ PingOne doesn\'t have direct equivalent - request all scopes upfront',
+				Microsoft: {
+					tenant: {
+						status: 'provider-specific',
+						explanation: `🏢 Microsoft-specific: Azure AD tenant ID or "common" for multi-tenant. Your value: ${decodedValue}`,
+						pingoneEquivalent: '💡 PingOne equivalent: Use environment ID in authorization URL',
+					},
+					domain_hint: {
+						status: 'provider-specific',
+						explanation: `🌐 Microsoft-specific: Skips account selection for known domain users. Your value: ${decodedValue}`,
+						pingoneEquivalent: '💡 PingOne equivalent: Use login_hint with email address',
+					},
 				},
-				hd: {
-					status: 'provider-specific',
-					explanation: `🏢 Google Workspace: Restricts authentication to specific domain. Your domain: ${decodedValue}`,
-					pingoneEquivalent: '💡 PingOne equivalent: Use population restrictions in console',
+				GitHub: {
+					allow_signup: {
+						status: 'provider-specific',
+						explanation: `📝 GitHub-specific: Whether to show "Sign up" link during auth. Your value: ${decodedValue}`,
+						pingoneEquivalent: '💡 PingOne equivalent: Configure user registration in console',
+					},
 				},
-			},
-			Microsoft: {
-				tenant: {
-					status: 'provider-specific',
-					explanation: `🏢 Microsoft-specific: Azure AD tenant ID or "common" for multi-tenant. Your value: ${decodedValue}`,
-					pingoneEquivalent: '💡 PingOne equivalent: Use environment ID in authorization URL',
-				},
-				domain_hint: {
-					status: 'provider-specific',
-					explanation: `🌐 Microsoft-specific: Skips account selection for known domain users. Your value: ${decodedValue}`,
-					pingoneEquivalent: '💡 PingOne equivalent: Use login_hint with email address',
-				},
-			},
-			GitHub: {
-				allow_signup: {
-					status: 'provider-specific',
-					explanation: `📝 GitHub-specific: Whether to show "Sign up" link during auth. Your value: ${decodedValue}`,
-					pingoneEquivalent: '💡 PingOne equivalent: Configure user registration in console',
-				},
-			},
-		};
+			};
 
-		// Check standard parameters first
-		if (standardParams[name]) {
+			// Check standard parameters first
+			if (standardParams[name]) {
+				return {
+					name,
+					value: decodedValue,
+					...standardParams[name],
+				};
+			}
+
+			// Check provider-specific parameters
+			if (providerSpecificParams[provider]?.[name]) {
+				return {
+					name,
+					value: decodedValue,
+					...providerSpecificParams[provider][name],
+				};
+			}
+
+			// Unknown parameter
 			return {
 				name,
 				value: decodedValue,
-				...standardParams[name],
+				status: 'provider-specific',
+				explanation: `🔍 Custom or provider-specific parameter. Value: ${decodedValue}`,
 			};
-		}
-
-		// Check provider-specific parameters
-		if (providerSpecificParams[provider]?.[name]) {
-			return {
-				name,
-				value: decodedValue,
-				...providerSpecificParams[provider][name],
-			};
-		}
-
-		// Unknown parameter
-		return {
-			name,
-			value: decodedValue,
-			status: 'provider-specific',
-			explanation: `🔍 Custom or provider-specific parameter. Value: ${decodedValue}`,
-		};
-	}, []);
+		},
+		[]
+	);
 
 	// Main analysis function
 	const analyzeURL = useCallback(() => {
@@ -559,7 +579,9 @@ const OAuthDetective: React.FC = () => {
 						</div>
 					</div>
 
-					<div style={{ color: '#f1f5f9', fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}>
+					<div
+						style={{ color: '#f1f5f9', fontSize: '1.1rem', fontWeight: 600, marginBottom: '1rem' }}
+					>
 						📊 Found {analysis.parameters.length} Parameters:
 					</div>
 
@@ -616,8 +638,8 @@ const OAuthDetective: React.FC = () => {
 							fontSize: '0.9rem',
 						}}
 					>
-						<strong>💡 Pro Tip:</strong> Click any parameter's copy button to use it in your own OAuth
-						requests. Parameters marked with ✅ are fully supported by PingOne!
+						<strong>💡 Pro Tip:</strong> Click any parameter's copy button to use it in your own
+						OAuth requests. Parameters marked with ✅ are fully supported by PingOne!
 					</div>
 				</AnalysisResult>
 			)}
@@ -626,4 +648,3 @@ const OAuthDetective: React.FC = () => {
 };
 
 export default OAuthDetective;
-

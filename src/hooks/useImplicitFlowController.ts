@@ -4,18 +4,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
+import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
-import { credentialManager } from '../utils/credentialManager';
 import type { PermanentCredentials } from '../utils/credentialManager';
+import { credentialManager } from '../utils/credentialManager';
 import { enhancedDebugger } from '../utils/enhancedDebug';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { safeJsonParse } from '../utils/secureJson';
 import { storeOAuthTokens } from '../utils/tokenStorage';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { ImplicitFlowSharedService } from '../services/implicitFlowSharedService';
-import { scopeValidationService } from '../services/scopeValidationService';
 
 // FlowConfig type (simplified for Implicit flow)
 interface FlowConfig {
@@ -40,7 +39,7 @@ const resolveAuthEndpoint = (creds: StepCredentials): string => {
 			eu: 'auth.pingone.eu',
 			ap: 'auth.pingone.asia',
 			ca: 'auth.pingone.ca',
-			na: 'auth.pingone.com'
+			na: 'auth.pingone.com',
 		};
 		const domain = regionDomains[creds.region || 'us'] || 'auth.pingone.com';
 		return `https://${domain}/${creds.environmentId}/as/authorize`;
@@ -169,7 +168,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 	const preservedImplicitRedirect = primaryImplicitCredentials.redirectUri ?? '';
 
 	let loaded = primaryImplicitCredentials;
-	
+
 	// If implicit credentials are incomplete, try config credentials
 	if (!loaded.environmentId || !loaded.clientId) {
 		const configCredentials = credentialManager.loadConfigCredentials();
@@ -181,10 +180,10 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		console.log('🔄 [useImplicitFlowController] Fallback to config credentials:', {
 			hasEnvId: !!loaded.environmentId,
 			hasClientId: !!loaded.clientId,
-			redirectUri: loaded.redirectUri
+			redirectUri: loaded.redirectUri,
 		});
 	}
-	
+
 	// If still incomplete, try permanent credentials
 	if (!loaded.environmentId || !loaded.clientId) {
 		const permanentCredentials = credentialManager.loadPermanentCredentials();
@@ -195,7 +194,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		console.log('🔄 [useImplicitFlowController] Fallback to permanent credentials:', {
 			hasEnvId: !!loaded.environmentId,
 			hasClientId: !!loaded.clientId,
-			redirectUri: loaded.redirectUri
+			redirectUri: loaded.redirectUri,
 		});
 	}
 
@@ -219,8 +218,8 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		return trimmed.length > 0 ? trimmed : undefined;
 	};
 
-	const storedRedirect = normalizeRedirect(preservedImplicitRedirect) ??
-		normalizeRedirect(loaded.redirectUri);
+	const storedRedirect =
+		normalizeRedirect(preservedImplicitRedirect) ?? normalizeRedirect(loaded.redirectUri);
 
 	let redirectUri = urlRedirect || storedRedirect || defaultRedirectForFlow;
 
@@ -233,7 +232,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 			);
 			console.log('💾 [useImplicitFlowController] Persisted implicit redirect URI override:', {
 				storageKeyRedirect,
-				saveResult
+				saveResult,
 			});
 		}
 		redirectUri = DEFAULT_IMPLICIT_V7_REDIRECT_URI;
@@ -244,7 +243,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		preservedImplicitRedirect,
 		loadedRedirectUri: loaded.redirectUri,
 		finalRedirectUri: redirectUri,
-		hasLoadedRedirectUri: loaded.redirectUri !== undefined
+		hasLoadedRedirectUri: loaded.redirectUri !== undefined,
 	});
 
 	// Helper to get region-aware domain
@@ -253,7 +252,7 @@ export const loadInitialCredentials = (variant: FlowVariant, flowKey?: string): 
 		eu: 'auth.pingone.eu',
 		ap: 'auth.pingone.asia',
 		ca: 'auth.pingone.ca',
-		na: 'auth.pingone.com'
+		na: 'auth.pingone.com',
 	};
 	const domain = regionDomains[loaded.region || 'us'] || 'auth.pingone.com';
 
@@ -428,7 +427,10 @@ export const useImplicitFlowController = (
 		}
 
 		// Debug: Log the redirect URI being used
-		console.log('[useImplicitFlowController] Generating auth URL with redirectUri:', credentials.redirectUri);
+		console.log(
+			'[useImplicitFlowController] Generating auth URL with redirectUri:',
+			credentials.redirectUri
+		);
 
 		// Generate nonce and state if not already set
 		const finalNonce =
@@ -450,12 +452,12 @@ export const useImplicitFlowController = (
 		);
 		params.set('scope', credentials.scope || credentials.scopes || 'openid profile email');
 		params.set('state', finalState);
-		
+
 		// Only send nonce for OIDC variant (when ID token is expected)
 		if (flowVariant === 'oidc' || credentials.responseType?.includes('id_token')) {
 			params.set('nonce', finalNonce);
 		}
-		
+
 		// Add response_mode parameter (default to fragment for implicit flow)
 		params.set('response_mode', credentials.responseMode || 'fragment');
 
@@ -531,15 +533,16 @@ export const useImplicitFlowController = (
 				timestamp: Date.now(),
 			})
 		);
-		
+
 		// Set flow-specific flag for ImplicitCallback to recognize V7 flows
 		if (flowKey.includes('implicit-v7')) {
 			ImplicitFlowSharedService.SessionStorage.setActiveFlow(flowVariant, 'v7');
-			console.log(`🔄 [useImplicitFlowController] Set V7 ${flowVariant.toUpperCase()} flag for callback detection`);
+			console.log(
+				`🔄 [useImplicitFlowController] Set V7 ${flowVariant.toUpperCase()} flag for callback detection`
+			);
 		} else if (flowKey.includes('implicit-v6')) {
-			const flowFlag = flowVariant === 'oidc' 
-				? 'oidc-implicit-v6-flow-active'
-				: 'oauth-implicit-v6-flow-active';
+			const flowFlag =
+				flowVariant === 'oidc' ? 'oidc-implicit-v6-flow-active' : 'oauth-implicit-v6-flow-active';
 			sessionStorage.setItem(flowFlag, 'true');
 			console.log(`🔄 [useImplicitFlowController] Set ${flowFlag} flag for callback detection`);
 		}
@@ -621,7 +624,7 @@ export const useImplicitFlowController = (
 
 		try {
 			let userInfoEndpoint = credentials.userInfoEndpoint;
-			
+
 			// Construct region-aware userinfo endpoint if not provided
 			if (!userInfoEndpoint && credentials.environmentId) {
 				const regionDomains: Record<string, string> = {
@@ -629,7 +632,7 @@ export const useImplicitFlowController = (
 					eu: 'auth.pingone.eu',
 					ap: 'auth.pingone.asia',
 					ca: 'auth.pingone.ca',
-					na: 'auth.pingone.com'
+					na: 'auth.pingone.com',
 				};
 				const domain = regionDomains[credentials.region || 'us'] || 'auth.pingone.com';
 				userInfoEndpoint = `https://${domain}/${credentials.environmentId}/as/userinfo`;
@@ -684,16 +687,18 @@ export const useImplicitFlowController = (
 			// Validate required fields before saving
 			// Only validate if we have at least one of the required fields (partial save is OK)
 			if (!credentials.environmentId && !credentials.clientId) {
-				console.warn('⚠️ [useImplicitFlowController] No credentials to save yet (missing both environmentId and clientId)');
+				console.warn(
+					'⚠️ [useImplicitFlowController] No credentials to save yet (missing both environmentId and clientId)'
+				);
 				setIsSavingCredentials(false);
 				return; // Silently skip save if no credentials are set yet
 			}
-			
+
 			// If we have one but not the other, log a warning but continue
 			if (!credentials.environmentId || !credentials.clientId) {
 				console.warn('⚠️ [useImplicitFlowController] Partial credentials save:', {
 					hasEnvironmentId: !!credentials.environmentId,
-					hasClientId: !!credentials.clientId
+					hasClientId: !!credentials.clientId,
 				});
 			}
 
@@ -709,7 +714,7 @@ export const useImplicitFlowController = (
 				}
 				return ['openid'];
 			})();
-			
+
 			const credsToSave = {
 				...credentials,
 				scopes: normalizedScopes,
@@ -721,14 +726,17 @@ export const useImplicitFlowController = (
 				responseType: credentials.responseType,
 				clientAuthMethod: credentials.clientAuthMethod || 'none',
 			};
-			
+
 			console.log('📤 [useImplicitFlowController] Saving to credentialManager:', credsToSave);
-			const saveResult = await credentialManager.saveImplicitFlowCredentials(credsToSave as any, flowVariant);
-			
+			const saveResult = await credentialManager.saveImplicitFlowCredentials(
+				credsToSave as any,
+				flowVariant
+			);
+
 			if (!saveResult) {
 				throw new Error('Failed to save implicit flow credentials');
 			}
-			
+
 			// Also save to authz flow credentials for callback compatibility
 			const authzPayload: Partial<PermanentCredentials> = {
 				environmentId: credentials.environmentId,
@@ -749,12 +757,15 @@ export const useImplicitFlowController = (
 				authzPayload.userInfoEndpoint = credentials.userInfoEndpoint;
 			}
 			if (credentials.tokenEndpointAuthMethod || credentials.authMethod?.value) {
-				authzPayload.tokenAuthMethod = credentials.tokenEndpointAuthMethod || credentials.authMethod?.value;
+				authzPayload.tokenAuthMethod =
+					credentials.tokenEndpointAuthMethod || credentials.authMethod?.value;
 			}
-			
+
 			credentialManager.saveAuthzFlowCredentials(authzPayload);
-			console.log('✅ [useImplicitFlowController] Credentials saved to authz flow storage for callback');
-			
+			console.log(
+				'✅ [useImplicitFlowController] Credentials saved to authz flow storage for callback'
+			);
+
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
 			originalCredentialsRef.current = { ...credentials };
@@ -834,93 +845,97 @@ export const useImplicitFlowController = (
 	}, []);
 
 	// Memoize the credentials object to prevent unnecessary re-renders
-	const memoizedCredentials = useMemo(() => credentials, [
-		credentials.environmentId,
-		credentials.clientId,
-		credentials.clientSecret,
-		credentials.redirectUri,
-		credentials.scope,
-		credentials.scopes,
-		credentials.responseType,
-		credentials.grantType,
-		credentials.clientAuthMethod,
-		credentials.loginHint,
-		credentials.authorizationEndpoint,
-		credentials.tokenEndpoint,
-		credentials.userInfoEndpoint,
-	]);
+	const memoizedCredentials = useMemo(
+		() => credentials,
+		[
+			credentials.environmentId,
+			credentials.clientId,
+			credentials.clientSecret,
+			credentials.redirectUri,
+			credentials.scope,
+			credentials.scopes,
+			credentials.responseType,
+			credentials.grantType,
+			credentials.clientAuthMethod,
+			credentials.loginHint,
+			credentials.authorizationEndpoint,
+			credentials.tokenEndpoint,
+			credentials.userInfoEndpoint,
+			credentials,
+		]
+	);
 
-	return useMemo(() => ({
-		flowVariant,
-		setFlowVariant,
-		persistKey,
-		credentials: memoizedCredentials,
-		setCredentials,
-		setFlowConfig,
-		flowConfig,
-		handleFlowConfigChange,
-		nonce,
-		state,
-		generateNonce,
-		generateState,
-		authUrl,
-		generateAuthorizationUrl,
-		showUrlExplainer,
-		setShowUrlExplainer,
-		isAuthorizing,
-		handlePopupAuthorization,
-		handleRedirectAuthorization,
-		resetFlow,
-		tokens,
-		setTokensFromFragment,
-		userInfo,
-		isFetchingUserInfo,
-		fetchUserInfo,
-		isSavingCredentials,
-		hasCredentialsSaved,
-		hasUnsavedCredentialChanges,
-		saveCredentials,
-		handleCopy,
-		copiedField,
-		stepManager,
-		saveStepResult,
-		hasStepResult,
-		clearStepResults,
-	}), [
-		flowVariant,
-		setFlowVariant,
-		persistKey,
-		memoizedCredentials,
-		setCredentials,
-		setFlowConfig,
-		flowConfig,
-		handleFlowConfigChange,
-		nonce,
-		state,
-		generateNonce,
-		generateState,
-		authUrl,
-		generateAuthorizationUrl,
-		showUrlExplainer,
-		setShowUrlExplainer,
-		isAuthorizing,
-		handlePopupAuthorization,
-		handleRedirectAuthorization,
-		resetFlow,
-		tokens,
-		setTokensFromFragment,
-		userInfo,
-		isFetchingUserInfo,
-		fetchUserInfo,
-		isSavingCredentials,
-		hasCredentialsSaved,
-		hasUnsavedCredentialChanges,
-		saveCredentials,
-		handleCopy,
-		copiedField,
-		stepManager,
-		saveStepResult,
-		hasStepResult,
-		clearStepResults,
-	]);
+	return useMemo(
+		() => ({
+			flowVariant,
+			setFlowVariant,
+			persistKey,
+			credentials: memoizedCredentials,
+			setCredentials,
+			setFlowConfig,
+			flowConfig,
+			handleFlowConfigChange,
+			nonce,
+			state,
+			generateNonce,
+			generateState,
+			authUrl,
+			generateAuthorizationUrl,
+			showUrlExplainer,
+			setShowUrlExplainer,
+			isAuthorizing,
+			handlePopupAuthorization,
+			handleRedirectAuthorization,
+			resetFlow,
+			tokens,
+			setTokensFromFragment,
+			userInfo,
+			isFetchingUserInfo,
+			fetchUserInfo,
+			isSavingCredentials,
+			hasCredentialsSaved,
+			hasUnsavedCredentialChanges,
+			saveCredentials,
+			handleCopy,
+			copiedField,
+			stepManager,
+			saveStepResult,
+			hasStepResult,
+			clearStepResults,
+		}),
+		[
+			flowVariant,
+			persistKey,
+			memoizedCredentials,
+			setCredentials,
+			flowConfig,
+			handleFlowConfigChange,
+			nonce,
+			state,
+			generateNonce,
+			generateState,
+			authUrl,
+			generateAuthorizationUrl,
+			showUrlExplainer,
+			isAuthorizing,
+			handlePopupAuthorization,
+			handleRedirectAuthorization,
+			resetFlow,
+			tokens,
+			setTokensFromFragment,
+			userInfo,
+			isFetchingUserInfo,
+			fetchUserInfo,
+			isSavingCredentials,
+			hasCredentialsSaved,
+			hasUnsavedCredentialChanges,
+			saveCredentials,
+			handleCopy,
+			copiedField,
+			stepManager,
+			saveStepResult,
+			hasStepResult,
+			clearStepResults,
+		]
+	);
 };

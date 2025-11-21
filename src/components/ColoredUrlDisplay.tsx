@@ -1,8 +1,8 @@
 // src/components/ColoredUrlDisplay.tsx
 import React, { useState } from 'react';
+import { FiCode, FiEdit2, FiExternalLink, FiEye, FiInfo, FiSave } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiInfo, FiExternalLink, FiMaximize2, FiMinimize2, FiCode, FiEye } from 'react-icons/fi';
-import { CopyButtonVariants, CopyButtonService } from '../services/copyButtonService';
+import { CopyButtonService } from '../services/copyButtonService';
 
 interface ColoredUrlDisplayProps {
 	url: string;
@@ -12,6 +12,8 @@ interface ColoredUrlDisplayProps {
 	onOpen?: () => void;
 	label?: string;
 	height?: string;
+	editable?: boolean;
+	onChange?: (url: string) => void;
 }
 
 const UrlContainer = styled.div`
@@ -37,7 +39,7 @@ const UrlLabel = styled.div`
 	gap: 0.5rem;
 `;
 
-const UrlContent = styled.div`
+const UrlContent = styled.div<{ $height?: string }>`
 	background: #f0fdf4; /* Light green for generated content */
 	border: 1px solid #16a34a;
 	border-radius: 8px;
@@ -48,7 +50,7 @@ const UrlContent = styled.div`
 	word-break: break-all; /* Allow URLs to break and wrap within the container */
 	white-space: normal; /* Allow wrapping to fit within the box */
 	position: relative;
-	min-height: ${({ height }) => height || '150px'};
+	min-height: ${({ $height }) => $height || '150px'};
 	overflow-x: hidden; /* Hide horizontal scroll since we're wrapping */
 	overflow-y: auto; /* Allow vertical scrolling if content is too tall */
 	max-width: 100%;
@@ -57,9 +59,31 @@ const UrlContent = styled.div`
 	box-sizing: border-box;
 `;
 
+const EditableUrlTextarea = styled.textarea<{ $height?: string }>`
+	background: #ffffff;
+	border: 2px solid #16a34a;
+	border-radius: 8px;
+	padding: 1rem;
+	font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+	font-size: 0.875rem;
+	line-height: 1.5;
+	width: 100%;
+	min-height: ${({ $height }) => $height || '150px'};
+	resize: vertical;
+	color: #1f2937;
+	box-sizing: border-box;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+	&:focus {
+		outline: none;
+		border-color: #15803d;
+		box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+	}
+`;
+
 const ColoredUrlText = styled.span<{ $color: string }>`
 	color: ${({ $color }) => $color};
-	font-weight: ${({ $color }) => $color === '#1f2937' ? '600' : '400'};
+	font-weight: ${({ $color }) => ($color === '#1f2937' ? '600' : '400')};
 `;
 
 const ActionButtons = styled.div`
@@ -210,18 +234,18 @@ const parseUrlWithColors = (url: string) => {
 
 	for (let i = 0; i < url.length; i++) {
 		const char = url[i];
-		
+
 		if (char === '?' || char === '&') {
 			if (currentPart) {
 				parts.push({
 					text: currentPart,
-					color: URL_COLORS[colorIndex % URL_COLORS.length]
+					color: URL_COLORS[colorIndex % URL_COLORS.length],
 				});
 				colorIndex++;
 			}
 			parts.push({
 				text: char,
-				color: URL_COLORS[colorIndex % URL_COLORS.length]
+				color: URL_COLORS[colorIndex % URL_COLORS.length],
 			});
 			colorIndex++;
 			currentPart = '';
@@ -233,7 +257,7 @@ const parseUrlWithColors = (url: string) => {
 	if (currentPart) {
 		parts.push({
 			text: currentPart,
-			color: URL_COLORS[colorIndex % URL_COLORS.length]
+			color: URL_COLORS[colorIndex % URL_COLORS.length],
 		});
 	}
 
@@ -243,56 +267,60 @@ const parseUrlWithColors = (url: string) => {
 const getUrlParameters = (url: string) => {
 	const urlObj = new URL(url);
 	const params = new URLSearchParams(urlObj.search);
-	
+
 	const parameterInfo = [
 		{
 			name: 'response_type',
-			description: 'Specifies the OAuth response type. For hybrid flow, this can be "code id_token", "code token", or "code id_token token".',
-			value: params.get('response_type') || 'Not specified'
+			description:
+				'Specifies the OAuth response type. For hybrid flow, this can be "code id_token", "code token", or "code id_token token".',
+			value: params.get('response_type') || 'Not specified',
 		},
 		{
 			name: 'client_id',
 			description: 'The unique identifier for your OAuth client application.',
-			value: params.get('client_id') || 'Not specified'
+			value: params.get('client_id') || 'Not specified',
 		},
 		{
 			name: 'redirect_uri',
-			description: 'The URI where the user will be redirected after authorization. Must match the registered redirect URI.',
-			value: params.get('redirect_uri') || 'Not specified'
+			description:
+				'The URI where the user will be redirected after authorization. Must match the registered redirect URI.',
+			value: params.get('redirect_uri') || 'Not specified',
 		},
 		{
 			name: 'scope',
 			description: 'The permissions your application is requesting from the user.',
-			value: params.get('scope') || 'Not specified'
+			value: params.get('scope') || 'Not specified',
 		},
 		{
 			name: 'state',
-			description: 'A random string used to prevent CSRF attacks. Should be validated when the user returns.',
-			value: params.get('state') || 'Not specified'
+			description:
+				'A random string used to prevent CSRF attacks. Should be validated when the user returns.',
+			value: params.get('state') || 'Not specified',
 		},
 		{
 			name: 'response_mode',
-			description: 'How the authorization response should be returned. Options: query, fragment, form_post, or pi.flow.',
-			value: params.get('response_mode') || 'Not specified'
+			description:
+				'How the authorization response should be returned. Options: query, fragment, form_post, or pi.flow.',
+			value: params.get('response_mode') || 'Not specified',
 		},
 		{
 			name: 'code_challenge',
 			description: 'PKCE code challenge for additional security. Generated from code_verifier.',
-			value: params.get('code_challenge') || 'Not specified'
+			value: params.get('code_challenge') || 'Not specified',
 		},
 		{
 			name: 'code_challenge_method',
 			description: 'The method used to generate the code_challenge. Usually "S256".',
-			value: params.get('code_challenge_method') || 'Not specified'
+			value: params.get('code_challenge_method') || 'Not specified',
 		},
 		{
 			name: 'nonce',
 			description: 'A random string used to prevent replay attacks for ID tokens.',
-			value: params.get('nonce') || 'Not specified'
-		}
+			value: params.get('nonce') || 'Not specified',
+		},
 	];
 
-	return parameterInfo.filter(param => param.value !== 'Not specified');
+	return parameterInfo.filter((param) => param.value !== 'Not specified');
 };
 
 export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
@@ -302,18 +330,30 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 	showOpenButton = false,
 	onOpen,
 	label = 'Generated Authorization URL',
-	height
+	height,
+	editable = false,
+	onChange,
 }) => {
 	const [showInfo, setShowInfo] = useState(false);
 	const [isDecoded, setIsDecoded] = useState(false);
-	
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedUrl, setEditedUrl] = useState(url);
+
 	// Toggle between encoded and decoded URL
 	const toggleEncoding = () => {
 		setIsDecoded(!isDecoded);
 	};
-	
-	// Get the current URL (encoded or decoded)
-	const currentUrl = isDecoded ? decodeURIComponent(url) : url;
+
+	// Update editedUrl when url prop changes (when not editing)
+	React.useEffect(() => {
+		if (!isEditing) {
+			setEditedUrl(url);
+		}
+	}, [url, isEditing]);
+
+	// Get the current URL (encoded or decoded) - use editedUrl if editing
+	const displayUrl = isEditing ? editedUrl : url;
+	const currentUrl = isDecoded ? decodeURIComponent(displayUrl) : displayUrl;
 	const coloredParts = parseUrlWithColors(currentUrl);
 	const parameters = getUrlParameters(currentUrl);
 
@@ -322,60 +362,127 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 		onOpen?.();
 	};
 
+	const handleEdit = () => {
+		setIsEditing(true);
+		setEditedUrl(url);
+	};
+
+	const handleSave = () => {
+		if (onChange) {
+			onChange(editedUrl);
+		}
+		setIsEditing(false);
+	};
+
+	const handleCancel = () => {
+		setEditedUrl(url);
+		setIsEditing(false);
+	};
+
 	return (
 		<UrlContainer>
 			<UrlLabel>
 				{label}
-				{isDecoded && (
-					<span style={{
-						background: '#dbeafe',
-						color: '#1e40af',
-						padding: '0.25rem 0.5rem',
-						borderRadius: '0.375rem',
-						fontSize: '0.75rem',
-						fontWeight: '500',
-						marginLeft: '0.5rem'
-					}}>
+				{isDecoded && !isEditing && (
+					<span
+						style={{
+							background: '#dbeafe',
+							color: '#1e40af',
+							padding: '0.25rem 0.5rem',
+							borderRadius: '0.375rem',
+							fontSize: '0.75rem',
+							fontWeight: '500',
+							marginLeft: '0.5rem',
+						}}
+					>
 						Decoded
 					</span>
 				)}
-				{showInfoButton && (
+				{isEditing && (
+					<span
+						style={{
+							background: '#fef3c7',
+							color: '#92400e',
+							padding: '0.25rem 0.5rem',
+							borderRadius: '0.375rem',
+							fontSize: '0.75rem',
+							fontWeight: '500',
+							marginLeft: '0.5rem',
+						}}
+					>
+						Editing
+					</span>
+				)}
+				{showInfoButton && !isEditing && (
 					<ActionButton onClick={() => setShowInfo(true)} $variant="secondary">
 						<FiInfo size={14} />
 						Explain URL
 					</ActionButton>
 				)}
 			</UrlLabel>
-			
-			<UrlContent height={height}>
-				<ActionButtons>
-					{showCopyButton && (
-						<CopyButtonService
-							text={currentUrl}
-							label="Authorization URL"
-							size="sm"
-							variant="primary"
-							showLabel={false}
-						/>
-					)}
-					<ActionButton onClick={toggleEncoding} $variant="secondary">
-						{isDecoded ? <FiCode size={14} /> : <FiEye size={14} />}
-						{isDecoded ? 'Encode' : 'Decode'}
-					</ActionButton>
-					{showOpenButton && (
-						<ActionButton onClick={handleOpen} $variant="secondary">
-							<FiExternalLink size={14} />
-							Open
+
+			{isEditing ? (
+				<div style={{ position: 'relative' }}>
+					<EditableUrlTextarea
+						value={editedUrl}
+						onChange={(e) => setEditedUrl(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+								handleSave();
+							} else if (e.key === 'Escape') {
+								handleCancel();
+							}
+						}}
+						{...(height ? { $height: height } : {})}
+						placeholder="Enter or paste your authorization URL here..."
+					/>
+					<ActionButtons>
+						<ActionButton onClick={handleSave} $variant="primary">
+							<FiSave size={14} />
+							Save
 						</ActionButton>
-					)}
-				</ActionButtons>
-				
-				{coloredParts.map((part, index) => (
-					<ColoredUrlText key={index} $color={part.color}>
-						{part.text}
-					</ColoredUrlText>
-				))}
-			</UrlContent>
+						<ActionButton onClick={handleCancel} $variant="secondary">
+							Cancel
+						</ActionButton>
+					</ActionButtons>
+				</div>
+			) : (
+				<UrlContent {...(height ? { $height: height } : {})}>
+					<ActionButtons>
+						{editable && (
+							<ActionButton onClick={handleEdit} $variant="secondary">
+								<FiEdit2 size={14} />
+								Edit
+							</ActionButton>
+						)}
+						{showCopyButton && (
+							<CopyButtonService
+								text={currentUrl}
+								label="Authorization URL"
+								size="sm"
+								variant="primary"
+								showLabel={false}
+							/>
+						)}
+						<ActionButton onClick={toggleEncoding} $variant="secondary">
+							{isDecoded ? <FiCode size={14} /> : <FiEye size={14} />}
+							{isDecoded ? 'Encode' : 'Decode'}
+						</ActionButton>
+						{showOpenButton && (
+							<ActionButton onClick={handleOpen} $variant="secondary">
+								<FiExternalLink size={14} />
+								Open
+							</ActionButton>
+						)}
+					</ActionButtons>
+
+					{coloredParts.map((part, index) => (
+						<ColoredUrlText key={index} $color={part.color}>
+							{part.text}
+						</ColoredUrlText>
+					))}
+				</UrlContent>
+			)}
 
 			<InfoModal $isOpen={showInfo}>
 				<InfoModalContent>
@@ -383,7 +490,7 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						<InfoModalTitle>Authorization URL Parameters</InfoModalTitle>
 						<CloseButton onClick={() => setShowInfo(false)}>×</CloseButton>
 					</InfoModalHeader>
-					
+
 					{parameters.length > 0 ? (
 						<ParameterList>
 							{parameters.map((param, index) => (
@@ -398,7 +505,8 @@ export const ColoredUrlDisplay: React.FC<ColoredUrlDisplayProps> = ({
 						<div style={{ color: '#4b5563', fontSize: '0.9rem', lineHeight: 1.5 }}>
 							This URL does not include any query parameters to explain.
 							<br />
-							Add parameters such as `response_type`, `client_id`, or `redirect_uri` to see a detailed breakdown.
+							Add parameters such as `response_type`, `client_id`, or `redirect_uri` to see a
+							detailed breakdown.
 						</div>
 					)}
 				</InfoModalContent>

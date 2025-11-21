@@ -36,7 +36,7 @@ export interface ComparisonResult {
 	changed: boolean;
 }
 
-const ComparisonContainer = styled.div`
+const _ComparisonContainer = styled.div`
 	background: #f9fafb;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
@@ -44,7 +44,7 @@ const ComparisonContainer = styled.div`
 	margin-top: 1.5rem;
 `;
 
-const ComparisonTitle = styled.h3`
+const _ComparisonTitle = styled.h3`
 	font-size: 1.125rem;
 	font-weight: 600;
 	color: #1f2937;
@@ -54,7 +54,7 @@ const ComparisonTitle = styled.h3`
 	gap: 0.5rem;
 `;
 
-const ComparisonTable = styled.table`
+const _ComparisonTable = styled.table`
 	width: 100%;
 	border-collapse: collapse;
 	background: white;
@@ -63,12 +63,12 @@ const ComparisonTable = styled.table`
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
 
-const TableHeader = styled.thead`
+const _TableHeader = styled.thead`
 	background: #f3f4f6;
 	border-bottom: 2px solid #e5e7eb;
 `;
 
-const TableHeaderCell = styled.th`
+const _TableHeaderCell = styled.th`
 	padding: 0.75rem 1rem;
 	text-align: left;
 	font-size: 0.875rem;
@@ -78,37 +78,37 @@ const TableHeaderCell = styled.th`
 	letter-spacing: 0.05em;
 `;
 
-const TableBody = styled.tbody``;
+const _TableBody = styled.tbody``;
 
-const TableRow = styled.tr<{ $changed?: boolean }>`
+const _TableRow = styled.tr<{ $changed?: boolean }>`
 	border-bottom: 1px solid #e5e7eb;
-	background: ${props => props.$changed ? '#fef3c7' : 'white'};
+	background: ${(props) => (props.$changed ? '#fef3c7' : 'white')};
 	
 	&:last-child {
 		border-bottom: none;
 	}
 	
 	&:hover {
-		background: ${props => props.$changed ? '#fde68a' : '#f9fafb'};
+		background: ${(props) => (props.$changed ? '#fde68a' : '#f9fafb')};
 	}
 `;
 
-const TableCell = styled.td`
+const _TableCell = styled.td`
 	padding: 0.75rem 1rem;
 	font-size: 0.875rem;
 	color: #1f2937;
 `;
 
-const FieldLabel = styled.div`
+const _FieldLabel = styled.div`
 	font-weight: 500;
 	color: #374151;
 `;
 
-const ValueDisplay = styled.div<{ $changed?: boolean }>`
+const _ValueDisplay = styled.div<{ $changed?: boolean }>`
 	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
 	font-size: 0.8125rem;
-	color: ${props => props.$changed ? '#92400e' : '#6b7280'};
-	background: ${props => props.$changed ? '#fef3c7' : '#f3f4f6'};
+	color: ${(props) => (props.$changed ? '#92400e' : '#6b7280')};
+	background: ${(props) => (props.$changed ? '#fef3c7' : '#f3f4f6')};
 	padding: 0.25rem 0.5rem;
 	border-radius: 0.25rem;
 	display: inline-block;
@@ -117,7 +117,7 @@ const ValueDisplay = styled.div<{ $changed?: boolean }>`
 	text-overflow: ellipsis;
 `;
 
-const ChangeBadge = styled.span`
+const _ChangeBadge = styled.span`
 	background: #fbbf24;
 	color: #78350f;
 	font-size: 0.75rem;
@@ -127,14 +127,14 @@ const ChangeBadge = styled.span`
 	margin-left: 0.5rem;
 `;
 
-const NoChangesMessage = styled.div`
+const _NoChangesMessage = styled.div`
 	text-align: center;
 	padding: 2rem;
 	color: #6b7280;
 	font-style: italic;
 `;
 
-const SummaryBox = styled.div`
+const _SummaryBox = styled.div`
 	background: #eff6ff;
 	border: 1px solid #bfdbfe;
 	border-radius: 0.5rem;
@@ -145,11 +145,11 @@ const SummaryBox = styled.div`
 	gap: 0.75rem;
 `;
 
-const SummaryIcon = styled.div`
+const _SummaryIcon = styled.div`
 	font-size: 1.5rem;
 `;
 
-const SummaryText = styled.div`
+const _SummaryText = styled.div`
 	flex: 1;
 	
 	strong {
@@ -163,7 +163,7 @@ const SummaryText = styled.div`
  */
 export function compareUserStates(before: UserState, after: UserState): ComparisonResult[] {
 	const comparisons: ComparisonResult[] = [];
-	
+
 	// Define fields to compare with labels
 	const fieldsToCompare = [
 		{ field: 'username', label: 'Username' },
@@ -178,11 +178,11 @@ export function compareUserStates(before: UserState, after: UserState): Comparis
 		{ field: 'mfaEnabled', label: 'MFA Enabled' },
 		{ field: 'lastSignOn.at', label: 'Last Sign On' },
 	];
-	
+
 	fieldsToCompare.forEach(({ field, label }) => {
 		const beforeValue = getNestedValue(before, field);
 		const afterValue = getNestedValue(after, field);
-		
+
 		if (beforeValue !== undefined || afterValue !== undefined) {
 			comparisons.push({
 				field,
@@ -193,7 +193,7 @@ export function compareUserStates(before: UserState, after: UserState): Comparis
 			});
 		}
 	});
-	
+
 	return comparisons;
 }
 
@@ -211,11 +211,11 @@ function isEqual(a: any, b: any): boolean {
 	if (a === b) return true;
 	if (a == null || b == null) return false;
 	if (typeof a !== typeof b) return false;
-	
+
 	if (typeof a === 'object') {
 		return JSON.stringify(a) === JSON.stringify(b);
 	}
-	
+
 	return false;
 }
 
@@ -248,7 +248,7 @@ const DiffContainer = styled.div`
 
 const DiffHeader = styled.div<{ $isCollapsed: boolean }>`
 	padding: 18px 20px;
-	border-bottom: ${props => props.$isCollapsed ? 'none' : '1px solid #eef2f7'};
+	border-bottom: ${(props) => (props.$isCollapsed ? 'none' : '1px solid #eef2f7')};
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -287,7 +287,7 @@ const DiffDot = styled.span<{ $type: 'changed' | 'ok' }>`
 	width: 8px;
 	height: 8px;
 	border-radius: 999px;
-	background: ${props => props.$type === 'changed' ? '#f59e0b' : '#22c55e'};
+	background: ${(props) => (props.$type === 'changed' ? '#f59e0b' : '#22c55e')};
 `;
 
 const DiffBody = styled.div`
@@ -305,7 +305,7 @@ const DiffGrid = styled.div`
 `;
 
 const DiffCard = styled.div<{ $side: 'before' | 'after' }>`
-	background: ${props => props.$side === 'before' ? '#f9fafb' : '#ffffff'};
+	background: ${(props) => (props.$side === 'before' ? '#f9fafb' : '#ffffff')};
 	border: 1px solid #e5e7eb;
 	border-radius: 12px;
 	padding: 16px;
@@ -328,8 +328,8 @@ const DiffRow = styled.div<{ $changed?: boolean }>`
 	margin-bottom: 10px;
 	padding: 8px;
 	border-radius: 8px;
-	background: ${props => props.$changed ? '#e6ffed' : 'transparent'};
-	border: ${props => props.$changed ? '1px solid #22c55e' : '1px solid transparent'};
+	background: ${(props) => (props.$changed ? '#e6ffed' : 'transparent')};
+	border: ${(props) => (props.$changed ? '1px solid #22c55e' : '1px solid transparent')};
 	
 	&:last-child {
 		margin-bottom: 0;
@@ -344,13 +344,13 @@ const DiffLabel = styled.div`
 
 const DiffValue = styled.div<{ $critical?: boolean }>`
 	font-size: 0.875rem;
-	color: ${props => props.$critical ? '#dc2626' : '#1f2937'};
+	color: ${(props) => (props.$critical ? '#dc2626' : '#1f2937')};
 	font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
-	font-weight: ${props => props.$critical ? '600' : 'normal'};
+	font-weight: ${(props) => (props.$critical ? '600' : 'normal')};
 	word-break: break-word;
 	padding: 6px 10px;
-	background: ${props => props.$critical ? '#fef2f2' : '#ffffff'};
-	border: 1px solid ${props => props.$critical ? '#fca5a5' : '#e5e7eb'};
+	background: ${(props) => (props.$critical ? '#fef2f2' : '#ffffff')};
+	border: 1px solid ${(props) => (props.$critical ? '#fca5a5' : '#e5e7eb')};
 	border-radius: 8px;
 `;
 
@@ -377,7 +377,7 @@ const DiffTableHead = styled.thead`
 const DiffTableBody = styled.tbody``;
 
 const DiffTableRow = styled.tr<{ $changed?: boolean }>`
-	background: ${props => props.$changed ? '#e6ffed' : 'transparent'};
+	background: ${(props) => (props.$changed ? '#e6ffed' : 'transparent')};
 	
 	td {
 		padding: 10px 12px;
@@ -389,7 +389,7 @@ const DiffTableRow = styled.tr<{ $changed?: boolean }>`
 const ChevronIcon = styled.span<{ $isCollapsed: boolean }>`
 	display: inline-flex;
 	transition: transform 0.2s ease;
-	transform: ${props => props.$isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)'};
+	transform: ${(props) => (props.$isCollapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 `;
 
 const CriticalChangeCallout = styled.div`
@@ -436,17 +436,17 @@ export const ChangedFieldsDisplay: React.FC<{
 }> = ({ before, after, operationName }) => {
 	const [isCollapsed, setIsCollapsed] = React.useState(false);
 	const comparisons = compareUserStates(before, after);
-	const changedFields = comparisons.filter(c => c.changed);
-	
+	const changedFields = comparisons.filter((c) => c.changed);
+
 	if (changedFields.length === 0) {
 		return null; // Don't show anything if no changes
 	}
-	
+
 	// Check if password status changed to MUST_CHANGE_PASSWORD
 	const passwordStatusChange = changedFields.find(
-		f => f.field === 'passwordState.status' && f.after === 'MUST_CHANGE_PASSWORD'
+		(f) => f.field === 'passwordState.status' && f.after === 'MUST_CHANGE_PASSWORD'
 	);
-	
+
 	return (
 		<DiffContainer>
 			<DiffHeader $isCollapsed={isCollapsed} onClick={() => setIsCollapsed(!isCollapsed)}>
@@ -459,7 +459,7 @@ export const ChangedFieldsDisplay: React.FC<{
 					{changedFields.length} field{changedFields.length !== 1 ? 's' : ''} changed
 				</DiffBadge>
 			</DiffHeader>
-			
+
 			{!isCollapsed && (
 				<DiffBody>
 					{passwordStatusChange && (
@@ -468,9 +468,10 @@ export const ChangedFieldsDisplay: React.FC<{
 							<CalloutContent>
 								<strong>Password Status Changed to MUST_CHANGE_PASSWORD</strong>
 								<p>
-									The user's password status has been changed from "{formatValue(passwordStatusChange.before)}" 
-									to "MUST_CHANGE_PASSWORD". The user will be required to change their password on their next sign-in 
-									and cannot access their account until they do so.
+									The user's password status has been changed from "
+									{formatValue(passwordStatusChange.before)}" to "MUST_CHANGE_PASSWORD". The user
+									will be required to change their password on their next sign-in and cannot access
+									their account until they do so.
 								</p>
 							</CalloutContent>
 						</CriticalChangeCallout>
@@ -486,7 +487,7 @@ export const ChangedFieldsDisplay: React.FC<{
 								</DiffRow>
 							))}
 						</DiffCard>
-						
+
 						{/* After Card */}
 						<DiffCard $side="after">
 							<DiffCardTitle>After (updated)</DiffCardTitle>
@@ -504,7 +505,7 @@ export const ChangedFieldsDisplay: React.FC<{
 							})}
 						</DiffCard>
 					</DiffGrid>
-					
+
 					{/* Diff Summary Table */}
 					<DiffTable>
 						<DiffTableHead>

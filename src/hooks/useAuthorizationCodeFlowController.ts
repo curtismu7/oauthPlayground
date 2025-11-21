@@ -2,22 +2,22 @@
  * ========================================================================
  * AUTHORIZATION CODE FLOW CONTROLLER LOCKED - DO NOT MODIFY THIS FILE
  * ========================================================================
- * 
+ *
  * This file implements the authorization code flow credential management
  * and is LOCKED at Version 1 to prevent credential bleeding between flows.
- * 
+ *
  * Current Version: V1 (Locked - Credential isolation fixes applied)
  * Locked Date: Latest commit
- * 
+ *
  * Key Features (DO NOT CHANGE):
  * - Flow-specific credential isolation (disableSharedFallback: true)
  * - No credential bleeding between flows
  * - loadInitialCredentials returns empty defaults (no shared credentials)
- * 
+ *
  * To modify the flow logic, create:
  * - useAuthorizationCodeFlowController.ts.V2.tsx
  * - Or create a new controller in a different file
- * 
+ *
  * This ensures authorization flow stability and credential isolation.
  * ========================================================================
  */
@@ -34,6 +34,10 @@ import {
 } from 'react';
 import type { FlowConfig } from '../components/FlowConfiguration';
 import type { PKCECodes, StepCredentials } from '../components/steps/CommonSteps';
+import { FlowCredentialService } from '../services/flowCredentialService';
+import { FlowContext, flowTrackingService } from '../services/flowTrackingService';
+import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
+import { scopeValidationService } from '../services/scopeValidationService';
 import { trackTokenOperation } from '../utils/activityTracker';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { applyClientAuthentication } from '../utils/clientAuthentication';
@@ -42,16 +46,17 @@ import { enhancedDebugger } from '../utils/enhancedDebug';
 import { getDefaultConfig } from '../utils/flowConfigDefaults';
 import { useFlowStepManager } from '../utils/flowStepSystem';
 import { generateCodeChallenge, generateCodeVerifier } from '../utils/oauth';
-import { flowTrackingService, FlowContext } from '../services/flowTrackingService';
+import {
+	auditRedirectUri,
+	clearRedirectUri,
+	getStoredRedirectUri,
+	storeRedirectUriFromAuthUrl,
+} from '../utils/redirectUriHelpers';
 import { safeJsonParse, safeSessionStorageParse } from '../utils/secureJson';
-import { storeOAuthTokens, rehydrateOAuthTokens } from '../utils/tokenStorage';
+import { rehydrateOAuthTokens, storeOAuthTokens } from '../utils/tokenStorage';
+import { usePreSendUrlValidation } from './useAuthorizationUrlValidation';
 import { showGlobalError, showGlobalSuccess } from './useNotifications';
 import { useAuthorizationFlowScroll } from './usePageScroll';
-import { scopeValidationService } from '../services/scopeValidationService';
-import { usePreSendUrlValidation } from './useAuthorizationUrlValidation';
-import { FlowCredentialService } from '../services/flowCredentialService';
-import { storeRedirectUriFromAuthUrl, getStoredRedirectUri, clearRedirectUri, auditRedirectUri } from '../utils/redirectUriHelpers';
-import { HybridFlowDefaults } from '../services/hybridFlowSharedService';
 
 type FlowVariant = 'oauth' | 'oidc' | 'hybrid';
 
@@ -121,8 +126,8 @@ const getSafeOrigin = (): string => {
 	return window.location.origin;
 };
 
-const DEFAULT_OAUTH_SCOPES = 'openid p1:consents:read';
-const DEFAULT_OIDC_SCOPES = 'openid profile email p1:consents:read';
+const DEFAULT_OAUTH_SCOPES = 'openid';
+const DEFAULT_OIDC_SCOPES = 'openid profile email';
 
 const createEmptyCredentials = (): StepCredentials => ({
 	environmentId: '',
@@ -148,7 +153,7 @@ const resolveAuthEndpoint = (creds: StepCredentials): string => {
 			eu: 'auth.pingone.eu',
 			ap: 'auth.pingone.asia',
 			ca: 'auth.pingone.ca',
-			na: 'auth.pingone.com'
+			na: 'auth.pingone.com',
 		};
 		const domain = regionDomains[creds.region || 'us'] || 'auth.pingone.com';
 		return `https://${domain}/${creds.environmentId}/as/authorize`;
@@ -164,7 +169,7 @@ const resolveTokenEndpoint = (creds: StepCredentials): string => {
 			eu: 'auth.pingone.eu',
 			ap: 'auth.pingone.asia',
 			ca: 'auth.pingone.ca',
-			na: 'auth.pingone.com'
+			na: 'auth.pingone.com',
 		};
 		const domain = regionDomains[creds.region || 'us'] || 'auth.pingone.com';
 		return `https://${domain}/${creds.environmentId}/as/token`;
@@ -201,7 +206,10 @@ const loadStoredConfig = (storageKey: string, variant: FlowVariant): FlowConfig 
 	}
 };
 
-const ensureRequiredScopes = (scopeValue: string | null | undefined, variant: FlowVariant): string => {
+const ensureRequiredScopes = (
+	scopeValue: string | null | undefined,
+	variant: FlowVariant
+): string => {
 	const scopes = new Set((scopeValue ?? '').split(' ').filter(Boolean));
 	const required = variant === 'oidc' ? DEFAULT_OIDC_SCOPES : DEFAULT_OAUTH_SCOPES;
 	required.split(' ').forEach((scope) => scopes.add(scope));
@@ -271,7 +279,7 @@ export const useAuthorizationCodeFlowController = (
 		requireState: true,
 		requirePkce: true,
 		showModalOnError: true,
-		showModalOnWarning: true
+		showModalOnWarning: true,
 	});
 
 	const [flowVariant, setFlowVariant] = useState<FlowVariant>(options.defaultFlowVariant ?? 'oidc');
@@ -295,7 +303,7 @@ export const useAuthorizationCodeFlowController = (
 				{
 					codeVerifier: parsed.codeVerifier.substring(0, 20) + '...',
 					codeChallenge: parsed.codeChallenge.substring(0, 20) + '...',
-					storageKey: pkceStorageKey
+					storageKey: pkceStorageKey,
 				}
 			);
 			return parsed;
@@ -396,29 +404,31 @@ export const useAuthorizationCodeFlowController = (
 
 	// Clear PKCE codes when flow loads to ensure fresh start
 	useEffect(() => {
-		console.log('🚀 [useAuthorizationCodeFlowController] Flow loaded, clearing PKCE codes for fresh start...');
-		
+		console.log(
+			'🚀 [useAuthorizationCodeFlowController] Flow loaded, clearing PKCE codes for fresh start...'
+		);
+
 		// Clear PKCE codes from state
 		setPkceCodes({
 			codeVerifier: '',
 			codeChallenge: '',
 			codeChallengeMethod: 'S256',
 		});
-		
+
 		// Clear PKCE codes from sessionStorage
 		const pkceStorageKey = `${persistKey}-pkce-codes`;
 		sessionStorage.removeItem(pkceStorageKey);
-		
+
 		// Clear legacy PKCE storage keys
 		const legacyKeys = [
 			'code_verifier',
-			'oauth_v3_code_verifier', 
+			'oauth_v3_code_verifier',
 			`${flowKey}_code_verifier`,
 			`${flowKey}_v3_code_verifier`,
-			'oauth_code_verifier'
+			'oauth_code_verifier',
 		];
-		legacyKeys.forEach(key => sessionStorage.removeItem(key));
-		
+		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
+
 		console.log('✅ [useAuthorizationCodeFlowController] PKCE codes cleared on flow load');
 	}, []); // Only run once on mount
 
@@ -431,12 +441,12 @@ export const useAuthorizationCodeFlowController = (
 			currentStep: 0,
 			timestamp: Date.now(),
 			userAgent: navigator.userAgent,
-			sessionId: sessionStorage.getItem('sessionId') || undefined
+			sessionId: sessionStorage.getItem('sessionId') || undefined,
 		};
-		
+
 		flowTrackingService.setCurrentFlow(flowContext);
 		console.log('🔄 [useAuthorizationCodeFlowController] Flow tracking initialized:', flowContext);
-		
+
 		// Cleanup on unmount
 		return () => {
 			flowTrackingService.clearCurrentFlow();
@@ -447,14 +457,19 @@ export const useAuthorizationCodeFlowController = (
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				console.log('🔄 [useAuthorizationCodeFlowController] Loading flow-specific credentials on mount...');
-				
-				const { credentials: loadedCreds, hasSharedCredentials, flowState } = 
-					await FlowCredentialService.loadFlowCredentials<FlowConfig>({
-						flowKey: persistKey,
-						defaultCredentials: loadInitialCredentials(flowVariant),
-						disableSharedFallback: true, // CRITICAL: Prevent credential bleeding between flows
-					});
+				console.log(
+					'🔄 [useAuthorizationCodeFlowController] Loading flow-specific credentials on mount...'
+				);
+
+				const {
+					credentials: loadedCreds,
+					hasSharedCredentials,
+					flowState,
+				} = await FlowCredentialService.loadFlowCredentials<FlowConfig>({
+					flowKey: persistKey,
+					defaultCredentials: loadInitialCredentials(flowVariant),
+					disableSharedFallback: true, // CRITICAL: Prevent credential bleeding between flows
+				});
 
 				// Load credentials if we have ANY credentials (flow-specific OR shared)
 				if (loadedCreds && (loadedCreds.environmentId || loadedCreds.clientId)) {
@@ -465,18 +480,22 @@ export const useAuthorizationCodeFlowController = (
 						hasFlowState: !!flowState,
 						hasSharedCredentials,
 					});
-					
+
 					setCredentials(loadedCreds);
 					setHasCredentialsSaved(true);
 					originalCredentialsRef.current = { ...loadedCreds };
-					
+
 					// Load flow-specific state if available
 					if (flowState?.flowConfig) {
 						setFlowConfig((prev) => ({ ...prev, ...flowState.flowConfig }));
-						console.log('✅ [useAuthorizationCodeFlowController] Loaded flow config from saved state');
+						console.log(
+							'✅ [useAuthorizationCodeFlowController] Loaded flow config from saved state'
+						);
 					}
 				} else {
-					console.log('ℹ️ [useAuthorizationCodeFlowController] No saved credentials found, using initial credentials');
+					console.log(
+						'ℹ️ [useAuthorizationCodeFlowController] No saved credentials found, using initial credentials'
+					);
 				}
 			} catch (error) {
 				console.error('❌ [useAuthorizationCodeFlowController] Failed to load credentials:', error);
@@ -519,34 +538,44 @@ export const useAuthorizationCodeFlowController = (
 		};
 
 		detectCallback();
-		
+
 		// Listen for popup callback
 		const handlePopupCallback = (event: CustomEvent) => {
-			console.log('🎉 [useAuthorizationCodeFlowController] ===== POPUP CALLBACK EVENT RECEIVED =====');
+			console.log(
+				'🎉 [useAuthorizationCodeFlowController] ===== POPUP CALLBACK EVENT RECEIVED ====='
+			);
 			console.log('✅ [useAuthorizationCodeFlowController] Event detail:', event.detail);
-			console.log('✅ [useAuthorizationCodeFlowController] Current authCode state:', authCode ? `${authCode.substring(0, 10)}...` : 'none');
-			
+			console.log(
+				'✅ [useAuthorizationCodeFlowController] Current authCode state:',
+				authCode ? `${authCode.substring(0, 10)}...` : 'none'
+			);
+
 			const { code, state } = event.detail;
 			if (code) {
-				console.log('✅ [useAuthorizationCodeFlowController] Setting auth code from popup:', code.substring(0, 10) + '...');
+				console.log(
+					'✅ [useAuthorizationCodeFlowController] Setting auth code from popup:',
+					code.substring(0, 10) + '...'
+				);
 				setAuthCode(code);
 				console.log('✅ [useAuthorizationCodeFlowController] Auth code SET in state');
-				
+
 				saveStepResult('handle-callback', {
 					code,
 					state,
 					timestamp: Date.now(),
-					source: 'popup'
+					source: 'popup',
 				});
 				console.log('✅ [useAuthorizationCodeFlowController] Step result saved');
 			} else {
 				console.warn('⚠️ [useAuthorizationCodeFlowController] No code in event detail!');
 			}
 		};
-		
-		console.log('🎧 [useAuthorizationCodeFlowController] Event listener registered for auth-code-received');
+
+		console.log(
+			'🎧 [useAuthorizationCodeFlowController] Event listener registered for auth-code-received'
+		);
 		window.addEventListener('auth-code-received', handlePopupCallback as EventListener);
-		
+
 		return () => {
 			console.log('🔌 [useAuthorizationCodeFlowController] Removing auth-code-received listener');
 			window.removeEventListener('auth-code-received', handlePopupCallback as EventListener);
@@ -556,53 +585,67 @@ export const useAuthorizationCodeFlowController = (
 	// Polling mechanism as backup to custom event (in case event is missed due to timing)
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
-		
+
 		let pollInterval: NodeJS.Timeout | null = null;
 		let lastProcessedTimestamp: string | null = null;
-		
+
 		const checkCallbackFlag = () => {
 			const callbackProcessed = sessionStorage.getItem('callback_processed');
 			const callbackFlowType = sessionStorage.getItem('callback_flow_type');
-			
+
 			// Only process if we have a new callback (timestamp changed)
 			if (callbackProcessed && callbackProcessed !== lastProcessedTimestamp) {
-				console.log('🔍 [useAuthorizationCodeFlowController] Polling detected callback_processed flag!');
-				console.log('🔍 [useAuthorizationCodeFlowController] Callback timestamp:', callbackProcessed);
-				console.log('🔍 [useAuthorizationCodeFlowController] Callback flow type:', callbackFlowType);
-				
+				console.log(
+					'🔍 [useAuthorizationCodeFlowController] Polling detected callback_processed flag!'
+				);
+				console.log(
+					'🔍 [useAuthorizationCodeFlowController] Callback timestamp:',
+					callbackProcessed
+				);
+				console.log(
+					'🔍 [useAuthorizationCodeFlowController] Callback flow type:',
+					callbackFlowType
+				);
+
 				// Check if this callback is for our flow
 				if (callbackFlowType === flowKey) {
-					const code = sessionStorage.getItem(`${flowKey}-authCode`) || 
-					            sessionStorage.getItem('oidc_auth_code') ||
-					            sessionStorage.getItem('auth_code');
-					
+					const code =
+						sessionStorage.getItem(`${flowKey}-authCode`) ||
+						sessionStorage.getItem('oidc_auth_code') ||
+						sessionStorage.getItem('auth_code');
+
 					if (code && code !== authCode) {
-						console.log('✅ [useAuthorizationCodeFlowController] Polling found new auth code:', code.substring(0, 10) + '...');
+						console.log(
+							'✅ [useAuthorizationCodeFlowController] Polling found new auth code:',
+							code.substring(0, 10) + '...'
+						);
 						setAuthCode(code);
-						
+
 						saveStepResult('handle-callback', {
 							code,
 							timestamp: Date.now(),
-							source: 'polling-fallback'
+							source: 'polling-fallback',
 						});
-						
+
 						// Clear the flag so we don't process it again
 						sessionStorage.removeItem('callback_processed');
 						sessionStorage.removeItem('callback_flow_type');
 						console.log('✅ [useAuthorizationCodeFlowController] Cleared callback flags');
 					}
 				}
-				
+
 				lastProcessedTimestamp = callbackProcessed;
 			}
 		};
-		
+
 		// Poll every 500ms while no authCode is set
 		if (!authCode) {
-			console.log('🔄 [useAuthorizationCodeFlowController] Starting callback polling (backup mechanism)');
+			console.log(
+				'🔄 [useAuthorizationCodeFlowController] Starting callback polling (backup mechanism)'
+			);
 			pollInterval = setInterval(checkCallbackFlag, 500);
 		}
-		
+
 		return () => {
 			if (pollInterval) {
 				console.log('🔌 [useAuthorizationCodeFlowController] Stopping callback polling');
@@ -658,26 +701,26 @@ export const useAuthorizationCodeFlowController = (
 
 	/**
 	 * Generate PKCE (Proof Key for Code Exchange) codes
-	 * 
+	 *
 	 * EDUCATIONAL: PKCE is a security extension (RFC 7636) that enhances OAuth flows:
-	 * 
+	 *
 	 * What is PKCE?
 	 * - PKCE protects against authorization code interception attacks
 	 * - Originally designed for mobile apps, now recommended for all OAuth clients
 	 * - Required by OAuth 2.1 for public clients (apps without client secrets)
-	 * 
+	 *
 	 * How PKCE Works:
 	 * 1. Generate code_verifier: Random cryptographically secure string (43-128 chars)
 	 * 2. Generate code_challenge: SHA256 hash of code_verifier (base64url encoded)
 	 * 3. Send code_challenge in authorization URL
 	 * 4. Send code_verifier when exchanging authorization code for tokens
 	 * 5. Server validates: SHA256(code_verifier) === code_challenge
-	 * 
+	 *
 	 * Security Benefits:
 	 * - Even if authorization code is intercepted, attacker can't use it without code_verifier
 	 * - code_verifier never sent over URL (only in POST body during token exchange)
 	 * - Prevents authorization code replay attacks
-	 * 
+	 *
 	 * PKCE Flow:
 	 * Client → Auth Server: authorization request with code_challenge
 	 * Auth Server → Client: redirect with authorization_code
@@ -698,8 +741,14 @@ export const useAuthorizationCodeFlowController = (
 			const codeChallenge = await generateCodeChallenge(codeVerifier);
 
 			console.log('🔐 [PKCE DEBUG] ===== GENERATING NEW PKCE CODES =====');
-			console.log('🔐 [PKCE DEBUG] code_verifier (first 20 chars):', codeVerifier.substring(0, 20) + '...');
-			console.log('🔐 [PKCE DEBUG] code_challenge (first 20 chars):', codeChallenge.substring(0, 20) + '...');
+			console.log(
+				'🔐 [PKCE DEBUG] code_verifier (first 20 chars):',
+				codeVerifier.substring(0, 20) + '...'
+			);
+			console.log(
+				'🔐 [PKCE DEBUG] code_challenge (first 20 chars):',
+				codeChallenge.substring(0, 20) + '...'
+			);
 			console.log('🔐 [PKCE DEBUG] Storage key:', `${persistKey}-pkce-codes`);
 
 			setPkceCodes({
@@ -754,7 +803,7 @@ export const useAuthorizationCodeFlowController = (
 		const currentOrigin = window.location.origin;
 		const suggestedRedirectUri = `${currentOrigin}/authz-callback`;
 		const redirectUriMismatch = credentials.redirectUri !== suggestedRedirectUri;
-		
+
 		console.log('🔍 [REDIRECT URI DEBUG] Detailed Analysis:', {
 			configuredRedirectUri: credentials.redirectUri,
 			suggestedRedirectUri: suggestedRedirectUri,
@@ -775,17 +824,20 @@ export const useAuthorizationCodeFlowController = (
 			console.warn('⚠️ [REDIRECT URI WARNING] Potential mismatch detected:', {
 				configured: credentials.redirectUri,
 				suggested: suggestedRedirectUri,
-				recommendation: `Consider updating redirect URI to: ${suggestedRedirectUri}`
+				recommendation: `Consider updating redirect URI to: ${suggestedRedirectUri}`,
 			});
 		}
 
 		console.log('🔧 [useAuthorizationCodeFlowController] ===== AUTHORIZATION URL GENERATION =====');
-		console.log('🔧 [useAuthorizationCodeFlowController] Using redirect URI:', credentials.redirectUri);
+		console.log(
+			'🔧 [useAuthorizationCodeFlowController] Using redirect URI:',
+			credentials.redirectUri
+		);
 		console.log('🔧 [useAuthorizationCodeFlowController] Full credentials:', {
 			environmentId: credentials.environmentId,
 			clientId: credentials.clientId,
 			redirectUri: credentials.redirectUri,
-			scope: credentials.scope
+			scope: credentials.scope,
 		});
 
 		// REDIRECT URI AUDIT - Check for common mismatch issues
@@ -795,27 +847,29 @@ export const useAuthorizationCodeFlowController = (
 			protocol: credentials.redirectUri.split(':')[0],
 			windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'N/A',
 			windowProtocol: typeof window !== 'undefined' ? window.location.protocol : 'N/A',
-			matchesWindowOrigin: credentials.redirectUri.startsWith(typeof window !== 'undefined' ? window.location.origin : ''),
+			matchesWindowOrigin: credentials.redirectUri.startsWith(
+				typeof window !== 'undefined' ? window.location.origin : ''
+			),
 		});
 
 		// Ensure PKCE codes are generated before creating authorization URL
 		let currentPkceCodes = pkceCodes;
 		if (!currentPkceCodes.codeVerifier || !currentPkceCodes.codeChallenge) {
 			console.log('🔐 [PKCE] PKCE codes missing, generating them automatically...');
-			
+
 			try {
 				const codeVerifier = generateCodeVerifier();
 				const codeChallenge = await generateCodeChallenge(codeVerifier);
-				
+
 				currentPkceCodes = {
 					codeVerifier,
 					codeChallenge,
 					codeChallengeMethod: 'S256',
 				};
-				
+
 				// Update state for future use
 				setPkceCodes(currentPkceCodes);
-				
+
 				console.log('✅ [PKCE] PKCE codes generated automatically');
 			} catch (error) {
 				console.error('❌ [PKCE] Failed to generate PKCE codes:', error);
@@ -827,7 +881,7 @@ export const useAuthorizationCodeFlowController = (
 		console.log('🌐 [PKCE DEBUG] Using PKCE codes:', {
 			codeVerifier: currentPkceCodes.codeVerifier.substring(0, 20) + '...',
 			codeChallenge: currentPkceCodes.codeChallenge.substring(0, 20) + '...',
-			codeChallengeMethod: currentPkceCodes.codeChallengeMethod
+			codeChallengeMethod: currentPkceCodes.codeChallengeMethod,
 		});
 
 		const state =
@@ -836,24 +890,27 @@ export const useAuthorizationCodeFlowController = (
 		// Load PingOne application configuration for PAR and other advanced settings
 		let pingOneConfig = null;
 		try {
-			// Try both possible config keys (for different flow variants)
-		const possibleKeys = [
-			`${persistKey}-app-config`,
-			`${flowKey}-app-config`,
-			'pingone-app-config' // fallback
-		];
+			// Try flow-specific config keys (for different flow variants)
+			const possibleKeys = [
+				`${persistKey}-app-config`, // e.g., oauth-authorization-code-v8-app-config
+				`${flowKey}-app-config`, // e.g., oauth-authorization-code-v8-app-config
+				// V7 backward compatibility fallbacks
+				'oauth-authorization-code-v7-app-config',
+				'oidc-authorization-code-v7-app-config',
+				'pingone-app-config', // generic fallback
+			];
 
-		for (const configKey of possibleKeys) {
-			const config = safeSessionStorageParse<typeof pingOneConfig>(configKey, null);
-			if (config) {
-				pingOneConfig = config;
-				console.log('🔧 [useAuthorizationCodeFlowController] Loaded PingOne config:', {
-					key: configKey,
-					config: pingOneConfig
-				});
-				break;
+			for (const configKey of possibleKeys) {
+				const config = safeSessionStorageParse<typeof pingOneConfig>(configKey, null);
+				if (config) {
+					pingOneConfig = config;
+					console.log('🔧 [useAuthorizationCodeFlowController] Loaded PingOne config:', {
+						key: configKey,
+						config: pingOneConfig,
+					});
+					break;
+				}
 			}
-		}
 		} catch (error) {
 			console.warn('🔧 [useAuthorizationCodeFlowController] Failed to load PingOne config:', error);
 		}
@@ -878,12 +935,14 @@ export const useAuthorizationCodeFlowController = (
 			originalScopes: credentials.scopes,
 			finalScopes,
 			flowVariant,
-			isValid: scopeValidation.isValid
+			isValid: scopeValidation.isValid,
 		});
 
 		// Check if PAR (Pushed Authorization Request) is required
 		if (pingOneConfig?.requirePushedAuthorizationRequest) {
-			console.log('🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request');
+			console.log(
+				'🔗 [useAuthorizationCodeFlowController] PAR is required, generating PAR request'
+			);
 			try {
 				// Import PAR service dynamically to avoid circular dependencies
 				const { PARService } = await import('../services/parService');
@@ -936,7 +995,10 @@ export const useAuthorizationCodeFlowController = (
 					client_id: credentials.clientId,
 				});
 
-				console.log('🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:', url);
+				console.log(
+					'🔗 [useAuthorizationCodeFlowController] Generated PAR authorization URL:',
+					url
+				);
 			} catch (error) {
 				console.error('❌ [useAuthorizationCodeFlowController] PAR request failed:', error);
 				showGlobalError('PAR request failed', {
@@ -955,22 +1017,43 @@ export const useAuthorizationCodeFlowController = (
 			if (credentials.responseTypeIdToken) responseTypes.push('id_token');
 			const responseType = responseTypes.length > 0 ? responseTypes.join(' ') : 'code';
 
-		const params = new URLSearchParams({
-			response_type: responseType,
-			client_id: credentials.clientId,
-			redirect_uri: credentials.redirectUri,
-			state,
-		});
-		
-		// Manually add scope to avoid URL encoding spaces as +
-		// PingOne expects space-separated scopes, not plus-separated
-		// We'll add it manually to the final URL instead of using URLSearchParams
+			// CRITICAL: Ensure we use the actual redirect URI from credentials, not any default
+			const redirectUriToUse = credentials.redirectUri?.trim() || '';
+
+			if (!redirectUriToUse) {
+				showGlobalError('Missing redirect URI', {
+					description: 'Redirect URI is required. Please configure it in the credentials section.',
+					meta: { field: 'redirectUri' },
+				});
+				return;
+			}
+
+			console.log('🔍 [REDIRECT URI VALIDATION] Before building URL:', {
+				credentials_redirectUri: credentials.redirectUri,
+				redirectUriToUse,
+				trimmed: credentials.redirectUri?.trim(),
+				isEmpty: !redirectUriToUse,
+				isHttps: redirectUriToUse.startsWith('https://'),
+				isHttp: redirectUriToUse.startsWith('http://'),
+			});
+
+			const params = new URLSearchParams({
+				response_type: responseType,
+				client_id: credentials.clientId,
+				redirect_uri: redirectUriToUse,
+				state,
+			});
+
+			// Manually add scope to avoid URL encoding spaces as +
+			// PingOne expects space-separated scopes, not plus-separated
+			// We'll add it manually to the final URL instead of using URLSearchParams
 
 			// REDIRECT URI AUDIT - Log what will be sent to PingOne
 			console.log('🔍 [REDIRECT URI AUDIT] URL Params:', {
 				redirect_uri_param: params.get('redirect_uri'),
-				redirect_uri_encoded: encodeURIComponent(credentials.redirectUri),
+				redirect_uri_encoded: encodeURIComponent(redirectUriToUse),
 				params_toString: params.toString(),
+				original_credentials_redirectUri: credentials.redirectUri,
 			});
 
 			// Add PKCE parameters if using authorization code flow (default behavior)
@@ -979,11 +1062,11 @@ export const useAuthorizationCodeFlowController = (
 				params.set('code_challenge_method', currentPkceCodes.codeChallengeMethod || 'S256');
 			}
 
-		// Add OIDC-specific parameters
-		if (flowVariant === 'oidc') {
-			// Scope is already set above with proper validation
-			// No need to override it here
-		}
+			// Add OIDC-specific parameters
+			if (flowVariant === 'oidc') {
+				// Scope is already set above with proper validation
+				// No need to override it here
+			}
 
 			// Add advanced OIDC parameters if configured
 			if (pingOneConfig?.initiateLoginUri) {
@@ -1001,11 +1084,17 @@ export const useAuthorizationCodeFlowController = (
 			// as they are not reliably supported. See AdvancedParametersV6.tsx for details.
 			if (flowConfig?.audience) {
 				params.set('audience', flowConfig.audience);
-				console.log('🔧 [useAuthorizationCodeFlowController] Added audience parameter:', flowConfig.audience);
+				console.log(
+					'🔧 [useAuthorizationCodeFlowController] Added audience parameter:',
+					flowConfig.audience
+				);
 			}
 			if (flowConfig?.prompt) {
 				params.set('prompt', flowConfig.prompt);
-				console.log('🔧 [useAuthorizationCodeFlowController] Added prompt parameter:', flowConfig.prompt);
+				console.log(
+					'🔧 [useAuthorizationCodeFlowController] Added prompt parameter:',
+					flowConfig.prompt
+				);
 			}
 
 			// Add OIDC-specific advanced parameters (claims only - display removed for PingOne)
@@ -1013,7 +1102,10 @@ export const useAuthorizationCodeFlowController = (
 				// Claims parameter (JSON structure for id_token and userinfo claims)
 				if (flowConfig?.customClaims && Object.keys(flowConfig.customClaims).length > 0) {
 					params.set('claims', JSON.stringify(flowConfig.customClaims));
-					console.log('🔧 [useAuthorizationCodeFlowController] Added claims parameter:', flowConfig.customClaims);
+					console.log(
+						'🔧 [useAuthorizationCodeFlowController] Added claims parameter:',
+						flowConfig.customClaims
+					);
 				}
 			}
 
@@ -1027,7 +1119,10 @@ export const useAuthorizationCodeFlowController = (
 
 		console.log('🔧 [useAuthorizationCodeFlowController] ===== FINAL AUTHORIZATION URL =====');
 		console.log('🔧 [useAuthorizationCodeFlowController] Generated URL:', url);
-		console.log('🔧 [useAuthorizationCodeFlowController] URL parameters:', Object.fromEntries(new URLSearchParams(url.split('?')[1] || '')));
+		console.log(
+			'🔧 [useAuthorizationCodeFlowController] URL parameters:',
+			Object.fromEntries(new URLSearchParams(url.split('?')[1] || ''))
+		);
 
 		// Validate URL before setting it
 		const isValid = validateBeforeSend(
@@ -1039,7 +1134,9 @@ export const useAuthorizationCodeFlowController = (
 			},
 			() => {
 				// Fix issues - don't set the URL
-				console.log('❌ [useAuthorizationCodeFlowController] URL validation failed, not setting URL');
+				console.log(
+					'❌ [useAuthorizationCodeFlowController] URL validation failed, not setting URL'
+				);
 			}
 		);
 
@@ -1056,7 +1153,7 @@ export const useAuthorizationCodeFlowController = (
 		// Store state in sessionStorage for callback validation
 		sessionStorage.setItem('oauth_state', state);
 		console.log('🔧 [useAuthorizationCodeFlowController] Stored state for validation:', state);
-		
+
 		// Store active flow for callback page to know where to return
 		sessionStorage.setItem('active_oauth_flow', flowKey);
 		console.log('🔧 [useAuthorizationCodeFlowController] Stored active flow:', flowKey);
@@ -1110,32 +1207,80 @@ export const useAuthorizationCodeFlowController = (
 
 	const handleRedirectAuthorization = useCallback(() => {
 		if (!authUrl) {
-			showGlobalError(
-				'Authorization URL missing',
-				'Generate the authorization URL before starting the flow.'
+			showGlobalError('Authorization URL missing', {
+				description: 'Generate the authorization URL before starting the flow.',
+			});
+			return;
+		}
+
+		// DEBUG: Validate credentials before redirecting
+		// CRITICAL: Ensure we have required credentials for callback handling
+		if (!credentials.clientId || credentials.clientId.trim() === '') {
+			console.error(
+				'🔴 [useAuthorizationCodeFlowController] CRITICAL: clientId is empty before redirect!',
+				{
+					credentials,
+					authUrl: authUrl.substring(0, 100) + '...',
+				}
 			);
+			showGlobalError('Client ID missing', {
+				description:
+					'Please configure your OAuth credentials before starting the authorization flow.',
+			});
+			return;
+		}
+
+		if (!credentials.environmentId || credentials.environmentId.trim() === '') {
+			console.error(
+				'🔴 [useAuthorizationCodeFlowController] CRITICAL: environmentId is empty before redirect!',
+				{
+					credentials,
+				}
+			);
+			showGlobalError('Environment ID missing', {
+				description:
+					'Please configure your OAuth credentials before starting the authorization flow.',
+			});
 			return;
 		}
 
 		// Set flow context for callback handling
+		// DEBUG: Include ALL required credentials for token exchange
 		const flowContext = {
 			flow: flowKey,
 			returnPath: `/flows/${flowKey}?step=4`,
 			redirectUri: credentials.redirectUri,
+			clientId: credentials.clientId,
+			clientSecret: credentials.clientSecret || '', // May be empty for public clients
+			environmentId: credentials.environmentId,
+			region: credentials.region || 'us', // Include region for OAuth endpoint resolution
+			clientAuthMethod: credentials.clientAuthMethod || 'client_secret_post',
 			timestamp: Date.now(),
 		};
+
+		// DEBUG: Store flow context in sessionStorage for NewAuthContext to retrieve
 		sessionStorage.setItem('flowContext', JSON.stringify(flowContext));
+		console.log('🔧 [useAuthorizationCodeFlowController] Stored flow context for callback:', {
+			flow: flowContext.flow,
+			hasClientId: !!flowContext.clientId,
+			hasEnvironmentId: !!flowContext.environmentId,
+			hasRedirectUri: !!flowContext.redirectUri,
+			clientId: flowContext.clientId?.substring(0, 10) + '...',
+			environmentId: flowContext.environmentId,
+			redirectUri: flowContext.redirectUri,
+		});
+
 		// Also store under the key that PingOne Authentication callback expects
-		sessionStorage.setItem('pingone_login_playground_context', JSON.stringify({
-			mode: 'redirect',
-			responseType: credentials.responseType || 'code',
-			returnPath: `/flows/${flowKey}?step=4`,
-			timestamp: Date.now(),
-		}));
-		console.log(
-			'🔧 [useAuthorizationCodeFlowController] Stored flow context for V5 callback:',
-			flowContext
+		sessionStorage.setItem(
+			'pingone_login_playground_context',
+			JSON.stringify({
+				mode: 'redirect',
+				responseType: credentials.responseType || 'code',
+				returnPath: `/flows/${flowKey}?step=4`,
+				timestamp: Date.now(),
+			})
 		);
+
 		console.log('🔧 [useAuthorizationCodeFlowController] About to redirect to:', authUrl);
 
 		saveStepResult('user-authorization', {
@@ -1143,7 +1288,7 @@ export const useAuthorizationCodeFlowController = (
 			timestamp: Date.now(),
 		});
 		window.location.assign(authUrl);
-	}, [authUrl, saveStepResult, credentials.redirectUri, flowKey]);
+	}, [authUrl, saveStepResult, credentials, flowKey]);
 
 	const persistConfig = useCallback(
 		(nextConfig: FlowConfig) => {
@@ -1166,14 +1311,14 @@ export const useAuthorizationCodeFlowController = (
 
 	/**
 	 * Exchange Authorization Code for Access Token (OAuth 2.0 Token Exchange - RFC 6749 Section 4.1.3)
-	 * 
+	 *
 	 * EDUCATIONAL: This is Step 4 of the Authorization Code Flow
-	 * 
+	 *
 	 * What is Token Exchange?
 	 * - Converts a short-lived authorization code into long-lived tokens
 	 * - Must happen server-side or via secure backend proxy (never expose client_secret to browser)
 	 * - Authorization code is single-use and expires quickly (typically 10 minutes)
-	 * 
+	 *
 	 * OAuth 2.0 Token Exchange Flow:
 	 * 1. User authorizes app → Auth server returns authorization_code via redirect
 	 * 2. Client extracts code from callback URL
@@ -1191,19 +1336,19 @@ export const useAuthorizationCodeFlowController = (
 	 *    - id_token: JWT containing user identity (if OIDC scope 'openid' was requested)
 	 *    - expires_in: how long access_token is valid (typically 3600 seconds = 1 hour)
 	 *    - token_type: usually "Bearer"
-	 * 
+	 *
 	 * Security Requirements:
 	 * - redirect_uri validation: Must EXACTLY match the one in authorization request (prevents code interception)
 	 * - PKCE validation: code_verifier must match code_challenge from authorization request
 	 * - Client authentication: client_id + client_secret (or client assertion) must match registered app
 	 * - Authorization code is single-use: Once exchanged, it cannot be used again
 	 * - Time-limited: Authorization codes expire quickly (typically 10 minutes)
-	 * 
+	 *
 	 * Why Server-Side?
 	 * - Client secret must NEVER be exposed to browser/client
 	 * - Token exchange should happen on backend to protect credentials
 	 * - This implementation uses a backend proxy to avoid CORS and protect secrets
-	 * 
+	 *
 	 * OIDC vs OAuth 2.0:
 	 * - OAuth 2.0: Returns access_token (and optionally refresh_token)
 	 * - OIDC: Returns access_token + id_token (JWT with user identity) when 'openid' scope is requested
@@ -1245,62 +1390,79 @@ export const useAuthorizationCodeFlowController = (
 				redirectUri: credentials.redirectUri,
 				environmentId: credentials.environmentId,
 				sessionStorageKeys: {
-					'code_verifier': sessionStorage.getItem('code_verifier') ? 'exists' : 'missing',
-					'oauth_v3_code_verifier': sessionStorage.getItem('oauth_v3_code_verifier') ? 'exists' : 'missing',
-					[`${flowKey}_code_verifier`]: sessionStorage.getItem(`${flowKey}_code_verifier`) ? 'exists' : 'missing',
-				}
+					code_verifier: sessionStorage.getItem('code_verifier') ? 'exists' : 'missing',
+					oauth_v3_code_verifier: sessionStorage.getItem('oauth_v3_code_verifier')
+						? 'exists'
+						: 'missing',
+					[`${flowKey}_code_verifier`]: sessionStorage.getItem(`${flowKey}_code_verifier`)
+						? 'exists'
+						: 'missing',
+				},
 			});
 
-		// Try to get code verifier from multiple possible storage locations
-		console.log('🔍 [PKCE DEBUG] ===== TOKEN EXCHANGE PKCE RETRIEVAL =====');
-		console.log('🔍 [PKCE DEBUG] Current pkceCodes state:', {
-			codeVerifier: pkceCodes.codeVerifier ? `${pkceCodes.codeVerifier.substring(0, 20)}...` : 'MISSING',
-			codeChallenge: pkceCodes.codeChallenge ? `${pkceCodes.codeChallenge.substring(0, 20)}...` : 'MISSING',
-			hasBoth: !!(pkceCodes.codeVerifier && pkceCodes.codeChallenge)
-		});
-		
-		let codeVerifier = pkceCodes.codeVerifier;
-		if (!codeVerifier) {
-			console.log('⚠️ [PKCE DEBUG] No code_verifier in state, checking sessionStorage...');
-			
-			// FIRST: Try the correct key where we actually store PKCE codes
-			const pkceStorageKey = `${persistKey}-pkce-codes`;
-			const storedPkceCodes = safeSessionStorageParse<PKCECodes>(pkceStorageKey, null);
-			
-			console.log('🔍 [PKCE DEBUG] SessionStorage check:', {
-				key: pkceStorageKey,
-				found: !!storedPkceCodes,
-				hasVerifier: !!storedPkceCodes?.codeVerifier,
-				hasChallenge: !!storedPkceCodes?.codeChallenge
+			// Try to get code verifier from multiple possible storage locations
+			console.log('🔍 [PKCE DEBUG] ===== TOKEN EXCHANGE PKCE RETRIEVAL =====');
+			console.log('🔍 [PKCE DEBUG] Current pkceCodes state:', {
+				codeVerifier: pkceCodes.codeVerifier
+					? `${pkceCodes.codeVerifier.substring(0, 20)}...`
+					: 'MISSING',
+				codeChallenge: pkceCodes.codeChallenge
+					? `${pkceCodes.codeChallenge.substring(0, 20)}...`
+					: 'MISSING',
+				hasBoth: !!(pkceCodes.codeVerifier && pkceCodes.codeChallenge),
 			});
-			
-			if (storedPkceCodes?.codeVerifier) {
-				codeVerifier = storedPkceCodes.codeVerifier;
-				console.log(`✅ [PKCE DEBUG] Retrieved code_verifier from ${pkceStorageKey}:`, codeVerifier.substring(0, 20) + '...');
-			} else {
-				console.log('⚠️ [PKCE DEBUG] No PKCE in primary storage, trying legacy keys...');
-				
-				// FALLBACK: Try legacy keys from older flow versions
-				const possibleKeys = [
-					'code_verifier',
-					'oauth_v3_code_verifier', 
-					`${flowKey}_code_verifier`,
-					`${flowKey}_v3_code_verifier`,
-					'oauth_code_verifier'
-				];
-				
-				for (const key of possibleKeys) {
-					const stored = sessionStorage.getItem(key);
-					if (stored) {
-						codeVerifier = stored;
-						console.log(`🔧 [PKCE DEBUG] Retrieved code_verifier from legacy key ${key}:`, stored.substring(0, 20) + '...');
-						break;
+
+			let codeVerifier = pkceCodes.codeVerifier;
+			if (!codeVerifier) {
+				console.log('⚠️ [PKCE DEBUG] No code_verifier in state, checking sessionStorage...');
+
+				// FIRST: Try the correct key where we actually store PKCE codes
+				const pkceStorageKey = `${persistKey}-pkce-codes`;
+				const storedPkceCodes = safeSessionStorageParse<PKCECodes>(pkceStorageKey, null);
+
+				console.log('🔍 [PKCE DEBUG] SessionStorage check:', {
+					key: pkceStorageKey,
+					found: !!storedPkceCodes,
+					hasVerifier: !!storedPkceCodes?.codeVerifier,
+					hasChallenge: !!storedPkceCodes?.codeChallenge,
+				});
+
+				if (storedPkceCodes?.codeVerifier) {
+					codeVerifier = storedPkceCodes.codeVerifier;
+					console.log(
+						`✅ [PKCE DEBUG] Retrieved code_verifier from ${pkceStorageKey}:`,
+						codeVerifier.substring(0, 20) + '...'
+					);
+				} else {
+					console.log('⚠️ [PKCE DEBUG] No PKCE in primary storage, trying legacy keys...');
+
+					// FALLBACK: Try legacy keys from older flow versions
+					const possibleKeys = [
+						'code_verifier',
+						'oauth_v3_code_verifier',
+						`${flowKey}_code_verifier`,
+						`${flowKey}_v3_code_verifier`,
+						'oauth_code_verifier',
+					];
+
+					for (const key of possibleKeys) {
+						const stored = sessionStorage.getItem(key);
+						if (stored) {
+							codeVerifier = stored;
+							console.log(
+								`🔧 [PKCE DEBUG] Retrieved code_verifier from legacy key ${key}:`,
+								stored.substring(0, 20) + '...'
+							);
+							break;
+						}
 					}
 				}
+			} else {
+				console.log(
+					'✅ [PKCE DEBUG] Using code_verifier from state:',
+					codeVerifier.substring(0, 20) + '...'
+				);
 			}
-		} else {
-			console.log('✅ [PKCE DEBUG] Using code_verifier from state:', codeVerifier.substring(0, 20) + '...');
-		}
 
 			if (!codeVerifier) {
 				throw new Error('PKCE code verifier is missing. Please generate PKCE parameters first.');
@@ -1310,31 +1472,33 @@ export const useAuthorizationCodeFlowController = (
 			const backendUrl =
 				process.env.NODE_ENV === 'production' ? 'https://oauth-playground.vercel.app' : ''; // Use relative URL to go through Vite proxy
 
-		// ✅ CRITICAL FIX: Use the EXACT redirect_uri from the authorization request
-		// This is stored in sessionStorage when the auth URL is generated
-		// This prevents "Invalid Redirect URI" errors from mismatches
-		const actualRedirectUri = getStoredRedirectUri(flowKey, credentials.redirectUri);
-		auditRedirectUri('token-exchange', actualRedirectUri, flowKey);
+			// ✅ CRITICAL FIX: Use the EXACT redirect_uri from the authorization request
+			// This is stored in sessionStorage when the auth URL is generated
+			// This prevents "Invalid Redirect URI" errors from mismatches
+			const actualRedirectUri = getStoredRedirectUri(flowKey, credentials.redirectUri);
+			auditRedirectUri('token-exchange', actualRedirectUri, flowKey);
 
-		const requestBody: any = {
-			grant_type: 'authorization_code',
-			code: authCode.trim(),
-			redirect_uri: actualRedirectUri.trim(), // ✅ Use stored value, not credentials
-			client_id: credentials.clientId.trim(),
-			environment_id: credentials.environmentId.trim(),
-			code_verifier: codeVerifier.trim(),
-			client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-			...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
-		};
+			const requestBody: any = {
+				grant_type: 'authorization_code',
+				code: authCode.trim(),
+				redirect_uri: actualRedirectUri.trim(), // ✅ Use stored value, not credentials
+				client_id: credentials.clientId.trim(),
+				environment_id: credentials.environmentId.trim(),
+				code_verifier: codeVerifier.trim(),
+				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
+				...(credentials.includeX5tParameter && {
+					includeX5tParameter: credentials.includeX5tParameter,
+				}),
+			};
 
-		// REDIRECT URI AUDIT - Token Exchange
-		console.log('🔍 [REDIRECT URI AUDIT] Token Exchange:', {
-			redirect_uri_in_token_request: requestBody.redirect_uri,
-			redirect_uri_from_credentials: credentials.redirectUri,
-			using_stored_value: actualRedirectUri !== credentials.redirectUri,
-			hasTrailingSlash: requestBody.redirect_uri.endsWith('/'),
-			guaranteed_match: true, // ✅ Now using same value as authorization!
-		});
+			// REDIRECT URI AUDIT - Token Exchange
+			console.log('🔍 [REDIRECT URI AUDIT] Token Exchange:', {
+				redirect_uri_in_token_request: requestBody.redirect_uri,
+				redirect_uri_from_credentials: credentials.redirectUri,
+				using_stored_value: actualRedirectUri !== credentials.redirectUri,
+				hasTrailingSlash: requestBody.redirect_uri.endsWith('/'),
+				guaranteed_match: true, // ✅ Now using same value as authorization!
+			});
 
 			// Handle JWT-based authentication methods
 			const authMethod = credentials.clientAuthMethod || 'client_secret_post';
@@ -1402,25 +1566,29 @@ export const useAuthorizationCodeFlowController = (
 
 			if (!response.ok) {
 				const errorText = await response.text();
-				
+
 				// Parse error details
 				let errorDetails = errorText;
 				let userMessage = 'Token exchange failed';
-				
+
 				try {
 					const errorJson = JSON.parse(errorText);
 					if (errorJson.error === 'invalid_grant') {
 						if (errorJson.error_description?.includes('expired or invalid')) {
 							userMessage = 'Authorization code expired or already used';
-							errorDetails = 'Authorization codes can only be used once and expire quickly (typically 1-10 minutes). Please restart the authorization flow to get a new code.';
+							errorDetails =
+								'Authorization codes can only be used once and expire quickly (typically 1-10 minutes). Please restart the authorization flow to get a new code.';
 						} else {
 							userMessage = errorJson.error_description || 'Invalid authorization code';
 							errorDetails = errorJson.error_description || errorText;
 						}
-					} else if (errorJson.error === 'invalid_request' && errorJson.error_description?.toLowerCase().includes('redirect')) {
+					} else if (
+						errorJson.error === 'invalid_request' &&
+						errorJson.error_description?.toLowerCase().includes('redirect')
+					) {
 						userMessage = 'Invalid Redirect URI';
 						errorDetails = `${errorJson.error_description}\n\nDebugging Info:\n- Configured: ${credentials.redirectUri}\n- Used in token exchange: ${actualRedirectUri}\n- Current origin: ${window.location.origin}\n\nEnsure the redirect URI in PingOne exactly matches: ${actualRedirectUri}`;
-						
+
 						// Additional redirect URI debugging
 						console.error('🚨 [REDIRECT URI ERROR] Detailed debugging:', {
 							error: errorJson,
@@ -1429,7 +1597,7 @@ export const useAuthorizationCodeFlowController = (
 							currentOrigin: window.location.origin,
 							currentUrl: window.location.href,
 							mismatch: actualRedirectUri !== credentials.redirectUri,
-							pingOneErrorDescription: errorJson.error_description
+							pingOneErrorDescription: errorJson.error_description,
 						});
 					} else {
 						userMessage = errorJson.error_description || errorJson.error || 'Token exchange failed';
@@ -1438,13 +1606,13 @@ export const useAuthorizationCodeFlowController = (
 				} catch (e) {
 					// If not JSON, use the raw error text
 				}
-				
+
 				// Show user-friendly error message
 				showGlobalError(userMessage, {
 					description: errorDetails,
-					meta: { status: response.status, action: 'exchangeTokens' }
+					meta: { status: response.status, action: 'exchangeTokens' },
 				});
-				
+
 				throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
 			}
 
@@ -1492,7 +1660,7 @@ export const useAuthorizationCodeFlowController = (
 				errorType: 'token-exchange',
 				errorMessage: error instanceof Error ? error.message : 'Token exchange failed',
 				errorCode: (error as any)?.code,
-				redirectUri: credentials.redirectUri
+				redirectUri: credentials.redirectUri,
 			});
 
 			// Track failed token exchange
@@ -1510,27 +1678,28 @@ export const useAuthorizationCodeFlowController = (
 				showGlobalError('Authentication failed', {
 					description:
 						'The client credentials are invalid or the authentication method is not supported. Please check your Client ID and Client Secret configuration in PingOne.',
-					meta: { 
-						phase: 'tokenExchange', 
+					meta: {
+						phase: 'tokenExchange',
 						errorCode: 'invalid_client',
-						returnUrl: flowTrackingService.getFlowReturnUrl()
+						returnUrl: flowTrackingService.getFlowReturnUrl(),
 					},
 				});
 			} else if (errorMessage.includes('401')) {
 				showGlobalError('Unauthorized', {
-					description: 'Authentication failed. Please verify your PingOne credentials and application configuration.',
-					meta: { 
-						phase: 'tokenExchange', 
+					description:
+						'Authentication failed. Please verify your PingOne credentials and application configuration.',
+					meta: {
+						phase: 'tokenExchange',
 						errorCode: 'unauthorized',
-						returnUrl: flowTrackingService.getFlowReturnUrl()
+						returnUrl: flowTrackingService.getFlowReturnUrl(),
 					},
 				});
 			} else {
 				showGlobalError('Token exchange failed', {
 					description: errorMessage,
-					meta: { 
+					meta: {
 						phase: 'tokenExchange',
-						returnUrl: flowTrackingService.getFlowReturnUrl()
+						returnUrl: flowTrackingService.getFlowReturnUrl(),
 					},
 				});
 			}
@@ -1560,7 +1729,7 @@ export const useAuthorizationCodeFlowController = (
 
 		// Try to get userinfo endpoint from credentials, or construct from environment ID
 		let userInfoEndpoint = credentials.userInfoEndpoint;
-		
+
 		// Fallback: construct from environment ID if not provided
 		if (!userInfoEndpoint && credentials.environmentId) {
 			const regionDomains: Record<string, string> = {
@@ -1568,13 +1737,16 @@ export const useAuthorizationCodeFlowController = (
 				eu: 'auth.pingone.eu',
 				ap: 'auth.pingone.asia',
 				ca: 'auth.pingone.ca',
-				na: 'auth.pingone.com'
+				na: 'auth.pingone.com',
 			};
 			const domain = regionDomains[credentials.region || 'us'] || 'auth.pingone.com';
 			userInfoEndpoint = `https://${domain}/${credentials.environmentId}/as/userinfo`;
-			console.log('ℹ️ [fetchUserInfo] UserInfo endpoint not in credentials, constructed from environment ID:', userInfoEndpoint);
+			console.log(
+				'ℹ️ [fetchUserInfo] UserInfo endpoint not in credentials, constructed from environment ID:',
+				userInfoEndpoint
+			);
 		}
-		
+
 		if (!userInfoEndpoint) {
 			console.error('❌ [fetchUserInfo] No userinfo endpoint configured and no environment ID');
 			showGlobalError('Missing user info endpoint', {
@@ -1655,7 +1827,9 @@ export const useAuthorizationCodeFlowController = (
 				client_id: credentials.clientId.trim(),
 				environment_id: credentials.environmentId.trim(),
 				client_auth_method: credentials.clientAuthMethod || 'client_secret_post',
-				...(credentials.includeX5tParameter && { includeX5tParameter: credentials.includeX5tParameter }),
+				...(credentials.includeX5tParameter && {
+					includeX5tParameter: credentials.includeX5tParameter,
+				}),
 			};
 
 			// Handle JWT-based authentication methods
@@ -1765,33 +1939,38 @@ export const useAuthorizationCodeFlowController = (
 				redirectUri: credentials.redirectUri,
 				scope: credentials.scope,
 			});
-			
-		// Save using FlowCredentialService
-		const success = await FlowCredentialService.saveFlowCredentials(
-			persistKey,
-			credentials,
-			flowConfig,
-			{
-				flowVariant,
-				pkce: pkceCodes,
-				authorizationCode: authCode, // Fixed: was authorizationCode (undefined), now authCode
-				tokens: {
-					accessToken: tokens?.access_token,
-					refreshToken,
-					idToken: tokens?.id_token,
+
+			// Save using FlowCredentialService
+			const success = await FlowCredentialService.saveFlowCredentials(
+				persistKey,
+				credentials,
+				flowConfig,
+				{
+					flowVariant,
+					pkce: pkceCodes,
+					authorizationCode: authCode, // Fixed: was authorizationCode (undefined), now authCode
+					tokens: {
+						accessToken: tokens?.access_token,
+						refreshToken,
+						idToken: tokens?.id_token,
+					},
 				},
-			},
-			{ showToast: false } // Don't show toast, calling component handles it
-		);
-		
-		console.log('💾 [useAuthorizationCodeFlowController] FlowCredentialService.saveFlowCredentials result:', success);
+				{ showToast: false } // Don't show toast, calling component handles it
+			);
+
+			console.log(
+				'💾 [useAuthorizationCodeFlowController] FlowCredentialService.saveFlowCredentials result:',
+				success
+			);
 
 			if (!success) {
 				throw new Error('Failed to save credentials via FlowCredentialService');
 			}
-			
+
 			// Credentials are already saved via FlowCredentialService above
-			console.log('✅ [useAuthorizationCodeFlowController] Credentials saved via FlowCredentialService');
+			console.log(
+				'✅ [useAuthorizationCodeFlowController] Credentials saved via FlowCredentialService'
+			);
 
 			setHasCredentialsSaved(true);
 			setHasUnsavedCredentialChanges(false);
@@ -1822,7 +2001,17 @@ export const useAuthorizationCodeFlowController = (
 		} finally {
 			setIsSavingCredentials(false);
 		}
-	}, [credentials, persistKey, flowConfig, flowVariant, pkceCodes, authCode, tokens, refreshToken, saveStepResult]);
+	}, [
+		credentials,
+		persistKey,
+		flowConfig,
+		flowVariant,
+		pkceCodes,
+		authCode,
+		tokens,
+		refreshToken,
+		saveStepResult,
+	]);
 
 	const resetFlow = useCallback(() => {
 		setAuthUrl('');
@@ -1844,9 +2033,9 @@ export const useAuthorizationCodeFlowController = (
 		// ✅ Clear stored redirect_uri to prevent stale values
 		clearRedirectUri(flowKey);
 		showGlobalSuccess('Flow reset', {
-		description: 'Start the authorization sequence again.',
-		meta: { action: 'resetFlow' },
-	});
+			description: 'Start the authorization sequence again.',
+			meta: { action: 'resetFlow' },
+		});
 	}, [clearStepResults, stepManager, stopPopupWatch, persistKey, flowKey]);
 
 	const setAuthCodeManually = useCallback(
@@ -1865,28 +2054,28 @@ export const useAuthorizationCodeFlowController = (
 
 	const clearPKCE = useCallback(() => {
 		console.log('🧹 [useAuthorizationCodeFlowController] Clearing PKCE codes...');
-		
+
 		// Clear PKCE codes from state
 		setPkceCodes({
 			codeVerifier: '',
 			codeChallenge: '',
 			codeChallengeMethod: 'S256',
 		});
-		
+
 		// Clear PKCE codes from sessionStorage
 		const pkceStorageKey = `${persistKey}-pkce-codes`;
 		sessionStorage.removeItem(pkceStorageKey);
-		
+
 		// Clear legacy PKCE storage keys
 		const legacyKeys = [
 			'code_verifier',
-			'oauth_v3_code_verifier', 
+			'oauth_v3_code_verifier',
 			`${flowKey}_code_verifier`,
 			`${flowKey}_v3_code_verifier`,
-			'oauth_code_verifier'
+			'oauth_code_verifier',
 		];
-		legacyKeys.forEach(key => sessionStorage.removeItem(key));
-		
+		legacyKeys.forEach((key) => sessionStorage.removeItem(key));
+
 		console.log('✅ [useAuthorizationCodeFlowController] PKCE codes cleared');
 		showGlobalSuccess('PKCE codes cleared', {
 			description: 'Generate new PKCE codes to start a fresh authorization flow.',

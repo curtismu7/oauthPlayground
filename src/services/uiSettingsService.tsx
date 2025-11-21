@@ -1,7 +1,7 @@
 // src/services/uiSettingsService.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { FiExternalLink, FiKey, FiRefreshCw, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiSettings, FiToggleLeft, FiToggleRight, FiRefreshCw, FiKey, FiExternalLink, FiShield } from 'react-icons/fi';
 import { CollapsibleHeader } from './collapsibleHeaderService';
 
 // Styled components for the UI Settings panel
@@ -13,7 +13,6 @@ const SettingsPanel = styled.div`
 	margin-bottom: 2rem;
 	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 `;
-
 
 const SettingItem = styled.div`
 	display: flex;
@@ -52,11 +51,10 @@ const SettingDescription = styled.div`
 `;
 
 const ToggleButton = styled.button<{ $active: boolean }>`
-	background: ${({ $active }) => 
-		$active 
-			? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-			: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)'
-	};
+	background: ${({ $active }) =>
+		$active
+			? 'linear-gradient(135deg, #10b981 0%, #059669 100%)'
+			: 'linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%)'};
 	border: none;
 	border-radius: 1.5rem;
 	width: 3rem;
@@ -64,11 +62,8 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 	position: relative;
 	cursor: pointer;
 	transition: all 0.2s ease;
-	box-shadow: ${({ $active }) => 
-		$active 
-			? '0 2px 4px rgba(16, 185, 129, 0.3)' 
-			: '0 1px 2px rgba(0, 0, 0, 0.1)'
-	};
+	box-shadow: ${({ $active }) =>
+		$active ? '0 2px 4px rgba(16, 185, 129, 0.3)' : '0 1px 2px rgba(0, 0, 0, 0.1)'};
 
 	&:hover {
 		transform: scale(1.05);
@@ -82,7 +77,7 @@ const ToggleButton = styled.button<{ $active: boolean }>`
 		content: '';
 		position: absolute;
 		top: 0.125rem;
-		left: ${({ $active }) => $active ? '1.375rem' : '0.125rem'};
+		left: ${({ $active }) => ($active ? '1.375rem' : '0.125rem')};
 		width: 1.25rem;
 		height: 1.25rem;
 		background: white;
@@ -162,7 +157,13 @@ const SETTINGS_CONFIG = [
 		label: 'Authorization URL Auto-Generation',
 		description: 'Automatically generate authorization URL when PKCE codes are ready',
 		icon: FiExternalLink,
-		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid', 'oauth-implicit', 'oidc-implicit'], // Flows with authorization URLs
+		flows: [
+			'oauth-authorization-code',
+			'oidc-authorization-code',
+			'oidc-hybrid',
+			'oauth-implicit',
+			'oidc-implicit',
+		], // Flows with authorization URLs
 	},
 	{
 		key: 'tokenAutoExchange' as keyof UISettings,
@@ -176,7 +177,13 @@ const SETTINGS_CONFIG = [
 		label: 'State Auto-Generation',
 		description: 'Automatically generate state parameter for requests',
 		icon: FiRefreshCw,
-		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid', 'oauth-implicit', 'oidc-implicit'], // All flows with authorization requests
+		flows: [
+			'oauth-authorization-code',
+			'oidc-authorization-code',
+			'oidc-hybrid',
+			'oauth-implicit',
+			'oidc-implicit',
+		], // All flows with authorization requests
 	},
 	{
 		key: 'nonceAutoGenerate' as keyof UISettings,
@@ -190,7 +197,13 @@ const SETTINGS_CONFIG = [
 		label: 'Redirect Auto-Open',
 		description: 'Automatically open authentication modal when URL is ready',
 		icon: FiExternalLink,
-		flows: ['oauth-authorization-code', 'oidc-authorization-code', 'oidc-hybrid', 'oauth-implicit', 'oidc-implicit'], // Flows with authorization URLs
+		flows: [
+			'oauth-authorization-code',
+			'oidc-authorization-code',
+			'oidc-hybrid',
+			'oauth-implicit',
+			'oidc-implicit',
+		], // Flows with authorization URLs
 	},
 	{
 		key: 'devicePollingAutoStart' as keyof UISettings,
@@ -211,28 +224,31 @@ const SETTINGS_CONFIG = [
 // Flow-specific settings filters
 const getFlowSpecificSettings = (flowType?: string) => {
 	if (!flowType) return SETTINGS_CONFIG;
-	
-	const filteredSettings = SETTINGS_CONFIG.filter(config => 
-		config.flows.some(flow => flowType.includes(flow))
+
+	const filteredSettings = SETTINGS_CONFIG.filter((config) =>
+		config.flows.some((flow) => flowType.includes(flow))
 	);
-	
+
 	// If no settings match, show a message for device flows
 	if (filteredSettings.length === 0 && flowType.includes('device-authorization')) {
-		return [{
-			key: 'devicePollingAutoStart' as keyof UISettings,
-			label: 'Device Polling Auto-Start',
-			description: 'Automatically start polling for device authorization tokens',
-			icon: FiRefreshCw,
-			flows: ['device-authorization'],
-		}, {
-			key: 'devicePollingAutoScroll' as keyof UISettings,
-			label: 'Device Polling Auto-Scroll',
-			description: 'Automatically scroll to Smart TV display when polling starts',
-			icon: FiExternalLink,
-			flows: ['device-authorization'],
-		}];
+		return [
+			{
+				key: 'devicePollingAutoStart' as keyof UISettings,
+				label: 'Device Polling Auto-Start',
+				description: 'Automatically start polling for device authorization tokens',
+				icon: FiRefreshCw,
+				flows: ['device-authorization'],
+			},
+			{
+				key: 'devicePollingAutoScroll' as keyof UISettings,
+				label: 'Device Polling Auto-Scroll',
+				description: 'Automatically scroll to Smart TV display when polling starts',
+				icon: FiExternalLink,
+				flows: ['device-authorization'],
+			},
+		];
 	}
-	
+
 	return filteredSettings;
 };
 
@@ -259,9 +275,7 @@ export const UISettingsPanel: React.FC<{ flowType?: string }> = ({ flowType }) =
 									</SettingIcon>
 									{config.label}
 								</SettingLabel>
-								<SettingDescription>
-									{config.description}
-								</SettingDescription>
+								<SettingDescription>{config.description}</SettingDescription>
 							</SettingInfo>
 							<ToggleButton
 								$active={settings[config.key]}
@@ -315,7 +329,7 @@ export class UISettingsService {
 		console.log(`[UISettingsService] isEnabled('${setting}'):`, {
 			setting,
 			isEnabled,
-			allSettings: settings
+			allSettings: settings,
 		});
 		return isEnabled;
 	}

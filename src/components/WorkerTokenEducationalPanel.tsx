@@ -96,16 +96,16 @@ const CalloutBox = styled.div`
 
 /**
  * WorkerTokenEducationalPanel Component
- * 
+ *
  * Displays educational content about PingOne Worker Tokens, including:
  * - What worker tokens are and their purpose
  * - Authorization model (PingOne Roles vs OAuth Scopes)
  * - Token types (what's included/excluded)
  * - Appropriate use cases
- * 
+ *
  * @example
  * ```tsx
- * <WorkerTokenEducationalPanel 
+ * <WorkerTokenEducationalPanel
  *   variant="full"
  *   showAuthorizationModel={true}
  *   showTokenTypes={true}
@@ -122,21 +122,24 @@ const WorkerTokenEducationalPanel: React.FC<WorkerTokenEducationalPanelProps> = 
 }) => {
 	const isFullVariant = variant === 'full';
 	const shouldShowTokenTypes = showTokenTypes && isFullVariant;
-	const shouldShowAuthorizationModel = showAuthorizationModel && (isFullVariant || variant === 'compact');
+	const shouldShowAuthorizationModel =
+		showAuthorizationModel && (isFullVariant || variant === 'compact');
 	const shouldShowUseCases = showUseCases && isFullVariant;
 
 	return (
 		<PanelContainer className={className}>
-			<PanelTitle>
-				🔑 About Worker Tokens
-			</PanelTitle>
-			
+			<PanelTitle>🔑 About Worker Tokens</PanelTitle>
+
 			<PanelContent>
 				{/* Overview Section */}
 				<PanelParagraph>
-					<strong>Worker tokens are special access tokens for PingOne Management API operations.</strong> They use the OAuth 2.0 Client Credentials flow and are designed for server-to-server authentication.
+					<strong>
+						Worker tokens are special access tokens for PingOne Management API operations.
+					</strong>{' '}
+					They use the OAuth 2.0 Client Credentials flow and are designed for server-to-server
+					authentication.
 				</PanelParagraph>
-				
+
 				{/* Token Types Section */}
 				{shouldShowTokenTypes && (
 					<SectionGrid>
@@ -157,7 +160,7 @@ const WorkerTokenEducationalPanel: React.FC<WorkerTokenEducationalPanelProps> = 
 								</ListItem>
 							</List>
 						</Section>
-						
+
 						<Section>
 							<SectionTitle>❌ What you don't get:</SectionTitle>
 							<List>
@@ -177,13 +180,15 @@ const WorkerTokenEducationalPanel: React.FC<WorkerTokenEducationalPanelProps> = 
 						</Section>
 					</SectionGrid>
 				)}
-				
+
 				{/* Authorization Model Section */}
 				{shouldShowAuthorizationModel && (
 					<CalloutBox>
 						<SectionTitle>🔐 Authorization:</SectionTitle>
 						<span>
-							Worker tokens don't use scopes for permissions. Instead, they use <strong>PingOne Roles</strong> assigned to the application. Configure roles in the PingOne Admin Console under your application's settings.
+							Worker tokens don't use scopes for permissions. Instead, they use{' '}
+							<strong>PingOne Roles</strong> assigned to the application. Configure roles in the
+							PingOne Admin Console under your application's settings.
 						</span>
 					</CalloutBox>
 				)}
@@ -200,11 +205,15 @@ const WorkerTokenEducationalPanel: React.FC<WorkerTokenEducationalPanelProps> = 
 								</ListItem>
 								<ListItem>
 									<FiShield size={16} />
-									<span>Secure server-side jobs that must enforce PingOne administrative policies</span>
+									<span>
+										Secure server-side jobs that must enforce PingOne administrative policies
+									</span>
 								</ListItem>
 								<ListItem>
 									<FiCheckCircle size={16} />
-									<span>Integration services that need reliable, scoped access without user prompts</span>
+									<span>
+										Integration services that need reliable, scoped access without user prompts
+									</span>
 								</ListItem>
 							</List>
 						</Section>
@@ -214,15 +223,21 @@ const WorkerTokenEducationalPanel: React.FC<WorkerTokenEducationalPanelProps> = 
 							<List>
 								<ListItem>
 									<FiAlertCircle size={16} />
-									<span>Client-side or mobile apps (client secrets must never ship to the browser)</span>
+									<span>
+										Client-side or mobile apps (client secrets must never ship to the browser)
+									</span>
 								</ListItem>
 								<ListItem>
 									<FiXCircle size={16} />
-									<span>User impersonation flows—worker tokens can't act on behalf of a person</span>
+									<span>
+										User impersonation flows—worker tokens can't act on behalf of a person
+									</span>
 								</ListItem>
 								<ListItem>
 									<FiAlertCircle size={16} />
-									<span>Long-lived sessions—rotate tokens regularly instead of storing them indefinitely</span>
+									<span>
+										Long-lived sessions—rotate tokens regularly instead of storing them indefinitely
+									</span>
 								</ListItem>
 							</List>
 						</Section>
