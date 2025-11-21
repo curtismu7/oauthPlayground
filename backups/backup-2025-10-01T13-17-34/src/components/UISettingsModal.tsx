@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FiX, FiSun, FiMoon, FiType, FiSettings, FiEye, FiCode, FiCheck } from 'react-icons/fi';
+import { FiCheck, FiCode, FiEye, FiMoon, FiSettings, FiSun, FiType, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import { useUISettings } from '../contexts/UISettingsContext';
 

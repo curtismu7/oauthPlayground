@@ -1,287 +1,298 @@
-import { CodeCategory, CodeType, FlowStep, LanguageOption } from '../../components/InteractiveCodeEditor';
-import { PingSDKJavaScriptTemplates } from './templates/frontend/pingSDKTemplates';
-import { RestApiFetchTemplates, RestApiAxiosTemplates } from './templates/frontend/restApiTemplates';
-import { ReactTemplates } from './templates/frontend/reactTemplates';
-import { NextJsTemplates } from './templates/frontend/nextjsTemplates';
-import { AngularTemplates } from './templates/frontend/angularTemplates';
-import { VueTemplates } from './templates/frontend/vueTemplates';
+import {
+	CodeCategory,
+	CodeType,
+	FlowStep,
+	LanguageOption,
+} from '../../components/InteractiveCodeEditor';
 import { NodeJsTemplates, PythonTemplates } from './templates/backend/nodeTemplates';
-import { ReactNativeTemplates, FlutterTemplates } from './templates/mobile/mobileTemplates';
+import { AngularTemplates } from './templates/frontend/angularTemplates';
+import { NextJsTemplates } from './templates/frontend/nextjsTemplates';
+import { PingSDKJavaScriptTemplates } from './templates/frontend/pingSDKTemplates';
+import { ReactTemplates } from './templates/frontend/reactTemplates';
+import {
+	RestApiAxiosTemplates,
+	RestApiFetchTemplates,
+} from './templates/frontend/restApiTemplates';
+import { VueTemplates } from './templates/frontend/vueTemplates';
+import { FlutterTemplates, ReactNativeTemplates } from './templates/mobile/mobileTemplates';
 
 export interface CodeGenerationConfig {
-  category: CodeCategory;
-  codeType: CodeType;
-  flowStep: FlowStep;
-  language: LanguageOption;
-  config: {
-    environmentId: string;
-    clientId: string;
-    redirectUri: string;
-    userId: string;
-  };
+	category: CodeCategory;
+	codeType: CodeType;
+	flowStep: FlowStep;
+	language: LanguageOption;
+	config: {
+		environmentId: string;
+		clientId: string;
+		redirectUri: string;
+		userId: string;
+	};
 }
 
 export interface GeneratedCode {
-  code: string;
-  language: string;
-  dependencies: string[];
-  description: string;
-  notes?: string;
+	code: string;
+	language: string;
+	dependencies: string[];
+	description: string;
+	notes?: string;
 }
 
 export class CodeGenerationService {
-  generate(config: CodeGenerationConfig): GeneratedCode {
-    // Route to appropriate template based on category and type
-    const templateKey = `${config.category}-${config.codeType}`;
-    
-    switch (templateKey) {
-      // Frontend
-      case 'frontend-ping-sdk-js':
-        return this.generateFrontendPingSDK(config);
-      case 'frontend-rest-api-fetch':
-        return this.generateFrontendRestApiFetch(config);
-      case 'frontend-rest-api-axios':
-        return this.generateFrontendRestApiAxios(config);
-      case 'frontend-react':
-        return this.generateFrontendReact(config);
-      case 'frontend-next-js':
-        return this.generateFrontendNextJs(config);
-      case 'frontend-vanilla-js':
-        return this.generateFrontendVanillaJs(config);
-      case 'frontend-angular':
-        return this.generateFrontendAngular(config);
-      case 'frontend-vue':
-        return this.generateFrontendVue(config);
-      
-      // Backend
-      case 'backend-ping-sdk-node':
-      case 'backend-rest-api-node':
-        return this.generateBackendNodeJs(config);
-      case 'backend-python-requests':
-      case 'backend-python-sdk':
-        return this.generateBackendPython(config);
-      case 'backend-java-sdk':
-      case 'backend-go-http':
-      case 'backend-ruby-http':
-      case 'backend-csharp-http':
-        return this.generatePlaceholder(config); // TODO: Implement
-      
-      // Mobile
-      case 'mobile-ping-sdk-ios':
-        return this.generateMobilePingSDKiOS(config);
-      case 'mobile-ping-sdk-android':
-        return this.generateMobilePingSDKAndroid(config);
-      case 'mobile-react-native':
-        return this.generateMobileReactNative(config);
-      case 'mobile-flutter':
-        return this.generateMobileFlutter(config);
-      case 'mobile-swift-native':
-        return this.generateMobilePingSDKiOS(config); // Reuse iOS SDK
-      case 'mobile-kotlin-native':
-        return this.generateMobilePingSDKAndroid(config); // Reuse Android SDK
-      
-      default:
-        return this.generatePlaceholder(config);
-    }
-  }
+	generate(config: CodeGenerationConfig): GeneratedCode {
+		// Route to appropriate template based on category and type
+		const templateKey = `${config.category}-${config.codeType}`;
 
-  private generateFrontendPingSDK(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => PingSDKJavaScriptTemplates.authorization(userConfig),
-      workerToken: () => PingSDKJavaScriptTemplates.workerToken(userConfig),
-      deviceSelection: () => PingSDKJavaScriptTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => PingSDKJavaScriptTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => PingSDKJavaScriptTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => PingSDKJavaScriptTemplates.deviceRegistration(userConfig),
-    };
+		switch (templateKey) {
+			// Frontend
+			case 'frontend-ping-sdk-js':
+				return this.generateFrontendPingSDK(config);
+			case 'frontend-rest-api-fetch':
+				return this.generateFrontendRestApiFetch(config);
+			case 'frontend-rest-api-axios':
+				return this.generateFrontendRestApiAxios(config);
+			case 'frontend-react':
+				return this.generateFrontendReact(config);
+			case 'frontend-next-js':
+				return this.generateFrontendNextJs(config);
+			case 'frontend-vanilla-js':
+				return this.generateFrontendVanillaJs(config);
+			case 'frontend-angular':
+				return this.generateFrontendAngular(config);
+			case 'frontend-vue':
+				return this.generateFrontendVue(config);
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: flowStep === 'authorization' ? ['@pingidentity/pingone-js-sdk'] : [],
-      description: this.getStepDescription(flowStep, 'Ping SDK JavaScript'),
-    };
-  }
+			// Backend
+			case 'backend-ping-sdk-node':
+			case 'backend-rest-api-node':
+				return this.generateBackendNodeJs(config);
+			case 'backend-python-requests':
+			case 'backend-python-sdk':
+				return this.generateBackendPython(config);
+			case 'backend-java-sdk':
+			case 'backend-go-http':
+			case 'backend-ruby-http':
+			case 'backend-csharp-http':
+				return this.generatePlaceholder(config); // TODO: Implement
 
-  private generateFrontendRestApiFetch(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => RestApiFetchTemplates.authorization(userConfig),
-      workerToken: () => RestApiFetchTemplates.workerToken(userConfig),
-      deviceSelection: () => RestApiFetchTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => RestApiFetchTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => RestApiFetchTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => RestApiFetchTemplates.deviceRegistration(userConfig),
-    };
+			// Mobile
+			case 'mobile-ping-sdk-ios':
+				return this.generateMobilePingSDKiOS(config);
+			case 'mobile-ping-sdk-android':
+				return this.generateMobilePingSDKAndroid(config);
+			case 'mobile-react-native':
+				return this.generateMobileReactNative(config);
+			case 'mobile-flutter':
+				return this.generateMobileFlutter(config);
+			case 'mobile-swift-native':
+				return this.generateMobilePingSDKiOS(config); // Reuse iOS SDK
+			case 'mobile-kotlin-native':
+				return this.generateMobilePingSDKAndroid(config); // Reuse Android SDK
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: [],
-      description: this.getStepDescription(flowStep, 'REST API (Fetch)'),
-    };
-  }
+			default:
+				return this.generatePlaceholder(config);
+		}
+	}
 
-  private generateFrontendRestApiAxios(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => RestApiAxiosTemplates.authorization(userConfig),
-      workerToken: () => RestApiAxiosTemplates.workerToken(userConfig),
-      deviceSelection: () => RestApiAxiosTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => RestApiAxiosTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => RestApiAxiosTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => RestApiAxiosTemplates.deviceRegistration(userConfig),
-    };
+	private generateFrontendPingSDK(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => PingSDKJavaScriptTemplates.authorization(userConfig),
+			workerToken: () => PingSDKJavaScriptTemplates.workerToken(userConfig),
+			deviceSelection: () => PingSDKJavaScriptTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => PingSDKJavaScriptTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => PingSDKJavaScriptTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => PingSDKJavaScriptTemplates.deviceRegistration(userConfig),
+		};
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: ['axios'],
-      description: this.getStepDescription(flowStep, 'REST API (Axios)'),
-    };
-  }
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: flowStep === 'authorization' ? ['@pingidentity/pingone-js-sdk'] : [],
+			description: this.getStepDescription(flowStep, 'Ping SDK JavaScript'),
+		};
+	}
 
-  private generateFrontendReact(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => ReactTemplates.authorization(userConfig),
-      workerToken: () => ReactTemplates.workerToken(userConfig),
-      deviceSelection: () => ReactTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => ReactTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => ReactTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => ReactTemplates.deviceRegistration(userConfig),
-    };
+	private generateFrontendRestApiFetch(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => RestApiFetchTemplates.authorization(userConfig),
+			workerToken: () => RestApiFetchTemplates.workerToken(userConfig),
+			deviceSelection: () => RestApiFetchTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => RestApiFetchTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => RestApiFetchTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => RestApiFetchTemplates.deviceRegistration(userConfig),
+		};
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: ['react', 'react-dom'],
-      description: this.getStepDescription(flowStep, 'React'),
-    };
-  }
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: [],
+			description: this.getStepDescription(flowStep, 'REST API (Fetch)'),
+		};
+	}
 
-  private generateFrontendNextJs(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => NextJsTemplates.authorization(userConfig),
-      workerToken: () => NextJsTemplates.workerToken(userConfig),
-      deviceSelection: () => NextJsTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => NextJsTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => NextJsTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => NextJsTemplates.deviceRegistration(userConfig),
-    };
+	private generateFrontendRestApiAxios(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => RestApiAxiosTemplates.authorization(userConfig),
+			workerToken: () => RestApiAxiosTemplates.workerToken(userConfig),
+			deviceSelection: () => RestApiAxiosTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => RestApiAxiosTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => RestApiAxiosTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => RestApiAxiosTemplates.deviceRegistration(userConfig),
+		};
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: ['next', 'react', 'react-dom'],
-      description: this.getStepDescription(flowStep, 'Next.js'),
-    };
-  }
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: ['axios'],
+			description: this.getStepDescription(flowStep, 'REST API (Axios)'),
+		};
+	}
 
-  private generateFrontendVanillaJs(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    
-    // Vanilla JS uses the same templates as REST API Fetch (no framework)
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => RestApiFetchTemplates.authorization(userConfig),
-      workerToken: () => RestApiFetchTemplates.workerToken(userConfig),
-      deviceSelection: () => RestApiFetchTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => RestApiFetchTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => RestApiFetchTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => RestApiFetchTemplates.deviceRegistration(userConfig),
-    };
+	private generateFrontendReact(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => ReactTemplates.authorization(userConfig),
+			workerToken: () => ReactTemplates.workerToken(userConfig),
+			deviceSelection: () => ReactTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => ReactTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => ReactTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => ReactTemplates.deviceRegistration(userConfig),
+		};
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'javascript',
-      dependencies: [],
-      description: this.getStepDescription(flowStep, 'Vanilla JavaScript'),
-    };
-  }
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: ['react', 'react-dom'],
+			description: this.getStepDescription(flowStep, 'React'),
+		};
+	}
 
-  private generateFrontendAngular(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => AngularTemplates.authorization(userConfig),
-      workerToken: () => AngularTemplates.workerToken(userConfig),
-      deviceSelection: () => AngularTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => AngularTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => AngularTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => AngularTemplates.deviceRegistration(userConfig),
-    };
+	private generateFrontendNextJs(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => NextJsTemplates.authorization(userConfig),
+			workerToken: () => NextJsTemplates.workerToken(userConfig),
+			deviceSelection: () => NextJsTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => NextJsTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => NextJsTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => NextJsTemplates.deviceRegistration(userConfig),
+		};
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: ['@angular/core', '@angular/common', '@angular/common/http', 'rxjs'],
-      description: this.getStepDescription(flowStep, 'Angular'),
-    };
-  }
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: ['next', 'react', 'react-dom'],
+			description: this.getStepDescription(flowStep, 'Next.js'),
+		};
+	}
 
-  private generateFrontendVue(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => VueTemplates.authorization(userConfig),
-      workerToken: () => VueTemplates.workerToken(userConfig),
-      deviceSelection: () => VueTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => VueTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => VueTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => VueTemplates.deviceRegistration(userConfig),
-    };
+	private generateFrontendVanillaJs(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: ['vue', 'pinia'],
-      description: this.getStepDescription(flowStep, 'Vue.js'),
-    };
-  }
+		// Vanilla JS uses the same templates as REST API Fetch (no framework)
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => RestApiFetchTemplates.authorization(userConfig),
+			workerToken: () => RestApiFetchTemplates.workerToken(userConfig),
+			deviceSelection: () => RestApiFetchTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => RestApiFetchTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => RestApiFetchTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => RestApiFetchTemplates.deviceRegistration(userConfig),
+		};
 
-  private generateBackendNodeJs(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => NodeJsTemplates.authorization(userConfig),
-      workerToken: () => NodeJsTemplates.workerToken(userConfig),
-      deviceSelection: () => NodeJsTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => NodeJsTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => NodeJsTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => NodeJsTemplates.deviceRegistration(userConfig),
-    };
+		return {
+			code: stepMap[flowStep](),
+			language: 'javascript',
+			dependencies: [],
+			description: this.getStepDescription(flowStep, 'Vanilla JavaScript'),
+		};
+	}
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'javascript',
-      dependencies: flowStep === 'authorization' ? ['express', 'express-session', 'node-fetch'] : ['node-fetch'],
-      description: this.getStepDescription(flowStep, 'Node.js Backend'),
-    };
-  }
+	private generateFrontendAngular(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => AngularTemplates.authorization(userConfig),
+			workerToken: () => AngularTemplates.workerToken(userConfig),
+			deviceSelection: () => AngularTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => AngularTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => AngularTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => AngularTemplates.deviceRegistration(userConfig),
+		};
 
-  private generateBackendPython(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => PythonTemplates.authorization(userConfig),
-      workerToken: () => PythonTemplates.workerToken(userConfig),
-      deviceSelection: () => PythonTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => PythonTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => PythonTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => PythonTemplates.deviceRegistration(userConfig),
-    };
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: ['@angular/core', '@angular/common', '@angular/common/http', 'rxjs'],
+			description: this.getStepDescription(flowStep, 'Angular'),
+		};
+	}
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'python',
-      dependencies: flowStep === 'authorization' ? ['flask', 'requests'] : ['requests'],
-      description: this.getStepDescription(flowStep, 'Python Backend'),
-    };
-  }
+	private generateFrontendVue(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => VueTemplates.authorization(userConfig),
+			workerToken: () => VueTemplates.workerToken(userConfig),
+			deviceSelection: () => VueTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => VueTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => VueTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => VueTemplates.deviceRegistration(userConfig),
+		};
 
-  private generateMobilePingSDKiOS(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    
-    const templates: Record<FlowStep, string> = {
-      authorization: `import PingOneSDK
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: ['vue', 'pinia'],
+			description: this.getStepDescription(flowStep, 'Vue.js'),
+		};
+	}
+
+	private generateBackendNodeJs(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => NodeJsTemplates.authorization(userConfig),
+			workerToken: () => NodeJsTemplates.workerToken(userConfig),
+			deviceSelection: () => NodeJsTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => NodeJsTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => NodeJsTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => NodeJsTemplates.deviceRegistration(userConfig),
+		};
+
+		return {
+			code: stepMap[flowStep](),
+			language: 'javascript',
+			dependencies:
+				flowStep === 'authorization'
+					? ['express', 'express-session', 'node-fetch']
+					: ['node-fetch'],
+			description: this.getStepDescription(flowStep, 'Node.js Backend'),
+		};
+	}
+
+	private generateBackendPython(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => PythonTemplates.authorization(userConfig),
+			workerToken: () => PythonTemplates.workerToken(userConfig),
+			deviceSelection: () => PythonTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => PythonTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => PythonTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => PythonTemplates.deviceRegistration(userConfig),
+		};
+
+		return {
+			code: stepMap[flowStep](),
+			language: 'python',
+			dependencies: flowStep === 'authorization' ? ['flask', 'requests'] : ['requests'],
+			description: this.getStepDescription(flowStep, 'Python Backend'),
+		};
+	}
+
+	private generateMobilePingSDKiOS(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+
+		const templates: Record<FlowStep, string> = {
+			authorization: `import PingOneSDK
 
 // Initialize PingOne SDK for iOS
 class AuthenticationManager {
@@ -319,7 +330,7 @@ class AuthenticationManager {
         KeychainHelper.save(tokens.idToken, forKey: "id_token")
     }
 }`,
-      workerToken: `import PingOneSDK
+			workerToken: `import PingOneSDK
 
 // Get worker token for Management API access
 class WorkerTokenManager {
@@ -361,7 +372,7 @@ class WorkerTokenManager {
         }.resume()
     }
 }`,
-      deviceSelection: `import PingOneSDK
+			deviceSelection: `import PingOneSDK
 
 // List and select MFA devices
 class DeviceManager {
@@ -410,7 +421,7 @@ struct DevicesResponse: Codable {
         let devices: [MFADevice]
     }
 }`,
-      mfaChallenge: `import PingOneSDK
+			mfaChallenge: `import PingOneSDK
 
 // Send MFA challenge
 class MFAChallengeManager {
@@ -449,7 +460,7 @@ class MFAChallengeManager {
         }.resume()
     }
 }`,
-      mfaVerification: `import PingOneSDK
+			mfaVerification: `import PingOneSDK
 
 // Verify MFA code
 class MFAVerificationManager {
@@ -481,7 +492,7 @@ class MFAVerificationManager {
         }.resume()
     }
 }`,
-      deviceRegistration: `import PingOneSDK
+			deviceRegistration: `import PingOneSDK
 
 // Register new MFA device
 class DeviceRegistrationManager {
@@ -530,21 +541,21 @@ class DeviceRegistrationManager {
         }.resume()
     }
 }`,
-    };
-    
-    return {
-      code: templates[flowStep],
-      language: 'swift',
-      dependencies: flowStep === 'authorization' ? ['PingOneSDK'] : [],
-      description: this.getStepDescription(flowStep, 'Ping SDK iOS (Swift)'),
-    };
-  }
+		};
 
-  private generateMobilePingSDKAndroid(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    
-    const templates: Record<FlowStep, string> = {
-      authorization: `import com.pingidentity.pingone.PingOne
+		return {
+			code: templates[flowStep],
+			language: 'swift',
+			dependencies: flowStep === 'authorization' ? ['PingOneSDK'] : [],
+			description: this.getStepDescription(flowStep, 'Ping SDK iOS (Swift)'),
+		};
+	}
+
+	private generateMobilePingSDKAndroid(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+
+		const templates: Record<FlowStep, string> = {
+			authorization: `import com.pingidentity.pingone.PingOne
 import com.pingidentity.pingone.PingOneSDKConfiguration
 
 // Initialize PingOne SDK for Android
@@ -591,7 +602,7 @@ class AuthenticationManager(private val context: Context) {
         }
     }
 }`,
-      workerToken: `import okhttp3.*
+			workerToken: `import okhttp3.*
 import org.json.JSONObject
 
 // Get worker token for Management API access
@@ -634,7 +645,7 @@ class WorkerTokenManager {
         })
     }
 }`,
-      deviceSelection: `import okhttp3.*
+			deviceSelection: `import okhttp3.*
 import org.json.JSONObject
 import org.json.JSONArray
 
@@ -689,7 +700,7 @@ data class MFADevice(
     val type: String,
     val status: String
 )`,
-      mfaChallenge: `import okhttp3.*
+			mfaChallenge: `import okhttp3.*
 import org.json.JSONObject
 
 // Send MFA challenge
@@ -727,7 +738,7 @@ class MFAChallengeManager {
         })
     }
 }`,
-      mfaVerification: `import okhttp3.*
+			mfaVerification: `import okhttp3.*
 import org.json.JSONObject
 
 // Verify MFA code
@@ -766,7 +777,7 @@ class MFAVerificationManager {
         })
     }
 }`,
-      deviceRegistration: `import okhttp3.*
+			deviceRegistration: `import okhttp3.*
 import org.json.JSONObject
 
 // Register new MFA device
@@ -821,71 +832,77 @@ class DeviceRegistrationManager {
         })
     }
 }`,
-    };
-    
-    return {
-      code: templates[flowStep],
-      language: 'kotlin',
-      dependencies: flowStep === 'authorization' ? ['com.pingidentity:pingone-android-sdk'] : ['com.squareup.okhttp3:okhttp'],
-      description: this.getStepDescription(flowStep, 'Ping SDK Android (Kotlin)'),
-    };
-  }
+		};
 
-  private generateMobileReactNative(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => ReactNativeTemplates.authorization(userConfig),
-      workerToken: () => ReactNativeTemplates.workerToken(userConfig),
-      deviceSelection: () => ReactNativeTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => ReactNativeTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => ReactNativeTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => ReactNativeTemplates.deviceRegistration(userConfig),
-    };
+		return {
+			code: templates[flowStep],
+			language: 'kotlin',
+			dependencies:
+				flowStep === 'authorization'
+					? ['com.pingidentity:pingone-android-sdk']
+					: ['com.squareup.okhttp3:okhttp'],
+			description: this.getStepDescription(flowStep, 'Ping SDK Android (Kotlin)'),
+		};
+	}
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'typescript',
-      dependencies: ['react-native', 'expo-auth-session', 'expo-crypto', '@react-native-async-storage/async-storage'],
-      description: this.getStepDescription(flowStep, 'React Native'),
-    };
-  }
+	private generateMobileReactNative(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => ReactNativeTemplates.authorization(userConfig),
+			workerToken: () => ReactNativeTemplates.workerToken(userConfig),
+			deviceSelection: () => ReactNativeTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => ReactNativeTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => ReactNativeTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => ReactNativeTemplates.deviceRegistration(userConfig),
+		};
 
-  private generateMobileFlutter(config: CodeGenerationConfig): GeneratedCode {
-    const { flowStep, config: userConfig } = config;
-    const stepMap: Record<FlowStep, () => string> = {
-      authorization: () => FlutterTemplates.authorization(userConfig),
-      workerToken: () => FlutterTemplates.workerToken(userConfig),
-      deviceSelection: () => FlutterTemplates.deviceSelection(userConfig),
-      mfaChallenge: () => FlutterTemplates.mfaChallenge(userConfig),
-      mfaVerification: () => FlutterTemplates.mfaVerification(userConfig),
-      deviceRegistration: () => FlutterTemplates.deviceRegistration(userConfig),
-    };
+		return {
+			code: stepMap[flowStep](),
+			language: 'typescript',
+			dependencies: [
+				'react-native',
+				'expo-auth-session',
+				'expo-crypto',
+				'@react-native-async-storage/async-storage',
+			],
+			description: this.getStepDescription(flowStep, 'React Native'),
+		};
+	}
 
-    return {
-      code: stepMap[flowStep](),
-      language: 'dart',
-      dependencies: ['http', 'flutter_secure_storage', 'crypto'],
-      description: this.getStepDescription(flowStep, 'Flutter'),
-    };
-  }
+	private generateMobileFlutter(config: CodeGenerationConfig): GeneratedCode {
+		const { flowStep, config: userConfig } = config;
+		const stepMap: Record<FlowStep, () => string> = {
+			authorization: () => FlutterTemplates.authorization(userConfig),
+			workerToken: () => FlutterTemplates.workerToken(userConfig),
+			deviceSelection: () => FlutterTemplates.deviceSelection(userConfig),
+			mfaChallenge: () => FlutterTemplates.mfaChallenge(userConfig),
+			mfaVerification: () => FlutterTemplates.mfaVerification(userConfig),
+			deviceRegistration: () => FlutterTemplates.deviceRegistration(userConfig),
+		};
 
-  private getStepDescription(step: FlowStep, platform: string): string {
-    const descriptions: Record<FlowStep, string> = {
-      authorization: `${platform} - OAuth 2.0 Authorization Code Flow with PKCE`,
-      workerToken: `${platform} - Get worker token using client credentials`,
-      deviceSelection: `${platform} - List and select MFA devices for user`,
-      mfaChallenge: `${platform} - Send MFA challenge code to device`,
-      mfaVerification: `${platform} - Verify MFA code entered by user`,
-      deviceRegistration: `${platform} - Register new MFA device for user`,
-    };
-    return descriptions[step];
-  }
+		return {
+			code: stepMap[flowStep](),
+			language: 'dart',
+			dependencies: ['http', 'flutter_secure_storage', 'crypto'],
+			description: this.getStepDescription(flowStep, 'Flutter'),
+		};
+	}
 
+	private getStepDescription(step: FlowStep, platform: string): string {
+		const descriptions: Record<FlowStep, string> = {
+			authorization: `${platform} - OAuth 2.0 Authorization Code Flow with PKCE`,
+			workerToken: `${platform} - Get worker token using client credentials`,
+			deviceSelection: `${platform} - List and select MFA devices for user`,
+			mfaChallenge: `${platform} - Send MFA challenge code to device`,
+			mfaVerification: `${platform} - Verify MFA code entered by user`,
+			deviceRegistration: `${platform} - Register new MFA device for user`,
+		};
+		return descriptions[step];
+	}
 
-
-  private generatePlaceholder(config: CodeGenerationConfig): GeneratedCode {
-    return {
-      code: `// ${config.category} - ${config.codeType} - ${config.flowStep}
+	private generatePlaceholder(config: CodeGenerationConfig): GeneratedCode {
+		return {
+			code: `// ${config.category} - ${config.codeType} - ${config.flowStep}
 // 
 // This code template is coming soon!
 // 
@@ -896,10 +913,10 @@ class DeviceRegistrationManager {
 // - User ID: ${config.config.userId}
 
 console.log('Template not yet implemented for ${config.codeType}');`,
-      language: 'typescript',
-      dependencies: [],
-      description: `Template for ${config.codeType} - ${config.flowStep} (Coming Soon)`,
-      notes: 'This template is under development',
-    };
-  }
+			language: 'typescript',
+			dependencies: [],
+			description: `Template for ${config.codeType} - ${config.flowStep} (Coming Soon)`,
+			notes: 'This template is under development',
+		};
+	}
 }

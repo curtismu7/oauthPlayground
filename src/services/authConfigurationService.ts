@@ -1,9 +1,10 @@
 // src/services/authConfigurationService.ts
+
+import type { AuthAppConfig } from '../types/auth';
 import { credentialManager } from '../utils/credentialManager';
 import { logger } from '../utils/logger';
-import { pingOneConfigService } from './pingoneConfigService';
 import { loadFlowCredentialsIsolated } from './flowCredentialService';
-import type { AuthAppConfig } from '../types/auth';
+import { pingOneConfigService } from './pingoneConfigService';
 
 interface WindowWithPingOne extends Window {
 	__PINGONE_ENVIRONMENT_ID__?: string;
@@ -66,23 +67,20 @@ const buildConfigFromCredentials = (
 	defaultRedirect?: string
 ): AuthAppConfig => {
 	const environmentId = (credentials.environmentId ?? '') as string;
-	const redirectUri =
-		(credentials.redirectUri ??
-			credentials.postLogoutRedirectUri ??
-			defaultRedirect ??
-			`${getOrigin()}/authz-callback`) as string;
+	const redirectUri = (credentials.redirectUri ??
+		credentials.postLogoutRedirectUri ??
+		defaultRedirect ??
+		`${getOrigin()}/authz-callback`) as string;
 
 	const endpoints = buildEndpoints(environmentId);
 
-	const authorizationEndpoint =
-		(credentials.authorizationEndpoint ??
-			credentials.authEndpoint ??
-			endpoints.authorizationEndpoint) as string;
+	const authorizationEndpoint = (credentials.authorizationEndpoint ??
+		credentials.authEndpoint ??
+		endpoints.authorizationEndpoint) as string;
 	const tokenEndpoint = (credentials.tokenEndpoint ?? endpoints.tokenEndpoint) as string;
-	const userInfoEndpoint =
-		(credentials.userInfoEndpoint ?? endpoints.userInfoEndpoint) as string;
-	const endSessionEndpoint =
-		(credentials.endSessionEndpoint ?? endpoints.endSessionEndpoint) as string;
+	const userInfoEndpoint = (credentials.userInfoEndpoint ?? endpoints.userInfoEndpoint) as string;
+	const endSessionEndpoint = (credentials.endSessionEndpoint ??
+		endpoints.endSessionEndpoint) as string;
 
 	return {
 		disableLogin: false,
@@ -93,10 +91,10 @@ const buildConfigFromCredentials = (
 		tokenEndpoint,
 		userInfoEndpoint,
 		endSessionEndpoint,
-		scopes:
-			(credentials.scopes ??
-				credentials.scope ??
-				[...normaliseScopes(credentials.scopes ?? credentials.scope)]) as string[],
+		scopes: (credentials.scopes ??
+			credentials.scope ?? [
+				...normaliseScopes(credentials.scopes ?? credentials.scope),
+			]) as string[],
 		environmentId,
 		hasConfigError: false,
 		pingone: {
@@ -132,8 +130,7 @@ const buildEnvConfig = (): AuthAppConfig => {
 		disableLogin: false,
 		clientId: win?.__PINGONE_CLIENT_ID__ ?? '',
 		clientSecret: win?.__PINGONE_CLIENT_SECRET__ ?? '',
-		redirectUri:
-			win?.__PINGONE_REDIRECT_URI__ ?? `${getOrigin()}/authz-callback`,
+		redirectUri: win?.__PINGONE_REDIRECT_URI__ ?? `${getOrigin()}/authz-callback`,
 		authorizationEndpoint: '',
 		tokenEndpoint: '',
 		userInfoEndpoint: '',
@@ -348,5 +345,3 @@ export const subscribeToAuthConfigurationChanges = (
 };
 
 export const AUTH_CONFIGURATION_EVENT = CONFIG_CHANGE_EVENT;
-
-

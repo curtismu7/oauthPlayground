@@ -2,11 +2,11 @@
  * Comprehensive tests for secureTokenStorage implementation
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-	secureTokenStorage,
 	SecureTokenStorageImpl,
 	SimpleEncryption,
+	secureTokenStorage,
 } from '../utils/secureTokenStorage';
 import { OAuthTokens } from '../utils/tokenStorage';
 

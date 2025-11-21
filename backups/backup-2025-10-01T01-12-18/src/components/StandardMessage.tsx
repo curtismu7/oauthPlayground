@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
+import { FiAlertCircle, FiAlertTriangle, FiCheckCircle, FiInfo } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCheckCircle, FiAlertCircle, FiAlertTriangle, FiInfo } from 'react-icons/fi';
 
 export type MessageType = 'success' | 'error' | 'warning' | 'info';
 

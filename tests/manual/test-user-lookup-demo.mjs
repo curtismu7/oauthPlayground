@@ -28,7 +28,9 @@ console.log('');
 
 console.log('2️⃣  For email "cmuir@pingone.com":');
 console.log('   Method: GET with filter parameter');
-console.log('   Endpoint: GET /v1/environments/{envId}/users?filter=email%20eq%20%22cmuir%40pingone.com%22');
+console.log(
+	'   Endpoint: GET /v1/environments/{envId}/users?filter=email%20eq%20%22cmuir%40pingone.com%22'
+);
 console.log('   Headers:');
 console.log('     Authorization: Bearer {workerToken}');
 console.log('     Accept: application/json');
@@ -63,7 +65,9 @@ console.log('  4. Use the worker token to call the user lookup API');
 console.log('');
 
 console.log('📚 API Documentation:');
-console.log('  https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-read-all-scim-users-search');
+console.log(
+	'  https://apidocs.pingidentity.com/pingone/platform/v1/api/#post-read-all-scim-users-search'
+);
 console.log('');
 
 console.log('='.repeat(70));
@@ -76,27 +80,27 @@ async function testServerEndpoint() {
 	try {
 		const response = await fetch('http://localhost:3001/api/health');
 		const data = await response.json();
-		
+
 		if (response.ok && data.status === 'ok') {
 			console.log('✅ Server is running on http://localhost:3001');
 			console.log(`   Version: ${data.version}`);
 			console.log(`   Uptime: ${data.uptimeSeconds} seconds`);
 			console.log('');
-			
+
 			console.log('📡 User Lookup Endpoint:');
 			console.log('   POST http://localhost:3001/api/pingone/users/lookup');
 			console.log('   Body: { environmentId, accessToken, identifier }');
 			console.log('');
-			
+
 			console.log('💡 Example curl command (with valid worker token):');
 			console.log('');
 			console.log('curl -X POST http://localhost:3001/api/pingone/users/lookup \\');
 			console.log('  -H "Content-Type: application/json" \\');
-			console.log('  -d \'{');
+			console.log("  -d '{");
 			console.log(`    "environmentId": "${ENV_ID}",`);
 			console.log('    "accessToken": "YOUR_WORKER_TOKEN_HERE",');
 			console.log('    "identifier": "curtis7"');
-			console.log('  }\'');
+			console.log("  }'");
 			console.log('');
 		} else {
 			console.log('❌ Server health check failed');

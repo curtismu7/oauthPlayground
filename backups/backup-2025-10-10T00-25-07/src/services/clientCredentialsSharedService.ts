@@ -1,7 +1,7 @@
 // src/services/clientCredentialsSharedService.ts
 /**
  * Client Credentials Shared Service - V6 Service Architecture
- * 
+ *
  * Provides shared functionality for OAuth 2.0 Client Credentials Flow V6
  * Focuses on machine-to-machine authentication without user interaction
  */
@@ -32,7 +32,11 @@ const log = {
 };
 
 // Client authentication methods
-export type ClientAuthMethod = 'client_secret_basic' | 'client_secret_post' | 'private_key_jwt' | 'none';
+export type ClientAuthMethod =
+	| 'client_secret_basic'
+	| 'client_secret_post'
+	| 'private_key_jwt'
+	| 'none';
 
 export interface ClientCredentialsConfig {
 	authMethod: ClientAuthMethod;
@@ -71,7 +75,7 @@ export class ClientCredentialsDefaults {
 	 */
 	static getAuthMethodConfig(method: ClientAuthMethod): ClientCredentialsConfig {
 		const configs: Record<ClientAuthMethod, ClientCredentialsConfig> = {
-			'client_secret_basic': {
+			client_secret_basic: {
 				authMethod: 'client_secret_basic',
 				description: 'Client credentials sent in HTTP Basic Authorization header',
 				requiresClientSecret: true,
@@ -82,7 +86,7 @@ export class ClientCredentialsDefaults {
 					'Server-to-server communication',
 				],
 			},
-			'client_secret_post': {
+			client_secret_post: {
 				authMethod: 'client_secret_post',
 				description: 'Client credentials sent in request body',
 				requiresClientSecret: true,
@@ -93,7 +97,7 @@ export class ClientCredentialsDefaults {
 					'Simpler implementation requirements',
 				],
 			},
-			'private_key_jwt': {
+			private_key_jwt: {
 				authMethod: 'private_key_jwt',
 				description: 'JWT signed with client private key',
 				requiresClientSecret: false,
@@ -104,7 +108,7 @@ export class ClientCredentialsDefaults {
 					'Cryptographic authentication',
 				],
 			},
-			'none': {
+			none: {
 				authMethod: 'none',
 				description: 'No client authentication (public clients)',
 				requiresClientSecret: false,
@@ -155,7 +159,9 @@ export class ClientCredentialsDefaults {
 	 * Validate authentication method
 	 */
 	static validateAuthMethod(method: string): method is ClientAuthMethod {
-		return ['client_secret_basic', 'client_secret_post', 'private_key_jwt', 'none'].includes(method);
+		return ['client_secret_basic', 'client_secret_post', 'private_key_jwt', 'none'].includes(
+			method
+		);
 	}
 }
 
@@ -263,7 +269,10 @@ export class ClientCredentialsTokenRequest {
 		credentials: StepCredentials,
 		authMethod: ClientAuthMethod = 'client_secret_post'
 	): Promise<ClientCredentialsTokens> {
-		const { url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(credentials, authMethod);
+		const { url, headers, body } = ClientCredentialsTokenRequest.buildTokenRequest(
+			credentials,
+			authMethod
+		);
 
 		try {
 			const response = await fetch('/api/token-exchange', {
@@ -278,7 +287,7 @@ export class ClientCredentialsTokenRequest {
 			}
 
 			const tokenData = await response.json();
-			
+
 			log.success('Token request successful', {
 				hasAccessToken: !!tokenData.access_token,
 				tokenType: tokenData.token_type,
@@ -311,7 +320,7 @@ export class ClientCredentialsCollapsibleSections {
 		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 	) {
 		return (key: string) => {
-			setCollapsedSections(prev => ({
+			setCollapsedSections((prev) => ({
 				...prev,
 				[key]: !prev[key],
 			}));
@@ -325,7 +334,7 @@ export class ClientCredentialsCollapsibleSections {
 		key: string,
 		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 	): void {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[key]: !prev[key],
 		}));
@@ -348,7 +357,7 @@ export const ClientCredentialsEducationalContent = {
 		],
 	},
 	authMethods: {
-		'client_secret_basic': {
+		client_secret_basic: {
 			title: 'Client Secret Basic',
 			description: 'Most secure standard method using HTTP Basic Authentication',
 			benefits: [
@@ -357,7 +366,7 @@ export const ClientCredentialsEducationalContent = {
 				'Better security posture',
 			],
 		},
-		'client_secret_post': {
+		client_secret_post: {
 			title: 'Client Secret Post',
 			description: 'Credentials sent in request body parameters',
 			benefits: [
@@ -366,23 +375,15 @@ export const ClientCredentialsEducationalContent = {
 				'Widely supported',
 			],
 		},
-		'private_key_jwt': {
+		private_key_jwt: {
 			title: 'Private Key JWT',
 			description: 'Enhanced security using cryptographic JWT assertions',
-			benefits: [
-				'Highest security level',
-				'No shared secrets',
-				'Cryptographic proof of identity',
-			],
+			benefits: ['Highest security level', 'No shared secrets', 'Cryptographic proof of identity'],
 		},
-		'none': {
+		none: {
 			title: 'None (Public Client)',
 			description: 'No client authentication - for public clients only',
-			benefits: [
-				'Simplest approach',
-				'Suitable for development',
-				'No secret management required',
-			],
+			benefits: ['Simplest approach', 'Suitable for development', 'No secret management required'],
 		},
 	},
 	security: {

@@ -1,5 +1,5 @@
+import { createRemoteJWKSet, type JWTHeaderParameters, JWTVerifyOptions, jwtVerify } from 'jose';
 import { IdTokenPayload, UserInfo } from '../types/oauth';
-import { jwtVerify, createRemoteJWKSet, JWTVerifyOptions, type JWTHeaderParameters } from 'jose';
 
 // Client logging function for server.log
 const clientLog = async (message: string) => {

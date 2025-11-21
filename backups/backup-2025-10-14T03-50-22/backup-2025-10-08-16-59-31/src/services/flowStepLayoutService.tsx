@@ -21,7 +21,7 @@ export interface StepMetadata {
 const StepContainer = styled.div<{ $maxWidth?: string; $responsive?: boolean }>`
 	max-width: ${({ $maxWidth }) => $maxWidth || '1200px'};
 	margin: 0 auto;
-	padding: ${({ $responsive }) => $responsive ? '1rem' : '2rem'};
+	padding: ${({ $responsive }) => ($responsive ? '1rem' : '2rem')};
 
 	@media (max-width: 768px) {
 		padding: 1rem;
@@ -138,14 +138,14 @@ const CollapsibleToggleIcon = styled.div<{ $collapsed?: boolean }>`
 	width: 1.5rem;
 	height: 1.5rem;
 	transition: transform 0.2s ease;
-	transform: ${({ $collapsed }) => $collapsed ? 'rotate(-90deg)' : 'rotate(0deg)'};
+	transform: ${({ $collapsed }) => ($collapsed ? 'rotate(-90deg)' : 'rotate(0deg)')};
 	color: #666;
 `;
 
 const CollapsibleContent = styled.div<{ $collapsed: boolean }>`
-	padding: ${({ $collapsed }) => $collapsed ? '0' : '1.5rem'};
-	padding-top: ${({ $collapsed }) => $collapsed ? '0' : '0'};
-	max-height: ${({ $collapsed }) => $collapsed ? '0' : '1000px'};
+	padding: ${({ $collapsed }) => ($collapsed ? '0' : '1.5rem')};
+	padding-top: ${({ $collapsed }) => ($collapsed ? '0' : '0')};
+	max-height: ${({ $collapsed }) => ($collapsed ? '0' : '1000px')};
 	overflow: hidden;
 	transition: all 0.3s ease;
 `;
@@ -181,7 +181,7 @@ export const CollapsibleSectionComponent: React.FC<CollapsibleSectionProps> = ({
 	title,
 	children,
 	defaultCollapsed = false,
-	icon
+	icon,
 }) => {
 	const [isCollapsed, setIsCollapsed] = React.useState(defaultCollapsed);
 
@@ -193,14 +193,19 @@ export const CollapsibleSectionComponent: React.FC<CollapsibleSectionProps> = ({
 					{title}
 				</CollapsibleTitle>
 				<CollapsibleToggleIcon $collapsed={isCollapsed}>
-					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 24 24"
+						fill="none"
+						stroke="currentColor"
+						strokeWidth="2"
+					>
 						<polyline points="6,9 12,15 18,9"></polyline>
 					</svg>
 				</CollapsibleToggleIcon>
 			</CollapsibleHeaderButton>
-			<CollapsibleContent $collapsed={isCollapsed}>
-				{children}
-			</CollapsibleContent>
+			<CollapsibleContent $collapsed={isCollapsed}>{children}</CollapsibleContent>
 		</CollapsibleSection>
 	);
 };
@@ -224,7 +229,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 	onReset,
 	canNavigateNext = true,
 	canNavigatePrevious = true,
-	nextButtonText = 'Next'
+	nextButtonText = 'Next',
 }) => {
 	return (
 		<StepNavigationContainer>
@@ -241,7 +246,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 							color: 'white',
 							border: 'none',
 							borderRadius: '6px',
-							cursor: 'pointer'
+							cursor: 'pointer',
 						}}
 					>
 						Reset
@@ -257,7 +262,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 							color: 'white',
 							border: 'none',
 							borderRadius: '6px',
-							cursor: canNavigatePrevious ? 'pointer' : 'not-allowed'
+							cursor: canNavigatePrevious ? 'pointer' : 'not-allowed',
 						}}
 					>
 						Previous
@@ -273,7 +278,7 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 							color: 'white',
 							border: 'none',
 							borderRadius: '6px',
-							cursor: canNavigateNext ? 'pointer' : 'not-allowed'
+							cursor: canNavigateNext ? 'pointer' : 'not-allowed',
 						}}
 					>
 						{nextButtonText}
@@ -286,20 +291,16 @@ export const StepNavigation: React.FC<StepNavigationProps> = ({
 
 export class FlowStepLayoutService {
 	static createStepLayout(config: FlowStepLayoutConfig) {
-		const {
-			flowType,
-			maxWidth = '1200px',
-			responsive = true
-		} = config;
+		const { flowType, maxWidth = '1200px', responsive = true } = config;
 
 		return {
 			StepContainer: styled(StepContainer).attrs({
 				$maxWidth: maxWidth,
-				$responsive: responsive
+				$responsive: responsive,
 			})``,
 
 			StepHeader: styled(StepHeader).attrs({
-				$flowType: flowType
+				$flowType: flowType,
 			})``,
 
 			StepHeaderLeft,
@@ -308,7 +309,7 @@ export class FlowStepLayoutService {
 			StepHeaderSubtitle,
 			StepContent,
 			CollapsibleSectionComponent,
-			StepNavigation
+			StepNavigation,
 		};
 	}
 
@@ -319,7 +320,7 @@ export class FlowStepLayoutService {
 			enableAutoAdvance: false,
 			theme: 'blue',
 			maxWidth: '1200px',
-			responsive: true
+			responsive: true,
 		};
 
 		// Flow-specific customizations

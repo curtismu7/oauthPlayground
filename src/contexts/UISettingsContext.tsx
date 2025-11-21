@@ -1,4 +1,11 @@
-import React, { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+import React, {
+	createContext,
+	ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useState,
+} from 'react';
 
 export interface UISettings {
 	// Existing settings
@@ -64,8 +71,8 @@ interface UISettingsProviderProps {
 export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children }) => {
 	const [settings, setSettings] = useState<UISettings>(DEFAULT_UI_SETTINGS);
 
-	// Apply theme settings to document
-	const applyThemeSettings = (settings: UISettings) => {
+	// Apply theme settings to document (memoized to prevent infinite loops)
+	const applyThemeSettings = useCallback((settings: UISettings) => {
 		const root = document.documentElement;
 
 		// Apply dark mode
@@ -82,7 +89,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		// Apply color scheme
 		root.classList.remove('color-blue', 'color-green', 'color-purple', 'color-orange', 'color-red');
 		root.classList.add(`color-${settings.colorScheme}`);
-	};
+	}, []);
 
 	// Load settings from localStorage on mount
 	useEffect(() => {
@@ -115,8 +122,7 @@ export const UISettingsProvider: React.FC<UISettingsProviderProps> = ({ children
 		};
 
 		loadSettings();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Only run once on mount
+	}, [applyThemeSettings]); // Only run once on mount, or when applyThemeSettings changes (it won't)
 
 	// Update a specific setting
 	const updateSetting = <K extends keyof UISettings>(key: K, value: UISettings[K]) => {

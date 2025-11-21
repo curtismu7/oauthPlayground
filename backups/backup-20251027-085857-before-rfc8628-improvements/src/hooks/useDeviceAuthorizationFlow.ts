@@ -1,8 +1,8 @@
 // src/hooks/useDeviceAuthorizationFlow.ts
 // Device Authorization Flow state management and logic
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowCredentialService } from '../services/flowCredentialService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface DeviceCodeResponse {
 	device_code: string;
@@ -90,7 +90,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		const loadCredentials = async () => {
 			try {
 				console.log(`${LOG_PREFIX} [INFO] Loading flow-specific credentials on mount...`);
-				
+
 				const { credentials: loadedCreds } = await FlowCredentialService.loadFlowCredentials({
 					flowKey: 'device-authorization-v7',
 					defaultCredentials: {
@@ -106,9 +106,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					console.log(`${LOG_PREFIX} [INFO] Found saved credentials`, {
 						environmentId: loadedCreds.environmentId,
 						clientId: loadedCreds.clientId?.substring(0, 8) + '...',
-						scopes: loadedCreds.scopes
+						scopes: loadedCreds.scopes,
 					});
-					
+
 					// Map StepCredentials to DeviceAuthCredentials
 					const deviceCredentials: DeviceAuthCredentials = {
 						environmentId: loadedCreds.environmentId || '',
@@ -116,10 +116,12 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 						clientSecret: loadedCreds.clientSecret || '',
 						scopes: loadedCreds.scopes || 'read write',
 						...(loadedCreds.loginHint && { loginHint: loadedCreds.loginHint }),
-						...(loadedCreds.postLogoutRedirectUri && { postLogoutRedirectUri: loadedCreds.postLogoutRedirectUri }),
+						...(loadedCreds.postLogoutRedirectUri && {
+							postLogoutRedirectUri: loadedCreds.postLogoutRedirectUri,
+						}),
 						redirectUri: loadedCreds.redirectUri || '',
 					};
-					
+
 					setCredentialsState(deviceCredentials);
 				} else {
 					console.log(`${LOG_PREFIX} [INFO] No saved credentials found, using defaults`);
@@ -136,12 +138,12 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 	const setCredentials = useCallback((creds: DeviceAuthCredentials) => {
 		// Update state immediately for UI responsiveness
 		setCredentialsState(creds);
-		
+
 		// Debounce save to prevent excessive writes
 		if (saveDebounceRef.current) {
 			clearTimeout(saveDebounceRef.current);
 		}
-		
+
 		saveDebounceRef.current = setTimeout(async () => {
 			try {
 				// Save using FlowCredentialService for proper flow-specific storage
@@ -236,18 +238,22 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 		try {
 			const deviceAuthEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/device_authorization`;
 
-		const params = new URLSearchParams({
-			client_id: credentials.clientId,
-			scope: credentials.scopes || 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
-		});
+			const params = new URLSearchParams({
+				client_id: credentials.clientId,
+				scope: credentials.scopes || 'openid profile email', // Consistent scopes for both OAuth 2.0 and OIDC variants
+			});
 
-		// RFC 8628 Device Authorization Grant: ONLY client_id and scope are supported
-		// Do NOT add response_type, nonce, claims, or client_secret to device authorization endpoint
-		// These parameters cause 400 Bad Request errors
-		
-		console.log(`${LOG_PREFIX} [INFO] Device Authorization Request (RFC 8628)`);
-		console.log(`${LOG_PREFIX} [INFO] Using public client authentication (Device flow does not use client_secret)`);
-		console.log(`${LOG_PREFIX} [INFO] Flow type: ${credentials.scopes && credentials.scopes.includes('openid') ? 'OIDC' : 'OAuth 2.0'}`)
+			// RFC 8628 Device Authorization Grant: ONLY client_id and scope are supported
+			// Do NOT add response_type, nonce, claims, or client_secret to device authorization endpoint
+			// These parameters cause 400 Bad Request errors
+
+			console.log(`${LOG_PREFIX} [INFO] Device Authorization Request (RFC 8628)`);
+			console.log(
+				`${LOG_PREFIX} [INFO] Using public client authentication (Device flow does not use client_secret)`
+			);
+			console.log(
+				`${LOG_PREFIX} [INFO] Flow type: ${credentials.scopes && credentials.scopes.includes('openid') ? 'OIDC' : 'OAuth 2.0'}`
+			);
 
 			console.log(`${LOG_PREFIX} [INFO] Device authorization endpoint: ${deviceAuthEndpoint}`);
 			console.log(`${LOG_PREFIX} [INFO] Scopes: ${credentials.scopes || 'openid'}`);
@@ -261,7 +267,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				body: params.toString(),
 			});
 
-			console.log(`${LOG_PREFIX} [INFO] Response status: ${response.status} ${response.statusText}`);
+			console.log(
+				`${LOG_PREFIX} [INFO] Response status: ${response.status} ${response.statusText}`
+			);
 
 			if (!response.ok) {
 				const errorText = await response.text();
@@ -285,12 +293,14 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				console.log('2. Invalid client_id - check if client exists in PingOne');
 				console.log('3. Invalid environment_id - verify the environment ID is correct');
 				console.log('4. Missing required scopes or invalid scope format');
-				console.log('5. Application not enabled for public clients (Device Flow requires public client)');
+				console.log(
+					'5. Application not enabled for public clients (Device Flow requires public client)'
+				);
 				console.log('Request Details:', {
 					endpoint: deviceAuthEndpoint,
 					client_id: credentials.clientId,
 					environment_id: credentials.environmentId,
-					scopes: credentials.scopes
+					scopes: credentials.scopes,
 				});
 				console.groupEnd();
 
@@ -370,12 +380,12 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				user_code: deviceCodeData.user_code,
 				verification_uri: deviceCodeData.verification_uri,
 				expires_in: deviceCodeData.expires_in,
-				interval: deviceCodeData.interval
+				interval: deviceCodeData.interval,
 			});
 			console.log(`${LOG_PREFIX} [INFO] Credentials:`, {
 				client_id: credentials.clientId,
 				environment_id: credentials.environmentId,
-				scopes: credentials.scopes
+				scopes: credentials.scopes,
 			});
 
 			const response = await fetch(tokenEndpoint, {
@@ -387,13 +397,15 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			}).catch((error) => {
 				// Silently handle network errors during polling
 				// 400 errors are expected during device authorization polling
-				console.log(`${LOG_PREFIX} [INFO] Polling attempt ${currentAttempt}/${pollingStatus.maxAttempts}`);
+				console.log(
+					`${LOG_PREFIX} [INFO] Polling attempt ${currentAttempt}/${pollingStatus.maxAttempts}`
+				);
 				throw error;
 			});
 
 			// Track consecutive 400 errors
 			if (response.status === 400) {
-				setConsecutive400Errors(prev => prev + 1);
+				setConsecutive400Errors((prev) => prev + 1);
 				console.log(`${LOG_PREFIX} [WARN] Consecutive 400 errors: ${consecutive400Errors + 1}`);
 			} else {
 				// Reset counter on non-400 responses
@@ -402,34 +414,42 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 
 			// Stop polling if we get 3 consecutive 400 errors (device code is likely invalid)
 			if (consecutive400Errors >= 3) {
-				console.log(`${LOG_PREFIX} [ERROR] Too many consecutive 400 errors (${consecutive400Errors}) - stopping polling`);
+				console.log(
+					`${LOG_PREFIX} [ERROR] Too many consecutive 400 errors (${consecutive400Errors}) - stopping polling`
+				);
 				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: 'Device code appears to be invalid or expired',
 					status: 'error',
 				}));
-				v4ToastManager.showError('Device code appears to be invalid or expired. Please start over.');
+				v4ToastManager.showError(
+					'Device code appears to be invalid or expired. Please start over.'
+				);
 				return true; // Stop polling
 			}
 
 			// Only log non-400 responses as they're expected for authorization_pending
 			if (response.status !== 400) {
-				console.log(`${LOG_PREFIX} [INFO] Token response status: ${response.status} ${response.statusText}`);
+				console.log(
+					`${LOG_PREFIX} [INFO] Token response status: ${response.status} ${response.statusText}`
+				);
 			}
 
 			const data = await response.json().catch((jsonError) => {
 				// Handle JSON parse errors during polling
 				console.warn(`${LOG_PREFIX} [WARN] Failed to parse response JSON:`, jsonError);
-				console.log(`${LOG_PREFIX} [INFO] Response status: ${response.status}, statusText: ${response.statusText}`);
-				
+				console.log(
+					`${LOG_PREFIX} [INFO] Response status: ${response.status}, statusText: ${response.statusText}`
+				);
+
 				// For 400 errors with invalid JSON, assume device code is invalid
 				if (response.status === 400) {
 					return { error: 'invalid_request', error_description: 'Invalid request or device code' };
 				}
 				return { error: 'authorization_pending' };
 			});
-			
+
 			// Only log response data for non-authorization_pending cases to reduce noise
 			if (data.error !== 'authorization_pending') {
 				console.log(`${LOG_PREFIX} [INFO] Token response data:`, data);
@@ -440,7 +460,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				// This is normal behavior - user hasn't authorized yet
 				// Only log every 10th attempt to reduce console noise
 				if (currentAttempt % 10 === 0) {
-					console.log(`${LOG_PREFIX} [INFO] Authorization pending (attempt ${currentAttempt}/${pollingStatus.maxAttempts}) - waiting for user authorization...`);
+					console.log(
+						`${LOG_PREFIX} [INFO] Authorization pending (attempt ${currentAttempt}/${pollingStatus.maxAttempts}) - waiting for user authorization...`
+					);
 				}
 				return false;
 			} else if (data.error === 'slow_down') {
@@ -478,7 +500,9 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				v4ToastManager.showError('Device code expired or invalid. Please start over.');
 				return true; // Stop polling
 			} else if (data.error === 'invalid_request') {
-				console.log(`${LOG_PREFIX} [ERROR] Invalid request - device code or request parameters are invalid`);
+				console.log(
+					`${LOG_PREFIX} [ERROR] Invalid request - device code or request parameters are invalid`
+				);
 				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
@@ -548,7 +572,7 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			// Handle unknown errors
 			if (data.error) {
 				console.error(`${LOG_PREFIX} [ERROR] Unknown error during polling:`, data.error);
-				
+
 				// Enhanced error logging for 400 Bad Request
 				console.group('🔧 Device Authorization Error Response - Troubleshooting Guide');
 				console.error('Error Response:', data);
@@ -557,36 +581,40 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 					url: tokenEndpoint,
 					method: 'POST',
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-					body: params.toString()
+					body: params.toString(),
 				});
 				console.log('Device Code Data:', deviceCodeData);
 				console.log('Credentials:', {
 					clientId: credentials.clientId,
 					environmentId: credentials.environmentId,
-					scopes: credentials.scopes
+					scopes: credentials.scopes,
 				});
-				
+
 				// Common 400 error causes and solutions
 				console.log('Common 400 Error Causes:');
 				console.log('1. Invalid client_id - check if client exists in PingOne');
 				console.log('2. Invalid device_code - may be expired or already used');
 				console.log('3. Missing required parameters - ensure all required fields are present');
-				console.log('4. Incorrect grant_type - should be "urn:ietf:params:oauth:grant-type:device_code"');
+				console.log(
+					'4. Incorrect grant_type - should be "urn:ietf:params:oauth:grant-type:device_code"'
+				);
 				console.log('5. Application not configured for Device Authorization Grant');
 				console.groupEnd();
-				
+
 				setPollingStatus((prev) => ({
 					...prev,
 					isPolling: false,
 					error: data.error_description || data.error || 'Unknown error',
 					status: 'error',
 				}));
-				v4ToastManager.showError(data.error_description || 'Authorization failed - check console for details');
+				v4ToastManager.showError(
+					data.error_description || 'Authorization failed - check console for details'
+				);
 				return true; // Stop polling
 			}
 		} catch (error) {
 			console.error(`${LOG_PREFIX} [ERROR] Polling request failed:`, error);
-			
+
 			// Enhanced error logging for debugging
 			console.group('🔧 Device Authorization Token Exchange Error - Troubleshooting Guide');
 			console.error('Original Error:', error);
@@ -597,16 +625,16 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 				body: params.toString(),
 				deviceCode: deviceCodeData?.device_code ? 'present' : 'missing',
 				clientId: credentials.clientId ? 'present' : 'missing',
-				environmentId: credentials.environmentId ? 'present' : 'missing'
+				environmentId: credentials.environmentId ? 'present' : 'missing',
 			});
 			console.log('Device Code Data:', deviceCodeData);
 			console.log('Credentials:', {
 				clientId: credentials.clientId,
 				environmentId: credentials.environmentId,
-				scopes: credentials.scopes
+				scopes: credentials.scopes,
 			});
 			console.groupEnd();
-			
+
 			setPollingStatus((prev) => ({
 				...prev,
 				isPolling: false,
@@ -616,10 +644,16 @@ export const useDeviceAuthorizationFlow = (): UseDeviceAuthorizationFlowReturn =
 			v4ToastManager.showError('Failed to poll for tokens - check console for details');
 			return true; // Stop polling
 		}
-		
+
 		// Default return for any unhandled cases
 		return false;
-	}, [deviceCodeData, credentials, pollingStatus.attempts, pollingStatus.maxAttempts, consecutive400Errors]);
+	}, [
+		deviceCodeData,
+		credentials,
+		pollingStatus.attempts,
+		pollingStatus.maxAttempts,
+		consecutive400Errors,
+	]);
 
 	// Start polling for tokens
 	const startPolling = useCallback(() => {

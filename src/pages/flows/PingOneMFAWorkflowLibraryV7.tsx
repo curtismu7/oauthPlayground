@@ -2,33 +2,33 @@
 // PingOne MFA Flow following Workflow Library Steps 11-20
 // Based on: https://apidocs.pingidentity.com/pingone/workflow-library/v1/api/#put-step-11-enable-user-mfa
 
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-	FiSettings,
-	FiSend,
 	FiCheckCircle,
-	FiPackage,
 	FiInfo,
-	FiShield,
-	FiUser,
-	FiSmartphone,
 	FiKey,
+	FiPackage,
 	FiRefreshCw,
+	FiSend,
+	FiSettings,
+	FiShield,
+	FiSmartphone,
+	FiUser,
 } from 'react-icons/fi';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { FlowUIService } from '../../services/flowUIService';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
 import JSONHighlighter, { type JSONData } from '../../components/JSONHighlighter';
-import type { StepCredentials } from '../../components/steps/CommonSteps';
 import PhoneNumberInput from '../../components/PhoneNumberInput';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
 import { WorkerTokenModal } from '../../components/WorkerTokenModal';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { FlowUIService } from '../../services/flowUIService';
 import { getValidWorkerToken } from '../../services/tokenExpirationService';
 import { workerTokenCredentialsService } from '../../services/workerTokenCredentialsService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 interface MfaDevice {
 	id: string;
@@ -83,7 +83,7 @@ const FLOW_KEY = 'pingone-mfa-workflow-library-v7';
 
 const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 	usePageScroll();
-	
+
 	const [currentStep, setCurrentStep] = useState(0);
 	const [credentials, setCredentials] = useState<StepCredentials>({
 		environmentId: '',
@@ -92,92 +92,103 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 		redirectUri: 'https://localhost:3000/callback',
 		scopes: 'openid profile email',
 	});
-	
+
 	// Handle credentials change with auto-save
 	const handleCredentialsChange = useCallback((newCredentials: StepCredentials) => {
 		console.log('🔄 [PingOneMFAWorkflowLibraryV7] Credentials changed, saving...');
 		setCredentials(newCredentials);
-		
+
 		// Save credentials using isolated storage (add lastUpdated and convert scopes to array)
 		const credentialsToSave = {
 			...newCredentials,
-			scopes: typeof newCredentials.scopes === 'string'
-				? newCredentials.scopes.split(/\s+/).filter(Boolean)
-				: Array.isArray(newCredentials.scopes)
-					? newCredentials.scopes
-					: ['openid', 'profile', 'email'],
+			scopes:
+				typeof newCredentials.scopes === 'string'
+					? newCredentials.scopes.split(/\s+/).filter(Boolean)
+					: Array.isArray(newCredentials.scopes)
+						? newCredentials.scopes
+						: ['openid', 'profile', 'email'],
 			lastUpdated: Date.now(),
 		};
-		comprehensiveFlowDataService.saveFlowCredentialsIsolated(
-			FLOW_KEY,
-			credentialsToSave,
-			{ showToast: false }
-		);
+		comprehensiveFlowDataService.saveFlowCredentialsIsolated(FLOW_KEY, credentialsToSave, {
+			showToast: false,
+		});
 	}, []);
 
 	// Handle OIDC discovery completion - ensure environment ID is saved
-	const handleDiscoveryComplete = useCallback((result: { issuerUrl?: string; document?: unknown }) => {
-		console.log('[PingOneMFAWorkflowLibraryV7] OIDC Discovery completed:', result);
-		
-		// The comprehensiveCredentialsService should handle saving, but we'll also update our state
-		if (result.issuerUrl) {
-			const envIdMatch = result.issuerUrl.match(/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-			if (envIdMatch && envIdMatch[1]) {
-				const extractedEnvId = envIdMatch[1];
-				console.log('[PingOneMFAWorkflowLibraryV7] Extracted Environment ID from discovery:', extractedEnvId);
-				
-				// Update credentials with environment ID
-				setCredentials(prev => {
-					const updated = { ...prev, environmentId: extractedEnvId };
-					
-					// Save immediately (add lastUpdated and convert scopes to array)
-					const credentialsToSave = {
-						...updated,
-						scopes: typeof updated.scopes === 'string'
-							? updated.scopes.split(/\s+/).filter(Boolean)
-							: Array.isArray(updated.scopes)
-								? updated.scopes
-								: ['openid', 'profile', 'email'],
-						lastUpdated: Date.now(),
-					};
-					comprehensiveFlowDataService.saveFlowCredentialsIsolated(
-						FLOW_KEY,
-						credentialsToSave,
-						{ showToast: false }
+	const handleDiscoveryComplete = useCallback(
+		(result: { issuerUrl?: string; document?: unknown }) => {
+			console.log('[PingOneMFAWorkflowLibraryV7] OIDC Discovery completed:', result);
+
+			// The comprehensiveCredentialsService should handle saving, but we'll also update our state
+			if (result.issuerUrl) {
+				const envIdMatch = result.issuerUrl.match(
+					/\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i
+				);
+				if (envIdMatch && envIdMatch[1]) {
+					const extractedEnvId = envIdMatch[1];
+					console.log(
+						'[PingOneMFAWorkflowLibraryV7] Extracted Environment ID from discovery:',
+						extractedEnvId
 					);
-					
-					return updated;
-				});
+
+					// Update credentials with environment ID
+					setCredentials((prev) => {
+						const updated = { ...prev, environmentId: extractedEnvId };
+
+						// Save immediately (add lastUpdated and convert scopes to array)
+						const credentialsToSave = {
+							...updated,
+							scopes:
+								typeof updated.scopes === 'string'
+									? updated.scopes.split(/\s+/).filter(Boolean)
+									: Array.isArray(updated.scopes)
+										? updated.scopes
+										: ['openid', 'profile', 'email'],
+							lastUpdated: Date.now(),
+						};
+						comprehensiveFlowDataService.saveFlowCredentialsIsolated(FLOW_KEY, credentialsToSave, {
+							showToast: false,
+						});
+
+						return updated;
+					});
+				}
 			}
-		}
-	}, []);
+		},
+		[]
+	);
 
 	// Load saved credentials on mount
 	useEffect(() => {
 		const loadCredentials = () => {
-			console.log('🔄 [PingOneMFAWorkflowLibraryV7] Loading credentials with comprehensive service...');
-			
+			console.log(
+				'🔄 [PingOneMFAWorkflowLibraryV7] Loading credentials with comprehensive service...'
+			);
+
 			const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 				flowKey: FLOW_KEY,
 				useSharedEnvironment: true,
-				useSharedDiscovery: true
+				useSharedDiscovery: true,
 			});
 
 			if (flowData.flowCredentials && Object.keys(flowData.flowCredentials).length > 0) {
 				console.log('✅ [PingOneMFAWorkflowLibraryV7] Found flow-specific credentials');
 				const loadedCreds = {
-					environmentId: flowData.sharedEnvironment?.environmentId || flowData.flowCredentials.environmentId || '',
+					environmentId:
+						flowData.sharedEnvironment?.environmentId ||
+						flowData.flowCredentials.environmentId ||
+						'',
 					clientId: flowData.flowCredentials.clientId || '',
 					clientSecret: flowData.flowCredentials.clientSecret || '',
 					redirectUri: flowData.flowCredentials.redirectUri || 'https://localhost:3000/callback',
-					scopes: Array.isArray(flowData.flowCredentials.scopes) 
-						? flowData.flowCredentials.scopes.join(' ') 
+					scopes: Array.isArray(flowData.flowCredentials.scopes)
+						? flowData.flowCredentials.scopes.join(' ')
 						: flowData.flowCredentials.scopes || 'openid profile email',
 				};
 				setCredentials(loadedCreds);
 			} else if (flowData.sharedEnvironment?.environmentId) {
 				console.log('ℹ️ [PingOneMFAWorkflowLibraryV7] Using shared environment data only');
-				setCredentials(prev => ({
+				setCredentials((prev) => ({
 					...prev,
 					environmentId: flowData.sharedEnvironment?.environmentId || '',
 				}));
@@ -188,7 +199,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 
 		loadCredentials();
 	}, []);
-	
+
 	// Flow state
 	const [userId, setUserId] = useState('');
 	const [username, setUsername] = useState('curtis7');
@@ -207,7 +218,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 	const [deviceSelectionMode, setDeviceSelectionMode] = useState<'select' | 'register'>('select');
 	const [selectedExistingDeviceId, setSelectedExistingDeviceId] = useState('');
 	const [showWorkerTokenModal, setShowWorkerTokenModal] = useState(false);
-	
+
 	// Load worker token from localStorage on mount and listen for updates
 	useEffect(() => {
 		const loadWorkerToken = () => {
@@ -215,7 +226,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 				clearExpired: true,
 				showToast: false,
 			});
-			
+
 			if (tokenResult.isValid && tokenResult.token) {
 				setWorkerToken(tokenResult.token);
 				console.log('[PingOneMFAWorkflowLibraryV7] ✅ Worker token loaded from storage');
@@ -224,41 +235,46 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 				console.log('[PingOneMFAWorkflowLibraryV7] ℹ️ No valid worker token found');
 			}
 		};
-		
+
 		loadWorkerToken();
-		
+
 		// Listen for worker token updates
 		const handleTokenUpdate = () => {
 			loadWorkerToken();
 		};
-		
+
 		window.addEventListener('workerTokenUpdated', handleTokenUpdate);
-		
+
 		return () => {
 			window.removeEventListener('workerTokenUpdated', handleTokenUpdate);
 		};
 	}, []);
-	
+
 	// Fetch existing devices for user
 	const handleFetchExistingDevices = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !workerToken) {
 			v4ToastManager.showError('Please provide Environment ID, User ID, and Worker Token');
 			return;
 		}
-		
+
 		setIsLoadingDevices(true);
 		try {
-			const response = await fetch(`/api/pingone/user/${userId}/mfa?environmentId=${credentials.environmentId}&accessToken=${encodeURIComponent(workerToken)}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-			
-			const data = await response.json() as { devices?: MfaDevice[] };
+			const response = await fetch(
+				`/api/pingone/user/${userId}/mfa?environmentId=${credentials.environmentId}&accessToken=${encodeURIComponent(workerToken)}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
+			const data = (await response.json()) as { devices?: MfaDevice[] };
 			if (response.ok && data.devices) {
 				// Filter for SMS devices only
-				const smsDevices = data.devices.filter((d: MfaDevice) => d.type === 'SMS' || d.type === 'MOBILE');
+				const smsDevices = data.devices.filter(
+					(d: MfaDevice) => d.type === 'SMS' || d.type === 'MOBILE'
+				);
 				setExistingDevices(smsDevices);
 				if (smsDevices.length > 0) {
 					v4ToastManager.showSuccess(`Found ${smsDevices.length} SMS device(s)`);
@@ -277,58 +293,64 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			setIsLoadingDevices(false);
 		}
 	}, [credentials.environmentId, userId, workerToken]);
-	
+
 	// Auto-fetch devices when user ID and worker token are available
 	useEffect(() => {
 		if (userId && workerToken && credentials.environmentId && currentStep === 0) {
 			handleFetchExistingDevices();
 		}
 	}, [userId, workerToken, credentials.environmentId, currentStep, handleFetchExistingDevices]);
-	
+
 	// Handle selecting an existing device
-	const handleSelectExistingDevice = useCallback((selectedDeviceId: string) => {
-		setSelectedExistingDeviceId(selectedDeviceId);
-		const device = existingDevices.find(d => d.id === selectedDeviceId);
-		if (device) {
-			setDeviceId(device.id);
-			setApiResponses(prev => ({ ...prev, 11: device as unknown as ApiResponse }));
-			v4ToastManager.showSuccess('Device selected successfully');
-			setCurrentStep(1); // Move to enable step
-		}
-	}, [existingDevices]);
-	
+	const handleSelectExistingDevice = useCallback(
+		(selectedDeviceId: string) => {
+			setSelectedExistingDeviceId(selectedDeviceId);
+			const device = existingDevices.find((d) => d.id === selectedDeviceId);
+			if (device) {
+				setDeviceId(device.id);
+				setApiResponses((prev) => ({ ...prev, 11: device as unknown as ApiResponse }));
+				v4ToastManager.showSuccess('Device selected successfully');
+				setCurrentStep(1); // Move to enable step
+			}
+		},
+		[existingDevices]
+	);
+
 	// Step 11a: Register Mobile Phone Device
 	const handleRegisterMobilePhone = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !phoneNumber) {
 			v4ToastManager.showError('Please provide Environment ID, User ID, and Phone Number');
 			return;
 		}
-		
+
 		if (!workerToken) {
 			v4ToastManager.showError('Worker token is required for device registration');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// POST /api/v1/environments/{environmentId}/users/{userId}/devices
-			const response = await fetch(`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices`, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${workerToken}`,
-				},
-				body: JSON.stringify({
-					type: 'SMS',
-					phone: phoneNumber,
-					nickname: 'Mobile Phone',
-				}),
-			});
-			
+			const response = await fetch(
+				`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices`,
+				{
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${workerToken}`,
+					},
+					body: JSON.stringify({
+						type: 'SMS',
+						phone: phoneNumber,
+						nickname: 'Mobile Phone',
+					}),
+				}
+			);
+
 			const data = await response.json();
 			if (response.ok && data.id) {
 				setDeviceId(data.id);
-				setApiResponses(prev => ({ ...prev, 11: data }));
+				setApiResponses((prev) => ({ ...prev, 11: data }));
 				v4ToastManager.showSuccess('Mobile phone registered successfully');
 				setCurrentStep(1); // Move to enable step
 			} else {
@@ -336,41 +358,46 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 11a failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to register mobile phone');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to register mobile phone'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [credentials.environmentId, userId, phoneNumber, workerToken]);
-	
+
 	// Step 11b: Enable User MFA
 	const handleEnableUserMFA = useCallback(async () => {
 		if (!credentials.environmentId || !userId || !deviceId) {
 			v4ToastManager.showError('Please provide Environment ID, User ID, and Device ID');
 			return;
 		}
-		
+
 		if (!workerToken) {
 			v4ToastManager.showError('Worker token is required to enable MFA device');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// PUT /api/v1/environments/{environmentId}/users/{userId}/devices/{deviceId}
-			const response = await fetch(`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices/${deviceId}`, {
-				method: 'PUT',
-				headers: {
-					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${workerToken}`,
-				},
-				body: JSON.stringify({
-					enabled: true,
-				}),
-			});
-			
-			const data = await response.json() as ApiResponse;
+			const response = await fetch(
+				`/api/pingone/environments/${credentials.environmentId}/users/${userId}/devices/${deviceId}`,
+				{
+					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json',
+						Authorization: `Bearer ${workerToken}`,
+					},
+					body: JSON.stringify({
+						enabled: true,
+					}),
+				}
+			);
+
+			const data = (await response.json()) as ApiResponse;
 			if (response.ok) {
-				setApiResponses(prev => {
+				setApiResponses((prev) => {
 					const prevResponse = (prev[11] as Record<string, unknown>) || {};
 					const dataObj = (data as Record<string, unknown>) || {};
 					return { ...prev, 11: { ...prevResponse, enabled: true, ...dataObj } as ApiResponse };
@@ -379,24 +406,29 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 				setCurrentStep(2); // Move to authorize request
 			} else {
 				const errorData = (data as Record<string, unknown>) || {};
-				const errorMsg = (errorData.error_description as string) || (errorData.error as string) || 'Failed to enable MFA device';
+				const errorMsg =
+					(errorData.error_description as string) ||
+					(errorData.error as string) ||
+					'Failed to enable MFA device';
 				throw new Error(errorMsg);
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 11b failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to enable MFA device');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to enable MFA device'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [credentials.environmentId, userId, deviceId, workerToken]);
-	
+
 	// Step 12: Send Authorize Request
 	const handleSendAuthorizeRequest = useCallback(async () => {
 		if (!credentials.environmentId || !credentials.clientId) {
 			v4ToastManager.showError('Please configure credentials first');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// POST /as/authorize with response_mode=pi.flow
@@ -415,11 +447,11 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					scope: credentials.scopes || 'openid profile email',
 				}),
 			});
-			
+
 			const data = await response.json();
 			if (response.ok && data.flowId) {
 				setFlowId(data.flowId);
-				setApiResponses(prev => ({ ...prev, 12: data }));
+				setApiResponses((prev) => ({ ...prev, 12: data }));
 				v4ToastManager.showSuccess('Authorization request sent successfully');
 				setCurrentStep(3);
 			} else {
@@ -427,19 +459,21 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 12 failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to send authorize request');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to send authorize request'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [credentials]);
-	
+
 	// Step 13: Get the Flow
 	const handleGetFlow = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
 			v4ToastManager.showError('Flow ID is required');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// GET /flows/{flowId}
@@ -449,10 +483,10 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					'Content-Type': 'application/json',
 				},
 			});
-			
+
 			const data = await response.json();
 			if (response.ok) {
-				setApiResponses(prev => ({ ...prev, 13: data }));
+				setApiResponses((prev) => ({ ...prev, 13: data }));
 				v4ToastManager.showSuccess('Flow retrieved successfully');
 				setCurrentStep(4);
 			} else {
@@ -465,14 +499,14 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			setIsLoading(false);
 		}
 	}, [flowId, credentials.environmentId]);
-	
+
 	// Step 14: Submit Login Credentials
 	const handleSubmitLoginCredentials = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
 			v4ToastManager.showError('Flow ID is required');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// POST /flows/{flowId} with username/password
@@ -487,30 +521,34 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					password: password,
 				}),
 			});
-			
+
 			const data = await response.json();
 			if (response.ok) {
-				setApiResponses(prev => ({ ...prev, 14: data }));
+				setApiResponses((prev) => ({ ...prev, 14: data }));
 				v4ToastManager.showSuccess('Login credentials submitted successfully');
 				setCurrentStep(5);
 			} else {
-				throw new Error(data.error_description || data.error || 'Failed to submit login credentials');
+				throw new Error(
+					data.error_description || data.error || 'Failed to submit login credentials'
+				);
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 14 failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to submit login credentials');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to submit login credentials'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [flowId, credentials.environmentId, username, userId, password]);
-	
+
 	// Step 15: Submit MFA Credentials
 	const handleSubmitMFACredentials = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
 			v4ToastManager.showError('Flow ID is required');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// POST /flows/{flowId} with MFA code
@@ -524,10 +562,10 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					code: mfaCode,
 				}),
 			});
-			
+
 			const data = await response.json();
 			if (response.ok) {
-				setApiResponses(prev => ({ ...prev, 15: data }));
+				setApiResponses((prev) => ({ ...prev, 15: data }));
 				v4ToastManager.showSuccess('MFA credentials submitted successfully');
 				setCurrentStep(6);
 			} else {
@@ -535,33 +573,38 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 15 failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to submit MFA credentials');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to submit MFA credentials'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [flowId, credentials.environmentId, mfaCode]);
-	
+
 	// Step 16: Call Resume Endpoint
 	const handleCallResumeEndpoint = useCallback(async () => {
 		if (!flowId || !credentials.environmentId) {
 			v4ToastManager.showError('Flow ID is required');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// GET /as/resume?flowId={flowId}
-			const response = await fetch(`/api/pingone/resume?flowId=${flowId}&environment_id=${credentials.environmentId}`, {
-				method: 'GET',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-			});
-			
+			const response = await fetch(
+				`/api/pingone/resume?flowId=${flowId}&environment_id=${credentials.environmentId}`,
+				{
+					method: 'GET',
+					headers: {
+						'Content-Type': 'application/json',
+					},
+				}
+			);
+
 			const data = await response.json();
 			if (response.ok && data.code) {
 				setAuthorizationCode(data.code);
-				setApiResponses(prev => ({ ...prev, 16: data }));
+				setApiResponses((prev) => ({ ...prev, 16: data }));
 				v4ToastManager.showSuccess('Authorization code received successfully');
 				setCurrentStep(7);
 			} else {
@@ -569,19 +612,21 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 16 failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to call resume endpoint');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to call resume endpoint'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [flowId, credentials.environmentId]);
-	
+
 	// Step 17: Generate Access Token
 	const handleGenerateAccessToken = useCallback(async () => {
 		if (!authorizationCode || !credentials.environmentId || !credentials.clientId) {
 			v4ToastManager.showError('Authorization code and credentials are required');
 			return;
 		}
-		
+
 		setIsLoading(true);
 		try {
 			// POST /as/token
@@ -599,11 +644,11 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					environment_id: credentials.environmentId,
 				}),
 			});
-			
+
 			const data = await response.json();
 			if (response.ok && data.access_token) {
 				setTokens(data);
-				setApiResponses(prev => ({ ...prev, 17: data }));
+				setApiResponses((prev) => ({ ...prev, 17: data }));
 				v4ToastManager.showSuccess('Access token generated successfully');
 				setCurrentStep(8);
 			} else {
@@ -611,38 +656,59 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 			}
 		} catch (error) {
 			console.error('[Workflow Library] Step 17 failed:', error);
-			v4ToastManager.showError(error instanceof Error ? error.message : 'Failed to generate access token');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to generate access token'
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}, [authorizationCode, credentials]);
-	
+
 	// Step validation
-	const isStepValid = useCallback((step: number): boolean => {
-		switch (step) {
-			case 0:
-				return !!(credentials.environmentId && credentials.clientId && userId && phoneNumber && workerToken);
-			case 1:
-				return !!deviceId && !!apiResponses[11]; // Device registered
-			case 2:
-				return !!(apiResponses[11] as Record<string, unknown>)?.enabled; // MFA enabled
-			case 3:
-				return !!flowId; // Flow ID from authorize request
-			case 4:
-				return !!apiResponses[13]; // Flow retrieved
-			case 5:
-				return !!apiResponses[14]; // Login credentials submitted
-			case 6:
-				return !!apiResponses[15]; // MFA credentials submitted
-			case 7:
-				return !!authorizationCode; // Authorization code received
-			case 8:
-				return !!tokens; // Tokens received
-			default:
-				return true;
-		}
-	}, [credentials, userId, phoneNumber, workerToken, deviceId, apiResponses, flowId, authorizationCode, tokens]);
-	
+	const isStepValid = useCallback(
+		(step: number): boolean => {
+			switch (step) {
+				case 0:
+					return !!(
+						credentials.environmentId &&
+						credentials.clientId &&
+						userId &&
+						phoneNumber &&
+						workerToken
+					);
+				case 1:
+					return !!deviceId && !!apiResponses[11]; // Device registered
+				case 2:
+					return !!(apiResponses[11] as Record<string, unknown>)?.enabled; // MFA enabled
+				case 3:
+					return !!flowId; // Flow ID from authorize request
+				case 4:
+					return !!apiResponses[13]; // Flow retrieved
+				case 5:
+					return !!apiResponses[14]; // Login credentials submitted
+				case 6:
+					return !!apiResponses[15]; // MFA credentials submitted
+				case 7:
+					return !!authorizationCode; // Authorization code received
+				case 8:
+					return !!tokens; // Tokens received
+				default:
+					return true;
+			}
+		},
+		[
+			credentials,
+			userId,
+			phoneNumber,
+			workerToken,
+			deviceId,
+			apiResponses,
+			flowId,
+			authorizationCode,
+			tokens,
+		]
+	);
+
 	// Render step content
 	const renderStepContent = useMemo(() => {
 		switch (currentStep) {
@@ -661,16 +727,17 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								onCredentialsChange={handleCredentialsChange}
 								onDiscoveryComplete={handleDiscoveryComplete}
 								onEnvironmentIdChange={(envId) => {
-									setCredentials(prev => {
+									setCredentials((prev) => {
 										const updated = { ...prev, environmentId: envId };
 										// Save immediately (add lastUpdated and convert scopes to array)
 										const credentialsToSave = {
 											...updated,
-											scopes: typeof updated.scopes === 'string'
-												? updated.scopes.split(/\s+/).filter(Boolean)
-												: Array.isArray(updated.scopes)
-													? updated.scopes
-													: ['openid', 'profile', 'email'],
+											scopes:
+												typeof updated.scopes === 'string'
+													? updated.scopes.split(/\s+/).filter(Boolean)
+													: Array.isArray(updated.scopes)
+														? updated.scopes
+														: ['openid', 'profile', 'email'],
 											lastUpdated: Date.now(),
 										};
 										comprehensiveFlowDataService.saveFlowCredentialsIsolated(
@@ -685,15 +752,18 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									// Save credentials when save button is clicked
 									try {
 										const credentialsToSave = {
-											...(credentials.environmentId && { environmentId: credentials.environmentId }),
+											...(credentials.environmentId && {
+												environmentId: credentials.environmentId,
+											}),
 											clientId: credentials.clientId || '',
 											clientSecret: credentials.clientSecret || '',
 											redirectUri: credentials.redirectUri || 'https://localhost:3000/callback',
-											scopes: typeof credentials.scopes === 'string' 
-												? credentials.scopes.split(/\s+/).filter(Boolean)
-												: Array.isArray(credentials.scopes) 
-													? credentials.scopes 
-													: ['openid', 'profile', 'email'],
+											scopes:
+												typeof credentials.scopes === 'string'
+													? credentials.scopes.split(/\s+/).filter(Boolean)
+													: Array.isArray(credentials.scopes)
+														? credentials.scopes
+														: ['openid', 'profile', 'email'],
 											lastUpdated: Date.now(),
 										};
 										const success = comprehensiveFlowDataService.saveFlowCredentialsIsolated(
@@ -702,17 +772,22 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 											{ showToast: true, backupToEnv: true }
 										);
 										if (success) {
-											console.log('[PingOneMFAWorkflowLibraryV7] ✅ Credentials saved successfully');
+											console.log(
+												'[PingOneMFAWorkflowLibraryV7] ✅ Credentials saved successfully'
+											);
 										}
 									} catch (error) {
-										console.error('[PingOneMFAWorkflowLibraryV7] ❌ Failed to save credentials:', error);
+										console.error(
+											'[PingOneMFAWorkflowLibraryV7] ❌ Failed to save credentials:',
+											error
+										);
 										v4ToastManager.showError('Failed to save credentials');
 									}
 								}}
 								showConfigChecker={true}
 							/>
 						</CollapsibleHeader>
-						
+
 						<CollapsibleHeader
 							title="Step 11: Register/Select Mobile Phone"
 							icon={<FiSmartphone />}
@@ -724,12 +799,13 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<div>
 									<InfoTitle>Register or Select Mobile Phone for MFA</InfoTitle>
 									<InfoText>
-										Select an existing SMS device or register a new mobile phone number for SMS-based MFA.
-										API: GET/POST /api/v1/environments/{'{'}environmentId{'}'}/users/{'{'}userId{'}'}/devices
+										Select an existing SMS device or register a new mobile phone number for
+										SMS-based MFA. API: GET/POST /api/v1/environments/{'{'}environmentId{'}'}/users/
+										{'{'}userId{'}'}/devices
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<ParameterGrid>
 								<ParameterLabel>User ID:</ParameterLabel>
 								<ParameterValue>
@@ -741,7 +817,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 										style={{ width: '100%', padding: '0.5rem' }}
 									/>
 								</ParameterValue>
-								
+
 								<ParameterLabel>Worker Token:</ParameterLabel>
 								<ParameterValue>
 									<Button
@@ -762,12 +838,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									</Button>
 								</ParameterValue>
 							</ParameterGrid>
-							
+
 							{userId && workerToken && credentials.environmentId && (
 								<>
 									<div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-										<Button 
-											onClick={handleFetchExistingDevices} 
+										<Button
+											onClick={handleFetchExistingDevices}
 											disabled={isLoadingDevices}
 											style={{ marginRight: '0.5rem' }}
 										>
@@ -775,7 +851,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 											Refresh Devices
 										</Button>
 									</div>
-									
+
 									{existingDevices.length > 0 && (
 										<div style={{ marginTop: '1.5rem', marginBottom: '1.5rem' }}>
 											<InfoTitle style={{ marginBottom: '1rem' }}>Existing SMS Devices:</InfoTitle>
@@ -786,10 +862,14 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 														onClick={() => handleSelectExistingDevice(device.id)}
 														style={{
 															padding: '1rem',
-															border: selectedExistingDeviceId === device.id ? '2px solid #3b82f6' : '1px solid #d1d5db',
+															border:
+																selectedExistingDeviceId === device.id
+																	? '2px solid #3b82f6'
+																	: '1px solid #d1d5db',
 															borderRadius: '0.5rem',
 															cursor: 'pointer',
-															background: selectedExistingDeviceId === device.id ? '#eff6ff' : '#ffffff',
+															background:
+																selectedExistingDeviceId === device.id ? '#eff6ff' : '#ffffff',
 															transition: 'all 0.2s ease',
 														}}
 														onMouseEnter={(e) => {
@@ -809,10 +889,20 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 															<FiSmartphone style={{ fontSize: '1.25rem', color: '#3b82f6' }} />
 															<div style={{ flex: 1 }}>
 																<div style={{ fontWeight: '600', color: '#1e293b' }}>
-																	{device.phone || device.phoneNumber || device.name || 'SMS Device'}
+																	{device.phone ||
+																		device.phoneNumber ||
+																		device.name ||
+																		'SMS Device'}
 																</div>
-																<div style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.25rem' }}>
-																	{device.type} • {device.status || 'Unknown'} • {device.enabled ? 'Enabled' : 'Disabled'}
+																<div
+																	style={{
+																		fontSize: '0.875rem',
+																		color: '#64748b',
+																		marginTop: '0.25rem',
+																	}}
+																>
+																	{device.type} • {device.status || 'Unknown'} •{' '}
+																	{device.enabled ? 'Enabled' : 'Disabled'}
 																</div>
 															</div>
 															{selectedExistingDeviceId === device.id && (
@@ -824,7 +914,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 											</div>
 										</div>
 									)}
-									
+
 									<div style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>
 										<div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
 											<Button
@@ -851,18 +941,19 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 											</Button>
 										</div>
 									</div>
-									
+
 									{deviceSelectionMode === 'select' && existingDevices.length > 0 && (
 										<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 											<FiInfo />
 											<div>
 												<InfoText>
-													Click on a device above to select it, or switch to "Register New" to add a new phone number.
+													Click on a device above to select it, or switch to "Register New" to add a
+													new phone number.
 												</InfoText>
 											</div>
 										</InfoBox>
 									)}
-									
+
 									{deviceSelectionMode === 'register' && (
 										<>
 											<ParameterGrid>
@@ -879,14 +970,17 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 													/>
 												</ParameterValue>
 											</ParameterGrid>
-											
-											<Button onClick={handleRegisterMobilePhone} disabled={isLoading || !phoneNumber}>
+
+											<Button
+												onClick={handleRegisterMobilePhone}
+												disabled={isLoading || !phoneNumber}
+											>
 												{isLoading ? <FiRefreshCw /> : <FiSmartphone />}
 												Register Mobile Phone
 											</Button>
 										</>
 									)}
-									
+
 									{deviceSelectionMode === 'select' && existingDevices.length === 0 && (
 										<InfoBox $variant="warning" style={{ marginTop: '1rem' }}>
 											<FiInfo />
@@ -900,7 +994,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									)}
 								</>
 							)}
-							
+
 							{apiResponses[11] && (
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
 									<ResultsHeading>Step 11 Response:</ResultsHeading>
@@ -919,7 +1013,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 1:
 				return (
 					<>
@@ -934,12 +1028,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<div>
 									<InfoTitle>Enable User MFA Device</InfoTitle>
 									<InfoText>
-										Enable the registered MFA device for the user.
-										API: PUT /api/v1/environments/{'{'}environmentId{'}'}/users/{'{'}userId{'}'}/devices/{'{'}deviceId{'}'}
+										Enable the registered MFA device for the user. API: PUT /api/v1/environments/
+										{'{'}environmentId{'}'}/users/{'{'}userId{'}'}/devices/{'{'}deviceId{'}'}
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<ParameterGrid>
 								<ParameterLabel>User ID:</ParameterLabel>
 								<ParameterValue>
@@ -952,7 +1046,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 										disabled
 									/>
 								</ParameterValue>
-								
+
 								<ParameterLabel>Device ID:</ParameterLabel>
 								<ParameterValue>
 									<input
@@ -965,13 +1059,13 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									/>
 								</ParameterValue>
 							</ParameterGrid>
-							
+
 							<Button onClick={handleEnableUserMFA} disabled={isLoading || !isStepValid(1)}>
 								{isLoading ? <FiRefreshCw /> : <FiShield />}
 								Enable MFA Device
 							</Button>
-							
-							{((apiResponses[11] as Record<string, unknown>)?.enabled) ? (
+
+							{(apiResponses[11] as Record<string, unknown>)?.enabled ? (
 								<ResultsSection>
 									<ResultsHeading>Step 11 Response:</ResultsHeading>
 									<JSONHighlighter data={apiResponses[11]} />
@@ -986,7 +1080,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 2:
 				return (
 					<>
@@ -1006,12 +1100,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<Button onClick={handleSendAuthorizeRequest} disabled={isLoading}>
 								{isLoading ? <FiRefreshCw /> : <FiSend />}
 								Send Authorize Request
 							</Button>
-							
+
 							{apiResponses[12] && (
 								<ResultsSection>
 									<ResultsHeading>Step 12 Response:</ResultsHeading>
@@ -1030,7 +1124,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 3:
 				return (
 					<>
@@ -1045,17 +1139,17 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<div>
 									<InfoTitle>Retrieve Flow Details</InfoTitle>
 									<InfoText>
-										Get the current state of the flow from PingOne.
-										This shows what actions are available in the flow.
+										Get the current state of the flow from PingOne. This shows what actions are
+										available in the flow.
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<Button onClick={handleGetFlow} disabled={isLoading}>
 								{isLoading ? <FiRefreshCw /> : <FiPackage />}
 								Get Flow
 							</Button>
-							
+
 							{apiResponses[13] && (
 								<ResultsSection>
 									<ResultsHeading>Step 13 Response:</ResultsHeading>
@@ -1065,7 +1159,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 4:
 				return (
 					<>
@@ -1080,12 +1174,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<div>
 									<InfoTitle>Authenticate with Username/Password</InfoTitle>
 									<InfoText>
-										Submit the user's login credentials to authenticate.
-										This step advances the flow to the MFA challenge.
+										Submit the user's login credentials to authenticate. This step advances the flow
+										to the MFA challenge.
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<ParameterGrid>
 								<ParameterLabel>Username:</ParameterLabel>
 								<ParameterValue>
@@ -1097,7 +1191,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 										style={{ width: '100%', padding: '0.5rem' }}
 									/>
 								</ParameterValue>
-								
+
 								<ParameterLabel>Password:</ParameterLabel>
 								<ParameterValue>
 									<input
@@ -1109,12 +1203,15 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									/>
 								</ParameterValue>
 							</ParameterGrid>
-							
-							<Button onClick={handleSubmitLoginCredentials} disabled={isLoading || !username || !password}>
+
+							<Button
+								onClick={handleSubmitLoginCredentials}
+								disabled={isLoading || !username || !password}
+							>
 								{isLoading ? <FiRefreshCw /> : <FiUser />}
 								Submit Login Credentials
 							</Button>
-							
+
 							{apiResponses[14] && (
 								<ResultsSection>
 									<ResultsHeading>Step 14 Response:</ResultsHeading>
@@ -1124,7 +1221,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 5:
 				return (
 					<>
@@ -1143,7 +1240,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<ParameterGrid>
 								<ParameterLabel>MFA Code:</ParameterLabel>
 								<ParameterValue>
@@ -1156,12 +1253,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									/>
 								</ParameterValue>
 							</ParameterGrid>
-							
+
 							<Button onClick={handleSubmitMFACredentials} disabled={isLoading || !mfaCode}>
 								{isLoading ? <FiRefreshCw /> : <FiSmartphone />}
 								Submit MFA Credentials
 							</Button>
-							
+
 							{apiResponses[15] && (
 								<ResultsSection>
 									<ResultsHeading>Step 15 Response:</ResultsHeading>
@@ -1171,7 +1268,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 6:
 				return (
 					<>
@@ -1186,16 +1283,17 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<div>
 									<InfoTitle>Get Authorization Code</InfoTitle>
 									<InfoText>
-										After successful authentication and MFA, call the resume endpoint to get the authorization code.
+										After successful authentication and MFA, call the resume endpoint to get the
+										authorization code.
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<Button onClick={handleCallResumeEndpoint} disabled={isLoading}>
 								{isLoading ? <FiRefreshCw /> : <FiCheckCircle />}
 								Call Resume Endpoint
 							</Button>
-							
+
 							{apiResponses[16] && (
 								<ResultsSection>
 									<ResultsHeading>Step 16 Response:</ResultsHeading>
@@ -1214,7 +1312,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 7:
 				return (
 					<>
@@ -1233,12 +1331,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							<Button onClick={handleGenerateAccessToken} disabled={isLoading}>
 								{isLoading ? <FiRefreshCw /> : <FiKey />}
 								Generate Access Token
 							</Button>
-							
+
 							{apiResponses[17] && (
 								<ResultsSection>
 									<ResultsHeading>Step 17 Response:</ResultsHeading>
@@ -1248,7 +1346,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			case 8:
 				return (
 					<>
@@ -1263,12 +1361,12 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 								<div>
 									<InfoTitle>Flow Completed Successfully</InfoTitle>
 									<InfoText>
-										The authorization code flow with MFA has been completed successfully.
-										All tokens have been received.
+										The authorization code flow with MFA has been completed successfully. All tokens
+										have been received.
 									</InfoText>
 								</div>
 							</InfoBox>
-							
+
 							{tokens && (
 								<ResultsSection>
 									<ResultsHeading>Received Tokens:</ResultsHeading>
@@ -1278,12 +1376,30 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						</CollapsibleHeader>
 					</>
 				);
-				
+
 			default:
 				return null;
 		}
-	}, [currentStep, credentials, userId, deviceId, flowId, authorizationCode, tokens, apiResponses, isLoading, isStepValid, handleEnableUserMFA, handleSendAuthorizeRequest, handleGetFlow, handleSubmitLoginCredentials, handleSubmitMFACredentials, handleCallResumeEndpoint, handleGenerateAccessToken]);
-	
+	}, [
+		currentStep,
+		credentials,
+		userId,
+		deviceId,
+		flowId,
+		authorizationCode,
+		tokens,
+		apiResponses,
+		isLoading,
+		isStepValid,
+		handleEnableUserMFA,
+		handleSendAuthorizeRequest,
+		handleGetFlow,
+		handleSubmitLoginCredentials,
+		handleSubmitMFACredentials,
+		handleCallResumeEndpoint,
+		handleGenerateAccessToken,
+	]);
+
 	return (
 		<Container>
 			<ContentWrapper>
@@ -1292,30 +1408,33 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					customConfig={{
 						flowType: 'oauth',
 						title: 'PingOne MFA Flow - Workflow Library',
-						subtitle: 'Authorization Code Flow with MFA following PingOne Workflow Library Steps 11-20',
+						subtitle:
+							'Authorization Code Flow with MFA following PingOne Workflow Library Steps 11-20',
 						icon: '🔐',
 					}}
 				/>
-				
+
 				<MainCard>
 					<StepHeader>
 						<StepHeaderLeft>
 							<StepNumber>{currentStep + 1}</StepNumber>
 							<div>
 								<StepHeaderTitle>{STEP_METADATA[currentStep]?.title || 'Step'}</StepHeaderTitle>
-								<StepHeaderSubtitle>{STEP_METADATA[currentStep]?.subtitle || ''}</StepHeaderSubtitle>
+								<StepHeaderSubtitle>
+									{STEP_METADATA[currentStep]?.subtitle || ''}
+								</StepHeaderSubtitle>
 							</div>
 						</StepHeaderLeft>
 						<StepHeaderRight>
-							<StepTotal>Step {currentStep + 1} of {STEP_METADATA.length}</StepTotal>
+							<StepTotal>
+								Step {currentStep + 1} of {STEP_METADATA.length}
+							</StepTotal>
 						</StepHeaderRight>
 					</StepHeader>
-					
-					<StepContentWrapper>
-						{renderStepContent}
-					</StepContentWrapper>
+
+					<StepContentWrapper>{renderStepContent}</StepContentWrapper>
 				</MainCard>
-				
+
 				<StepNavigationButtons
 					currentStep={currentStep}
 					totalSteps={STEP_METADATA.length}
@@ -1342,7 +1461,7 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete current step first'}
 				/>
-				
+
 				<WorkerTokenModal
 					isOpen={showWorkerTokenModal}
 					onClose={() => setShowWorkerTokenModal(false)}
@@ -1356,8 +1475,10 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 						// IMPORTANT: Do NOT use authorization code flow scopes (openid profile email) for worker tokens
 						// Worker tokens use roles for authorization, not scopes. Scopes are optional - only send if user provides one.
 						// Load saved worker token credentials first to get the correct scopes
-						const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials('pingone-mfa-workflow-library');
-						
+						const savedWorkerTokenCreds = workerTokenCredentialsService.loadCredentials(
+							'pingone-mfa-workflow-library'
+						);
+
 						// Use saved worker token scopes if available, otherwise empty (no scope sent)
 						// Worker tokens use roles, not scopes - scopes are optional
 						let workerScopes = ''; // Empty by default - worker tokens use roles, not scopes
@@ -1369,20 +1490,26 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 							const scopeArray = savedScopes.split(/\s+/).filter(Boolean);
 							workerScopes = scopeArray.length > 0 ? scopeArray[0] : '';
 						}
-						
+
 						// Log what we're passing to help debug
-						console.log('[PingOneMFAWorkflowLibraryV7] 🎯 Passing credentials to WorkerTokenModal:', {
-							environmentId: credentials.environmentId || 'MISSING',
-							environmentIdLength: credentials.environmentId?.length || 0,
-							clientIdLength: credentials.clientId?.length || 0,
-							clientSecretLength: credentials.clientSecret?.length || 0,
-							userId: userId || 'not set',
-							warning: credentials.environmentId === userId ? '⚠️ WARNING: environmentId matches userId!' : 'OK',
-							authCodeFlowScopes: credentials.scopes, // Authorization code flow scopes (NOT used for worker tokens)
-							workerTokenScopes: workerScopes || '(empty - no scope will be sent)', // Worker token scopes (optional, roles-based)
-							note: 'Worker tokens use ROLES for authorization, not scopes. Scopes are optional and may not be sent.',
-						});
-						
+						console.log(
+							'[PingOneMFAWorkflowLibraryV7] 🎯 Passing credentials to WorkerTokenModal:',
+							{
+								environmentId: credentials.environmentId || 'MISSING',
+								environmentIdLength: credentials.environmentId?.length || 0,
+								clientIdLength: credentials.clientId?.length || 0,
+								clientSecretLength: credentials.clientSecret?.length || 0,
+								userId: userId || 'not set',
+								warning:
+									credentials.environmentId === userId
+										? '⚠️ WARNING: environmentId matches userId!'
+										: 'OK',
+								authCodeFlowScopes: credentials.scopes, // Authorization code flow scopes (NOT used for worker tokens)
+								workerTokenScopes: workerScopes || '(empty - no scope will be sent)', // Worker token scopes (optional, roles-based)
+								note: 'Worker tokens use ROLES for authorization, not scopes. Scopes are optional and may not be sent.',
+							}
+						);
+
 						return {
 							environmentId: credentials.environmentId || '',
 							clientId: credentials.clientId || '',
@@ -1399,4 +1526,3 @@ const PingOneMFAWorkflowLibraryV7: React.FC = () => {
 };
 
 export default PingOneMFAWorkflowLibraryV7;
-

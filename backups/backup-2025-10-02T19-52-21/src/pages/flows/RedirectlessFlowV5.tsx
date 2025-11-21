@@ -22,6 +22,9 @@ import styled from 'styled-components';
 import ConfigurationSummaryCard from '../../components/ConfigurationSummaryCard';
 import { CredentialsInput } from '../../components/CredentialsInput';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import {
 	HelperText,
 	ResultsHeading,
@@ -31,9 +34,6 @@ import {
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
-import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
-import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [

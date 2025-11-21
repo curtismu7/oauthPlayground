@@ -99,7 +99,7 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		// Priority 3: Check if this is a fresh navigation (no URL params, no code)
 		// If so, always start from step 0 to ensure flows reset when accessed from menu
 		const isFreshNavigation = !urlStep && !urlCode && location.pathname.includes('/flows/');
-		
+
 		if (isFreshNavigation) {
 			console.log(` [${config.flowType}] Fresh navigation detected - starting from step 0`);
 			setStep(0, 'fresh navigation from menu');
@@ -120,7 +120,14 @@ export const useFlowStepManager = (config: FlowStepConfig) => {
 		// Default: Start from beginning
 		setStep(config.defaultStep || 0, 'default initialization');
 		setIsInitialized(true);
-	}, [location.search, isInitialized, config, setStep, currentStepIndex]);
+	}, [
+		location.search,
+		isInitialized,
+		config,
+		setStep,
+		currentStepIndex,
+		location.pathname.includes,
+	]);
 
 	return {
 		currentStepIndex,

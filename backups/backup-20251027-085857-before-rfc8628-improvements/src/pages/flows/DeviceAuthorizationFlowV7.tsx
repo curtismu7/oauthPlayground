@@ -1,9 +1,9 @@
 // src/pages/flows/DeviceAuthorizationFlowV7_New.tsx
 // V7 Unified OAuth/OIDC Device Authorization Grant (RFC 8628) - Complete Implementation
 
+import { BarChart3, Play } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom';
 import {
 	FiAlertCircle,
 	FiAlertTriangle,
@@ -21,49 +21,55 @@ import {
 	FiX,
 	FiZap,
 } from 'react-icons/fi';
-import { BarChart3, Play } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
+import styled from 'styled-components';
+import AnalyticsDashboard from '../../components/AnalyticsDashboard';
 import DeviceTypeSelector from '../../components/DeviceTypeSelector';
 import DynamicDeviceFlow from '../../components/DynamicDeviceFlow';
-import { themeService } from '../../services/themeService';
-import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
-import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
-import TokenIntrospect from '../../components/TokenIntrospect';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import { useUISettings } from '../../contexts/UISettingsContext';
-import { useDeviceAuthorizationFlow, type DeviceAuthCredentials } from '../../hooks/useDeviceAuthorizationFlow';
-import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
 import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
+import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import InteractiveTutorial from '../../components/InteractiveTutorial';
+import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
+import PerformanceMonitor from '../../components/PerformanceMonitor';
+import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
+import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
+import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import type { StepCredentials } from '../../components/steps/CommonSteps';
+import TokenIntrospect from '../../components/TokenIntrospect';
+import { useUISettings } from '../../contexts/UISettingsContext';
+import { useCredentialBackup } from '../../hooks/useCredentialBackup';
+import {
+	type DeviceAuthCredentials,
+	useDeviceAuthorizationFlow,
+} from '../../hooks/useDeviceAuthorizationFlow';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { deviceTypeService } from '../../services/deviceTypeService';
+import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
+import { FlowCredentialService } from '../../services/flowCredentialService';
+import { FlowHeader as StandardFlowHeader } from '../../services/flowHeaderService';
+import {
+	OAuthErrorDetails,
+	OAuthErrorHandlingService,
+} from '../../services/oauthErrorHandlingService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { logger } from '../../utils/logger';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { checkCredentialsAndWarn } from '../../utils/credentialsWarningService';
-import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { FlowCredentialService } from '../../services/flowCredentialService';
-import { useCredentialBackup } from '../../hooks/useCredentialBackup';
-import { secureLog, secureErrorLog } from '../../utils/secureLogging';
-import { usePageScroll } from '../../hooks/usePageScroll';
-import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
-import OAuthErrorDisplay from '../../components/OAuthErrorDisplay';
-import { deviceTypeService } from '../../services/deviceTypeService';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import type { StepCredentials } from '../../components/steps/CommonSteps';
-import AnalyticsDashboard from '../../components/AnalyticsDashboard';
-import PerformanceMonitor from '../../components/PerformanceMonitor';
-import SecurityAnalyticsDashboard from '../../components/SecurityAnalyticsDashboard';
-import InteractiveTutorial from '../../components/InteractiveTutorial';
+import { secureErrorLog, secureLog } from '../../utils/secureLogging';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 // Styled Components (V5 Parity)
 const FlowContainer = styled.div`
@@ -79,20 +85,20 @@ const FlowContent = styled.div`
 `;
 
 const FlowHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)'};
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	border-radius: 1rem 1rem 0 0;
-	box-shadow: ${props => props.$variant === 'oidc' 
-		? '0 10px 25px rgba(59, 130, 246, 0.2)' 
-		: '0 10px 25px rgba(22, 163, 74, 0.2)'
-	};
+	box-shadow: ${(props) =>
+		props.$variant === 'oidc'
+			? '0 10px 25px rgba(59, 130, 246, 0.2)'
+			: '0 10px 25px rgba(22, 163, 74, 0.2)'};
 	max-width: 64rem;
 	margin: 0 auto;
 `;
@@ -111,18 +117,10 @@ const FlowSubtitle = styled.p`
 `;
 
 const StepBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(22, 163, 74, 0.2)'
-	};
-	border: 1px solid ${props => props.$variant === 'oidc' 
-		? '#60a5fa' 
-		: '#4ade80'
-	};
-	color: ${props => props.$variant === 'oidc' 
-		? '#dbeafe' 
-		: '#bbf7d0'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(22, 163, 74, 0.2)'};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#4ade80')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#bbf7d0')};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -386,7 +384,10 @@ const STEP_METADATA = [
 	{ title: 'Step 2: User Authorization & Polling', subtitle: 'Scan QR code and watch TV update' },
 	{ title: 'Step 3: Tokens Received', subtitle: 'View and analyze tokens' },
 	{ title: 'Step 4: Token Introspection', subtitle: 'Validate and inspect tokens' },
-	{ title: 'Step 5: Analytics & Monitoring', subtitle: 'View flow analytics and performance metrics' },
+	{
+		title: 'Step 5: Analytics & Monitoring',
+		subtitle: 'View flow analytics and performance metrics',
+	},
 	{ title: 'Step 6: Flow Complete', subtitle: 'Summary and next steps' },
 ] as const;
 
@@ -946,10 +947,10 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
-	background: ${props => props.$selected ? '#dbeafe' : 'white'};
-	color: ${props => props.$selected ? '#1e40af' : '#475569'};
-	font-weight: ${props => props.$selected ? '600' : '500'};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
+	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
 
@@ -971,7 +972,7 @@ const VariantDescription = styled.div`
 
 const DeviceAuthorizationFlowV7: React.FC = () => {
 	const location = useLocation();
-	
+
 	// Detect default variant based on navigation context
 	const getDefaultVariant = (): 'oauth' | 'oidc' => {
 		// Check if there's a variant specified in the URL params
@@ -980,7 +981,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		if (urlVariant === 'oidc' || urlVariant === 'oauth') {
 			return urlVariant as 'oauth' | 'oidc';
 		}
-		
+
 		// Check navigation state for context
 		interface LocationState {
 			fromSection?: 'oauth' | 'oidc';
@@ -989,14 +990,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		if (state?.fromSection === 'oidc') {
 			return 'oidc';
 		}
-		
+
 		// Default to OAuth (base protocol for Device Authorization Grant)
 		return 'oauth';
 	};
-	
+
 	// V7 Variant State
 	const [selectedVariant, setSelectedVariant] = useState<'oauth' | 'oidc'>(getDefaultVariant());
-	
+
 	const deviceFlow = useDeviceAuthorizationFlow();
 
 	const getDefaultScopes = useCallback(
@@ -1037,9 +1038,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 	const mapDeviceToStepCredentials = useCallback(
 		(creds: DeviceAuthCredentials | null): StepCredentials => {
-			const scopesValue = creds?.scopes && creds.scopes.trim()
-				? creds.scopes.trim()
-				: getDefaultScopes();
+			const scopesValue =
+				creds?.scopes && creds.scopes.trim() ? creds.scopes.trim() : getDefaultScopes();
 
 			return {
 				environmentId: creds?.environmentId ?? '',
@@ -1058,7 +1058,10 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		[getDefaultScopes]
 	);
 
-	const stepCredentials = useMemo<StepCredentials>(() => mapDeviceToStepCredentials(deviceFlow.credentials), [deviceFlow.credentials, mapDeviceToStepCredentials]);
+	const stepCredentials = useMemo<StepCredentials>(
+		() => mapDeviceToStepCredentials(deviceFlow.credentials),
+		[deviceFlow.credentials, mapDeviceToStepCredentials]
+	);
 
 	const handleStepCredentialsChange = useCallback(
 		(updated: StepCredentials) => {
@@ -1091,26 +1094,32 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	);
 
 	// V7 Variant Change Handler
-	const handleVariantChange = useCallback((variant: 'oauth' | 'oidc') => {
-		setSelectedVariant(variant);
-		
-		// Update scopes based on variant to meet PingOne requirements
-		const currentCredentials = deviceFlow.credentials || {
-			environmentId: '',
-			clientId: '',
-			scopes: getDefaultScopes(),
-		};
-		const updatedScopes = variant === 'oidc' 
-			? 'openid profile email' // OIDC MUST include 'openid' scope per spec
-			: 'openid read write'; // PingOne requires 'openid' scope even for OAuth 2.0
-			
-		ensureCredentials({
-			...currentCredentials,
-			scopes: updatedScopes
-		});
-		
-		v4ToastManager.showSuccess(`Switched to ${variant.toUpperCase()} Device Authorization variant`);
-	}, [deviceFlow.credentials, ensureCredentials]);
+	const handleVariantChange = useCallback(
+		(variant: 'oauth' | 'oidc') => {
+			setSelectedVariant(variant);
+
+			// Update scopes based on variant to meet PingOne requirements
+			const currentCredentials = deviceFlow.credentials || {
+				environmentId: '',
+				clientId: '',
+				scopes: getDefaultScopes(),
+			};
+			const updatedScopes =
+				variant === 'oidc'
+					? 'openid profile email' // OIDC MUST include 'openid' scope per spec
+					: 'openid read write'; // PingOne requires 'openid' scope even for OAuth 2.0
+
+			ensureCredentials({
+				...currentCredentials,
+				scopes: updatedScopes,
+			});
+
+			v4ToastManager.showSuccess(
+				`Switched to ${variant.toUpperCase()} Device Authorization variant`
+			);
+		},
+		[deviceFlow.credentials, ensureCredentials]
+	);
 
 	// V7 Variant Selector Component
 	const renderVariantSelector = () => (
@@ -1127,7 +1136,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				onClick={() => handleVariantChange('oidc')}
 			>
 				<VariantTitle>OpenID Connect Device Authorization</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+				<VariantDescription>
+					ID token + Access token - Authentication + Authorization
+				</VariantDescription>
 			</VariantButton>
 		</VariantSelector>
 	);
@@ -1160,7 +1171,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		corsOrigins: [],
 		corsAllowAnyOrigin: false,
 	});
-	
+
 	const [currentStep, setCurrentStep] = useState(() => {
 		// Check for restore_step from token management navigation
 		const restoreStep = sessionStorage.getItem('restore_step');
@@ -1197,7 +1208,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		completionDetails: false,
 		analytics: false,
 		tutorial: false,
-		uiSettings: true,  // Collapsed by default
+		uiSettings: true, // Collapsed by default
 		deviceSelection: false,
 	});
 	const [_copiedField, setCopiedField] = useState<string | null>(null);
@@ -1218,7 +1229,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}
 		return 'streaming-tv';
 	});
-	
+
 	// Error handling state
 	const [errorDetails, setErrorDetails] = useState<OAuthErrorDetails | null>(null);
 	const deviceConfig = useMemo(
@@ -1237,8 +1248,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		() => deviceTypeService.getWelcomeMessage(selectedDevice),
 		[selectedDevice]
 	);
-	const deviceApps = useMemo(() => deviceTypeService.getDeviceApps(selectedDevice), [selectedDevice]);
-	
+	const deviceApps = useMemo(
+		() => deviceTypeService.getDeviceApps(selectedDevice),
+		[selectedDevice]
+	);
+
 	// Monitor deviceFlow polling status for errors
 	React.useEffect(() => {
 		if (deviceFlow.pollingStatus.error) {
@@ -1254,13 +1268,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						hasClientSecret: !!deviceFlow.credentials.clientSecret,
 						hasEnvironmentId: !!deviceFlow.credentials.environmentId,
 						hasRedirectUri: !!deviceFlow.credentials.redirectUri,
-						hasScope: !!deviceFlow.credentials.scopes
+						hasScope: !!deviceFlow.credentials.scopes,
 					},
 					metadata: {
 						deviceCode: deviceFlow.deviceCodeData?.device_code ? 'present' : 'missing',
 						flowVariant: selectedVariant,
-						grantType: 'urn:ietf:params:oauth:grant-type:device_code'
-					}
+						grantType: 'urn:ietf:params:oauth:grant-type:device_code',
+					},
 				}
 			);
 			setErrorDetails(errorDetails);
@@ -1268,7 +1282,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			// Clear error details on success
 			setErrorDetails(null);
 		}
-	}, [deviceFlow.pollingStatus.error, deviceFlow.credentials, deviceFlow.deviceCodeData, selectedVariant]);
+	}, [
+		deviceFlow.pollingStatus.error,
+		deviceFlow.credentials,
+		deviceFlow.deviceCodeData,
+		selectedVariant,
+	]);
 	const deviceOptions = useMemo(() => deviceTypeService.getDeviceTypeOptions(), []);
 
 	React.useEffect(() => {
@@ -1291,7 +1310,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		checkCredentialsAndWarn(stepCredentials, {
 			flowName: 'Device Authorization Flow',
 			requiredFields: ['environmentId', 'clientId'],
-			showToast: true
+			showToast: true,
 		});
 
 		hasShownCredentialWarning.current = true;
@@ -1344,14 +1363,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	// Note: Credential handlers are now managed by ComprehensiveCredentialsService
 	// The V6 service architecture provides unified credential management with OIDC discovery
 
-
-
 	// Use credential backup hook for automatic backup and restoration
 	const { clearBackup, getBackupStats, downloadEnvFile } = useCredentialBackup({
 		flowKey: 'device-authorization-v7',
 		credentials: stepCredentials,
 		setCredentials: handleStepCredentialsChange,
-		enabled: true
+		enabled: true,
 	});
 
 	const navigateToTokenManagement = useCallback(() => {
@@ -1444,7 +1461,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		setUserInfo(null);
 		setIntrospectionResult(null);
 		setHasScrolledToTV(false);
-		
+
 		// Clear Device Authorization Flow V7-specific storage with error handling
 		try {
 			FlowCredentialService.clearFlowState('device-authorization-v7');
@@ -1453,7 +1470,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			console.error('[Device Authorization V7] Failed to clear flow state:', error);
 			v4ToastManager.showError('Failed to clear flow state. Please refresh the page.');
 		}
-		
+
 		// Clear credential backup when flow is reset
 		try {
 			clearBackup();
@@ -1499,14 +1516,17 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 	const getStepValidationMessage = useCallback((stepIndex: number): string => {
 		switch (stepIndex) {
 			case 1:
-				if (!deviceFlow.credentials) return 'Credentials are required. Please configure your environment and client settings.';
+				if (!deviceFlow.credentials)
+					return 'Credentials are required. Please configure your environment and client settings.';
 				return '';
 			case 2:
-				if (!deviceFlow.deviceCodeData) return 'Device code is required. Please request a device code first.';
+				if (!deviceFlow.deviceCodeData)
+					return 'Device code is required. Please request a device code first.';
 				return '';
 			case 3:
 			case 4:
-				if (!deviceFlow.tokens) return 'Tokens are required. Please complete the device authorization process first.';
+				if (!deviceFlow.tokens)
+					return 'Tokens are required. Please complete the device authorization process first.';
 				return '';
 			default:
 				return '';
@@ -1598,7 +1618,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<div>
 								<InfoTitle>Authorization Complete!</InfoTitle>
 								<InfoText>
-									The user authorized on their secondary device. Tokens have been issued to this device.
+									The user authorized on their secondary device. Tokens have been issued to this
+									device.
 								</InfoText>
 							</div>
 						</InfoBox>
@@ -1612,12 +1633,12 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											method: 'POST',
 											url: `https://auth.pingone.com/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/token`,
 											headers: {
-												'Content-Type': 'application/x-www-form-urlencoded'
+												'Content-Type': 'application/x-www-form-urlencoded',
 											},
 											body: {
 												grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
 												device_code: '[device_code_from_step_1]',
-												client_id: deviceFlow.credentials?.clientId || '[clientId]'
+												client_id: deviceFlow.credentials?.clientId || '[clientId]',
 											},
 											response: {
 												status: 200,
@@ -1625,22 +1646,35 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												headers: {
 													'Content-Type': 'application/json',
 													'Cache-Control': 'no-store',
-													'Pragma': 'no-cache'
+													Pragma: 'no-cache',
 												},
-												data: selectedVariant === 'oidc' ? {
-													access_token: deviceFlow.tokens?.access_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													id_token: deviceFlow.tokens?.id_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													refresh_token: deviceFlow.tokens?.refresh_token || 'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													token_type: 'Bearer',
-													expires_in: 3600,
-													scope: deviceFlow.tokens?.scope || 'openid profile email'
-												} : {
-													access_token: deviceFlow.tokens?.access_token || 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													refresh_token: deviceFlow.tokens?.refresh_token || 'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
-													token_type: 'Bearer',
-													expires_in: 3600,
-													scope: deviceFlow.tokens?.scope || 'read write'
-												}
+												data:
+													selectedVariant === 'oidc'
+														? {
+																access_token:
+																	deviceFlow.tokens?.access_token ||
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																id_token:
+																	deviceFlow.tokens?.id_token ||
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																refresh_token:
+																	deviceFlow.tokens?.refresh_token ||
+																	'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																token_type: 'Bearer',
+																expires_in: 3600,
+																scope: deviceFlow.tokens?.scope || 'openid profile email',
+															}
+														: {
+																access_token:
+																	deviceFlow.tokens?.access_token ||
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																refresh_token:
+																	deviceFlow.tokens?.refresh_token ||
+																	'rt_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...',
+																token_type: 'Bearer',
+																expires_in: 3600,
+																scope: deviceFlow.tokens?.scope || 'read write',
+															},
 											},
 											flowType: 'device-code',
 											stepName: 'token-exchange',
@@ -1649,13 +1683,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												'This request exchanges the device_code for access tokens',
 												'The device polls this endpoint until the user completes authorization',
 												`${selectedVariant === 'oidc' ? 'OIDC response includes ID token for user identity' : 'OAuth response includes access token for API access'}`,
-												'Polling continues until success, error, or timeout'
-											]
+												'Polling continues until success, error, or timeout',
+											],
 										}}
 										options={{
 											showEducationalNotes: true,
 											showFlowContext: true,
-											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+											urlHighlightRules:
+												EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code'),
 										}}
 									/>
 								</div>
@@ -1675,28 +1710,38 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 
 								<ResultsSection style={{ marginTop: '1.5rem' }}>
 									<ResultsHeading>
-										<FiKey size={18} /> {selectedVariant === 'oidc' ? 'Tokens Received' : 'Access Token'}
+										<FiKey size={18} />{' '}
+										{selectedVariant === 'oidc' ? 'Tokens Received' : 'Access Token'}
 									</ResultsHeading>
-									
-								{/* Use UnifiedTokenDisplayService for consistent token display */}
-								<div style={{ 
-									width: '100%', 
-									maxWidth: '60rem',
-									margin: '1rem 0'
-								}}>
-							{UnifiedTokenDisplayService.showTokens(
-								deviceFlow.tokens as any,
-								selectedVariant,
-								'device-authorization-v7',
-								{
-									showCopyButtons: true,
-									showDecodeButtons: true,
-									inlineDecode: true,
-								}
-							)}
-								</div>
-									
-									<ActionRow style={{ justifyContent: 'center', gap: '0.75rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+
+									{/* Use UnifiedTokenDisplayService for consistent token display */}
+									<div
+										style={{
+											width: '100%',
+											maxWidth: '60rem',
+											margin: '1rem 0',
+										}}
+									>
+										{UnifiedTokenDisplayService.showTokens(
+											deviceFlow.tokens as any,
+											selectedVariant,
+											'device-authorization-v7',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+												inlineDecode: true,
+											}
+										)}
+									</div>
+
+									<ActionRow
+										style={{
+											justifyContent: 'center',
+											gap: '0.75rem',
+											flexWrap: 'wrap',
+											marginTop: '1rem',
+										}}
+									>
 										<Button onClick={navigateToTokenManagement} $variant="primary">
 											<FiExternalLink /> Open Token Management
 										</Button>
@@ -1706,12 +1751,26 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<InfoBox $variant="info" style={{ marginTop: '1rem' }}>
 									<FiInfo size={20} />
 									<div>
-										<InfoTitle>{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Token Response (PingOne)</InfoTitle>
+										<InfoTitle>
+											{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Token Response
+											(PingOne)
+										</InfoTitle>
 										<InfoText>
-											{selectedVariant === 'oidc' 
-												? <><strong>OpenID Connect Device Flow</strong> returns an <code>access_token</code>, <code>id_token</code> (for user identity), and optionally a <code>refresh_token</code>. The <code>openid</code> scope is mandatory per OIDC Core 1.0 specification.</>
-												: <><strong>OAuth 2.0 Device Flow (PingOne)</strong> returns an <code>access_token</code> and optionally a <code>refresh_token</code>. No ID tokens or identity information, but PingOne still requires the <code>openid</code> scope (non-standard requirement).</>
-											}
+											{selectedVariant === 'oidc' ? (
+												<>
+													<strong>OpenID Connect Device Flow</strong> returns an{' '}
+													<code>access_token</code>, <code>id_token</code> (for user identity), and
+													optionally a <code>refresh_token</code>. The <code>openid</code> scope is
+													mandatory per OIDC Core 1.0 specification.
+												</>
+											) : (
+												<>
+													<strong>OAuth 2.0 Device Flow (PingOne)</strong> returns an{' '}
+													<code>access_token</code> and optionally a <code>refresh_token</code>. No
+													ID tokens or identity information, but PingOne still requires the{' '}
+													<code>openid</code> scope (non-standard requirement).
+												</>
+											)}
 										</InfoText>
 									</div>
 								</InfoBox>
@@ -1752,7 +1811,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 													<FiRefreshCw /> Decode Refresh Token
 												</Button>
 												<Button
-													onClick={() => handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')}
+													onClick={() =>
+														handleCopy(deviceFlow.tokens!.refresh_token!, 'Refresh Token')
+													}
 													$variant="outline"
 												>
 													<FiCopy /> Copy Refresh Token
@@ -1865,12 +1926,13 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									<InfoText style={{ marginTop: '0.5rem' }}>
 										<strong>Important:</strong> OIDC doesn't define a separate "Device Flow"
 										specification. It reuses the OAuth 2.0 Device Authorization Grant (RFC 8628) and
-										adds the usual OIDC semantics. <strong>PingOne requires the openid scope for both variants:</strong>
+										adds the usual OIDC semantics.{' '}
+										<strong>PingOne requires the openid scope for both variants:</strong>
 									</InfoText>
 									<ul style={{ marginTop: '0.5rem', marginBottom: 0, paddingLeft: '1.5rem' }}>
 										<li>
-											<strong>OAuth Device Flow (PingOne)</strong>: Returns access_token and refresh_token
-											only, but still requires <code>openid</code> scope
+											<strong>OAuth Device Flow (PingOne)</strong>: Returns access_token and
+											refresh_token only, but still requires <code>openid</code> scope
 										</li>
 										<li>
 											<strong>OIDC Device Flow</strong>: Adds ID Token, UserInfo endpoint, and
@@ -1878,7 +1940,10 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 										</li>
 										<li>Both flows use the same RFC 8628 device authorization mechanism</li>
 										<li>OIDC adds identity layer on top of OAuth's authorization framework</li>
-										<li><strong>PingOne Specific:</strong> Unlike standard OAuth 2.0, PingOne requires openid scope for all flows</li>
+										<li>
+											<strong>PingOne Specific:</strong> Unlike standard OAuth 2.0, PingOne requires
+											openid scope for all flows
+										</li>
 									</ul>
 								</div>
 							</InfoBox>
@@ -1984,8 +2049,16 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			<FlowConfigurationRequirements flowType="device-authorization" variant={selectedVariant} />
 
 			{/* Flow Walkthrough */}
-			<EnhancedFlowWalkthrough flowId={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
-			<FlowSequenceDisplay flowType={selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'} />
+			<EnhancedFlowWalkthrough
+				flowId={
+					selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'
+				}
+			/>
+			<FlowSequenceDisplay
+				flowType={
+					selectedVariant === 'oidc' ? 'oidc-device-authorization' : 'oauth-device-authorization'
+				}
+			/>
 
 			{/* V6 Comprehensive Credentials Service */}
 			<ComprehensiveCredentialsService
@@ -2005,29 +2078,33 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 						}
 					}
 				}}
-				
 				// Save handler for discovery completion
 				onSaveCredentials={async () => {
 					// Save credentials to persistent storage when discovery completes
 					try {
 						if (deviceFlow.credentials) {
-							await FlowCredentialService.saveFlowCredentials('device-authorization-v7', deviceFlow.credentials, {
-								showToast: false
-							});
+							await FlowCredentialService.saveFlowCredentials(
+								'device-authorization-v7',
+								deviceFlow.credentials,
+								{
+									showToast: false,
+								}
+							);
 							secureLog('✅ [Device Authorization V7] Credentials saved after discovery');
 						}
 					} catch (error) {
-						console.error('[Device Authorization V7] Failed to save credentials after discovery:', error);
+						console.error(
+							'[Device Authorization V7] Failed to save credentials after discovery:',
+							error
+						);
 						v4ToastManager.showError('Failed to save credentials after discovery');
 					}
 				}}
 				discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
 				showProviderInfo={true}
-				
 				// Unified credentials API (preferred)
 				credentials={stepCredentials}
 				onCredentialsChange={handleStepCredentialsChange}
-				
 				// Save handler - save to V7 standardized storage
 				onSave={async () => {
 					try {
@@ -2037,7 +2114,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								'device-authorization-v7',
 								deviceFlow.credentials
 							);
-							
+
 							// Credentials are already saved via FlowCredentialService above
 							v4ToastManager.showSuccess('Credentials saved successfully!');
 						}
@@ -2048,13 +2125,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				hasUnsavedChanges={false}
 				isSaving={false}
-				requireClientSecret={false}  // Device flows don't need client secret
-				
+				requireClientSecret={false} // Device flows don't need client secret
 				// Hide redirect URI fields (not needed for device flows)
 				showRedirectUri={false}
 				showPostLogoutRedirectUri={false}
 				showLoginHint={false}
-				
 				// PingOne Advanced Configuration
 				pingOneAppState={pingOneConfig}
 				onPingOneAppStateChange={setPingOneConfig}
@@ -2064,7 +2139,6 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				}}
 				hasUnsavedPingOneChanges={false}
 				isSavingPingOne={false}
-				
 				// Config Checker props
 				showConfigChecker={true}
 				workerToken={localStorage.getItem('worker_token') || ''}
@@ -2077,18 +2151,17 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				<div>
 					<InfoTitle>Device Flow Requirements</InfoTitle>
 					<InfoText>
-						<strong>Redirect URI:</strong> Not required for Device Authorization Flow (designed for 
+						<strong>Redirect URI:</strong> Not required for Device Authorization Flow (designed for
 						devices that cannot handle browser redirects like smart TVs, IoT devices, or CLI tools).
-						<br /><br />
-						<strong>Scopes (PingOne Implementation):</strong> 
-						{selectedVariant === 'oidc' 
+						<br />
+						<br />
+						<strong>Scopes (PingOne Implementation):</strong>
+						{selectedVariant === 'oidc'
 							? 'OpenID Connect REQUIRES the openid scope per OIDC Core 1.0 specification. Additional scopes like profile, email, offline_access are optional.'
-							: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'
-						}
+							: 'PingOne requires the openid scope even for OAuth 2.0 flows (this is a PingOne-specific requirement, not standard OAuth 2.0). Additional API scopes can be included.'}
 					</InfoText>
 				</div>
 			</InfoBox>
-
 		</>
 	);
 
@@ -2152,28 +2225,33 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 											method: 'POST',
 											url: `https://auth.pingone.com/${deviceFlow.credentials?.environmentId || '[environmentId]'}/as/device_authorization`,
 											headers: {
-												'Content-Type': 'application/x-www-form-urlencoded'
+												'Content-Type': 'application/x-www-form-urlencoded',
 											},
 											body: {
 												client_id: deviceFlow.credentials?.clientId || '[clientId]',
-												scope: deviceFlow.credentials?.scopes || (selectedVariant === 'oidc' ? 'openid profile email' : 'read write')
+												scope:
+													deviceFlow.credentials?.scopes ||
+													(selectedVariant === 'oidc' ? 'openid profile email' : 'read write'),
 											},
-											response: deviceFlow.deviceCodeData ? {
-												status: 200,
-												statusText: 'OK',
-												headers: {
-													'Content-Type': 'application/json',
-													'Cache-Control': 'no-store'
-												},
-												data: {
-													device_code: deviceFlow.deviceCodeData.device_code,
-													user_code: deviceFlow.deviceCodeData.user_code,
-													verification_uri: deviceFlow.deviceCodeData.verification_uri,
-													verification_uri_complete: deviceFlow.deviceCodeData.verification_uri_complete,
-													expires_in: deviceFlow.deviceCodeData.expires_in,
-													interval: deviceFlow.deviceCodeData.interval
-												}
-											} : undefined,
+											response: deviceFlow.deviceCodeData
+												? {
+														status: 200,
+														statusText: 'OK',
+														headers: {
+															'Content-Type': 'application/json',
+															'Cache-Control': 'no-store',
+														},
+														data: {
+															device_code: deviceFlow.deviceCodeData.device_code,
+															user_code: deviceFlow.deviceCodeData.user_code,
+															verification_uri: deviceFlow.deviceCodeData.verification_uri,
+															verification_uri_complete:
+																deviceFlow.deviceCodeData.verification_uri_complete,
+															expires_in: deviceFlow.deviceCodeData.expires_in,
+															interval: deviceFlow.deviceCodeData.interval,
+														},
+													}
+												: undefined,
 											flowType: 'device-code',
 											stepName: 'device-authorization-request',
 											description: `${selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Device Authorization Request`,
@@ -2181,13 +2259,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 												'This endpoint initiates the device authorization flow',
 												`For ${selectedVariant === 'oidc' ? 'OIDC' : 'OAuth 2.0'}: Returns device_code, user_code, and verification_uri`,
 												'The device will poll the token endpoint using the device_code',
-												'The user will enter the user_code at the verification_uri'
-											]
+												'The user will enter the user_code at the verification_uri',
+											],
 										}}
 										options={{
 											showEducationalNotes: true,
 											showFlowContext: true,
-											urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code')
+											urlHighlightRules:
+												EnhancedApiCallDisplayService.getDefaultHighlightRules('device-code'),
 										}}
 									/>
 								</div>
@@ -2214,8 +2293,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<div>
 									<InfoTitle>Choose Your Device Type</InfoTitle>
 									<InfoText>
-										Select the type of device you want to simulate for the authorization flow.
-										This will determine the visual interface and user experience.
+										Select the type of device you want to simulate for the authorization flow. This
+										will determine the visual interface and user experience.
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -2279,8 +2358,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									</Button>
 									{deviceFlow.deviceCodeData && (
 										<Button onClick={handleReset} $variant="danger">
-										<FiRefreshCw /> Start Over
-									</Button>
+											<FiRefreshCw /> Start Over
+										</Button>
 									)}
 								</div>
 
@@ -2395,7 +2474,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		}, 150);
 
 		const targetUrl =
-			deviceFlow.deviceCodeData.verification_uri_complete || deviceFlow.deviceCodeData.verification_uri;
+			deviceFlow.deviceCodeData.verification_uri_complete ||
+			deviceFlow.deviceCodeData.verification_uri;
 		window.open(targetUrl, '_blank');
 	}, [deviceFlow.deviceCodeData]);
 
@@ -2426,10 +2506,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			>
 				✅
 			</div>
-			<WelcomeMessage style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: deviceConfig.color }}>
+			<WelcomeMessage
+				style={{ fontSize: '1.5rem', marginBottom: '0.5rem', color: deviceConfig.color }}
+			>
 				{welcomeMessage}
 			</WelcomeMessage>
-			<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>Welcome Back, Demo User 👋</div>
+			<div style={{ fontSize: '1rem', color: '#94a3b8', marginBottom: '1.5rem' }}>
+				Welcome Back, Demo User 👋
+			</div>
 			<AppGrid>
 				{deviceApps.map((app) => (
 					<AppIcon key={app.label} $color={app.color}>
@@ -2473,7 +2557,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 			</div>
 			<div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⏳</div>
 			<div style={{ fontSize: '1.25rem', fontWeight: '600' }}>{waitingMessage}</div>
-			<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>AUTHORIZATION...</div>
+			<div style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+				AUTHORIZATION...
+			</div>
 			<div
 				style={{
 					fontSize: '0.875rem',
@@ -2678,7 +2764,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								On your phone, open {deviceFlow.deviceCodeData?.verification_uri}
 							</ConsoleHeroSubtitle>
 							<ConsoleHintRow>
-								<span>Enter code • <strong>{deviceFlow.deviceCodeData?.user_code}</strong></span>
+								<span>
+									Enter code • <strong>{deviceFlow.deviceCodeData?.user_code}</strong>
+								</span>
 								<span>Keep this screen open while we verify your account.</span>
 							</ConsoleHintRow>
 						</ConsoleHero>
@@ -2707,7 +2795,9 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 							<KioskForm>
 								<KioskRow>
 									<KioskLabel>Instructions</KioskLabel>
-									<KioskValue>Scan QR or visit {deviceFlow.deviceCodeData?.verification_uri}</KioskValue>
+									<KioskValue>
+										Scan QR or visit {deviceFlow.deviceCodeData?.verification_uri}
+									</KioskValue>
 								</KioskRow>
 								<KioskRow>
 									<KioskLabel>Authorization Code</KioskLabel>
@@ -2785,11 +2875,16 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 									deviceCode: deviceFlow.deviceCodeData?.device_code || '',
 									userCode: deviceFlow.deviceCodeData?.user_code || '',
 									verificationUri: deviceFlow.deviceCodeData?.verification_uri || '',
-									verificationUriComplete: deviceFlow.deviceCodeData?.verification_uri_complete || '',
+									verificationUriComplete:
+										deviceFlow.deviceCodeData?.verification_uri_complete || '',
 									expiresIn: deviceFlow.deviceCodeData?.expires_in || 0,
 									interval: deviceFlow.deviceCodeData?.interval || 5,
 									expiresAt: deviceFlow.deviceCodeData?.expires_at || new Date(),
-									status: deviceFlow.tokens ? 'authorized' : (deviceFlow.pollingStatus.isPolling ? 'pending' : 'pending'),
+									status: deviceFlow.tokens
+										? 'authorized'
+										: deviceFlow.pollingStatus.isPolling
+											? 'pending'
+											: 'pending',
 									tokens: deviceFlow.tokens,
 									lastPolled: deviceFlow.pollingStatus.lastPolled,
 									pollCount: deviceFlow.pollingStatus.pollCount || 0,
@@ -2934,8 +3029,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<BarChart3 size={16} /> Flow Analytics & Performance Monitoring
 							</ExplanationHeading>
 							<InfoText>
-								Monitor the performance and analytics of your device authorization flow.
-								Track completion rates, device usage patterns, and security metrics.
+								Monitor the performance and analytics of your device authorization flow. Track
+								completion rates, device usage patterns, and security metrics.
 							</InfoText>
 
 							{/* Analytics Dashboard */}
@@ -2958,11 +3053,11 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<div>
 									<InfoTitle>Analytics Features:</InfoTitle>
 									<InfoText>
-										• Flow completion tracking and success rates<br />
-										• Device usage patterns and preferences<br />
-										• Performance metrics and response times<br />
-										• Security analytics and threat detection<br />
-										• User behavior insights and learning progress
+										• Flow completion tracking and success rates
+										<br />• Device usage patterns and preferences
+										<br />• Performance metrics and response times
+										<br />• Security analytics and threat detection
+										<br />• User behavior insights and learning progress
 									</InfoText>
 								</div>
 							</InfoBox>
@@ -2991,8 +3086,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 								<Play size={16} /> Learn More About Device Authorization
 							</ExplanationHeading>
 							<InfoText>
-								Take an interactive tutorial to deepen your understanding of device authorization flows,
-								security considerations, and best practices.
+								Take an interactive tutorial to deepen your understanding of device authorization
+								flows, security considerations, and best practices.
 							</InfoText>
 
 							<div style={{ marginTop: '1.5rem' }}>
@@ -3084,7 +3179,7 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 		<FlowContainer>
 			<FlowContent>
 				<StandardFlowHeader flowId="device-authorization-v7" />
-				
+
 				<EnhancedFlowInfoCard
 					flowType={selectedVariant === 'oidc' ? 'oidc-device-code' : 'device-code'}
 					showAdditionalInfo={true}
@@ -3096,16 +3191,17 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 				<FlowHeader $variant={selectedVariant}>
 					<div>
 						<StepBadge $variant={selectedVariant}>
-							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION • V7 UNIFIED
+							{selectedVariant === 'oidc' ? 'OPENID CONNECT' : 'OAUTH 2.0'} DEVICE AUTHORIZATION •
+							V7 UNIFIED
 						</StepBadge>
 						<FlowTitle>
-							{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
+							{selectedVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'}{' '}
+							{STEP_METADATA[currentStep].title}
 						</FlowTitle>
 						<FlowSubtitle>
-							{selectedVariant === 'oidc' 
+							{selectedVariant === 'oidc'
 								? 'Authentication + Authorization with ID token and Access token'
-								: 'API Authorization with Access token only'
-							}
+								: 'API Authorization with Access token only'}
 						</FlowSubtitle>
 					</div>
 					<div style={{ fontSize: '2rem', fontWeight: '700', color: '#ffffff' }}>
@@ -3131,12 +3227,14 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					canNavigateNext={isStepValid(currentStep)}
 					isFirstStep={currentStep === 0}
 					nextButtonText={isStepValid(currentStep) ? 'Next' : 'Complete above action'}
-				disabledMessage={getStepValidationMessage(currentStep) || "Complete the action above to continue"}
-			/>
-		</FlowContent>
+					disabledMessage={
+						getStepValidationMessage(currentStep) || 'Complete the action above to continue'
+					}
+				/>
+			</FlowContent>
 
-		{/* Polling Prompt Modal */}
-		<ModalOverlay $isOpen={showPollingModal}>
+			{/* Polling Prompt Modal */}
+			<ModalOverlay $isOpen={showPollingModal}>
 				<ModalContent>
 					<ModalHeader>
 						<FiClock size={32} color="#3b82f6" />
@@ -3144,8 +3242,8 @@ const DeviceAuthorizationFlowV7: React.FC = () => {
 					</ModalHeader>
 					<ModalBody>
 						<p>
-							The device code has been generated and displayed on the {deviceConfig.displayName}. The user
-							can now scan the QR code or enter the code on their phone.
+							The device code has been generated and displayed on the {deviceConfig.displayName}.
+							The user can now scan the QR code or enter the code on their phone.
 						</p>
 						<p style={{ marginTop: '1rem' }}>
 							<strong>Next step:</strong> Start polling the authorization server to check if the

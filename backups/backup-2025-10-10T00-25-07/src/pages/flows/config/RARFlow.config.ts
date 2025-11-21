@@ -10,8 +10,14 @@ export const FLOW_TYPE = 'rar';
 export const STEP_CONFIGS = [
 	{ title: 'Step 1: Introduction & Setup', subtitle: 'Understand RAR and configure PingOne' },
 	{ title: 'Step 2: PKCE Generation', subtitle: 'Generate secure code verifier and challenge' },
-	{ title: 'Step 3: Authorization Details', subtitle: 'Define fine-grained authorization requirements' },
-	{ title: 'Step 4: PAR Request with RAR', subtitle: 'Push authorization request with authorization_details' },
+	{
+		title: 'Step 3: Authorization Details',
+		subtitle: 'Define fine-grained authorization requirements',
+	},
+	{
+		title: 'Step 4: PAR Request with RAR',
+		subtitle: 'Push authorization request with authorization_details',
+	},
 	{ title: 'Step 5: Authorization Request', subtitle: 'Redirect with request_uri' },
 	{ title: 'Step 6: Authorization Response', subtitle: 'Receive authorization code' },
 	{ title: 'Step 7: Token Exchange', subtitle: 'Exchange code for tokens' },
@@ -74,8 +80,10 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 export const RAR_EDUCATION = {
 	overview: {
 		title: 'What is RAR (Rich Authorization Requests)?',
-		description: 'RAR is an extension to OAuth 2.0 and OpenID Connect that enables clients to express fine-grained authorization details beyond simple scope strings using structured JSON data called authorization details.',
-		keyPoint: 'While OAuth scopes convey coarse-grained permissions (e.g., "read write"), RAR lets clients describe complex, domain-specific access needs (e.g., "read account #1234 transactions between specific dates").',
+		description:
+			'RAR is an extension to OAuth 2.0 and OpenID Connect that enables clients to express fine-grained authorization details beyond simple scope strings using structured JSON data called authorization details.',
+		keyPoint:
+			'While OAuth scopes convey coarse-grained permissions (e.g., "read write"), RAR lets clients describe complex, domain-specific access needs (e.g., "read account #1234 transactions between specific dates").',
 	},
 	benefits: [
 		'🎯 Permission Granularity: Fine-grained and contextual (vs broad scopes)',
@@ -113,4 +121,3 @@ export const RAR_EDUCATION = {
 	],
 	standard: 'RFC 9396 – OAuth 2.0 Rich Authorization Requests',
 };
-

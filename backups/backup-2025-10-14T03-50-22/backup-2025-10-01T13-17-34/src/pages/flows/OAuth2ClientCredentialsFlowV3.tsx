@@ -19,7 +19,6 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
-import { showGlobalWarning } from '../../hooks/useNotifications';
 import ColorCodedURL from '../../components/ColorCodedURL';
 import ConfirmationModal from '../../components/ConfirmationModal';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
@@ -27,6 +26,7 @@ import { FormField, FormInput, FormLabel, InfoBox } from '../../components/steps
 import TokenDisplay from '../../components/TokenDisplay';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { usePerformanceTracking } from '../../hooks/useAnalytics';
+import { showGlobalWarning } from '../../hooks/useNotifications';
 import { useAuthorizationFlowScroll } from '../../hooks/usePageScroll';
 import { discoveryService } from '../../services/discoveryService';
 import {

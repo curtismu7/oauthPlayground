@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiBookOpen, FiChevronDown, FiCode, FiHome, FiSettings, FiUser } from 'react-icons/fi';
 import { NavLink, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiHome, FiCode, FiUser, FiSettings, FiChevronDown, FiBookOpen } from 'react-icons/fi';
 
 const SidebarContainer = styled.aside`
   position: fixed;

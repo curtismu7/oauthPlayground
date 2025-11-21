@@ -5,13 +5,13 @@ import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowHeader } from '../../services/flowHeaderService';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
 import { isTokenExpired } from '../../utils/oauth';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { usePageScroll } from '../../hooks/usePageScroll';
 
 const Container = styled.div`
   max-width: 1200px;

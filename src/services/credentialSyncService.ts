@@ -20,19 +20,40 @@ class CredentialSyncService {
 	 */
 	initialize(): void {
 		if (this.isInitialized) return;
-		
+
 		// Listen for localStorage changes from other tabs
 		window.addEventListener('storage', this.handleStorageChange.bind(this));
-		
+
 		// Listen for custom credential change events
-		window.addEventListener('config-credentials-changed', this.handleConfigCredentialsChanged.bind(this));
-		window.addEventListener('permanent-credentials-changed', this.handlePermanentCredentialsChanged.bind(this));
-		window.addEventListener('authz-credentials-changed', this.handleAuthzCredentialsChanged.bind(this));
-		window.addEventListener('implicit-flow-credentials-changed', this.handleImplicitCredentialsChanged.bind(this));
-		window.addEventListener('worker-flow-credentials-changed', this.handleWorkerCredentialsChanged.bind(this));
-		window.addEventListener('device-flow-credentials-changed', this.handleDeviceCredentialsChanged.bind(this));
-		window.addEventListener('hybrid-flow-credentials-changed', this.handleHybridCredentialsChanged.bind(this));
-		
+		window.addEventListener(
+			'config-credentials-changed',
+			this.handleConfigCredentialsChanged.bind(this)
+		);
+		window.addEventListener(
+			'permanent-credentials-changed',
+			this.handlePermanentCredentialsChanged.bind(this)
+		);
+		window.addEventListener(
+			'authz-credentials-changed',
+			this.handleAuthzCredentialsChanged.bind(this)
+		);
+		window.addEventListener(
+			'implicit-flow-credentials-changed',
+			this.handleImplicitCredentialsChanged.bind(this)
+		);
+		window.addEventListener(
+			'worker-flow-credentials-changed',
+			this.handleWorkerCredentialsChanged.bind(this)
+		);
+		window.addEventListener(
+			'device-flow-credentials-changed',
+			this.handleDeviceCredentialsChanged.bind(this)
+		);
+		window.addEventListener(
+			'hybrid-flow-credentials-changed',
+			this.handleHybridCredentialsChanged.bind(this)
+		);
+
 		this.isInitialized = true;
 		console.log('🔄 [CredentialSyncService] Initialized cross-tab credential synchronization');
 	}
@@ -43,15 +64,15 @@ class CredentialSyncService {
 	private handleStorageChange(event: StorageEvent): void {
 		if (!event.key || !event.key.includes('pingone')) return;
 		if (!event.newValue) return; // Ignore deletions
-		
+
 		try {
 			const credentials = JSON.parse(event.newValue);
 			const timestamp = Date.now();
-			
+
 			// Determine the type of credential change based on the key
 			let eventType: CredentialSyncEvent['type'] = 'credentials-changed';
 			let flowKey: string | undefined;
-			
+
 			if (event.key.includes('_flow_credentials')) {
 				eventType = 'flow-credentials-changed';
 				// Extract flow key from storage key
@@ -61,24 +82,23 @@ class CredentialSyncService {
 				else if (event.key.includes('device_flow_credentials')) flowKey = 'device-authorization';
 				else if (event.key.includes('hybrid_flow_credentials')) flowKey = 'hybrid';
 			}
-			
+
 			const syncEvent: CredentialSyncEvent = {
 				type: eventType,
 				flowKey,
 				credentials,
-				timestamp
+				timestamp,
 			};
-			
+
 			console.log('🔄 [CredentialSyncService] Detected credential change from other tab:', {
 				key: event.key,
 				eventType,
 				flowKey,
-				hasCredentials: !!(credentials.environmentId || credentials.clientId)
+				hasCredentials: !!(credentials.environmentId || credentials.clientId),
 			});
-			
+
 			// Notify all listeners
 			this.notifyListeners(syncEvent);
-			
 		} catch (error) {
 			console.error('❌ [CredentialSyncService] Failed to parse credential change event:', error);
 		}
@@ -90,14 +110,16 @@ class CredentialSyncService {
 	private handleConfigCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handleConfigCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handleConfigCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'credentials-changed',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -107,14 +129,16 @@ class CredentialSyncService {
 	private handlePermanentCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handlePermanentCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handlePermanentCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'credentials-changed',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -124,15 +148,17 @@ class CredentialSyncService {
 	private handleAuthzCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handleAuthzCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handleAuthzCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'flow-credentials-changed',
 			flowKey: 'authorization-code',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -142,15 +168,17 @@ class CredentialSyncService {
 	private handleImplicitCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handleImplicitCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handleImplicitCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'flow-credentials-changed',
 			flowKey: 'implicit',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -160,15 +188,17 @@ class CredentialSyncService {
 	private handleWorkerCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handleWorkerCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handleWorkerCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'flow-credentials-changed',
 			flowKey: 'worker-token',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -178,15 +208,17 @@ class CredentialSyncService {
 	private handleDeviceCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handleDeviceCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handleDeviceCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'flow-credentials-changed',
 			flowKey: 'device-authorization',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -196,15 +228,17 @@ class CredentialSyncService {
 	private handleHybridCredentialsChanged(event: CustomEvent): void {
 		// ✅ ADD NULL CHECKING
 		if (!event.detail || !event.detail.credentials) {
-			console.warn('[CredentialSyncService] handleHybridCredentialsChanged: event.detail or credentials is null');
+			console.warn(
+				'[CredentialSyncService] handleHybridCredentialsChanged: event.detail or credentials is null'
+			);
 			return;
 		}
-		
+
 		this.notifyListeners({
 			type: 'flow-credentials-changed',
 			flowKey: 'hybrid',
 			credentials: event.detail.credentials,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		});
 	}
 
@@ -215,7 +249,7 @@ class CredentialSyncService {
 		// Notify general credential change listeners
 		const generalListeners = this.listeners.get('*');
 		if (generalListeners) {
-			generalListeners.forEach(listener => {
+			generalListeners.forEach((listener) => {
 				try {
 					listener(event);
 				} catch (error) {
@@ -228,11 +262,14 @@ class CredentialSyncService {
 		if (event.flowKey) {
 			const flowListeners = this.listeners.get(event.flowKey);
 			if (flowListeners) {
-				flowListeners.forEach(listener => {
+				flowListeners.forEach((listener) => {
 					try {
 						listener(event);
 					} catch (error) {
-						console.error('❌ [CredentialSyncService] Error in flow credential change listener:', error);
+						console.error(
+							'❌ [CredentialSyncService] Error in flow credential change listener:',
+							error
+						);
 					}
 				});
 			}
@@ -242,18 +279,15 @@ class CredentialSyncService {
 	/**
 	 * Subscribe to credential changes
 	 */
-	subscribe(
-		flowKey: string | '*',
-		listener: (event: CredentialSyncEvent) => void
-	): () => void {
+	subscribe(flowKey: string | '*', listener: (event: CredentialSyncEvent) => void): () => void {
 		if (!this.listeners.has(flowKey)) {
 			this.listeners.set(flowKey, new Set());
 		}
-		
+
 		this.listeners.get(flowKey)!.add(listener);
-		
+
 		console.log(`🔄 [CredentialSyncService] Subscribed to credential changes for flow: ${flowKey}`);
-		
+
 		// Return unsubscribe function
 		return () => {
 			const listeners = this.listeners.get(flowKey);
@@ -263,7 +297,9 @@ class CredentialSyncService {
 					this.listeners.delete(flowKey);
 				}
 			}
-			console.log(`🔄 [CredentialSyncService] Unsubscribed from credential changes for flow: ${flowKey}`);
+			console.log(
+				`🔄 [CredentialSyncService] Unsubscribed from credential changes for flow: ${flowKey}`
+			);
 		};
 	}
 
@@ -273,15 +309,18 @@ class CredentialSyncService {
 	async refreshFlowCredentials(flowKey: string): Promise<any> {
 		try {
 			console.log(`🔄 [CredentialSyncService] Refreshing credentials for flow: ${flowKey}`);
-			
+
 			const { credentials } = await FlowCredentialService.loadFlowCredentials({
 				flowKey,
-				defaultCredentials: {}
+				defaultCredentials: {},
 			});
-			
+
 			return credentials;
 		} catch (error) {
-			console.error(`❌ [CredentialSyncService] Failed to refresh credentials for flow ${flowKey}:`, error);
+			console.error(
+				`❌ [CredentialSyncService] Failed to refresh credentials for flow ${flowKey}:`,
+				error
+			);
 			return null;
 		}
 	}
@@ -298,14 +337,35 @@ class CredentialSyncService {
 	 */
 	cleanup(): void {
 		window.removeEventListener('storage', this.handleStorageChange.bind(this));
-		window.removeEventListener('config-credentials-changed', this.handleConfigCredentialsChanged.bind(this));
-		window.removeEventListener('permanent-credentials-changed', this.handlePermanentCredentialsChanged.bind(this));
-		window.removeEventListener('authz-credentials-changed', this.handleAuthzCredentialsChanged.bind(this));
-		window.removeEventListener('implicit-flow-credentials-changed', this.handleImplicitCredentialsChanged.bind(this));
-		window.removeEventListener('worker-flow-credentials-changed', this.handleWorkerCredentialsChanged.bind(this));
-		window.removeEventListener('device-flow-credentials-changed', this.handleDeviceCredentialsChanged.bind(this));
-		window.removeEventListener('hybrid-flow-credentials-changed', this.handleHybridCredentialsChanged.bind(this));
-		
+		window.removeEventListener(
+			'config-credentials-changed',
+			this.handleConfigCredentialsChanged.bind(this)
+		);
+		window.removeEventListener(
+			'permanent-credentials-changed',
+			this.handlePermanentCredentialsChanged.bind(this)
+		);
+		window.removeEventListener(
+			'authz-credentials-changed',
+			this.handleAuthzCredentialsChanged.bind(this)
+		);
+		window.removeEventListener(
+			'implicit-flow-credentials-changed',
+			this.handleImplicitCredentialsChanged.bind(this)
+		);
+		window.removeEventListener(
+			'worker-flow-credentials-changed',
+			this.handleWorkerCredentialsChanged.bind(this)
+		);
+		window.removeEventListener(
+			'device-flow-credentials-changed',
+			this.handleDeviceCredentialsChanged.bind(this)
+		);
+		window.removeEventListener(
+			'hybrid-flow-credentials-changed',
+			this.handleHybridCredentialsChanged.bind(this)
+		);
+
 		this.listeners.clear();
 		this.isInitialized = false;
 		console.log('🔄 [CredentialSyncService] Cleaned up credential synchronization');

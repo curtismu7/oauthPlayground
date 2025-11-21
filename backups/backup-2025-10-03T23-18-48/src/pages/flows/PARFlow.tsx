@@ -453,7 +453,8 @@ console.log('✅ User redirected back with auth code');`,
 					setResponse((prev) => ({
 						...prev,
 						authorizationUrl: authUrl,
-						message: 'User redirect simulated - in real flow, user would be redirected to authorization endpoint',
+						message:
+							'User redirect simulated - in real flow, user would be redirected to authorization endpoint',
 					}));
 				}
 			},
@@ -721,7 +722,9 @@ if (tokenResponse.ok) {
 								</PARDetail>
 								<PARDetail>
 									<PARLabel>Note</PARLabel>
-									<PARValue>In a real implementation, the user would be redirected to this URL</PARValue>
+									<PARValue>
+										In a real implementation, the user would be redirected to this URL
+									</PARValue>
 								</PARDetail>
 							</PARDetails>
 						</>

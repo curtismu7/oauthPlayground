@@ -1,6 +1,6 @@
 // src/hooks/useDeviceAuthorizationFlow.ts
 // Device Authorization Flow state management and logic
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface DeviceCodeResponse {

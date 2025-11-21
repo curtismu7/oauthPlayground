@@ -29,17 +29,18 @@ const WorkerActions: React.FC<{
 );
 
 // src/pages/ClientGenerator.tsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiArrowRight, FiEye, FiEyeOff, FiKey, FiSettings, FiShield, FiX } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { FiKey, FiCheckCircle, FiSettings, FiX, FiArrowRight, FiEyeOff, FiEye, FiRotateCcw, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import TokenDisplayService from '../services/tokenDisplayService';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { v4ToastManager } from '../utils/v4ToastMessages';
-import { CredentialsInput } from '../components/CredentialsInput';
 import ColoredUrlDisplay from '../components/ColoredUrlDisplay';
-import { FlowHeader } from '../services/flowHeaderService';
+import { CredentialsInput } from '../components/CredentialsInput';
 import { WorkerTokenDetectedBanner } from '../components/WorkerTokenDetectedBanner';
+import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
+import TokenDisplayService from '../services/tokenDisplayService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
+import { workerTokenServiceV8 } from '../v8/services/workerTokenServiceV8';
 
 const Container = styled.div`
 	max-width: 1200px;
@@ -71,14 +72,14 @@ const Subtitle = styled.p`
 	line-height: 1.6;
 `;
 
-const CardGrid = styled.div`
+const _CardGrid = styled.div`
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 	gap: 2rem;
 	margin-bottom: 3rem;
 `;
 
-const AppTypeCard = styled.div<{ selected: boolean }>`
+const _AppTypeCard = styled.div<{ selected: boolean }>`
 	background: white;
 	border: 2px solid ${({ selected, theme }) => (selected ? theme.colors.primary : '#e5e7eb')};
 	border-radius: 0.75rem;
@@ -133,7 +134,7 @@ const FormTitle = styled.h2`
 	gap: 0.75rem;
 `;
 
-const FormGrid = styled.div`
+const _FormGrid = styled.div`
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 1.5rem;
@@ -156,7 +157,7 @@ const Label = styled.label`
 	margin-bottom: 0.5rem;
 `;
 
-const Input = styled.input`
+const _Input = styled.input`
 	padding: 0.75rem;
 	border: 1px solid #d1d5db;
 	border-radius: 6px;
@@ -169,7 +170,7 @@ const Input = styled.input`
 	}
 `;
 
-const TextArea = styled.textarea`
+const _TextArea = styled.textarea`
 	padding: 0.75rem;
 	border: 1px solid #d1d5db;
 	border-radius: 6px;
@@ -199,13 +200,13 @@ const Select = styled.select`
 	}
 `;
 
-const CheckboxGroup = styled.div`
+const _CheckboxGroup = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
 `;
 
-const CheckboxLabel = styled.label`
+const _CheckboxLabel = styled.label`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -214,13 +215,13 @@ const CheckboxLabel = styled.label`
 	cursor: pointer;
 `;
 
-const Checkbox = styled.input`
+const _Checkbox = styled.input`
 	width: 16px;
 	height: 16px;
 	accent-color: ${({ theme }) => theme.colors.primary};
 `;
 
-const ButtonGroup = styled.div`
+const _ButtonGroup = styled.div`
 	display: flex;
 	justify-content: flex-end;
 	gap: 1rem;
@@ -248,7 +249,7 @@ const Button = styled.button.withConfig({
 		}
 	`
 			: variant === 'danger'
-			? `
+				? `
 		background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 		color: white;
 		box-shadow: 0 12px 28px -18px rgba(220, 38, 38, 0.55);
@@ -257,7 +258,7 @@ const Button = styled.button.withConfig({
 			box-shadow: 0 16px 35px -20px rgba(220, 38, 38, 0.65);
 		}
 	`
-			: `
+				: `
 		background: white;
 		color: ${theme.colors.gray700};
 		border-color: #d1d5db;
@@ -304,7 +305,7 @@ const ActionButton = styled.button`
 	}
 `;
 
-const ResultCard = styled.div<{ type: 'success' | 'error' }>`
+const _ResultCard = styled.div<{ type: 'success' | 'error' }>`
 	background: ${({ type }) => (type === 'success' ? '#f0fdf4' : '#fef2f2')};
 	border: 1px solid ${({ type }) => (type === 'success' ? '#22c55e' : '#ef4444')};
 	border-radius: 0.75rem;
@@ -312,7 +313,7 @@ const ResultCard = styled.div<{ type: 'success' | 'error' }>`
 	margin-top: 2rem;
 `;
 
-const ResultTitle = styled.h3<{ $type: 'success' | 'error' }>`
+const _ResultTitle = styled.h3<{ $type: 'success' | 'error' }>`
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
@@ -322,11 +323,11 @@ const ResultTitle = styled.h3<{ $type: 'success' | 'error' }>`
 	margin-bottom: 1rem;
 `;
 
-const ResultContent = styled.div`
+const _ResultContent = styled.div`
 	margin-bottom: 1rem;
 `;
 
-const ResultDetails = styled.div`
+const _ResultDetails = styled.div`
 	background: white;
 	border: 1px solid #e5e7eb;
 	border-radius: 0.5rem;
@@ -351,7 +352,7 @@ const LoadingSpinner = styled.div`
 	}
 `;
 
-const SuccessMessage = styled.div`
+const _SuccessMessage = styled.div`
 	background: #d1fae5;
 	border: 1px solid #6ee7b7;
 	border-radius: 0.75rem;
@@ -402,14 +403,28 @@ const ClientGenerator: React.FC = () => {
 	useEffect(() => {
 		const loadAndGetToken = async () => {
 			try {
-				// Try to load saved worker credentials
-				const saved = localStorage.getItem('app-generator-worker-credentials');
+				// Try to load saved worker credentials from global service
+				const saved = await workerTokenServiceV8.loadCredentials();
 				if (saved) {
-					const credentials = JSON.parse(saved);
+					const authMethod = saved.tokenEndpointAuthMethod || 'client_secret_post';
+					const credentials = {
+						environmentId: saved.environmentId,
+						clientId: saved.clientId,
+						clientSecret: saved.clientSecret,
+						scopes: saved.scopes?.join(' ') || workerCredentials.scopes,
+						tokenEndpointAuthMethod: (authMethod === 'client_secret_basic' || authMethod === 'client_secret_post'
+							? authMethod
+							: 'client_secret_post') as 'client_secret_basic' | 'client_secret_post',
+					};
 					setWorkerCredentials(credentials);
-					
-					// Silently get token if we have credentials
-					if (credentials.clientId && credentials.clientSecret && credentials.environmentId) {
+
+					// Check if we have a valid token already
+					const existingToken = await workerTokenServiceV8.getToken();
+					if (existingToken) {
+						console.log('[App Generator] Using existing worker token from service');
+						setWorkerToken(existingToken);
+					} else if (credentials.clientId && credentials.clientSecret && credentials.environmentId) {
+						// Silently get token if we have credentials but no token
 						console.log('[App Generator] Silently requesting worker token...');
 						await getWorkerTokenSilently(credentials);
 					}
@@ -420,6 +435,7 @@ const ClientGenerator: React.FC = () => {
 		};
 
 		loadAndGetToken();
+		// biome-ignore lint/correctness/useExhaustiveDependencies: Only run once on mount
 	}, []);
 
 	// Silently get worker token
@@ -433,7 +449,7 @@ const ClientGenerator: React.FC = () => {
 			if (!envId) {
 				throw new Error('Environment ID is required');
 			}
-			
+
 			// Basic validation: environment IDs are typically UUID format (36 chars with dashes)
 			// Client IDs are much longer base64-like strings
 			if (envId.length > 50 || !envId.match(/^[a-zA-Z0-9-]+$/)) {
@@ -444,17 +460,17 @@ const ClientGenerator: React.FC = () => {
 			const tokenEndpoint = `https://auth.pingone.com/${envId}/as/token`;
 			console.log('[App Generator] Requesting token from:', tokenEndpoint);
 			console.log('[App Generator] Using auth method:', credentials.tokenEndpointAuthMethod);
-			
+
 			// Prepare headers and body based on auth method
 			const headers: Record<string, string> = {
 				'Content-Type': 'application/x-www-form-urlencoded',
 			};
-			
+
 			const bodyParams: Record<string, string> = {
 				grant_type: 'client_credentials',
 				scope: credentials.scopes,
 			};
-			
+
 			if (credentials.tokenEndpointAuthMethod === 'client_secret_basic') {
 				// Client Secret Basic: credentials in Authorization header
 				const basicAuth = btoa(`${credentials.clientId}:${credentials.clientSecret}`);
@@ -464,7 +480,7 @@ const ClientGenerator: React.FC = () => {
 				bodyParams.client_id = credentials.clientId;
 				bodyParams.client_secret = credentials.clientSecret;
 			}
-			
+
 			// Capture request details for display
 			setWorkerTokenRequest({
 				url: tokenEndpoint,
@@ -473,7 +489,7 @@ const ClientGenerator: React.FC = () => {
 				body: new URLSearchParams(bodyParams).toString(),
 				authMethod: credentials.tokenEndpointAuthMethod,
 			});
-			
+
 			const response = await fetch(tokenEndpoint, {
 				method: 'POST',
 				headers,
@@ -483,12 +499,21 @@ const ClientGenerator: React.FC = () => {
 			if (!response.ok) {
 				const errorText = await response.text();
 				console.error('[App Generator] Token request failed:', response.status, errorText);
-				throw new Error(`Token request failed: ${response.status} - ${errorText.substring(0, 100)}`);
+				throw new Error(
+					`Token request failed: ${response.status} - ${errorText.substring(0, 100)}`
+				);
 			}
 
 			const tokenData = await response.json();
-			setWorkerToken(tokenData.access_token);
-			console.log('[App Generator] Worker token obtained successfully');
+			const accessToken = tokenData.access_token;
+			const expiresIn = tokenData.expires_in ? parseInt(tokenData.expires_in, 10) : undefined;
+			const expiresAt = expiresIn ? Date.now() + expiresIn * 1000 : undefined;
+
+			// Save token to global service
+			await workerTokenServiceV8.saveToken(accessToken, expiresAt);
+
+			setWorkerToken(accessToken);
+			console.log('[App Generator] Worker token obtained and saved to global service');
 		} catch (error) {
 			console.error('[App Generator] Failed to get worker token:', error);
 			setTokenError(error instanceof Error ? error.message : 'Failed to get token');
@@ -499,28 +524,36 @@ const ClientGenerator: React.FC = () => {
 
 	// Handle worker credential changes
 	const handleWorkerCredentialChange = useCallback((field: string, value: string) => {
-		setWorkerCredentials(prev => ({ ...prev, [field]: value }));
+		setWorkerCredentials((prev) => ({ ...prev, [field]: value }));
 	}, []);
 
 	// Save credentials and get token
 	const handleSaveAndGetToken = useCallback(async () => {
 		try {
-			// Save credentials to localStorage
-			localStorage.setItem('app-generator-worker-credentials', JSON.stringify(workerCredentials));
-			v4ToastManager.showSuccess('Worker credentials saved');
-			
+			// Save credentials to global service
+			await workerTokenServiceV8.saveCredentials({
+				environmentId: workerCredentials.environmentId,
+				clientId: workerCredentials.clientId,
+				clientSecret: workerCredentials.clientSecret,
+				scopes: workerCredentials.scopes.split(/\s+/).filter(Boolean),
+				tokenEndpointAuthMethod: workerCredentials.tokenEndpointAuthMethod,
+			});
+			v4ToastManager.showSuccess('Worker credentials saved to global storage');
+
 			// Get token
 			await getWorkerTokenSilently(workerCredentials);
-			v4ToastManager.showSuccess('Worker token obtained!');
+			v4ToastManager.showSuccess('Worker token obtained and saved!');
 		} catch (error) {
 			console.error('[App Generator] Failed to save and get token:', error);
-			v4ToastManager.showError('Failed to obtain worker token');
+			v4ToastManager.showError(
+				error instanceof Error ? error.message : 'Failed to obtain worker token'
+			);
 		}
-	}, [workerCredentials]);
+	}, [workerCredentials, getWorkerTokenSilently]);
 
 	const handleTokenDecode = (tokenKey: string) => {
 		const isDecoded = tokenDecodeStates[tokenKey] || false;
-		setTokenDecodeStates(prev => ({ ...prev, [tokenKey]: !isDecoded }));
+		setTokenDecodeStates((prev) => ({ ...prev, [tokenKey]: !isDecoded }));
 	};
 
 	return (
@@ -530,7 +563,8 @@ const ClientGenerator: React.FC = () => {
 			<Header>
 				<Title>PingOne Client Generator - Worker Token Setup</Title>
 				<Subtitle>
-					Obtain a worker token for managing PingOne applications. Use this token to create and manage OAuth applications.
+					Obtain a worker token for managing PingOne applications. Use this token to create and
+					manage OAuth applications.
 				</Subtitle>
 			</Header>
 
@@ -544,9 +578,19 @@ const ClientGenerator: React.FC = () => {
 					<p style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
 						Enter your Worker application credentials to manage PingOne applications.
 					</p>
-					<p style={{ color: '#f59e0b', fontSize: '0.875rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-						<FiSettings /> 
-						<strong>Note:</strong> Environment ID should be a UUID format (e.g., "12345678-1234-1234-1234-123456789abc"), not a Client ID.
+					<p
+						style={{
+							color: '#f59e0b',
+							fontSize: '0.875rem',
+							marginBottom: '1.5rem',
+							display: 'flex',
+							alignItems: 'center',
+							gap: '0.5rem',
+						}}
+					>
+						<FiSettings />
+						<strong>Note:</strong> Environment ID should be a UUID format (e.g.,
+						"12345678-1234-1234-1234-123456789abc"), not a Client ID.
 					</p>
 
 					<CredentialsInput
@@ -571,22 +615,50 @@ const ClientGenerator: React.FC = () => {
 							<span style={{ color: '#ef4444', marginLeft: '0.25rem' }}>*</span>
 						</Label>
 						<p style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-							This must match the authentication method configured in your PingOne worker application.
+							This must match the authentication method configured in your PingOne worker
+							application.
 						</p>
 						<Select
 							value={workerCredentials.tokenEndpointAuthMethod}
-							onChange={(e) => handleWorkerCredentialChange('tokenEndpointAuthMethod', e.target.value as 'client_secret_basic' | 'client_secret_post')}
+							onChange={(e) =>
+								handleWorkerCredentialChange(
+									'tokenEndpointAuthMethod',
+									e.target.value as 'client_secret_basic' | 'client_secret_post'
+								)
+							}
 						>
-							<option value="client_secret_post">Client Secret Post (credentials in request body)</option>
-							<option value="client_secret_basic">Client Secret Basic (credentials in Authorization header)</option>
+							<option value="client_secret_post">
+								Client Secret Post (credentials in request body)
+							</option>
+							<option value="client_secret_basic">
+								Client Secret Basic (credentials in Authorization header)
+							</option>
 						</Select>
-						<p style={{ fontSize: '0.75rem', color: '#f59e0b', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+						<p
+							style={{
+								fontSize: '0.75rem',
+								color: '#f59e0b',
+								marginTop: '0.5rem',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.25rem',
+							}}
+						>
 							<FiSettings size={12} />
-							<strong>Important:</strong> Check your worker app settings in PingOne to ensure this matches.
+							<strong>Important:</strong> Check your worker app settings in PingOne to ensure this
+							matches.
 						</p>
 					</FormGroup>
 
-					<div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+					<div
+						style={{
+							marginTop: '1.5rem',
+							display: 'flex',
+							gap: '1rem',
+							alignItems: 'center',
+							flexWrap: 'wrap',
+						}}
+					>
 						<ActionButton
 							onClick={handleSaveAndGetToken}
 							disabled={
@@ -606,11 +678,11 @@ const ClientGenerator: React.FC = () => {
 								</>
 							)}
 						</ActionButton>
-						
+
 						<Button
 							variant="danger"
-							onClick={() => {
-								localStorage.removeItem('app-generator-worker-credentials');
+							onClick={async () => {
+								await workerTokenServiceV8.clearCredentials();
 								setWorkerCredentials({
 									environmentId: '',
 									clientId: '',
@@ -618,16 +690,19 @@ const ClientGenerator: React.FC = () => {
 									scopes: 'openid p1:create:application p1:read:application p1:update:application',
 									tokenEndpointAuthMethod: 'client_secret_post',
 								});
+								setWorkerToken(null);
 								setTokenError(null);
-								v4ToastManager.showSuccess('Credentials cleared');
+								v4ToastManager.showSuccess('Credentials cleared from global storage');
 							}}
 							style={{ padding: '0.75rem 1.25rem' }}
 						>
 							<FiX /> Clear
 						</Button>
-						
+
 						{tokenError && (
-							<span style={{ color: '#ef4444', fontSize: '0.9rem', width: '100%', marginTop: '0.5rem' }}>
+							<span
+								style={{ color: '#ef4444', fontSize: '0.9rem', width: '100%', marginTop: '0.5rem' }}
+							>
 								⚠️ {tokenError}
 							</span>
 						)}
@@ -638,8 +713,8 @@ const ClientGenerator: React.FC = () => {
 			{/* Success indicator when we have a token */}
 			{workerToken && (
 				<div>
-					<WorkerTokenDetectedBanner 
-						token={workerToken} 
+					<WorkerTokenDetectedBanner
+						token={workerToken}
 						message="Worker token obtained successfully! Ready to create PingOne applications."
 					/>
 					<div style={{ marginTop: '1rem' }}>
@@ -652,15 +727,16 @@ const ClientGenerator: React.FC = () => {
 									},
 								});
 							}}
-							onClearToken={() => {
+							onClearToken={async () => {
+								await workerTokenServiceV8.clearToken();
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);
 								setTokenDecodeStates({});
 								v4ToastManager.showSuccess('Token cleared - credentials preserved');
 							}}
-							onClearAll={() => {
-								localStorage.removeItem('app-generator-worker-credentials');
+							onClearAll={async () => {
+								await workerTokenServiceV8.clearCredentials();
 								setWorkerToken(null);
 								setTokenError(null);
 								setWorkerTokenRequest(null);
@@ -682,54 +758,82 @@ const ClientGenerator: React.FC = () => {
 			{/* Worker Token Response - Always show when we have a token */}
 			{workerToken && (
 				<div style={{ marginTop: workerToken ? '2rem' : '0' }}>
-					<div style={{ 
-						background: '#f0fdf4', 
-						border: '1px solid #22c55e', 
-						borderRadius: '0.75rem', 
-						padding: '1.25rem'
-					}}>
-						<div style={{ 
-							display: 'flex', 
-							alignItems: 'center', 
-							gap: '0.5rem', 
-							marginBottom: '0.75rem',
-							color: '#166534',
-							fontWeight: 600
-						}}>
+					<div
+						style={{
+							background: '#f0fdf4',
+							border: '1px solid #22c55e',
+							borderRadius: '0.75rem',
+							padding: '1.25rem',
+						}}
+					>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								marginBottom: '0.75rem',
+								color: '#166534',
+								fontWeight: 600,
+							}}
+						>
 							<FiKey size={20} />
 							Worker Token Response (OAuth 2.0 Token)
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>
-							This is the access token that will be used to authenticate API calls to PingOne's Management API.
+							This is the access token that will be used to authenticate API calls to PingOne's
+							Management API.
 						</div>
 
 						{/* Token Response */}
 						<div style={{ marginBottom: '1rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>OAuth 2.0 Token Response:</div>
-							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-								<pre style={{ 
-									background: '#1e293b', 
-									color: '#e2e8f0', 
-									padding: '1rem', 
-									borderRadius: '0.5rem', 
-									overflowX: 'auto',
-									fontSize: '0.875rem',
-									lineHeight: '1.6',
-									fontFamily: 'Monaco, Menlo, monospace',
-									flex: 1,
-									margin: 0
-								}}>
-									{tokenDecodeStates['worker-token-response'] ? JSON.stringify({
-										access_token: workerToken,
-										token_type: 'Bearer',
-										expires_in: 3600,
-										scope: 'openid p1:create:application p1:read:application p1:update:application'
-									}, null, 2) : JSON.stringify({
-										access_token: '[MASKED - Click decode to reveal]',
-										token_type: 'Bearer',
-										expires_in: 3600,
-										scope: 'openid p1:create:application p1:read:application p1:update:application'
-									}, null, 2)}
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>
+								OAuth 2.0 Token Response:
+							</div>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.5rem',
+								}}
+							>
+								<pre
+									style={{
+										background: '#1e293b',
+										color: '#e2e8f0',
+										padding: '1rem',
+										borderRadius: '0.5rem',
+										overflowX: 'auto',
+										fontSize: '0.875rem',
+										lineHeight: '1.6',
+										fontFamily: 'Monaco, Menlo, monospace',
+										flex: 1,
+										margin: 0,
+									}}
+								>
+									{tokenDecodeStates['worker-token-response']
+										? JSON.stringify(
+												{
+													access_token: workerToken,
+													token_type: 'Bearer',
+													expires_in: 3600,
+													scope:
+														'openid p1:create:application p1:read:application p1:update:application',
+												},
+												null,
+												2
+											)
+										: JSON.stringify(
+												{
+													access_token: '[MASKED - Click decode to reveal]',
+													token_type: 'Bearer',
+													expires_in: 3600,
+													scope:
+														'openid p1:create:application p1:read:application p1:update:application',
+												},
+												null,
+												2
+											)}
 								</pre>
 								<button
 									onClick={() => handleTokenDecode('worker-token-response')}
@@ -741,33 +845,51 @@ const ClientGenerator: React.FC = () => {
 										cursor: 'pointer',
 										display: 'flex',
 										alignItems: 'center',
-										justifyContent: 'center'
+										justifyContent: 'center',
 									}}
-									title={tokenDecodeStates['worker-token-response'] ? 'Mask token' : 'Reveal full token'}
+									title={
+										tokenDecodeStates['worker-token-response'] ? 'Mask token' : 'Reveal full token'
+									}
 								>
-									{tokenDecodeStates['worker-token-response'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+									{tokenDecodeStates['worker-token-response'] ? (
+										<FiEyeOff size={16} />
+									) : (
+										<FiEye size={16} />
+									)}
 								</button>
 							</div>
-							<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
-								<strong>Security Note:</strong> Token is masked by default. Click the eye icon to reveal the full token value for debugging purposes.
+							<div
+								style={{
+									fontSize: '0.75rem',
+									color: '#166534',
+									marginTop: '0.5rem',
+									fontStyle: 'italic',
+								}}
+							>
+								<strong>Security Note:</strong> Token is masked by default. Click the eye icon to
+								reveal the full token value for debugging purposes.
 							</div>
 						</div>
 
 						{/* Authentication Header */}
 						<div>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Authentication Header:</div>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>
+								Authentication Header:
+							</div>
 							<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-								<pre style={{ 
-									background: '#1e293b', 
-									color: '#e2e8f0', 
-									padding: '1rem', 
-									borderRadius: '0.5rem',
-									fontSize: '0.875rem',
-									lineHeight: '1.6',
-									fontFamily: 'Monaco, Menlo, monospace',
-									flex: 1,
-									margin: 0
-								}}>
+								<pre
+									style={{
+										background: '#1e293b',
+										color: '#e2e8f0',
+										padding: '1rem',
+										borderRadius: '0.5rem',
+										fontSize: '0.875rem',
+										lineHeight: '1.6',
+										fontFamily: 'Monaco, Menlo, monospace',
+										flex: 1,
+										margin: 0,
+									}}
+								>
 									{`Authorization: Bearer ${TokenDisplayService.maskToken(workerToken, 4)}`}
 								</pre>
 								<button
@@ -780,38 +902,55 @@ const ClientGenerator: React.FC = () => {
 										cursor: 'pointer',
 										display: 'flex',
 										alignItems: 'center',
-										justifyContent: 'center'
+										justifyContent: 'center',
 									}}
-									title={tokenDecodeStates['auth-header'] ? 'Hide full header' : 'Show full header (not recommended)'}
+									title={
+										tokenDecodeStates['auth-header']
+											? 'Hide full header'
+											: 'Show full header (not recommended)'
+									}
 								>
 									{tokenDecodeStates['auth-header'] ? <FiEyeOff size={16} /> : <FiEye size={16} />}
 								</button>
 							</div>
 							{tokenDecodeStates['auth-header'] && (
-								<div style={{ 
-									background: '#fef3c7', 
-									border: '1px solid #f59e0b', 
-									borderRadius: '0.5rem', 
-									padding: '1rem',
-									marginTop: '0.5rem'
-								}}>
-									<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>⚠️ Full Header Revealed:</div>
-									<pre style={{ 
-										background: '#1e293b', 
-										color: '#e2e8f0', 
-										padding: '1rem', 
+								<div
+									style={{
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
 										borderRadius: '0.5rem',
-										fontSize: '0.875rem',
-										lineHeight: '1.6',
-										fontFamily: 'Monaco, Menlo, monospace',
-										margin: 0,
-										overflowX: 'auto'
-									}}>
+										padding: '1rem',
+										marginTop: '0.5rem',
+									}}
+								>
+									<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>
+										⚠️ Full Header Revealed:
+									</div>
+									<pre
+										style={{
+											background: '#1e293b',
+											color: '#e2e8f0',
+											padding: '1rem',
+											borderRadius: '0.5rem',
+											fontSize: '0.875rem',
+											lineHeight: '1.6',
+											fontFamily: 'Monaco, Menlo, monospace',
+											margin: 0,
+											overflowX: 'auto',
+										}}
+									>
 										{`Authorization: Bearer ${workerToken}`}
 									</pre>
 								</div>
 							)}
-							<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
+							<div
+								style={{
+									fontSize: '0.75rem',
+									color: '#166534',
+									marginTop: '0.5rem',
+									fontStyle: 'italic',
+								}}
+							>
 								This header will be included in all API requests to PingOne.
 							</div>
 						</div>
@@ -819,20 +958,24 @@ const ClientGenerator: React.FC = () => {
 
 					{/* Token Analysis Section - Using TokenDisplayService */}
 					<div style={{ marginTop: '1.5rem' }}>
-						<div style={{ 
-							background: '#f8fafc', 
-							border: '1px solid #e2e8f0', 
-							borderRadius: '0.75rem', 
-							padding: '1.25rem'
-						}}>
-							<div style={{ 
-								display: 'flex', 
-								alignItems: 'center', 
-								gap: '0.5rem', 
-								marginBottom: '0.75rem',
-								color: '#374151',
-								fontWeight: 600
-							}}>
+						<div
+							style={{
+								background: '#f8fafc',
+								border: '1px solid #e2e8f0',
+								borderRadius: '0.75rem',
+								padding: '1.25rem',
+							}}
+						>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+									marginBottom: '0.75rem',
+									color: '#374151',
+									fontWeight: 600,
+								}}
+							>
 								<FiShield size={20} />
 								Token Analysis (TokenDisplayService)
 							</div>
@@ -842,22 +985,57 @@ const ClientGenerator: React.FC = () => {
 
 							{/* Token Metadata */}
 							<div style={{ marginBottom: '1rem' }}>
-								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>Token Metadata:</div>
-								<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '0.75rem' }}>
-									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
-										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Token Type</div>
+								<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>
+									Token Metadata:
+								</div>
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+										gap: '0.75rem',
+									}}
+								>
+									<div
+										style={{
+											padding: '0.75rem',
+											background: 'white',
+											border: '1px solid #e5e7eb',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+											Token Type
+										</div>
 										<div style={{ fontWeight: 600, color: '#374151' }}>
 											{TokenDisplayService.getTokenLabel('access', false)}
 										</div>
 									</div>
-									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
-										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Length</div>
+									<div
+										style={{
+											padding: '0.75rem',
+											background: 'white',
+											border: '1px solid #e5e7eb',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+											Length
+										</div>
 										<div style={{ fontWeight: 600, color: '#374151' }}>
 											{workerToken.length} characters
 										</div>
 									</div>
-									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
-										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Format</div>
+									<div
+										style={{
+											padding: '0.75rem',
+											background: 'white',
+											border: '1px solid #e5e7eb',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+											Format
+										</div>
 										<div style={{ fontWeight: 600, color: '#374151' }}>
 											{TokenDisplayService.isJWT(workerToken) ? (
 												<span style={{ color: '#059669' }}>JWT ✓</span>
@@ -866,11 +1044,18 @@ const ClientGenerator: React.FC = () => {
 											)}
 										</div>
 									</div>
-									<div style={{ padding: '0.75rem', background: 'white', border: '1px solid #e5e7eb', borderRadius: '0.5rem' }}>
-										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>Flow Context</div>
-										<div style={{ fontWeight: 600, color: '#374151' }}>
-											Client Credentials
+									<div
+										style={{
+											padding: '0.75rem',
+											background: 'white',
+											border: '1px solid #e5e7eb',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<div style={{ fontSize: '0.75rem', color: '#6b7280', marginBottom: '0.25rem' }}>
+											Flow Context
 										</div>
+										<div style={{ fontWeight: 600, color: '#374151' }}>Client Credentials</div>
 									</div>
 								</div>
 							</div>
@@ -878,43 +1063,61 @@ const ClientGenerator: React.FC = () => {
 							{/* JWT Decode Section */}
 							{TokenDisplayService.isJWT(workerToken) && (
 								<div style={{ marginBottom: '1rem' }}>
-									<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>JWT Structure:</div>
-									<div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-										<pre style={{ 
-											background: '#1e293b', 
-											color: '#e2e8f0', 
-											padding: '1rem', 
-											borderRadius: '0.5rem', 
-											overflowX: 'auto',
-											fontSize: '0.875rem',
-											lineHeight: '1.6',
-											fontFamily: 'Monaco, Menlo, monospace',
-											flex: 1,
-											margin: 0
-										}}>
+									<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#374151' }}>
+										JWT Structure:
+									</div>
+									<div
+										style={{
+											display: 'flex',
+											alignItems: 'center',
+											gap: '0.5rem',
+											marginBottom: '0.5rem',
+										}}
+									>
+										<pre
+											style={{
+												background: '#1e293b',
+												color: '#e2e8f0',
+												padding: '1rem',
+												borderRadius: '0.5rem',
+												overflowX: 'auto',
+												fontSize: '0.875rem',
+												lineHeight: '1.6',
+												fontFamily: 'Monaco, Menlo, monospace',
+												flex: 1,
+												margin: 0,
+											}}
+										>
 											{(() => {
 												const decoded = TokenDisplayService.decodeJWT(workerToken);
 												if (!decoded) return 'Unable to decode JWT';
-												
-												return JSON.stringify({
-													header: decoded.header,
-													payload: {
-														...decoded.payload,
-														// Mask sensitive fields in payload for security (excluding client_id as requested)
-														sub: decoded.payload.sub ? TokenDisplayService.maskToken(decoded.payload.sub, 4) : undefined,
-														email: decoded.payload.email ? '[REDACTED]' : undefined,
-														username: decoded.payload.username ? '[REDACTED]' : undefined,
-														...Object.fromEntries(
-															Object.entries(decoded.payload).filter(([key]) => 
-																!['sub', 'email', 'username'].includes(key)
-															)
-														)
-													}
-												}, null, 2);
+
+												return JSON.stringify(
+													{
+														header: decoded.header,
+														payload: {
+															...decoded.payload,
+															// Mask sensitive fields in payload for security (excluding client_id as requested)
+															sub: decoded.payload.sub
+																? TokenDisplayService.maskToken(decoded.payload.sub, 4)
+																: undefined,
+															email: decoded.payload.email ? '[REDACTED]' : undefined,
+															username: decoded.payload.username ? '[REDACTED]' : undefined,
+															...Object.fromEntries(
+																Object.entries(decoded.payload).filter(
+																	([key]) => !['sub', 'email', 'username'].includes(key)
+																)
+															),
+														},
+													},
+													null,
+													2
+												);
 											})()}
 										</pre>
 										<div style={{ fontSize: '0.75rem', color: '#6b7280', maxWidth: '200px' }}>
-											<strong>JWT Decoded:</strong> Header and payload shown with sensitive data masked for security.
+											<strong>JWT Decoded:</strong> Header and payload shown with sensitive data
+											masked for security.
 										</div>
 									</div>
 								</div>
@@ -922,25 +1125,45 @@ const ClientGenerator: React.FC = () => {
 
 							{/* Opaque Token Notice */}
 							{!TokenDisplayService.isJWT(workerToken) && (
-								<div style={{ marginBottom: '1rem', padding: '1rem', background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: '0.5rem' }}>
-									<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>Opaque Token</div>
+								<div
+									style={{
+										marginBottom: '1rem',
+										padding: '1rem',
+										background: '#fef3c7',
+										border: '1px solid #f59e0b',
+										borderRadius: '0.5rem',
+									}}
+								>
+									<div style={{ fontWeight: 600, color: '#92400e', marginBottom: '0.5rem' }}>
+										Opaque Token
+									</div>
 									<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
 										{TokenDisplayService.getOpaqueTokenMessage('access')}
 									</div>
 									<div style={{ fontSize: '0.75rem', color: '#92400e', marginTop: '0.5rem' }}>
-										This is normal for access tokens in many OAuth implementations for security reasons.
+										This is normal for access tokens in many OAuth implementations for security
+										reasons.
 									</div>
 								</div>
 							)}
 
 							{/* Security Features */}
-							<div style={{ padding: '1rem', background: '#f0fdf4', border: '1px solid #22c55e', borderRadius: '0.5rem' }}>
-								<div style={{ fontWeight: 600, color: '#166534', marginBottom: '0.5rem' }}>Security Features</div>
+							<div
+								style={{
+									padding: '1rem',
+									background: '#f0fdf4',
+									border: '1px solid #22c55e',
+									borderRadius: '0.5rem',
+								}}
+							>
+								<div style={{ fontWeight: 600, color: '#166534', marginBottom: '0.5rem' }}>
+									Security Features
+								</div>
 								<div style={{ fontSize: '0.875rem', color: '#166534' }}>
-									• Token values are never logged or stored insecurely<br/>
-									• Sensitive JWT claims are automatically masked<br/>
-									• All operations use secure TokenDisplayService methods<br/>
-									• Manual user action required to reveal full token values
+									• Token values are never logged or stored insecurely
+									<br />• Sensitive JWT claims are automatically masked
+									<br />• All operations use secure TokenDisplayService methods
+									<br />• Manual user action required to reveal full token values
 								</div>
 							</div>
 						</div>
@@ -951,142 +1174,225 @@ const ClientGenerator: React.FC = () => {
 			{/* Display Worker Token Request Details */}
 			{workerTokenRequest && (
 				<div style={{ marginBottom: '2rem' }}>
-					<div style={{ 
-						background: '#f0fdf4', 
-						border: '1px solid #22c55e', 
-						borderRadius: '0.75rem', 
-						padding: '1.25rem'
-					}}>
-						<div style={{ 
-							display: 'flex', 
-							alignItems: 'center', 
-							gap: '0.5rem', 
-							marginBottom: '0.75rem',
-							color: '#166534',
-							fontWeight: 600
-						}}>
+					<div
+						style={{
+							background: '#f0fdf4',
+							border: '1px solid #22c55e',
+							borderRadius: '0.75rem',
+							padding: '1.25rem',
+						}}
+					>
+						<div
+							style={{
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+								marginBottom: '0.75rem',
+								color: '#166534',
+								fontWeight: 600,
+							}}
+						>
 							<FiKey size={20} />
 							Worker Token Request (OAuth 2.0 Client Credentials) - Client Secret Post
 						</div>
 						<div style={{ fontSize: '0.875rem', color: '#166534', marginBottom: '1rem' }}>
-							This shows how to obtain an access token using the Client Credentials grant type with Client Secret Post authentication (credentials sent in request body).
+							This shows how to obtain an access token using the Client Credentials grant type with
+							Client Secret Post authentication (credentials sent in request body).
 						</div>
 
 						{/* Token Endpoint */}
 						<div style={{ marginBottom: '1rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Token Endpoint:</div>
-							<ColoredUrlDisplay
-								url={workerTokenRequest.url}
-								label="POST"
-								showCopyButton={true}
-							/>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>
+								Token Endpoint:
+							</div>
+							<ColoredUrlDisplay url={workerTokenRequest.url} label="POST" showCopyButton={true} />
 						</div>
 
 						{/* Authentication Method */}
-						<div style={{ marginBottom: '1rem', padding: '1rem', background: '#fef3c7', border: '1px solid #fbbf24', borderRadius: '0.5rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#92400e', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+						<div
+							style={{
+								marginBottom: '1rem',
+								padding: '1rem',
+								background: '#fef3c7',
+								border: '1px solid #fbbf24',
+								borderRadius: '0.5rem',
+							}}
+						>
+							<div
+								style={{
+									fontWeight: 600,
+									marginBottom: '0.5rem',
+									color: '#92400e',
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.5rem',
+								}}
+							>
 								<FiKey size={16} />
-								Authentication Method: {workerTokenRequest.authMethod === 'client_secret_basic' ? 'Client Secret Basic' : 'Client Secret Post'}
+								Authentication Method:{' '}
+								{workerTokenRequest.authMethod === 'client_secret_basic'
+									? 'Client Secret Basic'
+									: 'Client Secret Post'}
 							</div>
 							{workerTokenRequest.authMethod === 'client_secret_basic' ? (
 								<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
-									Credentials sent in <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>Authorization</code> header as Base64 encoded string
+									Credentials sent in{' '}
+									<code
+										style={{
+											background: 'white',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+										}}
+									>
+										Authorization
+									</code>{' '}
+									header as Base64 encoded string
 								</div>
 							) : (
 								<div style={{ fontSize: '0.875rem', color: '#78350f' }}>
-									Credentials sent in request body as <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>client_id</code> and <code style={{ background: 'white', padding: '0.25rem 0.5rem', borderRadius: '0.25rem' }}>client_secret</code> parameters
+									Credentials sent in request body as{' '}
+									<code
+										style={{
+											background: 'white',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+										}}
+									>
+										client_id
+									</code>{' '}
+									and{' '}
+									<code
+										style={{
+											background: 'white',
+											padding: '0.25rem 0.5rem',
+											borderRadius: '0.25rem',
+										}}
+									>
+										client_secret
+									</code>{' '}
+									parameters
 								</div>
 							)}
 						</div>
 
 						{/* Headers */}
 						<div style={{ marginBottom: '1rem' }}>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Headers:</div>
-							<pre style={{ 
-								background: '#1e293b', 
-								color: '#e2e8f0', 
-								padding: '1rem', 
-								borderRadius: '0.5rem', 
-								overflowX: 'auto',
-								fontSize: '0.875rem',
-								lineHeight: '1.6',
-								fontFamily: 'Monaco, Menlo, monospace'
-							}}>
-								{Object.entries(workerTokenRequest.headers).map(([key, value]) => 
-									`${key}: ${key === 'Authorization' && value.startsWith('Basic') ? 'Basic [base64_encoded_credentials]' : value}`
-								).join('\n')}
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>
+								Headers:
+							</div>
+							<pre
+								style={{
+									background: '#1e293b',
+									color: '#e2e8f0',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									overflowX: 'auto',
+									fontSize: '0.875rem',
+									lineHeight: '1.6',
+									fontFamily: 'Monaco, Menlo, monospace',
+								}}
+							>
+								{Object.entries(workerTokenRequest.headers)
+									.map(
+										([key, value]) =>
+											`${key}: ${key === 'Authorization' && value.startsWith('Basic') ? 'Basic [base64_encoded_credentials]' : value}`
+									)
+									.join('\n')}
 							</pre>
 						</div>
 
 						{/* Request Body - JSON Format */}
 						<div>
-							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>Request Body (as JSON for readability):</div>
-							<pre style={{ 
-								background: '#1e293b', 
-								color: '#e2e8f0', 
-								padding: '1rem', 
-								borderRadius: '0.5rem', 
-								overflowX: 'auto',
-								fontSize: '0.875rem',
-								lineHeight: '1.6',
-								fontFamily: 'Monaco, Menlo, monospace'
-							}}>
+							<div style={{ fontWeight: 600, marginBottom: '0.5rem', color: '#166534' }}>
+								Request Body (as JSON for readability):
+							</div>
+							<pre
+								style={{
+									background: '#1e293b',
+									color: '#e2e8f0',
+									padding: '1rem',
+									borderRadius: '0.5rem',
+									overflowX: 'auto',
+									fontSize: '0.875rem',
+									lineHeight: '1.6',
+									fontFamily: 'Monaco, Menlo, monospace',
+								}}
+							>
 								{JSON.stringify(
 									Object.fromEntries(
-										workerTokenRequest.body.split('&').map(param => {
+										workerTokenRequest.body.split('&').map((param) => {
 											const [key, value] = param.split('=');
-											return [key, key.includes('secret') ? '[REDACTED]' : decodeURIComponent(value)];
+											return [
+												key,
+												key.includes('secret') ? '[REDACTED]' : decodeURIComponent(value),
+											];
 										})
 									),
 									null,
 									2
 								)}
 							</pre>
-							<div style={{ fontSize: '0.75rem', color: '#166534', marginTop: '0.5rem', fontStyle: 'italic' }}>
-								Note: Actual request uses <code style={{ background: 'white', padding: '0.125rem 0.25rem', borderRadius: '0.25rem' }}>application/x-www-form-urlencoded</code> format, but JSON is shown for clarity.
+							<div
+								style={{
+									fontSize: '0.75rem',
+									color: '#166534',
+									marginTop: '0.5rem',
+									fontStyle: 'italic',
+								}}
+							>
+								Note: Actual request uses{' '}
+								<code
+									style={{
+										background: 'white',
+										padding: '0.125rem 0.25rem',
+										borderRadius: '0.25rem',
+									}}
+								>
+									application/x-www-form-urlencoded
+								</code>{' '}
+								format, but JSON is shown for clarity.
 							</div>
 						</div>
 					</div>
 				</div>
 			)}
 
-		{workerToken && (
-			<div style={{ marginTop: '3rem', paddingBottom: '2rem' }}>
-				<WorkerActions
-					onNext={() => {
-						navigate('/application-generator', {
-							state: {
-								workerToken,
-								environmentId: workerCredentials.environmentId,
-							},
-						});
-					}}
-					onClearToken={() => {
-						setWorkerToken(null);
-						setTokenError(null);
-						setWorkerTokenRequest(null);
-						setTokenDecodeStates({});
-						v4ToastManager.showSuccess('Token cleared - credentials preserved');
-					}}
-					onClearAll={() => {
-						localStorage.removeItem('app-generator-worker-credentials');
-						setWorkerToken(null);
-						setTokenError(null);
-						setWorkerTokenRequest(null);
-						setTokenDecodeStates({});
-						setWorkerCredentials({
-							environmentId: '',
-							clientId: '',
-							clientSecret: '',
-							scopes: 'openid p1:create:application p1:read:application p1:update:application',
-							tokenEndpointAuthMethod: 'client_secret_post',
-						});
-						v4ToastManager.showSuccess('All credentials and data cleared');
-					}}
-				/>
-			</div>
-		)}
-
+			{workerToken && (
+				<div style={{ marginTop: '3rem', paddingBottom: '2rem' }}>
+					<WorkerActions
+						onNext={() => {
+							navigate('/application-generator', {
+								state: {
+									workerToken,
+									environmentId: workerCredentials.environmentId,
+								},
+							});
+						}}
+						onClearToken={() => {
+							setWorkerToken(null);
+							setTokenError(null);
+							setWorkerTokenRequest(null);
+							setTokenDecodeStates({});
+							v4ToastManager.showSuccess('Token cleared - credentials preserved');
+						}}
+						onClearAll={() => {
+							localStorage.removeItem('app-generator-worker-credentials');
+							setWorkerToken(null);
+							setTokenError(null);
+							setWorkerTokenRequest(null);
+							setTokenDecodeStates({});
+							setWorkerCredentials({
+								environmentId: '',
+								clientId: '',
+								clientSecret: '',
+								scopes: 'openid p1:create:application p1:read:application p1:update:application',
+								tokenEndpointAuthMethod: 'client_secret_post',
+							});
+							v4ToastManager.showSuccess('All credentials and data cleared');
+						}}
+					/>
+				</div>
+			)}
 		</Container>
 	);
 };

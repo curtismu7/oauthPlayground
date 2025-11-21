@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FiAlertCircle, FiDownload, FiEye, FiInfo, FiPlay, FiSend, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardHeader, CardBody } from '../../components/Card';
-import { FiPlay, FiAlertCircle, FiUser, FiInfo, FiSend, FiDownload, FiEye } from 'react-icons/fi';
-import PageTitle from '../../components/PageTitle';
-import TokenDisplayComponent from '../../components/TokenDisplay';
+import { Card, CardBody, CardHeader } from '../../components/Card';
+import { ColorCodedURL } from '../../components/ColorCodedURL';
 import ConfigurationButton from '../../components/ConfigurationButton';
+import FlowCredentials from '../../components/FlowCredentials';
+import PageTitle from '../../components/PageTitle';
+import { FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
+import TokenDisplayComponent from '../../components/TokenDisplay';
+import Typewriter from '../../components/Typewriter';
 import { useAuth } from '../../contexts/NewAuthContext';
 import { config } from '../../services/config';
-import { getUserInfo, isTokenExpired } from '../../utils/oauth';
-import { decodeJwt } from '../../utils/jwt';
 import type { UserInfo as OIDCUserInfo } from '../../types/oauth';
-import { StepByStepFlow, FlowStep } from '../../components/StepByStepFlow';
-import { ColorCodedURL } from '../../components/ColorCodedURL';
-import Typewriter from '../../components/Typewriter';
+import { decodeJwt } from '../../utils/jwt';
+import { getUserInfo, isTokenExpired } from '../../utils/oauth';
 import { storeOAuthTokens } from '../../utils/tokenStorage';
-import FlowCredentials from '../../components/FlowCredentials';
 
 const Container = styled.div`
   max-width: 1200px;

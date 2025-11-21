@@ -1,11 +1,11 @@
 // src/contexts/__tests__/NewAuthContext.enhanced.test.tsx
 // Tests for enhanced NewAuthContext with FlowContextService integration
 
+import { act, render } from '@testing-library/react';
 import React from 'react';
-import { render, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { AuthProvider, useAuth } from '../NewAuthContext';
 import FlowContextUtils from '../../services/flowContextUtils';
+import { AuthProvider, useAuth } from '../NewAuthContext';
 
 // Mock FlowContextUtils
 jest.mock('../../services/flowContextUtils');
@@ -13,367 +13,367 @@ const mockFlowContextUtils = FlowContextUtils as jest.Mocked<typeof FlowContextU
 
 // Mock sessionStorage
 const mockSessionStorage = {
-  store: {} as Record<string, string>,
-  getItem: jest.fn((key: string) => mockSessionStorage.store[key] || null),
-  setItem: jest.fn((key: string, value: string) => {
-    mockSessionStorage.store[key] = value;
-  }),
-  removeItem: jest.fn((key: string) => {
-    delete mockSessionStorage.store[key];
-  }),
-  clear: jest.fn(() => {
-    mockSessionStorage.store = {};
-  })
+	store: {} as Record<string, string>,
+	getItem: jest.fn((key: string) => mockSessionStorage.store[key] || null),
+	setItem: jest.fn((key: string, value: string) => {
+		mockSessionStorage.store[key] = value;
+	}),
+	removeItem: jest.fn((key: string) => {
+		delete mockSessionStorage.store[key];
+	}),
+	clear: jest.fn(() => {
+		mockSessionStorage.store = {};
+	}),
 };
 
 Object.defineProperty(window, 'sessionStorage', {
-  value: mockSessionStorage
+	value: mockSessionStorage,
 });
 
 // Mock window.location
 Object.defineProperty(window, 'location', {
-  value: {
-    origin: 'https://localhost:3000',
-    href: 'https://localhost:3000'
-  }
+	value: {
+		origin: 'https://localhost:3000',
+		href: 'https://localhost:3000',
+	},
 });
 
 // Test component to access auth context
 const TestComponent: React.FC = () => {
-  const auth = useAuth();
-  return (
-    <div>
-      <div data-testid="auth-status">{auth.isAuthenticated ? 'authenticated' : 'not-authenticated'}</div>
-      <div data-testid="has-flow-helpers">{auth.initializeFlowContext ? 'yes' : 'no'}</div>
-      <button 
-        data-testid="init-flow" 
-        onClick={() => auth.initializeFlowContext('test-flow', 1, {})}
-      >
-        Initialize Flow
-      </button>
-      <button 
-        data-testid="complete-flow" 
-        onClick={() => auth.completeFlow('test-flow')}
-      >
-        Complete Flow
-      </button>
-    </div>
-  );
+	const auth = useAuth();
+	return (
+		<div>
+			<div data-testid="auth-status">
+				{auth.isAuthenticated ? 'authenticated' : 'not-authenticated'}
+			</div>
+			<div data-testid="has-flow-helpers">{auth.initializeFlowContext ? 'yes' : 'no'}</div>
+			<button
+				data-testid="init-flow"
+				onClick={() => auth.initializeFlowContext('test-flow', 1, {})}
+			>
+				Initialize Flow
+			</button>
+			<button data-testid="complete-flow" onClick={() => auth.completeFlow('test-flow')}>
+				Complete Flow
+			</button>
+		</div>
+	);
 };
 
 describe('Enhanced NewAuthContext', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    mockSessionStorage.clear();
-    
-    // Setup default mock implementations
-    mockFlowContextUtils.handleOAuthCallback.mockReturnValue({
-      success: true,
-      redirectUrl: '/flows/test-flow'
-    });
-    
-    mockFlowContextUtils.initializeOAuthFlow.mockReturnValue('test-flow-id');
-    mockFlowContextUtils.updateFlowStep.mockReturnValue(true);
-    mockFlowContextUtils.completeFlow.mockImplementation(() => {});
-    mockFlowContextUtils.getCurrentFlow.mockReturnValue({
-      flowType: 'test-flow',
-      currentStep: 1,
-      returnPath: '/flows/test-flow',
-      age: 1000
-    });
-    mockFlowContextUtils.emergencyCleanup.mockImplementation(() => {});
-  });
+	beforeEach(() => {
+		jest.clearAllMocks();
+		mockSessionStorage.clear();
 
-  describe('Flow Context Helper Functions', () => {
-    it('should provide flow context helper functions', () => {
-      const { getByTestId } = render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
+		// Setup default mock implementations
+		mockFlowContextUtils.handleOAuthCallback.mockReturnValue({
+			success: true,
+			redirectUrl: '/flows/test-flow',
+		});
 
-      expect(getByTestId('has-flow-helpers')).toHaveTextContent('yes');
-    });
+		mockFlowContextUtils.initializeOAuthFlow.mockReturnValue('test-flow-id');
+		mockFlowContextUtils.updateFlowStep.mockReturnValue(true);
+		mockFlowContextUtils.completeFlow.mockImplementation(() => {});
+		mockFlowContextUtils.getCurrentFlow.mockReturnValue({
+			flowType: 'test-flow',
+			currentStep: 1,
+			returnPath: '/flows/test-flow',
+			age: 1000,
+		});
+		mockFlowContextUtils.emergencyCleanup.mockImplementation(() => {});
+	});
 
-    it('should initialize flow context', async () => {
-      const { getByTestId } = render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
+	describe('Flow Context Helper Functions', () => {
+		it('should provide flow context helper functions', () => {
+			const { getByTestId } = render(
+				<AuthProvider>
+					<TestComponent />
+				</AuthProvider>
+			);
 
-      await act(async () => {
-        getByTestId('init-flow').click();
-      });
+			expect(getByTestId('has-flow-helpers')).toHaveTextContent('yes');
+		});
 
-      expect(mockFlowContextUtils.initializeOAuthFlow).toHaveBeenCalledWith(
-        'test-flow',
-        1,
-        {},
-        undefined
-      );
-    });
+		it('should initialize flow context', async () => {
+			const { getByTestId } = render(
+				<AuthProvider>
+					<TestComponent />
+				</AuthProvider>
+			);
 
-    it('should complete flow', async () => {
-      const { getByTestId } = render(
-        <AuthProvider>
-          <TestComponent />
-        </AuthProvider>
-      );
+			await act(async () => {
+				getByTestId('init-flow').click();
+			});
 
-      await act(async () => {
-        getByTestId('complete-flow').click();
-      });
+			expect(mockFlowContextUtils.initializeOAuthFlow).toHaveBeenCalledWith(
+				'test-flow',
+				1,
+				{},
+				undefined
+			);
+		});
 
-      expect(mockFlowContextUtils.completeFlow).toHaveBeenCalledWith('test-flow');
-    });
-  });
+		it('should complete flow', async () => {
+			const { getByTestId } = render(
+				<AuthProvider>
+					<TestComponent />
+				</AuthProvider>
+			);
 
-  describe('Enhanced Callback Handling', () => {
-    it('should use FlowContextUtils for callback handling', async () => {
-      let authContext: any;
-      
-      const TestCallbackComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			await act(async () => {
+				getByTestId('complete-flow').click();
+			});
 
-      render(
-        <AuthProvider>
-          <TestCallbackComponent />
-        </AuthProvider>
-      );
+			expect(mockFlowContextUtils.completeFlow).toHaveBeenCalledWith('test-flow');
+		});
+	});
 
-      // Simulate OAuth callback
-      const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
-      
-      await act(async () => {
-        const result = await authContext.handleCallback(callbackUrl);
-        expect(result.success).toBe(true);
-        expect(result.redirectUrl).toBe('/flows/test-flow');
-      });
+	describe('Enhanced Callback Handling', () => {
+		it('should use FlowContextUtils for callback handling', async () => {
+			let authContext: any;
 
-      expect(mockFlowContextUtils.handleOAuthCallback).toHaveBeenCalledWith({
-        code: 'test-code',
-        state: 'test-state',
-        error: undefined,
-        error_description: undefined,
-        session_state: null,
-        iss: null
-      });
-    });
+			const TestCallbackComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
 
-    it('should handle FlowContextUtils errors gracefully', async () => {
-      // Mock FlowContextUtils to throw an error
-      mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
-        throw new Error('FlowContextService error');
-      });
+			render(
+				<AuthProvider>
+					<TestCallbackComponent />
+				</AuthProvider>
+			);
 
-      // Mock legacy flow context
-      mockSessionStorage.store['flowContext'] = JSON.stringify({
-        returnPath: '/flows/legacy-flow',
-        flowType: 'legacy'
-      });
+			// Simulate OAuth callback
+			const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
 
-      let authContext: any;
-      
-      const TestCallbackComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			await act(async () => {
+				const result = await authContext.handleCallback(callbackUrl);
+				expect(result.success).toBe(true);
+				expect(result.redirectUrl).toBe('/flows/test-flow');
+			});
 
-      render(
-        <AuthProvider>
-          <TestCallbackComponent />
-        </AuthProvider>
-      );
+			expect(mockFlowContextUtils.handleOAuthCallback).toHaveBeenCalledWith({
+				code: 'test-code',
+				state: 'test-state',
+				error: undefined,
+				error_description: undefined,
+				session_state: null,
+				iss: null,
+			});
+		});
 
-      const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
-      
-      await act(async () => {
-        const result = await authContext.handleCallback(callbackUrl);
-        expect(result.success).toBe(true);
-        expect(result.redirectUrl).toBe('/flows/legacy-flow');
-      });
+		it('should handle FlowContextUtils errors gracefully', async () => {
+			// Mock FlowContextUtils to throw an error
+			mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
+				throw new Error('FlowContextService error');
+			});
 
-      // Should have attempted FlowContextUtils first
-      expect(mockFlowContextUtils.handleOAuthCallback).toHaveBeenCalled();
-    });
+			// Mock legacy flow context
+			mockSessionStorage.store['flowContext'] = JSON.stringify({
+				returnPath: '/flows/legacy-flow',
+				flowType: 'legacy',
+			});
 
-    it('should fallback to dashboard for invalid flow context', async () => {
-      // Mock FlowContextUtils to throw an error
-      mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
-        throw new Error('FlowContextService error');
-      });
+			let authContext: any;
 
-      // Mock invalid flow context
-      mockSessionStorage.store['flowContext'] = 'invalid-json';
+			const TestCallbackComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
 
-      let authContext: any;
-      
-      const TestCallbackComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			render(
+				<AuthProvider>
+					<TestCallbackComponent />
+				</AuthProvider>
+			);
 
-      render(
-        <AuthProvider>
-          <TestCallbackComponent />
-        </AuthProvider>
-      );
+			const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
 
-      const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
-      
-      await act(async () => {
-        const result = await authContext.handleCallback(callbackUrl);
-        expect(result.success).toBe(true);
-        expect(result.redirectUrl).toBe('/dashboard');
-      });
-    });
+			await act(async () => {
+				const result = await authContext.handleCallback(callbackUrl);
+				expect(result.success).toBe(true);
+				expect(result.redirectUrl).toBe('/flows/legacy-flow');
+			});
 
-    it('should handle OAuth errors in callback', async () => {
-      let authContext: any;
-      
-      const TestCallbackComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			// Should have attempted FlowContextUtils first
+			expect(mockFlowContextUtils.handleOAuthCallback).toHaveBeenCalled();
+		});
 
-      render(
-        <AuthProvider>
-          <TestCallbackComponent />
-        </AuthProvider>
-      );
+		it('should fallback to dashboard for invalid flow context', async () => {
+			// Mock FlowContextUtils to throw an error
+			mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
+				throw new Error('FlowContextService error');
+			});
 
-      const callbackUrl = 'https://localhost:3000/authz-callback?error=access_denied&error_description=User%20denied%20access';
-      
-      await act(async () => {
-        const result = await authContext.handleCallback(callbackUrl);
-        expect(result.success).toBe(false);
-        expect(result.error).toBe('User denied access');
-      });
-    });
-  });
+			// Mock invalid flow context
+			mockSessionStorage.store['flowContext'] = 'invalid-json';
 
-  describe('Enhanced Logout', () => {
-    it('should cleanup flow context during logout', async () => {
-      let authContext: any;
-      
-      const TestLogoutComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			let authContext: any;
 
-      render(
-        <AuthProvider>
-          <TestLogoutComponent />
-        </AuthProvider>
-      );
+			const TestCallbackComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
 
-      await act(async () => {
-        authContext.logout();
-      });
+			render(
+				<AuthProvider>
+					<TestCallbackComponent />
+				</AuthProvider>
+			);
 
-      expect(mockFlowContextUtils.emergencyCleanup).toHaveBeenCalled();
-    });
+			const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
 
-    it('should handle flow cleanup errors gracefully', async () => {
-      // Mock emergency cleanup to throw an error
-      mockFlowContextUtils.emergencyCleanup.mockImplementation(() => {
-        throw new Error('Cleanup error');
-      });
+			await act(async () => {
+				const result = await authContext.handleCallback(callbackUrl);
+				expect(result.success).toBe(true);
+				expect(result.redirectUrl).toBe('/dashboard');
+			});
+		});
 
-      let authContext: any;
-      
-      const TestLogoutComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+		it('should handle OAuth errors in callback', async () => {
+			let authContext: any;
 
-      render(
-        <AuthProvider>
-          <TestLogoutComponent />
-        </AuthProvider>
-      );
+			const TestCallbackComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
 
-      // Should not throw error
-      await act(async () => {
-        expect(() => authContext.logout()).not.toThrow();
-      });
+			render(
+				<AuthProvider>
+					<TestCallbackComponent />
+				</AuthProvider>
+			);
 
-      expect(mockFlowContextUtils.emergencyCleanup).toHaveBeenCalled();
-    });
-  });
+			const callbackUrl =
+				'https://localhost:3000/authz-callback?error=access_denied&error_description=User%20denied%20access';
 
-  describe('Security Features', () => {
-    it('should reject dangerous flow context content', async () => {
-      // Mock FlowContextUtils to throw an error to test fallback
-      mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
-        throw new Error('FlowContextService error');
-      });
+			await act(async () => {
+				const result = await authContext.handleCallback(callbackUrl);
+				expect(result.success).toBe(false);
+				expect(result.error).toBe('User denied access');
+			});
+		});
+	});
 
-      // Mock dangerous flow context
-      mockSessionStorage.store['flowContext'] = JSON.stringify({
-        returnPath: 'javascript:alert("xss")',
-        flowType: 'malicious'
-      });
+	describe('Enhanced Logout', () => {
+		it('should cleanup flow context during logout', async () => {
+			let authContext: any;
 
-      let authContext: any;
-      
-      const TestCallbackComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			const TestLogoutComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
 
-      render(
-        <AuthProvider>
-          <TestCallbackComponent />
-        </AuthProvider>
-      );
+			render(
+				<AuthProvider>
+					<TestLogoutComponent />
+				</AuthProvider>
+			);
 
-      const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
-      
-      await act(async () => {
-        const result = await authContext.handleCallback(callbackUrl);
-        expect(result.success).toBe(true);
-        expect(result.redirectUrl).toBe('/dashboard'); // Should fallback to safe default
-      });
-    });
+			await act(async () => {
+				authContext.logout();
+			});
 
-    it('should reject oversized flow context', async () => {
-      // Mock FlowContextUtils to throw an error to test fallback
-      mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
-        throw new Error('FlowContextService error');
-      });
+			expect(mockFlowContextUtils.emergencyCleanup).toHaveBeenCalled();
+		});
 
-      // Mock oversized flow context
-      const largeContext = {
-        returnPath: '/flows/test',
-        flowType: 'test',
-        largeData: 'x'.repeat(15000) // Large data
-      };
-      mockSessionStorage.store['flowContext'] = JSON.stringify(largeContext);
+		it('should handle flow cleanup errors gracefully', async () => {
+			// Mock emergency cleanup to throw an error
+			mockFlowContextUtils.emergencyCleanup.mockImplementation(() => {
+				throw new Error('Cleanup error');
+			});
 
-      let authContext: any;
-      
-      const TestCallbackComponent: React.FC = () => {
-        authContext = useAuth();
-        return <div>Test</div>;
-      };
+			let authContext: any;
 
-      render(
-        <AuthProvider>
-          <TestCallbackComponent />
-        </AuthProvider>
-      );
+			const TestLogoutComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
 
-      const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
-      
-      await act(async () => {
-        const result = await authContext.handleCallback(callbackUrl);
-        expect(result.success).toBe(true);
-        expect(result.redirectUrl).toBe('/dashboard'); // Should fallback to safe default
-      });
-    });
-  });
+			render(
+				<AuthProvider>
+					<TestLogoutComponent />
+				</AuthProvider>
+			);
+
+			// Should not throw error
+			await act(async () => {
+				expect(() => authContext.logout()).not.toThrow();
+			});
+
+			expect(mockFlowContextUtils.emergencyCleanup).toHaveBeenCalled();
+		});
+	});
+
+	describe('Security Features', () => {
+		it('should reject dangerous flow context content', async () => {
+			// Mock FlowContextUtils to throw an error to test fallback
+			mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
+				throw new Error('FlowContextService error');
+			});
+
+			// Mock dangerous flow context
+			mockSessionStorage.store['flowContext'] = JSON.stringify({
+				returnPath: 'javascript:alert("xss")',
+				flowType: 'malicious',
+			});
+
+			let authContext: any;
+
+			const TestCallbackComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
+
+			render(
+				<AuthProvider>
+					<TestCallbackComponent />
+				</AuthProvider>
+			);
+
+			const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
+
+			await act(async () => {
+				const result = await authContext.handleCallback(callbackUrl);
+				expect(result.success).toBe(true);
+				expect(result.redirectUrl).toBe('/dashboard'); // Should fallback to safe default
+			});
+		});
+
+		it('should reject oversized flow context', async () => {
+			// Mock FlowContextUtils to throw an error to test fallback
+			mockFlowContextUtils.handleOAuthCallback.mockImplementation(() => {
+				throw new Error('FlowContextService error');
+			});
+
+			// Mock oversized flow context
+			const largeContext = {
+				returnPath: '/flows/test',
+				flowType: 'test',
+				largeData: 'x'.repeat(15000), // Large data
+			};
+			mockSessionStorage.store['flowContext'] = JSON.stringify(largeContext);
+
+			let authContext: any;
+
+			const TestCallbackComponent: React.FC = () => {
+				authContext = useAuth();
+				return <div>Test</div>;
+			};
+
+			render(
+				<AuthProvider>
+					<TestCallbackComponent />
+				</AuthProvider>
+			);
+
+			const callbackUrl = 'https://localhost:3000/authz-callback?code=test-code&state=test-state';
+
+			await act(async () => {
+				const result = await authContext.handleCallback(callbackUrl);
+				expect(result.success).toBe(true);
+				expect(result.redirectUrl).toBe('/dashboard'); // Should fallback to safe default
+			});
+		});
+	});
 });

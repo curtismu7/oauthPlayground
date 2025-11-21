@@ -5,13 +5,13 @@ import React, { useCallback, useState } from 'react';
 import { FiCheckCircle, FiInfo, FiRefreshCw, FiUser } from 'react-icons/fi';
 import styled from 'styled-components';
 import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import EnhancedFlowWalkthrough from '../../components/EnhancedFlowWalkthrough';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
 import { ResultsHeading, ResultsSection } from '../../components/ResultsPanel';
-import { useUserInfoFlowController } from '../../hooks/useUserInfoFlowController';
+import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { useUserInfoFlowController } from '../../hooks/useUserInfoFlowController';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 

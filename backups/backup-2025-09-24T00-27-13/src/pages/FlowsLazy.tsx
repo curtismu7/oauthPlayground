@@ -1,8 +1,8 @@
 import React, { Suspense } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
+import { CompactLoadingFallback, LazyLoadingFallback } from '../components/LazyLoadingFallback';
 import { useLazyLoading, usePreloadFlows } from '../hooks/useLazyLoading';
-import { LazyLoadingFallback, CompactLoadingFallback } from '../components/LazyLoadingFallback';
 import { logger } from '../utils/logger';
 
 const Page = styled.div`

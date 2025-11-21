@@ -8,6 +8,7 @@ import { PageFooter } from './services/footerService';
 import { theme as baseTheme, GlobalStyle } from './styles/global';
 import './styles/spec-cards.css';
 import './styles/ui-settings.css';
+import CodeExamplesDemo from './components/CodeExamplesDemo';
 import CredentialSetupModal from './components/CredentialSetupModal';
 import FlowComparisonTool from './components/FlowComparisonTool';
 import FlowHeaderDemo from './components/FlowHeaderDemo';
@@ -17,7 +18,6 @@ import Sidebar from './components/Sidebar';
 import { useAuth } from './contexts/NewAuthContext';
 import { NotificationContainer, NotificationProvider } from './hooks/useNotifications';
 import Callback from './pages/Callback';
-import CodeExamplesDemo from './components/CodeExamplesDemo';
 import Configuration from './pages/Configuration';
 import Dashboard from './pages/Dashboard';
 import Documentation from './pages/Documentation';
@@ -42,12 +42,12 @@ import ErrorBoundary from './components/ErrorBoundary';
 import GlobalErrorDisplay from './components/GlobalErrorDisplay';
 import PageChangeSpinner from './components/PageChangeSpinner';
 import ServerStatusProvider from './components/ServerStatusProvider';
+import About from './pages/About';
 import AdvancedConfiguration from './pages/AdvancedConfiguration';
 import AIAgentOverview from './pages/AIAgentOverview';
 import AIGlossary from './pages/AIGlossary';
 import AutoDiscover from './pages/AutoDiscover';
 import ComprehensiveOAuthEducation from './pages/ComprehensiveOAuthEducation';
-import About from './pages/About';
 import OAuth2SecurityBestPractices from './pages/docs/OAuth2SecurityBestPractices';
 import OIDCForAI from './pages/docs/OIDCForAI';
 import OIDCOverview from './pages/docs/OIDCOverview';
@@ -65,8 +65,8 @@ import MFAFlow from './pages/flows/MFAFlow';
 // V3 flows backed up
 import OAuth2ResourceOwnerPasswordFlow from './pages/flows/OAuth2ResourceOwnerPasswordFlow';
 import OAuthAuthorizationCodeFlowV5 from './pages/flows/OAuthAuthorizationCodeFlowV5';
-import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthImplicitFlowCompletion from './pages/flows/OAuthImplicitFlowCompletion';
+import OAuthImplicitFlowV5 from './pages/flows/OAuthImplicitFlowV5';
 import OAuthResourceOwnerPasswordFlowV5 from './pages/flows/OAuthResourceOwnerPasswordFlowV5';
 import OIDCAuthorizationCodeFlowV5 from './pages/flows/OIDCAuthorizationCodeFlowV5';
 // V3 OIDC flows backed up
@@ -79,9 +79,9 @@ import OIDCResourceOwnerPasswordFlowV5 from './pages/flows/OIDCResourceOwnerPass
 import PARFlow from './pages/flows/PARFlow';
 // PingOnePARFlow (non-V5) backed up
 import PingOnePARFlowV5 from './pages/flows/PingOnePARFlowV5';
+import RARFlowV5 from './pages/flows/RARFlowV5';
 import RedirectlessFlowV5 from './pages/flows/RedirectlessFlowV5';
 import RedirectlessFlowV5Real from './pages/flows/RedirectlessFlowV5_Real';
-import RARFlowV5 from './pages/flows/RARFlowV5';
 // ResourceOwnerPasswordFlow backed up
 import UserInfoFlow from './pages/flows/UserInfoFlow';
 // WorkerToken legacy flows backed up
@@ -289,7 +289,10 @@ const AppRoutes = () => {
 								element={<OIDCAuthorizationCodeFlowV5 />}
 							/>
 							<Route path="/flows/oauth-implicit-v5" element={<OAuthImplicitFlowV5 />} />
-							<Route path="/flows/oauth-implicit-completion" element={<OAuthImplicitFlowCompletion />} />
+							<Route
+								path="/flows/oauth-implicit-completion"
+								element={<OAuthImplicitFlowCompletion />}
+							/>
 							<Route path="/flows/oidc-implicit-v5" element={<OIDCImplicitFlowV5 />} />
 							<Route
 								path="/flows/device-authorization-v5"

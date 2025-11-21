@@ -20,10 +20,10 @@ import {
 	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import ConfirmationModal from './ConfirmationModal';
 import { useUISettings } from '../contexts/UISettingsContext';
 import { showGlobalSuccess } from '../hooks/useNotifications';
 import { v4ToastManager } from '../utils/v4ToastMessages';
+import ConfirmationModal from './ConfirmationModal';
 
 // Styled Components
 const Container = styled.div<{ $primaryColor: string; $secondaryColor: string }>`

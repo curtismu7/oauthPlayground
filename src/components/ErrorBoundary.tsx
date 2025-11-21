@@ -1,7 +1,11 @@
 import { Component, ErrorInfo, ReactNode } from 'react';
-import { FiAlertTriangle, FiHome, FiRefreshCw, FiMail, FiSettings } from 'react-icons/fi';
+import { FiAlertTriangle, FiMail, FiRefreshCw, FiSettings } from 'react-icons/fi';
 import styled from 'styled-components';
-import { ErrorHandlingService, ErrorResponse, RecoveryOption } from '../services/errorHandlingService';
+import {
+	ErrorHandlingService,
+	ErrorResponse,
+	RecoveryOption,
+} from '../services/errorHandlingService';
 
 const ErrorContainer = styled.div`
   display: flex;
@@ -134,13 +138,13 @@ class ErrorBoundary extends Component<Props, State> {
 				componentStack: error.stack,
 				userAgent: navigator.userAgent,
 				url: window.location.href,
-				timestamp: new Date().toISOString()
-			}
+				timestamp: new Date().toISOString(),
+			},
 		});
 
 		return {
 			hasError: true,
-			errorResponse
+			errorResponse,
 		};
 	}
 
@@ -149,7 +153,7 @@ class ErrorBoundary extends Component<Props, State> {
 		console.error('[ErrorBoundary] Caught error:', {
 			error,
 			errorInfo,
-			componentStack: errorInfo.componentStack
+			componentStack: errorInfo.componentStack,
 		});
 
 		// Call optional onError callback
@@ -166,7 +170,7 @@ class ErrorBoundary extends Component<Props, State> {
 		const enhancedError = {
 			...error,
 			componentStack: errorInfo.componentStack,
-			errorBoundary: true
+			errorBoundary: true,
 		};
 
 		// Use ErrorHandlingService to report with additional context
@@ -175,8 +179,8 @@ class ErrorBoundary extends Component<Props, State> {
 			metadata: {
 				componentStack: errorInfo.componentStack,
 				errorBoundary: true,
-				errorBoundaryStack: errorInfo.componentStack
-			}
+				errorBoundaryStack: errorInfo.componentStack,
+			},
 		});
 	}
 
@@ -187,12 +191,14 @@ class ErrorBoundary extends Component<Props, State> {
 
 			// If it's a promise, handle it
 			if (result instanceof Promise) {
-				result.then(() => {
-					this.resetError();
-				}).catch((recoveryError) => {
-					console.error('[ErrorBoundary] Recovery action failed:', recoveryError);
-					// Could show additional error message here
-				});
+				result
+					.then(() => {
+						this.resetError();
+					})
+					.catch((recoveryError) => {
+						console.error('[ErrorBoundary] Recovery action failed:', recoveryError);
+						// Could show additional error message here
+					});
 			} else {
 				// Synchronous action completed
 				this.resetError();
@@ -207,13 +213,13 @@ class ErrorBoundary extends Component<Props, State> {
 		this.setState({
 			hasError: false,
 			errorResponse: null,
-			showDetails: false
+			showDetails: false,
 		});
 	};
 
 	private toggleDetails = () => {
-		this.setState(prevState => ({
-			showDetails: !prevState.showDetails
+		this.setState((prevState) => ({
+			showDetails: !prevState.showDetails,
 		}));
 	};
 
@@ -234,14 +240,14 @@ class ErrorBoundary extends Component<Props, State> {
 						</ErrorIcon>
 
 						<ErrorTitle>
-							{errorResponse.severity === 'critical' ? 'Critical Error' :
-							 errorResponse.severity === 'high' ? 'Error Occurred' :
-							 'Something went wrong'}
+							{errorResponse.severity === 'critical'
+								? 'Critical Error'
+								: errorResponse.severity === 'high'
+									? 'Error Occurred'
+									: 'Something went wrong'}
 						</ErrorTitle>
 
-						<ErrorMessage>
-							{errorResponse.userMessage}
-						</ErrorMessage>
+						<ErrorMessage>{errorResponse.userMessage}</ErrorMessage>
 
 						{errorResponse.recoveryOptions.length > 0 && (
 							<ActionButtons>
@@ -252,7 +258,7 @@ class ErrorBoundary extends Component<Props, State> {
 										style={{
 											background: option.primary ? '#dc2626' : '#6b7280',
 											marginRight: '0.5rem',
-											marginBottom: '0.5rem'
+											marginBottom: '0.5rem',
 										}}
 									>
 										{option.id === 'retry' && <FiRefreshCw />}
@@ -271,9 +277,12 @@ class ErrorBoundary extends Component<Props, State> {
 
 							{this.state.showDetails && (
 								<ErrorStack>
-									<strong>Error Type:</strong> {errorResponse.type}<br/>
-									<strong>Severity:</strong> {errorResponse.severity}<br/>
-									<strong>Message:</strong> {errorResponse.technicalMessage}<br/>
+									<strong>Error Type:</strong> {errorResponse.type}
+									<br />
+									<strong>Severity:</strong> {errorResponse.severity}
+									<br />
+									<strong>Message:</strong> {errorResponse.technicalMessage}
+									<br />
 									<strong>Correlation ID:</strong> {errorResponse.correlationId}
 								</ErrorStack>
 							)}

@@ -1,18 +1,18 @@
 // src/components/CompactAdvancedSecuritySettings.tsx
 // Compact version of Advanced Security Settings for use inside flows
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { FiCheck, FiChevronDown, FiSettings, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { 
-  FiShield, 
-  FiChevronDown, 
-  FiChevronRight, 
-  FiCheck, 
-  FiAlertTriangle, 
-  FiInfo,
-  FiSettings
-} from 'react-icons/fi';
-import { advancedSecuritySettingsService, type AdvancedSecuritySettings } from '../services/advancedSecuritySettingsService';
+import {
+	type AdvancedSecuritySettings,
+	advancedSecuritySettingsService,
+} from '../services/advancedSecuritySettingsService';
+
+type SecurityAssessment = ReturnType<
+	typeof advancedSecuritySettingsService.getSecurityLevelAssessment
+>;
+type SettingKey = keyof AdvancedSecuritySettings;
 
 const Container = styled.div`
   background: #f8fafc;
@@ -48,33 +48,48 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
-  background: ${props => {
-    switch (props.level) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fef3c7';
-      case 'medium': return '#dbeafe';
-      case 'low': return '#f3f4f6';
-      default: return '#f3f4f6';
-    }
-  }};
-  color: ${props => {
-    switch (props.level) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#d97706';
-      case 'medium': return '#2563eb';
-      case 'low': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.level) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fde68a';
-      case 'medium': return '#bfdbfe';
-      case 'low': return '#e5e7eb';
-      default: return '#e5e7eb';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fef2f2';
+			case 'high':
+				return '#fef3c7';
+			case 'medium':
+				return '#dbeafe';
+			case 'low':
+				return '#f3f4f6';
+			default:
+				return '#f3f4f6';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#dc2626';
+			case 'high':
+				return '#d97706';
+			case 'medium':
+				return '#2563eb';
+			case 'low':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fecaca';
+			case 'high':
+				return '#fde68a';
+			case 'medium':
+				return '#bfdbfe';
+			case 'low':
+				return '#e5e7eb';
+			default:
+				return '#e5e7eb';
+		}
+	}};
 `;
 
 const ToggleIcon = styled.span<{ $expanded: boolean }>`
@@ -91,10 +106,10 @@ const ToggleIcon = styled.span<{ $expanded: boolean }>`
 `;
 
 const Content = styled.div<{ $expanded: boolean }>`
-  max-height: ${props => props.$expanded ? '500px' : '0'};
+  max-height: ${(props) => (props.$expanded ? '500px' : '0')};
   overflow: hidden;
   transition: max-height 0.3s ease;
-  margin-top: ${props => props.$expanded ? '1rem' : '0'};
+  margin-top: ${(props) => (props.$expanded ? '1rem' : '0')};
 `;
 
 const SettingsGrid = styled.div`
@@ -159,10 +174,10 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
   transition: all 0.2s ease;
   border: 1px solid;
   
-  ${props => {
-    switch (props.variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           color: white;
           border-color: #3b82f6;
@@ -171,8 +186,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
             border-color: #2563eb;
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background: white;
           color: #374151;
           border-color: #d1d5db;
@@ -181,31 +196,41 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' }>`
             border-color: #9ca3af;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const AssessmentSummary = styled.div<{ level: 'low' | 'medium' | 'high' | 'critical' }>`
   padding: 0.75rem;
   border-radius: 6px;
-  background: ${props => {
-    switch (props.level) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fef3c7';
-      case 'medium': return '#dbeafe';
-      case 'low': return '#f3f4f6';
-      default: return '#f3f4f6';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.level) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fde68a';
-      case 'medium': return '#bfdbfe';
-      case 'low': return '#e5e7eb';
-      default: return '#e5e7eb';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fef2f2';
+			case 'high':
+				return '#fef3c7';
+			case 'medium':
+				return '#dbeafe';
+			case 'low':
+				return '#f3f4f6';
+			default:
+				return '#f3f4f6';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fecaca';
+			case 'high':
+				return '#fde68a';
+			case 'medium':
+				return '#bfdbfe';
+			case 'low':
+				return '#e5e7eb';
+			default:
+				return '#e5e7eb';
+		}
+	}};
   margin-bottom: 1rem;
 `;
 
@@ -218,198 +243,193 @@ const AssessmentText = styled.div`
 `;
 
 const CompactAdvancedSecuritySettings: React.FC = () => {
-  const [settings, setSettings] = useState<AdvancedSecuritySettings>(advancedSecuritySettingsService.getCurrentSettings());
-  const [assessment, setAssessment] = useState<any>(null);
-  const [isExpanded, setIsExpanded] = useState(false);
+	const [settings, setSettings] = useState<AdvancedSecuritySettings>(
+		advancedSecuritySettingsService.getCurrentSettings()
+	);
+	const [assessment, setAssessment] = useState<SecurityAssessment>(
+		advancedSecuritySettingsService.getSecurityLevelAssessment()
+	);
+	const [isExpanded, setIsExpanded] = useState(false);
 
-  useEffect(() => {
-    setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
-  }, [settings]);
+	const handleSettingChange = (settingId: SettingKey, value: boolean | string) => {
+		const newSettings: AdvancedSecuritySettings = {
+			...settings,
+			[settingId]: value as AdvancedSecuritySettings[SettingKey],
+		};
+		setSettings(newSettings);
+		advancedSecuritySettingsService.updateSettings(newSettings);
+		setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
+	};
 
-  const handleSettingChange = (settingId: string, value: any) => {
-    const newSettings = { ...settings, [settingId]: value };
-    setSettings(newSettings);
-    advancedSecuritySettingsService.updateSettings(newSettings);
-    setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
-  };
+	const handleReset = () => {
+		advancedSecuritySettingsService.resetToDefaults();
+		const defaultSettings = advancedSecuritySettingsService.getCurrentSettings();
+		setSettings(defaultSettings);
+		setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
+	};
 
-  const handleReset = () => {
-    advancedSecuritySettingsService.resetToDefaults();
-    const defaultSettings = advancedSecuritySettingsService.getCurrentSettings();
-    setSettings(defaultSettings);
-    setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
-  };
+	const toggleExpanded = () => {
+		setIsExpanded(!isExpanded);
+	};
 
-  const toggleExpanded = () => {
-    setIsExpanded(!isExpanded);
-  };
+	return (
+		<Container>
+			<Header onClick={toggleExpanded}>
+				<Title>
+					<FiShield size={16} />
+					Advanced Security Settings
+					{assessment && (
+						<SecurityBadge level={assessment.overall}>
+							{assessment.overall.toUpperCase()} ({assessment.score}%)
+						</SecurityBadge>
+					)}
+				</Title>
+				<ToggleIcon $expanded={isExpanded}>
+					<FiChevronDown size={16} />
+				</ToggleIcon>
+			</Header>
 
-  return (
-    <Container>
-      <Header onClick={toggleExpanded}>
-        <Title>
-          <FiShield size={16} />
-          Advanced Security Settings
-          {assessment && (
-            <SecurityBadge level={assessment.overall}>
-              {assessment.overall.toUpperCase()} ({assessment.score}%)
-            </SecurityBadge>
-          )}
-        </Title>
-        <ToggleIcon $expanded={isExpanded}>
-          <FiChevronDown size={16} />
-        </ToggleIcon>
-      </Header>
+			{assessment && (
+				<AssessmentSummary level={assessment.overall}>
+					<AssessmentText>
+						<FiShield size={14} />
+						Security Level: {assessment.overall.toUpperCase()} ({assessment.score}%)
+						{assessment.recommendations.length > 0 && (
+							<span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
+								• {assessment.recommendations.length} recommendations
+							</span>
+						)}
+					</AssessmentText>
+				</AssessmentSummary>
+			)}
 
-      {assessment && (
-        <AssessmentSummary level={assessment.overall}>
-          <AssessmentText>
-            <FiShield size={14} />
-            Security Level: {assessment.overall.toUpperCase()} ({assessment.score}%)
-            {assessment.recommendations.length > 0 && (
-              <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                • {assessment.recommendations.length} recommendations
-              </span>
-            )}
-          </AssessmentText>
-        </AssessmentSummary>
-      )}
+			<Content $expanded={isExpanded}>
+				<SettingsGrid>
+					{/* Authentication Security */}
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.includeX5tParameter}
+								onChange={(e) => handleSettingChange('includeX5tParameter', e.target.checked)}
+							/>
+							Include x5t Parameter
+						</SettingLabel>
+						<SettingDescription>X.509 certificate thumbprint in JWT tokens</SettingDescription>
+					</SettingItem>
 
-      <Content $expanded={isExpanded}>
-        <SettingsGrid>
-          {/* Authentication Security */}
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.includeX5tParameter}
-                onChange={(e) => handleSettingChange('includeX5tParameter', e.target.checked)}
-              />
-              Include x5t Parameter
-            </SettingLabel>
-            <SettingDescription>
-              X.509 certificate thumbprint in JWT tokens
-            </SettingDescription>
-          </SettingItem>
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.requireClientAuthentication}
+								onChange={(e) =>
+									handleSettingChange('requireClientAuthentication', e.target.checked)
+								}
+							/>
+							Require Client Authentication
+						</SettingLabel>
+						<SettingDescription>Enforce client authentication methods</SettingDescription>
+					</SettingItem>
 
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.requireClientAuthentication}
-                onChange={(e) => handleSettingChange('requireClientAuthentication', e.target.checked)}
-              />
-              Require Client Authentication
-            </SettingLabel>
-            <SettingDescription>
-              Enforce client authentication methods
-            </SettingDescription>
-          </SettingItem>
+					{/* Session Management */}
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.openIdConnectSessionManagement}
+								onChange={(e) =>
+									handleSettingChange('openIdConnectSessionManagement', e.target.checked)
+								}
+							/>
+							OIDC Session Management
+						</SettingLabel>
+						<SettingDescription>Enable OIDC session features</SettingDescription>
+					</SettingItem>
 
-          {/* Session Management */}
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.openIdConnectSessionManagement}
-                onChange={(e) => handleSettingChange('openIdConnectSessionManagement', e.target.checked)}
-              />
-              OIDC Session Management
-            </SettingLabel>
-            <SettingDescription>
-              Enable OIDC session features
-            </SettingDescription>
-          </SettingItem>
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.terminateUserSessionByIdToken}
+								onChange={(e) =>
+									handleSettingChange('terminateUserSessionByIdToken', e.target.checked)
+								}
+							/>
+							Terminate Session by ID Token
+						</SettingLabel>
+						<SettingDescription>Single logout functionality</SettingDescription>
+					</SettingItem>
 
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.terminateUserSessionByIdToken}
-                onChange={(e) => handleSettingChange('terminateUserSessionByIdToken', e.target.checked)}
-              />
-              Terminate Session by ID Token
-            </SettingLabel>
-            <SettingDescription>
-              Single logout functionality
-            </SettingDescription>
-          </SettingItem>
+					{/* Token Security */}
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.additionalRefreshTokenReplayProtection}
+								onChange={(e) =>
+									handleSettingChange('additionalRefreshTokenReplayProtection', e.target.checked)
+								}
+							/>
+							Refresh Token Replay Protection
+						</SettingLabel>
+						<SettingDescription>Prevent refresh token reuse</SettingDescription>
+					</SettingItem>
 
-          {/* Token Security */}
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.additionalRefreshTokenReplayProtection}
-                onChange={(e) => handleSettingChange('additionalRefreshTokenReplayProtection', e.target.checked)}
-              />
-              Refresh Token Replay Protection
-            </SettingLabel>
-            <SettingDescription>
-              Prevent refresh token reuse
-            </SettingDescription>
-          </SettingItem>
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.enforcePKCE}
+								onChange={(e) => handleSettingChange('enforcePKCE', e.target.checked)}
+							/>
+							Enforce PKCE
+						</SettingLabel>
+						<SettingDescription>Proof Key for Code Exchange</SettingDescription>
+					</SettingItem>
 
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.enforcePKCE}
-                onChange={(e) => handleSettingChange('enforcePKCE', e.target.checked)}
-              />
-              Enforce PKCE
-            </SettingLabel>
-            <SettingDescription>
-              Proof Key for Code Exchange
-            </SettingDescription>
-          </SettingItem>
+					{/* Request Security */}
+					<SettingItem>
+						<SettingLabel>
+							<SettingInput
+								type="checkbox"
+								checked={settings.requirePushedAuthorizationRequests}
+								onChange={(e) =>
+									handleSettingChange('requirePushedAuthorizationRequests', e.target.checked)
+								}
+							/>
+							Require PAR
+						</SettingLabel>
+						<SettingDescription>Pushed Authorization Requests</SettingDescription>
+					</SettingItem>
 
-          {/* Request Security */}
-          <SettingItem>
-            <SettingLabel>
-              <SettingInput
-                type="checkbox"
-                checked={settings.requirePushedAuthorizationRequests}
-                onChange={(e) => handleSettingChange('requirePushedAuthorizationRequests', e.target.checked)}
-              />
-              Require PAR
-            </SettingLabel>
-            <SettingDescription>
-              Pushed Authorization Requests
-            </SettingDescription>
-          </SettingItem>
+					<SettingItem>
+						<SettingLabel>Request Parameter Signature</SettingLabel>
+						<SettingSelect
+							value={settings.requestParameterSignature}
+							onChange={(e) => handleSettingChange('requestParameterSignature', e.target.value)}
+						>
+							<option value="default">Default</option>
+							<option value="require_signed">Require Signed</option>
+							<option value="allow_unsigned">Allow Unsigned</option>
+						</SettingSelect>
+						<SettingDescription>Cryptographic signature requirements</SettingDescription>
+					</SettingItem>
+				</SettingsGrid>
 
-          <SettingItem>
-            <SettingLabel>
-              Request Parameter Signature
-            </SettingLabel>
-            <SettingSelect
-              value={settings.requestParameterSignature}
-              onChange={(e) => handleSettingChange('requestParameterSignature', e.target.value)}
-            >
-              <option value="default">Default</option>
-              <option value="require_signed">Require Signed</option>
-              <option value="allow_unsigned">Allow Unsigned</option>
-            </SettingSelect>
-            <SettingDescription>
-              Cryptographic signature requirements
-            </SettingDescription>
-          </SettingItem>
-        </SettingsGrid>
-
-        <QuickActions>
-          <ActionButton onClick={handleReset}>
-            <FiSettings size={12} />
-            Reset
-          </ActionButton>
-          <ActionButton variant="primary">
-            <FiCheck size={12} />
-            Apply Settings
-          </ActionButton>
-        </QuickActions>
-      </Content>
-    </Container>
-  );
+				<QuickActions>
+					<ActionButton onClick={handleReset}>
+						<FiSettings size={12} />
+						Reset
+					</ActionButton>
+					<ActionButton variant="primary">
+						<FiCheck size={12} />
+						Apply Settings
+					</ActionButton>
+				</QuickActions>
+			</Content>
+		</Container>
+	);
 };
 
 export default CompactAdvancedSecuritySettings;

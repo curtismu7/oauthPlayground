@@ -15,10 +15,10 @@ import {
 import styled from 'styled-components';
 import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';
-import { FlowHeader } from '../../services/flowHeaderService';
 import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
 import { useAuth } from '../../contexts/NewAuthContext';
+import { FlowHeader } from '../../services/flowHeaderService';
 import { logger } from '../../utils/logger';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 

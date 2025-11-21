@@ -2,13 +2,22 @@
 // Square POS Terminal Style Device Authorization Flow Interface
 // Designed to look like actual Square POS hardware
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiCreditCard, FiDollarSign, FiFileText } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import {
+	FiAlertTriangle,
+	FiCheckCircle,
+	FiCopy,
+	FiCreditCard,
+	FiDollarSign,
+	FiExternalLink,
+	FiFileText,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
+import { logger } from '../utils/logger';
 
 // Square POS Terminal Main Container - Authentic Square Design
 const SquarePOSContainer = styled.div<{ $authorized?: boolean }>`
@@ -55,8 +64,7 @@ const POSDisplayText = styled.div`
 const DisplayStatus = styled.div<{ $status: string }>`
   font-size: 0.75rem;
   font-weight: 600;
-  color: ${({ $status }) => 
-    $status === 'authorized' ? '#00ff88' : '#ffffff'};
+  color: ${({ $status }) => ($status === 'authorized' ? '#00ff88' : '#ffffff')};
   text-transform: uppercase;
   letter-spacing: 0.5px;
 `;
@@ -113,15 +121,20 @@ const POSLogo = styled.div`
 `;
 
 const POSStatus = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return '#f59e0b';
-      case 'authorized': return '#10b981';
-      case 'denied': return '#ef4444';
-      case 'expired': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'authorized':
+				return '#10b981';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
   color: #ffffff;
   padding: 0.25rem 0.5rem;
   border-radius: 0.25rem;
@@ -145,13 +158,16 @@ const POSKeypad = styled.div`
 
 const POSKey = styled.button<{ $type: 'number' | 'action' | 'special' }>`
   aspect-ratio: 1;
-  background: ${props => {
-    switch (props.$type) {
-      case 'number': return 'linear-gradient(135deg, #374151 0%, #1f2937 100%)';
-      case 'action': return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
-      case 'special': return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$type) {
+			case 'number':
+				return 'linear-gradient(135deg, #374151 0%, #1f2937 100%)';
+			case 'action':
+				return 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+			case 'special':
+				return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+		}
+	}};
   border: 2px solid #4b5563;
   border-radius: 0.5rem;
   color: #ffffff;
@@ -237,14 +253,18 @@ const StatusLabel = styled.div`
 const StatusValue = styled.div<{ $status?: string }>`
   font-size: 0.875rem;
   font-weight: 500;
-  color: ${props => {
-    switch (props.$status) {
-      case 'connected': return '#10b981';
-      case 'disconnected': return '#ef4444';
-      case 'pending': return '#f59e0b';
-      default: return '#ffffff';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'connected':
+				return '#10b981';
+			case 'disconnected':
+				return '#ef4444';
+			case 'pending':
+				return '#f59e0b';
+			default:
+				return '#ffffff';
+		}
+	}};
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -254,9 +274,9 @@ const StatusDot = styled.div<{ $active: boolean; $color: string }>`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: ${props => props.$active ? props.$color : '#6b7280'};
-  box-shadow: ${props => props.$active ? `0 0 8px ${props.$color}` : 'none'};
-  animation: ${props => props.$active ? 'pulse 2s infinite' : 'none'};
+  background: ${(props) => (props.$active ? props.$color : '#6b7280')};
+  box-shadow: ${(props) => (props.$active ? `0 0 8px ${props.$color}` : 'none')};
+  animation: ${(props) => (props.$active ? 'pulse 2s infinite' : 'none')};
   
   @keyframes pulse {
     0%, 100% { opacity: 1; }
@@ -324,7 +344,7 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-  background: ${props => props.$variant === 'primary' ? '#3b82f6' : '#6b7280'};
+  background: ${(props) => (props.$variant === 'primary' ? '#3b82f6' : '#6b7280')};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -376,197 +396,206 @@ const SuccessMessage = styled.div`
 `;
 
 interface SquarePOSDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const SquarePOSDeviceFlow: React.FC<SquarePOSDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('SquarePOSDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('SquarePOSDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Authorization';
-      case 'authorized':
-        return 'POS Connected';
-      case 'denied':
-        return 'Connection Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Authorization';
+			case 'authorized':
+				return 'POS Connected';
+			case 'denied':
+				return 'Connection Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  const isAuthorized = state.status === 'authorized';
+	const isAuthorized = state.status === 'authorized';
 
-  return (
-    <SquarePOSContainer $authorized={isAuthorized}>
-      {/* Square POS Display Screen */}
-      <POSDisplayScreen>
-        <POSDisplayHeader>
-          <POSDisplayText>Square POS</POSDisplayText>
-          <DisplayStatus $status={state.status}>
-            {state.status === 'authorized' ? 'READY' : state.status === 'pending' ? 'AUTHORIZING' : state.status === 'denied' ? 'DENIED' : 'IDLE'}
-          </DisplayStatus>
-        </POSDisplayHeader>
-        
-        <div style={{ padding: '1.5rem' }}>
-          <SquareTitle>
-            <FiCreditCard style={{ marginRight: '0.5rem', color: '#00d4aa' }} />
-            Authorization Required
-          </SquareTitle>
-          
-          <div style={{ marginTop: '1.5rem' }}>
-            <ScreenLabel style={{ color: '#64748b', fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-              Payment Authorization Code
-            </ScreenLabel>
-            <AuthCodeDisplay>
-              {deviceFlowService.formatUserCode(state.userCode)}
-            </AuthCodeDisplay>
-          </div>
-        </div>
-      </POSDisplayScreen>
+	return (
+		<SquarePOSContainer $authorized={isAuthorized}>
+			{/* Square POS Display Screen */}
+			<POSDisplayScreen>
+				<POSDisplayHeader>
+					<POSDisplayText>Square POS</POSDisplayText>
+					<DisplayStatus $status={state.status}>
+						{state.status === 'authorized'
+							? 'READY'
+							: state.status === 'pending'
+								? 'AUTHORIZING'
+								: state.status === 'denied'
+									? 'DENIED'
+									: 'IDLE'}
+					</DisplayStatus>
+				</POSDisplayHeader>
 
-      {/* POS Keypad */}
-      <POSKeypad>
-        <POSKey $type="number">1</POSKey>
-        <POSKey $type="number">2</POSKey>
-        <POSKey $type="number">3</POSKey>
-        <POSKey $type="number">4</POSKey>
-        <POSKey $type="number">5</POSKey>
-        <POSKey $type="number">6</POSKey>
-        <POSKey $type="number">7</POSKey>
-        <POSKey $type="number">8</POSKey>
-        <POSKey $type="number">9</POSKey>
-        <POSKey $type="special">Clear</POSKey>
-        <POSKey $type="number">0</POSKey>
-        <POSKey $type="special">Enter</POSKey>
-      </POSKeypad>
+				<div style={{ padding: '1.5rem' }}>
+					<SquareTitle>
+						<FiCreditCard style={{ marginRight: '0.5rem', color: '#00d4aa' }} />
+						Authorization Required
+					</SquareTitle>
 
-      {/* Card Reader */}
-      <CardReader>
-        <FiCreditCard />
-        <CardReaderSlot>
-          <FiCreditCard />
-        </CardReaderSlot>
-        <span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>
-          Card Reader Ready
-        </span>
-      </CardReader>
+					<div style={{ marginTop: '1.5rem' }}>
+						<ScreenLabel
+							style={{
+								color: '#64748b',
+								fontSize: '0.875rem',
+								fontWeight: 600,
+								marginBottom: '0.5rem',
+							}}
+						>
+							Payment Authorization Code
+						</ScreenLabel>
+						<AuthCodeDisplay>{deviceFlowService.formatUserCode(state.userCode)}</AuthCodeDisplay>
+					</div>
+				</div>
+			</POSDisplayScreen>
 
-      {/* Status Display */}
-      <StatusDisplay>
-        <StatusRow>
-          <StatusLabel>Network</StatusLabel>
-          <StatusValue $status="connected">
-            <StatusDot $active={true} $color="#10b981" />
-            Connected
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Power</StatusLabel>
-          <StatusValue>
-            <StatusDot $active={true} $color="#10b981" />
-            AC Power
-          </StatusValue>
-        </StatusRow>
-        <StatusRow>
-          <StatusLabel>Status</StatusLabel>
-          <StatusValue $status={state.status}>
-            {getStatusIcon()}
-            {getStatusText()}
-          </StatusValue>
-        </StatusRow>
-      </StatusDisplay>
+			{/* POS Keypad */}
+			<POSKeypad>
+				<POSKey $type="number">1</POSKey>
+				<POSKey $type="number">2</POSKey>
+				<POSKey $type="number">3</POSKey>
+				<POSKey $type="number">4</POSKey>
+				<POSKey $type="number">5</POSKey>
+				<POSKey $type="number">6</POSKey>
+				<POSKey $type="number">7</POSKey>
+				<POSKey $type="number">8</POSKey>
+				<POSKey $type="number">9</POSKey>
+				<POSKey $type="special">Clear</POSKey>
+				<POSKey $type="number">0</POSKey>
+				<POSKey $type="special">Enter</POSKey>
+			</POSKeypad>
 
-      {/* QR Code Section */}
-      <QRCodeSection>
-        <QRTitle>Connect to Square Dashboard</QRTitle>
-        <QRSubtitle>
-          Scan this QR code with your phone to complete setup
-        </QRSubtitle>
-        <QRCodeContainer>
-          <QRCodeSVG
-            value={state.verificationUriComplete}
-            size={160}
-            bgColor="#ffffff"
-            fgColor="#1f2937"
-            level="H"
-            includeMargin={true}
-          />
-        </QRCodeContainer>
-        <ActionButtons>
-          <ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-            <FiCopy /> Copy Code
-          </ActionButton>
-          <ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-            <FiExternalLink /> Open App
-          </ActionButton>
-        </ActionButtons>
-      </QRCodeSection>
+			{/* Card Reader */}
+			<CardReader>
+				<FiCreditCard />
+				<CardReaderSlot>
+					<FiCreditCard />
+				</CardReaderSlot>
+				<span style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Card Reader Ready</span>
+			</CardReader>
 
-      {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
-        <SuccessDisplay>
-          <SuccessTitle>
-            <FiCheckCircle />
-            POS Terminal Connected Successfully!
-          </SuccessTitle>
-          <SuccessMessage>
-            Your Square POS terminal is now connected and ready to process payments.
-          </SuccessMessage>
-          {/* Token Display - Full Width Independent of Device */}
-          <div style={{
-            width: '100%',
-            maxWidth: '60rem',
-            margin: '1rem auto'
-          }}>
-            {UnifiedTokenDisplayService.showTokens(
-              state.tokens as any,
-              'oauth',
-              'device-authorization-v7',
-              {
-                showCopyButtons: true,
-                showDecodeButtons: true,
-                inlineDecode: true,
-              }
-            )}
-          </div>
-        </SuccessDisplay>
-      )}
-    </SquarePOSContainer>
-  );
+			{/* Status Display */}
+			<StatusDisplay>
+				<StatusRow>
+					<StatusLabel>Network</StatusLabel>
+					<StatusValue $status="connected">
+						<StatusDot $active={true} $color="#10b981" />
+						Connected
+					</StatusValue>
+				</StatusRow>
+				<StatusRow>
+					<StatusLabel>Power</StatusLabel>
+					<StatusValue>
+						<StatusDot $active={true} $color="#10b981" />
+						AC Power
+					</StatusValue>
+				</StatusRow>
+				<StatusRow>
+					<StatusLabel>Status</StatusLabel>
+					<StatusValue $status={state.status}>
+						{getStatusIcon()}
+						{getStatusText()}
+					</StatusValue>
+				</StatusRow>
+			</StatusDisplay>
+
+			{/* QR Code Section */}
+			<QRCodeSection>
+				<QRTitle>Connect to Square Dashboard</QRTitle>
+				<QRSubtitle>Scan this QR code with your phone to complete setup</QRSubtitle>
+				<QRCodeContainer>
+					<QRCodeSVG
+						value={state.verificationUriComplete}
+						size={160}
+						bgColor="#ffffff"
+						fgColor="#1f2937"
+						level="H"
+						includeMargin={true}
+					/>
+				</QRCodeContainer>
+				<ActionButtons>
+					<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
+						<FiCopy /> Copy Code
+					</ActionButton>
+					<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+						<FiExternalLink /> Open App
+					</ActionButton>
+				</ActionButtons>
+			</QRCodeSection>
+
+			{/* Success Display */}
+			{state.status === 'authorized' && state.tokens && (
+				<SuccessDisplay>
+					<SuccessTitle>
+						<FiCheckCircle />
+						POS Terminal Connected Successfully!
+					</SuccessTitle>
+					<SuccessMessage>
+						Your Square POS terminal is now connected and ready to process payments.
+					</SuccessMessage>
+					{/* Token Display - Full Width Independent of Device */}
+					<div
+						style={{
+							width: '100%',
+							maxWidth: '60rem',
+							margin: '1rem auto',
+						}}
+					>
+						{UnifiedTokenDisplayService.showTokens(
+							state.tokens as any,
+							'oauth',
+							'device-authorization-v7',
+							{
+								showCopyButtons: true,
+								showDecodeButtons: true,
+								inlineDecode: true,
+							}
+						)}
+					</div>
+				</SuccessDisplay>
+			)}
+		</SquarePOSContainer>
+	);
 };
 
 export default SquarePOSDeviceFlow;

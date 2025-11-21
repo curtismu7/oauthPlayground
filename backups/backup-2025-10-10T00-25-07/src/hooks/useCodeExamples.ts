@@ -1,12 +1,12 @@
 // src/hooks/useCodeExamples.ts
 
-import { useState, useMemo, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
-	CodeExamplesService,
-	SupportedLanguage,
-	FlowStepCodeExamples,
-	CodeExamplesConfig,
 	CodeExample,
+	CodeExamplesConfig,
+	CodeExamplesService,
+	FlowStepCodeExamples,
+	SupportedLanguage,
 } from '../services/codeExamplesService';
 
 interface UseCodeExamplesProps {

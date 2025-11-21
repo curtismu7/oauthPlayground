@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { FiAlertCircle, FiCheckCircle, FiKey, FiShield } from 'react-icons/fi';
 import styled from 'styled-components';
-import { Card, CardBody, CardHeader } from '../../components/Card';
+import { CardBody, CardHeader } from '../../components/Card';
 import ConfigurationButton from '../../components/ConfigurationButton';
 import FlowCredentials from '../../components/FlowCredentials';
 import PageTitle from '../../components/PageTitle';
 import { type FlowStep, StepByStepFlow } from '../../components/StepByStepFlow';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { getOAuthTokens } from '../../utils/tokenStorage';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { getOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import {
+	FiBarChart,
+	FiBookOpen,
+	FiChevronDown,
+	FiCode,
+	FiCpu,
+	FiDatabase,
+	FiExternalLink,
+	FiEye,
+	FiGitBranch,
+	FiHome,
+	FiKey,
+	FiLock,
+	FiPackage,
+	FiSearch,
+	FiServer,
+	FiSettings,
+	FiShield,
+	FiSmartphone,
+	FiTool,
+	FiUnlock,
+	FiUser,
+	FiUsers,
+	FiZap,
+} from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import {
-	FiHome,
-	FiCode,
-	FiUser,
-	FiSettings,
-	FiSearch,
-	FiChevronDown,
-	FiBookOpen,
-	FiEye,
-	FiShield,
-	FiUsers,
-	FiDatabase,
-	FiTool,
-	FiCpu,
-	FiKey,
-	FiZap,
-	FiLock,
-	FiSmartphone,
-	FiServer,
-	FiUnlock,
-	FiPackage,
-	FiGitBranch,
-	FiBarChart,
-	FiExternalLink,
-} from 'react-icons/fi';
 
 interface SidebarContainerProps {
 	$isOpen?: boolean;

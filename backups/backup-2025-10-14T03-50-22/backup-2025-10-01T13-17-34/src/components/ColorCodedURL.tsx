@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiInfo, FiX } from 'react-icons/fi';
+import styled from 'styled-components';
 
 interface ColorCodedURLProps {
 	url: string;

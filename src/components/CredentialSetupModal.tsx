@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { FiEye, FiEyeOff, FiLoader, FiLock } from 'react-icons/fi';
 import styled from 'styled-components';
-import { credentialManager } from '../utils/credentialManager';
 import { loadFlowCredentials, saveFlowCredentials } from '../services/flowCredentialService';
+import { credentialManager } from '../utils/credentialManager';
 import StandardMessage from './StandardMessage';
 
 const ModalOverlay = styled.div`
@@ -326,7 +326,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							userInfoEndpoint: '',
 							clientAuthMethod: 'client_secret_post',
 							tokenEndpointAuthMethod: 'client_secret_post',
-						}
+						},
 					});
 
 					console.log(' [CredentialSetupModal] V7 FlowCredentialService result:', v7Credentials);
@@ -337,7 +337,8 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 							environmentId: v7Credentials.credentials.environmentId || '',
 							clientId: v7Credentials.credentials.clientId || '',
 							clientSecret: v7Credentials.credentials.clientSecret || '',
-							redirectUri: v7Credentials.credentials.redirectUri || `${window.location.origin}/authz-callback`,
+							redirectUri:
+								v7Credentials.credentials.redirectUri || `${window.location.origin}/authz-callback`,
 						};
 						setFormData(newFormData);
 						setOriginalFormData(newFormData);
@@ -353,77 +354,79 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				try {
 					console.log(' [CredentialSetupModal] Loading from legacy credential manager...');
 					const allCredentials = credentialManager.getAllCredentials();
-				console.log(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
+					console.log(' [CredentialSetupModal] Legacy credentials result:', allCredentials);
 
-				// Also check the old pingone_config localStorage key for backward compatibility
-				const oldConfig = localStorage.getItem('pingone_config');
-				let oldCredentials = null;
-				if (oldConfig) {
-					try {
-						oldCredentials = JSON.parse(oldConfig);
-						console.log(' [CredentialSetupModal] Found old config:', oldCredentials);
-					} catch (e) {
-						console.log(' [CredentialSetupModal] Failed to parse old config:', e);
+					// Also check the old pingone_config localStorage key for backward compatibility
+					const oldConfig = localStorage.getItem('pingone_config');
+					let oldCredentials = null;
+					if (oldConfig) {
+						try {
+							oldCredentials = JSON.parse(oldConfig);
+							console.log(' [CredentialSetupModal] Found old config:', oldCredentials);
+						} catch (e) {
+							console.log(' [CredentialSetupModal] Failed to parse old config:', e);
+						}
 					}
-				}
 
-				// Check if we have permanent credentials
-				const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
-				const hasSessionCredentials = !!allCredentials.clientSecret;
+					// Check if we have permanent credentials
+					const hasPermanentCredentials = credentialManager.arePermanentCredentialsComplete();
+					const hasSessionCredentials = !!allCredentials.clientSecret;
 
-				const stored = {
-					pingone_config: hasPermanentCredentials
-						? {
-								environmentId: allCredentials.environmentId,
-								clientId: allCredentials.clientId,
-								redirectUri: allCredentials.redirectUri,
-							}
-						: null,
-					login_credentials: hasSessionCredentials
-						? {
-								clientSecret: allCredentials.clientSecret,
-							}
-						: null,
-				};
-
-				setStoredCredentials(stored);
-
-				// Pre-populate form with existing credentials
-				if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
-					console.log(' [CredentialSetupModal] Pre-populating form with existing credentials');
-					const newFormData = {
-						environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
-						clientId: allCredentials.clientId || oldCredentials?.clientId || '',
-						clientSecret: allCredentials.clientSecret || oldCredentials?.clientSecret || '',
-						redirectUri:
-							allCredentials.redirectUri ||
-							oldCredentials?.redirectUri ||
-							`${window.location.origin}/authz-callback`,
+					const stored = {
+						pingone_config: hasPermanentCredentials
+							? {
+									environmentId: allCredentials.environmentId,
+									clientId: allCredentials.clientId,
+									redirectUri: allCredentials.redirectUri,
+								}
+							: null,
+						login_credentials: hasSessionCredentials
+							? {
+									clientSecret: allCredentials.clientSecret,
+								}
+							: null,
 					};
-					setFormData(newFormData);
-					setOriginalFormData(newFormData);
-					setHasUnsavedChanges(false);
-					setHasBeenSaved(false);
-					
-					console.log(' [CredentialSetupModal] Form pre-populated with:', {
-						environmentId: allCredentials.environmentId,
-						hasClientId: !!allCredentials.clientId,
-						hasClientSecret: !!allCredentials.clientSecret,
-					});
-				} else {
-					console.log(' [CredentialSetupModal] No existing credentials found, loading from environment variables...');
-					// Load from environment variables as fallback
-					loadFromEnvironmentVariables();
-					setOriginalFormData(formData);
-					setHasUnsavedChanges(false);
-					setHasBeenSaved(false);
-				}
-				} catch (error) {
-				console.error(' [CredentialSetupModal] Error loading existing credentials:', error);
-			}
-		};
 
-		loadCredentialsV7();
+					setStoredCredentials(stored);
+
+					// Pre-populate form with existing credentials
+					if (hasPermanentCredentials || hasSessionCredentials || oldCredentials) {
+						console.log(' [CredentialSetupModal] Pre-populating form with existing credentials');
+						const newFormData = {
+							environmentId: allCredentials.environmentId || oldCredentials?.environmentId || '',
+							clientId: allCredentials.clientId || oldCredentials?.clientId || '',
+							clientSecret: allCredentials.clientSecret || oldCredentials?.clientSecret || '',
+							redirectUri:
+								allCredentials.redirectUri ||
+								oldCredentials?.redirectUri ||
+								`${window.location.origin}/authz-callback`,
+						};
+						setFormData(newFormData);
+						setOriginalFormData(newFormData);
+						setHasUnsavedChanges(false);
+						setHasBeenSaved(false);
+
+						console.log(' [CredentialSetupModal] Form pre-populated with:', {
+							environmentId: allCredentials.environmentId,
+							hasClientId: !!allCredentials.clientId,
+							hasClientSecret: !!allCredentials.clientSecret,
+						});
+					} else {
+						console.log(
+							' [CredentialSetupModal] No existing credentials found, loading from environment variables...'
+						);
+						// Load from environment variables as fallback
+						loadFromEnvironmentVariables();
+						setOriginalFormData(formData);
+						setHasUnsavedChanges(false);
+						setHasBeenSaved(false);
+					}
+				} catch (error) {
+					console.error(' [CredentialSetupModal] Error loading existing credentials:', error);
+				}
+			};
+
+			loadCredentialsV7();
 		}
 	}, [
 		isOpen,
@@ -518,7 +521,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 
 			// Save using V7 standardized storage system
 			console.log(' [CredentialSetupModal] Saving credentials using V7 standardized system...');
-			
+
 			const v7Credentials = {
 				environmentId: formData.environmentId,
 				clientId: formData.clientId,
@@ -551,7 +554,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 			}
 
 			// Also save to legacy credential manager for backward compatibility
-			const permanentSuccess = credentialManager.saveConfigCredentials({
+			const _permanentSuccess = credentialManager.saveConfigCredentials({
 				environmentId: formData.environmentId,
 				clientId: formData.clientId,
 				redirectUri: formData.redirectUri,
@@ -561,7 +564,7 @@ const CredentialSetupModal: React.FC<CredentialSetupModalProps> = ({
 				userInfoEndpoint: `https://auth.pingone.com/${formData.environmentId}/as/userinfo`,
 			});
 
-			const sessionSuccess = credentialManager.saveSessionCredentials({
+			const _sessionSuccess = credentialManager.saveSessionCredentials({
 				clientSecret: formData.clientSecret,
 			});
 

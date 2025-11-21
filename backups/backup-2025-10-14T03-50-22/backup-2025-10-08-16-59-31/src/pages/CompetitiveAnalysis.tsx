@@ -211,8 +211,7 @@ const ProsConsSection = styled.div`
 const ProsConsTitle = styled.h4`
 	font-size: 0.875rem;
 	font-weight: 600;
-	color: ${({ $type }: { $type: 'pros' | 'cons' }) =>
-		$type === 'pros' ? '#166534' : '#dc2626'};
+	color: ${({ $type }: { $type: 'pros' | 'cons' }) => ($type === 'pros' ? '#166534' : '#dc2626')};
 	margin: 0 0 0.5rem 0;
 	display: flex;
 	align-items: center;
@@ -227,8 +226,7 @@ const ProsConsList = styled.ul`
 
 const ProsConsItem = styled.li`
 	font-size: 0.75rem;
-	color: ${({ $type }: { $type: 'pros' | 'cons' }) =>
-		$type === 'pros' ? '#166534' : '#dc2626'};
+	color: ${({ $type }: { $type: 'pros' | 'cons' }) => ($type === 'pros' ? '#166534' : '#dc2626')};
 	padding: 0.25rem 0;
 `;
 
@@ -606,12 +604,10 @@ const CompetitiveAnalysis: React.FC = () => {
 					<FiAward />
 					Identity Provider Competitive Analysis
 				</HeroTitle>
-				<HeroSubtitle>
-					Compare leading Identity & Access Management solutions
-				</HeroSubtitle>
+				<HeroSubtitle>Compare leading Identity & Access Management solutions</HeroSubtitle>
 				<HeroDescription>
-					Comprehensive analysis of major IAM providers including features, pricing,
-					pros, cons, and use cases to help you choose the right solution.
+					Comprehensive analysis of major IAM providers including features, pricing, pros, cons, and
+					use cases to help you choose the right solution.
 				</HeroDescription>
 			</HeroSection>
 
@@ -625,9 +621,7 @@ const CompetitiveAnalysis: React.FC = () => {
 					{providers.map((provider) => (
 						<ProviderCard key={provider.id} $featured={provider.featured}>
 							<ProviderHeader>
-								<ProviderIcon $color={provider.color}>
-									{provider.icon}
-								</ProviderIcon>
+								<ProviderIcon $color={provider.color}>{provider.icon}</ProviderIcon>
 								<ProviderInfo>
 									<ProviderName>{provider.name}</ProviderName>
 									<ProviderTagline>{provider.tagline}</ProviderTagline>
@@ -637,10 +631,7 @@ const CompetitiveAnalysis: React.FC = () => {
 							<RatingContainer>
 								<Rating>
 									{[1, 2, 3, 4, 5].map((star) => (
-										<Star
-											key={star}
-											$filled={star <= Math.floor(provider.rating)}
-										>
+										<Star key={star} $filled={star <= Math.floor(provider.rating)}>
 											★
 										</Star>
 									))}
@@ -747,48 +738,16 @@ const CompetitiveAnalysis: React.FC = () => {
 								{comparisonData.map((row, index) => (
 									<TableRow key={index}>
 										<TableCell>{row.feature}</TableCell>
+										<TableCell>{row.ping ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
+										<TableCell>{row.okta ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
+										<TableCell>{row.auth0 ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
 										<TableCell>
-											{row.ping ? (
-												<CheckIcon>✓</CheckIcon>
-											) : (
-												<XIcon>✗</XIcon>
-											)}
+											{row.microsoft ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}
 										</TableCell>
 										<TableCell>
-											{row.okta ? (
-												<CheckIcon>✓</CheckIcon>
-											) : (
-												<XIcon>✗</XIcon>
-											)}
+											{row.google ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}
 										</TableCell>
-										<TableCell>
-											{row.auth0 ? (
-												<CheckIcon>✓</CheckIcon>
-											) : (
-												<XIcon>✗</XIcon>
-											)}
-										</TableCell>
-										<TableCell>
-											{row.microsoft ? (
-												<CheckIcon>✓</CheckIcon>
-											) : (
-												<XIcon>✗</XIcon>
-											)}
-										</TableCell>
-										<TableCell>
-											{row.google ? (
-												<CheckIcon>✓</CheckIcon>
-											) : (
-												<XIcon>✗</XIcon>
-											)}
-										</TableCell>
-										<TableCell>
-											{row.aws ? (
-												<CheckIcon>✓</CheckIcon>
-											) : (
-												<XIcon>✗</XIcon>
-											)}
-										</TableCell>
+										<TableCell>{row.aws ? <CheckIcon>✓</CheckIcon> : <XIcon>✗</XIcon>}</TableCell>
 									</TableRow>
 								))}
 							</tbody>
@@ -804,8 +763,23 @@ const CompetitiveAnalysis: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<div style={{ display: 'grid', gap: '2rem' }}>
-					<div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<div
+						style={{
+							background: 'white',
+							padding: '2rem',
+							borderRadius: '1rem',
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 1rem 0',
+								color: '#1f2937',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiUsers />
 							Enterprise Organizations
 						</h3>
@@ -813,14 +787,29 @@ const CompetitiveAnalysis: React.FC = () => {
 							<strong>Recommended:</strong> Ping Identity, Okta, Microsoft Entra ID
 						</p>
 						<p style={{ color: '#374151', lineHeight: '1.6' }}>
-							For large enterprises requiring comprehensive identity governance, advanced security features, 
-							and seamless integration with existing enterprise systems. These providers offer robust 
-							compliance features, lifecycle management, and enterprise-grade security.
+							For large enterprises requiring comprehensive identity governance, advanced security
+							features, and seamless integration with existing enterprise systems. These providers
+							offer robust compliance features, lifecycle management, and enterprise-grade security.
 						</p>
 					</div>
 
-					<div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<div
+						style={{
+							background: 'white',
+							padding: '2rem',
+							borderRadius: '1rem',
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 1rem 0',
+								color: '#1f2937',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiZap />
 							Startups & SMBs
 						</h3>
@@ -828,14 +817,29 @@ const CompetitiveAnalysis: React.FC = () => {
 							<strong>Recommended:</strong> Auth0, Google Identity Platform
 						</p>
 						<p style={{ color: '#374151', lineHeight: '1.6' }}>
-							For smaller organizations needing quick setup, developer-friendly APIs, and cost-effective 
-							solutions. These providers offer excellent documentation, easy integration, and flexible 
-							pricing models suitable for growing businesses.
+							For smaller organizations needing quick setup, developer-friendly APIs, and
+							cost-effective solutions. These providers offer excellent documentation, easy
+							integration, and flexible pricing models suitable for growing businesses.
 						</p>
 					</div>
 
-					<div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+					<div
+						style={{
+							background: 'white',
+							padding: '2rem',
+							borderRadius: '1rem',
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+						}}
+					>
+						<h3
+							style={{
+								margin: '0 0 1rem 0',
+								color: '#1f2937',
+								display: 'flex',
+								alignItems: 'center',
+								gap: '0.5rem',
+							}}
+						>
 							<FiGlobe />
 							Cloud-Native Applications
 						</h3>
@@ -843,8 +847,9 @@ const CompetitiveAnalysis: React.FC = () => {
 							<strong>Recommended:</strong> AWS IAM, Google Identity Platform, Microsoft Entra ID
 						</p>
 						<p style={{ color: '#374151', lineHeight: '1.6' }}>
-							For applications built on specific cloud platforms, leveraging native cloud identity services 
-							provides seamless integration, optimized performance, and reduced complexity in cloud environments.
+							For applications built on specific cloud platforms, leveraging native cloud identity
+							services provides seamless integration, optimized performance, and reduced complexity
+							in cloud environments.
 						</p>
 					</div>
 				</div>
@@ -857,14 +862,34 @@ const CompetitiveAnalysis: React.FC = () => {
 				defaultCollapsed={false}
 			>
 				<div style={{ display: 'grid', gap: '1.5rem' }}>
-					<div style={{ background: 'white', padding: '2rem', borderRadius: '1rem', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+					<div
+						style={{
+							background: 'white',
+							padding: '2rem',
+							borderRadius: '1rem',
+							boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+						}}
+					>
 						<h3 style={{ margin: '0 0 1rem 0', color: '#1f2937' }}>Pricing Summary</h3>
-						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+						<div
+							style={{
+								display: 'grid',
+								gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+								gap: '1rem',
+							}}
+						>
 							{providers.map((provider) => (
-								<div key={provider.id} style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem' }}>
+								<div
+									key={provider.id}
+									style={{ padding: '1rem', background: '#f8fafc', borderRadius: '0.5rem' }}
+								>
 									<h4 style={{ margin: '0 0 0.5rem 0', color: '#1f2937' }}>{provider.name}</h4>
-									<p style={{ margin: '0', color: '#6b7280', fontSize: '0.875rem' }}>{provider.pricing}</p>
-									<p style={{ margin: '0.25rem 0 0 0', color: '#9ca3af', fontSize: '0.75rem' }}>{provider.pricingNote}</p>
+									<p style={{ margin: '0', color: '#6b7280', fontSize: '0.875rem' }}>
+										{provider.pricing}
+									</p>
+									<p style={{ margin: '0.25rem 0 0 0', color: '#9ca3af', fontSize: '0.75rem' }}>
+										{provider.pricingNote}
+									</p>
 								</div>
 							))}
 						</div>

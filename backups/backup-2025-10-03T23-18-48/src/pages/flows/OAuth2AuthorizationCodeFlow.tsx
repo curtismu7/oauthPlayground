@@ -46,8 +46,8 @@ import { credentialManager } from '../../utils/credentialManager';
 import { getDefaultConfig } from '../../utils/flowConfigDefaults';
 import { logger } from '../../utils/logger';
 import { generateCodeChallenge, generateCodeVerifier, validateIdToken } from '../../utils/oauth';
-import { getBackendUrl } from '../../utils/protocolUtils';
 import { PingOneErrorInterpreter } from '../../utils/pingoneErrorInterpreter';
+import { getBackendUrl } from '../../utils/protocolUtils';
 import '../../styles/enhanced-flow.css';
 
 // Styled Components for Enhanced UI

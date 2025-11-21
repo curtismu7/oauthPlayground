@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import {
-	FiCheckCircle,
 	FiAlertCircle,
-	FiSettings,
+	FiCheckCircle,
 	FiChevronDown,
 	FiChevronRight,
 	FiExternalLink,
 	FiInfo,
 	FiRefreshCw,
+	FiSettings,
 } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
-import { credentialManager } from '../utils/credentialManager';
+import styled from 'styled-components';
 import { getCallbackUrlForFlow } from '../utils/callbackUrls';
 import { getSharedConfigurationStatus } from '../utils/configurationStatus';
+import { credentialManager } from '../utils/credentialManager';
 
 interface OAuthConfig {
 	environmentId?: string;

@@ -1,8 +1,8 @@
 // src/hooks/useClientCredentialsFlow.ts
 // Client Credentials Flow state management and logic (OAuth 2.0 & OIDC-compatible)
-import { useState, useCallback, useRef, useEffect } from 'react';
-import { v4ToastManager } from '../utils/v4ToastMessages';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { safeJsonParse } from '../utils/secureJson';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export type ClientAuthMethod =
 	| 'client_secret_post'

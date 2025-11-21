@@ -1,11 +1,17 @@
 // src/services/pingOneAppCreationService.ts
-import { logger } from '../utils/logger';
+
 import { createPingOneClient, makeApiRequest, PingOneClient } from '../utils/apiClient';
+import { logger } from '../utils/logger';
 
 export type AppType = 'WEB_APP' | 'NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
 
 // Internal type mapping for UI display
-export type AppTypeDisplay = 'OIDC_WEB_APP' | 'OIDC_NATIVE_APP' | 'WORKER' | 'SINGLE_PAGE_APP' | 'SERVICE';
+export type AppTypeDisplay =
+	| 'OIDC_WEB_APP'
+	| 'OIDC_NATIVE_APP'
+	| 'WORKER'
+	| 'SINGLE_PAGE_APP'
+	| 'SERVICE';
 
 export interface BaseAppConfig {
 	name: string;
@@ -263,15 +269,18 @@ export class PingOneAppCreationService {
 			const normalizeArray = (values?: string[]) =>
 				Array.isArray(values)
 					? values
-						.map((value) => value?.toString().trim())
-						.filter((value): value is string => !!value)
-						.map((value) => {
-							// URIs/URNs (device_code, ciba) should remain as-is (case-sensitive)
-							if (value.toLowerCase().startsWith('urn:') || value.toLowerCase().includes('urn:')) {
-								return value;
-							}
-							return value.toUpperCase(); // Uppercase standard grant types
-						})
+							.map((value) => value?.toString().trim())
+							.filter((value): value is string => !!value)
+							.map((value) => {
+								// URIs/URNs (device_code, ciba) should remain as-is (case-sensitive)
+								if (
+									value.toLowerCase().startsWith('urn:') ||
+									value.toLowerCase().includes('urn:')
+								) {
+									return value;
+								}
+								return value.toUpperCase(); // Uppercase standard grant types
+							})
 					: undefined;
 
 			const payload = {
@@ -353,15 +362,18 @@ export class PingOneAppCreationService {
 			const normalizeArray = (values?: string[]) =>
 				Array.isArray(values)
 					? values
-						.map((value) => value?.toString().trim())
-						.filter((value): value is string => !!value)
-						.map((value) => {
-							// URIs/URNs (device_code, ciba) should remain as-is (case-sensitive)
-							if (value.toLowerCase().startsWith('urn:') || value.toLowerCase().includes('urn:')) {
-								return value;
-							}
-							return value.toUpperCase(); // Uppercase standard grant types
-						})
+							.map((value) => value?.toString().trim())
+							.filter((value): value is string => !!value)
+							.map((value) => {
+								// URIs/URNs (device_code, ciba) should remain as-is (case-sensitive)
+								if (
+									value.toLowerCase().startsWith('urn:') ||
+									value.toLowerCase().includes('urn:')
+								) {
+									return value;
+								}
+								return value.toUpperCase(); // Uppercase standard grant types
+							})
 					: undefined;
 
 			const payload = {
@@ -376,7 +388,7 @@ export class PingOneAppCreationService {
 			};
 
 			// Remove undefined values
-			Object.keys(payload).forEach(key => {
+			Object.keys(payload).forEach((key) => {
 				if (payload[key] === undefined) {
 					delete payload[key];
 				}

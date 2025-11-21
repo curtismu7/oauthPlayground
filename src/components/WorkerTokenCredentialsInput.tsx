@@ -2,37 +2,35 @@
 // Worker Token Credentials Input Component - Specialized UI for PingOne Worker Token configuration
 // Provides a clean, focused interface for machine-to-machine authentication setup
 
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
-import { 
-  FiKey, 
-  FiGlobe, 
-  FiEye, 
-  FiEyeOff, 
-  FiSave, 
-  FiCheck, 
-  FiCheckCircle,
-  FiAlertCircle, 
-  FiInfo,
-  FiChevronDown,
-  FiChevronRight,
-  FiRefreshCw
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiCheckCircle,
+	FiChevronDown,
+	FiEye,
+	FiEyeOff,
+	FiGlobe,
+	FiInfo,
+	FiKey,
+	FiRefreshCw,
+	FiSave,
 } from 'react-icons/fi';
-import { 
-  workerTokenCredentialsService, 
-  type WorkerTokenCredentials, 
-  type WorkerTokenValidationResult 
+import styled from 'styled-components';
+import {
+	type WorkerTokenCredentials,
+	type WorkerTokenValidationResult,
+	workerTokenCredentialsService,
 } from '../services/workerTokenCredentialsService';
 import { v4ToastManager } from '../utils/v4ToastMessages';
 
 interface WorkerTokenCredentialsInputProps {
-  credentials: WorkerTokenCredentials;
-  onCredentialsChange: (credentials: WorkerTokenCredentials) => void;
-  onSave?: () => void;
-  hasUnsavedChanges?: boolean;
-  isSaving?: boolean;
-  showAdvancedOptions?: boolean;
-  disabled?: boolean;
+	credentials: WorkerTokenCredentials;
+	onCredentialsChange: (credentials: WorkerTokenCredentials) => void;
+	onSave?: () => void;
+	hasUnsavedChanges?: boolean;
+	isSaving?: boolean;
+	showAdvancedOptions?: boolean;
+	disabled?: boolean;
 }
 
 // Styled Components
@@ -317,249 +315,252 @@ const InfoText = styled.p`
 `;
 
 export const WorkerTokenCredentialsInput: React.FC<WorkerTokenCredentialsInputProps> = ({
-  credentials,
-  onCredentialsChange,
-  onSave,
-  hasUnsavedChanges = false,
-  isSaving = false,
-  showAdvancedOptions = false,
-  disabled = false
+	credentials,
+	onCredentialsChange,
+	onSave,
+	hasUnsavedChanges = false,
+	isSaving = false,
+	showAdvancedOptions = false,
+	disabled = false,
 }) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
-  const [showClientSecret, setShowClientSecret] = useState(false);
-  const [validation, setValidation] = useState<WorkerTokenValidationResult | null>(null);
-  const [isSaved, setIsSaved] = useState(false);
+	const [isCollapsed, setIsCollapsed] = useState(false);
+	const [showClientSecret, setShowClientSecret] = useState(false);
+	const [validation, setValidation] = useState<WorkerTokenValidationResult | null>(null);
+	const [isSaved, setIsSaved] = useState(false);
 
-  // Validate credentials whenever they change
-  useEffect(() => {
-    const result = workerTokenCredentialsService.validateCredentials(credentials);
-    setValidation(result);
-  }, [credentials]);
+	// Validate credentials whenever they change
+	useEffect(() => {
+		const result = workerTokenCredentialsService.validateCredentials(credentials);
+		setValidation(result);
+	}, [credentials]);
 
-  const handleFieldChange = useCallback((field: keyof WorkerTokenCredentials, value: string | string[]) => {
-    onCredentialsChange({
-      ...credentials,
-      [field]: value
-    });
-  }, [credentials, onCredentialsChange]);
+	const handleFieldChange = useCallback(
+		(field: keyof WorkerTokenCredentials, value: string | string[]) => {
+			onCredentialsChange({
+				...credentials,
+				[field]: value,
+			});
+		},
+		[credentials, onCredentialsChange]
+	);
 
-  const handleSave = useCallback(async () => {
-    if (!validation?.isValid || isSaving) return;
+	const handleSave = useCallback(async () => {
+		if (!validation?.isValid || isSaving) return;
 
-    try {
-      const success = workerTokenCredentialsService.saveCredentials(credentials);
-      if (success) {
-        v4ToastManager.showSuccess('Worker Token credentials saved successfully');
-        onSave?.();
-        
-        // Show "Saved" for 10 seconds
-        setIsSaved(true);
-        setTimeout(() => {
-          setIsSaved(false);
-        }, 10000);
-      } else {
-        v4ToastManager.showError('Failed to save credentials');
-      }
-    } catch (error) {
-      console.error('[WorkerTokenCredentialsInput] Save failed:', error);
-      v4ToastManager.showError('Failed to save credentials');
-    }
-  }, [credentials, validation, isSaving, onSave]);
+		try {
+			const success = workerTokenCredentialsService.saveCredentials(credentials);
+			if (success) {
+				v4ToastManager.showSuccess('Worker Token credentials saved successfully');
+				onSave?.();
 
-  const availableRegions = workerTokenCredentialsService.getAvailableRegions();
-  const availableScopes = workerTokenCredentialsService.getAvailableScopes();
-  const defaultScopes = workerTokenCredentialsService.getDefaultScopes();
+				// Show "Saved" for 10 seconds
+				setIsSaved(true);
+				setTimeout(() => {
+					setIsSaved(false);
+				}, 10000);
+			} else {
+				v4ToastManager.showError('Failed to save credentials');
+			}
+		} catch (error) {
+			console.error('[WorkerTokenCredentialsInput] Save failed:', error);
+			v4ToastManager.showError('Failed to save credentials');
+		}
+	}, [credentials, validation, isSaving, onSave]);
 
-  return (
-    <Container>
-      <Header onClick={() => setIsCollapsed(!isCollapsed)}>
-        <HeaderLeft>
-          <div>
-            <HeaderTitle>
-              <FiKey size={20} />
-              🔑 Worker Token Configuration
-            </HeaderTitle>
-            <HeaderSubtitle>
-              Client Credentials Grant • Machine-to-Machine Authentication • No Redirect URI Required
-            </HeaderSubtitle>
-          </div>
-        </HeaderLeft>
-        <ToggleIcon $collapsed={isCollapsed}>
-          <FiChevronDown size={20} />
-        </ToggleIcon>
-      </Header>
+	const availableRegions = workerTokenCredentialsService.getAvailableRegions();
+	const availableScopes = workerTokenCredentialsService.getAvailableScopes();
+	const _defaultScopes = workerTokenCredentialsService.getDefaultScopes();
 
-      <Content $collapsed={isCollapsed}>
-        <FormContainer>
-          <InfoBox>
-            <FiInfo size={20} style={{ flexShrink: 0 }} />
-            <InfoContent>
-              <InfoTitle>🔑 Worker Token (Client Credentials)</InfoTitle>
-              <InfoText>
-                Configure your PingOne application for machine-to-machine authentication. 
-                This uses the OAuth 2.0 Client Credentials grant type to obtain access tokens 
-                for API operations without user interaction.
-              </InfoText>
-            </InfoContent>
-          </InfoBox>
+	return (
+		<Container>
+			<Header onClick={() => setIsCollapsed(!isCollapsed)}>
+				<HeaderLeft>
+					<div>
+						<HeaderTitle>
+							<FiKey size={20} />🔑 Worker Token Configuration
+						</HeaderTitle>
+						<HeaderSubtitle>
+							Client Credentials Grant • Machine-to-Machine Authentication • No Redirect URI
+							Required
+						</HeaderSubtitle>
+					</div>
+				</HeaderLeft>
+				<ToggleIcon $collapsed={isCollapsed}>
+					<FiChevronDown size={20} />
+				</ToggleIcon>
+			</Header>
 
-          <FormGrid>
-            <FormField>
-              <FormLabel>
-                <FiGlobe size={16} />
-                Environment ID <RequiredIndicator>*</RequiredIndicator>
-              </FormLabel>
-              <Input
-                type="text"
-                value={credentials.environmentId}
-                onChange={(e) => handleFieldChange('environmentId', e.target.value)}
-                placeholder="Enter your PingOne Environment ID"
-                disabled={false}
-                data-error={validation?.errors.some(e => e.includes('Environment ID'))}
-              />
-            </FormField>
+			<Content $collapsed={isCollapsed}>
+				<FormContainer>
+					<InfoBox>
+						<FiInfo size={20} style={{ flexShrink: 0 }} />
+						<InfoContent>
+							<InfoTitle>🔑 Worker Token (Client Credentials)</InfoTitle>
+							<InfoText>
+								Configure your PingOne application for machine-to-machine authentication. This uses
+								the OAuth 2.0 Client Credentials grant type to obtain access tokens for API
+								operations without user interaction.
+							</InfoText>
+						</InfoContent>
+					</InfoBox>
 
-            <FormField>
-              <FormLabel>
-                <FiKey size={16} />
-                Region
-              </FormLabel>
-              <Select
-                value={credentials.region || 'us'}
-                onChange={(e) => handleFieldChange('region', e.target.value as 'us' | 'eu' | 'ap' | 'ca')}
-                disabled={false}
-              >
-                {availableRegions.map(region => (
-                  <option key={region.value} value={region.value}>
-                    {region.label}
-                  </option>
-                ))}
-              </Select>
-            </FormField>
+					<FormGrid>
+						<FormField>
+							<FormLabel>
+								<FiGlobe size={16} />
+								Environment ID <RequiredIndicator>*</RequiredIndicator>
+							</FormLabel>
+							<Input
+								type="text"
+								value={credentials.environmentId}
+								onChange={(e) => handleFieldChange('environmentId', e.target.value)}
+								placeholder="Enter your PingOne Environment ID"
+								disabled={false}
+								data-error={validation?.errors.some((e) => e.includes('Environment ID'))}
+							/>
+						</FormField>
 
-            <FormField>
-              <FormLabel>
-                <FiKey size={16} />
-                Client ID <RequiredIndicator>*</RequiredIndicator>
-              </FormLabel>
-              <Input
-                type="text"
-                value={credentials.clientId}
-                onChange={(e) => handleFieldChange('clientId', e.target.value)}
-                placeholder="Enter your PingOne Client ID"
-                disabled={false}
-                data-error={validation?.errors.some(e => e.includes('Client ID'))}
-              />
-            </FormField>
+						<FormField>
+							<FormLabel>
+								<FiKey size={16} />
+								Region
+							</FormLabel>
+							<Select
+								value={credentials.region || 'us'}
+								onChange={(e) =>
+									handleFieldChange('region', e.target.value as 'us' | 'eu' | 'ap' | 'ca')
+								}
+								disabled={false}
+							>
+								{availableRegions.map((region) => (
+									<option key={region.value} value={region.value}>
+										{region.label}
+									</option>
+								))}
+							</Select>
+						</FormField>
 
-            <FormField>
-              <FormLabel>
-                <FiKey size={16} />
-                Client Secret <RequiredIndicator>*</RequiredIndicator>
-              </FormLabel>
-              <InputGroup>
-                <Input
-                  type={showClientSecret ? 'text' : 'password'}
-                  value={credentials.clientSecret}
-                  onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
-                  placeholder="Enter your PingOne Client Secret"
-                  disabled={false}
-                  data-error={validation?.errors.some(e => e.includes('Client Secret'))}
-                />
-                <PasswordToggle
-                  type="button"
-                  onClick={() => setShowClientSecret(!showClientSecret)}
-                  disabled={false}
-                >
-                  {showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
-                </PasswordToggle>
-              </InputGroup>
-            </FormField>
-          </FormGrid>
+						<FormField>
+							<FormLabel>
+								<FiKey size={16} />
+								Client ID <RequiredIndicator>*</RequiredIndicator>
+							</FormLabel>
+							<Input
+								type="text"
+								value={credentials.clientId}
+								onChange={(e) => handleFieldChange('clientId', e.target.value)}
+								placeholder="Enter your PingOne Client ID"
+								disabled={false}
+								data-error={validation?.errors.some((e) => e.includes('Client ID'))}
+							/>
+						</FormField>
 
-          {showAdvancedOptions && (
-            <FormField>
-              <FormLabel>Scopes</FormLabel>
-              <ScopesContainer>
-                <ScopesGrid>
-                  {availableScopes.map(scope => (
-                    <ScopeItem key={scope}>
-                      <ScopeCheckbox
-                        type="checkbox"
-                        id={`scope-${scope}`}
-                        checked={credentials.scopes?.includes(scope) || false}
-                        onChange={(e) => {
-                          const currentScopes = credentials.scopes || [];
-                          const newScopes = e.target.checked
-                            ? [...currentScopes, scope]
-                            : currentScopes.filter(s => s !== scope);
-                          handleFieldChange('scopes', newScopes);
-                        }}
-                        disabled={false}
-                      />
-                      <ScopeLabel htmlFor={`scope-${scope}`}>
-                        {scope}
-                      </ScopeLabel>
-                    </ScopeItem>
-                  ))}
-                </ScopesGrid>
-              </ScopesContainer>
-            </FormField>
-          )}
+						<FormField>
+							<FormLabel>
+								<FiKey size={16} />
+								Client Secret <RequiredIndicator>*</RequiredIndicator>
+							</FormLabel>
+							<InputGroup>
+								<Input
+									type={showClientSecret ? 'text' : 'password'}
+									value={credentials.clientSecret}
+									onChange={(e) => handleFieldChange('clientSecret', e.target.value)}
+									placeholder="Enter your PingOne Client Secret"
+									disabled={false}
+									data-error={validation?.errors.some((e) => e.includes('Client Secret'))}
+								/>
+								<PasswordToggle
+									type="button"
+									onClick={() => setShowClientSecret(!showClientSecret)}
+									disabled={false}
+								>
+									{showClientSecret ? <FiEyeOff size={16} /> : <FiEye size={16} />}
+								</PasswordToggle>
+							</InputGroup>
+						</FormField>
+					</FormGrid>
 
-          {validation && (validation.errors.length > 0 || validation.warnings.length > 0) && (
-            <ValidationContainer>
-              {validation.errors.map((error, index) => (
-                <ValidationItem key={index} $type="error">
-                  <FiAlertCircle size={16} />
-                  {error}
-                </ValidationItem>
-              ))}
-              {validation.warnings.map((warning, index) => (
-                <ValidationItem key={index} $type="warning">
-                  <FiInfo size={16} />
-                  {warning}
-                </ValidationItem>
-              ))}
-            </ValidationContainer>
-          )}
+					{showAdvancedOptions && (
+						<FormField>
+							<FormLabel>Scopes</FormLabel>
+							<ScopesContainer>
+								<ScopesGrid>
+									{availableScopes.map((scope) => (
+										<ScopeItem key={scope}>
+											<ScopeCheckbox
+												type="checkbox"
+												id={`scope-${scope}`}
+												checked={credentials.scopes?.includes(scope) || false}
+												onChange={(e) => {
+													const currentScopes = credentials.scopes || [];
+													const newScopes = e.target.checked
+														? [...currentScopes, scope]
+														: currentScopes.filter((s) => s !== scope);
+													handleFieldChange('scopes', newScopes);
+												}}
+												disabled={false}
+											/>
+											<ScopeLabel htmlFor={`scope-${scope}`}>{scope}</ScopeLabel>
+										</ScopeItem>
+									))}
+								</ScopesGrid>
+							</ScopesContainer>
+						</FormField>
+					)}
 
-          <ActionsContainer>
-            <div>
-              {hasUnsavedChanges && (
-                <span style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
-                  You have unsaved changes
-                </span>
-              )}
-            </div>
-            <SaveButton
-              onClick={handleSave}
-              disabled={isSaving}
-              $isSaving={isSaving}
-              $hasChanges={hasUnsavedChanges}
-            >
-              {isSaving ? (
-                <>
-                  <FiRefreshCw className="animate-spin" size={16} />
-                  Saving...
-                </>
-              ) : isSaved ? (
-                <>
-                  <FiCheckCircle size={16} />
-                  Saved
-                </>
-              ) : (
-                <>
-                  <FiSave size={16} />
-                  Save Credentials
-                </>
-              )}
-            </SaveButton>
-          </ActionsContainer>
-        </FormContainer>
-      </Content>
-    </Container>
-  );
+					{validation && (validation.errors.length > 0 || validation.warnings.length > 0) && (
+						<ValidationContainer>
+							{validation.errors.map((error, index) => (
+								<ValidationItem key={index} $type="error">
+									<FiAlertCircle size={16} />
+									{error}
+								</ValidationItem>
+							))}
+							{validation.warnings.map((warning, index) => (
+								<ValidationItem key={index} $type="warning">
+									<FiInfo size={16} />
+									{warning}
+								</ValidationItem>
+							))}
+						</ValidationContainer>
+					)}
+
+					<ActionsContainer>
+						<div>
+							{hasUnsavedChanges && (
+								<span style={{ color: '#f59e0b', fontSize: '0.875rem' }}>
+									You have unsaved changes
+								</span>
+							)}
+						</div>
+						<SaveButton
+							onClick={handleSave}
+							disabled={isSaving}
+							$isSaving={isSaving}
+							$hasChanges={hasUnsavedChanges}
+						>
+							{isSaving ? (
+								<>
+									<FiRefreshCw className="animate-spin" size={16} />
+									Saving...
+								</>
+							) : isSaved ? (
+								<>
+									<FiCheckCircle size={16} />
+									Saved
+								</>
+							) : (
+								<>
+									<FiSave size={16} />
+									Save Credentials
+								</>
+							)}
+						</SaveButton>
+					</ActionsContainer>
+				</FormContainer>
+			</Content>
+		</Container>
+	);
 };
 
 export default WorkerTokenCredentialsInput;

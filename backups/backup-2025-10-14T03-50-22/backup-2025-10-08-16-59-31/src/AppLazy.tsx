@@ -47,12 +47,18 @@ const UserInfoFlow = React.lazy(() => import('./pages/flows/UserInfoFlow'));
 const IDTokensFlow = React.lazy(() => import('./pages/flows/IDTokensFlow'));
 
 // V5 Flow Components
-const OAuthAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OAuthAuthorizationCodeFlowV5'));
-const OIDCAuthorizationCodeFlowV5 = React.lazy(() => import('./pages/flows/OIDCAuthorizationCodeFlowV5'));
+const OAuthAuthorizationCodeFlowV5 = React.lazy(
+	() => import('./pages/flows/OAuthAuthorizationCodeFlowV5')
+);
+const OIDCAuthorizationCodeFlowV5 = React.lazy(
+	() => import('./pages/flows/OIDCAuthorizationCodeFlowV5')
+);
 const OAuthImplicitFlowV5 = React.lazy(() => import('./pages/flows/OAuthImplicitFlowV5'));
 const OIDCImplicitFlowV5 = React.lazy(() => import('./pages/flows/OIDCImplicitFlowV5'));
 const ClientCredentialsFlowV5 = React.lazy(() => import('./pages/flows/ClientCredentialsFlowV5'));
-const DeviceAuthorizationFlowV5 = React.lazy(() => import('./pages/flows/DeviceAuthorizationFlowV5'));
+const DeviceAuthorizationFlowV5 = React.lazy(
+	() => import('./pages/flows/DeviceAuthorizationFlowV5')
+);
 
 const AppContainer = styled.div`
   display: flex;

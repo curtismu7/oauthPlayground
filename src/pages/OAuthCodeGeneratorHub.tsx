@@ -9,10 +9,10 @@
  */
 
 import React from 'react';
+import { FiBook, FiCode, FiShield, FiZap } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiCode, FiBook, FiShield, FiZap } from 'react-icons/fi';
-import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import LiveRFCExplorer from '../components/LiveRFCExplorer';
+import RealWorldScenarioBuilder from '../components/RealWorldScenarioBuilder';
 import SecurityThreatTheater from '../components/SecurityThreatTheater';
 
 const PageContainer = styled.div`
@@ -167,8 +167,7 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						</FeatureIcon>
 						<FeatureTitle>Real-World Scenarios</FeatureTitle>
 						<FeatureDescription>
-							Banking, SaaS, Mobile, IoT — choose your use case, get pre-configured OAuth
-							parameters
+							Banking, SaaS, Mobile, IoT — choose your use case, get pre-configured OAuth parameters
 						</FeatureDescription>
 					</FeatureCard>
 
@@ -188,8 +187,8 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						</FeatureIcon>
 						<FeatureTitle>Security Theater</FeatureTitle>
 						<FeatureDescription>
-							Watch CSRF, replay, and interception attacks in action — see how parameters
-							protect you
+							Watch CSRF, replay, and interception attacks in action — see how parameters protect
+							you
 						</FeatureDescription>
 					</FeatureCard>
 
@@ -267,8 +266,8 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 						}}
 					>
 						You now have access to production-ready code, security best practices, and real-world
-						scenarios. Pick a scenario above, choose your language, and start building secure
-						OAuth flows today!
+						scenarios. Pick a scenario above, choose your language, and start building secure OAuth
+						flows today!
 					</p>
 					<div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
 						<a
@@ -322,4 +321,3 @@ const OAuthCodeGeneratorHub: React.FC = () => {
 };
 
 export default OAuthCodeGeneratorHub;
-

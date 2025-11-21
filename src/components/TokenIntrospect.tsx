@@ -6,7 +6,6 @@ import {
 	FiCopy,
 	FiEye,
 	FiKey,
-	FiRefreshCw,
 	FiShield,
 	FiUser,
 } from 'react-icons/fi';
@@ -259,7 +258,7 @@ const InfoText = styled.p`
 	margin: 0;
 `;
 
-const InfoList = styled.ul`
+const _InfoList = styled.ul`
 	font-size: 0.875rem;
 	color: #334155;
 	line-height: 1.5;
@@ -548,9 +547,10 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 															fontWeight: 'bold',
 														}}
 													>
-														{introspectionResults.active 
-															? '✅ Active' 
-															: introspectionResults.exp && Date.now() >= introspectionResults.exp * 1000
+														{introspectionResults.active
+															? '✅ Active'
+															: introspectionResults.exp &&
+																	Date.now() >= introspectionResults.exp * 1000
 																? '❌ Expired'
 																: '❌ Inactive'}
 													</ParameterValue>
@@ -783,8 +783,6 @@ const TokenIntrospect: React.FC<TokenIntrospectProps> = ({
 					)}
 				</CollapsibleSection>
 			)}
-
-
 		</>
 	);
 };

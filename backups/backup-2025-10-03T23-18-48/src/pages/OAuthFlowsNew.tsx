@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Outlet } from 'react-router-dom';
 import { FiHelpCircle } from 'react-icons/fi';
+import { Outlet } from 'react-router-dom';
 import styled from 'styled-components';
 import FlowCategories from '../components/FlowCategories';
 import FlowRecommendationWizard from '../components/FlowRecommendationWizard';

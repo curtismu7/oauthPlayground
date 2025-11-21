@@ -5,16 +5,15 @@ import React from 'react';
 import {
 	FiAlertCircle,
 	FiBook,
-	FiCheckCircle,
 	FiExternalLink,
 	FiKey,
 } from '../../../services/commonImportsService';
 import { setPasswordLdapGateway } from '../../../services/passwordResetService';
 import { v4ToastManager } from '../../../utils/v4ToastMessages';
 import { PasswordInput } from '../shared/PasswordInput';
+import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import { PasswordOptions } from '../shared/PasswordOptions';
 import { PasswordResetErrorInfo } from '../shared/PasswordResetErrorModal';
-import { PasswordOperationSuccessModal } from '../shared/PasswordOperationSuccessModal';
 import {
 	Alert,
 	Button,

@@ -12,11 +12,11 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../services/themeService';
 import styled from 'styled-components';
-import { FlowHeader } from '../services/flowHeaderService';
 import { useWorkerTokenFlowController } from '../hooks/useWorkerTokenFlowController';
+import { FlowHeader } from '../services/flowHeaderService';
 import { pingOneConfigService } from '../services/pingoneConfigService';
+import { themeService } from '../services/themeService';
 import { trackOAuthFlow } from '../utils/activityTracker';
 import { getFlowInfo } from '../utils/flowInfoConfig';
 import { v4ToastManager } from '../utils/v4ToastMessages';

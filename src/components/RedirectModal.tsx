@@ -1,6 +1,6 @@
 // src/components/RedirectModal.tsx
 import React, { useEffect, useState } from 'react';
-import { FiExternalLink, FiX, FiClock, FiCheck } from 'react-icons/fi';
+import { FiCheck, FiClock, FiExternalLink, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
 import ColoredUrlDisplay from './ColoredUrlDisplay';
 
@@ -201,9 +201,9 @@ const ModalActions = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' }>`
-	padding: ${({ $variant }) => $variant === 'primary' ? '1rem 2.5rem' : '0.875rem 2rem'};
+	padding: ${({ $variant }) => ($variant === 'primary' ? '1rem 2.5rem' : '0.875rem 2rem')};
 	border-radius: 12px;
-	font-size: ${({ $variant }) => $variant === 'primary' ? '1.125rem' : '1rem'};
+	font-size: ${({ $variant }) => ($variant === 'primary' ? '1.125rem' : '1rem')};
 	font-weight: 700;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -251,7 +251,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 	url,
 	redirectDelay = 10,
 	title = 'Redirecting to PingOne',
-	description = 'You will be redirected to PingOne for authentication. Complete the login process and you will be returned to this application.'
+	description = 'You will be redirected to PingOne for authentication. Complete the login process and you will be returned to this application.',
 }) => {
 	const [timeLeft, setTimeLeft] = useState(redirectDelay);
 	const [isRedirecting, setIsRedirecting] = useState(false);
@@ -274,7 +274,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 						const height = 700;
 						const left = window.screen.width / 2 - width / 2;
 						const top = window.screen.height / 2 - height / 2;
-						
+
 						window.open(
 							url,
 							'PingOneAuth',
@@ -299,7 +299,7 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 			const height = 700;
 			const left = window.screen.width / 2 - width / 2;
 			const top = window.screen.height / 2 - height / 2;
-			
+
 			window.open(
 				url,
 				'PingOneAuth',
@@ -375,7 +375,11 @@ const RedirectModal: React.FC<RedirectModalProps> = ({
 						<ActionButton $variant="secondary" onClick={handleCancel}>
 							Cancel
 						</ActionButton>
-						<ActionButton $variant="primary" onClick={handleManualRedirect} disabled={isRedirecting}>
+						<ActionButton
+							$variant="primary"
+							onClick={handleManualRedirect}
+							disabled={isRedirecting}
+						>
 							<FiExternalLink />
 							{isRedirecting ? 'Redirecting...' : 'GO'}
 						</ActionButton>

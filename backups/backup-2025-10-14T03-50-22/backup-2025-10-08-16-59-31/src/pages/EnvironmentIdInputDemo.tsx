@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { FiGlobe, FiSettings } from 'react-icons/fi';
+import styled from 'styled-components';
 import EnvironmentIdInput from '../components/EnvironmentIdInput';
-import { FlowHeader } from '../services/flowHeaderService';
 import { usePageScroll } from '../hooks/usePageScroll';
+import { FlowHeader } from '../services/flowHeaderService';
 import type { DiscoveryResult } from '../services/oidcDiscoveryService';
 
 const Container = styled.div`

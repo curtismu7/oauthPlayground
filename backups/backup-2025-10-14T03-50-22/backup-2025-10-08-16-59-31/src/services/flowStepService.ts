@@ -373,28 +373,29 @@ export class FlowStepService {
 						{
 							type: 'info',
 							props: { variant: 'info' },
-							content: 'OIDC Hybrid Flow combines elements of authorization code and implicit flows, allowing for both frontend and backend token handling.'
+							content:
+								'OIDC Hybrid Flow combines elements of authorization code and implicit flows, allowing for both frontend and backend token handling.',
 						},
 						{
 							type: 'form',
 							props: { type: 'credentials' },
-							content: 'Configure your OIDC credentials and settings'
-						}
+							content: 'Configure your OIDC credentials and settings',
+						},
 					],
 					collapsibleSections: [
 						{
 							key: 'overview',
 							title: 'Flow Overview',
 							icon: 'info',
-							content: 'Understand the OIDC Hybrid Flow process and its benefits'
+							content: 'Understand the OIDC Hybrid Flow process and its benefits',
 						},
 						{
 							key: 'credentials',
 							title: 'Credentials Configuration',
 							icon: 'key',
-							content: 'Set up your OIDC provider credentials and configuration'
-						}
-					]
+							content: 'Set up your OIDC provider credentials and configuration',
+						},
+					],
 				};
 			case 1:
 				return {
@@ -403,14 +404,14 @@ export class FlowStepService {
 						{
 							type: 'info',
 							props: { variant: 'info' },
-							content: 'Build and launch the authorization request URL'
+							content: 'Build and launch the authorization request URL',
 						},
 						{
 							type: 'button',
 							props: { variant: 'primary', action: 'generateAuthUrl' },
-							content: 'Generate Authorization URL'
-						}
-					]
+							content: 'Generate Authorization URL',
+						},
+					],
 				};
 			case 2:
 				return {
@@ -419,14 +420,14 @@ export class FlowStepService {
 						{
 							type: 'info',
 							props: { variant: 'success' },
-							content: 'Process the authorization response and validate received tokens'
+							content: 'Process the authorization response and validate received tokens',
 						},
 						{
 							type: 'code',
 							props: { language: 'json' },
-							content: 'Authorization response details'
-						}
-					]
+							content: 'Authorization response details',
+						},
+					],
 				};
 			case 3:
 				return {
@@ -435,9 +436,9 @@ export class FlowStepService {
 						{
 							type: 'info',
 							props: { variant: 'warning' },
-							content: 'Exchange authorization code for additional tokens if needed'
-						}
-					]
+							content: 'Exchange authorization code for additional tokens if needed',
+						},
+					],
 				};
 			case 4:
 				return {
@@ -446,14 +447,14 @@ export class FlowStepService {
 						{
 							type: 'success',
 							props: { variant: 'success' },
-							content: 'All tokens received and validated successfully'
+							content: 'All tokens received and validated successfully',
 						},
 						{
 							type: 'code',
 							props: { language: 'json' },
-							content: 'Token details and validation results'
-						}
-					]
+							content: 'Token details and validation results',
+						},
+					],
 				};
 			case 5:
 			case 6:
@@ -463,14 +464,14 @@ export class FlowStepService {
 						{
 							type: 'success',
 							props: { variant: 'success' },
-							content: 'OIDC Hybrid Flow completed successfully'
+							content: 'OIDC Hybrid Flow completed successfully',
 						},
 						{
 							type: 'info',
 							props: { variant: 'info' },
-							content: 'Flow summary and next steps'
-						}
-					]
+							content: 'Flow summary and next steps',
+						},
+					],
 				};
 			default:
 				return FlowStepService.createDefaultStepContent(stepIndex, controller, theme);
@@ -566,7 +567,14 @@ export class FlowStepService {
 		theme: string = 'blue'
 	): StepConfig[] {
 		return steps.map((step, index) =>
-			FlowStepService.createStepConfig(index, step.title, step.subtitle, flowType, controller, theme)
+			FlowStepService.createStepConfig(
+				index,
+				step.title,
+				step.subtitle,
+				flowType,
+				controller,
+				theme
+			)
 		);
 	}
 }

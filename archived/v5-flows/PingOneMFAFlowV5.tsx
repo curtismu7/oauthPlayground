@@ -1,26 +1,27 @@
 // src/pages/flows/PingOneMFAFlowV5.tsx
 // V5.1 PingOne MFA Flow with standard V5 structure
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
 	FiBook,
+	FiCheckCircle,
 	FiInfo,
 	FiKey,
-	FiShield,
-	FiCheckCircle,
-	FiSmartphone,
-	FiMail,
 	FiLock,
+	FiMail,
 	FiPhone,
+	FiShield,
+	FiSmartphone,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FlowHeader } from '../../services/flowHeaderService'
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';;
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { FlowHeader } from '../../services/flowHeaderService';
+
 import FlowInfoCard from '../../components/FlowInfoCard';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
+import { usePageScroll } from '../../hooks/usePageScroll';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
@@ -50,7 +51,12 @@ const STEP_METADATA = [
 	},
 ] as const;
 
-type IntroSectionKey = 'overview' | 'credentials' | 'results' | 'mfaOverview' | 'mfaDetails'
+type IntroSectionKey =
+	| 'overview'
+	| 'credentials'
+	| 'results'
+	| 'mfaOverview'
+	| 'mfaDetails'
 	| 'flowSummary'; // Step X
 
 const Container = styled.div`
@@ -330,10 +336,10 @@ const PingOneMFAFlowV5: React.FC = () => {
 	usePageScroll({ pageName: 'PingOne MFA Flow V5', force: true });
 
 	const [currentStep, setCurrentStep] = useState(0);
-	
+
 	// Collapse all sections by default for cleaner UI
 	const shouldCollapseAll = true;
-	
+
 	const [deviceRegistered, setDeviceRegistered] = useState(false);
 	const [selectedMfaMethod, setSelectedMfaMethod] = useState('sms');
 	const [mfaVerified, setMfaVerified] = useState(false);
@@ -344,7 +350,7 @@ const PingOneMFAFlowV5: React.FC = () => {
 		results: false,
 		mfaOverview: false,
 		mfaDetails: false,
-	
+
 		flowSummary: false, // New Flow Completion Service step
 	});
 
@@ -384,7 +390,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 
 	const handleMfaSelection = () => {
 		console.log('[PingOne MFA] MFA method selected:', selectedMfaMethod);
-		v4ToastManager.showSuccess(`Selected MFA method: ${mfaMethods.find(m => m.id === selectedMfaMethod)?.label}`);
+		v4ToastManager.showSuccess(
+			`Selected MFA method: ${mfaMethods.find((m) => m.id === selectedMfaMethod)?.label}`
+		);
 		setCurrentStep(3);
 	};
 
@@ -430,7 +438,9 @@ const PingOneMFAFlowV5: React.FC = () => {
 		setCurrentStep(0);
 		setMfaVerified(false);
 		setTokens(null);
-		console.log('🔄 [PingOneMFAFlowV5] Starting over: cleared tokens/MFA state, keeping device registration');
+		console.log(
+			'🔄 [PingOneMFAFlowV5] Starting over: cleared tokens/MFA state, keeping device registration'
+		);
 		v4ToastManager.showSuccess('Flow restarted', {
 			description: 'Tokens cleared. Device registration preserved.',
 		});
@@ -454,21 +464,21 @@ const PingOneMFAFlowV5: React.FC = () => {
 						</InfoBox>
 
 						<CollapsibleHeader
-			title="MFA Methods Supported"
-			icon={<FiBook />}
-			theme="yellow"
-			defaultCollapsed={shouldCollapseAll}
-			>
-					<MfaMethodGrid>
-										{mfaMethods.map((method) => (
-											<MfaMethodCard key={method.id}>
-												<MfaMethodIcon>{method.icon}</MfaMethodIcon>
-												<MfaMethodTitle>{method.label}</MfaMethodTitle>
-												<MfaMethodDescription>{method.description}</MfaMethodDescription>
-											</MfaMethodCard>
-										))}
-									</MfaMethodGrid>
-				</CollapsibleHeader>
+							title="MFA Methods Supported"
+							icon={<FiBook />}
+							theme="yellow"
+							defaultCollapsed={shouldCollapseAll}
+						>
+							<MfaMethodGrid>
+								{mfaMethods.map((method) => (
+									<MfaMethodCard key={method.id}>
+										<MfaMethodIcon>{method.icon}</MfaMethodIcon>
+										<MfaMethodTitle>{method.label}</MfaMethodTitle>
+										<MfaMethodDescription>{method.description}</MfaMethodDescription>
+									</MfaMethodCard>
+								))}
+							</MfaMethodGrid>
+						</CollapsibleHeader>
 
 						<ActionRow>
 							<Button $variant="primary" onClick={() => setCurrentStep(1)}>

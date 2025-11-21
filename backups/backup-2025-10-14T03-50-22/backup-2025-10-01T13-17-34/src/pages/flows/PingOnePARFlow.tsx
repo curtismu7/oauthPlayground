@@ -18,7 +18,7 @@ import { Card, CardBody, CardHeader } from '../../components/Card';
 import PageTitle from '../../components/PageTitle';
 import { SpecCard } from '../../components/SpecCard';
 import { TokenSurface } from '../../components/TokenSurface';
-import { pingOneConfigService, type PingOneConfig } from '../../services/pingoneConfigService';
+import { type PingOneConfig, pingOneConfigService } from '../../services/pingoneConfigService';
 import { logger } from '../../utils/logger';
 
 const Container = styled.div`

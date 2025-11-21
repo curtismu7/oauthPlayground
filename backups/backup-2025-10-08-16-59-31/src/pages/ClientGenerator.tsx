@@ -1,27 +1,27 @@
 // src/pages/ClientGenerator.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	FiCheckCircle,
-	FiX,
+	FiCode,
+	FiGlobe,
 	FiLoader,
+	FiServer,
 	FiSettings,
 	FiSmartphone,
-	FiGlobe,
-	FiCode,
-	FiServer,
+	FiX,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { usePageScroll } from '../hooks/usePageScroll';
 import { FlowHeader } from '../services/flowHeaderService';
 import {
-	pingOneAppCreationService,
-	AppType,
 	AppConfig,
-	CreatedApp,
 	AppCreationResult,
+	AppType,
+	CreatedApp,
+	pingOneAppCreationService,
 } from '../services/pingOneAppCreationService';
-import { usePageScroll } from '../hooks/usePageScroll';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { credentialManager } from '../utils/credentialManager';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
 	max-width: 1200px;

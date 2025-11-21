@@ -22,18 +22,18 @@ import { CredentialsInput } from '../../components/CredentialsInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
+import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
+import ResponseModeSelector from '../../components/ResponseModeSelector';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import { useHybridFlow } from '../../hooks/useHybridFlow';
 import { usePageScroll } from '../../hooks/usePageScroll';
+import { FlowHeader } from '../../services/flowHeaderService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { ResponseMode } from '../../services/responseModeService';
 import { credentialManager } from '../../utils/credentialManager';
 import { getFlowInfo } from '../../utils/flowInfoConfig';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
 import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { FlowHeader } from '../../services/flowHeaderService';
-import ResponseModeSelector from '../../components/ResponseModeSelector';
-import { ResponseMode } from '../../services/responseModeService';
-import OIDCDiscoveryInput from '../../components/OIDCDiscoveryInput';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const LOG_PREFIX = '[🔀 OIDC-HYBRID]';
 
@@ -53,7 +53,10 @@ const log = {
 };
 
 const STEP_METADATA = [
-	{ title: 'Step 0: Introduction & Setup', subtitle: 'Understand the OIDC Hybrid Flow and configure credentials' },
+	{
+		title: 'Step 0: Introduction & Setup',
+		subtitle: 'Understand the OIDC Hybrid Flow and configure credentials',
+	},
 	{ title: 'Step 1: Authorization Request', subtitle: 'Build and launch authorization URL' },
 	{ title: 'Step 2: Process Response', subtitle: 'Handle callback and validate tokens' },
 	{ title: 'Step 3: Token Exchange', subtitle: 'Exchange code for additional tokens' },
@@ -359,7 +362,6 @@ const ParameterValue = styled.div`
 	border-radius: 0.375rem;
 `;
 
-
 const SectionDivider = styled.div`
 	height: 1px;
 	background: linear-gradient(90deg, #e2e8f0 0%, #cbd5e1 50%, #e2e8f0 100%);
@@ -472,7 +474,8 @@ const OIDCHybridFlowV5: React.FC = () => {
 			log.info('Redirecting to authorization URL');
 			window.location.href = authUrl;
 		} catch (err: unknown) {
-			const errorMessage = err instanceof Error ? err.message : 'Failed to generate authorization URL';
+			const errorMessage =
+				err instanceof Error ? err.message : 'Failed to generate authorization URL';
 			v4ToastManager.showError(errorMessage);
 		}
 	}, [hybridFlow]);
@@ -659,13 +662,13 @@ const OIDCHybridFlowV5: React.FC = () => {
 						/>
 
 						<SectionDivider />
-						
+
 						<InfoBox $variant="info">
 							<FiInfo size={20} />
 							<div>
 								<InfoTitle>Response Mode Selection</InfoTitle>
 								<InfoText>
-									Choose how PingOne returns the authorization response. Different modes are 
+									Choose how PingOne returns the authorization response. Different modes are
 									optimized for different application types and security requirements.
 								</InfoText>
 							</div>
@@ -701,7 +704,10 @@ const OIDCHybridFlowV5: React.FC = () => {
 									setClientId(config.clientId || '');
 									setClientSecret(config.clientSecret || '');
 									setScopes(config.scopes?.join(' ') || 'openid profile email');
-									if (config.responseType) setResponseType(config.responseType as 'code id_token' | 'code token' | 'code id_token token');
+									if (config.responseType)
+										setResponseType(
+											config.responseType as 'code id_token' | 'code token' | 'code id_token token'
+										);
 									if (config.responseMode) setResponseMode(config.responseMode as ResponseMode);
 								}
 							}}
@@ -1051,23 +1057,25 @@ const OIDCHybridFlowV5: React.FC = () => {
 	);
 
 	// Step validation functions
-	const isStepValid = useCallback((stepIndex: number): boolean => {
-		switch (stepIndex) {
-			case 0: // Step 0: Introduction & Setup
-				return true; // Always valid - introduction step
-			case 1: // Step 1: Authorization Request
-				return !!(environmentId && clientId);
-			case 2: // Step 2: Process Response
-				return !!(hybridFlow.tokens);
-			case 3: // Step 3: Token Exchange
-				return !!(hybridFlow.tokens);
-			case 4: // Step 4: Tokens Received
-				return !!(hybridFlow.tokens);
-			default:
-				return false;
-		}
-	}, [environmentId, clientId, hybridFlow.tokens]);
-
+	const isStepValid = useCallback(
+		(stepIndex: number): boolean => {
+			switch (stepIndex) {
+				case 0: // Step 0: Introduction & Setup
+					return true; // Always valid - introduction step
+				case 1: // Step 1: Authorization Request
+					return !!(environmentId && clientId);
+				case 2: // Step 2: Process Response
+					return !!hybridFlow.tokens;
+				case 3: // Step 3: Token Exchange
+					return !!hybridFlow.tokens;
+				case 4: // Step 4: Tokens Received
+					return !!hybridFlow.tokens;
+				default:
+					return false;
+			}
+		},
+		[environmentId, clientId, hybridFlow.tokens]
+	);
 
 	const canNavigateNext = useCallback((): boolean => {
 		return isStepValid(currentStep) && currentStep < STEP_METADATA.length - 1;
@@ -1082,12 +1090,12 @@ const OIDCHybridFlowV5: React.FC = () => {
 
 				<MainCard>
 					<StepHeader>
-				<StepHeaderLeft>
-					<VersionBadge>V5</VersionBadge>
-					<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
-					<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
-				</StepHeaderLeft>
-			</StepHeader>
+						<StepHeaderLeft>
+							<VersionBadge>V5</VersionBadge>
+							<StepHeaderTitle>{STEP_METADATA[currentStep].title}</StepHeaderTitle>
+							<StepHeaderSubtitle>{STEP_METADATA[currentStep].subtitle}</StepHeaderSubtitle>
+						</StepHeaderLeft>
+					</StepHeader>
 
 					<StepContent>{renderStepContent(currentStep)}</StepContent>
 				</MainCard>

@@ -1,29 +1,29 @@
 // OIDC Device Code Flow implementation following V3 patterns
 
-import React, { useState, useEffect, useCallback } from 'react';
-import styled from 'styled-components';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-	FiSettings,
+	FiCheckCircle,
+	FiClock,
 	FiRefreshCw,
 	FiServer,
-	FiClock,
-	FiCheckCircle,
+	FiSettings,
 	FiXCircle,
 } from 'react-icons/fi';
+import styled from 'styled-components';
+import { showFlowError, showFlowSuccess } from '../../components/CentralizedSuccessMessage';
+import DevicePolling from '../../components/device/DevicePolling';
+import DeviceVerification from '../../components/device/DeviceVerification';
+import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useAuth } from '../../contexts/NewAuthContext';
-import { showFlowSuccess, showFlowError } from '../../components/CentralizedSuccessMessage';
-import { logger } from '../../utils/logger';
+import { DeviceCodeFlowState, DeviceCodeStep, DeviceCodeTokens } from '../../types/deviceCode';
 import {
+	DeviceAuthorizationResponse,
 	requestDeviceAuthorization,
 	validateDeviceAuthorizationResponse,
-	DeviceAuthorizationResponse,
 } from '../../utils/deviceCode';
-import { storeOAuthTokens } from '../../utils/tokenStorage';
-import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
-import DeviceVerification from '../../components/device/DeviceVerification';
-import DevicePolling from '../../components/device/DevicePolling';
-import { DeviceCodeFlowState, DeviceCodeTokens, DeviceCodeStep } from '../../types/deviceCode';
+import { logger } from '../../utils/logger';
+import { storeOAuthTokens } from '../../utils/tokenStorage';
 
 const Container = styled.div`
   max-width: 1200px;

@@ -5,21 +5,18 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ConfigurationManager from '../components/ConfigurationManager';
-import { FlowType, Environment } from '../services/enhancedConfigurationService';
+import { Environment, FlowType } from '../services/enhancedConfigurationService';
 
 const ConfigurationManagerPage: React.FC = () => {
-  const [searchParams] = useSearchParams();
-  const flowType = searchParams.get('flow') as FlowType;
-  const environment = searchParams.get('env') as Environment;
+	const [searchParams] = useSearchParams();
+	const flowType = searchParams.get('flow') as FlowType;
+	const environment = searchParams.get('env') as Environment;
 
-  return (
-    <div style={{ minHeight: '100vh', background: '#f9fafb' }}>
-      <ConfigurationManager
-        initialFlowType={flowType}
-        initialEnvironment={environment}
-      />
-    </div>
-  );
+	return (
+		<div style={{ minHeight: '100vh', background: '#f9fafb' }}>
+			<ConfigurationManager initialFlowType={flowType} initialEnvironment={environment} />
+		</div>
+	);
 };
 
 export default ConfigurationManagerPage;

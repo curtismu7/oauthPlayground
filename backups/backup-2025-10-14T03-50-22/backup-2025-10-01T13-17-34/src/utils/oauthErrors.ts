@@ -1,8 +1,8 @@
 import {
 	OAuthErrorCode,
-	OAuthErrorResponse,
-	OAuthErrorOptions,
 	OAuthErrorConstructorOptions,
+	OAuthErrorOptions,
+	OAuthErrorResponse,
 	OAuthErrorTypes,
 } from '../types/oauthErrors';
 

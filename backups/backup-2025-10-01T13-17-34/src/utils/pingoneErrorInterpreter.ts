@@ -260,7 +260,8 @@ export class PingOneErrorInterpreter {
 		}
 
 		// Check against known error patterns
-		const pattern = PingOneErrorInterpreter.ERROR_PATTERNS[errorCode as keyof typeof this.ERROR_PATTERNS];
+		const pattern =
+			PingOneErrorInterpreter.ERROR_PATTERNS[errorCode as keyof typeof this.ERROR_PATTERNS];
 		if (pattern) {
 			return {
 				...pattern,

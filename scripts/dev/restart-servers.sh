@@ -832,8 +832,8 @@ main() {
     # Step 6: Show final status
     show_final_status
     
-    # Step 7: Open browser if successful
-    open_browser
+    # Step 7: Open browser if successful (DISABLED - user requested no auto-open)
+    # open_browser
     
     # Step 8: Final success message and server status summary
     show_final_summary

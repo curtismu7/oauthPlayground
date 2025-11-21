@@ -16,10 +16,12 @@ import {
 } from 'react-icons/fi';
 import styled from 'styled-components';
 import CollapsibleSection from '../../components/CollapsibleSection';
+import ConfigurationStatus from '../../components/ConfigurationStatus';
 import ConfirmationModal from '../../components/ConfirmationModal';
+import ContextualHelp from '../../components/ContextualHelp';
 import { EnhancedStepFlowV2 } from '../../components/EnhancedStepFlowV2';
-import FlowIntro from '../../components/flow/FlowIntro';
 import type { FlowConfig } from '../../components/FlowConfiguration';
+import FlowIntro from '../../components/flow/FlowIntro';
 import ImplicitSafetySummary from '../../components/flow/ImplicitSafetySummary';
 import { FormField, FormInput, FormLabel } from '../../components/steps/CommonSteps';
 import { TokenSurface } from '../../components/TokenSurface';
@@ -35,8 +37,6 @@ import { credentialManager } from '../../utils/credentialManager';
 import { trackFlowCompletion } from '../../utils/flowCredentialChecker';
 import { useFlowStepManager } from '../../utils/flowStepSystem';
 import { logger } from '../../utils/logger';
-import ConfigurationStatus from '../../components/ConfigurationStatus';
-import ContextualHelp from '../../components/ContextualHelp';
 
 const Container = styled.div`
   max-width: 1200px;

@@ -7,37 +7,39 @@ import {
 	FiCode,
 	FiExternalLink,
 	FiKey,
-	FiRefreshCw,
-	FiZap,
 	FiPlus,
+	FiRefreshCw,
 	FiTrash2,
+	FiZap,
 } from 'react-icons/fi';
 import styled from 'styled-components';
+import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
+import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import EnvironmentIdInput from '../../components/EnvironmentIdInput';
 import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import FlowInfoCard from '../../components/FlowInfoCard';
 import FlowSequenceDisplay from '../../components/FlowSequenceDisplay';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import JWTTokenDisplay from '../../components/JWTTokenDisplay';
 import { ResultsHeading, ResultsSection, SectionDivider } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import TokenIntrospect from '../../components/TokenIntrospect';
-import JWTTokenDisplay from '../../components/JWTTokenDisplay';
-import { CodeExamplesDisplay } from '../../components/CodeExamplesDisplay';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService } from '../../services/enhancedApiCallDisplayService';
-import {
-	TokenIntrospectionService,
-	IntrospectionApiCallData,
-} from '../../services/tokenIntrospectionService';
-import { createOAuthTemplate } from '../../services/enhancedApiCallDisplayService';
-import { trackOAuthFlow } from '../../utils/activityTracker';
-import { v4ToastManager } from '../../utils/v4ToastMessages';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { getFlowInfo } from '../../utils/flowInfoConfig';
 import { usePageScroll } from '../../hooks/usePageScroll';
-import ColoredUrlDisplay from '../../components/ColoredUrlDisplay';
-import EnvironmentIdInput from '../../components/EnvironmentIdInput';
+import {
+	createOAuthTemplate,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { trackOAuthFlow } from '../../utils/activityTracker';
+import { getFlowInfo } from '../../utils/flowInfoConfig';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
+import { v4ToastManager } from '../../utils/v4ToastMessages';
 
 const STEP_METADATA = [
 	{
@@ -465,8 +467,8 @@ const FormattedExampleDetail = styled.div`
 // RAR Flow Component
 export const RARFlowV5: React.FC = () => {
 	const [currentStep, setCurrentStep] = useState(() => {
-	// Ensure page starts at top
-	usePageScroll({ pageName: 'RARFlowV5', force: true });
+		// Ensure page starts at top
+		usePageScroll({ pageName: 'RARFlowV5', force: true });
 
 		// Check for restore_step from sessionStorage first (higher priority)
 		const restoreStep = sessionStorage.getItem('restore_step');

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import {
-	FiShield,
-	FiLock,
-	FiZap,
-	FiCpu,
-	FiCode,
-	FiInfo,
-	FiCheckCircle,
-	FiBook,
-	FiUsers,
 	FiAlertTriangle,
+	FiBook,
+	FiCheckCircle,
+	FiCode,
+	FiCpu,
+	FiInfo,
+	FiLock,
+	FiShield,
 	FiTrendingUp,
+	FiUsers,
+	FiZap,
 } from 'react-icons/fi';
+import styled from 'styled-components';
 import CollapsibleIcon from '../components/CollapsibleIcon';
 
 const Container = styled.div`

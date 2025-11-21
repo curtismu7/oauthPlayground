@@ -1,21 +1,21 @@
 // src/pages/OAuthOIDCTraining.tsx
 // ⭐ V6 UPGRADE - OAuth 2.0 & OIDC Training Component with V6 Services
 
-import React, { useState } from 'react';
 import {
-	BookOpen,
-	Shield,
-	Key,
-	RefreshCw,
-	Users,
-	Lock,
-	CheckCircle,
-	XCircle,
 	AlertCircle,
+	BookOpen,
+	CheckCircle,
+	Key,
+	Lock,
+	RefreshCw,
 	Search,
+	Shield,
+	Users,
+	XCircle,
 } from 'lucide-react';
-import PageLayoutService from '../services/pageLayoutService';
+import React, { useState } from 'react';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
+import PageLayoutService from '../services/pageLayoutService';
 
 // Reusable service/data that can be imported elsewhere
 export const OAuthOIDCData = {
@@ -446,8 +446,11 @@ const OAuthOIDCTraining: React.FC = () => {
 		flowId: 'oauth-oidc-training', // Enables FlowHeader integration
 	};
 
-	const { PageContainer, ContentWrapper, FlowHeader: LayoutFlowHeader } = 
-		PageLayoutService.createPageLayout(pageConfig);
+	const {
+		PageContainer,
+		ContentWrapper,
+		FlowHeader: LayoutFlowHeader,
+	} = PageLayoutService.createPageLayout(pageConfig);
 
 	const filterContent = (text: string): boolean => {
 		if (!searchTerm) return true;
@@ -469,9 +472,9 @@ const OAuthOIDCTraining: React.FC = () => {
 	};
 
 	const toggleSection = (section: keyof typeof collapsedSections) => {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
-			[section]: !prev[section]
+			[section]: !prev[section],
 		}));
 	};
 
@@ -540,75 +543,73 @@ const OAuthOIDCTraining: React.FC = () => {
 					onToggle={() => toggleSection('comparison')}
 				>
 					<div style={{ padding: '1.5rem' }}>
-							<div className="overflow-x-auto">
-								<table className="w-full border-collapse">
-									<thead>
-										<tr className="bg-indigo-600 text-white">
-											<th className="p-4 text-left font-semibold">Feature</th>
-											<th className="p-4 text-left font-semibold">OAuth 2.0</th>
-											<th className="p-4 text-left font-semibold">OIDC</th>
-										</tr>
-									</thead>
-									<tbody>
-										{OAuthOIDCData.comparisonTable
-											.filter(
-												(row) =>
-													!searchTerm ||
-													filterContent(row.feature) ||
-													filterContent(
-														typeof row.oauth === 'string' ? row.oauth : row.oauth.text || ''
-													) ||
-													filterContent(
-														typeof row.oidc === 'string' ? row.oidc : row.oidc.text || ''
-													)
-											)
-											.map((row, idx) => (
-												<tr key={idx} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-													<td className="p-4 font-medium text-gray-700 border-b">
-														{highlightText(row.feature)}
-													</td>
-													<td className="p-4 text-gray-600 border-b">
-														{typeof row.oauth === 'object' && row.oauth.supported !== undefined
-															? renderSupportIcon(row.oauth)
-															: highlightText(typeof row.oauth === 'string' ? row.oauth : '')}
-													</td>
-													<td className="p-4 text-gray-600 border-b">
-														{typeof row.oidc === 'object' && row.oidc.supported !== undefined
-															? renderSupportIcon(row.oidc)
-															: highlightText(typeof row.oidc === 'string' ? row.oidc : '')}
-													</td>
-												</tr>
-											))}
-									</tbody>
-								</table>
+						<div className="overflow-x-auto">
+							<table className="w-full border-collapse">
+								<thead>
+									<tr className="bg-indigo-600 text-white">
+										<th className="p-4 text-left font-semibold">Feature</th>
+										<th className="p-4 text-left font-semibold">OAuth 2.0</th>
+										<th className="p-4 text-left font-semibold">OIDC</th>
+									</tr>
+								</thead>
+								<tbody>
+									{OAuthOIDCData.comparisonTable
+										.filter(
+											(row) =>
+												!searchTerm ||
+												filterContent(row.feature) ||
+												filterContent(
+													typeof row.oauth === 'string' ? row.oauth : row.oauth.text || ''
+												) ||
+												filterContent(typeof row.oidc === 'string' ? row.oidc : row.oidc.text || '')
+										)
+										.map((row, idx) => (
+											<tr key={idx} className={idx % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
+												<td className="p-4 font-medium text-gray-700 border-b">
+													{highlightText(row.feature)}
+												</td>
+												<td className="p-4 text-gray-600 border-b">
+													{typeof row.oauth === 'object' && row.oauth.supported !== undefined
+														? renderSupportIcon(row.oauth)
+														: highlightText(typeof row.oauth === 'string' ? row.oauth : '')}
+												</td>
+												<td className="p-4 text-gray-600 border-b">
+													{typeof row.oidc === 'object' && row.oidc.supported !== undefined
+														? renderSupportIcon(row.oidc)
+														: highlightText(typeof row.oidc === 'string' ? row.oidc : '')}
+												</td>
+											</tr>
+										))}
+								</tbody>
+							</table>
 
-								<div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-									<div className="flex items-start gap-3">
-										<AlertCircle className="text-blue-600 mt-1" size={24} />
-										<div>
-											<h3 className="font-semibold text-blue-900 mb-2">Key Takeaway</h3>
-											<p className="text-blue-800">
-												<strong>OAuth 2.0</strong> answers "what can they access?" while{' '}
-												<strong>OIDC</strong> answers "who are they?" OIDC is essentially OAuth 2.0
-												+ identity layer.
-											</p>
-										</div>
-									</div>
-								</div>
-
-								{/* OAuth Only Note */}
-								<div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
-									<div className="flex items-start gap-3">
-										<AlertCircle className="text-amber-600 mt-1" size={24} />
-										<div>
-											<h3 className="font-semibold text-amber-900 mb-2">OAuth 2.0 Only Flow</h3>
-											<p className="text-amber-800">
-												{OAuthOIDCData.trainingContent.oauth.oauthOnlyNote}
-											</p>
-										</div>
+							<div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+								<div className="flex items-start gap-3">
+									<AlertCircle className="text-blue-600 mt-1" size={24} />
+									<div>
+										<h3 className="font-semibold text-blue-900 mb-2">Key Takeaway</h3>
+										<p className="text-blue-800">
+											<strong>OAuth 2.0</strong> answers "what can they access?" while{' '}
+											<strong>OIDC</strong> answers "who are they?" OIDC is essentially OAuth 2.0 +
+											identity layer.
+										</p>
 									</div>
 								</div>
 							</div>
+
+							{/* OAuth Only Note */}
+							<div className="mt-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+								<div className="flex items-start gap-3">
+									<AlertCircle className="text-amber-600 mt-1" size={24} />
+									<div>
+										<h3 className="font-semibold text-amber-900 mb-2">OAuth 2.0 Only Flow</h3>
+										<p className="text-amber-800">
+											{OAuthOIDCData.trainingContent.oauth.oauthOnlyNote}
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 				</CollapsibleHeader>
 
@@ -622,130 +623,130 @@ const OAuthOIDCTraining: React.FC = () => {
 					onToggle={() => toggleSection('oauth')}
 				>
 					<div style={{ padding: '1.5rem' }}>
-							<div>
-								<h2 className="text-2xl font-bold text-gray-800 mb-4">
-									{OAuthOIDCData.trainingContent.oauth.title}
-								</h2>
-								<p className="text-gray-600 mb-6">
-									{OAuthOIDCData.trainingContent.oauth.description}
-								</p>
+						<div>
+							<h2 className="text-2xl font-bold text-gray-800 mb-4">
+								{OAuthOIDCData.trainingContent.oauth.title}
+							</h2>
+							<p className="text-gray-600 mb-6">
+								{OAuthOIDCData.trainingContent.oauth.description}
+							</p>
 
-								<div className="bg-indigo-50 rounded-lg p-6 mb-6">
-									<h3 className="font-semibold text-indigo-900 mb-3">Key Points</h3>
-									<ul className="space-y-2">
-										{OAuthOIDCData.trainingContent.oauth.keyPoints.map((point, idx) => (
-											<li key={idx} className="flex items-start gap-2 text-indigo-800">
-												<CheckCircle size={20} className="mt-0.5 flex-shrink-0" />
-												<span>{point}</span>
-											</li>
-										))}
-									</ul>
-								</div>
+							<div className="bg-indigo-50 rounded-lg p-6 mb-6">
+								<h3 className="font-semibold text-indigo-900 mb-3">Key Points</h3>
+								<ul className="space-y-2">
+									{OAuthOIDCData.trainingContent.oauth.keyPoints.map((point, idx) => (
+										<li key={idx} className="flex items-start gap-2 text-indigo-800">
+											<CheckCircle size={20} className="mt-0.5 flex-shrink-0" />
+											<span>{point}</span>
+										</li>
+									))}
+								</ul>
+							</div>
 
-								<h3 className="text-xl font-bold text-gray-800 mb-4">
-									OAuth 2.0 Authorization Flows
-								</h3>
-								<div className="space-y-4">
-									{OAuthOIDCData.trainingContent.oauth.flows
-										.filter(
-											(flow) =>
-												!searchTerm ||
-												filterContent(flow.name) ||
-												filterContent(flow.description) ||
-												flow.steps.some((step) => filterContent(step)) ||
-												(flow.security && flow.security.some((sec: string) => filterContent(sec)))
-										)
-										.map((flow) => {
-											const actualIdx = OAuthOIDCData.trainingContent.oauth.flows.indexOf(flow);
-											return (
-												<div key={actualIdx} className="border rounded-lg overflow-hidden">
-													<button
-														onClick={() =>
-															setExpandedFlow(
-																expandedFlow === actualIdx.toString() ? null : actualIdx.toString()
-															)
-														}
-														className="w-full bg-gray-100 hover:bg-gray-200 p-4 flex items-center justify-between transition"
-													>
-														<div className="text-left">
-															<h4 className="font-semibold text-gray-800">
-																{highlightText(flow.name)}
-															</h4>
-															<p className="text-sm text-gray-600">
-																{highlightText(flow.description)}
+							<h3 className="text-xl font-bold text-gray-800 mb-4">
+								OAuth 2.0 Authorization Flows
+							</h3>
+							<div className="space-y-4">
+								{OAuthOIDCData.trainingContent.oauth.flows
+									.filter(
+										(flow) =>
+											!searchTerm ||
+											filterContent(flow.name) ||
+											filterContent(flow.description) ||
+											flow.steps.some((step) => filterContent(step)) ||
+											(flow.security && flow.security.some((sec: string) => filterContent(sec)))
+									)
+									.map((flow) => {
+										const actualIdx = OAuthOIDCData.trainingContent.oauth.flows.indexOf(flow);
+										return (
+											<div key={actualIdx} className="border rounded-lg overflow-hidden">
+												<button
+													onClick={() =>
+														setExpandedFlow(
+															expandedFlow === actualIdx.toString() ? null : actualIdx.toString()
+														)
+													}
+													className="w-full bg-gray-100 hover:bg-gray-200 p-4 flex items-center justify-between transition"
+												>
+													<div className="text-left">
+														<h4 className="font-semibold text-gray-800">
+															{highlightText(flow.name)}
+														</h4>
+														<p className="text-sm text-gray-600">
+															{highlightText(flow.description)}
+														</p>
+													</div>
+													<RefreshCw
+														size={20}
+														className={`transition-transform ${expandedFlow === actualIdx.toString() ? 'rotate-180' : ''}`}
+													/>
+												</button>
+												{expandedFlow === actualIdx.toString() && (
+													<div className="p-4 bg-white">
+														<h5 className="font-medium text-gray-700 mb-2">Flow Steps:</h5>
+														<ol className="space-y-2 mb-4">
+															{flow.steps.map((step, stepIdx) => (
+																<li key={stepIdx} className="flex gap-3">
+																	<span className="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm">
+																		{stepIdx + 1}
+																	</span>
+																	<span className="text-gray-700">{highlightText(step)}</span>
+																</li>
+															))}
+														</ol>
+														<div className="bg-green-50 p-3 rounded border border-green-200 mb-4">
+															<p className="text-sm text-green-800">
+																<strong>Best For:</strong> {flow.bestFor}
 															</p>
 														</div>
-														<RefreshCw
-															size={20}
-															className={`transition-transform ${expandedFlow === actualIdx.toString() ? 'rotate-180' : ''}`}
-														/>
-													</button>
-													{expandedFlow === actualIdx.toString() && (
-														<div className="p-4 bg-white">
-															<h5 className="font-medium text-gray-700 mb-2">Flow Steps:</h5>
-															<ol className="space-y-2 mb-4">
-																{flow.steps.map((step, stepIdx) => (
-																	<li key={stepIdx} className="flex gap-3">
-																		<span className="flex-shrink-0 w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-sm">
-																			{stepIdx + 1}
-																		</span>
-																		<span className="text-gray-700">{highlightText(step)}</span>
-																	</li>
-																))}
-															</ol>
-															<div className="bg-green-50 p-3 rounded border border-green-200 mb-4">
-																<p className="text-sm text-green-800">
-																	<strong>Best For:</strong> {flow.bestFor}
-																</p>
+
+														{flow.oauthOnly && (
+															<div className="bg-amber-50 p-3 rounded border border-amber-200 mb-4">
+																<div className="flex items-start gap-2">
+																	<AlertCircle
+																		className="text-amber-600 mt-0.5 flex-shrink-0"
+																		size={18}
+																	/>
+																	<p className="text-sm text-amber-800">
+																		<strong>OAuth 2.0 Only:</strong> This flow does not apply to
+																		OIDC since there is no user involved. OIDC requires user
+																		authentication to provide identity information via ID Tokens.
+																	</p>
+																</div>
 															</div>
+														)}
 
-															{flow.oauthOnly && (
-																<div className="bg-amber-50 p-3 rounded border border-amber-200 mb-4">
-																	<div className="flex items-start gap-2">
-																		<AlertCircle
-																			className="text-amber-600 mt-0.5 flex-shrink-0"
-																			size={18}
-																		/>
-																		<p className="text-sm text-amber-800">
-																			<strong>OAuth 2.0 Only:</strong> This flow does not apply to
-																			OIDC since there is no user involved. OIDC requires user
-																			authentication to provide identity information via ID Tokens.
-																		</p>
-																	</div>
+														{flow.security && (
+															<div className="bg-red-50 p-4 rounded border border-red-200">
+																<div className="flex items-center gap-2 mb-3">
+																	<Lock className="text-red-600" size={20} />
+																	<h5 className="font-semibold text-red-900">
+																		Security Best Practices for {flow.name}
+																	</h5>
 																</div>
-															)}
-
-															{flow.security && (
-																<div className="bg-red-50 p-4 rounded border border-red-200">
-																	<div className="flex items-center gap-2 mb-3">
-																		<Lock className="text-red-600" size={20} />
-																		<h5 className="font-semibold text-red-900">
-																			Security Best Practices for {flow.name}
-																		</h5>
-																	</div>
-																	<ul className="space-y-2">
-																		{flow.security.map((practice: string, practiceIdx: number) => (
-																			<li
-																				key={practiceIdx}
-																				className="flex items-start gap-2 text-sm text-red-800"
-																			>
-																				<CheckCircle
-																					size={16}
-																					className="mt-0.5 flex-shrink-0 text-red-600"
-																				/>
-																				<span>{highlightText(practice)}</span>
-																			</li>
-																		))}
-																	</ul>
-																</div>
-															)}
-														</div>
-													)}
-												</div>
-											);
-										})}
-								</div>
+																<ul className="space-y-2">
+																	{flow.security.map((practice: string, practiceIdx: number) => (
+																		<li
+																			key={practiceIdx}
+																			className="flex items-start gap-2 text-sm text-red-800"
+																		>
+																			<CheckCircle
+																				size={16}
+																				className="mt-0.5 flex-shrink-0 text-red-600"
+																			/>
+																			<span>{highlightText(practice)}</span>
+																		</li>
+																	))}
+																</ul>
+															</div>
+														)}
+													</div>
+												)}
+											</div>
+										);
+									})}
 							</div>
+						</div>
 					</div>
 				</CollapsibleHeader>
 
@@ -759,90 +760,88 @@ const OAuthOIDCTraining: React.FC = () => {
 					onToggle={() => toggleSection('oidc')}
 				>
 					<div style={{ padding: '1.5rem' }}>
-							<div>
-								<h2 className="text-2xl font-bold text-gray-800 mb-4">
-									{OAuthOIDCData.trainingContent.oidc.title}
-								</h2>
-								<p className="text-gray-600 mb-6">
-									{OAuthOIDCData.trainingContent.oidc.description}
-								</p>
+						<div>
+							<h2 className="text-2xl font-bold text-gray-800 mb-4">
+								{OAuthOIDCData.trainingContent.oidc.title}
+							</h2>
+							<p className="text-gray-600 mb-6">{OAuthOIDCData.trainingContent.oidc.description}</p>
 
-								<div className="bg-purple-50 rounded-lg p-6 mb-6">
-									<h3 className="font-semibold text-purple-900 mb-3">Key Points</h3>
-									<ul className="space-y-2">
-										{OAuthOIDCData.trainingContent.oidc.keyPoints.map((point, idx) => (
-											<li key={idx} className="flex items-start gap-2 text-purple-800">
-												<CheckCircle size={20} className="mt-0.5 flex-shrink-0" />
-												<span>{point}</span>
+							<div className="bg-purple-50 rounded-lg p-6 mb-6">
+								<h3 className="font-semibold text-purple-900 mb-3">Key Points</h3>
+								<ul className="space-y-2">
+									{OAuthOIDCData.trainingContent.oidc.keyPoints.map((point, idx) => (
+										<li key={idx} className="flex items-start gap-2 text-purple-800">
+											<CheckCircle size={20} className="mt-0.5 flex-shrink-0" />
+											<span>{point}</span>
+										</li>
+									))}
+								</ul>
+							</div>
+
+							<div className="grid md:grid-cols-2 gap-6 mb-6">
+								<div className="border rounded-lg p-6 bg-white">
+									<h3 className="text-lg font-bold text-gray-800 mb-3">ID Token (JWT)</h3>
+									<p className="text-gray-600 mb-4">
+										{OAuthOIDCData.trainingContent.oidc.idToken.description}
+									</p>
+									<h4 className="font-semibold text-gray-700 mb-2">Standard Claims:</h4>
+									<ul className="space-y-1">
+										{OAuthOIDCData.trainingContent.oidc.idToken.claims.map((claim, idx) => (
+											<li
+												key={idx}
+												className="text-sm text-gray-600 font-mono bg-gray-50 p-2 rounded"
+											>
+												{claim}
 											</li>
 										))}
 									</ul>
 								</div>
 
-								<div className="grid md:grid-cols-2 gap-6 mb-6">
-									<div className="border rounded-lg p-6 bg-white">
-										<h3 className="text-lg font-bold text-gray-800 mb-3">ID Token (JWT)</h3>
-										<p className="text-gray-600 mb-4">
-											{OAuthOIDCData.trainingContent.oidc.idToken.description}
-										</p>
-										<h4 className="font-semibold text-gray-700 mb-2">Standard Claims:</h4>
-										<ul className="space-y-1">
-											{OAuthOIDCData.trainingContent.oidc.idToken.claims.map((claim, idx) => (
-												<li
-													key={idx}
-													className="text-sm text-gray-600 font-mono bg-gray-50 p-2 rounded"
-												>
-													{claim}
-												</li>
-											))}
-										</ul>
-									</div>
-
-									<div className="border rounded-lg p-6 bg-white">
-										<h3 className="text-lg font-bold text-gray-800 mb-3">Standard Scopes</h3>
-										<div className="space-y-3">
-											{OAuthOIDCData.trainingContent.oidc.scopes.map((scopeItem, idx) => (
-												<div key={idx} className="border-l-4 border-indigo-600 pl-3">
-													<h4 className="font-semibold text-gray-800">{scopeItem.scope}</h4>
-													<p className="text-sm text-gray-600">{scopeItem.description}</p>
-												</div>
-											))}
-										</div>
-									</div>
-								</div>
-
-								{/* Optional Parameters Section */}
-								<div className="border rounded-lg p-6 bg-gradient-to-br from-indigo-50 to-purple-50 mb-6">
-									<h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
-										<AlertCircle className="text-indigo-600" size={24} />
-										{OAuthOIDCData.trainingContent.oidc.optionalParameters.title}
-									</h3>
-									<p className="text-gray-700 mb-4 text-sm">
-										{OAuthOIDCData.trainingContent.oidc.optionalParameters.description}
-									</p>
+								<div className="border rounded-lg p-6 bg-white">
+									<h3 className="text-lg font-bold text-gray-800 mb-3">Standard Scopes</h3>
 									<div className="space-y-3">
-										{OAuthOIDCData.trainingContent.oidc.optionalParameters.parameters.map(
-											(param, idx) => (
-												<div key={idx} className="bg-white rounded-lg p-4 border border-indigo-200">
-													<div className="flex items-start justify-between mb-2">
-														<h4 className="font-semibold text-gray-800">{param.name}</h4>
-														<div className="text-xs text-gray-500">
-															<div>Applies to: {param.applicableFlows.join(', ')}</div>
-															<div className="text-red-600">
-																Not for: {param.notApplicableTo.join(', ')}
-															</div>
-														</div>
-													</div>
-													<p className="text-sm text-gray-600 mb-2">{param.description}</p>
-													<div className="bg-gray-50 p-2 rounded text-xs font-mono text-gray-700">
-														Example: {param.example}
-													</div>
-												</div>
-											)
-										)}
+										{OAuthOIDCData.trainingContent.oidc.scopes.map((scopeItem, idx) => (
+											<div key={idx} className="border-l-4 border-indigo-600 pl-3">
+												<h4 className="font-semibold text-gray-800">{scopeItem.scope}</h4>
+												<p className="text-sm text-gray-600">{scopeItem.description}</p>
+											</div>
+										))}
 									</div>
 								</div>
 							</div>
+
+							{/* Optional Parameters Section */}
+							<div className="border rounded-lg p-6 bg-gradient-to-br from-indigo-50 to-purple-50 mb-6">
+								<h3 className="text-lg font-bold text-gray-800 mb-2 flex items-center gap-2">
+									<AlertCircle className="text-indigo-600" size={24} />
+									{OAuthOIDCData.trainingContent.oidc.optionalParameters.title}
+								</h3>
+								<p className="text-gray-700 mb-4 text-sm">
+									{OAuthOIDCData.trainingContent.oidc.optionalParameters.description}
+								</p>
+								<div className="space-y-3">
+									{OAuthOIDCData.trainingContent.oidc.optionalParameters.parameters.map(
+										(param, idx) => (
+											<div key={idx} className="bg-white rounded-lg p-4 border border-indigo-200">
+												<div className="flex items-start justify-between mb-2">
+													<h4 className="font-semibold text-gray-800">{param.name}</h4>
+													<div className="text-xs text-gray-500">
+														<div>Applies to: {param.applicableFlows.join(', ')}</div>
+														<div className="text-red-600">
+															Not for: {param.notApplicableTo.join(', ')}
+														</div>
+													</div>
+												</div>
+												<p className="text-sm text-gray-600 mb-2">{param.description}</p>
+												<div className="bg-gray-50 p-2 rounded text-xs font-mono text-gray-700">
+													Example: {param.example}
+												</div>
+											</div>
+										)
+									)}
+								</div>
+							</div>
+						</div>
 					</div>
 				</CollapsibleHeader>
 
@@ -856,149 +855,137 @@ const OAuthOIDCTraining: React.FC = () => {
 					onToggle={() => toggleSection('security')}
 				>
 					<div style={{ padding: '1.5rem' }}>
-							<div>
-								<h2 className="text-2xl font-bold text-gray-800 mb-4">
-									{OAuthOIDCData.trainingContent.security.title}
-								</h2>
+						<div>
+							<h2 className="text-2xl font-bold text-gray-800 mb-4">
+								{OAuthOIDCData.trainingContent.security.title}
+							</h2>
 
-								{/* Security Practices */}
-								<div className="grid md:grid-cols-2 gap-6 mb-6">
-									{OAuthOIDCData.trainingContent.security.practices.map((practice, idx) => (
-										<div key={idx} className="bg-white border rounded-lg p-6 shadow-sm">
-											<div className="flex items-start gap-3">
-												<Shield className="text-green-600 mt-1 flex-shrink-0" size={24} />
-												<div>
-													<h3 className="font-semibold text-gray-800 mb-2">{practice.name}</h3>
-													<p className="text-sm text-gray-600">{practice.description}</p>
-												</div>
-											</div>
-										</div>
-									))}
-								</div>
-
-								{/* Advanced Features */}
-								<div className="space-y-6">
-									<h3 className="text-xl font-bold text-gray-800">Advanced Security Features</h3>
-
-									{/* PAR Section */}
-									<div className="bg-white border rounded-lg p-6">
-										<h4 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-											<Lock className="text-blue-600" size={24} />
-											{OAuthOIDCData.trainingContent.security.advancedFeatures.par.title}
-										</h4>
-										<p className="text-gray-600 mb-4">
-											{OAuthOIDCData.trainingContent.security.advancedFeatures.par.description}
-										</p>
-
-										<div className="grid md:grid-cols-2 gap-6">
+							{/* Security Practices */}
+							<div className="grid md:grid-cols-2 gap-6 mb-6">
+								{OAuthOIDCData.trainingContent.security.practices.map((practice, idx) => (
+									<div key={idx} className="bg-white border rounded-lg p-6 shadow-sm">
+										<div className="flex items-start gap-3">
+											<Shield className="text-green-600 mt-1 flex-shrink-0" size={24} />
 											<div>
-												<h5 className="font-semibold text-gray-700 mb-2">Benefits</h5>
-												<ul className="space-y-1">
-													{OAuthOIDCData.trainingContent.security.advancedFeatures.par.benefits.map(
-														(benefit: string, idx: number) => (
-															<li
-																key={idx}
-																className="text-sm text-gray-600 flex items-start gap-2"
-															>
-																<CheckCircle
-																	size={14}
-																	className="mt-0.5 text-green-600 flex-shrink-0"
-																/>
-																{benefit}
-															</li>
-														)
-													)}
-												</ul>
-											</div>
-											<div>
-												<h5 className="font-semibold text-gray-700 mb-2">How It Works</h5>
-												<ol className="space-y-1">
-													{OAuthOIDCData.trainingContent.security.advancedFeatures.par.howItWorks.map(
-														(step: string, idx: number) => (
-															<li
-																key={idx}
-																className="text-sm text-gray-600 flex items-start gap-2"
-															>
-																<span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
-																	{idx + 1}
-																</span>
-																{step}
-															</li>
-														)
-													)}
-												</ol>
+												<h3 className="font-semibold text-gray-800 mb-2">{practice.name}</h3>
+												<p className="text-sm text-gray-600">{practice.description}</p>
 											</div>
 										</div>
 									</div>
+								))}
+							</div>
 
-									{/* RAR Section */}
-									<div className="bg-white border rounded-lg p-6">
-										<h4 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
-											<Key className="text-purple-600" size={24} />
-											{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.title}
-										</h4>
-										<p className="text-gray-600 mb-4">
-											{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.description}
-										</p>
+							{/* Advanced Features */}
+							<div className="space-y-6">
+								<h3 className="text-xl font-bold text-gray-800">Advanced Security Features</h3>
 
-										<div className="grid md:grid-cols-2 gap-6 mb-4">
-											<div>
-												<h5 className="font-semibold text-gray-700 mb-2">Benefits</h5>
-												<ul className="space-y-1">
-													{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.benefits.map(
-														(benefit: string, idx: number) => (
-															<li
-																key={idx}
-																className="text-sm text-gray-600 flex items-start gap-2"
-															>
-																<CheckCircle
-																	size={14}
-																	className="mt-0.5 text-green-600 flex-shrink-0"
-																/>
-																{benefit}
-															</li>
-														)
-													)}
-												</ul>
-											</div>
-											<div>
-												<h5 className="font-semibold text-gray-700 mb-2">Use Cases</h5>
-												<ul className="space-y-1">
-													{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.useCases.map(
-														(useCase: string, idx: number) => (
-															<li
-																key={idx}
-																className="text-sm text-gray-600 flex items-start gap-2"
-															>
-																<CheckCircle
-																	size={14}
-																	className="mt-0.5 text-blue-600 flex-shrink-0"
-																/>
-																{useCase}
-															</li>
-														)
-													)}
-												</ul>
-											</div>
+								{/* PAR Section */}
+								<div className="bg-white border rounded-lg p-6">
+									<h4 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+										<Lock className="text-blue-600" size={24} />
+										{OAuthOIDCData.trainingContent.security.advancedFeatures.par.title}
+									</h4>
+									<p className="text-gray-600 mb-4">
+										{OAuthOIDCData.trainingContent.security.advancedFeatures.par.description}
+									</p>
+
+									<div className="grid md:grid-cols-2 gap-6">
+										<div>
+											<h5 className="font-semibold text-gray-700 mb-2">Benefits</h5>
+											<ul className="space-y-1">
+												{OAuthOIDCData.trainingContent.security.advancedFeatures.par.benefits.map(
+													(benefit: string, idx: number) => (
+														<li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+															<CheckCircle
+																size={14}
+																className="mt-0.5 text-green-600 flex-shrink-0"
+															/>
+															{benefit}
+														</li>
+													)
+												)}
+											</ul>
 										</div>
-
-										{/* RAR Example */}
-										<div className="bg-gray-50 rounded-lg p-4 border">
-											<h5 className="font-semibold text-gray-700 mb-2">
-												{
-													OAuthOIDCData.trainingContent.security.advancedFeatures.rar.example
-														.description
-												}
-											</h5>
-											<pre className="text-xs bg-white p-3 rounded border overflow-x-auto">
-												<code>
-													{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.example.json}
-												</code>
-											</pre>
+										<div>
+											<h5 className="font-semibold text-gray-700 mb-2">How It Works</h5>
+											<ol className="space-y-1">
+												{OAuthOIDCData.trainingContent.security.advancedFeatures.par.howItWorks.map(
+													(step: string, idx: number) => (
+														<li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+															<span className="flex-shrink-0 w-5 h-5 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs">
+																{idx + 1}
+															</span>
+															{step}
+														</li>
+													)
+												)}
+											</ol>
 										</div>
+									</div>
+								</div>
+
+								{/* RAR Section */}
+								<div className="bg-white border rounded-lg p-6">
+									<h4 className="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+										<Key className="text-purple-600" size={24} />
+										{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.title}
+									</h4>
+									<p className="text-gray-600 mb-4">
+										{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.description}
+									</p>
+
+									<div className="grid md:grid-cols-2 gap-6 mb-4">
+										<div>
+											<h5 className="font-semibold text-gray-700 mb-2">Benefits</h5>
+											<ul className="space-y-1">
+												{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.benefits.map(
+													(benefit: string, idx: number) => (
+														<li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+															<CheckCircle
+																size={14}
+																className="mt-0.5 text-green-600 flex-shrink-0"
+															/>
+															{benefit}
+														</li>
+													)
+												)}
+											</ul>
+										</div>
+										<div>
+											<h5 className="font-semibold text-gray-700 mb-2">Use Cases</h5>
+											<ul className="space-y-1">
+												{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.useCases.map(
+													(useCase: string, idx: number) => (
+														<li key={idx} className="text-sm text-gray-600 flex items-start gap-2">
+															<CheckCircle
+																size={14}
+																className="mt-0.5 text-blue-600 flex-shrink-0"
+															/>
+															{useCase}
+														</li>
+													)
+												)}
+											</ul>
+										</div>
+									</div>
+
+									{/* RAR Example */}
+									<div className="bg-gray-50 rounded-lg p-4 border">
+										<h5 className="font-semibold text-gray-700 mb-2">
+											{
+												OAuthOIDCData.trainingContent.security.advancedFeatures.rar.example
+													.description
+											}
+										</h5>
+										<pre className="text-xs bg-white p-3 rounded border overflow-x-auto">
+											<code>
+												{OAuthOIDCData.trainingContent.security.advancedFeatures.rar.example.json}
+											</code>
+										</pre>
 									</div>
 								</div>
 							</div>
+						</div>
 					</div>
 				</CollapsibleHeader>
 

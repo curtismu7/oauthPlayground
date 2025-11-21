@@ -1,8 +1,8 @@
 // src/components/LocalesParameterInput.tsx
 // UI and Claims Locales Parameter Input - Internationalization support
 import React from 'react';
-import styled from 'styled-components';
 import { FiGlobe, FiInfo } from 'react-icons/fi';
+import styled from 'styled-components';
 
 type LocalesType = 'ui' | 'claims';
 
@@ -77,17 +77,17 @@ const ExamplesBox = styled.div`
 
 const ExampleTag = styled.button<{ $selected: boolean }>`
 	padding: 0.375rem 0.75rem;
-	background: ${props => props.$selected ? '#dbeafe' : '#f3f4f6'};
-	border: 1px solid ${props => props.$selected ? '#3b82f6' : '#e5e7eb'};
+	background: ${(props) => (props.$selected ? '#dbeafe' : '#f3f4f6')};
+	border: 1px solid ${(props) => (props.$selected ? '#3b82f6' : '#e5e7eb')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${props => props.$selected ? '#1e40af' : '#6b7280'};
+	color: ${(props) => (props.$selected ? '#1e40af' : '#6b7280')};
 	cursor: pointer;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${props => props.$selected ? '#dbeafe' : '#e5e7eb'};
+		background: ${(props) => (props.$selected ? '#dbeafe' : '#e5e7eb')};
 		border-color: #3b82f6;
 	}
 `;
@@ -130,15 +130,15 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 	type,
 	value,
 	onChange,
-	disabled = false
+	disabled = false,
 }) => {
 	const isUILocales = type === 'ui';
-	
+
 	const handleExampleClick = (locale: string) => {
 		// Toggle or add to space-separated list
 		const currentLocales = value.split(/\s+/).filter(Boolean);
 		const index = currentLocales.indexOf(locale);
-		
+
 		if (index >= 0) {
 			// Remove if already present
 			currentLocales.splice(index, 1);
@@ -146,7 +146,7 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 			// Add if not present
 			currentLocales.push(locale);
 		}
-		
+
 		onChange(currentLocales.join(' '));
 	};
 
@@ -155,30 +155,34 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 	return (
 		<Container>
 			<Label>
-				<LabelIcon><FiGlobe /></LabelIcon>
+				<LabelIcon>
+					<FiGlobe />
+				</LabelIcon>
 				{isUILocales ? 'UI Locales' : 'Claims Locales'} (OIDC Internationalization)
 			</Label>
-			
+
 			<InputWrapper>
 				<Input
 					type="text"
 					value={value}
 					onChange={(e) => onChange(e.target.value)}
 					disabled={disabled}
-					placeholder={isUILocales ? "en-US fr-CA de-CH" : "en-US de-CH"}
+					placeholder={isUILocales ? 'en-US fr-CA de-CH' : 'en-US de-CH'}
 				/>
 			</InputWrapper>
-			
+
 			<HelperText>
 				{isUILocales ? (
 					<>
-						Space-separated list of <strong>BCP47 language tags</strong> for the <strong>user interface</strong>.
-						The authorization server will display the UI in the first supported language.
+						Space-separated list of <strong>BCP47 language tags</strong> for the{' '}
+						<strong>user interface</strong>. The authorization server will display the UI in the
+						first supported language.
 					</>
 				) : (
 					<>
-						Space-separated list of <strong>BCP47 language tags</strong> for <strong>claim values</strong>.
-						Different from ui_locales - this affects the data returned, not the UI display.
+						Space-separated list of <strong>BCP47 language tags</strong> for{' '}
+						<strong>claim values</strong>. Different from ui_locales - this affects the data
+						returned, not the UI display.
 					</>
 				)}
 			</HelperText>
@@ -199,27 +203,32 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 			</ExamplesBox>
 
 			<InfoBox>
-				<InfoIcon><FiInfo /></InfoIcon>
+				<InfoIcon>
+					<FiInfo />
+				</InfoIcon>
 				<div>
 					<strong>About {isUILocales ? 'UI' : 'Claims'} Locales:</strong>
 					<div style={{ marginTop: '0.5rem' }}>
 						{isUILocales ? (
 							<>
-								The <code>ui_locales</code> parameter tells the authorization server which language(s) 
-								to use for the <strong>authentication UI</strong> (login page, consent screen, etc.).
-								The server tries each language in order until it finds one it supports.
+								The <code>ui_locales</code> parameter tells the authorization server which
+								language(s) to use for the <strong>authentication UI</strong> (login page, consent
+								screen, etc.). The server tries each language in order until it finds one it
+								supports.
 							</>
 						) : (
 							<>
-								The <code>claims_locales</code> parameter specifies which language(s) to use for 
-								<strong>claim values</strong> returned in the ID token or from UserInfo.
-								For example, requesting French would return "given_name": "François" instead of "Francis".
+								The <code>claims_locales</code> parameter specifies which language(s) to use for
+								<strong>claim values</strong> returned in the ID token or from UserInfo. For
+								example, requesting French would return "given_name": "François" instead of
+								"Francis".
 							</>
 						)}
 					</div>
 					<div style={{ marginTop: '0.5rem', fontSize: '0.8125rem', fontStyle: 'italic' }}>
-						💡 <strong>BCP47</strong> language tags combine language code + country code (e.g., <code>en-US</code>, <code>fr-CA</code>).
-						Multiple values create a preference order (most preferred first).
+						💡 <strong>BCP47</strong> language tags combine language code + country code (e.g.,{' '}
+						<code>en-US</code>, <code>fr-CA</code>). Multiple values create a preference order (most
+						preferred first).
 					</div>
 				</div>
 			</InfoBox>
@@ -228,4 +237,3 @@ export const LocalesParameterInput: React.FC<LocalesParameterInputProps> = ({
 };
 
 export default LocalesParameterInput;
-

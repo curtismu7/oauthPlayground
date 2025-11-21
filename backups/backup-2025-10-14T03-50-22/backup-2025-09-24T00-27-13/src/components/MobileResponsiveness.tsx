@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { FiChevronDown, FiChevronUp, FiMenu, FiX } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiMenu, FiX, FiChevronDown, FiChevronUp } from 'react-icons/fi';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 // Styled components

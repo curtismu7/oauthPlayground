@@ -6,7 +6,6 @@ import {
 	FiLayers,
 	FiLock,
 	FiSmartphone,
-	FiUser,
 	FiZap,
 } from 'react-icons/fi';
 import { Link, Outlet, useLocation } from 'react-router-dom';
@@ -19,7 +18,7 @@ const OIDCContainer = styled.div`
   padding: 1.5rem;
 `;
 
-const PageHeader = styled.div`
+const _PageHeader = styled.div`
   margin-bottom: 2rem;
 
   h1 {

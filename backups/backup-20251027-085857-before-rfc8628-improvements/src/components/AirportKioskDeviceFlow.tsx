@@ -2,13 +2,21 @@
 // Airport Check-in Kiosk Style Device Authorization Flow Interface
 // Designed to look like CLEAR/TSA biometric kiosks
 
-import React from 'react';
-import { FiCopy, FiExternalLink, FiCheckCircle, FiAlertTriangle, FiXCircle, FiCamera, FiUser } from 'react-icons/fi';
 import { QRCodeSVG } from 'qrcode.react';
+import React from 'react';
+import {
+	FiAlertTriangle,
+	FiCamera,
+	FiCheckCircle,
+	FiCopy,
+	FiExternalLink,
+	FiUser,
+	FiXCircle,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { DeviceFlowState, deviceFlowService } from '../services/deviceFlowService';
-import { logger } from '../utils/logger';
 import { UnifiedTokenDisplayService } from '../services/unifiedTokenDisplayService';
+import { logger } from '../utils/logger';
 
 // Airport Kiosk Main Container - Looks like a physical kiosk with bezel
 const KioskContainer = styled.div`
@@ -129,33 +137,48 @@ const ScannerLabel = styled.div`
 `;
 
 const KioskStatusBadge = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return '#fef3c7';
-      case 'authorized': return '#d1fae5';
-      case 'denied': return '#fee2e2';
-      case 'expired': return '#f3f4f6';
-      default: return '#f3f4f6';
-    }
-  }};
-  border: 2px solid ${props => {
-    switch (props.$status) {
-      case 'pending': return '#f59e0b';
-      case 'authorized': return '#10b981';
-      case 'denied': return '#ef4444';
-      case 'expired': return '#9ca3af';
-      default: return '#9ca3af';
-    }
-  }};
-  color: ${props => {
-    switch (props.$status) {
-      case 'pending': return '#92400e';
-      case 'authorized': return '#065f46';
-      case 'denied': return '#991b1b';
-      case 'expired': return '#374151';
-      default: return '#374151';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#fef3c7';
+			case 'authorized':
+				return '#d1fae5';
+			case 'denied':
+				return '#fee2e2';
+			case 'expired':
+				return '#f3f4f6';
+			default:
+				return '#f3f4f6';
+		}
+	}};
+  border: 2px solid ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'authorized':
+				return '#10b981';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#9ca3af';
+			default:
+				return '#9ca3af';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#92400e';
+			case 'authorized':
+				return '#065f46';
+			case 'denied':
+				return '#991b1b';
+			case 'expired':
+				return '#374151';
+			default:
+				return '#374151';
+		}
+	}};
   padding: 0.75rem 1.5rem;
   border-radius: 9999px;
   font-size: 0.875rem;
@@ -331,14 +354,18 @@ const ActionButtons = styled.div`
 `;
 
 const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'success' }>`
-  background: ${props => {
-    switch (props.$variant) {
-      case 'primary': return '#3b82f6';
-      case 'secondary': return '#64748b';
-      case 'success': return '#22c55e';
-      default: return '#64748b';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$variant) {
+			case 'primary':
+				return '#3b82f6';
+			case 'secondary':
+				return '#64748b';
+			case 'success':
+				return '#22c55e';
+			default:
+				return '#64748b';
+		}
+	}};
   color: #ffffff;
   border: none;
   border-radius: 0.5rem;
@@ -365,24 +392,34 @@ const ActionButton = styled.button<{ $variant: 'primary' | 'secondary' | 'succes
 
 // Status Message
 const StatusMessage = styled.div<{ $status: string }>`
-  background: ${props => {
-    switch (props.$status) {
-      case 'pending': return 'rgba(245, 158, 11, 0.1)';
-      case 'authorized': return 'rgba(34, 197, 94, 0.1)';
-      case 'denied': return 'rgba(239, 68, 68, 0.1)';
-      case 'expired': return 'rgba(107, 114, 128, 0.1)';
-      default: return 'rgba(107, 114, 128, 0.1)';
-    }
-  }};
-  border: 2px solid ${props => {
-    switch (props.$status) {
-      case 'pending': return '#f59e0b';
-      case 'authorized': return '#22c55e';
-      case 'denied': return '#ef4444';
-      case 'expired': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return 'rgba(245, 158, 11, 0.1)';
+			case 'authorized':
+				return 'rgba(34, 197, 94, 0.1)';
+			case 'denied':
+				return 'rgba(239, 68, 68, 0.1)';
+			case 'expired':
+				return 'rgba(107, 114, 128, 0.1)';
+			default:
+				return 'rgba(107, 114, 128, 0.1)';
+		}
+	}};
+  border: 2px solid ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'authorized':
+				return '#22c55e';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
   border-radius: 0.75rem;
   padding: 1.5rem;
   margin-top: 2rem;
@@ -393,15 +430,20 @@ const StatusMessage = styled.div<{ $status: string }>`
 
 const StatusIcon = styled.div<{ $status: string }>`
   font-size: 1.5rem;
-  color: ${props => {
-    switch (props.$status) {
-      case 'pending': return '#f59e0b';
-      case 'authorized': return '#22c55e';
-      case 'denied': return '#ef4444';
-      case 'expired': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
+  color: ${(props) => {
+		switch (props.$status) {
+			case 'pending':
+				return '#f59e0b';
+			case 'authorized':
+				return '#22c55e';
+			case 'denied':
+				return '#ef4444';
+			case 'expired':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
 `;
 
 const StatusText = styled.div`
@@ -422,237 +464,238 @@ const StatusDescription = styled.div`
 `;
 
 interface AirportKioskDeviceFlowProps {
-  state: DeviceFlowState;
-  onStateUpdate: (newState: DeviceFlowState) => void;
-  onComplete: (tokens: any) => void;
-  onError: (error: string) => void;
+	state: DeviceFlowState;
+	onStateUpdate: (newState: DeviceFlowState) => void;
+	onComplete: (tokens: any) => void;
+	onError: (error: string) => void;
 }
 
 const AirportKioskDeviceFlow: React.FC<AirportKioskDeviceFlowProps> = ({
-  state,
-  onStateUpdate,
-  onComplete,
-  onError,
+	state,
+	onStateUpdate,
+	onComplete,
+	onError,
 }) => {
-  const handleCopyUserCode = () => {
-    navigator.clipboard.writeText(state.userCode);
-    logger.info('AirportKioskDeviceFlow', 'User code copied to clipboard');
-  };
+	const handleCopyUserCode = () => {
+		navigator.clipboard.writeText(state.userCode);
+		logger.info('AirportKioskDeviceFlow', 'User code copied to clipboard');
+	};
 
-  const handleOpenVerificationUri = () => {
-    window.open(state.verificationUriComplete, '_blank');
-    logger.info('AirportKioskDeviceFlow', 'Verification URI opened in new tab');
-  };
+	const handleOpenVerificationUri = () => {
+		window.open(state.verificationUriComplete, '_blank');
+		logger.info('AirportKioskDeviceFlow', 'Verification URI opened in new tab');
+	};
 
-  const getStatusIcon = () => {
-    switch (state.status) {
-      case 'pending':
-        return <FiAlertTriangle />;
-      case 'authorized':
-        return <FiCheckCircle />;
-      case 'denied':
-        return <FiXCircle />;
-      case 'expired':
-        return <FiAlertTriangle />;
-      default:
-        return <FiAlertTriangle />;
-    }
-  };
+	const getStatusIcon = () => {
+		switch (state.status) {
+			case 'pending':
+				return <FiAlertTriangle />;
+			case 'authorized':
+				return <FiCheckCircle />;
+			case 'denied':
+				return <FiXCircle />;
+			case 'expired':
+				return <FiAlertTriangle />;
+			default:
+				return <FiAlertTriangle />;
+		}
+	};
 
-  const getStatusText = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Authorization Pending';
-      case 'authorized':
-        return 'Check-in Complete';
-      case 'denied':
-        return 'Authorization Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown Status';
-    }
-  };
+	const getStatusText = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Authorization Pending';
+			case 'authorized':
+				return 'Check-in Complete';
+			case 'denied':
+				return 'Authorization Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown Status';
+		}
+	};
 
-  const getStatusBadge = () => {
-    switch (state.status) {
-      case 'pending':
-        return 'Awaiting Confirmation';
-      case 'authorized':
-        return 'Check-in Complete';
-      case 'denied':
-        return 'Access Denied';
-      case 'expired':
-        return 'Session Expired';
-      default:
-        return 'Unknown';
-    }
-  };
+	const getStatusBadge = () => {
+		switch (state.status) {
+			case 'pending':
+				return 'Awaiting Confirmation';
+			case 'authorized':
+				return 'Check-in Complete';
+			case 'denied':
+				return 'Access Denied';
+			case 'expired':
+				return 'Session Expired';
+			default:
+				return 'Unknown';
+		}
+	};
 
-  return (
-    <KioskContainer>
-      {/* LCD Touchscreen Display */}
-      <LCDScreen>
-        {/* CLEAR Branding Bar */}
-        <CLEARBrandBar>
-          <CLEARLogo>
-            <span style={{ fontSize: '2rem' }}>👁️</span>
-            <CLEARLogoText>CLEAR</CLEARLogoText>
-          </CLEARLogo>
-          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <TSABadge>
-              <FiUser />
-              TSA PreCheck®
-            </TSABadge>
-            <KioskStatusBadge $status={state.status}>
-              {getStatusIcon()}
-              {getStatusBadge()}
-            </KioskStatusBadge>
-          </div>
-        </CLEARBrandBar>
-        
-        {/* Biometric Scanner (like CLEAR iris scanner) */}
-        <BiometricScanner>
-          <ScannerIcon>
-            <FiCamera />
-          </ScannerIcon>
-          <ScannerLabel>Iris Scanner</ScannerLabel>
-        </BiometricScanner>
+	return (
+		<KioskContainer>
+			{/* LCD Touchscreen Display */}
+			<LCDScreen>
+				{/* CLEAR Branding Bar */}
+				<CLEARBrandBar>
+					<CLEARLogo>
+						<span style={{ fontSize: '2rem' }}>👁️</span>
+						<CLEARLogoText>CLEAR</CLEARLogoText>
+					</CLEARLogo>
+					<div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+						<TSABadge>
+							<FiUser />
+							TSA PreCheck®
+						</TSABadge>
+						<KioskStatusBadge $status={state.status}>
+							{getStatusIcon()}
+							{getStatusBadge()}
+						</KioskStatusBadge>
+					</div>
+				</CLEARBrandBar>
 
-      {/* Main Kiosk Display */}
-      <KioskDisplay>
-        {/* Passenger Information Panel */}
-        <PassengerPanel>
-          <PanelTitle>Check-in Information</PanelTitle>
-          <InfoRow>
-            <InfoLabel>Flight</InfoLabel>
-            <InfoValue>P1 204 → San Francisco</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>Departure</InfoLabel>
-            <InfoValue>Today, 10:45 AM</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>Gate</InfoLabel>
-            <InfoValue>B12</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>Boarding</InfoLabel>
-            <InfoValue>10:20 AM</InfoValue>
-          </InfoRow>
-          <InfoRow>
-            <InfoLabel>Status</InfoLabel>
-            <InfoValue>{state.status === 'authorized' ? 'Ready to Board' : 'Pending'}</InfoValue>
-          </InfoRow>
-        </PassengerPanel>
+				{/* Biometric Scanner (like CLEAR iris scanner) */}
+				<BiometricScanner>
+					<ScannerIcon>
+						<FiCamera />
+					</ScannerIcon>
+					<ScannerLabel>Iris Scanner</ScannerLabel>
+				</BiometricScanner>
 
-        {/* Boarding Pass Panel */}
-        <BoardingPassPanel>
-          <BoardingTitle>Passenger</BoardingTitle>
-          <BoardingValue>Demo Traveler</BoardingValue>
-          
-          <BoardingDivider />
-          
-          <BoardingTitle>Seat Assignment</BoardingTitle>
-          <BoardingValue>12A • Window</BoardingValue>
-          
-          <BoardingDivider />
-          
-          <BoardingTitle>Baggage</BoardingTitle>
-          <BoardingValue>2 Checked • 1 Carry-on</BoardingValue>
-          
-          <CodeDisplay>
-            <CodeLabel>Authorization Code</CodeLabel>
-            <CodeValue>{deviceFlowService.formatUserCode(state.userCode)}</CodeValue>
-          </CodeDisplay>
-        </BoardingPassPanel>
+				{/* Main Kiosk Display */}
+				<KioskDisplay>
+					{/* Passenger Information Panel */}
+					<PassengerPanel>
+						<PanelTitle>Check-in Information</PanelTitle>
+						<InfoRow>
+							<InfoLabel>Flight</InfoLabel>
+							<InfoValue>P1 204 → San Francisco</InfoValue>
+						</InfoRow>
+						<InfoRow>
+							<InfoLabel>Departure</InfoLabel>
+							<InfoValue>Today, 10:45 AM</InfoValue>
+						</InfoRow>
+						<InfoRow>
+							<InfoLabel>Gate</InfoLabel>
+							<InfoValue>B12</InfoValue>
+						</InfoRow>
+						<InfoRow>
+							<InfoLabel>Boarding</InfoLabel>
+							<InfoValue>10:20 AM</InfoValue>
+						</InfoRow>
+						<InfoRow>
+							<InfoLabel>Status</InfoLabel>
+							<InfoValue>{state.status === 'authorized' ? 'Ready to Board' : 'Pending'}</InfoValue>
+						</InfoRow>
+					</PassengerPanel>
 
-        {/* QR Code Section */}
-        <QRSection>
-          <QRTitle>Complete Check-in on Your Mobile Device</QRTitle>
-          <QRSubtitle>
-            Scan the QR code below with your smartphone to authorize check-in
-          </QRSubtitle>
-          <QRCodeContainer>
-            <QRCodeSVG
-              value={state.verificationUriComplete}
-              size={160}
-              bgColor="#ffffff"
-              fgColor="#0f172a"
-              level="H"
-              includeMargin={true}
-            />
-          </QRCodeContainer>
-          <ActionButtons>
-            <ActionButton $variant="secondary" onClick={handleCopyUserCode}>
-              <FiCopy /> Copy Code
-            </ActionButton>
-            <ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
-              <FiExternalLink /> Open on This Device
-            </ActionButton>
-          </ActionButtons>
-        </QRSection>
-      </KioskDisplay>
+					{/* Boarding Pass Panel */}
+					<BoardingPassPanel>
+						<BoardingTitle>Passenger</BoardingTitle>
+						<BoardingValue>Demo Traveler</BoardingValue>
 
-      {/* Status Message */}
-      <StatusMessage $status={state.status}>
-        <StatusIcon $status={state.status}>
-          {getStatusIcon()}
-        </StatusIcon>
-        <StatusText>
-          <StatusTitle>{getStatusText()}</StatusTitle>
-          <StatusDescription>
-            {deviceFlowService.getStatusMessage(state)}
-          </StatusDescription>
-        </StatusText>
-      </StatusMessage>
+						<BoardingDivider />
 
-      {/* Success Display */}
-      {state.status === 'authorized' && state.tokens && (
-        <div style={{ 
-          background: 'rgba(34, 197, 94, 0.1)', 
-          border: '2px solid #22c55e', 
-          borderRadius: '1rem', 
-          padding: '2rem',
-          marginTop: '1rem'
-        }}>
-          <div style={{ 
-            fontSize: '1.25rem', 
-            fontWeight: '700', 
-            color: '#065f46', 
-            textAlign: 'center',
-            marginBottom: '1rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.5rem'
-          }}>
-            <FiCheckCircle />
-            Boarding Pass Ready - Proceed to Security
-          </div>
-          {/* Token Display - Full Width Independent of Device */}
-          <div style={{
-            width: '100%',
-            maxWidth: '60rem',
-            margin: '1rem auto'
-          }}>
-            {UnifiedTokenDisplayService.showTokens(
-              state.tokens as any,
-              'oauth',
-              'device-authorization-v7',
-              {
-                showCopyButtons: true,
-                showDecodeButtons: true,
-                inlineDecode: true,
-              }
-            )}
-          </div>
-        </div>
-      )}
-      </LCDScreen>
-    </KioskContainer>
-  );
+						<BoardingTitle>Seat Assignment</BoardingTitle>
+						<BoardingValue>12A • Window</BoardingValue>
+
+						<BoardingDivider />
+
+						<BoardingTitle>Baggage</BoardingTitle>
+						<BoardingValue>2 Checked • 1 Carry-on</BoardingValue>
+
+						<CodeDisplay>
+							<CodeLabel>Authorization Code</CodeLabel>
+							<CodeValue>{deviceFlowService.formatUserCode(state.userCode)}</CodeValue>
+						</CodeDisplay>
+					</BoardingPassPanel>
+
+					{/* QR Code Section */}
+					<QRSection>
+						<QRTitle>Complete Check-in on Your Mobile Device</QRTitle>
+						<QRSubtitle>
+							Scan the QR code below with your smartphone to authorize check-in
+						</QRSubtitle>
+						<QRCodeContainer>
+							<QRCodeSVG
+								value={state.verificationUriComplete}
+								size={160}
+								bgColor="#ffffff"
+								fgColor="#0f172a"
+								level="H"
+								includeMargin={true}
+							/>
+						</QRCodeContainer>
+						<ActionButtons>
+							<ActionButton $variant="secondary" onClick={handleCopyUserCode}>
+								<FiCopy /> Copy Code
+							</ActionButton>
+							<ActionButton $variant="primary" onClick={handleOpenVerificationUri}>
+								<FiExternalLink /> Open on This Device
+							</ActionButton>
+						</ActionButtons>
+					</QRSection>
+				</KioskDisplay>
+
+				{/* Status Message */}
+				<StatusMessage $status={state.status}>
+					<StatusIcon $status={state.status}>{getStatusIcon()}</StatusIcon>
+					<StatusText>
+						<StatusTitle>{getStatusText()}</StatusTitle>
+						<StatusDescription>{deviceFlowService.getStatusMessage(state)}</StatusDescription>
+					</StatusText>
+				</StatusMessage>
+
+				{/* Success Display */}
+				{state.status === 'authorized' && state.tokens && (
+					<div
+						style={{
+							background: 'rgba(34, 197, 94, 0.1)',
+							border: '2px solid #22c55e',
+							borderRadius: '1rem',
+							padding: '2rem',
+							marginTop: '1rem',
+						}}
+					>
+						<div
+							style={{
+								fontSize: '1.25rem',
+								fontWeight: '700',
+								color: '#065f46',
+								textAlign: 'center',
+								marginBottom: '1rem',
+								display: 'flex',
+								alignItems: 'center',
+								justifyContent: 'center',
+								gap: '0.5rem',
+							}}
+						>
+							<FiCheckCircle />
+							Boarding Pass Ready - Proceed to Security
+						</div>
+						{/* Token Display - Full Width Independent of Device */}
+						<div
+							style={{
+								width: '100%',
+								maxWidth: '60rem',
+								margin: '1rem auto',
+							}}
+						>
+							{UnifiedTokenDisplayService.showTokens(
+								state.tokens as any,
+								'oauth',
+								'device-authorization-v7',
+								{
+									showCopyButtons: true,
+									showDecodeButtons: true,
+									inlineDecode: true,
+								}
+							)}
+						</div>
+					</div>
+				)}
+			</LCDScreen>
+		</KioskContainer>
+	);
 };
 
 export default AirportKioskDeviceFlow;
-

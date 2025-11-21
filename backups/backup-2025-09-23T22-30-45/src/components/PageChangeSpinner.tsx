@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import styled, { keyframes } from 'styled-components';
+import React, { useEffect, useState } from 'react';
 import { FiLoader } from 'react-icons/fi';
+import styled, { keyframes } from 'styled-components';
 
 const spin = keyframes`
   0% { transform: rotate(0deg); }

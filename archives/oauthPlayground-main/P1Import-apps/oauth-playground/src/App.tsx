@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import styled, { ThemeProvider } from 'styled-components';
-import { AuthProvider } from './contexts/AuthContext';
-import { GlobalStyle, theme } from './styles/global';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
-import Dashboard from './pages/Dashboard';
-import Flows from './pages/Flows';
-import Configuration from './pages/Configuration';
-import Documentation from './pages/Documentation';
-import Login from './pages/Login';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Callback from './pages/Callback';
-import { useAuth } from './contexts/AuthContext';
+import Configuration from './pages/Configuration';
+import Dashboard from './pages/Dashboard';
+import Documentation from './pages/Documentation';
+import Flows from './pages/Flows';
+import Login from './pages/Login';
+import { GlobalStyle, theme } from './styles/global';
 
 const AppContainer = styled.div`
   display: flex;
