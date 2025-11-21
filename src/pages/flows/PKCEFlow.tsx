@@ -389,14 +389,25 @@ const codeChallenge = await generateCodeChallenge(codeVerifier);
 			},
 		},
 		{
-		title: 'Build Authorization URL',
-		description: 'Include code challenge in the authorization request',
-		code: `// Authorization URL with PKCE parameters
-const authUrl = '${config?.authorizationEndpoint || (() => {
-	const regionDomains: Record<string, string> = { us: 'auth.pingone.com', eu: 'auth.pingone.eu', ap: 'auth.pingone.asia', ca: 'auth.pingone.ca', na: 'auth.pingone.com' };
-	const domain = regionDomains[config?.region || 'us'] || 'auth.pingone.com';
-	return `https://${domain}/${config?.environmentId || 'YOUR_ENV_ID'}/as/authorize`;
-})()}' +
+			title: 'Build Authorization URL',
+			description: 'Include code challenge in the authorization request',
+			code: `// Authorization URL with PKCE parameters
+const authUrl = '${
+				config?.authorizationEndpoint ||
+				(
+					() => {
+						const regionDomains: Record<string, string> = {
+							us: 'auth.pingone.com',
+							eu: 'auth.pingone.eu',
+							ap: 'auth.pingone.asia',
+							ca: 'auth.pingone.ca',
+							na: 'auth.pingone.com',
+						};
+						const domain = regionDomains[config?.region || 'us'] || 'auth.pingone.com';
+						return `https://${domain}/${config?.environmentId || 'YOUR_ENV_ID'}/as/authorize`;
+					}
+				)()
+			}' +
   new URLSearchParams({
     response_type: 'code',
     client_id: '${config?.clientId || 'your_client_id'}',
@@ -511,14 +522,25 @@ console.log('Authorization Code:', authorizationCode);`,
 			},
 		},
 		{
-		title: 'Exchange Code for Tokens (with PKCE)',
-		description: 'Send authorization code and code verifier to token endpoint',
-		code: `// POST to token endpoint with PKCE validation
-POST ${config?.tokenEndpoint || (() => {
-	const regionDomains: Record<string, string> = { us: 'auth.pingone.com', eu: 'auth.pingone.eu', ap: 'auth.pingone.asia', ca: 'auth.pingone.ca', na: 'auth.pingone.com' };
-	const domain = regionDomains[config?.region || 'us'] || 'auth.pingone.com';
-	return `https://${domain}/${config?.environmentId || 'YOUR_ENV_ID'}/as/token`;
-})()}
+			title: 'Exchange Code for Tokens (with PKCE)',
+			description: 'Send authorization code and code verifier to token endpoint',
+			code: `// POST to token endpoint with PKCE validation
+POST ${
+				config?.tokenEndpoint ||
+				(
+					() => {
+						const regionDomains: Record<string, string> = {
+							us: 'auth.pingone.com',
+							eu: 'auth.pingone.eu',
+							ap: 'auth.pingone.asia',
+							ca: 'auth.pingone.ca',
+							na: 'auth.pingone.com',
+						};
+						const domain = regionDomains[config?.region || 'us'] || 'auth.pingone.com';
+						return `https://${domain}/${config?.environmentId || 'YOUR_ENV_ID'}/as/token`;
+					}
+				)()
+			}
 Content-Type: application/x-www-form-urlencoded
 
 grant_type=authorization_code

@@ -43,7 +43,7 @@ class CredentialBackupService {
 
 			// Get existing backup data
 			const existingBackup = this.getCredentialBackup();
-			
+
 			// Add/update this flow's backup
 			existingBackup[flowKey] = backupConfig;
 
@@ -55,12 +55,12 @@ class CredentialBackupService {
 					// Simple timestamp-based sorting (could be improved)
 					return a[0].localeCompare(b[0]);
 				});
-				
+
 				const trimmedBackup: EnvBackupData = {};
 				sortedEntries.slice(-this.MAX_BACKUP_SIZE).forEach(([key, value]) => {
 					trimmedBackup[key] = value;
 				});
-				
+
 				localStorage.setItem(this.BACKUP_KEY, JSON.stringify(trimmedBackup));
 			} else {
 				localStorage.setItem(this.BACKUP_KEY, JSON.stringify(existingBackup));
@@ -71,7 +71,7 @@ class CredentialBackupService {
 				hasEnvironmentId: !!credentials.environmentId,
 				hasClientId: !!credentials.clientId,
 				hasRedirectUri: !!credentials.redirectUri,
-				scopes: credentials.scopes?.length || 0
+				scopes: credentials.scopes?.length || 0,
 			});
 		} catch (error) {
 			console.error('🔧 [CredentialBackup] Failed to save backup:', error);
@@ -112,7 +112,7 @@ class CredentialBackupService {
 			const backup = this.getCredentialBackup();
 			delete backup[flowKey];
 			localStorage.setItem(this.BACKUP_KEY, JSON.stringify(backup));
-			
+
 			console.log(`🔧 [CredentialBackup] Cleared backup for flow: ${flowKey}`);
 		} catch (error) {
 			console.error('🔧 [CredentialBackup] Failed to clear backup:', error);
@@ -137,35 +137,45 @@ class CredentialBackupService {
 	generateEnvFile(): string {
 		const backup = this.getCredentialBackup();
 		const envLines: string[] = [];
-		
+
 		envLines.push('# OAuth Playground Credential Backup');
 		envLines.push('# Generated automatically - contains non-sensitive configuration only');
 		envLines.push('# DO NOT include client secrets or worker tokens in this file');
 		envLines.push('');
-		
+
 		Object.entries(backup).forEach(([flowKey, config]) => {
 			envLines.push(`# ${flowKey} flow configuration`);
 			if (config.environmentId) {
-				envLines.push(`${flowKey.toUpperCase().replace(/-/g, '_')}_ENVIRONMENT_ID=${config.environmentId}`);
+				envLines.push(
+					`${flowKey.toUpperCase().replace(/-/g, '_')}_ENVIRONMENT_ID=${config.environmentId}`
+				);
 			}
 			if (config.clientId) {
 				envLines.push(`${flowKey.toUpperCase().replace(/-/g, '_')}_CLIENT_ID=${config.clientId}`);
 			}
 			if (config.redirectUri) {
-				envLines.push(`${flowKey.toUpperCase().replace(/-/g, '_')}_REDIRECT_URI=${config.redirectUri}`);
+				envLines.push(
+					`${flowKey.toUpperCase().replace(/-/g, '_')}_REDIRECT_URI=${config.redirectUri}`
+				);
 			}
 			if (config.postLogoutRedirectUri) {
-				envLines.push(`${flowKey.toUpperCase().replace(/-/g, '_')}_POST_LOGOUT_REDIRECT_URI=${config.postLogoutRedirectUri}`);
+				envLines.push(
+					`${flowKey.toUpperCase().replace(/-/g, '_')}_POST_LOGOUT_REDIRECT_URI=${config.postLogoutRedirectUri}`
+				);
 			}
 			if (config.scopes && config.scopes.length > 0) {
-				envLines.push(`${flowKey.toUpperCase().replace(/-/g, '_')}_SCOPES=${config.scopes.join(' ')}`);
+				envLines.push(
+					`${flowKey.toUpperCase().replace(/-/g, '_')}_SCOPES=${config.scopes.join(' ')}`
+				);
 			}
 			if (config.responseType) {
-				envLines.push(`${flowKey.toUpperCase().replace(/-/g, '_')}_RESPONSE_TYPE=${config.responseType}`);
+				envLines.push(
+					`${flowKey.toUpperCase().replace(/-/g, '_')}_RESPONSE_TYPE=${config.responseType}`
+				);
 			}
 			envLines.push('');
 		});
-		
+
 		return envLines.join('\n');
 	}
 
@@ -177,7 +187,7 @@ class CredentialBackupService {
 			const envContent = this.generateEnvFile();
 			const blob = new Blob([envContent], { type: 'text/plain' });
 			const url = URL.createObjectURL(blob);
-			
+
 			const link = document.createElement('a');
 			link.href = url;
 			link.download = 'oauth-playground-credentials.env';
@@ -185,7 +195,7 @@ class CredentialBackupService {
 			link.click();
 			document.body.removeChild(link);
 			URL.revokeObjectURL(url);
-			
+
 			console.log('🔧 [CredentialBackup] Downloaded .env file with credential backup');
 		} catch (error) {
 			console.error('🔧 [CredentialBackup] Failed to download .env file:', error);
@@ -202,17 +212,18 @@ class CredentialBackupService {
 		}
 
 		const restoredCredentials: Partial<StepCredentials> = {};
-		
+
 		if (backup.environmentId) restoredCredentials.environmentId = backup.environmentId;
 		if (backup.clientId) restoredCredentials.clientId = backup.clientId;
 		if (backup.redirectUri) restoredCredentials.redirectUri = backup.redirectUri;
-		if (backup.postLogoutRedirectUri) restoredCredentials.postLogoutRedirectUri = backup.postLogoutRedirectUri;
+		if (backup.postLogoutRedirectUri)
+			restoredCredentials.postLogoutRedirectUri = backup.postLogoutRedirectUri;
 		if (backup.scopes) restoredCredentials.scopes = backup.scopes;
 		if (backup.responseType) restoredCredentials.responseType = backup.responseType;
 
 		console.log(`🔧 [CredentialBackup] Restored credentials for flow: ${flowKey}`, {
 			flowKey,
-			restoredFields: Object.keys(restoredCredentials)
+			restoredFields: Object.keys(restoredCredentials),
 		});
 
 		return restoredCredentials;
@@ -230,7 +241,7 @@ class CredentialBackupService {
 		return {
 			totalFlows: Object.keys(backup).length,
 			flows: Object.keys(backup),
-			lastUpdated: new Date().toISOString()
+			lastUpdated: new Date().toISOString(),
 		};
 	}
 }

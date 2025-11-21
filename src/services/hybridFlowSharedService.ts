@@ -1,7 +1,7 @@
 // src/services/hybridFlowSharedService.ts
 /**
  * Hybrid Flow Shared Service - V6 Service Architecture
- * 
+ *
  * Provides shared functionality for OIDC Hybrid Flow V6
  * Follows the same patterns as AuthorizationCodeSharedService and ImplicitFlowSharedService
  */
@@ -159,7 +159,8 @@ export class HybridFlowDefaults {
 				requiresState: true,
 				supportsPKCE: true,
 				supportsRefreshToken: true,
-				description: 'Returns authorization code + ID token + access token immediately in URL fragment',
+				description:
+					'Returns authorization code + ID token + access token immediately in URL fragment',
 				benefits: [
 					'Immediate user identity verification and API access',
 					'Most comprehensive hybrid approach',
@@ -215,7 +216,9 @@ export class HybridFlowDefaults {
 	/**
 	 * Validate response type
 	 */
-	static validateResponseType(responseType: string): responseType is 'code id_token' | 'code token' | 'code id_token token' {
+	static validateResponseType(
+		responseType: string
+	): responseType is 'code id_token' | 'code token' | 'code id_token token' {
 		return ['code id_token', 'code token', 'code id_token token'].includes(responseType);
 	}
 
@@ -226,7 +229,8 @@ export class HybridFlowDefaults {
 		const descriptions: Record<HybridFlowVariant, string> = {
 			'code-id-token': 'Authorization Code + ID Token - Immediate user identity verification',
 			'code-token': 'Authorization Code + Access Token - Immediate API access',
-			'code-id-token-token': 'Authorization Code + ID Token + Access Token - Complete hybrid approach',
+			'code-id-token-token':
+				'Authorization Code + ID Token + Access Token - Complete hybrid approach',
 		};
 		return descriptions[responseType];
 	}
@@ -242,7 +246,7 @@ export class HybridFlowCredentialsSync {
 	static syncCredentials(variant: HybridFlowVariant, credentials: StepCredentials): void {
 		log.info(`Syncing credentials for ${variant} hybrid flow`, {
 			environmentId: credentials.environmentId,
-			clientId: credentials.clientId?.substring(0, 8) + '...',
+			clientId: `${credentials.clientId?.substring(0, 8)}...`,
 			responseType: credentials.responseType,
 			scope: credentials.scope,
 		});
@@ -375,7 +379,7 @@ export class HybridFlowCollapsibleSectionsManager {
 		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 	) {
 		return (key: string) => {
-			setCollapsedSections(prev => ({
+			setCollapsedSections((prev) => ({
 				...prev,
 				[key]: !prev[key],
 			}));
@@ -390,7 +394,7 @@ export class HybridFlowCollapsibleSectionsManager {
 		key: string,
 		setCollapsedSections: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
 	): void {
-		setCollapsedSections(prev => ({
+		setCollapsedSections((prev) => ({
 			...prev,
 			[key]: !prev[key],
 		}));
@@ -489,7 +493,8 @@ export class HybridFlowTokenProcessor {
 export const HybridFlowEducationalContent = {
 	overview: {
 		title: 'OIDC Hybrid Flow',
-		description: 'Combines the security of Authorization Code flow with the immediate token delivery of Implicit flow, providing both immediate authentication and secure token exchange capabilities.',
+		description:
+			'Combines the security of Authorization Code flow with the immediate token delivery of Implicit flow, providing both immediate authentication and secure token exchange capabilities.',
 		useCases: [
 			'Immediate user identity verification with ID tokens',
 			'Secure refresh token delivery via authorization code exchange',
@@ -554,7 +559,8 @@ export const HybridFlowEducationalContent = {
 			],
 		},
 		'code id_token token': {
-			description: 'Returns authorization code + ID token + access token immediately in the URL fragment',
+			description:
+				'Returns authorization code + ID token + access token immediately in the URL fragment',
 			benefits: [
 				'Immediate identity verification and API access',
 				'Secure refresh token delivery via authorization code exchange',
@@ -578,7 +584,8 @@ export const HybridFlowEducationalContent = {
 	flowSteps: {
 		step1: {
 			title: 'Configuration & Credentials',
-			description: 'Configure PingOne application with hybrid flow support and proper redirect URIs',
+			description:
+				'Configure PingOne application with hybrid flow support and proper redirect URIs',
 			requirements: [
 				'PingOne environment with OIDC support',
 				'Application configured for hybrid response types',
@@ -597,7 +604,8 @@ export const HybridFlowEducationalContent = {
 		},
 		step3: {
 			title: 'Authorization Request',
-			description: 'Generate PKCE parameters and build the authorization URL with hybrid response type',
+			description:
+				'Generate PKCE parameters and build the authorization URL with hybrid response type',
 			actions: [
 				'Generate PKCE code verifier and challenge',
 				'Build authorization URL with hybrid response type',

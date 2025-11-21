@@ -1,8 +1,8 @@
 // src/components/ResourceParameterInput.tsx
 // OAuth/OIDC Resource Parameter Input - RFC 8707 Resource Indicators
 import React, { useState } from 'react';
+import { FiInfo, FiMove, FiPlus, FiServer, FiTrash2 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiServer, FiInfo, FiPlus, FiTrash2, FiAlertTriangle, FiMove } from 'react-icons/fi';
 
 interface ResourceParameterInputProps {
 	value: string[];
@@ -162,18 +162,18 @@ const ExampleItem = styled.button<{ $isFromDiscovery?: boolean }>`
 	text-align: left;
 	padding: 0.5rem;
 	margin-bottom: 0.25rem;
-	background: ${props => props.$isFromDiscovery ? '#eff6ff' : '#ffffff'};
-	border: 1px solid ${props => props.$isFromDiscovery ? '#60a5fa' : '#c4b5fd'};
+	background: ${(props) => (props.$isFromDiscovery ? '#eff6ff' : '#ffffff')};
+	border: 1px solid ${(props) => (props.$isFromDiscovery ? '#60a5fa' : '#c4b5fd')};
 	border-radius: 0.375rem;
 	font-size: 0.75rem;
 	font-family: 'Monaco', 'Menlo', monospace;
-	color: ${props => props.$isFromDiscovery ? '#1e40af' : '#7c3aed'};
+	color: ${(props) => (props.$isFromDiscovery ? '#1e40af' : '#7c3aed')};
 	cursor: grab;
 	transition: all 0.2s;
 
 	&:hover {
-		background: ${props => props.$isFromDiscovery ? '#dbeafe' : '#faf5ff'};
-		border-color: ${props => props.$isFromDiscovery ? '#3b82f6' : '#7c3aed'};
+		background: ${(props) => (props.$isFromDiscovery ? '#dbeafe' : '#faf5ff')};
+		border-color: ${(props) => (props.$isFromDiscovery ? '#3b82f6' : '#7c3aed')};
 		transform: translateX(2px);
 	}
 
@@ -223,22 +223,22 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'warning' }>`
 	display: flex;
 	gap: 0.75rem;
 	padding: 1rem;
-	background: ${props => props.$variant === 'warning' ? '#fef3c7' : '#eff6ff'};
-	border: 1px solid ${props => props.$variant === 'warning' ? '#fbbf24' : '#bfdbfe'};
+	background: ${(props) => (props.$variant === 'warning' ? '#fef3c7' : '#eff6ff')};
+	border: 1px solid ${(props) => (props.$variant === 'warning' ? '#fbbf24' : '#bfdbfe')};
 	border-radius: 0.5rem;
 	margin-top: 1rem;
 	font-size: 0.875rem;
-	color: ${props => props.$variant === 'warning' ? '#78350f' : '#1e40af'};
+	color: ${(props) => (props.$variant === 'warning' ? '#78350f' : '#1e40af')};
 	line-height: 1.5;
 `;
 
 const InfoIcon = styled.div<{ $variant?: 'info' | 'warning' }>`
 	flex-shrink: 0;
 	font-size: 1.25rem;
-	color: ${props => props.$variant === 'warning' ? '#f59e0b' : '#3b82f6'};
+	color: ${(props) => (props.$variant === 'warning' ? '#f59e0b' : '#3b82f6')};
 `;
 
-const EmptyState = styled.div`
+const _EmptyState = styled.div`
 	text-align: center;
 	padding: 2rem 1rem;
 	color: #6b7280;
@@ -344,38 +344,38 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 	disabled = false,
 	flowType = 'oauth',
 	issuer,
-	environmentId
+	environmentId,
 }) => {
 	const [newResource, setNewResource] = useState('');
 
 	// Build examples list with OIDC/PingOne discovered endpoints at the top
 	const buildExamples = () => {
 		const examples: Array<{ value: string; isFromDiscovery?: boolean; label?: string }> = [];
-		
+
 		// Add issuer (PingOne base URL)
 		if (issuer) {
-			examples.push({ 
-				value: issuer, 
+			examples.push({
+				value: issuer,
 				isFromDiscovery: true,
-				label: 'Issuer/Base URL (from OIDC Discovery)'
+				label: 'Issuer/Base URL (from OIDC Discovery)',
 			});
 		}
-		
+
 		// If we have environmentId but no issuer, construct PingOne base URL
 		if (environmentId && !issuer) {
 			const pingOneBaseUrl = `https://auth.pingone.com/${environmentId}`;
 			examples.push({
 				value: pingOneBaseUrl,
 				isFromDiscovery: true,
-				label: 'PingOne Base URL'
+				label: 'PingOne Base URL',
 			});
 		}
-		
+
 		// Add default examples
-		defaultExamples.forEach(ex => {
+		defaultExamples.forEach((ex) => {
 			examples.push({ value: ex });
 		});
-		
+
 		return examples;
 	};
 
@@ -435,23 +435,27 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 				</EducationalTitle>
 				<EducationalContent>
 					<p>
-						<strong>What are Resources?</strong> In OAuth 2.0 and OIDC, a <code>resource</code> is a protected API or service 
-						that you want to access with your access token. Think of it as telling the authorization server: 
-						<em>"I need a token that will work with <strong>these specific APIs</strong>."</em>
+						<strong>What are Resources?</strong> In OAuth 2.0 and OIDC, a <code>resource</code> is a
+						protected API or service that you want to access with your access token. Think of it as
+						telling the authorization server:
+						<em>
+							"I need a token that will work with <strong>these specific APIs</strong>."
+						</em>
 					</p>
-					
+
 					<p>
-						<strong>Why specify resources?</strong> When you request a token, you can tell the authorization server 
-						exactly which APIs you plan to call. This makes your tokens more secure because they're scoped to only 
-						work with the APIs you actually need.
+						<strong>Why specify resources?</strong> When you request a token, you can tell the
+						authorization server exactly which APIs you plan to call. This makes your tokens more
+						secure because they're scoped to only work with the APIs you actually need.
 					</p>
 
 					<ExampleScenario>
 						<strong>Real-World Example:</strong>
 						<div>
-							You're building a mobile app that needs to access both a <code>billing API</code> and an <code>analytics API</code>. 
-							By specifying both as resources, you get a single token that works with both APIs. Without the resource 
-							parameter, the authorization server might issue a generic token, or the APIs might reject your token.
+							You're building a mobile app that needs to access both a <code>billing API</code> and
+							an <code>analytics API</code>. By specifying both as resources, you get a single token
+							that works with both APIs. Without the resource parameter, the authorization server
+							might issue a generic token, or the APIs might reject your token.
 						</div>
 					</ExampleScenario>
 
@@ -459,35 +463,55 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						<strong>When to use Resources (RFC 8707):</strong>
 					</p>
 					<UseCaseList>
-						<li><strong>Multiple APIs:</strong> Your app needs to call several different APIs with one token</li>
-						<li><strong>Microservices:</strong> Each service validates tokens and checks the audience claim</li>
-						<li><strong>API Gateway:</strong> You have an API gateway routing to multiple backend services</li>
-						<li><strong>Security:</strong> You want to limit token scope to only the APIs you actually use</li>
-						<li><strong>PingOne:</strong> Specify the PingOne issuer URL to scope tokens to your environment</li>
+						<li>
+							<strong>Multiple APIs:</strong> Your app needs to call several different APIs with one
+							token
+						</li>
+						<li>
+							<strong>Microservices:</strong> Each service validates tokens and checks the audience
+							claim
+						</li>
+						<li>
+							<strong>API Gateway:</strong> You have an API gateway routing to multiple backend
+							services
+						</li>
+						<li>
+							<strong>Security:</strong> You want to limit token scope to only the APIs you actually
+							use
+						</li>
+						<li>
+							<strong>PingOne:</strong> Specify the PingOne issuer URL to scope tokens to your
+							environment
+						</li>
 					</UseCaseList>
 
-					<p style={{ marginTop: '1rem', fontSize: '0.875rem', fontStyle: 'italic', color: '#0369a1' }}>
-						💡 <strong>Tip:</strong> If you're unsure, use the PingOne base URL (shown in blue below) as your resource. 
-						This tells the authorization server to issue a token for your specific PingOne environment.
+					<p
+						style={{
+							marginTop: '1rem',
+							fontSize: '0.875rem',
+							fontStyle: 'italic',
+							color: '#0369a1',
+						}}
+					>
+						💡 <strong>Tip:</strong> If you're unsure, use the PingOne base URL (shown in blue
+						below) as your resource. This tells the authorization server to issue a token for your
+						specific PingOne environment.
 					</p>
 				</EducationalContent>
 			</EducationalHeader>
 
 			<Label>
-				<LabelIcon><FiServer /></LabelIcon>
+				<LabelIcon>
+					<FiServer />
+				</LabelIcon>
 				Add Resources (Optional)
 			</Label>
-			
+
 			<ResourceList>
-				{value.length > 0 && (
+				{value.length > 0 &&
 					value.map((resource, index) => (
 						<ResourceItem key={`${resource}-${index}`}>
-							<ResourceInput
-								type="text"
-								value={resource}
-								readOnly
-								disabled={disabled}
-							/>
+							<ResourceInput type="text" value={resource} readOnly disabled={disabled} />
 							<RemoveButton
 								type="button"
 								onClick={() => removeResource(index)}
@@ -497,17 +521,16 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 								<FiTrash2 size={16} />
 							</RemoveButton>
 						</ResourceItem>
-					))
-				)}
-				
+					))}
+
 				<InfoBox style={{ fontSize: '0.8125rem', marginTop: value.length > 0 ? '0.75rem' : '0' }}>
 					<FiInfo size={16} />
 					<div>
-						<strong>Type or drag:</strong> Enter a resource URI below, or drag an example from the list. 
-						Press Enter or click "Add Resource" to add it to the list.
+						<strong>Type or drag:</strong> Enter a resource URI below, or drag an example from the
+						list. Press Enter or click "Add Resource" to add it to the list.
 					</div>
 				</InfoBox>
-				
+
 				<input
 					type="text"
 					value={newResource}
@@ -538,7 +561,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						e.target.style.boxShadow = 'none';
 					}}
 				/>
-				
+
 				<AddButton
 					type="button"
 					onClick={addResource}
@@ -571,9 +594,7 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 						title={example.label || `Click or drag to add: ${example.value}`}
 					>
 						<ExampleText>{example.value}</ExampleText>
-						{example.isFromDiscovery && (
-							<DiscoveryBadge>OIDC</DiscoveryBadge>
-						)}
+						{example.isFromDiscovery && <DiscoveryBadge>OIDC</DiscoveryBadge>}
 						<DragIcon>
 							<FiMove />
 						</DragIcon>
@@ -583,14 +604,19 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 
 			{value.length > 0 && (
 				<InfoBox>
-					<InfoIcon><FiInfo /></InfoIcon>
+					<InfoIcon>
+						<FiInfo />
+					</InfoIcon>
 					<div>
-						<strong>You've added {value.length} resource{value.length > 1 ? 's' : ''}!</strong>
+						<strong>
+							You've added {value.length} resource{value.length > 1 ? 's' : ''}!
+						</strong>
 						<div style={{ marginTop: '0.5rem', fontSize: '0.875rem' }}>
-							Your access token will be scoped to work with {value.length > 1 ? 'these APIs' : 'this API'}. 
-							The authorization server will include {value.length > 1 ? 'these URLs' : 'this URL'} in the 
-							token's audience (<code>aud</code>) claim, and the {value.length > 1 ? 'APIs' : 'API'} will 
-							validate this before accepting your token.
+							Your access token will be scoped to work with{' '}
+							{value.length > 1 ? 'these APIs' : 'this API'}. The authorization server will include{' '}
+							{value.length > 1 ? 'these URLs' : 'this URL'} in the token's audience (
+							<code>aud</code>) claim, and the {value.length > 1 ? 'APIs' : 'API'} will validate
+							this before accepting your token.
 						</div>
 					</div>
 				</InfoBox>
@@ -598,10 +624,13 @@ export const ResourceParameterInput: React.FC<ResourceParameterInputProps> = ({
 
 			{value.length === 0 && (issuer || environmentId) && (
 				<InfoBox>
-					<InfoIcon><FiInfo /></InfoIcon>
+					<InfoIcon>
+						<FiInfo />
+					</InfoIcon>
 					<div>
-						<strong>Optional but Recommended:</strong> Resources are optional, but specifying them makes 
-						your tokens more secure. Try adding the blue PingOne base URL above to scope your token to your environment!
+						<strong>Optional but Recommended:</strong> Resources are optional, but specifying them
+						makes your tokens more secure. Try adding the blue PingOne base URL above to scope your
+						token to your environment!
 					</div>
 				</InfoBox>
 			)}

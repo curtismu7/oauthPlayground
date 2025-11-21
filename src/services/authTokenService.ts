@@ -143,8 +143,3 @@ export const getStoredUser = (): UserInfo | null => {
 		return null;
 	}
 };
-
-
-
-
-

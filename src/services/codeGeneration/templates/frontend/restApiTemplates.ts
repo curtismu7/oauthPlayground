@@ -4,8 +4,8 @@
  */
 
 export class RestApiFetchTemplates {
-  static authorization(config: any): string {
-    return `// REST API (Fetch) - Authorization Flow
+	static authorization(config: any): string {
+		return `// REST API (Fetch) - Authorization Flow
 /**
  * OAuth 2.0 Authorization Code Flow with PKCE
  * Using native Fetch API
@@ -68,10 +68,10 @@ async function startAuthorization() {
 }
 
 startAuthorization();`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// REST API (Fetch) - Worker Token
+	static workerToken(config: any): string {
+		return `// REST API (Fetch) - Worker Token
 /**
  * Get worker token using client credentials
  * WARNING: This should be done on backend, not frontend!
@@ -118,10 +118,10 @@ async function getWorkerToken() {
 }
 
 getWorkerToken();`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// REST API (Fetch) - Device Selection
+	static deviceSelection(config: any): string {
+		return `// REST API (Fetch) - Device Selection
 /**
  * List MFA devices for a user
  */
@@ -168,10 +168,10 @@ async function listMfaDevices() {
 }
 
 listMfaDevices();`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// REST API (Fetch) - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// REST API (Fetch) - MFA Challenge
 /**
  * Send MFA challenge to device
  */
@@ -214,10 +214,10 @@ async function sendMfaChallenge() {
 }
 
 sendMfaChallenge();`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// REST API (Fetch) - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// REST API (Fetch) - MFA Verification
 /**
  * Verify MFA code
  */
@@ -268,10 +268,10 @@ async function verifyMfaCode() {
 }
 
 verifyMfaCode();`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// REST API (Fetch) - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// REST API (Fetch) - Device Registration
 /**
  * Register new MFA device
  */
@@ -330,12 +330,12 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
 
 // Example: Register SMS device
 registerDevice('SMS', { phone: '+1234567890', name: 'My Phone' });`;
-  }
+	}
 }
 
 export class RestApiAxiosTemplates {
-  static authorization(config: any): string {
-    return `// REST API (Axios) - Authorization Flow
+	static authorization(config: any): string {
+		return `// REST API (Axios) - Authorization Flow
 import axios from 'axios';
 
 /**
@@ -403,10 +403,10 @@ async function startAuthorization() {
 }
 
 startAuthorization();`;
-  }
+	}
 
-  static workerToken(config: any): string {
-    return `// REST API (Axios) - Worker Token
+	static workerToken(config: any): string {
+		return `// REST API (Axios) - Worker Token
 import axios from 'axios';
 
 /**
@@ -452,10 +452,10 @@ async function getWorkerToken() {
 }
 
 getWorkerToken();`;
-  }
+	}
 
-  static deviceSelection(config: any): string {
-    return `// REST API (Axios) - Device Selection
+	static deviceSelection(config: any): string {
+		return `// REST API (Axios) - Device Selection
 import axios from 'axios';
 
 /**
@@ -501,10 +501,10 @@ async function listMfaDevices() {
 }
 
 listMfaDevices();`;
-  }
+	}
 
-  static mfaChallenge(config: any): string {
-    return `// REST API (Axios) - MFA Challenge
+	static mfaChallenge(config: any): string {
+		return `// REST API (Axios) - MFA Challenge
 import axios from 'axios';
 
 /**
@@ -547,10 +547,10 @@ async function sendMfaChallenge() {
 }
 
 sendMfaChallenge();`;
-  }
+	}
 
-  static mfaVerification(config: any): string {
-    return `// REST API (Axios) - MFA Verification
+	static mfaVerification(config: any): string {
+		return `// REST API (Axios) - MFA Verification
 import axios from 'axios';
 
 /**
@@ -600,10 +600,10 @@ async function verifyMfaCode() {
 }
 
 verifyMfaCode();`;
-  }
+	}
 
-  static deviceRegistration(config: any): string {
-    return `// REST API (Axios) - Device Registration
+	static deviceRegistration(config: any): string {
+		return `// REST API (Axios) - Device Registration
 import axios from 'axios';
 
 /**
@@ -661,5 +661,5 @@ async function registerDevice(type: 'SMS' | 'EMAIL' | 'TOTP', details: any) {
 
 // Example: Register SMS device
 registerDevice('SMS', { phone: '+1234567890', name: 'My Phone' });`;
-  }
+	}
 }

@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { StepCredentials } from '../components/steps/CommonSteps';
 import { FlowCredentialService } from '../services/flowCredentialService';
-import type { SAMLApplicationConfig } from '../services/samlService';
-import { pingOneSamlService } from '../services/pingoneSamlService';
 import type { PingOneAdminCredentials, PingOneSamlApp } from '../services/pingoneSamlService';
+import { pingOneSamlService } from '../services/pingoneSamlService';
+import type { SAMLApplicationConfig } from '../services/samlService';
 
 const FLOW_KEY = 'saml-sp-dynamic-acs';
 
@@ -149,7 +149,12 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 				}
 
 				const adminCredentials = adminData.credentials as StepCredentials | null;
-				if (adminCredentials && (adminCredentials.environmentId || adminCredentials.clientId || adminCredentials.clientSecret)) {
+				if (
+					adminCredentials &&
+					(adminCredentials.environmentId ||
+						adminCredentials.clientId ||
+						adminCredentials.clientSecret)
+				) {
 					setPingOneAdminState({
 						environmentId: adminCredentials.environmentId ?? '',
 						clientId: adminCredentials.clientId ?? '',
@@ -218,10 +223,13 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 		[config]
 	);
 
-	const credentials = useMemo(() => buildSamlPlaceholderCredentials(normalizeConfig(config)), [config]);
+	const credentials = useMemo(
+		() => buildSamlPlaceholderCredentials(normalizeConfig(config)),
+		[config]
+	);
 
 	const setPingOneAdmin = useCallback((updates: Partial<PingOneAdminCredentials>) => {
-		setPingOneAdminState(prev => {
+		setPingOneAdminState((prev) => {
 			const next: PingOneAdminCredentials = {
 				environmentId: updates.environmentId ?? prev?.environmentId ?? '',
 				clientId: updates.clientId ?? prev?.clientId ?? '',
@@ -249,7 +257,13 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 			};
 
 			try {
-				await FlowCredentialService.saveFlowCredentials('pingone-admin', stepCredentials, undefined, { flowVariant: 'pingone-admin' }, options ?? { showToast: true });
+				await FlowCredentialService.saveFlowCredentials(
+					'pingone-admin',
+					stepCredentials,
+					undefined,
+					{ flowVariant: 'pingone-admin' },
+					options ?? { showToast: true }
+				);
 				return true;
 			} catch (error) {
 				console.error('[useSamlSpFlowController] Failed to save PingOne admin credentials', error);
@@ -260,7 +274,15 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 	);
 
 	const syncDynamicAcsWithPingOne = useCallback(
-		async ({ applicationId, allowOverride, signingCertificate }: { applicationId: string; allowOverride: boolean; signingCertificate?: string }) => {
+		async ({
+			applicationId,
+			allowOverride,
+			signingCertificate,
+		}: {
+			applicationId: string;
+			allowOverride: boolean;
+			signingCertificate?: string;
+		}) => {
 			if (!pingOneAdmin) {
 				console.warn('[useSamlSpFlowController] Missing PingOne admin credentials');
 				return null;
@@ -274,7 +296,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 					signingCertificate,
 				});
 				if (updatedApp?.assertionConsumerService) {
-					setConfig(prev => {
+					setConfig((prev) => {
 						const next = normalizeConfig({
 							...prev,
 							pingOneApplicationId: applicationId,
@@ -304,7 +326,7 @@ export const useSamlSpFlowController = (): SamlSpFlowController => {
 			try {
 				const app = await pingOneSamlService.fetchApplication(pingOneAdmin, applicationId);
 				if (app?.assertionConsumerService) {
-					setConfig(prev => {
+					setConfig((prev) => {
 						const next = normalizeConfig({
 							...prev,
 							pingOneApplicationId: applicationId,

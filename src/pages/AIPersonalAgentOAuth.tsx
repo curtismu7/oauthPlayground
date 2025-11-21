@@ -1,4 +1,10 @@
-import { FiAlertTriangle, FiArrowRight, FiExternalLink, FiLayers, FiTrendingUp } from 'react-icons/fi';
+import {
+	FiAlertTriangle,
+	FiArrowRight,
+	FiExternalLink,
+	FiLayers,
+	FiTrendingUp,
+} from 'react-icons/fi';
 import styled from 'styled-components';
 import { CollapsibleHeader } from '../services/collapsibleHeaderService';
 import PageLayoutService from '../services/pageLayoutService';
@@ -150,7 +156,11 @@ const AIPersonalAgentOAuth = () => {
 					<IntroCard>
 						<IntroTitle>Evolving MCP Authorization for Agentic Clients</IntroTitle>
 						<IntroLead>
-							The Model Context Protocol adopted OAuth 2.1 for agent authorization, but real-world deployments show that traditional Dynamic Client Registration breaks down when personal or ephemeral agents appear without warning. New proposals streamline how an assistant proves its identity, publishes policy, and exchanges assertions on behalf of users.
+							The Model Context Protocol adopted OAuth 2.1 for agent authorization, but real-world
+							deployments show that traditional Dynamic Client Registration breaks down when
+							personal or ephemeral agents appear without warning. New proposals streamline how an
+							assistant proves its identity, publishes policy, and exchanges assertions on behalf of
+							users.
 						</IntroLead>
 						<LinkGroup>
 							<ExternalLink
@@ -195,7 +205,12 @@ const AIPersonalAgentOAuth = () => {
 						defaultCollapsed={false}
 					>
 						<SectionText>
-							The MCP blog highlights two blockers with classic Dynamic Client Registration (DCR). First, relying on a shared out-of-band onboarding ceremony fails because client and server operators frequently meet for the first time when a user connects their personal assistant. Second, registration endpoints in the wild still require human approval or duplicated metadata, delaying the conversational experience that agents promise.
+							The MCP blog highlights two blockers with classic Dynamic Client Registration (DCR).
+							First, relying on a shared out-of-band onboarding ceremony fails because client and
+							server operators frequently meet for the first time when a user connects their
+							personal assistant. Second, registration endpoints in the wild still require human
+							approval or duplicated metadata, delaying the conversational experience that agents
+							promise.
 						</SectionText>
 						<Callout $tone="warning">
 							<CalloutTitle>
@@ -205,94 +220,130 @@ const AIPersonalAgentOAuth = () => {
 							<HighlightList>
 								<li>Ad-hoc agents spawn per task, so pre-registration cannot scale.</li>
 								<li>Manual vetting stalls conversation setup, breaking user expectations.</li>
-								<li>Relying parties still need cryptographic assurance about the assistant they are authorizing.</li>
+								<li>
+									Relying parties still need cryptographic assurance about the assistant they are
+									authorizing.
+								</li>
 							</HighlightList>
 						</Callout>
 					</CollapsibleHeader>
 
-						<CollapsibleHeader
-							title="Self-Describing Clients via Metadata Documents"
-							subtitle="Using a client_id URL to bootstrap trust without pre-registration"
-							icon={<FiLayers />}
-							defaultCollapsed={false}
-						>
-							<SectionText>
-								The draft OAuth Client ID Metadata Document introduces a pragmatic bridge. Instead of minting a UUID, the personal agent presents a URL as its client_id. The authorization server dereferences that URL, retrieves a signed metadata document, and learns everything it needs to treat the agent as a first-class OAuth client.
-							</SectionText>
-							<HighlightList>
-								<li>Enables self-asserted registration while retaining policy controls per authorization server.</li>
-								<li>Document fields align with existing DCR metadata, so servers can reuse validation logic.</li>
-								<li>Supports rotation by pointing to updated policy or signing keys without breaking the client_id.</li>
-							</HighlightList>
-							<SectionText>
-								For MCP ecosystems this means a digital assistant can ship its metadata endpoint once. Any compatible server can fetch analytics, supported scopes, or custom privacy disclosures before issuing tokens.
-							</SectionText>
-						</CollapsibleHeader>
+					<CollapsibleHeader
+						title="Self-Describing Clients via Metadata Documents"
+						subtitle="Using a client_id URL to bootstrap trust without pre-registration"
+						icon={<FiLayers />}
+						defaultCollapsed={false}
+					>
+						<SectionText>
+							The draft OAuth Client ID Metadata Document introduces a pragmatic bridge. Instead of
+							minting a UUID, the personal agent presents a URL as its client_id. The authorization
+							server dereferences that URL, retrieves a signed metadata document, and learns
+							everything it needs to treat the agent as a first-class OAuth client.
+						</SectionText>
+						<HighlightList>
+							<li>
+								Enables self-asserted registration while retaining policy controls per authorization
+								server.
+							</li>
+							<li>
+								Document fields align with existing DCR metadata, so servers can reuse validation
+								logic.
+							</li>
+							<li>
+								Supports rotation by pointing to updated policy or signing keys without breaking the
+								client_id.
+							</li>
+						</HighlightList>
+						<SectionText>
+							For MCP ecosystems this means a digital assistant can ship its metadata endpoint once.
+							Any compatible server can fetch analytics, supported scopes, or custom privacy
+							disclosures before issuing tokens.
+						</SectionText>
+					</CollapsibleHeader>
 
-						<CollapsibleHeader
-							title="Identity Assertions Build End-to-End Trust"
-							subtitle="Moving beyond registration into delegated identity guarantees"
-							icon={<FiTrendingUp />}
-							defaultCollapsed={false}
-						>
-							<SectionText>
-								Registration alone does not grant the assistant permission to wield user data. The Identity Assertion Authorization Grant couples the metadata document with a verifiable assertion that the assistant can act for a user in a given context. It layers on top of Token Exchange (RFC 8693) and the JWT Profile for OAuth 2.0 Authorization Grants (RFC 7523), reusing well understood token formats.
-							</SectionText>
-							<RoadmapGrid>
-								<RoadmapCard>
-									<CardTitle>
-										<FiArrowRight />
-										Identity Assertion Authorization Grant
-									</CardTitle>
-									<CardBody>
-										<SectionText>
-											The draft specification lets a relying party accept a signed assertion from an enterprise or platform identity provider, then exchange it for an access token targeted at a third-party API. This aligns with MCP multi-tenant scenarios where the assistant mediates between users and specialized tools.
-										</SectionText>
-										<ExternalLink
-											href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											Draft overview
-											<FiExternalLink size={16} />
-										</ExternalLink>
-									</CardBody>
-								</RoadmapCard>
-								<RoadmapCard>
-									<CardTitle>
-										<FiArrowRight />
-										Identity Chaining for Assistants
-									</CardTitle>
-									<CardBody>
-										<SectionText>
-											The Identity Chaining draft defines how multiple identity providers can collaborate so that downstream APIs understand the full delegation path. It builds directly on the identity assertion draft, enabling assistants to present layered claims about enterprises, agents, and end users.
-										</SectionText>
-										<ExternalLink
-											href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/"
-											target="_blank"
-											rel="noopener noreferrer"
-										>
-											Draft overview
-											<FiExternalLink size={16} />
-										</ExternalLink>
-									</CardBody>
-								</RoadmapCard>
-							</RoadmapGrid>
-						</CollapsibleHeader>
+					<CollapsibleHeader
+						title="Identity Assertions Build End-to-End Trust"
+						subtitle="Moving beyond registration into delegated identity guarantees"
+						icon={<FiTrendingUp />}
+						defaultCollapsed={false}
+					>
+						<SectionText>
+							Registration alone does not grant the assistant permission to wield user data. The
+							Identity Assertion Authorization Grant couples the metadata document with a verifiable
+							assertion that the assistant can act for a user in a given context. It layers on top
+							of Token Exchange (RFC 8693) and the JWT Profile for OAuth 2.0 Authorization Grants
+							(RFC 7523), reusing well understood token formats.
+						</SectionText>
+						<RoadmapGrid>
+							<RoadmapCard>
+								<CardTitle>
+									<FiArrowRight />
+									Identity Assertion Authorization Grant
+								</CardTitle>
+								<CardBody>
+									<SectionText>
+										The draft specification lets a relying party accept a signed assertion from an
+										enterprise or platform identity provider, then exchange it for an access token
+										targeted at a third-party API. This aligns with MCP multi-tenant scenarios where
+										the assistant mediates between users and specialized tools.
+									</SectionText>
+									<ExternalLink
+										href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-assertion-authz-grant/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Draft overview
+										<FiExternalLink size={16} />
+									</ExternalLink>
+								</CardBody>
+							</RoadmapCard>
+							<RoadmapCard>
+								<CardTitle>
+									<FiArrowRight />
+									Identity Chaining for Assistants
+								</CardTitle>
+								<CardBody>
+									<SectionText>
+										The Identity Chaining draft defines how multiple identity providers can
+										collaborate so that downstream APIs understand the full delegation path. It
+										builds directly on the identity assertion draft, enabling assistants to present
+										layered claims about enterprises, agents, and end users.
+									</SectionText>
+									<ExternalLink
+										href="https://datatracker.ietf.org/doc/draft-ietf-oauth-identity-chaining/"
+										target="_blank"
+										rel="noopener noreferrer"
+									>
+										Draft overview
+										<FiExternalLink size={16} />
+									</ExternalLink>
+								</CardBody>
+							</RoadmapCard>
+						</RoadmapGrid>
+					</CollapsibleHeader>
 
-						<CollapsibleHeader
-							title="Implementation Checklist for MCP Integrators"
-							subtitle="Practical steps to get from experimentation to production"
-							icon={<FiArrowRight />}
-							defaultCollapsed={false}
-						>
-							<StepList>
-								<li>Adopt metadata documents for agent registration so servers can evaluate policy before issuing credentials.</li>
-								<li>Leverage token exchange capabilities already shipping with MCP to wire assertions into downstream APIs.</li>
-								<li>Plan for identity chaining so enterprise controls and user consent flow through every resource boundary.</li>
-							</StepList>
-						</CollapsibleHeader>
-					</Content>
+					<CollapsibleHeader
+						title="Implementation Checklist for MCP Integrators"
+						subtitle="Practical steps to get from experimentation to production"
+						icon={<FiArrowRight />}
+						defaultCollapsed={false}
+					>
+						<StepList>
+							<li>
+								Adopt metadata documents for agent registration so servers can evaluate policy
+								before issuing credentials.
+							</li>
+							<li>
+								Leverage token exchange capabilities already shipping with MCP to wire assertions
+								into downstream APIs.
+							</li>
+							<li>
+								Plan for identity chaining so enterprise controls and user consent flow through
+								every resource boundary.
+							</li>
+						</StepList>
+					</CollapsibleHeader>
+				</Content>
 			</ContentWrapper>
 		</PageContainer>
 	);

@@ -10,8 +10,14 @@ export const FLOW_TYPE = 'redirectless';
 export const STEP_CONFIGS = [
 	{ title: 'Step 1: Introduction & Setup', subtitle: 'Understand Redirectless Flow (pi.flow)' },
 	{ title: 'Step 2: PKCE Generation', subtitle: 'Generate secure code verifier and challenge' },
-	{ title: 'Step 3: Authorization Request', subtitle: 'POST to /authorize with response_mode=pi.flow' },
-	{ title: 'Step 4: Token Response & Management', subtitle: 'Handle flow interaction and received tokens' },
+	{
+		title: 'Step 3: Authorization Request',
+		subtitle: 'POST to /authorize with response_mode=pi.flow',
+	},
+	{
+		title: 'Step 4: Token Response & Management',
+		subtitle: 'Handle flow interaction and received tokens',
+	},
 	{ title: 'Step 5: Flow Complete', subtitle: 'Summary and next steps for redirectless flow' },
 ];
 
@@ -70,8 +76,10 @@ export const DEFAULT_APP_CONFIG: PingOneApplicationState = {
 export const PIFLOW_EDUCATION = {
 	overview: {
 		title: 'What is response_mode=pi.flow (Redirectless Flow)?',
-		description: 'response_mode=pi.flow is a PingOne-specific response mode that enables redirectless authorization flows. Instead of browser redirects, the client app interacts directly via API - ideal for embedded, mobile, or desktop experiences.',
-		keyPoint: 'This is a PingOne proprietary extension to OAuth 2.0/OIDC, not part of the standard specifications.',
+		description:
+			'response_mode=pi.flow is a PingOne-specific response mode that enables redirectless authorization flows. Instead of browser redirects, the client app interacts directly via API - ideal for embedded, mobile, or desktop experiences.',
+		keyPoint:
+			'This is a PingOne proprietary extension to OAuth 2.0/OIDC, not part of the standard specifications.',
 	},
 	howItWorks: {
 		steps: [
@@ -108,4 +116,3 @@ export const PIFLOW_EDUCATION = {
 		'PingOne Redirectless Authentication (pi.flow)',
 	],
 };
-

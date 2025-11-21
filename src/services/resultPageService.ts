@@ -134,4 +134,3 @@ class ResultPageService {
 const resultPageService = new ResultPageService();
 
 export default resultPageService;
-

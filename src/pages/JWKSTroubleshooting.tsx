@@ -9,8 +9,8 @@ import {
 	FiPlay,
 } from 'react-icons/fi';
 import styled from 'styled-components';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowHeader } from '../services/flowHeaderService';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 const Container = styled.div`
   max-width: 1200px;
@@ -20,7 +20,7 @@ const Container = styled.div`
   min-height: 100vh;
 `;
 
-const Header = styled.div`
+const _Header = styled.div`
   background: white;
   border-radius: 1rem;
   padding: 2rem;
@@ -28,7 +28,7 @@ const Header = styled.div`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 `;
 
-const Title = styled.h1`
+const _Title = styled.h1`
   color: #2d3748;
   font-size: 2.5rem;
   font-weight: 700;
@@ -38,7 +38,7 @@ const Title = styled.h1`
   gap: 1rem;
 `;
 
-const Subtitle = styled.p`
+const _Subtitle = styled.p`
   color: #4a5568;
   font-size: 1.2rem;
   line-height: 1.6;

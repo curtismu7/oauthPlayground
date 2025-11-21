@@ -1,18 +1,29 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import {
+	FiAlertCircle,
+	FiCheck,
+	FiChevronDown,
+	FiCopy,
+	FiGlobe,
+	FiInfo,
+	FiLoader,
+	FiRefreshCw,
+	FiSave,
+	FiSearch,
+} from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiGlobe, FiCheck, FiAlertCircle, FiLoader, FiCopy, FiSearch, FiInfo, FiSave, FiRefreshCw, FiChevronDown } from 'react-icons/fi';
-import { oidcDiscoveryService, type DiscoveryResult } from '../services/oidcDiscoveryService';
+import { type DiscoveryResult, oidcDiscoveryService } from '../services/oidcDiscoveryService';
 
 interface EnvironmentIdInputProps {
-  onDiscoveryComplete?: (result: DiscoveryResult) => void;
-  onEnvironmentIdChange?: (envId: string) => void;
-  onIssuerUrlChange?: (issuerUrl: string) => void;
-  initialEnvironmentId?: string;
-  className?: string;
-  disabled?: boolean;
-  showSuggestions?: boolean;
-  autoDiscover?: boolean;
-  region?: 'us' | 'eu' | 'ap' | 'ca';
+	onDiscoveryComplete?: (result: DiscoveryResult) => void;
+	onEnvironmentIdChange?: (envId: string) => void;
+	onIssuerUrlChange?: (issuerUrl: string) => void;
+	initialEnvironmentId?: string;
+	className?: string;
+	disabled?: boolean;
+	showSuggestions?: boolean;
+	autoDiscover?: boolean;
+	region?: 'us' | 'eu' | 'ap' | 'ca';
 }
 
 const Container = styled.div`
@@ -83,15 +94,12 @@ const RegionSelector = styled.select`
 `;
 
 const Input = styled.input.withConfig({
-  shouldForwardProp: (prop) => !['hasError', 'hasSuccess'].includes(prop),
+	shouldForwardProp: (prop) => !['hasError', 'hasSuccess'].includes(prop),
 })<{ hasError?: boolean; hasSuccess?: boolean }>`
   flex: 1;
   padding: 0.75rem;
-  border: 1px solid ${props => 
-    props.hasError ? '#ef4444' : 
-    props.hasSuccess ? '#10b981' : 
-    '#d1d5db'
-  };
+  border: 1px solid ${(props) =>
+		props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#d1d5db'};
   border-radius: 0 6px 6px 0;
   font-size: 0.875rem;
   background: #ffffff;
@@ -101,16 +109,14 @@ const Input = styled.input.withConfig({
 
   &:focus {
     outline: none;
-    border-color: ${props => 
-      props.hasError ? '#ef4444' : 
-      props.hasSuccess ? '#10b981' : 
-      '#3b82f6'
-    };
-    box-shadow: 0 0 0 3px ${props => 
-      props.hasError ? 'rgba(239, 68, 68, 0.1)' : 
-      props.hasSuccess ? 'rgba(16, 185, 129, 0.1)' : 
-      'rgba(59, 130, 246, 0.1)'
-    };
+    border-color: ${(props) =>
+			props.hasError ? '#ef4444' : props.hasSuccess ? '#10b981' : '#3b82f6'};
+    box-shadow: 0 0 0 3px ${(props) =>
+			props.hasError
+				? 'rgba(239, 68, 68, 0.1)'
+				: props.hasSuccess
+					? 'rgba(16, 185, 129, 0.1)'
+					: 'rgba(59, 130, 246, 0.1)'};
   }
 
   &:disabled {
@@ -121,16 +127,16 @@ const Input = styled.input.withConfig({
 `;
 
 const DiscoverButton = styled.button.withConfig({
-  shouldForwardProp: (prop) => !['isLoading'].includes(prop),
+	shouldForwardProp: (prop) => !['isLoading'].includes(prop),
 })<{ isLoading?: boolean }>`
   position: absolute;
   right: 0.5rem;
   padding: 0.5rem;
-  background: ${props => props.isLoading ? '#f3f4f6' : '#10b981'};
-  color: ${props => props.isLoading ? '#6b7280' : 'white'};
-  border: 1px solid ${props => props.isLoading ? '#d1d5db' : '#059669'};
+  background: ${(props) => (props.isLoading ? '#f3f4f6' : '#10b981')};
+  color: ${(props) => (props.isLoading ? '#6b7280' : 'white')};
+  border: 1px solid ${(props) => (props.isLoading ? '#d1d5db' : '#059669')};
   border-radius: 0.375rem;
-  cursor: ${props => props.isLoading ? 'not-allowed' : 'pointer'};
+  cursor: ${(props) => (props.isLoading ? 'not-allowed' : 'pointer')};
   display: flex;
   align-items: center;
   justify-content: center;
@@ -156,9 +162,9 @@ const DiscoverButton = styled.button.withConfig({
 
 const SaveButton = styled.button<{ $isSaved?: boolean }>`
   padding: 0.5rem 1rem;
-  background: ${props => props.$isSaved ? '#059669' : '#10b981'};
+  background: ${(props) => (props.$isSaved ? '#059669' : '#10b981')};
   color: white;
-  border: 1px solid ${props => props.$isSaved ? '#047857' : '#059669'};
+  border: 1px solid ${(props) => (props.$isSaved ? '#047857' : '#059669')};
   border-radius: 0.375rem;
   cursor: pointer;
   display: flex;
@@ -170,7 +176,7 @@ const SaveButton = styled.button<{ $isSaved?: boolean }>`
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
 
   &:hover {
-    background: ${props => props.$isSaved ? '#059669' : '#2563eb'};
+    background: ${(props) => (props.$isSaved ? '#059669' : '#2563eb')};
     transform: translateY(-1px);
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   }
@@ -265,33 +271,48 @@ const StatusContainer = styled.div<{ type: 'success' | 'error' | 'info' | 'loadi
   gap: 0.5rem;
   padding: 0.75rem;
   border-radius: 6px;
-  background: ${props => {
-    switch (props.type) {
-      case 'success': return '#f0fdf4';
-      case 'error': return '#fef2f2';
-      case 'info': return '#eff6ff';
-      case 'loading': return '#f8fafc';
-      default: return '#f8fafc';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.type) {
-      case 'success': return '#bbf7d0';
-      case 'error': return '#fecaca';
-      case 'info': return '#bfdbfe';
-      case 'loading': return '#e2e8f0';
-      default: return '#e2e8f0';
-    }
-  }};
-  color: ${props => {
-    switch (props.type) {
-      case 'success': return '#166534';
-      case 'error': return '#dc2626';
-      case 'info': return '#1d4ed8';
-      case 'loading': return '#475569';
-      default: return '#475569';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return '#f0fdf4';
+			case 'error':
+				return '#fef2f2';
+			case 'info':
+				return '#eff6ff';
+			case 'loading':
+				return '#f8fafc';
+			default:
+				return '#f8fafc';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return '#bbf7d0';
+			case 'error':
+				return '#fecaca';
+			case 'info':
+				return '#bfdbfe';
+			case 'loading':
+				return '#e2e8f0';
+			default:
+				return '#e2e8f0';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.type) {
+			case 'success':
+				return '#166534';
+			case 'error':
+				return '#dc2626';
+			case 'info':
+				return '#1d4ed8';
+			case 'loading':
+				return '#475569';
+			default:
+				return '#475569';
+		}
+	}};
 `;
 
 const StatusText = styled.div`
@@ -390,422 +411,426 @@ const DiscoveryResultItem = styled.div`
 `;
 
 const EnvironmentIdInput: React.FC<EnvironmentIdInputProps> = ({
-  onDiscoveryComplete,
-  onEnvironmentIdChange,
-  onIssuerUrlChange,
-  initialEnvironmentId = '',
-  className,
-  disabled = false,
-  showSuggestions = true,
-  autoDiscover = false,
-  region = 'us'
+	onDiscoveryComplete,
+	onEnvironmentIdChange,
+	onIssuerUrlChange,
+	initialEnvironmentId = '',
+	className,
+	disabled = false,
+	showSuggestions = true,
+	autoDiscover = false,
+	region = 'us',
 }) => {
-  const [environmentId, setEnvironmentId] = useState(initialEnvironmentId);
-  const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(region);
-  const [isDiscovering, setIsDiscovering] = useState(false);
-  const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
-  const [isApplying, setIsApplying] = useState(false);
-  const [isDiscoveryResultsCollapsed, setIsDiscoveryResultsCollapsed] = useState(false);
+	const [environmentId, setEnvironmentId] = useState(initialEnvironmentId);
+	const [selectedRegion, setSelectedRegion] = useState<'us' | 'eu' | 'ap' | 'ca'>(region);
+	const [isDiscovering, setIsDiscovering] = useState(false);
+	const [discoveryResult, setDiscoveryResult] = useState<DiscoveryResult | null>(null);
+	const [error, setError] = useState<string | null>(null);
+	const [copied, setCopied] = useState(false);
+	const [isSaved, setIsSaved] = useState(false);
+	const [isApplying, setIsApplying] = useState(false);
+	const [isDiscoveryResultsCollapsed, setIsDiscoveryResultsCollapsed] = useState(false);
 
-  const regionUrls = {
-    us: 'https://auth.pingone.com',
-    eu: 'https://auth.pingone.eu',
-    ap: 'https://auth.pingone.asia',
-    ca: 'https://auth.pingone.ca'
-  };
+	const regionUrls = {
+		us: 'https://auth.pingone.com',
+		eu: 'https://auth.pingone.eu',
+		ap: 'https://auth.pingone.asia',
+		ca: 'https://auth.pingone.ca',
+	};
 
-  const regionLabels = {
-    us: 'US (North America)',
-    eu: 'EU (Europe)',
-    ap: 'AP (Asia Pacific)',
-    ca: 'CA (Canada)'
-  };
+	const regionLabels = {
+		us: 'US (North America)',
+		eu: 'EU (Europe)',
+		ap: 'AP (Asia Pacific)',
+		ca: 'CA (Canada)',
+	};
 
-  const issuerUrl = environmentId ? `${regionUrls[selectedRegion]}/${environmentId}` : '';
+	const issuerUrl = environmentId ? `${regionUrls[selectedRegion]}/${environmentId}` : '';
 
-  // Load saved settings on mount
-  useEffect(() => {
-    const savedConfig = localStorage.getItem('oidc-discovery-config');
-    if (savedConfig) {
-      try {
-        const config = JSON.parse(savedConfig);
-        if (config.environmentId && config.discoveryResult) {
-          setEnvironmentId(config.environmentId);
-          setSelectedRegion(config.region || 'us');
-          setDiscoveryResult({
-            success: true,
-            document: config.discoveryResult
-          });
-        }
-      } catch (err) {
-        console.error('Failed to load saved OIDC discovery config:', err);
-      }
-    }
-  }, []);
+	// Load saved settings on mount
+	useEffect(() => {
+		const savedConfig = localStorage.getItem('oidc-discovery-config');
+		if (savedConfig) {
+			try {
+				const config = JSON.parse(savedConfig);
+				if (config.environmentId && config.discoveryResult) {
+					setEnvironmentId(config.environmentId);
+					setSelectedRegion(config.region || 'us');
+					setDiscoveryResult({
+						success: true,
+						document: config.discoveryResult,
+					});
+				}
+			} catch (err) {
+				console.error('Failed to load saved OIDC discovery config:', err);
+			}
+		}
+	}, []);
 
-  const handleEnvironmentIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEnvironmentId(value);
-    setError(null);
-    if (discoveryResult) {
-      setDiscoveryResult(null);
-    }
-    onEnvironmentIdChange?.(value);
-    onIssuerUrlChange?.(value ? `${regionUrls[selectedRegion]}/${value}` : '');
-  }, [selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange]);
+	const handleEnvironmentIdChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const value = e.target.value;
+			setEnvironmentId(value);
+			setError(null);
+			if (discoveryResult) {
+				setDiscoveryResult(null);
+			}
+			onEnvironmentIdChange?.(value);
+			onIssuerUrlChange?.(value ? `${regionUrls[selectedRegion]}/${value}` : '');
+		},
+		[selectedRegion, discoveryResult, onEnvironmentIdChange, onIssuerUrlChange]
+	);
 
-  const handleRegionChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newRegion = e.target.value as 'us' | 'eu' | 'ap' | 'ca';
-    setSelectedRegion(newRegion);
-    if (environmentId) {
-      const newIssuerUrl = `${regionUrls[newRegion]}/${environmentId}`;
-      onIssuerUrlChange?.(newIssuerUrl);
-    }
-    // Clear previous discovery results when region changes
-    if (discoveryResult) {
-      setDiscoveryResult(null);
-    }
-  }, [environmentId, discoveryResult, onIssuerUrlChange]);
+	const handleRegionChange = useCallback(
+		(e: React.ChangeEvent<HTMLSelectElement>) => {
+			const newRegion = e.target.value as 'us' | 'eu' | 'ap' | 'ca';
+			setSelectedRegion(newRegion);
+			if (environmentId) {
+				const newIssuerUrl = `${regionUrls[newRegion]}/${environmentId}`;
+				onIssuerUrlChange?.(newIssuerUrl);
+			}
+			// Clear previous discovery results when region changes
+			if (discoveryResult) {
+				setDiscoveryResult(null);
+			}
+		},
+		[environmentId, discoveryResult, onIssuerUrlChange]
+	);
 
-  const handleDiscover = useCallback(async () => {
-    if (!environmentId.trim()) {
-      setError('Please enter an environment ID');
-      return;
-    }
+	const handleDiscover = useCallback(async () => {
+		if (!environmentId.trim()) {
+			setError('Please enter an environment ID');
+			return;
+		}
 
-    setIsDiscovering(true);
-    setError(null);
-    setDiscoveryResult(null);
+		setIsDiscovering(true);
+		setError(null);
+		setDiscoveryResult(null);
 
-    try {
-      const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
-      setDiscoveryResult(result);
+		try {
+			const result = await oidcDiscoveryService.discover({ issuerUrl: issuerUrl.trim() });
+			setDiscoveryResult(result);
 
-      if (result.success && result.document) {
-        onDiscoveryComplete?.(result);
-      } else {
-        setError(result.error || 'Discovery failed');
-      }
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
-      setError(errorMessage);
-      setDiscoveryResult({
-        success: false,
-        error: errorMessage
-      });
-    } finally {
-      setIsDiscovering(false);
-    }
-  }, [environmentId, issuerUrl, onDiscoveryComplete]);
+			if (result.success && result.document) {
+				onDiscoveryComplete?.(result);
+			} else {
+				setError(result.error || 'Discovery failed');
+			}
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : 'Discovery failed';
+			setError(errorMessage);
+			setDiscoveryResult({
+				success: false,
+				error: errorMessage,
+			});
+		} finally {
+			setIsDiscovering(false);
+		}
+	}, [environmentId, issuerUrl, onDiscoveryComplete]);
 
-  const handleCopyIssuerUrl = async () => {
-    try {
-      await navigator.clipboard.writeText(issuerUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy issuer URL:', err);
-    }
-  };
+	const handleCopyIssuerUrl = async () => {
+		try {
+			await navigator.clipboard.writeText(issuerUrl);
+			setCopied(true);
+			setTimeout(() => setCopied(false), 2000);
+		} catch (err) {
+			console.error('Failed to copy issuer URL:', err);
+		}
+	};
 
-  const handleSave = useCallback(async () => {
-    if (!discoveryResult?.success || !discoveryResult.document) {
-      return;
-    }
+	const handleSave = useCallback(async () => {
+		if (!discoveryResult?.success || !discoveryResult.document) {
+			return;
+		}
 
-    try {
-      // Save the discovered configuration to localStorage
-      const config = {
-        environmentId,
-        region: selectedRegion,
-        issuerUrl,
-        discoveryResult: discoveryResult.document,
-        timestamp: Date.now()
-      };
+		try {
+			// Save the discovered configuration to localStorage
+			const config = {
+				environmentId,
+				region: selectedRegion,
+				issuerUrl,
+				discoveryResult: discoveryResult.document,
+				timestamp: Date.now(),
+			};
 
-      localStorage.setItem('oidc-discovery-config', JSON.stringify(config));
-      setIsSaved(true);
-      
-      // Reset saved state after 3 seconds
-      setTimeout(() => setIsSaved(false), 3000);
-    } catch (err) {
-      console.error('Failed to save OIDC discovery configuration:', err);
-      setError('Failed to save configuration');
-    }
-  }, [discoveryResult, environmentId, selectedRegion, issuerUrl]);
+			localStorage.setItem('oidc-discovery-config', JSON.stringify(config));
+			setIsSaved(true);
 
-  const handleSaveAndApply = useCallback(async () => {
-    if (!discoveryResult?.success || !discoveryResult.document) {
-      return;
-    }
+			// Reset saved state after 3 seconds
+			setTimeout(() => setIsSaved(false), 3000);
+		} catch (err) {
+			console.error('Failed to save OIDC discovery configuration:', err);
+			setError('Failed to save configuration');
+		}
+	}, [discoveryResult, environmentId, selectedRegion, issuerUrl]);
 
-    try {
-      setIsApplying(true);
-      
-      // Save the discovered configuration to localStorage
-      const config = {
-        environmentId,
-        region: selectedRegion,
-        issuerUrl,
-        discoveryResult: discoveryResult.document,
-        timestamp: Date.now()
-      };
+	const handleSaveAndApply = useCallback(async () => {
+		if (!discoveryResult?.success || !discoveryResult.document) {
+			return;
+		}
 
-      localStorage.setItem('oidc-discovery-config', JSON.stringify(config));
-      setIsSaved(true);
-      
-      // Call the discovery complete callback to notify parent components and apply the configuration
-      onDiscoveryComplete?.(discoveryResult);
-      
-      // Reset states after 3 seconds
-      setTimeout(() => {
-        setIsSaved(false);
-        setIsApplying(false);
-      }, 3000);
-    } catch (err) {
-      console.error('Failed to save and apply OIDC discovery configuration:', err);
-      setError('Failed to save and apply configuration');
-      setIsApplying(false);
-    }
-  }, [discoveryResult, environmentId, selectedRegion, issuerUrl, onDiscoveryComplete]);
+		try {
+			setIsApplying(true);
 
-  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !isDiscovering && !disabled) {
-      handleDiscover();
-    }
-  }, [handleDiscover, isDiscovering, disabled]);
+			// Save the discovered configuration to localStorage
+			const config = {
+				environmentId,
+				region: selectedRegion,
+				issuerUrl,
+				discoveryResult: discoveryResult.document,
+				timestamp: Date.now(),
+			};
 
-  const handleReset = useCallback(() => {
-    setEnvironmentId('');
-    setDiscoveryResult(null);
-    setError(null);
-    setIsSaved(false);
-    setIsApplying(false);
-    setCopied(false);
-    onEnvironmentIdChange?.('');
-    onIssuerUrlChange?.('');
-  }, [onEnvironmentIdChange, onIssuerUrlChange]);
+			localStorage.setItem('oidc-discovery-config', JSON.stringify(config));
+			setIsSaved(true);
 
-  // Auto-discover on mount if autoDiscover is enabled and we have an initial environment ID
-  useEffect(() => {
-    if (autoDiscover && initialEnvironmentId && !discoveryResult) {
-      handleDiscover();
-    }
-  }, [autoDiscover, initialEnvironmentId, discoveryResult, handleDiscover]);
+			// Call the discovery complete callback to notify parent components and apply the configuration
+			onDiscoveryComplete?.(discoveryResult);
 
-  // Auto-discover when environment ID changes (debounced)
-  useEffect(() => {
-    console.log('[EnvironmentIdInput] Auto-discovery check:', {
-      autoDiscover,
-      environmentId,
-      envIdLength: environmentId?.length,
-      hasDiscoveryResult: !!discoveryResult,
-      shouldTrigger: autoDiscover && environmentId && environmentId.length > 10
-    });
-    
-    // Trigger discovery if we have a valid environment ID, regardless of existing discovery result
-    if (autoDiscover && environmentId && environmentId.length > 10) {
-      console.log('[EnvironmentIdInput] Triggering auto-discovery in 1 second...');
-      const timeoutId = setTimeout(() => {
-        console.log('[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover');
-        handleDiscover();
-      }, 1000); // 1 second delay
-      
-      return () => clearTimeout(timeoutId);
-    }
-    return undefined;
-  }, [autoDiscover, environmentId, handleDiscover]);
+			// Reset states after 3 seconds
+			setTimeout(() => {
+				setIsSaved(false);
+				setIsApplying(false);
+			}, 3000);
+		} catch (err) {
+			console.error('Failed to save and apply OIDC discovery configuration:', err);
+			setError('Failed to save and apply configuration');
+			setIsApplying(false);
+		}
+	}, [discoveryResult, environmentId, selectedRegion, issuerUrl, onDiscoveryComplete]);
 
-  const renderStatus = () => {
-    if (isDiscovering) {
-      return (
-        <StatusContainer type="loading">
-          <FiLoader className="animate-spin" />
-          <StatusText>Discovering OIDC endpoints...</StatusText>
-        </StatusContainer>
-      );
-    }
+	const handleKeyPress = useCallback(
+		(e: React.KeyboardEvent) => {
+			if (e.key === 'Enter' && !isDiscovering && !disabled) {
+				handleDiscover();
+			}
+		},
+		[handleDiscover, isDiscovering, disabled]
+	);
 
-    if (discoveryResult?.success) {
-      return (
-        <StatusContainer type="success">
-          <FiCheck />
-          <StatusText>
-            Successfully discovered OIDC endpoints
-            {discoveryResult.cached && ' (cached)'}
-          </StatusText>
-        </StatusContainer>
-      );
-    }
+	const handleReset = useCallback(() => {
+		setEnvironmentId('');
+		setDiscoveryResult(null);
+		setError(null);
+		setIsSaved(false);
+		setIsApplying(false);
+		setCopied(false);
+		onEnvironmentIdChange?.('');
+		onIssuerUrlChange?.('');
+	}, [onEnvironmentIdChange, onIssuerUrlChange]);
 
-    if (discoveryResult && !discoveryResult.success) {
-      return (
-        <StatusContainer type="error">
-          <FiAlertCircle />
-          <StatusText>Discovery failed: {discoveryResult.error}</StatusText>
-        </StatusContainer>
-      );
-    }
+	// Auto-discover on mount if autoDiscover is enabled and we have an initial environment ID
+	useEffect(() => {
+		if (autoDiscover && initialEnvironmentId && !discoveryResult) {
+			handleDiscover();
+		}
+	}, [autoDiscover, initialEnvironmentId, discoveryResult, handleDiscover]);
 
-    return null;
-  };
+	// Auto-discover when environment ID changes (debounced)
+	useEffect(() => {
+		console.log('[EnvironmentIdInput] Auto-discovery check:', {
+			autoDiscover,
+			environmentId,
+			envIdLength: environmentId?.length,
+			hasDiscoveryResult: !!discoveryResult,
+			shouldTrigger: autoDiscover && environmentId && environmentId.length > 10,
+		});
 
-  return (
-    <Container className={className}>
-      <Header>
-        <FiGlobe />
-        <Title>PingOne Environment Configuration</Title>
-      </Header>
-      
-      <Description>
-        Enter your PingOne environment ID and select your region. We'll construct the issuer URL 
-        and discover all available OIDC endpoints automatically.
-      </Description>
+		// Trigger discovery if we have a valid environment ID, regardless of existing discovery result
+		if (autoDiscover && environmentId && environmentId.length > 10) {
+			console.log('[EnvironmentIdInput] Triggering auto-discovery in 1 second...');
+			const timeoutId = setTimeout(() => {
+				console.log(
+					'[EnvironmentIdInput] Auto-discovery timeout triggered, calling handleDiscover'
+				);
+				handleDiscover();
+			}, 1000); // 1 second delay
 
-      <InputContainer>
-        <Label htmlFor="environment-id">Environment ID</Label>
-        <InputGroup>
-          <RegionSelector
-            value={selectedRegion}
-            onChange={handleRegionChange}
-            disabled={disabled}
-          >
-            <option value="us">US - North America</option>
-            <option value="eu">EU - Europe</option>
-            <option value="ap">AP - Asia Pacific</option>
-            <option value="ca">CA - Canada</option>
-          </RegionSelector>
-          
-          <Input
-            id="environment-id"
-            type="text"
-            value={environmentId}
-            onChange={handleEnvironmentIdChange}
-            onKeyPress={handleKeyPress}
-            placeholder="your-environment-id"
-            hasError={!!error}
-            hasSuccess={discoveryResult?.success || false}
-            disabled={disabled || isDiscovering}
-          />
-          
-          {autoDiscover && (
-            <DiscoverButton
-              onClick={handleDiscover}
-              disabled={disabled || isDiscovering || !environmentId.trim()}
-              isLoading={isDiscovering}
-              title="Discover OIDC endpoints"
-            >
-              {isDiscovering ? <FiLoader className="animate-spin" /> : <FiSearch />}
-            </DiscoverButton>
-          )}
-        </InputGroup>
-        
-        {error && <ErrorMessage>{error}</ErrorMessage>}
-      </InputContainer>
+			return () => clearTimeout(timeoutId);
+		}
+		return undefined;
+	}, [autoDiscover, environmentId, handleDiscover, discoveryResult]);
 
-      {issuerUrl && (
-        <div>
-          <Label>Generated Issuer URL</Label>
-          <IssuerUrlDisplay>
-            {issuerUrl}
-            <CopyButton onClick={handleCopyIssuerUrl}>
-              {copied ? <FiCheck size={12} /> : <FiCopy size={12} />}
-              {copied ? 'Copied!' : 'Copy'}
-            </CopyButton>
-          </IssuerUrlDisplay>
-        </div>
-      )}
+	const renderStatus = () => {
+		if (isDiscovering) {
+			return (
+				<StatusContainer type="loading">
+					<FiLoader className="animate-spin" />
+					<StatusText>Discovering OIDC endpoints...</StatusText>
+				</StatusContainer>
+			);
+		}
 
-      {autoDiscover && discoveryResult?.success && discoveryResult.document && (
-        <div style={{ marginTop: '1rem' }}>
-          {/* Discovery Results Display */}
-          <DiscoveryResultsBox>
-            <DiscoveryResultsHeader
-              onClick={() => setIsDiscoveryResultsCollapsed(!isDiscoveryResultsCollapsed)}
-              aria-expanded={!isDiscoveryResultsCollapsed}
-            >
-              <DiscoveryResultsHeaderLeft>
-                <FiGlobe size={18} />
-                <span>OIDC Discovery Results</span>
-              </DiscoveryResultsHeaderLeft>
-              <DiscoveryResultsToggleIcon $collapsed={isDiscoveryResultsCollapsed}>
-                <FiChevronDown />
-              </DiscoveryResultsToggleIcon>
-            </DiscoveryResultsHeader>
-            {!isDiscoveryResultsCollapsed && (
-              <DiscoveryResultsContent>
-                <DiscoveryResultItem>
-                  <strong>Issuer:</strong> {discoveryResult.document.issuer}
-                </DiscoveryResultItem>
-                <DiscoveryResultItem>
-                  <strong>Authorization Endpoint:</strong> {discoveryResult.document.authorization_endpoint}
-                </DiscoveryResultItem>
-                <DiscoveryResultItem>
-                  <strong>Token Endpoint:</strong> {discoveryResult.document.token_endpoint}
-                </DiscoveryResultItem>
-                <DiscoveryResultItem>
-                  <strong>UserInfo Endpoint:</strong> {discoveryResult.document.userinfo_endpoint}
-                </DiscoveryResultItem>
-                <DiscoveryResultItem>
-                  <strong>JWKS URI:</strong> {discoveryResult.document.jwks_uri}
-                </DiscoveryResultItem>
-                <DiscoveryResultItem>
-                  <strong>Response Types Supported:</strong> {discoveryResult.document.response_types_supported?.join(', ')}
-                </DiscoveryResultItem>
-                <DiscoveryResultItem>
-                  <strong>Scopes Supported:</strong> {discoveryResult.document.scopes_supported?.join(', ')}
-                </DiscoveryResultItem>
-              </DiscoveryResultsContent>
-            )}
-          </DiscoveryResultsBox>
+		if (discoveryResult?.success) {
+			return (
+				<StatusContainer type="success">
+					<FiCheck />
+					<StatusText>
+						Successfully discovered OIDC endpoints
+						{discoveryResult.cached && ' (cached)'}
+					</StatusText>
+				</StatusContainer>
+			);
+		}
 
-          <ButtonGroup>
-            <ResetButton
-              onClick={handleReset}
-              disabled={isApplying}
-            >
-              <FiRefreshCw size={16} />
-              Reset
-            </ResetButton>
-            
-            <SaveButton
-              onClick={handleSave}
-              $isSaved={isSaved}
-              disabled={isSaved || isApplying}
-            >
-              <FiSave size={16} />
-              {isSaved ? 'Configuration Saved!' : 'Save Only'}
-            </SaveButton>
-            
-            <SaveButton
-              onClick={handleSaveAndApply}
-              $isSaved={isSaved}
-              disabled={isSaved || isApplying}
-              style={{
-                background: isApplying ? '#f59e0b' : '#10b981',
-                borderColor: isApplying ? '#d97706' : '#059669'
-              }}
-            >
-              {isApplying ? <FiLoader className="animate-spin" size={16} /> : <FiCheck size={16} />}
-              {isApplying ? 'Applying...' : isSaved ? 'Applied!' : 'Save & Apply'}
-            </SaveButton>
-          </ButtonGroup>
-        </div>
-      )}
+		if (discoveryResult && !discoveryResult.success) {
+			return (
+				<StatusContainer type="error">
+					<FiAlertCircle />
+					<StatusText>Discovery failed: {discoveryResult.error}</StatusText>
+				</StatusContainer>
+			);
+		}
 
-      <RegionInfo>
-        <FiInfo size={14} />
-        <span>
-          Selected region: <strong>{regionLabels[selectedRegion]}</strong> - {regionUrls[selectedRegion]}
-        </span>
-      </RegionInfo>
+		return null;
+	};
 
-      {renderStatus()}
-    </Container>
-  );
+	return (
+		<Container className={className}>
+			<Header>
+				<FiGlobe />
+				<Title>PingOne Environment Configuration</Title>
+			</Header>
+
+			<Description>
+				Enter your PingOne environment ID and select your region. We'll construct the issuer URL and
+				discover all available OIDC endpoints automatically.
+			</Description>
+
+			<InputContainer>
+				<Label htmlFor="environment-id">Environment ID</Label>
+				<InputGroup>
+					<RegionSelector value={selectedRegion} onChange={handleRegionChange} disabled={disabled}>
+						<option value="us">US - North America</option>
+						<option value="eu">EU - Europe</option>
+						<option value="ap">AP - Asia Pacific</option>
+						<option value="ca">CA - Canada</option>
+					</RegionSelector>
+
+					<Input
+						id="environment-id"
+						type="text"
+						value={environmentId}
+						onChange={handleEnvironmentIdChange}
+						onKeyPress={handleKeyPress}
+						placeholder="your-environment-id"
+						hasError={!!error}
+						hasSuccess={discoveryResult?.success || false}
+						disabled={disabled || isDiscovering}
+					/>
+
+					{autoDiscover && (
+						<DiscoverButton
+							onClick={handleDiscover}
+							disabled={disabled || isDiscovering || !environmentId.trim()}
+							isLoading={isDiscovering}
+							title="Discover OIDC endpoints"
+						>
+							{isDiscovering ? <FiLoader className="animate-spin" /> : <FiSearch />}
+						</DiscoverButton>
+					)}
+				</InputGroup>
+
+				{error && <ErrorMessage>{error}</ErrorMessage>}
+			</InputContainer>
+
+			{issuerUrl && (
+				<div>
+					<Label>Generated Issuer URL</Label>
+					<IssuerUrlDisplay>
+						{issuerUrl}
+						<CopyButton onClick={handleCopyIssuerUrl}>
+							{copied ? <FiCheck size={12} /> : <FiCopy size={12} />}
+							{copied ? 'Copied!' : 'Copy'}
+						</CopyButton>
+					</IssuerUrlDisplay>
+				</div>
+			)}
+
+			{autoDiscover && discoveryResult?.success && discoveryResult.document && (
+				<div style={{ marginTop: '1rem' }}>
+					{/* Discovery Results Display */}
+					<DiscoveryResultsBox>
+						<DiscoveryResultsHeader
+							onClick={() => setIsDiscoveryResultsCollapsed(!isDiscoveryResultsCollapsed)}
+							aria-expanded={!isDiscoveryResultsCollapsed}
+						>
+							<DiscoveryResultsHeaderLeft>
+								<FiGlobe size={18} />
+								<span>OIDC Discovery Results</span>
+							</DiscoveryResultsHeaderLeft>
+							<DiscoveryResultsToggleIcon $collapsed={isDiscoveryResultsCollapsed}>
+								<FiChevronDown />
+							</DiscoveryResultsToggleIcon>
+						</DiscoveryResultsHeader>
+						{!isDiscoveryResultsCollapsed && (
+							<DiscoveryResultsContent>
+								<DiscoveryResultItem>
+									<strong>Issuer:</strong> {discoveryResult.document.issuer}
+								</DiscoveryResultItem>
+								<DiscoveryResultItem>
+									<strong>Authorization Endpoint:</strong>{' '}
+									{discoveryResult.document.authorization_endpoint}
+								</DiscoveryResultItem>
+								<DiscoveryResultItem>
+									<strong>Token Endpoint:</strong> {discoveryResult.document.token_endpoint}
+								</DiscoveryResultItem>
+								<DiscoveryResultItem>
+									<strong>UserInfo Endpoint:</strong> {discoveryResult.document.userinfo_endpoint}
+								</DiscoveryResultItem>
+								<DiscoveryResultItem>
+									<strong>JWKS URI:</strong> {discoveryResult.document.jwks_uri}
+								</DiscoveryResultItem>
+								<DiscoveryResultItem>
+									<strong>Response Types Supported:</strong>{' '}
+									{discoveryResult.document.response_types_supported?.join(', ')}
+								</DiscoveryResultItem>
+								<DiscoveryResultItem>
+									<strong>Scopes Supported:</strong>{' '}
+									{discoveryResult.document.scopes_supported?.join(', ')}
+								</DiscoveryResultItem>
+							</DiscoveryResultsContent>
+						)}
+					</DiscoveryResultsBox>
+
+					<ButtonGroup>
+						<ResetButton onClick={handleReset} disabled={isApplying}>
+							<FiRefreshCw size={16} />
+							Reset
+						</ResetButton>
+
+						<SaveButton onClick={handleSave} $isSaved={isSaved} disabled={isSaved || isApplying}>
+							<FiSave size={16} />
+							{isSaved ? 'Configuration Saved!' : 'Save Only'}
+						</SaveButton>
+
+						<SaveButton
+							onClick={handleSaveAndApply}
+							$isSaved={isSaved}
+							disabled={isSaved || isApplying}
+							style={{
+								background: isApplying ? '#f59e0b' : '#10b981',
+								borderColor: isApplying ? '#d97706' : '#059669',
+							}}
+						>
+							{isApplying ? <FiLoader className="animate-spin" size={16} /> : <FiCheck size={16} />}
+							{isApplying ? 'Applying...' : isSaved ? 'Applied!' : 'Save & Apply'}
+						</SaveButton>
+					</ButtonGroup>
+				</div>
+			)}
+
+			<RegionInfo>
+				<FiInfo size={14} />
+				<span>
+					Selected region: <strong>{regionLabels[selectedRegion]}</strong> -{' '}
+					{regionUrls[selectedRegion]}
+				</span>
+			</RegionInfo>
+
+			{renderStatus()}
+		</Container>
+	);
 };
 
 export default EnvironmentIdInput;

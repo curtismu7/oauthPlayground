@@ -2,21 +2,21 @@
 // V7.1 Flow Header - Header component with variant selector and flow information
 
 import React from 'react';
-import styled from 'styled-components';
 import { FiBook, FiChevronDown, FiInfo } from 'react-icons/fi';
+import styled from 'styled-components';
 import { FLOW_CONSTANTS } from '../constants/flowConstants';
 import { UI_CONSTANTS } from '../constants/uiConstants';
 import type { FlowVariant } from '../types/flowTypes';
 
 interface FlowHeaderProps {
-  flowVariant: FlowVariant;
-  onVariantChange: (variant: FlowVariant) => void;
-  currentStep: number;
-  totalSteps: number;
-  isCollapsed: boolean;
-  onToggleCollapse: () => void;
-  flowName?: string;
-  showVariantSelector?: boolean;
+	flowVariant: FlowVariant;
+	onVariantChange: (variant: FlowVariant) => void;
+	currentStep: number;
+	totalSteps: number;
+	isCollapsed: boolean;
+	onToggleCollapse: () => void;
+	flowName?: string;
+	showVariantSelector?: boolean;
 }
 
 const HeaderContainer = styled.div<{ $variant: FlowVariant }>`
@@ -137,11 +137,11 @@ const VariantButton = styled.button<{ $selected: boolean; $variant: FlowVariant 
   align-items: flex-start;
   gap: ${UI_CONSTANTS.SPACING.XS};
   padding: ${UI_CONSTANTS.SPACING.LG};
-  border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
+  border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
   border-radius: ${UI_CONSTANTS.SECTION.BORDER_RADIUS};
-  background: ${props => props.$selected ? '#eff6ff' : '#ffffff'};
-  color: ${props => props.$selected ? '#1e40af' : '#475569'};
-  font-weight: ${props => props.$selected ? '600' : '500'};
+  background: ${(props) => (props.$selected ? '#eff6ff' : '#ffffff')};
+  color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+  font-weight: ${(props) => (props.$selected ? '600' : '500')};
   cursor: pointer;
   transition: all ${UI_CONSTANTS.ANIMATION.DURATION_NORMAL} ${UI_CONSTANTS.ANIMATION.EASING_EASE};
   text-align: left;
@@ -190,89 +190,87 @@ const InfoButton = styled.button`
 `;
 
 export const FlowHeader: React.FC<FlowHeaderProps> = ({
-  flowVariant,
-  onVariantChange,
-  currentStep,
-  totalSteps,
-  isCollapsed,
-  onToggleCollapse,
-  flowName = 'OAuth Authorization Code Flow V7.1',
-  showVariantSelector = true,
+	flowVariant,
+	onVariantChange,
+	currentStep,
+	totalSteps,
+	isCollapsed,
+	onToggleCollapse,
+	flowName = 'OAuth Authorization Code Flow V7.1',
+	showVariantSelector = true,
 }) => {
-  const getVariantConfig = (variant: FlowVariant) => {
-    return {
-      oauth: {
-        name: 'OAuth 2.0',
-        description: 'Access token only - API authorization',
-        icon: '🔑',
-      },
-      oidc: {
-        name: 'OpenID Connect',
-        description: 'ID token + Access token - Authentication + Authorization',
-        icon: '🆔',
-      },
-    }[variant];
-  };
+	const getVariantConfig = (variant: FlowVariant) => {
+		return {
+			oauth: {
+				name: 'OAuth 2.0',
+				description: 'Access token only - API authorization',
+				icon: '🔑',
+			},
+			oidc: {
+				name: 'OpenID Connect',
+				description: 'ID token + Access token - Authentication + Authorization',
+				icon: '🆔',
+			},
+		}[variant];
+	};
 
-  const currentConfig = getVariantConfig(flowVariant);
+	const currentConfig = getVariantConfig(flowVariant);
 
-  return (
-    <div>
-      <HeaderContainer $variant={flowVariant}>
-        <HeaderLeft>
-          <FlowIcon>
-            {currentConfig.icon}
-          </FlowIcon>
-          <FlowInfo>
-            <FlowTitle>{flowName}</FlowTitle>
-            <FlowSubtitle>
-              {currentConfig.name} - {currentConfig.description}
-            </FlowSubtitle>
-            <VersionBadge $variant={flowVariant}>
-              7.1
-            </VersionBadge>
-          </FlowInfo>
-        </HeaderLeft>
-        
-        <HeaderRight>
-          <StepIndicator>
-            Step {currentStep + 1} of {totalSteps}
-          </StepIndicator>
-          <InfoButton title="Flow Information">
-            <FiInfo />
-          </InfoButton>
-          <CollapseButton 
-            $collapsed={isCollapsed}
-            onClick={onToggleCollapse}
-            title={isCollapsed ? 'Expand' : 'Collapse'}
-          >
-            <FiChevronDown />
-          </CollapseButton>
-        </HeaderRight>
-      </HeaderContainer>
+	return (
+		<div>
+			<HeaderContainer $variant={flowVariant}>
+				<HeaderLeft>
+					<FlowIcon>{currentConfig.icon}</FlowIcon>
+					<FlowInfo>
+						<FlowTitle>{flowName}</FlowTitle>
+						<FlowSubtitle>
+							{currentConfig.name} - {currentConfig.description}
+						</FlowSubtitle>
+						<VersionBadge $variant={flowVariant}>7.1</VersionBadge>
+					</FlowInfo>
+				</HeaderLeft>
 
-      {showVariantSelector && (
-        <VariantSelector>
-          <VariantButton
-            $selected={flowVariant === 'oauth'}
-            $variant="oauth"
-            onClick={() => onVariantChange('oauth')}
-          >
-            <VariantTitle>OAuth 2.0 Authorization Code</VariantTitle>
-            <VariantDescription>Access token only - API authorization</VariantDescription>
-          </VariantButton>
-          <VariantButton
-            $selected={flowVariant === 'oidc'}
-            $variant="oidc"
-            onClick={() => onVariantChange('oidc')}
-          >
-            <VariantTitle>OpenID Connect Authorization Code</VariantTitle>
-            <VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
-          </VariantButton>
-        </VariantSelector>
-      )}
-    </div>
-  );
+				<HeaderRight>
+					<StepIndicator>
+						Step {currentStep + 1} of {totalSteps}
+					</StepIndicator>
+					<InfoButton title="Flow Information">
+						<FiInfo />
+					</InfoButton>
+					<CollapseButton
+						$collapsed={isCollapsed}
+						onClick={onToggleCollapse}
+						title={isCollapsed ? 'Expand' : 'Collapse'}
+					>
+						<FiChevronDown />
+					</CollapseButton>
+				</HeaderRight>
+			</HeaderContainer>
+
+			{showVariantSelector && (
+				<VariantSelector>
+					<VariantButton
+						$selected={flowVariant === 'oauth'}
+						$variant="oauth"
+						onClick={() => onVariantChange('oauth')}
+					>
+						<VariantTitle>OAuth 2.0 Authorization Code</VariantTitle>
+						<VariantDescription>Access token only - API authorization</VariantDescription>
+					</VariantButton>
+					<VariantButton
+						$selected={flowVariant === 'oidc'}
+						$variant="oidc"
+						onClick={() => onVariantChange('oidc')}
+					>
+						<VariantTitle>OpenID Connect Authorization Code</VariantTitle>
+						<VariantDescription>
+							ID token + Access token - Authentication + Authorization
+						</VariantDescription>
+					</VariantButton>
+				</VariantSelector>
+			)}
+		</div>
+	);
 };
 
 export default FlowHeader;

@@ -4,641 +4,640 @@
 import { logger } from '../utils/logger';
 
 export interface WebAuthnSupport {
-  supported: boolean;
-  browserInfo: string;
-  platformAuthenticator: boolean;
-  crossPlatformAuthenticator: boolean;
-  conditionalMediation: boolean;
-  userVerifyingPlatformAuthenticator: boolean;
-  details: {
-    webauthnSupported: boolean;
-    credentialsSupported: boolean;
-    publicKeySupported: boolean;
-    userAgent: string;
-  };
+	supported: boolean;
+	browserInfo: string;
+	platformAuthenticator: boolean;
+	crossPlatformAuthenticator: boolean;
+	conditionalMediation: boolean;
+	userVerifyingPlatformAuthenticator: boolean;
+	details: {
+		webauthnSupported: boolean;
+		credentialsSupported: boolean;
+		publicKeySupported: boolean;
+		userAgent: string;
+	};
 }
 
 export interface FIDORegistrationOptions {
-  nickname: string;
-  authenticatorType: 'platform' | 'cross-platform' | 'both';
-  userVerification: 'required' | 'preferred' | 'discouraged';
-  attestation: 'none' | 'indirect' | 'direct' | 'enterprise';
-  timeout?: number;
-  excludeCredentials?: PublicKeyCredentialDescriptor[];
+	nickname: string;
+	authenticatorType: 'platform' | 'cross-platform' | 'both';
+	userVerification: 'required' | 'preferred' | 'discouraged';
+	attestation: 'none' | 'indirect' | 'direct' | 'enterprise';
+	timeout?: number;
+	excludeCredentials?: PublicKeyCredentialDescriptor[];
 }
 
 export interface FIDORegistrationResult {
-  success: boolean;
-  deviceId?: string;
-  credentialId?: string;
-  publicKey?: string;
-  attestationResult?: AttestationResult;
-  error?: string;
-  errorCode?: string;
+	success: boolean;
+	deviceId?: string;
+	credentialId?: string;
+	publicKey?: string;
+	attestationResult?: AttestationResult;
+	error?: string;
+	errorCode?: string;
 }
 
 export interface AttestationResult {
-  verified: boolean;
-  attestationFormat: string;
-  trustPath?: string[];
-  metadata?: {
-    aaguid: string;
-    description?: string;
-    authenticatorVersion?: number;
-  };
+	verified: boolean;
+	attestationFormat: string;
+	trustPath?: string[];
+	metadata?: {
+		aaguid: string;
+		description?: string;
+		authenticatorVersion?: number;
+	};
 }
 
 export interface FIDOChallenge {
-  challengeId: string;
-  challenge: string;
-  allowCredentials: PublicKeyCredentialDescriptor[];
-  timeout: number;
-  userVerification: UserVerificationRequirement;
-  rpId: string;
+	challengeId: string;
+	challenge: string;
+	allowCredentials: PublicKeyCredentialDescriptor[];
+	timeout: number;
+	userVerification: UserVerificationRequirement;
+	rpId: string;
 }
 
 export interface FIDOAuthResult {
-  success: boolean;
-  challengeId?: string;
-  credentialId?: string;
-  signature?: string;
-  userHandle?: string;
-  error?: string;
-  errorCode?: string;
+	success: boolean;
+	challengeId?: string;
+	credentialId?: string;
+	signature?: string;
+	userHandle?: string;
+	error?: string;
+	errorCode?: string;
 }
 
 export interface FIDOCredential {
-  id: string;
-  rawId: ArrayBuffer;
-  type: 'public-key';
-  response: AuthenticatorAttestationResponse | AuthenticatorAssertionResponse;
-  clientExtensionResults?: AuthenticationExtensionsClientOutputs;
+	id: string;
+	rawId: ArrayBuffer;
+	type: 'public-key';
+	response: AuthenticatorAttestationResponse | AuthenticatorAssertionResponse;
+	clientExtensionResults?: AuthenticationExtensionsClientOutputs;
 }
 
 export interface FIDODevice {
-  id: string;
-  credentialId: string;
-  nickname: string;
-  authenticatorType: 'platform' | 'cross-platform';
-  createdAt: Date;
-  lastUsed?: Date;
-  counter: number;
-  publicKey: string;
-  aaguid?: string;
-  metadata?: {
-    description?: string;
-    icon?: string;
-    authenticatorVersion?: number;
-  };
+	id: string;
+	credentialId: string;
+	nickname: string;
+	authenticatorType: 'platform' | 'cross-platform';
+	createdAt: Date;
+	lastUsed?: Date;
+	counter: number;
+	publicKey: string;
+	aaguid?: string;
+	metadata?: {
+		description?: string;
+		icon?: string;
+		authenticatorVersion?: number;
+	};
 }
 
 class FIDOService {
-  private static readonly RP_ID = window.location.hostname;
-  private static readonly RP_NAME = 'PingOne MFA Playground';
-  private static readonly DEFAULT_TIMEOUT = 60000; // 60 seconds
-  private static readonly CHALLENGE_LENGTH = 32;
+	private static readonly RP_ID = window.location.hostname;
+	private static readonly RP_NAME = 'PingOne MFA Playground';
+	private static readonly DEFAULT_TIMEOUT = 60000; // 60 seconds
+	private static readonly CHALLENGE_LENGTH = 32;
 
-  /**
-   * Check WebAuthn support in the current browser
-   */
-  static checkWebAuthnSupport(): WebAuthnSupport {
-    const userAgent = navigator.userAgent;
-    
-    // Check basic WebAuthn support
-    const webauthnSupported = typeof window.PublicKeyCredential !== 'undefined';
-    const credentialsSupported = typeof navigator.credentials !== 'undefined';
-    const publicKeySupported = webauthnSupported && typeof window.PublicKeyCredential.create === 'function';
+	/**
+	 * Check WebAuthn support in the current browser
+	 */
+	static checkWebAuthnSupport(): WebAuthnSupport {
+		const userAgent = navigator.userAgent;
 
-    let platformAuthenticator = false;
-    let crossPlatformAuthenticator = false;
-    let conditionalMediation = false;
-    let userVerifyingPlatformAuthenticator = false;
+		// Check basic WebAuthn support
+		const webauthnSupported = typeof window.PublicKeyCredential !== 'undefined';
+		const credentialsSupported = typeof navigator.credentials !== 'undefined';
+		const publicKeySupported =
+			webauthnSupported && typeof window.PublicKeyCredential.create === 'function';
 
-    if (webauthnSupported) {
-      // Check for platform authenticator availability
-      PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.()
-        .then(available => {
-          userVerifyingPlatformAuthenticator = available;
-          platformAuthenticator = available;
-        })
-        .catch(() => {
-          // Ignore errors for older browsers
-        });
+		let platformAuthenticator = false;
+		let crossPlatformAuthenticator = false;
+		let conditionalMediation = false;
+		let userVerifyingPlatformAuthenticator = false;
 
-      // Check for conditional mediation support
-      if ('isConditionalMediationAvailable' in PublicKeyCredential) {
-        PublicKeyCredential.isConditionalMediationAvailable?.()
-          .then(available => {
-            conditionalMediation = available;
-          })
-          .catch(() => {
-            // Ignore errors
-          });
-      }
+		if (webauthnSupported) {
+			// Check for platform authenticator availability
+			PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable?.()
+				.then((available) => {
+					userVerifyingPlatformAuthenticator = available;
+					platformAuthenticator = available;
+				})
+				.catch(() => {
+					// Ignore errors for older browsers
+				});
 
-      // Assume cross-platform support if WebAuthn is supported
-      crossPlatformAuthenticator = true;
-    }
+			// Check for conditional mediation support
+			if ('isConditionalMediationAvailable' in PublicKeyCredential) {
+				PublicKeyCredential.isConditionalMediationAvailable?.()
+					.then((available) => {
+						conditionalMediation = available;
+					})
+					.catch(() => {
+						// Ignore errors
+					});
+			}
 
-    const browserInfo = this.getBrowserInfo(userAgent);
-    const supported = webauthnSupported && credentialsSupported && publicKeySupported;
+			// Assume cross-platform support if WebAuthn is supported
+			crossPlatformAuthenticator = true;
+		}
 
-    logger.info('FIDOService', 'WebAuthn support check', {
-      supported,
-      browserInfo,
-      platformAuthenticator,
-      crossPlatformAuthenticator,
-      userAgent
-    });
+		const browserInfo = FIDOService.getBrowserInfo(userAgent);
+		const supported = webauthnSupported && credentialsSupported && publicKeySupported;
 
-    return {
-      supported,
-      browserInfo,
-      platformAuthenticator,
-      crossPlatformAuthenticator,
-      conditionalMediation,
-      userVerifyingPlatformAuthenticator,
-      details: {
-        webauthnSupported,
-        credentialsSupported,
-        publicKeySupported,
-        userAgent
-      }
-    };
-  }
+		logger.info('FIDOService', 'WebAuthn support check', {
+			supported,
+			browserInfo,
+			platformAuthenticator,
+			crossPlatformAuthenticator,
+			userAgent,
+		});
 
-  /**
-   * Get registration options for creating a new FIDO credential
-   */
-  static async getRegistrationOptions(
-    userId: string,
-    userName: string,
-    userDisplayName: string,
-    options: Partial<FIDORegistrationOptions> = {}
-  ): Promise<PublicKeyCredentialCreationOptions> {
-    const challenge = this.generateChallenge();
-    const user = {
-      id: this.stringToArrayBuffer(userId),
-      name: userName,
-      displayName: userDisplayName
-    };
+		return {
+			supported,
+			browserInfo,
+			platformAuthenticator,
+			crossPlatformAuthenticator,
+			conditionalMediation,
+			userVerifyingPlatformAuthenticator,
+			details: {
+				webauthnSupported,
+				credentialsSupported,
+				publicKeySupported,
+				userAgent,
+			},
+		};
+	}
 
-    const pubKeyCredParams: PublicKeyCredentialParameters[] = [
-      { alg: -7, type: 'public-key' },  // ES256
-      { alg: -35, type: 'public-key' }, // ES384
-      { alg: -36, type: 'public-key' }, // ES512
-      { alg: -257, type: 'public-key' }, // RS256
-    ];
+	/**
+	 * Get registration options for creating a new FIDO credential
+	 */
+	static async getRegistrationOptions(
+		userId: string,
+		userName: string,
+		userDisplayName: string,
+		options: Partial<FIDORegistrationOptions> = {}
+	): Promise<PublicKeyCredentialCreationOptions> {
+		const challenge = FIDOService.generateChallenge();
+		const user = {
+			id: FIDOService.stringToArrayBuffer(userId),
+			name: userName,
+			displayName: userDisplayName,
+		};
 
-    const authenticatorSelection: AuthenticatorSelectionCriteria = {
-      authenticatorAttachment: options.authenticatorType === 'platform' ? 'platform' : 
-                              options.authenticatorType === 'cross-platform' ? 'cross-platform' : 
-                              undefined,
-      userVerification: options.userVerification || 'preferred',
-      requireResidentKey: false,
-      residentKey: 'discouraged'
-    };
+		const pubKeyCredParams: PublicKeyCredentialParameters[] = [
+			{ alg: -7, type: 'public-key' }, // ES256
+			{ alg: -35, type: 'public-key' }, // ES384
+			{ alg: -36, type: 'public-key' }, // ES512
+			{ alg: -257, type: 'public-key' }, // RS256
+		];
 
-    const creationOptions: PublicKeyCredentialCreationOptions = {
-      rp: {
-        id: this.RP_ID,
-        name: this.RP_NAME
-      },
-      user,
-      challenge,
-      pubKeyCredParams,
-      timeout: options.timeout || this.DEFAULT_TIMEOUT,
-      attestation: options.attestation || 'none',
-      authenticatorSelection,
-      excludeCredentials: options.excludeCredentials || []
-    };
+		const authenticatorSelection: AuthenticatorSelectionCriteria = {
+			authenticatorAttachment:
+				options.authenticatorType === 'platform'
+					? 'platform'
+					: options.authenticatorType === 'cross-platform'
+						? 'cross-platform'
+						: undefined,
+			userVerification: options.userVerification || 'preferred',
+			requireResidentKey: false,
+			residentKey: 'discouraged',
+		};
 
-    logger.info('FIDOService', 'Generated registration options', {
-      userId,
-      userName,
-      authenticatorType: options.authenticatorType,
-      userVerification: options.userVerification,
-      timeout: creationOptions.timeout
-    });
+		const creationOptions: PublicKeyCredentialCreationOptions = {
+			rp: {
+				id: FIDOService.RP_ID,
+				name: FIDOService.RP_NAME,
+			},
+			user,
+			challenge,
+			pubKeyCredParams,
+			timeout: options.timeout || FIDOService.DEFAULT_TIMEOUT,
+			attestation: options.attestation || 'none',
+			authenticatorSelection,
+			excludeCredentials: options.excludeCredentials || [],
+		};
 
-    return creationOptions;
-  }
+		logger.info('FIDOService', 'Generated registration options', {
+			userId,
+			userName,
+			authenticatorType: options.authenticatorType,
+			userVerification: options.userVerification,
+			timeout: creationOptions.timeout,
+		});
 
-  /**
-   * Register a new FIDO device
-   */
-  static async registerDevice(
-    userId: string,
-    userName: string,
-    userDisplayName: string,
-    options: FIDORegistrationOptions
-  ): Promise<FIDORegistrationResult> {
-    try {
-      logger.info('FIDOService', 'Starting FIDO device registration', {
-        userId,
-        userName,
-        nickname: options.nickname,
-        authenticatorType: options.authenticatorType
-      });
+		return creationOptions;
+	}
 
-      // Check WebAuthn support
-      const support = this.checkWebAuthnSupport();
-      if (!support.supported) {
-        return {
-          success: false,
-          error: 'WebAuthn is not supported in this browser',
-          errorCode: 'WEBAUTHN_NOT_SUPPORTED'
-        };
-      }
+	/**
+	 * Register a new FIDO device
+	 */
+	static async registerDevice(
+		userId: string,
+		userName: string,
+		userDisplayName: string,
+		options: FIDORegistrationOptions
+	): Promise<FIDORegistrationResult> {
+		try {
+			logger.info('FIDOService', 'Starting FIDO device registration', {
+				userId,
+				userName,
+				nickname: options.nickname,
+				authenticatorType: options.authenticatorType,
+			});
 
-      // Get registration options
-      const creationOptions = await this.getRegistrationOptions(
-        userId,
-        userName,
-        userDisplayName,
-        options
-      );
+			// Check WebAuthn support
+			const support = FIDOService.checkWebAuthnSupport();
+			if (!support.supported) {
+				return {
+					success: false,
+					error: 'WebAuthn is not supported in this browser',
+					errorCode: 'WEBAUTHN_NOT_SUPPORTED',
+				};
+			}
 
-      // Create credential
-      const credential = await navigator.credentials.create({
-        publicKey: creationOptions
-      }) as PublicKeyCredential;
+			// Get registration options
+			const creationOptions = await FIDOService.getRegistrationOptions(
+				userId,
+				userName,
+				userDisplayName,
+				options
+			);
 
-      if (!credential) {
-        return {
-          success: false,
-          error: 'Failed to create credential',
-          errorCode: 'CREDENTIAL_CREATION_FAILED'
-        };
-      }
+			// Create credential
+			const credential = (await navigator.credentials.create({
+				publicKey: creationOptions,
+			})) as PublicKeyCredential;
 
-      // Process the credential
-      const result = await this.processRegistrationCredential(credential, options);
-      
-      if (result.success) {
-        logger.info('FIDOService', 'FIDO device registered successfully', {
-          userId,
-          deviceId: result.deviceId,
-          credentialId: result.credentialId,
-          nickname: options.nickname
-        });
-      }
+			if (!credential) {
+				return {
+					success: false,
+					error: 'Failed to create credential',
+					errorCode: 'CREDENTIAL_CREATION_FAILED',
+				};
+			}
 
-      return result;
-    } catch (error) {
-      logger.error('FIDOService', 'FIDO registration failed', {
-        userId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        errorName: error instanceof Error ? error.name : 'UnknownError'
-      });
+			// Process the credential
+			const result = await FIDOService.processRegistrationCredential(credential, options);
 
-      return this.handleWebAuthnError(error);
-    }
-  }
+			if (result.success) {
+				logger.info('FIDOService', 'FIDO device registered successfully', {
+					userId,
+					deviceId: result.deviceId,
+					credentialId: result.credentialId,
+					nickname: options.nickname,
+				});
+			}
 
-  /**
-   * Get authentication options for FIDO challenge
-   */
-  static async getAuthenticationOptions(
-    userId: string,
-    allowedCredentials?: PublicKeyCredentialDescriptor[],
-    userVerification: UserVerificationRequirement = 'preferred'
-  ): Promise<PublicKeyCredentialRequestOptions> {
-    const challenge = this.generateChallenge();
+			return result;
+		} catch (error) {
+			logger.error('FIDOService', 'FIDO registration failed', {
+				userId,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				errorName: error instanceof Error ? error.name : 'UnknownError',
+			});
 
-    const requestOptions: PublicKeyCredentialRequestOptions = {
-      challenge,
-      timeout: this.DEFAULT_TIMEOUT,
-      rpId: this.RP_ID,
-      allowCredentials: allowedCredentials || [],
-      userVerification
-    };
+			return FIDOService.handleWebAuthnError(error);
+		}
+	}
 
-    logger.info('FIDOService', 'Generated authentication options', {
-      userId,
-      allowedCredentialsCount: allowedCredentials?.length || 0,
-      userVerification
-    });
+	/**
+	 * Get authentication options for FIDO challenge
+	 */
+	static async getAuthenticationOptions(
+		userId: string,
+		allowedCredentials?: PublicKeyCredentialDescriptor[],
+		userVerification: UserVerificationRequirement = 'preferred'
+	): Promise<PublicKeyCredentialRequestOptions> {
+		const challenge = FIDOService.generateChallenge();
 
-    return requestOptions;
-  }
+		const requestOptions: PublicKeyCredentialRequestOptions = {
+			challenge,
+			timeout: FIDOService.DEFAULT_TIMEOUT,
+			rpId: FIDOService.RP_ID,
+			allowCredentials: allowedCredentials || [],
+			userVerification,
+		};
 
-  /**
-   * Authenticate with FIDO device
-   */
-  static async authenticateDevice(
-    userId: string,
-    challengeData: FIDOChallenge
-  ): Promise<FIDOAuthResult> {
-    try {
-      logger.info('FIDOService', 'Starting FIDO authentication', {
-        userId,
-        challengeId: challengeData.challengeId,
-        allowedCredentialsCount: challengeData.allowCredentials.length
-      });
+		logger.info('FIDOService', 'Generated authentication options', {
+			userId,
+			allowedCredentialsCount: allowedCredentials?.length || 0,
+			userVerification,
+		});
 
-      // Check WebAuthn support
-      const support = this.checkWebAuthnSupport();
-      if (!support.supported) {
-        return {
-          success: false,
-          error: 'WebAuthn is not supported in this browser',
-          errorCode: 'WEBAUTHN_NOT_SUPPORTED'
-        };
-      }
+		return requestOptions;
+	}
 
-      // Create authentication options
-      const requestOptions: PublicKeyCredentialRequestOptions = {
-        challenge: this.stringToArrayBuffer(challengeData.challenge),
-        timeout: challengeData.timeout,
-        rpId: challengeData.rpId,
-        allowCredentials: challengeData.allowCredentials,
-        userVerification: challengeData.userVerification
-      };
+	/**
+	 * Authenticate with FIDO device
+	 */
+	static async authenticateDevice(
+		userId: string,
+		challengeData: FIDOChallenge
+	): Promise<FIDOAuthResult> {
+		try {
+			logger.info('FIDOService', 'Starting FIDO authentication', {
+				userId,
+				challengeId: challengeData.challengeId,
+				allowedCredentialsCount: challengeData.allowCredentials.length,
+			});
 
-      // Get credential
-      const credential = await navigator.credentials.get({
-        publicKey: requestOptions
-      }) as PublicKeyCredential;
+			// Check WebAuthn support
+			const support = FIDOService.checkWebAuthnSupport();
+			if (!support.supported) {
+				return {
+					success: false,
+					error: 'WebAuthn is not supported in this browser',
+					errorCode: 'WEBAUTHN_NOT_SUPPORTED',
+				};
+			}
 
-      if (!credential) {
-        return {
-          success: false,
-          error: 'Authentication was cancelled or failed',
-          errorCode: 'AUTHENTICATION_CANCELLED'
-        };
-      }
+			// Create authentication options
+			const requestOptions: PublicKeyCredentialRequestOptions = {
+				challenge: FIDOService.stringToArrayBuffer(challengeData.challenge),
+				timeout: challengeData.timeout,
+				rpId: challengeData.rpId,
+				allowCredentials: challengeData.allowCredentials,
+				userVerification: challengeData.userVerification,
+			};
 
-      // Process the authentication response
-      const result = await this.processAuthenticationCredential(credential, challengeData);
-      
-      if (result.success) {
-        logger.info('FIDOService', 'FIDO authentication successful', {
-          userId,
-          challengeId: challengeData.challengeId,
-          credentialId: result.credentialId
-        });
-      }
+			// Get credential
+			const credential = (await navigator.credentials.get({
+				publicKey: requestOptions,
+			})) as PublicKeyCredential;
 
-      return result;
-    } catch (error) {
-      logger.error('FIDOService', 'FIDO authentication failed', {
-        userId,
-        challengeId: challengeData.challengeId,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        errorName: error instanceof Error ? error.name : 'UnknownError'
-      });
+			if (!credential) {
+				return {
+					success: false,
+					error: 'Authentication was cancelled or failed',
+					errorCode: 'AUTHENTICATION_CANCELLED',
+				};
+			}
 
-      return this.handleWebAuthnError(error);
-    }
-  }
+			// Process the authentication response
+			const result = await FIDOService.processAuthenticationCredential(credential, challengeData);
 
-  /**
-   * Check if conditional mediation is available
-   */
-  static async isConditionalMediationAvailable(): Promise<boolean> {
-    try {
-      if ('isConditionalMediationAvailable' in PublicKeyCredential) {
-        return await PublicKeyCredential.isConditionalMediationAvailable();
-      }
-      return false;
-    } catch (error) {
-      logger.warn('FIDOService', 'Failed to check conditional mediation availability', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      return false;
-    }
-  }
+			if (result.success) {
+				logger.info('FIDOService', 'FIDO authentication successful', {
+					userId,
+					challengeId: challengeData.challengeId,
+					credentialId: result.credentialId,
+				});
+			}
 
-  /**
-   * Check if user verifying platform authenticator is available
-   */
-  static async isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
-    try {
-      if ('isUserVerifyingPlatformAuthenticatorAvailable' in PublicKeyCredential) {
-        return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
-      }
-      return false;
-    } catch (error) {
-      logger.warn('FIDOService', 'Failed to check platform authenticator availability', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
-      return false;
-    }
-  }
+			return result;
+		} catch (error) {
+			logger.error('FIDOService', 'FIDO authentication failed', {
+				userId,
+				challengeId: challengeData.challengeId,
+				error: error instanceof Error ? error.message : 'Unknown error',
+				errorName: error instanceof Error ? error.name : 'UnknownError',
+			});
 
-  // Private helper methods
+			return FIDOService.handleWebAuthnError(error);
+		}
+	}
 
-  private static generateChallenge(): ArrayBuffer {
-    const array = new Uint8Array(this.CHALLENGE_LENGTH);
-    crypto.getRandomValues(array);
-    return array.buffer;
-  }
+	/**
+	 * Check if conditional mediation is available
+	 */
+	static async isConditionalMediationAvailable(): Promise<boolean> {
+		try {
+			if ('isConditionalMediationAvailable' in PublicKeyCredential) {
+				return await PublicKeyCredential.isConditionalMediationAvailable();
+			}
+			return false;
+		} catch (error) {
+			logger.warn('FIDOService', 'Failed to check conditional mediation availability', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			return false;
+		}
+	}
 
-  private static stringToArrayBuffer(str: string): ArrayBuffer {
-    const encoder = new TextEncoder();
-    return encoder.encode(str).buffer;
-  }
+	/**
+	 * Check if user verifying platform authenticator is available
+	 */
+	static async isUserVerifyingPlatformAuthenticatorAvailable(): Promise<boolean> {
+		try {
+			if ('isUserVerifyingPlatformAuthenticatorAvailable' in PublicKeyCredential) {
+				return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+			}
+			return false;
+		} catch (error) {
+			logger.warn('FIDOService', 'Failed to check platform authenticator availability', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
+			return false;
+		}
+	}
 
-  private static arrayBufferToString(buffer: ArrayBuffer): string {
-    const decoder = new TextDecoder();
-    return decoder.decode(buffer);
-  }
+	// Private helper methods
 
-  private static arrayBufferToBase64(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let binary = '';
-    for (let i = 0; i < bytes.byteLength; i++) {
-      binary += String.fromCharCode(bytes[i]);
-    }
-    return btoa(binary);
-  }
+	private static generateChallenge(): ArrayBuffer {
+		const array = new Uint8Array(FIDOService.CHALLENGE_LENGTH);
+		crypto.getRandomValues(array);
+		return array.buffer;
+	}
 
-  private static base64ToArrayBuffer(base64: string): ArrayBuffer {
-    const binary = atob(base64);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i++) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-    return bytes.buffer;
-  }
+	private static stringToArrayBuffer(str: string): ArrayBuffer {
+		const encoder = new TextEncoder();
+		return encoder.encode(str).buffer;
+	}
 
-  private static async processRegistrationCredential(
-    credential: PublicKeyCredential,
-    options: FIDORegistrationOptions
-  ): Promise<FIDORegistrationResult> {
-    try {
-      const response = credential.response as AuthenticatorAttestationResponse;
-      const credentialId = this.arrayBufferToBase64(credential.rawId);
-      const publicKey = this.arrayBufferToBase64(response.getPublicKey()?.buffer || new ArrayBuffer(0));
-      
-      // Extract AAGUID from attestation object if available
-      let aaguid: string | undefined;
-      try {
-        const attestationObject = new Uint8Array(response.attestationObject);
-        // This is a simplified AAGUID extraction - in production, use a proper CBOR parser
-        aaguid = 'unknown';
-      } catch (error) {
-        logger.warn('FIDOService', 'Failed to extract AAGUID', { error });
-      }
+	private static arrayBufferToString(buffer: ArrayBuffer): string {
+		const decoder = new TextDecoder();
+		return decoder.decode(buffer);
+	}
 
-      // Create device record
-      const deviceId = `fido_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
-      const attestationResult: AttestationResult = {
-        verified: true, // In production, verify the attestation
-        attestationFormat: 'none', // Would be extracted from attestation object
-        metadata: {
-          aaguid: aaguid || 'unknown',
-          description: options.nickname
-        }
-      };
+	private static arrayBufferToBase64(buffer: ArrayBuffer): string {
+		const bytes = new Uint8Array(buffer);
+		let binary = '';
+		for (let i = 0; i < bytes.byteLength; i++) {
+			binary += String.fromCharCode(bytes[i]);
+		}
+		return btoa(binary);
+	}
 
-      return {
-        success: true,
-        deviceId,
-        credentialId,
-        publicKey,
-        attestationResult
-      };
-    } catch (error) {
-      logger.error('FIDOService', 'Failed to process registration credential', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+	private static async processRegistrationCredential(
+		credential: PublicKeyCredential,
+		options: FIDORegistrationOptions
+	): Promise<FIDORegistrationResult> {
+		try {
+			const response = credential.response as AuthenticatorAttestationResponse;
+			const credentialId = FIDOService.arrayBufferToBase64(credential.rawId);
+			const publicKey = FIDOService.arrayBufferToBase64(
+				response.getPublicKey()?.buffer || new ArrayBuffer(0)
+			);
 
-      return {
-        success: false,
-        error: 'Failed to process credential',
-        errorCode: 'CREDENTIAL_PROCESSING_FAILED'
-      };
-    }
-  }
+			// Extract AAGUID from attestation object if available
+			let aaguid: string | undefined;
+			try {
+				const _attestationObject = new Uint8Array(response.attestationObject);
+				// This is a simplified AAGUID extraction - in production, use a proper CBOR parser
+				aaguid = 'unknown';
+			} catch (error) {
+				logger.warn('FIDOService', 'Failed to extract AAGUID', { error });
+			}
 
-  private static async processAuthenticationCredential(
-    credential: PublicKeyCredential,
-    challengeData: FIDOChallenge
-  ): Promise<FIDOAuthResult> {
-    try {
-      const response = credential.response as AuthenticatorAssertionResponse;
-      const credentialId = this.arrayBufferToBase64(credential.rawId);
-      const signature = this.arrayBufferToBase64(response.signature);
-      const userHandle = response.userHandle ? this.arrayBufferToString(response.userHandle) : undefined;
+			// Create device record
+			const deviceId = `fido_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-      // In production, verify the signature against the stored public key
-      const signatureValid = true; // Placeholder for actual signature verification
+			const attestationResult: AttestationResult = {
+				verified: true, // In production, verify the attestation
+				attestationFormat: 'none', // Would be extracted from attestation object
+				metadata: {
+					aaguid: aaguid || 'unknown',
+					description: options.nickname,
+				},
+			};
 
-      if (!signatureValid) {
-        return {
-          success: false,
-          error: 'Invalid signature',
-          errorCode: 'INVALID_SIGNATURE'
-        };
-      }
+			return {
+				success: true,
+				deviceId,
+				credentialId,
+				publicKey,
+				attestationResult,
+			};
+		} catch (error) {
+			logger.error('FIDOService', 'Failed to process registration credential', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
-      return {
-        success: true,
-        challengeId: challengeData.challengeId,
-        credentialId,
-        signature,
-        userHandle
-      };
-    } catch (error) {
-      logger.error('FIDOService', 'Failed to process authentication credential', {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      });
+			return {
+				success: false,
+				error: 'Failed to process credential',
+				errorCode: 'CREDENTIAL_PROCESSING_FAILED',
+			};
+		}
+	}
 
-      return {
-        success: false,
-        error: 'Failed to process authentication',
-        errorCode: 'AUTHENTICATION_PROCESSING_FAILED'
-      };
-    }
-  }
+	private static async processAuthenticationCredential(
+		credential: PublicKeyCredential,
+		challengeData: FIDOChallenge
+	): Promise<FIDOAuthResult> {
+		try {
+			const response = credential.response as AuthenticatorAssertionResponse;
+			const credentialId = FIDOService.arrayBufferToBase64(credential.rawId);
+			const signature = FIDOService.arrayBufferToBase64(response.signature);
+			const userHandle = response.userHandle
+				? FIDOService.arrayBufferToString(response.userHandle)
+				: undefined;
 
-  private static handleWebAuthnError(error: any): FIDORegistrationResult | FIDOAuthResult {
-    let errorMessage = 'Unknown error occurred';
-    let errorCode = 'UNKNOWN_ERROR';
+			// In production, verify the signature against the stored public key
+			const signatureValid = true; // Placeholder for actual signature verification
 
-    if (error instanceof Error) {
-      switch (error.name) {
-        case 'NotSupportedError':
-          errorMessage = 'WebAuthn is not supported by this browser or device';
-          errorCode = 'NOT_SUPPORTED';
-          break;
-        case 'SecurityError':
-          errorMessage = 'Security error: Invalid domain or HTTPS required';
-          errorCode = 'SECURITY_ERROR';
-          break;
-        case 'NotAllowedError':
-          errorMessage = 'Operation was cancelled by user or not allowed';
-          errorCode = 'NOT_ALLOWED';
-          break;
-        case 'InvalidStateError':
-          errorMessage = 'Authenticator is already registered or in invalid state';
-          errorCode = 'INVALID_STATE';
-          break;
-        case 'ConstraintError':
-          errorMessage = 'Constraint error: Authenticator does not meet requirements';
-          errorCode = 'CONSTRAINT_ERROR';
-          break;
-        case 'TimeoutError':
-          errorMessage = 'Operation timed out';
-          errorCode = 'TIMEOUT';
-          break;
-        case 'NetworkError':
-          errorMessage = 'Network error occurred';
-          errorCode = 'NETWORK_ERROR';
-          break;
-        case 'AbortError':
-          errorMessage = 'Operation was aborted';
-          errorCode = 'ABORTED';
-          break;
-        default:
-          errorMessage = error.message || 'WebAuthn operation failed';
-          errorCode = 'WEBAUTHN_ERROR';
-      }
-    }
+			if (!signatureValid) {
+				return {
+					success: false,
+					error: 'Invalid signature',
+					errorCode: 'INVALID_SIGNATURE',
+				};
+			}
 
-    return {
-      success: false,
-      error: errorMessage,
-      errorCode
-    };
-  }
+			return {
+				success: true,
+				challengeId: challengeData.challengeId,
+				credentialId,
+				signature,
+				userHandle,
+			};
+		} catch (error) {
+			logger.error('FIDOService', 'Failed to process authentication credential', {
+				error: error instanceof Error ? error.message : 'Unknown error',
+			});
 
-  private static getBrowserInfo(userAgent: string): string {
-    if (userAgent.includes('Chrome')) return 'Chrome';
-    if (userAgent.includes('Firefox')) return 'Firefox';
-    if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
-    if (userAgent.includes('Edge')) return 'Edge';
-    if (userAgent.includes('Opera')) return 'Opera';
-    return 'Unknown';
-  }
+			return {
+				success: false,
+				error: 'Failed to process authentication',
+				errorCode: 'AUTHENTICATION_PROCESSING_FAILED',
+			};
+		}
+	}
 
-  /**
-   * Get FIDO capabilities for the current environment
-   */
-  static getCapabilities(): {
-    webAuthnSupported: boolean;
-    platformAuthenticator: boolean;
-    crossPlatformAuthenticator: boolean;
-    conditionalMediation: boolean;
-    userVerification: boolean;
-    attestationFormats: string[];
-    algorithms: string[];
-  } {
-    const support = this.checkWebAuthnSupport();
-    
-    return {
-      webAuthnSupported: support.supported,
-      platformAuthenticator: support.platformAuthenticator,
-      crossPlatformAuthenticator: support.crossPlatformAuthenticator,
-      conditionalMediation: support.conditionalMediation,
-      userVerification: support.userVerifyingPlatformAuthenticator,
-      attestationFormats: ['none', 'packed', 'fido-u2f'],
-      algorithms: ['ES256', 'ES384', 'ES512', 'RS256']
-    };
-  }
+	private static handleWebAuthnError(error: any): FIDORegistrationResult | FIDOAuthResult {
+		let errorMessage = 'Unknown error occurred';
+		let errorCode = 'UNKNOWN_ERROR';
+
+		if (error instanceof Error) {
+			switch (error.name) {
+				case 'NotSupportedError':
+					errorMessage = 'WebAuthn is not supported by this browser or device';
+					errorCode = 'NOT_SUPPORTED';
+					break;
+				case 'SecurityError':
+					errorMessage = 'Security error: Invalid domain or HTTPS required';
+					errorCode = 'SECURITY_ERROR';
+					break;
+				case 'NotAllowedError':
+					errorMessage = 'Operation was cancelled by user or not allowed';
+					errorCode = 'NOT_ALLOWED';
+					break;
+				case 'InvalidStateError':
+					errorMessage = 'Authenticator is already registered or in invalid state';
+					errorCode = 'INVALID_STATE';
+					break;
+				case 'ConstraintError':
+					errorMessage = 'Constraint error: Authenticator does not meet requirements';
+					errorCode = 'CONSTRAINT_ERROR';
+					break;
+				case 'TimeoutError':
+					errorMessage = 'Operation timed out';
+					errorCode = 'TIMEOUT';
+					break;
+				case 'NetworkError':
+					errorMessage = 'Network error occurred';
+					errorCode = 'NETWORK_ERROR';
+					break;
+				case 'AbortError':
+					errorMessage = 'Operation was aborted';
+					errorCode = 'ABORTED';
+					break;
+				default:
+					errorMessage = error.message || 'WebAuthn operation failed';
+					errorCode = 'WEBAUTHN_ERROR';
+			}
+		}
+
+		return {
+			success: false,
+			error: errorMessage,
+			errorCode,
+		};
+	}
+
+	private static getBrowserInfo(userAgent: string): string {
+		if (userAgent.includes('Chrome')) return 'Chrome';
+		if (userAgent.includes('Firefox')) return 'Firefox';
+		if (userAgent.includes('Safari') && !userAgent.includes('Chrome')) return 'Safari';
+		if (userAgent.includes('Edge')) return 'Edge';
+		if (userAgent.includes('Opera')) return 'Opera';
+		return 'Unknown';
+	}
+
+	/**
+	 * Get FIDO capabilities for the current environment
+	 */
+	static getCapabilities(): {
+		webAuthnSupported: boolean;
+		platformAuthenticator: boolean;
+		crossPlatformAuthenticator: boolean;
+		conditionalMediation: boolean;
+		userVerification: boolean;
+		attestationFormats: string[];
+		algorithms: string[];
+	} {
+		const support = FIDOService.checkWebAuthnSupport();
+
+		return {
+			webAuthnSupported: support.supported,
+			platformAuthenticator: support.platformAuthenticator,
+			crossPlatformAuthenticator: support.crossPlatformAuthenticator,
+			conditionalMediation: support.conditionalMediation,
+			userVerification: support.userVerifyingPlatformAuthenticator,
+			attestationFormats: ['none', 'packed', 'fido-u2f'],
+			algorithms: ['ES256', 'ES384', 'ES512', 'RS256'],
+		};
+	}
 }
 
 export default FIDOService;

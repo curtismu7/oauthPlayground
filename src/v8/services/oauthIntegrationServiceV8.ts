@@ -1,0 +1,579 @@
+/**
+ * @file oauthIntegrationServiceV8.ts
+ * @module v8/services
+ * @description Real OAuth integration with PingOne APIs
+ * @version 8.0.0
+ * @since 2024-11-16
+ *
+ * Handles:
+ * - Authorization URL generation with PKCE
+ * - Token endpoint calls
+ * - Callback URL parsing
+ * - Token validation and decoding
+ *
+ * @example
+ * const service = new OAuthIntegrationServiceV8();
+ * const authUrl = service.generateAuthorizationUrl(credentials);
+ */
+
+const MODULE_TAG = '[🔐 OAUTH-INTEGRATION-V8]';
+
+export interface OAuthCredentials {
+	environmentId: string;
+	clientId: string;
+	clientSecret?: string;
+	redirectUri: string;
+	scopes: string;
+}
+
+export interface PKCECodes {
+	codeVerifier: string;
+	codeChallenge: string;
+	codeChallengeMethod: 'S256' | 'plain';
+}
+
+export interface AuthorizationUrlParams {
+	authorizationUrl: string;
+	state: string;
+	codeChallenge: string;
+	codeChallengeMethod: string;
+	codeVerifier: string;
+}
+
+export interface TokenResponse {
+	access_token: string;
+	token_type: string;
+	expires_in: number;
+	id_token?: string;
+	refresh_token?: string;
+	scope?: string;
+}
+
+export interface DecodedToken {
+	header: Record<string, unknown>;
+	payload: Record<string, unknown>;
+	signature: string;
+}
+
+/**
+ * OAuthIntegrationServiceV8
+ *
+ * Real OAuth 2.0 integration with PingOne APIs
+ */
+export class OAuthIntegrationServiceV8 {
+	/**
+	 * Generate PKCE codes for secure authorization code flow
+	 * @returns PKCE codes (verifier and challenge)
+	 */
+	static async generatePKCECodes(): Promise<PKCECodes> {
+		console.log(`${MODULE_TAG} Generating PKCE codes`);
+
+		// Generate random code verifier (43-128 characters)
+		const codeVerifier = OAuthIntegrationServiceV8.generateRandomString(128);
+
+		// Generate code challenge from verifier using SHA256 (properly async)
+		const codeChallenge = await OAuthIntegrationServiceV8.generateCodeChallenge(codeVerifier);
+
+		return {
+			codeVerifier,
+			codeChallenge,
+			codeChallengeMethod: 'S256',
+		};
+	}
+
+	/**
+	 * Generate authorization URL for user authentication
+	 * @param credentials - OAuth credentials
+	 * @param pkceCodes - Optional PKCE codes (if provided, will be used instead of generating new ones)
+	 * @returns Authorization URL parameters
+	 */
+	static async generateAuthorizationUrl(
+		credentials: OAuthCredentials,
+		pkceCodes?: PKCECodes
+	): Promise<AuthorizationUrlParams> {
+		console.log(`${MODULE_TAG} Generating authorization URL`, {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+			redirectUri: credentials.redirectUri,
+			scopes: credentials.scopes,
+			hasPKCE: !!pkceCodes,
+		});
+
+		// Validate required fields
+		if (!credentials.redirectUri) {
+			throw new Error('Redirect URI is required but not provided in credentials');
+		}
+		if (!credentials.clientId) {
+			throw new Error('Client ID is required but not provided in credentials');
+		}
+		if (!credentials.environmentId) {
+			throw new Error('Environment ID is required but not provided in credentials');
+		}
+
+		// Ensure scopes default to 'openid' for user authentication flows
+		// User flows (authorization code, implicit, hybrid) MUST include 'openid' for OIDC
+		const scopes = credentials.scopes && credentials.scopes.trim() !== '' 
+			? credentials.scopes 
+			: 'openid profile email';
+		
+		// Warn if 'openid' is missing (user likely made a mistake)
+		if (!scopes.includes('openid')) {
+			console.warn(
+				`${MODULE_TAG} WARNING: 'openid' scope is missing. For user authentication flows, 'openid' scope is required for OIDC. Adding it automatically.`
+			);
+		}
+		
+		// Ensure 'openid' is always included for user flows
+		const finalScopes = scopes.includes('openid') ? scopes : `openid ${scopes}`;
+
+		// Use provided PKCE codes or generate new ones (now async)
+		const pkce = pkceCodes || await OAuthIntegrationServiceV8.generatePKCECodes();
+
+		// Generate state parameter for CSRF protection
+		const state = OAuthIntegrationServiceV8.generateRandomString(32);
+
+		// Build authorization endpoint URL
+		const authorizationEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/authorize`;
+
+		// Build query parameters
+		const params = new URLSearchParams({
+			client_id: credentials.clientId,
+			response_type: 'code',
+			redirect_uri: credentials.redirectUri,
+			scope: finalScopes,
+			state: state,
+			code_challenge: pkce.codeChallenge,
+			code_challenge_method: pkce.codeChallengeMethod,
+		});
+
+		const authorizationUrl = `${authorizationEndpoint}?${params.toString()}`;
+
+		console.log(`${MODULE_TAG} Authorization URL generated`, {
+			url: `${authorizationUrl.substring(0, 100)}...`,
+		});
+
+		return {
+			authorizationUrl,
+			state,
+			codeChallenge: pkce.codeChallenge,
+			codeChallengeMethod: pkce.codeChallengeMethod,
+			codeVerifier: pkce.codeVerifier,
+		};
+	}
+
+	/**
+	 * Parse callback URL to extract authorization code and state
+	 * @param callbackUrl - Full callback URL from authorization server
+	 * @param expectedState - Expected state parameter for validation
+	 * @returns Parsed code and state
+	 */
+	static parseCallbackUrl(
+		callbackUrl: string,
+		expectedState: string
+	): { code: string; state: string } {
+		console.log(`${MODULE_TAG} Parsing callback URL`);
+
+		try {
+			const url = new URL(callbackUrl);
+			const code = url.searchParams.get('code');
+			const state = url.searchParams.get('state');
+			const error = url.searchParams.get('error');
+			const errorDescription = url.searchParams.get('error_description');
+
+			// Check for error in callback
+			if (error) {
+				throw new Error(`Authorization failed: ${error} - ${errorDescription || ''}`);
+			}
+
+			// Validate code
+			if (!code) {
+				throw new Error('Authorization code not found in callback URL');
+			}
+
+			// Validate state
+			if (!state) {
+				throw new Error('State parameter not found in callback URL');
+			}
+
+			if (state !== expectedState) {
+				throw new Error('State parameter mismatch - possible CSRF attack');
+			}
+
+			console.log(`${MODULE_TAG} Callback URL parsed successfully`);
+
+			return { code, state };
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error parsing callback URL`, { error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Exchange authorization code for tokens
+	 * @param credentials - OAuth credentials
+	 * @param code - Authorization code from callback
+	 * @param codeVerifier - PKCE code verifier
+	 * @returns Token response
+	 */
+	static async exchangeCodeForTokens(
+		credentials: OAuthCredentials,
+		code: string,
+		codeVerifier: string
+	): Promise<TokenResponse> {
+		console.log(
+			`${MODULE_TAG} ========== OAUTH INTEGRATION SERVICE: exchangeCodeForTokens ==========`
+		);
+		console.log(`${MODULE_TAG} Credentials:`, {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+			redirectUri: credentials.redirectUri,
+			scopes: credentials.scopes,
+			hasClientSecret: !!credentials.clientSecret,
+			clientSecretLength: credentials.clientSecret?.length,
+		});
+		console.log(`${MODULE_TAG} Code:`, `${code?.substring(0, 30)}...`);
+		console.log(`${MODULE_TAG} Code Verifier:`, `${codeVerifier?.substring(0, 30)}...`);
+		console.log(`${MODULE_TAG} Code Verifier length:`, codeVerifier?.length);
+
+		try {
+			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+			console.log(`${MODULE_TAG} Token endpoint:`, tokenEndpoint);
+
+			const bodyParams: Record<string, string> = {
+				grant_type: 'authorization_code',
+				client_id: credentials.clientId,
+				code: code,
+				redirect_uri: credentials.redirectUri,
+			};
+
+			// Only add code_verifier if it's provided (PKCE flow)
+			if (codeVerifier) {
+				bodyParams.code_verifier = codeVerifier;
+				console.log(`${MODULE_TAG} ✅ Including code_verifier in request (PKCE flow)`);
+			} else {
+				console.log(`${MODULE_TAG} ⚠️ No code_verifier provided (non-PKCE flow)`);
+			}
+
+			const body = new URLSearchParams(bodyParams);
+
+			// Add client secret if provided (confidential client)
+			if (credentials.clientSecret) {
+				body.append('client_secret', credentials.clientSecret);
+				console.log(`${MODULE_TAG} ✅ Including client_secret in request (confidential client)`);
+			} else {
+				console.log(`${MODULE_TAG} ⚠️ No client_secret provided (public client)`);
+			}
+
+			console.log(`${MODULE_TAG} Request body parameters:`, {
+				grant_type: bodyParams.grant_type,
+				client_id: bodyParams.client_id,
+				code: `${code.substring(0, 20)}...`,
+				redirect_uri: bodyParams.redirect_uri,
+				has_code_verifier: !!bodyParams.code_verifier,
+				has_client_secret: !!credentials.clientSecret,
+			});
+
+			console.log(`${MODULE_TAG} 🚀 Sending POST request to token endpoint...`);
+			const response = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: body.toString(),
+			});
+
+			console.log(`${MODULE_TAG} Response status:`, response.status);
+			console.log(`${MODULE_TAG} Response status text:`, response.statusText);
+
+			if (!response.ok) {
+				console.error(`${MODULE_TAG} ❌ Token exchange failed with status ${response.status}`);
+				const errorData = await response.json();
+				console.error(`${MODULE_TAG} Error response:`, errorData);
+				throw new Error(
+					`Token exchange failed: ${errorData.error} - ${errorData.error_description || ''}`
+				);
+			}
+
+			const tokens: TokenResponse = await response.json();
+
+			console.log(`${MODULE_TAG} ✅ Tokens received successfully!`, {
+				hasAccessToken: !!tokens.access_token,
+				accessTokenLength: tokens.access_token?.length,
+				hasIdToken: !!tokens.id_token,
+				idTokenLength: tokens.id_token?.length,
+				hasRefreshToken: !!tokens.refresh_token,
+				refreshTokenLength: tokens.refresh_token?.length,
+				expiresIn: tokens.expires_in,
+				tokenType: tokens.token_type,
+				scope: tokens.scope,
+			});
+
+			return tokens;
+		} catch (error) {
+			console.error(`${MODULE_TAG} ❌ Error exchanging code for tokens:`, error);
+			if (error instanceof Error) {
+				console.error(`${MODULE_TAG} Error message:`, error.message);
+				console.error(`${MODULE_TAG} Error stack:`, error.stack);
+			}
+			throw error;
+		}
+	}
+
+	/**
+	 * Refresh access token using refresh token
+	 * @param credentials - OAuth credentials
+	 * @param refreshToken - Refresh token
+	 * @returns New token response
+	 */
+	static async refreshAccessToken(
+		credentials: OAuthCredentials,
+		refreshToken: string
+	): Promise<TokenResponse> {
+		console.log(`${MODULE_TAG} Refreshing access token`, {
+			environmentId: credentials.environmentId,
+			clientId: credentials.clientId,
+		});
+
+		try {
+			const tokenEndpoint = `https://auth.pingone.com/${credentials.environmentId}/as/token`;
+
+			const body = new URLSearchParams({
+				grant_type: 'refresh_token',
+				client_id: credentials.clientId,
+				refresh_token: refreshToken,
+			});
+
+			// Add client secret if provided
+			if (credentials.clientSecret) {
+				body.append('client_secret', credentials.clientSecret);
+			}
+
+			const response = await fetch(tokenEndpoint, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded',
+				},
+				body: body.toString(),
+			});
+
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(
+					`Token refresh failed: ${errorData.error} - ${errorData.error_description || ''}`
+				);
+			}
+
+			const tokens: TokenResponse = await response.json();
+
+			console.log(`${MODULE_TAG} Access token refreshed successfully`);
+
+			return tokens;
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error refreshing access token`, { error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Decode JWT token (without verification)
+	 * @param token - JWT token to decode
+	 * @returns Decoded token with header, payload, and signature
+	 */
+	static decodeToken(token: string): DecodedToken {
+		console.log(`${MODULE_TAG} Decoding JWT token`);
+
+		try {
+			const parts = token.split('.');
+
+			if (parts.length !== 3) {
+				throw new Error('Invalid JWT format');
+			}
+
+			const header = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[0]));
+			const payload = JSON.parse(OAuthIntegrationServiceV8.base64UrlDecode(parts[1]));
+			const signature = parts[2];
+
+			console.log(`${MODULE_TAG} Token decoded successfully`);
+
+			return { header, payload, signature };
+		} catch (error) {
+			console.error(`${MODULE_TAG} Error decoding token`, { error });
+			throw error;
+		}
+	}
+
+	/**
+	 * Validate token expiry
+	 * @param token - JWT token
+	 * @returns True if token is not expired
+	 */
+	static isTokenValid(token: string): boolean {
+		try {
+			const decoded = OAuthIntegrationServiceV8.decodeToken(token);
+			const payload = decoded.payload as { exp?: number };
+
+			if (!payload.exp) {
+				return true; // No expiry claim
+			}
+
+			const expiryTime = payload.exp * 1000; // Convert to milliseconds
+			const currentTime = Date.now();
+
+			return currentTime < expiryTime;
+		} catch {
+			return false;
+		}
+	}
+
+	/**
+	 * Get token expiry time
+	 * @param token - JWT token
+	 * @returns Expiry time in milliseconds from now, or null if no expiry
+	 */
+	static getTokenExpiryTime(token: string): number | null {
+		try {
+			const decoded = OAuthIntegrationServiceV8.decodeToken(token);
+			const payload = decoded.payload as { exp?: number };
+
+			if (!payload.exp) {
+				return null;
+			}
+
+			const expiryTime = payload.exp * 1000;
+			const currentTime = Date.now();
+
+			return Math.max(0, expiryTime - currentTime);
+		} catch {
+			return null;
+		}
+	}
+
+	/**
+	 * Generate random string for state and code verifier
+	 * @param length - Length of random string
+	 * @returns Random string
+	 */
+	private static generateRandomString(length: number): string {
+		const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+		let result = '';
+
+		for (let i = 0; i < length; i++) {
+			result += chars.charAt(Math.floor(Math.random() * chars.length));
+		}
+
+		return result;
+	}
+
+	/**
+	 * Generate code challenge from code verifier using SHA256
+	 * @param codeVerifier - Code verifier
+	 * @returns Code challenge (using proper crypto.subtle.digest)
+	 */
+	private static async generateCodeChallenge(codeVerifier: string): Promise<string> {
+		// Use Web Crypto API (available in all modern browsers and Node.js 15+)
+		if (crypto?.subtle) {
+			// Browser environment - use Web Crypto API with proper SHA-256 hashing
+			return OAuthIntegrationServiceV8.browserGenerateCodeChallenge(codeVerifier);
+		}
+
+		// Fallback: simple base64 encoding (not cryptographically secure, but works)
+		// This should not happen in modern browsers
+		console.warn(`${MODULE_TAG} Web Crypto API not available, using fallback`);
+		return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
+	}
+
+	/**
+	 * Generate code challenge in browser using Web Crypto API with proper SHA-256
+	 * @param codeVerifier - Code verifier
+	 * @returns Code challenge
+	 */
+	private static async browserGenerateCodeChallenge(codeVerifier: string): Promise<string> {
+		try {
+			// Use proper crypto.subtle.digest for SHA-256 hashing (RFC 7636 compliant)
+			const encoder = new TextEncoder();
+			const data = encoder.encode(codeVerifier);
+
+			// Generate SHA-256 hash using Web Crypto API
+			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+			// Convert ArrayBuffer to base64url
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			const hashBase64 = btoa(String.fromCharCode(...hashArray));
+			
+			// Convert to base64url (RFC 4648 §5)
+			return hashBase64
+				.replace(/\+/g, '-')
+				.replace(/\//g, '_')
+				.replace(/=/g, '');
+		} catch (err) {
+			console.error(
+				`${MODULE_TAG} Failed to generate code challenge with Web Crypto`,
+				err
+			);
+			// Fallback to base64url encoding (not secure, but better than failing)
+			return OAuthIntegrationServiceV8.base64UrlEncode(codeVerifier);
+		}
+	}
+
+	/**
+	 * Base64 URL encode (browser-compatible)
+	 * @param data - String, Buffer, or Uint8Array to encode
+	 * @returns Base64 URL encoded string
+	 */
+	private static base64UrlEncode(data: string | Buffer | Uint8Array): string {
+		let base64: string;
+
+		if (typeof data === 'string') {
+			// Browser-compatible base64 encoding
+			if (typeof btoa !== 'undefined') {
+				base64 = btoa(data);
+			} else if (typeof Buffer !== 'undefined') {
+				// Node.js fallback
+				base64 = Buffer.from(data).toString('base64');
+			} else {
+				throw new Error('No base64 encoding method available');
+			}
+		} else if (data instanceof Uint8Array) {
+			// Convert Uint8Array to base64
+			if (typeof btoa !== 'undefined') {
+				base64 = btoa(String.fromCharCode(...data));
+			} else if (typeof Buffer !== 'undefined') {
+				base64 = Buffer.from(data).toString('base64');
+			} else {
+				throw new Error('No base64 encoding method available');
+			}
+		} else {
+			// Buffer (Node.js) - TypeScript knows this is Buffer here
+			base64 = (data as Buffer).toString('base64');
+		}
+
+		return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+	}
+
+	/**
+	 * Base64 URL decode (browser-compatible)
+	 * @param str - Base64 URL encoded string
+	 * @returns Decoded string
+	 */
+	private static base64UrlDecode(str: string): string {
+		let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+
+		// Add padding if needed
+		const padding = 4 - (base64.length % 4);
+		if (padding !== 4) {
+			base64 += '='.repeat(padding);
+		}
+
+		// Browser-compatible base64 decoding
+		if (typeof atob !== 'undefined') {
+			return atob(base64);
+		} else if (typeof Buffer !== 'undefined') {
+			// Node.js fallback
+			return Buffer.from(base64, 'base64').toString('utf-8');
+		} else {
+			throw new Error('No base64 decoding method available');
+		}
+	}
+}
+
+export default OAuthIntegrationServiceV8;

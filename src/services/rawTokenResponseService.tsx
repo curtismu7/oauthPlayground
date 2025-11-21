@@ -1,7 +1,7 @@
 // src/services/rawTokenResponseService.tsx
 import React from 'react';
-import styled from 'styled-components';
 import { FiCheckCircle } from 'react-icons/fi';
+import styled from 'styled-components';
 import { ColoredTokenDisplay } from '../components/ColoredTokenDisplay';
 
 interface RawTokenResponseServiceProps {
@@ -62,12 +62,12 @@ export const RawTokenResponseService: React.FC<RawTokenResponseServiceProps> = (
 	tokens,
 	onNavigateToTokenManagement,
 	showIndividualTokens = true,
-	children
+	children,
 }) => {
 	// Check if we have any tokens
-	const hasTokens = tokens && Object.values(tokens).some(value => 
-		value !== null && value !== undefined && value !== ''
-	);
+	const hasTokens =
+		tokens &&
+		Object.values(tokens).some((value) => value !== null && value !== undefined && value !== '');
 
 	if (!hasTokens) {
 		return (
@@ -75,9 +75,7 @@ export const RawTokenResponseService: React.FC<RawTokenResponseServiceProps> = (
 				<ResultsHeading>
 					<FiCheckCircle size={18} /> Token Response
 				</ResultsHeading>
-				<HelperText>
-					Complete the authorization step to receive tokens.
-				</HelperText>
+				<HelperText>Complete the authorization step to receive tokens.</HelperText>
 				<div style={{ textAlign: 'center', padding: '2rem', color: '#666' }}>
 					<p>Complete the authorization step to receive tokens</p>
 				</div>
@@ -91,23 +89,21 @@ export const RawTokenResponseService: React.FC<RawTokenResponseServiceProps> = (
 				<FiCheckCircle size={18} /> Token Response
 			</ResultsHeading>
 			<HelperText>
-				Review the raw token response. Copy the JSON or open the token management
-				tooling to inspect each token.
+				Review the raw token response. Copy the JSON or open the token management tooling to inspect
+				each token.
 			</HelperText>
 
 			{/* Individual Token Displays (if enabled and children provided) */}
 			{showIndividualTokens && children && (
-				<IndividualTokensContainer>
-					{children}
-				</IndividualTokensContainer>
+				<IndividualTokensContainer>{children}</IndividualTokensContainer>
 			)}
 
 			{/* Raw Token Response */}
 			<RawResponseContainer>
 				<RawResponseTitle>Raw Token Response</RawResponseTitle>
 				<RawResponseDescription>
-					Review the raw token response. Copy the JSON or open the token management
-					tooling to inspect each token.
+					Review the raw token response. Copy the JSON or open the token management tooling to
+					inspect each token.
 				</RawResponseDescription>
 				<ColoredTokenDisplay
 					tokens={tokens}
@@ -124,4 +120,3 @@ export const RawTokenResponseService: React.FC<RawTokenResponseServiceProps> = (
 };
 
 export default RawTokenResponseService;
-

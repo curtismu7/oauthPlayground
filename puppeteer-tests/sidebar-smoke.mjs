@@ -18,11 +18,31 @@ const SUBMENUS = [
 const MENU_ITEMS = [
 	{ submenu: 'Core Overview', label: 'Dashboard', path: '/dashboard' },
 	{ submenu: 'Core Overview', label: 'Setup & Configuration', path: '/configuration' },
-	{ submenu: 'OAuth 2.0 Flows', label: 'Authorization Code (V6)', path: '/flows/oauth-authorization-code-v6' },
-	{ submenu: 'OAuth 2.0 Flows', label: 'Client Credentials (V6)', path: '/flows/client-credentials-v6' },
-	{ submenu: 'OAuth 2.0 Flows', label: 'Device Authorization (V6)', path: '/flows/device-authorization-v6' },
-	{ submenu: 'OpenID Connect', label: 'Authorization Code (V6)', path: '/flows/oidc-authorization-code-v6' },
-	{ submenu: 'OpenID Connect', label: 'Device Authorization (V6)', path: '/flows/oidc-device-authorization-v6' },
+	{
+		submenu: 'OAuth 2.0 Flows',
+		label: 'Authorization Code (V6)',
+		path: '/flows/oauth-authorization-code-v6',
+	},
+	{
+		submenu: 'OAuth 2.0 Flows',
+		label: 'Client Credentials (V6)',
+		path: '/flows/client-credentials-v6',
+	},
+	{
+		submenu: 'OAuth 2.0 Flows',
+		label: 'Device Authorization (V6)',
+		path: '/flows/device-authorization-v6',
+	},
+	{
+		submenu: 'OpenID Connect',
+		label: 'Authorization Code (V6)',
+		path: '/flows/oidc-authorization-code-v6',
+	},
+	{
+		submenu: 'OpenID Connect',
+		label: 'Device Authorization (V6)',
+		path: '/flows/oidc-device-authorization-v6',
+	},
 	{ submenu: 'PingOne', label: 'Worker Token (V6)', path: '/flows/worker-token-v6' },
 	{ submenu: 'PingOne', label: 'PAR (V6)', path: '/flows/pingone-par-v6' },
 	{ submenu: 'Mock & Demo Flows', label: 'RAR (V6)', path: '/flows/rar-v6' },
@@ -38,23 +58,22 @@ async function waitForRouterNavigation(page, expectedPath) {
 	await page.waitForFunction(
 		(path) => window.location.pathname === path,
 		{ timeout: 15000 },
-		expectedPath,
+		expectedPath
 	);
 }
 
 async function ensureSidebarReady(page) {
 	await page.waitForSelector('.ps-sidebar-root', { timeout: 15000 });
 	// Ensure initial navigation landed on dashboard (default redirect)
-	await page.waitForFunction(
-		() => window.location.pathname === '/dashboard',
-		{ timeout: 15000 },
-	);
+	await page.waitForFunction(() => window.location.pathname === '/dashboard', { timeout: 15000 });
 }
 
 async function ensureSubmenuOpen(page, submenuLabel) {
 	const wasOpened = await page.evaluate((label) => {
 		const buttons = Array.from(document.querySelectorAll('.ps-submenu-root > .ps-menu-button'));
-		const target = buttons.find((btn) => btn.textContent?.trim().toLowerCase().includes(label.toLowerCase()));
+		const target = buttons.find((btn) =>
+			btn.textContent?.trim().toLowerCase().includes(label.toLowerCase())
+		);
 		if (!target) return { found: false, expanded: false };
 		const expanded = target.getAttribute('aria-expanded') === 'true';
 		if (!expanded) {
@@ -68,18 +87,26 @@ async function ensureSubmenuOpen(page, submenuLabel) {
 	}
 
 	if (!wasOpened.expanded) {
-		await page.waitForFunction((label) => {
-			const buttons = Array.from(document.querySelectorAll('.ps-submenu-root > .ps-menu-button'));
-			const target = buttons.find((btn) => btn.textContent?.trim().toLowerCase().includes(label.toLowerCase()));
-			return target?.getAttribute('aria-expanded') === 'true';
-		}, { timeout: 5000 }, submenuLabel);
+		await page.waitForFunction(
+			(label) => {
+				const buttons = Array.from(document.querySelectorAll('.ps-submenu-root > .ps-menu-button'));
+				const target = buttons.find((btn) =>
+					btn.textContent?.trim().toLowerCase().includes(label.toLowerCase())
+				);
+				return target?.getAttribute('aria-expanded') === 'true';
+			},
+			{ timeout: 5000 },
+			submenuLabel
+		);
 	}
 }
 
 async function clickMenuItem(page, itemLabel) {
 	const clicked = await page.evaluate((label) => {
 		const buttons = Array.from(document.querySelectorAll('.ps-menuitem-root .ps-menu-button'));
-		const target = buttons.find((btn) => btn.textContent?.replace(/\s+/g, ' ').trim().toLowerCase().includes(label.toLowerCase()));
+		const target = buttons.find((btn) =>
+			btn.textContent?.replace(/\s+/g, ' ').trim().toLowerCase().includes(label.toLowerCase())
+		);
 		if (!target) return false;
 		target.click();
 		return true;
@@ -107,7 +134,10 @@ async function runNavigationChecks(page) {
 
 async function main() {
 	console.log(`🔍 Starting Puppeteer sidebar smoke test against ${APP_URL} (headless=${HEADLESS})`);
-	const browser = await puppeteer.launch({ headless: HEADLESS, defaultViewport: { width: 1440, height: 960 } });
+	const browser = await puppeteer.launch({
+		headless: HEADLESS,
+		defaultViewport: { width: 1440, height: 960 },
+	});
 	const page = await browser.newPage();
 
 	page.on('pageerror', (err) => {

@@ -1,14 +1,6 @@
 // src/hooks/useAuthActions.ts
-import { useCallback, type Dispatch, type SetStateAction } from 'react';
-import type { AuthContextType, AuthState, LoginResult } from '../types/auth';
-import type { OAuthTokens, OAuthTokenResponse } from '../types/storage';
-import { logger } from '../utils/logger';
-import { generateCodeChallenge } from '../utils/oauth';
-import { safeJsonParse } from '../utils/secureJson';
-import { oauthStorage } from '../utils/storage';
-import { validateAndParseCallbackUrl } from '../utils/urlValidation';
-import FlowContextUtils from '../services/flowContextUtils';
-import { saveFlowCredentials } from '../services/flowCredentialService';
+import { type Dispatch, type SetStateAction, useCallback } from 'react';
+import { loadAuthConfiguration } from '../services/authConfigurationService';
 import {
 	getAllStoredTokens,
 	getStoredTokens,
@@ -16,8 +8,15 @@ import {
 	isRefreshTokenValid,
 	isTokenValid,
 } from '../services/authTokenService';
-import { loadAuthConfiguration } from '../services/authConfigurationService';
-import type { AuthAppConfig } from '../types/auth';
+import FlowContextUtils from '../services/flowContextUtils';
+import { saveFlowCredentials } from '../services/flowCredentialService';
+import type { AuthAppConfig, AuthContextType, AuthState, LoginResult } from '../types/auth';
+import type { OAuthTokenResponse, OAuthTokens } from '../types/storage';
+import { logger } from '../utils/logger';
+import { generateCodeChallenge } from '../utils/oauth';
+import { safeJsonParse } from '../utils/secureJson';
+import { oauthStorage } from '../utils/storage';
+import { validateAndParseCallbackUrl } from '../utils/urlValidation';
 
 /**
  * Type-safe wrapper for oauthStorage.setTokens
@@ -198,16 +197,18 @@ const useAuthActions = ({
 				});
 
 				let authEndpoint: string | undefined =
-					typeof effectiveConfig?.pingone?.authEndpoint === 'string' ? effectiveConfig.pingone.authEndpoint :
-					typeof effectiveConfig?.authorizationEndpoint === 'string' ? effectiveConfig.authorizationEndpoint :
-					typeof effectiveConfig?.authEndpoint === 'string' ? effectiveConfig.authEndpoint :
-					undefined;
-				
+					typeof effectiveConfig?.pingone?.authEndpoint === 'string'
+						? effectiveConfig.pingone.authEndpoint
+						: typeof effectiveConfig?.authorizationEndpoint === 'string'
+							? effectiveConfig.authorizationEndpoint
+							: typeof effectiveConfig?.authEndpoint === 'string'
+								? effectiveConfig.authEndpoint
+								: undefined;
+
 				// IMPORTANT: Always prefer direct clientId over nested pingone.clientId
 				// The direct clientId is what's shown in the UI and what user configured
-				const clientId =
-					effectiveConfig?.clientId || effectiveConfig?.pingone?.clientId;
-				
+				const clientId = effectiveConfig?.clientId || effectiveConfig?.pingone?.clientId;
+
 				console.log('🔍 [NewAuthContext] CLIENT ID SELECTION:', {
 					directClientId: effectiveConfig?.clientId,
 					pingoneClientId: effectiveConfig?.pingone?.clientId,
@@ -227,7 +228,10 @@ const useAuthActions = ({
 				// Ensure authEndpoint is a valid string before using it
 				if (!authEndpoint || typeof authEndpoint !== 'string') {
 					const errorMessage = `Invalid authorization endpoint: ${authEndpoint}. Please configure your authorization endpoint or environment ID.`;
-					console.error(' [NewAuthContext] Invalid authEndpoint:', { authEndpoint, effectiveConfig });
+					console.error(' [NewAuthContext] Invalid authEndpoint:', {
+						authEndpoint,
+						effectiveConfig,
+					});
 					throw new Error(errorMessage);
 				}
 
@@ -328,10 +332,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					authUrl: authUrl.toString(),
 				});
 
-				console.log(
-					'🔍 [NewAuthContext] EXACT URL BEING SENT TO PINGONE:',
-					authUrl.toString()
-				);
+				console.log('🔍 [NewAuthContext] EXACT URL BEING SENT TO PINGONE:', authUrl.toString());
 				console.log('🔍 [NewAuthContext] URL BREAKDOWN:', {
 					base: authEndpoint,
 					queryParams: Object.fromEntries(authUrl.searchParams),
@@ -368,33 +369,35 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					nonce,
 					requestParams: requestParamsObj,
 				});
-				
-			// CRITICAL: Clear any existing user interaction flag before showing modal
-			sessionStorage.removeItem('_user_clicked_proceed');
-			
-			console.log('🐛 [NewAuthContext] DEBUG - About to show authorization modal:', {
-				showAuthModal: 'will be set to true',
-				authRequestData: {
-					authorizationUrl: authUrl.toString(),
-					requestParams: requestParamsObj,
-					config: config.name || 'unnamed',
-				},
-				currentModalState: showAuthModal,
-				currentAuthData: authRequestData ? 'exists' : 'null',
-			});
-			
-			setShowAuthModal(true);
-			console.log('✅ [NewAuthContext] Modal opened - waiting for user to click Continue button');
-			console.log('✅ [NewAuthContext] Modal will NOT auto-proceed - user must click Continue');
-			console.log('✅ [NewAuthContext] User interaction flag cleared - modal will wait for user click');
 
-			// Add a small delay to ensure state updates are processed
-			setTimeout(() => {
-				console.log('🐛 [NewAuthContext] DEBUG - Modal state after timeout:', {
-					showAuthModal: 'check App.tsx',
-					modalShouldBeVisible: 'if showAuthModal is true in App.tsx',
+				// CRITICAL: Clear any existing user interaction flag before showing modal
+				sessionStorage.removeItem('_user_clicked_proceed');
+
+				console.log('🐛 [NewAuthContext] DEBUG - About to show authorization modal:', {
+					showAuthModal: 'will be set to true',
+					authRequestData: {
+						authorizationUrl: authUrl.toString(),
+						requestParams: requestParamsObj,
+						config: config.name || 'unnamed',
+					},
+					currentModalState: showAuthModal,
+					currentAuthData: authRequestData ? 'exists' : 'null',
 				});
-			}, 100);
+
+				setShowAuthModal(true);
+				console.log('✅ [NewAuthContext] Modal opened - waiting for user to click Continue button');
+				console.log('✅ [NewAuthContext] Modal will NOT auto-proceed - user must click Continue');
+				console.log(
+					'✅ [NewAuthContext] User interaction flag cleared - modal will wait for user click'
+				);
+
+				// Add a small delay to ensure state updates are processed
+				setTimeout(() => {
+					console.log('🐛 [NewAuthContext] DEBUG - Modal state after timeout:', {
+						showAuthModal: 'check App.tsx',
+						modalShouldBeVisible: 'if showAuthModal is true in App.tsx',
+					});
+				}, 100);
 
 				return { success: true, redirectUrl: authUrl.toString() };
 			} catch (error) {
@@ -409,7 +412,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				return { success: false, error: errorMessage };
 			}
 		},
-		[config, setAuthRequestData, setShowAuthModal, updateState]
+		[config, setAuthRequestData, setShowAuthModal, updateState, authRequestData]
 	);
 
 	const logout = useCallback(() => {
@@ -444,7 +447,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 			logger.auth('NewAuthContext', 'User logged out successfully');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error during logout';
-			logger.error('NewAuthContext', `Error during logout: ${errorMessage}`, error instanceof Error ? { message: error.message, stack: error.stack } : undefined);
+			logger.error(
+				'NewAuthContext',
+				`Error during logout: ${errorMessage}`,
+				error instanceof Error ? { message: error.message, stack: error.stack } : undefined
+			);
 			updateState({ error: 'Logout failed', isLoading: false });
 		}
 	}, [updateState]);
@@ -468,17 +475,16 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					try {
 						const parsed = safeJsonParse(flowContextRaw) as Record<string, unknown> | null;
 						console.log('🔍 [NewAuthContext] Parsed flow context:', parsed);
-						
+
 						if (!parsed || typeof parsed !== 'object') {
 							throw new Error('Invalid flow context format');
 						}
-						
+
 						const flow = parsed.flow as string | undefined;
 						const returnPath = parsed.returnPath as string | undefined;
-						
+
 						const isV6Flow =
-							flow === 'oidc-authorization-code-v6' ||
-							flow === 'oauth-authorization-code-v6';
+							flow === 'oidc-authorization-code-v6' || flow === 'oauth-authorization-code-v6';
 
 						const isV7Flow =
 							flow === 'oidc-authorization-code-v7' ||
@@ -511,12 +517,8 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							}
 
 							const flowReturnPath =
-								returnPath ||
-								(flow?.includes('oidc') ? '/flows/oidc' : '/flows/oauth');
-							console.log(
-								' [NewAuthContext] Redirecting back to flow page:',
-								flowReturnPath
-							);
+								returnPath || (flow?.includes('oidc') ? '/flows/oidc' : '/flows/oauth');
+							console.log(' [NewAuthContext] Redirecting back to flow page:', flowReturnPath);
 							window.location.replace(flowReturnPath);
 
 							return { success: true };
@@ -560,81 +562,113 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					const redirectAfterLogin =
 						sessionStorage.getItem('oauth_redirect_after_login') || '/dashboard';
 
-				const configState = config ?? (await loadAuthConfiguration());
-				
-				// Check flow context for flow-specific credentials (e.g., Kroger flow)
-				let flowClientId: string | undefined;
-				let flowClientSecret: string | undefined;
-				let flowEnvironmentId: string | undefined;
-				let flowRedirectUri: string | undefined;
-				
-				if (flowContextRaw) {
-					try {
-						const parsed = safeJsonParse(flowContextRaw) as Record<string, unknown>;
-						if (parsed?.flow === 'kroger-grocery-store-mfa' || parsed?.flowKey === 'kroger-grocery-store-mfa') {
-							flowClientId = parsed?.clientId as string | undefined;
-							flowClientSecret = parsed?.clientSecret as string | undefined;
-							flowEnvironmentId = parsed?.environmentId as string | undefined;
-							flowRedirectUri = parsed?.redirectUri as string | undefined;
-							logger.auth('NewAuthContext', 'Using Kroger flow-specific credentials from flow context', {
-								hasClientId: !!flowClientId,
-								hasClientSecret: !!flowClientSecret,
-								hasEnvironmentId: !!flowEnvironmentId,
-								hasRedirectUri: !!flowRedirectUri,
-							});
+					const configState = config ?? (await loadAuthConfiguration());
+
+					// Check flow context for flow-specific credentials (e.g., Kroger flow)
+					let flowClientId: string | undefined;
+					let flowClientSecret: string | undefined;
+					let flowEnvironmentId: string | undefined;
+					let flowRedirectUri: string | undefined;
+
+					if (flowContextRaw) {
+						try {
+							const parsed = safeJsonParse(flowContextRaw) as Record<string, unknown>;
+							if (
+								parsed?.flow === 'kroger-grocery-store-mfa' ||
+								parsed?.flowKey === 'kroger-grocery-store-mfa'
+							) {
+								flowClientId = parsed?.clientId as string | undefined;
+								flowClientSecret = parsed?.clientSecret as string | undefined;
+								flowEnvironmentId = parsed?.environmentId as string | undefined;
+								flowRedirectUri = parsed?.redirectUri as string | undefined;
+								logger.auth(
+									'NewAuthContext',
+									'Using Kroger flow-specific credentials from flow context',
+									{
+										hasClientId: !!flowClientId,
+										hasClientSecret: !!flowClientSecret,
+										hasEnvironmentId: !!flowEnvironmentId,
+										hasRedirectUri: !!flowRedirectUri,
+									}
+								);
+							}
+						} catch (flowParsingError) {
+							console.warn(
+								'[NewAuthContext] Failed to parse flow context for credentials:',
+								flowParsingError
+							);
 						}
-					} catch (flowParsingError) {
-						console.warn('[NewAuthContext] Failed to parse flow context for credentials:', flowParsingError);
 					}
-				}
-				
-				// Use backend proxy for token exchange to avoid CORS issues
-				const tokenEndpoint = '/api/token-exchange';
-				const clientId =
-					flowClientId || configState?.clientId || configState?.pingone?.clientId || params.get('client_id') || undefined;
 
-				if (!clientId) {
-					const errorMessage =
-						'Client ID missing from configuration. Unable to continue token exchange.';
-					logger.error('NewAuthContext', errorMessage, { configState, params: Object.fromEntries(params), flowContext: flowContextRaw });
-					updateState({ error: errorMessage, isLoading: false });
-					return { success: false, error: errorMessage };
-				}
+					// Use backend proxy for token exchange to avoid CORS issues
+					const tokenEndpoint = '/api/token-exchange';
+					const clientId =
+						flowClientId ||
+						configState?.clientId ||
+						configState?.pingone?.clientId ||
+						params.get('client_id') ||
+						undefined;
 
-				const body = new URLSearchParams();
-				body.append('grant_type', 'authorization_code');
-				body.append('code', code);
-				body.append('client_id', clientId);
-				
-				// For redirectless flows, use the configured redirect_uri (even if not sent in auth request)
-				// The redirect_uri in token exchange must match what's registered in PingOne
-				// For redirectless (pi.flow), we may not have sent redirect_uri in auth request,
-				// but we still need to include it in token exchange if it's configured
-				const tokenRedirectUri = flowRedirectUri || params.get('redirect_uri') || configState?.redirectUri || urlObj.origin;
-				body.append('redirect_uri', tokenRedirectUri);
-				
-				logger.auth('NewAuthContext', 'Token exchange redirect_uri', {
-					redirectUri: tokenRedirectUri,
-					source: flowRedirectUri ? 'flow-context' : params.get('redirect_uri') ? 'callback-url' : configState?.redirectUri ? 'config' : 'fallback',
-					isRedirectless: flowContextRaw ? (safeJsonParse(flowContextRaw) as Record<string, unknown>)?.authMode === 'redirectless' : false,
-					flowRedirectUri: flowRedirectUri || 'not-set',
-					callbackUrlRedirectUri: params.get('redirect_uri') || 'not-in-url',
-					configRedirectUri: configState?.redirectUri || 'not-in-config',
-					fallbackOrigin: urlObj.origin,
-				});
-				
-				// Add client_secret if available (required for confidential clients)
-				// Prioritize flow-specific client secret over global config
-				const clientSecret = flowClientSecret || configState?.clientSecret || configState?.pingone?.clientSecret;
-				if (clientSecret) {
-					body.append('client_secret', clientSecret);
-					logger.auth('NewAuthContext', 'Using client_secret for confidential client', {
-						source: flowClientSecret ? 'flow-context' : 'global-config',
+					if (!clientId) {
+						const errorMessage =
+							'Client ID missing from configuration. Unable to continue token exchange.';
+						logger.error('NewAuthContext', errorMessage, {
+							configState,
+							params: Object.fromEntries(params),
+							flowContext: flowContextRaw,
+						});
+						updateState({ error: errorMessage, isLoading: false });
+						return { success: false, error: errorMessage };
+					}
+
+					const body = new URLSearchParams();
+					body.append('grant_type', 'authorization_code');
+					body.append('code', code);
+					body.append('client_id', clientId);
+
+					// For redirectless flows, use the configured redirect_uri (even if not sent in auth request)
+					// The redirect_uri in token exchange must match what's registered in PingOne
+					// For redirectless (pi.flow), we may not have sent redirect_uri in auth request,
+					// but we still need to include it in token exchange if it's configured
+					const tokenRedirectUri =
+						flowRedirectUri ||
+						params.get('redirect_uri') ||
+						configState?.redirectUri ||
+						urlObj.origin;
+					body.append('redirect_uri', tokenRedirectUri);
+
+					logger.auth('NewAuthContext', 'Token exchange redirect_uri', {
+						redirectUri: tokenRedirectUri,
+						source: flowRedirectUri
+							? 'flow-context'
+							: params.get('redirect_uri')
+								? 'callback-url'
+								: configState?.redirectUri
+									? 'config'
+									: 'fallback',
+						isRedirectless: flowContextRaw
+							? (safeJsonParse(flowContextRaw) as Record<string, unknown>)?.authMode ===
+								'redirectless'
+							: false,
+						flowRedirectUri: flowRedirectUri || 'not-set',
+						callbackUrlRedirectUri: params.get('redirect_uri') || 'not-in-url',
+						configRedirectUri: configState?.redirectUri || 'not-in-config',
+						fallbackOrigin: urlObj.origin,
 					});
-				} else {
-					logger.auth('NewAuthContext', 'No client_secret found - using public client flow');
-				}
-					
+
+					// Add client_secret if available (required for confidential clients)
+					// Prioritize flow-specific client secret over global config
+					const clientSecret =
+						flowClientSecret || configState?.clientSecret || configState?.pingone?.clientSecret;
+					if (clientSecret) {
+						body.append('client_secret', clientSecret);
+						logger.auth('NewAuthContext', 'Using client_secret for confidential client', {
+							source: flowClientSecret ? 'flow-context' : 'global-config',
+						});
+					} else {
+						logger.auth('NewAuthContext', 'No client_secret found - using public client flow');
+					}
+
 					if (codeVerifier) {
 						body.append('code_verifier', codeVerifier);
 					}
@@ -647,7 +681,7 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 					// Backend expects flat form data structure with environment_id
 					const tokenRequestBody = Object.fromEntries(body);
 					tokenRequestBody.environment_id = flowEnvironmentId || configState?.environmentId;
-					
+
 					const response = await fetch(tokenEndpoint, {
 						method: 'POST',
 						headers: {
@@ -693,9 +727,16 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 							tokenSaveError instanceof Error
 								? tokenSaveError.message
 								: 'Failed to save tokens after exchange';
-						logger.error('NewAuthContext', `Token save failed: ${errorMessage}`, undefined, tokenSaveError instanceof Error ? tokenSaveError : undefined);
+						logger.error(
+							'NewAuthContext',
+							`Token save failed: ${errorMessage}`,
+							undefined,
+							tokenSaveError instanceof Error ? tokenSaveError : undefined
+						);
 						// Continue with flow even if save fails - tokens are still in tokenData
-						console.warn('[NewAuthContext] Token save failed, but continuing with token exchange result');
+						console.warn(
+							'[NewAuthContext] Token save failed, but continuing with token exchange result'
+						);
 					}
 
 					const tokens = getStoredTokens() || tokenData;
@@ -754,7 +795,11 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 				return { success: false, error: 'No authorization code or tokens found in callback.' };
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
-				logger.error('NewAuthContext', `Error in handleCallback: ${errorMessage}`, error instanceof Error ? { message: error.message, stack: error.stack } : undefined);
+				logger.error(
+					'NewAuthContext',
+					`Error in handleCallback: ${errorMessage}`,
+					error instanceof Error ? { message: error.message, stack: error.stack } : undefined
+				);
 				updateState({ error: errorMessage, isLoading: false });
 				return { success: false, error: errorMessage };
 			}
@@ -763,54 +808,70 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 	);
 
 	const proceedWithOAuth = useCallback(() => {
-		console.log('🚨 [NewAuthContext] proceedWithOAuth called - this should ONLY happen when user clicks Continue button');
+		console.log(
+			'🚨 [NewAuthContext] proceedWithOAuth called - this should ONLY happen when user clicks Continue button'
+		);
 		console.log('🚨 [NewAuthContext] CRITICAL DEBUG - Call source analysis:');
 		console.trace('🚨 [NewAuthContext] FULL STACK TRACE for proceedWithOAuth call');
-		
+
 		// CRITICAL: Check if user actually clicked the Continue button
 		// The modal sets this flag in sessionStorage when user clicks Continue
 		const userClickedProceed = sessionStorage.getItem('_user_clicked_proceed') === 'true';
-		
+
 		console.log('🚨 [NewAuthContext] User interaction check:', {
 			userClickedProceed,
 			flagValue: sessionStorage.getItem('_user_clicked_proceed'),
 			hasAuthRequestData: !!authRequestData,
 			timestamp: new Date().toISOString(),
 		});
-		
+
 		if (!userClickedProceed) {
-			console.error('🚨 [NewAuthContext] BLOCKED: proceedWithOAuth called WITHOUT user interaction!');
-			console.error('🚨 [NewAuthContext] This should NEVER happen - modal must wait for user click');
+			console.error(
+				'🚨 [NewAuthContext] BLOCKED: proceedWithOAuth called WITHOUT user interaction!'
+			);
+			console.error(
+				'🚨 [NewAuthContext] This should NEVER happen - modal must wait for user click'
+			);
 			console.error('🚨 [NewAuthContext] Stack trace:', new Error().stack);
 			console.error('🚨 [NewAuthContext] Current sessionStorage state:', {
 				_user_clicked_proceed: sessionStorage.getItem('_user_clicked_proceed'),
 				showAuthModal: 'check App.tsx state',
 			});
 			// DO NOT proceed - this is an auto-submit attempt
-			alert('🚨 SECURITY: Authorization was blocked because it was triggered without user interaction. Please click the "Continue" button in the modal.');
+			alert(
+				'🚨 SECURITY: Authorization was blocked because it was triggered without user interaction. Please click the "Continue" button in the modal.'
+			);
 			return;
 		}
-		
+
 		// Clear the flag after checking
 		sessionStorage.removeItem('_user_clicked_proceed');
-		
+
 		console.log('🚨 [NewAuthContext] ✅ USER INTERACTION CONFIRMED - proceeding with OAuth');
-		
+
 		if (authRequestData) {
-			logger.auth('NewAuthContext', 'Proceeding with OAuth redirect - USER CLICKED CONTINUE BUTTON');
-			
+			logger.auth(
+				'NewAuthContext',
+				'Proceeding with OAuth redirect - USER CLICKED CONTINUE BUTTON'
+			);
+
 			// Check flow context for redirectless mode (e.g., Kroger flow)
 			const flowContextRaw = sessionStorage.getItem('flowContext');
 			let finalAuthUrl = authRequestData.authorizationUrl;
-			
+
 			if (flowContextRaw) {
 				try {
 					const parsed = safeJsonParse(flowContextRaw) as Record<string, unknown>;
-					if (parsed?.flow === 'kroger-grocery-store-mfa' || parsed?.flowKey === 'kroger-grocery-store-mfa') {
+					if (
+						parsed?.flow === 'kroger-grocery-store-mfa' ||
+						parsed?.flowKey === 'kroger-grocery-store-mfa'
+					) {
 						const authMode = parsed?.authMode as string | undefined;
-						
+
 						if (authMode === 'redirectless') {
-							console.log('[NewAuthContext] Kroger redirectless mode detected, modifying authorization URL');
+							console.log(
+								'[NewAuthContext] Kroger redirectless mode detected, modifying authorization URL'
+							);
 							try {
 								const authUrl = new URL(finalAuthUrl);
 								authUrl.searchParams.set('response_mode', 'pi.flow');
@@ -824,15 +885,21 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 									note: 'redirect_uri removed per PingOne pi.flow specification',
 								});
 							} catch (urlError) {
-								console.warn('[NewAuthContext] Failed to modify URL for redirectless mode:', urlError);
+								console.warn(
+									'[NewAuthContext] Failed to modify URL for redirectless mode:',
+									urlError
+								);
 							}
 						}
 					}
 				} catch (flowParsingError) {
-					console.warn('[NewAuthContext] Failed to parse flow context for redirectless mode:', flowParsingError);
+					console.warn(
+						'[NewAuthContext] Failed to parse flow context for redirectless mode:',
+						flowParsingError
+					);
 				}
 			}
-			
+
 			console.log('🚨 [NewAuthContext] About to redirect to:', finalAuthUrl);
 			window.location.href = finalAuthUrl;
 		} else {
@@ -858,44 +925,59 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 		[setState]
 	);
 
-	const saveCredentialsV7 = useCallback(async (credentials: Record<string, unknown>) => {
-		try {
-			console.log(
-				' [NewAuthContext] Saving credentials using V7 standardized system...',
-				credentials
-			);
-			
-			// Type assert and validate credentials as StepCredentials
-			// StepCredentials requires: clientId, clientSecret, redirectUri
-			const stepCredentials = {
-				clientId: typeof credentials.clientId === 'string' ? credentials.clientId : '',
-				clientSecret: typeof credentials.clientSecret === 'string' ? credentials.clientSecret : '',
-				redirectUri: typeof credentials.redirectUri === 'string' ? credentials.redirectUri : '',
-				environmentId: typeof credentials.environmentId === 'string' ? credentials.environmentId : undefined,
-				issuerUrl: typeof credentials.issuerUrl === 'string' ? credentials.issuerUrl : undefined,
-				region: typeof credentials.region === 'string' ? credentials.region : undefined,
-				postLogoutRedirectUri: typeof credentials.postLogoutRedirectUri === 'string' ? credentials.postLogoutRedirectUri : undefined,
-				scopes: typeof credentials.scopes === 'string' ? credentials.scopes : undefined,
-				scope: typeof credentials.scope === 'string' ? credentials.scope : undefined,
-				responseType: typeof credentials.responseType === 'string' ? credentials.responseType : undefined,
-			} as import('../components/steps/CommonSteps').StepCredentials;
-			
-			const success = await saveFlowCredentials('dashboard-login', stepCredentials, undefined, undefined, {
-				showToast: true,
-			});
-			if (success) {
-				console.log(' [NewAuthContext] V7 credentials saved successfully');
-				const newConfig = await loadAuthConfiguration();
-				setConfig(newConfig);
-			} else {
-				console.error(' [NewAuthContext] Failed to save V7 credentials');
+	const saveCredentialsV7 = useCallback(
+		async (credentials: Record<string, unknown>) => {
+			try {
+				console.log(
+					' [NewAuthContext] Saving credentials using V7 standardized system...',
+					credentials
+				);
+
+				// Type assert and validate credentials as StepCredentials
+				// StepCredentials requires: clientId, clientSecret, redirectUri
+				const stepCredentials = {
+					clientId: typeof credentials.clientId === 'string' ? credentials.clientId : '',
+					clientSecret:
+						typeof credentials.clientSecret === 'string' ? credentials.clientSecret : '',
+					redirectUri: typeof credentials.redirectUri === 'string' ? credentials.redirectUri : '',
+					environmentId:
+						typeof credentials.environmentId === 'string' ? credentials.environmentId : undefined,
+					issuerUrl: typeof credentials.issuerUrl === 'string' ? credentials.issuerUrl : undefined,
+					region: typeof credentials.region === 'string' ? credentials.region : undefined,
+					postLogoutRedirectUri:
+						typeof credentials.postLogoutRedirectUri === 'string'
+							? credentials.postLogoutRedirectUri
+							: undefined,
+					scopes: typeof credentials.scopes === 'string' ? credentials.scopes : undefined,
+					scope: typeof credentials.scope === 'string' ? credentials.scope : undefined,
+					responseType:
+						typeof credentials.responseType === 'string' ? credentials.responseType : undefined,
+				} as import('../components/steps/CommonSteps').StepCredentials;
+
+				const success = await saveFlowCredentials(
+					'dashboard-login',
+					stepCredentials,
+					undefined,
+					undefined,
+					{
+						showToast: true,
+					}
+				);
+				if (success) {
+					console.log(' [NewAuthContext] V7 credentials saved successfully');
+					const newConfig = await loadAuthConfiguration();
+					setConfig(newConfig);
+				} else {
+					console.error(' [NewAuthContext] Failed to save V7 credentials');
+				}
+				return success;
+			} catch (error) {
+				console.error(' [NewAuthContext] Error saving V7 credentials:', error);
+				return false;
 			}
-			return success;
-		} catch (error) {
-			console.error(' [NewAuthContext] Error saving V7 credentials:', error);
-			return false;
-		}
-	}, [setConfig]);
+		},
+		[setConfig]
+	);
 
 	const dismissError = useCallback(() => {
 		updateState({ error: null });
@@ -914,5 +996,3 @@ Note: The Authorization Endpoint will be automatically constructed from your Env
 };
 
 export default useAuthActions;
-
-

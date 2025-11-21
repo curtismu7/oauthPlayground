@@ -1,24 +1,43 @@
 // src/components/AdvancedSecuritySettingsMock.tsx
 // Mock component to demonstrate the Advanced Security Settings service
 
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { 
-  FiGlobe, 
-  FiShield, 
-  FiUser, 
-  FiKey, 
-  FiSettings, 
-  FiCheck, 
-  FiAlertTriangle, 
-  FiInfo,
-  FiDownload,
-  FiUpload,
-  FiRefreshCw,
-  FiChevronDown,
-  FiChevronRight
+import React, { useEffect, useState } from 'react';
+import {
+	FiAlertTriangle,
+	FiCheck,
+	FiDownload,
+	FiGlobe,
+	FiInfo,
+	FiRefreshCw,
+	FiShield,
 } from 'react-icons/fi';
-import { advancedSecuritySettingsService, type AdvancedSecuritySettings, type SecurityCategory } from '../services/advancedSecuritySettingsService';
+import styled from 'styled-components';
+import {
+	type AdvancedSecuritySettings,
+	advancedSecuritySettingsService,
+	type SecurityCategory,
+} from '../services/advancedSecuritySettingsService';
+
+type SecurityAssessment = ReturnType<
+	typeof advancedSecuritySettingsService.getSecurityLevelAssessment
+>;
+type SettingKey = keyof AdvancedSecuritySettings;
+
+const ADVANCED_SECURITY_SETTING_KEYS: readonly SettingKey[] = [
+	'requestParameterSignature',
+	'includeX5tParameter',
+	'requestScopesForMultipleResources',
+	'additionalRefreshTokenReplayProtection',
+	'openIdConnectSessionManagement',
+	'terminateUserSessionByIdToken',
+	'requirePushedAuthorizationRequests',
+	'enforcePKCE',
+	'tokenBindingRequired',
+	'requireClientAuthentication',
+];
+
+const isSettingKey = (key: string): key is SettingKey =>
+	(ADVANCED_SECURITY_SETTING_KEYS as readonly string[]).includes(key);
 
 const Container = styled.div`
   display: flex;
@@ -59,24 +78,34 @@ const Description = styled.p`
 const SecurityAssessment = styled.div<{ level: 'low' | 'medium' | 'high' | 'critical' }>`
   padding: 1rem;
   border-radius: 8px;
-  background: ${props => {
-    switch (props.level) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fef3c7';
-      case 'medium': return '#dbeafe';
-      case 'low': return '#f3f4f6';
-      default: return '#f3f4f6';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.level) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fde68a';
-      case 'medium': return '#bfdbfe';
-      case 'low': return '#e5e7eb';
-      default: return '#e5e7eb';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fef2f2';
+			case 'high':
+				return '#fef3c7';
+			case 'medium':
+				return '#dbeafe';
+			case 'low':
+				return '#f3f4f6';
+			default:
+				return '#f3f4f6';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fecaca';
+			case 'high':
+				return '#fde68a';
+			case 'medium':
+				return '#bfdbfe';
+			case 'low':
+				return '#e5e7eb';
+			default:
+				return '#e5e7eb';
+		}
+	}};
   margin-bottom: 1.5rem;
 `;
 
@@ -202,33 +231,48 @@ const SecurityBadge = styled.span<{ level: 'low' | 'medium' | 'high' | 'critical
   border-radius: 4px;
   font-size: 0.75rem;
   font-weight: 500;
-  background: ${props => {
-    switch (props.level) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fef3c7';
-      case 'medium': return '#dbeafe';
-      case 'low': return '#f3f4f6';
-      default: return '#f3f4f6';
-    }
-  }};
-  color: ${props => {
-    switch (props.level) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#d97706';
-      case 'medium': return '#2563eb';
-      case 'low': return '#6b7280';
-      default: return '#6b7280';
-    }
-  }};
-  border: 1px solid ${props => {
-    switch (props.level) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fde68a';
-      case 'medium': return '#bfdbfe';
-      case 'low': return '#e5e7eb';
-      default: return '#e5e7eb';
-    }
-  }};
+  background: ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fef2f2';
+			case 'high':
+				return '#fef3c7';
+			case 'medium':
+				return '#dbeafe';
+			case 'low':
+				return '#f3f4f6';
+			default:
+				return '#f3f4f6';
+		}
+	}};
+  color: ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#dc2626';
+			case 'high':
+				return '#d97706';
+			case 'medium':
+				return '#2563eb';
+			case 'low':
+				return '#6b7280';
+			default:
+				return '#6b7280';
+		}
+	}};
+  border: 1px solid ${(props) => {
+		switch (props.level) {
+			case 'critical':
+				return '#fecaca';
+			case 'high':
+				return '#fde68a';
+			case 'medium':
+				return '#bfdbfe';
+			case 'low':
+				return '#e5e7eb';
+			default:
+				return '#e5e7eb';
+		}
+	}};
 `;
 
 const ActionBar = styled.div`
@@ -252,10 +296,10 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
   transition: all 0.2s ease;
   border: 1px solid;
   
-  ${props => {
-    switch (props.variant) {
-      case 'primary':
-        return `
+  ${(props) => {
+		switch (props.variant) {
+			case 'primary':
+				return `
           background: #3b82f6;
           color: white;
           border-color: #3b82f6;
@@ -264,8 +308,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
             border-color: #2563eb;
           }
         `;
-      case 'danger':
-        return `
+			case 'danger':
+				return `
           background: #ef4444;
           color: white;
           border-color: #ef4444;
@@ -274,8 +318,8 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
             border-color: #dc2626;
           }
         `;
-      default:
-        return `
+			default:
+				return `
           background: white;
           color: #374151;
           border-color: #d1d5db;
@@ -284,174 +328,186 @@ const ActionButton = styled.button<{ variant?: 'primary' | 'secondary' | 'danger
             border-color: #9ca3af;
           }
         `;
-    }
-  }}
+		}
+	}}
 `;
 
 const AdvancedSecuritySettingsMock: React.FC = () => {
-  const [settings, setSettings] = useState<AdvancedSecuritySettings>(advancedSecuritySettingsService.getCurrentSettings());
-  const [categories, setCategories] = useState<SecurityCategory[]>([]);
-  const [assessment, setAssessment] = useState<any>(null);
-  const [isExpanded, setIsExpanded] = useState<Record<string, boolean>>({});
+	const [settings, setSettings] = useState<AdvancedSecuritySettings>(
+		advancedSecuritySettingsService.getCurrentSettings()
+	);
+	const [categories, setCategories] = useState<SecurityCategory[]>([]);
+	const [assessment, setAssessment] = useState<SecurityAssessment | null>(null);
+	useEffect(() => {
+		setCategories(advancedSecuritySettingsService.getAvailableSettings());
+		setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
+	}, []);
 
-  useEffect(() => {
-    setCategories(advancedSecuritySettingsService.getAvailableSettings());
-    setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
-  }, []);
+	const handleSettingChange = (settingId: string, value: boolean | string) => {
+		if (!isSettingKey(settingId)) {
+			return;
+		}
+		const newSettings: AdvancedSecuritySettings = {
+			...settings,
+			[settingId]: value as AdvancedSecuritySettings[SettingKey],
+		};
+		setSettings(newSettings);
+		advancedSecuritySettingsService.updateSettings({
+			[settingId]: value,
+		} as Partial<AdvancedSecuritySettings>);
+		setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
+	};
 
-  const handleSettingChange = (settingId: string, value: any) => {
-    const newSettings = { ...settings, [settingId]: value };
-    setSettings(newSettings);
-    advancedSecuritySettingsService.updateSettings(newSettings);
-    setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
-  };
+	const handleReset = () => {
+		advancedSecuritySettingsService.resetToDefaults();
+		const defaultSettings = advancedSecuritySettingsService.getCurrentSettings();
+		setSettings(defaultSettings);
+		setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
+	};
 
-  const handleReset = () => {
-    advancedSecuritySettingsService.resetToDefaults();
-    const defaultSettings = advancedSecuritySettingsService.getCurrentSettings();
-    setSettings(defaultSettings);
-    setAssessment(advancedSecuritySettingsService.getSecurityLevelAssessment());
-  };
+	const handleExport = () => {
+		const exported = advancedSecuritySettingsService.exportSettings();
+		const blob = new Blob([exported], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'advanced-security-settings.json';
+		a.click();
+		URL.revokeObjectURL(url);
+	};
 
-  const handleExport = () => {
-    const exported = advancedSecuritySettingsService.exportSettings();
-    const blob = new Blob([exported], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'advanced-security-settings.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+	return (
+		<Container>
+			<Header>
+				<FiGlobe size={24} />
+				<div>
+					<Title>Advanced Security Settings</Title>
+					<Description>
+						Configure advanced security features for your OAuth/OIDC application. These settings
+						enhance security but may impact compatibility with some clients.
+					</Description>
+				</div>
+			</Header>
 
-  const toggleCategory = (categoryId: string) => {
-    setIsExpanded(prev => ({ ...prev, [categoryId]: !prev[categoryId] }));
-  };
+			{assessment && (
+				<SecurityAssessment level={assessment.overall}>
+					<AssessmentHeader>
+						<FiShield size={20} />
+						<AssessmentTitle>Security Assessment</AssessmentTitle>
+						<SecurityBadge level={assessment.overall}>
+							{assessment.overall.toUpperCase()}
+						</SecurityBadge>
+					</AssessmentHeader>
+					<AssessmentScore>Security Score: {assessment.score}%</AssessmentScore>
 
-  return (
-    <Container>
-      <Header>
-        <FiGlobe size={24} />
-        <div>
-          <Title>Advanced Security Settings</Title>
-          <Description>
-            Configure advanced security features for your OAuth/OIDC application. 
-            These settings enhance security but may impact compatibility with some clients.
-          </Description>
-        </div>
-      </Header>
+					{assessment.recommendations.length > 0 && (
+						<Recommendations>
+							<strong>Recommendations:</strong>
+							{assessment.recommendations.map((rec, index) => (
+								<RecommendationItem key={index}>
+									<FiInfo size={14} />
+									{rec}
+								</RecommendationItem>
+							))}
+						</Recommendations>
+					)}
 
-      {assessment && (
-        <SecurityAssessment level={assessment.overall}>
-          <AssessmentHeader>
-            <FiShield size={20} />
-            <AssessmentTitle>Security Assessment</AssessmentTitle>
-            <SecurityBadge level={assessment.overall}>
-              {assessment.overall.toUpperCase()}
-            </SecurityBadge>
-          </AssessmentHeader>
-          <AssessmentScore>Security Score: {assessment.score}%</AssessmentScore>
-          
-          {assessment.recommendations.length > 0 && (
-            <Recommendations>
-              <strong>Recommendations:</strong>
-              {assessment.recommendations.map((rec, index) => (
-                <RecommendationItem key={index}>
-                  <FiInfo size={14} />
-                  {rec}
-                </RecommendationItem>
-              ))}
-            </Recommendations>
-          )}
-          
-          {assessment.warnings.length > 0 && (
-            <Recommendations>
-              <strong>Warnings:</strong>
-              {assessment.warnings.map((warning, index) => (
-                <RecommendationItem key={index}>
-                  <FiAlertTriangle size={14} />
-                  {warning}
-                </RecommendationItem>
-              ))}
-            </Recommendations>
-          )}
-        </SecurityAssessment>
-      )}
+					{assessment.warnings.length > 0 && (
+						<Recommendations>
+							<strong>Warnings:</strong>
+							{assessment.warnings.map((warning, index) => (
+								<RecommendationItem key={index}>
+									<FiAlertTriangle size={14} />
+									{warning}
+								</RecommendationItem>
+							))}
+						</Recommendations>
+					)}
+				</SecurityAssessment>
+			)}
 
-      <CategoriesGrid>
-        {categories.map((category) => (
-          <CategoryCard key={category.id}>
-            <CategoryHeader>
-              <span style={{ fontSize: '1.5rem' }}>{category.icon}</span>
-              <div>
-                <CategoryTitle>{category.name}</CategoryTitle>
-                <CategoryDescription>{category.description}</CategoryDescription>
-              </div>
-            </CategoryHeader>
+			<CategoriesGrid>
+				{categories.map((category) => (
+					<CategoryCard key={category.id}>
+						<CategoryHeader>
+							<span style={{ fontSize: '1.5rem' }}>{category.icon}</span>
+							<div>
+								<CategoryTitle>{category.name}</CategoryTitle>
+								<CategoryDescription>{category.description}</CategoryDescription>
+							</div>
+						</CategoryHeader>
 
-            {category.settings.map((setting) => (
-              <SettingItem key={setting.id}>
-                <SettingHeader>
-                  <SettingLabel>
-                    {setting.type === 'checkbox' ? (
-                      <SettingInput
-                        type="checkbox"
-                        checked={(settings as any)[setting.id] || false}
-                        onChange={(e) => handleSettingChange(setting.id, e.target.checked)}
-                      />
-                    ) : null}
-                    {setting.label}
-                    {setting.recommended && (
-                      <SecurityBadge level="high">
-                        <FiCheck size={12} />
-                        Recommended
-                      </SecurityBadge>
-                    )}
-                  </SettingLabel>
-                </SettingHeader>
-                
-                <SettingDescription>{setting.description}</SettingDescription>
-                
-                {setting.type === 'dropdown' && setting.options && (
-                  <SettingSelect
-                    value={(settings as any)[setting.id] || 'default'}
-                    onChange={(e) => handleSettingChange(setting.id, e.target.value)}
-                  >
-                    {setting.options.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </SettingSelect>
-                )}
-                
-                {setting.type === 'dropdown' && setting.options && (
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>
-                    {setting.options.find(opt => opt.value === (settings as any)[setting.id])?.description}
-                  </div>
-                )}
-              </SettingItem>
-            ))}
-          </CategoryCard>
-        ))}
-      </CategoriesGrid>
+						{category.settings.map((setting) => {
+							const currentValue = isSettingKey(setting.id) ? settings[setting.id] : undefined;
+							return (
+								<SettingItem key={setting.id}>
+									<SettingHeader>
+										<SettingLabel>
+											{setting.type === 'checkbox' ? (
+												<SettingInput
+													type="checkbox"
+													checked={Boolean(currentValue)}
+													onChange={(e) => handleSettingChange(setting.id, e.target.checked)}
+												/>
+											) : null}
+											{setting.label}
+											{setting.recommended && (
+												<SecurityBadge level="high">
+													<FiCheck size={12} />
+													Recommended
+												</SecurityBadge>
+											)}
+										</SettingLabel>
+									</SettingHeader>
 
-      <ActionBar>
-        <ActionButton onClick={handleReset}>
-          <FiRefreshCw size={16} />
-          Reset to Defaults
-        </ActionButton>
-        <ActionButton onClick={handleExport}>
-          <FiDownload size={16} />
-          Export Settings
-        </ActionButton>
-        <ActionButton variant="primary">
-          <FiCheck size={16} />
-          Save Settings
-        </ActionButton>
-      </ActionBar>
-    </Container>
-  );
+									<SettingDescription>{setting.description}</SettingDescription>
+
+									{setting.type === 'dropdown' && setting.options && (
+										<SettingSelect
+											value={typeof currentValue === 'string' ? currentValue : 'default'}
+											onChange={(e) => handleSettingChange(setting.id, e.target.value)}
+										>
+											{setting.options.map((option) => (
+												<option key={option.value} value={option.value}>
+													{option.label}
+												</option>
+											))}
+										</SettingSelect>
+									)}
+
+									{setting.type === 'dropdown' && setting.options && (
+										<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#64748b' }}>
+											{
+												setting.options.find(
+													(opt) =>
+														opt.value === (typeof currentValue === 'string' ? currentValue : '')
+												)?.description
+											}
+										</div>
+									)}
+								</SettingItem>
+							);
+						})}
+					</CategoryCard>
+				))}
+			</CategoriesGrid>
+
+			<ActionBar>
+				<ActionButton onClick={handleReset}>
+					<FiRefreshCw size={16} />
+					Reset to Defaults
+				</ActionButton>
+				<ActionButton onClick={handleExport}>
+					<FiDownload size={16} />
+					Export Settings
+				</ActionButton>
+				<ActionButton variant="primary">
+					<FiCheck size={16} />
+					Save Settings
+				</ActionButton>
+			</ActionBar>
+		</Container>
+	);
 };
 
 export default AdvancedSecuritySettingsMock;
