@@ -55,7 +55,7 @@ function filterExistingIcons(icons) {
 
 	if (missing.length > 0) {
 		console.warn(
-			`[sync-feather-icons] Skipping ${missing.length} unknown icon(s): ${missing.join(', ')}`,
+			`[sync-feather-icons] Skipping ${missing.length} unknown icon(s): ${missing.join(', ')}`
 		);
 	}
 

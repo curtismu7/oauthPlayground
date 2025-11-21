@@ -152,7 +152,7 @@ export class EnhancedApiCallDisplayService {
 					],
 				},
 			},
-			'redirectless': {
+			redirectless: {
 				'PKCE Generation': {
 					method: 'LOCAL' as const,
 					url: 'Client-side PKCE Generation',
@@ -163,7 +163,7 @@ export class EnhancedApiCallDisplayService {
 						code_challenge_method: 'S256',
 						algorithm: 'SHA256',
 						verifier_length: '43-128 characters',
-						challenge_length: '43 characters (base64url encoded)'
+						challenge_length: '43 characters (base64url encoded)',
 					},
 					educationalNotes: [
 						'PKCE (Proof Key for Code Exchange) is a security extension for OAuth 2.0',
@@ -177,7 +177,7 @@ export class EnhancedApiCallDisplayService {
 					url: `https://auth.pingone.com/${config.environmentId as string}/as/authorize`,
 					headers: {
 						'Content-Type': 'application/x-www-form-urlencoded',
-						'Accept': 'application/json',
+						Accept: 'application/json',
 					},
 					body: {
 						response_type: 'code',
@@ -211,12 +211,12 @@ export class EnhancedApiCallDisplayService {
 						state: '[random-state-value]',
 						nonce: '[random-nonce-value]',
 						code_challenge: '[pkce-code-challenge]',
-						code_challenge_method: 'S256'
+						code_challenge_method: 'S256',
 					},
 					body: {
 						username: '[user-username]',
 						password: '[user-password]',
-						note: 'Credentials sent in request body for redirectless flow'
+						note: 'Credentials sent in request body for redirectless flow',
 					},
 					educationalNotes: [
 						'This step builds the authorization URL with all required parameters',
@@ -384,7 +384,7 @@ export class EnhancedApiCallDisplayService {
 			console.warn('[EnhancedApiCallDisplayService] rules is not an array:', rules);
 			rules = [];
 		}
-		
+
 		if (!url || rules.length === 0) {
 			return [{ content: url, isHighlighted: false }];
 		}
@@ -525,7 +525,7 @@ export class EnhancedApiCallDisplayService {
 
 		// Format multi-line curl command
 		if (lines.length > 0) {
-			curlCommand += ' \\\n' + lines.join(' \\\n');
+			curlCommand += ` \\\n${lines.join(' \\\n')}`;
 		} else {
 			curlCommand += ` "${apiCall.url}"`;
 		}
@@ -676,24 +676,29 @@ export class EnhancedApiCallDisplayService {
 		options: ApiCallDisplayOptions = {}
 	): string {
 		const curlCommand = EnhancedApiCallDisplayService.generateEnhancedCurlCommand(apiCall, options);
-		const formattedCall = EnhancedApiCallDisplayService.formatApiCallText(apiCall, options.prettyPrint);
+		const formattedCall = EnhancedApiCallDisplayService.formatApiCallText(
+			apiCall,
+			options.prettyPrint
+		);
 		const responseSummary = EnhancedApiCallDisplayService.formatResponseSummary(apiCall);
-		const timingInfo = apiCall.duration ? EnhancedApiCallDisplayService.formatTimingInfo(apiCall.duration) : undefined;
+		const timingInfo = apiCall.duration
+			? EnhancedApiCallDisplayService.formatTimingInfo(apiCall.duration)
+			: undefined;
 
 		let display = '🚀 API Call Details\n';
-		display += '='.repeat(50) + '\n\n';
+		display += `${'='.repeat(50)}\n\n`;
 
 		display += '📤 Request:\n';
-		display += formattedCall + '\n\n';
+		display += `${formattedCall}\n\n`;
 
 		display += '💻 cURL Command:\n';
-		display += curlCommand + '\n\n';
+		display += `${curlCommand}\n\n`;
 
 		display += '📥 Response:\n';
-		display += responseSummary + '\n';
+		display += `${responseSummary}\n`;
 
 		if (timingInfo) {
-			display += '\n⏱️  ' + timingInfo + '\n';
+			display += `\n⏱️  ${timingInfo}\n`;
 		}
 
 		if (apiCall.educationalNotes && apiCall.educationalNotes.length > 0) {

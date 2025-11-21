@@ -1,29 +1,33 @@
 // src/hooks/useHybridFlowController.ts
 /**
  * Hybrid Flow Controller Hook - V6 Architecture
- * 
+ *
  * Modern controller for OIDC Hybrid Flow V6 with service-based architecture
  * Follows the same patterns as useAuthorizationCodeFlowController
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { StepCredentials } from '../types/flowTypes';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 import { FlowCredentialService } from '../services/flowCredentialService';
-import { safeSessionStorageParse } from '../utils/secureJson';
-import { storeRedirectUriFromAuthUrl, getStoredRedirectUri, clearRedirectUri, auditRedirectUri } from '../utils/redirectUriHelpers';
-import { 
-	HybridFlowVariant, 
-	HybridTokens, 
+import {
 	HybridFlowConfig,
 	HybridFlowCredentialsSync,
-	HybridFlowResponseTypeManager,
-	HybridFlowTokenProcessor,
 	HybridFlowDefaults,
-	log
+	HybridFlowTokenProcessor,
+	HybridFlowVariant,
+	HybridTokens,
+	log,
 } from '../services/hybridFlowSharedService';
+import { StepCredentials } from '../types/flowTypes';
 import { credentialManager } from '../utils/credentialManager';
+import {
+	auditRedirectUri,
+	clearRedirectUri,
+	getStoredRedirectUri,
+	storeRedirectUriFromAuthUrl,
+} from '../utils/redirectUriHelpers';
+import { safeSessionStorageParse } from '../utils/secureJson';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 
 export interface HybridFlowControllerOptions {
 	flowKey?: string;
@@ -88,7 +92,7 @@ export interface HybridFlowController {
 const generateRandomString = (length: number = 32): string => {
 	const array = new Uint8Array(length);
 	crypto.getRandomValues(array);
-	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+	return Array.from(array, (byte) => byte.toString(16).padStart(2, '0')).join('');
 };
 
 // Generate PKCE codes
@@ -105,14 +109,16 @@ const generatePKCE = async (): Promise<{ codeVerifier: string; codeChallenge: st
 	return { codeVerifier, codeChallenge };
 };
 
-export const useHybridFlowController = (options: HybridFlowControllerOptions = {}): HybridFlowController => {
+export const useHybridFlowController = (
+	options: HybridFlowControllerOptions = {}
+): HybridFlowController => {
 	const {
 		flowKey = 'hybrid-flow-v6',
 		defaultFlowVariant = 'code-id-token',
 		enableDebugger = false,
 	} = options;
 
-	const navigate = useNavigate();
+	const _navigate = useNavigate();
 	const persistKey = flowKey;
 
 	// Flow Configuration
@@ -124,7 +130,10 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	const [hasValidCredentials, setHasValidCredentials] = useState(false);
 
 	// PKCE
-	const [pkceCodes, setPkceCodes] = useState<{ codeVerifier: string; codeChallenge: string } | null>(null);
+	const [pkceCodes, setPkceCodes] = useState<{
+		codeVerifier: string;
+		codeChallenge: string;
+	} | null>(null);
 
 	// State & Nonce
 	const [state, setState] = useState<string | null>(null);
@@ -157,7 +166,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	useEffect(() => {
 		const loadData = async () => {
 			try {
-				const { credentials: loadedCreds, hasSharedCredentials } = 
+				const { credentials: loadedCreds, hasSharedCredentials } =
 					await FlowCredentialService.loadFlowCredentials<HybridFlowConfig>({
 						flowKey: persistKey,
 						defaultCredentials: {
@@ -172,7 +181,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 					log.info('Loaded saved credentials from FlowCredentialService', {
 						hasSharedCredentials,
 						environmentId: loadedCreds.environmentId,
-						clientId: loadedCreds.clientId?.substring(0, 8) + '...',
+						clientId: `${loadedCreds.clientId?.substring(0, 8)}...`,
 						responseType: loadedCreds.responseType,
 					});
 				}
@@ -206,10 +215,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 
 	// Load tokens from session storage
 	useEffect(() => {
-		const tokens = safeSessionStorageParse<HybridTokens | null>(
-			`${persistKey}-tokens`,
-			null
-		);
+		const tokens = safeSessionStorageParse<HybridTokens | null>(`${persistKey}-tokens`, null);
 		if (tokens) {
 			setTokensState(tokens);
 			log.info('Loaded tokens from session storage');
@@ -232,29 +238,34 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	}, []);
 
 	// Set credentials with validation
-	const setCredentials = useCallback((updater: CredentialsUpdater) => {
-		setCredentialsState((prevCredentials: StepCredentials | null) => {
-			const resolved =
-				typeof updater === 'function'
-					? (updater as (prev: StepCredentials | null) => StepCredentials)(prevCredentials)
-					: updater;
+	const setCredentials = useCallback(
+		(updater: CredentialsUpdater) => {
+			setCredentialsState((prevCredentials: StepCredentials | null) => {
+				const resolved =
+					typeof updater === 'function'
+						? (updater as (prev: StepCredentials | null) => StepCredentials)(prevCredentials)
+						: updater;
 
-			const isValid = !!(resolved.environmentId && resolved.clientId);
-			setHasValidCredentials(isValid);
+				const isValid = !!(resolved.environmentId && resolved.clientId);
+				setHasValidCredentials(isValid);
 
-			HybridFlowCredentialsSync.syncCredentials(flowVariant, resolved);
+				HybridFlowCredentialsSync.syncCredentials(flowVariant, resolved);
 
-			const clientIdPreview = resolved.clientId ? `${resolved.clientId.substring(0, 8)}...` : undefined;
-			log.info('Credentials updated', {
-				environmentId: resolved.environmentId,
-				clientId: clientIdPreview,
-				responseType: resolved.responseType,
-				isValid,
+				const clientIdPreview = resolved.clientId
+					? `${resolved.clientId.substring(0, 8)}...`
+					: undefined;
+				log.info('Credentials updated', {
+					environmentId: resolved.environmentId,
+					clientId: clientIdPreview,
+					responseType: resolved.responseType,
+					isValid,
+				});
+
+				return resolved;
 			});
-
-			return resolved;
-		});
-	}, [flowVariant]);
+		},
+		[flowVariant]
+	);
 
 	// Save credentials using FlowCredentialService
 	const saveCredentials = useCallback(async (): Promise<void> => {
@@ -269,10 +280,10 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 				credentials,
 				flowConfig || undefined
 			);
-			
+
 			if (success) {
 				log.success('Credentials saved via FlowCredentialService');
-				
+
 				// CRITICAL: Also save to authz flow credentials for callback page to load
 				credentialManager.saveAuthzFlowCredentials({
 					environmentId: credentials.environmentId,
@@ -374,7 +385,8 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 			}
 
 			// Get authorization endpoint from credentials
-			const authEndpoint = credentials.authorizationEndpoint || 'https://auth.pingone.com/oauth2/authorize';
+			const authEndpoint =
+				credentials.authorizationEndpoint || 'https://auth.pingone.com/oauth2/authorize';
 			const url = `${authEndpoint}?${params.toString()}`;
 
 			setAuthorizationUrl(url);
@@ -393,12 +405,13 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 
 			return url;
 		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to generate authorization URL';
+			const errorMsg =
+				error instanceof Error ? error.message : 'Failed to generate authorization URL';
 			log.error('Failed to generate authorization URL', error);
 			v4ToastManager.showError(errorMsg);
 			return null;
 		}
-	}, [credentials, flowConfig, state, nonce, pkceCodes]);
+	}, [credentials, flowConfig, state, nonce, pkceCodes, flowKey]);
 
 	// Set tokens
 	const setTokens = useCallback((newTokens: HybridTokens) => {
@@ -412,90 +425,103 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	}, []);
 
 	// Process fragment tokens
-	const processFragmentTokens = useCallback((fragment: string): HybridTokens => {
-		const tokens = HybridFlowTokenProcessor.processFragmentTokens(fragment);
-		setTokens(tokens);
-		return tokens;
-	}, []);
+	const processFragmentTokens = useCallback(
+		(fragment: string): HybridTokens => {
+			const tokens = HybridFlowTokenProcessor.processFragmentTokens(fragment);
+			setTokens(tokens);
+			return tokens;
+		},
+		[setTokens]
+	);
 
 	// Merge tokens from fragment and exchange
-	const mergeTokens = useCallback((fragmentTokens: HybridTokens, exchangeTokens: HybridTokens): HybridTokens => {
-		const merged = HybridFlowTokenProcessor.mergeTokens(fragmentTokens, exchangeTokens);
-		setTokens(merged);
-		return merged;
-	}, []);
+	const mergeTokens = useCallback(
+		(fragmentTokens: HybridTokens, exchangeTokens: HybridTokens): HybridTokens => {
+			const merged = HybridFlowTokenProcessor.mergeTokens(fragmentTokens, exchangeTokens);
+			setTokens(merged);
+			return merged;
+		},
+		[setTokens]
+	);
 
 	// Exchange code for tokens
-	const exchangeCodeForTokens = useCallback(async (code: string): Promise<HybridTokens> => {
-		if (!credentials) {
-			throw new Error('No credentials available for token exchange');
-		}
-
-		try {
-			setIsExchangingCode(true);
-			setError(null);
-
-			// ✅ CRITICAL FIX: Use the EXACT redirect_uri from the authorization request
-			const actualRedirectUri = getStoredRedirectUri(flowKey, credentials.redirectUri || 'https://localhost:3000/hybrid-callback');
-			auditRedirectUri('token-exchange', actualRedirectUri, flowKey);
-
-			const tokenEndpoint = credentials.tokenEndpoint || 'https://auth.pingone.com/oauth2/token';
-			const requestBody = new URLSearchParams({
-				grant_type: 'authorization_code',
-				code: code,
-				redirect_uri: actualRedirectUri, // ✅ Use stored value, not credentials
-				client_id: credentials.clientId,
-			});
-
-			// Add client secret if available
-			if (credentials.clientSecret) {
-				requestBody.append('client_secret', credentials.clientSecret);
+	const exchangeCodeForTokens = useCallback(
+		async (code: string): Promise<HybridTokens> => {
+			if (!credentials) {
+				throw new Error('No credentials available for token exchange');
 			}
 
-			// Add PKCE code verifier if available
-			if (pkceCodes) {
-				requestBody.append('code_verifier', pkceCodes.codeVerifier);
+			try {
+				setIsExchangingCode(true);
+				setError(null);
+
+				// ✅ CRITICAL FIX: Use the EXACT redirect_uri from the authorization request
+				const actualRedirectUri = getStoredRedirectUri(
+					flowKey,
+					credentials.redirectUri || 'https://localhost:3000/hybrid-callback'
+				);
+				auditRedirectUri('token-exchange', actualRedirectUri, flowKey);
+
+				const _tokenEndpoint = credentials.tokenEndpoint || 'https://auth.pingone.com/oauth2/token';
+				const requestBody = new URLSearchParams({
+					grant_type: 'authorization_code',
+					code: code,
+					redirect_uri: actualRedirectUri, // ✅ Use stored value, not credentials
+					client_id: credentials.clientId,
+				});
+
+				// Add client secret if available
+				if (credentials.clientSecret) {
+					requestBody.append('client_secret', credentials.clientSecret);
+				}
+
+				// Add PKCE code verifier if available
+				if (pkceCodes) {
+					requestBody.append('code_verifier', pkceCodes.codeVerifier);
+				}
+
+				const response = await fetch('/api/token-exchange', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/x-www-form-urlencoded',
+					},
+					body: requestBody.toString(),
+				});
+
+				if (!response.ok) {
+					const errorText = await response.text();
+					throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
+				}
+
+				const tokenData = await response.json();
+				const exchangeTokens: HybridTokens = {
+					...tokenData,
+					code: code, // Include the authorization code
+				};
+
+				// Merge with existing tokens if any
+				const mergedTokens = tokens ? mergeTokens(tokens, exchangeTokens) : exchangeTokens;
+
+				log.success('Code exchanged for tokens', {
+					hasAccessToken: !!mergedTokens.access_token,
+					hasIdToken: !!mergedTokens.id_token,
+					hasRefreshToken: !!mergedTokens.refresh_token,
+				});
+
+				return mergedTokens;
+			} catch (error) {
+				const errorMsg =
+					error instanceof Error ? error.message : 'Failed to exchange authorization code';
+				log.error('Code exchange failed', error);
+				setError(errorMsg);
+				v4ToastManager.showError(errorMsg);
+				throw error;
+			} finally {
+				setIsExchangingCode(false);
 			}
-
-			const response = await fetch('/api/token-exchange', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/x-www-form-urlencoded',
-				},
-				body: requestBody.toString(),
-			});
-
-			if (!response.ok) {
-				const errorText = await response.text();
-				throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
-			}
-
-			const tokenData = await response.json();
-			const exchangeTokens: HybridTokens = {
-				...tokenData,
-				code: code, // Include the authorization code
-			};
-
-			// Merge with existing tokens if any
-			const mergedTokens = tokens ? mergeTokens(tokens, exchangeTokens) : exchangeTokens;
-
-			log.success('Code exchanged for tokens', {
-				hasAccessToken: !!mergedTokens.access_token,
-				hasIdToken: !!mergedTokens.id_token,
-				hasRefreshToken: !!mergedTokens.refresh_token,
-			});
-
-			return mergedTokens;
-		} catch (error) {
-			const errorMsg = error instanceof Error ? error.message : 'Failed to exchange authorization code';
-			log.error('Code exchange failed', error);
-			setError(errorMsg);
-			v4ToastManager.showError(errorMsg);
-			throw error;
-		} finally {
-			setIsExchangingCode(false);
-		}
-	}, [credentials, pkceCodes, tokens, mergeTokens]);
+		},
+		[credentials, pkceCodes, tokens, mergeTokens, flowKey]
+	);
 
 	// Clear error
 	const clearError = useCallback(() => {
@@ -505,7 +531,7 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 	// Reset flow
 	const reset = useCallback(() => {
 		log.info('Resetting hybrid flow');
-		
+
 		setCredentialsState(null);
 		setHasValidCredentials(false);
 		setFlowVariant(defaultFlowVariant);
@@ -523,11 +549,11 @@ export const useHybridFlowController = (options: HybridFlowControllerOptions = {
 		sessionStorage.removeItem(`${persistKey}-pkce`);
 		sessionStorage.removeItem(`${persistKey}-state`);
 		sessionStorage.removeItem(`${persistKey}-nonce`);
-		
+
 		// ✅ Clear stored redirect_uri to prevent stale values
 		clearRedirectUri(flowKey);
 		sessionStorage.removeItem(`${persistKey}-tokens`);
-	}, [defaultFlowVariant, persistKey]);
+	}, [defaultFlowVariant, persistKey, flowKey]);
 
 	return {
 		// Credentials

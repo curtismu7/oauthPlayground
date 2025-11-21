@@ -1,7 +1,7 @@
 // src/components/PAREducationalPanel.tsx
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import { FiCheckCircle, FiShield, FiAlertCircle } from '../services/commonImportsService';
+import { FiAlertCircle, FiCheckCircle, FiShield } from '../services/commonImportsService';
 import { createCopyButton } from '../services/copyButtonService';
 
 /**
@@ -221,7 +221,7 @@ const WarningBox = styled.div`
 
 /**
  * PAREducationalPanel Component
- * 
+ *
  * Displays comprehensive educational content about PAR (Pushed Authorization Request), including:
  * - What PAR is and RFC 9126 reference
  * - How PAR relates to Authorization Code flow
@@ -230,10 +230,10 @@ const WarningBox = styled.div`
  * - Security benefits
  * - When to use PAR
  * - Flow sequence diagram
- * 
+ *
  * @example
  * ```tsx
- * <PAREducationalPanel 
+ * <PAREducationalPanel
  *   variant="full"
  *   showFlowRelationship={true}
  *   showPKCERequirement={true}
@@ -287,14 +287,14 @@ client_id=YOUR_CLIENT_ID
 
 	return (
 		<PanelContainer className={className}>
-			<PanelTitle>
-				🔐 Understanding PAR (Pushed Authorization Request)
-			</PanelTitle>
-			
+			<PanelTitle>🔐 Understanding PAR (Pushed Authorization Request)</PanelTitle>
+
 			<Content>
 				{/* Overview Section */}
 				<Paragraph>
-					<strong>PAR (RFC 9126)</strong> is a security enhancement for OAuth 2.0 that sends authorization parameters to a secure backend endpoint instead of passing them in the URL. This protects sensitive data and prevents parameter tampering.
+					<strong>PAR (RFC 9126)</strong> is a security enhancement for OAuth 2.0 that sends
+					authorization parameters to a secure backend endpoint instead of passing them in the URL.
+					This protects sensitive data and prevents parameter tampering.
 				</Paragraph>
 
 				{/* Flow Relationship Section */}
@@ -302,24 +302,33 @@ client_id=YOUR_CLIENT_ID
 					<>
 						<SectionTitle>📊 PAR + Authorization Code Flow</SectionTitle>
 						<Paragraph>
-							PAR is <strong>not a standalone flow</strong> — it enhances the Authorization Code flow by adding a secure parameter push step before authorization.
+							PAR is <strong>not a standalone flow</strong> — it enhances the Authorization Code
+							flow by adding a secure parameter push step before authorization.
 						</Paragraph>
 						<List>
 							<ListItem>
 								<FiCheckCircle size={16} />
-								<span><strong>Step 1:</strong> Push parameters to PAR endpoint (secure backend)</span>
+								<span>
+									<strong>Step 1:</strong> Push parameters to PAR endpoint (secure backend)
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiCheckCircle size={16} />
-								<span><strong>Step 2:</strong> Receive request_uri reference</span>
+								<span>
+									<strong>Step 2:</strong> Receive request_uri reference
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiCheckCircle size={16} />
-								<span><strong>Step 3:</strong> Use request_uri in authorization request</span>
+								<span>
+									<strong>Step 3:</strong> Use request_uri in authorization request
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiCheckCircle size={16} />
-								<span><strong>Step 4:</strong> Complete authorization and token exchange (standard flow)</span>
+								<span>
+									<strong>Step 4:</strong> Complete authorization and token exchange (standard flow)
+								</span>
 							</ListItem>
 						</List>
 					</>
@@ -330,7 +339,8 @@ client_id=YOUR_CLIENT_ID
 					<>
 						<SectionTitle>🔑 PKCE is Required</SectionTitle>
 						<Paragraph>
-							PAR flows <strong>require PKCE</strong> (Proof Key for Code Exchange, RFC 7636) to prevent authorization code interception attacks.
+							PAR flows <strong>require PKCE</strong> (Proof Key for Code Exchange, RFC 7636) to
+							prevent authorization code interception attacks.
 						</Paragraph>
 						<CodeBlock>
 							<CodeBlockHeader>
@@ -349,10 +359,10 @@ code_challenge_method = "S256"`}
 						<ParameterList>
 							<dt>code_challenge</dt>
 							<dd>Sent in PAR request - SHA-256 hash of the code_verifier</dd>
-							
+
 							<dt>code_verifier</dt>
 							<dd>Sent in token exchange - proves you made the original PAR request</dd>
-							
+
 							<dt>code_challenge_method</dt>
 							<dd>Always "S256" (SHA-256 hashing)</dd>
 						</ParameterList>
@@ -367,7 +377,11 @@ code_challenge_method = "S256"`}
 							<CodeBlockHeader>
 								<CodeBlockTitle>HTTP POST Request</CodeBlockTitle>
 								<div style={{ display: 'flex', gap: '8px' }}>
-									{createCopyButton(parRequestExample, 'Copy PAR Request', { showLabel: false, size: 'sm', variant: 'outline' })}
+									{createCopyButton(parRequestExample, 'Copy PAR Request', {
+										showLabel: false,
+										size: 'sm',
+										variant: 'outline',
+									})}
 								</div>
 							</CodeBlockHeader>
 							{parRequestExample}
@@ -375,22 +389,22 @@ code_challenge_method = "S256"`}
 						<ParameterList>
 							<dt>client_id</dt>
 							<dd>Your application's client identifier from PingOne</dd>
-							
+
 							<dt>redirect_uri</dt>
 							<dd>Where to send the user after authorization (must be registered)</dd>
-							
+
 							<dt>response_type</dt>
 							<dd>Always "code" for Authorization Code flow</dd>
-							
+
 							<dt>scope</dt>
 							<dd>Permissions requested (e.g., "openid profile email")</dd>
-							
+
 							<dt>code_challenge</dt>
 							<dd>PKCE challenge - SHA-256 hash of code_verifier</dd>
-							
+
 							<dt>code_challenge_method</dt>
 							<dd>Always "S256" for SHA-256 hashing</dd>
-							
+
 							<dt>state</dt>
 							<dd>CSRF protection token - verify this matches in callback</dd>
 						</ParameterList>
@@ -412,8 +426,11 @@ code_challenge_method = "S256"`}
 						</CodeBlock>
 						<ParameterList>
 							<dt>request_uri</dt>
-							<dd>Reference URI representing your pushed parameters - use this in authorization request</dd>
-							
+							<dd>
+								Reference URI representing your pushed parameters - use this in authorization
+								request
+							</dd>
+
 							<dt>expires_in</dt>
 							<dd>Validity period in seconds (typically 90 seconds)</dd>
 						</ParameterList>
@@ -424,7 +441,11 @@ code_challenge_method = "S256"`}
 							<CodeBlockHeader>
 								<CodeBlockTitle>Authorization URL</CodeBlockTitle>
 								<div style={{ display: 'flex', gap: '8px' }}>
-									{createCopyButton(authorizationUrlExample, 'Copy Authorization URL', { showLabel: false, size: 'sm', variant: 'outline' })}
+									{createCopyButton(authorizationUrlExample, 'Copy Authorization URL', {
+										showLabel: false,
+										size: 'sm',
+										variant: 'outline',
+									})}
 								</div>
 							</CodeBlockHeader>
 							{authorizationUrlExample}
@@ -439,23 +460,36 @@ code_challenge_method = "S256"`}
 						<List>
 							<ListItem>
 								<FiShield size={16} />
-								<span><strong>Prevents parameter tampering</strong> - Parameters not visible in URL</span>
+								<span>
+									<strong>Prevents parameter tampering</strong> - Parameters not visible in URL
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiShield size={16} />
-								<span><strong>Protects sensitive data</strong> - Authorization details not exposed in browser</span>
+								<span>
+									<strong>Protects sensitive data</strong> - Authorization details not exposed in
+									browser
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiShield size={16} />
-								<span><strong>Reduces URL length</strong> - No query string bloat or length limits</span>
+								<span>
+									<strong>Reduces URL length</strong> - No query string bloat or length limits
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiShield size={16} />
-								<span><strong>Server-side validation</strong> - Parameters validated before authorization</span>
+								<span>
+									<strong>Server-side validation</strong> - Parameters validated before
+									authorization
+								</span>
 							</ListItem>
 							<ListItem>
 								<FiShield size={16} />
-								<span><strong>Supports complex parameters</strong> - Enables Rich Authorization Requests (RAR)</span>
+								<span>
+									<strong>Supports complex parameters</strong> - Enables Rich Authorization Requests
+									(RAR)
+								</span>
 							</ListItem>
 						</List>
 					</>
@@ -486,7 +520,7 @@ code_challenge_method = "S256"`}
 									</ListItem>
 								</List>
 							</GridSection>
-							
+
 							<GridSection>
 								<GridSectionTitle>
 									<FiAlertCircle size={18} />
@@ -528,7 +562,8 @@ code_challenge_method = "S256"`}
 							<FlowStep>
 								<StepNumber>3</StepNumber>
 								<StepText>
-									<strong>Client → Authorization Server:</strong> GET to /as/authorize with request_uri
+									<strong>Client → Authorization Server:</strong> GET to /as/authorize with
+									request_uri
 								</StepText>
 							</FlowStep>
 							<FlowStep>
@@ -552,7 +587,8 @@ code_challenge_method = "S256"`}
 							<FlowStep>
 								<StepNumber>7</StepNumber>
 								<StepText>
-									<strong>Client → Authorization Server:</strong> POST to /as/token with code + code_verifier
+									<strong>Client → Authorization Server:</strong> POST to /as/token with code +
+									code_verifier
 								</StepText>
 							</FlowStep>
 							<FlowStep>
@@ -569,7 +605,9 @@ code_challenge_method = "S256"`}
 				<WarningBox>
 					<FiAlertCircle size={20} />
 					<div>
-						<strong>Important:</strong> The request_uri expires in 90 seconds. You must use it immediately in your authorization request. If it expires, you'll need to make a new PAR request.
+						<strong>Important:</strong> The request_uri expires in 90 seconds. You must use it
+						immediately in your authorization request. If it expires, you'll need to make a new PAR
+						request.
 					</div>
 				</WarningBox>
 			</Content>

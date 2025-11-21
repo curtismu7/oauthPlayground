@@ -114,40 +114,62 @@ export const UserLookupForm: React.FC<UserLookupFormProps> = ({
 			</FormGroup>
 
 			{user && (
-				<UserCard style={{ 
-					background: 'linear-gradient(135deg, #EBF4FF 0%, #E0F2FE 100%)',
-					border: '2px solid #3B82F6',
-					boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)',
-					marginTop: '1rem',
-					marginBottom: '1rem'
-				}}>
+				<UserCard
+					style={{
+						background: 'linear-gradient(135deg, #EBF4FF 0%, #E0F2FE 100%)',
+						border: '2px solid #3B82F6',
+						boxShadow:
+							'0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)',
+						marginTop: '1rem',
+						marginBottom: '1rem',
+					}}
+				>
 					<UserInfo>
-						<UserAvatar style={{ 
-							background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-							color: 'white',
-							fontSize: '1.25rem',
-							width: '3rem',
-							height: '3rem'
-						}}>
+						<UserAvatar
+							style={{
+								background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+								color: 'white',
+								fontSize: '1.25rem',
+								width: '3rem',
+								height: '3rem',
+							}}
+						>
 							{getUserInitial(user)}
 						</UserAvatar>
 						<div style={{ flex: 1 }}>
-							<div style={{ fontWeight: 700, color: '#1E40AF', marginBottom: '0.25rem', fontSize: '1.1rem' }}>
+							<div
+								style={{
+									fontWeight: 700,
+									color: '#1E40AF',
+									marginBottom: '0.25rem',
+									fontSize: '1.1rem',
+								}}
+							>
 								{getUserDisplayName(user)}
 							</div>
-							<div style={{ fontSize: '0.9rem', color: '#1F2937', marginBottom: '0.5rem', fontWeight: 500 }}>
+							<div
+								style={{
+									fontSize: '0.9rem',
+									color: '#1F2937',
+									marginBottom: '0.5rem',
+									fontWeight: 500,
+								}}
+							>
 								📧 {getUserEmail(user)}
 							</div>
-							<div style={{ 
-								fontSize: '0.8rem', 
-								color: '#374151', 
-								fontFamily: 'monospace',
-								background: 'rgba(255, 255, 255, 0.7)',
-								padding: '0.5rem',
-								borderRadius: '0.375rem',
-								border: '1px solid rgba(59, 130, 246, 0.2)'
-							}}>
-								<strong style={{ color: '#1E40AF' }}>Username:</strong> {user.username || 'N/A'} • <strong style={{ color: '#1E40AF' }}>User ID:</strong> {user.id || 'N/A'}
+							<div
+								style={{
+									fontSize: '0.8rem',
+									color: '#374151',
+									fontFamily: 'monospace',
+									background: 'rgba(255, 255, 255, 0.7)',
+									padding: '0.5rem',
+									borderRadius: '0.375rem',
+									border: '1px solid rgba(59, 130, 246, 0.2)',
+								}}
+							>
+								<strong style={{ color: '#1E40AF' }}>Username:</strong> {user.username || 'N/A'} •{' '}
+								<strong style={{ color: '#1E40AF' }}>User ID:</strong> {user.id || 'N/A'}
 							</div>
 						</div>
 					</UserInfo>

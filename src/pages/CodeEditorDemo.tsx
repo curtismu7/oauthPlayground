@@ -180,112 +180,113 @@ async function initiateAuthorizationFlow() {
 initiateAuthorizationFlow();`;
 
 const CodeEditorDemo: React.FC = () => {
-  return (
-    <PageContainer>
-      <ContentWrapper>
-        <PageHeader>
-          <PageTitle>🚀 Interactive Code Editor Demo</PageTitle>
-          <PageSubtitle>
-            Test the Monaco Editor with real-time editing, syntax highlighting, and more
-          </PageSubtitle>
-        </PageHeader>
+	return (
+		<PageContainer>
+			<ContentWrapper>
+				<PageHeader>
+					<PageTitle>🚀 Interactive Code Editor Demo</PageTitle>
+					<PageSubtitle>
+						Test the Monaco Editor with real-time editing, syntax highlighting, and more
+					</PageSubtitle>
+				</PageHeader>
 
-        <DemoSection>
-          <SectionTitle>✨ Features</SectionTitle>
-          <SectionDescription>
-            This interactive code editor is powered by Monaco Editor (the same editor used in VS Code).
-            Try editing the code, changing configuration values, and using the toolbar buttons!
-          </SectionDescription>
+				<DemoSection>
+					<SectionTitle>✨ Features</SectionTitle>
+					<SectionDescription>
+						This interactive code editor is powered by Monaco Editor (the same editor used in VS
+						Code). Try editing the code, changing configuration values, and using the toolbar
+						buttons!
+					</SectionDescription>
 
-          <FeatureGrid>
-            <FeatureCard>
-              <FeatureTitle>✏️ Live Editing</FeatureTitle>
-              <FeatureDescription>
-                Edit code directly in the editor with full syntax highlighting and IntelliSense
-              </FeatureDescription>
-            </FeatureCard>
+					<FeatureGrid>
+						<FeatureCard>
+							<FeatureTitle>✏️ Live Editing</FeatureTitle>
+							<FeatureDescription>
+								Edit code directly in the editor with full syntax highlighting and IntelliSense
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>🎨 Syntax Highlighting</FeatureTitle>
-              <FeatureDescription>
-                TypeScript/JavaScript syntax highlighting with VS Code color scheme
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureTitle>🎨 Syntax Highlighting</FeatureTitle>
+							<FeatureDescription>
+								TypeScript/JavaScript syntax highlighting with VS Code color scheme
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>🔧 Live Config</FeatureTitle>
-              <FeatureDescription>
-                Update configuration values and see code change in real-time
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureTitle>🔧 Live Config</FeatureTitle>
+							<FeatureDescription>
+								Update configuration values and see code change in real-time
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>📋 Copy & Download</FeatureTitle>
-              <FeatureDescription>
-                One-click copy to clipboard or download as TypeScript file
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureTitle>📋 Copy & Download</FeatureTitle>
+							<FeatureDescription>
+								One-click copy to clipboard or download as TypeScript file
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>🎭 Theme Toggle</FeatureTitle>
-              <FeatureDescription>
-                Switch between light and dark themes for comfortable viewing
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureTitle>🎭 Theme Toggle</FeatureTitle>
+							<FeatureDescription>
+								Switch between light and dark themes for comfortable viewing
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>🔄 Reset & Format</FeatureTitle>
-              <FeatureDescription>
-                Reset to original code or auto-format with Prettier-style formatting
-              </FeatureDescription>
-            </FeatureCard>
-          </FeatureGrid>
-        </DemoSection>
+						<FeatureCard>
+							<FeatureTitle>🔄 Reset & Format</FeatureTitle>
+							<FeatureDescription>
+								Reset to original code or auto-format with Prettier-style formatting
+							</FeatureDescription>
+						</FeatureCard>
+					</FeatureGrid>
+				</DemoSection>
 
-        <InteractiveCodeEditor
-          initialCode={sampleCode}
-          language="typescript"
-          title="OAuth 2.0 Authorization Code Flow with PKCE"
-          onCodeChange={(code) => {
-            console.log('Code changed, length:', code.length);
-          }}
-        />
+				<InteractiveCodeEditor
+					initialCode={sampleCode}
+					language="typescript"
+					title="OAuth 2.0 Authorization Code Flow with PKCE"
+					onCodeChange={(code) => {
+						console.log('Code changed, length:', code.length);
+					}}
+				/>
 
-        <DemoSection style={{ marginTop: '32px' }}>
-          <SectionTitle>🎯 How to Use</SectionTitle>
-          <FeatureGrid>
-            <FeatureCard>
-              <FeatureTitle>1️⃣ Edit Configuration</FeatureTitle>
-              <FeatureDescription>
-                Update the configuration fields at the top to customize the code with your values
-              </FeatureDescription>
-            </FeatureCard>
+				<DemoSection style={{ marginTop: '32px' }}>
+					<SectionTitle>🎯 How to Use</SectionTitle>
+					<FeatureGrid>
+						<FeatureCard>
+							<FeatureTitle>1️⃣ Edit Configuration</FeatureTitle>
+							<FeatureDescription>
+								Update the configuration fields at the top to customize the code with your values
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>2️⃣ Modify Code</FeatureTitle>
-              <FeatureDescription>
-                Click in the editor and start typing. Use Ctrl+Space for auto-completion
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureTitle>2️⃣ Modify Code</FeatureTitle>
+							<FeatureDescription>
+								Click in the editor and start typing. Use Ctrl+Space for auto-completion
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>3️⃣ Copy or Download</FeatureTitle>
-              <FeatureDescription>
-                Use the toolbar buttons to copy code to clipboard or download as a file
-              </FeatureDescription>
-            </FeatureCard>
+						<FeatureCard>
+							<FeatureTitle>3️⃣ Copy or Download</FeatureTitle>
+							<FeatureDescription>
+								Use the toolbar buttons to copy code to clipboard or download as a file
+							</FeatureDescription>
+						</FeatureCard>
 
-            <FeatureCard>
-              <FeatureTitle>4️⃣ Toggle Theme</FeatureTitle>
-              <FeatureDescription>
-                Switch between light and dark themes using the theme toggle button
-              </FeatureDescription>
-            </FeatureCard>
-          </FeatureGrid>
-        </DemoSection>
-      </ContentWrapper>
-    </PageContainer>
-  );
+						<FeatureCard>
+							<FeatureTitle>4️⃣ Toggle Theme</FeatureTitle>
+							<FeatureDescription>
+								Switch between light and dark themes using the theme toggle button
+							</FeatureDescription>
+						</FeatureCard>
+					</FeatureGrid>
+				</DemoSection>
+			</ContentWrapper>
+		</PageContainer>
+	);
 };
 
 export default CodeEditorDemo;

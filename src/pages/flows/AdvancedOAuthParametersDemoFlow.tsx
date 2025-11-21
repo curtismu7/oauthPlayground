@@ -1,10 +1,10 @@
 // src/pages/flows/AdvancedOAuthParametersDemoFlow.tsx
 /**
  * Advanced OAuth Parameters Demo Flow
- * 
+ *
  * This is a MOCK/EDUCATIONAL flow demonstrating advanced OAuth 2.0 and OIDC parameters
  * that may not be supported by all authorization servers (including PingOne).
- * 
+ *
  * Purpose:
  * - Show how RFC 8707 Resource Indicators work
  * - Demonstrate Display parameter UI variations
@@ -13,30 +13,31 @@
  * - Educational content for each parameter
  */
 
-import React, { useState, useCallback } from 'react';
-import styled from 'styled-components';
-import { 
-	FiSettings, 
-	FiLink, 
-	FiCheckCircle, 
-	FiPackage, 
-	FiBook,
+import React, { useCallback, useState } from 'react';
+import {
 	FiAlertCircle,
-	FiCopy
+	FiBook,
+	FiCheckCircle,
+	FiCopy,
+	FiLink,
+	FiPackage,
+	FiSettings,
 } from 'react-icons/fi';
-
+import styled from 'styled-components';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+// Import components
+import {
+	ClaimsRequestBuilder,
+	ClaimsRequestStructure,
+} from '../../components/ClaimsRequestBuilder';
+import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayParameterSelector';
+import { EnhancedPromptSelector, PromptValue } from '../../components/EnhancedPromptSelector';
+import { ResourceParameterInput } from '../../components/ResourceParameterInput';
 // Import services
 import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import EducationalContentService from '../../services/educationalContentService.tsx';
 import { FlowHeader } from '../../services/flowHeaderService';
 import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
-import EducationalContentService from '../../services/educationalContentService.tsx';
-
-// Import components
-import { ClaimsRequestBuilder, ClaimsRequestStructure } from '../../components/ClaimsRequestBuilder';
-import { ResourceParameterInput } from '../../components/ResourceParameterInput';
-import { EnhancedPromptSelector, PromptValue } from '../../components/EnhancedPromptSelector';
-import AudienceParameterInput from '../../components/AudienceParameterInput';
-import DisplayParameterSelector, { DisplayMode } from '../../components/DisplayParameterSelector';
 
 // Styled Components
 const Container = styled.div`
@@ -63,16 +64,22 @@ const InfoBox = styled.div<{ $variant?: 'info' | 'success' | 'warning' }>`
 	margin: 1rem 0;
 	background: ${({ $variant }) => {
 		switch ($variant) {
-			case 'success': return 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
-			case 'warning': return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
-			default: return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
+			case 'success':
+				return 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)';
+			case 'warning':
+				return 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)';
+			default:
+				return 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)';
 		}
 	}};
 	border-left: 4px solid ${({ $variant }) => {
 		switch ($variant) {
-			case 'success': return '#10b981';
-			case 'warning': return '#f59e0b';
-			default: return '#3b82f6';
+			case 'success':
+				return '#10b981';
+			case 'warning':
+				return '#f59e0b';
+			default:
+				return '#3b82f6';
 		}
 	}};
 `;
@@ -140,7 +147,7 @@ const MockButton = styled.button`
 	}
 `;
 
-type AdvancedOAuthParametersDemoFlowProps = {}
+type AdvancedOAuthParametersDemoFlowProps = {};
 
 const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowProps> = () => {
 	// State for all parameters
@@ -154,11 +161,11 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 	const [uiLocales, setUiLocales] = useState<string>('');
 	const [loginHint, setLoginHint] = useState<string>('');
 	const [idTokenHint, setIdTokenHint] = useState<string>('');
-	
+
 	// Generated outputs
 	const [mockAuthUrl, setMockAuthUrl] = useState<string>('');
 	const [mockTokens, setMockTokens] = useState<any>(null);
-	
+
 	// Generate mock authorization URL
 	const handleGenerateMockUrl = useCallback(() => {
 		const baseUrl = 'https://auth.example.com/authorize';
@@ -167,13 +174,13 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			client_id: 'demo-client-id',
 			redirect_uri: 'https://example.com/callback',
 			scope: 'openid profile email',
-			state: 'demo-state-' + Math.random().toString(36).substring(7),
-			nonce: 'demo-nonce-' + Math.random().toString(36).substring(7),
+			state: `demo-state-${Math.random().toString(36).substring(7)}`,
+			nonce: `demo-nonce-${Math.random().toString(36).substring(7)}`,
 		});
 
 		// Add all configured parameters
 		if (audience) params.set('audience', audience);
-		resources.forEach(r => params.append('resource', r));
+		resources.forEach((r) => params.append('resource', r));
 		if (promptValues.length > 0) params.set('prompt', promptValues.join(' '));
 		if (displayMode !== 'page') params.set('display', displayMode);
 		if (claimsRequest) params.set('claims', JSON.stringify(claimsRequest));
@@ -185,16 +192,27 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 
 		const fullUrl = `${baseUrl}?${params.toString()}`;
 		setMockAuthUrl(fullUrl);
-	}, [audience, resources, promptValues, displayMode, claimsRequest, acrValues, maxAge, uiLocales, loginHint, idTokenHint]);
+	}, [
+		audience,
+		resources,
+		promptValues,
+		displayMode,
+		claimsRequest,
+		acrValues,
+		maxAge,
+		uiLocales,
+		loginHint,
+		idTokenHint,
+	]);
 
 	// Generate mock tokens
 	const handleGenerateMockTokens = useCallback(() => {
 		const now = Math.floor(Date.now() / 1000);
-		
+
 		const mockAccessToken = {
 			iss: 'https://auth.example.com',
 			sub: 'demo-user-12345',
-			aud: resources.length > 0 ? resources : (audience || 'demo-client-id'),
+			aud: resources.length > 0 ? resources : audience || 'demo-client-id',
 			exp: now + 3600,
 			iat: now,
 			scope: 'openid profile email read:api write:api',
@@ -227,7 +245,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 			id_token: mockIdTokenJWT,
 			token_type: 'Bearer',
 			expires_in: 3600,
-			scope: 'openid profile email read:api write:api'
+			scope: 'openid profile email read:api write:api',
 		});
 	}, [audience, resources, acrValues, maxAge]);
 
@@ -238,7 +256,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				customConfig={{
 					flowType: 'oauth',
 					title: 'Advanced OAuth Parameters Demo',
-					subtitle: 'Explore ALL OAuth 2.0 and OIDC parameters with mock responses'
+					subtitle: 'Explore ALL OAuth 2.0 and OIDC parameters with mock responses',
 				}}
 			/>
 
@@ -250,21 +268,19 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 						🎭 Educational Demo Flow
 					</h3>
 					<p style={{ margin: '0 0 0.5rem 0', lineHeight: '1.6' }}>
-						This is a <strong>mock/demonstration flow</strong> showing advanced OAuth 2.0 and OIDC parameters 
-						that may not be supported by all authorization servers, including PingOne.
+						This is a <strong>mock/demonstration flow</strong> showing advanced OAuth 2.0 and OIDC
+						parameters that may not be supported by all authorization servers, including PingOne.
 					</p>
 					<p style={{ margin: 0, lineHeight: '1.6' }}>
-						All responses are mocked to show you how these parameters would work with a fully spec-compliant server. 
-						For parameters supported by PingOne, use the real OAuth/OIDC Authorization Code flows.
+						All responses are mocked to show you how these parameters would work with a fully
+						spec-compliant server. For parameters supported by PingOne, use the real OAuth/OIDC
+						Authorization Code flows.
 					</p>
 				</div>
 			</DemoNotice>
 
 			{/* Educational Overview */}
-			<EducationalContentService
-				flowType="advanced-params-demo"
-				defaultCollapsed={false}
-			/>
+			<EducationalContentService flowType="advanced-params-demo" defaultCollapsed={false} />
 
 			{/* Step 1: Configure All Parameters */}
 			<CollapsibleHeader
@@ -274,56 +290,41 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				defaultCollapsed={false}
 			>
 				<InfoBox>
-					Configure all advanced OAuth 2.0 and OIDC parameters below. 
-					These parameters extend the basic OAuth flow with additional capabilities.
+					Configure all advanced OAuth 2.0 and OIDC parameters below. These parameters extend the
+					basic OAuth flow with additional capabilities.
 				</InfoBox>
 
 				<ParameterSection>
 					<h4>Audience Parameter</h4>
-					<AudienceParameterInput
-						value={audience}
-						onChange={setAudience}
-					/>
+					<AudienceParameterInput value={audience} onChange={setAudience} />
 				</ParameterSection>
 
 				<ParameterSection>
 					<h4>Resource Indicators (RFC 8707)</h4>
-					<ResourceParameterInput
-						value={resources}
-						onChange={setResources}
-					/>
+					<ResourceParameterInput value={resources} onChange={setResources} />
 				</ParameterSection>
 
 				<ParameterSection>
 					<h4>Prompt Parameter</h4>
-					<EnhancedPromptSelector
-						value={promptValues}
-						onChange={setPromptValues}
-					/>
+					<EnhancedPromptSelector value={promptValues} onChange={setPromptValues} />
 				</ParameterSection>
 
 				<ParameterSection>
 					<h4>Display Parameter (OIDC)</h4>
-					<DisplayParameterSelector
-						value={displayMode}
-						onChange={setDisplayMode}
-					/>
+					<DisplayParameterSelector value={displayMode} onChange={setDisplayMode} />
 				</ParameterSection>
 
 				<ParameterSection>
 					<h4>Claims Request (OIDC)</h4>
-					<ClaimsRequestBuilder
-						value={claimsRequest}
-						onChange={setClaimsRequest}
-					/>
+					<ClaimsRequestBuilder value={claimsRequest} onChange={setClaimsRequest} />
 				</ParameterSection>
 
 				{/* Additional Parameters */}
 				<ParameterSection>
 					<h4>ACR Values (Authentication Context Class Reference)</h4>
 					<InfoBox $variant="info">
-						Space-separated list of Authentication Context Class Reference values 
-						(e.g., "urn:mace:incommon:iap:silver urn:mace:incommon:iap:bronze")
+						Space-separated list of Authentication Context Class Reference values (e.g.,
+						"urn:mace:incommon:iap:silver urn:mace:incommon:iap:bronze")
 					</InfoBox>
 					<input
 						type="text"
@@ -335,7 +336,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
 							border: '2px solid #e5e7eb',
-							fontSize: '1rem'
+							fontSize: '1rem',
 						}}
 					/>
 				</ParameterSection>
@@ -343,8 +344,8 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				<ParameterSection>
 					<h4>Max Age (seconds)</h4>
 					<InfoBox $variant="info">
-						Maximum authentication age allowed. If the last authentication is older than this, 
-						the user must re-authenticate.
+						Maximum authentication age allowed. If the last authentication is older than this, the
+						user must re-authenticate.
 					</InfoBox>
 					<input
 						type="number"
@@ -356,7 +357,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
 							border: '2px solid #e5e7eb',
-							fontSize: '1rem'
+							fontSize: '1rem',
 						}}
 					/>
 				</ParameterSection>
@@ -364,8 +365,8 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				<ParameterSection>
 					<h4>UI Locales</h4>
 					<InfoBox $variant="info">
-						Space-separated list of preferred languages for the authentication UI 
-						(e.g., "en-US es-ES fr-FR")
+						Space-separated list of preferred languages for the authentication UI (e.g., "en-US
+						es-ES fr-FR")
 					</InfoBox>
 					<input
 						type="text"
@@ -377,7 +378,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
 							border: '2px solid #e5e7eb',
-							fontSize: '1rem'
+							fontSize: '1rem',
 						}}
 					/>
 				</ParameterSection>
@@ -397,7 +398,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							padding: '0.75rem',
 							borderRadius: '0.5rem',
 							border: '2px solid #e5e7eb',
-							fontSize: '1rem'
+							fontSize: '1rem',
 						}}
 					/>
 				</ParameterSection>
@@ -418,7 +419,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 							borderRadius: '0.5rem',
 							border: '2px solid #e5e7eb',
 							fontSize: '1rem',
-							fontFamily: 'Monaco, monospace'
+							fontFamily: 'Monaco, monospace',
 						}}
 					/>
 				</ParameterSection>
@@ -438,8 +439,8 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 					defaultCollapsed={false}
 				>
 					<InfoBox $variant="success">
-						<strong>✅ Mock URL Generated!</strong> This is what the authorization URL would look like 
-						with all your configured parameters.
+						<strong>✅ Mock URL Generated!</strong> This is what the authorization URL would look
+						like with all your configured parameters.
 					</InfoBox>
 
 					<UrlDisplay>
@@ -451,7 +452,7 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 					</UrlDisplay>
 
 					<InfoBox>
-						<strong>📖 What happens next:</strong> In a real flow, clicking this URL would redirect 
+						<strong>📖 What happens next:</strong> In a real flow, clicking this URL would redirect
 						the user to the authorization server, which would process all these parameters.
 					</InfoBox>
 
@@ -471,34 +472,36 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 					defaultCollapsed={false}
 				>
 					<InfoBox $variant="success">
-						<strong>🎉 Mock Tokens Generated!</strong> These tokens demonstrate how your configured 
+						<strong>🎉 Mock Tokens Generated!</strong> These tokens demonstrate how your configured
 						parameters would be reflected in the token response.
 					</InfoBox>
 
-					{UnifiedTokenDisplayService.showTokens(
-					mockTokens,
-					'oauth',
-					'advanced-oauth-params-demo'
-				)}
+					{UnifiedTokenDisplayService.showTokens(mockTokens, 'oauth', 'advanced-oauth-params-demo')}
 
 					<InfoBox>
 						<strong>🔍 Key Observations:</strong>
 						<ul>
 							{resources.length > 0 && (
-								<li>The <code>aud</code> claim in the access token contains your resource URIs</li>
+								<li>
+									The <code>aud</code> claim in the access token contains your resource URIs
+								</li>
 							)}
 							{audience && resources.length === 0 && (
-								<li>The <code>aud</code> claim in the access token contains your audience</li>
+								<li>
+									The <code>aud</code> claim in the access token contains your audience
+								</li>
 							)}
 							{acrValues && (
-								<li>The <code>acr</code> claim reflects the authentication context class</li>
+								<li>
+									The <code>acr</code> claim reflects the authentication context class
+								</li>
 							)}
 							{maxAge && (
-								<li>The <code>auth_time</code> claim shows when the user authenticated</li>
+								<li>
+									The <code>auth_time</code> claim shows when the user authenticated
+								</li>
 							)}
-							{claimsRequest && (
-								<li>Requested claims appear in the ID token</li>
-							)}
+							{claimsRequest && <li>Requested claims appear in the ID token</li>}
 						</ul>
 					</InfoBox>
 				</CollapsibleHeader>
@@ -514,18 +517,30 @@ const AdvancedOAuthParametersDemoFlow: React.FC<AdvancedOAuthParametersDemoFlowP
 				<InfoBox $variant="warning">
 					<strong>⚠️ Implementation Reality</strong>
 					<p style={{ marginTop: '1rem' }}>
-						While these parameters are part of the OAuth 2.0 and OIDC specifications, 
-						not all authorization servers implement them. Here's why:
+						While these parameters are part of the OAuth 2.0 and OIDC specifications, not all
+						authorization servers implement them. Here's why:
 					</p>
 					<ul>
-						<li><strong>Resource Indicators (RFC 8707):</strong> Newer specification (2019), not universally adopted yet</li>
-						<li><strong>Display Parameter:</strong> Requires server-side UI adaptation, complex to implement</li>
-						<li><strong>ACR Values:</strong> Requires multiple authentication methods configured</li>
-						<li><strong>UI Locales:</strong> Requires internationalized UI implementation</li>
-						<li><strong>ID Token Hint:</strong> Complex validation and session management required</li>
+						<li>
+							<strong>Resource Indicators (RFC 8707):</strong> Newer specification (2019), not
+							universally adopted yet
+						</li>
+						<li>
+							<strong>Display Parameter:</strong> Requires server-side UI adaptation, complex to
+							implement
+						</li>
+						<li>
+							<strong>ACR Values:</strong> Requires multiple authentication methods configured
+						</li>
+						<li>
+							<strong>UI Locales:</strong> Requires internationalized UI implementation
+						</li>
+						<li>
+							<strong>ID Token Hint:</strong> Complex validation and session management required
+						</li>
 					</ul>
 					<p style={{ marginTop: '1rem' }}>
-						<strong>For PingOne flows</strong>, we only show parameters that are well-supported 
+						<strong>For PingOne flows</strong>, we only show parameters that are well-supported
 						(Audience, Prompt, Claims Request) to ensure a reliable user experience.
 					</p>
 				</InfoBox>

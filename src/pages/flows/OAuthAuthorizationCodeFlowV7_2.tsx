@@ -1,7 +1,6 @@
 // src/pages/flows/OAuthAuthorizationCodeFlowV7_2.tsx
 // V7.2 OAuth Authorization Code Flow - Original V7 UI with minimal architectural improvements
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
-import { usePageScroll } from '../../hooks/usePageScroll';
 import {
 	FiAlertCircle,
 	FiArrowRight,
@@ -20,17 +19,18 @@ import {
 	FiSettings,
 	FiShield,
 } from 'react-icons/fi';
-import { themeService } from '../../services/themeService';
 import styled from 'styled-components';
-import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
-import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
+import AudienceParameterInput from '../../components/AudienceParameterInput';
+import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
 import ConfigurationBackup from '../../components/ConfigurationBackup';
+import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
+import EnhancedFlowInfoCard from '../../components/EnhancedFlowInfoCard';
+import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
+import FlowConfigurationRequirements from '../../components/FlowConfigurationRequirements';
 import { ExplanationHeading, ExplanationSection } from '../../components/InfoBlocks';
+import KrogerLoginPopup, { type KrogerLoginCredentials } from '../../components/KrogerLoginPopup';
 import LoginSuccessModal from '../../components/LoginSuccessModal';
 import type { PingOneApplicationState } from '../../components/PingOneApplicationConfig';
-import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
-import { EducationalContentService } from '../../services/educationalContentService.tsx';
-import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
 import {
 	HelperText,
 	ResultsHeading,
@@ -38,54 +38,56 @@ import {
 	SectionDivider,
 } from '../../components/ResultsPanel';
 import SecurityFeaturesDemo from '../../components/SecurityFeaturesDemo';
-import EnhancedSecurityFeaturesDemo from '../../components/EnhancedSecurityFeaturesDemo';
 import { StepNavigationButtons } from '../../components/StepNavigationButtons';
 import type { StepCredentials } from '../../components/steps/CommonSteps';
 import TokenIntrospect from '../../components/TokenIntrospect';
 import { useAuthorizationCodeFlowController } from '../../hooks/useAuthorizationCodeFlowController';
-import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
-import { FlowHeader } from '../../services/flowHeaderService';
-import { EnhancedApiCallDisplay } from '../../components/EnhancedApiCallDisplay';
-import { EnhancedApiCallDisplayService, EnhancedApiCallData } from '../../services/enhancedApiCallDisplayService';
-import { TokenIntrospectionService, IntrospectionApiCallData } from '../../services/tokenIntrospectionService';
-import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import { usePageScroll } from '../../hooks/usePageScroll';
 import { AuthenticationModalService } from '../../services/authenticationModalService';
+import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
+import { CollapsibleHeader } from '../../services/collapsibleHeaderService';
+import ComprehensiveCredentialsService from '../../services/comprehensiveCredentialsService';
+import { comprehensiveFlowDataService } from '../../services/comprehensiveFlowDataService';
+import { CopyButtonService } from '../../services/copyButtonService';
+import { EducationalContentService } from '../../services/educationalContentService.tsx';
+import {
+	EnhancedApiCallData,
+	EnhancedApiCallDisplayService,
+} from '../../services/enhancedApiCallDisplayService';
+import { FlowCompletionConfigs, FlowCompletionService } from '../../services/flowCompletionService';
+import FlowCredentialService from '../../services/flowCredentialService';
+import { FlowHeader } from '../../services/flowHeaderService';
+import FlowStorageService from '../../services/flowStorageService';
+import FlowUIService from '../../services/flowUIService';
+import {
+	OAuthErrorDetails,
+	OAuthErrorHandlingService,
+} from '../../services/oauthErrorHandlingService';
+import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
+import { PKCEGenerationService } from '../../services/pkceGenerationService';
+import { themeService } from '../../services/themeService';
+import {
+	IntrospectionApiCallData,
+	TokenIntrospectionService,
+} from '../../services/tokenIntrospectionService';
+import { UISettingsService } from '../../services/uiSettingsService';
+import { UnifiedTokenDisplayService } from '../../services/unifiedTokenDisplayService';
+import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
+import { V7SharedService } from '../../services/v7SharedService';
+import { storeFlowNavigationState } from '../../utils/flowNavigation';
 import { decodeJWTHeader } from '../../utils/jwks';
 import { v4ToastManager } from '../../utils/v4ToastMessages';
-import CodeExamplesDisplay from '../../components/CodeExamplesDisplay';
-import { storeFlowNavigationState } from '../../utils/flowNavigation';
-import { oidcDiscoveryService } from '../../services/oidcDiscoveryService';
-import { UISettingsService } from '../../services/uiSettingsService';
-import { PKCEGenerationService } from '../../services/pkceGenerationService';
-import AudienceParameterInput from '../../components/AudienceParameterInput';
-import { CopyButtonService } from '../../services/copyButtonService';
-import AuthorizationCodeSharedService from '../../services/authorizationCodeSharedService';
-import FlowStorageService from '../../services/flowStorageService';
-import { useV7CredentialValidation } from '../../services/v7CredentialValidationService';
-import { FlowCompletionService, FlowCompletionConfigs } from '../../services/flowCompletionService';
-import { OAuthErrorHandlingService, OAuthErrorDetails } from '../../services/oauthErrorHandlingService';
-import { V7SharedService } from '../../services/v7SharedService';
 import {
-	STEP_METADATA,
-	type IntroSectionKey,
 	DEFAULT_APP_CONFIG,
-} from './config/OAuthAuthzCodeFlowV6.config';
-import FlowCredentialService from '../../services/flowCredentialService';
-import KrogerLoginPopup, { type KrogerLoginCredentials } from '../../components/KrogerLoginPopup';
+	type IntroSectionKey,
+	STEP_METADATA,
+} from './config/OAuthAuthzCodeFlowV7.config';
 
 type StepCompletionState = Record<number, boolean>;
 
-const Container = styled.div`
-	min-height: 100vh;
-	background-color: #f9fafb;
-	padding: 2rem 0 6rem;
-`;
-
-const ContentWrapper = styled.div`
-	max-width: 64rem;
-	margin: 0 auto;
-	padding: 0 1rem;
-`;
+// Get UI components from FlowUIService
+const Container = FlowUIService.getContainer();
+const ContentWrapper = FlowUIService.getContentWrapper();
 
 const MainCard = styled.div`
 	background-color: #ffffff;
@@ -96,10 +98,10 @@ const MainCard = styled.div`
 `;
 
 const StepHeader = styled.div<{ $variant: 'oauth' | 'oidc' }>`
-	background: ${props => props.$variant === 'oidc' 
-		? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' 
-		: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc'
+			? 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+			: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)'};
 	color: #ffffff;
 	padding: 2rem;
 	display: flex;
@@ -115,18 +117,10 @@ const StepHeaderLeft = styled.div`
 
 const VersionBadge = styled.span<{ $variant: 'oauth' | 'oidc' }>`
 	align-self: flex-start;
-	background: ${props => props.$variant === 'oidc' 
-		? 'rgba(59, 130, 246, 0.2)' 
-		: 'rgba(234, 179, 8, 0.2)'
-	};
-	border: 1px solid ${props => props.$variant === 'oidc' 
-		? '#60a5fa' 
-		: '#facc15'
-	};
-	color: ${props => props.$variant === 'oidc' 
-		? '#dbeafe' 
-		: '#fef3c7'
-	};
+	background: ${(props) =>
+		props.$variant === 'oidc' ? 'rgba(59, 130, 246, 0.2)' : 'rgba(234, 179, 8, 0.2)'};
+	border: 1px solid ${(props) => (props.$variant === 'oidc' ? '#60a5fa' : '#facc15')};
+	color: ${(props) => (props.$variant === 'oidc' ? '#dbeafe' : '#fef3c7')};
 	font-size: 0.75rem;
 	font-weight: 600;
 	letter-spacing: 0.08em;
@@ -184,10 +178,10 @@ const VariantButton = styled.button<{ $selected: boolean }>`
 	flex: 1;
 	padding: 1rem;
 	border-radius: 0.5rem;
-	border: 2px solid ${props => props.$selected ? '#3b82f6' : '#cbd5e1'};
-	background: ${props => props.$selected ? '#dbeafe' : 'white'};
-	color: ${props => props.$selected ? '#1e40af' : '#475569'};
-	font-weight: ${props => props.$selected ? '600' : '500'};
+	border: 2px solid ${(props) => (props.$selected ? '#3b82f6' : '#cbd5e1')};
+	background: ${(props) => (props.$selected ? '#dbeafe' : 'white')};
+	color: ${(props) => (props.$selected ? '#1e40af' : '#475569')};
+	font-weight: ${(props) => (props.$selected ? '600' : '500')};
 	transition: all 0.2s ease;
 	cursor: pointer;
 
@@ -690,7 +684,6 @@ const HighlightBadge = styled.span`
 	font-weight: 700;
 `;
 
-
 const GeneratedUrlDisplay = styled.div`
 	background-color: #ecfdf3;
 	border: 1px solid #bbf7d0;
@@ -702,7 +695,6 @@ const GeneratedUrlDisplay = styled.div`
 	word-break: break-all;
 	position: relative;
 `;
-
 
 const EmptyState = styled.div`
 	text-align: center;
@@ -784,22 +776,23 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	// The controller already loads credentials using FlowCredentialService
 	// We just need to ensure credentials are properly saved to the comprehensive service
 	const [lastSyncedCredentials, setLastSyncedCredentials] = useState<string>('');
-	
+
 	useEffect(() => {
 		// Only save credentials if they exist and are different from defaults
-		if (controller.credentials && 
+		if (
+			controller.credentials &&
 			(controller.credentials.clientId || controller.credentials.environmentId) &&
-			controller.credentials.clientId !== '' && 
-			controller.credentials.environmentId !== '') {
-			
+			controller.credentials.clientId !== '' &&
+			controller.credentials.environmentId !== ''
+		) {
 			// Create a hash to prevent unnecessary syncing
 			const credentialsHash = JSON.stringify({
 				clientId: controller.credentials.clientId,
 				environmentId: controller.credentials.environmentId,
 				clientSecret: controller.credentials.clientSecret,
-				redirectUri: controller.credentials.redirectUri
+				redirectUri: controller.credentials.redirectUri,
 			});
-			
+
 			// Only sync if credentials have actually changed
 			if (credentialsHash !== lastSyncedCredentials) {
 				console.log('💾 [V7.2] Syncing credentials to comprehensive service...');
@@ -853,7 +846,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		(nextVariant: 'oauth' | 'oidc') => {
 			// Preserve current PKCE codes and auth state
 			const currentPkceCodes = controller.pkceCodes;
-			
+
 			setFlowVariant(nextVariant);
 			controller.setFlowVariant(nextVariant);
 
@@ -861,7 +854,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			FlowCredentialService.loadSharedCredentials(`oauth-authorization-code-v7-${nextVariant}`)
 				.then((reloadedCredentials) => {
 					if (reloadedCredentials && Object.keys(reloadedCredentials).length > 0) {
-						console.log(`[V7 AuthZ] Loading saved ${nextVariant.toUpperCase()} credentials:`, reloadedCredentials);
+						console.log(
+							`[V7 AuthZ] Loading saved ${nextVariant.toUpperCase()} credentials:`,
+							reloadedCredentials
+						);
 						controller.setCredentials({
 							...controller.credentials,
 							...reloadedCredentials,
@@ -873,13 +869,15 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				});
 
 			// PingOne requires openid scope for both OAuth and OIDC variants
-			const updatedScope = ensureOidcScopes(controller.credentials.scope || controller.credentials.scopes);
+			const updatedScope = ensureOidcScopes(
+				controller.credentials.scope || controller.credentials.scopes
+			);
 			controller.setCredentials({
 				...controller.credentials,
 				scope: updatedScope,
 				scopes: updatedScope,
 			});
-			
+
 			if (nextVariant === 'oidc') {
 				controller.setFlowConfig({
 					...controller.flowConfig,
@@ -891,13 +889,13 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					enableOIDC: false,
 				});
 			}
-			
+
 			// Restore PKCE codes and auth state to prevent mismatch errors
 			if (currentPkceCodes.codeVerifier && currentPkceCodes.codeChallenge) {
 				console.log(`[V7 AuthZ] Preserving PKCE codes during variant switch`);
 				controller.setPkceCodes(currentPkceCodes);
 			}
-			
+
 			// Show success message
 			v4ToastManager.showSuccess(`Switched to ${nextVariant.toUpperCase()} variant`);
 		},
@@ -919,16 +917,22 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				onClick={() => handleFlowVariantChange('oidc')}
 			>
 				<VariantTitle>OpenID Connect Authorization Code</VariantTitle>
-				<VariantDescription>ID token + Access token - Authentication + Authorization</VariantDescription>
+				<VariantDescription>
+					ID token + Access token - Authentication + Authorization
+				</VariantDescription>
 			</VariantButton>
 		</VariantSelector>
 	);
-	
+
 	// API call tracking for display
-	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(null);
+	const [tokenExchangeApiCall, setTokenExchangeApiCall] = useState<EnhancedApiCallData | null>(
+		null
+	);
 	const [userInfoApiCall, setUserInfoApiCall] = useState<EnhancedApiCallData | null>(null);
-	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(null);
-	
+	const [introspectionApiCall, setIntrospectionApiCall] = useState<IntrospectionApiCallData | null>(
+		null
+	);
+
 	// Advanced OAuth parameters
 	const [audience, setAudience] = useState<string>('');
 	const [resources, setResources] = useState<string[]>([]);
@@ -974,13 +978,13 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		if (audience || promptValues.length > 0) {
 			console.log('[OAuth AuthZ V6] Updating flow config with advanced parameters:', {
 				audience,
-				promptValues
+				promptValues,
 			});
 			// Note: Resources are not sent for PingOne flows as they're not reliably supported
 			controller.setFlowConfig({
 				...controller.flowConfig,
 				audience,
-				prompt: promptValues.join(' ')
+				prompt: promptValues.join(' '),
 			});
 		}
 	}, [audience, promptValues]);
@@ -992,7 +996,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			resources,
 			promptValues,
 		});
-		
+
 		const flowId = FlowStorageService.getFlowId('oauth-authorization-code-v7') ?? 'oauth-authz-v7';
 		FlowStorageService.AdvancedParameters.set(flowId, {
 			audience,
@@ -1001,14 +1005,14 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		});
 		setIsSavedAdvancedParams(true);
 		v4ToastManager.showSuccess('Advanced parameters saved! Regenerating authorization URL...');
-		
+
 		// Regenerate authorization URL with new parameters
 		await AuthorizationCodeSharedService.Authorization.generateAuthUrl(
 			flowVariant,
 			controller.credentials,
 			controller
 		);
-		
+
 		// Log what will actually be sent to PingOne
 		if (controller.authUrl) {
 			const urlParams = new URLSearchParams(controller.authUrl.split('?')[1] || '');
@@ -1028,7 +1032,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			console.log('🌐 Resources:', 'Not included (PingOne does not support RFC 8707)');
 			console.log('🌐 =============================================');
 		}
-		
+
 		// Hide the saved indicator after 3 seconds
 		setTimeout(() => {
 			setIsSavedAdvancedParams(false);
@@ -1042,7 +1046,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 	// Response type selector state
 	const [selectedResponseType, setSelectedResponseType] = useState<string>('code id_token');
-	
+
 	// Update controller credentials when response type changes (guard to avoid re-render loops)
 	useEffect(() => {
 		if (controller.credentials?.responseType === selectedResponseType) return;
@@ -1050,8 +1054,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			...controller.credentials,
 			responseType: selectedResponseType,
 		});
-	// Intentionally do NOT depend on the controller object identity to avoid infinite loops
-	// eslint-disable-next-line react-hooks/exhaustive-deps
+		// Intentionally do NOT depend on the controller object identity to avoid infinite loops
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [selectedResponseType]);
 
 	// Load PingOne configuration from sessionStorage on mount
@@ -1061,18 +1065,24 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		const flowData = comprehensiveFlowDataService.loadFlowDataComprehensive({
 			flowKey,
 			useSharedEnvironment: true,
-			useSharedDiscovery: true
+			useSharedDiscovery: true,
 		});
 
 		// Restore tokenEndpointAuthMethod from flowConfig or flowCredentials
 		if (flowData.flowConfig?.tokenEndpointAuthMethod) {
-			console.log('✅ [V7.2] Restoring tokenEndpointAuthMethod from flowConfig:', flowData.flowConfig.tokenEndpointAuthMethod);
+			console.log(
+				'✅ [V7.2] Restoring tokenEndpointAuthMethod from flowConfig:',
+				flowData.flowConfig.tokenEndpointAuthMethod
+			);
 			controller.setCredentials({
 				...controller.credentials,
 				clientAuthMethod: flowData.flowConfig.tokenEndpointAuthMethod as any,
 			});
 		} else if (flowData.flowCredentials?.tokenEndpointAuthMethod) {
-			console.log('✅ [V7.2] Restoring tokenEndpointAuthMethod from flowCredentials:', flowData.flowCredentials.tokenEndpointAuthMethod);
+			console.log(
+				'✅ [V7.2] Restoring tokenEndpointAuthMethod from flowCredentials:',
+				flowData.flowCredentials.tokenEndpointAuthMethod
+			);
 			controller.setCredentials({
 				...controller.credentials,
 				clientAuthMethod: flowData.flowCredentials.tokenEndpointAuthMethod as any,
@@ -1126,7 +1136,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	const handleAuthCodeSuccess = useCallback((code: string) => {
 		// Show success modal (guarded so it only shows once per auth code)
 		console.log('🟢 [AuthorizationCodeFlowV5] Opening LoginSuccessModal');
-		if (loginModalGuardRef.current !== code && sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true') {
+		if (
+			loginModalGuardRef.current !== code &&
+			sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true'
+		) {
 			loginModalGuardRef.current = code;
 			setShowLoginSuccessModal(true);
 		}
@@ -1150,7 +1163,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 		// Also check sessionStorage for auth code (from OAuth callback)
 		// Check both V7.2 key and V7 key as fallback
-		const sessionAuthCode = sessionStorage.getItem('oauth_auth_code') || sessionStorage.getItem('oauth_v7_auth_code');
+		const sessionAuthCode =
+			sessionStorage.getItem('oauth_auth_code') || sessionStorage.getItem('oauth_v7_auth_code');
 
 		console.log('🚀 [AuthorizationCodeFlowV5] Initialization check:', {
 			hasCode: !!authCode,
@@ -1180,69 +1194,81 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				source: authCode ? 'URL' : 'sessionStorage',
 				code: `${finalAuthCode.substring(0, 10)}...`,
 			});
-			
+
 			// Store the auth code immediately (credentials validation happens later)
 			setLocalAuthCode(finalAuthCode);
 			// Also set it in the controller
 			controller.setAuthCodeManually(finalAuthCode);
-			
+
 			// CRITICAL: Validate that we have the necessary credentials for token exchange
 			// But allow some time for credentials to load if they're being restored from storage
-			const hasRequiredCredentials = controller.credentials?.clientId && 
-				controller.credentials?.clientSecret && 
+			const hasRequiredCredentials =
+				controller.credentials?.clientId &&
+				controller.credentials?.clientSecret &&
 				controller.credentials?.environmentId;
-			
+
 			console.log('🔍 [AuthorizationCodeFlowV5] Credential validation:', {
 				hasClientId: !!controller.credentials?.clientId,
 				hasClientSecret: !!controller.credentials?.clientSecret,
 				hasEnvironmentId: !!controller.credentials?.environmentId,
 				hasRequiredCredentials,
-				credentialsPreview: controller.credentials ? {
-					envId: controller.credentials.environmentId?.substring(0, 8) + '...',
-					clientId: controller.credentials.clientId?.substring(0, 8) + '...',
-					hasSecret: !!controller.credentials.clientSecret
-				} : 'no credentials object'
+				credentialsPreview: controller.credentials
+					? {
+							envId: controller.credentials.environmentId?.substring(0, 8) + '...',
+							clientId: controller.credentials.clientId?.substring(0, 8) + '...',
+							hasSecret: !!controller.credentials.clientSecret,
+						}
+					: 'no credentials object',
 			});
-			
+
 			if (!hasRequiredCredentials) {
-				console.warn('⚠️ [AuthorizationCodeFlowV5] Credentials not available yet - may need to load from storage');
-				console.log('⚠️ [AuthorizationCodeFlowV5] Waiting 500ms for credentials to load, then re-checking...');
-				
+				console.warn(
+					'⚠️ [AuthorizationCodeFlowV5] Credentials not available yet - may need to load from storage'
+				);
+				console.log(
+					'⚠️ [AuthorizationCodeFlowV5] Waiting 500ms for credentials to load, then re-checking...'
+				);
+
 				// Wait a bit for credentials to load, then re-check
 				setTimeout(() => {
-					const retryHasRequiredCredentials = controller.credentials?.clientId && 
-						controller.credentials?.clientSecret && 
+					const retryHasRequiredCredentials =
+						controller.credentials?.clientId &&
+						controller.credentials?.clientSecret &&
 						controller.credentials?.environmentId;
-					
+
 					console.log('🔍 [AuthorizationCodeFlowV5] Credential re-validation after delay:', {
 						hasClientId: !!controller.credentials?.clientId,
 						hasClientSecret: !!controller.credentials?.clientSecret,
 						hasEnvironmentId: !!controller.credentials?.environmentId,
-						hasRequiredCredentials: retryHasRequiredCredentials
+						hasRequiredCredentials: retryHasRequiredCredentials,
 					});
-					
+
 					if (!retryHasRequiredCredentials) {
 						console.error('🚨 [AuthorizationCodeFlowV5] Missing required credentials after retry');
-						v4ToastManager.showError('Missing OAuth credentials. Please configure your application settings in Step 0 before proceeding.');
+						v4ToastManager.showError(
+							'Missing OAuth credentials. Please configure your application settings in Step 0 before proceeding.'
+						);
 						// Clear URL parameters and reset to step 0
 						window.history.replaceState({}, '', window.location.pathname);
 						setCurrentStep(0);
 						sessionStorage.setItem('oauth-authorization-code-v7-current-step', '0');
 						return;
 					}
-					
+
 					// Credentials loaded successfully - proceed with normal flow
-					console.log('✅ [AuthorizationCodeFlowV5] Credentials loaded, proceeding with callback handling');
+					console.log(
+						'✅ [AuthorizationCodeFlowV5] Credentials loaded, proceeding with callback handling'
+					);
 					handleAuthCodeSuccess(finalAuthCode);
 				}, 500);
-				
+
 				// Still clear URL params and set step, but show modal after credentials load
 				window.history.replaceState({}, '', window.location.pathname);
 				sessionStorage.removeItem('oauth_auth_code');
 				sessionStorage.removeItem('oauth_v7_auth_code');
 				return;
 			}
-			
+
 			// Credentials available - proceed normally
 			handleAuthCodeSuccess(finalAuthCode);
 			return;
@@ -1288,13 +1314,16 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			const urlStep = urlParams.get('step');
 			const authCode = urlParams.get('code');
 			const error = urlParams.get('error');
-			
+
 			// Only process step parameter if there's no OAuth callback parameters
 			// This prevents interference with normal OAuth redirect flow
 			if (urlStep && !authCode && !error) {
 				const stepIndex = parseInt(urlStep, 10);
 				if (!Number.isNaN(stepIndex) && stepIndex >= 0 && stepIndex < STEP_METADATA.length) {
-					console.log('🎯 [V7.2] URL step parameter detected (no OAuth callback), updating step to:', stepIndex);
+					console.log(
+						'🎯 [V7.2] URL step parameter detected (no OAuth callback), updating step to:',
+						stepIndex
+					);
 					setCurrentStep(stepIndex);
 					sessionStorage.setItem('oauth-authorization-code-v7-current-step', stepIndex.toString());
 				}
@@ -1336,7 +1365,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			);
 
 			// Show success modal and toast (guarded per auth code)
-			if (loginModalGuardRef.current !== controller.authCode && sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true') {
+			if (
+				loginModalGuardRef.current !== controller.authCode &&
+				sessionStorage.getItem('v7_2_login_modal_dismissed') !== 'true'
+			) {
 				loginModalGuardRef.current = controller.authCode;
 				setShowLoginSuccessModal(true);
 			}
@@ -1380,9 +1412,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		]
 	);
 
-	const toggleSection = AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(
-		setCollapsedSections
-	);
+	const toggleSection =
+		AuthorizationCodeSharedService.CollapsibleSections.createToggleHandler(setCollapsedSections);
 
 	const handleFieldChange = useCallback(
 		(field: keyof StepCredentials, value: string) => {
@@ -1403,9 +1434,12 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 
 			console.log('[OAuth AuthZ V7.2] Credentials updated', {
 				field,
-				valuePreview: field === 'clientSecret'
-					? (normalizedValue ? '***MASKED***' : '(empty)')
-					: normalizedValue,
+				valuePreview:
+					field === 'clientSecret'
+						? normalizedValue
+							? '***MASKED***'
+							: '(empty)'
+						: normalizedValue,
 				snapshot,
 			});
 
@@ -1426,7 +1460,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		console.log('🔧 [handleSaveConfiguration] Starting save process...');
 		console.log('🔧 [handleSaveConfiguration] Current credentials:', controller.credentials);
 		console.log('🔧 [handleSaveConfiguration] Current flowConfig:', controller.flowConfig);
-		
+
 		const required: Array<keyof StepCredentials> = [
 			'environmentId',
 			'clientId',
@@ -1437,9 +1471,9 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			const value = controller.credentials[field];
 			return !value || (typeof value === 'string' && !value.trim());
 		});
-		
+
 		console.log('🔧 [handleSaveConfiguration] Missing fields:', missing);
-		
+
 		if (missing.length > 0) {
 			setEmptyRequiredFields(new Set(missing.map((field) => field as string)));
 			v4ToastManager.showError(
@@ -1447,51 +1481,58 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			);
 			return;
 		}
-		
+
 		try {
 			console.log('🔧 [handleSaveConfiguration] Calling controller.saveCredentials()...');
 			await controller.saveCredentials();
 			console.log('🔧 [handleSaveConfiguration] Save completed successfully');
-			
+
 			// Also save to comprehensiveFlowDataService with tokenEndpointAuthMethod
-			const tokenEndpointAuthMethod = typeof controller.credentials.clientAuthMethod === 'string' 
-				? controller.credentials.clientAuthMethod 
-				: (controller.credentials.clientAuthMethod as any)?.value || 'client_secret_post';
-			
+			const tokenEndpointAuthMethod =
+				typeof controller.credentials.clientAuthMethod === 'string'
+					? controller.credentials.clientAuthMethod
+					: (controller.credentials.clientAuthMethod as any)?.value || 'client_secret_post';
+
 			const flowKey = `oauth-authorization-code-v7-2-${flowVariant}`;
-			const success = comprehensiveFlowDataService.saveFlowDataComprehensive(flowKey, {
-				...(controller.credentials.environmentId && {
-					sharedEnvironment: {
-						environmentId: controller.credentials.environmentId,
-						region: 'us',
-						issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`
-					}
-				}),
-				flowCredentials: {
-					clientId: controller.credentials.clientId,
-					clientSecret: controller.credentials.clientSecret,
-					redirectUri: controller.credentials.redirectUri,
-					scopes: Array.isArray(controller.credentials.scopes) 
-						? controller.credentials.scopes 
-						: (typeof controller.credentials.scopes === 'string' 
-							? controller.credentials.scopes.split(/\s+/).filter(Boolean)
-							: []),
-					tokenEndpointAuthMethod: tokenEndpointAuthMethod,
-					lastUpdated: Date.now()
+			const success = comprehensiveFlowDataService.saveFlowDataComprehensive(
+				flowKey,
+				{
+					...(controller.credentials.environmentId && {
+						sharedEnvironment: {
+							environmentId: controller.credentials.environmentId,
+							region: 'us',
+							issuerUrl: `https://auth.pingone.com/${controller.credentials.environmentId}`,
+						},
+					}),
+					flowCredentials: {
+						clientId: controller.credentials.clientId,
+						clientSecret: controller.credentials.clientSecret,
+						redirectUri: controller.credentials.redirectUri,
+						scopes: Array.isArray(controller.credentials.scopes)
+							? controller.credentials.scopes
+							: typeof controller.credentials.scopes === 'string'
+								? controller.credentials.scopes.split(/\s+/).filter(Boolean)
+								: [],
+						tokenEndpointAuthMethod: tokenEndpointAuthMethod,
+						lastUpdated: Date.now(),
+					},
+					flowConfig: {
+						flowVariant: flowVariant,
+						responseType: controller.credentials.responseType || controller.flowConfig.responseType,
+						grantType: controller.credentials.grantType || controller.flowConfig.grantType,
+						tokenEndpointAuthMethod: tokenEndpointAuthMethod,
+						lastUpdated: Date.now(),
+					},
 				},
-				flowConfig: {
-					flowVariant: flowVariant,
-					responseType: controller.credentials.responseType || controller.flowConfig.responseType,
-					grantType: controller.credentials.grantType || controller.flowConfig.grantType,
-					tokenEndpointAuthMethod: tokenEndpointAuthMethod,
-					lastUpdated: Date.now()
-				}
-			}, { showToast: false });
-			
+				{ showToast: false }
+			);
+
 			if (!success) {
-				console.error('🔧 [handleSaveConfiguration] Failed to save to comprehensiveFlowDataService');
+				console.error(
+					'🔧 [handleSaveConfiguration] Failed to save to comprehensiveFlowDataService'
+				);
 			}
-			
+
 			v4ToastManager.showSuccess('Configuration saved successfully!');
 		} catch (error) {
 			console.error('🔧 [handleSaveConfiguration] Save failed:', error);
@@ -1557,23 +1598,27 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		console.log('[OAuth AuthZ V6] Generating PKCE codes...', {
 			clientId: controller.credentials.clientId,
 			environmentId: controller.credentials.environmentId,
-			flowKey: 'oauth-authorization-code-v7'
+			flowKey: 'oauth-authorization-code-v7',
 		});
-		
+
 		const success = await AuthorizationCodeSharedService.PKCE.generatePKCE(
 			flowVariant,
 			controller.credentials,
 			controller
 		);
-		
+
 		console.log('[OAuth AuthZ V6] PKCE generation result:', success);
-		
+
 		if (success) {
 			console.log('[OAuth AuthZ V7] PKCE codes after generation:', {
-				codeVerifier: controller.pkceCodes.codeVerifier ? `${controller.pkceCodes.codeVerifier.substring(0, 10)}...` : 'none',
-				codeChallenge: controller.pkceCodes.codeChallenge ? `${controller.pkceCodes.codeChallenge.substring(0, 10)}...` : 'none',
+				codeVerifier: controller.pkceCodes.codeVerifier
+					? `${controller.pkceCodes.codeVerifier.substring(0, 10)}...`
+					: 'none',
+				codeChallenge: controller.pkceCodes.codeChallenge
+					? `${controller.pkceCodes.codeChallenge.substring(0, 10)}...`
+					: 'none',
 				persistKey: controller.persistKey,
-				flowVariant: flowVariant
+				flowVariant: flowVariant,
 			});
 		}
 	}, [controller]);
@@ -1587,210 +1632,260 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	}, [controller]);
 
 	// Run redirectless (pi.flow) inside V7.2 using the same backend endpoints as the playground
-	const runRedirectlessInline = useCallback(async (creds: KrogerLoginCredentials) => {
-		if (isRedirectlessRunning) return;
-		
-		// Safety check: only run redirectless if explicitly enabled
-		if (!useRedirectless) {
-			console.warn('🚨 [Redirectless] Attempted to run redirectless flow but useRedirectless is false');
-			v4ToastManager.showError('Redirectless flow is not enabled. Please check the "Use Redirectless" option.');
-			return;
-		}
-		
-		setIsRedirectlessRunning(true);
-		console.log('🚀 [Redirectless] Starting redirectless flow...');
-		try {
-			const envId = controller.credentials.environmentId?.trim();
-			const clientId = controller.credentials.clientId?.trim();
-			const clientSecret = controller.credentials.clientSecret?.trim();
-			let redirectUri = controller.credentials.redirectUri?.trim();
-			const scopes = (controller.credentials.scopes || controller.credentials.scope || 'openid').trim();
-			let { codeChallenge } = controller.pkceCodes;
+	const runRedirectlessInline = useCallback(
+		async (creds: KrogerLoginCredentials) => {
+			if (isRedirectlessRunning) return;
 
-			// Auto-fix missing PKCE or redirectUri to reduce friction
-			if (!codeChallenge) {
-				await handleGeneratePkce();
-				codeChallenge = controller.pkceCodes.codeChallenge;
-			}
-			if (!redirectUri) {
-				redirectUri = `${window.location.origin}/authz-callback`;
-				controller.setCredentials({ ...controller.credentials, redirectUri });
-			}
-			if (!envId || !clientId || !redirectUri || !codeChallenge) {
-				v4ToastManager.showError('Missing required config (env, client, redirectUri, PKCE). Configure Step 0/1 first.');
+			// Safety check: only run redirectless if explicitly enabled
+			if (!useRedirectless) {
+				console.warn(
+					'🚨 [Redirectless] Attempted to run redirectless flow but useRedirectless is false'
+				);
+				v4ToastManager.showError(
+					'Redirectless flow is not enabled. Please check the "Use Redirectless" option.'
+				);
 				return;
 			}
 
-			// Step 1: start flow (response_mode=pi.flow)
-			console.log('🚀 [Redirectless] Step 1: Starting authorization request...');
-			const authorizeBody = {
-				environmentId: envId,
-				clientId,
-				redirectUri,
-				scope: scopes,
-				responseType: 'code',
-				responseMode: 'pi.flow',
-				codeChallenge,
-				codeChallengeMethod: 'S256'
-			};
-			console.log('🚀 [Redirectless] Authorization request body:', authorizeBody);
-			
-			const step1 = await fetch('/api/pingone/redirectless/authorize', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(authorizeBody)
-			});
-			console.log('🚀 [Redirectless] Step 1 response status:', step1.status);
-			
-			if (!step1.ok) {
-				const errorText = await step1.text();
-				console.error('🚨 [Redirectless] Step 1 failed:', step1.status, errorText);
-				throw new Error(`Authorize failed (${step1.status}): ${errorText}`);
-			}
-			const step1Json = await step1.json();
-			console.log('🚀 [Redirectless] Step 1 response data:', step1Json);
-			const sessionId = step1Json._sessionId as string | undefined;
-			const flowCheckUrl = step1Json?._links?.['usernamePassword.check']?.href as string | undefined;
-			if (!flowCheckUrl) throw new Error('Missing usernamePassword.check link');
+			setIsRedirectlessRunning(true);
+			console.log('🚀 [Redirectless] Starting redirectless flow...');
+			try {
+				const envId = controller.credentials.environmentId?.trim();
+				const clientId = controller.credentials.clientId?.trim();
+				const clientSecret = controller.credentials.clientSecret?.trim();
+				let redirectUri = controller.credentials.redirectUri?.trim();
+				const scopes = (
+					controller.credentials.scopes ||
+					controller.credentials.scope ||
+					'openid'
+				).trim();
+				let { codeChallenge } = controller.pkceCodes;
 
-			// Step 2: send credentials to PingOne
-			console.log('🚀 [Redirectless] Step 2: Checking username/password...');
-			const step2Body = { flowUrl: flowCheckUrl, username: creds.username, password: creds.password, sessionId };
-			console.log('🚀 [Redirectless] Step 2 request body:', { ...step2Body, password: '[REDACTED]' });
-			
-			const step2 = await fetch('/api/pingone/flows/check-username-password', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(step2Body)
-			});
-			console.log('🚀 [Redirectless] Step 2 response status:', step2.status);
-			
-			if (!step2.ok) {
-				const errorText = await step2.text();
-				console.error('🚨 [Redirectless] Step 2 failed:', step2.status, errorText);
-				throw new Error(`Credential check failed (${step2.status}): ${errorText}`);
-			}
-			const step2Json = await step2.json();
-			console.log('🚀 [Redirectless] Step 2 response data:', step2Json);
-			const resumeUrl = step2Json.resumeUrl as string | undefined;
-			const effectiveSessionId = (step2Json._sessionId as string | undefined) || sessionId;
-			if (!resumeUrl) throw new Error('Missing resumeUrl');
+				// Auto-fix missing PKCE or redirectUri to reduce friction
+				if (!codeChallenge) {
+					await handleGeneratePkce();
+					codeChallenge = controller.pkceCodes.codeChallenge;
+				}
+				if (!redirectUri) {
+					redirectUri = `${window.location.origin}/authz-callback`;
+					controller.setCredentials({ ...controller.credentials, redirectUri });
+				}
+				if (!envId || !clientId || !redirectUri || !codeChallenge) {
+					v4ToastManager.showError(
+						'Missing required config (env, client, redirectUri, PKCE). Configure Step 0/1 first.'
+					);
+					return;
+				}
 
-			// Step 3: resume to obtain authorization code
-			console.log('🚀 [Redirectless] Step 3: Resuming flow to get authorization code...');
-			const resumeBody: any = {
-				resumeUrl,
-				clientId,
-				clientSecret,
-				codeVerifier: controller.pkceCodes.codeVerifier,
-				sessionId: effectiveSessionId
-			};
-			console.log('🚀 [Redirectless] Step 3 request body:', { ...resumeBody, clientSecret: '[REDACTED]', codeVerifier: '[REDACTED]' });
-			
-			const step3 = await fetch('/api/pingone/resume', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(resumeBody)
-			});
-			console.log('🚀 [Redirectless] Step 3 response status:', step3.status);
-			
-			if (!step3.ok) {
-				const errorText = await step3.text();
-				console.error('🚨 [Redirectless] Step 3 failed:', step3.status, errorText);
-				throw new Error(`Resume failed (${step3.status}): ${errorText}`);
-			}
-			const step3Json = await step3.json();
-			console.log('🚀 [Redirectless] Step 3 response data:', step3Json);
-			const authorizationCode = (step3Json.code as string) || (step3Json?.authorizeResponse?.code as string);
-			if (!authorizationCode) {
-				console.error('🚨 [Redirectless] No authorization code in response:', step3Json);
-				throw new Error('No authorization code returned by resume');
-			}
-			console.log('🚀 [Redirectless] Authorization code received:', authorizationCode.substring(0, 20) + '...');
+				// Step 1: start flow (response_mode=pi.flow)
+				console.log('🚀 [Redirectless] Step 1: Starting authorization request...');
+				const authorizeBody = {
+					environmentId: envId,
+					clientId,
+					redirectUri,
+					scope: scopes,
+					responseType: 'code',
+					responseMode: 'pi.flow',
+					codeChallenge,
+					codeChallengeMethod: 'S256',
+				};
+				console.log('🚀 [Redirectless] Authorization request body:', authorizeBody);
 
-			// Step 4: backend token exchange (reuse existing endpoint)
-			console.log('🚀 [Redirectless] Step 4: Exchanging authorization code for tokens...');
-			const tokenExchangeBody = {
-				grant_type: 'authorization_code',
-				code: authorizationCode,
-				redirect_uri: redirectUri,
-				client_id: clientId,
-				client_secret: clientSecret,
-				environment_id: envId,
-				code_verifier: controller.pkceCodes.codeVerifier,
-				token_endpoint_auth_method: controller.credentials.clientAuthMethod || 'client_secret_post'
-			};
-			console.log('🚀 [Redirectless] Step 4 request body:', { ...tokenExchangeBody, client_secret: '[REDACTED]', code_verifier: '[REDACTED]' });
-			
-			const tokenResp = await fetch('/api/token-exchange', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(tokenExchangeBody)
-			});
-			console.log('🚀 [Redirectless] Step 4 response status:', tokenResp.status);
-			
-			if (!tokenResp.ok) {
-				const errorText = await tokenResp.text();
-				console.error('🚨 [Redirectless] Step 4 failed:', tokenResp.status, errorText);
-				throw new Error(`Token exchange failed (${tokenResp.status}): ${errorText}`);
+				const step1 = await fetch('/api/pingone/redirectless/authorize', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(authorizeBody),
+				});
+				console.log('🚀 [Redirectless] Step 1 response status:', step1.status);
+
+				if (!step1.ok) {
+					const errorText = await step1.text();
+					console.error('🚨 [Redirectless] Step 1 failed:', step1.status, errorText);
+					throw new Error(`Authorize failed (${step1.status}): ${errorText}`);
+				}
+				const step1Json = await step1.json();
+				console.log('🚀 [Redirectless] Step 1 response data:', step1Json);
+				const sessionId = step1Json._sessionId as string | undefined;
+				const flowCheckUrl = step1Json?._links?.['usernamePassword.check']?.href as
+					| string
+					| undefined;
+				if (!flowCheckUrl) throw new Error('Missing usernamePassword.check link');
+
+				// Step 2: send credentials to PingOne
+				console.log('🚀 [Redirectless] Step 2: Checking username/password...');
+				const step2Body = {
+					flowUrl: flowCheckUrl,
+					username: creds.username,
+					password: creds.password,
+					sessionId,
+				};
+				console.log('🚀 [Redirectless] Step 2 request body:', {
+					...step2Body,
+					password: '[REDACTED]',
+				});
+
+				const step2 = await fetch('/api/pingone/flows/check-username-password', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(step2Body),
+				});
+				console.log('🚀 [Redirectless] Step 2 response status:', step2.status);
+
+				if (!step2.ok) {
+					const errorText = await step2.text();
+					console.error('🚨 [Redirectless] Step 2 failed:', step2.status, errorText);
+					throw new Error(`Credential check failed (${step2.status}): ${errorText}`);
+				}
+				const step2Json = await step2.json();
+				console.log('🚀 [Redirectless] Step 2 response data:', step2Json);
+				const resumeUrl = step2Json.resumeUrl as string | undefined;
+				const effectiveSessionId = (step2Json._sessionId as string | undefined) || sessionId;
+				if (!resumeUrl) throw new Error('Missing resumeUrl');
+
+				// Step 3: resume to obtain authorization code
+				console.log('🚀 [Redirectless] Step 3: Resuming flow to get authorization code...');
+				const resumeBody: any = {
+					resumeUrl,
+					clientId,
+					clientSecret,
+					codeVerifier: controller.pkceCodes.codeVerifier,
+					sessionId: effectiveSessionId,
+				};
+				console.log('🚀 [Redirectless] Step 3 request body:', {
+					...resumeBody,
+					clientSecret: '[REDACTED]',
+					codeVerifier: '[REDACTED]',
+				});
+
+				const step3 = await fetch('/api/pingone/resume', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(resumeBody),
+				});
+				console.log('🚀 [Redirectless] Step 3 response status:', step3.status);
+
+				if (!step3.ok) {
+					const errorText = await step3.text();
+					console.error('🚨 [Redirectless] Step 3 failed:', step3.status, errorText);
+					throw new Error(`Resume failed (${step3.status}): ${errorText}`);
+				}
+				const step3Json = await step3.json();
+				console.log('🚀 [Redirectless] Step 3 response data:', step3Json);
+				const authorizationCode =
+					(step3Json.code as string) || (step3Json?.authorizeResponse?.code as string);
+				if (!authorizationCode) {
+					console.error('🚨 [Redirectless] No authorization code in response:', step3Json);
+					throw new Error('No authorization code returned by resume');
+				}
+				console.log(
+					'🚀 [Redirectless] Authorization code received:',
+					authorizationCode.substring(0, 20) + '...'
+				);
+
+				// Step 4: backend token exchange (reuse existing endpoint)
+				console.log('🚀 [Redirectless] Step 4: Exchanging authorization code for tokens...');
+				const tokenExchangeBody = {
+					grant_type: 'authorization_code',
+					code: authorizationCode,
+					redirect_uri: redirectUri,
+					client_id: clientId,
+					client_secret: clientSecret,
+					environment_id: envId,
+					code_verifier: controller.pkceCodes.codeVerifier,
+					token_endpoint_auth_method:
+						controller.credentials.clientAuthMethod || 'client_secret_post',
+				};
+				console.log('🚀 [Redirectless] Step 4 request body:', {
+					...tokenExchangeBody,
+					client_secret: '[REDACTED]',
+					code_verifier: '[REDACTED]',
+				});
+
+				const tokenResp = await fetch('/api/token-exchange', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(tokenExchangeBody),
+				});
+				console.log('🚀 [Redirectless] Step 4 response status:', tokenResp.status);
+
+				if (!tokenResp.ok) {
+					const errorText = await tokenResp.text();
+					console.error('🚨 [Redirectless] Step 4 failed:', tokenResp.status, errorText);
+					throw new Error(`Token exchange failed (${tokenResp.status}): ${errorText}`);
+				}
+				const tokens = await tokenResp.json();
+				console.log('🚀 [Redirectless] Step 4 response data (tokens):', tokens);
+				controller.setTokens(tokens);
+				// Set the auth code for UI display purposes (even though it's been consumed)
+				// This enables the "Exchange Authorization Code for Tokens" button to show it worked
+				console.log(
+					'🚀 [Redirectless] Setting authorization code in controller for UI display:',
+					authorizationCode.substring(0, 20) + '...'
+				);
+				controller.setAuthCodeManually(authorizationCode);
+				setLocalAuthCode(authorizationCode);
+				console.log(
+					'🚀 [Redirectless] Tokens obtained successfully, advancing to step 4 (Token Exchange)...'
+				);
+				setCurrentStep(4); // proceed to token exchange step to show the tokens
+				// Persist step to avoid step-restoration effects jumping back
+				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
+				AuthorizationCodeSharedService.StepRestoration.storeStepForRestoration(4);
+				// Reflect step in URL for any watchers and future restores
+				// Only update URL if no OAuth callback parameters are present
+				const currentUrl = new URL(window.location.href);
+				const hasOAuthCallback =
+					currentUrl.searchParams.has('code') || currentUrl.searchParams.has('error');
+				if (!hasOAuthCallback) {
+					currentUrl.searchParams.set('step', '4');
+					window.history.replaceState({}, '', currentUrl.toString());
+					console.log('🚀 [Redirectless] Step 4 set, URL updated:', currentUrl.toString());
+				} else {
+					console.log(
+						'🚀 [Redirectless] Step 4 set, but skipping URL update due to OAuth callback parameters'
+					);
+				}
+				// Multiple timeouts to ensure step advancement sticks
+				setTimeout(() => {
+					console.log('🚀 [Redirectless] Timeout 0ms: Setting step to 4');
+					setCurrentStep(4);
+					sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
+				}, 0);
+				setTimeout(() => {
+					console.log('🚀 [Redirectless] Timeout 100ms: Setting step to 4');
+					setCurrentStep(4);
+					sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
+				}, 100);
+				setTimeout(() => {
+					console.log('🚀 [Redirectless] Timeout 500ms: Setting step to 4');
+					setCurrentStep(4);
+					sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
+				}, 500);
+				v4ToastManager.showSuccess('Redirectless flow complete: tokens received');
+			} catch (e) {
+				console.error('🚨 [Redirectless] Full error details:', e);
+				console.error(
+					'🚨 [Redirectless] Error stack:',
+					e instanceof Error ? e.stack : 'No stack trace'
+				);
+				console.error(
+					'🚨 [Redirectless] Error message:',
+					e instanceof Error ? e.message : 'Unknown error'
+				);
+				console.error('🚨 [Redirectless] Error type:', typeof e);
+				console.error('🚨 [Redirectless] Error constructor:', e?.constructor?.name);
+
+				const errorMessage = e instanceof Error ? e.message : 'Redirectless flow failed';
+				console.error('🚨 [Redirectless] Showing toast with message:', errorMessage);
+				v4ToastManager.showError(errorMessage);
+			} finally {
+				setIsRedirectlessRunning(false);
+				// Make sure the popup is closed regardless of outcome
+				setCustomLoginOpen(false);
 			}
-			const tokens = await tokenResp.json();
-			console.log('🚀 [Redirectless] Step 4 response data (tokens):', tokens);
-			controller.setTokens(tokens);
-			// Set the auth code for UI display purposes (even though it's been consumed)
-			// This enables the "Exchange Authorization Code for Tokens" button to show it worked
-			console.log('🚀 [Redirectless] Setting authorization code in controller for UI display:', authorizationCode.substring(0, 20) + '...');
-			controller.setAuthCodeManually(authorizationCode);
-			setLocalAuthCode(authorizationCode);
-			console.log('🚀 [Redirectless] Tokens obtained successfully, advancing to step 4 (Token Exchange)...');
-			setCurrentStep(4); // proceed to token exchange step to show the tokens
-			// Persist step to avoid step-restoration effects jumping back
-			sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
-			AuthorizationCodeSharedService.StepRestoration.storeStepForRestoration(4);
-			// Reflect step in URL for any watchers and future restores
-			// Only update URL if no OAuth callback parameters are present
-			const currentUrl = new URL(window.location.href);
-			const hasOAuthCallback = currentUrl.searchParams.has('code') || currentUrl.searchParams.has('error');
-			if (!hasOAuthCallback) {
-				currentUrl.searchParams.set('step', '4');
-				window.history.replaceState({}, '', currentUrl.toString());
-				console.log('🚀 [Redirectless] Step 4 set, URL updated:', currentUrl.toString());
-			} else {
-				console.log('🚀 [Redirectless] Step 4 set, but skipping URL update due to OAuth callback parameters');
-			}
-			// Multiple timeouts to ensure step advancement sticks
-			setTimeout(() => {
-				console.log('🚀 [Redirectless] Timeout 0ms: Setting step to 4');
-				setCurrentStep(4);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
-			}, 0);
-			setTimeout(() => {
-				console.log('🚀 [Redirectless] Timeout 100ms: Setting step to 4');
-				setCurrentStep(4);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
-			}, 100);
-			setTimeout(() => {
-				console.log('🚀 [Redirectless] Timeout 500ms: Setting step to 4');
-				setCurrentStep(4);
-				sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
-			}, 500);
-			v4ToastManager.showSuccess('Redirectless flow complete: tokens received');
-		} catch (e) {
-			console.error('🚨 [Redirectless] Full error details:', e);
-			console.error('🚨 [Redirectless] Error stack:', e instanceof Error ? e.stack : 'No stack trace');
-			console.error('🚨 [Redirectless] Error message:', e instanceof Error ? e.message : 'Unknown error');
-			console.error('🚨 [Redirectless] Error type:', typeof e);
-			console.error('🚨 [Redirectless] Error constructor:', e?.constructor?.name);
-			
-			const errorMessage = e instanceof Error ? e.message : 'Redirectless flow failed';
-			console.error('🚨 [Redirectless] Showing toast with message:', errorMessage);
-			v4ToastManager.showError(errorMessage);
-		} finally {
-			setIsRedirectlessRunning(false);
-			// Make sure the popup is closed regardless of outcome
-			setCustomLoginOpen(false);
-		}
-	}, [controller, isRedirectlessRunning, useRedirectless]);
+		},
+		[controller, isRedirectlessRunning, useRedirectless]
+	);
 
 	const handleOpenAuthUrl = useCallback(() => {
 		if (AuthorizationCodeSharedService.Authorization.openAuthUrl(controller.authUrl)) {
@@ -1829,7 +1924,9 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			});
 			controller.setCredentials(normalizedCredentials);
 			setCredentials(normalizedCredentials);
-			v4ToastManager.showError(`Missing OAuth credentials: ${missingFields.join(', ')}. Update Step 0 before exchanging tokens.`);
+			v4ToastManager.showError(
+				`Missing OAuth credentials: ${missingFields.join(', ')}. Update Step 0 before exchanging tokens.`
+			);
 			return;
 		}
 
@@ -1856,7 +1953,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			method: 'POST' as const,
 			headers: {
 				'Content-Type': 'application/json',
-				'Accept': 'application/json'
+				Accept: 'application/json',
 			},
 			body: {
 				grant_type: 'authorization_code',
@@ -1867,15 +1964,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				code_verifier: controller.pkceCodes.codeVerifier,
 				client_auth_method: controller.credentials.clientAuthMethod || 'client_secret_post',
 				client_secret: '***REDACTED***',
-				...(controller.credentials.includeX5tParameter && { includeX5tParameter: controller.credentials.includeX5tParameter })
+				...(controller.credentials.includeX5tParameter && {
+					includeX5tParameter: controller.credentials.includeX5tParameter,
+				}),
 			},
 			timestamp: new Date(),
-			description: 'Exchange authorization code for access token and refresh token'
+			description: 'Exchange authorization code for access token and refresh token',
 		};
 
 		try {
 			await controller.exchangeTokens();
-			
+
 			// Update API call with success response
 			const updatedTokenExchangeApiCall: EnhancedApiCallData = {
 				...tokenExchangeApiCallData,
@@ -1883,10 +1982,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					status: 200,
 					statusText: 'OK',
 					headers: { 'Content-Type': 'application/json' },
-					data: controller.tokens
-				}
+					data: controller.tokens,
+				},
 			};
-			
+
 			setTokenExchangeApiCall(updatedTokenExchangeApiCall);
 			v4ToastManager.showSuccess('Tokens exchanged successfully!');
 		} catch (error) {
@@ -1899,10 +1998,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					status: 400,
 					statusText: 'Bad Request',
 					headers: { 'Content-Type': 'application/json' },
-					error: error instanceof Error ? error.message : 'Unknown error'
-				}
+					error: error instanceof Error ? error.message : 'Unknown error',
+				},
 			};
-			
+
 			setTokenExchangeApiCall(errorApiCall);
 
 			// Parse error message for better user feedback
@@ -1941,29 +2040,34 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		// Check if user has appropriate scopes for user info
 		const currentScopes = controller.credentials.scopes || controller.credentials.scope || '';
 		const hasProfileScope = currentScopes.includes('profile') || currentScopes.includes('openid');
-		
+
 		if (!hasProfileScope) {
-			v4ToastManager.showWarning('For user info to work, include "profile" scope in your configuration. Current scopes: ' + currentScopes);
+			v4ToastManager.showWarning(
+				'For user info to work, include "profile" scope in your configuration. Current scopes: ' +
+					currentScopes
+			);
 		}
 
 		// Create API call display for UserInfo request
 		const userInfoApiCallData: EnhancedApiCallData = {
 			flowType: 'authorization-code',
 			stepName: 'Fetch User Information',
-			url: controller.credentials.userInfoEndpoint || `https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
+			url:
+				controller.credentials.userInfoEndpoint ||
+				`https://auth.pingone.com/${controller.credentials.environmentId}/as/userinfo`,
 			method: 'GET' as const,
 			headers: {
-				'Authorization': `Bearer ${controller.tokens.access_token}`,
-				'Accept': 'application/json'
+				Authorization: `Bearer ${controller.tokens.access_token}`,
+				Accept: 'application/json',
 			},
 			body: null,
 			timestamp: new Date(),
-			description: 'Fetch user information using the access token'
+			description: 'Fetch user information using the access token',
 		};
 
 		try {
 			await controller.fetchUserInfo();
-			
+
 			// Update API call with success response
 			const updatedUserInfoApiCall: EnhancedApiCallData = {
 				...userInfoApiCallData,
@@ -1971,24 +2075,27 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					status: 200,
 					statusText: 'OK',
 					headers: { 'Content-Type': 'application/json' },
-					data: controller.userInfo
-				}
+					data: controller.userInfo,
+				},
 			};
-			
+
 			setUserInfoApiCall(updatedUserInfoApiCall);
 			v4ToastManager.showSuccess('User info fetched successfully!');
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			let userFriendlyMessage = 'Failed to fetch user info';
-			
+
 			if (errorMessage.includes('401')) {
-				userFriendlyMessage = 'Access token expired or invalid. Try refreshing the token or re-running the flow.';
+				userFriendlyMessage =
+					'Access token expired or invalid. Try refreshing the token or re-running the flow.';
 			} else if (errorMessage.includes('403')) {
-				userFriendlyMessage = 'Access token lacks required scopes. Ensure "profile" or "openid" scope is included.';
+				userFriendlyMessage =
+					'Access token lacks required scopes. Ensure "profile" or "openid" scope is included.';
 			} else if (errorMessage.includes('404')) {
-				userFriendlyMessage = 'User info endpoint not found. Check your Environment ID configuration.';
+				userFriendlyMessage =
+					'User info endpoint not found. Check your Environment ID configuration.';
 			}
-			
+
 			// Update API call with error response
 			const errorApiCall: EnhancedApiCallData = {
 				...userInfoApiCallData,
@@ -1996,10 +2103,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					status: 401,
 					statusText: 'Unauthorized',
 					headers: { 'Content-Type': 'application/json' },
-					error: errorMessage
-				}
+					error: errorMessage,
+				},
 			};
-			
+
 			setUserInfoApiCall(errorApiCall);
 			v4ToastManager.showError(userFriendlyMessage);
 		}
@@ -2029,7 +2136,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for access token
 		if (controller.tokens?.access_token) {
 			// Use localStorage for cross-tab communication
@@ -2054,7 +2161,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			controller.credentials,
 			currentStep
 		);
-		
+
 		// Additional component-specific logic for refresh token
 		if (controller.tokens?.refresh_token) {
 			// Use localStorage for cross-tab communication
@@ -2080,8 +2187,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	const handleIntrospectToken = useCallback(
 		async (token: string) => {
 			// Wait 500ms for PingOne to register token
-			await new Promise(resolve => setTimeout(resolve, 500));
-			
+			await new Promise((resolve) => setTimeout(resolve, 500));
+
 			// Use credentials from the controller (same as the flow uses for token exchange)
 			const credentials = controller.credentials;
 
@@ -2096,15 +2203,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				if (!credentials.environmentId) missing.push('Environment ID');
 				if (!credentials.clientId) missing.push('Client ID');
 				if (!credentials.clientSecret) missing.push('Client Secret');
-				
-				throw new Error(`Missing required credentials for token introspection: ${missing.join(', ')}. Please configure all credentials in the Configuration & Setup section.`);
+
+				throw new Error(
+					`Missing required credentials for token introspection: ${missing.join(', ')}. Please configure all credentials in the Configuration & Setup section.`
+				);
 			}
 
 			const request = {
 				token: token,
 				clientId: credentials.clientId,
 				clientSecret: credentials.clientSecret,
-				tokenTypeHint: 'access_token' as const
+				tokenTypeHint: 'access_token' as const,
 			};
 
 			try {
@@ -2116,10 +2225,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					`https://auth.pingone.com/${credentials.environmentId}/as/introspect`,
 					'client_secret_post'
 				);
-				
+
 				// Set the API call data for display
 				setIntrospectionApiCall(result.apiCall);
-				
+
 				return result.response;
 			} catch (error) {
 				// Create error API call using reusable service
@@ -2130,7 +2239,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					500,
 					'/api/introspect-token'
 				);
-				
+
 				setIntrospectionApiCall(errorApiCall);
 				throw error;
 			}
@@ -2142,9 +2251,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 	const isStepValid = useCallback(
 		(stepIndex: number): boolean => {
 			// Enhanced validation - checks both controller state and session storage for PKCE codes
-			const hasPkceCodes = !!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) || 
-							   !!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
-			
+			const hasPkceCodes =
+				!!(controller.pkceCodes.codeVerifier && controller.pkceCodes.codeChallenge) ||
+				!!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`);
+
 			switch (stepIndex) {
 				case 0: // Step 0: Introduction & Setup
 					return true; // Always valid - introduction step
@@ -2266,7 +2376,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		if (!controller.tokens?.access_token) {
 			return false;
 		}
-		
+
 		// Don't show tokens if we have an auth code but haven't exchanged it yet
 		// (This prevents showing stale tokens from a previous run)
 		if (controller.authCode || localAuthCode) {
@@ -2274,7 +2384,7 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 			const hasExchangedThisSession = controller.hasStepResult('exchange-tokens');
 			return hasExchangedThisSession;
 		}
-		
+
 		// If no auth code, we can show tokens (user might be on a later step)
 		return true;
 	}, [controller.tokens, controller.authCode, localAuthCode, controller.hasStepResult]);
@@ -2286,225 +2396,281 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 		const isFetchingUserInfo = controller.isFetchingUserInfo;
 
 		switch (currentStep) {
-		case 0:
-			return (
-				<>
-					{/* CONDENSED V7: Quick Start & Overview - Collapsible */}
-						
-				{/* 1. QUICK START & OVERVIEW - Collapsible */}
-				<CollapsibleHeader
-					title={`Quick Start & Overview - ${flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code`}
-					subtitle="Learn the fundamentals of this flow"
-					defaultCollapsed={false}
-					icon={<FiBook />}
-					theme="green"
-				>
-					<div style={{ padding: '0' }}>
-						{/* Compact Overview */}
-						<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-							<InfoBox $variant="info">
-								<FiInfo size={20} />
-								<div>
-									<InfoTitle>What You'll Get</InfoTitle>
-									<InfoText>
-										{flowVariant === 'oidc' 
-											? '🎯 User authentication + API authorization with ID token and access token'
-											: '🔑 API authorization with access token (PingOne requires openid scope)'
+			case 0:
+				return (
+					<>
+						{/* CONDENSED V7: Quick Start & Overview - Collapsible */}
+
+						{/* 1. QUICK START & OVERVIEW - Collapsible */}
+						<CollapsibleHeader
+							title={`Quick Start & Overview - ${flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} Authorization Code`}
+							subtitle="Learn the fundamentals of this flow"
+							defaultCollapsed={false}
+							icon={<FiBook />}
+							theme="green"
+						>
+							<div style={{ padding: '0' }}>
+								{/* Compact Overview */}
+								<div
+									style={{
+										display: 'grid',
+										gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+										gap: '1rem',
+										marginBottom: '1.5rem',
+									}}
+								>
+									<InfoBox $variant="info">
+										<FiInfo size={20} />
+										<div>
+											<InfoTitle>What You'll Get</InfoTitle>
+											<InfoText>
+												{flowVariant === 'oidc'
+													? '🎯 User authentication + API authorization with ID token and access token'
+													: '🔑 API authorization with access token (PingOne requires openid scope)'}
+											</InfoText>
+										</div>
+									</InfoBox>
+									<InfoBox $variant="success">
+										<FiCheckCircle size={20} />
+										<div>
+											<InfoTitle>Perfect For</InfoTitle>
+											<InfoText>
+												• Web apps with secure backends
+												<br />• SPAs using PKCE
+												<br />• Apps needing refresh tokens
+											</InfoText>
+										</div>
+									</InfoBox>
+								</div>
+
+								{/* Requirements Notice */}
+								<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
+									<FiAlertCircle size={20} />
+									<div>
+										<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
+										<InfoText>
+											<strong>Client Secret:</strong> Required for token introspection and refresh
+											<br />
+											<strong>Scopes:</strong> Include "profile" scope for user info endpoint
+											<br />
+											<strong>Environment ID:</strong> Must match your PingOne environment
+										</InfoText>
+									</div>
+								</InfoBox>
+
+								{/* Compact Comparison */}
+								<GeneratedContentBox>
+									<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
+									<div
+										style={{
+											display: 'grid',
+											gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+											gap: '1rem',
+										}}
+									>
+										<div
+											style={{
+												padding: '1rem',
+												border: `2px solid ${flowVariant === 'oauth' ? '#3b82f6' : '#e2e8f0'}`,
+												borderRadius: '0.5rem',
+												background: flowVariant === 'oauth' ? '#eff6ff' : 'white',
+											}}
+										>
+											<h4>OAuth 2.0 Mode</h4>
+											<p>
+												<strong>Tokens:</strong> Access + Refresh
+											</p>
+											<p>
+												<strong>Purpose:</strong> API access only
+											</p>
+											<p>
+												<strong>PingOne:</strong> Requires openid scope
+											</p>
+										</div>
+										<div
+											style={{
+												padding: '1rem',
+												border: `2px solid ${flowVariant === 'oidc' ? '#3b82f6' : '#e2e8f0'}`,
+												borderRadius: '0.5rem',
+												background: flowVariant === 'oidc' ? '#eff6ff' : 'white',
+											}}
+										>
+											<h4>OpenID Connect Mode</h4>
+											<p>
+												<strong>Tokens:</strong> Access + ID + Refresh
+											</p>
+											<p>
+												<strong>Purpose:</strong> Authentication + API access
+											</p>
+											<p>
+												<strong>Standard:</strong> Requires openid scope
+											</p>
+										</div>
+									</div>
+								</GeneratedContentBox>
+							</div>
+						</CollapsibleHeader>
+
+						{/* 2. CONFIGURATION & SETUP - Collapsible */}
+						<CollapsibleSection>
+							<CollapsibleHeaderButton
+								onClick={() => toggleSection('configuration')}
+								aria-expanded={!collapsedSections.configuration}
+								style={{ background: '#3b82f6', color: 'white' }}
+							>
+								<CollapsibleTitle>
+									<FiSettings />
+									<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
+										🔧 Configuration & Setup - All Settings in One Place
+									</span>
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</CollapsibleHeaderButton>
+							{!collapsedSections.configuration && (
+								<CollapsibleContent>
+									<ComprehensiveCredentialsService
+										// Discovery props
+										onDiscoveryComplete={(result) => {
+											console.log('[OAuth Authz V6] Discovery completed:', result);
+											if (result.issuerUrl) {
+												const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(
+													result.issuerUrl
+												);
+												if (extractedEnvId) {
+													handleFieldChange('environmentId', extractedEnvId);
+													console.log(
+														'[OAuth Authz V6] Auto-extracted Environment ID:',
+														extractedEnvId
+													);
+												}
+											}
+										}}
+										discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
+										showProviderInfo={true}
+										// Credentials props
+										environmentId={credentials.environmentId || ''}
+										clientId={credentials.clientId || ''}
+										clientSecret={credentials.clientSecret || ''}
+										redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
+										scopes={credentials.scopes || credentials.scope || ''}
+										loginHint={credentials.loginHint || ''}
+										postLogoutRedirectUri={
+											credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'
 										}
-									</InfoText>
-								</div>
-							</InfoBox>
-							<InfoBox $variant="success">
-								<FiCheckCircle size={20} />
-								<div>
-									<InfoTitle>Perfect For</InfoTitle>
-									<InfoText>
-										• Web apps with secure backends<br/>
-										• SPAs using PKCE<br/>
-										• Apps needing refresh tokens
-									</InfoText>
-								</div>
-							</InfoBox>
-						</div>
-
-						{/* Requirements Notice */}
-						<InfoBox $variant="warning" style={{ marginBottom: '1.5rem' }}>
-							<FiAlertCircle size={20} />
-							<div>
-								<InfoTitle>⚠️ Required for Full Functionality</InfoTitle>
-								<InfoText>
-									<strong>Client Secret:</strong> Required for token introspection and refresh<br/>
-									<strong>Scopes:</strong> Include "profile" scope for user info endpoint<br/>
-									<strong>Environment ID:</strong> Must match your PingOne environment
-								</InfoText>
-							</div>
-						</InfoBox>
-
-						{/* Compact Comparison */}
-						<GeneratedContentBox>
-							<GeneratedLabel>OAuth vs OIDC - Key Differences</GeneratedLabel>
-							<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-								<div style={{ 
-									padding: '1rem', 
-									border: `2px solid ${flowVariant === 'oauth' ? '#3b82f6' : '#e2e8f0'}`,
-									borderRadius: '0.5rem',
-									background: flowVariant === 'oauth' ? '#eff6ff' : 'white'
-								}}>
-									<h4>OAuth 2.0 Mode</h4>
-									<p><strong>Tokens:</strong> Access + Refresh</p>
-									<p><strong>Purpose:</strong> API access only</p>
-									<p><strong>PingOne:</strong> Requires openid scope</p>
-								</div>
-								<div style={{ 
-									padding: '1rem', 
-									border: `2px solid ${flowVariant === 'oidc' ? '#3b82f6' : '#e2e8f0'}`,
-									borderRadius: '0.5rem',
-									background: flowVariant === 'oidc' ? '#eff6ff' : 'white'
-								}}>
-									<h4>OpenID Connect Mode</h4>
-									<p><strong>Tokens:</strong> Access + ID + Refresh</p>
-									<p><strong>Purpose:</strong> Authentication + API access</p>
-									<p><strong>Standard:</strong> Requires openid scope</p>
-								</div>
-							</div>
-						</GeneratedContentBox>
-					</div>
-				</CollapsibleHeader>
-
-				{/* 2. CONFIGURATION & SETUP - Collapsible */}
-				<CollapsibleSection>
-					<CollapsibleHeaderButton
-						onClick={() => toggleSection('configuration')}
-						aria-expanded={!collapsedSections.configuration}
-						style={{ background: '#3b82f6', color: 'white' }}
-					>
-						<CollapsibleTitle>
-							<FiSettings />
-							<span style={{ fontSize: 'clamp(0.9rem, 2.5vw, 1.1rem)' }}>
-								🔧 Configuration & Setup - All Settings in One Place
-							</span>
-						</CollapsibleTitle>
-						<CollapsibleToggleIcon $collapsed={collapsedSections.configuration}>
-							<FiChevronDown />
-						</CollapsibleToggleIcon>
-					</CollapsibleHeaderButton>
-					{!collapsedSections.configuration && (
-						<CollapsibleContent>
-							<ComprehensiveCredentialsService
-								// Discovery props
-								onDiscoveryComplete={(result) => {
-									console.log('[OAuth Authz V6] Discovery completed:', result);
-									if (result.issuerUrl) {
-										const extractedEnvId = oidcDiscoveryService.extractEnvironmentId(result.issuerUrl);
-										if (extractedEnvId) {
-											handleFieldChange('environmentId', extractedEnvId);
-											console.log('[OAuth Authz V6] Auto-extracted Environment ID:', extractedEnvId);
+										clientAuthMethod={credentials.clientAuthMethod || 'client_secret_post'}
+										onClientAuthMethodChange={(method) =>
+											handleFieldChange('clientAuthMethod', method)
 										}
-									}
-								}}
-								discoveryPlaceholder="Enter Environment ID, issuer URL, or provider..."
-								showProviderInfo={true}
-								
-								// Credentials props
-								environmentId={credentials.environmentId || ''}
-								clientId={credentials.clientId || ''}
-								clientSecret={credentials.clientSecret || ''}
-								redirectUri={credentials.redirectUri || 'https://localhost:3002/authz-callback'}
-								scopes={credentials.scopes || credentials.scope || ''}
-								loginHint={credentials.loginHint || ''}
-								postLogoutRedirectUri={credentials.postLogoutRedirectUri || 'https://localhost:3002/logout-callback'}
-								clientAuthMethod={credentials.clientAuthMethod || 'client_secret_post'}
-								onClientAuthMethodChange={(method) => handleFieldChange('clientAuthMethod', method)}
-								
-								// Change handlers
-								onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
-								onClientIdChange={(value) => handleFieldChange('clientId', value)}
-								onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
-								onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
-								onScopesChange={(value) => {
-									// Convert comma-separated to space-separated if needed
-									let normalizedValue = value;
-									if (value.includes(',') && !value.includes(' ')) {
-										// Convert comma-separated to space-separated
-										normalizedValue = value.split(',').map(s => s.trim()).join(' ');
-									}
-									
-									// Ensure openid is always included (PingOne requirement)
-									const scopes = normalizedValue.split(/\s+/).filter(s => s.length > 0);
-									if (!scopes.includes('openid')) {
-										scopes.unshift('openid');
-										const finalScopes = scopes.join(' ');
-										handleFieldChange('scopes', finalScopes);
-										v4ToastManager.showWarning('Added required "openid" scope for PingOne compatibility');
-									} else {
-										handleFieldChange('scopes', normalizedValue);
-									}
-								}}
-								onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
-								onPostLogoutRedirectUriChange={(value) => handleFieldChange('postLogoutRedirectUri', value)}
-								
-								// Save handler
-								onSave={handleSaveConfiguration}
-								hasUnsavedChanges={false}
-								isSaving={false}
-								requireClientSecret={true}
-								
-								// PingOne Advanced Configuration
-								pingOneAppState={pingOneConfig}
-								onPingOneAppStateChange={setPingOneConfig}
-								onPingOneSave={() => savePingOneConfig(pingOneConfig)}
-								hasUnsavedPingOneChanges={false}
-								isSavingPingOne={false}
-								
-								// UI config
-								title="Application Configuration & Credentials"
-								subtitle="Configure your application settings and credentials"
-								showAdvancedConfig={true}
-								defaultCollapsed={false}
-								showConfigChecker={true}
-							/>
+										// Change handlers
+										onEnvironmentIdChange={(value) => handleFieldChange('environmentId', value)}
+										onClientIdChange={(value) => handleFieldChange('clientId', value)}
+										onClientSecretChange={(value) => handleFieldChange('clientSecret', value)}
+										onRedirectUriChange={(value) => handleFieldChange('redirectUri', value)}
+										onScopesChange={(value) => {
+											// Convert comma-separated to space-separated if needed
+											let normalizedValue = value;
+											if (value.includes(',') && !value.includes(' ')) {
+												// Convert comma-separated to space-separated
+												normalizedValue = value
+													.split(',')
+													.map((s) => s.trim())
+													.join(' ');
+											}
 
-							{/* Inline Advanced Options */}
-							<div style={{ marginTop: '1rem', padding: '1rem', background: '#fffbeb', border: '1px solid #fbbf24', borderRadius: '0.5rem' }}>
-								<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>💡 Advanced Options</h4>
-								<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
-									PKCE, custom parameters, and response modes are auto-configured based on your variant selection. 
-									Advanced OAuth parameters (audience, resources) can be configured in the flow execution steps.
-								</p>
-							</div>
+											// Ensure openid is always included (PingOne requirement)
+											const scopes = normalizedValue.split(/\s+/).filter((s) => s.length > 0);
+											if (!scopes.includes('openid')) {
+												scopes.unshift('openid');
+												const finalScopes = scopes.join(' ');
+												handleFieldChange('scopes', finalScopes);
+												v4ToastManager.showWarning(
+													'Added required "openid" scope for PingOne compatibility'
+												);
+											} else {
+												handleFieldChange('scopes', normalizedValue);
+											}
+										}}
+										onLoginHintChange={(value) => handleFieldChange('loginHint', value)}
+										onPostLogoutRedirectUriChange={(value) =>
+											handleFieldChange('postLogoutRedirectUri', value)
+										}
+										// Save handler
+										onSave={handleSaveConfiguration}
+										hasUnsavedChanges={false}
+										isSaving={false}
+										requireClientSecret={true}
+										// PingOne Advanced Configuration
+										pingOneAppState={pingOneConfig}
+										onPingOneAppStateChange={setPingOneConfig}
+										onPingOneSave={() => savePingOneConfig(pingOneConfig)}
+										hasUnsavedPingOneChanges={false}
+										isSavingPingOne={false}
+										// UI config
+										title="Application Configuration & Credentials"
+										subtitle="Configure your application settings and credentials"
+										showAdvancedConfig={true}
+										defaultCollapsed={false}
+										showConfigChecker={true}
+									/>
 
-							<ActionRow style={{ marginTop: '1rem' }}>
-								<Button onClick={handleSaveConfiguration} $variant="success">
-									<FiSettings /> Save Configuration
-								</Button>
-								<Button onClick={handleClearConfiguration} $variant="danger">
-									<FiRefreshCw /> Clear Configuration
-								</Button>
-							</ActionRow>
-						</CollapsibleContent>
-					)}
-				</CollapsibleSection>
+									{/* Inline Advanced Options */}
+									<div
+										style={{
+											marginTop: '1rem',
+											padding: '1rem',
+											background: '#fffbeb',
+											border: '1px solid #fbbf24',
+											borderRadius: '0.5rem',
+										}}
+									>
+										<h4 style={{ margin: '0 0 0.5rem 0', color: '#92400e' }}>
+											💡 Advanced Options
+										</h4>
+										<p style={{ margin: 0, fontSize: '0.875rem', color: '#92400e' }}>
+											PKCE, custom parameters, and response modes are auto-configured based on your
+											variant selection. Advanced OAuth parameters (audience, resources) can be
+											configured in the flow execution steps.
+										</p>
+									</div>
+
+									<ActionRow style={{ marginTop: '1rem' }}>
+										<Button onClick={handleSaveConfiguration} $variant="success">
+											<FiSettings /> Save Configuration
+										</Button>
+										<Button onClick={handleClearConfiguration} $variant="danger">
+											<FiRefreshCw /> Clear Configuration
+										</Button>
+									</ActionRow>
+								</CollapsibleContent>
+							)}
+						</CollapsibleSection>
 
 						{/* Condensed Educational Footer */}
 
-					<EnhancedFlowInfoCard flowType={flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'} />
+						<EnhancedFlowInfoCard
+							flowType={
+								flowVariant === 'oidc' ? 'oidc-authorization-code' : 'oauth-authorization-code'
+							}
+						/>
 					</>
 				);
 			case 1:
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('pkceOverview')}
-							aria-expanded={!collapsedSections.pkceOverview}
-						>
-							<CollapsibleTitle>
-								<FiBook /> What is PKCE?
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('pkceOverview')}
+								aria-expanded={!collapsedSections.pkceOverview}
+							>
+								<CollapsibleTitle>
+									<FiBook /> What is PKCE?
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.pkceOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -2536,17 +2702,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<YellowHeaderButton
-							onClick={() => toggleSection('pkceDetails')}
-							aria-expanded={!collapsedSections.pkceDetails}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Understanding Code Verifier & Code Challenge
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</YellowHeaderButton>
+							<YellowHeaderButton
+								onClick={() => toggleSection('pkceDetails')}
+								aria-expanded={!collapsedSections.pkceDetails}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Understanding Code Verifier & Code Challenge
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.pkceDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</YellowHeaderButton>
 							{!collapsedSections.pkceDetails && (
 								<CollapsibleContent>
 									<ParameterGrid>
@@ -2640,17 +2806,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('authRequestOverview')}
-							aria-expanded={!collapsedSections.authRequestOverview}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Understanding Authorization Requests
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('authRequestOverview')}
+								aria-expanded={!collapsedSections.authRequestOverview}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Understanding Authorization Requests
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.authRequestOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="info">
@@ -2694,17 +2860,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<YellowHeaderButton
-							onClick={() => toggleSection('authRequestDetails')}
-							aria-expanded={!collapsedSections.authRequestDetails}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Authorization URL Parameters Deep Dive
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</YellowHeaderButton>
+							<YellowHeaderButton
+								onClick={() => toggleSection('authRequestDetails')}
+								aria-expanded={!collapsedSections.authRequestDetails}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Authorization URL Parameters Deep Dive
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authRequestDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</YellowHeaderButton>
 							{!collapsedSections.authRequestDetails && (
 								<CollapsibleContent>
 									{/* Response Type Configuration */}
@@ -2713,7 +2879,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 										<div>
 											<InfoTitle>Response Type Configuration</InfoTitle>
 											<div style={{ marginTop: '0.5rem' }}>
-												<label htmlFor="response-type-select" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>
+												<label
+													htmlFor="response-type-select"
+													style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}
+												>
 													Choose Response Type:
 												</label>
 												<select
@@ -2726,15 +2895,21 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 														border: '1px solid #d1d5db',
 														borderRadius: '0.375rem',
 														fontSize: '0.875rem',
-														backgroundColor: 'white'
+														backgroundColor: 'white',
 													}}
 												>
-													<option value="code">code - Authorization Code only (OAuth 2.0 style)</option>
-													<option value="code id_token">code id_token - Authorization Code + ID Token (OIDC hybrid)</option>
+													<option value="code">
+														code - Authorization Code only (OAuth 2.0 style)
+													</option>
+													<option value="code id_token">
+														code id_token - Authorization Code + ID Token (OIDC hybrid)
+													</option>
 												</select>
 												<div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: '#6b7280' }}>
-													{selectedResponseType === 'code' && 'Standard OAuth 2.0 flow - get authorization code, exchange for tokens'}
-													{selectedResponseType === 'code id_token' && 'OIDC hybrid flow - get authorization code + ID token immediately'}
+													{selectedResponseType === 'code' &&
+														'Standard OAuth 2.0 flow - get authorization code, exchange for tokens'}
+													{selectedResponseType === 'code id_token' &&
+														'OIDC hybrid flow - get authorization code + ID token immediately'}
 												</div>
 											</div>
 										</div>
@@ -2747,7 +2922,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 												<InfoTitle>Required Parameters</InfoTitle>
 												<InfoList>
 													<li>
-														<strong>response_type={selectedResponseType}:</strong> {selectedResponseType === 'code' ? 'Tells PingOne you want an authorization code (not tokens)' : 'Tells PingOne you want an authorization code + ID token immediately'}
+														<strong>response_type={selectedResponseType}:</strong>{' '}
+														{selectedResponseType === 'code'
+															? 'Tells PingOne you want an authorization code (not tokens)'
+															: 'Tells PingOne you want an authorization code + ID token immediately'}
 													</li>
 													<li>
 														<strong>client_id:</strong> Your application's unique identifier in
@@ -2821,7 +2999,10 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 											<InfoText>The authorization URL includes these key parameters:</InfoText>
 											<ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
 												<li>
-													<strong>response_type={selectedResponseType}</strong> - {selectedResponseType === 'code' ? 'Authorization Code flow' : 'OIDC Hybrid flow (Code + ID Token)'}
+													<strong>response_type={selectedResponseType}</strong> -{' '}
+													{selectedResponseType === 'code'
+														? 'Authorization Code flow'
+														: 'OIDC Hybrid flow (Code + ID Token)'}
 												</li>
 												<li>
 													<strong>client_id</strong> - Your PingOne application ID
@@ -2858,50 +3039,72 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								before redirecting users to ensure all parameters are correct.
 							</HelperText>
 
-				{/* Redirectless toggle and action (V7.2 addition) */}
-				<div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: '0.75rem 0' }}>
-					<label style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600 }}>
-						<input
-							type="checkbox"
-							checked={useRedirectless}
-							onChange={(e) => setUseRedirectless(e.target.checked)}
-						/>
-						Use Redirectless (response_mode=pi.flow)
-					</label>
-					{useRedirectless && (
-						<Button $variant="secondary" onClick={() => setCustomLoginOpen(true)} disabled={isRedirectlessRunning}>
-							<FiExternalLink /> {isRedirectlessRunning ? 'Running…' : 'Run Redirectless Inline'}
-						</Button>
-					)}
-				</div>
+							{/* Redirectless toggle and action (V7.2 addition) */}
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '0.75rem',
+									margin: '0.75rem 0',
+								}}
+							>
+								<label
+									style={{
+										display: 'inline-flex',
+										alignItems: 'center',
+										gap: '0.5rem',
+										fontWeight: 600,
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={useRedirectless}
+										onChange={(e) => setUseRedirectless(e.target.checked)}
+									/>
+									Use Redirectless (response_mode=pi.flow)
+								</label>
+								{useRedirectless && (
+									<Button
+										$variant="secondary"
+										onClick={() => setCustomLoginOpen(true)}
+										disabled={isRedirectlessRunning}
+									>
+										<FiExternalLink />{' '}
+										{isRedirectlessRunning ? 'Running…' : 'Run Redirectless Inline'}
+									</Button>
+								)}
+							</div>
 
 							<ActionRow>
 								<HighlightedActionButton
 									onClick={handleGenerateAuthUrl}
 									$priority="primary"
-								disabled={
-									useRedirectless ||
-									!!controller.authUrl ||
-									(!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
-								}
-								title={
-									useRedirectless
-										? 'Disabled while Redirectless is selected'
-									: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
-										? 'Generate PKCE parameters first'
-										: controller.authUrl
-											? 'Authorization URL already generated'
-											: 'Generate authorization URL'
-								}
+									disabled={
+										useRedirectless ||
+										!!controller.authUrl ||
+										(!controller.pkceCodes.codeVerifier &&
+											!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
+									}
+									title={
+										useRedirectless
+											? 'Disabled while Redirectless is selected'
+											: !controller.pkceCodes.codeVerifier &&
+													!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)
+												? 'Generate PKCE parameters first'
+												: controller.authUrl
+													? 'Authorization URL already generated'
+													: 'Generate authorization URL'
+									}
 								>
 									{controller.authUrl ? <FiCheckCircle /> : <FiExternalLink />}{' '}
 									{controller.authUrl
 										? 'Authorization URL Generated'
 										: useRedirectless
 											? 'Disabled (Using Redirectless)'
-											: (!controller.pkceCodes.codeVerifier && !sessionStorage.getItem(`${controller.persistKey}-pkce-codes`))
-											? 'Complete above action'
-											: 'Generate Authorization URL'}
+											: !controller.pkceCodes.codeVerifier &&
+													!sessionStorage.getItem(`${controller.persistKey}-pkce-codes`)
+												? 'Complete above action'
+												: 'Generate Authorization URL'}
 									<HighlightBadge>1</HighlightBadge>
 								</HighlightedActionButton>
 
@@ -2935,21 +3138,21 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 							)}
 						</ResultsSection>
 
-			{/* Custom Login popup for redirectless credentials */}
-			{useRedirectless && (
-				<KrogerLoginPopup
-					isOpen={customLoginOpen}
-					onClose={() => setCustomLoginOpen(false)}
-					onLogin={async (c) => {
-						setCustomLoginOpen(false);
-						await runRedirectlessInline(c);
-					}}
-					overrides={{
-						title: 'Custom Login App',
-						subtitle: 'Sign in with your Custom Login App',
-					}}
-				/>
-			)}
+						{/* Custom Login popup for redirectless credentials */}
+						{useRedirectless && (
+							<KrogerLoginPopup
+								isOpen={customLoginOpen}
+								onClose={() => setCustomLoginOpen(false)}
+								onLogin={async (c) => {
+									setCustomLoginOpen(false);
+									await runRedirectlessInline(c);
+								}}
+								overrides={{
+									title: 'Custom Login App',
+									subtitle: 'Sign in with your Custom Login App',
+								}}
+							/>
+						)}
 					</>
 				);
 
@@ -2957,17 +3160,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('authResponseOverview')}
-							aria-expanded={!collapsedSections.authResponseOverview}
-						>
-							<CollapsibleTitle>
-								<FiCheckCircle /> Authorization Response Overview
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('authResponseOverview')}
+								aria-expanded={!collapsedSections.authResponseOverview}
+							>
+								<CollapsibleTitle>
+									<FiCheckCircle /> Authorization Response Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.authResponseOverview && (
 								<CollapsibleContent>
 									<InfoBox $variant="success">
@@ -2985,17 +3188,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<HighlightHeaderButton
-							onClick={() => toggleSection('authResponseDetails')}
-							aria-expanded={!collapsedSections.authResponseDetails}
-						>
-							<CollapsibleTitle>
-								<FiPackage /> Authorization Code Details
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</HighlightHeaderButton>
+							<HighlightHeaderButton
+								onClick={() => toggleSection('authResponseDetails')}
+								aria-expanded={!collapsedSections.authResponseDetails}
+							>
+								<CollapsibleTitle>
+									<FiPackage /> Authorization Code Details
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.authResponseDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</HighlightHeaderButton>
 							{!collapsedSections.authResponseDetails && (
 								<CollapsibleContent>
 									<ResultsSection>
@@ -3097,17 +3300,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				return (
 					<>
 						<CollapsibleSection>
-						<GreenHeaderButton
-							onClick={() => toggleSection('tokenExchangeOverview')}
-							aria-expanded={!collapsedSections.tokenExchangeOverview}
-						>
-							<CollapsibleTitle>
-								<FiBook /> Token Exchange Overview
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</GreenHeaderButton>
+							<GreenHeaderButton
+								onClick={() => toggleSection('tokenExchangeOverview')}
+								aria-expanded={!collapsedSections.tokenExchangeOverview}
+							>
+								<CollapsibleTitle>
+									<FiBook /> Token Exchange Overview
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeOverview}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</GreenHeaderButton>
 							{!collapsedSections.tokenExchangeOverview && (
 								<CollapsibleContent>
 									<ExplanationSection>
@@ -3124,17 +3327,17 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 						</CollapsibleSection>
 
 						<CollapsibleSection>
-						<BlueHeaderButton
-							onClick={() => toggleSection('tokenExchangeDetails')}
-							aria-expanded={!collapsedSections.tokenExchangeDetails}
-						>
-							<CollapsibleTitle>
-								<FiSend /> Token Exchange Details
-							</CollapsibleTitle>
-							<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
-								<FiChevronDown />
-							</CollapsibleToggleIcon>
-						</BlueHeaderButton>
+							<BlueHeaderButton
+								onClick={() => toggleSection('tokenExchangeDetails')}
+								aria-expanded={!collapsedSections.tokenExchangeDetails}
+							>
+								<CollapsibleTitle>
+									<FiSend /> Token Exchange Details
+								</CollapsibleTitle>
+								<CollapsibleToggleIcon $collapsed={collapsedSections.tokenExchangeDetails}>
+									<FiChevronDown />
+								</CollapsibleToggleIcon>
+							</BlueHeaderButton>
 							{!collapsedSections.tokenExchangeDetails && (
 								<CollapsibleContent>
 									{/* Display Authorization Code if available */}
@@ -3186,126 +3389,138 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 											options={{
 												showEducationalNotes: true,
 												showFlowContext: true,
-												urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+												urlHighlightRules:
+													EnhancedApiCallDisplayService.getDefaultHighlightRules(
+														'authorization-code'
+													),
 											}}
 										/>
 									)}
 
-							{/* Only show tokens if they were exchanged in this session */}
-							{tokenExchangeApiCall && controller.tokens && UnifiedTokenDisplayService.showTokens(
-								controller.tokens,
-								flowVariant,
-								'oauth-authorization-code-v7',
-								{
-									showCopyButtons: true,
-									showDecodeButtons: true,
-								}
-							)}
+									{/* Only show tokens if they were exchanged in this session */}
+									{tokenExchangeApiCall &&
+										controller.tokens &&
+										UnifiedTokenDisplayService.showTokens(
+											controller.tokens,
+											flowVariant,
+											'oauth-authorization-code-v7',
+											{
+												showCopyButtons: true,
+												showDecodeButtons: true,
+											}
+										)}
 
-							{/* Mock Token Display for Educational Purposes */}
-							{tokenExchangeApiCall && (
-								<CollapsibleSection>
-									<CollapsibleHeaderButton
-										onClick={() => toggleSection('mockTokenDisplay')}
-										aria-expanded={!collapsedSections.mockTokenDisplay}
-									>
-										<CollapsibleTitle>
-											<FiPackage /> Mock Token Response (Educational)
-										</CollapsibleTitle>
-										<CollapsibleToggleIcon $collapsed={collapsedSections.mockTokenDisplay}>
-											<FiChevronDown />
-										</CollapsibleToggleIcon>
-									</CollapsibleHeaderButton>
-									{!collapsedSections.mockTokenDisplay && (
-										<CollapsibleContent>
-											<ResultsSection>
-												<ResultsHeading>
-													<FiInfo size={18} /> Example Token Response
-												</ResultsHeading>
-												<HelperText>
-													This shows what a typical OAuth token response looks like. The actual tokens above are real and can be used for API calls.
-												</HelperText>
-												
-												{UnifiedTokenDisplayService.showTokens(
-													{
-														access_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-														token_type: 'Bearer',
-														expires_in: 3600,
-														refresh_token: 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwicmVmcmVzaCI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.example_refresh_token_signature',
-														scope: 'openid profile email',
-														id_token: flowVariant === 'oidc' ? 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.example_id_token_signature' : undefined
-													},
-													flowVariant,
-													'oauth-authorization-code-v7-mock',
-													{
-														showCopyButtons: true,
-														showDecodeButtons: true,
-													}
-												)}
-											</ResultsSection>
-										</CollapsibleContent>
+									{/* Mock Token Display for Educational Purposes */}
+									{tokenExchangeApiCall && (
+										<CollapsibleSection>
+											<CollapsibleHeaderButton
+												onClick={() => toggleSection('mockTokenDisplay')}
+												aria-expanded={!collapsedSections.mockTokenDisplay}
+											>
+												<CollapsibleTitle>
+													<FiPackage /> Mock Token Response (Educational)
+												</CollapsibleTitle>
+												<CollapsibleToggleIcon $collapsed={collapsedSections.mockTokenDisplay}>
+													<FiChevronDown />
+												</CollapsibleToggleIcon>
+											</CollapsibleHeaderButton>
+											{!collapsedSections.mockTokenDisplay && (
+												<CollapsibleContent>
+													<ResultsSection>
+														<ResultsHeading>
+															<FiInfo size={18} /> Example Token Response
+														</ResultsHeading>
+														<HelperText>
+															This shows what a typical OAuth token response looks like. The actual
+															tokens above are real and can be used for API calls.
+														</HelperText>
+
+														{UnifiedTokenDisplayService.showTokens(
+															{
+																access_token:
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+																token_type: 'Bearer',
+																expires_in: 3600,
+																refresh_token:
+																	'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwicmVmcmVzaCI6dHJ1ZSwiaWF0IjoxNTE2MjM5MDIyfQ.example_refresh_token_signature',
+																scope: 'openid profile email',
+																id_token:
+																	flowVariant === 'oidc'
+																		? 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiZW1haWwiOiJqb2huQGV4YW1wbGUuY29tIiwiaWF0IjoxNTE2MjM5MDIyfQ.example_id_token_signature'
+																		: undefined,
+															},
+															flowVariant,
+															'oauth-authorization-code-v7-mock',
+															{
+																showCopyButtons: true,
+																showDecodeButtons: true,
+															}
+														)}
+													</ResultsSection>
+												</CollapsibleContent>
+											)}
+										</CollapsibleSection>
 									)}
-								</CollapsibleSection>
-							)}
 
-							{/* Code Examples Section */}
-							{controller.tokens?.access_token && (
-								<CollapsibleSection>
-									<CollapsibleHeaderButton
-										onClick={() => toggleSection('apiCallExamples')}
-										aria-expanded={!collapsedSections.apiCallExamples}
-									>
-										<CollapsibleTitle>
-											<FiCode /> Code Examples
-										</CollapsibleTitle>
-										<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
-											<FiChevronDown />
-										</CollapsibleToggleIcon>
-									</CollapsibleHeaderButton>
-									{!collapsedSections.apiCallExamples && (
-										<CollapsibleContent>
-											<ResultsSection>
-												<ResultsHeading>
-													<FiCode size={18} /> Test Your Access Token
-												</ResultsHeading>
-												<HelperText>
-													Use the access token to make authenticated API calls. Use the code examples
-													below to test your token with a PingOne API endpoint.
-												</HelperText>
+									{/* Code Examples Section */}
+									{controller.tokens?.access_token && (
+										<CollapsibleSection>
+											<CollapsibleHeaderButton
+												onClick={() => toggleSection('apiCallExamples')}
+												aria-expanded={!collapsedSections.apiCallExamples}
+											>
+												<CollapsibleTitle>
+													<FiCode /> Code Examples
+												</CollapsibleTitle>
+												<CollapsibleToggleIcon $collapsed={collapsedSections.apiCallExamples}>
+													<FiChevronDown />
+												</CollapsibleToggleIcon>
+											</CollapsibleHeaderButton>
+											{!collapsedSections.apiCallExamples && (
+												<CollapsibleContent>
+													<ResultsSection>
+														<ResultsHeading>
+															<FiCode size={18} /> Test Your Access Token
+														</ResultsHeading>
+														<HelperText>
+															Use the access token to make authenticated API calls. Use the code
+															examples below to test your token with a PingOne API endpoint.
+														</HelperText>
 
-												<CodeExamplesDisplay
-													flowType="authorization-code"
-													stepId="step4"
-													config={{
-														baseUrl: 'https://auth.pingone.com',
-														clientId: controller.credentials.clientId || '',
-														clientSecret: controller.credentials.clientSecret || '',
-														redirectUri: controller.credentials.redirectUri || '',
-														scopes: typeof controller.credentials.scopes === 'string' 
-															? controller.credentials.scopes.split(' ') 
-															: Array.isArray(controller.credentials.scopes) 
-																? controller.credentials.scopes 
-																: ['openid', 'profile'],
-														environmentId: controller.credentials.environmentId || '',
-													}}
-												/>
-											</ResultsSection>
-										</CollapsibleContent>
+														<CodeExamplesDisplay
+															flowType="authorization-code"
+															stepId="step4"
+															config={{
+																baseUrl: 'https://auth.pingone.com',
+																clientId: controller.credentials.clientId || '',
+																clientSecret: controller.credentials.clientSecret || '',
+																redirectUri: controller.credentials.redirectUri || '',
+																scopes:
+																	typeof controller.credentials.scopes === 'string'
+																		? controller.credentials.scopes.split(' ')
+																		: Array.isArray(controller.credentials.scopes)
+																			? controller.credentials.scopes
+																			: ['openid', 'profile'],
+																environmentId: controller.credentials.environmentId || '',
+															}}
+														/>
+													</ResultsSection>
+												</CollapsibleContent>
+											)}
+										</CollapsibleSection>
 									)}
-								</CollapsibleSection>
+								</CollapsibleContent>
 							)}
-							</CollapsibleContent>
-						)}
-					</CollapsibleSection>
-				</>
-			);
+						</CollapsibleSection>
+					</>
+				);
 
 			case 5:
 				return (
 					<>
 						<TokenIntrospect
-						flowName="OAuth 2.0 Authorization Code Flow"
-						flowVersion="V6"
+							flowName="OAuth 2.0 Authorization Code Flow"
+							flowVersion="V6"
 							tokens={controller.tokens as unknown as Record<string, unknown>}
 							credentials={controller.credentials as unknown as Record<string, unknown>}
 							userInfo={userInfo}
@@ -3321,7 +3536,11 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								rawJson: false, // Show raw JSON expanded by default
 							}}
 							onToggleSection={(section) => {
-								if (section === 'completionOverview' || section === 'completionDetails' || section === 'introspectionDetails') {
+								if (
+									section === 'completionOverview' ||
+									section === 'completionDetails' ||
+									section === 'introspectionDetails'
+								) {
 									toggleSection(section as IntroSectionKey);
 								}
 							}}
@@ -3340,7 +3559,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -3352,7 +3572,8 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 								options={{
 									showEducationalNotes: true,
 									showFlowContext: true,
-									urlHighlightRules: EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code')
+									urlHighlightRules:
+										EnhancedApiCallDisplayService.getDefaultHighlightRules('authorization-code'),
 								}}
 							/>
 						)}
@@ -3390,11 +3611,12 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 													clientId: controller.credentials.clientId || '',
 													clientSecret: controller.credentials.clientSecret || '',
 													redirectUri: controller.credentials.redirectUri || '',
-													scopes: typeof controller.credentials.scopes === 'string' 
-														? controller.credentials.scopes.split(' ') 
-														: Array.isArray(controller.credentials.scopes) 
-															? controller.credentials.scopes 
-															: ['openid', 'profile'],
+													scopes:
+														typeof controller.credentials.scopes === 'string'
+															? controller.credentials.scopes.split(' ')
+															: Array.isArray(controller.credentials.scopes)
+																? controller.credentials.scopes
+																: ['openid', 'profile'],
 													environmentId: controller.credentials.environmentId || '',
 												}}
 											/>
@@ -3406,36 +3628,37 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					</>
 				);
 
-		case 6:
-			return (
-				<EnhancedSecurityFeaturesDemo
-					tokens={controller.tokens as unknown as Record<string, unknown> | null}
-					credentials={controller.credentials as unknown as Record<string, unknown>}
-					pingOneConfig={pingOneConfig}
-					onTerminateSession={() => {
-						console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
-						v4ToastManager.showSuccess('Session termination completed.');
-					}}
-					onRevokeTokens={() => {
-						console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
-						v4ToastManager.showSuccess('Token revocation completed.');
-					}}
-					flowType="oauth-authorization-code-v7"
-				/>
-			);
+			case 6:
+				return (
+					<EnhancedSecurityFeaturesDemo
+						tokens={controller.tokens as unknown as Record<string, unknown> | null}
+						credentials={controller.credentials as unknown as Record<string, unknown>}
+						pingOneConfig={pingOneConfig}
+						onTerminateSession={() => {
+							console.log('🚪 Session terminated via EnhancedSecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Session termination completed.');
+						}}
+						onRevokeTokens={() => {
+							console.log('❌ Tokens revoked via EnhancedSecurityFeaturesDemo');
+							v4ToastManager.showSuccess('Token revocation completed.');
+						}}
+						flowType="oauth-authorization-code-v7"
+					/>
+				);
 
-		case 7:
-			return (
-				<InfoBox $variant="success">
-					<FiCheckCircle size={20} />
-					<div>
-						<InfoTitle>Flow Complete</InfoTitle>
-						<InfoText>
-							You've completed the Authorization Code flow. Tokens are available above and you can restart the flow anytime.
-						</InfoText>
-					</div>
-				</InfoBox>
-			);
+			case 7:
+				return (
+					<InfoBox $variant="success">
+						<FiCheckCircle size={20} />
+						<div>
+							<InfoTitle>Flow Complete</InfoTitle>
+							<InfoText>
+								You've completed the Authorization Code flow. Tokens are available above and you can
+								restart the flow anytime.
+							</InfoText>
+						</div>
+					</InfoBox>
+				);
 
 			default:
 				return null;
@@ -3501,13 +3724,13 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 						<StepHeaderLeft>
 							<VersionBadge $variant={flowVariant}>7.2</VersionBadge>
 							<StepHeaderTitle>
-								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'} {STEP_METADATA[currentStep].title}
+								{flowVariant === 'oidc' ? 'OpenID Connect' : 'OAuth 2.0'}{' '}
+								{STEP_METADATA[currentStep].title}
 							</StepHeaderTitle>
 							<StepHeaderSubtitle>
-								{flowVariant === 'oidc' 
+								{flowVariant === 'oidc'
 									? 'Authentication + Authorization with ID token and Access token'
-									: 'API Authorization with Access token only'
-								}
+									: 'API Authorization with Access token only'}
 							</StepHeaderSubtitle>
 						</StepHeaderLeft>
 						<StepHeaderRight>
@@ -3551,29 +3774,32 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 				disabledMessage="Complete the action above to continue"
 			/>
 
-		{AuthenticationModalService.showModal(
-			showRedirectModal,
-			() => {
-				console.log('🔧 [OAuthAuthorizationCodeFlowV6] Modal cancelled by user');
-				setShowRedirectModal(false);
-			},
-			() => {
-				console.log('🔧 [OAuthAuthorizationCodeFlowV6] User confirmed - continuing to PingOne authentication');
-				setShowRedirectModal(false);
-				controller.handleRedirectAuthorization();
-				// Open in new window (redirect mode)
-				if (controller.authUrl) {
-					window.location.href = controller.authUrl;
+			{AuthenticationModalService.showModal(
+				showRedirectModal,
+				() => {
+					console.log('🔧 [OAuthAuthorizationCodeFlowV6] Modal cancelled by user');
+					setShowRedirectModal(false);
+				},
+				() => {
+					console.log(
+						'🔧 [OAuthAuthorizationCodeFlowV6] User confirmed - continuing to PingOne authentication'
+					);
+					setShowRedirectModal(false);
+					controller.handleRedirectAuthorization();
+					// Open in new window (redirect mode)
+					if (controller.authUrl) {
+						window.location.href = controller.authUrl;
+					}
+				},
+				controller.authUrl || '',
+				'oauth',
+				'OAuth 2.0 Authorization Code',
+				{
+					description:
+						"You're about to be redirected to PingOne for OAuth 2.0 authorization. The page will redirect to PingOne for secure authentication.",
+					redirectMode: 'redirect',
 				}
-			},
-			controller.authUrl || '',
-			'oauth',
-			'OAuth 2.0 Authorization Code',
-			{
-				description: 'You\'re about to be redirected to PingOne for OAuth 2.0 authorization. The page will redirect to PingOne for secure authentication.',
-				redirectMode: 'redirect'
-			}
-		)}
+			)}
 
 			<LoginSuccessModal
 				isOpen={showLoginSuccessModal}
@@ -3586,12 +3812,12 @@ const OAuthAuthorizationCodeFlowV7_2: React.FC = () => {
 					setShowLoginSuccessModal(false);
 					// Ensure we stay on step 4 after modal closes
 					if (currentStep !== 4) {
-					console.log('🔧 [AuthorizationCodeFlowV5] Correcting step to 4 after modal close');
+						console.log('🔧 [AuthorizationCodeFlowV5] Correcting step to 4 after modal close');
 						setCurrentStep(4);
 						sessionStorage.setItem('oauth-authorization-code-v7-current-step', '4');
 					}
-				// Persist dismissal so the modal doesn't re-open on re-render
-				sessionStorage.setItem('v7_2_login_modal_dismissed', 'true');
+					// Persist dismissal so the modal doesn't re-open on re-render
+					sessionStorage.setItem('v7_2_login_modal_dismissed', 'true');
 				}}
 				title="Login Successful!"
 				message="You have been successfully authenticated with PingOne. Your authorization code has been received and you can now proceed to exchange it for tokens."

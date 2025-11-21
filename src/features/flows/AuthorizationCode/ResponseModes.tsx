@@ -2,9 +2,7 @@
 // Thin wrapper for embedding ResponseModeSelector in Authorization Code flows
 
 import React from 'react';
-import ResponseModeSelector, {
-	type ResponseModeSelectorProps,
-} from '../../../components/response-modes/ResponseModeSelector';
+import ResponseModeSelector from '../../../components/response-modes/ResponseModeSelector';
 
 interface AuthorizationCodeResponseModesProps {
 	responseType: 'code';

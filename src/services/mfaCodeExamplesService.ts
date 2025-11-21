@@ -2,65 +2,65 @@
 // MFA Flow Code Examples Service
 // Provides highly commented, production-ready code examples for PingOne MFA flows
 
-export type MfaFlowStep = 
-  | 'authorization' 
-  | 'worker-token' 
-  | 'device-selection' 
-  | 'mfa-challenge' 
-  | 'mfa-verification'
-  | 'device-registration';
+export type MfaFlowStep =
+	| 'authorization'
+	| 'worker-token'
+	| 'device-selection'
+	| 'mfa-challenge'
+	| 'mfa-verification'
+	| 'device-registration';
 
 export interface MfaCodeExample {
-  language: 'javascript' | 'typescript' | 'python' | 'go';
-  title: string;
-  code: string;
-  description: string;
-  dependencies?: string[];
+	language: 'javascript' | 'typescript' | 'python' | 'go';
+	title: string;
+	code: string;
+	description: string;
+	dependencies?: string[];
 }
 
 export interface MfaCodeExamplesConfig {
-  environmentId: string;
-  clientId: string;
-  redirectUri: string;
-  userId: string;
+	environmentId: string;
+	clientId: string;
+	redirectUri: string;
+	userId: string;
 }
 
 export class MfaCodeExamplesService {
-  private config: MfaCodeExamplesConfig;
+	private config: MfaCodeExamplesConfig;
 
-  constructor(config: MfaCodeExamplesConfig) {
-    this.config = config;
-  }
+	constructor(config: MfaCodeExamplesConfig) {
+		this.config = config;
+	}
 
-  getExamplesForStep(step: MfaFlowStep): MfaCodeExample[] {
-    switch (step) {
-      case 'authorization':
-        return this.getAuthorizationExamples();
-      case 'worker-token':
-        return this.getWorkerTokenExamples();
-      case 'device-selection':
-        return this.getDeviceSelectionExamples();
-      case 'mfa-challenge':
-        return this.getMfaChallengeExamples();
-      case 'mfa-verification':
-        return this.getMfaVerificationExamples();
-      case 'device-registration':
-        return this.getDeviceRegistrationExamples();
-      default:
-        return [];
-    }
-  }
+	getExamplesForStep(step: MfaFlowStep): MfaCodeExample[] {
+		switch (step) {
+			case 'authorization':
+				return this.getAuthorizationExamples();
+			case 'worker-token':
+				return this.getWorkerTokenExamples();
+			case 'device-selection':
+				return this.getDeviceSelectionExamples();
+			case 'mfa-challenge':
+				return this.getMfaChallengeExamples();
+			case 'mfa-verification':
+				return this.getMfaVerificationExamples();
+			case 'device-registration':
+				return this.getDeviceRegistrationExamples();
+			default:
+				return [];
+		}
+	}
 
+	private getAuthorizationExamples(): MfaCodeExample[] {
+		const { environmentId, clientId, redirectUri } = this.config;
 
-  private getAuthorizationExamples(): MfaCodeExample[] {
-    const { environmentId, clientId, redirectUri } = this.config;
-    
-    return [
-      {
-        language: 'typescript',
-        title: 'Authorization Code Flow with PKCE',
-        description: 'Initiate OAuth 2.0 Authorization Code flow with PKCE for secure authentication',
-        code: `/**
+		return [
+			{
+				language: 'typescript',
+				title: 'Authorization Code Flow with PKCE',
+				description:
+					'Initiate OAuth 2.0 Authorization Code flow with PKCE for secure authentication',
+				code: `/**
  * OAuth 2.0 Authorization Code Flow with PKCE
  * 
  * PKCE (Proof Key for Code Exchange) adds security by preventing
@@ -144,21 +144,20 @@ sessionStorage.setItem('oauth_state', state);
 
 // Redirect to authorization endpoint
 window.location.href = authUrl.toString();`,
-        dependencies: ['crypto (built-in)'],
-      },
-    ];
-  }
+				dependencies: ['crypto (built-in)'],
+			},
+		];
+	}
 
+	private getWorkerTokenExamples(): MfaCodeExample[] {
+		const { environmentId } = this.config;
 
-  private getWorkerTokenExamples(): MfaCodeExample[] {
-    const { environmentId } = this.config;
-    
-    return [
-      {
-        language: 'typescript',
-        title: 'Worker Token Generation',
-        description: 'Generate worker app access token for management API calls',
-        code: `/**
+		return [
+			{
+				language: 'typescript',
+				title: 'Worker Token Generation',
+				description: 'Generate worker app access token for management API calls',
+				code: `/**
  * Worker Token Generation (Client Credentials Grant)
  * 
  * Worker tokens enable server-to-server API calls to PingOne Management API.
@@ -259,21 +258,20 @@ try {
   console.error('Failed to obtain worker token:', error);
   // Handle error appropriately
 }`,
-        dependencies: ['fetch (built-in or node-fetch)'],
-      },
-    ];
-  }
+				dependencies: ['fetch (built-in or node-fetch)'],
+			},
+		];
+	}
 
+	private getDeviceSelectionExamples(): MfaCodeExample[] {
+		const { environmentId, userId } = this.config;
 
-  private getDeviceSelectionExamples(): MfaCodeExample[] {
-    const { environmentId, userId } = this.config;
-    
-    return [
-      {
-        language: 'typescript',
-        title: 'Fetch MFA Devices',
-        description: 'Retrieve and filter user MFA devices',
-        code: `/**
+		return [
+			{
+				language: 'typescript',
+				title: 'Fetch MFA Devices',
+				description: 'Retrieve and filter user MFA devices',
+				code: `/**
  * MFA Device Selection
  * 
  * Retrieves all registered MFA devices for a user.
@@ -414,21 +412,20 @@ try {
 } catch (error) {
   console.error('Failed to fetch MFA devices:', error);
 }`,
-        dependencies: ['fetch (built-in or node-fetch)'],
-      },
-    ];
-  }
+				dependencies: ['fetch (built-in or node-fetch)'],
+			},
+		];
+	}
 
+	private getMfaChallengeExamples(): MfaCodeExample[] {
+		const { environmentId, userId } = this.config;
 
-  private getMfaChallengeExamples(): MfaCodeExample[] {
-    const { environmentId, userId } = this.config;
-    
-    return [
-      {
-        language: 'typescript',
-        title: 'Send MFA Challenge',
-        description: 'Initiate MFA challenge and send OTP to device',
-        code: `/**
+		return [
+			{
+				language: 'typescript',
+				title: 'Send MFA Challenge',
+				description: 'Initiate MFA challenge and send OTP to device',
+				code: `/**
  * MFA Challenge Initiation
  * 
  * Sends a one-time password (OTP) challenge to the selected device.
@@ -554,21 +551,20 @@ try {
 } catch (error) {
   console.error('Failed to send MFA challenge:', error);
 }`,
-        dependencies: ['fetch (built-in or node-fetch)'],
-      },
-    ];
-  }
+				dependencies: ['fetch (built-in or node-fetch)'],
+			},
+		];
+	}
 
+	private getMfaVerificationExamples(): MfaCodeExample[] {
+		const { environmentId, userId } = this.config;
 
-  private getMfaVerificationExamples(): MfaCodeExample[] {
-    const { environmentId, userId } = this.config;
-    
-    return [
-      {
-        language: 'typescript',
-        title: 'Verify MFA Code',
-        description: 'Verify OTP code entered by user',
-        code: `/**
+		return [
+			{
+				language: 'typescript',
+				title: 'Verify MFA Code',
+				description: 'Verify OTP code entered by user',
+				code: `/**
  * MFA Code Verification
  * 
  * Verifies the one-time password (OTP) entered by the user.
@@ -745,20 +741,20 @@ try {
     // Show generic error
   }
 }`,
-        dependencies: ['fetch (built-in or node-fetch)'],
-      },
-    ];
-  }
+				dependencies: ['fetch (built-in or node-fetch)'],
+			},
+		];
+	}
 
-  private getDeviceRegistrationExamples(): MfaCodeExample[] {
-    const { environmentId, userId } = this.config;
-    
-    return [
-      {
-        language: 'typescript',
-        title: 'Register MFA Device',
-        description: 'Register new MFA device for user',
-        code: `/**
+	private getDeviceRegistrationExamples(): MfaCodeExample[] {
+		const { environmentId, userId } = this.config;
+
+		return [
+			{
+				language: 'typescript',
+				title: 'Register MFA Device',
+				description: 'Register new MFA device for user',
+				code: `/**
  * MFA Device Registration
  * 
  * Registers a new MFA device for a user.
@@ -820,8 +816,8 @@ const device = await registerSmsDevice(
 );
 
 console.log('Device registered:', device.id);`,
-        dependencies: ['fetch (built-in or node-fetch)'],
-      },
-    ];
-  }
+				dependencies: ['fetch (built-in or node-fetch)'],
+			},
+		];
+	}
 }

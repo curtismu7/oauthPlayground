@@ -1,7 +1,7 @@
 // src/services/v6FlowLayoutService.tsx
 /**
  * V6 Flow Layout Service
- * 
+ *
  * Provides standardized layout components for all V6 flows
  * - Matches V5 visual structure
  * - Customizable color themes (blue, green, purple, etc.)
@@ -9,7 +9,6 @@
  * - Reusable across all flow types
  */
 
-import React from 'react';
 import styled from 'styled-components';
 
 export type ThemeColor = 'blue' | 'green' | 'purple' | 'red' | 'orange' | 'teal';
@@ -305,5 +304,3 @@ export class V6FlowLayoutService {
 }
 
 export default V6FlowLayoutService;
-
-

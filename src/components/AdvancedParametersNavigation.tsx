@@ -1,7 +1,7 @@
 import React from 'react';
+import { FiArrowRight, FiSettings } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { FiSettings, FiArrowRight } from 'react-icons/fi';
 
 const NavigationButton = styled.button`
 	display: flex;
@@ -37,7 +37,7 @@ interface AdvancedParametersNavigationProps {
 
 export const AdvancedParametersNavigation: React.FC<AdvancedParametersNavigationProps> = ({
 	flowType,
-	className
+	className,
 }) => {
 	const navigate = useNavigate();
 

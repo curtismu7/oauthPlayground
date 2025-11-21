@@ -1,15 +1,15 @@
 // src/services/v7CredentialValidationService.tsx
 /**
  * V7 Credential Validation Service - Centralized modal validation for all V7 flows
- * 
+ *
  * Provides consistent credential validation with modal display across all V7 flows.
  * This service implements the Service Registry pattern and includes comprehensive
  * performance monitoring and documentation.
- * 
+ *
  * @version 1.0.0
  * @author OAuth Playground Team
  * @since 2024-01-01
- * 
+ *
  * @example
  * ```typescript
  * // Basic usage in a V7 flow component
@@ -21,7 +21,7 @@
  *   credentials: controller.credentials,
  *   currentStep,
  * });
- * 
+ *
  * // Use in navigation handler
  * const handleNextStep = useCallback(() => {
  *   validateCredentialsAndProceed(() => {
@@ -29,33 +29,36 @@
  *   });
  * }, [validateCredentialsAndProceed]);
  * ```
- * 
+ *
  * @see {@link ServiceRegistry} for service registration
  * @see {@link ServicePerformanceMonitor} for performance monitoring
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
+import { v4ToastManager } from '../utils/v4ToastMessages';
 import { CredentialGuardService } from './credentialGuardService';
 import ModalPresentationService from './modalPresentationService';
-import { v4ToastManager } from '../utils/v4ToastMessages';
 
 // Flow-specific credential requirements
+export type V7CredentialValues = Record<string, unknown>;
+export type V7CredentialInput = V7CredentialValues | null | undefined;
+
 export interface V7FlowCredentialConfig {
 	flowName: string;
 	requiredFields: string[];
 	fieldLabels: Record<string, string>;
 	stepIndex: number; // Which step to validate (usually 0)
 	showToastOnSuccess?: boolean;
-	customValidation?: (credentials: any) => { isValid: boolean; message?: string };
+	customValidation?: (credentials: V7CredentialValues) => { isValid: boolean; message?: string };
 }
 
 /**
  * Predefined configurations for each V7 flow
- * 
+ *
  * This object contains the validation configuration for all supported V7 flows.
  * Each configuration defines the required fields, field labels, and validation rules
  * specific to that flow type.
- * 
+ *
  * @type {Record<string, V7FlowCredentialConfig>}
  * @constant
  * @example
@@ -202,7 +205,7 @@ export const V7_FLOW_CONFIGS: Record<string, V7FlowCredentialConfig> = {
 // Hook for V7 credential validation with modal
 export interface UseV7CredentialValidationOptions {
 	flowKey: string;
-	credentials: any;
+	credentials: V7CredentialInput;
 	currentStep: number;
 	onValidationSuccess?: () => void;
 	onValidationFailure?: (missingFields: string[]) => void;
@@ -221,10 +224,10 @@ export interface UseV7CredentialValidationReturn {
 
 /**
  * React hook for V7 credential validation with modal display
- * 
+ *
  * This hook provides credential validation functionality for V7 flows, including
  * modal display for missing credentials and validation state management.
- * 
+ *
  * @param {UseV7CredentialValidationOptions} options - Configuration options for the hook
  * @param {string} options.flowKey - The flow key to validate against
  * @param {any} options.credentials - The credentials object to validate
@@ -232,9 +235,9 @@ export interface UseV7CredentialValidationReturn {
  * @param {Function} [options.onValidationSuccess] - Callback for successful validation
  * @param {Function} [options.onValidationFailure] - Callback for failed validation
  * @param {V7FlowCredentialConfig} [options.customConfig] - Custom validation configuration
- * 
+ *
  * @returns {UseV7CredentialValidationReturn} Validation hook return object
- * 
+ *
  * @example
  * ```typescript
  * const {
@@ -250,10 +253,17 @@ export interface UseV7CredentialValidationReturn {
  *   onValidationFailure: (fields) => console.log('Missing fields:', fields)
  * });
  * ```
- * 
+ *
  * @throws {Error} When flowKey is not found in V7_FLOW_CONFIGS
  * @since 1.0.0
  */
+const sanitizeCredentials = (input: V7CredentialInput): V7CredentialValues => {
+	if (input && typeof input === 'object') {
+		return input;
+	}
+	return {};
+};
+
 export const useV7CredentialValidation = ({
 	flowKey,
 	credentials,
@@ -267,7 +277,7 @@ export const useV7CredentialValidation = ({
 
 	// Get flow configuration
 	const baseConfig = V7_FLOW_CONFIGS[flowKey];
-	
+
 	if (!baseConfig) {
 		console.warn(`[V7CredentialValidation] No configuration found for flow: ${flowKey}`);
 		return {
@@ -280,7 +290,7 @@ export const useV7CredentialValidation = ({
 			validationMessage: '',
 		};
 	}
-	
+
 	const config: V7FlowCredentialConfig = {
 		...baseConfig,
 		...customConfig,
@@ -294,9 +304,11 @@ export const useV7CredentialValidation = ({
 				return;
 			}
 
+			const normalizedCredentials = sanitizeCredentials(credentials);
+
 			// Run custom validation if provided
 			if (config.customValidation) {
-				const customResult = config.customValidation(credentials);
+				const customResult = config.customValidation(normalizedCredentials);
 				if (!customResult.isValid) {
 					const errorMessage = customResult.message || 'Custom validation failed';
 					setMissingCredentialFields([errorMessage]);
@@ -307,15 +319,21 @@ export const useV7CredentialValidation = ({
 			}
 
 			// Run standard credential validation
-			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(credentials, {
-				requiredFields: config.requiredFields,
-				fieldLabels: config.fieldLabels,
-			});
+			const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(
+				normalizedCredentials,
+				{
+					requiredFields: config.requiredFields,
+					fieldLabels: config.fieldLabels,
+				}
+			);
 
 			if (!canProceed) {
 				setMissingCredentialFields(missingFields);
 				setShowMissingCredentialsModal(true);
-				console.warn(`🚫 [${config.flowName}] Blocked navigation due to missing required credentials:`, { missingFields });
+				console.warn(
+					`🚫 [${config.flowName}] Blocked navigation due to missing required credentials:`,
+					{ missingFields }
+				);
 				onValidationFailure?.(missingFields);
 				return;
 			}
@@ -339,10 +357,13 @@ export const useV7CredentialValidation = ({
 	const isValidForStep = useCallback(() => {
 		if (currentStep !== config.stepIndex) return true;
 
-		const { canProceed } = CredentialGuardService.checkMissingFields(credentials, {
-			requiredFields: config.requiredFields,
-			fieldLabels: config.fieldLabels,
-		});
+		const { canProceed } = CredentialGuardService.checkMissingFields(
+			sanitizeCredentials(credentials),
+			{
+				requiredFields: config.requiredFields,
+				fieldLabels: config.fieldLabels,
+			}
+		);
 
 		return canProceed;
 	}, [credentials, currentStep, config]);
@@ -351,10 +372,13 @@ export const useV7CredentialValidation = ({
 	const validationMessage = useCallback(() => {
 		if (currentStep !== config.stepIndex) return '';
 
-		const { missingFields } = CredentialGuardService.checkMissingFields(credentials, {
-			requiredFields: config.requiredFields,
-			fieldLabels: config.fieldLabels,
-		});
+		const { missingFields } = CredentialGuardService.checkMissingFields(
+			sanitizeCredentials(credentials),
+			{
+				requiredFields: config.requiredFields,
+				fieldLabels: config.fieldLabels,
+			}
+		);
 
 		if (missingFields.length === 0) return '';
 		return `${missingFields.join(', ')} ${missingFields.length === 1 ? 'is' : 'are'} required`;
@@ -404,11 +428,11 @@ export const useV7CredentialValidation = ({
 // Utility function for quick validation without hook
 export const validateV7FlowCredentials = (
 	flowKey: string,
-	credentials: any,
+	credentials: V7CredentialInput,
 	customConfig?: Partial<V7FlowCredentialConfig>
 ): { isValid: boolean; missingFields: string[]; message: string } => {
 	const baseConfig = V7_FLOW_CONFIGS[flowKey];
-	
+
 	if (!baseConfig) {
 		return {
 			isValid: false,
@@ -416,18 +440,25 @@ export const validateV7FlowCredentials = (
 			message: 'Flow configuration not found',
 		};
 	}
-	
+
 	const config = { ...baseConfig, ...customConfig };
 
-	const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(credentials, {
-		requiredFields: config.requiredFields,
-		fieldLabels: config.fieldLabels,
-	});
+	const normalizedCredentials = sanitizeCredentials(credentials);
+
+	const { missingFields, canProceed } = CredentialGuardService.checkMissingFields(
+		normalizedCredentials,
+		{
+			requiredFields: config.requiredFields,
+			fieldLabels: config.fieldLabels,
+		}
+	);
 
 	return {
 		isValid: canProceed,
 		missingFields,
-		message: canProceed ? 'Credentials are valid' : `${missingFields.join(', ')} ${missingFields.length === 1 ? 'is' : 'are'} required`,
+		message: canProceed
+			? 'Credentials are valid'
+			: `${missingFields.join(', ')} ${missingFields.length === 1 ? 'is' : 'are'} required`,
 	};
 };
 

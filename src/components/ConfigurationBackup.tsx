@@ -5,14 +5,16 @@
  */
 
 import React, { useRef, useState } from 'react';
+import { FiAlertCircle, FiCheckCircle, FiDownload, FiFile, FiUpload } from 'react-icons/fi';
 import styled from 'styled-components';
-import { FiDownload, FiUpload, FiAlertCircle, FiCheckCircle, FiFile } from 'react-icons/fi';
-import configurationBackupService, { FlowConfiguration } from '../services/configurationBackupService';
+import configurationBackupService, {
+	FlowConfiguration,
+} from '../services/configurationBackupService';
 
 interface ConfigurationBackupProps {
 	flowType: string;
-	credentials: Record<string, any>;
-	onImport: (credentials: Record<string, any>) => void;
+	credentials: Record<string, unknown>;
+	onImport: (credentials: Record<string, unknown>) => void;
 	metadata?: {
 		appName?: string;
 		description?: string;
@@ -143,7 +145,10 @@ export const ConfigurationBackup: React.FC<ConfigurationBackupProps> = ({
 	metadata,
 }) => {
 	const fileInputRef = useRef<HTMLInputElement>(null);
-	const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info'; text: string } | null>(null);
+	const [message, setMessage] = useState<{
+		type: 'success' | 'error' | 'info';
+		text: string;
+	} | null>(null);
 	const [isImporting, setIsImporting] = useState(false);
 
 	const handleExport = () => {
@@ -225,8 +230,8 @@ export const ConfigurationBackup: React.FC<ConfigurationBackupProps> = ({
 			</Header>
 
 			<Description>
-				Export your configuration to a JSON file for backup, or import a previously saved configuration.
-				This includes all credentials and settings for this flow.
+				Export your configuration to a JSON file for backup, or import a previously saved
+				configuration. This includes all credentials and settings for this flow.
 			</Description>
 
 			<ButtonRow>

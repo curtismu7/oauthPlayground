@@ -1,7 +1,7 @@
 // src/services/flowStepDefinitions.ts
 /**
  * Flow Step Definitions Service
- * 
+ *
  * Central repository of step definitions for all OAuth/OIDC flows.
  * Used by FlowSequenceDisplay and error handling to show consistent step information.
  */
@@ -37,17 +37,40 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 	'authorization-code': [
 		{ number: 0, title: 'Setup', description: 'Configure credentials and application settings' },
 		{ number: 1, title: 'PKCE', description: 'Generate PKCE code verifier and challenge' },
-		{ number: 2, title: 'Authorization', description: 'Build authorization URL and redirect to PingOne' },
+		{
+			number: 2,
+			title: 'Authorization',
+			description: 'Build authorization URL and redirect to PingOne',
+		},
 		{ number: 3, title: 'Callback', description: 'Process authorization response and code' },
 		{ number: 4, title: 'Exchange', description: 'Exchange authorization code for tokens' },
-		{ number: 5, title: 'Introspect', description: 'Validate and inspect access token', optional: true },
-		{ number: 6, title: 'User Info', description: 'Fetch user information endpoint', optional: true },
-		{ number: 7, title: 'Refresh', description: 'Refresh access token using refresh token', optional: true },
+		{
+			number: 5,
+			title: 'Introspect',
+			description: 'Validate and inspect access token',
+			optional: true,
+		},
+		{
+			number: 6,
+			title: 'User Info',
+			description: 'Fetch user information endpoint',
+			optional: true,
+		},
+		{
+			number: 7,
+			title: 'Refresh',
+			description: 'Refresh access token using refresh token',
+			optional: true,
+		},
 	],
 
-	'implicit': [
+	implicit: [
 		{ number: 0, title: 'Setup', description: 'Configure credentials and application settings' },
-		{ number: 1, title: 'Authorization', description: 'Build authorization URL with token/id_token response' },
+		{
+			number: 1,
+			title: 'Authorization',
+			description: 'Build authorization URL with token/id_token response',
+		},
 		{ number: 2, title: 'Redirect', description: 'Redirect to PingOne for authentication' },
 		{ number: 3, title: 'Callback', description: 'Process tokens from URL fragment' },
 		{ number: 4, title: 'Validate', description: 'Validate tokens and decode JWT' },
@@ -55,12 +78,20 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 		{ number: 6, title: 'User Info', description: 'Fetch user information', optional: true },
 	],
 
-	'hybrid': [
+	hybrid: [
 		{ number: 0, title: 'Setup', description: 'Configure credentials and application settings' },
 		{ number: 1, title: 'PKCE', description: 'Generate PKCE parameters' },
-		{ number: 2, title: 'Authorization', description: 'Build authorization URL with hybrid response type' },
+		{
+			number: 2,
+			title: 'Authorization',
+			description: 'Build authorization URL with hybrid response type',
+		},
 		{ number: 3, title: 'Callback', description: 'Process authorization code and tokens' },
-		{ number: 4, title: 'Exchange', description: 'Exchange authorization code for additional tokens' },
+		{
+			number: 4,
+			title: 'Exchange',
+			description: 'Exchange authorization code for additional tokens',
+		},
 		{ number: 5, title: 'Validate', description: 'Validate all tokens' },
 		{ number: 6, title: 'User Info', description: 'Fetch user information', optional: true },
 	],
@@ -68,7 +99,11 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 	'device-authorization': [
 		{ number: 0, title: 'Setup', description: 'Configure credentials and device settings' },
 		{ number: 1, title: 'Device Code', description: 'Request device code and user code' },
-		{ number: 2, title: 'User Authorization', description: 'Display user code and poll for authorization' },
+		{
+			number: 2,
+			title: 'User Authorization',
+			description: 'Display user code and poll for authorization',
+		},
 		{ number: 3, title: 'Token Exchange', description: 'Exchange device code for tokens' },
 		{ number: 4, title: 'Validate', description: 'Validate tokens and decode JWT' },
 		{ number: 5, title: 'User Info', description: 'Fetch user information', optional: true },
@@ -76,7 +111,11 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 
 	'client-credentials': [
 		{ number: 0, title: 'Setup', description: 'Configure client credentials' },
-		{ number: 1, title: 'Token Request', description: 'Request access token with client credentials' },
+		{
+			number: 1,
+			title: 'Token Request',
+			description: 'Request access token with client credentials',
+		},
 		{ number: 2, title: 'Validate', description: 'Validate and decode access token' },
 		{ number: 3, title: 'Introspect', description: 'Introspect access token', optional: true },
 	],
@@ -103,7 +142,7 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 		{ number: 3, title: 'Validate', description: 'Validate and decode tokens' },
 	],
 
-	'par': [
+	par: [
 		{ number: 0, title: 'Setup', description: 'Configure credentials' },
 		{ number: 1, title: 'PKCE', description: 'Generate PKCE parameters' },
 		{ number: 2, title: 'PAR Request', description: 'Push authorization request to PingOne' },
@@ -113,17 +152,21 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 		{ number: 6, title: 'Validate', description: 'Validate tokens' },
 	],
 
-	'rar': [
+	rar: [
 		{ number: 0, title: 'Setup', description: 'Configure credentials' },
 		{ number: 1, title: 'PKCE', description: 'Generate PKCE parameters' },
-		{ number: 2, title: 'Authorization Details', description: 'Define authorization details (RAR)' },
+		{
+			number: 2,
+			title: 'Authorization Details',
+			description: 'Define authorization details (RAR)',
+		},
 		{ number: 3, title: 'Authorization', description: 'Request authorization with RAR' },
 		{ number: 4, title: 'Callback', description: 'Process authorization code' },
 		{ number: 5, title: 'Exchange', description: 'Exchange code for tokens' },
 		{ number: 6, title: 'Validate', description: 'Validate tokens and authorization details' },
 	],
 
-	'redirectless': [
+	redirectless: [
 		{ number: 0, title: 'Setup', description: 'Configure credentials' },
 		{ number: 1, title: 'Initialize', description: 'Initialize redirectless flow' },
 		{ number: 2, title: 'Authenticate', description: 'Authenticate without redirect' },
@@ -131,9 +174,13 @@ export const FLOW_STEP_DEFINITIONS: Record<FlowType, FlowStep[]> = {
 		{ number: 4, title: 'Validate', description: 'Validate tokens' },
 	],
 
-	'ciba': [
+	ciba: [
 		{ number: 0, title: 'Setup', description: 'Configure credentials' },
-		{ number: 1, title: 'Authentication Request', description: 'Initiate backchannel authentication' },
+		{
+			number: 1,
+			title: 'Authentication Request',
+			description: 'Initiate backchannel authentication',
+		},
 		{ number: 2, title: 'User Authorization', description: 'Wait for user authorization' },
 		{ number: 3, title: 'Token Request', description: 'Exchange auth_req_id for tokens' },
 		{ number: 4, title: 'Validate', description: 'Validate tokens' },
@@ -170,7 +217,7 @@ export function getFlowSteps(flowType: FlowType): FlowStep[] {
  */
 export function getFlowStep(flowType: FlowType, stepNumber: number): FlowStep | undefined {
 	const steps = getFlowSteps(flowType);
-	return steps.find(step => step.number === stepNumber);
+	return steps.find((step) => step.number === stepNumber);
 }
 
 /**
@@ -187,26 +234,26 @@ export function getFlowStepCount(flowType: FlowType): number {
 export function getFlowTypeFromKey(flowKey: string): FlowType {
 	// Remove version suffix
 	const baseKey = flowKey.replace(/-(v[0-9]+)$/, '');
-	
+
 	// Remove oauth/oidc prefix
 	const cleanKey = baseKey.replace(/^(oauth|oidc)-/, '');
-	
+
 	// Map to flow type
 	const typeMap: Record<string, FlowType> = {
 		'authorization-code': 'authorization-code',
-		'implicit': 'implicit',
-		'hybrid': 'hybrid',
+		implicit: 'implicit',
+		hybrid: 'hybrid',
 		'device-authorization': 'device-authorization',
 		'client-credentials': 'client-credentials',
 		'resource-owner-password': 'resource-owner-password',
 		'jwt-bearer-token': 'jwt-bearer',
 		'saml-bearer-assertion': 'saml-bearer',
-		'par': 'par',
-		'rar': 'rar',
-		'redirectless': 'redirectless',
-		'ciba': 'ciba',
+		par: 'par',
+		rar: 'rar',
+		redirectless: 'redirectless',
+		ciba: 'ciba',
 	};
-	
+
 	return typeMap[cleanKey] || 'authorization-code'; // Default fallback
 }
 
@@ -238,4 +285,3 @@ export default {
 	getFlowTypeFromKey,
 	getStepStatus,
 };
-
